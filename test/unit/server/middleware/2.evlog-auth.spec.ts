@@ -3,49 +3,46 @@
  * anonymous visitor's session is never read (reading it would mint one
  * and send them a cookie).
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import middleware from '~~/server/middleware/2.evlog-auth'
+import { callHandler, createTestEvent, loggerOf, testSession } from '~~/test/helpers/nitro'
 
-let hasSession = false
-const getUserSession = vi.fn()
-const loggerSet = vi.fn()
-vi.stubGlobal('defineEventHandler', (fn: unknown) => fn)
-vi.stubGlobal('requestHasSession', () => hasSession)
-vi.stubGlobal('getUserSession', getUserSession)
-vi.stubGlobal('useLogger', () => ({ set: loggerSet }))
+const SESSION_COOKIE = { cookie: 'nuxt-session=sealed' }
 
-const { default: handler } = await import('../../../../server/middleware/2.evlog-auth')
-const run = (path = '/') => (handler as unknown as (event: unknown) => Promise<void>)({ path })
+async function run(url: string, headers: Record<string, string> = {}) {
+  const event = createTestEvent({ url, headers })
+  await callHandler(middleware, event)
+  return loggerOf(event).fields
+}
 
-describe('2.evlog-auth middleware', () => {
-  beforeEach(() => {
-    hasSession = false
-    getUserSession.mockReset()
-    loggerSet.mockReset()
-  })
-
+describe('server/middleware/2.evlog-auth', () => {
   it('never reads the session of a visitor who has none', async () => {
-    await run()
-    expect(getUserSession).not.toHaveBeenCalled()
-    expect(loggerSet).not.toHaveBeenCalled()
+    testSession.set({ user: { id: 42 } })
+
+    expect(await run('/')).toEqual({})
   })
 
   it('records a signed-in visitor\'s user id', async () => {
-    hasSession = true
-    getUserSession.mockResolvedValue({ user: { id: 42 } })
-    await run()
-    expect(loggerSet).toHaveBeenCalledWith({ user: { id: 42 } })
+    testSession.set({ user: { id: 42, email: 'a@b.test' } })
+
+    expect(await run('/', SESSION_COOKIE)).toEqual({ user: { id: 42 } })
+  })
+
+  it('reads a session sent in the session header too', async () => {
+    testSession.set({ user: { id: 7 } })
+
+    expect(await run('/', { 'x-nuxt-session-session': 'sealed' })).toEqual({ user: { id: 7 } })
   })
 
   it('records nothing for a session without a user (a cart-only visitor)', async () => {
-    hasSession = true
-    getUserSession.mockResolvedValue({})
-    await run()
-    expect(loggerSet).not.toHaveBeenCalled()
+    testSession.set({ cartId: 3 })
+
+    expect(await run('/', SESSION_COOKIE)).toEqual({})
   })
 
-  it('skips build assets and images even with a session', async () => {
-    hasSession = true
-    for (const path of ['/_nuxt/app.js', '/_ipx/w_200/x.png', '/assets/x.css']) await run(path)
-    expect(getUserSession).not.toHaveBeenCalled()
+  it.each(['/_nuxt/app.js', '/_ipx/w_200/x.png', '/assets/x.css'])('skips %s even with a session', async (url) => {
+    testSession.set({ user: { id: 42 } })
+
+    expect(await run(url, SESSION_COOKIE)).toEqual({})
   })
 })

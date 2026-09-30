@@ -1,142 +1,91 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { useBackendFetch } from '~~/server/utils/backendFetch'
+import { backend, createTestEvent, setRuntimeConfig, withEvent } from '~~/test/helpers/nitro'
+import type { TestRequest } from '~~/test/helpers/nitro'
 
-// Mock Nuxt auto-imports and $fetch before importing the module under
-// test. The module reads useRuntimeConfig() at singleton-init time, so
-// stubs must be in place before the first useBackendFetch() call.
-const runtimeConfig = {
-  djangoUrl: 'http://backend-service:8000',
-  apiBaseUrl: 'http://backend-service:8000/api/v1',
-  public: {
-    djangoHostName: 'api.webside.gr',
-  },
-}
+const API = 'http://backend.test/api/v1'
 
-let capturedInterceptor: ((ctx: { request: any, options: any }) => void) | null = null
-
-const fetchCreate = vi.fn((opts: { onRequest: typeof capturedInterceptor }) => {
-  capturedInterceptor = opts.onRequest
-  return fetchCreate // returned handle is unused in these tests
-})
-
-const hostMock = vi.fn()
-const eventMock = vi.fn()
-const requestHeadersMock = vi.fn((): Record<string, string> => ({}))
-
-vi.stubGlobal('useRuntimeConfig', () => runtimeConfig)
-vi.stubGlobal('$fetch', { create: fetchCreate })
-vi.stubGlobal('getRequestHost', hostMock)
-vi.stubGlobal('useEvent', eventMock)
-vi.stubGlobal('getRequestHeaders', requestHeadersMock)
-vi.stubGlobal('getRequestHeader', (_event: unknown, name: string) => requestHeadersMock()[name])
-vi.stubGlobal('getRequestIP', () => undefined)
-
-const { useBackendFetch } = await import('../../../../server/utils/backendFetch')
-
-// Prime the module-level singleton ONCE so ``capturedInterceptor`` is set.
-// ``useBackendFetch`` caches its $fetch instance, so subsequent calls
-// will not re-run the interceptor registration.
-useBackendFetch()
-
-function runInterceptor(url: string) {
-  const options = { headers: undefined as any }
-  capturedInterceptor!({ request: url, options })
-  const headers = options.headers as Headers
-  return {
-    proto: headers.get('X-Forwarded-Proto'),
-    host: headers.get('X-Forwarded-Host'),
-    language: headers.get('X-Language'),
-    realIp: headers.get('X-Real-IP'),
-    originVerify: headers.get('X-Origin-Verify'),
-    userAgent: headers.get('User-Agent'),
-  }
+/** Call the backend through the named instance, inside a request (or none), and return what reached the wire. */
+async function send(input: string | URL | Request = `${API}/contact`, options: Record<string, unknown> = {}, req?: TestRequest) {
+  backend.reply({ ok: true })
+  const call = () => useBackendFetch()(input as string, options)
+  await (req ? withEvent(createTestEvent(req), call) : call())
+  return backend.lastRequest.headers
 }
 
 describe('useBackendFetch', () => {
-  beforeEach(() => {
-    hostMock.mockReset()
-    eventMock.mockReset()
-    requestHeadersMock.mockReset()
-    requestHeadersMock.mockReturnValue({})
+  it('resolves the tenant from the request host, never a spoofed X-Forwarded-Host', async () => {
+    const headers = await send(undefined, {}, { host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } })
+
+    expect(headers.get('x-forwarded-host')).toBe('webside.gr')
   })
 
-  it('forwards the visitor IP and the proof of edge, like createHeaders()', () => {
-    // Without these Django's `trusted_client_ip` returned None and every
-    // anonymous throttle on the contact, feedback and gift-card routes
-    // keyed on the Nuxt pod — one budget for the whole store.
-    eventMock.mockReturnValue({ context: { locale: 'el' } })
-    hostMock.mockReturnValue('demo.grooveshop.space')
-    requestHeadersMock.mockReturnValue({
-      'cf-connecting-ip': '203.0.113.42',
-      'x-origin-verify': 'edge-secret',
-      'user-agent': 'Mozilla/5.0',
+  it('always tells Django the request was https, so SECURE_SSL_REDIRECT does not 301 out of the cluster', async () => {
+    expect((await send(undefined, {}, {})).get('x-forwarded-proto')).toBe('https')
+  })
+
+  it('sends the page locale, or the default one', async () => {
+    expect((await send(undefined, {}, { context: { locale: 'en' } })).get('x-language')).toBe('en')
+    expect((await send(undefined, {}, {})).get('x-language')).toBe('el')
+  })
+
+  it('merges in who the visitor is (clientIdentityHeaders)', async () => {
+    const headers = await send(undefined, {}, { headers: { 'cf-connecting-ip': '203.0.113.9', 'x-origin-verify': 'edge-secret', 'user-agent': 'UA/1' } })
+
+    expect(headers.get('x-real-ip')).toBe('203.0.113.9')
+    expect(headers.get('x-origin-verify')).toBe('edge-secret')
+    expect(headers.get('user-agent')).toBe('UA/1')
+  })
+
+  it('relays the request correlation id', async () => {
+    expect((await send(undefined, {}, { headers: { 'x-correlation-id': 'req-42' } })).get('x-correlation-id')).toBe('req-42')
+  })
+
+  it('never overwrites a header the caller set', async () => {
+    const headers = await send(undefined, {
+      headers: {
+        'X-Forwarded-Proto': 'http',
+        'X-Forwarded-Host': 'explicit.test',
+        'X-Language': 'de',
+        'X-Correlation-ID': 'caller',
+        'X-Real-IP': '198.51.100.1',
+      },
+    }, { headers: { 'x-correlation-id': 'req-42', 'cf-connecting-ip': '203.0.113.9' }, context: { locale: 'en' } })
+
+    expect(Object.fromEntries(['x-forwarded-proto', 'x-forwarded-host', 'x-language', 'x-correlation-id', 'x-real-ip'].map(name => [name, headers.get(name)]))).toEqual({
+      'x-forwarded-proto': 'http',
+      'x-forwarded-host': 'explicit.test',
+      'x-language': 'de',
+      'x-correlation-id': 'caller',
+      'x-real-ip': '198.51.100.1',
     })
-
-    const { realIp, originVerify, userAgent } = runInterceptor('http://backend-service:8000/api/v1/contact')
-
-    expect(realIp).toBe('203.0.113.42')
-    expect(originVerify).toBe('edge-secret')
-    expect(userAgent).toBe('Mozilla/5.0')
   })
 
-  it('sends no identity headers outside a request', () => {
-    eventMock.mockImplementation(() => {
-      throw new Error('no request context')
-    })
+  it('outside a request, names the platform Django host and sends no visitor identity', async () => {
+    const headers = await send()
 
-    const { realIp, originVerify } = runInterceptor('http://backend-service:8000/api/v1/product')
-
-    expect(realIp).toBeNull()
-    expect(originVerify).toBeNull()
+    expect(headers.get('x-forwarded-host')).toBe('platform.test')
+    expect(headers.get('x-language')).toBe('el')
+    expect(headers.has('x-real-ip')).toBe(false)
   })
 
-  it('forwards the actual request host as X-Forwarded-Host', () => {
-    eventMock.mockReturnValueOnce({ context: { locale: 'el' } })
-    hostMock.mockReturnValueOnce('tenant-b.com')
-
-    const { host } = runInterceptor('http://backend-service:8000/api/v1/product')
-
-    // This is the whole point of the multi-tenant fix: each request
-    // carries its own tenant host, not the build-time djangoHostName.
-    expect(host).toBe('tenant-b.com')
+  it.each([
+    ['a URL object', () => new URL(`${API}/contact`)],
+    ['a Request', () => new Request(`${API}/contact`)],
+  ])('recognises an internal origin given as %s', async (_label, input) => {
+    expect((await send(input(), {}, { host: 'webside.gr' })).get('x-forwarded-host')).toBe('webside.gr')
   })
 
-  it('falls back to djangoHostName when there is no active request', () => {
-    eventMock.mockImplementationOnce(() => {
-      throw new Error('no request context')
-    })
+  it('leaves a request to any other origin untouched', async () => {
+    const headers = await send('https://api.stripe.test/v1/charges', {}, { host: 'webside.gr', headers: { 'cf-connecting-ip': '203.0.113.9' } })
 
-    const { host } = runInterceptor('http://backend-service:8000/api/v1/product')
-
-    expect(host).toBe('api.webside.gr')
+    expect([...headers.keys()]).toEqual([])
   })
 
-  it('always sets X-Forwarded-Proto: https on internal origins', () => {
-    eventMock.mockReturnValueOnce({ context: { locale: 'el' } })
-    hostMock.mockReturnValueOnce('webside.gr')
+  it('reads the internal origins per request, not once at first use', async () => {
+    await send()
+    setRuntimeConfig({ apiBaseUrl: 'http://moved.test/api/v1', djangoUrl: 'http://moved.test' })
 
-    const { proto } = runInterceptor('http://backend-service:8000/api/v1/product')
-
-    expect(proto).toBe('https')
-  })
-
-  it('forwards event locale as X-Language', () => {
-    eventMock.mockReturnValueOnce({ context: { locale: 'de' } })
-    hostMock.mockReturnValueOnce('webside.gr')
-
-    const { language } = runInterceptor('http://backend-service:8000/api/v1/product')
-
-    expect(language).toBe('de')
-  })
-
-  it('skips header injection for non-internal URLs', () => {
-    // An external URL (Stripe, Cloudflare, etc.) is out of scope for
-    // the tenant-forwarding headers — the interceptor returns early.
-    eventMock.mockReturnValueOnce({ context: { locale: 'el' } })
-    hostMock.mockReturnValueOnce('webside.gr')
-
-    const options: { headers: any } = { headers: undefined }
-    capturedInterceptor!({ request: 'https://api.stripe.com/v1/charges', options })
-
-    expect(options.headers).toBeUndefined()
+    expect((await send('http://moved.test/api/v1/contact', {}, { host: 'webside.gr' })).get('x-forwarded-host')).toBe('webside.gr')
   })
 })

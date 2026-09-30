@@ -1,242 +1,184 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { clearTenantCache, getTenantConfig, isPlatformTenantConfig } from '~~/server/utils/tenant'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { backend, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
 
-// Stub Nuxt auto-imports before importing the module under test.
-const runtimeConfig: Record<string, unknown> = {
-  apiBaseUrl: 'http://backend/api/v1',
-}
-vi.stubGlobal('useRuntimeConfig', () => runtimeConfig)
+/**
+ * `getTenantConfig` runs on every request (server/middleware/0.tenant.ts),
+ * so the resolve payload goes through the REAL `zTenantConfig` here: a
+ * fixture that stopped matching the schema would read as "Store not
+ * found" in production and must fail this spec first.
+ */
+const WEBSIDE = validTenantConfig('webside.gr', { schemaName: 'webside' })
 
-const fetchMock = vi.fn()
-vi.stubGlobal('$fetch', fetchMock)
-
-// parseDataAs — default pass-through; some tests override per-call via the mock.
-// In unit test node env (no Nitro auto-import transforms running), tenant.ts
-// reads parseDataAs from globalThis. vi.stubGlobal installs it there.
-const parseDataAsMock = vi.fn(async (data: unknown) => data)
-vi.stubGlobal('parseDataAs', parseDataAsMock)
-
-// zTenantConfig is passed as the schema arg to parseDataAs in tenant.ts.
-// Stub it so the reference resolves (our parseDataAs mock ignores the schema).
-vi.stubGlobal('zTenantConfig', { _isZodSchema: true })
-
-// log is auto-imported on server — provide a no-op stub.
-vi.stubGlobal('log', { info: vi.fn(), warn: vi.fn(), error: vi.fn() })
-
-// Minimal valid TenantConfig fixture used across tests
-const VALID_TENANT: Record<string, unknown> = {
-  schemaName: 'webside',
-  name: 'Webside',
-  storeName: 'Webside Store',
-  storeDescription: 'A test store',
-  logoLightUrl: 'https://example.com/logo-light.png',
-  logoDarkUrl: 'https://example.com/logo-dark.png',
-  faviconUrl: 'https://example.com/favicon.png',
-  primaryColor: 'neutral',
-  neutralColor: 'zinc',
-  accentHex: '#003DFF',
-  successHex: '#22c55e',
-  warningHex: '#f59e0b',
-  errorHex: '#ef4444',
-  infoHex: '#3b82f6',
-  themePreset: 'default',
-  themeMetadata: null,
-  defaultLocale: 'el',
-  defaultCurrency: 'EUR',
-  primaryDomain: 'webside.gr',
-  loyaltyEnabled: false,
-  blogEnabled: true,
-  plan: 'trial',
+/** Answer every resolve with `status` until `failures` requests have failed, then with `body`. */
+function failThen(failures: number, status: number, body: unknown) {
+  let seen = 0
+  backend.reply(() => (seen++ < failures ? jsonResponse({ detail: 'x' }, status) : body))
 }
 
-const TENANT_B_CONFIG = { ...VALID_TENANT, schemaName: 'tenant_b', storeName: 'Tenant B Store', primaryDomain: 'tenant-b.com' }
+beforeEach(() => {
+  clearTenantCache()
+})
 
-const { getTenantConfig, clearTenantCache, isPlatformTenantConfig } = await import(
-  '../../../../server/utils/tenant'
-)
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 describe('getTenantConfig', () => {
-  beforeEach(() => {
-    clearTenantCache()
-    fetchMock.mockReset()
-    parseDataAsMock.mockReset()
-    parseDataAsMock.mockImplementation(async (data: unknown) => data)
-    vi.mocked(log.warn).mockReset()
-  })
-
-  it('strips port from the host before resolving', async () => {
-    fetchMock.mockResolvedValueOnce(VALID_TENANT)
+  it('resolves the host through Django, port stripped, and returns the validated config', async () => {
+    backend.reply(WEBSIDE)
 
     const result = await getTenantConfig('webside.gr:3000')
 
-    expect(result.type).toBe('ok')
-    expect(result.config).toMatchObject({ schemaName: 'webside' })
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://backend/api/v1/tenant/resolve',
-      { query: { domain: 'webside.gr' } },
-    )
+    expect(result).toEqual({ type: 'ok', config: expect.objectContaining({ schemaName: 'webside', primaryDomain: 'webside.gr' }) })
+    expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/tenant/resolve')
+    expect(backend.lastRequest.query).toEqual({ domain: 'webside.gr' })
   })
 
-  it('caches the response for repeated lookups of the same domain', async () => {
-    fetchMock.mockResolvedValueOnce(VALID_TENANT)
+  it('asks Django once per domain while the entry is fresh, and separately per domain', async () => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
 
     await getTenantConfig('webside.gr')
+    await getTenantConfig('webside.gr:443')
+    const other = await getTenantConfig('tenant-b.test')
+
+    expect(backend.requests.map(request => request.query.domain)).toEqual(['webside.gr', 'tenant-b.test'])
+    expect(other.config?.primaryDomain).toBe('tenant-b.test')
+    expect(log.warn).not.toHaveBeenCalled()
+  })
+
+  it('asks again once the 5-minute entry has expired', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    backend.reply(WEBSIDE)
+
     await getTenantConfig('webside.gr')
+    vi.advanceTimersByTime(5 * 60 * 1000 - 1)
     await getTenantConfig('webside.gr')
+    expect(backend.requests).toHaveLength(1)
 
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    vi.advanceTimersByTime(1)
+    await getTenantConfig('webside.gr')
+    expect(backend.requests).toHaveLength(2)
   })
 
-  it('differentiates cache entries per domain', async () => {
-    fetchMock.mockResolvedValueOnce(VALID_TENANT)
-    fetchMock.mockResolvedValueOnce(TENANT_B_CONFIG)
+  it('evicts the oldest entry once 1000 domains are cached', async () => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+    for (let i = 0; i < 1000; i++) await getTenantConfig(`store-${i}.test`)
 
-    const a = await getTenantConfig('webside.gr')
-    const b = await getTenantConfig('tenant-b.com')
+    await getTenantConfig('store-1000.test')
+    await getTenantConfig('store-1.test')
+    await getTenantConfig('store-0.test')
 
-    expect(a.type).toBe('ok')
-    expect(a.config).toMatchObject({ schemaName: 'webside' })
-    expect(b.type).toBe('ok')
-    expect(b.config).toMatchObject({ schemaName: 'tenant_b' })
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    // 1 was still cached; 0 was the oldest and made room for 1000.
+    expect(backend.requests.slice(1000).map(request => request.query.domain)).toEqual(['store-1000.test', 'store-0.test'])
   })
 
-  it('returns not_found when the backend returns a 404', async () => {
-    const err = Object.assign(new Error('Not Found'), { status: 404 })
-    fetchMock.mockRejectedValueOnce(err)
+  it('refuses an unknown host as not_found, warning once with the host', async () => {
+    // Django answers this from the public schema, so its own log has no
+    // Host — this warning is the only place the host is recorded.
+    backend.reply(jsonResponse({ detail: 'Not found.' }, 404))
 
-    const result = await getTenantConfig('nowhere.example')
+    const result = await getTenantConfig('not-a-store.test:3000')
 
-    expect(result.type).toBe('not_found')
-    expect(result.config).toBeNull()
+    expect(result).toEqual({ type: 'not_found', config: null })
+    expect(log.warn).toHaveBeenCalledTimes(1)
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ tag: 'tenant', domain: 'not-a-store.test' }))
+    expect(log.error).not.toHaveBeenCalled()
   })
 
-  it('returns error_5xx when the backend returns a 500', async () => {
-    const err = Object.assign(new Error('Internal Server Error'), { status: 500 })
-    fetchMock.mockRejectedValueOnce(err)
+  it('does not cache a refusal, so a newly provisioned store resolves on the next request', async () => {
+    failThen(1, 404, validTenantConfig('brand-new.test'))
 
-    const result = await getTenantConfig('webside.gr')
+    expect((await getTenantConfig('brand-new.test')).type).toBe('not_found')
+    const second = await getTenantConfig('brand-new.test')
 
-    expect(result.type).toBe('error_5xx')
-    expect(result.config).toBeNull()
+    expect(second.config?.primaryDomain).toBe('brand-new.test')
+    expect(backend.requests).toHaveLength(2)
   })
 
-  it('returns error_5xx when the backend returns a 503', async () => {
-    const err = Object.assign(new Error('Service Unavailable'), { status: 503 })
-    fetchMock.mockRejectedValueOnce(err)
-
-    const result = await getTenantConfig('webside.gr')
-
-    expect(result.type).toBe('error_5xx')
-    expect(result.config).toBeNull()
-  })
-
-  // A connect timeout / ECONNREFUSED / DNS failure carries NO `status`.
-  // These used to fall through to `not_found`, so the middleware answered
-  // a hard 404 "Store not found" and the shop looked deleted for the
-  // duration of a blip. Observed in production 2026-08-21: reloading
-  // /account/settings surfaced an error toast because /api/regions 404'd
-  // this way while Django was healthy seconds later.
-  it.each([
-    ['connection refused', Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' })],
-    ['request timeout', Object.assign(new Error('The operation was aborted'), { name: 'AbortError' })],
-    ['dns failure', Object.assign(new Error('getaddrinfo ENOTFOUND'), { code: 'ENOTFOUND' })],
-    ['bare error, no status', new Error('socket hang up')],
-  ])('treats a network-level failure (%s) as transient, not a missing store', async (_label, err) => {
-    fetchMock.mockRejectedValueOnce(err)
-
-    const result = await getTenantConfig('webside.gr')
-
-    expect(result.type).toBe('error_5xx')
-    expect(result.config).toBeNull()
-  })
-
-  it('does not cache network-level failures (next request retries)', async () => {
-    const netErr = Object.assign(new Error('connect ETIMEDOUT'), { code: 'ETIMEDOUT' })
-    fetchMock.mockRejectedValueOnce(netErr)
-
-    const first = await getTenantConfig('webside.gr')
-    expect(first.type).toBe('error_5xx')
-
-    fetchMock.mockResolvedValueOnce(VALID_TENANT)
-    const second = await getTenantConfig('webside.gr')
-    expect(second.type).toBe('ok')
-  })
-
-  it('does not cache 5xx responses (next request retries)', async () => {
-    const serverErr = Object.assign(new Error('Internal Server Error'), { status: 500 })
-    fetchMock.mockRejectedValueOnce(serverErr)
-    fetchMock.mockResolvedValueOnce(VALID_TENANT)
+  it.each([500, 503])('reports a %i as transient (error_5xx), with the status, and does not cache it', async (status) => {
+    // ofetch retries a GET once on a 5xx, so the first lookup spends two requests.
+    failThen(2, status, WEBSIDE)
 
     const first = await getTenantConfig('webside.gr')
     const second = await getTenantConfig('webside.gr')
 
-    expect(first.type).toBe('error_5xx')
-    expect(second.type).toBe('ok')
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(first).toEqual({ type: 'error_5xx', config: null })
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ domain: 'webside.gr', status }))
+    expect(second.config?.primaryDomain).toBe('webside.gr')
+    expect(backend.requests).toHaveLength(3)
   })
 
-  it('does not cache not_found responses (domain may be provisioned later)', async () => {
-    const notFoundErr = Object.assign(new Error('Not Found'), { status: 404 })
-    fetchMock.mockRejectedValueOnce(notFoundErr)
-    fetchMock.mockResolvedValueOnce(TENANT_B_CONFIG)
+  it('reports a network-level failure (no HTTP status) as transient, not as a missing store', async () => {
+    // A connect timeout used to fall through to not_found, so the shop
+    // looked deleted for the duration of a Django restart (2026-08-21).
+    backend.reply(() => {
+      throw new TypeError('fetch failed')
+    })
 
-    const first = await getTenantConfig('tenant-b.com')
-    const second = await getTenantConfig('tenant-b.com')
+    const result = await getTenantConfig('webside.gr')
 
-    expect(first.type).toBe('not_found')
-    expect(second.type).toBe('ok')
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(result).toEqual({ type: 'error_5xx', config: null })
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ status: 'network-error' }))
   })
 
-  it('treats malformed response (parseDataAs failure) as not_found and warns', async () => {
-    fetchMock.mockResolvedValueOnce({ invalid: 'payload' })
-    parseDataAsMock.mockRejectedValueOnce(new Error('Zod parse failed'))
+  it('treats a payload that fails zTenantConfig as not_found, uncached, and warns', async () => {
+    const { schemaName: _dropped, ...incomplete } = WEBSIDE
+    failThen(0, 200, incomplete)
 
-    const result = await getTenantConfig('bad-payload.example')
-
-    expect(result.type).toBe('not_found')
-    expect(log.warn).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tag: 'tenant',
-        message: expect.stringContaining('Zod validation'),
-      }),
-    )
-  })
-
-  it('clearTenantCache removes a specific host', async () => {
-    fetchMock.mockResolvedValueOnce(VALID_TENANT)
+    const result = await getTenantConfig('webside.gr')
     await getTenantConfig('webside.gr')
 
-    clearTenantCache('webside.gr')
+    expect(result).toEqual({ type: 'not_found', config: null })
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ tag: 'tenant', message: expect.stringContaining('Zod validation') }))
+    expect(backend.requests).toHaveLength(2)
+  })
 
-    const updated = { ...VALID_TENANT, storeName: 'Webside v2' }
-    fetchMock.mockResolvedValueOnce(updated)
-    const refreshed = await getTenantConfig('webside.gr')
+  it('clearTenantCache(host) drops only that host, port-insensitively', async () => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
 
-    expect(refreshed.type).toBe('ok')
-    expect(refreshed.config).toMatchObject({ storeName: 'Webside v2' })
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    clearTenantCache('webside.gr:3000')
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
+
+    expect(backend.requests.map(request => request.query.domain)).toEqual(['webside.gr', 'tenant-b.test', 'webside.gr'])
+  })
+
+  it('clearTenantCache() drops every host', async () => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
+
+    clearTenantCache()
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
+
+    expect(backend.requests).toHaveLength(4)
   })
 })
 
 describe('isPlatformTenantConfig', () => {
   it('is true only for the tenant carrying the isPlatformStorefront row flag', () => {
-    expect(isPlatformTenantConfig({ primaryDomain: 'store-one.example', isPlatformStorefront: true })).toBe(true)
-    expect(isPlatformTenantConfig({ primaryDomain: 'store-two.example', isPlatformStorefront: false })).toBe(false)
+    expect(isPlatformTenantConfig({ primaryDomain: 'store-one.test', isPlatformStorefront: true })).toBe(true)
+    expect(isPlatformTenantConfig({ primaryDomain: 'store-two.test', isPlatformStorefront: false })).toBe(false)
   })
 
-  it('fails CLOSED when the payload predates the flag — no store is the platform by default', () => {
-    expect(isPlatformTenantConfig({ primaryDomain: 'store-one.example' })).toBe(false)
+  it('fails CLOSED when the payload predates the flag: no store is the platform by default', () => {
+    expect(isPlatformTenantConfig({ primaryDomain: 'store-one.test' })).toBe(false)
   })
 
-  it('counts an absent tenant / unset primaryDomain as platform (probes, prerender)', () => {
+  it('counts an absent tenant or unset primaryDomain as platform (probes, prerender)', () => {
     expect(isPlatformTenantConfig(undefined)).toBe(true)
     expect(isPlatformTenantConfig(null)).toBe(true)
     expect(isPlatformTenantConfig({ primaryDomain: '' })).toBe(true)
   })
 
   it('never compares hostnames against runtime config', () => {
-    runtimeConfig.public = { baseUrl: 'https://store-one.example' }
-    expect(isPlatformTenantConfig({ primaryDomain: 'store-one.example' })).toBe(false)
+    setRuntimeConfig({ public: { baseUrl: 'https://store-one.test' } })
+
+    expect(isPlatformTenantConfig({ primaryDomain: 'store-one.test' })).toBe(false)
   })
 })

@@ -1,406 +1,178 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getCartSession, updateCartSession, getCartHeaders, handleCartResponse, useCartSession } from '../../../../server/utils/cartSession'
+import { parseCookies } from 'h3'
+import type { H3Event } from 'h3'
+import { describe, expect, it } from 'vitest'
+import {
+  clearCartSession,
+  getCartHeaders,
+  getCartSession,
+  handleCartResponse,
+  updateCartSession,
+  useCartSession,
+} from '~~/server/utils/cartSession'
+import { createTestEvent, testSession } from '~~/test/helpers/nitro'
+import type { TestRequest } from '~~/test/helpers/nitro'
 
-// Mock H3 event — h3's getCookie/setCookie helpers read from
-// event.node.req.headers.cookie and mutate event.node.res via getHeader/
-// setHeader, so mocks must provide enough of that shape for the fallback
-// cart-id cookie path introduced alongside the encrypted session.
-const createMockEvent = (sessionData: any = {}, accessToken?: string) => {
-  const resHeaders: Record<string, string | string[]> = {}
-  return {
-    context: {},
-    node: {
-      req: {
-        headers: {} as Record<string, string | string[] | undefined>,
-      },
-      res: {
-        getHeader: (name: string) => resHeaders[name.toLowerCase()],
-        setHeader: (name: string, value: string | string[]) => {
-          resHeaders[name.toLowerCase()] = value
-        },
-        removeHeader: (name: string) => {
-          delete resHeaders[name.toLowerCase()]
-        },
-        headersSent: false,
-      },
-    },
-    _sessionData: sessionData,
-    _accessToken: accessToken,
-    _resHeaders: resHeaders,
-  } as any
+/**
+ * The cart id lives in h3's REAL sealed session cookie (`nuxt-session`,
+ * sealed with the test session password) plus a plain `cart-id` spare.
+ * A "next request" is a new event carrying the cookies the previous
+ * response set, as a browser would send them.
+ */
+const CART_A = '11111111-1111-4111-8111-111111111111'
+const CART_B = '22222222-2222-4222-8222-222222222222'
+
+function setCookies(event: H3Event): string[] {
+  const header = event.node.res.getHeader('set-cookie')
+  return header === undefined ? [] : ([] as string[]).concat(header as string | string[])
 }
 
-// Mock session
-const createMockSession = (data: any = {}) => {
-  return {
-    data,
-    update: vi.fn(async (newData: any) => {
-      Object.assign(data, newData)
-    }),
+function setCookie(event: H3Event, name: string): string | undefined {
+  return setCookies(event).filter(cookie => cookie.startsWith(`${name}=`)).at(-1)
+}
+
+/** The `Cookie` header a browser sends after receiving `event`'s response: what it sent, updated by what it got. */
+function cookieHeaderAfter(event: H3Event, keep: string[] = ['nuxt-session', 'cart-id']): string {
+  const jar = new Map(Object.entries(parseCookies(event)).filter(([name]) => keep.includes(name)))
+  for (const cookie of setCookies(event)) {
+    const [pair] = cookie.split(';')
+    const [name, value] = pair!.split('=')
+    if (!keep.includes(name!)) continue
+    if (/max-age=0/i.test(cookie) || value === '') jar.delete(name!)
+    else jar.set(name!, value!)
   }
+  return [...jar].map(([name, value]) => `${name}=${value}`).join('; ')
 }
 
-// Stable RFC 4122 UUIDs for assertions. Cart identifiers became UUIDs
-// in M18 (MULTI_TENANT_AUDIT.md) — integer cart_id was enumerable.
-const CART_UUID_A = '11111111-1111-4111-8111-111111111111'
-const CART_UUID_B = '22222222-2222-4222-8222-222222222222'
-const CART_UUID_C = '33333333-3333-4333-8333-333333333333'
+function nextRequest(previous: H3Event, keep?: string[], req: TestRequest = {}): H3Event {
+  return createTestEvent({ ...req, headers: { cookie: cookieHeaderAfter(previous, keep), ...req.headers } })
+}
 
-describe('Server Utils - Cart Session', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
+/** A visitor whose session already holds `cartId`. */
+async function visitorWithCart(cartId: string, req: TestRequest = {}): Promise<H3Event> {
+  const first = createTestEvent()
+  await updateCartSession(first, { cartId })
+  return nextRequest(first, undefined, req)
+}
 
-    // Mock useRuntimeConfig
-    vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
-      session: {
-        password: 'test-password',
-      },
-      public: { djangoHostName: '' },
-    }))
-
-    // getRequestProtocol is used by getCartHeaders() to set X-Forwarded-Proto
-    vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue('https'))
-    // getRequestHost is used by getCartHeaders() as fallback for X-Forwarded-Host
-    vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('localhost'))
+describe('cart session', () => {
+  it('has no cart for a new visitor', async () => {
+    await expect(getCartSession(createTestEvent())).resolves.not.toHaveProperty('cartId')
   })
 
-  describe('getCartSession', () => {
-    it('should return empty session data for new session', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
+  it('keeps the cart id in the sealed session across requests', async () => {
+    const first = createTestEvent()
+    await updateCartSession(first, { cartId: CART_A })
 
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      const result = await getCartSession(event)
-
-      expect(result).toEqual({})
-    })
-
-    it('should return existing cart session data', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      const result = await getCartSession(event)
-
-      expect(result).toEqual({ cartId: CART_UUID_A })
-    })
-
-    it('should handle session with multiple properties', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({
-        cartId: CART_UUID_A,
-        customData: 'test',
-      })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      const result = await getCartSession(event)
-
-      expect(result.cartId).toBe(CART_UUID_A)
-      expect((result as any).customData).toBe('test')
-    })
+    expect(setCookie(first, 'nuxt-session')).not.toContain(CART_A)
+    expect((await getCartSession(nextRequest(first, ['nuxt-session']))).cartId).toBe(CART_A)
   })
 
-  describe('updateCartSession', () => {
-    it('should update cart session with new cart ID', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
+  it('writes the plain cart-id spare cookie alongside it, readable by the page for 30 days', async () => {
+    const event = createTestEvent()
 
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
+    await updateCartSession(event, { cartId: CART_A })
 
-      await updateCartSession(event, { cartId: CART_UUID_B })
+    const spare = setCookie(event, 'cart-id')!
+    expect(spare.split(';')[0]).toBe(`cart-id=${CART_A}`)
+    expect(spare).toMatch(/Max-Age=2592000(;|$)/)
+    expect(spare).toMatch(/Path=\//)
+    expect(spare).toMatch(/SameSite=Lax/)
+    expect(spare).not.toMatch(/HttpOnly/)
+  })
 
-      expect(mockSession.update).toHaveBeenCalledWith({ cartId: CART_UUID_B })
+  it('recovers the cart from the spare cookie when the session cookie is lost, and re-attaches it', async () => {
+    const first = createTestEvent()
+    await updateCartSession(first, { cartId: CART_A })
+    const withoutSession = nextRequest(first, ['cart-id'])
+
+    expect((await getCartSession(withoutSession)).cartId).toBe(CART_A)
+
+    // The session carries it again, so the spare is no longer needed.
+    const sessionOnly = nextRequest(withoutSession, ['nuxt-session'])
+    expect((await getCartSession(sessionOnly)).cartId).toBe(CART_A)
+  })
+
+  it('ignores a spare cookie that is not a UUID', async () => {
+    const event = createTestEvent({ headers: { cookie: 'cart-id=1%20OR%201=1' } })
+
+    await expect(getCartSession(event)).resolves.not.toHaveProperty('cartId')
+  })
+
+  // Only the spare is asserted: the sealed session keeps its cartId after
+  // clearing (h3's `session.update` merges, so omitting the key removes
+  // nothing) — reported as a product bug, not pinned here.
+  it('clearing the cart deletes the spare cookie', async () => {
+    const withCart = await visitorWithCart(CART_A)
+
+    await clearCartSession(withCart)
+
+    expect(setCookie(withCart, 'cart-id')).toMatch(/^cart-id=;.*Max-Age=0/)
+  })
+
+  describe('handleCartResponse', () => {
+    it('adopts the cart uuid the backend answered with', async () => {
+      const withCart = await visitorWithCart(CART_A)
+
+      await handleCartResponse(withCart, { uuid: CART_B, items: [] })
+
+      expect((await getCartSession(nextRequest(withCart))).cartId).toBe(CART_B)
     })
 
-    it('should merge updates with existing session data', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A, existingData: 'keep' })
+    it.each([
+      ['no uuid', { id: 1 }],
+      ['a malformed uuid', { uuid: 'not-a-uuid' }],
+      ['an empty uuid', { uuid: '' }],
+      ['a non-object', 'ok'],
+      ['null', null],
+    ])('keeps the current cart for a response with %s', async (_label, response) => {
+      const withCart = await visitorWithCart(CART_A)
 
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
+      await handleCartResponse(withCart, response)
 
-      await updateCartSession(event, { cartId: CART_UUID_B })
-
-      expect(mockSession.update).toHaveBeenCalledWith({
-        cartId: CART_UUID_B,
-        existingData: 'keep',
-      })
-    })
-
-    it('should handle partial updates', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      await updateCartSession(event, { customField: 'value' } as any)
-
-      expect(mockSession.update).toHaveBeenCalledWith({
-        cartId: CART_UUID_A,
-        customField: 'value',
-      })
-    })
-
-    it('should handle empty updates', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      await updateCartSession(event, {})
-
-      expect(mockSession.update).toHaveBeenCalledWith({ cartId: CART_UUID_A })
+      expect((await getCartSession(nextRequest(withCart))).cartId).toBe(CART_A)
     })
   })
 
   describe('getCartHeaders', () => {
-    it('should return only proxy headers for new session', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
+    it('addresses the tenant of the request, never a spoofed X-Forwarded-Host, in the page locale', async () => {
+      const headers = await getCartHeaders(createTestEvent({
+        host: 'webside.gr',
+        headers: { 'x-forwarded-host': 'evil.example', 'x-forwarded-proto': 'https' },
+        context: { locale: 'en' },
+      }))
 
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn().mockResolvedValue(null))
-
-      const headers = await getCartHeaders(event)
-
-      expect(headers).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost', 'X-Language': 'el' })
+      expect(headers).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'webside.gr', 'X-Language': 'en' })
     })
 
-    it('should include cart ID header when cart exists', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
+    it('sends the session cart and the signed-in user token', async () => {
+      testSession.set({ secure: { accessToken: 'knox-1' } })
+      const withCart = await visitorWithCart(CART_A)
 
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn().mockResolvedValue(null))
+      const headers = await getCartHeaders(withCart)
 
-      const headers = await getCartHeaders(event)
-
-      expect(headers['X-Cart-Id']).toBe(CART_UUID_A)
+      expect(headers['X-Cart-Id']).toBe(CART_A)
+      expect(headers['Authorization']).toBe('Bearer knox-1')
+      expect(headers['X-Language']).toBe('el')
     })
 
-    it('should include authorization header when user is authenticated', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
+    it('addresses an explicit cart instead of the session one when asked (the /cart/claim probe)', async () => {
+      const withCart = await visitorWithCart(CART_A)
 
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn().mockResolvedValue('test-token'))
-
-      const headers = await getCartHeaders(event)
-
-      expect(headers['Authorization']).toBe('Bearer test-token')
-    })
-
-    it('should include both cart ID and authorization headers', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn().mockResolvedValue('test-token'))
-
-      const headers = await getCartHeaders(event)
-
-      expect(headers['X-Cart-Id']).toBe(CART_UUID_A)
-      expect(headers['Authorization']).toBe('Bearer test-token')
-    })
-
-    it('should forward the cart UUID as a string header', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_C })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn().mockResolvedValue(null))
-
-      const headers = await getCartHeaders(event)
-
-      expect(headers['X-Cart-Id']).toBe(CART_UUID_C)
-      expect(typeof headers['X-Cart-Id']).toBe('string')
+      expect((await getCartHeaders(withCart, CART_B))['X-Cart-Id']).toBe(CART_B)
+      // The probe does not write the override into the session.
+      expect((await getCartSession(nextRequest(withCart))).cartId).toBe(CART_A)
     })
   })
 
-  describe('handleCartResponse', () => {
-    it('should update session with cart UUID from response', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
-      const response = { uuid: CART_UUID_A, items: [] }
+  it('useCartSession binds the same operations to one event', async () => {
+    const event = createTestEvent()
+    const cart = useCartSession(event)
 
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
+    await cart.handleCartResponse({ uuid: CART_A })
+    expect((await cart.getSession()).cartId).toBe(CART_A)
+    expect((await cart.getCartHeaders())['X-Cart-Id']).toBe(CART_A)
 
-      await handleCartResponse(event, response)
-
-      expect(mockSession.update).toHaveBeenCalledWith({ cartId: CART_UUID_A })
-    })
-
-    it('should not update session if response has no UUID', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
-      const response = { items: [] }
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      await handleCartResponse(event, response)
-
-      expect(mockSession.update).not.toHaveBeenCalled()
-    })
-
-    it('should not update session for malformed UUID values', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
-      const response = { uuid: 'not-a-uuid', items: [] }
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      await handleCartResponse(event, response)
-
-      expect(mockSession.update).not.toHaveBeenCalled()
-    })
-
-    it('should not update session for an empty UUID', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
-      const response = { uuid: '', items: [] }
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      await handleCartResponse(event, response)
-
-      // An empty UUID means "no cart yet" and also fails the UUID format
-      // check, so it won't update.
-      expect(mockSession.update).not.toHaveBeenCalled()
-    })
-
-    it('should update session with new cart UUID', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-      const response = { uuid: CART_UUID_B, items: [] }
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      await handleCartResponse(event, response)
-
-      expect(mockSession.update).toHaveBeenCalledWith({
-        cartId: CART_UUID_B,
-      })
-    })
-  })
-
-  describe('useCartSession', () => {
-    it('should return cart session utilities', () => {
-      const event = createMockEvent()
-      const utils = useCartSession(event)
-
-      expect(utils).toHaveProperty('getSession')
-      expect(utils).toHaveProperty('updateSession')
-      expect(utils).toHaveProperty('getCartHeaders')
-      expect(utils).toHaveProperty('handleCartResponse')
-      expect(typeof utils.getSession).toBe('function')
-      expect(typeof utils.updateSession).toBe('function')
-      expect(typeof utils.getCartHeaders).toBe('function')
-      expect(typeof utils.handleCartResponse).toBe('function')
-    })
-
-    it('should call getCartSession when getSession is called', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      const utils = useCartSession(event)
-      const result = await utils.getSession()
-
-      expect(result).toEqual({ cartId: CART_UUID_A })
-    })
-
-    it('should call updateCartSession when updateSession is called', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      const utils = useCartSession(event)
-      await utils.updateSession({ cartId: CART_UUID_B })
-
-      expect(mockSession.update).toHaveBeenCalled()
-    })
-
-    it('should call getCartHeaders when getCartHeaders is called', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn().mockResolvedValue('token'))
-
-      const utils = useCartSession(event)
-      const headers = await utils.getCartHeaders()
-
-      expect(headers['X-Cart-Id']).toBe(CART_UUID_A)
-      expect(headers['Authorization']).toBe('Bearer token')
-    })
-
-    it('should call handleCartResponse when handleCartResponse is called', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
-      const response = { uuid: CART_UUID_A }
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-
-      const utils = useCartSession(event)
-      await utils.handleCartResponse(response)
-
-      expect(mockSession.update).toHaveBeenCalledWith({ cartId: CART_UUID_A })
-    })
-  })
-
-  describe('Integration Scenarios', () => {
-    it('should handle complete cart creation flow', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({})
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn().mockResolvedValue(null))
-
-      // 1. Get initial session (empty)
-      const initialSession = await getCartSession(event)
-      expect(initialSession).toEqual({})
-
-      // 2. Get headers (no cart ID yet, only proxy header)
-      const initialHeaders = await getCartHeaders(event)
-      expect(initialHeaders).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost', 'X-Language': 'el' })
-
-      // 3. Handle cart response (creates cart)
-      await handleCartResponse(event, { uuid: CART_UUID_A, items: [] })
-
-      // 4. Get updated session
-      const updatedSession = await getCartSession(event)
-      expect(updatedSession.cartId).toBe(CART_UUID_A)
-
-      // 5. Get headers with cart UUID
-      const updatedHeaders = await getCartHeaders(event)
-      expect(updatedHeaders['X-Cart-Id']).toBe(CART_UUID_A)
-    })
-
-    it('should handle cart merge on login', async () => {
-      const event = createMockEvent()
-      const mockSession = createMockSession({ cartId: CART_UUID_A })
-
-      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
-      vi.stubGlobal('getAllAuthAccessToken', vi.fn()
-        .mockResolvedValueOnce(null) // Before login
-        .mockResolvedValueOnce('new-token')) // After login
-
-      // 1. Guest cart exists
-      const guestHeaders = await getCartHeaders(event)
-      expect(guestHeaders['X-Cart-Id']).toBe(CART_UUID_A)
-      expect(guestHeaders['Authorization']).toBeUndefined()
-
-      // 2. User logs in, cart merges
-      await handleCartResponse(event, { uuid: CART_UUID_B, items: [] })
-
-      // 3. New cart UUID with auth token
-      const authHeaders = await getCartHeaders(event)
-      expect(authHeaders['X-Cart-Id']).toBe(CART_UUID_B)
-      expect(authHeaders['Authorization']).toBe('Bearer new-token')
-    })
+    await cart.clearSession()
+    expect(setCookie(event, 'cart-id')).toMatch(/Max-Age=0/)
   })
 })

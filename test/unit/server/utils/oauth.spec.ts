@@ -1,322 +1,113 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { H3Event } from 'h3'
+import { describe, expect, it } from 'vitest'
 import {
   captureOAuthProcess,
-  readAndClearOAuthProcess,
-  storeOAuthTokensAndRedirect,
-  redirectOAuthError,
   OAUTH_PROCESS_COOKIE,
-} from '../../../../server/utils/oauth'
+  readAndClearOAuthProcess,
+  redirectOAuthError,
+  storeOAuthTokensAndRedirect,
+} from '~~/server/utils/oauth'
+import { createTestEvent, testSession } from '~~/test/helpers/nitro'
 
-describe('Server Utils - OAuth', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
+function processCookie(event: H3Event): string | undefined {
+  const header = event.node.res.getHeader('set-cookie')
+  return ([] as string[]).concat((header ?? []) as string[]).find(cookie => cookie.startsWith(`${OAUTH_PROCESS_COOKIE}=`))
+}
+
+function redirectOf(event: H3Event) {
+  return { status: event.node.res.statusCode, location: new URL(String(event.node.res.getHeader('location')), 'https://shop.test') }
+}
+
+const withProcessCookie = (value: string) => createTestEvent({ headers: { cookie: `${OAUTH_PROCESS_COOKIE}=${value}` } })
+
+describe('captureOAuthProcess', () => {
+  it.each([
+    [{ process: 'connect' }, 'connect'],
+    [{ process: 'login' }, 'login'],
+    [{}, 'login'],
+    [{ process: 'signup-as-admin' }, 'login'],
+  ])('remembers %j as "%s" for five minutes, httpOnly', (query, stored) => {
+    const event = createTestEvent()
+
+    captureOAuthProcess(event, query)
+
+    const cookie = processCookie(event)!
+    expect(cookie.split(';')[0]).toBe(`${OAUTH_PROCESS_COOKIE}=${stored}`)
+    expect(cookie).toMatch(/Max-Age=300(;|$)/)
+    expect(cookie).toMatch(/HttpOnly/)
+    expect(cookie).toMatch(/SameSite=Lax/)
   })
 
-  describe('captureOAuthProcess', () => {
-    it('should set cookie with specified process when no code or error', () => {
-      const mockEvent = {} as any
-      const mockSetCookie = vi.fn()
-      vi.stubGlobal('setCookie', mockSetCookie)
+  it.each([
+    ['the provider callback (code)', { code: 'auth-code' }],
+    ['a provider error', { error: 'access_denied' }],
+  ])('leaves the cookie alone on %s', (_label, query) => {
+    const event = createTestEvent()
 
-      captureOAuthProcess(mockEvent, { process: 'connect' })
+    captureOAuthProcess(event, { ...query, process: 'connect' })
 
-      expect(mockSetCookie).toHaveBeenCalledWith(
-        mockEvent,
-        OAUTH_PROCESS_COOKIE,
-        'connect',
-        expect.objectContaining({ httpOnly: true, sameSite: 'lax', path: '/' }),
-      )
-    })
+    expect(processCookie(event)).toBeUndefined()
+  })
+})
 
-    it('should default process to "login" when not in query', () => {
-      const mockEvent = {} as any
-      const mockSetCookie = vi.fn()
-      vi.stubGlobal('setCookie', mockSetCookie)
+describe('readAndClearOAuthProcess', () => {
+  it.each(['login', 'connect'])('returns the remembered "%s" and deletes the cookie', (value) => {
+    const event = withProcessCookie(value)
 
-      captureOAuthProcess(mockEvent, {})
-
-      expect(mockSetCookie).toHaveBeenCalledWith(
-        mockEvent,
-        OAUTH_PROCESS_COOKIE,
-        'login',
-        expect.any(Object),
-      )
-    })
-
-    it('should not set cookie when code param is present (OAuth callback)', () => {
-      const mockEvent = {} as any
-      const mockSetCookie = vi.fn()
-      vi.stubGlobal('setCookie', mockSetCookie)
-
-      captureOAuthProcess(mockEvent, { code: 'auth_code_from_provider' })
-
-      expect(mockSetCookie).not.toHaveBeenCalled()
-    })
-
-    it('should not set cookie when error param is present (OAuth error)', () => {
-      const mockEvent = {} as any
-      const mockSetCookie = vi.fn()
-      vi.stubGlobal('setCookie', mockSetCookie)
-
-      captureOAuthProcess(mockEvent, { error: 'access_denied' })
-
-      expect(mockSetCookie).not.toHaveBeenCalled()
-    })
-
-    it('should not set cookie when both code and error are present', () => {
-      const mockEvent = {} as any
-      const mockSetCookie = vi.fn()
-      vi.stubGlobal('setCookie', mockSetCookie)
-
-      captureOAuthProcess(mockEvent, { code: 'abc', error: 'something' })
-
-      expect(mockSetCookie).not.toHaveBeenCalled()
-    })
+    expect(readAndClearOAuthProcess(event)).toBe(value)
+    expect(processCookie(event)).toMatch(/Max-Age=0/)
   })
 
-  describe('readAndClearOAuthProcess', () => {
-    it('should return "login" as default when cookie is absent', () => {
-      const mockEvent = {} as any
-      vi.stubGlobal('getCookie', vi.fn().mockReturnValue(undefined))
-      vi.stubGlobal('deleteCookie', vi.fn())
+  it('answers "login" when nothing was remembered', () => {
+    expect(readAndClearOAuthProcess(createTestEvent())).toBe('login')
+  })
+})
 
-      const result = readAndClearOAuthProcess(mockEvent)
+describe('storeOAuthTokensAndRedirect', () => {
+  it('stores the provider tokens in the encrypted session and redirects to the callback page', async () => {
+    const event = createTestEvent()
 
-      expect(result).toBe('login')
+    await storeOAuthTokensAndRedirect(event, 'google', { access_token: 'acc', id_token: 'id' }, 'client-1', 'login')
+
+    expect(testSession.data).toEqual({
+      secure: { oauthParams: { provider: 'google', access_token: 'acc', id_token: 'id', client_id: 'client-1', process: 'login' } },
     })
-
-    it('should return "connect" when cookie is set to connect', () => {
-      const mockEvent = {} as any
-      vi.stubGlobal('getCookie', vi.fn().mockReturnValue('connect'))
-      vi.stubGlobal('deleteCookie', vi.fn())
-
-      const result = readAndClearOAuthProcess(mockEvent)
-
-      expect(result).toBe('connect')
-    })
-
-    it('should always delete the cookie after reading', () => {
-      const mockEvent = {} as any
-      const mockDeleteCookie = vi.fn()
-      vi.stubGlobal('getCookie', vi.fn().mockReturnValue('login'))
-      vi.stubGlobal('deleteCookie', mockDeleteCookie)
-
-      readAndClearOAuthProcess(mockEvent)
-
-      expect(mockDeleteCookie).toHaveBeenCalledWith(mockEvent, OAUTH_PROCESS_COOKIE)
-    })
-
-    it('should delete cookie even when not set', () => {
-      const mockEvent = {} as any
-      const mockDeleteCookie = vi.fn()
-      vi.stubGlobal('getCookie', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('deleteCookie', mockDeleteCookie)
-
-      readAndClearOAuthProcess(mockEvent)
-
-      expect(mockDeleteCookie).toHaveBeenCalledWith(mockEvent, OAUTH_PROCESS_COOKIE)
-    })
+    const { status, location } = redirectOf(event)
+    expect(status).toBe(302)
+    expect(location.pathname).toBe('/account/provider/callback')
+    expect(Object.fromEntries(location.searchParams)).toEqual({ provider: 'google', process: 'login' })
+    // Tokens never travel in the URL.
+    expect(location.search).not.toContain('acc')
   })
 
-  describe('storeOAuthTokensAndRedirect', () => {
-    it('should store all oauth params in session', async () => {
-      const mockEvent = {} as any
-      const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
-      const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
-      // getUserSession is called first to read the current session before merging
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
-      vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
-      vi.stubGlobal('sendRedirect', mockSendRedirect)
+  it('drops null tokens and a missing client id instead of storing them', async () => {
+    await storeOAuthTokensAndRedirect(createTestEvent(), 'facebook', { access_token: 'acc', id_token: null }, undefined, 'connect')
 
-      await storeOAuthTokensAndRedirect(
-        mockEvent,
-        'google',
-        { access_token: 'acc123', id_token: 'id123' },
-        'client123',
-        'login',
-      )
-
-      expect(mockReplaceUserSession).toHaveBeenCalledWith(mockEvent, {
-        secure: {
-          oauthParams: {
-            provider: 'google',
-            access_token: 'acc123',
-            id_token: 'id123',
-            client_id: 'client123',
-            process: 'login',
-          },
-        },
-      })
-    })
-
-    it('should redirect to /account/provider/callback with provider and process', async () => {
-      const mockEvent = {} as any
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
-      vi.stubGlobal('replaceUserSession', vi.fn().mockResolvedValue(undefined))
-      const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('sendRedirect', mockSendRedirect)
-
-      await storeOAuthTokensAndRedirect(
-        mockEvent,
-        'google',
-        { access_token: 'acc123', id_token: 'id123' },
-        'client123',
-        'login',
-      )
-
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('/account/provider/callback'),
-      )
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('provider=google'),
-      )
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('process=login'),
-      )
-    })
-
-    it('should handle null/undefined optional tokens gracefully', async () => {
-      const mockEvent = {} as any
-      const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
-      vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
-      vi.stubGlobal('sendRedirect', vi.fn().mockResolvedValue(undefined))
-
-      await storeOAuthTokensAndRedirect(
-        mockEvent,
-        'facebook',
-        { access_token: 'acc123', id_token: null },
-        undefined,
-        'connect',
-      )
-
-      expect(mockReplaceUserSession).toHaveBeenCalledWith(mockEvent, {
-        secure: {
-          oauthParams: {
-            provider: 'facebook',
-            access_token: 'acc123',
-            id_token: undefined,
-            client_id: undefined,
-            process: 'connect',
-          },
-        },
-      })
-    })
-
-    it('should use connect process in redirect URL', async () => {
-      const mockEvent = {} as any
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
-      vi.stubGlobal('replaceUserSession', vi.fn().mockResolvedValue(undefined))
-      const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('sendRedirect', mockSendRedirect)
-
-      await storeOAuthTokensAndRedirect(
-        mockEvent,
-        'github',
-        {},
-        'cid',
-        'connect',
-      )
-
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('process=connect'),
-      )
-    })
-
-    it('preserves existing session tokens for connect flow (authenticated user adding provider)', async () => {
-      // Regression test for the Wave 1 misdiagnosis: the original implementation
-      // called replaceUserSession({}) which wiped sessionToken + accessToken for
-      // users doing process=connect. The fix merges the current session first.
-      const mockEvent = {} as any
-      const existingSession = {
-        user: { email: 'user@example.com', id: 1 },
-        secure: {
-          sessionToken: 'existing-session-token',
-          accessToken: 'existing-access-token',
-        },
-      }
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue(existingSession))
-      const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
-      vi.stubGlobal('sendRedirect', vi.fn().mockResolvedValue(undefined))
-
-      await storeOAuthTokensAndRedirect(
-        mockEvent,
-        'google',
-        { access_token: 'new-acc', id_token: null },
-        'google-client',
-        'connect',
-      )
-
-      // The call must spread the existing session AND preserve existing secure fields
-      const [, sessionArg] = mockReplaceUserSession.mock.calls[0]
-
-      // Existing user payload preserved
-      expect(sessionArg.user).toEqual(existingSession.user)
-
-      // Existing secure tokens preserved alongside the new oauthParams
-      expect(sessionArg.secure?.sessionToken).toBe('existing-session-token')
-      expect(sessionArg.secure?.accessToken).toBe('existing-access-token')
-
-      // New oauthParams written
-      expect(sessionArg.secure?.oauthParams).toMatchObject({
-        provider: 'google',
-        access_token: 'new-acc',
-        process: 'connect',
-      })
-    })
+    expect(testSession.data.secure.oauthParams).toEqual({ provider: 'facebook', access_token: 'acc', process: 'connect' })
   })
 
-  describe('redirectOAuthError', () => {
-    it('should delete the process cookie', async () => {
-      const mockEvent = {} as any
-      const mockDeleteCookie = vi.fn()
-      vi.stubGlobal('deleteCookie', mockDeleteCookie)
-      vi.stubGlobal('sendRedirect', vi.fn().mockResolvedValue(undefined))
+  it('keeps a signed-in user\'s session for a connect flow (a bare replace forced a re-login)', async () => {
+    testSession.set({ user: { id: 7 }, secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 
-      await redirectOAuthError(mockEvent, 'google')
+    await storeOAuthTokensAndRedirect(createTestEvent(), 'google', { access_token: 'acc' }, 'client-1', 'connect')
 
-      expect(mockDeleteCookie).toHaveBeenCalledWith(mockEvent, OAUTH_PROCESS_COOKIE)
+    expect(testSession.data).toMatchObject({
+      user: { id: 7 },
+      secure: { sessionToken: 'session-1', accessToken: 'knox-1', oauthParams: { provider: 'google', process: 'connect' } },
     })
+  })
+})
 
-    it('should redirect to /account/provider/callback with error=oauth_error', async () => {
-      const mockEvent = {} as any
-      vi.stubGlobal('deleteCookie', vi.fn())
-      const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('sendRedirect', mockSendRedirect)
+describe('redirectOAuthError', () => {
+  it.each(['google', 'facebook'])('forgets the process and sends the %s user to the callback page with the error', async (provider) => {
+    const event = withProcessCookie('connect')
 
-      await redirectOAuthError(mockEvent, 'google')
+    await redirectOAuthError(event, provider)
 
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('/account/provider/callback'),
-      )
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('error=oauth_error'),
-      )
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('provider=google'),
-      )
-    })
-
-    it('should include the correct provider in redirect for different providers', async () => {
-      const mockEvent = {} as any
-      vi.stubGlobal('deleteCookie', vi.fn())
-      const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('sendRedirect', mockSendRedirect)
-
-      await redirectOAuthError(mockEvent, 'facebook')
-
-      expect(mockSendRedirect).toHaveBeenCalledWith(
-        mockEvent,
-        expect.stringContaining('provider=facebook'),
-      )
-    })
+    expect(processCookie(event)).toMatch(/Max-Age=0/)
+    const { status, location } = redirectOf(event)
+    expect(status).toBe(302)
+    expect(location.pathname).toBe('/account/provider/callback')
+    expect(Object.fromEntries(location.searchParams)).toEqual({ provider, error: 'oauth_error' })
   })
 })

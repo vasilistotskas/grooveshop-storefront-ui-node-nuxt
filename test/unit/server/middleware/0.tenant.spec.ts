@@ -1,160 +1,122 @@
+import { describe, expect, it } from 'vitest'
+import middleware from '~~/server/middleware/0.tenant'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { backend, callHandler, createTestEvent, jsonResponse, loggerOf } from '~~/test/helpers/nitro'
+import type { TestRequest } from '~~/test/helpers/nitro'
+
 /**
- * Unit tests for server/middleware/0.tenant.ts
- *
- * Tests bypass paths, 5xx → 503 propagation, 404 → 404 propagation,
- * and tenant context assignment.
+ * The tenant lookup is real (`server/utils/tenant.ts`): the backend's
+ * resolve endpoint is what answers, so the payload goes through the real
+ * `zTenantConfig` and the `domain` sent is what the middleware chose.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+const tenant = validTenantConfig('shop.test', { schemaName: 'shop', name: 'Shop' })
 
-// ---- Stubs required before the module under test is imported ----
-
-// createError is auto-imported from h3
-vi.stubGlobal('createError', (opts: Record<string, unknown>) => {
-  const err = new Error(String(opts.statusMessage ?? 'Error')) as Error & { statusCode?: number, statusMessage?: string }
-  err.statusCode = opts.statusCode as number
-  err.statusMessage = opts.statusMessage as string
-  return err
-})
-
-// getRequestHeader used to detect prerender and the internal .md negotiation marker
-const requestHeaders: Record<string, string | undefined> = {}
-vi.stubGlobal('getRequestHeader', vi.fn((_event: unknown, name: string) => requestHeaders[name]))
-
-// getRequestHost used for tenant resolution
-const hostMock = vi.fn().mockReturnValue('webside.gr')
-vi.stubGlobal('getRequestHost', hostMock)
-
-// getTenantConfig — module under test calls this
-const getTenantConfigMock = vi.fn()
-vi.stubGlobal('getTenantConfig', getTenantConfigMock)
-
-// defineEventHandler — execute the handler directly
-vi.stubGlobal('defineEventHandler', (fn: (event: unknown) => unknown) => fn)
-
-// useLogger — the wide event of the request (evlog)
-const loggerSet = vi.fn()
-vi.stubGlobal('useLogger', () => ({ set: loggerSet }))
-
-// ---- Import module under test ----
-const module = await import('../../../../server/middleware/0.tenant')
-const handler = (module.default ?? module) as unknown as (event: unknown) => Promise<void>
-
-// ---- Helpers ----
-function makeEvent(path: string): { path: string, context: Record<string, unknown> } {
-  return { path, context: {} }
+function run(req: TestRequest) {
+  const event = createTestEvent(req)
+  return { event, result: callHandler(middleware, event) }
 }
 
-describe('0.tenant middleware', () => {
-  beforeEach(() => {
-    getTenantConfigMock.mockReset()
-    hostMock.mockReturnValue('webside.gr')
-    delete requestHeaders['x-nitro-prerender']
-    delete requestHeaders['x-md-negotiation-internal']
+describe('server/middleware/0.tenant', () => {
+  it.each([
+    '/_nuxt/builds/meta/XXX.json',
+    '/_ipx/w_200/logo.png',
+    '/assets/main.css',
+    '/api/health',
+    '/api/health/live',
+    '/api/__sitemap__/urls',
+    '/platform-favicon/favicon-32x32.png',
+    '/favicon/apple-touch-icon.png',
+    '/api/_alive',
+    '/health',
+    '/favicon.ico',
+    '/favicon.png',
+    '/logo.svg',
+    '/robots.txt',
+    '/manifest.webmanifest',
+    '/openapi',
+    '/_health',
+    '/llms.txt',
+    '/llms-full.txt',
+    // Django's cache purge arrives with no tenant Host; resolving it
+    // 404'd before the route's own token check and silently killed SSR
+    // cache invalidation in production.
+    '/api/admin/cache/purge',
+  ])('serves %s without resolving a tenant', async (url) => {
+    const { event, result } = run({ url, host: 'pod-10-0-0-1' })
+
+    await expect(result).resolves.toBeUndefined()
+    expect(backend.requests).toEqual([])
+    expect(event.context.tenant).toBeUndefined()
   })
 
-  // --- Bypass paths: prefix-based ---
-  describe.each([
-    ['/_nuxt/builds/meta/XXX.json', '/_nuxt chunk (HMR asset)'],
-    ['/_ipx/w_200/logo.png', '/_ipx image processing'],
-    ['/assets/main.css', '/assets static file'],
-    ['/api/health', 'k8s liveness probe path'],
-    ['/api/health/live', 'nested k8s health probe'],
-  ])('prefix bypass: %s (%s)', (path) => {
-    it('returns early without calling getTenantConfig', async () => {
-      const event = makeEvent(path)
-      const result = await handler(event)
-      expect(result).toBeUndefined()
-      expect(getTenantConfigMock).not.toHaveBeenCalled()
-      expect(event.context.tenant).toBeUndefined()
-    })
-  })
+  it('resolves the tenant from the Host header, never X-Forwarded-Host', async () => {
+    backend.reply(tenant)
+    const { event, result } = run({ url: '/products', headers: { 'x-forwarded-host': 'evil.example' } })
 
-  // --- Bypass paths: exact ---
-  describe.each([
-    ['/api/_alive', 'frontend deployment liveness probe'],
-    ['/health', 'root health endpoint'],
-    ['/favicon.ico', 'favicon.ico'],
-    ['/favicon.png', 'favicon.png'],
-    ['/logo.svg', 'logo svg'],
-    ['/robots.txt', 'robots.txt'],
-    ['/manifest.webmanifest', 'PWA manifest'],
-    ['/openapi', 'OpenAPI endpoint'],
-    ['/_health', 'Nitro health convention'],
-  ])('exact bypass: %s (%s)', (path) => {
-    it('returns early without calling getTenantConfig', async () => {
-      const event = makeEvent(path)
-      const result = await handler(event)
-      expect(result).toBeUndefined()
-      expect(getTenantConfigMock).not.toHaveBeenCalled()
-    })
-  })
+    await result
 
-  // --- Prerender bypass is build-time only, never client-driven ---
-  it('still resolves the tenant when a client sends x-nitro-prerender', async () => {
-    // The bypass is gated on import.meta.prerender, which is replaced at
-    // build time and false in every deployed server. It used to be gated
-    // on this header — which any visitor can send, making the middleware
-    // skip resolution and leaving event.context.tenant undefined, so a
-    // tenant's own domain rendered platform content and read
-    // platform-schema data. Reproduced on staging before the fix.
-    requestHeaders['x-nitro-prerender'] = '1'
-    getTenantConfigMock.mockResolvedValue({
-      type: 'ok',
-      config: { schemaName: 'webside' },
-    })
-    const event = makeEvent('/products')
-    await handler(event)
-    expect(getTenantConfigMock).toHaveBeenCalled()
-    expect(event.context.tenant).toEqual({ schemaName: 'webside' })
-  })
-
-  // --- Suffix bypass: .md mirrors (nuxt-ai-ready) ---
-  it('bypasses tenant resolution for a genuine external .md hit', async () => {
-    const event = { ...makeEvent('/products/1/slug.md'), method: 'GET' }
-    const result = await handler(event)
-    expect(result).toBeUndefined()
-    expect(getTenantConfigMock).not.toHaveBeenCalled()
-  })
-
-  it('does NOT bypass a .md path carrying the internal negotiation marker — resolves tenant normally', async () => {
-    requestHeaders['x-md-negotiation-internal'] = '1'
-    const tenant = { schemaName: 'webside', storeName: 'Webside' }
-    getTenantConfigMock.mockResolvedValueOnce({ type: 'ok', config: tenant })
-
-    const event = { ...makeEvent('/products/1/slug.md'), method: 'GET' }
-    await handler(event)
-
-    expect(getTenantConfigMock).toHaveBeenCalledWith('webside.gr')
-    expect(event.context.tenant).toBe(tenant)
-  })
-
-  // --- Successful resolution ---
-  it('sets event.context.tenant on successful resolution', async () => {
-    const tenant = { schemaName: 'webside', storeName: 'Webside' }
-    getTenantConfigMock.mockResolvedValueOnce({ type: 'ok', config: tenant })
-    const event = makeEvent('/')
-    await handler(event)
-    expect(event.context.tenant).toBe(tenant)
+    expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/tenant/resolve')
+    expect(backend.lastRequest.query).toEqual({ domain: 'shop.test' })
+    expect(event.context.tenant).toEqual(tenant)
   })
 
   it('puts the store on the request wide event', async () => {
-    loggerSet.mockClear()
-    getTenantConfigMock.mockResolvedValueOnce({ type: 'ok', config: { schemaName: 'webside', name: 'Webside' } })
-    await handler(makeEvent('/'))
-    expect(loggerSet).toHaveBeenCalledWith({ tenantSchema: 'webside', tenantName: 'Webside' })
+    backend.reply(tenant)
+    const { event, result } = run({ url: '/' })
+
+    await result
+
+    expect(loggerOf(event).fields).toEqual({ tenantSchema: 'shop', tenantName: 'Shop' })
   })
 
-  // --- 404 (unknown domain) ---
-  it('throws 404 when tenant is not found', async () => {
-    getTenantConfigMock.mockResolvedValueOnce({ type: 'not_found', config: null })
-    const event = makeEvent('/')
-    await expect(handler(event)).rejects.toMatchObject({ statusCode: 404 })
+  it('still resolves the tenant when a client sends x-nitro-prerender', async () => {
+    // The prerender bypass is `import.meta.prerender`, fixed at build
+    // time. It used to be this header, which any visitor can send to
+    // render a tenant's domain with no tenant bound.
+    backend.reply(tenant)
+    const { event, result } = run({ url: '/products', headers: { 'x-nitro-prerender': '1' } })
+
+    await result
+
+    expect(event.context.tenant).toEqual(tenant)
   })
 
-  // --- 5xx (backend down) → 503 ---
-  it('throws 503 (not 404) when backend returns a 5xx error', async () => {
-    getTenantConfigMock.mockResolvedValueOnce({ type: 'error_5xx', config: null })
-    const event = makeEvent('/')
-    await expect(handler(event)).rejects.toMatchObject({ statusCode: 503 })
+  it('bypasses a genuine external GET of a .md mirror', async () => {
+    const { event, result } = run({ url: '/products/1/slug.md' })
+
+    await result
+
+    expect(backend.requests).toEqual([])
+    expect(event.context.tenant).toBeUndefined()
+  })
+
+  it('resolves the tenant for the internal .md negotiation re-fetch', async () => {
+    backend.reply(tenant)
+    const { event, result } = run({ url: '/products/1/slug.md', headers: { 'x-md-negotiation-internal': '1' } })
+
+    await result
+
+    expect(event.context.tenant).toEqual(tenant)
+  })
+
+  it('resolves the tenant for a non-GET request to a .md path', async () => {
+    backend.reply(tenant)
+    const { event, result } = run({ url: '/products/1/slug.md', method: 'POST' })
+
+    await result
+
+    expect(event.context.tenant).toEqual(tenant)
+  })
+
+  it('answers 404 "Store not found" for a host no store owns', async () => {
+    backend.reply(jsonResponse({ detail: 'Not found.' }, 404))
+
+    await expect(run({ url: '/' }).result).rejects.toMatchObject({ statusCode: 404, statusMessage: 'Store not found' })
+  })
+
+  it('answers 503, not 404, when the backend fails transiently', async () => {
+    backend.reply(jsonResponse({ detail: 'down' }, 502))
+
+    await expect(run({ url: '/' }).result).rejects.toMatchObject({ statusCode: 503 })
   })
 })

@@ -10,69 +10,147 @@ import { defineVitestProject } from '@nuxt/test-utils/config'
 // specifier because Nuxt's generated tsconfig sets
 // `allowImportingTsExtensions` with `moduleResolution: Bundler`.
 import { DEFAULT_LOCALE } from './i18n/locales.ts'
+import * as h3 from 'h3'
+import Unimport from 'unimport/unplugin'
+import { NITRO_SHIM_IMPORTS } from './test/helpers/nitro/imports.ts'
+
+const path = (relative: string) => fileURLToPath(new URL(relative, import.meta.url))
+
+/**
+ * Nuxt's own source aliases, for the projects that do not boot Nuxt.
+ * The `nuxt` project gets them from the generated Nuxt config.
+ */
+const alias = {
+  '~': path('./app'),
+  '@': path('./app'),
+  '~~': path('.'),
+  '@@': path('.'),
+  '#shared': path('./shared'),
+}
+
+/**
+ * Every test starts from a clean slate: call history AND implementations
+ * are reset (`vi.fn(impl)` goes back to `impl`, not to an empty function),
+ * spies are restored, and `vi.stubGlobal` / `vi.stubEnv` are undone.
+ *
+ * Inline projects inherit nothing from the root `test` block unless they
+ * set `extends: true`, so this is spread into each project explicitly.
+ * A test that needs state from an earlier test is order-dependent and
+ * wrong; a stub a whole file needs belongs in `beforeEach`.
+ */
+const isolation = {
+  mockReset: true,
+  restoreMocks: true,
+  unstubGlobals: true,
+  unstubEnvs: true,
+}
+
+/**
+ * The `unit` project resolves auto-imports the way the Nitro build does,
+ * so `server/**` runs its REAL dependencies — h3, `server/utils/**`,
+ * `shared/**` — and a spec mocks only the boundaries it crosses. The
+ * presets mirror nitropack's and Nuxt's nitro presets
+ * (`nitropack/dist/core/index.mjs` `resolveImportsOptions`,
+ * `@nuxt/nitro-server/dist/index.mjs`): h3's exports filtered exactly as
+ * nitropack does, plus Nuxt's `H3Event`/`H3Error`, the `utils/` scan of
+ * the server dir, and `nitro.imports.dirs` from nuxt.config.ts. Nitro's own runtime and the module helpers cannot load
+ * outside a build and resolve to `test/helpers/nitro/runtime.ts`.
+ *
+ * `app/utils/**` gets the app side's equivalent for the part a unit test
+ * can honour: the `shared/**` scan (`imports.dirs`) and Nuxt's default
+ * `utils/` scan. (A `shared/**` file gets the Nitro presets even when app
+ * code imports it, so a shared file misusing an h3 helper is not caught
+ * here.) Vue and Nuxt composables are not
+ * provided — code needing them belongs in the `nuxt` project.
+ *
+ * Test files are never transformed: they import what they use, as the
+ * Nuxt testing docs advise.
+ */
+const glob = (pattern: string) => path(`./${pattern}`).replaceAll('\\', '/')
+const sourceGlob = (dir: string) => glob(`${dir}/**/*.ts`)
+const notDeclarations = ['**/*.d.ts', '**/node_modules/**']
+const sharedDirs = [sourceGlob('shared')]
+
+const nitroAutoImports = Unimport.vite({
+  include: [sourceGlob('server'), sourceGlob('shared')],
+  exclude: notDeclarations,
+  presets: [
+    // nitropack: `h3Exports.filter((n) => !/^[A-Z]/.test(n) && n !== "use")`
+    { from: 'h3', imports: Object.keys(h3).filter(name => !/^[A-Z]/.test(name) && name !== 'use') },
+    // Nuxt's own nitro preset (@nuxt/nitro-server dist/index.mjs) adds the
+    // two capitalised values nitropack's filter drops.
+    { from: 'h3', imports: ['H3Event', 'H3Error'] },
+    { from: glob('test/helpers/nitro/runtime.ts'), imports: [...NITRO_SHIM_IMPORTS] },
+  ],
+  dirs: [sourceGlob('server/utils'), ...sharedDirs],
+})
+
+const appUtilsAutoImports = Unimport.vite({
+  include: [sourceGlob('app/utils')],
+  exclude: notDeclarations,
+  // Nuxt's default `utils/` scan: top-level files and `<dir>/index.ts`.
+  dirs: [glob('app/utils/*.ts'), glob('app/utils/*/index.ts'), ...sharedDirs],
+})
+
+type NuxtProject = Awaited<ReturnType<typeof defineVitestProject>>
+
+/**
+ * Append a setup file that must run AFTER @nuxt/test-utils starts the app.
+ *
+ * `defineVitestProject` merges our options over Nuxt's with `defu`, which
+ * puts a `setupFiles` entry given in the options BEFORE the test-utils
+ * entry that calls `setupNuxt()` in its `beforeAll` — so a hook in our
+ * file would run against no app. Appending to the resolved list keeps the
+ * order explicit.
+ */
+function withSetupFileAfterNuxt(file: string) {
+  return (project: NuxtProject): NuxtProject => {
+    const current = project.test?.setupFiles ?? []
+    project.test = {
+      ...project.test,
+      setupFiles: [...(Array.isArray(current) ? current : [current]), file],
+    }
+    return project
+  }
+}
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      '~': fileURLToPath(new URL('./app', import.meta.url)),
-      '@': fileURLToPath(new URL('./app', import.meta.url)),
-      '~~': fileURLToPath(new URL('.', import.meta.url)),
-      '@@': fileURLToPath(new URL('.', import.meta.url)),
-      '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
-    },
-  },
   test: {
-    // Disable file parallelism globally to prevent [nuxt] instance unavailable errors
-    fileParallelism: false,
     coverage: {
       enabled: false,
       provider: 'v8',
       reportsDirectory: './coverage',
       reporter: ['text', 'html', 'lcov', 'json', 'json-summary'],
-      include: ['**/app/**', '**/server/**'],
+      // A red run is exactly when the report is needed.
+      reportOnFailure: true,
+      include: ['app/**', 'server/**', 'shared/**'],
       exclude: [
-        '**/node_modules/**',
-        '**/.nuxt/**',
-        '**/dist/**',
-        '**/coverage/**',
-        '**/test/**',
-        '**/*.spec.ts',
-        '**/*.test.ts',
-        '**/types/**',
-        '**/constants/**',
-        '**/shared/**',
+        // Generated from Django's OpenAPI schema; not ours to test.
+        'shared/openapi/**',
+        // Type-only modules carry no runtime code.
+        'shared/types/**',
+        '**/*.d.ts',
       ],
     },
-    globals: true,
     projects: [
       {
-        resolve: {
-          alias: {
-            '~': fileURLToPath(new URL('./app', import.meta.url)),
-            '@': fileURLToPath(new URL('./app', import.meta.url)),
-            '~~': fileURLToPath(new URL('.', import.meta.url)),
-            '@@': fileURLToPath(new URL('.', import.meta.url)),
-            '~/server': fileURLToPath(new URL('./server', import.meta.url)),
-            '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
-          },
-        },
+        resolve: { alias },
+        plugins: [nitroAutoImports, appUtilsAutoImports],
         test: {
           name: 'unit',
-          include: ['test/unit/**/*.{test,spec}.ts'],
+          include: ['test/unit/**/*.spec.ts'],
           environment: 'node',
+          setupFiles: ['./test/fixtures/setup/nitro.ts'],
+          ...isolation,
         },
       },
 
       await defineVitestProject({
         test: {
           name: 'nuxt',
-          include: ['test/nuxt/**/*.{test,spec}.ts'],
+          include: ['test/nuxt/**/*.spec.ts'],
           environment: 'nuxt',
-          // Provide a real localStorage implementation before Nuxt initialises.
-          // Without this, nuxt-auth-utils' session.client.js crashes on
-          // localStorage.getItem() which blocks @nuxtjs/i18n from running its
-          // plugin, leaving nuxtApp.$i18n and __VUE_I18N_SYMBOL__ unset.
-          setupFiles: ['./test/fixtures/setup/localStorage.ts'],
+          ...isolation,
           environmentOptions: {
             nuxt: {
               mock: {
@@ -105,42 +183,21 @@ export default defineConfig({
                   defaultLocale: DEFAULT_LOCALE,
                   detectBrowserLanguage: false,
                 },
-                // Load test-only i18n fallback plugin so useNuxtApp().$i18n and
-                // useI18n() work even when the real @nuxtjs/i18n module fails to
-                // fully initialise in the vitest environment.
-                plugins: ['./test/fixtures/plugins/mock-i18n.ts'],
               },
             },
           },
-          // Retry flaky tests due to Nuxt environment race conditions
-          retry: 2,
-          // Increase test timeout
-          testTimeout: 15000,
-          // setupNuxt() (the per-file app boot) can exceed vitest's default
-          // 10s hook timeout on slower/cold runs — same env raciness the
-          // retry/testTimeout mitigations above exist for.
+          // Each file boots its own Nuxt app in `beforeAll`; under a full
+          // parallel run that boot competes for CPU with every other
+          // worker's and can outlast vitest's 10s hook default.
           hookTimeout: 60000,
         },
-        resolve: {
-          alias: {
-            'bun:test': 'vitest',
-          },
-        },
-      }),
+      }).then(withSetupFileAfterNuxt('./test/fixtures/setup/warm-mount.ts')),
 
       {
-        resolve: {
-          alias: {
-            '~': fileURLToPath(new URL('./app', import.meta.url)),
-            '@': fileURLToPath(new URL('./app', import.meta.url)),
-            '~~': fileURLToPath(new URL('.', import.meta.url)),
-            '@@': fileURLToPath(new URL('.', import.meta.url)),
-            '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
-          },
-        },
+        resolve: { alias },
         test: {
           name: 'e2e',
-          include: ['test/e2e/**/*.{test,spec}.ts'],
+          include: ['test/e2e/**/*.spec.ts'],
           // `environment: 'node'` (not 'nuxt') is deliberate here: these
           // tests use `@nuxt/test-utils/e2e`'s `setup()`, which boots a
           // REAL Nuxt/Nitro server in a separate child process and talks to
@@ -148,6 +205,7 @@ export default defineConfig({
           // `nuxt` environment (see the `nuxt` project above) is neither
           // needed nor used by that flow.
           environment: 'node',
+          ...isolation,
           // Booting a real dev server (build + first request) is slower
           // than in-process tests; the SWR test also budgets up to ~45s
           // warming a cold dev server before its timed assertions.

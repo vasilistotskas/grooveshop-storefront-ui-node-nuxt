@@ -1,548 +1,386 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ZodError } from 'zod'
+import { createError, defineEventHandler, H3Error, setResponseHeader } from 'h3'
 import { FetchError } from 'ofetch'
-import { H3Error } from 'h3'
-import { isAllAuthError, handleError } from '../../../../server/utils/error'
-import { isClientError } from '../../../../server/utils/http-status'
+import { describe, expect, it } from 'vitest'
+import { z, ZodError } from 'zod'
+import {
+  forwardAllAuthFlow,
+  forwardUpstreamClientError,
+  handleAllAuthError,
+  handleError,
+  isAllAuthError,
+} from '~~/server/utils/error'
+import { parseDataAs } from '~~/server/utils/parser'
+import {
+  backend,
+  callRoute,
+  createTestEvent,
+  jsonResponse,
+  log,
+  testSession,
+  withEvent,
+} from '~~/test/helpers/nitro'
 
-const mockLog = {
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
+// ── Real payloads ─────────────────────────────────────────────────────
+
+/** allauth bodies, in the shapes `shared/schemas/error/all-auth/*` accept. */
+const allauth = {
+  bad: { status: 400, errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }] },
+  pendingMfa: (meta: Record<string, unknown> = {}) => ({
+    status: 401,
+    data: { flows: [{ id: 'login' }, { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }] },
+    meta: { is_authenticated: false, ...meta },
+  }),
+  notSignedIn: { status: 401, data: { flows: [{ id: 'login' }] }, meta: { is_authenticated: false } },
+  forbidden: { status: 403 },
+  notFound: { status: 404, meta: { secret: 's' } },
+  conflict: { status: 409 },
+  expired: { status: 410, data: { flows: [{ id: 'login' }] }, meta: { is_authenticated: false } },
 }
 
-describe('Server Utils - Error', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.stubGlobal('log', mockLog)
-    // handleError routes 4xx to warn via the auto-imported isClientError —
-    // stub with the real implementation so level routing is exercised.
-    vi.stubGlobal('isClientError', isClientError)
+/**
+ * A real `FetchError`: ofetch's own, raised by the global `$fetch` for a
+ * backend answer of `status` with `body`. POST, so ofetch does not retry.
+ */
+async function upstreamError(status: number, body?: unknown): Promise<FetchError> {
+  backend.replyOnce(jsonResponse(body, status))
+  const error = await globalThis.$fetch('http://backend.test/api/v1/upstream', { method: 'POST' }).catch((caught: unknown) => caught)
+  expect(error).toBeInstanceOf(FetchError)
+  return error as FetchError
+}
+
+/** What `handleError` threw. It always throws: that is its contract. */
+function thrownBy(fn: () => unknown): H3Error {
+  try {
+    fn()
+  }
+  catch (error) {
+    expect(error).toBeInstanceOf(H3Error)
+    return error as H3Error
+  }
+  throw new Error('expected a throw')
+}
+
+const INBOUND_ISSUE = {
+  code: 'invalid_format' as const,
+  format: 'regex' as const,
+  pattern: '/^-?\\d+$/',
+  path: ['page'],
+  message: 'Invalid string: must match pattern /^-?\\d+$/',
+  input: 'gravitysmtp-settings',
+}
+
+/** What h3's `getValidatedQuery` throws when the inbound parse fails. */
+function inboundValidationError(path: PropertyKey[] = ['page']) {
+  return createError({ statusCode: 400, statusMessage: 'Validation Error', data: new ZodError([{ ...INBOUND_ISSUE, path }]) })
+}
+
+/** What `parseDataAs` throws when a Django response fails its schema. */
+async function responseContractError(): Promise<H3Error> {
+  return await parseDataAs({ weightInfo: null }, z.object({ weightInfo: z.object({}) })).catch((caught: H3Error) => caught)
+}
+
+const probe = () => createTestEvent({ method: 'GET', url: '/api/blog/posts?page=gravitysmtp-settings' })
+
+// ── isAllAuthError ────────────────────────────────────────────────────
+
+describe('isAllAuthError', () => {
+  it.each(Object.entries({ ...allauth, pendingMfa: allauth.pendingMfa() }))('recognises the allauth %s body', (_name, body) => {
+    expect(isAllAuthError({ data: body })).toBe(true)
   })
 
-  describe('isAllAuthError', () => {
-    it('should return false for non-object errors', () => {
-      expect(isAllAuthError('string error')).toBe(false)
-      expect(isAllAuthError(123)).toBe(false)
-      expect(isAllAuthError(null)).toBe(false)
-      expect(isAllAuthError(undefined)).toBe(false)
+  it.each([
+    ['a string', 'boom'],
+    ['null', null],
+    ['an object without data', { message: 'x' }],
+    ['a DRF error body', { data: { detail: 'Not found.' } }],
+    ['a 401 without flows', { data: { status: 401, meta: { is_authenticated: false } } }],
+  ])('rejects %s', (_label, error) => {
+    expect(isAllAuthError(error)).toBe(false)
+  })
+})
+
+// ── handleError ───────────────────────────────────────────────────────
+
+describe('handleError', () => {
+  describe('validation failures', () => {
+    // A malformed REQUEST and a drifted RESPONSE both arrive as a 4xx
+    // H3Error carrying a ZodError, and they are opposites: in the 48h to
+    // 2026-09-08 every inbound one came from a bot, while the one drifted
+    // response (`weightInfo`) broke add-to-cart for every zero-weight product.
+    it('files a malformed request as one warning naming route, field and rule, never the value, and rethrows it', () => {
+      const original = inboundValidationError()
+
+      const thrown = withEvent(probe(), () => thrownBy(() => handleError(original)))
+
+      expect(thrown).toBe(original)
+      expect(log.warn).toHaveBeenCalledTimes(1)
+      expect(log.warn).toHaveBeenCalledWith({
+        action: 'validation:request',
+        method: 'GET',
+        route: '/api/blog/posts',
+        issues: [{ path: 'page', code: 'invalid_format', message: INBOUND_ISSUE.message }],
+      })
+      expect(JSON.stringify(log.warn.mock.calls)).not.toContain('gravitysmtp-settings')
+      expect(log.error).not.toHaveBeenCalled()
     })
 
-    it('should return false for objects without data property', () => {
-      expect(isAllAuthError({})).toBe(false)
-      expect(isAllAuthError({ message: 'error' })).toBe(false)
+    it('keeps a drifted response at error level and rethrows its 422', async () => {
+      const drifted = await responseContractError()
+
+      const thrown = withEvent(probe(), () => thrownBy(() => handleError(drifted)))
+
+      expect(thrown).toBe(drifted)
+      expect(thrown.statusCode).toBe(422)
+      expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation:response', issues: [expect.objectContaining({ path: 'weightInfo' })] }))
+      expect(log.warn).not.toHaveBeenCalled()
     })
 
-    it('should return true for bad response error (400)', () => {
-      const error = {
-        data: {
-          status: 400,
-          errors: [],
-        },
-      }
+    it('answers a bare ZodError (a hand-rolled parse) as 400 "Validation error" with its issues, logged at error', () => {
+      const zod = new ZodError([INBOUND_ISSUE])
 
-      // Mock the type guard functions
-      vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(true))
-      vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(false))
+      const thrown = thrownBy(() => handleError(zod))
 
-      expect(isAllAuthError(error)).toBe(true)
+      expect(thrown.statusCode).toBe(400)
+      expect(thrown.statusMessage).toBe('Validation error')
+      expect(thrown.data).toEqual({ issues: zod.issues })
+      expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation:response' }))
     })
 
-    it('should return true for not authenticated error (401)', () => {
-      const error = {
-        data: {
-          status: 401,
-          meta: { is_authenticated: false },
-        },
-      }
+    it('survives a symbol in the issue path (Array#join would throw on it)', () => {
+      withEvent(probe(), () => thrownBy(() => handleError(inboundValidationError([Symbol('weird'), 'page']))))
 
-      vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(true))
-      vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(false))
-
-      expect(isAllAuthError(error)).toBe(true)
+      expect(log.warn.mock.calls[0]![0]).toMatchObject({ issues: [{ path: 'Symbol(weird).page' }] })
     })
 
-    it('should return true for invalid session error (410)', () => {
-      const error = {
-        data: {
-          status: 410,
-        },
-      }
+    it('still logs outside a request, just without the route', () => {
+      thrownBy(() => handleError(inboundValidationError()))
 
-      vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(true))
-      vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(false))
-
-      expect(isAllAuthError(error)).toBe(true)
-    })
-
-    it('should return true for forbidden error (403)', () => {
-      const error = {
-        data: {
-          status: 403,
-        },
-      }
-
-      vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(true))
-      vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(false))
-
-      expect(isAllAuthError(error)).toBe(true)
-    })
-
-    it('should return true for not found error (404)', () => {
-      const error = {
-        data: {
-          status: 404,
-        },
-      }
-
-      vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(true))
-      vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(false))
-
-      expect(isAllAuthError(error)).toBe(true)
-    })
-
-    it('should return true for conflict error (409)', () => {
-      const error = {
-        data: {
-          status: 409,
-        },
-      }
-
-      vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(true))
-
-      expect(isAllAuthError(error)).toBe(true)
-    })
-
-    it('should return false for non-AllAuth errors', () => {
-      const error = {
-        data: {
-          status: 500,
-          message: 'Internal Server Error',
-        },
-      }
-
-      vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(false))
-      vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(false))
-
-      expect(isAllAuthError(error)).toBe(false)
+      expect(log.warn).toHaveBeenCalledWith({ action: 'validation:request', issues: [expect.any(Object)] })
     })
   })
 
-  describe('429 rate-limit handling', () => {
-    it('handleError preserves 429 status from FetchError', () => {
-      const fetchError = new FetchError('Too Many Requests')
-      fetchError.statusCode = 429
-      fetchError.data = { status: 429, errors: [{ code: 'too_many_requests', message: 'Rate limit exceeded.' }] }
+  describe('upstream (FetchError)', () => {
+    it.each([
+      [400, { phone: ['Enter a valid phone number.'] }],
+      [429, { detail: 'Request was throttled.' }],
+    ])('forwards a %i with its body, logged as a warning', async (status, body) => {
+      const error = await upstreamError(status, body)
 
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const err = new Error(config.statusMessage)
-        Object.assign(err, config)
-        return err
-      }))
+      const thrown = thrownBy(() => handleError(error))
 
-      try {
-        handleError(fetchError)
-        expect.fail('Should have thrown')
-      }
-      catch (err: any) {
-        expect(err.statusCode).toBe(429)
-        // data must be forwarded (statusCode < 500)
-        expect(err.data).toEqual({ status: 429, errors: [{ code: 'too_many_requests', message: 'Rate limit exceeded.' }] })
-      }
-      finally {
-        vi.unstubAllGlobals()
-      }
+      expect(thrown.statusCode).toBe(status)
+      expect(thrown.data).toEqual(body)
+      expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      expect(log.error).not.toHaveBeenCalled()
     })
 
-    it('handleError logs upstream:fetch at warn for 429 FetchError (client error)', () => {
-      const fetchError = new FetchError('Too Many Requests')
-      fetchError.statusCode = 429
-      fetchError.data = { status: 429, errors: [] }
+    it('drops a 5xx body, which can carry dependency diagnostics, and logs at error', async () => {
+      const error = await upstreamError(502, { traceback: 'stripe.error.APIConnectionError at /srv/app' })
 
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('isClientError', isClientError)
-      vi.stubGlobal('createError', vi.fn(err => err))
+      const thrown = thrownBy(() => handleError(error))
 
-      try { handleError(fetchError) }
-      catch { /* expected */ }
-
-      expect(mockLog.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
-      expect(mockLog.error).not.toHaveBeenCalled()
-      vi.unstubAllGlobals()
+      expect(thrown.statusCode).toBe(502)
+      expect(thrown.data).toBeUndefined()
+      expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      expect(log.warn).not.toHaveBeenCalled()
     })
 
-    it('handleError does NOT drop 429 data body (statusCode < 500)', () => {
-      const fetchError = new FetchError('Too Many Requests')
-      fetchError.statusCode = 429
-      const rateLimitBody = { status: 429, errors: [{ code: 'too_many_requests', message: 'Slow down.' }] }
-      fetchError.data = rateLimitBody
+    it('answers a network failure (no status) as a 500 at error level, messaged from the error', async () => {
+      backend.failOnce()
+      const error = await globalThis.$fetch('http://backend.test/api/v1/upstream', { method: 'POST' }).catch((caught: FetchError) => caught)
 
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const err = new Error(config.statusMessage)
-        Object.assign(err, config)
-        return err
-      }))
+      const thrown = thrownBy(() => handleError(error))
 
-      try {
-        handleError(fetchError)
-        expect.fail('Should have thrown')
-      }
-      catch (err: any) {
-        // safeData = error.data because 429 < 500
-        expect(err.data).toBeDefined()
-        expect(err.data).toEqual(rateLimitBody)
-      }
-      finally {
-        vi.unstubAllGlobals()
-      }
+      expect(thrown.statusCode).toBe(500)
+      expect(thrown.statusMessage).toBe(error.message)
+      expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
     })
   })
 
-  describe('4xx/5xx log-level routing', () => {
-    it('logs upstream 4xx at warn (wrong-password login, spam-filtered form)', () => {
-      const fetchError = new FetchError('[POST] "login": 400 Bad Request')
-      fetchError.statusCode = 400
+  describe('h3 errors', () => {
+    it.each([
+      [404, 'warn'],
+      [503, 'error'],
+    ] as const)('rethrows a %i untouched, logged at %s', (status, level) => {
+      const original = createError({ statusCode: status, statusMessage: 'x' })
 
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      try { handleError(fetchError) }
-      catch { /* expected */ }
-
-      expect(mockLog.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
-      expect(mockLog.error).not.toHaveBeenCalled()
-      vi.unstubAllGlobals()
-    })
-
-    it('logs upstream 5xx at error', () => {
-      const fetchError = new FetchError('[GET] "products": 502 Bad Gateway')
-      fetchError.statusCode = 502
-
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      try { handleError(fetchError) }
-      catch { /* expected */ }
-
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
-      expect(mockLog.warn).not.toHaveBeenCalled()
-      vi.unstubAllGlobals()
-    })
-
-    it('treats an upstream error without a status as a server fault', () => {
-      const fetchError = new FetchError('socket hang up')
-
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      try { handleError(fetchError) }
-      catch { /* expected */ }
-
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
-      expect(mockLog.warn).not.toHaveBeenCalled()
-      vi.unstubAllGlobals()
-    })
-
-    it('logs h3 4xx at warn and rethrows the same error', () => {
-      const h3Error = new H3Error('Not Found')
-      h3Error.statusCode = 404
-
-      expect(() => handleError(h3Error)).toThrow(h3Error)
-      expect(mockLog.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
-      expect(mockLog.error).not.toHaveBeenCalled()
-    })
-
-    it('logs h3 5xx at error', () => {
-      const h3Error = new H3Error('Service Unavailable')
-      h3Error.statusCode = 503
-
-      expect(() => handleError(h3Error)).toThrow(h3Error)
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
-      expect(mockLog.warn).not.toHaveBeenCalled()
-    })
-
-    it('keeps response-contract (Zod) failures at error', () => {
-      const zodError = new ZodError([])
-
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      try { handleError(zodError) }
-      catch { /* expected */ }
-
-      expect(mockLog.error).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'validation:response' }),
-      )
-      expect(mockLog.warn).not.toHaveBeenCalled()
-      vi.unstubAllGlobals()
+      expect(thrownBy(() => handleError(original))).toBe(original)
+      expect(log[level]).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
+      expect(log[level === 'warn' ? 'error' : 'warn']).not.toHaveBeenCalled()
     })
   })
 
-  describe('handleError', () => {
-    it('should throw ZodError', () => {
-      const zodError = new ZodError([
-        {
-          code: 'invalid_type',
-          expected: 'string',
-          received: 'number',
-          path: ['name'],
-          message: 'Expected string, received number',
-        },
-      ])
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['a string', 'boom'],
+    ['a number', 404],
+    ['a plain Error', new Error('boom')],
+  ])('answers anything else (%s) as a bare 500', (_label, error) => {
+    const thrown = thrownBy(() => handleError(error))
 
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn(err => err))
+    expect(thrown.statusCode).toBe(500)
+    expect(thrown.statusMessage).toBe('Internal Server Error')
+    expect(thrown.data).toBeUndefined()
+  })
+})
 
-      expect(() => handleError(zodError)).toThrow()
-      vi.unstubAllGlobals()
-    })
+// ── Route-level helpers: they set the response status ────────────────
 
-    it('should throw FetchError', () => {
-      const fetchError = new FetchError('Network error')
+/** A route that calls the backend and hands the failure to `onError`. */
+function routeCatching(onError: (error: unknown) => unknown, prelude?: (event: Parameters<typeof setResponseHeader>[0]) => void) {
+  return defineEventHandler(async (event) => {
+    prelude?.(event)
+    try {
+      return await globalThis.$fetch('http://backend.test/api/v1/upstream', { method: 'POST' })
+    }
+    catch (error) {
+      return await onError(error)
+    }
+  })
+}
 
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn(err => err))
+describe('forwardUpstreamClientError', () => {
+  it('returns an upstream 4xx body verbatim with its status (thrown data is stripped in production)', async () => {
+    backend.replyOnce(jsonResponse({ phone: ['Enter a valid phone number.'] }, 400))
 
-      expect(() => handleError(fetchError)).toThrow()
-      vi.unstubAllGlobals()
-    })
+    const response = await callRoute(routeCatching(forwardUpstreamClientError), { method: 'POST', url: '/api/x' })
 
-    it('should throw H3Error', () => {
-      const h3Error = new H3Error('Bad Request')
-
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      expect(() => handleError(h3Error)).toThrow()
-      vi.unstubAllGlobals()
-    })
-
-    it('should throw generic error for unknown error types', () => {
-      const unknownError = new Error('Unknown error')
-
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const error = new Error(config.statusMessage)
-        Object.assign(error, config)
-        return error
-      }))
-
-      try {
-        handleError(unknownError)
-        expect.fail('Should have thrown an error')
-      }
-      catch (error: any) {
-        expect(error.statusCode).toBe(500)
-        expect(error.statusMessage).toBe('Internal Server Error')
-      }
-      finally {
-        vi.unstubAllGlobals()
-      }
-    })
-
-    it('should log ZodError message', () => {
-      const zodError = new ZodError([
-        {
-          code: 'invalid_type',
-          expected: 'string',
-          received: 'number',
-          path: ['name'],
-          message: 'Expected string, received number',
-        },
-      ])
-
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      try {
-        handleError(zodError)
-      }
-      catch {
-        // Expected to throw
-      }
-
-      expect(mockLog.error).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'validation:response' }),
-      )
-      vi.unstubAllGlobals()
-    })
-
-    it('should log FetchError message', () => {
-      const fetchError = new FetchError('Network error')
-
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      try {
-        handleError(fetchError)
-      }
-      catch {
-        // Expected to throw
-      }
-
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
-      vi.unstubAllGlobals()
-    })
-
-    it('should log H3Error message', () => {
-      const h3Error = new H3Error('Bad Request')
-
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn(err => err))
-
-      try {
-        handleError(h3Error)
-      }
-      catch {
-        // Expected to throw
-      }
-
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
-      vi.unstubAllGlobals()
-    })
-
-    it('should handle error with ZodError in data property', () => {
-      const zodError = new ZodError([
-        {
-          code: 'invalid_type',
-          expected: 'string',
-          received: 'number',
-          path: ['name'],
-          message: 'Expected string, received number',
-        },
-      ])
-
-      const errorWithData = {
-        data: zodError,
-      }
-
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const error = new Error(config.statusMessage)
-        Object.assign(error, config)
-        return error
-      }))
-
-      try {
-        handleError(errorWithData)
-      }
-      catch {
-        // Expected to throw
-      }
-
-      expect(mockLog.error).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'validation:response' }),
-      )
-      vi.unstubAllGlobals()
-    })
+    expect(response.status).toBe(400)
+    expect(response.body).toEqual({ phone: ['Enter a valid phone number.'] })
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch', data: { phone: ['Enter a valid phone number.'] } }))
   })
 
-  describe('Edge Cases', () => {
-    it('should handle null error', async () => {
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const error = new Error(config.statusMessage)
-        Object.assign(error, config)
-        return error
-      }))
+  it('throws through handleError when the 4xx has no body', async () => {
+    backend.replyOnce(new Response(null, { status: 404, statusText: 'Not Found' }))
 
-      try {
-        await handleError(null)
-        expect.fail('Should have thrown an error')
-      }
-      catch (error: any) {
-        expect(error.statusCode).toBe(500)
-      }
-      finally {
-        vi.unstubAllGlobals()
-      }
-    })
+    const response = await callRoute(routeCatching(forwardUpstreamClientError), { method: 'POST', url: '/api/x' })
 
-    it('should handle undefined error', async () => {
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const error = new Error(config.statusMessage)
-        Object.assign(error, config)
-        return error
-      }))
+    expect(response.status).toBe(404)
+    // handleError's message, not h3's "Cannot find any route" for an empty return.
+    expect(response.error?.statusMessage).toBe('Not Found')
+  })
 
-      try {
-        await handleError(undefined)
-        expect.fail('Should have thrown an error')
-      }
-      catch (error: any) {
-        expect(error.statusCode).toBe(500)
-      }
-      finally {
-        vi.unstubAllGlobals()
-      }
-    })
+  it('throws a 5xx through handleError, body dropped', async () => {
+    backend.replyOnce(jsonResponse({ traceback: 'internal' }, 500))
 
-    it('should handle string error', async () => {
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const error = new Error(config.statusMessage)
-        Object.assign(error, config)
-        return error
-      }))
+    const response = await callRoute(routeCatching(forwardUpstreamClientError), { method: 'POST', url: '/api/x' })
 
-      try {
-        await handleError('String error')
-        expect.fail('Should have thrown an error')
-      }
-      catch (error: any) {
-        expect(error.statusCode).toBe(500)
-      }
-      finally {
-        vi.unstubAllGlobals()
-      }
-    })
+    expect(response.status).toBe(500)
+    expect(response.body.data).toBeUndefined()
+  })
+})
 
-    it('should handle number error', async () => {
-      vi.stubGlobal('log', mockLog)
-      vi.stubGlobal('createError', vi.fn((config) => {
-        const error = new Error(config.statusMessage)
-        Object.assign(error, config)
-        return error
-      }))
+describe('handleAllAuthError', () => {
+  const stored = { user: { id: 1 }, secure: { sessionToken: 'stored-session', accessToken: 'stored-access' } }
+  const stampTokens = (event: Parameters<typeof setResponseHeader>[0]) => {
+    setResponseHeader(event, 'X-Session-Token', 'leak')
+    setResponseHeader(event, 'Authorization', 'Bearer leak')
+  }
 
-      try {
-        await handleError(404)
-        expect.fail('Should have thrown an error')
-      }
-      catch (error: any) {
-        expect(error.statusCode).toBe(500)
-      }
-      finally {
-        vi.unstubAllGlobals()
-      }
-    })
+  it('stores the new session token of a pending flow, keeping the stored access token, then throws', async () => {
+    testSession.set(stored)
+    backend.replyOnce(jsonResponse(allauth.pendingMfa({ session_token: 'next-step' }), 401))
+
+    const response = await callRoute(routeCatching(handleAllAuthError, stampTokens), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(response.status).toBe(401)
+    expect(testSession.data.secure).toEqual({ sessionToken: 'next-step', accessToken: 'stored-access' })
+    expect(testSession.data.user).toEqual({ id: 1 })
+  })
+
+  it('stores a new access token alone, keeping the stored session token', async () => {
+    testSession.set(stored)
+    backend.replyOnce(jsonResponse(allauth.pendingMfa({ access_token: 'new-access' }), 401))
+
+    await callRoute(routeCatching(handleAllAuthError), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(testSession.data.secure).toEqual({ sessionToken: 'stored-session', accessToken: 'new-access' })
+  })
+
+  it('keeps the stored session token when the 401 carries none (mid-2FA: clearing it broke the next step)', async () => {
+    testSession.set(stored)
+    backend.replyOnce(jsonResponse(allauth.pendingMfa(), 401))
+
+    await callRoute(routeCatching(handleAllAuthError), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(testSession.data).toEqual(stored)
+  })
+
+  it('clears the whole session on 410 (session expired)', async () => {
+    testSession.set(stored)
+    backend.replyOnce(jsonResponse(allauth.expired, 410))
+
+    const response = await callRoute(routeCatching(handleAllAuthError), { method: 'POST', url: '/api/_allauth/session' })
+
+    expect(response.status).toBe(410)
+    expect(testSession.data).toEqual({})
+  })
+
+  it('strips the forwarding headers from the response', async () => {
+    backend.replyOnce(jsonResponse(allauth.bad, 400))
+
+    const response = await callRoute(routeCatching(handleAllAuthError, stampTokens), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(response.headers.has('x-session-token')).toBe(false)
+    expect(response.headers.has('authorization')).toBe(false)
+  })
+
+  it('leaves the session alone and reports a non-allauth failure, then throws it', async () => {
+    testSession.set(stored)
+    backend.replyOnce(jsonResponse({ detail: 'Server Error' }, 500))
+
+    const response = await callRoute(routeCatching(handleAllAuthError, stampTokens), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(response.status).toBe(500)
+    expect(testSession.data).toEqual(stored)
+    expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'auth:unexpected' }))
+  })
+})
+
+describe('forwardAllAuthFlow', () => {
+  it.each([
+    ['400', allauth.bad, 400, 'Bad Request'],
+    ['401 with a pending flow', allauth.pendingMfa(), 401, 'Unauthorized'],
+    ['403', allauth.forbidden, 403, 'Forbidden'],
+    ['404', allauth.notFound, 404, 'Not Found'],
+    ['409', allauth.conflict, 409, 'Conflict'],
+    ['410', allauth.expired, 410, 'Gone'],
+  ])('returns an allauth %s as the body the client reads, with its status', async (_label, payload, status, text) => {
+    backend.replyOnce(jsonResponse(payload, status))
+
+    const response = await callRoute(routeCatching(forwardAllAuthFlow), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(response.status).toBe(status)
+    expect(response.error).toBeUndefined()
+    // The client reads `error.data.data === payload`.
+    expect(response.body).toEqual({ statusCode: status, statusMessage: text, data: payload })
+  })
+
+  it('reconciles the session before forwarding', async () => {
+    testSession.set({ secure: { sessionToken: 'old' } })
+    backend.replyOnce(jsonResponse(allauth.pendingMfa({ session_token: 'new' }), 401))
+
+    await callRoute(routeCatching(forwardAllAuthFlow), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(testSession.data.secure.sessionToken).toBe('new')
+  })
+
+  it('throws a 401 WITHOUT a pending flow instead of forwarding it (a spurious LOGGED_OUT otherwise)', async () => {
+    backend.replyOnce(jsonResponse(allauth.notSignedIn, 401))
+
+    const response = await callRoute(routeCatching(forwardAllAuthFlow), { method: 'POST', url: '/api/_allauth/password/reset' })
+
+    expect(response.status).toBe(401)
+    expect(response.error).toBeInstanceOf(H3Error)
+  })
+
+  it('throws anything that is not an allauth 4xx', async () => {
+    backend.replyOnce(jsonResponse({ detail: 'boom' }, 502))
+
+    const response = await callRoute(routeCatching(forwardAllAuthFlow), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(response.status).toBe(502)
+    expect(response.error).toBeInstanceOf(H3Error)
   })
 })

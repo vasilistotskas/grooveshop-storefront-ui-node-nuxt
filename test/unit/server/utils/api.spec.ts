@@ -1,200 +1,109 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getMimeType, createCachedFetcher } from '../../../../server/utils/api'
+import { describe, expect, it } from 'vitest'
+import { createCachedFetcher, getMimeType } from '~~/server/utils/api'
+import { cacheKeyBelongsToHost } from '~~/server/utils/cacheKey'
+import { backend, cacheOptionsOf } from '~~/test/helpers/nitro'
 
-// Mock defineCachedFunction for unit tests
-vi.stubGlobal('defineCachedFunction', (fn: Function, options: any) => fn)
+describe('getMimeType', () => {
+  it.each([
+    ['photo.jpg', 'image/jpeg'],
+    ['photo.JPEG', 'image/jpeg'],
+    ['icon.png', 'image/png'],
+    ['anim.gif', 'image/gif'],
+    ['hero.webp', 'image/webp'],
+    ['hero.avif', 'image/avif'],
+    ['/nested/path.to/image.PNG', 'image/png'],
+    ['notes.txt', 'application/octet-stream'],
+    ['no-extension', 'application/octet-stream'],
+  ])('%s → %s', (file, mime) => {
+    expect(getMimeType(file)).toBe(mime)
+  })
+})
 
-describe('Server Utils - API', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
+describe('createCachedFetcher', () => {
+  const page = (ids: number[], next: string | null = null) => ({
+    results: ids.map(id => ({ id })),
+    links: { next },
   })
 
-  describe('getMimeType', () => {
-    it('should return correct MIME type for jpg', () => {
-      expect(getMimeType('image.jpg')).toBe('image/jpeg')
-    })
+  it('fetches one page as the tenant, in the caller\'s language', async () => {
+    backend.reply(page([1, 2]))
 
-    it('should return correct MIME type for jpeg', () => {
-      expect(getMimeType('image.jpeg')).toBe('image/jpeg')
-    })
+    const result = await createCachedFetcher('test', 60)('tenant-a.test', 'en', 'http://backend.test/api/v1/data')
 
-    it('should return correct MIME type for png', () => {
-      expect(getMimeType('image.png')).toBe('image/png')
-    })
-
-    it('should return correct MIME type for gif', () => {
-      expect(getMimeType('image.gif')).toBe('image/gif')
-    })
-
-    it('should return default MIME type for unknown extension', () => {
-      expect(getMimeType('file.unknown')).toBe('application/octet-stream')
-    })
-
-    it('should handle uppercase extensions', () => {
-      expect(getMimeType('image.JPG')).toBe('image/jpeg')
-      expect(getMimeType('image.PNG')).toBe('image/png')
-    })
-
-    it('should handle mixed case extensions', () => {
-      expect(getMimeType('image.JpG')).toBe('image/jpeg')
-      expect(getMimeType('image.PnG')).toBe('image/png')
-    })
-
-    it('should handle files with multiple dots', () => {
-      expect(getMimeType('my.image.file.jpg')).toBe('image/jpeg')
-    })
-
-    it('should handle files without extension', () => {
-      expect(getMimeType('image')).toBe('application/octet-stream')
-    })
-
-    it('should handle paths with directories', () => {
-      expect(getMimeType('/path/to/image.jpg')).toBe('image/jpeg')
-    })
+    expect(result).toEqual([{ id: 1 }, { id: 2 }])
+    // The tenantKey is forwarded as X-Forwarded-Host so Django resolves
+    // the caller's schema (otherwise sitemap/RSS hit the public schema).
+    expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/data')
+    expect(backend.lastRequest.method).toBe('GET')
+    expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('tenant-a.test')
+    expect(backend.lastRequest.headers.get('x-language')).toBe('en')
   })
 
-  describe('createCachedFetcher', () => {
-    it('should create a cached fetcher function', () => {
-      const fetcher = createCachedFetcher<any>('test', 60)
-      expect(typeof fetcher).toBe('function')
-    })
+  it('sends no X-Forwarded-Host when there is no tenant key', async () => {
+    backend.reply(page([1]))
 
-    it('should fetch single page of data', async () => {
-      const mockData = {
-        results: [{ id: 1 }, { id: 2 }],
-        links: { next: null },
-      }
+    await createCachedFetcher('test', 60)('', 'el', 'http://backend.test/api/v1/data')
 
-      vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
+    expect(backend.lastRequest.headers.has('x-forwarded-host')).toBe(false)
+    expect(backend.lastRequest.headers.get('x-language')).toBe('el')
+  })
 
-      const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
+  it('follows next links and concatenates every page', async () => {
+    backend.replyOnce(page([1, 2], 'http://backend.test/api/v1/data?page=2'))
+    backend.replyOnce(page([3]))
 
-      expect(result).toEqual([{ id: 1 }, { id: 2 }])
-      // The tenantKey is forwarded as X-Forwarded-Host so Django resolves
-      // the caller's schema (otherwise sitemap/RSS hit the public schema),
-      // and the locale as X-Language so Django answers in it.
-      expect($fetch).toHaveBeenCalledWith('https://api.example.com/data', {
-        method: 'GET',
-        headers: { 'X-Forwarded-Host': 'webside.gr', 'X-Language': 'el' },
-      })
-    })
+    const result = await createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend.test/api/v1/data')
 
-    it('should fetch multiple pages of data', async () => {
-      const page1 = {
-        results: [{ id: 1 }, { id: 2 }],
-        links: { next: 'https://api.example.com/data?page=2' },
-      }
-      const page2 = {
-        results: [{ id: 3 }, { id: 4 }],
-        links: { next: null },
-      }
+    expect(result).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }])
+    expect(backend.requests.map(request => request.url.href)).toEqual([
+      'http://backend.test/api/v1/data',
+      'http://backend.test/api/v1/data?page=2',
+    ])
+  })
 
-      // Mock $fetch to return different data based on URL
-      vi.stubGlobal('$fetch', vi.fn()
-        .mockResolvedValueOnce(page1)
-        .mockResolvedValueOnce(page2))
+  it('re-anchors a next link built on the storefront host onto the first page\'s origin', async () => {
+    // Django builds `next` from X-Forwarded-Host — the STOREFRONT domain,
+    // which does not serve /api/v1/**. Only path + query may be followed.
+    backend.replyOnce(page([1], 'https://tenant-a.test/api/v1/blog/post?languageCode=el&page=2'))
+    backend.replyOnce(page([2]))
 
-      const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
+    await createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend-service:8000/api/v1/blog/post?languageCode=el')
 
-      expect(result).toEqual([
-        { id: 1 },
-        { id: 2 },
-        { id: 3 },
-        { id: 4 },
-      ])
-      expect($fetch).toHaveBeenCalledTimes(2)
-    })
+    expect(backend.requests[1]!.url.href).toBe('http://backend-service:8000/api/v1/blog/post?languageCode=el&page=2')
+  })
 
-    it('re-anchors tenant-host next links onto the internal base origin', async () => {
-      // Django builds `next` from X-Forwarded-Host — under tenant host
-      // inversion that's the STOREFRONT domain, which doesn't serve the
-      // API (Nuxt 404s /api/v1/** in prod; on staging the hop dies on
-      // ingress basic-auth). Only path+query may be followed, on the
-      // origin the FIRST page was fetched from.
-      const page1 = {
-        results: [{ id: 1 }],
-        links: { next: 'https://tenant-a.example/api/v1/blog/post?languageCode=el&page=2' },
-      }
-      const page2 = { results: [{ id: 2 }], links: { next: null } }
-      vi.stubGlobal('$fetch', vi.fn()
-        .mockResolvedValueOnce(page1)
-        .mockResolvedValueOnce(page2))
+  it('stops after 100 pages even if the backend keeps linking', async () => {
+    backend.reply(page([1], 'http://backend.test/api/v1/data?page=next'))
 
-      const fetcher = createCachedFetcher<any>('test-rebase', 60)
-      const result = await fetcher(
-        'tenant-a.example',
-        'el',
-        'http://backend-service:80/api/v1/blog/post?languageCode=el',
-      )
+    const result = await createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend.test/api/v1/data')
 
-      expect(result).toEqual([{ id: 1 }, { id: 2 }])
-      // Note: URL() elides the default port (:80 for http) when
-      // normalizing the origin — functionally identical.
-      expect($fetch).toHaveBeenNthCalledWith(
-        2,
-        'http://backend-service/api/v1/blog/post?languageCode=el&page=2',
-        expect.anything(),
-      )
-    })
+    expect(backend.requests).toHaveLength(100)
+    expect(result).toHaveLength(100)
+  })
 
-    it('should handle empty results', async () => {
-      const mockData = {
-        results: [],
-        links: { next: null },
-      }
+  it('treats a page without results as empty', async () => {
+    backend.reply({ links: { next: null } })
 
-      vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
+    await expect(createCachedFetcher('test', 60)('tenant-a.test', 'el', 'http://backend.test/api/v1/data')).resolves.toEqual([])
+  })
 
-      const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
+  it('is cached under its name and maxAge', () => {
+    expect(cacheOptionsOf(createCachedFetcher('sitemap-products', 3600))).toMatchObject({ name: 'sitemap-products', maxAge: 3600 })
+  })
 
-      expect(result).toEqual([])
-    })
+  it('keys by tenant, locale and url, and a store-scoped purge still finds the entry', () => {
+    const { getKey } = cacheOptionsOf(createCachedFetcher('test', 60))
+    const key = getKey!('tenant-a.test', 'el', '/product')
 
-    it('should handle missing results field', async () => {
-      const mockData = {
-        links: { next: null },
-      }
-
-      vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
-
-      const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
-
-      expect(result).toEqual([])
-    })
-
-    it('should derive cache key from tenantKey + locale + url', () => {
-      // The function passed to defineCachedFunction receives
-      // (tenantKey, locale, url) and the cache key generator must combine
-      // them — otherwise tenant A and tenant B, or an English and a Greek
-      // request, would collide on the same URL.
-      let capturedOptions: any = null
-      vi.stubGlobal('defineCachedFunction', (fn: Function, options: any) => {
-        capturedOptions = options
-        return fn
-      })
-
-      createCachedFetcher<any>('test', 60)
-
-      expect(capturedOptions).not.toBeNull()
-      expect(capturedOptions.getKey).toBeDefined()
-      const key = capturedOptions.getKey('tenant-a.com', 'el', '/product')
-      // Tenant host is part of the key so two tenants fetching the
-      // same URL do NOT share a cache slot.
-      expect(key).toContain('tenant-a.com')
-      expect(key).toContain('/product')
-
-      const otherKey = capturedOptions.getKey('tenant-b.com', 'el', '/product')
-      expect(otherKey).not.toBe(key)
-
-      const englishKey = capturedOptions.getKey('tenant-a.com', 'en', '/product')
-      expect(englishKey).not.toBe(key)
-      // The locale is its own `:` segment after the host, so the
-      // store-scoped purge (`functions` family) still finds the entry.
-      expect(`:${englishKey}:`).toContain(':tenant-a.com:')
-    })
+    expect(new Set([
+      key,
+      getKey!('tenant-b.test', 'el', '/product'),
+      getKey!('tenant-a.test', 'en', '/product'),
+      getKey!('tenant-a.test', 'el', '/blog'),
+    ]).size).toBe(4)
+    // Stored as `nitro:functions:<name>:<key>.json` — the `functions`
+    // family matches the host as its own `:` segment.
+    expect(cacheKeyBelongsToHost(`nitro:functions:test:${key}.json`, 'tenant-a.test')).toBe(true)
+    expect(cacheKeyBelongsToHost(`nitro:functions:test:${key}.json`, 'tenant-b.test')).toBe(false)
   })
 })

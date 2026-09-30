@@ -1,31 +1,5 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest'
-import {
-  CONTAINER_MAP,
-  FONT_ALLOWLIST,
-  HEX_COLOR_RE,
-  PLATFORM_COLORS,
-  RADIUS_ALLOWLIST,
-} from '../../../../shared/theme/constants'
-import { THEME_PRESETS } from '../../../../shared/theme/presets'
-import { zThemeMetadata } from '../../../../shared/theme/metadataSchema'
-
-// The compiler consumes these via shared/ auto-imports (a relative
-// runtime import into shared/ breaks Nitro's production server
-// bundle); the unit project has no auto-imports, so wire the REAL
-// implementations as globals — same pattern as csp.spec.ts.
-let buildTenantThemeCss: typeof import('../../../../server/utils/themeTokens')['buildTenantThemeCss']
-
-beforeAll(async () => {
-  vi.stubGlobal('CONTAINER_MAP', CONTAINER_MAP)
-  vi.stubGlobal('FONT_ALLOWLIST', FONT_ALLOWLIST)
-  vi.stubGlobal('HEX_COLOR_RE', HEX_COLOR_RE)
-  vi.stubGlobal('PLATFORM_COLORS', PLATFORM_COLORS)
-  vi.stubGlobal('RADIUS_ALLOWLIST', RADIUS_ALLOWLIST)
-  vi.stubGlobal('THEME_PRESETS', THEME_PRESETS)
-  vi.stubGlobal('zThemeMetadata', zThemeMetadata)
-  buildTenantThemeCss
-    = (await import('../../../../server/utils/themeTokens')).buildTenantThemeCss
-})
+import { describe, expect, it } from 'vitest'
+import { buildTenantThemeCss } from '~~/server/utils/themeTokens'
 
 describe('buildTenantThemeCss', () => {
   it('emits nothing for an unthemed tenant (platform stays byte-identical)', () => {
@@ -106,7 +80,8 @@ describe('buildTenantThemeCss', () => {
       themePreset: 'bold',
       themeMetadata: { fontSans: 'comic-sans', evil: true },
     })
-    expect(metadataError).toBeTruthy()
+    // `<path>: <message>` per issue, joined — names the offending field.
+    expect(metadataError).toMatch(/^fontSans: /)
     expect(css).toContain('--ui-radius: 0.625rem')
     expect(css).toContain('Poppins')
   })
@@ -248,7 +223,7 @@ describe('buildTenantThemeCss', () => {
     })
     // Invalid metadata degrades to the preset wholesale — the contract
     // documented on buildTenantThemeCss — and reports why.
-    expect(metadataError).toBeTruthy()
+    expect(metadataError).toMatch(/^fontMono: /)
     expect(css).not.toContain('--font-mono')
   })
 

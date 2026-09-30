@@ -1,129 +1,80 @@
+import { describe, expect, it, vi } from 'vitest'
+import { getResponseHeader } from 'h3'
+import middleware from '~~/server/middleware/0.markdown-negotiation'
+import { callHandler, createTestEvent } from '~~/test/helpers/nitro'
+import type { TestRequest } from '~~/test/helpers/nitro'
+
 /**
- * Unit tests for server/middleware/0.markdown-negotiation.ts
- *
- * Covers the Accept: text/markdown interception, skip conditions, and —
- * for the multi-tenant .md-mirror fix — that the internal event.fetch()
- * call to the .md route forwards the original request's Host header (h3
- * already does this automatically for relative-path fetches, but this is
- * pinned explicitly so downstream tenant resolution keeps working across
- * h3 upgrades) and the internal-negotiation marker header.
- *
- * This module imports getHeader/getRequestHost/setHeader explicitly from
- * 'h3' (not Nitro auto-imports), so they must be mocked via vi.mock('h3')
- * rather than vi.stubGlobal.
+ * `event.fetch` is Nitro's in-process local fetch — the one boundary
+ * here, so each event gets a spy for it.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-
-const hostMock = vi.fn().mockReturnValue('tenant-a.example')
-const setHeaderMock = vi.fn()
-
-vi.mock('h3', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('h3')>()
-  return {
-    ...actual,
-    defineEventHandler: (fn: (event: unknown) => unknown) => fn,
-    getHeader: (event: { __headers?: Record<string, string> }, name: string) =>
-      event.__headers?.[name.toLowerCase()],
-    getRequestHost: hostMock,
-    setHeader: setHeaderMock,
-  }
-})
-
-const module = await import('../../../../server/middleware/0.markdown-negotiation')
-const handler = (module.default ?? module) as unknown as (event: unknown) => Promise<string | undefined>
-
-function makeEvent(path: string, opts: {
-  accept?: string
-  internal?: boolean
-  fetchImpl?: () => Promise<Response>
-} = {}) {
-  const headers: Record<string, string> = {}
-  if (opts.accept !== undefined) headers.accept = opts.accept
-  if (opts.internal) headers['x-md-negotiation-internal'] = '1'
-
-  const fetchImpl = opts.fetchImpl ?? (async () => new Response('# Markdown body', { status: 200 }))
-
-  return {
-    path,
-    method: 'GET',
-    fetch: vi.fn(fetchImpl),
-    __headers: headers,
-  }
+function markdownRequest(req: TestRequest = {}, upstream: () => Promise<Response> = async () => new Response('# Markdown body')) {
+  const event = createTestEvent({ url: '/products', ...req, headers: { accept: 'text/markdown', ...req.headers } })
+  const fetch = vi.fn(upstream)
+  event.fetch = fetch as unknown as typeof event.fetch
+  return { event, fetch, result: callHandler(middleware, event) }
 }
 
-describe('0.markdown-negotiation middleware', () => {
-  beforeEach(() => {
-    hostMock.mockReturnValue('tenant-a.example')
-    setHeaderMock.mockReset()
+describe('server/middleware/0.markdown-negotiation', () => {
+  it('leaves a request that does not ask for markdown alone', async () => {
+    const { fetch, result } = markdownRequest({ headers: { accept: 'text/html' } })
+
+    await expect(result).resolves.toBeUndefined()
+    expect(fetch).not.toHaveBeenCalled()
   })
 
-  it('does nothing when Accept does not include text/markdown', async () => {
-    const event = makeEvent('/products', { accept: 'text/html' })
-    const result = await handler(event)
-    expect(result).toBeUndefined()
-    expect(event.fetch).not.toHaveBeenCalled()
+  it.each([
+    ['its own internal re-fetch', { headers: { 'x-md-negotiation-internal': '1' } }],
+    ['a path with an extension', { url: '/robots.txt' }],
+    ['an /api/ path', { url: '/api/products' }],
+    ['a /checkout/ path', { url: '/checkout/success' }],
+  ])('does not negotiate %s', async (_label, req) => {
+    const { fetch, result } = markdownRequest(req)
+
+    await expect(result).resolves.toBeUndefined()
+    expect(fetch).not.toHaveBeenCalled()
   })
 
-  it('skips internal recursion (x-md-negotiation-internal already set)', async () => {
-    const event = makeEvent('/products', { accept: 'text/markdown', internal: true })
-    const result = await handler(event)
-    expect(result).toBeUndefined()
-    expect(event.fetch).not.toHaveBeenCalled()
-  })
+  it('re-fetches the .md mirror with the marker and the real Host, not X-Forwarded-Host', async () => {
+    const { fetch, result } = markdownRequest({ headers: { 'x-forwarded-host': 'evil.example' } })
 
-  it('skips paths with a dot (already has an extension)', async () => {
-    const event = makeEvent('/robots.txt', { accept: 'text/markdown' })
-    await handler(event)
-    expect(event.fetch).not.toHaveBeenCalled()
-  })
+    await result
 
-  it('skips SKIP_PREFIXES paths (e.g. /api/)', async () => {
-    const event = makeEvent('/api/products', { accept: 'text/markdown' })
-    await handler(event)
-    expect(event.fetch).not.toHaveBeenCalled()
-  })
-
-  it('forwards the original request Host and the internal marker on the internal fetch', async () => {
-    const event = makeEvent('/products', { accept: 'text/markdown' })
-    await handler(event)
-
-    expect(event.fetch).toHaveBeenCalledWith('/products.md', {
-      headers: {
-        'x-md-negotiation-internal': '1',
-        host: 'tenant-a.example',
-      },
+    expect(fetch).toHaveBeenCalledWith('/products.md', {
+      headers: { 'x-md-negotiation-internal': '1', 'host': 'shop.test' },
     })
   })
 
-  it('maps the bare root path to /index.md', async () => {
-    const event = makeEvent('/', { accept: 'text/markdown' })
-    await handler(event)
-    expect(event.fetch).toHaveBeenCalledWith('/index.md', expect.anything())
+  it.each([
+    ['/', '/index.md'],
+    ['/products/', '/products.md'],
+  ])('maps %s to %s', async (url, mdPath) => {
+    const { fetch, result } = markdownRequest({ url })
+
+    await result
+
+    expect(fetch).toHaveBeenCalledWith(mdPath, expect.anything())
   })
 
-  it('returns the markdown body with the correct headers on success', async () => {
-    const event = makeEvent('/products', { accept: 'text/markdown' })
-    const result = await handler(event)
+  it('answers with the markdown and headers that keep caches keyed by Accept', async () => {
+    const { event, result } = markdownRequest()
 
-    expect(result).toBe('# Markdown body')
-    expect(setHeaderMock).toHaveBeenCalledWith(event, 'content-type', 'text/markdown; charset=utf-8')
-    expect(setHeaderMock).toHaveBeenCalledWith(event, 'vary', 'Accept')
+    await expect(result).resolves.toBe('# Markdown body')
+    expect(getResponseHeader(event, 'content-type')).toBe('text/markdown; charset=utf-8')
+    expect(getResponseHeader(event, 'vary')).toBe('Accept')
+    expect(getResponseHeader(event, 'cache-control')).toBe('public, max-age=300, stale-while-revalidate=3600')
   })
 
-  it('returns undefined when the internal fetch rejects', async () => {
-    const event = makeEvent('/products', { accept: 'text/markdown' })
-    event.fetch = vi.fn(async () => { throw new Error('network error') })
+  it.each([
+    ['the re-fetch fails', async () => {
+      throw new Error('network error')
+    }],
+    ['the mirror is not ok', async () => new Response('Not found', { status: 404 })],
+    ['the mirror is empty', async () => new Response('')],
+  ])('falls through to the HTML route when %s', async (_label, upstream) => {
+    const { event, result } = markdownRequest({}, upstream)
 
-    const result = await handler(event)
-    expect(result).toBeUndefined()
-  })
-
-  it('returns undefined when the upstream response is not ok', async () => {
-    const event = makeEvent('/products', {
-      accept: 'text/markdown',
-      fetchImpl: async () => new Response('Not found', { status: 404 }),
-    })
-    const result = await handler(event)
-    expect(result).toBeUndefined()
+    await expect(result).resolves.toBeUndefined()
+    expect(getResponseHeader(event, 'content-type')).toBeUndefined()
   })
 })

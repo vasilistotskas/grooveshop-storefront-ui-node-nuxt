@@ -1,182 +1,80 @@
 /**
- * Unit tests for server/middleware/4.tenant-site-config.ts
+ * A read-back test: `getSiteConfig`'s stack RETURNS the tenant's values
+ * after the middleware runs, not merely "update was called". A previous
+ * implementation assigned a plain object to `event.context.siteConfig`,
+ * which silently broke every consumer even though the middleware "ran
+ * fine".
  *
- * This is a read-back test: it asserts that `getSiteConfig(event)` RETURNS
- * the tenant's values after the middleware runs, not merely that
- * `updateSiteConfig` was called. A previous implementation assigned a
- * plain object directly to `event.context.siteConfig`, which silently
- * broke every consumer even though the middleware itself "ran fine".
- *
- * `updateSiteConfig`/`getSiteConfig` are nuxt-site-config auto-imports
- * backed by `site-config-stack`'s `createSiteConfigStack()` — a stack of
- * config layers resolved by priority, where equal-priority layers resolve
- * in push (insertion) order (site-config-stack@4.1.x `get()`). Neither
- * that internal algorithm nor the composables are part of the package's
- * public `exports` map, so this test reimplements the same push/get
- * priority-resolution semantics locally rather than reaching into a
- * pnpm-hash-dependent dist path.
+ * The stack is the real `site-config-stack` nuxt-site-config uses; the
+ * platform layer below is what its `init` middleware pushes.
  */
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
+import { createSiteConfigStack, SiteConfigPriority } from 'site-config-stack'
+import type { SiteConfigStack } from 'site-config-stack'
+import middleware from '~~/server/middleware/4.tenant-site-config'
+import { callHandler, createTestEvent } from '~~/test/helpers/nitro'
 
-const RUNTIME_PRIORITY = 0
-
-function createFakeSiteConfigStack() {
-  const stack: Array<Record<string, unknown>> = []
-  return {
-    push(input: Record<string, unknown>) {
-      stack.push(input)
-    },
-    get() {
-      const resolved: Record<string, unknown> = {}
-      // Stable sort by priority ascending; equal-priority entries keep
-      // insertion order, and later entries win for the same key —
-      // mirrors site-config-stack's `get()`.
-      const sorted = [...stack].sort((a, b) =>
-        ((a._priority as number) ?? RUNTIME_PRIORITY) - ((b._priority as number) ?? RUNTIME_PRIORITY),
-      )
-      for (const entry of sorted) {
-        for (const key of Object.keys(entry)) {
-          if (key.startsWith('_')) continue
-          resolved[key] = entry[key]
-        }
-      }
-      return resolved
-    },
-  }
+const PLATFORM_LAYER = {
+  _context: 'runtimeEnv',
+  _priority: SiteConfigPriority.runtime,
+  url: 'https://platform.test',
+  name: 'Platform',
+  description: 'Platform-wide description',
 }
 
-function fakeUpdateSiteConfig(event: { context: { siteConfig?: ReturnType<typeof createFakeSiteConfigStack> } }, input: Record<string, unknown>) {
-  event.context.siteConfig = event.context.siteConfig || createFakeSiteConfigStack()
-  event.context.siteConfig.push(input)
+/** Init ran first (the dev order): the stack already holds the platform layer. */
+async function resolveAfterInit(tenant?: Record<string, unknown>) {
+  const siteConfig = createSiteConfigStack()
+  siteConfig.push(PLATFORM_LAYER)
+  const event = createTestEvent({ context: { tenant, siteConfig } })
+  await callHandler(middleware, event)
+  return (event.context.siteConfig as SiteConfigStack).get()
 }
 
-function fakeGetSiteConfig(event: { context: { siteConfig?: ReturnType<typeof createFakeSiteConfigStack> } }) {
-  event.context.siteConfig = event.context.siteConfig || createFakeSiteConfigStack()
-  return event.context.siteConfig.get()
-}
-
-vi.stubGlobal('updateSiteConfig', fakeUpdateSiteConfig)
-vi.stubGlobal('defineEventHandler', (fn: (event: unknown) => unknown) => fn)
-
-const module = await import('../../../../server/middleware/4.tenant-site-config')
-const handler = (module.default ?? module) as unknown as (event: unknown) => void
-
-function makeEventWithRuntimeConfig(tenant?: Record<string, unknown>) {
-  const event = {
-    context: {
-      tenant,
-      siteConfig: createFakeSiteConfigStack(),
-    },
-  }
-  // Simulate nuxt-site-config's own `init` middleware, which runs before
-  // route-scoped user middleware and pushes the platform-wide config at
-  // the "runtime" priority tier (SiteConfigPriority.runtime = 0).
-  event.context.siteConfig.push({
-    _context: 'runtimeEnv',
-    _priority: RUNTIME_PRIORITY,
-    url: 'https://webside.gr',
-    name: 'Webside',
-    description: 'Platform-wide description',
-  })
-  return event
-}
-
-describe('4.tenant-site-config middleware', () => {
-  it('does nothing when there is no tenant context', () => {
-    const event = makeEventWithRuntimeConfig(undefined)
-    handler(event)
-    expect(fakeGetSiteConfig(event)).toMatchObject({ url: 'https://webside.gr', name: 'Webside' })
+describe('server/middleware/4.tenant-site-config', () => {
+  it('leaves the platform config when there is no tenant', async () => {
+    expect(await resolveAfterInit(undefined)).toMatchObject({ url: 'https://platform.test', name: 'Platform' })
   })
 
-  it('does nothing when the tenant has no primaryDomain', () => {
-    const event = makeEventWithRuntimeConfig({ storeName: 'Acme' })
-    handler(event)
-    expect(fakeGetSiteConfig(event)).toMatchObject({ url: 'https://webside.gr', name: 'Webside' })
+  it('leaves the platform config when the tenant has no primaryDomain', async () => {
+    expect(await resolveAfterInit({ storeName: 'Acme' })).toMatchObject({ url: 'https://platform.test', name: 'Platform' })
   })
 
-  it('getSiteConfig returns the tenant url and name after the middleware runs', () => {
-    const event = makeEventWithRuntimeConfig({
-      primaryDomain: 'acme.example',
-      storeName: 'Acme Store',
-      name: 'acme',
-    })
-    handler(event)
+  it('resolves the tenant url and store name', async () => {
+    const resolved = await resolveAfterInit({ primaryDomain: 'acme.example', storeName: 'Acme Store', name: 'acme' })
 
-    const resolved = fakeGetSiteConfig(event)
     expect(resolved.url).toBe('https://acme.example')
     expect(resolved.name).toBe('Acme Store')
   })
 
-  it('falls back to tenant.name when storeName is empty', () => {
-    const event = makeEventWithRuntimeConfig({
-      primaryDomain: 'acme.example',
-      storeName: '',
-      name: 'acme',
-    })
-    handler(event)
-
-    expect(fakeGetSiteConfig(event).name).toBe('acme')
+  it('falls back to tenant.name when storeName is empty', async () => {
+    expect((await resolveAfterInit({ primaryDomain: 'acme.example', storeName: '', name: 'acme' })).name).toBe('acme')
   })
 
-  it('overrides description when the tenant provides one', () => {
-    const event = makeEventWithRuntimeConfig({
-      primaryDomain: 'acme.example',
-      storeName: 'Acme Store',
-      storeDescription: 'Acme tenant description',
-    })
-    handler(event)
+  it('overrides the description when the tenant provides one', async () => {
+    const resolved = await resolveAfterInit({ primaryDomain: 'acme.example', storeName: 'Acme', storeDescription: 'Acme tenant description' })
 
-    expect(fakeGetSiteConfig(event).description).toBe('Acme tenant description')
+    expect(resolved.description).toBe('Acme tenant description')
   })
 
-  it('falls through to the platform-wide description when the tenant has none', () => {
-    const event = makeEventWithRuntimeConfig({
-      primaryDomain: 'acme.example',
-      storeName: 'Acme Store',
-    })
-    handler(event)
-
-    // Not overridden — the platform-wide runtimeEnv value survives.
-    expect(fakeGetSiteConfig(event).description).toBe('Platform-wide description')
+  it('keeps the platform description when the tenant has none', async () => {
+    expect((await resolveAfterInit({ primaryDomain: 'acme.example', storeName: 'Acme' })).description).toBe('Platform-wide description')
   })
-})
 
-describe('middleware-before-init ordering (production Nitro order)', () => {
-  it('tenant values win even when the runtimeEnv layer is pushed AFTER the middleware ran', () => {
-    // In the production Nitro build, this middleware runs BEFORE
-    // nuxt-site-config's init middleware: it creates the stack, pushes
-    // the tenant layer, and init's runtimeEnv push lands LATER. With an
-    // unprioritised tenant push, equal-priority/later-insertion let the
-    // env layer bury the tenant values — every non-platform tenant
-    // rendered the PLATFORM url/name in canonical/og:url/titleTemplate
-    // (observed live on staging tenant #2, 2026-08-19). The explicit
-    // _priority on the tenant push must win regardless of order.
-    const event = {
-      context: {
-        tenant: {
-          primaryDomain: 'acme.example',
-          storeName: 'Acme Store',
-          name: 'acme',
-        },
-        siteConfig: undefined as unknown as ReturnType<typeof createFakeSiteConfigStack>,
-      },
-    }
+  it('wins even when the platform layer is pushed AFTER it (the production Nitro order)', async () => {
+    // In the production build this middleware runs before
+    // nuxt-site-config's init, which pushes its layer later. Unprioritised,
+    // that buried every tenant's url/name under the platform's (staging
+    // tenant #2, 2026-08-19); the explicit priority must win.
+    const event = createTestEvent({ context: { tenant: { primaryDomain: 'acme.example', storeName: 'Acme Store' } } })
+    await callHandler(middleware, event)
+    const siteConfig = event.context.siteConfig as SiteConfigStack
+    siteConfig.push(PLATFORM_LAYER)
 
-    handler(event)
+    const resolved = siteConfig.get()
 
-    // Simulate init running afterwards on the SAME stack object.
-    event.context.siteConfig!.push({
-      _context: 'runtimeEnv',
-      _priority: RUNTIME_PRIORITY,
-      url: 'https://webside.gr',
-      name: 'Webside',
-      description: 'Platform-wide description',
-    })
-
-    const resolved = fakeGetSiteConfig(event)
     expect(resolved.url).toBe('https://acme.example')
     expect(resolved.name).toBe('Acme Store')
-    // Unset tenant keys still fall through to the env layer.
     expect(resolved.description).toBe('Platform-wide description')
   })
 })
