@@ -51,13 +51,29 @@ const PLAN_ON: PlanFlags = {
   giftCardsEnabled: true,
 }
 
-type SettingState = 'on' | 'off' | 'missing' | 'unreadable'
-const SETTING_STATES: SettingState[] = ['on', 'off', 'missing', 'unreadable']
+/**
+ * A setting row as the merchant can store it: Django writes a bool row as
+ * "True"/"False", and a string-typed row can hold any spelling
+ * `parseSettingFlag` accepts. Every gate must read them all the same way
+ * (a loyalty gate that accepted only "true" 404'd a store that typed "1").
+ */
+const SETTING_STATES = {
+  'on': 'True',
+  'on, typed 1': '1',
+  'on, typed yes': 'yes',
+  'on, padded capitals': ' YES ',
+  'off': 'False',
+  'off, typed 0': '0',
+  'missing': undefined,
+  'unreadable': null,
+} as const
+type SettingState = keyof typeof SETTING_STATES
 
 function settingsFor(route: FeatureGatedRoute, state: SettingState): Record<string, string> | null {
-  if (state === 'unreadable') return null
-  if (state === 'missing' || !route.settingKey) return {}
-  return { [route.settingKey]: state === 'on' ? 'True' : 'False' }
+  const raw = SETTING_STATES[state]
+  if (raw === null) return null
+  if (raw === undefined || !route.settingKey) return {}
+  return { [route.settingKey]: raw }
 }
 
 /**
@@ -99,7 +115,7 @@ async function outcome(path: string): Promise<'served' | number | undefined> {
 
 const CASES = FEATURE_GATED_ROUTES.flatMap(route =>
   [PLAN_ON, PLAN_OFF].flatMap(plan =>
-    SETTING_STATES.map(state => ({
+    (Object.keys(SETTING_STATES) as SettingState[]).map(state => ({
       route,
       plan,
       state,

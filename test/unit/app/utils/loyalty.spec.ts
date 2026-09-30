@@ -92,7 +92,18 @@ describe('parseLoyaltySettings', () => {
     })
   })
 
-  it.each(['false', '1', 'yes', ''])('treats %j as a disabled flag', (value) => {
+  // The same truthiness every other merchant setting follows
+  // (`parseSettingFlag`): the sitemap, the menus and the route gate read
+  // `1` / `yes` as on, so the loyalty numbers must too.
+  it.each(['True', 'true', '1', 'yes', ' YES '])('treats %j as an enabled flag', (value) => {
+    expect(parseLoyaltySettings({
+      LOYALTY_ENABLED: value,
+      LOYALTY_TIER_MULTIPLIER_ENABLED: value,
+      LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: value,
+    })).toMatchObject({ enabled: true, tierMultiplierEnabled: true, newCustomerBonusEnabled: true })
+  })
+
+  it.each(['False', 'false', '0', 'no', ''])('treats %j as a disabled flag', (value) => {
     expect(parseLoyaltySettings({
       LOYALTY_ENABLED: value,
       LOYALTY_TIER_MULTIPLIER_ENABLED: value,
