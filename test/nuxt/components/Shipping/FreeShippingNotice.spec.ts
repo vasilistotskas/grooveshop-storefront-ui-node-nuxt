@@ -1,71 +1,88 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { clearNuxtData } from '#app'
 import FreeShippingNotice from '~/components/Shipping/FreeShippingNotice.vue'
+import WebsideFreeShippingNotice from '~/components/variants/webside/Shipping/FreeShippingNotice.vue'
+import { trees } from '~~/test/helpers/trees'
+
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+
+const INFO_URL = '/api/shipping/free-shipping-info'
+
+/**
+ * `useFreeShippingInfo` caches under this fixed key with a custom
+ * `getCachedData` that serves ANY payload already stored there, so
+ * without clearing it every test after the first would render the
+ * first test's threshold and never hit the route it registered.
+ */
+const INFO_KEY = 'shipping:free-shipping-info'
 
 const buildResponse = (overrides: Record<string, unknown> = {}) => ({
   providers: [
-    {
-      providerCode: 'boxnow',
-      providerName: 'BOX NOW',
-      kind: 'pickup_point',
-      threshold: 30,
-      priority: 20,
-    },
+    { providerCode: 'boxnow', providerName: 'BOX NOW', kind: 'pickup_point', threshold: 30, priority: 20 },
   ],
   minThreshold: 30,
   maxThreshold: 30,
   currency: 'EUR',
-  // Echoes the country ``free_shipping_info`` resolved for (the
-  // caller's ``country_code``, else the first shippable country) —
-  // FreeShippingNotice doesn't read it (no delivery country is known
-  // this early on the PDP/cart), but the fixture mirrors the real
-  // response shape.
   countryCode: 'GR',
   ...overrides,
 })
 
-describe('FreeShippingNotice', () => {
+/** The component's own `<i18n>` copy (el); the global `$i18n` cannot reach it. */
+const euro = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+const COPY = {
+  idle: (amount: number) => `Δωρεάν μεταφορικά σε αγορές άνω των ${euro(amount)}`,
+  progress: (amount: number) => `Πρόσθεσε ακόμα ${euro(amount)} για δωρεάν μεταφορικά`,
+  qualified: 'Έχεις δωρεάν μεταφορικά',
+}
+
+describe.each(trees(FreeShippingNotice, WebsideFreeShippingNotice))('$tree FreeShippingNotice', ({ C }) => {
   beforeEach(() => {
-    registerEndpoint('/api/shipping/free-shipping-info', () => buildResponse())
+    clearNuxtData(INFO_KEY)
+    api.routes({ [INFO_URL]: buildResponse() })
   })
 
-  afterEach(() => {
-    vi.clearAllMocks()
+  it('advertises the lowest threshold when no cart total is given (product page)', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+
+    expect(wrapper.text()).toBe(COPY.idle(30))
+    expect(api.callsTo(INFO_URL)).toHaveLength(1)
   })
 
-  it('renders the headline threshold when no cartTotal is supplied', async () => {
-    const wrapper = await mountSuspended(FreeShippingNotice)
-    expect(wrapper.text()).toContain('30')
-    expect(wrapper.text()).toContain('Δωρεάν μεταφορικά')
+  it.each([
+    { cartTotal: 22, text: () => COPY.progress(8) },
+    { cartTotal: 29.99, text: () => COPY.progress(0.01) },
+    // Exactly at the threshold the carrier ships free.
+    { cartTotal: 30, text: () => COPY.qualified },
+    { cartTotal: 50, text: () => COPY.qualified },
+  ])('shows the progress towards free delivery for a cart of $cartTotal', async ({ cartTotal, text }) => {
+    const wrapper = await mountSuspended(C, { route: false, props: { cartTotal } })
+
+    expect(wrapper.text()).toBe(text())
   })
 
-  it('shows the remaining-to-free message when cartTotal is below the threshold', async () => {
-    const wrapper = await mountSuspended(FreeShippingNotice, {
-      props: { cartTotal: 22 },
-    })
-    // 30 - 22 = 8 €
-    expect(wrapper.text()).toContain('8')
-    expect(wrapper.text()).toContain('Πρόσθεσε')
+  it.each([
+    { name: 'no carrier advertises a threshold', response: buildResponse({ providers: [], minThreshold: null, maxThreshold: null }) },
+    // A zero threshold means "always free" — there is nothing to advertise.
+    { name: 'the threshold is 0', response: buildResponse({ minThreshold: 0 }) },
+  ])('renders nothing when $name', async ({ response }) => {
+    api.routes({ [INFO_URL]: response })
+
+    const wrapper = await mountSuspended(C, { route: false, props: { cartTotal: 10 } })
+
+    expect(api.callsTo(INFO_URL)).toHaveLength(1)
+    expect(wrapper.text()).toBe('')
+    expect(wrapper.find('[data-slot="root"]').exists()).toBe(false)
   })
 
-  it('shows the qualified state when cartTotal meets or exceeds the threshold', async () => {
-    const wrapper = await mountSuspended(FreeShippingNotice, {
-      props: { cartTotal: 50 },
-    })
-    expect(wrapper.text()).toContain('Έχεις')
-  })
-})
+  it('renders nothing when the threshold lookup fails', async () => {
+    api.routes({ [INFO_URL]: () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) } })
 
-describe('FreeShippingNotice — empty response', () => {
-  beforeEach(() => {
-    registerEndpoint('/api/shipping/free-shipping-info', () =>
-      buildResponse({ providers: [], minThreshold: null, maxThreshold: null }),
-    )
-  })
+    const wrapper = await mountSuspended(C, { route: false, props: { cartTotal: 10 } })
 
-  it('renders nothing when no carrier advertises a threshold', async () => {
-    const wrapper = await mountSuspended(FreeShippingNotice)
-    // UAlert root absent → component output is empty.
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.text()).toBe('')
+    expect(wrapper.find('[data-slot="root"]').exists()).toBe(false)
   })
 })

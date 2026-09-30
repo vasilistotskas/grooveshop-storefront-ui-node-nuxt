@@ -1,51 +1,39 @@
-import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import { ref } from 'vue'
+import type { ProductPromotion } from '~~/shared/openapi/types.gen'
 import ProductOffers from '~/components/Product/Offers.vue'
+import WebsideProductOffers from '~/components/variants/webside/Product/Offers.vue'
+import { setTenant } from '~~/test/helpers/tenant'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The product page's offer panel.
  *
- * Django decides WHICH offers touch the product and why; this pins the
- * two things the component itself owns — the two-tier commercial gate
- * (fail CLOSED) and the split that keeps a store-wide offer from
- * burying the one that is actually about this item.
+ * Django decides WHICH offers touch the product and why; this pins what
+ * the component itself owns — the two-tier commercial gate (plan flag
+ * AND merchant setting, fail CLOSED, on the request as well as the
+ * render) and the split that keeps a store-wide offer from burying the
+ * one that is actually about this item.
  */
 
-const PUBLIC_SETTINGS = { settings: { PROMOTIONS_ENABLED: 'true' } }
+// Both the settings read (`useApi` → `$fetch`) and the offers request
+// land on this one mock, so `registerEndpoint` is unused.
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
 
-let offers: any[] = []
-let promotionsPlanEnabled = true
-let runtimeSettings: Record<string, string> = { PROMOTIONS_ENABLED: 'true' }
-
-const { mockFetch } = vi.hoisted(() => ({
-  mockFetch: vi.fn((..._args: any[]) => Promise.resolve({})),
+const { clipboardCopy, toastAdd } = vi.hoisted(() => ({
+  clipboardCopy: vi.fn((_text: string) => Promise.resolve()),
+  toastAdd: vi.fn(),
 }))
-mockNuxtImport('$api', () => mockFetch)
-// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
-// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
-// builds `$api` from `$fetch.create()` while the app boots.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
-registerEndpoint('/api/settings/public', () => PUBLIC_SETTINGS)
+mockNuxtImport('useClipboard', () => () => ({ copy: clipboardCopy, isSupported: ref(true) }))
+mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-mockNuxtImport('useTenantStore', () => {
-  return () => ({ get promotionsEnabled() { return promotionsPlanEnabled } })
-})
+const OFFERS_URL = '/api/promotions/product/2'
 
-// The component now gates the REQUEST on the awaitable form of the flag
-// (`settingEnabled`), not just the render. Its real implementation goes
-// through `fetchStoreSettings` -> `useRequestFetch`, which has no
-// request context under mountSuspended and so always fails closed here.
-// Driving it from the same `runtimeSettings` the gate tests already
-// manipulate keeps that coverage honest rather than mocking the gate
-// open unconditionally.
-mockNuxtImport('settingEnabled', () => {
-  return async (key: string, options: { fallback: boolean }) => {
-    const raw = runtimeSettings[key]
-    return raw === undefined ? options.fallback : raw === 'true'
-  }
-})
-
-function offer(over: Record<string, any> = {}) {
+function offer(overrides: Partial<ProductPromotion> = {}): ProductPromotion {
   return {
     id: 1,
     name: 'Προσφορά',
@@ -70,86 +58,78 @@ function offer(over: Record<string, any> = {}) {
     eligibleProductCount: 0,
     eligibleCategories: [],
     relation: 'ORDER',
-    ...over,
+    ...overrides,
   }
 }
 
-let wrapper: any
-async function mount() {
-  wrapper = await mountSuspended(ProductOffers, { props: { productId: 2 } })
-  await new Promise(resolve => setTimeout(resolve, 200))
-  await wrapper.vm.$nextTick()
-  return wrapper
-}
+describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers', ({ tree, C }) => {
+  let offers: ProductPromotion[]
+  let settings: () => unknown
 
-describe('ProductOffers', () => {
+  const mountPanel = async () => {
+    const wrapper = await mountSuspended(C, { props: { productId: 2 }, route: false })
+    await flushPromises()
+    return wrapper
+  }
+
   beforeEach(() => {
-    mockFetch.mockReset()
-    mockFetch.mockImplementation((url: any) => {
-      if (String(url).includes('/api/promotions/product/')) {
-        return Promise.resolve(offers)
-      }
-      if (String(url).includes('/api/settings/public')) {
-        return Promise.resolve({ settings: runtimeSettings })
-      }
-      return Promise.resolve({})
-    })
+    // Both the store settings and the offers are cached by key on the
+    // shared Nuxt app.
+    clearNuxtData()
+    setTenant({ promotionsEnabled: true })
     offers = []
-    promotionsPlanEnabled = true
-    runtimeSettings = { PROMOTIONS_ENABLED: 'true' }
-    clearNuxtData('product-offers-2')
+    settings = () => ({ settings: { PROMOTIONS_ENABLED: 'true' } })
+    api.routes({
+      '/api/settings/public': () => settings(),
+      [OFFERS_URL]: () => offers,
+    })
   })
 
-  afterEach(() => {
-    wrapper?.unmount?.()
-    wrapper = undefined
-  })
-
-  it('does not even ASK when promotions are off for the store', async () => {
-    // The gate used to apply to `rows` only, so a promotions-off store
-    // still fired one request per product view and Django answered 404
-    // to every one — 58 in six hours on webside.gr. Wasted round trip on
-    // the hot PDP path, and a permanent ERROR smear hiding real faults.
-    promotionsPlanEnabled = false
+  // The gate used to apply to the render only, so a promotions-off store
+  // still fired one request per product view and Django answered 404 to
+  // every one — 58 in six hours on webside.gr.
+  it.each([
+    ['the tenant plan excludes promotions', () => setTenant({ promotionsEnabled: false })],
+    ['the merchant turned promotions off', () => { settings = () => ({ settings: { PROMOTIONS_ENABLED: 'false' } }) }],
+    ['the store settings cannot be read', () => { settings = () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) } }],
+  ])('neither asks for nor renders offers when %s', async (_case, arrange) => {
+    arrange()
     offers = [offer({ relation: 'PRODUCT' })]
 
-    await mount()
+    const wrapper = await mountPanel()
 
-    const asked = mockFetch.mock.calls.some((c: any[]) =>
-      String(c[0]).includes('/api/promotions/product/'),
-    )
-    expect(asked).toBe(false)
-  })
-
-  it('does not ask when the runtime toggle is off either', async () => {
-    runtimeSettings = { PROMOTIONS_ENABLED: 'false' }
-    offers = [offer({ relation: 'PRODUCT' })]
-
-    await mount()
-
-    const asked = mockFetch.mock.calls.some((c: any[]) =>
-      String(c[0]).includes('/api/promotions/product/'),
-    )
-    expect(asked).toBe(false)
-  })
-
-  it('renders nothing when no offer touches the product', async () => {
-    const wrapper = await mount()
-
+    expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it('shows the count of every offer that applies', async () => {
+  it(tree === 'default'
+    ? 'asks in the page language, since Django translates the offers'
+    : 'asks without a language (the frozen copy predates the translated offers)', async () => {
+    await mountPanel()
+
+    const calls = api.callsTo(OFFERS_URL)
+    expect(calls).toHaveLength(1)
+    expect(calls[0]!.options.query).toEqual(tree === 'default' ? { languageCode: 'el' } : undefined)
+  })
+
+  it('renders nothing when no offer touches the product', async () => {
+    const wrapper = await mountPanel()
+
+    expect(api.callsTo(OFFERS_URL)).toHaveLength(1)
+    expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  it('counts every offer that applies in the heading', async () => {
     offers = [
       offer({ id: 1, relation: 'PRODUCT' }),
       offer({ id: 2, relation: 'CATEGORY' }),
       offer({ id: 3, relation: 'ORDER' }),
     ]
 
-    const wrapper = await mount()
+    const wrapper = await mountPanel()
 
-    expect(wrapper.find('section').exists()).toBe(true)
-    expect(wrapper.text()).toContain('3')
+    expect(wrapper.find('section').attributes('aria-label')).toBe('Προσφορές για αυτό το προϊόν')
+    expect(wrapper.find('h2').text()).toBe('Προσφορές για αυτό το προϊόν 3')
   })
 
   it('renders product-specific offers openly and store-wide ones behind a toggle', async () => {
@@ -159,12 +139,18 @@ describe('ProductOffers', () => {
       offer({ id: 3, relation: 'ORDER', name: 'Και αυτό παντού' }),
     ]
 
-    const wrapper = await mount()
+    const wrapper = await mountPanel()
 
-    // The specific one is in the open list; the collapsible keeps the
-    // other two out of the way (UCollapsible unmounts hidden content).
     expect(wrapper.text()).toContain('Μόνο για αυτό')
     expect(wrapper.text()).not.toContain('Και αυτό παντού')
+
+    const toggle = wrapper.findAll('button').find(b => b.text() === '2 προσφορές σε όλο το κατάστημα')
+    expect(toggle).toBeDefined()
+    await toggle!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Σε όλο το κατάστημα')
+    expect(wrapper.text()).toContain('Και αυτό παντού')
   })
 
   it('opens the store-wide list by default when nothing is specific', async () => {
@@ -172,40 +158,35 @@ describe('ProductOffers', () => {
     // header, a count and an empty body.
     offers = [offer({ id: 2, relation: 'ORDER', name: 'Σε όλο το κατάστημα' })]
 
-    const wrapper = await mount()
+    const wrapper = await mountPanel()
 
     expect(wrapper.text()).toContain('Σε όλο το κατάστημα')
   })
 
-  it('shows a coupon code and hides the copy affordance for automatic offers', async () => {
+  it('shows the coupon code of a code offer and none for an automatic one', async () => {
     offers = [
       offer({ id: 1, relation: 'PRODUCT', trigger: 'CODE', code: 'PICK20' }),
       offer({ id: 2, relation: 'PRODUCT', trigger: 'AUTOMATIC', code: null }),
     ]
 
-    const wrapper = await mount()
+    const wrapper = await mountPanel()
 
-    expect(wrapper.text()).toContain('PICK20')
-    expect(wrapper.findAll('code')).toHaveLength(1)
+    expect(wrapper.findAll('code').map(code => code.text())).toEqual(['PICK20'])
   })
 
-  it('renders nothing when the tenant plan flag is off', async () => {
-    // Fails CLOSED: a commercial surface must not leak on a plan that
-    // does not include it, even if the endpoint answered.
-    offers = [offer({ id: 1, relation: 'PRODUCT' })]
-    promotionsPlanEnabled = false
+  it('copies a coupon code and confirms it with a toast', async () => {
+    offers = [offer({ id: 1, relation: 'PRODUCT', trigger: 'CODE', code: 'PICK20' })]
+    const wrapper = await mountPanel()
+    const label = useNuxtApp().$i18n.t('promotion.copy_code')
 
-    const wrapper = await mount()
+    await wrapper.get(`button[aria-label="${label}"]`).trigger('click')
+    await flushPromises()
 
-    expect(wrapper.find('section').exists()).toBe(false)
-  })
-
-  it('renders nothing when the merchant runtime toggle is off', async () => {
-    offers = [offer({ id: 1, relation: 'PRODUCT' })]
-    runtimeSettings = { PROMOTIONS_ENABLED: 'false' }
-
-    const wrapper = await mount()
-
-    expect(wrapper.find('section').exists()).toBe(false)
+    expect(clipboardCopy).toHaveBeenCalledWith('PICK20')
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      title: useNuxtApp().$i18n.t('promotion.code_copied'),
+      description: 'PICK20',
+      color: 'success',
+    }))
   })
 })

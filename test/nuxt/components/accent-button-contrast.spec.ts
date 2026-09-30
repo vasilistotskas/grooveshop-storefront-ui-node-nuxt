@@ -36,14 +36,6 @@ describe('a non-solid accent button', () => {
       ).not.toMatch(/\btext-secondary\b/)
     })
   }
-
-  it('leaves a SOLID accent button on its own foreground token', async () => {
-    // That pairing is the opposite problem and has its own rule.
-    const wrapper = await mountSuspended(UButton, {
-      props: { color: 'secondary', variant: 'solid', label: 'Buy' },
-    })
-
-    const classes = wrapper.find('button').attributes('class') ?? ''
-    expect(classes).toContain('text-(--ui-on-secondary)')
-  })
+  // The SOLID accent button is the opposite problem, with its own rule:
+  // `test/nuxt/theme/app-config-variants.spec.ts`, "a solid button".
 })

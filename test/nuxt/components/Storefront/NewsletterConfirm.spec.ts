@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NewsletterConfirm from '~/components/Storefront/NewsletterConfirm.vue'
 
@@ -8,6 +9,7 @@ import NewsletterConfirm from '~/components/Storefront/NewsletterConfirm.vue'
  * and each of Django's answers — 200, 410, 400 — is its own state.
  */
 const TOKEN = 'a'.repeat(64)
+const CONFIRM_URL = `/api/subscriptions/confirm/${TOKEN}`
 
 mockNuxtImport('useRoute', () => () => ({
   params: { token: TOKEN },
@@ -20,96 +22,102 @@ mockNuxtImport('useRoute', () => () => ({
   hash: '',
 }))
 
-const { mockFetch } = vi.hoisted(() => ({
-  mockFetch: vi.fn((_url: unknown, _opts?: unknown) => Promise.resolve({})),
-}))
-mockNuxtImport('$api', () => mockFetch)
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
 
-const CONFIRM_URL = `/api/subscriptions/confirm/${TOKEN}`
-
-function confirmCalls() {
-  return mockFetch.mock.calls.filter(([url]) => String(url) === CONFIRM_URL)
+/** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
+const COPY = {
+  confirmedTitle: 'Η εγγραφή σου επιβεβαιώθηκε',
+  confirmedDescription: 'Από εδώ και πέρα θα λαμβάνεις το ενημερωτικό μας δελτίο.',
+  confirmedTopic: 'Από εδώ και πέρα θα λαμβάνεις: Weekly News.',
+  expiredTitle: 'Ο σύνδεσμος έληξε',
+  invalidTitle: 'Μη έγκυρος σύνδεσμος',
+  failed: 'Η επιβεβαίωση δεν ολοκληρώθηκε. Δοκίμασε ξανά σε λίγο.',
+  confirm: 'Επιβεβαίωση εγγραφής',
 }
 
-function rejectWith(statusCode: number) {
-  mockFetch.mockImplementation((url: unknown) =>
-    String(url) === CONFIRM_URL
-      ? Promise.reject(Object.assign(new Error(String(statusCode)), {
-          statusCode,
-          data: { detail: 'x' },
-        }))
-      : Promise.resolve({}),
-  )
+const rejectWith = (statusCode: number) => () => {
+  throw Object.assign(new Error(String(statusCode)), { statusCode, data: { detail: 'x' } })
 }
 
-async function pressConfirm(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
-  await wrapper.find('button').trigger('click')
-  await new Promise(resolve => setTimeout(resolve, 20))
+const mountPage = () => mountSuspended(NewsletterConfirm, { route: false })
+
+const confirmButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
+  wrapper.findAll('button').find(b => b.text() === COPY.confirm)
+
+async function pressConfirm(wrapper: Awaited<ReturnType<typeof mountPage>>) {
+  await confirmButton(wrapper)!.trigger('click')
+  await flushPromises()
 }
 
 describe('NewsletterConfirm', () => {
   beforeEach(() => {
-    mockFetch.mockReset()
-    mockFetch.mockImplementation(() => Promise.resolve({}))
+    api.routes({ [CONFIRM_URL]: { status: 'confirmed', topic: 'Weekly News' } })
   })
 
   it('confirms nothing on its own: it waits for the button', async () => {
-    const wrapper = await mountSuspended(NewsletterConfirm)
+    const wrapper = await mountPage()
+    await flushPromises()
 
-    expect(confirmCalls()).toHaveLength(0)
-    expect(wrapper.find('button').exists()).toBe(true)
+    expect(api.callsTo(CONFIRM_URL)).toEqual([])
+    expect(confirmButton(wrapper)).toBeTruthy()
   })
 
-  it('POSTs the token and shows the confirmed state with the topic', async () => {
-    mockFetch.mockImplementation((url: unknown) =>
-      String(url) === CONFIRM_URL
-        ? Promise.resolve({ status: 'confirmed', topic: 'Weekly News' })
-        : Promise.resolve({}),
-    )
-    const wrapper = await mountSuspended(NewsletterConfirm)
+  it('POSTs the token and names the confirmed topic', async () => {
+    const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
 
-    const calls = confirmCalls()
-    expect(calls).toHaveLength(1)
-    expect((calls[0]![1] as { method: string }).method).toBe('POST')
-    expect(wrapper.find('[role="status"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Weekly News')
+    expect(api.callsTo(CONFIRM_URL)).toEqual([{ url: CONFIRM_URL, options: { method: 'POST' } }])
+    const status = wrapper.find('[role="status"]')
+    expect(status.find('h2').text()).toBe(COPY.confirmedTitle)
+    expect(status.find('p').text()).toBe(COPY.confirmedTopic)
+    expect(confirmButton(wrapper)).toBeUndefined()
   })
 
-  it('shows the expired state on 410', async () => {
-    rejectWith(410)
-    const wrapper = await mountSuspended(NewsletterConfirm)
+  it('falls back to the generic confirmation when Django names no topic', async () => {
+    api.routes({ [CONFIRM_URL]: { status: 'confirmed' } })
+    const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
 
-    const alert = wrapper.find('[role="alert"]')
-    expect(alert.exists()).toBe(true)
-    // The suite renders in the default locale (el).
-    expect(alert.text()).toContain('έληξε')
+    expect(wrapper.find('[role="status"] p').text()).toBe(COPY.confirmedDescription)
   })
 
-  it('shows the invalid state on 400', async () => {
-    rejectWith(400)
-    const wrapper = await mountSuspended(NewsletterConfirm)
+  it.each([
+    { status: 410, title: COPY.expiredTitle },
+    { status: 400, title: COPY.invalidTitle },
+  ])('shows its own final state on $status, without a retry button', async ({ status, title }) => {
+    api.routes({ [CONFIRM_URL]: rejectWith(status) })
+    const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
 
-    const alert = wrapper.find('[role="alert"]')
-    expect(alert.exists()).toBe(true)
-    // Not the expired copy: the visitor is told the link is not valid.
-    expect(alert.text()).not.toContain('έληξε')
+    expect(wrapper.find('[role="alert"] h2').text()).toBe(title)
+    expect(confirmButton(wrapper)).toBeUndefined()
   })
 
   it('keeps the button on any other failure, so the visitor can retry', async () => {
-    rejectWith(503)
-    const wrapper = await mountSuspended(NewsletterConfirm)
+    api.routes({ [CONFIRM_URL]: rejectWith(503) })
+    const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
 
-    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.find('button').exists()).toBe(true)
+    expect(wrapper.find('[role="alert"]').text()).toBe(COPY.failed)
     await pressConfirm(wrapper)
-    expect(confirmCalls()).toHaveLength(2)
+    expect(api.callsTo(CONFIRM_URL)).toHaveLength(2)
+  })
+
+  it('sends one request however often the button is pressed while it is pending', async () => {
+    let settle!: (value: unknown) => void
+    api.routes({ [CONFIRM_URL]: () => new Promise((resolve) => { settle = resolve }) })
+    const wrapper = await mountPage()
+
+    await confirmButton(wrapper)!.trigger('click')
+    await confirmButton(wrapper)!.trigger('click')
+    settle({ status: 'confirmed' })
+    await flushPromises()
+
+    expect(api.callsTo(CONFIRM_URL)).toHaveLength(1)
   })
 })

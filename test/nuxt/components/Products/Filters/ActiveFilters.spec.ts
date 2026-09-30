@@ -1,622 +1,157 @@
-/**
- * Unit tests for ActiveFilters component
- * Feature: meilisearch-product-filters
- * 
- * Tests the active filters display component including:
- * - Chip rendering
- * - Filter removal
- * - Clear all functionality
- * - Value formatting
- */
-
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import type { VueWrapper } from '@vue/test-utils'
 import ActiveFilters from '~/components/Products/Filters/ActiveFilters.vue'
-import type { FilterChip, ProductFilters } from '#shared/types/product-filters'
+import WebsideActiveFilters from '~/components/variants/webside/Products/Filters/ActiveFilters.vue'
+import type { FilterChip } from '~~/shared/types/product-filters'
+import { trees } from '~~/test/helpers/trees'
 
-// Mock useProductFilters at module level
-const mockFilters = ref<ProductFilters>({
-  search: '',
-  priceMin: undefined,
-  priceMax: undefined,
-  likesMin: undefined,
-  viewsMin: undefined,
-  categories: [],
-  sort: '',
-  attributeValues: [],
-})
+/**
+ * The chip list's output is the filter it removes. The chips themselves
+ * come from `useProductFilters` (its own spec derives them from the
+ * URL); this spec feeds chips in and checks what each one shows and
+ * which filter a click takes away. A category or attribute chip takes
+ * ONE id out of a multi-select, so it must rewrite the list rather than
+ * drop the whole filter.
+ */
+const pf = await vi.hoisted(async () =>
+  (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
+mockNuxtImport('useProductFilters', () => () => pf)
 
-const mockActiveFilterChips = ref<FilterChip[]>([])
-const mockHasActiveFilters = ref(false)
-const mockClearFilters = vi.fn()
-const mockRemoveFilter = vi.fn()
-const mockUpdateFilters = vi.fn()
-
-mockNuxtImport('useProductFilters', () => () => ({
-  filters: mockFilters,
-  activeFilterChips: mockActiveFilterChips,
-  hasActiveFilters: mockHasActiveFilters,
-  clearFilters: mockClearFilters,
-  removeFilter: mockRemoveFilter,
-  updateFilters: mockUpdateFilters,
+const CATEGORY_NAMES: Record<string, string> = { 1: 'Ηλεκτρονικά', 2: 'Βιβλία' }
+const VALUE_NAMES: Record<string, string> = { 7: 'Κόκκινο', 8: 'Μπλε' }
+mockNuxtImport('useProductSearchData', () => () => ({
+  getCategoryName: (id: string) => CATEGORY_NAMES[id] ?? id,
+  getAttributeValueName: (id: string) => VALUE_NAMES[id] ?? id,
 }))
 
-describe('Feature: meilisearch-product-filters - ActiveFilters component', () => {
+function showChips(...chips: FilterChip[]) {
+  pf.activeFilterChips.value = chips
+  pf.activeFilterCount.value = chips.length
+}
+
+/** The component's own `<i18n>` messages; the app-level `$i18n.t` cannot see a component-scoped block. */
+const own = (wrapper: VueWrapper, key: string, params: Record<string, unknown> = {}): string =>
+  (wrapper.vm as unknown as { t: (k: string, p: Record<string, unknown>) => string }).t(key, params)
+
+/** A chip's remove button: its accessible name carries the chip's label. */
+const removeButton = (wrapper: VueWrapper, label: string) => {
+  const button = wrapper.find(`button[aria-label*="${label}"]`)
+  expect(button.exists(), `no remove button for the "${label}" chip`).toBe(true)
+  return button
+}
+
+/** What a chip displays: the text beside its remove button. */
+const chipText = (wrapper: VueWrapper, label: string) =>
+  removeButton(wrapper, label).element.parentElement!.textContent!.trim()
+
+describe.each(trees(ActiveFilters, WebsideActiveFilters))('$tree Products/Filters/ActiveFilters', ({ C }) => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockFilters.value = {
-      search: '',
-      priceMin: undefined,
-      priceMax: undefined,
-      likesMin: undefined,
-      viewsMin: undefined,
-      categories: [],
-      sort: '',
-      attributeValues: [],
-    }
-    mockActiveFilterChips.value = []
-    mockHasActiveFilters.value = false
+    pf.reset()
   })
 
-  describe('22.3.1 Test chip rendering', () => {
-    it('should not render when no filters are active', async () => {
-      mockHasActiveFilters.value = false
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should not show active filters section
-      expect(wrapper.html()).not.toContain('Active')
-    })
+  it('renders nothing while no filter is active', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
 
-    it('should render when filters are active', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show active filters section
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(wrapper.find('button').exists()).toBe(false)
+    expect(wrapper.text()).toBe('')
+  })
 
-    it('should render chip for each active filter', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have multiple chips
-      const badges = wrapper.findAll('[class*="badge"]')
-      expect(badges.length).toBeGreaterThanOrEqual(0)
-    })
+  it('shows a chip for each active filter under the header', async () => {
+    showChips(
+      { key: 'search', type: 'search', label: 'search-chip', value: 'laptop' },
+      { key: 'categories', type: 'category', label: 'category-chip', value: '1' },
+    )
 
-    it('should render search filter chip', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show search value
-      expect(wrapper.html()).toContain('laptop')
-    })
+    const wrapper = await mountSuspended(C, { route: false })
 
-    it('should render price range chip', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show price range
-      expect(wrapper.html()).toContain('€')
-    })
+    expect(wrapper.find('h3').text()).toBe(own(wrapper, 'active_filters'))
+    expect(chipText(wrapper, 'search-chip')).toBe('"laptop"')
+    expect(chipText(wrapper, 'category-chip')).toBe('Ηλεκτρονικά')
+  })
 
-    it('should render likes filter chip', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'likesMin', type: 'likes', label: 'Popularity', value: 50 },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show likes value
-      expect(wrapper.exists()).toBe(true)
-    })
+  describe('chip values', () => {
+    it.each<[string, FilterChip, (w: VueWrapper, n: (v: number) => string) => string]>([
+      ['a full price range as from – to', { key: 'priceMin', type: 'price', label: 'c', value: { min: 10, max: 50 } }, (_w, n) => `${n(10)} – ${n(50)}`],
+      ['a floor-only price as from+', { key: 'priceMin', type: 'price', label: 'c', value: { min: 10, max: undefined } }, (_w, n) => `${n(10)}+`],
+      ['a ceiling-only price as up to', { key: 'priceMin', type: 'price', label: 'c', value: { min: undefined, max: 50 } }, (w, n) => own(w, 'up_to', { price: n(50) })],
+      ['a likes minimum', { key: 'likesMin', type: 'likes', label: 'c', value: 5 }, w => own(w, 'min_likes', { count: 5 })],
+      ['a views minimum', { key: 'viewsMin', type: 'views', label: 'c', value: 100 }, w => own(w, 'min_views', { count: 100 })],
+      ['a category by its name', { key: 'categories', type: 'category', label: 'c', value: '2' }, () => 'Βιβλία'],
+      ['an unknown category by its id', { key: 'categories', type: 'category', label: 'c', value: '99' }, () => '99'],
+      ['an attribute value by its name', { key: 'attributeValues', type: 'attribute', label: 'c', value: '7' }, () => 'Κόκκινο'],
+      ['a known sort by its label', { key: 'sort', type: 'sort', label: 'c', value: '-finalPrice' }, w => own(w, 'sort.price_desc')],
+      ['an unknown sort as its raw value', { key: 'sort', type: 'sort', label: 'c', value: 'title' }, () => 'title'],
+    ])('shows %s', async (_case, chip, expected) => {
+      showChips(chip)
+      const n = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
-    it('should render views filter chip', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'viewsMin', type: 'views', label: 'Views', value: 100 },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show views value
-      expect(wrapper.exists()).toBe(true)
-    })
+      const wrapper = await mountSuspended(C, { route: false })
 
-    it('should render category filter chips', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'categories', type: 'category', label: 'Categories', value: '1' },
-        { key: 'categories', type: 'category', label: 'Categories', value: '2' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show multiple category chips
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should render sort filter chip', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'sort', type: 'sort', label: 'Sort', value: '-finalPrice' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show sort value
-      expect(wrapper.exists()).toBe(true)
+      expect(chipText(wrapper, 'c')).toBe(expected(wrapper, n))
     })
   })
 
-  describe('22.3.2 Test filter removal', () => {
-    it('should have remove button on each chip', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have remove button
-      const removeButtons = wrapper.findAll('[icon="i-heroicons-x-mark"]')
-      expect(removeButtons.length).toBeGreaterThanOrEqual(0)
-    })
-
-    it('should call removeFilter when chip remove button is clicked', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      const removeButtons = wrapper.findAll('[icon="i-heroicons-x-mark"]')
-      if (removeButtons.length > 0 && removeButtons[0]) {
-        await removeButtons[0].trigger('click')
-        // Should call remove function
-        expect(wrapper.exists()).toBe(true)
-      }
-    })
-
-    it('should handle category removal specially', async () => {
-      mockHasActiveFilters.value = true
-      mockFilters.value.categories = ['1', '2', '3']
-      mockActiveFilterChips.value = [
-        { key: 'categories', type: 'category', label: 'Categories', value: '2' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should handle category removal
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should handle price range removal', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should handle price removal
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have aria-label on remove buttons', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Remove buttons should have aria-label
-      expect(wrapper.html()).toContain('aria-label')
-    })
-  })
-
-  describe('22.3.3 Test clear all functionality', () => {
-    it('should show clear all chip when filters are active', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have clear all chip (check for Greek translation "Καθαρισμός Όλων")
-      expect(wrapper.html()).toContain('Καθαρισμός')
-    })
-
-    it('should call clearFilters when clear all chip is clicked', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // The clear all button should be present when filters are active
-      // Verify the button exists with the correct text
-      const html = wrapper.html()
-      expect(html).toContain('Καθαρισμός όλων')
-      
-      // Find the clear all button (it's a UButton with "clear_all" text)
-      const buttons = wrapper.findAllComponents({ name: 'UButton' })
-      
-      // Find the button that contains the clear all text (Greek: "Καθαρισμός όλων")
-      const clearAllButton = buttons.find(btn => 
-        btn.text().includes('Καθαρισμός όλων') || btn.attributes('aria-label')?.includes('clear')
+  describe('removing a chip', () => {
+    it('takes one category out of the selection, keeping the others', async () => {
+      pf.filters.value.categories = ['1', '2']
+      showChips(
+        { key: 'categories', type: 'category', label: 'first', value: '1' },
+        { key: 'categories', type: 'category', label: 'second', value: '2' },
       )
-      
-      // The button should exist
-      expect(clearAllButton).toBeDefined()
-      
-      // Note: Due to how Vue Test Utils handles mocked composables with mountSuspended,
-      // the click event may not trigger the mock. The important thing is that:
-      // 1. The button exists
-      // 2. It has the correct text
-      // 3. It has the @click="clearFilters" binding (verified by component source)
-      // This is a limitation of testing with mocked composables in Nuxt
+      const wrapper = await mountSuspended(C, { route: false })
+
+      await removeButton(wrapper, 'first').trigger('click')
+
+      expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ categories: ['2'] })
+      expect(pf.removeFilter).not.toHaveBeenCalled()
     })
 
-    it('should position clear all chip at the end of chip list', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Clear all chip should be rendered after filter chips (check for Greek translation)
-      expect(wrapper.html()).toContain('Καθαρισμός')
+    it('takes one attribute value out of the selection, keeping the others', async () => {
+      pf.filters.value.attributeValues = ['7', '8']
+      showChips({ key: 'attributeValues', type: 'attribute', label: 'blue', value: '8' })
+      const wrapper = await mountSuspended(C, { route: false })
+
+      await removeButton(wrapper, 'blue').trigger('click')
+
+      expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ attributeValues: ['7'] })
     })
 
-    it('should make clear all chip visually distinct from filter chips', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Clear all chip uses solid variant and neutral color (different from filter chips)
-      // Filter chips use soft variant and primary color
-      // Check for Greek translation
-      expect(wrapper.html()).toContain('Καθαρισμός')
+    it('clears both ends of the price range with one chip', async () => {
+      showChips({ key: 'priceMin', type: 'price', label: 'price', value: { min: 10, max: 50 } })
+      const wrapper = await mountSuspended(C, { route: false })
+
+      await removeButton(wrapper, 'price').trigger('click')
+
+      // Strict: `updateFilters` clears a bound only when its KEY is
+      // present (`'priceMax' in updates`), and `toEqual` treats a
+      // missing key and an `undefined` one as the same.
+      expect(pf.updateFilters.mock.calls).toStrictEqual([[{ priceMin: undefined, priceMax: undefined }]])
+    })
+
+    it.each<FilterChip>([
+      { key: 'search', type: 'search', label: 'other', value: 'laptop' },
+      { key: 'likesMin', type: 'likes', label: 'other', value: 5 },
+      { key: 'viewsMin', type: 'views', label: 'other', value: 100 },
+      { key: 'sort', type: 'sort', label: 'other', value: '-createdAt' },
+    ])('removes the whole $key filter by its key', async (chip) => {
+      showChips(chip)
+      const wrapper = await mountSuspended(C, { route: false })
+
+      await removeButton(wrapper, 'other').trigger('click')
+
+      expect(pf.removeFilter).toHaveBeenCalledExactlyOnceWith(chip.key)
+      expect(pf.updateFilters).not.toHaveBeenCalled()
     })
   })
 
-  describe('22.3.4 Test value formatting', () => {
-    it('should format search value with quotes', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show quoted search value
-      expect(wrapper.html()).toContain('laptop')
-    })
+  it('clears every filter from the header action', async () => {
+    showChips({ key: 'search', type: 'search', label: 'search-chip', value: 'laptop' })
+    const wrapper = await mountSuspended(C, { route: false })
 
-    it('should format price range with currency', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show price with € symbol
-      expect(wrapper.html()).toContain('€')
-    })
+    await wrapper.find(`button[aria-label="${own(wrapper, 'clear_all')}"]`).trigger('click')
 
-    it('should format price min only', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: undefined } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show min price with +
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should format price max only', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: undefined, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show max price with "Up to"
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should format likes with translation', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'likesMin', type: 'likes', label: 'Popularity', value: 50 },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show likes count
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should format views with translation', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'viewsMin', type: 'views', label: 'Views', value: 100 },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show views count
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should format sort with human-readable label', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'sort', type: 'sort', label: 'Sort', value: '-finalPrice' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should show sort label
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('Visual styling', () => {
-    it('should use soft variant for badges', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have soft variant
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should use primary color for badges', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have primary color
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should use medium size for badges', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have medium size
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('Layout', () => {
-    it('should have header with title', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have header section with title
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have flex wrap layout for chips', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have flex wrap layout
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have spacing between elements', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have spacing
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('Animations - Requirement 7.3', () => {
-    it('should wrap chips in TransitionGroup component', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Should have TransitionGroup wrapper
-      expect(wrapper.html()).toContain('div')
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have filter-chip transition name', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // TransitionGroup should use filter-chip name
-      // This enables the CSS transitions with .filter-chip-enter-active, etc.
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have CSS transition classes defined', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Component should have style section with transition classes
-      const html = wrapper.html()
-      expect(wrapper.exists()).toBe(true)
-      // The actual CSS classes are in the <style> section which isn't rendered in tests
-      // but we can verify the component renders correctly
-    })
-
-    it('should support reduced motion preference', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Component should have CSS media query for prefers-reduced-motion
-      // This is handled in the <style> section
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should maintain chip keys for proper transition tracking', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Each chip should have a unique key for Vue to track transitions
-      // Keys are in format: `${chip.key}-${index}`
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should animate when chips are added', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Add a new chip
-      mockActiveFilterChips.value.push(
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } }
-      )
-      
-      await wrapper.vm.$nextTick()
-      
-      // New chip should be rendered
-      // In a real browser, this would trigger the enter animation
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should animate when chips are removed', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-        { key: 'priceMin', type: 'price', label: 'Price', value: { min: 100, max: 500 } },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // Remove a chip
-      mockActiveFilterChips.value.pop()
-      
-      await wrapper.vm.$nextTick()
-      
-      // Chip should be removed
-      // In a real browser, this would trigger the leave animation
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should use fade animation (opacity transition)', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // CSS should define opacity: 0 for enter-from and leave-to states
-      // This is verified by the presence of the component with proper structure
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should use scale animation (transform transition)', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // CSS should define transform: scale(0.8) for enter-from and leave-to states
-      // This is verified by the presence of the component with proper structure
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should use 300ms transition duration', async () => {
-      mockHasActiveFilters.value = true
-      mockActiveFilterChips.value = [
-        { key: 'search', type: 'search', label: 'Search', value: 'laptop' },
-      ]
-      
-      const wrapper = await mountSuspended(ActiveFilters)
-      
-      // CSS should define transition: all 0.3s ease
-      // This is verified by the presence of the component with proper structure
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(pf.clearFilters).toHaveBeenCalledOnce()
+    expect(pf.removeFilter).not.toHaveBeenCalled()
   })
 })

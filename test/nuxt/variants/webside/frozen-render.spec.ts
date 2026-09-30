@@ -15,8 +15,9 @@
  * the component's FILE PATH, and neither changes what is painted.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mockNuxtImport, mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { h } from 'vue'
+import type { Window as HappyDOMWindow } from 'happy-dom'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
@@ -43,34 +44,18 @@ import BlogPostsList from '~/components/variants/webside/PageSection/BlogPostsLi
 import RecentlyViewed from '~/components/variants/webside/PageSection/RecentlyViewed.vue'
 import DefaultLayout from '~/layouts/default.vue'
 
-const { mockFetch } = vi.hoisted(() => ({
-  mockFetch: vi.fn(() => Promise.resolve({})),
-}))
-mockNuxtImport('$api', () => mockFetch)
-// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
-// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
-// builds `$api` from `$fetch.create()` while the app boots.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
-
-registerEndpoint('/api/page-config/navigation', () => ({}))
-registerEndpoint('/api/settings/public', () => ({
-  settings: { RECENTLY_VIEWED_ENABLED: 'true', MOBILE_BOTTOM_NAV_ENABLED: 'true', CART_ENABLED: 'true' },
-}))
-registerEndpoint('/api/content-pages', () => ({
-  links: { next: null, previous: null }, count: 0, totalPages: 1, pageSize: 100, pageTotalResults: 0, page: 1, results: [],
-}))
-registerEndpoint('/api/blog/categories', () => ({
-  links: { next: null, previous: null }, count: 1, totalPages: 1, pageSize: 100, pageTotalResults: 1, page: 1,
-  results: [{
-    id: 1, uuid: 'c0000000-0000-4000-8000-000000000001', slug: 'asfaleia', active: true, parent: null, level: 0,
-    treeId: 1, mainImagePath: '', translations: { el: { name: 'Ασφάλεια', description: '' } },
-    createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', sortOrder: 0, recursivePostCount: 3,
-  }],
-}))
-registerEndpoint('/api/blog/posts', () => ({
-  links: { next: null, previous: null }, count: 1, totalPages: 1, pageSize: 9, pageTotalResults: 1, page: 1,
-  results: [POST],
-}))
+/**
+ * Every request — `$api`, and the `$fetch` that `useApi` / `useLazyApi`
+ * transport through — lands on one mock that answers `{}`: the chrome
+ * snapshots were captured against empty data, and they must stay that
+ * way. (A `registerEndpoint` would be dead here: mocking `$fetch`
+ * shadows it.) The sections that exist to show data are served theirs
+ * through `api.routes` in their own test only, so no other snapshot
+ * sees it.
+ */
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
 
 const PRODUCT = {
   id: 2,
@@ -138,14 +123,93 @@ function normalise(html: string) {
     .replace(/\r\n/g, '\n')
 }
 
-async function snapshot(component: unknown, options: Record<string, unknown> = {}) {
+/** A one-page list payload, as Django paginates it. */
+function page<T>(results: T[], pageSize: number) {
+  return {
+    links: { next: null, previous: null },
+    count: results.length,
+    totalPages: 1,
+    pageSize,
+    pageTotalResults: results.length,
+    page: 1,
+    results,
+  }
+}
+
+const BLOG_CATEGORY = {
+  id: 1,
+  uuid: 'c0000000-0000-4000-8000-000000000001',
+  slug: 'asfaleia',
+  active: true,
+  parent: null,
+  level: 0,
+  treeId: 1,
+  mainImagePath: '',
+  translations: { el: { name: 'Ασφάλεια', description: '' } },
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  sortOrder: 0,
+  recursivePostCount: 3,
+}
+
+/** What `useRecentlyViewed` reads from localStorage on the client. */
+const RECENTLY_VIEWED_KEY = 'grooveshop:recently-viewed'
+const RECENTLY_VIEWED = [{
+  id: PRODUCT.id,
+  slug: PRODUCT.slug,
+  name: 'Mini Power Bank 5000mAh',
+  mainImagePath: PRODUCT.mainImagePath,
+  finalPrice: PRODUCT.finalPrice,
+  addedAt: Date.parse('2026-09-01T09:00:00Z'),
+}]
+
+/**
+ * Mount, wait until `ready` holds for sections whose content arrives
+ * after the mount (a `useLazyApi` fetch, a `<ClientOnly>` swap, a lazy
+ * chunk), and snapshot. A section that never gets there fails here
+ * instead of pinning its empty state.
+ */
+async function snapshot(
+  component: unknown,
+  options: Record<string, unknown> = {},
+  ready?: (html: string) => void,
+) {
   const wrapper = await mountSuspended(component as never, options as never)
+  // The bound, not a delay: `waitFor` returns as soon as `ready` holds.
+  // The first `LazyUCarousel` in a file is a cold Vite transform, which
+  // took over the 1s default under a loaded parallel run.
+  if (ready) await vi.waitFor(() => ready(wrapper.html()), { timeout: 4000 })
   expect(normalise(wrapper.html())).toMatchSnapshot()
   wrapper.unmount()
 }
 
+/**
+ * Render at a phone's width. `useDevice` is `useMediaQuery`, which reads
+ * happy-dom's `matchMedia`, and that follows the window's viewport.
+ */
+async function atViewportWidth(width: number, run: () => Promise<void>) {
+  // The nuxt environment's `window` IS a happy-dom Window (@nuxt/test-utils
+  // builds it with `domEnvironment: 'happy-dom'`); lib.dom's `Window`
+  // does not declare happy-dom's control API, hence the re-typing.
+  const { happyDOM } = window as unknown as HappyDOMWindow
+  const before = window.innerWidth
+  const height = window.innerHeight
+  happyDOM.setViewport({ width, height })
+  try {
+    await run()
+  }
+  finally {
+    happyDOM.setViewport({ width: before, height })
+  }
+}
+
 describe('webside frozen render', () => {
   beforeEach(() => {
+    // `useApi` caches by key on the shared app: without this a section
+    // would render whatever an earlier test's mount left behind.
+    clearNuxtData()
+    clearNuxtState('recently-viewed:items')
+    localStorage.removeItem(RECENTLY_VIEWED_KEY)
     // `app.vue` seeds this on every real render; the harness mounts a
     // component without it, and the blog list reads it in setup.
     useState<CursorState>('cursor-state').value = generateInitialCursorState()
@@ -180,7 +244,10 @@ describe('webside frozen render', () => {
   })
 
   it('mobile bottom nav', async () => {
-    await snapshot(MobileBottomNav)
+    // It only exists below the `lg` breakpoint (`MobileOrTabletOnly`).
+    await atViewportWidth(375, () => snapshot(MobileBottomNav, {}, (html) => {
+      expect(html).toContain('aria-label="Mobile navigation"')
+    }))
   })
 
   it('cart button', async () => {
@@ -246,15 +313,28 @@ describe('webside frozen render', () => {
   })
 
   it('section blog_categories', async () => {
-    await snapshot(BlogCategories)
+    api.routes({ '/api/blog/categories': page([BLOG_CATEGORY], 100) })
+
+    await snapshot(BlogCategories, {}, (html) => {
+      expect(html).toContain('Ασφάλεια')
+    })
   })
 
   it('section blog_posts_list', async () => {
-    await snapshot(BlogPostsList)
+    api.routes({ '/api/blog/posts': page([POST], 9) })
+
+    await snapshot(BlogPostsList, {}, (html) => {
+      expect(html).toContain('Τι είναι τα mAh')
+    })
   })
 
   it('section recently_viewed', async () => {
-    await snapshot(RecentlyViewed)
+    api.routes({ '/api/settings/public': { settings: { RECENTLY_VIEWED_ENABLED: 'true' } } })
+    localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(RECENTLY_VIEWED))
+
+    await snapshot(RecentlyViewed, {}, (html) => {
+      expect(html).toContain('Mini Power Bank 5000mAh')
+    })
   })
 
   it('default layout with the webside schema', async () => {

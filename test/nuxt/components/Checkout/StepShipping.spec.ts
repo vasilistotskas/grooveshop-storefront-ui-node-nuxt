@@ -1,431 +1,461 @@
-/**
- * Tests for Checkout/StepShipping.vue component.
- *
- * StepShipping renders a URadioGroup with two shipping options
- * (home_delivery / box_now_locker) and conditionally shows
- * CheckoutSelectedBoxNowLocker when box_now_locker is selected.
- */
-
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import type { DOMWrapper, VueWrapper } from '@vue/test-utils'
+import { nextTick, reactive } from 'vue'
 import StepShipping from '~/components/Checkout/StepShipping.vue'
+import WebsideStepShipping from '~/components/variants/webside/Checkout/StepShipping.vue'
+import type { ShippingOption } from '~~/shared/openapi/types.gen'
+import { makeBoxNowSelectedLocker } from '~~/test/fixtures/boxnow'
+import {
+  acsHomeDeliveryOption,
+  acsSmartpointOption,
+  boxNowLockerOption,
+  makeShippingOption,
+} from '~~/test/fixtures/shippingOptions'
+import { trees } from '~~/test/helpers/trees'
 
-// ---------------------------------------------------------------------------
-// Helpers — keep test props centralised so future flag additions don't
-// require a sweep across every test case
-// ---------------------------------------------------------------------------
+/**
+ * The shipping step of checkout: one radio card per delivery method the
+ * store serves, in Django's priority order, plus the locker picker of the
+ * chosen carrier. The page's sidebar CTA calls the step's exposed
+ * `submit()` — the real contract, so the tests drive it the same way.
+ *
+ * The frozen webside copy differs only in the prefixed child tags
+ * (`WebsideCheckoutSelected*Locker`) and its Greek-only i18n block, so
+ * both trees run one body.
+ */
+
+/** A Greek store: BoxNow (priority 5) first, then ACS home delivery. */
+const GREEK_ROWS = (): ShippingOption[] => [boxNowLockerOption(), acsHomeDeliveryOption()]
 
 function makeFormState(overrides: Record<string, unknown> = {}) {
-  return {
+  return reactive<Record<string, any>>({
     shippingMethod: 'home_delivery',
     country: 'GR',
     boxnowLockerId: '',
     boxnowLocker: null,
     ...overrides,
-  }
+  })
 }
-
-// Default ``apiOptions`` mirroring the production
-// ``/api/v1/shipping/options`` response — BoxNow + ACS active, sorted
-// by ``ShippingProvider.priority`` ascending (BoxNow priority=5 first
-// since the owner asked for it as the leading option). Tests covering
-// the hidden-row case override ``apiOptions`` to drop the relevant
-// provider row.
-const DEFAULT_API_OPTIONS: ShippingOption[] = [
-  {
-    providerCode: 'boxnow',
-    providerName: 'BOX NOW',
-    kind: 'pickup_point',
-    price: 2.99,
-    currency: 'EUR',
-    liveMode: true,
-    priority: 5,
-    countryCode: 'GR',
-    maxWeightGrams: null,
-    exceedsMaxWeight: false,
-    metadata: {},
-    payWays: [],
-  },
-  {
-    providerCode: 'acs',
-    providerName: 'ACS Courier',
-    kind: 'home_delivery',
-    price: 2.99,
-    currency: 'EUR',
-    liveMode: true,
-    priority: 10,
-    countryCode: 'GR',
-    maxWeightGrams: null,
-    exceedsMaxWeight: false,
-    metadata: {},
-    payWays: [],
-  },
-]
 
 function makeProps(overrides: Record<string, unknown> = {}) {
   return {
     formState: makeFormState(),
     schema: null,
     partnerId: '10391',
-    // Live carrier rows — the component renders one entry per option
-    // in this order. Tests that need a row hidden drop it from this
-    // list rather than toggling a separate boolean flag.
-    apiOptions: DEFAULT_API_OPTIONS,
+    apiOptions: GREEK_ROWS(),
     ...overrides,
   }
 }
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+/** The radio of one delivery method, as the shopper reaches it. */
+function radio(wrapper: VueWrapper, value: string): DOMWrapper<Element> {
+  return wrapper.find(`[role="radio"][value="${value}"]`)
+}
 
-describe('Checkout/StepShipping', () => {
-  describe('initial rendering', () => {
-    it('mounts successfully', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps(),
-      })
+/** The card (label) holding a method's radio, its description and its reasons. */
+function card(wrapper: VueWrapper, value: string): DOMWrapper<Element> {
+  const found = wrapper.findAll('[data-slot="item"]')
+    .find(item => item.find(`[role="radio"][value="${value}"]`).exists())
+  if (!found) throw new Error(`no card for ${value}`)
+  return found
+}
 
-      expect(wrapper.exists()).toBe(true)
+function radioValues(wrapper: VueWrapper): string[] {
+  return wrapper.findAll('[role="radio"]').map(el => el.attributes('value')!)
+}
+
+/** The step's exposed `submit()`, which the sidebar CTA calls. */
+function submitStep(wrapper: VueWrapper): void {
+  ;(wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed.submit()
+}
+
+const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
+
+describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShipping', ({ C, own }) => {
+  const mount = (overrides: Record<string, unknown> = {}) =>
+    mountSuspended(C, { route: false, props: makeProps(overrides) })
+
+  describe('the method cards', () => {
+    it('renders one card per method the store serves, in the priority order Django sent', async () => {
+      const wrapper = await mount()
+
+      expect(radioValues(wrapper)).toEqual(['box_now_locker', 'home_delivery'])
     })
 
-    it('renders a URadioGroup with the two shipping option values', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps(),
-      })
+    it('omits the BoxNow card when the store does not serve BoxNow', async () => {
+      const wrapper = await mount({ apiOptions: [acsHomeDeliveryOption()] })
 
-      const html = wrapper.html()
-      // The radio items render their value attribute into the DOM
-      expect(html).toContain('home_delivery')
-      expect(html).toContain('box_now_locker')
+      expect(radioValues(wrapper)).toEqual(['home_delivery'])
     })
 
-    it('omits the BoxNow row when no boxnow option in apiOptions (admin master switch)', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          // Backend has ``ShippingProvider(code='boxnow').is_active=False``,
-          // so ``/api/v1/shipping/options`` drops the boxnow row.
-          apiOptions: DEFAULT_API_OPTIONS.filter(
-            o => o.providerCode !== 'boxnow',
-          ),
-        }),
-      })
+    it('shows the chosen method as checked', async () => {
+      const wrapper = await mount({ formState: makeFormState({ shippingMethod: 'box_now_locker' }) })
 
-      const html = wrapper.html()
-      // home_delivery still rendered, box_now_locker stripped from the
-      // radio group entirely (not just disabled — see component
-      // rationale: a greyed-out card invites confusion).
-      expect(html).toContain('home_delivery')
-      expect(html).not.toContain('box_now_locker')
-    })
-
-    it('does NOT render CheckoutSelectedBoxNowLocker when home_delivery is selected', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          formState: makeFormState({ shippingMethod: 'home_delivery' }),
-        }),
-      })
-
-      // The SelectedBoxNowLocker component is only present when isBoxNow is true
-      const picker = wrapper.findComponent({ name: 'CheckoutSelectedBoxNowLocker' })
-      expect(picker.exists()).toBe(false)
-    })
-
-    it('renders CheckoutSelectedBoxNowLocker when box_now_locker is selected', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          formState: makeFormState({ shippingMethod: 'box_now_locker' }),
-        }),
-      })
-
-      const picker = wrapper.findComponent({ name: 'CheckoutSelectedBoxNowLocker' })
-      expect(picker.exists()).toBe(true)
+      expect(radio(wrapper, 'box_now_locker').attributes('aria-checked')).toBe('true')
+      expect(radio(wrapper, 'home_delivery').attributes('aria-checked')).toBe('false')
     })
   })
 
-  describe('submit() behaviour', () => {
-    // The primary CTA was hoisted into the page-level checkout
-    // sidebar so it sits next to the order total. The page calls
-    // ``stepRef.value.submit()`` on click — which runs StepShipping's
-    // locker-aware ``onSubmit`` handler. These tests drive that
-    // exposed method directly instead of a removed in-card button.
-    //
-    // Locker-missing behaviour: pops the picker instead of silently
-    // failing. Previous UX (disabled button + inline schema error)
-    // lost a real customer (order 53, 2026-05-12) to ACS.
-    it('submit() without a locker opens the picker instead of emitting next', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          formState: makeFormState({
-            shippingMethod: 'box_now_locker',
-            boxnowLockerId: '',
-          }),
-        }),
+  describe('the locker picker of the chosen carrier', () => {
+    it('mounts no locker picker for home delivery', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') }).exists()).toBe(false)
+      expect(wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') }).exists()).toBe(false)
+    })
+
+    it('mounts the BoxNow picker when the shopper clicks the BoxNow card', async () => {
+      const formState = makeFormState()
+      const wrapper = await mount({ formState })
+
+      await radio(wrapper, 'box_now_locker').trigger('click')
+
+      expect(formState.shippingMethod).toBe('box_now_locker')
+      const picker = wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') })
+      expect(picker.exists()).toBe(true)
+      expect(picker.props('partnerId')).toBe('10391')
+    })
+
+    it('opens the BoxNow widget on the delivery country\'s map (CY)', async () => {
+      const wrapper = await mount({
+        formState: makeFormState({ shippingMethod: 'box_now_locker', country: 'CY' }),
+        apiOptions: [boxNowLockerOption({ countryCode: 'CY', price: 4.5 })],
       })
 
-      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
-      await wrapper.vm.$nextTick()
+      const widget = wrapper.findComponent({ name: 'CheckoutBoxNowLockerPicker' })
+      expect(widget.props('countryCode')).toBe('CY')
+    })
 
-      // No advance to the next step yet — the shopper still has to
-      // pick a locker.
-      expect(wrapper.emitted('next')).toBeFalsy()
-      // The picker is mounted (BoxNow keeps its iframe widget hidden
-      // until ``pickerOpen`` flips true). Asserting via the child
-      // component's open-model prop is the cleanest cross-cut.
-      const picker = wrapper.findComponent({ name: 'CheckoutSelectedBoxNowLocker' })
+    it('hands an ACS Smartpoint choice to the generic picker, with the address typed so far', async () => {
+      const wrapper = await mountSuspended(C, {
+        route: false,
+        props: makeProps({
+          formState: makeFormState({ shippingMethod: 'acs_smartpoint', zipcode: '15234', city: 'Χαλάνδρι' }),
+          apiOptions: [acsHomeDeliveryOption(), acsSmartpointOption()],
+        }),
+        global: { stubs: { [own('CheckoutSelectedGenericLocker')]: true } },
+      })
+
+      const picker = wrapper.findComponent({ name: own('CheckoutSelectedGenericLocker') })
+      expect(picker.props()).toMatchObject({
+        initialPostalCode: '15234',
+        initialCity: 'Χαλάνδρι',
+        countryCode: 'GR',
+      })
+      expect(picker.props('carrier').code).toBe('acs')
+      expect(wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') }).exists()).toBe(false)
+    })
+  })
+
+  describe('switching method clears the other carrier\'s locker', () => {
+    /**
+     * An orphan locker id left on the form would travel into the order
+     * payload and route a home delivery to a locker.
+     */
+    const withBothLockers = (shippingMethod: string) => makeFormState({
+      shippingMethod,
+      boxnowLockerId: '4',
+      boxnowLocker: makeBoxNowSelectedLocker(),
+      acsStationExternalId: 'ACS-1',
+      acsStationBranch: '12',
+      acsStation: { id: 'ACS-1' },
+    })
+
+    it('drops both carriers\' lockers when the shopper switches to home delivery', async () => {
+      const formState = withBothLockers('box_now_locker')
+      const wrapper = await mount({ formState })
+
+      await radio(wrapper, 'home_delivery').trigger('click')
+
+      expect(formState).toMatchObject({
+        shippingMethod: 'home_delivery',
+        boxnowLockerId: '',
+        boxnowLocker: null,
+        acsStationExternalId: '',
+        acsStationBranch: '',
+        acsStation: null,
+      })
+    })
+
+    it('keeps the BoxNow locker and drops only the ACS one when switching to BoxNow', async () => {
+      const formState = withBothLockers('home_delivery')
+      const wrapper = await mount({ formState })
+
+      await radio(wrapper, 'box_now_locker').trigger('click')
+
+      expect(formState.boxnowLockerId).toBe('4')
+      expect(formState.acsStationExternalId).toBe('')
+      expect(formState.acsStation).toBeNull()
+    })
+  })
+
+  describe('submit() — the sidebar CTA', () => {
+    it('advances with home delivery', async () => {
+      const wrapper = await mount()
+
+      submitStep(wrapper)
+
+      expect(wrapper.emitted('next')).toHaveLength(1)
+    })
+
+    it.each([
+      ['GR', GREEK_ROWS()],
+      ['CY', [boxNowLockerOption({ countryCode: 'CY' })]],
+    ])('advances with a BoxNow locker picked (%s)', async (country, apiOptions) => {
+      const wrapper = await mount({
+        formState: makeFormState({
+          shippingMethod: 'box_now_locker',
+          country,
+          boxnowLockerId: '4',
+          boxnowLocker: makeBoxNowSelectedLocker({ boxnowLockerCountryCode: country }),
+        }),
+        apiOptions,
+      })
+
+      submitStep(wrapper)
+
+      expect(wrapper.emitted('next')).toHaveLength(1)
+    })
+
+    it('opens the picker instead of advancing when no locker is picked yet', async () => {
+      // A disabled Continue with no hint lost a real customer (order 53,
+      // 2026-05-12) to a competitor; the picker now opens on the click.
+      const wrapper = await mount({ formState: makeFormState({ shippingMethod: 'box_now_locker' }) })
+      const picker = wrapper.findComponent({ name: own('CheckoutSelectedBoxNowLocker') })
+      expect(picker.props('open')).toBe(false)
+
+      submitStep(wrapper)
+      await nextTick()
+
+      expect(wrapper.emitted('next')).toBeUndefined()
       expect(picker.props('open')).toBe(true)
     })
-  })
 
-  describe('event emissions', () => {
-    it('emits "next" when submit() runs with a valid home_delivery selection', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          formState: makeFormState({ shippingMethod: 'home_delivery' }),
-        }),
+    it('does not advance on a method the store no longer serves', async () => {
+      const wrapper = await mount({
+        formState: makeFormState({ shippingMethod: 'box_now_locker', boxnowLockerId: '4' }),
+        apiOptions: [acsHomeDeliveryOption()],
       })
 
-      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
-      await wrapper.vm.$nextTick()
-      expect(wrapper.emitted('next')).toBeTruthy()
-      expect(wrapper.emitted('next')!.length).toBeGreaterThanOrEqual(1)
-    })
+      submitStep(wrapper)
 
-    it('emits "next" when submit() runs with box_now_locker AND a selected locker', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          formState: makeFormState({
-            shippingMethod: 'box_now_locker',
-            boxnowLockerId: '4',
-          }),
-        }),
+      expect(wrapper.emitted('next')).toBeUndefined()
+    })
+  })
+
+  it('emits back from the back button', async () => {
+    const wrapper = await mount()
+
+    await wrapper.find('[data-testid="step-shipping-back"]').trigger('click')
+
+    expect(wrapper.emitted('back')).toHaveLength(1)
+  })
+
+  describe('pay ways only one delivery choice can reach', () => {
+    /**
+     * BOX NOW Αντικαταβολή is settled at a locker, and the payment step
+     * comes AFTER this one — so the card is the only place a shopper can
+     * learn that picking a locker unlocks it.
+     */
+    const payWays = (...names: string[]) => names.map((name, i) => ({ id: i + 1, name }))
+
+    it('names on each card the method only it can reach', async () => {
+      const wrapper = await mount({
+        apiOptions: [
+          boxNowLockerOption({ payWays: payWays('CREDIT_CARD', 'BOX_NOW_PAY_ON_THE_GO') }),
+          acsHomeDeliveryOption({ payWays: payWays('CREDIT_CARD', 'PAY_ON_DELIVERY') }),
+        ],
       })
 
-      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
-      await wrapper.vm.$nextTick()
-      expect(wrapper.emitted('next')).toBeTruthy()
+      const boxNow = card(wrapper, 'box_now_locker').text()
+      const home = card(wrapper, 'home_delivery').text()
+      expect(boxNow).toContain(t('delivery_unlocks_payment'))
+      expect(boxNow).toContain(t('payment_methods.BOX_NOW_PAY_ON_THE_GO'))
+      expect(boxNow).not.toContain(t('payment_methods.CREDIT_CARD'))
+      expect(home).toContain(t('payment_methods.PAY_ON_DELIVERY'))
+      expect(home).not.toContain(t('payment_methods.BOX_NOW_PAY_ON_THE_GO'))
     })
 
-    it('emits "back" when the back button is clicked', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps(),
+    it('stays silent about a method every card accepts', async () => {
+      const wrapper = await mount({
+        apiOptions: [
+          boxNowLockerOption({ payWays: payWays('CREDIT_CARD') }),
+          acsHomeDeliveryOption({ payWays: payWays('CREDIT_CARD') }),
+        ],
       })
 
-      // Targeted selector — the URadioGroup options also render
-      // [type="button"] elements for keyboard nav, so a generic
-      // `[type="button"]` lookup picks the wrong element.
-      const backBtn = wrapper.find('[data-testid="step-shipping-back"]')
-      await backBtn.trigger('click')
-      expect(wrapper.emitted('back')).toBeTruthy()
-    })
-  })
-})
-
-describe('exclusive pay ways on the delivery card', () => {
-  /**
-   * BOX NOW Αντικαταβολή can only be settled at a BoxNow locker, and
-   * the payment step comes AFTER this one — so a shopper who never
-   * picks a locker has no way to discover the method exists. The card
-   * names it, which is why the shopper picks the locker at all.
-   */
-  const withPayWays = (boxnow: string[], home: string[]): ShippingOption[] => [
-    {
-      ...DEFAULT_API_OPTIONS[0]!,
-      payWays: boxnow.map((name, i) => ({ id: i + 1, name })),
-    },
-    {
-      ...DEFAULT_API_OPTIONS[1]!,
-      payWays: home.map((name, i) => ({ id: i + 10, name })),
-    },
-  ]
-
-  it('names a method only this delivery choice can reach', async () => {
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({
-        apiOptions: withPayWays(
-          ['CREDIT_CARD', 'BOX_NOW_PAY_ON_THE_GO'],
-          ['CREDIT_CARD', 'PAY_ON_DELIVERY'],
-        ),
-      }),
+      expect(wrapper.text()).not.toContain(t('delivery_unlocks_payment'))
     })
 
-    const html = wrapper.html()
-    expect(html).toContain('BOX NOW PAY ON THE GO!')
-    expect(html).toContain('Αντικαταβολή')
-  })
-
-  it('stays silent about a method every row accepts', async () => {
-    // Card is available everywhere, so naming it on each card is noise
-    // that buries the one line that carries information.
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({
-        apiOptions: withPayWays(['CREDIT_CARD'], ['CREDIT_CARD']),
-      }),
-    })
-
-    expect(wrapper.html()).not.toContain('Πληρωμή με Κάρτα')
-  })
-
-  it('renders nothing when the backend sends no pay ways', async () => {
-    // Older payloads, or a failure the server swallowed — the card must
-    // just omit the line rather than render an empty label.
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({ apiOptions: withPayWays([], []) }),
-    })
-
-    expect(wrapper.html()).not.toContain('Επιπλέον τρόπος πληρωμής')
-  })
-})
-
-describe('over-cap options (weight exceeds the carrier max)', () => {
-  it('renders the option disabled with a reason instead of hiding it', async () => {
-    const overCapOptions: ShippingOption[] = [
-      { ...DEFAULT_API_OPTIONS[0]!, maxWeightGrams: 4000, exceedsMaxWeight: true },
-      DEFAULT_API_OPTIONS[1]!,
-    ]
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({ apiOptions: overCapOptions }),
-    })
-
-    // Still present — over-cap never hides the row.
-    expect(wrapper.html()).toContain('box_now_locker')
-    // The reason names the cap in kg (4000g -> 4kg).
-    expect(wrapper.html()).toContain('4')
-    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
-    const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
-      .find(item => item.value === 'box_now_locker')
-    expect(boxNowItem?.disabled).toBe(true)
-  })
-})
-
-describe('one row standing for several home-delivery carriers', () => {
-  const flatRate: ShippingOption = {
-    ...DEFAULT_API_OPTIONS[1]!,
-    providerCode: 'flat_rate',
-    providerName: 'Standard delivery',
-    priority: 20,
-  }
-
-  function homeItem(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
-    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
-    return (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
-      .find(item => item.value === 'home_delivery')
-  }
-
-  it('stays selectable while one carrier behind it still fits the cart', async () => {
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({
+    it('offers on a card standing for several carriers only what EVERY one of them accepts', async () => {
+      // The shopper cannot pick which home-delivery carrier takes the
+      // parcel, so cash on delivery accepted by ACS but not by the flat
+      // rate is not actually on offer — naming it would be a promise
+      // Django refuses at order time.
+      const wrapper = await mount({
         apiOptions: [
-          DEFAULT_API_OPTIONS[0]!,
-          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
-          flatRate,
+          boxNowLockerOption({ payWays: payWays('CREDIT_CARD') }),
+          acsHomeDeliveryOption({ payWays: payWays('CREDIT_CARD', 'PAY_ON_DELIVERY') }),
+          makeShippingOption({ providerCode: 'flat_rate', priority: 20, payWays: payWays('CREDIT_CARD') }),
         ],
-      }),
+      })
+
+      expect(card(wrapper, 'home_delivery').text()).not.toContain(t('payment_methods.PAY_ON_DELIVERY'))
     })
 
-    expect(homeItem(wrapper)?.disabled).toBeFalsy()
+    it('renders no pay-way line when Django sends none', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.text()).not.toContain(t('delivery_unlocks_payment'))
+    })
   })
 
-  it('is disabled only when every carrier behind it is over its cap', async () => {
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({
+  describe('a card over the carrier\'s weight cap', () => {
+    it('stays visible but disabled, naming the cap in kg', async () => {
+      const wrapper = await mount({
         apiOptions: [
-          DEFAULT_API_OPTIONS[0]!,
-          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
-          { ...flatRate, maxWeightGrams: 3000, exceedsMaxWeight: true },
+          boxNowLockerOption({ maxWeightGrams: 4000, exceedsMaxWeight: true }),
+          acsHomeDeliveryOption(),
         ],
-      }),
+      })
+
+      expect(radio(wrapper, 'box_now_locker').attributes()).toHaveProperty('data-disabled')
+      expect(card(wrapper, 'box_now_locker').text())
+        .toContain(t('shipping.method.exceeds_max_weight', { maxKg: 4 }))
+      expect(radio(wrapper, 'home_delivery').attributes()).not.toHaveProperty('data-disabled')
     })
 
-    expect(homeItem(wrapper)?.disabled).toBe(true)
-  })
+    describe('a card standing for several home-delivery carriers', () => {
+      const flatRate = (overrides: Partial<ShippingOption> = {}) =>
+        makeShippingOption({ providerCode: 'flat_rate', providerName: 'Standard delivery', priority: 20, ...overrides })
 
-  it('does not advance on a selection whose row is disabled', async () => {
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({
-        apiOptions: [
-          DEFAULT_API_OPTIONS[0]!,
-          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
-        ],
-      }),
+      it('stays selectable while one carrier behind it still fits the cart', async () => {
+        const wrapper = await mount({
+          apiOptions: [
+            boxNowLockerOption(),
+            acsHomeDeliveryOption({ maxWeightGrams: 2000, exceedsMaxWeight: true }),
+            flatRate(),
+          ],
+        })
+
+        // One card for both carriers: the shopper picks a method, not a carrier.
+        expect(radioValues(wrapper)).toEqual(['box_now_locker', 'home_delivery'])
+        expect(radio(wrapper, 'home_delivery').attributes()).not.toHaveProperty('data-disabled')
+      })
+
+      it('is disabled only when every carrier behind it is over its cap, naming the largest cap', async () => {
+        const wrapper = await mount({
+          apiOptions: [
+            boxNowLockerOption(),
+            acsHomeDeliveryOption({ maxWeightGrams: 2000, exceedsMaxWeight: true }),
+            flatRate({ maxWeightGrams: 3000, exceedsMaxWeight: true }),
+          ],
+        })
+
+        expect(radio(wrapper, 'home_delivery').attributes()).toHaveProperty('data-disabled')
+        expect(card(wrapper, 'home_delivery').text())
+          .toContain(t('shipping.method.exceeds_max_weight', { maxKg: 3 }))
+      })
+
+      it('does not advance on a selection whose card is disabled', async () => {
+        const wrapper = await mount({
+          apiOptions: [
+            boxNowLockerOption(),
+            acsHomeDeliveryOption({ maxWeightGrams: 2000, exceedsMaxWeight: true }),
+          ],
+        })
+
+        submitStep(wrapper)
+
+        expect(wrapper.emitted('next')).toBeUndefined()
+      })
     })
-
-    ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
-
-    expect(wrapper.emitted('next')).toBeFalsy()
   })
-})
 
-describe('BoxNow disabled for a delivery country with no widget mapping', () => {
-  it('disables the BoxNow row for a country BoxNow does not serve', async () => {
-    const bgOptions: ShippingOption[] = [
-      { ...DEFAULT_API_OPTIONS[0]!, countryCode: 'BG' },
-      DEFAULT_API_OPTIONS[1]!,
-    ]
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({
-        apiOptions: bgOptions,
+  describe('BoxNow where it cannot run', () => {
+    it('disables BoxNow for a delivery country it has no map for, and says why', async () => {
+      const wrapper = await mount({
         formState: makeFormState({ country: 'BG' }),
-      }),
+        apiOptions: [boxNowLockerOption({ countryCode: 'BG' }), acsHomeDeliveryOption()],
+      })
+
+      expect(radio(wrapper, 'box_now_locker').attributes()).toHaveProperty('data-disabled')
+      expect(card(wrapper, 'box_now_locker').text()).toContain(t('shipping.method.boxnow.country_unsupported'))
     })
 
-    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
-    const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
-      .find(item => item.value === 'box_now_locker')
-    expect(boxNowItem?.disabled).toBe(true)
-  })
-
-  it('keeps BoxNow enabled for CY (a supported widget country)', async () => {
-    const cyOptions: ShippingOption[] = [
-      { ...DEFAULT_API_OPTIONS[0]!, countryCode: 'CY' },
-    ]
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({
-        apiOptions: cyOptions,
+    it('keeps BoxNow enabled in Cyprus, a country it serves', async () => {
+      const wrapper = await mount({
         formState: makeFormState({ country: 'CY' }),
-      }),
+        apiOptions: [boxNowLockerOption({ countryCode: 'CY' })],
+      })
+
+      expect(radio(wrapper, 'box_now_locker').attributes()).not.toHaveProperty('data-disabled')
+      expect(wrapper.text()).not.toContain(t('shipping.method.boxnow.country_unsupported'))
     })
 
-    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
-    const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
-      .find(item => item.value === 'box_now_locker')
-    expect(boxNowItem?.disabled).toBeFalsy()
-  })
-})
+    it('disables BoxNow and explains it when the store has no BoxNow partner id', async () => {
+      // The widget cannot load without one — the picker would throw
+      // "partnerId is required" into the checkout's generic error toast.
+      const wrapper = await mount({ partnerId: '' })
 
-describe('optionsError (live options fetch failed)', () => {
-  it('renders a retry prompt instead of the picker', async () => {
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({ optionsError: true }),
+      expect(radio(wrapper, 'box_now_locker').attributes()).toHaveProperty('data-disabled')
+      expect(wrapper.text()).toContain(t('shipping.method.boxnow.unconfigured_title'))
+      // Not the country reason: the country is fine, the setup is not.
+      expect(wrapper.text()).not.toContain(t('shipping.method.boxnow.country_unsupported'))
     })
 
-    expect(wrapper.findComponent({ name: 'URadioGroup' }).exists()).toBe(false)
-    const retryButtons = wrapper.findAllComponents({ name: 'UButton' })
-      .filter(btn => btn.text().includes('ξανά'))
-    expect(retryButtons.length).toBeGreaterThanOrEqual(1)
-  })
+    it('says nothing about a missing partner id when the store does not serve BoxNow', async () => {
+      const wrapper = await mount({ partnerId: '', apiOptions: [acsHomeDeliveryOption()] })
 
-  it('emits retry-options when the retry action is used', async () => {
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({ optionsError: true }),
+      expect(wrapper.text()).not.toContain(t('shipping.method.boxnow.unconfigured_title'))
     })
-
-    const alert = wrapper.findComponent({ name: 'UAlert' })
-    const retryAction = (alert.props('actions') as Array<{ label: string, onClick: () => void }>)
-      .find(action => action.onClick)
-    retryAction?.onClick()
-
-    expect(wrapper.emitted('retry-options')).toBeTruthy()
   })
 
-  it('submit() is a no-op while options failed to load', async () => {
-    const wrapper = await mountSuspended(StepShipping, {
-      props: makeProps({ optionsError: true }),
+  describe('when the live options failed to load', () => {
+    /**
+     * There is no local price to fall back to, so the step offers a
+     * retry instead of cards — and the sidebar CTA, which proxies through
+     * `submit()`, must not advance past it.
+     */
+    // The page keeps the last rows it had; only the flag says they are stale.
+    const failed = () => mount({ optionsError: true })
+
+    function button(wrapper: VueWrapper, label: string) {
+      const found = wrapper.findAll('button').find(b => b.text() === label)
+      if (!found) throw new Error(`no button "${label}"`)
+      return found
+    }
+
+    it('renders a retry prompt instead of the method cards', async () => {
+      const wrapper = await failed()
+
+      expect(wrapper.find('[role="radiogroup"]').exists()).toBe(false)
+      expect(wrapper.text()).toContain(t('shipping.method.options_error_title'))
     })
 
-    ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
-    await wrapper.vm.$nextTick()
+    it('asks the page to refetch from the retry button', async () => {
+      const wrapper = await failed()
 
-    expect(wrapper.emitted('next')).toBeFalsy()
+      await button(wrapper, 'Δοκιμάστε ξανά').trigger('click')
+
+      expect(wrapper.emitted('retry-options')).toHaveLength(1)
+    })
+
+    it('goes back from the prompt\'s back button', async () => {
+      const wrapper = await failed()
+
+      await button(wrapper, 'Πίσω').trigger('click')
+
+      expect(wrapper.emitted('back')).toHaveLength(1)
+    })
+
+    it('does not advance from the sidebar CTA', async () => {
+      const wrapper = await failed()
+
+      submitStep(wrapper)
+
+      expect(wrapper.emitted('next')).toBeUndefined()
+    })
   })
 })

@@ -1,756 +1,156 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { clearNuxtData, useNuxtApp } from '#imports'
+import { useUserSubscriptions } from '~/composables/useUserSubscriptions'
+import { createMockSubscription } from '~~/test/helpers/subscriptionTestData'
 
-// Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
-const { mockFetch, mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn } = vi.hoisted(() => ({
-  // Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
-  // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
-  // mocked via mockNuxtImport like any other auto-import.
-  //
-  // The default `Promise.resolve({})` implementation matters: the mock is
-  // active during Nuxt bootstrap (session/config/cart fetches). A bare
-  // vi.fn() returns undefined there, which crashes nuxt-auth-utils'
-  // session plugin and blocks @nuxtjs/i18n — leaving nuxtApp.$i18n
-  // undefined, which this composable needs.
-  mockFetch: vi.fn(() => Promise.resolve<any>({})),
-  mockUseAsyncDataFn: vi.fn(),
-  mockRefreshNuxtDataFn: vi.fn(),
-  mockUseToastFn: vi.fn(),
+/**
+ * `fetchSubscriptions` runs the REAL `useAsyncData` over a mocked
+ * `useRequestApi`. The mutations are checked for the request they make,
+ * the two list caches they refresh afterwards (and only on success), and
+ * the toast they show. `$i18n` is the app's real instance, so toast copy
+ * is compared against `$i18n.t(key)`.
+ */
+
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+const { mockRefreshNuxtData, mockToast } = vi.hoisted(() => ({
+  mockRefreshNuxtData: vi.fn(() => Promise.resolve()),
+  mockToast: { add: vi.fn() },
 }))
 
-// Mock Nuxt composables using mockNuxtImport
-// Note: Do NOT mock useNuxtApp — it breaks the Nuxt test environment.
-// $i18n is provided by the test-fixtures/plugins/mock-i18n.ts plugin.
-mockNuxtImport('$api', () => mockFetch)
-// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
-// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
-// builds `$api` from `$fetch.create()` while the app boots.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
-// The composable fetches through `useRequestApi`; its page-locale
-// header is tested in test/nuxt/utils/api.spec.ts.
-mockNuxtImport('useRequestApi', () => () => mockFetch)
-mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
-mockNuxtImport('useRequestHeaders', () => () => ({}))
-mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtDataFn)
-mockNuxtImport('useToast', () => mockUseToastFn)
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+mockNuxtImport('useRequestApi', () => () => api)
+mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtData)
+mockNuxtImport('useToast', () => () => mockToast)
 
-describe('useUserSubscriptions Composable', () => {
-  const mockToast = {
-    add: vi.fn(),
-  }
+const t = (key: string) => useNuxtApp().$i18n.t(key)
 
-  const mockI18n = {
-    t: vi.fn((key: string) => key),
-  }
+const toast = (prefix: string, color: 'success' | 'error', kind: 'success' | 'error' = color) => ({
+  title: t(`subscription_notifications.${prefix}.${kind}_title`),
+  description: t(`subscription_notifications.${prefix}.${kind}_description`),
+  color,
+})
 
+describe('useUserSubscriptions', () => {
   beforeEach(() => {
-    mockFetch.mockReset()
-    mockUseAsyncDataFn.mockReset()
-    mockRefreshNuxtDataFn.mockReset()
-    mockToast.add.mockReset()
-
-    // Setup default mocks
-    mockUseToastFn.mockReturnValue(mockToast)
-    mockRefreshNuxtDataFn.mockResolvedValue(undefined)
+    clearNuxtData()
   })
 
   describe('fetchSubscriptions', () => {
-    it('should call useAsyncData with correct cache key', () => {
-      // Arrange
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref([]),
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
+    it('GETs the subscriptions and hands back the page results', async () => {
+      const subscriptions = [createMockSubscription({ id: 1 }), createMockSubscription({ id: 2, topic: 2 })]
+      api.routes({ '/api/subscriptions/user': { count: 2, next: null, previous: null, results: subscriptions } })
 
-      // Act
-      const { fetchSubscriptions } = useUserSubscriptions()
-      fetchSubscriptions()
+      const { data } = await useUserSubscriptions().fetchSubscriptions()
 
-      // Assert: Verify cache key follows the pattern
-      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
-        'subscription:user:list',
-        expect.any(Function),
-      )
+      expect(api.callsTo('/api/subscriptions/user')).toEqual([
+        { url: '/api/subscriptions/user', options: { method: 'GET' } },
+      ])
+      expect(data.value).toEqual(subscriptions)
     })
 
-    it('should return AsyncData structure with data, status, error, and refresh', () => {
-      // Arrange
-      const mockSubscriptions: UserSubscription[] = [
-        {
-          id: 1,
-          user: 1,
-          topic: 1,
-          topicDetails: {
-            id: 1,
-            uuid: 'uuid-1',
-            slug: 'newsletter',
-            translations: {
-              el: {
-                name: 'Newsletter',
-                description: 'Weekly newsletter',
-              },
-            },
-            category: 'NEWSLETTER',
-            isActive: true,
-            isDefault: false,
-            requiresConfirmation: false,
-            subscriberCount: 0,
-          },
-          status: 'ACTIVE',
-          subscribedAt: '2024-01-01T00:00:00Z',
-          unsubscribedAt: null,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-      ]
+    it('hands back an empty list for an answer without results', async () => {
+      api.routes({ '/api/subscriptions/user': {} })
 
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(mockSubscriptions),
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
+      const { data } = await useUserSubscriptions().fetchSubscriptions()
 
-      // Act
-      const { fetchSubscriptions } = useUserSubscriptions()
-      const result = fetchSubscriptions()
-
-      // Assert: Verify return structure
-      expect(result).toHaveProperty('data')
-      expect(result).toHaveProperty('status')
-      expect(result).toHaveProperty('error')
-      expect(result).toHaveProperty('refresh')
-
-      expect(result.data.value).toEqual(mockSubscriptions)
-      expect(result.status.value).toBe('success')
-      expect(result.error.value).toBeNull()
-    })
-
-    it('should handle empty results array', () => {
-      // Arrange
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref([]),
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
-
-      // Act
-      const { fetchSubscriptions } = useUserSubscriptions()
-      const result = fetchSubscriptions()
-
-      // Assert
-      expect(result.data.value).toEqual([])
-      expect(result.status.value).toBe('success')
-    })
-
-    it('should handle error state', () => {
-      // Arrange
-      const mockError = new Error('Network error')
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(null),
-        status: ref('error'),
-        error: ref(mockError),
-        refresh: vi.fn(),
-      })
-
-      // Act
-      const { fetchSubscriptions } = useUserSubscriptions()
-      const result = fetchSubscriptions()
-
-      // Assert
-      expect(result.error.value).toBe(mockError)
-      expect(result.status.value).toBe('error')
-      expect(result.data.value).toBeNull()
-    })
-
-    it('should handle pending state', () => {
-      // Arrange
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(null),
-        status: ref('pending'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
-
-      // Act
-      const { fetchSubscriptions } = useUserSubscriptions()
-      const result = fetchSubscriptions()
-
-      // Assert
-      expect(result.status.value).toBe('pending')
-      expect(result.data.value).toBeNull()
-      expect(result.error.value).toBeNull()
+      expect(data.value).toEqual([])
     })
   })
 
-  describe('subscribe', () => {
-    it('should successfully subscribe to a topic', async () => {
-      // Arrange
-      const topicId = 1
-      const mockResponse = {
-        id: 1,
-        user: 1,
-        topic: topicId,
-        status: 'ACTIVE',
-      }
+  describe.each([
+    {
+      name: 'subscribe',
+      run: () => useUserSubscriptions().subscribe(7),
+      url: '/api/subscriptions/user',
+      options: { method: 'POST', body: { topic: 7 } },
+      success: () => toast('subscribe', 'success'),
+      failure: () => toast('subscribe', 'error'),
+      answer: createMockSubscription({ topic: 7 }),
+    },
+    {
+      name: 'unsubscribe',
+      run: () => useUserSubscriptions().unsubscribe(3),
+      url: '/api/subscriptions/user/3',
+      options: { method: 'DELETE' },
+      success: () => toast('unsubscribe', 'success'),
+      failure: () => toast('unsubscribe', 'error'),
+      answer: undefined,
+    },
+    {
+      name: 'bulkSubscribe(subscribe)',
+      run: () => useUserSubscriptions().bulkSubscribe([1, 2], 'subscribe'),
+      url: '/api/subscriptions/user/bulk-subscribe',
+      options: { method: 'POST', body: { topicIds: [1, 2], action: 'subscribe' } },
+      success: () => toast('bulk_subscribe', 'success'),
+      failure: () => toast('bulk_operation', 'error'),
+      answer: { success: true },
+    },
+    {
+      name: 'bulkSubscribe(unsubscribe)',
+      run: () => useUserSubscriptions().bulkSubscribe([1, 2], 'unsubscribe'),
+      url: '/api/subscriptions/user/bulk-subscribe',
+      options: { method: 'POST', body: { topicIds: [1, 2], action: 'unsubscribe' } },
+      success: () => toast('bulk_unsubscribe', 'success'),
+      failure: () => toast('bulk_operation', 'error'),
+      answer: { success: true },
+    },
+  ])('$name', ({ run, url, options, success, failure, answer }) => {
+    it('sends the request, refreshes the user list then the topics list, and confirms', async () => {
+      api.routes({ [url]: answer })
 
-      mockFetch.mockResolvedValue(mockResponse)
+      await expect(run()).resolves.toEqual(answer)
 
-      // Act
-      const { subscribe } = useUserSubscriptions()
-      const result = await subscribe(topicId)
-
-      // Assert: Verify API call
-      expect(mockFetch).toHaveBeenCalledWith('/api/subscriptions/user', {
-        method: 'POST',
-        body: { topic: topicId },
-      })
-
-      // Assert: Verify cache invalidation
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledTimes(2)
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:user:list')
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:topics:list')
-
-      // Assert: Verify success toast (titles are i18n-translated strings)
-      expect(mockToast.add).toHaveBeenCalledWith({
-        title: expect.any(String),
-        description: expect.any(String),
-        color: 'success',
-      })
-
-      // Assert: Verify return value
-      expect(result).toEqual(mockResponse)
+      expect(api.callsTo(url)).toEqual([{ url, options }])
+      expect(mockRefreshNuxtData.mock.calls).toEqual([['subscription:user:list'], ['subscription:topics:list']])
+      expect(mockToast.add).toHaveBeenCalledExactlyOnceWith(success())
     })
 
-    it('should handle subscription error and show error toast', async () => {
-      // Arrange
-      const topicId = 1
-      const mockError = new Error('Subscription failed')
-      mockFetch.mockRejectedValue(mockError)
+    it('rethrows a failure after an error toast, refreshing nothing', async () => {
+      const rejection = new Error('API error')
+      api.routes({ [url]: () => { throw rejection } })
 
-      // Act & Assert
-      const { subscribe } = useUserSubscriptions()
-      await expect(subscribe(topicId)).rejects.toThrow('Subscription failed')
+      await expect(run()).rejects.toBe(rejection)
 
-      // Assert: Verify error toast (titles are i18n-translated strings)
-      expect(mockToast.add).toHaveBeenCalledWith({
-        title: expect.any(String),
-        description: expect.any(String),
-        color: 'error',
-      })
-
-      // Assert: Cache should not be invalidated on error
-      expect(mockRefreshNuxtDataFn).not.toHaveBeenCalled()
-    })
-
-    it('should propagate error after showing toast', async () => {
-      // Arrange
-      const topicId = 1
-      mockFetch.mockRejectedValue(new Error('Network error'))
-
-      // Act & Assert
-      const { subscribe } = useUserSubscriptions()
-      await expect(subscribe(topicId)).rejects.toThrow('Network error')
+      expect(mockRefreshNuxtData).not.toHaveBeenCalled()
+      expect(mockToast.add).toHaveBeenCalledExactlyOnceWith(failure())
     })
   })
 
-  describe('unsubscribe', () => {
-    it('should successfully unsubscribe from a topic', async () => {
-      // Arrange
-      const subscriptionId = 1
-      mockFetch.mockResolvedValue(undefined)
+  describe('isSubscribed', () => {
+    const subscriptions = [
+      createMockSubscription({ id: 1, topic: 1, status: 'ACTIVE' }),
+      createMockSubscription({ id: 2, topic: 2, status: 'UNSUBSCRIBED' }),
+    ]
 
-      // Act
-      const { unsubscribe } = useUserSubscriptions()
-      await unsubscribe(subscriptionId)
-
-      // Assert: Verify API call
-      expect(mockFetch).toHaveBeenCalledWith(`/api/subscriptions/user/${subscriptionId}`, {
-        method: 'DELETE',
-      })
-
-      // Assert: Verify cache invalidation
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledTimes(2)
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:user:list')
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:topics:list')
-
-      // Assert: Verify success toast (titles are i18n-translated strings)
-      expect(mockToast.add).toHaveBeenCalledWith({
-        title: expect.any(String),
-        description: expect.any(String),
-        color: 'success',
-      })
-    })
-
-    it('should handle unsubscribe error and show error toast', async () => {
-      // Arrange
-      const subscriptionId = 1
-      const mockError = new Error('Unsubscribe failed')
-      mockFetch.mockRejectedValue(mockError)
-
-      // Act & Assert
-      const { unsubscribe } = useUserSubscriptions()
-      await expect(unsubscribe(subscriptionId)).rejects.toThrow('Unsubscribe failed')
-
-      // Assert: Verify error toast (titles are i18n-translated strings)
-      expect(mockToast.add).toHaveBeenCalledWith({
-        title: expect.any(String),
-        description: expect.any(String),
-        color: 'error',
-      })
-
-      // Assert: Cache should not be invalidated on error
-      expect(mockRefreshNuxtDataFn).not.toHaveBeenCalled()
-    })
-
-    it('should propagate error after showing toast', async () => {
-      // Arrange
-      const subscriptionId = 1
-      mockFetch.mockRejectedValue(new Error('Network error'))
-
-      // Act & Assert
-      const { unsubscribe } = useUserSubscriptions()
-      await expect(unsubscribe(subscriptionId)).rejects.toThrow('Network error')
+    it.each([
+      ['an active subscription', subscriptions, 1, true],
+      ['an inactive subscription', subscriptions, 2, false],
+      ['a topic not subscribed', subscriptions, 999, false],
+      ['no subscriptions', [], 1, false],
+      ['null subscriptions', null, 1, false],
+    ])('is %s → %s', (_label, list, topicId, expected) => {
+      expect(useUserSubscriptions().isSubscribed(list, topicId)).toBe(expected)
     })
   })
 
-  describe('bulkSubscribe', () => {
-    it('should successfully bulk subscribe to topics', async () => {
-      // Arrange
-      const topicIds = [1, 2, 3]
-      const mockResponse = {
-        success: true,
-        subscribed: topicIds,
-      }
+  describe('getSubscriptionByTopicId', () => {
+    const subscriptions = [
+      createMockSubscription({ id: 1, topic: 1 }),
+      createMockSubscription({ id: 2, topic: 2, status: 'UNSUBSCRIBED' }),
+    ]
 
-      mockFetch.mockResolvedValue(mockResponse)
-
-      // Act
-      const { bulkSubscribe } = useUserSubscriptions()
-      const result = await bulkSubscribe(topicIds, 'subscribe')
-
-      // Assert: Verify API call
-      expect(mockFetch).toHaveBeenCalledWith('/api/subscriptions/user/bulk-subscribe', {
-        method: 'POST',
-        body: { topicIds, action: 'subscribe' },
-      })
-
-      // Assert: Verify cache invalidation
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledTimes(2)
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:user:list')
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:topics:list')
-
-      // Assert: Verify success toast for subscribe (titles are i18n-translated strings)
-      expect(mockToast.add).toHaveBeenCalledWith({
-        title: expect.any(String),
-        description: expect.any(String),
-        color: 'success',
-      })
-
-      // Assert: Verify return value
-      expect(result).toEqual(mockResponse)
+    it('finds the subscription for the topic, whatever its status', () => {
+      expect(useUserSubscriptions().getSubscriptionByTopicId(subscriptions, 2)).toBe(subscriptions[1])
     })
 
-    it('should successfully bulk unsubscribe from topics', async () => {
-      // Arrange
-      const topicIds = [1, 2, 3]
-      const mockResponse = {
-        success: true,
-        unsubscribed: topicIds,
-      }
-
-      mockFetch.mockResolvedValue(mockResponse)
-
-      // Act
-      const { bulkSubscribe } = useUserSubscriptions()
-      const result = await bulkSubscribe(topicIds, 'unsubscribe')
-
-      // Assert: Verify API call
-      expect(mockFetch).toHaveBeenCalledWith('/api/subscriptions/user/bulk-subscribe', {
-        method: 'POST',
-        body: { topicIds, action: 'unsubscribe' },
-      })
-
-      // Assert: Verify success toast for unsubscribe (titles are i18n-translated strings)
-      expect(mockToast.add).toHaveBeenCalledWith({
-        title: expect.any(String),
-        description: expect.any(String),
-        color: 'success',
-      })
-
-      // Assert: Verify return value
-      expect(result).toEqual(mockResponse)
-    })
-
-    it('should handle bulk operation error and show error toast', async () => {
-      // Arrange
-      const topicIds = [1, 2, 3]
-      const mockError = new Error('Bulk operation failed')
-      mockFetch.mockRejectedValue(mockError)
-
-      // Act & Assert
-      const { bulkSubscribe } = useUserSubscriptions()
-      await expect(bulkSubscribe(topicIds, 'subscribe')).rejects.toThrow('Bulk operation failed')
-
-      // Assert: Verify error toast (titles are i18n-translated strings)
-      expect(mockToast.add).toHaveBeenCalledWith({
-        title: expect.any(String),
-        description: expect.any(String),
-        color: 'error',
-      })
-
-      // Assert: Cache should not be invalidated on error
-      expect(mockRefreshNuxtDataFn).not.toHaveBeenCalled()
-    })
-
-    it('should propagate error after showing toast', async () => {
-      // Arrange
-      const topicIds = [1, 2, 3]
-      mockFetch.mockRejectedValue(new Error('Network error'))
-
-      // Act & Assert
-      const { bulkSubscribe } = useUserSubscriptions()
-      await expect(bulkSubscribe(topicIds, 'subscribe')).rejects.toThrow('Network error')
-    })
-
-    it('should handle empty topic IDs array', async () => {
-      // Arrange
-      const topicIds: number[] = []
-      const mockResponse = { success: true, subscribed: [] }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      // Act
-      const { bulkSubscribe } = useUserSubscriptions()
-      const result = await bulkSubscribe(topicIds, 'subscribe')
-
-      // Assert
-      expect(mockFetch).toHaveBeenCalledWith('/api/subscriptions/user/bulk-subscribe', {
-        method: 'POST',
-        body: { topicIds: [], action: 'subscribe' },
-      })
-      expect(result).toEqual(mockResponse)
-    })
-  })
-
-  describe('Helper Functions', () => {
-    describe('isSubscribed', () => {
-      it('should return true when user is subscribed and active', () => {
-        // Arrange
-        const subscriptions: UserSubscription[] = [
-          {
-            id: 1,
-            user: 1,
-            topic: 1,
-            topicDetails: {
-              id: 1,
-              uuid: 'uuid-1',
-              slug: 'newsletter',
-              translations: {
-                el: {
-                  name: 'Newsletter',
-                  description: 'Weekly newsletter',
-                },
-              },
-              category: 'NEWSLETTER',
-              isActive: true,
-              isDefault: false,
-              requiresConfirmation: false,
-              subscriberCount: 0,
-            },
-            status: 'ACTIVE',
-            subscribedAt: '2024-01-01T00:00:00Z',
-            unsubscribedAt: null,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-        ]
-
-        // Act
-        const { isSubscribed } = useUserSubscriptions()
-        const result = isSubscribed(subscriptions, 1)
-
-        // Assert
-        expect(result).toBe(true)
-      })
-
-      it('should return false when user is subscribed but not active', () => {
-        // Arrange
-        const subscriptions: UserSubscription[] = [
-          {
-            id: 1,
-            user: 1,
-            topic: 1,
-            topicDetails: {
-              id: 1,
-              uuid: 'uuid-1',
-              slug: 'newsletter',
-              translations: {
-                el: {
-                  name: 'Newsletter',
-                  description: 'Weekly newsletter',
-                },
-              },
-              category: 'NEWSLETTER',
-              isActive: true,
-              isDefault: false,
-              requiresConfirmation: false,
-              subscriberCount: 0,
-            },
-            status: 'UNSUBSCRIBED',
-            subscribedAt: '2024-01-01T00:00:00Z',
-            unsubscribedAt: '2024-01-02T00:00:00Z',
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-02T00:00:00Z',
-          },
-        ]
-
-        // Act
-        const { isSubscribed } = useUserSubscriptions()
-        const result = isSubscribed(subscriptions, 1)
-
-        // Assert
-        expect(result).toBe(false)
-      })
-
-      it('should return false when topic is not in subscriptions', () => {
-        // Arrange
-        const subscriptions: UserSubscription[] = [
-          {
-            id: 1,
-            user: 1,
-            topic: 1,
-            topicDetails: {
-              id: 1,
-              uuid: 'uuid-1',
-              slug: 'newsletter',
-              translations: {
-                el: {
-                  name: 'Newsletter',
-                  description: 'Weekly newsletter',
-                },
-              },
-              category: 'NEWSLETTER',
-              isActive: true,
-              isDefault: false,
-              requiresConfirmation: false,
-              subscriberCount: 0,
-            },
-            status: 'ACTIVE',
-            subscribedAt: '2024-01-01T00:00:00Z',
-            unsubscribedAt: null,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-        ]
-
-        // Act
-        const { isSubscribed } = useUserSubscriptions()
-        const result = isSubscribed(subscriptions, 999)
-
-        // Assert
-        expect(result).toBe(false)
-      })
-
-      it('should return false when subscriptions is null', () => {
-        // Act
-        const { isSubscribed } = useUserSubscriptions()
-        const result = isSubscribed(null, 1)
-
-        // Assert
-        expect(result).toBe(false)
-      })
-
-      it('should return false when subscriptions is empty array', () => {
-        // Act
-        const { isSubscribed } = useUserSubscriptions()
-        const result = isSubscribed([], 1)
-
-        // Assert
-        expect(result).toBe(false)
-      })
-    })
-
-    describe('getSubscriptionByTopicId', () => {
-      it('should find subscription by topic id', () => {
-        // Arrange
-        const subscriptions: UserSubscription[] = [
-          {
-            id: 1,
-            user: 1,
-            topic: 1,
-            topicDetails: {
-              id: 1,
-              uuid: 'uuid-1',
-              slug: 'newsletter',
-              translations: {
-                el: {
-                  name: 'Newsletter',
-                  description: 'Weekly newsletter',
-                },
-              },
-              category: 'NEWSLETTER',
-              isActive: true,
-              isDefault: false,
-              requiresConfirmation: false,
-              subscriberCount: 0,
-            },
-            status: 'ACTIVE',
-            subscribedAt: '2024-01-01T00:00:00Z',
-            unsubscribedAt: null,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-          {
-            id: 2,
-            user: 1,
-            topic: 2,
-            topicDetails: {
-              id: 2,
-              uuid: 'uuid-2',
-              slug: 'promotions',
-              translations: {
-                el: {
-                  name: 'Promotions',
-                  description: 'Special offers',
-                },
-              },
-              category: 'PROMOTIONAL',
-              isActive: true,
-              isDefault: false,
-              requiresConfirmation: false,
-              subscriberCount: 0,
-            },
-            status: 'ACTIVE',
-            subscribedAt: '2024-01-01T00:00:00Z',
-            unsubscribedAt: null,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-        ]
-
-        // Act
-        const { getSubscriptionByTopicId } = useUserSubscriptions()
-        const result = getSubscriptionByTopicId(subscriptions, 2)
-
-        // Assert
-        expect(result).toEqual(subscriptions[1])
-      })
-
-      it('should return undefined for non-existent topic id', () => {
-        // Arrange
-        const subscriptions: UserSubscription[] = [
-          {
-            id: 1,
-            user: 1,
-            topic: 1,
-            topicDetails: {
-              id: 1,
-              uuid: 'uuid-1',
-              slug: 'newsletter',
-              translations: {
-                el: {
-                  name: 'Newsletter',
-                  description: 'Weekly newsletter',
-                },
-              },
-              category: 'NEWSLETTER',
-              isActive: true,
-              isDefault: false,
-              requiresConfirmation: false,
-              subscriberCount: 0,
-            },
-            status: 'ACTIVE',
-            subscribedAt: '2024-01-01T00:00:00Z',
-            unsubscribedAt: null,
-            createdAt: '2024-01-01T00:00:00Z',
-            updatedAt: '2024-01-01T00:00:00Z',
-          },
-        ]
-
-        // Act
-        const { getSubscriptionByTopicId } = useUserSubscriptions()
-        const result = getSubscriptionByTopicId(subscriptions, 999)
-
-        // Assert
-        expect(result).toBeUndefined()
-      })
-
-      it('should return undefined when subscriptions is null', () => {
-        // Act
-        const { getSubscriptionByTopicId } = useUserSubscriptions()
-        const result = getSubscriptionByTopicId(null, 1)
-
-        // Assert
-        expect(result).toBeUndefined()
-      })
-
-      it('should return undefined when subscriptions is empty array', () => {
-        // Act
-        const { getSubscriptionByTopicId } = useUserSubscriptions()
-        const result = getSubscriptionByTopicId([], 1)
-
-        // Assert
-        expect(result).toBeUndefined()
-      })
-    })
-  })
-
-  describe('Cache Invalidation', () => {
-    it('should invalidate both user and topics caches after subscribe', async () => {
-      // Arrange
-      mockFetch.mockResolvedValue({ id: 1, topic: 1 })
-
-      // Act
-      const { subscribe } = useUserSubscriptions()
-      await subscribe(1)
-
-      // Assert: Verify both caches are invalidated
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledTimes(2)
-      expect(mockRefreshNuxtDataFn).toHaveBeenNthCalledWith(1, 'subscription:user:list')
-      expect(mockRefreshNuxtDataFn).toHaveBeenNthCalledWith(2, 'subscription:topics:list')
-    })
-
-    it('should invalidate both user and topics caches after unsubscribe', async () => {
-      // Arrange
-      mockFetch.mockResolvedValue(undefined)
-
-      // Act
-      const { unsubscribe } = useUserSubscriptions()
-      await unsubscribe(1)
-
-      // Assert: Verify both caches are invalidated
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledTimes(2)
-      expect(mockRefreshNuxtDataFn).toHaveBeenNthCalledWith(1, 'subscription:user:list')
-      expect(mockRefreshNuxtDataFn).toHaveBeenNthCalledWith(2, 'subscription:topics:list')
-    })
-
-    it('should invalidate both user and topics caches after bulk operation', async () => {
-      // Arrange
-      mockFetch.mockResolvedValue({ success: true })
-
-      // Act
-      const { bulkSubscribe } = useUserSubscriptions()
-      await bulkSubscribe([1, 2, 3], 'subscribe')
-
-      // Assert: Verify both caches are invalidated
-      expect(mockRefreshNuxtDataFn).toHaveBeenCalledTimes(2)
-      expect(mockRefreshNuxtDataFn).toHaveBeenNthCalledWith(1, 'subscription:user:list')
-      expect(mockRefreshNuxtDataFn).toHaveBeenNthCalledWith(2, 'subscription:topics:list')
-    })
-
-    it('should not invalidate caches when mutation fails', async () => {
-      // Arrange
-      mockFetch.mockRejectedValue(new Error('API error'))
-
-      // Act & Assert
-      const { subscribe } = useUserSubscriptions()
-      await expect(subscribe(1)).rejects.toThrow('API error')
-
-      // Assert: Cache should not be invalidated
-      expect(mockRefreshNuxtDataFn).not.toHaveBeenCalled()
+    it.each([
+      ['an unknown topic', subscriptions, 999],
+      ['no subscriptions', [], 1],
+      ['null subscriptions', null, 1],
+    ])('is undefined for %s', (_label, list, topicId) => {
+      expect(useUserSubscriptions().getSubscriptionByTopicId(list, topicId)).toBeUndefined()
     })
   })
 })

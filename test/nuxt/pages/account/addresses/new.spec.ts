@@ -155,20 +155,30 @@ describe('account/addresses/new', () => {
     it('validates against the picked phone country, not the form country', async () => {
       countriesResponse = { count: 2, next: null, previous: null, results: [GR, CY] }
       registerEndpoint('/api/countries', () => countriesResponse)
-      const { wrapper } = await mountWithCountry('CY')
+      const { wrapper, vm } = await mountWithCountry('CY')
+      mockApi.mockReset().mockResolvedValue({})
+      const saves = () => mockApi.mock.calls.filter(([url]) => url === '/api/user/addresses')
+      const phoneError = useNuxtApp().$i18n.t('validation.phone.invalid_example', { example: '6912345678' })
+      // A complete Cypriot address: CY postcode and district.
+      Object.assign(vm.state, VALID, { country: 'CY', zipcode: '1010', city: 'Λευκωσία', region: 'CY-01' })
+      await flushPromises()
+
+      // A well-formed E.164 that no Greek number matches: judged by the
+      // picked +30's own rules (not the generic foreign check the form
+      // country would apply), and the message names a GREEK example.
+      await wrapper.find('input[type="tel"]').setValue('+30 1234567890')
+      await wrapper.find('form').trigger('submit')
+      await flushPromises()
+      expect(saves()).toEqual([])
+      expect(wrapper.text()).toContain(phoneError)
 
       // A Greek mobile on a Cypriot address: +30 picked, checked against GR.
       await wrapper.find('input[type="tel"]').setValue('+30 6912345678')
+      await wrapper.find('form').trigger('submit')
       await flushPromises()
-
-      const vm = wrapper.vm as unknown as { schema: { safeParse: (data: unknown) => { success: boolean, error?: { issues: Array<{ path: unknown[] }> } } } }
-      // A complete Cypriot address: CY postcode and district.
-      const cyprus = { ...VALID, country: 'CY', zipcode: '1010', city: 'Λευκωσία', region: 'CY-01' }
-      const valid = vm.schema.safeParse({ ...cyprus, phone: '+306912345678' })
-      expect(valid.error?.issues).toBeUndefined()
-      expect(valid.success).toBe(true)
-      const invalid = vm.schema.safeParse({ ...cyprus, phone: '+30123' })
-      expect(invalid.error?.issues.map(issue => issue.path[0])).toEqual(['phone'])
+      expect(wrapper.text()).not.toContain(phoneError)
+      expect(saves()).toHaveLength(1)
+      expect(saves()[0]![1].body).toMatchObject({ country: 'CY', phone: '+306912345678' })
     })
 
     it('submits the E.164 the field built', async () => {

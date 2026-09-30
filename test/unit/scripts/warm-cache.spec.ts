@@ -5,7 +5,7 @@
  * Ingresses route to the storefront.
  */
 import { describe, expect, it } from 'vitest'
-import { deviceClassFromUserAgent } from '../../../shared/utils/deviceClass'
+import { deviceClassFromUserAgent } from '~~/shared/utils/deviceClass'
 import {
   DEVICE_USER_AGENTS,
   isCachedResponse,
@@ -13,7 +13,7 @@ import {
   sitemapLocations,
   storefrontHosts,
   warmOrder,
-} from '../../../scripts/warm-cache.mjs'
+} from '~~/scripts/warm-cache.mjs'
 
 describe('DEVICE_USER_AGENTS', () => {
   it('holds one User-Agent per device class, classified into that class', () => {

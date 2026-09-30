@@ -3,122 +3,91 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 // Every flag reads off the ONE per-render settings payload, so the
 // mock answers `/api/settings/public` with a whole record.
-const { mockFetch, publicSettings } = vi.hoisted(() => {
-  const publicSettings = { value: {} as Record<string, string>, reject: false }
-  return {
-    publicSettings,
-    mockFetch: vi.fn((url: unknown) => {
-      if (String(url).includes('/api/settings/public')) {
-        return publicSettings.reject
-          ? Promise.reject(new Error('settings endpoint down'))
-          : Promise.resolve({ settings: publicSettings.value })
-      }
-      return Promise.resolve({})
-    }),
-  }
-})
-mockNuxtImport('$api', () => mockFetch)
-// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
-// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
-// builds `$api` from `$fetch.create()` while the app boots.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+// `useApi` transports through Nuxt's own `$fetch`.
+mockNuxtImport('$fetch', () => api)
 
-const settingsCalls = () =>
-  mockFetch.mock.calls.filter(call => String(call[0]).includes('/api/settings/public'))
+function serveSettings(settings: Record<string, string>) {
+  api.routes({ '/api/settings/public': { settings } })
+}
+
+/**
+ * Registers the readers in the app's context, plus the payload's own
+ * `unavailable`, so a test can wait for the request to have SETTLED —
+ * a fallback asserted before it lands passes for the wrong reason.
+ */
+function read<T>(readers: () => T) {
+  // `runWithContext` is typed as possibly async; these readers are sync.
+  let out!: ReturnType<typeof useStoreSettings> & { result: T }
+  useNuxtApp().runWithContext(() => {
+    out = { ...useStoreSettings(), result: readers() }
+  })
+  return out
+}
+
+/** The request settles within a few ticks; poll at that grain, not vitest's 50ms default. */
+const POLL = { interval: 1 }
 
 describe('useSettingFlag / useSettingValue', () => {
   beforeEach(() => {
-    mockFetch.mockClear()
-    publicSettings.value = {}
-    publicSettings.reject = false
     // The payload is cached by key across the file's shared Nuxt app;
     // each test starts from an empty cache so its own record is read.
     clearNuxtData(STORE_SETTINGS_KEY)
   })
 
-  it('parses a true value', async () => {
-    publicSettings.value = { MOBILE_BOTTOM_NAV_ENABLED: 'True' }
+  it.each([
+    ['True', false, true],
+    ['False', true, false],
+    ['1', false, true],
+    ['yes', false, true],
+    ['no', true, false],
+  ])('reads %j as %s→%s: the stored value wins over the fallback', async (raw, fallback, expected) => {
+    serveSettings({ SOME_FLAG: raw })
 
-    const flag = await runInNuxtContext(() =>
-      useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', { fallback: false }))
-    await flushSettingFetch()
+    const { result: flag } = read(() => useSettingFlag('SOME_FLAG', { fallback }))
 
-    expect(flag.value).toBe(true)
+    await vi.waitFor(() => expect(flag.value).toBe(expected), POLL)
   })
 
-  it('parses a false value even when the fallback is true', async () => {
-    publicSettings.value = { STICKY_ADD_TO_CART_ENABLED: 'False' }
+  it('applies each caller\'s fallback to a key the loaded payload lacks', async () => {
+    serveSettings({ OTHER_KEY: 'x' })
 
-    const flag = await runInNuxtContext(() =>
-      useSettingFlag('STICKY_ADD_TO_CART_ENABLED', { fallback: true }))
-    await flushSettingFetch()
-
-    expect(flag.value).toBe(false)
-  })
-
-  it('accepts the shared truthiness rule (1 / yes), not only "True"', async () => {
-    publicSettings.value = { A_FLAG: '1', B_FLAG: 'yes', C_FLAG: 'no' }
-
-    const [a, b, c] = await runInNuxtContext(() => [
-      useSettingFlag('A_FLAG', { fallback: false }),
-      useSettingFlag('B_FLAG', { fallback: false }),
-      useSettingFlag('C_FLAG', { fallback: true }),
-    ])
-    await flushSettingFetch()
-
-    expect([a!.value, b!.value, c!.value]).toEqual([true, true, false])
-  })
-
-  it('applies the fallback to a key without a row', async () => {
-    publicSettings.value = {}
-
-    const [open, closed] = await runInNuxtContext(() => [
+    const { settings, result: [open, closed] } = read(() => [
       useSettingFlag('UI_FLAG_NO_ROW_OPEN', { fallback: true }),
       useSettingFlag('UI_FLAG_NO_ROW_CLOSED', { fallback: false }),
     ])
-    await flushSettingFetch()
+    await vi.waitFor(() => expect(settings.value).toEqual({ OTHER_KEY: 'x' }), POLL)
 
     expect(open!.value).toBe(true)
     expect(closed!.value).toBe(false)
   })
 
-  it('falls back OPEN / CLOSED per caller when the fetch rejects', async () => {
-    publicSettings.reject = true
+  it('falls back OPEN / CLOSED per caller once the fetch has failed', async () => {
+    api.routes({ '/api/settings/public': () => { throw new Error('settings endpoint down') } })
 
-    const [open, closed] = await runInNuxtContext(() => [
+    const { unavailable, result: [open, closed] } = read(() => [
       useSettingFlag('UI_FLAG_FAIL_OPEN_PROBE', { fallback: true }),
       useSettingFlag('UI_FLAG_FAIL_CLOSED_PROBE', { fallback: false }),
     ])
-    await flushSettingFetch()
+    await vi.waitFor(() => expect(unavailable.value).toBe(true), POLL)
 
     expect(open!.value).toBe(true)
     expect(closed!.value).toBe(false)
   })
 
   it('reads every flag and value off ONE request', async () => {
-    publicSettings.value = { GIFT_CARDS_ENABLED: 'True', BUSINESS_HOURS: '{}' }
+    serveSettings({ GIFT_CARDS_ENABLED: 'True', BUSINESS_HOURS: '{}' })
 
-    const [flag, value, missing] = await runInNuxtContext(() => [
+    const { result: [flag, value, missing] } = read(() => [
       useSettingFlag('GIFT_CARDS_ENABLED', { fallback: false }),
       useSettingValue('BUSINESS_HOURS'),
       useSettingValue('STORE_OFFICES'),
     ])
-    await flushSettingFetch()
+    await vi.waitFor(() => expect(value!.value).toBe('{}'), POLL)
 
     expect(flag!.value).toBe(true)
-    expect(value!.value).toBe('{}')
     expect(missing!.value).toBe('')
-    expect(settingsCalls()).toHaveLength(1)
+    expect(api.callsTo('/api/settings/public')).toHaveLength(1)
   })
 })
-
-async function runInNuxtContext<T>(fn: () => T): Promise<T> {
-  const nuxtApp = useNuxtApp()
-  return nuxtApp.runWithContext(fn)
-}
-
-async function flushSettingFetch() {
-  // useFetch resolves asynchronously; two macrotasks settle it.
-  await new Promise(resolve => setTimeout(resolve, 20))
-  await nextTick()
-}

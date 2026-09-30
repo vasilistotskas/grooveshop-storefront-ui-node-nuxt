@@ -1,150 +1,49 @@
-/**
- * Tests for Order/BoxNowEventTimeline.vue component.
- *
- * Renders either a "no events" alert or a UTimeline with one item per event.
- */
-
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BoxNowEventTimeline from '~/components/Order/BoxNowEventTimeline.vue'
+import { makeBoxNowParcelEvent } from '~~/test/fixtures/boxnow'
 
-// ---------------------------------------------------------------------------
-// Test fixtures — partial shapes cast to any; full type is BoxNowParcelEvent
-// ---------------------------------------------------------------------------
-
-const SINGLE_EVENT = {
-  id: 1,
-  eventType: 'new',
-  eventTime: '2024-01-15T10:30:00Z',
-  displayName: 'Athens Distribution Centre',
-  postalCode: '10431',
-} as any
-
-const MULTIPLE_EVENTS = [
-  {
-    id: 1,
-    eventType: 'new',
-    eventTime: '2024-01-15T10:30:00Z',
-    displayName: 'Athens DC',
-    postalCode: '10431',
-  },
-  {
-    id: 2,
-    eventType: 'in_depot',
-    eventTime: '2024-01-15T14:00:00Z',
-    displayName: 'North Depot',
-    postalCode: '14122',
-  },
-  {
-    id: 3,
-    eventType: 'final_destination',
-    eventTime: '2024-01-16T09:00:00Z',
-    displayName: 'Χαλάνδρι ΟΠΑΠ Play',
-    postalCode: '15234',
-  },
-] as any[]
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+const t = (key: string) => useNuxtApp().$i18n.t(key)
 
 describe('Order/BoxNowEventTimeline', () => {
-  describe('empty events array', () => {
-    it('renders the "no events" UAlert when events array is empty', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: [] },
-      })
+  it('says there are no tracking events yet, and draws no timeline, for an empty list', async () => {
+    const wrapper = await mountSuspended(BoxNowEventTimeline, { props: { events: [] }, route: false })
 
-      const alert = wrapper.findComponent({ name: 'UAlert' })
-      expect(alert.exists()).toBe(true)
-    })
-
-    it('does NOT render UTimeline when events array is empty', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: [] },
-      })
-
-      const timeline = wrapper.findComponent({ name: 'UTimeline' })
-      expect(timeline.exists()).toBe(false)
-    })
-
-    it('the no-events alert uses neutral color', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: [] },
-      })
-
-      const alert = wrapper.findComponent({ name: 'UAlert' })
-      expect(alert.props('color')).toBe('neutral')
-    })
+    expect(wrapper.text()).toBe(t('tracking.boxnow.no_events'))
+    expect(wrapper.find('time').exists()).toBe(false)
   })
 
-  describe('non-empty events array', () => {
-    it('renders UTimeline (not UAlert) when events are provided', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: [SINGLE_EVENT] },
-      })
+  it('renders one entry per event, in the order given: state label, place and time', async () => {
+    const events = [
+      makeBoxNowParcelEvent({ id: 1, eventType: 'new', eventTime: '2026-01-15T10:30:00Z', displayName: 'Athens DC' }),
+      makeBoxNowParcelEvent({ id: 2, eventType: 'in_depot', eventTime: '2026-01-15T14:00:00Z', displayName: 'North Depot' }),
+      makeBoxNowParcelEvent({ id: 3, eventType: 'final_destination', eventTime: '2026-01-16T09:00:00Z', displayName: 'Χαλάνδρι ΟΠΑΠ Play' }),
+    ]
 
-      const timeline = wrapper.findComponent({ name: 'UTimeline' })
-      expect(timeline.exists()).toBe(true)
+    const wrapper = await mountSuspended(BoxNowEventTimeline, { props: { events }, route: false })
 
-      const alert = wrapper.findComponent({ name: 'UAlert' })
-      expect(alert.exists()).toBe(false)
-    })
+    expect(wrapper.findAll('[data-slot="title"]').map(title => title.text())).toEqual([
+      t('tracking.boxnow.state.new'),
+      t('tracking.boxnow.state.in_depot'),
+      t('tracking.boxnow.state.final_destination'),
+    ])
+    expect(wrapper.findAll('[data-slot="description"]').map(d => d.text()))
+      .toEqual(['Athens DC', 'North Depot', 'Χαλάνδρι ΟΠΑΠ Play'])
+    expect(wrapper.findAll('time').map(time => time.attributes('datetime')))
+      .toEqual(['2026-01-15T10:30:00.000Z', '2026-01-15T14:00:00.000Z', '2026-01-16T09:00:00.000Z'])
+  })
 
-    it('passes correct number of items to UTimeline for one event', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: [SINGLE_EVENT] },
-      })
+  it('names the place by postal code when BoxNow sent no display name', async () => {
+    const events = [
+      makeBoxNowParcelEvent({ id: 1, displayName: '', postalCode: '15234' }),
+      makeBoxNowParcelEvent({ id: 2, displayName: '', postalCode: '' }),
+    ]
 
-      const timeline = wrapper.findComponent({ name: 'UTimeline' })
-      const items = timeline.props('items') as unknown[]
-      expect(items).toHaveLength(1)
-    })
+    const wrapper = await mountSuspended(BoxNowEventTimeline, { props: { events }, route: false })
 
-    it('passes one item per event to UTimeline for multiple events', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: MULTIPLE_EVENTS },
-      })
-
-      const timeline = wrapper.findComponent({ name: 'UTimeline' })
-      const items = timeline.props('items') as unknown[]
-      expect(items).toHaveLength(MULTIPLE_EVENTS.length)
-    })
-
-    it('UTimeline items contain the displayName from each event', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: MULTIPLE_EVENTS },
-      })
-
-      const timeline = wrapper.findComponent({ name: 'UTimeline' })
-      const items = timeline.props('items') as Array<{ description: string }>
-
-      // Events with displayName set should populate the description field
-      expect(items[0]!.description).toBe('Athens DC')
-      expect(items[1]!.description).toBe('North Depot')
-      expect(items[2]!.description).toBe('Χαλάνδρι ΟΠΑΠ Play')
-    })
-
-    it('uses UTimeline orientation="vertical"', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: [SINGLE_EVENT] },
-      })
-
-      const timeline = wrapper.findComponent({ name: 'UTimeline' })
-      expect(timeline.props('orientation')).toBe('vertical')
-    })
-
-    it('events appear in the order they were passed (no reordering)', async () => {
-      const wrapper = await mountSuspended(BoxNowEventTimeline, {
-        props: { events: MULTIPLE_EVENTS },
-      })
-
-      const timeline = wrapper.findComponent({ name: 'UTimeline' })
-      const items = timeline.props('items') as Array<{ description: string }>
-
-      // Verify order is preserved
-      expect(items[0]!.description).toBe('Athens DC')
-      expect(items[2]!.description).toBe('Χαλάνδρι ΟΠΑΠ Play')
-    })
+    const items = wrapper.findAll('[data-slot="item"]')
+    expect(items).toHaveLength(2)
+    expect(items[0]!.find('[data-slot="description"]').text()).toBe('15234')
+    expect(items[1]!.find('[data-slot="description"]').exists()).toBe(false)
   })
 })

@@ -7,12 +7,12 @@ import ProductCardSkeleton from '~/components/Product/CardSkeleton.vue'
  * asserting is that it IS a card-shaped hole: the same element, the
  * same frame, the same reserved image. Its internal rows are styling
  * and change with the design — the parity guard in
- * `test/unit/components/Product/card-skeleton-parity.spec.ts` is what
+ * `test/unit/source-rules/card-skeleton-parity.spec.ts` is what
  * stops the two drifting apart.
  */
 describe('ProductCardSkeleton', () => {
   it('is a list item, like the card it stands in for', async () => {
-    const wrapper = await mountSuspended(ProductCardSkeleton)
+    const wrapper = await mountSuspended(ProductCardSkeleton, { route: false })
 
     expect(wrapper.element.tagName).toBe('LI')
   })
@@ -21,6 +21,7 @@ describe('ProductCardSkeleton', () => {
     // A carousel slide and a plain grid are not lists; an `<li>` with
     // no list parent is invalid and is announced as a list of one.
     const wrapper = await mountSuspended(ProductCardSkeleton, {
+      route: false,
       props: { as: 'div' },
     })
 
@@ -28,7 +29,7 @@ describe('ProductCardSkeleton', () => {
   })
 
   it('reserves every row of the card, not just a box', async () => {
-    const wrapper = await mountSuspended(ProductCardSkeleton)
+    const wrapper = await mountSuspended(ProductCardSkeleton, { route: false })
 
     // Image, brand, two title lines, rating, price, button.
     const skeletons = wrapper.findAllComponents({ name: 'USkeleton' })

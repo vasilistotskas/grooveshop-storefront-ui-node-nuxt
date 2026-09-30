@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { computed, ref } from 'vue'
+import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NewsletterSignup from '~/components/PageSection/NewsletterSignup.vue'
 import { newsletterConsent, newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
@@ -21,41 +23,49 @@ mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolea
   computed(() => (key === 'NEWSLETTER_ENABLED' ? flags.newsletterEnabled : options.fallback)),
 )
 
-mockNuxtImport('useApi', () => () =>
-  Promise.resolve({ data: ref({ available: flags.available }) }),
-)
-
-const { mockFetch } = vi.hoisted(() => ({
-  mockFetch: vi.fn((_url: unknown, _opts?: unknown) => Promise.resolve({})),
+/** The availability lookup; a `vi.fn` so the request gate can be asserted. */
+const { useApiMock } = vi.hoisted(() => ({
+  useApiMock: vi.fn((_url: string, _options: { immediate?: boolean, server?: boolean }) =>
+    Promise.resolve({ data: ref({ available: flags.available }) })),
 }))
-mockNuxtImport('$api', () => mockFetch)
+mockNuxtImport('useApi', () => useApiMock)
 
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+
+const NEWSLETTER_URL = '/api/subscriptions/newsletter'
+
+/** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
+const COPY = { failed: 'Η εγγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά.' }
+
+const mountBand = (props: Record<string, unknown> = {}) =>
+  mountSuspended(NewsletterSignup, { route: false, props })
+
+/** UForm validates asynchronously; `flushPromises` drains it and the mocked request. */
 async function fillAndSubmit(
-  wrapper: Awaited<ReturnType<typeof mountSuspended>>,
+  wrapper: Awaited<ReturnType<typeof mountBand>>,
   { tick = true } = {},
 ) {
   await wrapper.find('input[type="email"]').setValue('visitor@example.com')
   if (tick) await wrapper.find('[role="checkbox"]').trigger('click')
   await wrapper.find('form').trigger('submit')
-  await new Promise(resolve => setTimeout(resolve, 50))
+  await flushPromises()
 }
 
-function postCalls() {
-  return mockFetch.mock.calls.filter(
-    ([url]) => String(url) === '/api/subscriptions/newsletter',
-  )
+const postCalls = () => api.callsTo(NEWSLETTER_URL)
+
+const rejectWith = (statusCode: number, data: unknown) => () => {
+  throw Object.assign(new Error(String(statusCode)), { statusCode, data })
 }
 
 describe('NewsletterSignup', () => {
   beforeEach(() => {
     flags.newsletterEnabled = true
     flags.available = true
-    mockFetch.mockReset()
-    mockFetch.mockImplementation(() => Promise.resolve({}))
   })
 
   it('renders the form with an UNTICKED consent box labelled by the shared sentence', async () => {
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    const wrapper = await mountBand()
 
     expect(wrapper.find('input[type="email"]').exists()).toBe(true)
     const checkbox = wrapper.find('[role="checkbox"]')
@@ -69,10 +79,27 @@ describe('NewsletterSignup', () => {
     expect(wrapper.find('a[href*="/account/signup"]').exists()).toBe(false)
   })
 
+  /**
+   * The label IS the consent Django stores as proof, so it must be
+   * exactly the shared sentence's three parts, in order — the privacy
+   * policy as the link between them — and nothing else.
+   */
+  it('labels the consent box with exactly the shared sentence, privacy policy linked', async () => {
+    const wrapper = await mountBand()
+    const { before, privacy, after } = newsletterConsent('el')
+
+    const link = wrapper.find('form a[href*="privacy-policy"]')
+    const label = link.element.parentElement!
+    // Vue's fragment anchors are empty text and comment nodes; skip them.
+    const parts = [...label.childNodes]
+      .filter(node => node.nodeType !== Node.COMMENT_NODE && node.textContent !== '')
+      .map(node => node.textContent)
+    expect(parts).toEqual([before, privacy, after])
+    expect(label.textContent).toBe(newsletterConsentText('el'))
+  })
+
   it('uses the operator placeholder and button text', async () => {
-    const wrapper = await mountSuspended(NewsletterSignup, {
-      props: { placeholder: 'you@shop', buttonText: 'Join us' },
-    })
+    const wrapper = await mountBand({ placeholder: 'you@shop', buttonText: 'Join us' })
 
     expect(wrapper.find('input[type="email"]').attributes('placeholder')).toBe('you@shop')
     expect(wrapper.find('button[type="submit"]').text()).toContain('Join us')
@@ -80,21 +107,24 @@ describe('NewsletterSignup', () => {
 
   it('renders nothing when the store has no default newsletter topic', async () => {
     flags.available = false
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    const wrapper = await mountBand()
 
     expect(wrapper.find('form').exists()).toBe(false)
     expect(wrapper.text()).toBe('')
   })
 
-  it('renders nothing when NEWSLETTER_ENABLED is off', async () => {
+  it('renders nothing, and never asks, when NEWSLETTER_ENABLED is off', async () => {
     flags.newsletterEnabled = false
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    const wrapper = await mountBand()
 
     expect(wrapper.find('form').exists()).toBe(false)
+    // Django 404s the lookup while the toggle is off: the REQUEST is gated.
+    expect(useApiMock.mock.calls.map(([url, options]) => [url, options.immediate, options.server]))
+      .toEqual([[NEWSLETTER_URL, false, false]])
   })
 
   it('refuses to submit without consent', async () => {
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper, { tick: false })
 
@@ -103,13 +133,13 @@ describe('NewsletterSignup', () => {
   })
 
   it('posts email + consent through $api, then shows "check your inbox"', async () => {
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
 
     const calls = postCalls()
     expect(calls).toHaveLength(1)
-    const opts = calls[0]![1] as { method: string, query?: unknown, body: Record<string, unknown> }
+    const opts = calls[0]!.options as { method: string, query?: unknown, body: Record<string, unknown> }
     expect(opts.method).toBe('POST')
     // The locale travels in `$api`'s page-locale header, not the query.
     expect(opts).not.toHaveProperty('query')
@@ -125,12 +155,12 @@ describe('NewsletterSignup', () => {
     const { $i18n } = useNuxtApp()
     $i18n.locale.value = 'en'
     try {
-      const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+      const wrapper = await mountBand()
 
       expect(wrapper.find('form').text()).toContain(newsletterConsentText('en'))
       await fillAndSubmit(wrapper)
 
-      const opts = postCalls()[0]![1] as { query?: unknown }
+      const opts = postCalls()[0]!.options as { query?: unknown }
       expect(opts).not.toHaveProperty('query')
     }
     finally {
@@ -138,30 +168,25 @@ describe('NewsletterSignup', () => {
     }
   })
 
-  it('shows the button loading while the request is in flight', async () => {
+  it('disables the button while the request is in flight, and sends it once', async () => {
     let resolve!: (value: object) => void
-    mockFetch.mockImplementation(() => new Promise<object>((r) => {
-      resolve = r
-    }))
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    api.routes({ [NEWSLETTER_URL]: () => new Promise<object>((r) => { resolve = r }) })
+    const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
 
-    const button = wrapper.find('button[type="submit"]')
-    expect(button.attributes('disabled')).toBeDefined()
     resolve({ detail: 'ok' })
-    await new Promise(r => setTimeout(r, 20))
+    await flushPromises()
+    expect(postCalls()).toHaveLength(1)
     expect(wrapper.find('[role="status"]').exists()).toBe(true)
   })
 
   it('tells a throttled visitor to try again later', async () => {
-    mockFetch.mockImplementation(() =>
-      Promise.reject(Object.assign(new Error('Too Many Requests'), {
-        statusCode: 429,
-        data: { detail: 'Request was throttled.' },
-      })),
-    )
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    api.routes({ [NEWSLETTER_URL]: rejectWith(429, { detail: 'Request was throttled.' }) })
+    const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
 
@@ -173,16 +198,21 @@ describe('NewsletterSignup', () => {
   })
 
   it('shows a field rejection inline', async () => {
-    mockFetch.mockImplementation(() =>
-      Promise.reject(Object.assign(new Error('Bad Request'), {
-        statusCode: 400,
-        data: { email: ['Enter a valid email address.'] },
-      })),
-    )
-    const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
+    api.routes({ [NEWSLETTER_URL]: rejectWith(400, { email: ['Enter a valid email address.'] }) })
+    const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
 
     expect(wrapper.find('[role="alert"]').text()).toContain('Enter a valid email address.')
+  })
+
+  it('says a plain failure failed, and keeps the form for a retry', async () => {
+    api.routes({ [NEWSLETTER_URL]: rejectWith(502, 'Bad Gateway') })
+    const wrapper = await mountBand()
+
+    await fillAndSubmit(wrapper)
+
+    expect(wrapper.find('[role="alert"]').text()).toBe(COPY.failed)
+    expect(wrapper.find('form').exists()).toBe(true)
   })
 })

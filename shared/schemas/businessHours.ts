@@ -15,7 +15,7 @@
  * exact semantics of the previous ``zBusinessHours`` schema: strict
  * keys at both levels, ``HH:MM`` 24h times, ``opens < closes``,
  * nullable day entries, timezone 1–64 chars. The accept/reject matrix
- * is pinned by ``test/unit/shared/businessHours.spec.ts``.
+ * is pinned by ``test/unit/shared/utils/businessHours.spec.ts``.
  */
 
 export const WEEK_DAY_KEYS = [

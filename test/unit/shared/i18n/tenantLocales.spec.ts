@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { servedLocale, tenantAllowedLocales } from '../../../../shared/i18n/tenantLocales'
+import { servedLocale, tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
 
 /**
  * The per-tenant allow-list every layer reads.
@@ -35,6 +35,15 @@ describe('tenantAllowedLocales', () => {
     expect(
       tenantAllowedLocales({ defaultLocale: 'el', availableLocales: ['el', 'fr'] }),
     ).toEqual(['el'])
+  })
+
+  it('falls back to the default when every listed code is unbuildable', () => {
+    expect(tenantAllowedLocales({ defaultLocale: 'el', availableLocales: ['fr', 'de'] })).toEqual(['el'])
+  })
+
+  it('treats a missing allow-list like an empty one', () => {
+    expect(tenantAllowedLocales({ defaultLocale: 'en', availableLocales: null })).toEqual(['en'])
+    expect(tenantAllowedLocales({ defaultLocale: 'en' })).toEqual(['en'])
   })
 })
 

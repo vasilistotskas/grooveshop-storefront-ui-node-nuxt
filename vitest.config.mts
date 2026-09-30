@@ -191,7 +191,7 @@ export default defineConfig({
           // worker's and can outlast vitest's 10s hook default.
           hookTimeout: 60000,
         },
-      }).then(withSetupFileAfterNuxt('./test/fixtures/setup/warm-mount.ts')),
+      }).then(withSetupFileAfterNuxt('./test/fixtures/setup/nuxt.ts')),
 
       {
         resolve: { alias },
@@ -206,6 +206,11 @@ export default defineConfig({
           // needed nor used by that flow.
           environment: 'node',
           ...isolation,
+          // Nuxt allows one dev server per project directory ("Another
+          // Nuxt dev server is already running"), so e2e files cannot boot
+          // theirs side by side. The suites share one boot through
+          // test/e2e/storefront.spec.ts; this keeps a second file safe.
+          fileParallelism: false,
           // Booting a real dev server (build + first request) is slower
           // than in-process tests; the SWR test also budgets up to ~45s
           // warming a cold dev server before its timed assertions.

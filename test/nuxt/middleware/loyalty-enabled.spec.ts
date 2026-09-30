@@ -27,11 +27,6 @@ describe('loyalty-enabled middleware', () => {
     mockFetch.mockReset()
   })
 
-  it('is a route middleware function', async () => {
-    const { default: middleware } = await import('~/middleware/loyalty-enabled')
-    expect(typeof middleware).toBe('function')
-  })
-
   it('throws 404 immediately when tenant loyaltyEnabled is false', async () => {
     mockLoyaltyEnabled.mockReturnValue(false)
     mockFetch.mockResolvedValue({ LOYALTY_ENABLED: 'true' })

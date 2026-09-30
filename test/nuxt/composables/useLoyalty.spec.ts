@@ -1,255 +1,106 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { ref } from 'vue'
+import { useLoyalty } from '~/composables/useLoyalty'
+import { defaultLoyaltySettings } from '~/utils/loyalty'
 
-// Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
-const { mockFetch, mockUseAsyncDataFn, mockRefreshNuxtDataFn } = vi.hoisted(() => ({
-  mockFetch: vi.fn(),
-  mockUseAsyncDataFn: vi.fn(),
-  mockRefreshNuxtDataFn: vi.fn(),
+/**
+ * `useLoyalty` fetches through `useRequestApi` (it must forward the
+ * session cookie and host during SSR) and runs the REAL `useAsyncData`
+ * here, so each test sees the request it makes and the value it hands
+ * back. Parsing and query building are table-tested in
+ * `test/unit/app/utils/loyalty.spec.ts`.
+ */
+
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+const { mockLog } = vi.hoisted(() => ({
+  mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }))
 
-// Mock Nuxt composables using mockNuxtImport. Since Nuxt 4.5 `$fetch` is a
-// real auto-import in user code, so `vi.stubGlobal('$fetch', ...)` no longer
-// intercepts it — it must be mocked via mockNuxtImport like any other import.
-mockNuxtImport('$api', () => mockFetch)
-mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
-mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtDataFn)
-mockNuxtImport('useRequestHeaders', () => () => ({}))
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+mockNuxtImport('useRequestApi', () => () => api)
+mockNuxtImport('log', () => mockLog)
 
-describe('useLoyalty Composable', () => {
+describe('useLoyalty', () => {
   beforeEach(() => {
-    mockFetch.mockReset()
-    mockUseAsyncDataFn.mockReset()
-    mockRefreshNuxtDataFn.mockReset()
+    clearNuxtData()
   })
 
-  describe('fetchSummary', () => {
-    it('should return useAsyncData result with correct key', () => {
-      const mockData = ref<LoyaltySummary>({
-        pointsBalance: 100,
-        totalXp: 500,
-        level: 5,
-        tier: null,
-        pointsToNextTier: 200,
+  describe('fetchSettings', () => {
+    it('requests the eight loyalty keys in one call and parses the answer', async () => {
+      api.routes({
+        '/api/loyalty/settings': {
+          LOYALTY_ENABLED: 'true',
+          LOYALTY_REDEMPTION_RATIO_EUR: '',
+          LOYALTY_XP_PER_LEVEL: '2500',
+        },
       })
 
-      mockUseAsyncDataFn.mockReturnValue({
-        data: mockData,
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
+      const { data } = await useLoyalty().fetchSettings()
 
-      const { fetchSummary } = useLoyalty()
-      const result = fetchSummary()
-
-      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
-        'loyalty-summary',
-        expect.any(Function),
-      )
-      expect(result.data.value).toEqual(mockData.value)
+      expect(api.callsTo('/api/loyalty/settings')).toEqual([{
+        url: '/api/loyalty/settings',
+        options: {
+          query: {
+            keys: 'LOYALTY_ENABLED,LOYALTY_REDEMPTION_RATIO_EUR,LOYALTY_POINTS_FACTOR,'
+              + 'LOYALTY_TIER_MULTIPLIER_ENABLED,LOYALTY_POINTS_EXPIRATION_DAYS,'
+              + 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED,LOYALTY_NEW_CUSTOMER_BONUS_POINTS,LOYALTY_XP_PER_LEVEL',
+          },
+        },
+      }])
+      expect(data.value).toMatchObject({ enabled: true, redemptionRatioEur: 100, xpPerLevel: 2500 })
     })
 
-    it('should handle error state', () => {
-      const mockError = new Error('Network error')
+    it('answers the defaults and logs when the request fails', async () => {
+      const failure = new Error('Network error')
+      api.routes({ '/api/loyalty/settings': () => { throw failure } })
 
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(null),
-        status: ref('error'),
-        error: ref(mockError),
-        refresh: vi.fn(),
-      })
+      const { data, error } = await useLoyalty().fetchSettings()
 
-      const { fetchSummary } = useLoyalty()
-      const result = fetchSummary()
-
-      expect(result.status.value).toBe('error')
-      expect(result.error.value).toBe(mockError)
-    })
-
-    it('should handle pending state', () => {
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(null),
-        status: ref('pending'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
-
-      const { fetchSummary } = useLoyalty()
-      const result = fetchSummary()
-
-      expect(result.status.value).toBe('pending')
+      expect(error.value).toBeUndefined()
+      expect(data.value).toEqual(defaultLoyaltySettings())
+      expect(mockLog.error).toHaveBeenCalledWith({ action: 'loyalty:fetchSettings', error: failure })
     })
   })
 
   describe('fetchTransactions', () => {
-    it('should return useAsyncData result with dynamic key based on params', () => {
-      const params = { page: 2, transactionType: 'EARN' }
-      const mockData = ref<PaginatedPointsTransactionList>({
-        count: 10,
-        results: [],
-      })
+    it('sends the filters in Django names and refetches when they change', async () => {
+      api.routes({ '/api/loyalty/transactions': { count: 0, results: [] } })
+      const params = ref<{ page?: number, transactionType?: string }>({ page: 1 })
 
-      mockUseAsyncDataFn.mockReturnValue({
-        data: mockData,
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
+      await useLoyalty().fetchTransactions(params)
+      params.value = { page: 2, transactionType: 'EARN' }
+      await vi.waitFor(() => expect(api.callsTo('/api/loyalty/transactions')).toHaveLength(2))
 
-      const { fetchTransactions } = useLoyalty()
-      const result = fetchTransactions(params)
-
-      // Check that useAsyncData was called
-      expect(mockUseAsyncDataFn).toHaveBeenCalled()
-      // Check the first argument contains 'loyalty-transactions'
-      const firstCall = mockUseAsyncDataFn.mock.calls[0]
-      expect(firstCall).toBeDefined()
-      expect(firstCall![0]).toContain('loyalty-transactions')
-      expect(result.data.value).toEqual(mockData.value)
-    })
-
-    it('should handle empty params', () => {
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(null),
-        status: ref('pending'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
-
-      const { fetchTransactions } = useLoyalty()
-      const result = fetchTransactions()
-
-      expect(mockUseAsyncDataFn).toHaveBeenCalled()
-      expect(result.status.value).toBe('pending')
-    })
-  })
-
-  describe('fetchSettings', () => {
-    it('should return useAsyncData result with settings key', () => {
-      const mockData = ref({
-        enabled: true,
-        redemptionRatioEur: 100,
-        pointsFactor: 1.0,
-        tierMultiplierEnabled: true,
-        pointsExpirationDays: 365,
-        newCustomerBonusEnabled: true,
-        newCustomerBonusPoints: 100,
-        xpPerLevel: 1000,
-      })
-
-      mockUseAsyncDataFn.mockReturnValue({
-        data: mockData,
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
-
-      const { fetchSettings } = useLoyalty()
-      const result = fetchSettings()
-
-      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
-        'loyalty-settings',
-        expect.any(Function),
-        // Several components read the settings in one render; 'defer'
-        // coalesces them onto the pending request (see useStoreSettings).
-        expect.objectContaining({ dedupe: 'defer' }),
-      )
-      expect(result.data.value).toEqual(mockData.value)
-    })
-  })
-
-  describe('fetchTiers', () => {
-    it('should return useAsyncData result with tiers key', () => {
-      const mockData = ref([
-        {
-          id: 1,
-          name: 'Bronze',
-          requiredLevel: 1,
-          pointsMultiplier: '1.0',
-          translations: {},
-        },
+      expect(api.callsTo('/api/loyalty/transactions').map(call => call.options)).toEqual([
+        { method: 'GET', query: { page: 1 } },
+        { method: 'GET', query: { page: 2, transaction_type: 'EARN' } },
       ])
-
-      mockUseAsyncDataFn.mockReturnValue({
-        data: mockData,
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
-
-      const { fetchTiers } = useLoyalty()
-      const result = fetchTiers()
-
-      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
-        'loyalty-tiers',
-        expect.any(Function),
-      )
-      expect(result.data.value).toEqual(mockData.value)
     })
   })
 
-  describe('fetchProductPoints', () => {
-    it('should return useAsyncData result with product-specific key', () => {
-      const productId = 123
-      const mockData = ref<ProductPoints>({
-        productId: 123,
-        potentialPoints: 50,
-        tierMultiplierApplied: true,
-      })
+  describe.each([
+    ['fetchSummary', () => useLoyalty().fetchSummary(), '/api/loyalty/summary', { pointsBalance: 100, totalXp: 500, level: 5, tier: null, pointsToNextTier: 200 }],
+    ['fetchTiers', () => useLoyalty().fetchTiers(), '/api/loyalty/tiers', [{ id: 1 }]],
+    ['fetchProductPoints', () => useLoyalty().fetchProductPoints(42), '/api/loyalty/product/42/points', { points: 12 }],
+  ] as const)('%s', (_name, fetch, url, body) => {
+    it(`GETs ${url} and hands back its answer`, async () => {
+      api.routes({ [url]: body })
 
-      mockUseAsyncDataFn.mockReturnValue({
-        data: mockData,
-        status: ref('success'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
+      const { data } = await fetch()
 
-      const { fetchProductPoints } = useLoyalty()
-      const result = fetchProductPoints(productId)
-
-      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
-        `loyalty-product-points-${productId}`,
-        expect.any(Function),
-      )
-      expect(result.data.value).toEqual(mockData.value)
+      expect(api.callsTo(url)).toEqual([{ url, options: { method: 'GET' } }])
+      expect(data.value).toEqual(body)
     })
 
-    it('should handle errors gracefully', () => {
-      const productId = 456
-      const mockError = new Error('Product not found')
+    it('surfaces a failed request as the error', async () => {
+      api.routes({ [url]: () => { throw new Error('Server error') } })
 
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(null),
-        status: ref('error'),
-        error: ref(mockError),
-        refresh: vi.fn(),
-      })
+      const { data, error } = await fetch()
 
-      const { fetchProductPoints } = useLoyalty()
-      const result = fetchProductPoints(productId)
-
-      expect(result.status.value).toBe('error')
-      expect(result.error.value).toBe(mockError)
-    })
-  })
-
-  describe('Integration', () => {
-    it('should allow multiple fetch methods to be called', () => {
-      mockUseAsyncDataFn.mockReturnValue({
-        data: ref(null),
-        status: ref('pending'),
-        error: ref(null),
-        refresh: vi.fn(),
-      })
-
-      const loyalty = useLoyalty()
-
-      loyalty.fetchSummary()
-      loyalty.fetchTiers()
-      loyalty.fetchSettings()
-
-      expect(mockUseAsyncDataFn).toHaveBeenCalledTimes(3)
+      expect(error.value?.message).toBe('Server error')
+      expect(data.value).toBeUndefined()
     })
   })
 })

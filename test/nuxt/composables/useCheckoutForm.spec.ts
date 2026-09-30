@@ -1,92 +1,84 @@
 /**
  * Tests for useCheckoutForm — the composable behind the checkout page's
- * data layer (country/region fetch, live shipping-options pricing, the
- * per-step Zod schemas).
+ * data layer (country/region fetch, live shipping-options pricing, pay
+ * ways, saved addresses, the B2B invoice prefill, the per-step Zod
+ * schemas).
  *
  * TESTABILITY NOTES:
- * - $api and useRequestApi are both routed through the same mockFetch so
- *   a single per-URL dispatcher covers every fetch the composable makes
- *   (settings, b2b profile, countries, pay-way, saved addresses, regions,
- *   shipping options).
- * - useCartStore / storeToRefs / useTenantStore / useUserSession are Nuxt
- *   auto-imports, mocked via mockNuxtImport like useCheckoutSubmit.spec.ts.
- * - Real i18n runs in the nuxt test environment (see testing.md) — assert
- *   with expect.any(String) rather than a hardcoded Greek string where the
- *   exact wording isn't the point.
+ * - Every fetch the composable makes goes through `$api` /
+ *   `useRequestApi` / `useApi` (`$fetch`), all answered by one
+ *   `createApiMock` routed per test in `beforeEach`.
+ * - The cart and tenant stores are the REAL ones, written directly.
+ *   Toggling the mocked session fires app/plugins/setup.ts's loggedIn
+ *   watcher (setupCart / cleanCartState), so `/api/cart` answers the
+ *   test's own cart and each test settles that watcher before it writes
+ *   the store.
+ * - The composable runs outside a component, so its watchers are
+ *   collected in an effect scope stopped after each test — otherwise
+ *   every earlier test's instance would keep reacting to the shared
+ *   cart store.
+ * - Real i18n runs here; exact copy is asserted through `$i18n`.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
+import { effectScope, nextTick, ref } from 'vue'
+import type { EffectScope } from 'vue'
+import type { CartDetail } from '~~/shared/openapi/types.gen'
+import { makeCart } from '~~/test/fixtures/cart'
+import { makeCountry } from '~~/test/fixtures/country'
+import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { makePayWay } from '~~/test/fixtures/payWay'
+import { setTenant } from '~~/test/helpers/tenant'
 
-const { mockFetch, mockToastAdd } = vi.hoisted(() => ({
-  // Default resolves {} so Nuxt's own bootstrap plugins (i18n, auth,
-  // cart) don't crash the app-setup chain before each test's own
-  // mockImplementation takes over — see testing.md. Typed with the
-  // (url, options) shape every test's own mockImplementation uses, so
-  // TS doesn't lock the mock to the zero-arg default's signature.
-  mockFetch: vi.fn((_url: string, _options?: any) => Promise.resolve({} as any)),
-  mockToastAdd: vi.fn(),
-}))
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+const { mockToastAdd } = vi.hoisted(() => ({ mockToastAdd: vi.fn() }))
 
-mockNuxtImport('$api', () => mockFetch)
-// useApi/useLazyApi (bootstrap plugins use these too) still transport
-// through Nuxt's own $fetch, so it needs the same mock, with `create`
-// because app/plugins/api.ts calls `$fetch.create()` while booting.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
-mockNuxtImport('useRequestApi', () => () => mockFetch)
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+mockNuxtImport('useRequestApi', () => () => api)
 mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
-mockNuxtImport('useRequestHeaders', () => () => ({}))
 // Nuxt's own bootstrap (nuxt-auth-utils' session plugin) calls
-// useUserSession().fetch() during app setup — omitting it here breaks
-// the whole plugin chain (including $i18n) rather than just this
-// composable's own read of loggedIn/user.
+// useUserSession().fetch() during app setup — omitting it breaks the
+// whole plugin chain (including $i18n).
 const mockUserSession = {
   loggedIn: ref(false),
-  user: ref(null) as any,
-  fetch: vi.fn().mockResolvedValue(undefined),
+  user: ref<{ id: number, email: string } | null>(null),
+  fetch: vi.fn(() => Promise.resolve()),
 }
 mockNuxtImport('useUserSession', () => () => mockUserSession)
 
-const mockCartHolder = { value: { items: [], totalPrice: 0, totalWeightGrams: 0, currency: 'EUR' } as any }
-mockNuxtImport('useCartStore', () => () => ({
-  cart: mockCartHolder.value,
-  // app/plugins/setup.ts destructures these off the real store during
-  // Nuxt's own auth-state-change bootstrap watcher — omitting them
-  // throws "is not a function" from that unrelated plugin.
-  setupCart: vi.fn().mockResolvedValue(undefined),
-  cleanCartState: vi.fn().mockResolvedValue(undefined),
-}))
-mockNuxtImport('storeToRefs', () => (_store: any) => ({
-  getCartItems: computed(() => mockCartHolder.value?.items ?? []),
-  cart: mockCartHolder,
-}))
-mockNuxtImport('useTenantStore', () => () => ({
-  defaultCurrency: 'EUR',
-  b2bEnabled: false,
-}))
-
-// GR is always first (default), CY second — mirrors the real API's
-// sort_order rule (GR stays the platform default).
-const GR = {
-  alpha2: 'GR',
-  name: 'Ελλάδα',
-  phoneCode: 30,
-  hasRegions: true,
-  postalCodePattern: '\\d{3} ?\\d{2}',
-  postalCodeExample: '151 24',
-  phoneMetadata: {
-    nationalNumberPattern: '5005000\\d{3}|8\\d{9,11}|(?:[269]\\d|70)\\d{8}',
-    possibleLengths: [10, 11, 12],
-    nationalPrefixForParsing: null,
-    exampleMobile: '6912345678',
-  },
+/** A complete ACS Smartpoint row, as the station picker hands it over. */
+const ACS_STATION: AcsStation = {
+  id: 1,
+  uuid: fixtureUuid(6, 1),
+  externalId: 'AAT',
+  branchCode: 'BR1',
+  shopKind: 1,
+  name: 'ACS Smartpoint',
+  addressLine1: 'Ermou 10',
+  city: 'Athens',
+  postalCode: '10563',
+  countryCode: 'GR',
+  lat: null,
+  lng: null,
+  maxWeightKg: '20',
+  workingHours: '',
+  isActive: true,
+  lastSyncedAt: null,
+  createdAt: FIXTURE_TIMESTAMP,
+  updatedAt: FIXTURE_TIMESTAMP,
 }
-const CY = {
+
+// GR first, CY second — the API's sort order (GR is the platform default).
+const GR = makeCountry()
+const CY = makeCountry({
+  translations: { el: { name: 'Κύπρος' }, en: { name: 'Cyprus' } },
   alpha2: 'CY',
-  name: 'Κύπρος',
+  alpha3: 'CYP',
+  isoCc: 196,
   phoneCode: 357,
-  hasRegions: true,
   postalCodePattern: '\\d{4}',
   postalCodeExample: '1010',
   phoneMetadata: {
@@ -95,119 +87,204 @@ const CY = {
     nationalPrefixForParsing: null,
     exampleMobile: '96123456',
   },
-}
+  sortOrder: 2,
+})
 // A regionless fixture — no real country in this seed lacks regions,
 // but the schema rule must hold generically.
-const REGIONLESS = { alpha2: 'XX', name: 'Xland', phoneCode: 999, hasRegions: false }
+const REGIONLESS = makeCountry({
+  translations: { el: { name: 'Xland' } },
+  alpha2: 'XX',
+  alpha3: 'XXL',
+  isoCc: null,
+  phoneCode: 999,
+  phoneMetadata: null,
+  hasRegions: false,
+  sortOrder: 3,
+})
+
+/** A valid ΑΦΜ: the weighted sum of its first 8 digits mod 11 mod 10 is the 9th. */
+const VALID_AFM = '123456783'
+
+const COD = makePayWay({ id: 1 })
+const CARD = makePayWay({ id: 2, providerCode: 'stripe', settlement: 'online' })
 
 function paginated<T>(results: T[]) {
   return { count: results.length, next: null, previous: null, results }
 }
 
-function defaultDispatch(url: string, options: Record<string, any> = {}): any {
-  if (url === '/api/settings/public') return { settings: {} }
-  if (url === '/api/b2b/profile') return null
-  if (url === '/api/countries') return paginated([GR, CY])
-  if (url === '/api/pay-way') return paginated([{ id: 1, name: 'COD', providerCode: 'cod', cost: 0 }])
-  if (url === '/api/user/addresses') return paginated([])
-  if (url === '/api/regions') {
-    const country = options?.query?.country
-    if (country === 'GR') return paginated([{ alpha: 'ATTIKI', name: 'Αττική' }])
-    if (country === 'CY') return paginated([{ alpha: 'NICOSIA', name: 'Λευκωσία' }])
-    return paginated([])
+function shippingOption(overrides: Record<string, unknown> = {}) {
+  return {
+    providerCode: 'boxnow',
+    providerName: 'BOX NOW',
+    kind: 'pickup_point',
+    price: 2.99,
+    currency: 'EUR',
+    liveMode: true,
+    priority: 5,
+    countryCode: 'GR',
+    maxWeightGrams: null,
+    exceedsMaxWeight: false,
+    metadata: {},
+    payWays: [],
+    ...overrides,
   }
-  if (url === '/api/shipping/options') {
-    return [{
-      providerCode: 'boxnow',
-      providerName: 'BOX NOW',
-      kind: 'pickup_point',
-      price: 2.99,
-      currency: 'EUR',
-      liveMode: true,
-      priority: 5,
-      countryCode: options?.query?.countryCode ?? 'GR',
-      maxWeightGrams: null,
-      exceedsMaxWeight: false,
-      metadata: {},
-      payWays: [],
-    }]
-  }
-  return null
 }
 
-beforeEach(() => {
-  vi.stubGlobal('log', { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() })
+function savedAddress(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 1,
+    isMain: true,
+    firstName: 'Saved',
+    lastName: 'Person',
+    phone: '+306912345678',
+    street: 'Ermou',
+    streetNumber: '10',
+    city: 'Athens',
+    zipcode: '10563',
+    country: 'GR',
+    region: 'ATTIKI',
+    ...overrides,
+  }
+}
+
+let cart: CartDetail | null = null
+
+/** The routes every test starts from; a test overrides entries by spreading. */
+function defaultRoutes() {
+  return {
+    '/api/cart': () => cart,
+    '/api/settings/public': { settings: {} },
+    '/api/b2b/profile': null,
+    '/api/countries': paginated([GR, CY]),
+    '/api/pay-way': paginated([COD]),
+    '/api/user/addresses': paginated([]),
+    '/api/regions': (_url: string, options: any) => {
+      const country = options?.query?.country
+      if (country === 'GR') return paginated([{ alpha: 'ATTIKI', name: 'Αττική' }])
+      if (country === 'CY') return paginated([{ alpha: 'NICOSIA', name: 'Λευκωσία' }])
+      return paginated([])
+    },
+    '/api/shipping/options': (_url: string, options: any) =>
+      [shippingOption({ countryCode: options?.query?.countryCode ?? 'GR' })],
+  }
+}
+
+let scope: EffectScope | undefined
+
+/** Run the composable in a scope `afterEach` stops, so its watchers die with the test. */
+async function setup() {
+  scope = effectScope()
+  return (await scope.run(() => useCheckoutForm()))!
+}
+
+/** Log in (or out) and let the setup plugin's loggedIn watcher finish before the test writes the cart. */
+async function setLoggedIn(value: boolean) {
+  mockUserSession.loggedIn.value = value
+  mockUserSession.user.value = value ? { id: 1, email: 'shopper@example.com' } : null
+  await flushPromises()
+}
+
+function setCart(next: CartDetail) {
+  cart = next
+  useCartStore().cart = next
+}
+
+beforeEach(async () => {
   // useCheckoutForm's useAsyncData calls use fixed keys
-  // (checkout:countries:*, checkout:store-settings, …) — without
-  // clearing, a later test's mockFetch override never runs because
-  // the first test's cached result wins.
+  // (checkout:countries:*, checkout:store-settings, …) and the pay-way
+  // selection lives in useState — both outlive a test.
   clearNuxtData()
-  mockFetch.mockReset()
-  mockToastAdd.mockReset()
-  mockCartHolder.value = { items: [], totalPrice: 0, totalWeightGrams: 0, currency: 'EUR' }
-  mockUserSession.loggedIn.value = false
-  mockUserSession.user.value = null
-  mockFetch.mockImplementation((url: string, options: any) =>
-    Promise.resolve(defaultDispatch(url, options)))
+  clearNuxtState('selectedPayWay')
+  cart = makeCart({ items: [] })
+  api.routes(defaultRoutes())
+  setTenant()
+  await setLoggedIn(false)
+  setCart(makeCart({ items: [] }))
+})
+
+afterEach(() => {
+  scope?.stop()
+  scope = undefined
 })
 
 describe('useCheckoutForm', () => {
   it('fetches countries with shippable: true', async () => {
-    await useCheckoutForm()
+    await setup()
 
-    const countriesCall = mockFetch.mock.calls.find(
-      ([url, options]) => url === '/api/countries' && options?.query?.shippable,
-    )
-    expect(countriesCall?.[1]?.query).toMatchObject({ shippable: true })
+    const [countries] = api.callsTo('/api/countries').filter(call => call.options?.query?.shippable)
+    expect(countries?.options.query).toMatchObject({ shippable: true })
   })
 
   it('also fetches EVERY dial code, unpaginated, for the phone field', async () => {
-    await useCheckoutForm()
+    await setup()
 
-    const phoneCall = mockFetch.mock.calls.find(
-      ([url, options]) => url === '/api/countries' && options?.query?.pagination === 'false',
-    )
-    expect(phoneCall?.[1]?.query).toMatchObject({ hasPhoneCode: true, pagination: 'false' })
+    const [phone] = api.callsTo('/api/countries').filter(call => call.options?.query?.pagination === 'false')
+    expect(phone?.options.query).toMatchObject({ hasPhoneCode: true, pagination: 'false' })
     // Every country carries all its translations, so the list must not
     // refetch (or answer stale) on a language switch.
-    expect(phoneCall?.[1]?.query).not.toHaveProperty('languageCode')
-    expect(phoneCall?.[1]?.query).not.toHaveProperty('shippable')
+    expect(phone?.options.query).not.toHaveProperty('languageCode')
+    expect(phone?.options.query).not.toHaveProperty('shippable')
+  })
+
+  describe('initial country', () => {
+    it('falls back to the FIRST listed country for a guest and loads its regions', async () => {
+      api.routes({ ...defaultRoutes(), '/api/countries': paginated([CY, GR]) })
+
+      const { formState, regionOptions } = await setup()
+
+      expect(formState.country).toBe('CY')
+      expect(formState.countryId).toBe('CY')
+      expect(regionOptions.value.map(o => o.value)).toEqual(['NICOSIA'])
+    })
+
+    it('leaves the country empty and fetches no regions when no country is listed', async () => {
+      api.routes({ ...defaultRoutes(), '/api/countries': paginated([]) })
+
+      const { formState } = await setup()
+
+      expect(formState.country).toBe('')
+      expect(api.callsTo('/api/regions')).toEqual([])
+    })
   })
 
   describe('live shipping pricing (no local fallback)', () => {
     it('shippingPrice is the matched live option\'s price', async () => {
-      const { shippingPrice, formState } = await useCheckoutForm()
-      // Initial country defaults to the first listed (GR); home_delivery
-      // is the default method, but the fixture only returns a pickup_point
-      // BoxNow row — switch to it to get a priced match.
+      const { shippingPrice, formState } = await setup()
       formState.shippingMethod = 'box_now_locker'
       await nextTick()
       expect(shippingPrice.value).toBe(2.99)
     })
 
+    it('quotes shipping for the cart\'s own total, weight and currency', async () => {
+      setCart(makeCart({ currency: 'USD', items: [{ quantity: 2 }] }))
+
+      await setup()
+
+      const [call] = api.callsTo('/api/shipping/options')
+      expect(call?.options.query).toEqual({
+        countryCode: 'GR',
+        orderValueAmount: cart!.totalPrice,
+        currency: 'USD',
+        weightGrams: cart!.totalWeightGrams,
+      })
+    })
+
     it('prices home delivery from the first carrier that can carry the cart', async () => {
-      const home = (providerCode: string, price: number, exceedsMaxWeight: boolean) => ({
+      const home = (providerCode: string, price: number, exceedsMaxWeight: boolean) => shippingOption({
         providerCode,
         providerName: providerCode,
         kind: 'home_delivery',
         price,
-        currency: 'EUR',
-        liveMode: true,
         priority: 1,
-        countryCode: 'GR',
         maxWeightGrams: exceedsMaxWeight ? 2000 : null,
         exceedsMaxWeight,
-        metadata: {},
-        payWays: [],
       })
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/shipping/options') {
-          return Promise.resolve([home('acs', 2.99, true), home('flat_rate', 3.5, false)])
-        }
-        return Promise.resolve(defaultDispatch(url, options))
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [home('acs', 2.99, true), home('flat_rate', 3.5, false)],
       })
 
-      const { shippingPrice } = await useCheckoutForm()
+      const { shippingPrice } = await setup()
 
       // The server routes the heavy cart to flat_rate, so that is the
       // price the shopper must see.
@@ -219,29 +296,13 @@ describe('useCheckoutForm', () => {
       // also fires the composable's own refetch watcher, so which call
       // is newest is read from this list, not assumed.
       const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
-      const option = (countryCode: string, price: number) => ({
-        providerCode: 'boxnow',
-        providerName: 'BOX NOW',
-        kind: 'pickup_point',
-        price,
-        currency: 'EUR',
-        liveMode: true,
-        priority: 5,
-        countryCode,
-        maxWeightGrams: null,
-        exceedsMaxWeight: false,
-        metadata: {},
-        payWays: [],
-      })
-      const { formState, retryShippingOptions, shippingPrice } = await useCheckoutForm()
+      const { formState, retryShippingOptions, shippingPrice } = await setup()
       formState.shippingMethod = 'box_now_locker'
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/shipping/options') {
-          return new Promise((resolve) => {
-            pending.push({ country: options.query.countryCode, resolve })
-          })
-        }
-        return Promise.resolve(defaultDispatch(url, options))
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': (_url: string, options: any) => new Promise((resolve) => {
+          pending.push({ country: options.query.countryCode, resolve })
+        }),
       })
 
       formState.countryId = 'GR'
@@ -254,88 +315,185 @@ describe('useCheckoutForm', () => {
       const oldest = pending[0]!
       expect(newest.country).toBe('CY')
       expect(oldest.country).toBe('GR')
-      newest.resolve([option('CY', 4.5)])
+      newest.resolve([shippingOption({ countryCode: 'CY', price: 4.5 })])
       await flushPromises()
-      oldest.resolve([option('GR', 2.99)])
+      oldest.resolve([shippingOption({ countryCode: 'GR', price: 2.99 })])
       await flushPromises()
 
       expect(shippingPrice.value).toBe(4.5)
     })
 
     it('refetchShippingOptions reports whether the selected method has a live price', async () => {
-      let fail = false
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/shipping/options' && fail) return Promise.reject(new Error('network'))
-        return Promise.resolve(defaultDispatch(url, options))
-      })
-
-      const { formState, refetchShippingOptions } = await useCheckoutForm()
+      const { formState, refetchShippingOptions } = await setup()
       formState.shippingMethod = 'box_now_locker'
       await nextTick()
       expect(await refetchShippingOptions()).toBe(true)
 
-      fail = true
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': () => { throw new Error('network') },
+      })
       expect(await refetchShippingOptions()).toBe(false)
     })
 
     it('is null (not 0) when the live options fetch fails, and sets shippingOptionsError', async () => {
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/shipping/options') return Promise.reject(new Error('network'))
-        return Promise.resolve(defaultDispatch(url, options))
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': () => { throw new Error('network') },
       })
 
-      const { shippingPrice, shippingOptionsError } = await useCheckoutForm()
+      const { shippingPrice, shippingOptionsError } = await setup()
 
       expect(shippingOptionsError.value).toBe(true)
       expect(shippingPrice.value).toBeNull()
     })
 
     it('retryShippingOptions clears the error once the fetch succeeds', async () => {
-      let fail = true
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/shipping/options') {
-          if (fail) return Promise.reject(new Error('network'))
-          return Promise.resolve(defaultDispatch(url, options))
-        }
-        return Promise.resolve(defaultDispatch(url, options))
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': () => { throw new Error('network') },
       })
-
-      const { shippingOptionsError, retryShippingOptions } = await useCheckoutForm()
+      const { shippingOptionsError, retryShippingOptions } = await setup()
       expect(shippingOptionsError.value).toBe(true)
 
-      fail = false
+      api.routes(defaultRoutes())
       await retryShippingOptions()
 
       expect(shippingOptionsError.value).toBe(false)
     })
   })
 
+  describe('shipping method and pay ways', () => {
+    const payWayQuery = () => api.callsTo('/api/pay-way').map(call => call.options.query)
+
+    it('moves a locker-only store off home delivery and lists the locker\'s pay ways', async () => {
+      // BoxNow rejects cash on delivery at a locker, so Django answers
+      // the locker filter without it. Pre-selecting COD from the
+      // home-delivery list was the bug this reconcile exists for.
+      api.routes({
+        ...defaultRoutes(),
+        '/api/pay-way': (_url: string, options: any) =>
+          paginated(options.query.shippingKind === 'pickup_point' ? [CARD] : [COD, CARD]),
+      })
+
+      const { formState, selectedPayWay } = await setup()
+
+      expect(formState.shippingMethod).toBe('box_now_locker')
+      expect(payWayQuery().at(-1)).toMatchObject({ shippingProviderCode: 'boxnow', shippingKind: 'pickup_point' })
+      expect(formState.payWayId).toBe(CARD.id)
+      expect(selectedPayWay.value?.id).toBe(CARD.id)
+    })
+
+    it('keeps home delivery and the first pay way when the store offers home delivery', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [shippingOption({ providerCode: 'flat_rate', kind: 'home_delivery' })],
+        '/api/pay-way': paginated([COD, CARD]),
+      })
+
+      const { formState } = await setup()
+
+      expect(formState.shippingMethod).toBe('home_delivery')
+      expect(formState.payWayId).toBe(COD.id)
+    })
+
+    it.each([
+      ['resets a selection the new method no longer offers', [CARD], CARD.id],
+      ['keeps a selection the new method still offers', [CARD, COD], COD.id],
+    ])('switching the shipping method %s', async (_case, lockerPayWays, expected) => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [
+          shippingOption({ providerCode: 'flat_rate', kind: 'home_delivery' }),
+          shippingOption(),
+        ],
+        '/api/pay-way': (_url: string, options: any) =>
+          paginated(options.query.shippingKind === 'pickup_point' ? lockerPayWays : [COD, CARD]),
+      })
+      const { formState } = await setup()
+      expect(formState.payWayId).toBe(COD.id)
+
+      formState.shippingMethod = 'box_now_locker'
+      await flushPromises()
+
+      expect(payWayQuery().at(-1)).toMatchObject({ shippingProviderCode: 'boxnow', shippingKind: 'pickup_point' })
+      expect(formState.payWayId).toBe(expected)
+      expect(formState.payWay).toBe(expected)
+    })
+
+    it('selecting a pay way mirrors it into payWayId and selectedPayWay', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [shippingOption({ providerCode: 'flat_rate', kind: 'home_delivery' })],
+        '/api/pay-way': paginated([COD, CARD]),
+      })
+      const { formState, selectedPayWay } = await setup()
+
+      formState.payWay = CARD.id
+      await nextTick()
+
+      expect(formState.payWayId).toBe(CARD.id)
+      expect(selectedPayWay.value?.id).toBe(CARD.id)
+    })
+  })
+
+  describe('payWayOptions — the fee shown next to each pay way', () => {
+    const FEE = 2.5
+    const THRESHOLD = 50
+    const withFee = makePayWay({ id: 3, cost: FEE, freeThreshold: THRESHOLD })
+
+    async function optionFor(itemsTotal: number) {
+      // One line whose final price is the items total the shopper sees.
+      setCart(makeCart({ items: [{ product: { price: itemsTotal, vatPercent: 0 } }] }))
+      api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
+      const { payWayOptions, shippingPrice } = await setup()
+      return { option: payWayOptions.value[0]!, shippingPrice: shippingPrice.value }
+    }
+
+    it('waives the fee once items + shipping reach the threshold, as Django does', async () => {
+      // 48,00 € of items + 2,99 € shipping = 50,99 € ≥ 50 €.
+      const { option, shippingPrice } = await optionFor(48)
+
+      expect(shippingPrice).toBe(2.99)
+      expect(option.label).not.toContain('(+')
+      expect(option.freeThresholdHint).toBe('')
+    })
+
+    it('shows the surcharge and how to avoid it while below the threshold', async () => {
+      const { $i18n } = useNuxtApp()
+
+      const { option } = await optionFor(10)
+
+      expect(option.label).toContain(` (+${$i18n.n(FEE, 'currency')})`)
+      expect(option.freeThresholdHint).toBe(
+        $i18n.t('pay_way_free_above', { amount: $i18n.n(THRESHOLD, 'currency') }),
+      )
+    })
+  })
+
   describe('step1Schema — region required only when the country hasRegions', () => {
     it('requires region for GR (has regions)', async () => {
-      const { step1Schema } = await useCheckoutForm()
+      const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'GR', region: '' }))
       expect(result.success).toBe(false)
       expect(result.error?.issues.some(i => i.path[0] === 'region')).toBe(true)
     })
 
     it('does not require region for a country with no regions', async () => {
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/countries') return Promise.resolve(paginated([GR, REGIONLESS]))
-        return Promise.resolve(defaultDispatch(url, options))
-      })
-      const { step1Schema } = await useCheckoutForm()
+      api.routes({ ...defaultRoutes(), '/api/countries': paginated([GR, REGIONLESS]) })
+      const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'XX', region: '' }))
       expect(result.error?.issues.some(i => i.path[0] === 'region') ?? false).toBe(false)
     })
 
     it('validates phone against the selected country\'s own metadata (CY, 8 digits)', async () => {
-      const { step1Schema } = await useCheckoutForm()
+      const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '96123456' }))
       expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
     })
 
     it('rejects a Greek-length phone number against CY\'s 8-digit metadata', async () => {
-      const { step1Schema } = await useCheckoutForm()
+      const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '6912345678' }))
       // A bare 10-digit number gets CY's own dial code prepended (no '+'
       // typed), so it's checked as a CY national number and fails length.
@@ -343,13 +501,13 @@ describe('useCheckoutForm', () => {
     })
 
     it('accepts a foreign "+" phone regardless of the delivery country (GR shipping to CY)', async () => {
-      const { step1Schema } = await useCheckoutForm()
+      const { step1Schema } = await setup()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '+306943413781' }))
       expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
     })
 
     it('validates the phone against the PICKED phone country, not the delivery one', async () => {
-      const { step1Schema } = await useCheckoutForm()
+      const { step1Schema } = await setup()
       await flushPromises()
 
       // Delivering to Cyprus with a Greek mobile: GR picked, so +30 is checked against GR.
@@ -364,7 +522,7 @@ describe('useCheckoutForm', () => {
     })
 
     it('falls back to the delivery country while the picker is still following it', async () => {
-      const { step1Schema } = await useCheckoutForm()
+      const { step1Schema } = await setup()
       await flushPromises()
 
       const address = { country: 'CY', region: 'NICOSIA', phoneCountry: '' }
@@ -377,14 +535,95 @@ describe('useCheckoutForm', () => {
     })
   })
 
+  describe('step1Schema — save-address title and invoice requisites', () => {
+    /** The message of each issue on `field`, or [] when it passes. */
+    async function issuesOn(field: string, overrides: Record<string, unknown>) {
+      const { step1Schema } = await setup()
+      const result = step1Schema.safeParse(baseAddress(overrides))
+      return result.error?.issues.filter(i => i.path[0] === field).map(i => i.message) ?? []
+    }
+
+    it.each([
+      ['a blank title when saving the address', { saveAddress: true, addressTitle: '  ' }, true],
+      ['a title when saving the address', { saveAddress: true, addressTitle: 'Home' }, false],
+      ['a blank title when not saving', { saveAddress: false, addressTitle: '' }, false],
+    ])('addressTitle: %s', async (_case, overrides, fails) => {
+      const { $i18n } = useNuxtApp()
+      expect(await issuesOn('addressTitle', overrides)).toEqual(fails ? [$i18n.t('validation.required')] : [])
+    })
+
+    it.each([
+      // [raw ΑΦΜ, expected message key or null]
+      [VALID_AFM, null],
+      [`EL${VALID_AFM}`, null],
+      [`gr ${VALID_AFM}`, null],
+      [` ${VALID_AFM} `, null],
+      ['12345678', 'validation.billing_vat.invalid'],
+      ['12345678A', 'validation.billing_vat.invalid'],
+      ['', 'validation.billing_vat.invalid'],
+      ['123456784', 'validation.billing_vat.checksum'],
+    ])('INVOICE billingVatId %j → %s', async (billingVatId, key) => {
+      const { $i18n } = useNuxtApp()
+      const issues = await issuesOn('billingVatId', { ...invoice(), billingVatId })
+      expect(issues).toEqual(key ? [$i18n.t(key)] : [])
+    })
+
+    it.each(['billingCompanyName', 'billingTaxOffice', 'billingActivity'])(
+      'INVOICE requires %s',
+      async (field) => {
+        const { $i18n } = useNuxtApp()
+        expect(await issuesOn(field, { ...invoice(), [field]: ' ' })).toEqual([$i18n.t('validation.required')])
+      },
+    )
+
+    it.each(['billingStreet', 'billingStreetNumber', 'billingCity', 'billingZipcode'])(
+      'INVOICE requires %s only when the registered address differs from delivery',
+      async (field) => {
+        const { $i18n } = useNuxtApp()
+        const blank = { ...invoice(), [field]: '' }
+        expect(await issuesOn(field, { ...blank, billingSameAsShipping: true })).toEqual([])
+        expect(await issuesOn(field, { ...blank, billingSameAsShipping: false })).toEqual([$i18n.t('validation.required')])
+      },
+    )
+
+    it('a RECEIPT needs none of the invoice requisites', async () => {
+      const { step1Schema } = await setup()
+      const result = step1Schema.safeParse(baseAddress({ documentType: 'RECEIPT', billingSameAsShipping: false }))
+      expect(result.success).toBe(true)
+    })
+
+    it('a complete invoice with its own registered address passes', async () => {
+      const { step1Schema } = await setup()
+      const result = step1Schema.safeParse(baseAddress({ ...invoice(), billingSameAsShipping: false }))
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe('step2Schema — a locker method needs a picked locker', () => {
+    it.each([
+      [{ shippingMethod: 'box_now_locker', boxnowLockerId: '' }, 'boxnowLockerId', 'shipping.boxnow.required_error'],
+      [{ shippingMethod: 'box_now_locker', boxnowLockerId: '4' }, null, null],
+      [{ shippingMethod: 'acs_smartpoint', acsStationExternalId: '' }, 'acsStationExternalId', 'shipping.acs.required_error'],
+      [{ shippingMethod: 'acs_smartpoint', acsStationExternalId: 'AAT' }, null, null],
+      [{ shippingMethod: 'home_delivery' }, null, null],
+    ])('%j', async (input, field, key) => {
+      const { $i18n } = useNuxtApp()
+      const { step2Schema } = await setup()
+      const result = step2Schema.safeParse(input)
+      expect(result.error?.issues.map(i => [i.path[0], i.message]) ?? []).toEqual(
+        field ? [[field, $i18n.t(key!)]] : [],
+      )
+    })
+  })
+
   describe('changing the delivery country clears any picked locker', () => {
     it('clears boxnowLockerId/boxnowLocker and acsStation* fields', async () => {
-      const { formState } = await useCheckoutForm()
+      const { formState } = await setup()
       formState.boxnowLockerId = '4'
-      formState.boxnowLocker = { boxnowLockerId: '4' } as any
+      formState.boxnowLocker = { boxnowLockerId: '4', boxnowLockerPostalCode: '10563', boxnowLockerAddressLine1: 'Ermou 10' }
       formState.acsStationExternalId = 'AAT'
       formState.acsStationBranch = 'BR1'
-      formState.acsStation = { externalId: 'AAT' } as any
+      formState.acsStation = ACS_STATION
 
       formState.country = formState.country === 'GR' ? 'CY' : 'GR'
       await nextTick()
@@ -478,17 +717,15 @@ describe('useCheckoutForm', () => {
 
   describe('switching country quickly', () => {
     it('keeps the regions of the country selected last when an older response lands last', async () => {
-      const { formState, regionOptions } = await useCheckoutForm()
+      const { formState, regionOptions } = await setup()
       await flushPromises()
       // Every in-flight regions request, oldest first.
       const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/regions') {
-          return new Promise((resolve) => {
-            pending.push({ country: options?.query?.country, resolve })
-          })
-        }
-        return Promise.resolve(defaultDispatch(url, options))
+      api.routes({
+        ...defaultRoutes(),
+        '/api/regions': (_url: string, options: any) => new Promise((resolve) => {
+          pending.push({ country: options?.query?.country, resolve })
+        }),
       })
 
       // The form starts on GR; go to CY and straight back.
@@ -512,11 +749,11 @@ describe('useCheckoutForm', () => {
     })
 
     it('keeps a prefilled region when the new country\'s regions request fails', async () => {
-      const { formState } = await useCheckoutForm()
+      const { formState } = await setup()
       await flushPromises()
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/regions') return Promise.reject(new Error('down'))
-        return Promise.resolve(defaultDispatch(url, options))
+      api.routes({
+        ...defaultRoutes(),
+        '/api/regions': () => { throw new Error('down') },
       })
 
       // A saved address sets country and region together; the loaded
@@ -530,36 +767,149 @@ describe('useCheckoutForm', () => {
     })
   })
 
-  describe('saved address in a non-shippable country', () => {
-    it('falls back to the new-address form and toasts a warning', async () => {
-      mockUserSession.loggedIn.value = true
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/user/addresses') {
-          return Promise.resolve(paginated([{
-            id: 1,
-            isMain: true,
-            firstName: 'Test',
-            lastName: 'User',
-            phone: '+306943413781',
-            street: 'Main St',
-            streetNumber: '1',
-            city: 'Athens',
-            zipcode: '10001',
-            // DE is not in the (shippable) countries list returned below.
-            country: 'DE',
-            region: '',
-          }]))
-        }
-        if (url === '/api/countries') return Promise.resolve(paginated([GR, CY]))
-        return Promise.resolve(defaultDispatch(url, options))
-      })
+  describe('saved addresses', () => {
+    const second = savedAddress({
+      id: 2,
+      isMain: false,
+      firstName: 'Other',
+      lastName: 'Place',
+      phone: '+35796123456',
+      street: 'Makariou',
+      streetNumber: '5',
+      city: 'Nicosia',
+      zipcode: '1065',
+      country: 'CY',
+      region: 'NICOSIA',
+    })
 
-      const { addressEntryMode, formState } = await useCheckoutForm()
+    beforeEach(async () => {
+      await setLoggedIn(true)
+      api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([savedAddress(), second]) })
+    })
+
+    it('prefills the main address in saved mode, with the session email', async () => {
+      const { formState, addressEntryMode, selectedSavedAddressId } = await setup()
+
+      expect(addressEntryMode.value).toBe('saved')
+      expect(selectedSavedAddressId.value).toBe(1)
+      expect(formState).toMatchObject({
+        firstName: 'Saved',
+        street: 'Ermou',
+        country: 'GR',
+        region: 'ATTIKI',
+        email: 'shopper@example.com',
+      })
+    })
+
+    it('picking another saved address applies it and stays in saved mode', async () => {
+      const { formState, addressEntryMode, selectSavedAddress } = await setup()
+
+      await selectSavedAddress(2)
+
+      expect(addressEntryMode.value).toBe('saved')
+      expect(formState).toMatchObject({
+        firstName: 'Other',
+        phone: '+35796123456',
+        street: 'Makariou',
+        country: 'CY',
+        countryId: 'CY',
+        region: 'NICOSIA',
+      })
+    })
+
+    it('useNewAddress blanks the address, keeps the email and resets to the first country', async () => {
+      const { formState, addressEntryMode, selectedSavedAddressId, selectSavedAddress, useNewAddress } = await setup()
+      await selectSavedAddress(2)
+
+      await useNewAddress()
+
+      expect(addressEntryMode.value).toBe('new')
+      expect(selectedSavedAddressId.value).toBeNull()
+      expect(formState).toMatchObject({
+        firstName: '',
+        lastName: '',
+        phone: '',
+        street: '',
+        streetNumber: '',
+        city: '',
+        zipcode: '',
+        region: '',
+        country: 'GR',
+        countryId: 'GR',
+        email: 'shopper@example.com',
+      })
+    })
+
+    it('falls back to the new-address form and toasts a warning when its country is not shippable', async () => {
+      // DE is not in the (shippable) countries list.
+      api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([savedAddress({ country: 'DE', region: '' })]) })
+
+      const { addressEntryMode, formState } = await setup()
 
       expect(addressEntryMode.value).toBe('new')
       // Reset to the first shippable country rather than left on 'DE'.
       expect(formState.country).toBe('GR')
       expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'warning' }))
+    })
+  })
+
+  describe('B2B invoice prefill', () => {
+    const profile = {
+      status: 'APPROVED',
+      companyName: 'Acme ΑΕ',
+      vatId: VALID_AFM,
+      taxOffice: 'ΔΟΥ Α Αθηνών',
+      activity: 'Χονδρεμπόριο',
+      billingStreet: 'Stadiou',
+      billingStreetNumber: '3',
+      billingCity: 'Athens',
+      billingZipcode: '10559',
+    }
+
+    beforeEach(async () => {
+      setTenant({ b2bEnabled: true })
+      await setLoggedIn(true)
+    })
+
+    it.each([
+      ['APPROVED', 'INVOICE'],
+      ['PENDING', 'RECEIPT'],
+    ])('a %s profile prefills the requisites; the document type is %s', async (status, documentType) => {
+      api.routes({ ...defaultRoutes(), '/api/b2b/profile': { ...profile, status } })
+
+      const { formState } = await setup()
+
+      expect(formState).toMatchObject({
+        documentType,
+        billingVatId: VALID_AFM,
+        billingCompanyName: 'Acme ΑΕ',
+        billingTaxOffice: 'ΔΟΥ Α Αθηνών',
+        billingActivity: 'Χονδρεμπόριο',
+        billingSameAsShipping: false,
+        billingStreet: 'Stadiou',
+        billingCity: 'Athens',
+      })
+    })
+
+    it('does not prefill when the store switched B2B invoicing off', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/settings/public': { settings: { B2B_INVOICING_ENABLED: 'False' } },
+        '/api/b2b/profile': profile,
+      })
+
+      const { formState, b2bInvoicingEnabled } = await setup()
+
+      expect(b2bInvoicingEnabled.value).toBe(false)
+      expect(formState).toMatchObject({ documentType: 'RECEIPT', billingVatId: '', billingCompanyName: '' })
+    })
+
+    it('never asks for a profile on a plan without B2B', async () => {
+      setTenant({ b2bEnabled: false })
+
+      await setup()
+
+      expect(api.callsTo('/api/b2b/profile')).toEqual([])
     })
   })
 })
@@ -578,5 +928,21 @@ function baseAddress(overrides: Record<string, unknown> = {}) {
     streetNumber: '1',
     documentType: 'RECEIPT',
     ...overrides,
+  }
+}
+
+/** A complete INVOICE: valid ΑΦΜ, the requisites trio and a registered address. */
+function invoice() {
+  return {
+    documentType: 'INVOICE',
+    billingVatId: VALID_AFM,
+    billingCompanyName: 'Acme ΑΕ',
+    billingTaxOffice: 'ΔΟΥ Α Αθηνών',
+    billingActivity: 'Χονδρεμπόριο',
+    billingSameAsShipping: true,
+    billingStreet: 'Stadiou',
+    billingStreetNumber: '3',
+    billingCity: 'Athens',
+    billingZipcode: '10559',
   }
 }

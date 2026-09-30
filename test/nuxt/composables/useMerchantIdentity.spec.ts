@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { registerEndpoint } from '@nuxt/test-utils/runtime'
 
 /**
@@ -46,10 +46,9 @@ async function load(overrides: Record<string, unknown>) {
   // three cases that expect false and failed the rest.
   clearNuxtData('tenant-legal-identity')
   const result = useMerchantIdentity()
-  const deadline = Date.now() + 2000
-  while (result.identity.value === null && Date.now() < deadline) {
-    await new Promise(resolve => setTimeout(resolve, 10))
-  }
+  // `default: () => null` until the endpoint answers; waiting on it
+  // fails loudly if it never does, instead of asserting on the default.
+  await vi.waitFor(() => expect(result.identity.value).not.toBeNull(), { interval: 1 })
   return result
 }
 

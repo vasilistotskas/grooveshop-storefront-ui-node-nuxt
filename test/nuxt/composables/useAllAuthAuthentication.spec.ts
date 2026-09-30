@@ -1,619 +1,207 @@
-import { describe, it, expect, beforeAll, beforeEach, afterEach, afterAll, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { setActivePinia, createPinia } from 'pinia'
+import { setTenant } from '~~/test/helpers/tenant'
 
-// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
-// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
-// mocked via mockNuxtImport like any other auto-import.
-const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+const { hooks, ga4, metaPixel, tiktokPixel, route } = vi.hoisted(() => ({
+  route: { query: {} as Record<string, string> },
+  hooks: {
+    onResponse: vi.fn((..._args: unknown[]) => Promise.resolve()),
+    onResponseError: vi.fn((..._args: unknown[]) => Promise.resolve()),
+  },
+  ga4: { trackLogin: vi.fn(), trackSignUp: vi.fn() },
+  metaPixel: { trackCompleteRegistration: vi.fn() },
+  tiktokPixel: { trackCompleteRegistration: vi.fn() },
+}))
 
-mockNuxtImport('$api', () => mockFetch)
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+mockNuxtImport('onAllAuthResponse', () => hooks.onResponse)
+mockNuxtImport('onAllAuthResponseError', () => hooks.onResponseError)
+mockNuxtImport('useGA4', () => () => ga4)
+mockNuxtImport('useMetaPixel', () => () => metaPixel)
+mockNuxtImport('useTikTokPixel', () => () => tiktokPixel)
+mockNuxtImport('useRoute', () => () => route)
+
+const AUTH = '/api/_allauth/app/v1/auth'
+const OK = { ok: true, status: 200, _data: { status: 200, meta: { is_authenticated: true } } }
+const MFA_PENDING = { ok: false, status: 401, _data: { data: { status: 401, data: { flows: [{ id: 'mfa_authenticate', is_pending: true }] } } } }
+
+/**
+ * ofetch runs `onResponse` for every response and `onResponseError`
+ * after it for a non-2xx one. The mock plays that part with the given
+ * responses, so a spec sees what each wrapper does in its hooks.
+ */
+function respondWith(...responses: Array<{ ok: boolean, status: number, _data: unknown }>) {
+  api.mockImplementation(async (_url, options) => {
+    for (const response of responses) {
+      await options?.onResponse?.({ response })
+      if (!response.ok) await options?.onResponseError?.({ response })
+    }
+    return responses.at(-1)?._data
+  })
+}
+
+const credential = { type: 'public-key', id: 'credential-id', rawId: 'raw-id', response: {} }
+
+type Authentication = ReturnType<typeof useAllAuthAuthentication>
 
 describe('useAllAuthAuthentication', () => {
-  let mockUseRequestHeaders: ReturnType<typeof vi.fn>
-  let mockOnAllAuthResponse: ReturnType<typeof vi.fn>
-  let mockOnAllAuthResponseError: ReturnType<typeof vi.fn>
-
-  beforeAll(() => {
-    mockUseRequestHeaders = vi.fn(() => ({ 'Content-Type': 'application/json' }))
-    mockOnAllAuthResponse = vi.fn()
-    mockOnAllAuthResponseError = vi.fn()
-
-    vi.stubGlobal('useRequestHeaders', mockUseRequestHeaders)
-    vi.stubGlobal('onAllAuthResponse', mockOnAllAuthResponse)
-    vi.stubGlobal('onAllAuthResponseError', mockOnAllAuthResponseError)
-  })
-
-  afterAll(() => {
-    vi.unstubAllGlobals()
-  })
-
   beforeEach(() => {
-    mockFetch.mockClear()
-    mockUseRequestHeaders.mockClear()
-    mockOnAllAuthResponse.mockClear()
-    mockOnAllAuthResponseError.mockClear()
+    respondWith(OK, MFA_PENDING)
   })
 
-  describe('getSession', () => {
-    it('should fetch session without encrypted token', async () => {
-      const mockResponse = { status: 200, data: { user: { email: 'test@example.com' } } }
-      mockFetch.mockResolvedValue(mockResponse)
+  /**
+   * Every wrapper is one request to one allauth endpoint whose answers go
+   * through the auth pipeline (`onAllAuthResponse` for the response,
+   * `onAllAuthResponseError` for a failure) — the `auth:change` hook is
+   * how a login, logout or pending flow reaches the rest of the app.
+   */
+  it.each<[string, string, string, (a: Authentication) => Promise<unknown>, unknown]>([
+    ['getSession', 'GET', '/session', a => a.getSession(), undefined],
+    ['deleteSession', 'DELETE', '/session', a => a.deleteSession(), undefined],
+    ['login', 'POST', '/login', a => a.login({ email: 'shopper@example.com', password: 'secret' }), { email: 'shopper@example.com', password: 'secret' }],
+    ['signup', 'POST', '/signup', a => a.signup({ email: 'new@example.com', password: 'secret' }), { email: 'new@example.com', password: 'secret' }],
+    ['getEmailVerify', 'GET', '/email/verify', a => a.getEmailVerify('verify-key'), undefined],
+    ['emailVerify', 'POST', '/email/verify', a => a.emailVerify({ key: 'verify-key' }), { key: 'verify-key' }],
+    ['reauthenticate', 'POST', '/reauthenticate', a => a.reauthenticate({ password: 'secret' }), { password: 'secret' }],
+    ['passwordRequest', 'POST', '/password/request', a => a.passwordRequest({ email: 'shopper@example.com' }), { email: 'shopper@example.com' }],
+    ['getPasswordReset', 'GET', '/password/reset', a => a.getPasswordReset('reset-key'), undefined],
+    ['passwordReset', 'POST', '/password/reset', a => a.passwordReset({ key: 'reset-key', password: 'new-secret' }), { key: 'reset-key', password: 'new-secret' }],
+    ['providerToken', 'POST', '/provider/token', a => a.providerToken({ provider: 'google', process: 'login', token: { client_id: 'client', access_token: 'token' } }), { provider: 'google', process: 'login', token: { client_id: 'client', access_token: 'token' } }],
+    ['providerSignup', 'POST', '/provider/signup', a => a.providerSignup({ email: 'shopper@example.com' }), { email: 'shopper@example.com' }],
+    ['twoFaAuthenticate', 'POST', '/2fa/authenticate', a => a.twoFaAuthenticate({ code: '123456' }), { code: '123456' }],
+    ['twoFaReauthenticate', 'POST', '/2fa/reauthenticate', a => a.twoFaReauthenticate({ code: '123456' }), { code: '123456' }],
+    ['requestLoginCode', 'POST', '/code/request', a => a.requestLoginCode({ email: 'shopper@example.com' }), { email: 'shopper@example.com' }],
+    ['confirmLoginCode', 'POST', '/code/confirm', a => a.confirmLoginCode({ code: '123456' }), { code: '123456' }],
+    ['getWebAuthnRequestOptionsForReauthentication', 'GET', '/webauthn/reauthenticate', a => a.getWebAuthnRequestOptionsForReauthentication(), undefined],
+    ['reauthenticateUsingWebAuthn', 'POST', '/webauthn/reauthenticate', a => a.reauthenticateUsingWebAuthn({ credential }), { credential }],
+    ['getWebAuthnRequestOptionsForAuthentication', 'GET', '/webauthn/authenticate', a => a.getWebAuthnRequestOptionsForAuthentication(), undefined],
+    ['authenticateUsingWebAuthn', 'POST', '/webauthn/authenticate', a => a.authenticateUsingWebAuthn({ credential }), { credential }],
+    ['getWebAuthnRequestOptionsForLogin', 'GET', '/webauthn/login', a => a.getWebAuthnRequestOptionsForLogin(), undefined],
+    ['loginUsingWebAuthn', 'POST', '/webauthn/login', a => a.loginUsingWebAuthn({ credential }), { credential }],
+    ['getWebAuthnCreateOptionsAtSignup', 'GET', '/webauthn/signup', a => a.getWebAuthnCreateOptionsAtSignup(), undefined],
+    ['signUpByPasskey', 'POST', '/webauthn/signup', a => a.signUpByPasskey({ email: 'shopper@example.com' }), { email: 'shopper@example.com' }],
+    ['signupWebAuthnCredential', 'PUT', '/webauthn/signup', a => a.signupWebAuthnCredential({ name: 'Passkey', credential }), { name: 'Passkey', credential }],
+  ])('%s sends %s %s and routes allauth\'s answers through the auth pipeline', async (_name, method, path, call, body) => {
+    const result = await call(useAllAuthAuthentication())
 
-      const { getSession } = useAllAuthAuthentication()
-      await getSession()
+    const [request] = api.callsTo(`${AUTH}${path}`)
+    expect(api).toHaveBeenCalledTimes(1)
+    expect(request?.options.method).toBe(method)
+    expect(request?.options.body).toEqual(body)
+    expect(result).toEqual(MFA_PENDING._data)
+    expect(hooks.onResponse.mock.calls.map(([response]) => response)).toEqual([OK, MFA_PENDING])
+    expect(hooks.onResponseError.mock.calls.map(([response]) => response)).toEqual([MFA_PENDING])
+  })
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/session',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
+  describe('request headers', () => {
+    it.each<[string, (a: Authentication) => Promise<unknown>, string, Record<string, string>]>([
+      ['getSession with a token', a => a.getSession('encrypted-token'), '/session', { 'X-Encrypted-Token': 'encrypted-token' }],
+      ['getEmailVerify', a => a.getEmailVerify('verify-key'), '/email/verify', { 'X-Email-Verification-Key': 'verify-key' }],
+      ['getPasswordReset', a => a.getPasswordReset('reset-key'), '/password/reset', { 'X-Password-Reset-Key': 'reset-key' }],
+    ])('%s carries the key allauth reads from a header', async (_name, call, path, headers) => {
+      await call(useAllAuthAuthentication())
+
+      expect(api.callsTo(`${AUTH}${path}`)[0]?.options.headers).toEqual(expect.objectContaining(headers))
     })
 
-    it('should fetch session with encrypted token', async () => {
-      const mockResponse = { status: 200, data: { user: { email: 'test@example.com' } } }
-      mockFetch.mockResolvedValue(mockResponse)
+    it('getSession sends no encrypted token when it has none', async () => {
+      await useAllAuthAuthentication().getSession()
 
-      const { getSession } = useAllAuthAuthentication()
-      await getSession('encrypted-token-123')
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/session',
-        expect.objectContaining({
-          method: 'GET',
-          headers: expect.objectContaining({
-            'X-Encrypted-Token': 'encrypted-token-123',
-          }),
-        }),
-      )
+      expect(api.callsTo(`${AUTH}/session`)[0]?.options.headers).not.toHaveProperty('X-Encrypted-Token')
     })
   })
 
   describe('deleteSession', () => {
-    it('should delete session', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
+    /** `explicit` is what lets the auth plugin keep a user-initiated logout silent. */
+    it.each([
+      [{ explicit: true }, { explicit: true }],
+      [undefined, { explicit: false }],
+    ])('passes %o to both auth hooks as %o', async (args, meta) => {
+      await useAllAuthAuthentication().deleteSession(args)
 
-      const { deleteSession } = useAllAuthAuthentication()
-      await deleteSession()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/session',
-        expect.objectContaining({
-          method: 'DELETE',
-        }),
-      )
+      expect(hooks.onResponse).toHaveBeenCalledWith(OK, meta)
+      expect(hooks.onResponseError).toHaveBeenCalledWith(MFA_PENDING, meta)
     })
   })
 
   describe('login', () => {
-    it('should login with email and password', async () => {
-      const mockResponse = { status: 200, data: { user: { email: 'test@example.com' } } }
-      mockFetch.mockResolvedValue(mockResponse)
+    it('reports the login to GA4 once allauth has signed the user in', async () => {
+      respondWith(OK)
 
-      const { login } = useAllAuthAuthentication()
-      const body = { email: 'test@example.com', password: 'password123' }
-      await login(body)
+      await useAllAuthAuthentication().login({ email: 'shopper@example.com', password: 'secret' })
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
+      expect(ga4.trackLogin).toHaveBeenCalledExactlyOnceWith({ method: 'email' })
+    })
+
+    it('does not report a login that still needs the second factor', async () => {
+      respondWith(MFA_PENDING)
+
+      await useAllAuthAuthentication().login({ email: 'shopper@example.com', password: 'secret' })
+
+      expect(ga4.trackLogin).not.toHaveBeenCalled()
+      expect(hooks.onResponseError).toHaveBeenCalledWith(MFA_PENDING)
+    })
+
+    it('still signs the user in when GA4 throws', async () => {
+      respondWith(OK)
+      ga4.trackLogin.mockImplementationOnce(() => { throw new Error('gtag missing') })
+
+      await expect(useAllAuthAuthentication().login({ email: 'shopper@example.com', password: 'secret' }))
+        .resolves.toEqual(OK._data)
+      expect(hooks.onResponse).toHaveBeenCalledWith(OK)
     })
   })
 
   describe('signup', () => {
-    it('should signup with email and password', async () => {
-      const mockResponse = { status: 200, data: { user: { email: 'new@example.com' } } }
-      mockFetch.mockResolvedValue(mockResponse)
+    it('fires the registration events of every provider once the account exists', async () => {
+      respondWith(OK)
 
-      const { signup } = useAllAuthAuthentication()
-      const body = { email: 'new@example.com', password: 'password123' }
-      await signup(body)
+      await useAllAuthAuthentication().signup({ email: 'new@example.com', password: 'secret' })
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/signup',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
+      expect(metaPixel.trackCompleteRegistration).toHaveBeenCalledExactlyOnceWith({ status: 'completed' })
+      expect(tiktokPixel.trackCompleteRegistration).toHaveBeenCalledOnce()
+      expect(ga4.trackSignUp).toHaveBeenCalledExactlyOnceWith({ method: 'email' })
+    })
+
+    it('fires no registration event for a signup allauth did not complete', async () => {
+      respondWith(MFA_PENDING)
+
+      await useAllAuthAuthentication().signup({ email: 'new@example.com', password: 'secret' })
+
+      expect(metaPixel.trackCompleteRegistration).not.toHaveBeenCalled()
+      expect(tiktokPixel.trackCompleteRegistration).not.toHaveBeenCalled()
+      expect(ga4.trackSignUp).not.toHaveBeenCalled()
+    })
+
+    it('still completes the signup when a pixel throws', async () => {
+      respondWith(OK)
+      metaPixel.trackCompleteRegistration.mockImplementationOnce(() => { throw new Error('fbq missing') })
+
+      await expect(useAllAuthAuthentication().signup({ email: 'new@example.com', password: 'secret' }))
+        .resolves.toEqual(OK._data)
     })
   })
 
-  describe('email verification', () => {
-    it('should get email verification status', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
+  describe('providerRedirect', () => {
+    let replace: ReturnType<typeof vi.fn>
 
-      const { getEmailVerify } = useAllAuthAuthentication()
-      await getEmailVerify('verification-key-123')
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/email/verify',
-        expect.objectContaining({
-          method: 'GET',
-          headers: expect.objectContaining({
-            'X-Email-Verification-Key': 'verification-key-123',
-          }),
-        }),
-      )
+    beforeEach(() => {
+      replace = vi.fn()
+      vi.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location, replace } as Location)
+      route.query = {}
     })
 
-    it('should verify email with key', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { emailVerify } = useAllAuthAuthentication()
-      const body = { key: 'verification-key-123' }
-      await emailVerify(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/email/verify',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('reauthenticate', () => {
-    it('should reauthenticate with password', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { reauthenticate } = useAllAuthAuthentication()
-      const body = { password: 'password123' }
-      await reauthenticate(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/reauthenticate',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('password reset', () => {
-    it('should request password reset', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { passwordRequest } = useAllAuthAuthentication()
-      const body = { email: 'test@example.com' }
-      await passwordRequest(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/password/request',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should get password reset status', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getPasswordReset } = useAllAuthAuthentication()
-      await getPasswordReset('reset-key-123')
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/password/reset',
-        expect.objectContaining({
-          method: 'GET',
-          headers: expect.objectContaining({
-            'X-Password-Reset-Key': 'reset-key-123',
-          }),
-        }),
-      )
-    })
-
-    it('should reset password with key', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { passwordReset } = useAllAuthAuthentication()
-      const body = { key: 'reset-key-123', password: 'newpassword123' }
-      await passwordReset(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/password/reset',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('provider authentication', () => {
-    it('should handle provider token', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { providerToken } = useAllAuthAuthentication()
-      const body = {
-        provider: 'google',
-        process: 'login' as const,
-        token: {
-          client_id: 'google-client-id',
-          access_token: 'google-token-123',
-        },
-      }
-      await providerToken(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/provider/token',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should handle provider signup', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { providerSignup } = useAllAuthAuthentication()
-      const body = { provider: 'google', email: 'test@example.com' }
-      await providerSignup(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/provider/signup',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('2FA authentication', () => {
-    it('should authenticate with 2FA code', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { twoFaAuthenticate } = useAllAuthAuthentication()
-      const body = { code: '123456' }
-      await twoFaAuthenticate(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/2fa/authenticate',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should reauthenticate with 2FA code', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { twoFaReauthenticate } = useAllAuthAuthentication()
-      const body = { code: '123456' }
-      await twoFaReauthenticate(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/2fa/reauthenticate',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('MFA login flow', () => {
-    // NOTE: The global $fetch mock (vi.fn()) does NOT invoke ofetch's
-    // onResponse / onResponseError callbacks — those are real ofetch
-    // internals that only run with the real implementation.
-    // Therefore these tests only verify:
-    //   (a) the correct endpoint + method + body are sent for each MFA step
-    //   (b) the composable returns the $fetch result unchanged
-    //
-    // Behavioral coverage (onAllAuthResponseError fired, Knox token persisted,
-    // auth:change hook called) requires integration-level testing with a real
-    // backend or a full ofetch mock that invokes the hooks — deferred.
-
-    it('login with MFA-required user sends credentials to the login endpoint', async () => {
-      // allauth returns 401 with pending_flow=mfa when the user has TOTP enabled.
-      // The composable's job is to POST the credentials; the 401 handling
-      // (routing to MFA page) is done by the auth plugin via auth:change hook.
-      const mfaPendingResponse = {
-        status: 401,
-        data: {
-          flows: [{ id: 'mfa', is_pending: true, types: ['totp'] }],
-        },
-        meta: { is_authenticated: false },
-      }
-      mockFetch.mockResolvedValueOnce(mfaPendingResponse)
-
-      const { login } = useAllAuthAuthentication()
-      const result = await login({ email: 'mfa-user@example.com', password: 'password123' })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          body: { email: 'mfa-user@example.com', password: 'password123' },
-        }),
-      )
-      // The composable returns the raw 401 response for the caller to handle
-      expect(result).toMatchObject({ status: 401 })
-    })
-
-    it('MFA code submission sends the code to the 2FA authenticate endpoint', async () => {
-      // After login returns a pending MFA flow, the user enters their TOTP code.
-      // The composable POSTs to /2fa/authenticate with the code.
-      // On success, allauth returns 200 with meta.access_token (Knox token).
-      const successResponse = {
-        status: 200,
-        meta: { is_authenticated: true, access_token: 'knox-token-abc' },
-        data: { user: { id: 1, email: 'mfa-user@example.com' } },
-      }
-      mockFetch.mockResolvedValueOnce(successResponse)
-
-      const { twoFaAuthenticate } = useAllAuthAuthentication()
-      const result = await twoFaAuthenticate({ code: '654321' })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/2fa/authenticate',
-        expect.objectContaining({
-          method: 'POST',
-          body: { code: '654321' },
-        }),
-      )
-      // The composable returns the raw $fetch result; Knox token storage
-      // is handled downstream by onAllAuthResponse → auth:change → session.
-      expect(result).toMatchObject({
-        status: 200,
-        meta: expect.objectContaining({ is_authenticated: true }),
-      })
-    })
-
-    it('invalid MFA code — $fetch is called with the wrong code and returns a non-200 response', async () => {
-      // allauth returns 400 for a wrong TOTP code. The composable forwards
-      // the response. Rate-limit semantics (whether allauth counts this attempt
-      // against a Redis counter) are not testable without a real backend.
-      const invalidCodeResponse = {
-        status: 400,
-        errors: [{ code: 'enter_a_valid_code', param: 'code' }],
-      }
-      mockFetch.mockResolvedValueOnce(invalidCodeResponse)
-
-      const { twoFaAuthenticate } = useAllAuthAuthentication()
-      const result = await twoFaAuthenticate({ code: '000000' })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/2fa/authenticate',
-        expect.objectContaining({
-          method: 'POST',
-          body: { code: '000000' },
-        }),
-      )
-      expect(result).toMatchObject({ status: 400 })
-    })
-  })
-
-  describe('code-based login', () => {
-    it('should request login code', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { requestLoginCode } = useAllAuthAuthentication()
-      const body = { email: 'test@example.com' }
-      await requestLoginCode(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/code/request',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should confirm login code', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { confirmLoginCode } = useAllAuthAuthentication()
-      const body = { code: '123456' }
-      await confirmLoginCode(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/code/confirm',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('WebAuthn authentication', () => {
-    const mockWebAuthnCredential = {
-      type: 'public-key',
-      id: 'credential-id',
-      rawId: 'raw-id',
-      response: {
-        clientDataJSON: 'client-data',
-        authenticatorData: 'auth-data',
-        signature: 'signature',
-        userHandle: 'user-handle',
-      },
-    }
-
-    it('should get WebAuthn options for login', async () => {
-      const mockResponse = { status: 200, data: { challenge: 'challenge-123' } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getWebAuthnRequestOptionsForLogin } = useAllAuthAuthentication()
-      await getWebAuthnRequestOptionsForLogin()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/login',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should login using WebAuthn', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { loginUsingWebAuthn } = useAllAuthAuthentication()
-      const body = { credential: mockWebAuthnCredential }
-      await loginUsingWebAuthn(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/login',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should get WebAuthn options for authentication', async () => {
-      const mockResponse = { status: 200, data: { challenge: 'challenge-123' } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getWebAuthnRequestOptionsForAuthentication } = useAllAuthAuthentication()
-      await getWebAuthnRequestOptionsForAuthentication()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/authenticate',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should authenticate using WebAuthn', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { authenticateUsingWebAuthn } = useAllAuthAuthentication()
-      const body = { credential: mockWebAuthnCredential }
-      await authenticateUsingWebAuthn(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/authenticate',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should get WebAuthn options for reauthentication', async () => {
-      const mockResponse = { status: 200, data: { challenge: 'challenge-123' } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getWebAuthnRequestOptionsForReauthentication } = useAllAuthAuthentication()
-      await getWebAuthnRequestOptionsForReauthentication()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/reauthenticate',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should reauthenticate using WebAuthn', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
-      const body = { credential: mockWebAuthnCredential }
-      await reauthenticateUsingWebAuthn(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/reauthenticate',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should get WebAuthn create options at signup', async () => {
-      const mockResponse = { status: 200, data: { challenge: 'challenge-123' } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getWebAuthnCreateOptionsAtSignup } = useAllAuthAuthentication()
-      await getWebAuthnCreateOptionsAtSignup()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/signup',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should signup by passkey', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { signUpByPasskey } = useAllAuthAuthentication()
-      const body = {
-        credential: {
-          type: 'public-key',
-          id: 'credential-id',
-          rawId: 'raw-id',
-          response: {},
-        },
-        email: 'test@example.com',
-      }
-      await signUpByPasskey(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/signup',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should signup WebAuthn credential', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { signupWebAuthnCredential } = useAllAuthAuthentication()
-      const body = {
-        name: 'My Passkey',
-        credential: {
-          type: 'public-key',
-          id: 'credential-id',
-          rawId: 'raw-id',
-          response: {},
-        },
-      }
-      await signupWebAuthnCredential(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/auth/webauthn/signup',
-        expect.objectContaining({
-          method: 'PUT',
-          body,
-        }),
-      )
+    it.each([
+      ['login' as const, { redirect: '/checkout' }, '/auth/google?redirect=%2Fcheckout&process=login'],
+      ['connect' as const, {}, '/auth/google?process=connect'],
+    ])('sends a %s to the provider, keeping the page to return to', (process, query, target) => {
+      route.query = query
+
+      useAllAuthAuthentication().providerRedirect({ id: 'google', name: 'Google', flows: ['provider_redirect'] }, process)
+
+      expect(replace).toHaveBeenCalledExactlyOnceWith(target)
     })
   })
 
@@ -622,45 +210,56 @@ describe('useAllAuthAuthentication', () => {
     // for every tenant would execute the OAuth flow in the platform's
     // Django tenant schema instead of the resolved tenant's — a real
     // cross-tenant auth bug.
-    let originalSubmit: typeof HTMLFormElement.prototype.submit
+    const body = { provider: 'google', callback_url: 'https://example.com/callback', process: 'login' as const }
+    let djangoUrl: string
 
     beforeEach(() => {
-      setActivePinia(createPinia())
       document.body.innerHTML = ''
-      originalSubmit = HTMLFormElement.prototype.submit
-      HTMLFormElement.prototype.submit = vi.fn()
+      vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {})
+      djangoUrl = useRuntimeConfig().public.djangoUrl
     })
 
     afterEach(() => {
-      HTMLFormElement.prototype.submit = originalSubmit
+      useRuntimeConfig().public.djangoUrl = djangoUrl
+      document.cookie = 'csrftoken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+      setTenant()
     })
 
-    const body = { provider: 'google', callback_url: 'https://example.com/callback', process: 'login' as const }
+    function submittedForm() {
+      const form = document.body.querySelector('form')!
+      return {
+        action: form.action,
+        method: form.method.toLowerCase(),
+        fields: Object.fromEntries([...form.querySelectorAll('input')].map(input => [input.name, input.value])),
+      }
+    }
 
-    it('posts to the tenant API origin when apiDomain is resolved', async () => {
-      useTenantStore().setConfig({ apiDomain: 'api.tenant.example' } as TenantConfig)
+    it('posts the body and the CSRF token to the tenant API origin', async () => {
+      setTenant({ apiDomain: 'api.tenant.example' })
+      document.cookie = 'csrftoken=csrf-123; path=/'
 
-      const { browserProviderRedirect } = useAllAuthAuthentication()
-      await browserProviderRedirect(body)
+      await useAllAuthAuthentication().browserProviderRedirect(body)
 
-      const form = document.body.querySelector('form')
-      expect(form?.action).toBe('https://api.tenant.example/_allauth/browser/v1/auth/provider/redirect')
+      expect(submittedForm()).toEqual({
+        action: 'https://api.tenant.example/_allauth/browser/v1/auth/provider/redirect',
+        method: 'post',
+        fields: { ...body, csrfmiddlewaretoken: 'csrf-123' },
+      })
+      expect(HTMLFormElement.prototype.submit).toHaveBeenCalledOnce()
     })
 
     it('falls back to the platform djangoUrl when the tenant has no apiDomain', async () => {
-      useTenantStore().setConfig({ apiDomain: '' } as TenantConfig)
+      setTenant({ apiDomain: '' })
       // Assign an absolute value explicitly — reading a form element's
       // `.action` back from the DOM always resolves relative strings
       // against the current document location, which would mask a bug
       // in the empty-djangoUrl case.
-      const config = useRuntimeConfig()
-      config.public.djangoUrl = 'https://platform.example'
+      useRuntimeConfig().public.djangoUrl = 'https://platform.example'
 
-      const { browserProviderRedirect } = useAllAuthAuthentication()
-      await browserProviderRedirect(body)
+      await useAllAuthAuthentication().browserProviderRedirect(body)
 
-      const form = document.body.querySelector('form')
-      expect(form?.action).toBe('https://platform.example/_allauth/browser/v1/auth/provider/redirect')
+      expect(submittedForm().action).toBe('https://platform.example/_allauth/browser/v1/auth/provider/redirect')
+      expect(submittedForm().fields).not.toHaveProperty('csrfmiddlewaretoken')
     })
   })
 })

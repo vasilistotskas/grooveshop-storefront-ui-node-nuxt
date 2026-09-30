@@ -28,11 +28,13 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.unstubAllGlobals()
 })
 
 describe('scrollToFirstFormError', () => {
   it('scrolls the first failing field into view and focuses it', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
     const email = makeField('checkout-email')
     makeField('checkout-phone')
 
@@ -50,7 +52,8 @@ describe('scrollToFirstFormError', () => {
     expect(email.focus).toHaveBeenCalledWith({ preventScroll: true })
     // And again once the task drains: a failed submit re-renders the
     // form, and a focus set mid-patch is lost with its node.
-    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(email.focus).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(0)
     expect(email.focus).toHaveBeenCalledTimes(2)
   })
 

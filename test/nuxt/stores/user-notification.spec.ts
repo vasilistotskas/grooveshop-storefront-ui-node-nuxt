@@ -1,317 +1,99 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setActivePinia, createPinia } from 'pinia'
 import { useUserNotificationStore } from '~/stores/user-notification'
+import { makeNotificationUserDetail } from '~~/test/fixtures/user'
 
-// Mock dependencies
-vi.mock('#app', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>()
-  return {
-    ...actual,
-    useNuxtApp: () => ({}),
-    useUserSession: () => ({
-      loggedIn: { value: true },
-      user: { value: { id: 1 } },
-    }),
-  }
-})
-
-const mockGetNotifications = vi.fn()
-
-vi.mock('~/composables/useUserNotification', () => ({
-  useUserNotification: () => ({
-    getNotifications: mockGetNotifications,
-  }),
+/**
+ * Plain `{ value }` holders, not refs: the setup plugin watches
+ * `loggedIn`, and a reactive one would start its own session, account,
+ * cart and language chain against these mocks whenever a test signs in.
+ */
+const { session, getNotifications } = vi.hoisted(() => ({
+  session: { loggedIn: { value: false }, user: { value: null as { id: number } | null } },
+  getNotifications: vi.fn((_userId?: number | null) => Promise.resolve<unknown>(undefined)),
 }))
 
-describe('User Notification Store', () => {
+mockNuxtImport('useUserSession', () => () => ({
+  ...session,
+  fetch: vi.fn(() => Promise.resolve()),
+  clear: vi.fn(() => Promise.resolve()),
+}))
+mockNuxtImport('useUserNotification', () => () => ({ getNotifications }))
+
+function page(notificationIds: number[]): Pagination<NotificationUserDetail> {
+  return {
+    count: notificationIds.length,
+    links: { next: null, previous: null },
+    results: notificationIds.map((id, index) =>
+      makeNotificationUserDetail({ id: index + 1, notification: { id } })),
+  }
+}
+
+function signIn(userId: number) {
+  session.loggedIn.value = true
+  session.user.value = { id: userId }
+}
+
+describe('useUserNotificationStore', () => {
   let store: ReturnType<typeof useUserNotificationStore>
 
   beforeEach(() => {
     setActivePinia(createPinia())
     store = useUserNotificationStore()
-    mockGetNotifications.mockReset()
+    session.loggedIn.value = false
+    session.user.value = null
   })
 
-  afterEach(() => {
-    vi.clearAllMocks()
+  it('lists the ids of the notifications, not of the user rows', () => {
+    expect(store.notificationIds).toEqual([])
+    store.notifications = page([101, 102])
+    expect(store.notificationIds).toEqual([101, 102])
   })
 
-  describe('Initial State', () => {
-    it('should have undefined notifications initially', () => {
-      expect(store.notifications).toBeUndefined()
-    })
+  it('does not fetch for a signed-out visitor', async () => {
+    await store.setupNotifications()
 
-    it('should have empty notificationIds initially', () => {
-      expect(store.notificationIds).toEqual([])
-    })
+    expect(getNotifications).not.toHaveBeenCalled()
+    expect(store.notifications).toBeUndefined()
   })
 
-  describe('notificationIds Computed', () => {
-    it('should return empty array when notifications is undefined', () => {
-      store.notifications = undefined
+  it('fetches the signed-in user\'s notifications and stores them', async () => {
+    signIn(7)
+    const notifications = page([101])
+    getNotifications.mockResolvedValueOnce(notifications)
 
-      expect(store.notificationIds).toEqual([])
-    })
+    await store.setupNotifications()
 
-    it('should return empty array when notifications.results is undefined', () => {
-      store.notifications = {
-        count: 0,
-        links: {
-          next: null,
-          previous: null,
-        },
-      } as any
-
-      expect(store.notificationIds).toEqual([])
-    })
-
-    it('should return notification IDs from results', () => {
-      store.notifications = {
-        count: 3,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
-          { id: 2, notification: { id: 102 }, user: 1, isRead: false } as any,
-          { id: 3, notification: { id: 103 }, user: 1, isRead: true } as any,
-        ],
-      }
-
-      expect(store.notificationIds).toEqual([101, 102, 103])
-    })
-
-    it('should handle empty results array', () => {
-      store.notifications = {
-        count: 0,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [],
-      }
-
-      expect(store.notificationIds).toEqual([])
-    })
-
-    it('should update when notifications change', () => {
-      store.notifications = {
-        count: 1,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
-        ],
-      }
-
-      expect(store.notificationIds).toEqual([101])
-
-      store.notifications = {
-        count: 2,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
-          { id: 2, notification: { id: 102 }, user: 1, isRead: false } as any,
-        ],
-      }
-
-      expect(store.notificationIds).toEqual([101, 102])
-    })
+    expect(getNotifications).toHaveBeenCalledWith(7)
+    expect(store.notifications).toEqual(notifications)
   })
 
-  describe('setupNotifications', () => {
-    it('should call setupNotifications without error', async () => {
-      // The composable mock doesn't work properly in this test environment
-      // This test verifies the function can be called
-      await store.setupNotifications()
+  it('keeps the previous notifications when the fetch answers nothing', async () => {
+    signIn(7)
+    store.notifications = page([101])
+    getNotifications.mockResolvedValueOnce(null)
 
-      // Function should complete without throwing
-      expect(true).toBe(true)
-    })
+    await store.setupNotifications()
 
-    it('should handle null response', async () => {
-      mockGetNotifications.mockResolvedValueOnce(null)
-
-      await store.setupNotifications()
-
-      // Function should complete without throwing
-      expect(true).toBe(true)
-    })
-
-    it('should handle undefined response', async () => {
-      mockGetNotifications.mockResolvedValueOnce(undefined)
-
-      await store.setupNotifications()
-
-      // Function should complete without throwing
-      expect(true).toBe(true)
-    })
-
-    it('should handle error gracefully', async () => {
-      mockGetNotifications.mockRejectedValueOnce(new Error('Network error'))
-
-      await store.setupNotifications()
-
-      // Function should complete without throwing
-      expect(true).toBe(true)
-    })
+    expect(store.notificationIds).toEqual([101])
   })
 
-  describe('Edge Cases', () => {
-    it('should handle notifications with duplicate IDs', () => {
-      store.notifications = {
-        count: 3,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
-          { id: 2, notification: { id: 101 }, user: 1, isRead: false } as any,
-          { id: 3, notification: { id: 102 }, user: 1, isRead: true } as any,
-        ],
-      }
+  it('swallows a failed fetch and keeps the previous notifications', async () => {
+    signIn(7)
+    store.notifications = page([101])
+    getNotifications.mockRejectedValueOnce(new Error('network down'))
 
-      expect(store.notificationIds).toEqual([101, 101, 102])
-    })
-
-    it('should handle very large notification lists', () => {
-      const results = Array.from({ length: 1000 }, (_, i) => ({
-        id: i + 1,
-        notification: { id: i + 1000 },
-        user: 1,
-        isRead: false,
-      })) as any[]
-
-      store.notifications = {
-        count: 1000,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results,
-      }
-
-      expect(store.notificationIds).toHaveLength(1000)
-      expect(store.notificationIds[0]).toBe(1000)
-      expect(store.notificationIds[999]).toBe(1999)
-    })
-
-    it('should handle notifications with zero ID', () => {
-      store.notifications = {
-        count: 1,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 0 }, user: 1, isRead: false } as any,
-        ],
-      }
-
-      expect(store.notificationIds).toEqual([0])
-    })
-
-    it('should handle notifications with negative ID', () => {
-      store.notifications = {
-        count: 1,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: -1 }, user: 1, isRead: false } as any,
-        ],
-      }
-
-      expect(store.notificationIds).toEqual([-1])
-    })
+    await expect(store.setupNotifications()).resolves.toBeUndefined()
+    expect(store.notificationIds).toEqual([101])
   })
 
-  describe('State Updates', () => {
-    it('should allow direct notification updates', () => {
-      const newNotifications = {
-        count: 1,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
-        ],
-      }
+  it('clearNotificationsState empties the store', () => {
+    store.notifications = page([101])
 
-      store.notifications = newNotifications
+    store.clearNotificationsState()
 
-      expect(store.notifications).toEqual(newNotifications)
-      expect(store.notificationIds).toEqual([101])
-    })
-
-    it('should handle clearing notifications', () => {
-      store.notifications = {
-        count: 1,
-        links: {
-          next: null,
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
-        ],
-      }
-
-      expect(store.notificationIds).toEqual([101])
-
-      store.notifications = undefined
-
-      expect(store.notificationIds).toEqual([])
-    })
-
-    it('should handle multiple setup calls', async () => {
-      await store.setupNotifications()
-      await store.setupNotifications()
-
-      // Function should complete without throwing
-      expect(true).toBe(true)
-    })
-  })
-
-  describe('Pagination', () => {
-    it('should handle pagination links', () => {
-      store.notifications = {
-        count: 100,
-        links: {
-          next: 'http://api.example.com/notifications?page=2',
-          previous: null,
-        },
-        results: [
-          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
-        ],
-      }
-
-      expect(store.notifications.links!.next).toBeDefined()
-      expect(store.notifications.links!.previous).toBeNull()
-    })
-
-    it('should handle last page pagination', () => {
-      store.notifications = {
-        count: 100,
-        links: {
-          next: null,
-          previous: 'http://api.example.com/notifications?page=9',
-        },
-        results: [
-          { id: 100, notification: { id: 200 }, user: 1, isRead: false } as any,
-        ],
-      }
-
-      expect(store.notifications.links!.next).toBeNull()
-      expect(store.notifications.links!.previous).toBeDefined()
-    })
+    expect(store.notifications).toBeUndefined()
+    expect(store.notificationIds).toEqual([])
   })
 })

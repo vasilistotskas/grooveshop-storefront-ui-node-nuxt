@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { setTenant } from '~~/test/helpers/tenant'
 
 let mockLoyaltyEnabled = false
 // Menu entries are gated on per-tenant extra-settings read through
-// useSettingFlag off the ONE public-settings payload — the mock
-// answers every gated key, defaulting to enabled, so disabling one
-// flag in a test never disables the others with it.
+// useSettingFlag off the ONE public-settings payload — every gated key
+// is served enabled unless a test overrides it, so disabling one flag
+// never disables the others with it.
 let mockSettingValues: Record<string, string> = {}
 
 const SETTING_FLAG_KEYS = [
@@ -13,13 +14,14 @@ const SETTING_FLAG_KEYS = [
   'FAVOURITES_ENABLED',
   'NEWSLETTER_ENABLED',
   'GIFT_CARDS_ENABLED',
+  'B2B_WHOLESALE_ENABLED',
 ]
 
-registerEndpoint('/api/settings/public', () => ({
-  settings: Object.fromEntries(
-    SETTING_FLAG_KEYS.map(key => [key, mockSettingValues[key] ?? 'true']),
-  ),
-}))
+const servedSettings = () => Object.fromEntries(
+  SETTING_FLAG_KEYS.map(key => [key, mockSettingValues[key] ?? 'True']),
+)
+
+registerEndpoint('/api/settings/public', () => ({ settings: servedSettings() }))
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
@@ -38,95 +40,88 @@ mockNuxtImport('useLoyalty', () => {
   })
 })
 
+/**
+ * The menu once the store's settings have landed — before that every
+ * flag is on its fallback, and an assertion there passes for the wrong
+ * reason.
+ */
+async function loadedMenus() {
+  const { menus } = useAccountMenus()
+  const { settings } = useStoreSettings()
+  await vi.waitFor(() => expect(settings.value).toEqual(servedSettings()), { interval: 1 })
+  return menus
+}
+
+const pathsOf = async () => (await loadedMenus()).value.map(m => m.to)
+
 describe('useAccountMenus', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
     mockLoyaltyEnabled = false
     mockSettingValues = {}
+    setTenant()
     // useFetch caches by key across tests sharing the runtime app.
     clearNuxtData(STORE_SETTINGS_KEY)
   })
 
-  it('includes the reviews entry by default (setting defaults to true)', async () => {
-    const { menus } = useAccountMenus()
-    await nextTick()
+  it('lists the base account pages in order, translated, with settings last and reviews after it', async () => {
+    const menus = await loadedMenus()
+    const t = useNuxtApp().$i18n.t
 
-    const paths = menus.value.map(m => m.to)
-    expect(paths).toContain('/account/reviews')
-    expect(menus.value).toHaveLength(8)
+    expect(menus.value.map(({ label, to }) => ({ label, to }))).toEqual([
+      { label: t('account'), to: '/account' },
+      { label: t('orders'), to: '/account/orders' },
+      { label: t('favourites'), to: '/account/favourites/posts' },
+      { label: t('notifications'), to: '/account/notifications' },
+      { label: t('subscriptions'), to: '/account/subscriptions' },
+      { label: t('addresses'), to: '/account/addresses' },
+      { label: t('settings'), to: '/account/settings' },
+      { label: t('reviews'), to: '/account/reviews' },
+    ])
   })
 
-  it('hides the reviews entry when the store disabled it', async () => {
-    mockSettingValues = { ACCOUNT_REVIEWS_ENABLED: 'False' }
+  it.each([
+    ['ACCOUNT_REVIEWS_ENABLED', '/account/reviews'],
+    ['FAVOURITES_ENABLED', '/account/favourites/posts'],
+    ['NEWSLETTER_ENABLED', '/account/subscriptions'],
+  ])('hides the entry the store switched off with %s', async (key, path) => {
+    mockSettingValues = { [key]: 'False' }
 
-    const { menus } = useAccountMenus()
-    await vi.waitFor(() => {
-      expect(menus.value.map(m => m.to)).not.toContain('/account/reviews')
+    const paths = await pathsOf()
+
+    expect(paths).not.toContain(path)
+    expect(paths).toContain('/account/orders')
+  })
+
+  it('never offers the deleted help page', async () => {
+    expect(await pathsOf()).not.toContain('/account/help')
+  })
+
+  describe.each([
+    ['loyalty', '/account/loyalty', { loyaltyEnabled: true }, () => { mockLoyaltyEnabled = true }, () => { mockLoyaltyEnabled = false }],
+    ['gift cards', '/account/gift-cards', { giftCardsEnabled: true }, () => {}, () => { mockSettingValues = { GIFT_CARDS_ENABLED: 'False' } }],
+    ['business account', '/account/business', { b2bEnabled: true }, () => {}, () => { mockSettingValues = { B2B_WHOLESALE_ENABLED: 'False' } }],
+  ])('the %s entry (tenant plan AND runtime toggle)', (_name, path, plan, runtimeOn, runtimeOff) => {
+    it('shows, just before settings, when both gates pass', async () => {
+      setTenant(plan)
+      runtimeOn()
+
+      const paths = await pathsOf()
+
+      expect(paths).toContain(path)
+      expect(paths.indexOf(path)).toBe(paths.indexOf('/account/settings') - 1)
     })
-    expect(menus.value).toHaveLength(7)
-  })
 
-  it('hides favourites and subscriptions entries when disabled', async () => {
-    mockSettingValues = {
-      FAVOURITES_ENABLED: 'False',
-      NEWSLETTER_ENABLED: 'False',
-    }
+    it('stays hidden on the plan alone', async () => {
+      setTenant(plan)
+      runtimeOff()
 
-    const { menus } = useAccountMenus()
-    await vi.waitFor(() => {
-      expect(menus.value.map(m => m.to)).not.toContain(
-        '/account/favourites/posts',
-      )
+      expect(await pathsOf()).not.toContain(path)
     })
-    expect(menus.value.map(m => m.to)).not.toContain('/account/subscriptions')
-  })
 
-  it('never offers the deleted help page', () => {
-    const { menus } = useAccountMenus()
+    it('stays hidden on the runtime toggle alone', async () => {
+      runtimeOn()
 
-    expect(menus.value.map(m => m.to)).not.toContain('/account/help')
-  })
-
-  it('should have correct paths for basic menus', () => {
-    const { menus } = useAccountMenus()
-
-    expect(menus.value[0]!.to).toBe('/account')
-    expect(menus.value[1]!.to).toBe('/account/orders')
-    expect(menus.value[2]!.to).toBe('/account/favourites/posts')
-    expect(menus.value[3]!.to).toBe('/account/notifications')
-    expect(menus.value[4]!.to).toBe('/account/subscriptions')
-    expect(menus.value[5]!.to).toBe('/account/addresses')
-    expect(menus.value[6]!.to).toBe('/account/settings')
-  })
-
-  it('should have correct icons for menu items', () => {
-    const { menus } = useAccountMenus()
-
-    expect(menus.value[0]!.icon).toBe('i-heroicons-user')
-    expect(menus.value[1]!.icon).toBe('i-mdi-package-variant-closed')
-    expect(menus.value[2]!.icon).toBe('i-mdi-heart-outline')
-    expect(menus.value[3]!.icon).toBe('i-heroicons-bell')
-    expect(menus.value[4]!.icon).toBe('i-heroicons-envelope')
-    expect(menus.value[5]!.icon).toBe('i-fa6-solid-address-book')
-    expect(menus.value[6]!.icon).toBe('i-mdi-cog-outline')
-  })
-
-  it('should have labels for all menu items', () => {
-    const { menus } = useAccountMenus()
-
-    menus.value.forEach((menu) => {
-      expect(menu.label).toBeTruthy()
+      expect(await pathsOf()).not.toContain(path)
     })
-  })
-
-  it('includes loyalty only when both gates pass', async () => {
-    mockLoyaltyEnabled = true
-
-    const { menus } = useAccountMenus()
-    await nextTick()
-
-    // tenantStore.loyaltyEnabled is false in the bare test store, so
-    // the runtime toggle alone must not surface the entry.
-    expect(menus.value.map(m => m.to)).not.toContain('/account/loyalty')
   })
 })

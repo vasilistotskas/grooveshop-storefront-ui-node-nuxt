@@ -1,18 +1,32 @@
-import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import CouponPicker from '~/components/Checkout/CouponPicker.vue'
+import WebsideCouponPicker from '~/components/variants/webside/Checkout/CouponPicker.vue'
+import type { CartCoupon, PublicPromotion } from '~~/shared/openapi/types.gen'
+import { makeCart } from '~~/test/fixtures/cart'
+import { trees } from '~~/test/helpers/trees'
 
 /**
- * The picker's whole value is that its verdicts match what applying the
- * code would actually do. Django computes them; these tests pin the
- * rendering contract — an ineligible row must be DISABLED and say why,
- * and the trigger must never advertise a count the shopper cannot act
- * on.
+ * "Διαθέσιμα κουπόνια (x)": the coupons this cart can use, each with the
+ * verdict Django's `CouponService.apply` would give right now — so a
+ * disabled row here and a refusal on apply can never disagree. These
+ * tests pin that contract: an ineligible row is DISABLED and says why,
+ * the trigger never advertises a count the shopper cannot act on, and
+ * applying one goes through Django and re-reads both the cart and the
+ * verdicts.
+ *
+ * `$api` and `$fetch` share one `createApiMock`: the list is a
+ * `useApi` (transported by `$fetch`), the apply is `$api`. The two
+ * webside and default copies are byte-identical.
  */
 
-const PUBLIC_SETTINGS = { settings: { PROMOTIONS_ENABLED: 'true' } }
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
 
-function offer(over: Record<string, any> = {}) {
+function offer(overrides: Partial<PublicPromotion> = {}): PublicPromotion {
   return {
     id: 1,
     name: 'Καλωσόρισμα -10%',
@@ -36,214 +50,204 @@ function offer(over: Record<string, any> = {}) {
     eligibleProducts: [],
     eligibleProductCount: 0,
     eligibleCategories: [],
-    ...over,
+    ...overrides,
   }
 }
 
-function coupon(over: Record<string, any> = {}) {
+function coupon(overrides: Partial<Omit<CartCoupon, 'promotion'>> & { promotion?: Partial<PublicPromotion> } = {}): CartCoupon {
+  const { promotion, ...rest } = overrides
   return {
-    promotion: offer(over.promotion),
+    promotion: offer(promotion),
     code: 'SAVE5',
     eligible: true,
     reason: null,
     discountAmount: 5,
     freeShipping: false,
     applied: false,
-    ...over,
+    ...rest,
   }
 }
 
-let coupons: any[] = []
+let coupons: CartCoupon[] = []
 
-// The mock is live during Nuxt BOOTSTRAP too (/api/_auth/session,
-// /api/_allauth/app/v1/config, /api/cart). A bare vi.fn() returns
-// undefined there, the plugin chain crashes, and @nuxtjs/i18n never
-// installs — which surfaces much later as vue-i18n's "Need to install
-// with `app.use` function" from this component's own useI18n(). Hence
-// the default implementation inside vi.hoisted.
-const { mockFetch } = vi.hoisted(() => ({
-  mockFetch: vi.fn((..._args: any[]) => Promise.resolve({})),
-}))
-mockNuxtImport('$api', () => mockFetch)
-// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
-// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
-// builds `$api` from `$fetch.create()` while the app boots.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
-registerEndpoint('/api/settings/public', () => PUBLIC_SETTINGS)
+const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
+const bodyText = () => (document.body.textContent ?? '').replace(/ /g, ' ')
+/** The modal teleports to `document.body`, outside the wrapper. */
+const modalButtons = (label: string) =>
+  [...document.querySelectorAll('button')].filter(node => node.textContent?.trim() === label)
 
-const cartRef = ref<any>({
-  totalPrice: 100,
-  totalItems: 1,
-  appliedCouponCodes: [],
-})
-const mockRefreshCart = vi.fn()
-
-mockNuxtImport('useCartStore', () => {
-  return () => ({ cart: cartRef, refreshCart: mockRefreshCart })
-})
-mockNuxtImport('storeToRefs', () => {
-  return (store: any) => ({ cart: store.cart })
-})
-
-// ``server: false`` defers the fetch to the client tick after mount, so
-// the list lands a beat later than a plain useFetch would.
-async function settle(wrapper?: any) {
-  await new Promise(resolve => setTimeout(resolve, 250))
-  await wrapper?.vm?.$nextTick?.()
-}
-
-/**
- * Mount and remember the wrapper so ``afterEach`` can tear it down.
- *
- * A component left mounted keeps its ``useFetch`` watchers alive: the
- * next ``beforeEach`` reassigns the cart ref, that fires a refetch
- * while the fixture list is still empty, and the result lands in the
- * shared ``cart-coupons`` key AFTER the next test has mounted — so
- * every test but the first rendered the previous one's empty list.
- */
-let wrapper: any
-async function mount() {
-  wrapper = await mountSuspended(CouponPicker)
-  await settle(wrapper)
-  return wrapper
-}
-
-describe('CheckoutCouponPicker', () => {
+describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPicker', ({ C }) => {
   beforeEach(() => {
-    mockFetch.mockReset()
-    // useFetch routes through the mocked $fetch auto-import, so the
-    // coupons endpoint has to be answered HERE — registerEndpoint alone
-    // never sees the call, and a bare {} makes the component's
-    // ``rows.filter`` blow up at render.
-    mockFetch.mockImplementation((url: any) => {
-      if (String(url).includes('/api/cart/coupons')) {
-        return Promise.resolve(coupons)
-      }
-      if (String(url).includes('/api/settings/public')) {
-        return Promise.resolve(PUBLIC_SETTINGS)
-      }
-      return Promise.resolve({})
-    })
-    mockRefreshCart.mockReset()
     coupons = []
-    cartRef.value = { totalPrice: 100, totalItems: 1, appliedCouponCodes: [] }
-    // ``useFetch`` caches by key on the Nuxt app, and @nuxt/test-utils
-    // reuses ONE app for the whole file — without this every test after
-    // the first replays the first one's payload instead of fetching.
+    // `useApi` caches by key on the one app the whole file shares.
     clearNuxtData('cart-coupons')
+    useToast().clear()
+    useCartStore().cart = makeCart()
+    api.routes({
+      '/api/cart/coupons': () => coupons,
+      '/api/cart': () => makeCart(),
+    })
   })
 
-  afterEach(() => {
-    wrapper?.unmount?.()
-    wrapper = undefined
-  })
+  async function mount() {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
 
-  it('renders nothing when the store publishes no coupons', async () => {
-    const wrapper = await mount()
-
-    expect(wrapper.find('button').exists()).toBe(false)
-  })
-
-  it('counts only the coupons the shopper can actually claim', async () => {
-    coupons = [
-      coupon({ code: 'SAVE5' }),
-      coupon({
-        code: 'LOCKED',
-        eligible: false,
-        reason: 'discount_code_minimum_not_met',
-        discountAmount: 0,
-      }),
-      coupon({ code: 'ONCART', applied: true, discountAmount: 5 }),
-    ]
-
-    const wrapper = await mount()
-
-    // One eligible-and-unapplied row out of three.
-    expect(wrapper.find('button').text()).toContain('(1)')
-  })
-
-  it('drops the number rather than advertising zero claimable coupons', async () => {
-    coupons = [
-      coupon({
-        code: 'LOCKED',
-        eligible: false,
-        reason: 'discount_code_expired',
-        discountAmount: 0,
-      }),
-    ]
-
-    const wrapper = await mount()
-
-    const label = wrapper.find('button').text()
-    expect(label).not.toContain('(0)')
-    expect(label.length).toBeGreaterThan(0)
-  })
-
-  it('disables an ineligible coupon and explains the refusal', async () => {
-    coupons = [
-      coupon({
-        code: 'LOCKED',
-        eligible: false,
-        reason: 'discount_code_minimum_not_met',
-        discountAmount: 0,
-      }),
-    ]
-
-    const wrapper = await mount()
+  async function open(wrapper: VueWrapper) {
     await wrapper.find('button').trigger('click')
-    await settle(wrapper)
+    await flushPromises()
+  }
 
-    const text = document.body.textContent ?? ''
-    expect(text).toContain('ελάχιστο ποσό')
-    const applyButton = [...document.querySelectorAll('button')].find(
-      node => node.textContent?.trim() === 'Εφαρμογή',
-    )
-    expect(applyButton?.hasAttribute('disabled')).toBe(true)
+  const couponListCalls = () => api.callsTo('/api/cart/coupons').length
+
+  describe('the trigger', () => {
+    it('renders nothing when the store publishes no coupons', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.find('button').exists()).toBe(false)
+    })
+
+    it('counts only the coupons the shopper can actually claim', async () => {
+      coupons = [
+        coupon({ code: 'SAVE5' }),
+        coupon({ code: 'LOCKED', eligible: false, reason: 'discount_code_minimum_not_met', discountAmount: 0 }),
+        coupon({ code: 'ONCART', applied: true }),
+      ]
+      const wrapper = await mount()
+
+      expect(wrapper.find('button').text()).toBe('Διαθέσιμα κουπόνια (1)')
+    })
+
+    it('drops the number rather than advertising zero claimable coupons', async () => {
+      coupons = [coupon({ code: 'LOCKED', eligible: false, reason: 'discount_code_expired', discountAmount: 0 })]
+      const wrapper = await mount()
+
+      expect(wrapper.find('button').text()).toBe('Δες τα κουπόνια του καταστήματος')
+    })
   })
 
-  it('applies an eligible coupon and refreshes the cart', async () => {
-    coupons = [coupon({ code: 'SAVE5' })]
+  describe('the list', () => {
+    it('disables an ineligible coupon and explains the refusal', async () => {
+      coupons = [coupon({ code: 'LOCKED', eligible: false, reason: 'discount_code_minimum_not_met', discountAmount: 0 })]
+      const wrapper = await mount()
 
-    const wrapper = await mount()
-    await wrapper.find('button').trigger('click')
-    await settle(wrapper)
+      await open(wrapper)
 
-    const applyButton = [...document.querySelectorAll('button')].find(
-      node => node.textContent?.trim() === 'Εφαρμογή',
-    )
-    applyButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    await settle(wrapper)
+      expect(bodyText()).toContain(t('promotion.rejection.discount_code_minimum_not_met'))
+      expect(modalButtons('Εφαρμογή')).toHaveLength(1)
+      expect(modalButtons('Εφαρμογή')[0]!.hasAttribute('disabled')).toBe(true)
+    })
 
-    // ``/api/cart/coupons`` (the listing) CONTAINS ``/api/cart/coupon``,
-    // so match the apply route exactly.
-    const calls = mockFetch.mock.calls.filter(call =>
-      String(call[0]).endsWith('/api/cart/coupon'))
-    expect(calls).toHaveLength(1)
-    expect((calls[0]![1] as any).body).toEqual({ code: 'SAVE5' })
-    expect(mockRefreshCart).toHaveBeenCalled()
+    it('marks the coupon already on the cart instead of offering it again', async () => {
+      coupons = [coupon({ code: 'ONCART', applied: true })]
+      const wrapper = await mount()
+
+      await open(wrapper)
+
+      expect(modalButtons('Εφαρμογή')).toHaveLength(0)
+      expect(bodyText()).toContain('Εφαρμοσμένο')
+    })
+
+    it.each([
+      ['the amount it takes off', coupon({ discountAmount: 5 }), '-5,00 €'],
+      ['free shipping when that is what it gives', coupon({ discountAmount: 0, freeShipping: true }), 'Δωρεάν αποστολή'],
+      ['that it takes nothing off right now', coupon({ discountAmount: 0 }), 'Δεν μειώνει το σύνολο αυτή τη στιγμή'],
+    ])('tells the shopper %s', async (_case, row, expected) => {
+      coupons = [row]
+      const wrapper = await mount()
+
+      await open(wrapper)
+
+      expect(bodyText()).toContain(expected)
+    })
   })
 
-  it('marks the coupon already on the cart instead of offering it again', async () => {
-    coupons = [coupon({ code: 'ONCART', applied: true, discountAmount: 5 })]
+  describe('applying a coupon', () => {
+    it('applies it through Django, re-reads the cart and the verdicts, and reports it', async () => {
+      coupons = [coupon({ code: 'SAVE5', promotion: { name: '-5€ σε αγορές από 49€' } })]
+      const wrapper = await mount()
+      await open(wrapper)
+      const listedBefore = couponListCalls()
 
-    const wrapper = await mount()
-    await wrapper.find('button').trigger('click')
-    await settle(wrapper)
+      modalButtons('Εφαρμογή')[0]!.click()
+      await flushPromises()
 
-    const applyButtons = [...document.querySelectorAll('button')].filter(
-      node => node.textContent?.trim() === 'Εφαρμογή',
-    )
-    expect(applyButtons).toHaveLength(0)
-    expect(document.body.textContent).toContain('Εφαρμοσμένο')
+      // `/api/cart/coupons` (the list) CONTAINS `/api/cart/coupon`;
+      // `callsTo` matches the exact path.
+      expect(api.callsTo('/api/cart/coupon')).toEqual([
+        { url: '/api/cart/coupon', options: expect.objectContaining({ method: 'POST', body: { code: 'SAVE5' } }) },
+      ])
+      expect(api.callsTo('/api/cart')).toEqual([
+        { url: '/api/cart', options: expect.objectContaining({ method: 'GET' }) },
+      ])
+      expect(couponListCalls()).toBeGreaterThan(listedBefore)
+      expect(wrapper.emitted('applied')).toEqual([['SAVE5']])
+      expect(useToast().toasts.value).toEqual([
+        expect.objectContaining({ color: 'success', title: 'Το κουπόνι εφαρμόστηκε', description: '-5€ σε αγορές από 49€' }),
+      ])
+      expect(modalButtons('Εφαρμογή')).toHaveLength(0)
+    })
+
+    it('re-reads the verdicts itself even when re-reading the cart fails', async () => {
+      // With the cart unchanged nothing else would re-judge the list, and
+      // the applied coupon would still be offered as claimable.
+      coupons = [coupon({ code: 'SAVE5' })]
+      api.routes({
+        '/api/cart/coupons': () => coupons,
+        '/api/cart': () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) },
+      })
+      const wrapper = await mount()
+      await open(wrapper)
+      const listedBefore = couponListCalls()
+
+      modalButtons('Εφαρμογή')[0]!.click()
+      await flushPromises()
+
+      expect(couponListCalls()).toBe(listedBefore + 1)
+      expect(wrapper.emitted('applied')).toEqual([['SAVE5']])
+    })
+
+    it('reports a refusal from Django and re-reads the verdicts instead of applying', async () => {
+      // Reaching here means the cart moved between the verdict and the click.
+      coupons = [coupon({ code: 'SAVE5' })]
+      api.routes({
+        '/api/cart/coupons': () => coupons,
+        '/api/cart/coupon': () => {
+          throw Object.assign(new Error('Bad Request'), { statusCode: 400, data: { reason: 'discount_code_minimum_not_met' } })
+        },
+      })
+      const wrapper = await mount()
+      await open(wrapper)
+      const listedBefore = couponListCalls()
+
+      modalButtons('Εφαρμογή')[0]!.click()
+      await flushPromises()
+
+      expect(wrapper.emitted('applied')).toBeUndefined()
+      expect(useToast().toasts.value).toEqual([
+        expect.objectContaining({
+          color: 'error',
+          title: 'Το κουπόνι δεν εφαρμόστηκε',
+          description: t('promotion.rejection.discount_code_minimum_not_met'),
+        }),
+      ])
+      expect(couponListCalls()).toBeGreaterThan(listedBefore)
+      expect(api.callsTo('/api/cart')).toEqual([])
+    })
   })
 
-  it('tells the shopper when an eligible coupon would take nothing off', async () => {
-    coupons = [coupon({ code: 'NOOP', discountAmount: 0 })]
+  it('re-judges the coupons when the basket\'s value changes', async () => {
+    // A coupon blocked on a minimum subtotal becomes usable the moment
+    // the shopper adds one more item.
+    coupons = [coupon()]
+    await mount()
+    const listedBefore = couponListCalls()
 
-    const wrapper = await mount()
-    await wrapper.find('button').trigger('click')
-    await settle(wrapper)
+    useCartStore().cart = makeCart({ items: [{ quantity: 3 }] })
+    await flushPromises()
 
-    expect(document.body.textContent).toContain('Δεν μειώνει το σύνολο')
+    expect(couponListCalls()).toBe(listedBefore + 1)
   })
 })

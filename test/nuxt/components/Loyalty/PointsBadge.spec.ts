@@ -1,81 +1,90 @@
-import { describe, it, expect } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { ref } from 'vue'
 import LoyaltyPointsBadge from '~/components/Loyalty/PointsBadge.vue'
+import WebsideLoyaltyPointsBadge from '~/components/variants/webside/Loyalty/PointsBadge.vue'
+import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { trees } from '~~/test/helpers/trees'
+import { makeLoyaltySettings, makeProductPoints } from '~~/test/fixtures/loyalty'
+import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
+import type { ProductPoints } from '~~/shared/openapi/types.gen'
 
 /**
- * Note: These tests validate the component structure and rendering logic.
- * Integration tests with actual API calls should be performed separately.
+ * The product page's "earn N points" badge. It renders only for a
+ * signed-in shopper on a store with loyalty on, and fails silently —
+ * no badge rather than an error — when the preview is missing.
+ * The two trees differ only in the default's `en:` block.
  */
+const loggedIn = ref(false)
+const settings = createAsyncDataMock<LoyaltySettings>()
+const points = createAsyncDataMock<ProductPoints | null>()
+const fetchProductPoints = vi.fn((_productId: number) => points)
 
-describe('LoyaltyPointsBadge Component', () => {
-  describe('Test 8: Product points badge displays correct data and tier bonus indicator', () => {
-    it('should accept productId prop', async () => {
-      const wrapper = await mountSuspended(LoyaltyPointsBadge, {
-        props: {
-          productId: 123,
-        },
-      })
+// The whole session surface: the app's auth plugins call it while booting.
+mockNuxtImport('useUserSession', () => () => ({
+  loggedIn,
+  user: ref(null),
+  session: ref({}),
+  ready: ref(true),
+  fetch: () => Promise.resolve(),
+  clear: () => Promise.resolve(),
+}))
+mockNuxtImport('useLoyalty', () => () => ({
+  fetchSettings: () => settings,
+  fetchProductPoints,
+}))
 
-      // Component should mount successfully with productId prop
-      expect(wrapper.exists()).toBe(true)
-      expect(wrapper.props('productId')).toBe(123)
-    })
-
-    it('should have correct component structure for displaying points badge', async () => {
-      const wrapper = await mountSuspended(LoyaltyPointsBadge, {
-        props: {
-          productId: 456,
-        },
-      })
-
-      // Component should exist
-      expect(wrapper.exists()).toBe(true)
-
-      // Component should be a Vue component
-      expect(wrapper.vm).toBeDefined()
-    })
-
-    it('should handle different product IDs', async () => {
-      const wrapper1 = await mountSuspended(LoyaltyPointsBadge, {
-        props: {
-          productId: 111,
-        },
-      })
-
-      const wrapper2 = await mountSuspended(LoyaltyPointsBadge, {
-        props: {
-          productId: 222,
-        },
-      })
-
-      // Both components should mount with different product IDs
-      expect(wrapper1.props('productId')).toBe(111)
-      expect(wrapper2.props('productId')).toBe(222)
-    })
+describe.each(trees(LoyaltyPointsBadge, WebsideLoyaltyPointsBadge))('$tree Loyalty/PointsBadge', ({ C }) => {
+  beforeEach(() => {
+    settings.reset()
+    points.reset()
+    loggedIn.value = true
+    settings.data.value = makeLoyaltySettings()
+    settings.status.value = 'success'
+    points.data.value = makeProductPoints({ productId: 7, potentialPoints: 24 })
+    points.status.value = 'success'
   })
 
-  describe('Component Props Validation', () => {
-    it('should require productId prop', async () => {
-      const wrapper = await mountSuspended(LoyaltyPointsBadge, {
-        props: {
-          productId: 789,
-        },
-      })
+  const mountBadge = () => mountSuspended(C, { props: { productId: 7 }, route: false })
 
-      // ProductId should be required and set
-      expect(wrapper.props('productId')).toBeDefined()
-      expect(typeof wrapper.props('productId')).toBe('number')
-    })
+  it('offers the points the product earns, asked for that product', async () => {
+    const wrapper = await mountBadge()
 
-    it('should handle large product ID values', async () => {
-      const largeId = 999999
-      const wrapper = await mountSuspended(LoyaltyPointsBadge, {
-        props: {
-          productId: largeId,
-        },
-      })
+    expect(fetchProductPoints).toHaveBeenCalledWith(7)
+    expect(wrapper.text()).toBe('Κέρδισε 24 πόντους')
+  })
 
-      expect(wrapper.props('productId')).toBe(largeId)
-    })
+  it.each([
+    ['a guest', () => { loggedIn.value = false }],
+    ['a store with loyalty off', () => { settings.data.value = makeLoyaltySettings({ enabled: false }) }],
+    ['settings that have not arrived', () => { settings.data.value = undefined }],
+  ])('renders nothing at all for %s', async (_case, arrange) => {
+    arrange()
+
+    const wrapper = await mountBadge()
+
+    expect(wrapper.find('div').exists()).toBe(false)
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('holds the space with a skeleton while the preview loads', async () => {
+    points.data.value = undefined
+    points.status.value = 'pending'
+
+    const wrapper = await mountBadge()
+
+    expect(wrapper.findComponent({ name: 'USkeleton' }).exists()).toBe(true)
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('keeps the container but shows no badge when the preview failed', async () => {
+    points.data.value = null
+    points.status.value = 'error'
+
+    const wrapper = await mountBadge()
+
+    expect(wrapper.find('div').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'USkeleton' }).exists()).toBe(false)
+    expect(wrapper.text()).toBe('')
   })
 })

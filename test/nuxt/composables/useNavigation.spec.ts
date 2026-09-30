@@ -8,10 +8,10 @@
  * instance, and through registerEndpoint because the composable reads
  * two Nitro routes: the menus and the store settings.
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
-import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { setTenant } from '~~/test/helpers/tenant'
 
 registerEndpoint('/api/page-config/navigation', () => ({
   header: [
@@ -66,15 +66,9 @@ const Probe = defineComponent({
   },
 })
 
-// The Nuxt app's OWN Pinia, not a `createPinia()` swapped in with
-// setActivePinia: the mounted component injects the app's instance, so
-// a flag set on any other store never reaches the composable. (The
-// pixel specs can swap it because they call the composable directly.)
-function setPlan(flags: Partial<TenantConfig>) {
-  useTenantStore().setConfig(validTenantConfig('test.local', flags))
-}
-
 let mounted: Awaited<ReturnType<typeof mountSuspended>> | null = null
+
+const NAVIGATION_KEY = 'page-config-navigation-el'
 
 async function render() {
   // The composable's useFetch calls are keyed and shared, so a second
@@ -84,30 +78,43 @@ async function render() {
   // the settings data IS what the endpoint serves now: the menus can
   // land before the settings, and waiting for "something arrived" once
   // judged the gate on an empty settings map.
+  //
+  // The keys are named, not left to a bare `clearNuxtData()`: that walks
+  // only the keys already in the payload (nuxt asyncData.ts
+  // `clearNuxtData`), so a `store-settings` request the app issued at
+  // boot and that is still in flight survives it — and, `dedupe: 'defer'`,
+  // the probe then joins that request and gets the settings of before the
+  // test. A named key also drops its pending promise
+  // (`clearNuxtDataByKey`), so the probe asks afresh.
   mounted?.unmount()
-  clearNuxtData()
-  const wrapper = await mountSuspended(Probe)
+  clearNuxtData([STORE_SETTINGS_KEY, NAVIGATION_KEY])
+  const wrapper = await mountSuspended(Probe, { route: false })
   mounted = wrapper
   const texts = (selector: string) =>
     wrapper.findAll(`${selector} > li`).map(li => li.text())
   await vi.waitFor(() => {
-    expect(useNuxtData('page-config-navigation-el').data.value).toBeTruthy()
+    expect(useNuxtData(NAVIGATION_KEY).data.value).toBeTruthy()
     expect(
-      (useNuxtData('store-settings').data.value as { settings?: unknown })?.settings,
+      (useNuxtData(STORE_SETTINGS_KEY).data.value as { settings?: unknown })?.settings,
     ).toEqual(publicSettings)
-  })
+  }, { interval: 1 })
   await wrapper.vm.$nextTick()
   return { wrapper, texts }
 }
 
 describe('useNavigation — feature gate on operator links', () => {
   beforeEach(() => {
-    setPlan({})
+    setTenant()
     publicSettings = {}
   })
 
+  afterEach(() => {
+    mounted?.unmount()
+    mounted = null
+  })
+
   it('drops links to features the plan does not include', async () => {
-    setPlan({ promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false })
+    setTenant({ promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false })
     publicSettings = { PROMOTIONS_ENABLED: 'True', GIFT_CARDS_ENABLED: 'True' }
 
     const { texts } = await render()
@@ -118,7 +125,7 @@ describe('useNavigation — feature gate on operator links', () => {
   })
 
   it('drops a column left with nothing to link', async () => {
-    setPlan({ promotionsEnabled: false })
+    setTenant({ promotionsEnabled: false })
 
     const { wrapper } = await render()
 
@@ -127,7 +134,7 @@ describe('useNavigation — feature gate on operator links', () => {
   })
 
   it('keeps a fail-open route when its setting was never set, and drops it when off', async () => {
-    setPlan({})
+    setTenant({})
     let { texts } = await render()
     expect(texts('#header')).toContain('/products')
 
@@ -137,7 +144,7 @@ describe('useNavigation — feature gate on operator links', () => {
   })
 
   it('keeps a commercial route only when BOTH tiers pass', async () => {
-    setPlan({ promotionsEnabled: true })
+    setTenant({ promotionsEnabled: true })
     let { texts } = await render()
     // Plan on, setting missing: fails closed like the page does.
     expect(texts('#header')).not.toContain('/offers')
@@ -148,7 +155,7 @@ describe('useNavigation — feature gate on operator links', () => {
   })
 
   it('never touches an external link', async () => {
-    setPlan({ promotionsEnabled: false, giftCardsEnabled: false })
+    setTenant({ promotionsEnabled: false, giftCardsEnabled: false })
 
     const { wrapper } = await render()
 

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-
+import { SUPPORTED_LOCALES } from '~~/i18n/locales'
+import el from '~~/i18n/locales/el-GR.json'
+import en from '~~/i18n/locales/en-US.json'
 import { zOrderDetail, zPayWayKeyEnum } from '~~/shared/openapi/zod.gen'
 
 /**
@@ -17,15 +19,21 @@ import { zOrderDetail, zPayWayKeyEnum } from '~~/shared/openapi/zod.gen'
  * If someone drops that, this fails here instead of in production.
  */
 describe('order payWayKey contract', () => {
-  const base = {
-    id: 1,
-    payWayKey: 'PAY_ON_DELIVERY',
-  }
+  /**
+   * Every pay way Django can send has a label in every locale file.
+   * `usePaymentMethod` falls back to the raw key for a missing one, so a
+   * new pay way on the API renders `APPLE_PAY` at a customer — silently.
+   */
+  it.each(Object.entries({ 'el-GR': el, 'en-US': en }))('is translated for every key in %s', (_file, messages) => {
+    const labels = (messages as { payment_methods: Record<string, string> }).payment_methods
+    const missing = zPayWayKeyEnum.options.filter(key => !labels[key]?.trim())
 
-  it('accepts every key the storefront can translate', () => {
-    for (const key of zPayWayKeyEnum.options) {
-      expect(() => zPayWayKeyEnum.parse(key)).not.toThrow()
-    }
+    expect(missing).toEqual([])
+  })
+
+  it('checks a locale file for every supported locale', () => {
+    // A third locale added without its file here would skip the check.
+    expect(SUPPORTED_LOCALES).toEqual(['el', 'en'])
   })
 
   it('accepts an order with no pay way at all', () => {
@@ -56,7 +64,6 @@ describe('order payWayKey contract', () => {
   it('is present on the payload, not optional', () => {
     // A missing key must be a contract violation: the components read
     // it directly and an `undefined` would silently blank the row.
-    expect(base.payWayKey).toBeDefined()
     expect(zOrderDetail.shape.payWayKey.safeParse(undefined).success).toBe(
       false,
     )

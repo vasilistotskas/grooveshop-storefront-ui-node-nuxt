@@ -1,142 +1,81 @@
 /**
- * Tests for useCheckoutSubmit composable.
+ * The checkout submit orchestration: stock holds, the payment-provider
+ * branch (Stripe intent / Viva / offline), retries, idempotency, and
+ * where the shopper lands. What the order body contains and how a
+ * rejected order is worded are pure functions with their own unit specs
+ * (`test/unit/app/utils/checkoutOrder.spec.ts`,
+ * `checkoutAnalytics.spec.ts`); here they run for real inside the flow.
  *
- * TESTABILITY NOTES:
- * - useCheckoutSubmit has no injectable payment-provider seam: the Stripe vs
- *   Viva vs COD branch is driven purely by selectedPayWay.value.providerCode.
- * - createPaymentIntentFromCart is delegated to useCheckout(), which is a Nuxt
- *   auto-import. We mock it via mockNuxtImport so the composable's import
- *   binding is replaced at load time (vi.stubGlobal does not work for Nuxt
- *   auto-imports that are resolved via Vite virtual modules at build time).
- * - The idempotency key is generated with crypto.randomUUID() — we stub it to
- *   get a deterministic value.
- * - useCartStore, useCheckout, useMetaPixel, useGA4, useCookieControl are all
- *   Nuxt auto-imports and are intercepted via mockNuxtImport.
- * - storeToRefs is a Pinia auto-import, also mocked via mockNuxtImport.
- * - UNTESTABLE without a real backend: idempotency dedup behaviour server-side
- *   (whether two requests with the same key actually dedup at Django).
+ * `useCheckout` is the HTTP boundary for holds and intents (it has its
+ * own spec) and is mocked; `/api/orders` and everything else go through
+ * the `$api` mock. The cart is the REAL cart store in a fresh Pinia.
+ *
+ * Not testable here: whether Django actually dedups two requests that
+ * carry the same Idempotency-Key.
  */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { setActivePinia, createPinia } from 'pinia'
+import { defineComponent, nextTick } from 'vue'
+import { useCartStore } from '~/stores/cart'
+import { makeCart } from '~~/test/fixtures/cart'
+import { makeCountry } from '~~/test/fixtures/country'
+import { makePayWay } from '~~/test/fixtures/payWay'
+import { setTenant } from '~~/test/helpers/tenant'
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
 
-// ── Hoist mocks so they are available inside mockNuxtImport factories ──────
-const {
-  mockFetch,
-  mockToastAdd,
-  mockReserveStock,
-  mockReleaseReservations,
-  mockCreatePaymentIntentFromCart,
-  mockCleanCartState,
-  mockRefreshCart,
-  mockNavigateTo,
-  mockMetaPixelImpl,
-  mockTikTokPixelImpl,
-  mockGA4Impl,
-} = vi.hoisted(() => ({
-  // Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
-  // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
-  // mocked via mockNuxtImport like any other auto-import.
-  mockFetch: vi.fn(),
-  mockToastAdd: vi.fn(),
-  mockReserveStock: vi.fn(),
-  mockReleaseReservations: vi.fn(),
-  mockCreatePaymentIntentFromCart: vi.fn(),
-  mockCleanCartState: vi.fn().mockResolvedValue(undefined),
-  mockRefreshCart: vi.fn().mockResolvedValue(undefined),
-  mockNavigateTo: vi.fn().mockResolvedValue(undefined),
-  mockMetaPixelImpl: {
-    newEventId: vi.fn().mockReturnValue('pixel-event-id'),
-    trackInitiateCheckout: vi.fn().mockReturnValue('pixel-event-id'),
-    trackAddPaymentInfo: vi.fn().mockReturnValue('pixel-event-id'),
+const m = vi.hoisted(() => ({
+  toastAdd: vi.fn(),
+  navigateTo: vi.fn(() => Promise.resolve()),
+  sessionFetch: vi.fn(() => Promise.resolve()),
+  reserveStock: vi.fn(() => Promise.resolve([42])),
+  releaseReservations: vi.fn(() => Promise.resolve()),
+  createPaymentIntentFromCart: vi.fn((_request: CartCreatePaymentIntentRequestRequest, _idempotencyKey?: string) =>
+    Promise.resolve({ clientSecret: 'cs_1', paymentIntentId: 'pi_1' })),
+  consent: { value: [] as string[] },
+  meta: {
+    newEventId: vi.fn(() => 'purchase-id'),
+    trackInitiateCheckout: vi.fn(() => 'initiate-id'),
+    trackAddPaymentInfo: vi.fn(() => 'payment-info-id'),
   },
-  mockTikTokPixelImpl: {
-    trackInitiateCheckout: vi.fn(),
-    trackAddPaymentInfo: vi.fn(),
-  },
-  mockGA4Impl: {
-    trackBeginCheckout: vi.fn(),
-    trackAddPaymentInfo: vi.fn(),
-    trackLogin: vi.fn(),
-  },
+  tiktok: { trackInitiateCheckout: vi.fn(), trackAddPaymentInfo: vi.fn() },
+  openai: { trackCheckoutStarted: vi.fn() },
+  googleAds: { trackBeginCheckout: vi.fn() },
+  ga4: { trackBeginCheckout: vi.fn(), trackAddPaymentInfo: vi.fn() },
 }))
 
-// The cart ref must be a real Vue ref so cart.value works inside the composable.
-// We create it outside vi.hoisted (hoisted scope can't use Vue APIs) and re-assign
-// its value in beforeEach.
-// We use a plain object with .value here; mockNuxtImport factory will capture it.
-const mockCartHolder = { value: null as any }
-
-// ── Nuxt auto-import mocks ─────────────────────────────────────────────────
-mockNuxtImport('$api', () => mockFetch)
-mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
-mockNuxtImport('useRequestHeaders', () => () => ({}))
-mockNuxtImport('useLocalePath', () => () => (route: any) => route)
-mockNuxtImport('navigateTo', () => mockNavigateTo)
-mockNuxtImport('useUserSession', () => () => ({
-  fetch: vi.fn().mockResolvedValue(undefined),
-}))
-
+mockNuxtImport('useToast', () => () => ({ add: m.toastAdd }))
+mockNuxtImport('navigateTo', () => m.navigateTo)
+mockNuxtImport('useLocalePath', () => () => (route: unknown) => route)
+mockNuxtImport('useUserSession', () => () => ({ fetch: m.sessionFetch }))
 mockNuxtImport('useCheckout', () => () => ({
-  reserveStock: mockReserveStock,
-  releaseReservations: mockReleaseReservations,
-  createPaymentIntentFromCart: mockCreatePaymentIntentFromCart,
+  reserveStock: m.reserveStock,
+  releaseReservations: m.releaseReservations,
+  createPaymentIntentFromCart: m.createPaymentIntentFromCart,
 }))
+mockNuxtImport('useCookieControl', () => () => ({ cookiesEnabledIds: m.consent }))
+mockNuxtImport('useMetaPixel', () => () => m.meta)
+mockNuxtImport('useTikTokPixel', () => () => m.tiktok)
+mockNuxtImport('useOpenAIPixel', () => () => m.openai)
+mockNuxtImport('useGoogleAds', () => () => m.googleAds)
+mockNuxtImport('useGA4', () => () => m.ga4)
 
-mockNuxtImport('useCartStore', () => () => ({
-  cleanCartState: mockCleanCartState,
-  refreshCart: mockRefreshCart,
-  cart: mockCartHolder.value,
-}))
+const t = (key: string) => useNuxtApp().$i18n.t(key)
 
-mockNuxtImport('storeToRefs', () => (_store: any) => ({
-  cart: mockCartHolder,
-}))
+const STRIPE = makePayWay({ id: 1, providerCode: 'stripe', settlement: 'online' })
 
-mockNuxtImport('useMetaPixel', () => () => mockMetaPixelImpl)
-mockNuxtImport('useTikTokPixel', () => () => mockTikTokPixelImpl)
-mockNuxtImport('useGA4', () => () => mockGA4Impl)
-mockNuxtImport('useCookieControl', () => () => ({
-  cookiesEnabledIds: { value: [] },
-}))
-
-beforeAll(() => {
-  vi.stubGlobal('log', {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  })
-  // Mirrors ``shared/shipping/index.ts::carrierForMethod`` — home
-  // delivery is intentionally provider-agnostic in checkout, so this
-  // helper returns null for that path. Pickup-point methods get a
-  // real carrier code. The PI body must agree with the order-create
-  // body about this, so the test stubs both honestly.
-  vi.stubGlobal('carrierForMethod', (method: string) => {
-    if (method === 'box_now_locker') return { code: 'boxnow' }
-    if (method === 'acs_smartpoint') return { code: 'acs' }
-    return null
-  })
-  vi.stubGlobal('normalizePhone', (phone: string) => phone)
+const CYPRUS = makeCountry({
+  translations: { el: { name: 'Κύπρος' }, en: { name: 'Cyprus' } },
+  alpha2: 'CY',
+  alpha3: 'CYP',
+  phoneCode: 357,
+  phoneMetadata: null,
+  sortOrder: 2,
 })
-
-afterAll(() => {
-  vi.unstubAllGlobals()
-})
-
-// ── helpers ────────────────────────────────────────────────────────────────
-
-function makePayWay(providerCode: string): PayWay {
-  return {
-    id: 1,
-    name: 'Test Pay Way',
-    active: true,
-    providerCode,
-    iconName: 'credit-card',
-    clientCode: '',
-    isOnlinePayment: providerCode !== 'cod',
-    sortOrder: 1,
-  } as unknown as PayWay
-}
+const VIVA = makePayWay({ id: 1, providerCode: 'viva_wallet', settlement: 'online' })
+const COD = makePayWay({ id: 1 })
 
 function makeFormState(overrides: Record<string, any> = {}): Record<string, any> {
   return {
@@ -150,7 +89,7 @@ function makeFormState(overrides: Record<string, any> = {}): Record<string, any>
     streetNumber: '1',
     city: 'Athens',
     zipcode: '10001',
-    phone: '6901234567',
+    phone: '+306901234567',
     customerNotes: '',
     documentType: 'RECEIPT',
     billingVatId: '',
@@ -161,472 +100,677 @@ function makeFormState(overrides: Record<string, any> = {}): Record<string, any>
   }
 }
 
-function makePayWaysRef(payWay: PayWay): Ref<Pagination<PayWay> | null | undefined> {
-  return ref({
-    count: 1,
-    next: null,
-    previous: null,
-    results: [payWay],
-  } as unknown as Pagination<PayWay>)
+function setup(payWay: PayWay, options: {
+  formState?: Record<string, any>
+  selectedCountry?: Country
+  refetchShippingOptions?: () => Promise<boolean>
+} = {}) {
+  return useCheckoutSubmit({
+    formState: options.formState ?? makeFormState(),
+    selectedPayWay: ref<PayWay | null>(payWay),
+    payWays: ref<Pagination<PayWay>>({ count: 1, results: [payWay] }),
+    selectedCountry: ref(options.selectedCountry),
+    refetchShippingOptions: options.refetchShippingOptions,
+  })
 }
 
-// ``normalizePhone`` is stubbed to identity below, so no test here
-// actually exercises country-specific normalization — this stands in
-// for "no country resolved yet", which is a valid real-world state
-// (guest checkout before the countries fetch settles).
-const noCountry = ref<Country | undefined>(undefined)
+/** Django accepted the order: ofetch awaits `onResponse` before resolving. */
+const orderCreated = (data: Record<string, unknown> = { uuid: 'order-uuid' }) =>
+  async (_url: string, opts: any) => {
+    await opts.onResponse?.({ response: { ok: true, _data: data } })
+    return data
+  }
 
-// ── per-test reset ─────────────────────────────────────────────────────────
+/** Django rejected it: ofetch runs `onResponseError`, then rejects with a FetchError. */
+const orderRejected = (status: number, body: unknown) =>
+  (_url: string, opts: any) => {
+    const response = { ok: false, status, _data: body }
+    opts.onResponseError?.({ response })
+    throw Object.assign(new Error(String(status)), { response, data: body })
+  }
+
+const orderBodies = () => api.callsTo('/api/orders').map(call => call.options.body)
+const lastToast = () => m.toastAdd.mock.calls.at(-1)?.[0] as { title: string, description?: string, color: string }
+
+let cart: ReturnType<typeof useCartStore>
+
 beforeEach(() => {
-  mockFetch.mockReset()
-  mockNavigateTo.mockReset()
-  mockReserveStock.mockReset()
-  // ``releaseReservations`` is called with ``.catch(...)`` from
-  // multiple paths in useCheckoutSubmit (Viva success cleanup, the
-  // onSubmit finally block, onBeforeUnmount). Default to a resolved
-  // Promise so a stray un-stubbed call doesn't TypeError on
-  // ``undefined.catch``.
-  mockReleaseReservations.mockReset().mockResolvedValue(undefined)
-  mockCreatePaymentIntentFromCart.mockReset()
-  mockCleanCartState.mockReset().mockResolvedValue(undefined)
-  mockRefreshCart.mockReset().mockResolvedValue(undefined)
-  mockCartHolder.value = { uuid: 'cart-uuid', id: 1, items: [], totalItems: 0, totalPrice: 0 }
-  mockMetaPixelImpl.newEventId.mockReturnValue('pixel-event-id')
-  mockGA4Impl.trackBeginCheckout.mockReset()
+  setActivePinia(createPinia())
+  setTenant()
+  cart = useCartStore()
+  cart.cart = makeCart()
+  m.consent.value = []
+  window.sessionStorage.clear()
+  vi.spyOn(crypto, 'randomUUID').mockReturnValue('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
 })
 
-// ── Tests ──────────────────────────────────────────────────────────────────
+afterEach(() => {
+  vi.useRealTimers()
+})
+
 describe('useCheckoutSubmit', () => {
-  describe('Stripe payment path', () => {
-    it('creates payment intent and posts order with Idempotency-Key header', async () => {
-      const deterministicUUID = 'test-idem-key-stripe'
-      vi.stubGlobal('crypto', {
-        randomUUID: vi.fn().mockReturnValue(deterministicUUID),
-      })
-
-      const stripePayWay = makePayWay('stripe')
-      const selectedPayWay = ref<PayWay | null>(stripePayWay)
-      const payWays = makePayWaysRef(stripePayWay)
-
-      // reserve-stock succeeds
-      mockReserveStock.mockResolvedValue([42])
-      // create-payment-intent succeeds
-      mockCreatePaymentIntentFromCart.mockResolvedValue({
-        clientSecret: 'sk_secret',
-        paymentIntentId: 'pi_abc123',
-      })
-
-      // POST /api/orders — capture options to assert header + body
-      let orderOpts: any
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        orderOpts = opts
-        if (opts?.onResponse) {
-          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid-stripe' } } })
-        }
-        return Promise.resolve({ uuid: 'order-uuid-stripe' })
-      })
-
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
+  describe('Stripe', () => {
+    it('prices an intent for the chosen shipping, then posts the order under one idempotency key', async () => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-stripe' }) })
+      const { onSubmit, createdOrder } = setup(STRIPE)
 
       await onSubmit()
 
-      // ``createPaymentIntentFromCart`` is called with the carrier
-      // context (so the PI amount uses the same free-shipping
-      // threshold the order-create step verifies against) plus the
-      // idempotency key. For ``home_delivery`` the provider code is
-      // intentionally absent — home delivery is provider-agnostic in
-      // checkout and both calc paths fall through to the generic
-      // shipping rule, which keeps them in sync.
-      expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledWith(
-        expect.objectContaining({
-          payWayId: 1,
-          shippingKind: 'home_delivery',
-          shippingProviderCode: undefined,
-        }),
-        deterministicUUID,
-      )
-
-      // Order creation must carry Idempotency-Key and payment intent id
-      expect(orderOpts?.headers?.['Idempotency-Key']).toBe(deterministicUUID)
-      expect(orderOpts?.body).toMatchObject({ paymentIntentId: 'pi_abc123' })
+      // Home delivery is provider-agnostic: no provider code on either
+      // request, so both price shipping by the same generic rule.
+      expect(m.createPaymentIntentFromCart).toHaveBeenCalledWith({
+        payWayId: 1,
+        shippingKind: 'home_delivery',
+        shippingProviderCode: undefined,
+        countryId: 1,
+        regionId: undefined,
+        email: 'test@example.com',
+        giftCardCodes: undefined,
+        loyaltyPointsToRedeem: undefined,
+      }, '0000-idem-key')
+      const [order] = api.callsTo('/api/orders')
+      expect(order!.options.method).toBe('POST')
+      expect(order!.options.headers['Idempotency-Key']).toBe('0000-idem-key')
+      expect(order!.options.body).toMatchObject({ paymentIntentId: 'pi_1', shippingKind: 'home_delivery' })
+      expect(createdOrder.value).toEqual({ uuid: 'order-stripe' })
+      expect(lastToast()).toMatchObject({ title: t('order_created_payment_required'), color: 'info' })
+      // The shopper still has to pay: the cart stays, nothing navigates.
+      expect(cart.cart).not.toBeNull()
+      expect(m.navigateTo).not.toHaveBeenCalled()
     })
 
     it('sends the E.164 the phone field built from the PICKED country, not the delivery one', async () => {
-      vi.stubGlobal('crypto', { randomUUID: vi.fn().mockReturnValue('idem-phone') })
-
-      const stripePayWay = makePayWay('stripe')
-      mockReserveStock.mockResolvedValue([42])
-      mockCreatePaymentIntentFromCart.mockResolvedValue({ clientSecret: 'sk', paymentIntentId: 'pi_phone' })
-      let orderOpts: any
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        orderOpts = opts
-        opts?.onResponse?.({ response: { ok: true, _data: { uuid: 'order-uuid' } } })
-        return Promise.resolve({ uuid: 'order-uuid' })
-      })
-
+      api.routes({ '/api/orders': orderCreated() })
       // A Greek mobile (+30, picked in the phone field) delivering to Cyprus.
-      const cyprus = ref({ alpha2: 'CY', phoneCode: 357 } as unknown as Country)
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: cyprus,
-        formState: { ...makeFormState(), country: 'CY', phone: '+306912345678', phoneCountry: 'GR' },
-        selectedPayWay: ref<PayWay | null>(stripePayWay),
-        payWays: makePayWaysRef(stripePayWay),
+      const { onSubmit } = setup(STRIPE, {
+        formState: makeFormState({ country: 'CY', phone: '+306912345678', phoneCountry: 'GR' }),
+        selectedCountry: CYPRUS,
       })
 
       await onSubmit()
 
-      expect(orderOpts?.body.phone).toBe('+306912345678')
+      expect(orderBodies()[0].phone).toBe('+306912345678')
     })
 
-    it('backToForm resets payment state, releases reservations, refreshes the cart, and a resubmit mints a FRESH intent', async () => {
-      vi.stubGlobal('crypto', {
-        randomUUID: vi.fn().mockReturnValue('idem-back'),
-      })
+    it('redeems the applied gift cards on both the intent and the order, once per code', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit, onGiftCardApplied, onGiftCardRemoved, giftCardBalanceTotal } = setup(STRIPE)
 
-      const stripePayWay = makePayWay('stripe')
-      const selectedPayWay = ref<PayWay | null>(stripePayWay)
-      const payWays = makePayWaysRef(stripePayWay)
-
-      mockReserveStock.mockResolvedValue([42])
-      mockCreatePaymentIntentFromCart.mockResolvedValue({
-        clientSecret: 'sk_secret',
-        paymentIntentId: 'pi_first',
-      })
-      mockFetch.mockImplementation((_url: string, opts: any) => {
-        if (opts?.onResponse) {
-          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid' } } })
-        }
-        return Promise.resolve({ uuid: 'order-uuid' })
-      })
-
-      const { onSubmit, backToForm } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
+      onGiftCardApplied({ code: 'GC-1', balance: 10 })
+      onGiftCardApplied({ code: 'GC-1', balance: 10 })
+      onGiftCardApplied({ code: 'GC-2', balance: 5 })
+      onGiftCardApplied({ code: 'GC-3', balance: 1 })
+      onGiftCardRemoved('GC-3')
+      expect(giftCardBalanceTotal.value).toBe(15)
 
       await onSubmit()
-      expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledTimes(1)
 
-      mockRefreshCart.mockClear()
-      mockReleaseReservations.mockClear()
+      expect(m.createPaymentIntentFromCart.mock.calls[0]![0]).toMatchObject({ giftCardCodes: ['GC-1', 'GC-2'] })
+      expect(orderBodies()[0].giftCardCodes).toEqual(['GC-1', 'GC-2'])
+    })
+
+    it.each(['gift_card_covers_total', 'nothing_to_charge'])(
+      'orders without an intent when the deductions cover everything (%s), then finishes like an offline order',
+      async (reason) => {
+        m.createPaymentIntentFromCart.mockRejectedValue(Object.assign(new Error('400'), { data: { reason } }))
+        api.routes({ '/api/orders': orderCreated({ uuid: 'order-free' }) })
+        const { onSubmit } = setup(STRIPE)
+
+        await onSubmit()
+
+        expect(orderBodies()).toHaveLength(1)
+        expect(orderBodies()[0]).not.toHaveProperty('paymentIntentId')
+        // Not a count: this path POSTs clear-session itself and again
+        // through `cleanCartState()` (reported as a redundant request).
+        expect(api.callsTo('/api/cart/clear-session')).toContainEqual({ url: '/api/cart/clear-session', options: { method: 'POST' } })
+        expect(cart.cart).toBeNull()
+        expect(m.sessionFetch).toHaveBeenCalled()
+        expect(m.navigateTo).toHaveBeenCalledWith({
+          name: 'checkout-success-uuid',
+          params: { uuid: 'order-free' },
+          query: { placed: '1' },
+        })
+        expect(m.toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: t('order_created_payment_required') }))
+      },
+    )
+
+    it('asks a guest redeeming points to sign in, and orders nothing', async () => {
+      m.createPaymentIntentFromCart.mockRejectedValue(
+        Object.assign(new Error('400'), { data: { reason: 'loyalty_requires_authentication' } }),
+      )
+      const { onSubmit } = setup(STRIPE)
+
+      await onSubmit()
+
+      expect(lastToast()).toEqual({ title: t('form.submit.error.loyalty_requires_authentication'), color: 'error' })
+      expect(orderBodies()).toEqual([])
+    })
+
+    it('drops a redemption the backend no longer honours, and orders nothing', async () => {
+      m.createPaymentIntentFromCart.mockRejectedValue(
+        Object.assign(new Error('400'), { data: { reason: 'loyalty_redemption_invalid', detail: 'Not enough points.' } }),
+      )
+      const { onSubmit, onLoyaltyRedeemed, loyaltyDiscount } = setup(STRIPE)
+      onLoyaltyRedeemed({ amount: 5, currency: 'EUR', points: 500 })
+
+      await onSubmit()
+
+      expect(loyaltyDiscount.value).toBeNull()
+      expect(lastToast()).toEqual({
+        title: t('form.submit.error.loyalty_redemption_invalid'),
+        description: 'Not enough points.',
+        color: 'error',
+      })
+      expect(orderBodies()).toEqual([])
+    })
+
+    it('reports any other intent failure as a payment error, and orders nothing', async () => {
+      m.createPaymentIntentFromCart.mockRejectedValue(
+        Object.assign(new Error('400'), { data: { reason: 'provider_down', detail: 'Stripe is unavailable.' } }),
+      )
+      const { onSubmit } = setup(STRIPE)
+
+      await onSubmit()
+
+      expect(lastToast()).toEqual({ title: t('payment_intent_error'), description: 'Stripe is unavailable.', color: 'error' })
+      expect(orderBodies()).toEqual([])
+    })
+
+    /**
+     * An intent is priced at creation. Any change to what is deducted
+     * after that makes it stale, and order-create would reject it on
+     * the amount — so the next submit must price a new one.
+     */
+    describe('a deduction change after the intent was priced', () => {
+      async function submitOnceWithoutAnOrder() {
+        // The order POST fails at the network: the intent survives it.
+        api.routes({ '/api/orders': () => { throw new TypeError('fetch failed') } })
+        const submit = setup(STRIPE)
+        await submit.onSubmit()
+        expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
+        api.routes({ '/api/orders': orderCreated() })
+        return submit
+      }
+
+      it('reuses the intent when nothing changed', async () => {
+        const { onSubmit } = await submitOnceWithoutAnOrder()
+
+        await onSubmit()
+
+        expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
+        expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_1' })
+      })
+
+      it.each([
+        ['loyalty points are redeemed', (s: ReturnType<typeof setup>) => s.onLoyaltyRedeemed({ amount: 5, currency: 'EUR', points: 500 })],
+        ['a gift card is applied', (s: ReturnType<typeof setup>) => s.onGiftCardApplied({ code: 'GC-1', balance: 10 })],
+        ['a coupon is applied', () => { cart.cart = { ...cart.cart!, appliedCouponCodes: ['SAVE5'] } }],
+        ['the promotion discount moves', () => { cart.cart = { ...cart.cart!, promotionDiscount: 3 } }],
+      ])('prices a fresh intent when %s', async (_case, change) => {
+        const submit = await submitOnceWithoutAnOrder()
+        m.createPaymentIntentFromCart.mockResolvedValue({ clientSecret: 'cs_2', paymentIntentId: 'pi_2' })
+
+        change(submit)
+        await nextTick()
+        await submit.onSubmit()
+
+        expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(2)
+        expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_2' })
+      })
+    })
+
+    it('backToForm releases the holds, resyncs the cart, and a resubmit mints a FRESH intent', async () => {
+      // The resync finds the cart unchanged, so nothing but backToForm
+      // itself can drop the intent.
+      api.routes({ '/api/orders': orderCreated(), '/api/cart': null })
+      const { onSubmit, backToForm, currentStep, createdOrder } = setup(STRIPE)
+      await onSubmit()
+      expect(m.releaseReservations).not.toHaveBeenCalled()
 
       await backToForm()
 
-      // Reservations released, cart resynced from the server.
-      expect(mockReleaseReservations).toHaveBeenCalledWith([42])
-      expect(mockRefreshCart).toHaveBeenCalled()
+      expect(m.releaseReservations).toHaveBeenCalledWith([42])
+      expect(api.callsTo('/api/cart')).toHaveLength(1)
+      expect(createdOrder.value).toBeNull()
+      expect(currentStep.value).toBe(2)
 
-      // Resubmit must mint a NEW intent — the stale one is no longer
-      // reused (which had produced an orphaned PENDING order).
-      mockReserveStock.mockResolvedValue([43])
-      mockCreatePaymentIntentFromCart.mockResolvedValue({
-        clientSecret: 'sk_secret2',
-        paymentIntentId: 'pi_second',
-      })
-      selectedPayWay.value = stripePayWay
-
-      let secondOrderOpts: any
-      mockFetch.mockImplementation((_url: string, opts: any) => {
-        secondOrderOpts = opts
-        if (opts?.onResponse) {
-          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid-2' } } })
-        }
-        return Promise.resolve({ uuid: 'order-uuid-2' })
-      })
-
+      // Reusing the intent bound to the abandoned order had produced an
+      // orphaned PENDING order.
+      m.createPaymentIntentFromCart.mockResolvedValue({ clientSecret: 'cs_2', paymentIntentId: 'pi_2' })
       await onSubmit()
-
-      expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledTimes(2)
-      expect(secondOrderOpts?.body).toMatchObject({ paymentIntentId: 'pi_second' })
+      expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(2)
+      expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_2' })
     })
   })
 
-  describe('Viva Wallet payment path', () => {
-    it('posts order without Idempotency-Key header (documented gap: no idempotency for Viva)', async () => {
-      // This test intentionally documents the current behavior: the Viva Wallet
-      // payment path does NOT forward an Idempotency-Key header. If/when this
-      // gap is addressed, update this assertion to expect the header IS present.
-      const vivaPayWay = makePayWay('viva_wallet')
-      const selectedPayWay = ref<PayWay | null>(vivaPayWay)
-      const payWays = makePayWaysRef(vivaPayWay)
-
-      mockReserveStock.mockResolvedValue([42])
-
-      let orderOpts: any
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        orderOpts = opts
-        if (opts?.onResponse) {
-          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid-viva' } } })
-        }
-        return Promise.resolve({ uuid: 'order-uuid-viva' })
-      })
-
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
+  describe('Viva Wallet', () => {
+    it('posts the order without an Idempotency-Key (documented gap) and asks for payment', async () => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-viva' }) })
+      const { onSubmit, createdOrder } = setup(VIVA)
 
       await onSubmit()
 
-      expect(orderOpts).toBeDefined()
-      // Document the gap: Viva Wallet currently sends no Idempotency-Key
-      expect(orderOpts?.headers?.['Idempotency-Key']).toBeUndefined()
+      expect(api.callsTo('/api/orders')[0]!.options.headers['Idempotency-Key']).toBeUndefined()
+      expect(createdOrder.value).toEqual({ uuid: 'order-viva' })
+      expect(lastToast()).toMatchObject({ title: t('order_created_payment_required') })
     })
-  })
 
-  describe('COD / offline payment path', () => {
-    it('posts order, clears cart, and navigates to success page on happy path', async () => {
-      const codPayWay = makePayWay('cod')
-      const selectedPayWay = ref<PayWay | null>(codPayWay)
-      const payWays = makePayWaysRef(codPayWay)
-
-      mockReserveStock.mockResolvedValue([10, 11])
-
-      // POST /api/orders
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        if (opts?.onResponse) {
-          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid-cod' } } })
-        }
-        return Promise.resolve({ uuid: 'order-uuid-cod' })
-      })
-      // /api/cart/clear-session
-      mockFetch.mockResolvedValueOnce(undefined)
-
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
+    it('releases the holds when the order request itself fails', async () => {
+      api.routes({ '/api/orders': () => { throw new TypeError('fetch failed') } })
+      const { onSubmit } = setup(VIVA)
 
       await onSubmit()
 
-      // cleanCartState (store action) must have been called
-      expect(mockCleanCartState).toHaveBeenCalledOnce()
-
-      // Cart API clear must have been called
-      const clearCall = mockFetch.mock.calls.find(c => c[0] === '/api/cart/clear-session')
-      expect(clearCall).toBeDefined()
-      expect(clearCall?.[1]).toMatchObject({ method: 'POST' })
-
-      expect(mockNavigateTo).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: expect.stringContaining('checkout-success'),
-          // ``placed=1`` is the success page's "arrived via a real
-          // checkout" marker for offline pay-ways — it gates the Meta
-          // Purchase / GA4 purchase browser events and cart cleanup.
-          query: { placed: '1' },
-        }),
-      )
+      expect(lastToast()).toMatchObject({ title: t('payment_intent_error'), color: 'error' })
+      expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
     })
   })
 
-  describe('double-submission guard', () => {
-    it('prevents a second call while the first is in-flight (isSubmitting guard)', async () => {
-      const codPayWay = makePayWay('cod')
-      const selectedPayWay = ref<PayWay | null>(codPayWay)
-      const payWays = makePayWaysRef(codPayWay)
+  describe('offline (cash on delivery)', () => {
+    it('posts the order, clears the cart, and lands on the success page marked as placed', async () => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-cod' }) })
+      const { onSubmit } = setup(COD)
 
-      // Make reserve-stock hang so we can observe isSubmitting mid-flight
-      let resolveReserve!: (v: number[]) => void
-      mockReserveStock.mockImplementationOnce(() => {
-        return new Promise<number[]>((resolve) => {
-          resolveReserve = resolve
-        })
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders')[0]!.options.headers).not.toHaveProperty('Idempotency-Key')
+      expect(api.callsTo('/api/cart/clear-session')[0]!.options).toEqual({ method: 'POST' })
+      expect(cart.cart).toBeNull()
+      expect(m.sessionFetch).toHaveBeenCalled()
+      // ``placed=1`` gates the success page's purchase pixels and cart
+      // cleanup; offline pay-ways have no provider redirect param.
+      expect(m.navigateTo).toHaveBeenCalledWith({
+        name: 'checkout-success-uuid',
+        params: { uuid: 'order-cod' },
+        query: { placed: '1' },
+      })
+      expect(m.releaseReservations).not.toHaveBeenCalled()
+      // The success page is the confirmation: no toast beside it.
+      expect(m.toastAdd).not.toHaveBeenCalled()
+    })
+
+    it('stays put when the created order has no uuid to land on', async () => {
+      api.routes({ '/api/orders': orderCreated({}) })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(cart.cart).toBeNull()
+      expect(m.navigateTo).not.toHaveBeenCalled()
+    })
+
+    it('sends the landing attribution captured in this tab', async () => {
+      const attribution = { utmSource: 'ig', utmMedium: 'social', clickIds: ['fbclid'], landingPath: '/products/42' }
+      window.sessionStorage.setItem('order-attribution', JSON.stringify(attribution))
+      api.routes({ '/api/orders': orderCreated() })
+
+      await setup(COD).onSubmit()
+
+      expect(orderBodies()[0].attribution).toEqual(attribution)
+    })
+  })
+
+  describe('saving the delivery address', () => {
+    const saving = (addressTitle: string) => makeFormState({
+      saveAddress: true,
+      addressTitle,
+      country: 'GR',
+      region: 'ATT',
+      zipcode: ' 105  63 ',
+    })
+
+    it('saves the address under its title once the order is placed', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+
+      await setup(COD, { formState: saving('  Home  ') }).onSubmit()
+
+      await vi.waitFor(() => expect(m.toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+        title: t('form.submit.address_saved_title'),
+        color: 'success',
+      })))
+      expect(api.callsTo('/api/user/addresses')[0]!.options).toMatchObject({
+        method: 'POST',
+        body: {
+          title: 'Home',
+          firstName: 'Test',
+          lastName: 'User',
+          phone: '+306901234567',
+          street: 'Main St',
+          streetNumber: '1',
+          city: 'Athens',
+          zipcode: '105 63',
+          country: 'GR',
+          region: 'ATT',
+        },
+      })
+    })
+
+    it('tells the shopper the order went through when only the save failed', async () => {
+      api.routes({
+        '/api/orders': orderCreated({ uuid: 'order-cod' }),
+        '/api/user/addresses': () => { throw new Error('500') },
       })
 
-      const { onSubmit, isSubmitting } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
+      await setup(COD, { formState: saving('Home') }).onSubmit()
+
+      await vi.waitFor(() => expect(m.toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+        title: t('form.submit.address_save_failed_title'),
+        color: 'warning',
+      })))
+      expect(m.navigateTo).toHaveBeenCalled()
+    })
+
+    it('saves nothing without a title', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+
+      await setup(COD, { formState: saving('   ') }).onSubmit()
+
+      expect(api.callsTo('/api/user/addresses')).toEqual([])
+    })
+  })
+
+  describe('Meta dedup ids', () => {
+    it('sends the ids of every Meta event fired so far, with ad-storage consent', async () => {
+      m.consent.value = ['ad_storage']
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit, fireInitiateCheckout, nextStep } = setup(COD)
+
+      fireInitiateCheckout()
+      await nextStep()
+      await nextStep()
+      await onSubmit()
+
+      expect(orderBodies()[0].meta).toEqual({
+        consent: { ads: true },
+        event_ids: {
+          initiate_checkout: 'initiate-id',
+          add_payment_info: 'payment-info-id',
+          purchase: 'purchase-id',
+        },
       })
+    })
 
-      // First call — intentionally not awaited
-      const firstCall = onSubmit()
-      // Yield two microtask turns to let isSubmitting flip take effect
-      await Promise.resolve()
-      await Promise.resolve()
+    it('sends no ids at all without consent', async () => {
+      api.routes({ '/api/orders': orderCreated() })
 
+      await setup(COD).onSubmit()
+
+      expect(orderBodies()[0]).not.toHaveProperty('meta')
+      expect(m.meta.newEventId).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('analytics', () => {
+    beforeEach(() => {
+      cart.cart = makeCart({
+        currency: 'EUR',
+        appliedCouponCodes: ['SAVE5', 'VIP'],
+        items: [
+          { id: 1, quantity: 2, product: { id: 1, price: 50, vatPercent: 0 } },
+          { id: 2, quantity: 1, product: { id: 2, price: 30, vatPercent: 0 } },
+        ],
+      })
+    })
+
+    it('fires begin-checkout on every vendor once, however often it is called', () => {
+      const { fireInitiateCheckout } = setup(COD)
+
+      fireInitiateCheckout()
+      fireInitiateCheckout()
+
+      expect(m.meta.trackInitiateCheckout).toHaveBeenCalledExactlyOnceWith({
+        currency: 'EUR',
+        value: 130,
+        contentType: 'product',
+        contentIds: ['1', '2'],
+        numItems: 3,
+      })
+      expect(m.openai.trackCheckoutStarted).toHaveBeenCalledOnce()
+      expect(m.tiktok.trackInitiateCheckout).toHaveBeenCalledOnce()
+      expect(m.googleAds.trackBeginCheckout).toHaveBeenCalledExactlyOnceWith({ currency: 'EUR', value: 130 })
+      expect(m.ga4.trackBeginCheckout).toHaveBeenCalledExactlyOnceWith({
+        currency: 'EUR',
+        value: 130,
+        coupon: 'SAVE5,VIP',
+        items: [
+          { item_id: '1', quantity: 2, price: 50 },
+          { item_id: '2', quantity: 1, price: 30 },
+        ],
+      })
+    })
+
+    it('fires add-payment-info once, on entering the payment step', async () => {
+      const { nextStep, prevStep, currentStep } = setup(STRIPE)
+
+      await nextStep()
+      expect(m.meta.trackAddPaymentInfo).not.toHaveBeenCalled()
+
+      await nextStep()
+      prevStep()
+      await nextStep()
+      await nextStep()
+
+      expect(currentStep.value).toBe(2)
+      expect(m.meta.trackAddPaymentInfo).toHaveBeenCalledOnce()
+      expect(m.ga4.trackAddPaymentInfo).toHaveBeenCalledExactlyOnceWith({
+        currency: 'EUR',
+        value: 130,
+        payment_type: 'stripe',
+        items: [
+          { item_id: '1', quantity: 2, price: 50 },
+          { item_id: '2', quantity: 1, price: 30 },
+        ],
+      })
+      expect(m.tiktok.trackAddPaymentInfo).toHaveBeenCalledOnce()
+    })
+
+    it('never lets a failing pixel block the checkout', async () => {
+      m.meta.trackInitiateCheckout.mockImplementation(() => { throw new Error('fbq blocked') })
+      m.meta.trackAddPaymentInfo.mockImplementation(() => { throw new Error('fbq blocked') })
+      const { fireInitiateCheckout, nextStep, currentStep } = setup(COD)
+
+      expect(() => fireInitiateCheckout()).not.toThrow()
+      await nextStep()
+      await nextStep()
+      expect(currentStep.value).toBe(2)
+    })
+  })
+
+  describe('after the provider confirms or refuses the payment', () => {
+    it('clears the cart and lands on the success page once the payment succeeded', async () => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-paid' }) })
+      const { onSubmit, onPaymentSuccess } = setup(STRIPE)
+      await onSubmit()
+
+      await onPaymentSuccess()
+
+      expect(lastToast()).toMatchObject({ title: t('payment_successful'), color: 'success' })
+      expect(cart.cart).toBeNull()
+      expect(m.sessionFetch).toHaveBeenCalled()
+      expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success-uuid', params: { uuid: 'order-paid' } })
+    })
+
+    it('does nothing on a success with no order behind it', async () => {
+      const { onPaymentSuccess } = setup(STRIPE)
+
+      await onPaymentSuccess()
+
+      expect(m.toastAdd).not.toHaveBeenCalled()
+      expect(cart.cart).not.toBeNull()
+      expect(m.navigateTo).not.toHaveBeenCalled()
+    })
+
+    it('shows a refused payment and releases the holds', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit, onPaymentError } = setup(STRIPE)
+      await onSubmit()
+
+      await onPaymentError('Your card was declined.')
+
+      expect(lastToast()).toEqual({ title: t('payment_failed'), description: 'Your card was declined.', color: 'error' })
+      expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
+      expect(cart.cart).not.toBeNull()
+    })
+  })
+
+  describe('guards', () => {
+    it('ignores a second submit while the first is in flight', async () => {
+      let resolveReserve!: (ids: number[]) => void
+      m.reserveStock.mockImplementationOnce(() => new Promise((resolve) => { resolveReserve = resolve }))
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit, isSubmitting } = setup(COD)
+
+      const first = onSubmit()
       expect(isSubmitting.value).toBe(true)
-
-      // Second call must be a no-op (returns immediately)
       await onSubmit()
+      expect(m.reserveStock).toHaveBeenCalledOnce()
 
-      // reserve-stock called exactly once despite two onSubmit() invocations
-      expect(mockReserveStock).toHaveBeenCalledTimes(1)
-
-      // Resolve the hanging call to clean up
-      resolveReserve([])
-      mockFetch.mockResolvedValueOnce(undefined)
-      await firstCall.catch(() => {})
-    })
-  })
-
-  describe('error propagation', () => {
-    it('errors from /api/orders do not clear the cart', async () => {
-      const codPayWay = makePayWay('cod')
-      const selectedPayWay = ref<PayWay | null>(codPayWay)
-      const payWays = makePayWaysRef(codPayWay)
-
-      // reserve-stock succeeds
-      mockReserveStock.mockResolvedValue([5])
-
-      // POST /api/orders — 422 error via onResponseError
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        const errResponse = {
-          status: 422,
-          ok: false,
-          _data: { error: { type: 'invalid_order_data' }, detail: 'invalid data' },
-        }
-        if (opts?.onResponseError) {
-          opts.onResponseError({ response: errResponse })
-        }
-        return Promise.resolve(undefined)
-      })
-
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
-
-      await onSubmit()
-
-      // Cart clear must NOT have been called after an order error
-      const clearCall = mockFetch.mock.calls.find(c => c[0] === '/api/cart/clear-session')
-      expect(clearCall).toBeUndefined()
-
-      // cleanCartState must NOT have been called
-      expect(mockCleanCartState).not.toHaveBeenCalled()
+      resolveReserve([42])
+      await first
+      expect(isSubmitting.value).toBe(false)
+      expect(orderBodies()).toHaveLength(1)
     })
 
-    /** Submit once against a Django 400 body and return the toast shown. */
-    async function toastFor(body: Record<string, unknown>) {
-      const codPayWay = makePayWay('cod')
-      mockReserveStock.mockResolvedValue([5])
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        opts?.onResponseError?.({ response: { status: 400, ok: false, _data: body } })
-        return Promise.resolve(undefined)
-      })
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay: ref<PayWay | null>(codPayWay),
-        payWays: makePayWaysRef(codPayWay),
-      })
+    it('stops at a missing cart before reserving anything', async () => {
+      cart.cart = null
+      const { onSubmit } = setup(COD)
+
       await onSubmit()
-      return mockToastAdd.mock.calls.at(-1)?.[0] as { title: string, description?: string }
+
+      expect(m.reserveStock).not.toHaveBeenCalled()
+      expect(lastToast()).toEqual({
+        title: t('form.submit.error.stock_reservation'),
+        description: t('form.submit.error.stock_reservation_description'),
+        color: 'error',
+      })
+      expect(orderBodies()).toEqual([])
+    })
+
+    it('shows the lines that could not be held, instead of a toast', async () => {
+      const failedItems = [{ productId: 1, productName: 'Shirt', available: 0, requested: 1 }]
+      m.reserveStock.mockRejectedValue(Object.assign(new Error('Insufficient stock'), { code: 'insufficient_stock', failedItems }))
+      const { onSubmit, stockError } = setup(COD)
+
+      await onSubmit()
+
+      expect(stockError.value).toEqual({ show: true, failedItems })
+      expect(m.toastAdd).not.toHaveBeenCalled()
+      expect(orderBodies()).toEqual([])
+    })
+
+    it('reports any other reservation failure', async () => {
+      m.reserveStock.mockRejectedValue(new Error('503'))
+      const { onSubmit, stockError } = setup(COD)
+
+      await onSubmit()
+
+      expect(stockError.value).toBeNull()
+      expect(lastToast()).toMatchObject({ title: t('form.submit.error.stock_reservation'), color: 'error' })
+    })
+
+    it('goes back to the shipping step when the shipping price cannot be confirmed', async () => {
+      const { onSubmit, currentStep } = setup(COD, { refetchShippingOptions: () => Promise.resolve(false) })
+      currentStep.value = 2
+
+      await onSubmit()
+
+      expect(currentStep.value).toBe(1)
+      expect(lastToast()).toMatchObject({ title: t('form.submit.error.shipping_unavailable') })
+      expect(orderBodies()).toEqual([])
+      // No order will follow: the holds are let go.
+      expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
+    })
+
+    /**
+     * Mount the composable in a component, so leaving checkout is an
+     * unmount. A mounted component injects the app's own Pinia, not the
+     * test's, so the cart goes on that store.
+     */
+    async function mountCheckout() {
+      let submit!: ReturnType<typeof setup>
+      const wrapper = await mountSuspended(defineComponent({
+        setup: () => {
+          useCartStore().cart = makeCart()
+          submit = setup(COD)
+          return {}
+        },
+        render: () => null,
+      }), { route: false })
+      return { wrapper, submit }
     }
 
-    it('classifies a cart stock shortfall by error.type, whatever language the message is in', async () => {
-      // Django answers in the page's language now: a Greek message must
-      // still read as insufficient stock, which text matching never did.
-      const message = "Το προϊόν 'Shirt' έχει ανεπαρκές απόθεμα. Διαθέσιμο: 1, Ζητήθηκε: 3"
-      const toast = await toastFor({
-        detail: 'Το καλάθι δεν μπορεί να ολοκληρωθεί.',
-        cart: [message],
-        error: { type: 'insufficient_stock' },
-      })
+    it('releases the holds when the shopper leaves mid-order', async () => {
+      let answerOrder!: () => void
+      api.routes({ '/api/orders': () => new Promise((resolve) => { answerOrder = () => resolve({}) }) })
+      const { wrapper, submit } = await mountCheckout()
 
-      expect(toast.title).toBe(useNuxtApp().$i18n.t('form.submit.error.insufficient_stock'))
-      expect(toast.description).toContain(message)
+      const submitting = submit.onSubmit()
+      await vi.waitFor(() => expect(api.callsTo('/api/orders')).toHaveLength(1))
+      wrapper.unmount()
+
+      expect(m.releaseReservations).toHaveBeenCalledWith([42])
+      answerOrder()
+      await submitting
     })
 
-    it('shows any other cart problem (cart_invalid) as an inventory error', async () => {
-      const toast = await toastFor({
-        detail: 'The cart cannot be checked out.',
-        cart: ["Product 'Shirt' is no longer available"],
-        error: { type: 'cart_invalid' },
-      })
+    it('keeps the holds of a placed order when the shopper leaves', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { wrapper, submit } = await mountCheckout()
+      await submit.onSubmit()
 
-      expect(toast.title).toBe(useNuxtApp().$i18n.t('form.submit.error.inventory'))
-      expect(toast.description).toContain("Product 'Shirt' is no longer available")
+      wrapper.unmount()
+
+      expect(m.releaseReservations).not.toHaveBeenCalled()
     })
+  })
 
-    it('no longer reads the stock condition from message text', async () => {
-      // An English "insufficient stock" message with no code is just a
-      // cart problem: the code is the contract, the text is display.
-      const toast = await toastFor({ cart: ['Product has insufficient stock.'] })
-
-      expect(toast.title).toBe(useNuxtApp().$i18n.t('form.submit.error.inventory'))
-    })
-
-    it('DRF field errors (e.g. phone) surface field detail in the toast', async () => {
-      const codPayWay = makePayWay('cod')
-      const selectedPayWay = ref<PayWay | null>(codPayWay)
-      const payWays = makePayWaysRef(codPayWay)
-
-      mockReserveStock.mockResolvedValue([5])
-
-      // POST /api/orders — Django 400 with a DRF field-error body, the
-      // exact shape the Nuxt proxy now forwards past the Nitro strip.
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        const errResponse = {
-          status: 400,
-          ok: false,
-          _data: { phone: ['Enter a valid phone number.'] },
-        }
-        if (opts?.onResponseError) {
-          opts.onResponseError({ response: errResponse })
-        }
-        return Promise.resolve(undefined)
-      })
-
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
+  describe('a rejected order', () => {
+    it('keeps the cart and releases the holds', async () => {
+      api.routes({ '/api/orders': orderRejected(422, { error: { type: 'invalid_order_data' }, detail: 'invalid data' }) })
+      const { onSubmit, isSubmitting } = setup(COD)
 
       await onSubmit()
 
-      expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      expect(api.callsTo('/api/cart/clear-session')).toEqual([])
+      expect(cart.cart).not.toBeNull()
+      expect(lastToast()).toEqual({
+        title: t('form.submit.error.invalid_order_data'),
+        description: 'invalid data',
         color: 'error',
-        // Real i18n returns Greek — assert the useful part: the exact
-        // backend message reaches the customer instead of the generic
-        // "Σφάλμα δημιουργίας παραγγελίας".
-        title: expect.any(String),
-        description: expect.stringContaining('Enter a valid phone number.'),
-      }))
+      })
+      expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
+      expect(isSubmitting.value).toBe(false)
     })
 
-    it('address-step field errors send the shopper back to that step, one error per input', async () => {
-      const codPayWay = makePayWay('cod')
-      mockReserveStock.mockResolvedValue([5])
-      // Prod order #316's shape, as Django now rejects it (camelCased).
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        opts?.onResponseError?.({
-          response: {
-            status: 400,
-            ok: false,
-            _data: {
-              zipcode: ['Enter a valid postcode, e.g. 151 24.'],
-              streetNumber: ['This looks like a postcode.'],
-              countryId: ['Select a valid country.'],
-            },
-          },
-        })
-        return Promise.resolve(undefined)
-      })
+    it('mints a new idempotency key for the next attempt', async () => {
+      api.routes({ '/api/orders': orderRejected(400, { error: { type: 'invalid_coupon' } }) })
+      const { onSubmit } = setup(STRIPE)
+      await onSubmit()
 
-      const { onSubmit, currentStep, addressStepErrors, nextStep } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay: ref<PayWay | null>(codPayWay),
-        payWays: makePayWaysRef(codPayWay),
+      vi.mocked(crypto.randomUUID).mockReturnValue('1111-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders').map(call => call.options.headers['Idempotency-Key']))
+        .toEqual(['0000-idem-key', '1111-idem-key'])
+    })
+
+    it('classifies a stock shortfall by error.type, whatever language the message is in', async () => {
+      const message = 'Το προϊόν \'Shirt\' έχει ανεπαρκές απόθεμα. Διαθέσιμο: 1, Ζητήθηκε: 3'
+      api.routes({ '/api/orders': orderRejected(400, { cart: [message], error: { type: 'insufficient_stock' } }) })
+
+      await setup(COD).onSubmit()
+
+      expect(lastToast()).toMatchObject({ title: t('form.submit.error.insufficient_stock'), description: message })
+    })
+
+    it('sends the shopper back to the address step, one error per input', async () => {
+      api.routes({
+        '/api/orders': orderRejected(400, {
+          zipcode: ['Enter a valid postcode, e.g. 151 24.'],
+          countryId: ['Select a valid country.'],
+        }),
       })
+      const { onSubmit, currentStep, addressStepErrors, nextStep } = setup(COD)
       currentStep.value = 2
 
       await onSubmit()
@@ -634,40 +778,18 @@ describe('useCheckoutSubmit', () => {
       expect(currentStep.value).toBe(0)
       expect(addressStepErrors.value).toEqual([
         { name: 'zipcode', message: 'Enter a valid postcode, e.g. 151 24.' },
-        { name: 'streetNumber', message: 'This looks like a postcode.' },
         { name: 'country', message: 'Select a valid country.' },
       ])
-      // The toast still lists them, for a shopper scrolled elsewhere.
-      expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
-        color: 'error',
-        description: expect.stringContaining('Enter a valid postcode, e.g. 151 24.'),
-      }))
+      expect(lastToast().description).toContain('Enter a valid postcode, e.g. 151 24.')
 
       // Passing the address step again answers them.
       await nextStep()
       expect(addressStepErrors.value).toEqual([])
     })
 
-    it('a field error the address step does not own leaves the step alone', async () => {
-      const codPayWay = makePayWay('cod')
-      mockReserveStock.mockResolvedValue([5])
-      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
-        opts?.onResponseError?.({
-          response: {
-            status: 400,
-            ok: false,
-            _data: { boxnowLockerId: ['Locker ID required.'] },
-          },
-        })
-        return Promise.resolve(undefined)
-      })
-
-      const { onSubmit, currentStep, addressStepErrors } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay: ref<PayWay | null>(codPayWay),
-        payWays: makePayWaysRef(codPayWay),
-      })
+    it('leaves the step alone for a field the address step does not own', async () => {
+      api.routes({ '/api/orders': orderRejected(400, { boxnowLockerId: ['Locker ID required.'] }) })
+      const { onSubmit, currentStep, addressStepErrors } = setup(COD)
       currentStep.value = 2
 
       await onSubmit()
@@ -675,293 +797,102 @@ describe('useCheckoutSubmit', () => {
       expect(currentStep.value).toBe(2)
       expect(addressStepErrors.value).toEqual([])
     })
-
-    it('goes back to the shipping step when the shipping price cannot be confirmed', async () => {
-      const codPayWay = makePayWay('cod')
-      mockReserveStock.mockResolvedValue([5])
-      mockFetch.mockResolvedValue(undefined)
-
-      const { onSubmit, currentStep } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay: ref<PayWay | null>(codPayWay),
-        payWays: makePayWaysRef(codPayWay),
-        // The refetch failed, or the method is no longer offered.
-        refetchShippingOptions: () => Promise.resolve(false),
-      })
-      currentStep.value = 2
-
-      await onSubmit()
-
-      expect(currentStep.value).toBe(1)
-      expect(mockFetch.mock.calls.find(([url]) => url === '/api/orders')).toBeUndefined()
-    })
-
-    it('sends the postcode normalised, as Django stores it', async () => {
-      const codPayWay = makePayWay('cod')
-      mockReserveStock.mockResolvedValue([5])
-      mockFetch.mockResolvedValue(undefined)
-
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState({ zipcode: ' 703  00 ' }),
-        selectedPayWay: ref<PayWay | null>(codPayWay),
-        payWays: makePayWaysRef(codPayWay),
-      })
-
-      await onSubmit()
-
-      const orderCall = mockFetch.mock.calls.find(([url]) => url === '/api/orders')
-      expect(orderCall?.[1].body.zipcode).toBe('703 00')
-    })
-
-    it('sends the landing attribution captured in this tab', async () => {
-      window.sessionStorage.setItem('order-attribution', JSON.stringify({
-        utmSource: 'ig',
-        utmMedium: 'social',
-        clickIds: ['fbclid'],
-        landingPath: '/products/42',
-      }))
-      const codPayWay = makePayWay('cod')
-      mockReserveStock.mockResolvedValue([5])
-      mockFetch.mockResolvedValue(undefined)
-
-      try {
-        const { onSubmit } = useCheckoutSubmit({
-          selectedCountry: noCountry,
-          formState: makeFormState(),
-          selectedPayWay: ref<PayWay | null>(codPayWay),
-          payWays: makePayWaysRef(codPayWay),
-        })
-
-        await onSubmit()
-
-        const orderCall = mockFetch.mock.calls.find(([url]) => url === '/api/orders')
-        expect(orderCall?.[1].body.attribution).toEqual({
-          utmSource: 'ig',
-          utmMedium: 'social',
-          clickIds: ['fbclid'],
-          landingPath: '/products/42',
-        })
-      }
-      finally {
-        window.sessionStorage.removeItem('order-attribution')
-      }
-    })
-
-    it('omits attribution when nothing was captured', async () => {
-      window.sessionStorage.removeItem('order-attribution')
-      const codPayWay = makePayWay('cod')
-      mockReserveStock.mockResolvedValue([5])
-      mockFetch.mockResolvedValue(undefined)
-
-      const { onSubmit } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay: ref<PayWay | null>(codPayWay),
-        payWays: makePayWaysRef(codPayWay),
-      })
-
-      await onSubmit()
-
-      const orderCall = mockFetch.mock.calls.find(([url]) => url === '/api/orders')
-      expect(orderCall?.[1].body).not.toHaveProperty('attribution')
-    })
-
-    it('insufficient_stock from reserve-stock sets typed stockError state', async () => {
-      const codPayWay = makePayWay('cod')
-      const selectedPayWay = ref<PayWay | null>(codPayWay)
-      const payWays = makePayWaysRef(codPayWay)
-
-      // useCheckout.reserveStock re-throws with code + failedItems directly on the error
-      const stockErr = new Error('Insufficient stock') as any
-      stockErr.code = 'insufficient_stock'
-      stockErr.failedItems = [
-        { productId: 1, productName: 'Shirt', available: 0, requested: 1 },
-      ]
-      mockReserveStock.mockRejectedValue(stockErr)
-
-      const { onSubmit, stockError } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
-
-      await onSubmit()
-
-      // The stockError ref must be populated — not just a generic toast
-      expect(stockError.value).not.toBeNull()
-      expect(stockError.value?.show).toBe(true)
-      expect(stockError.value?.failedItems).toHaveLength(1)
-      expect(stockError.value?.failedItems[0]?.productId).toBe(1)
-    })
   })
 
-  describe('retry path', () => {
-    // The path that shipped broken and was fixed in 59355197: a
-    // retryable order error (e.g. expired stock reservation) schedules
-    // an automatic re-submit, and the isSubmitting guard must NOT
-    // deadlock against it. The audit that found the bug also noted this
-    // path had zero coverage — these tests are that coverage, so the
-    // deadlock cannot return silently.
+  /**
+   * The path that shipped broken and was fixed in 59355197: a retryable
+   * order error (an expired stock hold) schedules an automatic
+   * re-submit 500 ms later, and the isSubmitting guard must not
+   * deadlock against it.
+   */
+  describe('retry', () => {
+    const EXPIRED_HOLD = { error: { type: 'reservation_unavailable' }, detail: 'Η δέσμευση αποθέματος δεν ισχύει πλέον.' }
 
-    // Django's shape for a hold that lapsed mid-checkout: the stable
-    // code, with a `detail` in the page's language that nothing parses.
-    const RETRYABLE_RESPONSE = {
-      status: 400,
-      _data: {
-        error: { type: 'reservation_unavailable' },
-        detail: 'Η δέσμευση αποθέματος δεν ισχύει πλέον.',
-      },
-    }
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    })
 
-    function failOnce(thenSucceed = true) {
+    function rejectFirst(attempts: number) {
       let calls = 0
-      mockFetch.mockImplementation((_url: string, opts: any) => {
-        calls++
-        if (calls === 1 || !thenSucceed) {
-          opts?.onResponseError?.({ response: RETRYABLE_RESPONSE })
-          return Promise.reject(
-            Object.assign(new Error('409'), { response: RETRYABLE_RESPONSE }),
-          )
-        }
-        opts?.onResponse?.({
-          response: { ok: true, _data: { uuid: 'order-after-retry' } },
-        })
-        return Promise.resolve({ uuid: 'order-after-retry' })
+      api.routes({
+        '/api/orders': (url: string, opts: any) => {
+          calls++
+          return calls <= attempts
+            ? orderRejected(400, EXPIRED_HOLD)(url, opts)
+            : orderCreated({ uuid: 'order-after-retry' })(url, opts)
+        },
       })
-      return () => calls
     }
 
-    it('a retryable error re-enters onSubmit after the delay and completes — isSubmitting releases (deadlock regression)', async () => {
-      vi.stubGlobal('crypto', {
-        randomUUID: vi.fn().mockReturnValue('idem-retry'),
-      })
-      const stripePayWay = makePayWay('stripe')
-      const selectedPayWay = ref<PayWay | null>(stripePayWay)
-      const payWays = makePayWaysRef(stripePayWay)
-
-      mockReserveStock.mockResolvedValue([42])
-      mockCreatePaymentIntentFromCart.mockResolvedValue({
-        clientSecret: 'sk',
-        paymentIntentId: 'pi_retry',
-      })
-      const callCount = failOnce()
-
-      const { onSubmit, isSubmitting, createdOrder } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
+    it('re-enters after the delay with fresh holds and the same key, and releases the guard', async () => {
+      rejectFirst(1)
+      // A second key minted by mistake would show up as this one.
+      vi.mocked(crypto.randomUUID)
+        .mockReturnValueOnce('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
+        .mockReturnValue('9999-wrong-key' as `${string}-${string}-${string}-${string}-${string}`)
+      const { onSubmit, isSubmitting, createdOrder } = setup(STRIPE)
 
       await onSubmit()
+      // The guard stays up through the retry window so a double-click
+      // cannot race the timer.
+      expect(isSubmitting.value).toBe(true)
+      expect(api.callsTo('/api/orders')).toHaveLength(1)
 
-      // First pass ended with a retry pending: the guard stays up so a
-      // double-click cannot race the timer…
+      await vi.advanceTimersByTimeAsync(499)
+      expect(api.callsTo('/api/orders')).toHaveLength(1)
+      await vi.advanceTimersByTimeAsync(1)
+      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
+
+      expect(createdOrder.value).toEqual({ uuid: 'order-after-retry' })
+      // The dead holds were dropped, so the retry reserved again.
+      expect(m.reserveStock).toHaveBeenCalledTimes(2)
+      expect(api.callsTo('/api/orders').map(call => call.options.headers['Idempotency-Key']))
+        .toEqual(['0000-idem-key', '0000-idem-key'])
+      expect(lastToast().title).toBe(t('order_created_payment_required'))
+    })
+
+    it('gives up after three retries, says so, and leaves the CTA usable', async () => {
+      rejectFirst(Infinity)
+      const { onSubmit, isSubmitting } = setup(STRIPE)
+
+      await onSubmit()
+      await vi.runAllTimersAsync()
+      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
+
+      expect(api.callsTo('/api/orders')).toHaveLength(4)
+      expect(vi.getTimerCount()).toBe(0)
+      expect(lastToast()).toEqual({
+        title: t('form.submit.error.general'),
+        description: t('form.submit.error.max_retries'),
+        color: 'error',
+      })
+
+      // A fresh submit gets a fresh retry budget: its expired hold is
+      // retried, not answered with "too many retries".
+      rejectFirst(1)
+      await onSubmit()
+      await vi.runAllTimersAsync()
+      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
+      expect(api.callsTo('/api/orders')).toHaveLength(6)
+    })
+
+    it('lets a manual submit in the retry window supersede the timer instead of double-submitting', async () => {
+      rejectFirst(1)
+      const { onSubmit, isSubmitting } = setup(STRIPE)
+
+      await onSubmit()
       expect(isSubmitting.value).toBe(true)
 
-      // …and the timer-driven re-entry must actually run to completion
-      // rather than bouncing off that guard (the original bug).
-      await vi.waitFor(
-        () => {
-          expect(callCount()).toBe(2)
-          expect(isSubmitting.value).toBe(false)
-        },
-        { timeout: 4000 },
-      )
-      expect(createdOrder.value).toMatchObject({ uuid: 'order-after-retry' })
-
-      // The expired-reservation classifier cleared the stale ids, so
-      // the retry re-reserved stock instead of reusing dead holds.
-      expect(mockReserveStock).toHaveBeenCalledTimes(2)
-    })
-
-    it('exhausting MAX_RETRIES releases the guard and the CTA stays usable', async () => {
-      vi.stubGlobal('crypto', {
-        randomUUID: vi.fn().mockReturnValue('idem-exhaust'),
-      })
-      const stripePayWay = makePayWay('stripe')
-      const selectedPayWay = ref<PayWay | null>(stripePayWay)
-      const payWays = makePayWaysRef(stripePayWay)
-
-      mockReserveStock.mockResolvedValue([7])
-      mockCreatePaymentIntentFromCart.mockResolvedValue({
-        clientSecret: 'sk',
-        paymentIntentId: 'pi_exhaust',
-      })
-      const callCount = failOnce(false) // every attempt fails retryable
-
-      const { onSubmit, isSubmitting } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
-
+      // Cancelling the timer without dropping the guard it held was the
+      // deadlock back through the manual-click door.
       await onSubmit()
-
-      // 1 initial + MAX_RETRIES(3) automatic re-entries; the 4th
-      // failure hits the cap, which must RELEASE the guard (the cap
-      // branch schedules nothing, so finally resets isSubmitting).
-      await vi.waitFor(
-        () => {
-          expect(callCount()).toBe(4)
-          expect(isSubmitting.value).toBe(false)
-        },
-        { timeout: 6000 },
-      )
-
-      // A fresh, user-initiated submit after exhaustion must work: the
-      // guard is down and the retry budget was reset (wasRetry=false).
-      mockFetch.mockImplementation((_url: string, opts: any) => {
-        opts?.onResponse?.({
-          response: { ok: true, _data: { uuid: 'order-fresh' } },
-        })
-        return Promise.resolve({ uuid: 'order-fresh' })
-      })
-      await onSubmit()
-      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
-    })
-
-    it('a user submit during the retry window cancels the pending timer instead of double-submitting', async () => {
-      vi.stubGlobal('crypto', {
-        randomUUID: vi.fn().mockReturnValue('idem-manual'),
-      })
-      const stripePayWay = makePayWay('stripe')
-      const selectedPayWay = ref<PayWay | null>(stripePayWay)
-      const payWays = makePayWaysRef(stripePayWay)
-
-      mockReserveStock.mockResolvedValue([9])
-      mockCreatePaymentIntentFromCart.mockResolvedValue({
-        clientSecret: 'sk',
-        paymentIntentId: 'pi_manual',
-      })
-      const callCount = failOnce()
-
-      const { onSubmit, isSubmitting } = useCheckoutSubmit({
-        selectedCountry: noCountry,
-        formState: makeFormState(),
-        selectedPayWay,
-        payWays,
-      })
-
-      await onSubmit()
-      expect(isSubmitting.value).toBe(true) // retry pending, guard held
-
-      // A manual click during the window SUPERSEDES the scheduled
-      // retry: the timer is cancelled, the guard it was holding is
-      // dropped, and this submit proceeds immediately. Before the fix,
-      // cancelling the timer left the guard up with nothing to release
-      // it — the deadlock back through the manual-click door.
-      await onSubmit()
-      expect(callCount()).toBe(2)
+      expect(api.callsTo('/api/orders')).toHaveLength(2)
       expect(isSubmitting.value).toBe(false)
 
-      // The cancelled timer must never fire a third, zombie submit.
-      await new Promise(resolve => setTimeout(resolve, 700))
-      expect(callCount()).toBe(2)
+      // The cancelled timer never fires a third, zombie submit.
+      expect(vi.getTimerCount()).toBe(0)
+      await vi.advanceTimersByTimeAsync(1000)
+      expect(api.callsTo('/api/orders')).toHaveLength(2)
     })
   })
 })

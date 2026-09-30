@@ -1,123 +1,64 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
-// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
-// mocked via mockNuxtImport like any other auto-import.
-const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+const { onResponse, onResponseError } = vi.hoisted(() => ({
+  onResponse: vi.fn((..._args: unknown[]) => Promise.resolve()),
+  onResponseError: vi.fn((..._args: unknown[]) => Promise.resolve()),
+}))
 
-mockNuxtImport('$api', () => mockFetch)
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+mockNuxtImport('onAllAuthResponse', () => onResponse)
+mockNuxtImport('onAllAuthResponseError', () => onResponseError)
 
-mockNuxtImport('useRequestHeaders', () => {
-  return vi.fn(() => ({}))
-})
+const OK = { status: 200, _data: { status: 200, data: [] } }
+const GONE = { status: 410, _data: { data: { status: 410 } } }
 
-mockNuxtImport('onAllAuthResponse', () => {
-  return vi.fn(async () => {})
-})
+/**
+ * ofetch calls `onResponse` / `onResponseError` itself; the mock plays
+ * that part so a spec can see what the wrapper forwards from each.
+ */
+function answerWithHooks(body: unknown) {
+  api.mockImplementation(async (_url, options) => {
+    await options?.onResponse?.({ response: OK })
+    await options?.onResponseError?.({ response: GONE })
+    return body
+  })
+}
 
-mockNuxtImport('onAllAuthResponseError', () => {
-  return vi.fn(async () => {})
-})
+type Sessions = ReturnType<typeof useAllAuthSessions>
 
 describe('useAllAuthSessions', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    answerWithHooks({ status: 200, data: [] })
   })
 
-  describe('getSessions', () => {
-    it('should fetch sessions with correct parameters', async () => {
-      mockFetch.mockResolvedValue({ data: [] })
+  it.each<[string, (s: Sessions) => Promise<unknown>, string, Record<string, unknown>]>([
+    ['getSessions', s => s.getSessions(), 'GET', {}],
+    ['deleteSession', s => s.deleteSession({ sessions: [123] }), 'DELETE', { body: { sessions: [123] } }],
+  ])('%s sends %s /auth/sessions and hands allauth\'s answers to the auth pipeline', async (_name, call, method, extra) => {
+    const body = { status: 200, data: [{ id: 1 }] }
+    answerWithHooks(body)
 
-      const { getSessions } = useAllAuthSessions()
-      await getSessions()
+    const result = await call(useAllAuthSessions())
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/_allauth/app/v1/auth/sessions', {
-        method: 'GET',
-        headers: {},
-        onResponse: expect.any(Function),
-        onResponseError: expect.any(Function),
-      })
-    })
-
-    it('should return sessions data', async () => {
-      const mockData = { data: [{ id: 1, device: 'Chrome' }] }
-      mockFetch.mockResolvedValue(mockData)
-
-      const { getSessions } = useAllAuthSessions()
-      const result = await getSessions()
-
-      expect(result).toEqual(mockData)
-    })
-
-    it('should call onAllAuthResponse on successful response', async () => {
-      const mockResponse = { data: [] }
-      mockFetch.mockImplementation(async (url, options) => {
-        await options.onResponse({ response: mockResponse })
-        return mockResponse
-      })
-
-      const { getSessions } = useAllAuthSessions()
-      await getSessions()
-
-      expect(onAllAuthResponse).toHaveBeenCalledWith(mockResponse)
-    })
+    expect(api.callsTo('/api/_allauth/app/v1/auth/sessions')).toEqual([
+      { url: '/api/_allauth/app/v1/auth/sessions', options: expect.objectContaining({ method, ...extra }) },
+    ])
+    expect(result).toEqual(body)
+    expect(onResponse).toHaveBeenCalledWith(OK)
+    expect(onResponseError).toHaveBeenCalledWith(GONE)
   })
 
-  describe('deleteSession', () => {
-    it('should delete session with correct parameters', async () => {
-      mockFetch.mockResolvedValue({ success: true })
-
-      const { deleteSession } = useAllAuthSessions()
-      const body = { sessions: [123] }
-      await deleteSession(body)
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/_allauth/app/v1/auth/sessions', {
-        method: 'DELETE',
-        body,
-        onResponse: expect.any(Function),
-        onResponseError: expect.any(Function),
-      })
+  it('rejects with the request error after the error hook has seen it', async () => {
+    const failure = new Error('Not Found')
+    api.mockImplementation(async (_url, options) => {
+      await options?.onResponseError?.({ response: GONE })
+      throw failure
     })
 
-    it('should return delete result', async () => {
-      const mockData = { success: true }
-      mockFetch.mockResolvedValue(mockData)
-
-      const { deleteSession } = useAllAuthSessions()
-      const result = await deleteSession({ sessions: [456] })
-
-      expect(result).toEqual(mockData)
-    })
-
-    it('should call onAllAuthResponse on successful deletion', async () => {
-      const mockResponse = { success: true }
-      mockFetch.mockImplementation(async (url, options) => {
-        await options.onResponse({ response: mockResponse })
-        return mockResponse
-      })
-
-      const { deleteSession } = useAllAuthSessions()
-      await deleteSession({ sessions: [789] })
-
-      expect(onAllAuthResponse).toHaveBeenCalledWith(mockResponse)
-    })
-
-    it('should call onAllAuthResponseError on error', async () => {
-      const mockError = { error: 'Not found' }
-      mockFetch.mockImplementation(async (url, options) => {
-        await options.onResponseError({ response: mockError })
-        throw mockError
-      })
-
-      const { deleteSession } = useAllAuthSessions()
-
-      try {
-        await deleteSession({ sessions: [999] })
-      }
-      catch (error) {
-        expect(onAllAuthResponseError).toHaveBeenCalledWith(mockError)
-      }
-    })
+    await expect(useAllAuthSessions().deleteSession({ sessions: [999] })).rejects.toBe(failure)
+    expect(onResponseError).toHaveBeenCalledWith(GONE)
   })
 })

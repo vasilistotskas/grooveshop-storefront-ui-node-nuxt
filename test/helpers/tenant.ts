@@ -11,11 +11,12 @@ export const TEST_TENANT_DOMAIN = 'test.local'
  * in `test/unit/fixtures/tenantConfig.spec.ts`) with `overrides` on top,
  * written to the tenant store. Returns the config it set.
  *
- * Writes to the Nuxt app's OWN Pinia rather than a `createPinia()`
- * swapped in with `setActivePinia`: a mounted component injects the
- * app's instance, so a flag set on any other store never reaches it.
- * (Only a spec that calls a composable directly, outside a component,
- * may swap Pinia.)
+ * Writes to the ACTIVE Pinia: the Nuxt app's own, unless the spec
+ * swapped in a `createPinia()` with `setActivePinia`. A mounted
+ * component injects the app's instance, so a spec that mounts must not
+ * swap Pinia or the flag never reaches the component. (Only a spec that
+ * calls a composable or store directly, outside a component, may swap
+ * it; the code under test then reads the same swapped store.)
  *
  * The store outlives a test — Pinia state is not part of the project's
  * mock isolation — and `setConfig` replaces the whole config, so call
