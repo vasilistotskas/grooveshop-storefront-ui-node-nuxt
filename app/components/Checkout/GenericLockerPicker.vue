@@ -60,7 +60,8 @@ async function runSearch(): Promise<void> {
     return
   }
   abortController?.abort()
-  abortController = new AbortController()
+  const controller = new AbortController()
+  abortController = controller
   loading.value = true
   errorMessage.value = null
   try {
@@ -68,7 +69,7 @@ async function runSearch(): Promise<void> {
       postalCode: trimmedPostal,
       city: city.value.trim() || undefined,
       country: props.countryCode,
-      signal: abortController.signal,
+      signal: controller.signal,
     })
     stations.value = rows
   }
@@ -79,8 +80,11 @@ async function runSearch(): Promise<void> {
     stations.value = []
   }
   finally {
-    loading.value = false
-    initialSearchDone.value = true
+    // A search a newer one aborted must not clear the newer one's state.
+    if (abortController === controller) {
+      loading.value = false
+      initialSearchDone.value = true
+    }
   }
 }
 
@@ -102,10 +106,14 @@ watch(open, (val) => {
     void runSearch()
   }
   else {
+    // Closing cancels whatever is in flight, and with it its loading
+    // state: the aborted requests leave that to the one that owns it.
     abortController?.abort()
     abortController = null
+    loading.value = false
     mapAbort?.abort()
     mapAbort = null
+    mapLoading.value = false
   }
 })
 
@@ -116,12 +124,13 @@ async function loadAllLockersForMap(): Promise<void> {
   }
   if (mapLockers.value.length > 0) return
   mapAbort?.abort()
-  mapAbort = new AbortController()
+  const controller = new AbortController()
+  mapAbort = controller
   mapLoading.value = true
   mapError.value = null
   try {
     const country = (props.countryCode ?? 'GR').toUpperCase()
-    const rows = await props.carrier.fetchAll(country, mapAbort.signal)
+    const rows = await props.carrier.fetchAll(country, controller.signal)
     mapLockers.value = rows
   }
   catch (err: unknown) {
@@ -130,17 +139,18 @@ async function loadAllLockersForMap(): Promise<void> {
     mapError.value = t('shipping.locker_picker.error')
   }
   finally {
-    mapLoading.value = false
+    if (mapAbort === controller) mapLoading.value = false
   }
 }
 
-// ``immediate: true`` so the bulk locker fetch fires when the modal
-// opens with the default-map tab already selected (no user interaction
-// has happened yet). Without it the watcher waits for an actual change,
-// so the first open showed an empty map; switching to List then back
-// to Map flipped activeTab and finally triggered the fetch.
-watch(activeTab, (tab) => {
-  if (tab === 'map') void loadAllLockersForMap()
+// The catalogue loads when the map is actually on screen: the modal
+// open AND the map tab active. The picker is mounted (closed) with its
+// card, so a tab-only trigger fetched the whole catalogue on every
+// shipping step, open or not; and a load aborted by closing the modal
+// early never retried, because reopening sets the tab to the value it
+// already had. ``immediate`` covers a picker mounted already open.
+watch([open, activeTab], ([isOpen, tab]) => {
+  if (isOpen && tab === 'map') void loadAllLockersForMap()
 }, { immediate: true })
 
 onUnmounted(() => {
@@ -332,7 +342,7 @@ function onClose(): void {
                 <ul v-else class="flex flex-col gap-2 p-4">
                   <li
                     v-for="station in stations"
-                    :key="station.id"
+                    :key="station.key"
                   >
                     <button
                       type="button"

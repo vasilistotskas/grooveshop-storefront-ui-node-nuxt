@@ -10,6 +10,7 @@ import type { Locker } from '~~/shared/shipping/interfaces'
  * sends verbatim.
  */
 const LOCKER: Locker = {
+  key: '4',
   id: '4',
   name: 'Χαλάνδρι Locker',
   addressLine1: 'Λεωφ. Πεντέλης 125',
@@ -62,6 +63,7 @@ describe('the BoxNow adapter', () => {
 
     // The delivery country is GR; the CY locker's own country must win.
     expect(boxnowCarrier.readSelectedLocker!({ country: 'GR', boxnowLockerId: '9', boxnowLocker: stored })).toEqual({
+      key: '9',
       id: '9',
       name: 'Λευκωσία Locker',
       addressLine1: 'Λεωφόρος Μακαρίου 1',

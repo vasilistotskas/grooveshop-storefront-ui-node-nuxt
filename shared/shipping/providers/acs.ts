@@ -21,12 +21,25 @@ function _toNumber(value: string | null | undefined): number | null {
   return Number.isFinite(n) ? n : null
 }
 
+/**
+ * An ACS locker's identity. Django keys a station on the PAIR
+ * (``UniqueConstraint(external_id, branch_code)``,
+ * ``shipping_acs/models/station.py``): every Smartpoint in an area
+ * shares its ``external_id`` (``ATH``). JSON keeps the pair unambiguous
+ * whatever characters either half holds.
+ */
+export function acsLockerKey(externalId: string, branchCode: string | null): string {
+  return JSON.stringify([externalId, branchCode ?? ''])
+}
+
 function _normalize(row: AcsStation): Locker | null {
   const id = row.externalId.trim()
   if (!id) return null
+  const branchCode = row.branchCode || null
   return {
+    key: acsLockerKey(id, branchCode),
     id,
-    branchCode: row.branchCode || null,
+    branchCode,
     name: row.name || id,
     addressLine1: row.addressLine1,
     // ``AcsStation`` collapses the address into a single line —
@@ -142,9 +155,11 @@ const acsCarrier: ShippingCarrier = {
       typeof v === 'string' ? v : fallback
     const strOrNull = (v: unknown): string | null =>
       typeof v === 'string' ? v : null
+    const branchCode = strOrNull(stored.branchCode)
     return {
+      key: acsLockerKey(id, branchCode),
       id,
-      branchCode: strOrNull(stored.branchCode),
+      branchCode,
       name: str(stored.name, id),
       addressLine1: str(stored.addressLine1),
       addressLine2: strOrNull(stored.addressLine2),

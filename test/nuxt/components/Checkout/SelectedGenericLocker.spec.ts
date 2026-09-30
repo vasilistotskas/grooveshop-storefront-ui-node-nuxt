@@ -4,7 +4,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import { reactive } from 'vue'
 import CheckoutSelectedGenericLocker from '~/components/Checkout/SelectedGenericLocker.vue'
 import WebsideCheckoutSelectedGenericLocker from '~/components/variants/webside/Checkout/SelectedGenericLocker.vue'
-import acsCarrier from '~~/shared/shipping/providers/acs'
+import acsCarrier, { acsLockerKey } from '~~/shared/shipping/providers/acs'
 import type { Locker } from '~~/shared/shipping/interfaces'
 import { trees } from '~~/test/helpers/trees'
 
@@ -20,6 +20,7 @@ import { trees } from '~~/test/helpers/trees'
 const t = (key: string, params: Record<string, unknown> = {}) => useNuxtApp().$i18n.t(key, params)
 
 const LOCKER: Locker = {
+  key: acsLockerKey('GR-1001', 'ATH'),
   id: 'GR-1001',
   branchCode: 'ATH',
   name: 'ACS Smartpoint Σύνταγμα',

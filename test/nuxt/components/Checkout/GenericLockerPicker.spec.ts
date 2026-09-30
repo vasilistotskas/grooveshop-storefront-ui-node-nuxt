@@ -5,6 +5,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import CheckoutGenericLockerPicker from '~/components/Checkout/GenericLockerPicker.vue'
 import WebsideCheckoutGenericLockerPicker from '~/components/variants/webside/Checkout/GenericLockerPicker.vue'
 import type { Locker, LockerQuery, ShippingCarrier } from '~~/shared/shipping/interfaces'
+import { acsLockerKey } from '~~/shared/shipping/providers/acs'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -27,9 +28,11 @@ const tp = (key: string, params: Record<string, unknown> = {}) => t(`shipping.lo
 
 const DEBOUNCE_MS = 300
 
-function locker(id: string, name: string): Locker {
+function locker(id: string, name: string, branchCode: string | null = null): Locker {
   return {
+    key: acsLockerKey(id, branchCode),
     id,
+    branchCode,
     name,
     addressLine1: 'Φιλελλήνων 4',
     addressLine2: null,
@@ -189,5 +192,66 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(inBody(tp('tab_map'))).toBe(true)
     expect(fetchAll).toHaveBeenCalledTimes(1)
     expect(fetchAll).toHaveBeenCalledWith('CY', expect.any(AbortSignal))
+  })
+
+  // The picker is mounted, closed, with the selected-locker card on
+  // every shipping step; only an open picker may pay for the catalogue.
+  it('loads nothing while it is closed', async () => {
+    const fetchAll = vi.fn((_country: string, _signal?: AbortSignal) => Promise.resolve(ROWS))
+    const carrier = fakeCarrier({ fetchAll })
+
+    await mountSuspended(C, { route: false, props: { open: false, carrier, countryCode: 'GR' } })
+    await flushPromises()
+
+    expect(fetchAll).not.toHaveBeenCalled()
+    expect(carrier.fetchByPostal).not.toHaveBeenCalled()
+  })
+
+  it('loads the catalogue again after a close cut the first load short', async () => {
+    const fetchAll = vi.fn((_country: string, signal?: AbortSignal) => new Promise<Locker[]>((resolve, reject) => {
+      if (fetchAll.mock.calls.length > 1) return resolve(ROWS)
+      signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
+    }))
+    const wrapper = await openPicker(fakeCarrier({ fetchAll }))
+
+    await wrapper.setProps({ open: false })
+    await flushPromises()
+    await wrapper.setProps({ open: true })
+    await flushPromises()
+
+    expect(fetchAll).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps showing the newer search as loading when an older one it replaced settles', async () => {
+    let finishNewer: (rows: Locker[]) => void = () => {}
+    const fetchByPostal = vi.fn((query: LockerQuery) => new Promise<Locker[]>((resolve, reject) => {
+      if (fetchByPostal.mock.calls.length === 1) {
+        query.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
+        return
+      }
+      finishNewer = resolve
+    }))
+    await openPicker(fakeCarrier({ fetchByPostal }))
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+
+    await postalInput().setValue('54624')
+    await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+    await flushPromises()
+
+    // The first search was aborted and settled; the second is in flight.
+    expect(fetchByPostal).toHaveBeenCalledTimes(2)
+    expect(inBody(tp('empty_title'))).toBe(false)
+    finishNewer(ROWS)
+    await flushPromises()
+    expect(rowButton('Smartpoint Κολωνάκι')).toBeDefined()
+  })
+
+  it('lists two lockers of one ACS area as two rows, and hands back the one picked', async () => {
+    const sameArea = [locker('ATH', 'Smartpoint Σύνταγμα', '001'), locker('ATH', 'Smartpoint Μοναστηράκι', '002')]
+    const wrapper = await openPicker(fakeCarrier({ fetchByPostal: vi.fn(() => Promise.resolve(sameArea)) }))
+
+    await rowButton('Smartpoint Μοναστηράκι')!.trigger('click')
+
+    expect(wrapper.emitted('selected')).toEqual([[sameArea[1]]])
   })
 })

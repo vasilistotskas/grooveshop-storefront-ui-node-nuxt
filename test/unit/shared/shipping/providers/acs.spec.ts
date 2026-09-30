@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import acsCarrier from '~~/shared/shipping/providers/acs'
+import acsCarrier, { acsLockerKey } from '~~/shared/shipping/providers/acs'
 import type { Locker } from '~~/shared/shipping/interfaces'
 
 /**
@@ -34,6 +34,7 @@ const station = (overrides: Record<string, unknown> = {}) => ({
 })
 
 const LOCKER: Locker = {
+  key: acsLockerKey('ATH', 'BR1'),
   id: 'ATH',
   branchCode: 'BR1',
   name: 'Smartpoint Γλυφάδα',
@@ -50,6 +51,27 @@ const LOCKER: Locker = {
 }
 
 describe('the ACS adapter', () => {
+  // Django keys a station on (external_id, branch_code): every Smartpoint
+  // in an area shares its external id. Keyed on the id alone, the map
+  // found the FIRST locker of the area for any pick in it, and the order
+  // went to that locker.
+  it('tells apart two lockers of one area, and writes the picked pair to the form', async () => {
+    fetchMock.mockResolvedValue([station({ branchCode: '001' }), station({ branchCode: '002', name: 'Smartpoint Γλυφάδα 2' })])
+
+    const [first, second] = await acsCarrier.fetchByPostal!({ postalCode: '16674' })
+
+    expect(first!.id).toBe(second!.id)
+    expect(first!.key).not.toBe(second!.key)
+    const form: Record<string, unknown> = {}
+    acsCarrier.applyToFormState(form, second!)
+    expect(form).toMatchObject({ acsStationExternalId: 'ATH', acsStationBranch: '002' })
+    expect(acsCarrier.readSelectedLocker!(form)!.key).toBe(second!.key)
+  })
+
+  it('keys an ACS locker unambiguously, whatever its codes contain', () => {
+    expect(acsLockerKey('A:B', 'C')).not.toBe(acsLockerKey('A', 'B:C'))
+  })
+
   it('uses the generic locker picker', () => {
     expect(acsCarrier.code).toBe('acs')
     expect(acsCarrier.usesGenericPicker).toBe(true)
@@ -100,6 +122,7 @@ describe('the ACS adapter', () => {
 
       expect(await acsCarrier.fetchByPostal!({ postalCode: '16674' })).toEqual([{
         ...LOCKER,
+        key: acsLockerKey('ATH2', null),
         id: 'ATH2',
         branchCode: null,
         name: 'ATH2',
@@ -169,6 +192,7 @@ describe('the ACS adapter', () => {
       const stored = { externalId: 'ATH' }
 
       expect(acsCarrier.readSelectedLocker!({ acsStation: stored })).toEqual({
+        key: acsLockerKey('ATH', null),
         id: 'ATH',
         branchCode: null,
         name: 'ATH',
