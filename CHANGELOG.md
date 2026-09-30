@@ -1,3 +1,10 @@
+## [3.224.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.11...v3.224.12) (2026-09-30)
+
+
+### Bug Fixes
+
+* **checkout:** keep the priced payment intent, and the order on the success page ([#54](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/54)) ([768d729](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/768d7297a5885fddb0e136050a1292dbf519021c))
+
 ## [3.224.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.10...v3.224.11) (2026-09-30)
 
 
