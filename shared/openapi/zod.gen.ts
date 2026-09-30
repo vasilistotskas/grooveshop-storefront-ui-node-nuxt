@@ -200,10 +200,7 @@ export const zBlogAuthor = z.object({
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   numberOfPosts: z.int().readonly(),
-  totalLikesReceived: z.union([
-    z.int(),
-    z.literal(0),
-  ]),
+  totalLikesReceived: z.int().readonly(),
 })
 
 /**
@@ -5823,10 +5820,7 @@ export const zBlogAuthorDetail = z.object({
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   numberOfPosts: z.int().readonly(),
-  totalLikesReceived: z.union([
-    z.int(),
-    z.literal(0),
-  ]),
+  totalLikesReceived: z.int().readonly(),
   recentPosts: z.array(zBlogPost).readonly(),
   topPosts: z.array(zBlogPost).readonly(),
 })
@@ -8120,13 +8114,63 @@ export const zSubmitB2bProfileBody = zBusinessProfileWriteRequest
 export const zSubmitB2bProfileResponse = zBusinessProfile
 
 export const zListBlogAuthorQuery = z.object({
+  bio: z.string().optional(),
+  createdAfter: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Date: z.iso.date().optional(),
+  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).optional(),
   cursor: z.string().optional(),
+  firstName: z.string().optional(),
+  fullName: z.string().optional(),
+  hasLikes: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasPosts: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasWebsite: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  id_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$/).optional(),
+  lastName: z.string().optional(),
+  maxPosts: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minPosts: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minTotalLikes: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website|numberOfPosts|\-numberOfPosts|totalLikesReceived|\-totalLikesReceived)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website|numberOfPosts|\-numberOfPosts|totalLikesReceived|\-totalLikesReceived))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -8142,6 +8186,25 @@ export const zListBlogAuthorQuery = z.object({
     'pageNumber',
   ]).optional().default('pageNumber'),
   search: z.string().optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Date: z.iso.date().optional(),
+  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).optional(),
+  user: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  user_Email: z.string().optional(),
+  user_Email_Icontains: z.string().optional(),
+  user_FirstName: z.string().optional(),
+  user_FirstName_Icontains: z.string().optional(),
+  user_LastName: z.string().optional(),
+  user_LastName_Icontains: z.string().optional(),
+  userEmail: z.string().optional(),
+  uuid: z.uuid().optional(),
+  website: z.string().optional(),
+  website_Icontains: z.string().optional(),
 })
 
 export const zListBlogAuthorResponse = zPaginatedBlogAuthorList
@@ -8233,12 +8296,73 @@ export const zGetBlogAuthorPostsPath = z.object({
 })
 
 export const zGetBlogAuthorPostsQuery = z.object({
+  author: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  authorEmail: z.string().optional(),
+  authorName: z.string().optional(),
+  category: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  categoryName: z.string().optional(),
+  createdAfter: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Date: z.iso.date().optional(),
+  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).optional(),
+  currentlyPublished: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   cursor: z.string().optional(),
+  featured: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  id_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  isPublished: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).optional().default('el'),
+  minComments: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minLikes: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minTags: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minViewCount: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -8254,17 +8378,142 @@ export const zGetBlogAuthorPostsQuery = z.object({
     'limitOffset',
     'pageNumber',
   ]).optional().default('pageNumber'),
+  publishedAfter: z.iso.datetime({ offset: true }).optional(),
+  publishedAt_Date: z.iso.date().optional(),
+  publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  publishedBefore: z.iso.datetime({ offset: true }).optional(),
   search: z.string().optional(),
+  slug: z.string().optional(),
+  slug_Icontains: z.string().optional(),
+  tagName: z.string().optional(),
+  tags: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  title: z.string().optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Date: z.iso.date().optional(),
+  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).optional(),
+  uuid: z.uuid().optional(),
+  viewCount: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  viewCount_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  viewCount_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zGetBlogAuthorPostsResponse = zPaginatedBlogPostList
 
 export const zListBlogCategoryQuery = z.object({
+  ancestorOf: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  createdAfter: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Date: z.iso.date().optional(),
+  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).optional(),
+  descendantOf: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  description: z.string().optional(),
+  hasChildren: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasImage: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasPosts: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasRecursivePosts: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  id_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  isLeaf: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).optional().default('el'),
+  level: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  level_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  level_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  lft: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  lft_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  lft_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  maxPostCount: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minPostCount: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minRecursivePostCount: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  name: z.string().optional(),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -8280,7 +8529,62 @@ export const zListBlogCategoryQuery = z.object({
     'limitOffset',
     'pageNumber',
   ]).optional().default('pageNumber'),
+  parent: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  parent_Isnull: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  rght: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  rght_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  rght_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   search: z.string().optional(),
+  slug: z.string().optional(),
+  slug_Icontains: z.string().optional(),
+  sortOrder: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrder_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrder_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  treeId: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Date: z.iso.date().optional(),
+  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).optional(),
+  uuid: z.uuid().optional(),
 })
 
 export const zListBlogCategoryResponse = zPaginatedBlogCategoryList
@@ -8471,6 +8775,67 @@ export const zListBlogCategoryPostsPath = z.object({
 })
 
 export const zListBlogCategoryPostsQuery = z.object({
+  author: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  authorEmail: z.string().optional(),
+  authorName: z.string().optional(),
+  category: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  categoryName: z.string().optional(),
+  createdAfter: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Date: z.iso.date().optional(),
+  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).optional(),
+  currentlyPublished: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  featured: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  id_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  isPublished: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  minComments: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minLikes: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minTags: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minViewCount: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -8480,6 +8845,11 @@ export const zListBlogCategoryPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  publishedAfter: z.iso.datetime({ offset: true }).optional(),
+  publishedAt_Date: z.iso.date().optional(),
+  publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  publishedBefore: z.iso.datetime({ offset: true }).optional(),
   recursive: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -8488,6 +8858,32 @@ export const zListBlogCategoryPostsQuery = z.object({
     z.boolean(),
   ]).optional(),
   search: z.string().optional(),
+  slug: z.string().optional(),
+  slug_Icontains: z.string().optional(),
+  tagName: z.string().optional(),
+  tags: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  title: z.string().optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Date: z.iso.date().optional(),
+  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).optional(),
+  uuid: z.uuid().optional(),
+  viewCount: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  viewCount_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  viewCount_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zListBlogCategoryPostsResponse = zPaginatedBlogPostList
@@ -8682,21 +9078,7 @@ export const zListBlogCommentQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  mostLiked: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  mostReplied: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved|likesCount|\-likesCount|repliesCount|\-repliesCount)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved|likesCount|\-likesCount|repliesCount|\-repliesCount))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9012,20 +9394,6 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  mostLiked: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  mostReplied: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9252,20 +9620,6 @@ export const zGetBlogCommentThreadQuery = z.object({
   minReplies: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
-  ]).optional(),
-  mostLiked: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  mostReplied: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
   ]).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -9499,20 +9853,6 @@ export const zListMyBlogCommentsQuery = z.object({
   minReplies: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
-  ]).optional(),
-  mostLiked: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  mostReplied: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
   ]).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10367,24 +10707,10 @@ export const zListBlogTagQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  mostLiked: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  mostUsed: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   name: z.string().optional(),
   name_Exact: z.string().optional(),
   name_Startswith: z.string().optional(),
-  ordering: z.string().regex(/^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name))*$/).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name|postsCount|\-postsCount|totalLikes|\-totalLikes)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name|postsCount|\-postsCount|totalLikes|\-totalLikes))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10576,123 +10902,6 @@ export const zApplyCartCouponResponse = zCartDetail
 
 export const zListCartCouponsHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
-})
-
-export const zListCartCouponsQuery = z.object({
-  cartType: z.enum([
-    'anonymous',
-    'guest',
-    'user',
-  ]).optional(),
-  createdAfter: z.iso.datetime({ offset: true }).optional(),
-  createdAt_Date: z.iso.date().optional(),
-  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
-  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
-  createdBefore: z.iso.datetime({ offset: true }).optional(),
-  daysInactive: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  hasDiscounts: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  hasItems: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  id_In: z.union([
-    z.string(),
-    z.array(z.int()),
-  ]).optional(),
-  isAbandoned: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  isActive: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  isGuest: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  lastActivity: z.iso.datetime({ offset: true }).optional(),
-  lastActivity_Date: z.iso.date().optional(),
-  lastActivity_Gte: z.iso.datetime({ offset: true }).optional(),
-  lastActivity_Lte: z.iso.datetime({ offset: true }).optional(),
-  lastActivityAfter: z.iso.datetime({ offset: true }).optional(),
-  lastActivityBefore: z.iso.datetime({ offset: true }).optional(),
-  maxItems: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  maxTotalValue: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  maxUniqueItems: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minItems: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minTotalValue: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minUniqueItems: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  search: z.string().optional(),
-  updatedAfter: z.iso.datetime({ offset: true }).optional(),
-  updatedAt_Date: z.iso.date().optional(),
-  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
-  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
-  updatedBefore: z.iso.datetime({ offset: true }).optional(),
-  user: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  user_IsActive: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  user_Isnull: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  userEmail: z.string().optional(),
-  userName: z.string().optional(),
-  uuid: z.uuid().optional(),
 })
 
 export const zListCartCouponsResponse = z.array(zCartCoupon)
@@ -14327,123 +14536,6 @@ export const zUpdateProductCategoryQuery = z.object({
 
 export const zUpdateProductCategoryResponse = zProductCategoryDetail
 
-export const zListAllProductCategoryQuery = z.object({
-  active: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  ancestorOf: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  createdAfter: z.iso.datetime({ offset: true }).optional(),
-  createdAt_Date: z.iso.date().optional(),
-  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
-  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
-  createdBefore: z.iso.datetime({ offset: true }).optional(),
-  descendantOf: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  hasChildren: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  hasProducts: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  id_In: z.union([
-    z.string(),
-    z.array(z.int()),
-  ]).optional(),
-  isLeaf: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  isRoot: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  level: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  level_Gte: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  level_Lte: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  maxLevel: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  maxProductCount: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minLevel: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  minProductCount: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  parent: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  parentSlug: z.string().optional(),
-  search: z.string().optional(),
-  siblingOf: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  slug: z.string().optional(),
-  slug_Icontains: z.string().optional(),
-  sortOrder: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  sortOrderMax: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  sortOrderMin: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  updatedAfter: z.iso.datetime({ offset: true }).optional(),
-  updatedAt_Date: z.iso.date().optional(),
-  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
-  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
-  updatedBefore: z.iso.datetime({ offset: true }).optional(),
-  uuid: z.uuid().optional(),
-})
-
 export const zListAllProductCategoryResponse = z.array(zProductCategory)
 
 export const zListProductCategoryImageQuery = z.object({
@@ -15753,18 +15845,11 @@ export const zListTagQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  mostUsed: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   objectId: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label))*$/).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label|usageCount|\-usageCount)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label|usageCount|\-usageCount))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),

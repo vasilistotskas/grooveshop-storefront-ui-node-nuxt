@@ -601,7 +601,7 @@ export type BlogAuthor = {
      */
   readonly updatedAt: string
   readonly numberOfPosts: number
-  totalLikesReceived: number | 0
+  readonly totalLikesReceived: number
 }
 
 /**
@@ -635,7 +635,7 @@ export type BlogAuthorDetail = {
      */
   readonly updatedAt: string
   readonly numberOfPosts: number
-  totalLikesReceived: number | 0
+  readonly totalLikesReceived: number
   readonly recentPosts: Array<BlogPost>
   readonly topPosts: Array<BlogPost>
 }
@@ -12479,15 +12479,71 @@ export type ListBlogAuthorData = {
   path?: never
   query?: {
     /**
+         * Φίλτρο ανά περιεχόμενο βιογραφικού (μερική αντιστοίχιση)
+         */
+    bio?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
          * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
+    /**
+         * Φίλτρο ανά όνομα (μερική αντιστοίχιση)
+         */
+    firstName?: string
+    /**
+         * Φίλτρο ανά πλήρες όνομα (όνομα + επώνυμο)
+         */
+    fullName?: string
+    /**
+         * Φίλτρο συντακτών με/χωρίς επισημάνσεις στα άρθρα τους
+         */
+    hasLikes?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο συντακτών με/χωρίς άρθρα
+         */
+    hasPosts?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο συντακτών με/χωρίς ιστότοπο
+         */
+    hasWebsite?: 'true' | 'false' | '1' | '0' | boolean
+    id?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    id_In?: string | Array<number>
     /**
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website
+         * Φίλτρο ανά επώνυμο (μερική αντιστοίχιση)
+         */
+    lastName?: string
+    /**
+         * Φίλτρο συντακτών με έως X άρθρα
+         */
+    maxPosts?: string | number
+    /**
+         * Φίλτρο συντακτών με τουλάχιστον X άρθρα
+         */
+    minPosts?: string | number
+    /**
+         * Φίλτρο συντακτών με τουλάχιστον X συνολικές επισημάνσεις σε όλα τα άρθρα
+         */
+    minTotalLikes?: string | number
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website, numberOfPosts, -numberOfPosts, totalLikesReceived, -totalLikesReceived
          */
     ordering?: string
     /**
@@ -12510,6 +12566,40 @@ export type ListBlogAuthorData = {
          * A search term.
          */
     search?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ID χρήστη
+         */
+    user?: string | number
+    user_Email?: string
+    user_Email_Icontains?: string
+    user_FirstName?: string
+    user_FirstName_Icontains?: string
+    user_LastName?: string
+    user_LastName_Icontains?: string
+    /**
+         * Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)
+         */
+    userEmail?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+    /**
+         * Φίλτρο ανά URL ιστότοπου (μερική αντιστοίχιση)
+         */
+    website?: string
+    website_Icontains?: string
   }
   url: '/api/v1/blog/author'
 }
@@ -12680,13 +12770,77 @@ export type GetBlogAuthorPostsData = {
   }
   query?: {
     /**
+         * Φίλτρο ανά ID συντάκτη
+         */
+    author?: string | number
+    /**
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    authorEmail?: string
+    /**
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    authorName?: string
+    /**
+         * Φίλτρο ανά ID κατηγορίας
+         */
+    category?: string | number
+    /**
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    categoryName?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
+         */
+    currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Opaque cursor (cursor pagination strategy)
          */
     cursor?: string
     /**
+         * Φίλτρο ανά κατάσταση προτεινόμενου
+         */
+    featured?: 'true' | 'false' | '1' | '0' | boolean
+    id?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    id_In?: string | Array<number>
+    /**
+         * Φίλτρο ανά κατάσταση δημοσίευσης
+         */
+    isPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
+         */
+    minComments?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
+         */
+    minLikes?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
+         */
+    minTags?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
+         */
+    minViewCount?: string | number
     /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
@@ -12708,9 +12862,52 @@ export type GetBlogAuthorPostsData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
+         */
+    publishedAfter?: string
+    publishedAt_Date?: string
+    publishedAt_Gte?: string
+    publishedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
+         */
+    publishedBefore?: string
+    /**
          * A search term.
          */
     search?: string
+    slug?: string
+    slug_Icontains?: string
+    /**
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    tagName?: string
+    /**
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
+         */
+    tags?: string | Array<number>
+    /**
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    title?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+    viewCount?: string | number
+    viewCount_Gte?: string | number
+    viewCount_Lte?: string | number
   }
   url: '/api/v1/blog/author/{id}/posts'
 }
@@ -12736,9 +12933,91 @@ export type ListBlogCategoryData = {
   path?: never
   query?: {
     /**
+         * Φίλτρο κατηγοριών που είναι πρόγονοι της δεδομένης κατηγορίας
+         */
+    ancestorOf?: string | number
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο κατηγοριών που είναι απόγονοι της δεδομένης κατηγορίας
+         */
+    descendantOf?: string | number
+    /**
+         * Φίλτρο ανά περιεχόμενο περιγραφής (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    description?: string
+    /**
+         * Φίλτρο κατηγοριών με/χωρίς παιδιά
+         */
+    hasChildren?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο κατηγοριών με/χωρίς εικόνα
+         */
+    hasImage?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο κατηγοριών με άρθρα (true) ή χωρίς άρθρα (false)
+         */
+    hasPosts?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο κατηγοριών με άρθρα στις ίδιες ή στους απογόνους τους
+         */
+    hasRecursivePosts?: 'true' | 'false' | '1' | '0' | boolean
+    id?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    id_In?: string | Array<number>
+    /**
+         * Φίλτρο τελικών κατηγοριών (χωρίς παιδιά)
+         */
+    isLeaf?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Φίλτρο ανά επίπεδο δέντρου (0 για ριζικές κατηγορίες)
+         */
+    level?: string | number
+    /**
+         * Φίλτρο κατηγοριών σε αυτό το επίπεδο ή χαμηλότερα
+         */
+    level_Gte?: string | number
+    /**
+         * Φίλτρο κατηγοριών σε αυτό το επίπεδο ή υψηλότερα
+         */
+    level_Lte?: string | number
+    /**
+         * Φίλτρο ανά αριστερή τιμή δέντρου (εσωτερικό MPTT)
+         */
+    lft?: string | number
+    lft_Gte?: string | number
+    lft_Lte?: string | number
+    /**
+         * Φίλτρο κατηγοριών με έως τόσα άρθρα
+         */
+    maxPostCount?: string | number
+    /**
+         * Φίλτρο κατηγοριών με τουλάχιστον τόσα άρθρα
+         */
+    minPostCount?: string | number
+    /**
+         * Φίλτρο κατηγοριών με τουλάχιστον τόσα άρθρα (συμπεριλαμβανομένων των απογόνων)
+         */
+    minRecursivePostCount?: string | number
+    /**
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    name?: string
     /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
          */
@@ -12760,9 +13039,58 @@ export type ListBlogCategoryData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
+         * Φίλτρο ανά ID γονικής κατηγορίας
+         */
+    parent?: string | number
+    /**
+         * Φίλτρο ριζικών κατηγοριών (true) ή μη ριζικών (false)
+         */
+    parent_Isnull?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά δεξιά τιμή δέντρου (εσωτερικό MPTT)
+         */
+    rght?: string | number
+    rght_Gte?: string | number
+    rght_Lte?: string | number
+    /**
          * A search term.
          */
     search?: string
+    slug?: string
+    slug_Icontains?: string
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
+    sortOrder?: string | number
+    sortOrder_Gte?: string | number
+    sortOrder_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο ανά ID δέντρου (εσωτερικό MPTT)
+         */
+    treeId?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
   }
   url: '/api/v1/blog/category'
 }
@@ -13095,6 +13423,70 @@ export type ListBlogCategoryPostsData = {
   }
   query?: {
     /**
+         * Φίλτρο ανά ID συντάκτη
+         */
+    author?: string | number
+    /**
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    authorEmail?: string
+    /**
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    authorName?: string
+    /**
+         * Φίλτρο ανά ID κατηγορίας
+         */
+    category?: string | number
+    /**
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    categoryName?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
+         */
+    currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά κατάσταση προτεινόμενου
+         */
+    featured?: 'true' | 'false' | '1' | '0' | boolean
+    id?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    id_In?: string | Array<number>
+    /**
+         * Φίλτρο ανά κατάσταση δημοσίευσης
+         */
+    isPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
+         */
+    minComments?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
+         */
+    minLikes?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
+         */
+    minTags?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
+         */
+    minViewCount?: string | number
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
     ordering?: string
@@ -13107,6 +13499,17 @@ export type ListBlogCategoryPostsData = {
          */
     pageSize?: string | number
     /**
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
+         */
+    publishedAfter?: string
+    publishedAt_Date?: string
+    publishedAt_Gte?: string
+    publishedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
+         */
+    publishedBefore?: string
+    /**
          * Include posts from all descendant categories
          */
     recursive?: 'true' | 'false' | '1' | '0' | boolean
@@ -13114,6 +13517,38 @@ export type ListBlogCategoryPostsData = {
          * A search term.
          */
     search?: string
+    slug?: string
+    slug_Icontains?: string
+    /**
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    tagName?: string
+    /**
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
+         */
+    tags?: string | Array<number>
+    /**
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    title?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+    viewCount?: string | number
+    viewCount_Gte?: string | number
+    viewCount_Lte?: string | number
   }
   url: '/api/v1/blog/category/{id}/posts'
 }
@@ -13378,15 +13813,7 @@ export type ListBlogCommentData = {
          */
     minReplies?: string | number
     /**
-         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
-         */
-    mostLiked?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
-         */
-    mostReplied?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCount, -likesCount, repliesCount, -repliesCount
          */
     ordering?: string
     /**
@@ -13791,14 +14218,6 @@ export type ListBlogCommentRepliesData = {
          */
     minReplies?: string | number
     /**
-         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
-         */
-    mostLiked?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
-         */
-    mostReplied?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Page number (pageNumber pagination strategy)
          */
     page?: string | number
@@ -14031,14 +14450,6 @@ export type GetBlogCommentThreadData = {
          * Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις
          */
     minReplies?: string | number
-    /**
-         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
-         */
-    mostLiked?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
-         */
-    mostReplied?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Page number (pageNumber pagination strategy)
          */
@@ -14318,14 +14729,6 @@ export type ListMyBlogCommentsData = {
          * Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις
          */
     minReplies?: string | number
-    /**
-         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
-         */
-    mostLiked?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
-         */
-    mostReplied?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Page number (pageNumber pagination strategy)
          */
@@ -15530,14 +15933,6 @@ export type ListBlogTagData = {
          */
     minTotalLikes?: string | number
     /**
-         * Ταξινόμηση ετικετών κατά συνολικές επισημάνσεις στα άρθρα που τις χρησιμοποιούν
-         */
-    mostLiked?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Ταξινόμηση ετικετών κατά πλήθος χρήσης (πιο δημοφιλείς πρώτα)
-         */
-    mostUsed?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Φίλτρο ανά όνομα ετικέτας (μερική αντιστοίχιση)
          */
     name?: string
@@ -15550,7 +15945,7 @@ export type ListBlogTagData = {
          */
     name_Startswith?: string
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, name, -name
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, name, -name, postsCount, -postsCount, totalLikes, -totalLikes
          */
     ordering?: string
     /**
@@ -15962,134 +16357,7 @@ export type ListCartCouponsData = {
     'X-Cart-Id'?: string
   }
   path?: never
-  query?: {
-    /**
-         * Φίλτρο ανά τύπο καλαθιού
-         *
-         * * `user` - User Cart
-         * * `guest` - Guest Cart
-         * * `anonymous` - Anonymous Cart
-         */
-    cartType?: 'anonymous' | 'guest' | 'user'
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
-         */
-    createdAfter?: string
-    createdAt_Date?: string
-    createdAt_Gte?: string
-    createdAt_Lte?: string
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
-         */
-    createdBefore?: string
-    /**
-         * Φίλτρο καλαθιών αδρανών για τουλάχιστον X ημέρες
-         */
-    daysInactive?: string | number
-    /**
-         * Φίλτρο καλαθιών με/χωρίς είδη σε έκπτωση
-         */
-    hasDiscounts?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο καλαθιών με/χωρίς είδη
-         */
-    hasItems?: 'true' | 'false' | '1' | '0' | boolean
-    id?: string | number
-    /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
-         */
-    id_In?: string | Array<number>
-    /**
-         * Filter abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
-         */
-    isAbandoned?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Filter active/abandoned carts. The window is the CART_ABANDONED_HOURS store setting, not a fixed period.
-         */
-    isActive?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο καλαθιών επισκεπτών (True) ή καλαθιών χρηστών (False)
-         */
-    isGuest?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο ανά ακριβή ημερομηνία τελευταίας δραστηριότητας
-         */
-    lastActivity?: string
-    lastActivity_Date?: string
-    lastActivity_Gte?: string
-    lastActivity_Lte?: string
-    /**
-         * Φίλτρο καλαθιών με τελευταία δραστηριότητα μετά από αυτή την ημερομηνία
-         */
-    lastActivityAfter?: string
-    /**
-         * Φίλτρο καλαθιών με τελευταία δραστηριότητα πριν από αυτή την ημερομηνία
-         */
-    lastActivityBefore?: string
-    /**
-         * Φίλτρο καλαθιών με έως X συνολικά είδη (ποσότητα)
-         */
-    maxItems?: string | number
-    /**
-         * Φίλτρο καλαθιών με συνολική αξία έως X
-         */
-    maxTotalValue?: string | number
-    /**
-         * Φίλτρο καλαθιών με έως X μοναδικά είδη
-         */
-    maxUniqueItems?: string | number
-    /**
-         * Φίλτρο καλαθιών με τουλάχιστον X συνολικά είδη (ποσότητα)
-         */
-    minItems?: string | number
-    /**
-         * Φίλτρο καλαθιών με συνολική αξία τουλάχιστον X
-         */
-    minTotalValue?: string | number
-    /**
-         * Φίλτρο καλαθιών με τουλάχιστον X μοναδικά είδη
-         */
-    minUniqueItems?: string | number
-    /**
-         * A search term.
-         */
-    search?: string
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
-         */
-    updatedAfter?: string
-    updatedAt_Date?: string
-    updatedAt_Gte?: string
-    updatedAt_Lte?: string
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
-         */
-    updatedBefore?: string
-    /**
-         * Φίλτρο ανά ID χρήστη
-         */
-    user?: string | number
-    /**
-         * Φίλτρο ανά ενεργούς χρήστες
-         */
-    user_IsActive?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο καλαθιών με/χωρίς χρήστες
-         */
-    user_Isnull?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)
-         */
-    userEmail?: string
-    /**
-         * Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)
-         */
-    userName?: string
-    /**
-         * Φίλτρο ανά ακριβές UUID
-         */
-    uuid?: string
-  }
+  query?: never
   url: '/api/v1/cart/coupons'
 }
 
@@ -19262,6 +19530,7 @@ export type CreateOrderPaymentIntentErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  409: ErrorResponse
   500: ErrorResponse
 }
 
@@ -19384,6 +19653,7 @@ export type RetryOrderPaymentErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  409: ErrorResponse
   500: ErrorResponse
 }
 
@@ -22017,116 +22287,7 @@ export type UpdateProductCategoryResponse = UpdateProductCategoryResponses[keyof
 export type ListAllProductCategoryData = {
   body?: never
   path?: never
-  query?: {
-    active?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Filter ancestors of specified category ID
-         */
-    ancestorOf?: string | number
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
-         */
-    createdAfter?: string
-    createdAt_Date?: string
-    createdAt_Gte?: string
-    createdAt_Lte?: string
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
-         */
-    createdBefore?: string
-    /**
-         * Filter descendants of specified category ID
-         */
-    descendantOf?: string | number
-    /**
-         * Filter categories that have children
-         */
-    hasChildren?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Filter categories that have products (recursive)
-         */
-    hasProducts?: 'true' | 'false' | '1' | '0' | boolean
-    id?: string | number
-    /**
-         * Filter by multiple category IDs (comma-separated)
-         */
-    id_In?: string | Array<number>
-    /**
-         * Filter leaf categories (no children)
-         */
-    isLeaf?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Filter root categories (no parent)
-         */
-    isRoot?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Filter by hierarchy level (0 = root)
-         */
-    level?: string | number
-    level_Gte?: string | number
-    level_Lte?: string | number
-    /**
-         * Maximum hierarchy level
-         */
-    maxLevel?: string | number
-    /**
-         * Maximum number of products (recursive)
-         */
-    maxProductCount?: string | number
-    /**
-         * Minimum hierarchy level
-         */
-    minLevel?: string | number
-    /**
-         * Minimum number of products (recursive)
-         */
-    minProductCount?: string | number
-    /**
-         * Filter by parent category ID
-         */
-    parent?: string | number
-    /**
-         * Filter by parent category slug
-         */
-    parentSlug?: string
-    /**
-         * A search term.
-         */
-    search?: string
-    /**
-         * Filter siblings of specified category ID
-         */
-    siblingOf?: string | number
-    slug?: string
-    slug_Icontains?: string
-    /**
-         * Filter by exact sort order
-         */
-    sortOrder?: string | number
-    /**
-         * Maximum sort order
-         */
-    sortOrderMax?: string | number
-    /**
-         * Minimum sort order
-         */
-    sortOrderMin?: string | number
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
-         */
-    updatedAfter?: string
-    updatedAt_Date?: string
-    updatedAt_Gte?: string
-    updatedAt_Lte?: string
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
-         */
-    updatedBefore?: string
-    /**
-         * Φίλτρο ανά ακριβές UUID
-         */
-    uuid?: string
-  }
+  query?: never
   url: '/api/v1/product/category/all'
 }
 
@@ -24721,15 +24882,11 @@ export type ListTagData = {
          */
     minUsageCount?: string | number
     /**
-         * Ταξινόμηση ετικετών κατά πλήθος χρήσης (πιο δημοφιλείς πρώτα)
-         */
-    mostUsed?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Φίλτρο ετικετών που χρησιμοποιούνται για συγκεκριμένο ID αντικειμένου
          */
     objectId?: string | number
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Label, -translations_Label
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Label, -translations_Label, usageCount, -usageCount
          */
     ordering?: string
     /**

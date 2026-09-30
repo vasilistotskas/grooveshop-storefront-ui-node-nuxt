@@ -380,11 +380,176 @@
                 "parameters": [
                     {
                         "in": "query",
+                        "name": "bio",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά περιεχόμενο βιογραφικού (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
                         "name": "cursor",
                         "schema": {
                             "type": "string"
                         },
                         "description": "Δείκτης (cursor) για σελιδοποίηση"
+                    },
+                    {
+                        "in": "query",
+                        "name": "firstName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά όνομα (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fullName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά πλήρες όνομα (όνομα + επώνυμο)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasLikes",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο συντακτών με/χωρίς επισημάνσεις στα άρθρα τους"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasPosts",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο συντακτών με/χωρίς άρθρα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasWebsite",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο συντακτών με/χωρίς ιστότοπο"
+                    },
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "id_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
                     },
                     {
                         "in": "query",
@@ -401,13 +566,69 @@
                         "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
                     },
                     {
+                        "in": "query",
+                        "name": "lastName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά επώνυμο (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "maxPosts",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο συντακτών με έως X άρθρα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minPosts",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο συντακτών με τουλάχιστον X άρθρα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minTotalLikes",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο συντακτών με τουλάχιστον X συνολικές επισημάνσεις σε όλα τα άρθρα"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website",
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website, numberOfPosts, -numberOfPosts, totalLikesReceived, -totalLikesReceived",
                         "schema": {
                             "type": "string",
-                            "pattern": "^(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|user_FirstName|\\-user_FirstName|user_LastName|\\-user_LastName|user_Email|\\-user_Email|user_CreatedAt|\\-user_CreatedAt|website|\\-website)(?:,(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|user_FirstName|\\-user_FirstName|user_LastName|\\-user_LastName|user_Email|\\-user_Email|user_CreatedAt|\\-user_CreatedAt|website|\\-website))*$"
+                            "pattern": "^(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|user_FirstName|\\-user_FirstName|user_LastName|\\-user_LastName|user_Email|\\-user_Email|user_CreatedAt|\\-user_CreatedAt|website|\\-website|numberOfPosts|\\-numberOfPosts|totalLikesReceived|\\-totalLikesReceived)(?:,(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|user_FirstName|\\-user_FirstName|user_LastName|\\-user_LastName|user_Email|\\-user_Email|user_CreatedAt|\\-user_CreatedAt|website|\\-website|numberOfPosts|\\-numberOfPosts|totalLikesReceived|\\-totalLikesReceived))*$"
                         }
                     },
                     {
@@ -475,6 +696,138 @@
                         "required": false,
                         "in": "query",
                         "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID χρήστη"
+                    },
+                    {
+                        "in": "query",
+                        "name": "user_Email",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "user_Email_Icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "user_FirstName",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "user_FirstName_Icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "user_LastName",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "user_LastName_Icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "userEmail",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Φίλτρο ανά ακριβές UUID"
+                    },
+                    {
+                        "in": "query",
+                        "name": "website",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά URL ιστότοπου (μερική αντιστοίχιση)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "website_Icontains",
                         "schema": {
                             "type": "string"
                         }
@@ -1091,11 +1444,151 @@
                 "parameters": [
                     {
                         "in": "query",
+                        "name": "author",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID συντάκτη"
+                    },
+                    {
+                        "in": "query",
+                        "name": "authorEmail",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "authorName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "category",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID κατηγορίας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "categoryName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "currentlyPublished",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)"
+                    },
+                    {
+                        "in": "query",
                         "name": "cursor",
                         "schema": {
                             "type": "string"
                         },
                         "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "featured",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά κατάσταση προτεινόμενου"
                     },
                     {
                         "in": "path",
@@ -1115,6 +1608,63 @@
                     },
                     {
                         "in": "query",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "id_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isPublished",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά κατάσταση δημοσίευσης"
+                    },
+                    {
+                        "in": "query",
                         "name": "languageCode",
                         "schema": {
                             "type": "string",
@@ -1126,6 +1676,70 @@
                             "default": "el"
                         },
                         "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minComments",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minLikes",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minTags",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minViewCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό προβολών"
                     },
                     {
                         "name": "ordering",
@@ -1197,12 +1811,201 @@
                         "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
+                        "in": "query",
+                        "name": "publishedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
                         "name": "search",
                         "required": false,
                         "in": "query",
                         "description": "A search term.",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug_Icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "tagName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tags",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)",
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Φίλτρο ανά ακριβές UUID"
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
                         }
                     }
                 ],
@@ -1287,6 +2090,229 @@
                 "parameters": [
                     {
                         "in": "query",
+                        "name": "ancestorOf",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών που είναι πρόγονοι της δεδομένης κατηγορίας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "descendantOf",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών που είναι απόγονοι της δεδομένης κατηγορίας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "description",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά περιεχόμενο περιγραφής (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasChildren",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών με/χωρίς παιδιά"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasImage",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών με/χωρίς εικόνα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasPosts",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών με άρθρα (true) ή χωρίς άρθρα (false)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "hasRecursivePosts",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών με άρθρα στις ίδιες ή στους απογόνους τους"
+                    },
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "id_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isLeaf",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο τελικών κατηγοριών (χωρίς παιδιά)"
+                    },
+                    {
+                        "in": "query",
                         "name": "languageCode",
                         "schema": {
                             "type": "string",
@@ -1298,6 +2324,156 @@
                             "default": "el"
                         },
                         "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "level",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά επίπεδο δέντρου (0 για ριζικές κατηγορίες)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "level_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών σε αυτό το επίπεδο ή χαμηλότερα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "level_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών σε αυτό το επίπεδο ή υψηλότερα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "lft",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά αριστερή τιμή δέντρου (εσωτερικό MPTT)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "lft_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "lft_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "maxPostCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών με έως τόσα άρθρα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minPostCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών με τουλάχιστον τόσα άρθρα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minRecursivePostCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο κατηγοριών με τουλάχιστον τόσα άρθρα (συμπεριλαμβανομένων των απογόνων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)"
                     },
                     {
                         "name": "ordering",
@@ -1370,6 +2546,89 @@
                         "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
+                        "in": "query",
+                        "name": "parent",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID γονικής κατηγορίας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "parent_Isnull",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ριζικών κατηγοριών (true) ή μη ριζικών (false)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "rght",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά δεξιά τιμή δέντρου (εσωτερικό MPTT)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "rght_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "rght_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
                         "name": "search",
                         "required": false,
                         "in": "query",
@@ -1377,6 +2636,165 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug_Icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrder",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ακριβή σειρά"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrder_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrder_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrderMax",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortOrderMin",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με"
+                    },
+                    {
+                        "in": "query",
+                        "name": "treeId",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID δέντρου (εσωτερικό MPTT)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Φίλτρο ανά ακριβές UUID"
                     }
                 ],
                 "tags": [
@@ -2547,6 +3965,146 @@
                 "summary": "Λήψη άρθρων κατηγορίας",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "author",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID συντάκτη"
+                    },
+                    {
+                        "in": "query",
+                        "name": "authorEmail",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "authorName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "category",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID κατηγορίας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "categoryName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "currentlyPublished",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "featured",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά κατάσταση προτεινόμενου"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -2561,6 +4119,127 @@
                             ]
                         },
                         "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "id_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isPublished",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά κατάσταση δημοσίευσης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minComments",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minLikes",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minTags",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minViewCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό προβολών"
                     },
                     {
                         "name": "ordering",
@@ -2608,6 +4287,48 @@
                     },
                     {
                         "in": "query",
+                        "name": "publishedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
                         "name": "recursive",
                         "schema": {
                             "oneOf": [
@@ -2634,6 +4355,153 @@
                         "description": "A search term.",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug_Icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "tagName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tags",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)",
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Φίλτρο ανά ακριβές UUID"
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
                         }
                     }
                 ],
@@ -3658,55 +5526,13 @@
                         "description": "Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις"
                     },
                     {
-                        "in": "query",
-                        "name": "mostLiked",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mostReplied",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα"
-                    },
-                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved",
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved, likesCount, -likesCount, repliesCount, -repliesCount",
                         "schema": {
                             "type": "string",
-                            "pattern": "^(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|level|\\-level|lft|\\-lft|approved|\\-approved)(?:,(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|level|\\-level|lft|\\-lft|approved|\\-approved))*$"
+                            "pattern": "^(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|level|\\-level|lft|\\-lft|approved|\\-approved|likesCount|\\-likesCount|repliesCount|\\-repliesCount)(?:,(?:id|\\-id|createdAt|\\-createdAt|updatedAt|\\-updatedAt|level|\\-level|lft|\\-lft|approved|\\-approved|likesCount|\\-likesCount|repliesCount|\\-repliesCount))*$"
                         }
                     },
                     {
@@ -5296,48 +7122,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "mostLiked",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mostReplied",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα"
-                    },
-                    {
-                        "in": "query",
                         "name": "page",
                         "schema": {
                             "oneOf": [
@@ -6295,48 +8079,6 @@
                             ]
                         },
                         "description": "Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mostLiked",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mostReplied",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα"
                     },
                     {
                         "in": "query",
@@ -7473,48 +9215,6 @@
                             ]
                         },
                         "description": "Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mostLiked",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mostReplied",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα"
                     },
                     {
                         "in": "query",
@@ -12212,48 +13912,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "mostLiked",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση ετικετών κατά συνολικές επισημάνσεις στα άρθρα που τις χρησιμοποιούν"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mostUsed",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση ετικετών κατά πλήθος χρήσης (πιο δημοφιλείς πρώτα)"
-                    },
-                    {
-                        "in": "query",
                         "name": "name",
                         "schema": {
                             "type": "string"
@@ -12280,10 +13938,10 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, name, -name",
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, name, -name, postsCount, -postsCount, totalLikes, -totalLikes",
                         "schema": {
                             "type": "string",
-                            "pattern": "^(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|name|\\-name)(?:,(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|name|\\-name))*$"
+                            "pattern": "^(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|name|\\-name|postsCount|\\-postsCount|totalLikes|\\-totalLikes)(?:,(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|name|\\-name|postsCount|\\-postsCount|totalLikes|\\-totalLikes))*$"
                         }
                     },
                     {
@@ -13717,499 +15375,6 @@
                             "format": "uuid"
                         },
                         "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
-                    },
-                    {
-                        "in": "query",
-                        "name": "cartType",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "anonymous",
-                                "guest",
-                                "user"
-                            ]
-                        },
-                        "description": "Φίλτρο ανά τύπο καλαθιού\n\n* `user` - User Cart\n* `guest` - Guest Cart\n* `anonymous` - Anonymous Cart"
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAfter",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAt_Date",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAt_Gte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAt_Lte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdBefore",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "daysInactive",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών αδρανών για τουλάχιστον X ημέρες"
-                    },
-                    {
-                        "in": "query",
-                        "name": "hasDiscounts",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με/χωρίς είδη σε έκπτωση"
-                    },
-                    {
-                        "in": "query",
-                        "name": "hasItems",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με/χωρίς είδη"
-                    },
-                    {
-                        "in": "query",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "id_In",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "description": "Τιμές διαχωρισμένες με κόμμα"
-                                },
-                                {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "integer"
-                                    }
-                                }
-                            ]
-                        },
-                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
-                        "explode": false,
-                        "style": "form"
-                    },
-                    {
-                        "in": "query",
-                        "name": "isAbandoned",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting."
-                    },
-                    {
-                        "in": "query",
-                        "name": "isActive",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter active/abandoned carts. The window is the CART_ABANDONED_HOURS store setting, not a fixed period."
-                    },
-                    {
-                        "in": "query",
-                        "name": "isGuest",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών επισκεπτών (True) ή καλαθιών χρηστών (False)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "lastActivity",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο ανά ακριβή ημερομηνία τελευταίας δραστηριότητας"
-                    },
-                    {
-                        "in": "query",
-                        "name": "lastActivity_Date",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "lastActivity_Gte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "lastActivity_Lte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "lastActivityAfter",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο καλαθιών με τελευταία δραστηριότητα μετά από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "lastActivityBefore",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο καλαθιών με τελευταία δραστηριότητα πριν από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "maxItems",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με έως X συνολικά είδη (ποσότητα)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "maxTotalValue",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με συνολική αξία έως X"
-                    },
-                    {
-                        "in": "query",
-                        "name": "maxUniqueItems",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με έως X μοναδικά είδη"
-                    },
-                    {
-                        "in": "query",
-                        "name": "minItems",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με τουλάχιστον X συνολικά είδη (ποσότητα)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "minTotalValue",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με συνολική αξία τουλάχιστον X"
-                    },
-                    {
-                        "in": "query",
-                        "name": "minUniqueItems",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με τουλάχιστον X μοναδικά είδη"
-                    },
-                    {
-                        "name": "search",
-                        "required": false,
-                        "in": "query",
-                        "description": "A search term.",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAfter",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAt_Date",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAt_Gte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAt_Lte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedBefore",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "user",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο ανά ID χρήστη"
-                    },
-                    {
-                        "in": "query",
-                        "name": "user_IsActive",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο ανά ενεργούς χρήστες"
-                    },
-                    {
-                        "in": "query",
-                        "name": "user_Isnull",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο καλαθιών με/χωρίς χρήστες"
-                    },
-                    {
-                        "in": "query",
-                        "name": "userEmail",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "userName",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "uuid",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "description": "Φίλτρο ανά ακριβές UUID"
                     }
                 ],
                 "tags": [
@@ -25793,6 +26958,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -26237,6 +27412,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/CreatePaymentIntentResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -35638,494 +36823,6 @@
                 "operationId": "listAllProductCategory",
                 "description": "Retrieve all product categories without pagination. Useful for dropdowns, filters, and other UI components that need the complete list.",
                 "summary": "List all product categories (unpaginated)",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "active",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "ancestorOf",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Filter ancestors of specified category ID"
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAfter",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAt_Date",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAt_Gte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAt_Lte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdBefore",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "descendantOf",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Filter descendants of specified category ID"
-                    },
-                    {
-                        "in": "query",
-                        "name": "hasChildren",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter categories that have children"
-                    },
-                    {
-                        "in": "query",
-                        "name": "hasProducts",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter categories that have products (recursive)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "id",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "id_In",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "description": "Τιμές διαχωρισμένες με κόμμα"
-                                },
-                                {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "integer"
-                                    }
-                                }
-                            ]
-                        },
-                        "description": "Filter by multiple category IDs (comma-separated)",
-                        "explode": false,
-                        "style": "form"
-                    },
-                    {
-                        "in": "query",
-                        "name": "isLeaf",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter leaf categories (no children)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "isRoot",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter root categories (no parent)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "level",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Filter by hierarchy level (0 = root)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "level_Gte",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "level_Lte",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "maxLevel",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Maximum hierarchy level"
-                    },
-                    {
-                        "in": "query",
-                        "name": "maxProductCount",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Maximum number of products (recursive)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "minLevel",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Minimum hierarchy level"
-                    },
-                    {
-                        "in": "query",
-                        "name": "minProductCount",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Minimum number of products (recursive)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "parent",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Filter by parent category ID"
-                    },
-                    {
-                        "in": "query",
-                        "name": "parentSlug",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Filter by parent category slug"
-                    },
-                    {
-                        "name": "search",
-                        "required": false,
-                        "in": "query",
-                        "description": "A search term.",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "siblingOf",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Filter siblings of specified category ID"
-                    },
-                    {
-                        "in": "query",
-                        "name": "slug",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "slug_Icontains",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrder",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Filter by exact sort order"
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrderMax",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Maximum sort order"
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrderMin",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Minimum sort order"
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAfter",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAt_Date",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAt_Gte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAt_Lte",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedBefore",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "uuid",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "description": "Φίλτρο ανά ακριβές UUID"
-                    }
-                ],
                 "tags": [
                     "Product Categories"
                 ],
@@ -44375,27 +45072,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "mostUsed",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Ταξινόμηση ετικετών κατά πλήθος χρήσης (πιο δημοφιλείς πρώτα)"
-                    },
-                    {
-                        "in": "query",
                         "name": "objectId",
                         "schema": {
                             "oneOf": [
@@ -44414,10 +45090,10 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Label, -translations_Label",
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Label, -translations_Label, usageCount, -usageCount",
                         "schema": {
                             "type": "string",
-                            "pattern": "^(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|translations_Label|\\-translations_Label)(?:,(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|translations_Label|\\-translations_Label))*$"
+                            "pattern": "^(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|translations_Label|\\-translations_Label|usageCount|\\-usageCount)(?:,(?:id|\\-id|active|\\-active|createdAt|\\-createdAt|updatedAt|\\-updatedAt|sortOrder|\\-sortOrder|translations_Label|\\-translations_Label|usageCount|\\-usageCount))*$"
                         }
                     },
                     {
@@ -53910,17 +54586,7 @@
                         "readOnly": true
                     },
                     "totalLikesReceived": {
-                        "oneOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "enum": [
-                                    0
-                                ],
-                                "type": "integer"
-                            }
-                        ],
+                        "type": "integer",
                         "readOnly": true
                     }
                 },
@@ -54010,17 +54676,7 @@
                         "readOnly": true
                     },
                     "totalLikesReceived": {
-                        "oneOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "enum": [
-                                    0
-                                ],
-                                "type": "integer"
-                            }
-                        ],
+                        "type": "integer",
                         "readOnly": true
                     },
                     "recentPosts": {
