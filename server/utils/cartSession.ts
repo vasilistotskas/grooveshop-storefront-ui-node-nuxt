@@ -79,8 +79,11 @@ export async function updateCartSession(event: H3Event, updates: Partial<CartSes
   const session = await getSession(event)
 
   if ('cartId' in updates && updates.cartId === undefined) {
-    const { cartId: _cartId, ...rest } = session.data
-    await session.update(rest)
+    // h3 merges an update into the session (`Object.assign`), so leaving
+    // the key out keeps the old id; it has to be overwritten, and the
+    // sealed JSON then drops it. The session itself must stay:
+    // `nuxt-session` also holds nuxt-auth-utils' signed-in user.
+    await session.update({ cartId: undefined })
     writeFallbackCartId(event, undefined)
     return
   }
