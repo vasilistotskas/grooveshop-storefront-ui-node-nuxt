@@ -31,28 +31,24 @@ const submit = async () => {
   }
 
   isDeleting.value = true
-
-  await $api(`/api/user/addresses/${address?.value.id}`, {
-    method: 'DELETE',
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      toast.add({
-        title: t('success'),
-        color: 'success',
-      })
-      emit('address-delete', address?.value.id)
-    },
-    onResponseError() {
-      toast.add({
-        title: t('error'),
-        color: 'error',
-      })
-    },
-  })
-
-  isDeleting.value = false
+  try {
+    await $api(`/api/user/addresses/${address.value.id}`, { method: 'DELETE' })
+    toast.add({
+      title: t('success'),
+      color: 'success',
+    })
+    emit('address-delete', address.value.id)
+  }
+  catch (error) {
+    log.error({ action: 'address:delete', error })
+    toast.add({
+      title: t('error'),
+      color: 'error',
+    })
+  }
+  finally {
+    isDeleting.value = false
+  }
 }
 
 const addressDetails = computed(() => {

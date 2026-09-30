@@ -41,11 +41,10 @@ const emit = defineEmits<{
   (e: 'show-more-replies', commentId: number): void
 }>()
 
-const userStore = useUserStore()
 const toast = useToast()
 const { t, locale } = useI18n()
 const { user, loggedIn } = useUserSession()
-const { updateLikedComments } = userStore
+const { loadLikedComments } = useUserStore()
 
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 
@@ -107,82 +106,70 @@ const replyCommentFormSchema: DynamicFormSchema = {
   ],
 }
 
-const fetchReplies = async (cursorValue: string) => {
+const replyIds = computed(() => replies.value?.results?.map(reply => reply.id) ?? [])
+
+/** Load a page of replies and their like state; false when it failed. */
+const fetchReplies = async (cursorValue: string): Promise<boolean> => {
   pending.value = true
-  await $api(`/api/blog/comments/${comment.value.id}/replies`, {
-    method: 'GET',
-    query: {
-      cursor: cursorValue,
-      paginationType: paginationType.value,
-      pageSize: pageSize.value,
-      languageCode: locale.value,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        showReplies.value = false
-        return
-      }
-      replies.value = response._data
-      repliesFetched.value = true
-    },
-  })
-  pending.value = false
+  try {
+    replies.value = await $api(`/api/blog/comments/${comment.value.id}/replies`, {
+      method: 'GET',
+      query: {
+        cursor: cursorValue,
+        paginationType: paginationType.value,
+        pageSize: pageSize.value,
+        languageCode: locale.value,
+      },
+    })
+    repliesFetched.value = true
+  }
+  catch (error) {
+    log.error({ action: 'comments:replies', error })
+    toast.add({
+      title: t('load.error'),
+      color: 'error',
+    })
+    showReplies.value = false
+    return false
+  }
+  finally {
+    pending.value = false
+  }
+  await loadLikedComments(replyIds.value)
+  return true
 }
 
 async function onReplySubmit(values: Record<string, any>) {
-  await $api('/api/blog/comments', {
-    method: 'POST',
-    body: {
-      post: Number(blogPostId.value),
-      user: Number(user?.value?.id),
-      translations: {
-        [locale.value]: {
-          content: values.content,
+  try {
+    const created = await $api('/api/blog/comments', {
+      method: 'POST',
+      body: {
+        post: Number(blogPostId.value),
+        user: Number(user?.value?.id),
+        translations: {
+          [locale.value]: {
+            content: values.content,
+          },
         },
+        parent: Number(comment.value.id),
       },
-      parent: Number(comment.value.id),
-    },
-    async onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      emit('reply-add', response._data)
-      await fetchReplies(cursor.value)
-      toast.add({
-        title: t('add.success'),
-        color: 'success',
-      })
-      showReplyForm.value = false
-      showReplies.value = true
-    },
-    onResponseError() {
-      toast.add({
-        title: t('add.error'),
-        color: 'error',
-      })
-    },
-  })
-}
-
-const replyIds = computed(() => {
-  if (!replies.value) return []
-  return replies.value?.results?.map(reply => reply.id)
-})
-
-const fetchLikedComments = async (ids: number[]) => {
-  return await $api(`/api/blog/comments/liked-comments`, {
-    method: 'POST',
-    body: {
-      commentIds: ids,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const likedCommentIds = response._data?.likedCommentIds || []
-      updateLikedComments(likedCommentIds)
-    },
-  })
+    })
+    emit('reply-add', created)
+    toast.add({
+      title: t('add.success'),
+      color: 'success',
+    })
+    showReplyForm.value = false
+  }
+  catch (error) {
+    log.error({ action: 'comments:reply', error })
+    toast.add({
+      title: t('add.error'),
+      color: 'error',
+    })
+    return
+  }
+  if (await fetchReplies(cursor.value)) showReplies.value = true
 }
 
 const commentCardClass = computed(() => {
@@ -222,9 +209,6 @@ const onShowMoreRepliesButtonClick = async () => {
   if (showReplies.value && allReplies.value.length === 0) {
     emit('show-more-replies', comment.value?.id)
     await fetchReplies(cursor.value)
-    if (loggedIn.value && replyIds.value && replyIds.value.length > 0) {
-      await fetchLikedComments(replyIds.value)
-    }
   }
 }
 
@@ -248,9 +232,6 @@ watch(
   async (newValue) => {
     if (!newValue) return
     await fetchReplies(newValue)
-    if (loggedIn.value && replyIds.value && replyIds.value.length > 0) {
-      await fetchLikedComments(replyIds.value)
-    }
   },
   { deep: true },
 )
@@ -593,6 +574,8 @@ el:
     replies: Απόκρυψη
   more:
     replies: Δεν υπάρχουν απαντήσεις | 1 Απάντηση | {count} Απαντήσεις
+  load:
+    error: Σφάλμα φόρτωσης απαντήσεων
 en:
   add:
     success: Your comment was created and will appear once approved
@@ -604,4 +587,6 @@ en:
     replies: Hide
   more:
     replies: No replies | 1 reply | {count} replies
+  load:
+    error: The replies could not be loaded
 </i18n>

@@ -575,6 +575,8 @@ export function setupSocialLogin() {
   const {
     providerToken,
   } = useAllAuthAuthentication()
+  const nuxtApp = useNuxtApp()
+  const router = useRouter()
 
   const gsi = useScript({
     src: '//accounts.google.com/gsi/client',
@@ -597,14 +599,27 @@ export function setupSocialLogin() {
     const provider = authConfig.value?.socialaccount?.providers.find(p => p.id === 'google')
     if (!loggedIn.value && provider && gsi.instance) {
       async function handleCredentialResponse(response: { credential: string }) {
-        await providerToken({
-          provider: provider ? provider.id : '',
-          token: {
-            id_token: response.credential,
-            client_id: provider?.client_id ? provider.client_id : '',
-          },
-          process: GSIAuthProcess.LOGIN,
-        })
+        // The page the prompt was answered on, before `auth:change` moves on.
+        const fromPath = router.currentRoute.value.path
+        try {
+          await providerToken({
+            provider: provider ? provider.id : '',
+            token: {
+              id_token: response.credential,
+              client_id: provider?.client_id ? provider.client_id : '',
+            },
+            process: GSIAuthProcess.LOGIN,
+          })
+        }
+        catch (error) {
+          // GSI calls back from its own script, outside any component:
+          // give the navigation and toast helpers the app's context. A
+          // pending flow (signup, 2FA) is the next step, not a failure.
+          await nuxtApp.runWithContext(async () => {
+            if (await tryAdvanceToPendingFlow(error, { fromPath })) return
+            handleAllAuthClientError(error)
+          })
+        }
       }
 
       if (gsi.instance) {

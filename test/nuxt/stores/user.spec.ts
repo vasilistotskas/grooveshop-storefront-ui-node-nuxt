@@ -3,6 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setActivePinia, createPinia } from 'pinia'
 import { useUserStore } from '~/stores/user'
 import { makeUserDetails } from '~~/test/fixtures/user'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * Plain `{ value }` holders, not refs: the setup plugin watches
@@ -22,6 +23,9 @@ mockNuxtImport('useUserSession', () => () => ({
   clear: vi.fn(() => Promise.resolve()),
 }))
 mockNuxtImport('useAllAuthAccount', () => () => ({ getUserAccount }))
+
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
 
 const ACCOUNT = makeUserDetails({ id: 7, email: 'shopper@example.com' })
 
@@ -142,6 +146,41 @@ describe('useUserStore', () => {
       update(store, [1, 2, 3])
 
       expect(liked(store)).toEqual([1, 2, 3])
+    })
+  })
+
+  describe('loadLikedComments', () => {
+    const LIKED = '/api/blog/comments/liked-comments'
+
+    it('asks which of the comments the signed-in reader likes, and remembers them', async () => {
+      session.loggedIn.value = true
+      store.addLikedComment(1)
+      api.routes({ [LIKED]: { likedCommentIds: [2] } })
+
+      await store.loadLikedComments([2, 3])
+
+      expect(api.callsTo(LIKED)).toEqual([{ url: LIKED, options: expect.objectContaining({ method: 'POST', body: { commentIds: [2, 3] } }) }])
+      expect(store.blogLikedComments).toEqual([1, 2])
+    })
+
+    it.each([
+      ['a guest', false, [2]],
+      ['no comments', true, []],
+    ])('asks nothing for %s', async (_case, signedIn, ids) => {
+      session.loggedIn.value = signedIn
+
+      await store.loadLikedComments(ids)
+
+      expect(api.callsTo(LIKED)).toHaveLength(0)
+    })
+
+    it('leaves the comments unmarked when the like state cannot be loaded', async () => {
+      session.loggedIn.value = true
+      api.routes({ [LIKED]: failWith(502) })
+
+      await expect(store.loadLikedComments([2])).resolves.toBeUndefined()
+
+      expect(store.blogLikedComments).toEqual([])
     })
   })
 

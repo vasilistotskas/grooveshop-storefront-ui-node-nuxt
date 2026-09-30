@@ -50,8 +50,7 @@ const { t, locale } = useI18n()
 const toast = useToast()
 const route = useRoute()
 const { loggedIn, user } = useUserSession()
-const userStore = useUserStore()
-const { updateLikedComments } = userStore
+const { loadLikedComments } = useUserStore()
 const cursorState = useState<CursorState>('cursor-state')
 
 const cursor = computed(
@@ -61,23 +60,6 @@ const cursor = computed(
 const isOpen = ref(false)
 const allComments = ref<BlogComment[]>([])
 const isLoadingMore = ref(false)
-
-const refreshLikedComments = async (ids: number[]) => {
-  if (!loggedIn.value) return
-  return await $api('/api/blog/comments/liked-comments', {
-    method: 'POST',
-    body: {
-      commentIds: ids,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const likedCommentIds = response._data?.likedCommentIds || []
-      updateLikedComments(likedCommentIds)
-    },
-  })
-}
 
 const {
   data: comments,
@@ -145,12 +127,8 @@ const loadMoreComments = async () => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       })
 
+      // The `commentIds` watcher loads this page's like state.
       comments.value = response
-
-      if (loggedIn.value && newComments.length > 0) {
-        const newCommentIds = newComments.map((comment: BlogComment) => comment.id)
-        await refreshLikedComments(newCommentIds)
-      }
     }
   }
   catch (error) {
@@ -170,16 +148,12 @@ const commentIds = computed(() => {
   return comments.value?.results?.map(comment => comment.id) || []
 })
 
-// Load like state for the initially rendered comments. `commentIds` is empty
-// during setup (allComments is filled by the `comments` watcher below), so this
-// must react to the ids arriving rather than run once — otherwise the initial
-// page of comments never gets its like state and toggling silently removes an
-// existing like.
-watch(commentIds, (ids) => {
-  if (loggedIn.value && ids.length > 0) {
-    refreshLikedComments(ids)
-  }
-}, { immediate: import.meta.client })
+// Load the like state of every page of comments as it arrives — the first
+// one, a loaded next page, a refetch. `commentIds` is empty during setup
+// (allComments is filled by the `comments` watcher below), so this must
+// react to the ids rather than run once — otherwise the first page never
+// gets its like state and toggling silently removes an existing like.
+watch(commentIds, ids => loadLikedComments(ids), { immediate: import.meta.client })
 
 const onReplyAdd = async (data: BlogComment) => {
   emit('reply-add', data)
@@ -210,35 +184,35 @@ const addCommentFormSchema: DynamicFormSchema = {
 }
 
 async function onAddCommentSubmit(values: Record<string, any>) {
-  await $api('/api/blog/comments', {
-    method: 'POST',
-    body: {
-      post: Number(blogPostId.value),
-      user: Number(user?.value?.id),
-      translations: {
-        [locale.value]: {
-          content: values.content,
+  try {
+    const created = await $api('/api/blog/comments', {
+      method: 'POST',
+      body: {
+        post: Number(blogPostId.value),
+        user: Number(user?.value?.id),
+        translations: {
+          [locale.value]: {
+            content: values.content,
+          },
         },
       },
-    },
-    async onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      emit('reply-add', response._data)
-      await refresh()
-      toast.add({
-        title: t('add.success'),
-        color: 'success',
-      })
-    },
-    onResponseError() {
-      toast.add({
-        title: t('add.error'),
-        color: 'error',
-      })
-    },
-  })
+    })
+    emit('reply-add', created)
+    toast.add({
+      title: t('add.success'),
+      color: 'success',
+    })
+  }
+  catch (error) {
+    log.error({ action: 'comments:add', error })
+    toast.add({
+      title: t('add.error'),
+      color: 'error',
+    })
+    return
+  }
+  // A refetch never rejects: `useApi` keeps its error in `error`.
+  await refresh()
 }
 
 const scrollToComments = () => {
@@ -256,9 +230,6 @@ watch(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
   async () => {
     await refresh()
-    if (loggedIn.value && commentIds.value && commentIds.value.length > 0) {
-      await refreshLikedComments(commentIds.value)
-    }
   },
 )
 

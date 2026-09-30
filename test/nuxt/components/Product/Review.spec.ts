@@ -6,6 +6,7 @@ import Review from '~/components/Product/Review.vue'
 import WebsideReview from '~/components/variants/webside/Product/Review.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from '~~/test/fixtures/product'
 import { makeUserDetails } from '~~/test/fixtures/user'
+import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -37,17 +38,10 @@ const REVIEW: ProductReviewDetail = {
   translations: { el: { comment: 'Καλή γλάστρα, γερή.' } },
 }
 
-/**
- * The review calls `$api` with ofetch `onResponse` / `onResponseError`
- * hooks and acts inside them, so a route answers by calling the hook
- * ofetch would call. ofetch then also rejects; the component does not
- * catch that rejection (reported as a bug), so the error route stops at
- * the hook rather than surface it as an unhandled rejection here.
- */
-const respondOk = (_url: string, options: any) => options.onResponse?.({ response: { ok: true } })
-const respondError = (data: unknown) => (_url: string, options: any) => {
-  options.onResponseError?.({ response: { _data: data } })
-}
+// A refusal rejects the way ofetch's FetchError does: the proxied
+// error body on `data`.
+const refused = (data: unknown) => failWith(400, data)
+const UPDATED: ProductReviewDetail = { ...REVIEW, rate: 7 }
 
 // The modal's open/close is Nuxt UI's; the stub renders its slots in
 // place while it is open, so the form and its footer are reachable.
@@ -103,7 +97,7 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
   })
 
   it('creates a review in the page language and reports it to the page', async () => {
-    api.routes({ '/api/products/reviews': respondOk })
+    api.routes({ '/api/products/reviews': { ...REVIEW, rate: 8 } })
     const wrapper = await mountReview()
 
     await rateWithKeys(wrapper, 'ArrowRight', 8)
@@ -117,7 +111,7 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
         body: { product: 1, translations: { el: { comment: 'Πολύ καλή ποιότητα, το συνιστώ.' } }, rate: 8 },
       }),
     }])
-    expect(wrapper.emitted('add-existing-review')).toHaveLength(1)
+    expect(wrapper.emitted('add-existing-review')).toEqual([[{ ...REVIEW, rate: 8 }]])
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Η κριτική δημιουργήθηκε με επιτυχία', color: 'success' })
   })
 
@@ -138,7 +132,7 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
     ['a proxied single code', { data: { product: 'must_have_purchased' } }],
     ['a bare DRF list of codes', { product: ['must_have_purchased'] }],
   ])('tells a shopper who has not bought the product why the review was refused (%s)', async (_shape, body) => {
-    api.routes({ '/api/products/reviews': respondError(body) })
+    api.routes({ '/api/products/reviews': refused(body) })
     const wrapper = await mountReview()
 
     await rateWithKeys(wrapper, 'ArrowRight', 8)
@@ -153,18 +147,29 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
   })
 
   it('reports any other refusal generically', async () => {
-    api.routes({ '/api/products/reviews': respondError({ data: { comment: ['too_long'] } }) })
+    api.routes({ '/api/products/reviews': refused({ data: { comment: ['too_long'] } }) })
     const wrapper = await mountReview()
 
     await rateWithKeys(wrapper, 'ArrowRight', 8)
     await wrapper.get('textarea').setValue('Πολύ καλή ποιότητα, το συνιστώ.')
     await submit(wrapper, 'Γράψε μια κριτική')
 
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Σφάλμα δημιουργίας σχολίου', color: 'error' })
+  })
+
+  it('settles a refused submit instead of throwing it at the form', async () => {
+    api.routes({ '/api/products/reviews': failWith(500) })
+    const wrapper = await mountReview()
+    const onSubmit = wrapper.findComponent({ name: 'UForm' }).props('onSubmit')
+
+    // UForm rethrows whatever its handler throws, into Vue's error handler.
+    await expect(onSubmit({ data: { rate: 8, comment: 'Πολύ καλή ποιότητα, το συνιστώ.' } })).resolves.toBeUndefined()
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Σφάλμα δημιουργίας σχολίου', color: 'error' })
   })
 
   it('starts from the existing review and updates it in place', async () => {
-    api.routes({ '/api/products/reviews/9': respondOk })
+    api.routes({ '/api/products/reviews/9': UPDATED })
     const wrapper = await mountReview({ userHadReviewed: true, userProductReview: REVIEW })
 
     expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('Καλή γλάστρα, γερή.')
@@ -180,11 +185,22 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
         body: { product: 1, translations: { el: { comment: 'Καλή γλάστρα, γερή.' } }, rate: 7 },
       }),
     }])
-    expect(wrapper.emitted('update-existing-review')).toEqual([[REVIEW]])
+    expect(wrapper.emitted('update-existing-review')).toEqual([[UPDATED]])
+  })
+
+  it('says so when an update is refused, and reports nothing to the page', async () => {
+    api.routes({ '/api/products/reviews/9': failWith(400) })
+    const wrapper = await mountReview({ userHadReviewed: true, userProductReview: REVIEW })
+
+    await submit(wrapper, 'Ενημέρωση κριτικής')
+
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd.mock.calls[0]![0]).toMatchObject({ color: 'error' })
+    expect(wrapper.emitted('update-existing-review')).toBeUndefined()
   })
 
   it('deletes the review and clears the form', async () => {
-    api.routes({ '/api/products/reviews/9': respondOk })
+    api.routes({ '/api/products/reviews/9': null })
     const wrapper = await mountReview({ userHadReviewed: true, userProductReview: REVIEW })
 
     await submit(wrapper, 'Διαγραφή κριτικής')
@@ -195,6 +211,18 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
     expect(wrapper.emitted('delete-existing-review')).toEqual([[REVIEW]])
     expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('')
     expect(slider(wrapper).attributes('aria-valuenow')).toBe('0')
+  })
+
+  it('keeps the review and the form when the delete is refused', async () => {
+    api.routes({ '/api/products/reviews/9': failWith(500) })
+    const wrapper = await mountReview({ userHadReviewed: true, userProductReview: REVIEW })
+
+    await submit(wrapper, 'Διαγραφή κριτικής')
+
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd.mock.calls[0]![0]).toMatchObject({ color: 'error' })
+    expect(wrapper.emitted('delete-existing-review')).toBeUndefined()
+    expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('Καλή γλάστρα, γερή.')
   })
 
   it('offers no delete before there is a review', async () => {

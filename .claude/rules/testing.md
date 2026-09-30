@@ -92,7 +92,7 @@ and fake timers for debounce, polling and timeouts
 | `test/helpers/sourceText.ts` | the source-rule toolkit: file walks, memoised SFC/AST parsing, `classesOf`, `componentName` |
 | `test/helpers/nitro/` | the server harness (below) |
 | `test/helpers/e2e.ts` | dev-server boot, fake Django, `requestWithHost` |
-| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeOrder`, `makeContentPage`, `makeSubscriptionTopic`, `makeUserSubscription`, `makeUserDetails`, `validTenantConfig`, … |
+| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeOrder`, `makeContentPage`, `makeBlogComment`, `makeSubscriptionTopic`, `makeUserSubscription`, `makeUserDetails`, `validTenantConfig`, … |
 | `test/fixtures/allauth.ts` | allauth replies: `makeSessionResponse`, `makePendingFlowResponse(id)`, `makeBadResponse(...errors)`, `makeAllAuthConfig`, and `asProxiedError(body)` — a body as the app's `$fetch` throws it |
 
 Every fixture factory's defaults are parsed against its Zod schema (the
@@ -142,6 +142,19 @@ of hand-building a payload in a second spec.
   on the stub. A `.client.vue` stub must render an element, not `null`.
 - **Router mocks need the full surface** (`beforeResolve`, `onError`,
   `isReady`, `resolve`, …) or app initialisation breaks.
+- **So does a `useUserSession` mock** — `loggedIn`, `user`, `session`,
+  `ready`, `fetch`, `clear`. The auth plugin reads it while the app boots,
+  and a partial one stops the boot before i18n installs: every mount then
+  fails with vue-i18n's misleading "Need to install with `app.use`".
+- **A real navigation loads the page component.** vue-router resolves a
+  route's lazy component before the navigation settles, so a spec that
+  `router.replace`s onto a heavy page pays that page's whole transform —
+  enough to blow the 5s budget under the full parallel run. When only the
+  route matters, `vi.mock` the page module with an empty component.
+- **Answer `$api` the way ofetch does**: resolve with the body, or reject
+  through `failWith(status, data)`. Never call `options.onResponse*` from a
+  route handler — components and pages take no response hooks
+  (`test/unit/source-rules/api-errors-are-caught.spec.ts`).
 - **i18n returns real Greek.** For exact copy assert
   `useNuxtApp().$i18n.t('key', params)` rather than hardcoding the string.
 

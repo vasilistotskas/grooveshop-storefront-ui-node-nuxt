@@ -34,6 +34,20 @@ mockNuxtImport('useUserSession', () => () => ({
 }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd, remove: vi.fn(), update: vi.fn(), clear: vi.fn(), toasts: ref([]) }))
 
+// `visit()` navigates for real, and vue-router loads a lazy page component
+// before it resolves the navigation — so the first visit to the account
+// settings page transformed that page's whole component graph, which under
+// the full parallel run outlasted the 5s test budget. These tests read only
+// the route, so the pages they pass through are empty components.
+const { PageStub } = await vi.hoisted(async () => {
+  const { defineComponent } = await import('vue')
+  return { PageStub: defineComponent({ render: () => null }) }
+})
+vi.mock('~/pages/index.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/login/index.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/reauthenticate.vue', () => ({ default: PageStub }))
+vi.mock('~/pages/account/settings/index.vue', () => ({ default: PageStub }))
+
 type AuthChange = (detail: unknown, explicit?: boolean) => Promise<void>
 
 /** Install the plugin on a stand-in app and return its `auth:change` handler. */

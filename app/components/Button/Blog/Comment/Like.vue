@@ -68,37 +68,32 @@ const toggleFavourite = async () => {
     return
   }
 
-  await $api(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
-    method: 'POST',
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      if (!liked.value) {
-        emit('update', {
-          blogCommentId: props.blogCommentId,
-          liked: true,
-        })
-        addLikedComment(props.blogCommentId)
-      }
-      else {
-        emit('update', {
-          blogCommentId: props.blogCommentId,
-          liked: false,
-        })
-        removeLikedComment(props.blogCommentId)
-      }
-    },
-    // ofetch only populates context.error for transport/parse failures —
-    // on an HTTP 4xx/5xx it is undefined, so the old `title:
-    // error?.message` rendered an empty toast.
-    onResponseError({ response }) {
-      toast.add({
-        title: getErrorDetail({ data: response._data }) || t('error_occurred'),
-        color: 'error',
-      })
-    },
-  })
+  try {
+    await $api(`/api/blog/comments/${props.blogCommentId}/update-likes`, { method: 'POST' })
+  }
+  catch (error) {
+    log.error({ action: 'blog:commentLike', error })
+    toast.add({
+      title: getErrorDetail(error) || t('error_occurred'),
+      color: 'error',
+    })
+    return
+  }
+
+  if (!liked.value) {
+    emit('update', {
+      blogCommentId: props.blogCommentId,
+      liked: true,
+    })
+    addLikedComment(props.blogCommentId)
+  }
+  else {
+    emit('update', {
+      blogCommentId: props.blogCommentId,
+      liked: false,
+    })
+    removeLikedComment(props.blogCommentId)
+  }
 }
 
 const buttonAreaLabel = computed(() =>

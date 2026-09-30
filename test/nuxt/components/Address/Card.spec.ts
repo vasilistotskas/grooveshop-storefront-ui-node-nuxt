@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { UserAddress } from '~~/shared/openapi/types.gen'
 import AddressCard from '~/components/Address/Card.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -37,19 +38,12 @@ function makeAddress(overrides: Partial<UserAddress> = {}): UserAddress {
   }
 }
 
-/**
- * The card deletes through ofetch hooks, so a route answers by calling
- * the hook ofetch would call. On an error ofetch would also reject,
- * which the card does not catch (reported as a bug: the spinner stays
- * and the rejection is unhandled), so the error route stops at the hook.
- */
-const respondOk = (_url: string, options: any) => options.onResponse?.({ response: { ok: true } })
-const respondError = (_url: string, options: any) => options.onResponseError?.({ response: { _data: {} } })
-
 const mountCard = (address = makeAddress()) =>
   mountSuspended(AddressCard, { props: { address }, route: false })
 const deleteButton = (wrapper: Awaited<ReturnType<typeof mountCard>>) =>
   wrapper.findAll('button').find(button => button.text() === 'Διαγραφή')!
+const deleteControl = (wrapper: Awaited<ReturnType<typeof mountCard>>) =>
+  wrapper.findAllComponents({ name: 'UButton' }).find(button => button.text() === 'Διαγραφή')!
 
 describe('Address/Card', () => {
   it('lists the address\'s recipient, street, town, country and phone, and links to its edit page', async () => {
@@ -77,7 +71,7 @@ describe('Address/Card', () => {
   })
 
   it('deletes another address, confirms it and tells the list which one went', async () => {
-    api.routes({ '/api/user/addresses/5': respondOk })
+    api.routes({ '/api/user/addresses/5': null })
     const wrapper = await mountCard()
 
     await deleteButton(wrapper).trigger('click')
@@ -90,14 +84,17 @@ describe('Address/Card', () => {
     expect(wrapper.emitted('address-delete')).toEqual([[5]])
   })
 
-  it('says so when the server refuses, and keeps the address', async () => {
-    api.routes({ '/api/user/addresses/5': respondError })
+  it('says so when the server refuses, keeps the address and frees the button', async () => {
+    api.routes({ '/api/user/addresses/5': failWith(409) })
     const wrapper = await mountCard()
 
-    await deleteButton(wrapper).trigger('click')
+    // UButton awaits its click handler: a rejection would leave it.
+    await expect(deleteControl(wrapper).props('onClick')(new MouseEvent('click'))).resolves.toBeUndefined()
     await flushPromises()
 
+    expect(toastAdd).toHaveBeenCalledTimes(1)
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Η διεύθυνση δεν διαγράφηκε', color: 'error' })
     expect(wrapper.emitted('address-delete')).toBeUndefined()
+    expect(deleteControl(wrapper).props('loading')).toBe(false)
   })
 })
