@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, onTestFinished } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SmartpointMap from '~/components/Checkout/SmartpointMap.client.vue'
 import type { Locker } from '~~/shared/shipping/interfaces'
@@ -47,10 +47,10 @@ describe('Checkout/SmartpointMap', () => {
     const popup = document.createElement('div')
     popup.innerHTML = `<button type="button" class="acs-popup-select" data-locker-key='${SECOND.key}'>Επιλογή</button>`
     document.body.append(popup)
+    onTestFinished(() => popup.remove())
 
     popup.querySelector('button')!.click()
 
     expect(wrapper.emitted('selected')).toEqual([[SECOND]])
-    popup.remove()
   })
 })

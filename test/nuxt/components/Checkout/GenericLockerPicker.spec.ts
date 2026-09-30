@@ -222,6 +222,30 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     expect(fetchAll).toHaveBeenCalledTimes(2)
   })
 
+  it('keeps showing the newer search as loading when an older one it replaced settles', async () => {
+    let finishNewer: (rows: Locker[]) => void = () => {}
+    const fetchByPostal = vi.fn((query: LockerQuery) => new Promise<Locker[]>((resolve, reject) => {
+      if (fetchByPostal.mock.calls.length === 1) {
+        query.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))
+        return
+      }
+      finishNewer = resolve
+    }))
+    await openPicker(fakeCarrier({ fetchByPostal }))
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+
+    await postalInput().setValue('54624')
+    await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+    await flushPromises()
+
+    // The first search was aborted and settled; the second is in flight.
+    expect(fetchByPostal).toHaveBeenCalledTimes(2)
+    expect(inBody(tp('empty_title'))).toBe(false)
+    finishNewer(ROWS)
+    await flushPromises()
+    expect(rowButton('Smartpoint Κολωνάκι')).toBeDefined()
+  })
+
   it('lists two lockers of one ACS area as two rows, and hands back the one picked', async () => {
     const sameArea = [locker('ATH', 'Smartpoint Σύνταγμα', '001'), locker('ATH', 'Smartpoint Μοναστηράκι', '002')]
     const wrapper = await openPicker(fakeCarrier({ fetchByPostal: vi.fn(() => Promise.resolve(sameArea)) }))
