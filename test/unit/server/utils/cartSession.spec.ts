@@ -1,4 +1,4 @@
-import { parseCookies } from 'h3'
+import { parseCookies, useSession } from 'h3'
 import type { H3Event } from 'h3'
 import { describe, expect, it } from 'vitest'
 import {
@@ -10,6 +10,7 @@ import {
   useCartSession,
 } from '~~/server/utils/cartSession'
 import { createTestEvent, testSession } from '~~/test/helpers/nitro'
+import { useRuntimeConfig } from '~~/test/helpers/nitro/runtime'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
 /**
@@ -98,15 +99,28 @@ describe('cart session', () => {
     await expect(getCartSession(event)).resolves.not.toHaveProperty('cartId')
   })
 
-  // Only the spare is asserted: the sealed session keeps its cartId after
-  // clearing (h3's `session.update` merges, so omitting the key removes
-  // nothing) — reported as a product bug, not pinned here.
-  it('clearing the cart deletes the spare cookie', async () => {
+  it('clearing the cart removes it from the session and the spare, so the next request has none', async () => {
     const withCart = await visitorWithCart(CART_A)
 
     await clearCartSession(withCart)
 
     expect(setCookie(withCart, 'cart-id')).toMatch(/^cart-id=;.*Max-Age=0/)
+    await expect(getCartSession(nextRequest(withCart))).resolves.not.toHaveProperty('cartId')
+  })
+
+  it('clearing the cart keeps the rest of the shared session, so the shopper stays signed in', async () => {
+    // `nuxt-session` is nuxt-auth-utils' cookie as well: clearing the
+    // whole session instead of the one key would sign the shopper out.
+    const sessionConfig = { name: 'nuxt-session', password: useRuntimeConfig().session.password }
+    const first = createTestEvent()
+    await (await useSession(first, sessionConfig)).update({ user: { id: 7 } })
+    await updateCartSession(first, { cartId: CART_A })
+    const withCart = nextRequest(first)
+
+    await clearCartSession(withCart)
+
+    const after = await useSession(nextRequest(withCart), sessionConfig)
+    expect(after.data).toEqual({ user: { id: 7 } })
   })
 
   describe('handleCartResponse', () => {
