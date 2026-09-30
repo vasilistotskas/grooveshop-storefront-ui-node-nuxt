@@ -251,6 +251,18 @@ describe('server/api/__sitemap__/urls — product images', () => {
     expect(image?.caption).toBe('Wooden')
   })
 
+  it('captions with the description\'s readable text: tags gone, entities decoded, whitespace collapsed', async () => {
+    serve({
+      products: [productWithImage({
+        el: { name: 'Καρέκλα', description: '<p>Δρυς &amp;\n  <b>καρυδιά</b></p>', seoTitle: '', seoDescription: '', seoKeywords: '' },
+      })],
+    })
+
+    const image = productImage(await sitemap(tenantContext()))
+
+    expect(image?.caption).toBe('Δρυς & καρυδιά')
+  })
+
   it('falls back to any translated name, and omits an empty caption', async () => {
     serve({
       products: [productWithImage({

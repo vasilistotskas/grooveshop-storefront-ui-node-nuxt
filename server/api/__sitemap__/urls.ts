@@ -169,10 +169,9 @@ export default defineSitemapEventHandler(async (event) => {
             title: product.translations?.[locale]?.name
               || Object.values(product.translations ?? {}).find(t => t?.name)?.name
               || undefined,
-            // Short product description as the image caption. Truncated at
-            // 160 chars to keep the sitemap lean.
-            caption: product.translations?.[locale]?.description
-              ?.replace(/<[^>]+>/g, '').slice(0, 160) || undefined,
+            // The description's readable text as the caption, cut at 160
+            // characters to keep the sitemap lean; the module XML-escapes it.
+            caption: htmlToPlainText(product.translations?.[locale]?.description ?? '').slice(0, 160) || undefined,
           }]
         : undefined,
     })),
