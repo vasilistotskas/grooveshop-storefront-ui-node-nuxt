@@ -429,13 +429,15 @@ export async function useCheckoutForm() {
    * Called by the initial render (awaited: a watcher does not run
    * during SSR) and by the method and country watchers, which on the
    * client all fire for the same settled state — so a query identical
-   * to the last one issued is skipped. Method and country can change
-   * while a request is in flight, so only the latest request may write
-   * the list.
+   * to the last one issued is skipped: its caller gets that request's
+   * promise, so the initial render still waits for the list when a
+   * watcher got there first. Method and country can change while a
+   * request is in flight, so only the latest request may write the
+   * list.
    */
   let payWaysRequest = 0
-  let payWaysQueryKey = ''
-  const applyPayWaysForShippingMethod = async () => {
+  let payWaysQuery = { key: '', done: Promise.resolve() }
+  const applyPayWaysForShippingMethod = (): Promise<void> => {
     const method = formState.shippingMethod
     const carrier = carrierForMethod(method)
     const query = {
@@ -448,36 +450,41 @@ export async function useCheckoutForm() {
         ? String(formState.countryId).toUpperCase()
         : undefined,
     }
-    const queryKey = JSON.stringify(query)
-    if (queryKey === payWaysQueryKey) return
-    payWaysQueryKey = queryKey
+    const key = JSON.stringify(query)
+    if (key === payWaysQuery.key) return payWaysQuery.done
     const request = ++payWaysRequest
-    try {
-      const fresh = await $api<Pagination<PayWay>>('/api/pay-way', {
-        method: 'GET',
-        query,
-        headers: useRequestHeaders(),
-      })
-      if (request !== payWaysRequest) return
-      payWays.value = fresh
-      // If the previously selected pay way is no longer in the list
-      // (e.g. user picked BoxNow and their COD selection was filtered
-      // out), reset to the first valid option so step 3 doesn't render
-      // with a stale/disabled selection.
-      const stillValid = fresh.results?.some(
-        pw => pw.id === formState.payWayId,
-      )
-      if (!stillValid && fresh.results?.[0]) {
-        formState.payWay = fresh.results[0].id
-        formState.payWayId = fresh.results[0].id
-        selectedPayWay.value = fresh.results[0]
+    const done = (async () => {
+      try {
+        const fresh = await $api<Pagination<PayWay>>('/api/pay-way', {
+          method: 'GET',
+          query,
+          headers: useRequestHeaders(),
+        })
+        if (request !== payWaysRequest) return
+        payWays.value = fresh
+        // If the previously selected pay way is no longer in the list
+        // (e.g. user picked BoxNow and their COD selection was filtered
+        // out), reset to the first valid option so step 3 doesn't render
+        // with a stale/disabled selection — or to none when nothing is
+        // offered, so the step's required rule stops the shopper.
+        const stillValid = fresh.results?.some(
+          pw => pw.id === formState.payWayId,
+        )
+        if (!stillValid) {
+          const first = fresh.results?.[0]
+          formState.payWay = first?.id
+          formState.payWayId = first?.id
+          selectedPayWay.value = first ?? null
+        }
       }
-    }
-    catch (error) {
-      // Let the next trigger retry this query.
-      if (request === payWaysRequest) payWaysQueryKey = ''
-      log.warn({ tag: 'checkout', message: 'pay-way refetch failed', error })
-    }
+      catch (error) {
+        // Let the next trigger retry this query.
+        if (request === payWaysRequest) payWaysQuery = { key: '', done: Promise.resolve() }
+        log.warn({ tag: 'checkout', message: 'pay-way refetch failed', error })
+      }
+    })()
+    payWaysQuery = { key, done }
+    return done
   }
 
   watch(() => formState.shippingMethod, () => {

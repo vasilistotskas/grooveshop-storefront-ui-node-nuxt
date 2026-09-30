@@ -430,6 +430,23 @@ describe('useCheckoutForm', () => {
       expect(formState.payWayId).toBe(CARD.id)
     })
 
+    it('clears the selection when the new country is offered no pay way', async () => {
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/pay-way') {
+          return Promise.resolve(paginated(options.query.country === 'CY' ? [] : [CARD]))
+        }
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+      const { formState } = await useCheckoutForm()
+      expect(formState.payWayId).toBe(CARD.id)
+
+      formState.countryId = 'CY'
+      await flushPromises()
+
+      expect(formState.payWay).toBeUndefined()
+      expect(formState.payWayId).toBeUndefined()
+    })
+
     it('keeps the list of the latest request when an older one lands last', async () => {
       const { formState, payWays } = await useCheckoutForm()
       const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
