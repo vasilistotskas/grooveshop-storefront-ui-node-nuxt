@@ -32,7 +32,9 @@ export default defineNuxtRouteMiddleware(async () => {
     const settings = await requestFetch<{ LOYALTY_ENABLED?: string }>('/api/loyalty/settings', {
       query: { keys: 'LOYALTY_ENABLED' },
     })
-    runtimeEnabled = (settings?.LOYALTY_ENABLED ?? 'false').toLowerCase() === 'true'
+    // The same truthiness the sitemap, the menus and every other gate use
+    // (`parseSettingFlag`); a missing row keeps the page closed.
+    runtimeEnabled = parseSettingFlag(settings?.LOYALTY_ENABLED, false)
   }
   catch {
     // Fail OPEN on any fetch failure, which is what this gate has always

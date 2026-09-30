@@ -42,7 +42,9 @@ export function parseLoyaltySettings(settings: Record<string, string | undefined
     const n = Number.parseInt(v ?? '', 10)
     return Number.isFinite(n) ? n : fallback
   }
-  const bool = (v: string | undefined) => (v ?? '').toLowerCase() === 'true'
+  // The one truthiness rule every merchant flag follows; an absent or
+  // empty row is off, as the defaults are.
+  const bool = (v: string | undefined) => parseSettingFlag(v, false)
 
   return {
     enabled: bool(settings['LOYALTY_ENABLED']),
