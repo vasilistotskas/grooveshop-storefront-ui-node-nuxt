@@ -1,3 +1,10 @@
+## [3.224.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.7...v3.224.8) (2026-09-30)
+
+
+### Bug Fixes
+
+* **checkout:** show both halves of the stock-shortage line ([#51](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/51)) ([0f16ff9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0f16ff93345f3e730794b039d252bd6d9c9594d3))
+
 ## [3.224.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.6...v3.224.7) (2026-09-30)
 
 
