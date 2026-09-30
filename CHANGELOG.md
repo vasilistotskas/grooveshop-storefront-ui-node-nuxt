@@ -1,3 +1,10 @@
+## [3.224.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.0...v3.224.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* count product views per visitor and sync the API contract ([61d00d7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/61d00d73fb49dae2914d98bb164f84e977d41361)), closes [#98](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/98)
+
 # [3.224.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.3...v3.224.0) (2026-09-30)
 
 
