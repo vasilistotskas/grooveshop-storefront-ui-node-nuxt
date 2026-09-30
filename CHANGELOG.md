@@ -1,3 +1,10 @@
+## [3.224.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.1...v3.224.2) (2026-09-30)
+
+
+### Bug Fixes
+
+* **checkout:** place the order when a third-party cookie is malformed ([#44](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/44)) ([bbe7368](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bbe73687b2b70ccf7d3d08f4b388e91a29b5fb59))
+
 ## [3.224.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.0...v3.224.1) (2026-09-30)
 
 
