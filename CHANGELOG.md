@@ -1,3 +1,10 @@
+## [3.224.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.2...v3.224.3) (2026-09-30)
+
+
+### Bug Fixes
+
+* **cart:** actually drop the cart id from the session when it is cleared ([#45](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/45)) ([3308d3e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3308d3ebbc3506a3fbdfa8d6d418f87a69ea92f0))
+
 ## [3.224.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.1...v3.224.2) (2026-09-30)
 
 
