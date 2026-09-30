@@ -21,15 +21,16 @@ const STOCK_ERROR = {
 describe.each(trees(CheckoutStockErrorAlert, WebsideCheckoutStockErrorAlert))('$tree Checkout/StockErrorAlert', ({ C }) => {
   const mount = () => mountSuspended(C, { route: false, props: { stockError: STOCK_ERROR } })
 
-  // The "requested | available" line is not asserted: its message uses
-  // `|`, vue-i18n's plural separator, so only "Ζητήθηκαν: N" renders —
-  // a product bug reported to the owner, not pinned here.
-  it('lists each short line with its shortfall', async () => {
+  it('lists each short line with what was asked for, what exists and the shortfall', async () => {
     const wrapper = await mount()
     const text = wrapper.text()
 
     expect(text).toContain('Καφετιέρα')
     expect(text).toContain('Φίλτρα')
+    // Both halves: a bare `|` is vue-i18n's plural separator, which had
+    // cut the line to "Ζητήθηκαν: 5".
+    expect(text).toContain('Ζητήθηκαν: 5 | Διαθέσιμα: 2')
+    expect(text).toContain('Ζητήθηκαν: 4 | Διαθέσιμα: 0')
     expect(wrapper.findAllComponents({ name: 'UBadge' }).map(badge => badge.text())).toEqual(['-3', '-4'])
   })
 
