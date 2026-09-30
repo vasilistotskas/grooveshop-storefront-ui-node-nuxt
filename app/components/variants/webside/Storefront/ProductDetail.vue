@@ -295,6 +295,10 @@ const displayFinalPrice = computed(() =>
     ? Number(b2bPrice.value.finalPrice)
     : product.value?.finalPrice,
 )
+// The struck-through price (see productWasPrice for why not `price`).
+const wasPrice = computed(() =>
+  product.value ? productWasPrice(product.value, displayFinalPrice.value ?? product.value.finalPrice) : undefined,
+)
 
 const incrementQuantity = () => {
   if (selectorQuantity.value < productStock.value) {
@@ -795,14 +799,13 @@ useSchemaOrg([
                 </span>
 
                 <span
-                  v-if="isWholesalePrice
-                    || (product.discountValue && product.discountValue > 0)"
+                  v-if="wasPrice"
                   class="
                     text-lg text-gray-500 line-through
                     dark:text-gray-200
                   "
                 >
-                  {{ formatProductPrice(isWholesalePrice ? product?.finalPrice : product?.price) }}
+                  {{ formatProductPrice(wasPrice) }}
                 </span>
 
                 <span
