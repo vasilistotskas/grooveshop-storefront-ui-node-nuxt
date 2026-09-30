@@ -281,14 +281,14 @@ describe('useCheckoutSubmit', () => {
      * the amount — so the next submit must price a new one.
      */
     describe('a deduction change after the intent was priced', () => {
-      async function submitOnceWithoutAnOrder() {
+      async function submitOnceWithoutAnOrder(formState = makeFormState()) {
         // The order POST fails at the network: the intent survives it.
         api.routes({
           '/api/orders': () => {
             throw new TypeError('fetch failed')
           },
         })
-        const submit = setup(STRIPE)
+        const submit = setup(STRIPE, { formState })
         await submit.onSubmit()
         expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
         api.routes({ '/api/orders': orderCreated() })
@@ -326,11 +326,18 @@ describe('useCheckoutSubmit', () => {
         ['a gift card is applied', (s: ReturnType<typeof setup>) => s.onGiftCardApplied({ code: 'GC-1', balance: 10 })],
         ['a coupon is applied', () => { cart.cart = { ...cart.cart!, appliedCouponCodes: ['SAVE5'] } }],
         ['the promotion discount moves', () => { cart.cart = { ...cart.cart!, promotionDiscount: 3 } }],
-      ])('prices a fresh intent when %s', async (_case, change) => {
-        const submit = await submitOnceWithoutAnOrder()
+        // Not deductions, but the intent is priced from them too.
+        ['a line quantity changes the total', () => {
+          const [line, ...rest] = cart.cart!.items
+          cart.cart = { ...cart.cart!, items: [{ ...line!, quantity: 99 }, ...rest], totalPrice: cart.cart!.totalPrice + 10 }
+        }],
+        ['the shopper changes the email', (_s: ReturnType<typeof setup>, form: Record<string, any>) => { form.email = 'other@example.com' }],
+      ])('prices a fresh intent when %s', async (_case, change: (s: ReturnType<typeof setup>, form: Record<string, any>) => void) => {
+        const form = makeFormState()
+        const submit = await submitOnceWithoutAnOrder(form)
         m.createPaymentIntentFromCart.mockResolvedValue({ clientSecret: 'cs_2', paymentIntentId: 'pi_2' })
 
-        change(submit)
+        change(submit, form)
         await nextTick()
         await submit.onSubmit()
 
