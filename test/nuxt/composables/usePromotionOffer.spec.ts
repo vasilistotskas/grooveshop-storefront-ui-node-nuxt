@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 /**
@@ -109,19 +109,35 @@ describe('usePromotionOffer', () => {
     expect(expiry('not-a-date')).toBeNull()
   })
 
-  it('phrases a near expiry as urgency and a distant one as a date', () => {
-    const { expiry } = usePromotionOffer()
+  describe('expiry against a pinned clock', () => {
+    // Pinned so the rendered date cannot collide with the day count: an
+    // unpinned clock put "30 Οκτ" next to "in 30 days" on every 30th.
+    const NOW = new Date('2026-03-10T12:00:00Z')
     const inDays = (days: number) =>
-      new Date(Date.now() + days * 86_400_000).toISOString()
+      new Date(NOW.getTime() + days * 86_400_000).toISOString()
 
-    expect(expiry(inDays(3))).toMatch(/3/)
-    // Beyond a week the countdown stops helping, so it becomes a date
-    // and must NOT read as "in 45 days". More than 31 days, so the
-    // count can never also be the date's day of the month (30 days
-    // from the 30th of a month is the 30th of the next).
-    const distant = expiry(inDays(45))
-    expect(distant).toBeTruthy()
-    expect(distant).not.toMatch(/\b45\b/)
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(NOW)
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('phrases a near expiry as a day count', () => {
+      const { expiry } = usePromotionOffer()
+
+      expect(expiry(inDays(3))).toMatch(/\b3\b/)
+    })
+
+    it('phrases a distant expiry as the calendar date, not "in 30 days"', () => {
+      // Beyond a week the countdown stops helping, so it becomes a date.
+      const { expiry } = usePromotionOffer()
+
+      const distant = expiry(inDays(30))
+      expect(distant).toContain('9 Απρ')
+      expect(distant).not.toMatch(/\b30\b/)
+    })
   })
 
   it('translates an ACP rejection reason and survives an unknown one', () => {
