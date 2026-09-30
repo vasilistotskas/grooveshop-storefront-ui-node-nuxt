@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import {
   zLoyaltySummary,
@@ -15,6 +14,7 @@ import {
   makeTransaction,
   makeTransactionPage,
 } from '~~/test/fixtures/loyalty'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * The loyalty fixtures replace the hand-built summaries, tiers and
@@ -23,13 +23,6 @@ import {
  * root). Parsed strictly, so a renamed field fails here rather than as a
  * spec passing against a payload Django cannot send.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('loyalty fixtures', () => {
   it.each([
     ['makeTier', zLoyaltyTier, makeTier()],

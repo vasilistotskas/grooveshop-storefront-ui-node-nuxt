@@ -6,6 +6,7 @@ import StripePayment from '~/components/StripePayment.vue'
 import { makeOrder } from '~~/test/fixtures/order'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import { setTenant } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The embedded Stripe card form: it loads Stripe.js through
@@ -20,11 +21,13 @@ import { setTenant } from '~~/test/helpers/tenant'
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const sdk = vi.hoisted(() => {
-  const handlers: Record<string, (event: any) => void> = {}
+  const handlers = new Map<string, (event: any) => void>()
   const card = {
     mount: vi.fn(),
     destroy: vi.fn(),
-    on: vi.fn((event: string, handler: (e: any) => void) => { handlers[event] = handler }),
+    on: vi.fn((event: string, handler: (e: any) => void) => {
+      handlers.set(event, handler)
+    }),
   }
   const elements = { create: vi.fn((_type: string, _options?: unknown) => card) }
   const stripe = {
@@ -60,13 +63,13 @@ type Exposed = { createPaymentIntent: () => Promise<void>, confirmPayment: () =>
 
 const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button').find(b => b.text() === label)
 const typeCard = async (event: { complete: boolean, error?: { message: string } }) => {
-  sdk.handlers.change!(event)
+  sdk.handlers.get('change')!(event)
   await flushPromises()
 }
 
 describe('StripePayment', () => {
   beforeEach(() => {
-    for (const key of Object.keys(sdk.handlers)) delete sdk.handlers[key]
+    sdk.handlers.clear()
     setTenant({ stripePublishableKey: 'pk_test_tenant' })
     api.routes({ [INTENT]: { clientSecret: 'pi_1_secret' } })
   })
@@ -137,7 +140,11 @@ describe('StripePayment', () => {
 
   it('creates one intent however often it is asked while the first is in flight', async () => {
     let answer: (value: unknown) => void = () => {}
-    api.routes({ [INTENT]: () => new Promise((resolve) => { answer = resolve }) })
+    api.routes({
+      [INTENT]: () => new Promise((resolve) => {
+        answer = resolve
+      }),
+    })
     const wrapper = await mount()
     const exposed = wrapper.vm as unknown as Exposed
 
@@ -166,7 +173,7 @@ describe('StripePayment', () => {
     { case: 'no secret', answer: () => ({}), message: COPY.intentError },
     {
       case: 'a refusal with a detail',
-      answer: () => { throw Object.assign(new Error('Bad Request'), { statusCode: 400, data: { detail: 'Η παραγγελία έχει ήδη πληρωθεί' } }) },
+      answer: failWith(400, { detail: 'Η παραγγελία έχει ήδη πληρωθεί' }),
       message: 'Η παραγγελία έχει ήδη πληρωθεί',
     },
   ])('reports $case from the intent call and stays on the card step', async ({ answer, message }) => {

@@ -7,6 +7,7 @@ import ProductOffers from '~/components/Product/Offers.vue'
 import WebsideProductOffers from '~/components/variants/webside/Product/Offers.vue'
 import { setTenant } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The product page's offer panel.
@@ -91,7 +92,7 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
   it.each([
     ['the tenant plan excludes promotions', () => setTenant({ promotionsEnabled: false })],
     ['the merchant turned promotions off', () => { settings = () => ({ settings: { PROMOTIONS_ENABLED: 'false' } }) }],
-    ['the store settings cannot be read', () => { settings = () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) } }],
+    ['the store settings cannot be read', () => { settings = failWith(502) }],
   ])('neither asks for nor renders offers when %s', async (_case, arrange) => {
     arrange()
     offers = [offer({ relation: 'PRODUCT' })]
@@ -102,14 +103,20 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it(tree === 'default'
-    ? 'asks in the page language, since Django translates the offers'
-    : 'asks without a language (the frozen copy predates the translated offers)', async () => {
+  it.runIf(tree === 'default')('asks in the page language, since Django translates the offers', async () => {
     await mountPanel()
 
     const calls = api.callsTo(OFFERS_URL)
     expect(calls).toHaveLength(1)
-    expect(calls[0]!.options.query).toEqual(tree === 'default' ? { languageCode: 'el' } : undefined)
+    expect(calls[0]!.options.query).toEqual({ languageCode: 'el' })
+  })
+
+  it.runIf(tree === 'webside')('asks without a language (the frozen copy predates the translated offers)', async () => {
+    await mountPanel()
+
+    const calls = api.callsTo(OFFERS_URL)
+    expect(calls).toHaveLength(1)
+    expect(calls[0]!.options.query).toBeUndefined()
   })
 
   it('renders nothing when no offer touches the product', async () => {

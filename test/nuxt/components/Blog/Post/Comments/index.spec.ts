@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, defineComponent, h, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
@@ -78,31 +78,36 @@ const COPY = {
   guestPrompt: 'Συνδέσου για να σχολιάσεις',
 }
 
-/** Stands in for the comments list: renders the ids it was handed, in order. */
-const ListStub = defineComponent({
-  props: { comments: { type: Array as () => { id: number }[], default: () => [] } },
-  setup: props => () => h('ol', props.comments.map(c => h('li', { 'data-comment': c.id }))),
+/**
+ * Every child the body stubs is rendered `Lazy…`, which Nuxt compiles to a
+ * direct async import that no stub key matches — so the modules those
+ * imports load are mocked instead. The comments list renders the ids it
+ * was handed, in order; the form is one button submitting a fixed value.
+ */
+const { ListStub, FormStub, NoopStub } = await vi.hoisted(async () => {
+  const { defineComponent, h } = await import('vue')
+  return {
+    ListStub: defineComponent({
+      props: { comments: { type: Array as () => { id: number }[], default: () => [] } },
+      setup: props => () => h('ol', props.comments.map(c => h('li', { 'data-comment': c.id }))),
+    }),
+    FormStub: defineComponent({
+      emits: ['submit'],
+      setup: (_, { emit }) => () => h('button', { 'data-test': 'submit', 'onClick': () => emit('submit', { content: 'Νέο σχόλιο' }) }),
+    }),
+    NoopStub: defineComponent({ render: () => null }),
+  }
 })
+vi.mock('~/components/Blog/Post/Comments/List.vue', () => ({ default: ListStub }))
+vi.mock('~/components/variants/webside/Blog/Post/Comments/List.vue', () => ({ default: ListStub }))
+vi.mock('~/components/DynamicForm/index.vue', () => ({ default: FormStub }))
+vi.mock('~/components/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
+vi.mock('~/components/variants/webside/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
 
-/** Stands in for DynamicForm: one button that submits a fixed value. */
-const FormStub = defineComponent({
-  emits: ['submit'],
-  setup: (_, { emit }) => () => h('button', { 'data-test': 'submit', 'onClick': () => emit('submit', { content: 'Νέο σχόλιο' }) }),
-})
-
-describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostComments', ({ C, own }) => {
+describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostComments', ({ C }) => {
   const mount = () => mountSuspended(C, {
     route: false,
     props: { blogPostId: '42', commentsCount: 2, displayImageOf: 'user' },
-    global: {
-      stubs: {
-        [`Lazy${own('BlogPostCommentsList')}`]: ListStub,
-        [own('BlogPostCommentsList')]: ListStub,
-        LazyDynamicForm: FormStub,
-        DynamicForm: FormStub,
-        [`Lazy${own('AccountLoginFormModal')}`]: true,
-      },
-    },
   })
 
   const renderedIds = (wrapper: Awaited<ReturnType<typeof mount>>) =>
@@ -117,8 +122,8 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     useState<CursorState>('cursor-state').value = generateInitialCursorState()
     useUserStore().blogLikedComments = []
     state.flags = {}
-    session.loggedIn && (session.loggedIn.value = false)
-    session.user && (session.user.value = null)
+    if (session.loggedIn) session.loggedIn.value = false
+    if (session.user) session.user.value = null
   })
 
   it('loads the next page through the Nuxt proxy route, never the absolute Django URL', async () => {
@@ -156,7 +161,11 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')], NEXT_PAGE_URL) })
     const wrapper = await mount()
     await flushPromises()
-    api.routes({ [PROXY_URL]: () => { throw new Error('502') } })
+    api.routes({
+      [PROXY_URL]: () => {
+        throw new Error('502')
+      },
+    })
 
     await loadMore(wrapper)!.trigger('click')
     await flushPromises()

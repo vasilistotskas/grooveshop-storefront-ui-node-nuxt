@@ -5,6 +5,7 @@ import { nextTick, ref } from 'vue'
 import type { Ref } from 'vue'
 import websocketPlugin from '~/plugins/websocket.client'
 import { setTenant } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The notifications socket. It authenticates with a single-use ticket
@@ -146,7 +147,7 @@ describe('websocket plugin', () => {
   })
 
   it.each([[401], [403]])('treats a ticket refused with %s as an expired session', async (statusCode) => {
-    api.routes({ [TICKET]: () => { throw Object.assign(new Error('refused'), { statusCode }) } })
+    api.routes({ [TICKET]: failWith(statusCode) })
 
     await install()
 
@@ -155,7 +156,7 @@ describe('websocket plugin', () => {
   })
 
   it('leaves the session alone when the ticket endpoint merely fails', async () => {
-    api.routes({ [TICKET]: () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) } })
+    api.routes({ [TICKET]: failWith(502) })
 
     await install()
 

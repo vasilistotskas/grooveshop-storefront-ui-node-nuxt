@@ -39,7 +39,9 @@ const twoLineCart = (overrides: { quantity1?: number, currency?: string } = {}) 
 
 function deferred<T = unknown>() {
   let resolve!: (value: T) => void
-  const promise = new Promise<T>((r) => { resolve = r })
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
   return { promise, resolve }
 }
 
@@ -200,7 +202,11 @@ describe('Cart Store', () => {
     })
 
     it('settles pending when an operation fails', async () => {
-      api.routes({ '/api/cart/items': () => { throw new Error('Failed to create') } })
+      api.routes({
+        '/api/cart/items': () => {
+          throw new Error('Failed to create')
+        },
+      })
 
       await expect(store.createCartItem({ product: 1, quantity: 1 })).rejects.toThrow('Failed to create')
       expect(store.pending).toBe(false)
@@ -232,7 +238,11 @@ describe('Cart Store', () => {
     it('swallows a failed load, keeping what it had', async () => {
       const cart = twoLineCart()
       store.cart = cart
-      api.routes({ '/api/cart': () => { throw new Error('502') } })
+      api.routes({
+        '/api/cart': () => {
+          throw new Error('502')
+        },
+      })
 
       await expect(store.setupCart()).resolves.toBeUndefined()
       expect(store.cart).toEqual(cart)
@@ -281,7 +291,11 @@ describe('Cart Store', () => {
 
     it('records the failure and rethrows it', async () => {
       const failure = new Error('Failed to create')
-      api.routes({ '/api/cart/items': () => { throw failure } })
+      api.routes({
+        '/api/cart/items': () => {
+          throw failure
+        },
+      })
 
       await expect(store.createCartItem({ product: 1, quantity: 2 })).rejects.toBe(failure)
       expect(store.error).toEqual(expect.objectContaining({ message: 'Failed to create' }))
@@ -347,7 +361,11 @@ describe('Cart Store', () => {
 
     it('records the failure and rethrows it', async () => {
       store.cart = twoLineCart()
-      api.routes({ '/api/cart/items/*': () => { throw new Error('Failed to update') } })
+      api.routes({
+        '/api/cart/items/*': () => {
+          throw new Error('Failed to update')
+        },
+      })
 
       await expect(store.updateCartItem(1, { quantity: 5 })).rejects.toThrow('Failed to update')
       expect(store.error).toEqual(expect.objectContaining({ message: 'Failed to update' }))
@@ -369,7 +387,11 @@ describe('Cart Store', () => {
     })
 
     it('records the failure and rethrows it', async () => {
-      api.routes({ '/api/cart/items/*': () => { throw new Error('Failed to delete') } })
+      api.routes({
+        '/api/cart/items/*': () => {
+          throw new Error('Failed to delete')
+        },
+      })
 
       await expect(store.deleteCartItem(1)).rejects.toThrow('Failed to delete')
       expect(store.error).toEqual(expect.objectContaining({ message: 'Failed to delete' }))
@@ -566,7 +588,9 @@ describe('Cart Store', () => {
     })
 
     it('never lets a failing pixel break the cart', async () => {
-      pixels.meta.trackAddToCart.mockImplementation(() => { throw new Error('fbq blocked') })
+      pixels.meta.trackAddToCart.mockImplementation(() => {
+        throw new Error('fbq blocked')
+      })
       api.routes({ '/api/cart': twoLineCart() })
 
       await expect(store.createCartItem({ product: 1, quantity: 1 })).resolves.toBeUndefined()

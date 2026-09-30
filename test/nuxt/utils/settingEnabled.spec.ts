@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { settingEnabled } from '~/utils/settingEnabled'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The value reader behind every route gate and plugin that needs a
@@ -20,7 +21,7 @@ function answer(settings: Record<string, string>) {
 
 function fail() {
   api.routes({
-    [SETTINGS]: () => { throw Object.assign(new Error('Service Unavailable'), { statusCode: 503 }) },
+    [SETTINGS]: failWith(503),
   })
 }
 

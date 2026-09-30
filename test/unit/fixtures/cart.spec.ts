@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import { zCartDetail, zCartItem } from '~~/shared/openapi/zod.gen'
 import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * The cart fixtures replace hand-built carts that were cast
@@ -11,13 +11,6 @@ import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
  * field) so the next schema change fails here, naming the field, rather
  * than as a cart spec passing against a payload Django cannot send.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('makeCartItem', () => {
   it('builds a default line that parses through zCartItem', () => {
     expect(problems(zCartItem, makeCartItem())).toEqual([])

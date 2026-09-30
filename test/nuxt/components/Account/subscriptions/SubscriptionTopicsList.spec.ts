@@ -4,8 +4,8 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import SubscriptionTopicsList from '~/components/Account/subscriptions/SubscriptionTopicsList.vue'
 import SubscriptionCategoryGroup from '~/components/Account/subscriptions/SubscriptionCategoryGroup.vue'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
-import type { SubscriptionTopic, UserSubscription } from '~~/shared/openapi/types.gen'
+import { makeSubscriptionTopic, makeUserSubscription } from '~~/test/fixtures/subscription'
+import type { SubscriptionTopic } from '~~/shared/openapi/types.gen'
 
 /**
  * The account's notification preferences: every topic, grouped by
@@ -23,32 +23,10 @@ const TOPICS = '/api/subscriptions/topics'
 const MINE = '/api/subscriptions/user'
 
 function topic(id: number, name: string, category: SubscriptionTopic['category']): SubscriptionTopic {
-  return {
-    id,
-    uuid: fixtureUuid(5, id),
-    slug: `topic-${id}`,
-    translations: { el: { name, description: `Περιγραφή ${name}` } },
-    category,
-    isActive: true,
-    isDefault: false,
-    requiresConfirmation: false,
-    subscriberCount: 10 * id,
-  }
+  return makeSubscriptionTopic({ id, translations: { el: { name, description: `Περιγραφή ${name}` } }, category, subscriberCount: 10 * id })
 }
 
-function subscription(id: number, of: SubscriptionTopic): UserSubscription {
-  return {
-    id,
-    user: 1,
-    topic: of.id,
-    topicDetails: of,
-    status: 'ACTIVE',
-    subscribedAt: FIXTURE_TIMESTAMP,
-    unsubscribedAt: null,
-    createdAt: FIXTURE_TIMESTAMP,
-    updatedAt: FIXTURE_TIMESTAMP,
-  }
-}
+const subscription = (id: number, of: SubscriptionTopic) => makeUserSubscription({ id, topicDetails: of })
 
 const OFFERS = topic(1, 'Προσφορές', 'MARKETING')
 const WEEKLY = topic(2, 'Εβδομαδιαίο δελτίο', 'NEWSLETTER')
@@ -156,7 +134,9 @@ describe('Account/subscriptions/SubscriptionTopicsList', () => {
   })
 
   it('shows the error when the topics cannot be loaded', async () => {
-    api.routes({ [TOPICS]: () => { throw new Error('Bad Gateway') }, [MINE]: page([]) })
+    api.routes({ [TOPICS]: () => {
+      throw new Error('Bad Gateway')
+    }, [MINE]: page([]) })
 
     const wrapper = await mountList()
 

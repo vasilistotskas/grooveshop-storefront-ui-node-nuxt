@@ -8,6 +8,7 @@ import favouritesEnabled from '~/middleware/favourites-enabled'
 import feedbackEnabled from '~/middleware/feedback-enabled'
 import newsletterEnabled from '~/middleware/newsletter-enabled'
 import { createSettingGate } from '~/utils/settingGate'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The single-tier merchant-setting gates. Each is a one-line
@@ -81,7 +82,7 @@ describe('createSettingGate', () => {
 
   it('fails open when the settings endpoint cannot be read', async () => {
     api.routes({
-      [SETTINGS]: () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) },
+      [SETTINGS]: failWith(502),
     })
 
     await expect(gate(to, to)).resolves.toBeUndefined()

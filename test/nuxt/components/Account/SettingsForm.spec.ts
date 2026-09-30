@@ -1,3 +1,4 @@
+import { failWith } from '~~/test/helpers/api'
 /**
  * Tests for Account/SettingsForm.vue — the profile form.
  *
@@ -175,7 +176,7 @@ describe('Account/SettingsForm countries and regions', () => {
   it('says so when the regions cannot be loaded', async () => {
     api.routes({
       '/api/countries': { count: 2, results: [GR, CY] },
-      '/api/regions': () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) },
+      '/api/regions': failWith(502),
     })
 
     await mountForm()

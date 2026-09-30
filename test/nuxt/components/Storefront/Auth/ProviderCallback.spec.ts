@@ -7,6 +7,8 @@ import ProviderCallback from '~/components/Storefront/Auth/ProviderCallback.vue'
 import WebsideProviderCallback from '~/components/variants/webside/Storefront/Auth/ProviderCallback.vue'
 import { useAuthStore } from '~/stores/auth'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { asProxiedError, makePendingFlowResponse } from '~~/test/fixtures/allauth'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * Where a social login lands. Two ways in:
@@ -46,14 +48,9 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 
 const OAUTH_PARAMS = '/api/auth/oauth-params'
 
+/** allauth's `provider_signup` pending, thrown the way the Nuxt proxy re-throws it. */
 function pendingSignup() {
-  const payload = {
-    status: 401,
-    data: { flows: [{ id: 'provider_signup', is_pending: true }] },
-    meta: { is_authenticated: false },
-  }
-  // How the Nuxt proxy re-throws allauth's body (see extractAllAuthError).
-  return Object.assign(new Error('Unauthorized'), { statusCode: 401, data: { statusCode: 401, data: payload } })
+  return Object.assign(new Error('Unauthorized'), asProxiedError(makePendingFlowResponse('provider_signup')))
 }
 
 describe.each([
@@ -181,7 +178,7 @@ describe.each([
     })
 
     it('shows the failure when the session holds no OAuth params', async () => {
-      api.routes({ [OAUTH_PARAMS]: () => { throw Object.assign(new Error('Not Found'), { statusCode: 404 }) } })
+      api.routes({ [OAUTH_PARAMS]: failWith(404) })
 
       expectFailure(await mount({ provider: 'google', process: 'login' }))
       expect(providerToken).not.toHaveBeenCalled()

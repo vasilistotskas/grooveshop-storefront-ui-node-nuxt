@@ -10,6 +10,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The buy button: when it may be pressed at all (active, in stock, not
@@ -32,10 +33,6 @@ mockNuxtImport('useToast', () => () => toast)
 
 const UNAVAILABLE = 'Μή Διαθέσιμο'
 const BUY = 'Αγορά'
-
-const refusal = (data: Record<string, unknown>) => () => {
-  throw Object.assign(new Error('Bad Request'), { statusCode: 400, data })
-}
 
 /** Put `lines` in the cart, and make `/api/cart` answer with it after a write. */
 function cartHolds(lines: CartItemOverrides[] = []) {
@@ -141,7 +138,7 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     { shape: 'the forwarded body', data: { nonFieldErrors: ['Εξαντλήθηκε', 'Όριο 2 τεμαχίων'] } },
     { shape: 'the legacy nested body', data: { data: { nonFieldErrors: ['Εξαντλήθηκε', 'Όριο 2 τεμαχίων'] } } },
   ])('shows each of Django\'s reasons from $shape, and nothing else', async ({ data }) => {
-    api.routes({ '/api/cart': makeCart({ items: [] }), '/api/cart/items': refusal(data) })
+    api.routes({ '/api/cart': makeCart({ items: [] }), '/api/cart/items': failWith(400, data) })
     const wrapper = await mount({ product: makeProduct() })
 
     await click(wrapper)
@@ -169,7 +166,12 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     // `loading-auto` keeps the button busy for the life of the click
     // promise; without it a slow request looks exactly like a dead button.
     let land: (value: unknown) => void = () => {}
-    api.routes({ '/api/cart': makeCart({ items: [] }), '/api/cart/items': () => new Promise((resolve) => { land = resolve }) })
+    api.routes({
+      '/api/cart': makeCart({ items: [] }),
+      '/api/cart/items': () => new Promise((resolve) => {
+        land = resolve
+      }),
+    })
     const wrapper = await mount({ product: makeProduct() })
 
     await click(wrapper)

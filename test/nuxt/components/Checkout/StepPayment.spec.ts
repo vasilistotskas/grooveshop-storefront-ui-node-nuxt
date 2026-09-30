@@ -22,7 +22,7 @@ import { trees } from '~~/test/helpers/trees'
 
 const CARD_INSTRUCTIONS
   = '<p>Η πληρωμή ολοκληρώνεται online με <strong>κάρτα</strong>.</p>'
-  + '<ol><li>Μεταφέρεσαι σε ασφαλές τραπεζικό περιβάλλον.</li></ol>'
+    + '<ol><li>Μεταφέρεσαι σε ασφαλές τραπεζικό περιβάλλον.</li></ol>'
 
 const COD_INSTRUCTIONS = '<p>Πληρώνεις σε <strong>μετρητά</strong> στον διανομέα.</p>'
 

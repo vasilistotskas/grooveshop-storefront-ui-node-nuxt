@@ -9,6 +9,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import type { CartOverrides } from '~~/test/fixtures/cart'
 import { setTenant } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The coupon field at checkout. A code goes to Django (`POST
@@ -48,11 +49,11 @@ function routes(extra: Record<string, unknown> = {}) {
 }
 
 function reject(data: Record<string, unknown> | undefined) {
-  return () => { throw Object.assign(new Error('Bad Request'), { statusCode: 400, data }) }
+  return failWith(400, data)
 }
 
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
-const text = (wrapper: VueWrapper) => wrapper.text().replace(/ /g, ' ')
+const text = (wrapper: VueWrapper) => wrapper.text().replace(/\u00A0/g, ' ')
 
 function withCoupon(code: string, amount: number | null, overrides: CartOverrides = {}): CartOverrides {
   return {
@@ -112,7 +113,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
 
       expect(toasts()).toHaveLength(1)
       expect(toasts()[0]).toMatchObject({ color: 'success', title: 'Το κουπόνι εφαρμόστηκε' })
-      expect(String(toasts()[0]!.description).replace(/ /g, ' ')).toBe('Έκπτωση 5,00 €')
+      expect(String(toasts()[0]!.description).replace(/\u00A0/g, ' ')).toBe('Έκπτωση 5,00 €')
     })
 
     it('says so when the code took nothing off because a better offer applies', async () => {

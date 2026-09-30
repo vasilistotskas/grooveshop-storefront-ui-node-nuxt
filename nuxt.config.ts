@@ -563,6 +563,12 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
+    // Unit specs of app and shared code join `test/nuxt` in the app
+    // context — the one `pnpm typecheck` checks, because the root
+    // tsconfig extends the legacy `.nuxt/tsconfig.json`. Server-side and
+    // Node-side specs need the server/node contexts, which only a root
+    // `references` tsconfig (Nuxt's documented layout) would gate.
+    tsConfig: { include: ['../test/unit/app/**/*', '../test/unit/shared/**/*', '../test/unit/openapi/**/*', '../test/unit/fixtures/**/*'] },
   },
   debug: false,
   hooks: {

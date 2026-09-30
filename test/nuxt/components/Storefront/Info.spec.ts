@@ -5,7 +5,9 @@ import { defineComponent, h, onErrorCaptured } from 'vue'
 import Info from '~/components/Storefront/Info.vue'
 import WebsideInfo from '~/components/variants/webside/Storefront/Info.vue'
 import { setTenant } from '~~/test/helpers/tenant'
-import { FIXTURE_TIMESTAMP } from '~~/test/fixtures/product'
+import { makeContentPage } from '~~/test/fixtures/contentPage'
+import type { ContentPageDetail } from '~~/shared/openapi/types.gen'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * `/info/[slug]` renders a CMS content page. Its status is the
@@ -34,21 +36,8 @@ mockNuxtImport('useRoute', () => () => ({
 mockNuxtImport('navigateTo', () => navigateToMock)
 
 /** A content page as `/api/content-pages/<slug>` serves it. */
-function page(slug: string, translations: Record<string, { title: string, body: string }>) {
-  return {
-    id: 1,
-    uuid: '00000000-0000-4000-8000-000000000001',
-    slug,
-    translations,
-    isPublished: true,
-    publishedAt: FIXTURE_TIMESTAMP,
-    createdAt: FIXTURE_TIMESTAMP,
-    updatedAt: FIXTURE_TIMESTAMP,
-  }
-}
-
-const failWith = (statusCode: number) => () => {
-  throw Object.assign(new Error(String(statusCode)), { statusCode })
+function page(slug: string, translations: ContentPageDetail['translations']) {
+  return makeContentPage({ slug, translations })
 }
 
 describe.each([

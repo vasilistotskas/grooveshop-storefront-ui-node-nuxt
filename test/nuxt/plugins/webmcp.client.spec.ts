@@ -88,7 +88,9 @@ describe('webmcp plugin', () => {
   })
 
   it('tolerates a draft of the API that rejects the tools', () => {
-    provideContext.mockImplementation(() => { throw new TypeError('unknown member') })
+    provideContext.mockImplementation(() => {
+      throw new TypeError('unknown member')
+    })
 
     expect(run).not.toThrow()
   })

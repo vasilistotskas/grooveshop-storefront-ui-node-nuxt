@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NewsletterSignup from '~/components/PageSection/NewsletterSignup.vue'
 import { newsletterConsent, newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The newsletter band. What matters:
@@ -53,10 +54,6 @@ async function fillAndSubmit(
 }
 
 const postCalls = () => api.callsTo(NEWSLETTER_URL)
-
-const rejectWith = (statusCode: number, data: unknown) => () => {
-  throw Object.assign(new Error(String(statusCode)), { statusCode, data })
-}
 
 describe('NewsletterSignup', () => {
   beforeEach(() => {
@@ -170,7 +167,11 @@ describe('NewsletterSignup', () => {
 
   it('disables the button while the request is in flight, and sends it once', async () => {
     let resolve!: (value: object) => void
-    api.routes({ [NEWSLETTER_URL]: () => new Promise<object>((r) => { resolve = r }) })
+    api.routes({
+      [NEWSLETTER_URL]: () => new Promise<object>((r) => {
+        resolve = r
+      }),
+    })
     const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
@@ -185,7 +186,7 @@ describe('NewsletterSignup', () => {
   })
 
   it('tells a throttled visitor to try again later', async () => {
-    api.routes({ [NEWSLETTER_URL]: rejectWith(429, { detail: 'Request was throttled.' }) })
+    api.routes({ [NEWSLETTER_URL]: failWith(429, { detail: 'Request was throttled.' }) })
     const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
@@ -198,7 +199,7 @@ describe('NewsletterSignup', () => {
   })
 
   it('shows a field rejection inline', async () => {
-    api.routes({ [NEWSLETTER_URL]: rejectWith(400, { email: ['Enter a valid email address.'] }) })
+    api.routes({ [NEWSLETTER_URL]: failWith(400, { email: ['Enter a valid email address.'] }) })
     const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
@@ -207,7 +208,7 @@ describe('NewsletterSignup', () => {
   })
 
   it('says a plain failure failed, and keeps the form for a retry', async () => {
-    api.routes({ [NEWSLETTER_URL]: rejectWith(502, 'Bad Gateway') })
+    api.routes({ [NEWSLETTER_URL]: failWith(502, 'Bad Gateway') })
     const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)

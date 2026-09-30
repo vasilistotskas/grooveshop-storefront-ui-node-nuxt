@@ -38,7 +38,11 @@ describe('useCheckout', () => {
 
     it('rethrows any other failure unchanged', async () => {
       const outage = Object.assign(new Error('503'), { statusCode: 503 })
-      api.routes({ '/api/cart/reserve-stock': () => { throw outage } })
+      api.routes({
+        '/api/cart/reserve-stock': () => {
+          throw outage
+        },
+      })
 
       await expect(useCheckout().reserveStock(1)).rejects.toBe(outage)
     })
@@ -75,7 +79,11 @@ describe('useCheckout', () => {
     ])
 
     const failure = new Error('500')
-    api.routes({ '/api/cart/release-reservations': () => { throw failure } })
+    api.routes({
+      '/api/cart/release-reservations': () => {
+        throw failure
+      },
+    })
     await expect(useCheckout().releaseReservations([4])).rejects.toBe(failure)
   })
 })

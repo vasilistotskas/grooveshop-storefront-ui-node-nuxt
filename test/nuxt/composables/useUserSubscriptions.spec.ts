@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData, useNuxtApp } from '#imports'
 import { useUserSubscriptions } from '~/composables/useUserSubscriptions'
-import { createMockSubscription } from '~~/test/helpers/subscriptionTestData'
+import { makeUserSubscription } from '~~/test/fixtures/subscription'
 
 /**
  * `fetchSubscriptions` runs the REAL `useAsyncData` over a mocked
@@ -39,7 +39,7 @@ describe('useUserSubscriptions', () => {
 
   describe('fetchSubscriptions', () => {
     it('GETs the subscriptions and hands back the page results', async () => {
-      const subscriptions = [createMockSubscription({ id: 1 }), createMockSubscription({ id: 2, topic: 2 })]
+      const subscriptions = [makeUserSubscription({ id: 1 }), makeUserSubscription({ id: 2, topic: 2 })]
       api.routes({ '/api/subscriptions/user': { count: 2, next: null, previous: null, results: subscriptions } })
 
       const { data } = await useUserSubscriptions().fetchSubscriptions()
@@ -67,7 +67,7 @@ describe('useUserSubscriptions', () => {
       options: { method: 'POST', body: { topic: 7 } },
       success: () => toast('subscribe', 'success'),
       failure: () => toast('subscribe', 'error'),
-      answer: createMockSubscription({ topic: 7 }),
+      answer: makeUserSubscription({ topic: 7 }),
     },
     {
       name: 'unsubscribe',
@@ -109,7 +109,11 @@ describe('useUserSubscriptions', () => {
 
     it('rethrows a failure after an error toast, refreshing nothing', async () => {
       const rejection = new Error('API error')
-      api.routes({ [url]: () => { throw rejection } })
+      api.routes({
+        [url]: () => {
+          throw rejection
+        },
+      })
 
       await expect(run()).rejects.toBe(rejection)
 
@@ -120,8 +124,8 @@ describe('useUserSubscriptions', () => {
 
   describe('isSubscribed', () => {
     const subscriptions = [
-      createMockSubscription({ id: 1, topic: 1, status: 'ACTIVE' }),
-      createMockSubscription({ id: 2, topic: 2, status: 'UNSUBSCRIBED' }),
+      makeUserSubscription({ id: 1, topic: 1, status: 'ACTIVE' }),
+      makeUserSubscription({ id: 2, topic: 2, status: 'UNSUBSCRIBED' }),
     ]
 
     it.each([
@@ -137,8 +141,8 @@ describe('useUserSubscriptions', () => {
 
   describe('getSubscriptionByTopicId', () => {
     const subscriptions = [
-      createMockSubscription({ id: 1, topic: 1 }),
-      createMockSubscription({ id: 2, topic: 2, status: 'UNSUBSCRIBED' }),
+      makeUserSubscription({ id: 1, topic: 1 }),
+      makeUserSubscription({ id: 2, topic: 2, status: 'UNSUBSCRIBED' }),
     ]
 
     it('finds the subscription for the topic, whatever its status', () => {

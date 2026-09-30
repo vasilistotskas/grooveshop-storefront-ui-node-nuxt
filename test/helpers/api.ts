@@ -1,3 +1,4 @@
+import { STATUS_CODES } from 'node:http'
 import { vi } from 'vitest'
 import type { Mock } from 'vitest'
 
@@ -8,9 +9,7 @@ export type ApiFetch = (request: any, options?: any) => Promise<any>
  * What a route answers with: a value (resolved as-is) or a handler
  * called with the request URL (query string included) and options. A
  * handler may return a value, a promise, or throw — a throw becomes a
- * rejection, so
- * `() => { throw Object.assign(new Error('Not Found'), { statusCode: 404 }) }`
- * is how a spec makes a route fail.
+ * rejection, which is how {@link failWith} makes a route fail.
  */
 export type ApiRouteHandler = (url: string, options: any) => unknown
 export type ApiRoutes = Record<string, unknown>
@@ -28,6 +27,25 @@ export type ApiMock = Mock<ApiFetch> & {
   routes: (table: ApiRoutes) => ApiMock
   /** The recorded requests whose URL matches `pattern`, with the same matching rules as `routes`. */
   callsTo: (pattern: string) => ApiCall[]
+}
+
+/**
+ * A handler that fails the way `$fetch` does on an HTTP error: it throws
+ * an `Error` named by the status text, carrying `statusCode` and, when
+ * given, `data` — the error body the app reads (`error.data`).
+ *
+ * ```ts
+ * api.routes({ '/api/cart': failWith(502) })
+ * api.routes({ '/api/cart/coupon': failWith(400, { reason: 'discount_code_expired' }) })
+ * ```
+ */
+export function failWith(statusCode: number, data?: unknown): () => never {
+  return () => {
+    throw Object.assign(
+      new Error(STATUS_CODES[statusCode] ?? `HTTP ${statusCode}`),
+      data === undefined ? { statusCode } : { statusCode, data },
+    )
+  }
 }
 
 const PREFIX = '*'
@@ -98,7 +116,7 @@ function answer(value: unknown, url: string, options: unknown): Promise<unknown>
  * api.routes({
  *   '/api/cart/coupons': () => coupons,              // exact path
  *   '/api/promotions/product/*': offers,             // prefix
- *   '/api/b2b/prices': () => { throw notFound },     // rejection
+ *   '/api/b2b/prices': failWith(404),                // rejection
  *   '/api/regions': (_url, opts) => regionsFor(opts.query.country),
  * })
  * expect(api.callsTo('/api/cart/coupon')).toEqual([

@@ -21,26 +21,16 @@ import { mountSuspended, registerEndpoint, mockNuxtImport } from '@nuxt/test-uti
 import { flushPromises } from '@vue/test-utils'
 import { getQuery } from 'h3'
 import NewAddressPage from '~/pages/account/addresses/new.vue'
+import { makeCountry } from '~~/test/fixtures/country'
 
-const GR = {
-  alpha2: 'GR',
-  translations: { el: { name: 'Ελλάδα' } },
-  phoneCode: 30,
-  hasRegions: true,
-  postalCodePattern: '\\d{3} ?\\d{2}',
-  postalCodeExample: '151 24',
-  phoneMetadata: {
-    nationalNumberPattern: '5005000\\d{3}|8\\d{9,11}|(?:[269]\\d|70)\\d{8}',
-    possibleLengths: [10, 11, 12],
-    nationalPrefixForParsing: null,
-    exampleMobile: '6912345678',
-  },
-}
-const CY = {
+const GR = makeCountry()
+const CY = makeCountry({
   alpha2: 'CY',
-  translations: { el: { name: 'Κύπρος' } },
+  alpha3: 'CYP',
+  isoCc: 196,
   phoneCode: 357,
-  hasRegions: true,
+  sortOrder: 2,
+  translations: { el: { name: 'Κύπρος' }, en: { name: 'Cyprus' } },
   postalCodePattern: '\\d{4}',
   postalCodeExample: '1010',
   phoneMetadata: {
@@ -49,13 +39,20 @@ const CY = {
     nationalPrefixForParsing: null,
     exampleMobile: '96123456',
   },
-}
-const REGIONLESS = {
+})
+/** A country with no regions, postal-code rule or phone metadata. */
+const REGIONLESS = makeCountry({
   alpha2: 'XX',
-  translations: { el: { name: 'Xland' } },
+  alpha3: 'XXX',
+  isoCc: null,
   phoneCode: 999,
+  sortOrder: 3,
+  translations: { el: { name: 'Xland' } },
   hasRegions: false,
-}
+  postalCodePattern: undefined,
+  postalCodeExample: undefined,
+  phoneMetadata: null,
+})
 
 const { mockApi } = vi.hoisted(() => ({ mockApi: vi.fn() }))
 // The submit goes through `$api`; reads go through `useApi` (registerEndpoint).

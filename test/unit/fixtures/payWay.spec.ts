@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import { zPayWay } from '~~/shared/openapi/zod.gen'
 import { makePayWay } from '~~/test/fixtures/payWay'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * `makePayWay` replaces pay ways built `as unknown as PayWay` with
@@ -10,13 +10,6 @@ import { makePayWay } from '~~/test/fixtures/payWay'
  * and without the ones it requires. Parsed strictly, so a stale key
  * fails here and names itself.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('makePayWay', () => {
   it('builds a default pay way that parses through zPayWay', () => {
     expect(problems(zPayWay, makePayWay())).toEqual([])

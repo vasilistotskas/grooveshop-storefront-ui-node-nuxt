@@ -5,6 +5,7 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import VivaWalletCheckout from '~/components/VivaWalletCheckout.vue'
 import { makeOrder } from '~~/test/fixtures/order'
 import { makePayWay } from '~~/test/fixtures/payWay'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * Viva Wallet Smart Checkout: once mounted, the component asks Django
@@ -72,12 +73,12 @@ describe('VivaWalletCheckout', () => {
     { case: 'answers without a checkout URL', answer: () => ({}), message: 'Αποτυχία δημιουργίας συνεδρίας πληρωμής' },
     {
       case: 'refuses with a detail',
-      answer: () => { throw Object.assign(new Error('Bad Request'), { statusCode: 400, data: { detail: 'Η παραγγελία έχει ήδη πληρωθεί' } }) },
+      answer: failWith(400, { detail: 'Η παραγγελία έχει ήδη πληρωθεί' }),
       message: 'Η παραγγελία έχει ήδη πληρωθεί',
     },
     {
       case: 'fails without a detail',
-      answer: () => { throw Object.assign(new Error('[POST] "/api/…": 502 Bad Gateway'), { statusCode: 502 }) },
+      answer: failWith(502),
       message: 'Αποτυχία δημιουργίας συνεδρίας πληρωμής',
     },
   ])('stays, reports and offers a retry when the server $case', async ({ answer, message }) => {

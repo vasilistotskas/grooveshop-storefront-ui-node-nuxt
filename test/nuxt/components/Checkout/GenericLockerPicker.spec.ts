@@ -15,6 +15,13 @@ import { trees } from '~~/test/helpers/trees'
  * only in the `en:` block.
  */
 
+/**
+ * The Leaflet map is its own client-only component, rendered as
+ * `<LazyCheckoutSmartpointMap>` — a direct async import no stub key
+ * matches — so its module is mocked to keep Leaflet out of the run.
+ */
+vi.mock('~/components/Checkout/SmartpointMap.client.vue', () => ({ default: { template: '<div data-test="map" />' } }))
+
 const t = (key: string, params: Record<string, unknown> = {}) => useNuxtApp().$i18n.t(key, params)
 const tp = (key: string, params: Record<string, unknown> = {}) => t(`shipping.locker_picker.${key}`, params)
 
@@ -67,8 +74,6 @@ describe.each(trees(CheckoutGenericLockerPicker, WebsideCheckoutGenericLockerPic
     const wrapper = await mountSuspended(C, {
       route: false,
       props: { open: false, carrier, initialPostalCode: '10557', initialCity: 'Αθήνα', countryCode: 'GR', ...props },
-      // The Leaflet map is its own client-only component.
-      global: { stubs: { CheckoutSmartpointMap: true } },
     })
     await wrapper.setProps({ open: true })
     await flushPromises()

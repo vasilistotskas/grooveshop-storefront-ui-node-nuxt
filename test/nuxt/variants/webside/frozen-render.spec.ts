@@ -57,6 +57,16 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
+/**
+ * The default layout renders the shared (not frozen) chat widget as
+ * `<LazyChatWidget>`. The snapshot pins its not-yet-loaded wrapper
+ * (`<!---->`); left real, the widget's chunk — `UDrawer` with it —
+ * loaded after the test and failed on a torn-down environment under
+ * coverage. The module is mocked (no stub key matches a lazy
+ * component), to a stub that renders the same `<!---->`.
+ */
+vi.mock('~/components/Chat/Widget.vue', () => ({ default: { render: () => null } }))
+
 const PRODUCT = {
   id: 2,
   uuid: 'p0000000-0000-4000-8000-000000000002',
@@ -169,7 +179,7 @@ const RECENTLY_VIEWED = [{
  * chunk), and snapshot. A section that never gets there fails here
  * instead of pinning its empty state.
  */
-async function snapshot(
+async function expectSnapshot(
   component: unknown,
   options: Record<string, unknown> = {},
   ready?: (html: string) => void,
@@ -228,86 +238,86 @@ describe('webside frozen render', () => {
   })
 
   it('header shell', async () => {
-    await snapshot(PageHeader, { slots: { default: () => h('nav', 'nav') } })
+    await expectSnapshot(PageHeader, { slots: { default: () => h('nav', 'nav') } })
   })
 
   it('navbar', async () => {
-    await snapshot(PageNavbar)
+    await expectSnapshot(PageNavbar)
   })
 
   it('footer desktop', async () => {
-    await snapshot(FooterDesktop)
+    await expectSnapshot(FooterDesktop)
   })
 
   it('footer mobile', async () => {
-    await snapshot(FooterMobile)
+    await expectSnapshot(FooterMobile)
   })
 
   it('mobile bottom nav', async () => {
     // It only exists below the `lg` breakpoint (`MobileOrTabletOnly`).
-    await atViewportWidth(375, () => snapshot(MobileBottomNav, {}, (html) => {
+    await atViewportWidth(375, () => expectSnapshot(MobileBottomNav, {}, (html) => {
       expect(html).toContain('aria-label="Mobile navigation"')
     }))
   })
 
   it('cart button', async () => {
-    await snapshot(CartButton)
+    await expectSnapshot(CartButton)
   })
 
   it('page title', async () => {
-    await snapshot(PageTitle, { props: { text: 'Προϊόντα' } })
+    await expectSnapshot(PageTitle, { props: { text: 'Προϊόντα' } })
   })
 
   it('page breadcrumb', async () => {
-    await snapshot(PageBreadcrumb, { props: { routeName: 'products' } })
+    await expectSnapshot(PageBreadcrumb, { props: { routeName: 'products' } })
   })
 
   it('empty state', async () => {
-    await snapshot(EmptyState, { props: { title: 'Δεν υπάρχουν προϊόντα', description: 'Δοκίμασε άλλα φίλτρα.' } })
+    await expectSnapshot(EmptyState, { props: { title: 'Δεν υπάρχουν προϊόντα', description: 'Δοκίμασε άλλα φίλτρα.' } })
   })
 
   it('rating', async () => {
-    await snapshot(Rating, { props: { rate: 7 } })
+    await expectSnapshot(Rating, { props: { rate: 7 } })
   })
 
   it('pagination page number', async () => {
-    await snapshot(PaginationPageNumber, { props: { count: 50, pageSize: 10, page: 2 } })
+    await expectSnapshot(PaginationPageNumber, { props: { count: 50, pageSize: 10, page: 2 } })
   })
 
   it('product card', async () => {
-    await snapshot(ProductCard, { props: { product: PRODUCT, showVat: true } })
+    await expectSnapshot(ProductCard, { props: { product: PRODUCT, showVat: true } })
   })
 
   it('product card skeleton', async () => {
-    await snapshot(ProductCardSkeleton)
+    await expectSnapshot(ProductCardSkeleton)
   })
 
   it('blog post card desktop', async () => {
-    await snapshot(BlogPostCardDesktop, { props: { post: POST } })
+    await expectSnapshot(BlogPostCardDesktop, { props: { post: POST } })
   })
 
   it('blog post card mobile', async () => {
-    await snapshot(BlogPostCardMobile, { props: { post: POST } })
+    await expectSnapshot(BlogPostCardMobile, { props: { post: POST } })
   })
 
   it('error screen 404', async () => {
-    await snapshot(ErrorScreen, { props: { error: { statusCode: 404, statusMessage: 'Not Found', message: 'Not Found' } } })
+    await expectSnapshot(ErrorScreen, { props: { error: { statusCode: 404, statusMessage: 'Not Found', message: 'Not Found' } } })
   })
 
   it('error screen 500', async () => {
-    await snapshot(ErrorScreen, { props: { error: { statusCode: 500, statusMessage: 'Server Error', message: 'Server Error' } } })
+    await expectSnapshot(ErrorScreen, { props: { error: { statusCode: 500, statusMessage: 'Server Error', message: 'Server Error' } } })
   })
 
   it('login form', async () => {
-    await snapshot(AccountLoginForm)
+    await expectSnapshot(AccountLoginForm)
   })
 
   it('signup form', async () => {
-    await snapshot(AccountSignupForm)
+    await expectSnapshot(AccountSignupForm)
   })
 
   it('section hero_carousel', async () => {
-    await snapshot(HeroCarousel, {
+    await expectSnapshot(HeroCarousel, {
       props: { images: ['/img/main-banner.png'], mobileImages: ['/img/main-banner-mobile.png'], link: '/products/2/mini-power-bank-5000mah' },
     })
   })
@@ -315,7 +325,7 @@ describe('webside frozen render', () => {
   it('section blog_categories', async () => {
     api.routes({ '/api/blog/categories': page([BLOG_CATEGORY], 100) })
 
-    await snapshot(BlogCategories, {}, (html) => {
+    await expectSnapshot(BlogCategories, {}, (html) => {
       expect(html).toContain('Ασφάλεια')
     })
   })
@@ -323,7 +333,7 @@ describe('webside frozen render', () => {
   it('section blog_posts_list', async () => {
     api.routes({ '/api/blog/posts': page([POST], 9) })
 
-    await snapshot(BlogPostsList, {}, (html) => {
+    await expectSnapshot(BlogPostsList, {}, (html) => {
       expect(html).toContain('Τι είναι τα mAh')
     })
   })
@@ -332,12 +342,12 @@ describe('webside frozen render', () => {
     api.routes({ '/api/settings/public': { settings: { RECENTLY_VIEWED_ENABLED: 'true' } } })
     localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(RECENTLY_VIEWED))
 
-    await snapshot(RecentlyViewed, {}, (html) => {
+    await expectSnapshot(RecentlyViewed, {}, (html) => {
       expect(html).toContain('Mini Power Bank 5000mAh')
     })
   })
 
   it('default layout with the webside schema', async () => {
-    await snapshot(DefaultLayout, { slots: { default: () => h('p', 'page') } })
+    await expectSnapshot(DefaultLayout, { slots: { default: () => h('p', 'page') } })
   })
 })

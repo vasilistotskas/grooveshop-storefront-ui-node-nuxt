@@ -65,7 +65,7 @@ beforeAll(() => {
       walkAst(program, (node) => {
         if (node.type === 'StringLiteral' || node.type === 'TemplateElement') {
           const classes = node.type === 'StringLiteral' ? node.value : node.value.cooked ?? ''
-          lists.push({ site: `${appLabel(file)}:${lineOffset + node.loc.start.line}`, classes })
+          lists.push({ site: `${appLabel(file)}:${lineOffset + node.loc!.start.line}`, classes })
         }
       })
     }

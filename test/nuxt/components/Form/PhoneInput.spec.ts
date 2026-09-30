@@ -59,10 +59,10 @@ async function countriesLoaded(wrapper: { findComponent: Wrapper['findComponent'
 async function mountField(props: Record<string, unknown> = {}) {
   // Behave like `v-model` in the parent — including for writes made while
   // the component is still mounting (a saved number being parsed).
-  let mounted: { setProps: (props: Record<string, unknown>) => Promise<void> } | undefined
+  const mounted: { wrapper?: { setProps: (props: Record<string, unknown>) => Promise<void> } } = {}
   const early: Record<string, unknown> = {}
   const write = (key: string) => (value: string | undefined) => {
-    if (mounted) void mounted.setProps({ [key]: value })
+    if (mounted.wrapper) void mounted.wrapper.setProps({ [key]: value })
     else early[key] = value
   }
   const wrapper = await mountSuspended(PhoneInput, {
@@ -79,7 +79,7 @@ async function mountField(props: Record<string, unknown> = {}) {
       ...props,
     },
   })
-  mounted = wrapper
+  mounted.wrapper = wrapper
   await wrapper.setProps(early)
   await countriesLoaded(wrapper)
   await flushPromises()

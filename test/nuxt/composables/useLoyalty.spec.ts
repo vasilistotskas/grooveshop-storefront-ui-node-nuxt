@@ -54,7 +54,11 @@ describe('useLoyalty', () => {
 
     it('answers the defaults and logs when the request fails', async () => {
       const failure = new Error('Network error')
-      api.routes({ '/api/loyalty/settings': () => { throw failure } })
+      api.routes({
+        '/api/loyalty/settings': () => {
+          throw failure
+        },
+      })
 
       const { data, error } = await useLoyalty().fetchSettings()
 
@@ -95,7 +99,11 @@ describe('useLoyalty', () => {
     })
 
     it('surfaces a failed request as the error', async () => {
-      api.routes({ [url]: () => { throw new Error('Server error') } })
+      api.routes({
+        [url]: () => {
+          throw new Error('Server error')
+        },
+      })
 
       const { data, error } = await fetch()
 

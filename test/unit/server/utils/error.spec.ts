@@ -43,7 +43,7 @@ const allauth = {
  */
 async function upstreamError(status: number, body?: unknown): Promise<FetchError> {
   backend.replyOnce(jsonResponse(body, status))
-  const error = await globalThis.$fetch('http://backend.test/api/v1/upstream', { method: 'POST' }).catch((caught: unknown) => caught)
+  const error = await globalThis.$fetch<unknown>('http://backend.test/api/v1/upstream', { method: 'POST' }).catch((caught: unknown) => caught)
   expect(error).toBeInstanceOf(FetchError)
   return error as FetchError
 }
@@ -74,9 +74,16 @@ function inboundValidationError(path: PropertyKey[] = ['page']) {
   return createError({ statusCode: 400, statusMessage: 'Validation Error', data: new ZodError([{ ...INBOUND_ISSUE, path }]) })
 }
 
+/** The error `promise` rejects with, which must be an `ErrorClass`; a promise that resolves fails the test. */
+async function rejectionOf<E extends Error>(promise: Promise<unknown>, ErrorClass: new (...args: any[]) => E): Promise<E> {
+  const outcome = await promise.then(() => undefined, (caught: unknown) => caught)
+  if (!(outcome instanceof ErrorClass)) throw new Error(`expected a ${ErrorClass.name} rejection, got ${String(outcome)}`)
+  return outcome
+}
+
 /** What `parseDataAs` throws when a Django response fails its schema. */
-async function responseContractError(): Promise<H3Error> {
-  return await parseDataAs({ weightInfo: null }, z.object({ weightInfo: z.object({}) })).catch((caught: H3Error) => caught)
+function responseContractError(): Promise<H3Error> {
+  return rejectionOf(parseDataAs({ weightInfo: null }, z.object({ weightInfo: z.object({}) })), H3Error)
 }
 
 const probe = () => createTestEvent({ method: 'GET', url: '/api/blog/posts?page=gravitysmtp-settings' })
@@ -187,7 +194,7 @@ describe('handleError', () => {
 
     it('answers a network failure (no status) as a 500 at error level, messaged from the error', async () => {
       backend.failOnce()
-      const error = await globalThis.$fetch('http://backend.test/api/v1/upstream', { method: 'POST' }).catch((caught: FetchError) => caught)
+      const error = await rejectionOf(globalThis.$fetch<unknown>('http://backend.test/api/v1/upstream', { method: 'POST' }), FetchError)
 
       const thrown = thrownBy(() => handleError(error))
 
@@ -232,7 +239,7 @@ function routeCatching(onError: (error: unknown) => unknown, prelude?: (event: P
   return defineEventHandler(async (event) => {
     prelude?.(event)
     try {
-      return await globalThis.$fetch('http://backend.test/api/v1/upstream', { method: 'POST' })
+      return await globalThis.$fetch<unknown>('http://backend.test/api/v1/upstream', { method: 'POST' })
     }
     catch (error) {
       return await onError(error)

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import { zProduct } from '~~/shared/openapi/zod.gen'
 import { makeProduct } from '~~/test/fixtures/product'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * `makeProduct` is the product every storefront spec builds on, and the
@@ -11,13 +11,6 @@ import { makeProduct } from '~~/test/fixtures/product'
  * parsed here, strictly (an unknown key is a renamed field), and the
  * failure names the field.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('makeProduct', () => {
   it('builds a default product that parses through zProduct', () => {
     expect(problems(zProduct, makeProduct())).toEqual([])

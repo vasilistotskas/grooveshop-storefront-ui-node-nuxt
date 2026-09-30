@@ -3,6 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { RouteLocationNormalized } from 'vue-router'
 import b2bEnabled from '~/middleware/b2b-enabled'
 import { setTenant } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The wholesale programme is the one gate that fails CLOSED on every
@@ -40,7 +41,7 @@ describe('b2b-enabled middleware', () => {
   it.each([
     ['the setting is off', { settings: { B2B_WHOLESALE_ENABLED: 'False' } }],
     ['the store has no row for it', { settings: {} }],
-    ['the settings cannot be read', () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) }],
+    ['the settings cannot be read', failWith(502)],
   ])('404s when %s', async (_case, answer) => {
     api.routes({ [SETTINGS]: answer })
 

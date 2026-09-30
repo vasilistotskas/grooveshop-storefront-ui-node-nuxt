@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
-import { defineComponent, h, reactive } from 'vue'
+import { reactive } from 'vue'
 import CheckoutSelectedGenericLocker from '~/components/Checkout/SelectedGenericLocker.vue'
 import WebsideCheckoutSelectedGenericLocker from '~/components/variants/webside/Checkout/SelectedGenericLocker.vue'
 import acsCarrier from '~~/shared/shipping/providers/acs'
@@ -34,15 +34,25 @@ const LOCKER: Locker = {
   raw: {},
 }
 
-const PickerStub = defineComponent({
-  name: 'PickerStub',
-  props: ['open', 'carrier', 'initialPostalCode', 'initialCity', 'countryCode'],
-  emits: ['update:open', 'selected'],
-  render: () => h('div'),
+/**
+ * The picker is rendered as `<Lazy…CheckoutGenericLockerPicker>`, which
+ * Nuxt compiles to a direct async import that no stub key matches — so
+ * the module it loads is mocked, in both trees.
+ */
+const PickerStub = await vi.hoisted(async () => {
+  const { defineComponent, h } = await import('vue')
+  return defineComponent({
+    name: 'PickerStub',
+    props: ['open', 'carrier', 'initialPostalCode', 'initialCity', 'countryCode'],
+    emits: ['update:open', 'selected'],
+    render: () => h('div'),
+  })
 })
+vi.mock('~/components/Checkout/GenericLockerPicker.vue', () => ({ default: PickerStub }))
+vi.mock('~/components/variants/webside/Checkout/GenericLockerPicker.vue', () => ({ default: PickerStub }))
 
-describe.each(trees(CheckoutSelectedGenericLocker, WebsideCheckoutSelectedGenericLocker))('$tree Checkout/SelectedGenericLocker', ({ C, own }) => {
-  /** Mounted once the lazy picker chunk has resolved (the stub matches the inner component). */
+describe.each(trees(CheckoutSelectedGenericLocker, WebsideCheckoutSelectedGenericLocker))('$tree Checkout/SelectedGenericLocker', ({ C }) => {
+  /** Mounted once the lazy picker chunk has resolved. */
   async function mount(formState: Record<string, unknown>) {
     const wrapper = await mountSuspended(C, {
       route: false,
@@ -54,7 +64,6 @@ describe.each(trees(CheckoutSelectedGenericLocker, WebsideCheckoutSelectedGeneri
         'initialCity': 'Αθήνα',
         'countryCode': 'GR',
       },
-      global: { stubs: { [own('CheckoutGenericLockerPicker')]: PickerStub } },
     })
     await vi.waitFor(() => expect(wrapper.findComponent(PickerStub).exists()).toBe(true))
     return wrapper

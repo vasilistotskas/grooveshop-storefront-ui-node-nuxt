@@ -146,7 +146,9 @@ describe('useAllAuthAuthentication', () => {
 
     it('still signs the user in when GA4 throws', async () => {
       respondWith(OK)
-      ga4.trackLogin.mockImplementationOnce(() => { throw new Error('gtag missing') })
+      ga4.trackLogin.mockImplementationOnce(() => {
+        throw new Error('gtag missing')
+      })
 
       await expect(useAllAuthAuthentication().login({ email: 'shopper@example.com', password: 'secret' }))
         .resolves.toEqual(OK._data)
@@ -177,7 +179,9 @@ describe('useAllAuthAuthentication', () => {
 
     it('still completes the signup when a pixel throws', async () => {
       respondWith(OK)
-      metaPixel.trackCompleteRegistration.mockImplementationOnce(() => { throw new Error('fbq missing') })
+      metaPixel.trackCompleteRegistration.mockImplementationOnce(() => {
+        throw new Error('fbq missing')
+      })
 
       await expect(useAllAuthAuthentication().signup({ email: 'new@example.com', password: 'secret' }))
         .resolves.toEqual(OK._data)

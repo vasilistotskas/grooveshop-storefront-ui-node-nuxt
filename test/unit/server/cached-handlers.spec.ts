@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 /**
  * The cache-key contract, over EVERY `defineCachedEventHandler` route.
  *

@@ -11,20 +11,15 @@
  */
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/content-pages/[slug].get'
-import { zRetrieveContentPageResponse } from '~~/shared/openapi/zod.gen'
+import { makeContentPage } from '~~/test/fixtures/contentPage'
 import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse, log } from '~~/test/helpers/nitro'
 
 const route = '/api/content-pages/:slug'
 
-const PAGE = zRetrieveContentPageResponse.parse({
+const PAGE = makeContentPage({
   id: 2,
-  uuid: '550e8400-e29b-41d4-a716-446655440000',
   slug: 'terms',
   translations: { el: { title: 'Όροι Χρήσης', body: '<p>Κείμενο</p>' } },
-  isPublished: true,
-  publishedAt: '2026-09-01T10:00:00+03:00',
-  createdAt: '2026-09-01T10:00:00+03:00',
-  updatedAt: '2026-09-01T10:00:00+03:00',
 })
 
 describe('GET /api/content-pages/[slug]', () => {

@@ -85,19 +85,23 @@ and fake timers for debounce, polling and timeouts
 
 | Path | What |
 |---|---|
-| `test/helpers/api.ts` | `createApiMock()` for `$api` / `$fetch` / `useRequestApi`: boot-safe default, `create()`, `routes()` (exact path by default, `'/prefix/*'` for prefix), `callsTo()` |
+| `test/helpers/api.ts` | `createApiMock()` for `$api` / `$fetch` / `useRequestApi`: boot-safe default, `create()`, `routes()` (exact path by default, `'/prefix/*'` for prefix), `callsTo()`; `failWith(status, data?)`, the handler that fails a route like an HTTP error |
 | `test/helpers/asyncData.ts` | `createAsyncDataMock()` shaped like Nuxt's `AsyncData` |
 | `test/helpers/tenant.ts` | `setTenant(overrides)` on the active Pinia's tenant store |
 | `test/helpers/trees.ts` | `trees(Default, Webside)` for running one spec body over both component trees |
 | `test/helpers/sourceText.ts` | the source-rule toolkit: file walks, memoised SFC/AST parsing, `classesOf`, `componentName` |
 | `test/helpers/nitro/` | the server harness (below) |
 | `test/helpers/e2e.ts` | dev-server boot, fake Django, `requestWithHost` |
-| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeUserDetails`, `validTenantConfig`, … |
+| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeOrder`, `makeContentPage`, `makeSubscriptionTopic`, `makeUserSubscription`, `makeUserDetails`, `validTenantConfig`, … |
+| `test/fixtures/allauth.ts` | allauth replies: `makeSessionResponse`, `makePendingFlowResponse(id)`, `makeBadResponse(...errors)`, `makeAllAuthConfig`, and `asProxiedError(body)` — a body as the app's `$fetch` throws it |
 
-Every fixture factory's defaults are strict-parsed against the generated Zod
-schema in `test/unit/fixtures/*.spec.ts`, so a schema change fails there in
-milliseconds, naming the field. Add a factory the same way instead of
-hand-building a payload in a second spec.
+Every fixture factory's defaults are parsed against its Zod schema (the
+generated one, or the app's own under `shared/schemas/**/all-auth`) in
+`test/unit/fixtures/*.spec.ts`, through `problems()` from
+`test/unit/fixtures/strictSchema.ts`: it makes EVERY nested object strict,
+where `schema.strict()` closes only the top level. A schema change fails
+there in milliseconds, naming the field. Add a factory the same way instead
+of hand-building a payload in a second spec.
 
 ## `nuxt` project traps
 
@@ -125,6 +129,17 @@ hand-building a payload in a second spec.
   the first mount per file is paid by `test/fixtures/setup/nuxt.ts`, which
   also unmounts every wrapper after each test (`enableAutoUnmount`).
 - **Call composables before the first `await`** in an async `setup`.
+- **Replace a lazy child by mocking its module.** Nuxt compiles
+  `<LazyUserNotificationsBell>` into a direct `defineAsyncComponent` import
+  (Nuxt's components loader), so a `global.stubs` key named
+  `LazyUserNotificationsBell` matches nothing. A plain `UserNotificationsBell`
+  key only matches once the REAL module has loaded, and a load still in
+  flight when the test ends fails on a torn-down environment
+  (`EnvironmentTeardownError`, often only under the slower coverage run).
+  Mock the file instead —
+  `vi.mock('~/components/User/NotificationsBell.vue', () => ({ default: Stub }))`
+  (one per tree) — and `vi.waitFor` the async wrapper when the test asserts
+  on the stub. A `.client.vue` stub must render an element, not `null`.
 - **Router mocks need the full surface** (`beforeResolve`, `onError`,
   `isReady`, `resolve`, …) or app initialisation breaks.
 - **i18n returns real Greek.** For exact copy assert
@@ -182,3 +197,12 @@ least N of them, so it cannot go blind silently.
 - One file: `pnpm vitest run test/unit/app/utils/str.spec.ts`
 - One project: `pnpm vitest run --project=unit` (or `nuxt`)
 - CI's run: `pnpm test:ci` (unit + nuxt with coverage); e2e: `pnpm test:e2e`
+- Lint: `test/**` is linted (`@vitest/eslint-plugin` recommended, in
+  `eslint.config.mjs`). An assertion helper is named `expect…` so
+  `vitest/expect-expect` sees the test assert.
+- Types: `pnpm typecheck` checks `test/nuxt` and
+  `test/unit/{app,shared,openapi,fixtures}` (the app context, extended in
+  `nuxt.config.ts`). `test/unit/server`, `test/unit/{source-rules,scripts}`
+  and `test/e2e` need the server and node contexts, which the gate does not
+  check until the root tsconfig moves to Nuxt's `references` layout — keep
+  them typed anyway; the kit's typed helpers make that the easy path.

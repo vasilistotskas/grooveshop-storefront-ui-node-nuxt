@@ -6,6 +6,7 @@ import NotifyMe from '~/components/Product/NotifyMe.vue'
 import WebsideNotifyMe from '~/components/variants/webside/Product/NotifyMe.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -46,10 +47,6 @@ function makeAlert(overrides: Partial<ProductAlert> = {}): ProductAlert {
 }
 
 const page = (results: ProductAlert[]) => ({ results, count: results.length })
-const failWith = (statusCode: number) => () => {
-  throw Object.assign(new Error('Request failed'), { statusCode })
-}
-
 // The modal's own open/close behaviour is Nuxt UI's; this stub keeps
 // the component's contract observable in place: the trigger asks to
 // open, and the form is rendered only while `open` is true.

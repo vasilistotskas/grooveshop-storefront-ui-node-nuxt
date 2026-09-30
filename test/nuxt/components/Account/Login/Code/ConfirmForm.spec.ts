@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoginCodeConfirmForm from '~/components/Account/Login/Code/ConfirmForm.vue'
 import WebsideLoginCodeConfirmForm from '~/components/variants/webside/Account/Login/Code/ConfirmForm.vue'
 import { trees } from '~~/test/helpers/trees'
+import { asProxiedError, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
 /**
  * Entering the emailed one-time code. Mocked at
@@ -26,41 +27,12 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
 /** allauth's 401 after a valid code on a two-factor account. */
-const MFA_PENDING = {
-  statusCode: 401,
-  data: {
-    statusCode: 401,
-    data: {
-      status: 401,
-      data: { flows: [{ id: 'mfa_authenticate', is_pending: true, types: ['totp'] }] },
-      meta: { is_authenticated: false },
-    },
-  },
-}
+const MFA_PENDING = asProxiedError(makePendingFlowResponse('mfa_authenticate', { types: ['totp'] }))
 
 /** `login_by_code` still pending: allauth wants the same step again. */
-const SAME_STEP = {
-  statusCode: 401,
-  data: {
-    statusCode: 401,
-    data: {
-      status: 401,
-      data: { flows: [{ id: 'login_by_code', is_pending: true }] },
-      meta: { is_authenticated: false },
-    },
-  },
-}
+const SAME_STEP = asProxiedError(makePendingFlowResponse('login_by_code'))
 
-const INCORRECT_CODE = {
-  statusCode: 400,
-  data: {
-    statusCode: 400,
-    data: {
-      status: 400,
-      errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }],
-    },
-  },
-}
+const INCORRECT_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }))
 
 /** The component's own `<i18n>` copy (el) — the strings this form owns. */
 const COPY = {

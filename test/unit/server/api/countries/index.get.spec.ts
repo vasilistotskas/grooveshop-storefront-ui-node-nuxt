@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/countries/index.get'
-import { zCountry } from '~~/shared/openapi/zod.gen'
+import { makeCountry } from '~~/test/fixtures/country'
 import { backend, cacheOptionsOf, callRoute, createTestEvent } from '~~/test/helpers/nitro'
 
 /**
@@ -11,24 +11,9 @@ import { backend, cacheOptionsOf, callRoute, createTestEvent } from '~~/test/hel
 
 const route = '/api/countries'
 
-const greece = {
-  translations: { el: { name: 'Ελλάδα' } },
-  alpha2: 'GR',
-  alpha3: 'GRC',
-  phoneMetadata: null,
-  hasRegions: true,
-  sortOrder: 1,
-  createdAt: '2026-01-01T00:00:00Z',
-  updatedAt: '2026-01-01T00:00:00Z',
-  uuid: 'a7f1c9e2-3b4d-4e5f-8a6b-7c8d9e0f1a2b',
-  mainImagePath: '',
-}
+const greece = makeCountry({ phoneMetadata: null })
 
 describe('GET /api/countries', () => {
-  it('uses a country fixture the generated schema accepts', () => {
-    expect(zCountry.safeParse(greece).success).toBe(true)
-  })
-
   it('re-wraps the unpaginated list as a page', async () => {
     backend.reply([greece])
 

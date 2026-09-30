@@ -31,7 +31,8 @@ import {
   createRequestLogger,
   runWithEvent,
 } from './runtime'
-import type { NitroTestPlugin, TestRequestLogger } from './runtime'
+import type { NitroApp, NitroAppPlugin } from 'nitropack/types'
+import type { TestRequestLogger } from './runtime'
 
 export {
   cacheOptionsOf,
@@ -224,10 +225,18 @@ export interface TestNitroApp {
   hooks: Hookable<Record<string, (...args: any[]) => any>>
 }
 
-/** Run a Nitro plugin against an app with real `hookable` hooks, then fire them with `hooks.callHook`. */
-export async function runNitroPlugin(plugin: NitroTestPlugin): Promise<TestNitroApp> {
+/**
+ * Run a Nitro plugin against an app with real `hookable` hooks, then fire
+ * them with `hooks.callHook`.
+ *
+ * The app is only `hooks`: every server plugin registers hooks and reads
+ * nothing else of the `NitroApp` its type promises, so the partial app is
+ * asserted to that type here, once. A plugin that starts reading
+ * `h3App` or `localFetch` fails loudly on the missing member.
+ */
+export async function runNitroPlugin(plugin: NitroAppPlugin): Promise<TestNitroApp> {
   const nitroApp: TestNitroApp = { hooks: createHooks() }
-  await plugin(nitroApp)
+  await plugin(nitroApp as NitroApp)
   return nitroApp
 }
 
@@ -245,7 +254,14 @@ export interface BackendRequest {
   body: any
 }
 
-type Reply = unknown | Response | ((request: BackendRequest) => unknown | Response | Promise<unknown | Response>)
+/** A reply computed from the request: a value or a `Response`, or a promise of either. */
+type ReplyHandler = (request: BackendRequest) => unknown
+/**
+ * What the backend answers with. Spelled out rather than `unknown`: a
+ * union with `unknown` collapses to `unknown`, and a handler passed to
+ * `reply` then loses its `request` parameter type.
+ */
+type Reply = ReplyHandler | Response | object | string | number | boolean | null
 
 /** A JSON response; `status` ≥ 400 makes ofetch reject with a `FetchError`. */
 export function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
@@ -275,7 +291,7 @@ function toBackendRequest(input: RequestInfo | URL, init: RequestInit = {}): Bac
 }
 
 async function toResponse(reply: Reply, request: BackendRequest): Promise<Response> {
-  const value = typeof reply === 'function' ? await (reply as (r: BackendRequest) => unknown)(request) : reply
+  const value = typeof reply === 'function' ? await (reply as ReplyHandler)(request) : reply
   // A clone, so one `Response` given to `reply` can answer every request
   // (a body can be read once; ofetch's retry of a GET reads it twice).
   return value instanceof Response ? value.clone() : jsonResponse(value)

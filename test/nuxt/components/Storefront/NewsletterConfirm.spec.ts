@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NewsletterConfirm from '~/components/Storefront/NewsletterConfirm.vue'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The page a confirmation email links to. Opening it must confirm
@@ -34,10 +35,6 @@ const COPY = {
   invalidTitle: 'Μη έγκυρος σύνδεσμος',
   failed: 'Η επιβεβαίωση δεν ολοκληρώθηκε. Δοκίμασε ξανά σε λίγο.',
   confirm: 'Επιβεβαίωση εγγραφής',
-}
-
-const rejectWith = (statusCode: number) => () => {
-  throw Object.assign(new Error(String(statusCode)), { statusCode, data: { detail: 'x' } })
 }
 
 const mountPage = () => mountSuspended(NewsletterConfirm, { route: false })
@@ -88,7 +85,7 @@ describe('NewsletterConfirm', () => {
     { status: 410, title: COPY.expiredTitle },
     { status: 400, title: COPY.invalidTitle },
   ])('shows its own final state on $status, without a retry button', async ({ status, title }) => {
-    api.routes({ [CONFIRM_URL]: rejectWith(status) })
+    api.routes({ [CONFIRM_URL]: failWith(status, { detail: 'x' }) })
     const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
@@ -98,7 +95,7 @@ describe('NewsletterConfirm', () => {
   })
 
   it('keeps the button on any other failure, so the visitor can retry', async () => {
-    api.routes({ [CONFIRM_URL]: rejectWith(503) })
+    api.routes({ [CONFIRM_URL]: failWith(503, { detail: 'x' }) })
     const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
@@ -110,7 +107,11 @@ describe('NewsletterConfirm', () => {
 
   it('sends one request however often the button is pressed while it is pending', async () => {
     let settle!: (value: unknown) => void
-    api.routes({ [CONFIRM_URL]: () => new Promise((resolve) => { settle = resolve }) })
+    api.routes({
+      [CONFIRM_URL]: () => new Promise((resolve) => {
+        settle = resolve
+      }),
+    })
     const wrapper = await mountPage()
 
     await confirmButton(wrapper)!.trigger('click')

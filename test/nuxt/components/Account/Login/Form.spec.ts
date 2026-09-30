@@ -6,6 +6,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoginForm from '~/components/Account/Login/Form.vue'
 import WebsideLoginForm from '~/components/variants/webside/Account/Login/Form.vue'
 import { trees } from '~~/test/helpers/trees'
+import { asProxiedError, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The email + password sign-in. Mocked at `useAllAuthAuthentication`
@@ -23,31 +24,12 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
 /** allauth's 401 for a correct password on a two-factor account, as the Nuxt proxy forwards it. */
-const MFA_PENDING = {
-  statusCode: 401,
-  data: {
-    statusCode: 401,
-    data: {
-      status: 401,
-      data: { flows: [{ id: 'mfa_authenticate', is_pending: true, types: ['totp'] }] },
-      meta: { is_authenticated: false },
-    },
-  },
-}
+const MFA_PENDING = asProxiedError(makePendingFlowResponse('mfa_authenticate', { types: ['totp'] }))
 
 /** allauth's 400 for a wrong password. */
-const MISMATCH = {
-  statusCode: 400,
-  data: {
-    statusCode: 400,
-    data: {
-      status: 400,
-      errors: [{ code: 'email_password_mismatch', param: 'password', message: 'The email address and/or password you specified are not correct.' }],
-    },
-  },
-}
+const MISMATCH = asProxiedError(makeBadResponse({ code: 'email_password_mismatch', param: 'password', message: 'The email address and/or password you specified are not correct.' }))
 
-const SIGNED_IN = { status: 200, data: { user: { id: 7, email: 'shopper@example.com' }, methods: [] }, meta: { is_authenticated: true } }
+const SIGNED_IN = makeSessionResponse()
 
 let refreshCart: MockInstance<() => Promise<void>>
 
@@ -142,7 +124,9 @@ describe.each(trees(LoginForm, WebsideLoginForm))('$tree Account/Login/Form', ({
 
   it('shows the submit button busy until the sign-in settles', async () => {
     let settle!: (value: unknown) => void
-    login.mockReturnValue(new Promise((resolve) => { settle = resolve }))
+    login.mockReturnValue(new Promise((resolve) => {
+      settle = resolve
+    }))
     const wrapper = await mountForm()
     const submit = () => wrapper.find('button[type="submit"]')
 

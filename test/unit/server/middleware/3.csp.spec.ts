@@ -57,7 +57,7 @@ beforeEach(() => {
 describe('server/middleware/3.csp', () => {
   it('never leaks the internal SSR upstream into the CSP', () => {
     const csp = runWith('/products/3/some-product')['Content-Security-Policy']
-    expect(csp).toContain("default-src 'self'")
+    expect(csp).toContain('default-src \'self\'')
     expect(csp).not.toContain(INTERNAL_DJANGO_URL)
     expect(csp).not.toContain('backend-service')
   })

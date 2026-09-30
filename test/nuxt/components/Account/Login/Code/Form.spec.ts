@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoginCodeForm from '~/components/Account/Login/Code/Form.vue'
 import WebsideLoginCodeForm from '~/components/variants/webside/Account/Login/Code/Form.vue'
 import { trees } from '~~/test/helpers/trees'
+import { asProxiedError, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
 /**
  * Asking allauth to email a one-time sign-in code. Mocked at
@@ -25,28 +26,9 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
 /** allauth's reply to a code request it accepted, as the Nuxt proxy forwards it. */
-const CODE_SENT = {
-  statusCode: 401,
-  data: {
-    statusCode: 401,
-    data: {
-      status: 401,
-      data: { flows: [{ id: 'login_by_code', is_pending: true }] },
-      meta: { is_authenticated: false },
-    },
-  },
-}
+const CODE_SENT = asProxiedError(makePendingFlowResponse('login_by_code'))
 
-const UNKNOWN_EMAIL = {
-  statusCode: 400,
-  data: {
-    statusCode: 400,
-    data: {
-      status: 400,
-      errors: [{ code: 'unknown_email', param: 'email', message: 'Δεν βρέθηκε λογαριασμός με αυτό το email.' }],
-    },
-  },
-}
+const UNKNOWN_EMAIL = asProxiedError(makeBadResponse({ code: 'unknown_email', param: 'email', message: 'Δεν βρέθηκε λογαριασμός με αυτό το email.' }))
 
 const RATE_LIMITED = { statusCode: 429, data: { statusCode: 429, data: { status: 429 } } }
 
@@ -195,7 +177,9 @@ describe.each(trees(LoginCodeForm, WebsideLoginCodeForm))('$tree Account/Login/C
 
   it('shows the submit button busy until allauth answers', async () => {
     let settle!: (value: { status: number }) => void
-    requestLoginCode.mockReturnValue(new Promise((resolve) => { settle = resolve }))
+    requestLoginCode.mockReturnValue(new Promise((resolve) => {
+      settle = resolve
+    }))
     const wrapper = await mountForm()
     const submit = () => wrapper.find('button[type="submit"]')
 

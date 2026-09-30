@@ -402,6 +402,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
+      '@vitest/eslint-plugin':
+        specifier: 1.6.27
+        version: 1.6.27(@typescript-eslint/eslint-plugin@8.66.0(@typescript-eslint/parser@8.66.0(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)(vitest@5.0.2)
       '@vue/test-utils':
         specifier: 2.5.1
         version: 2.5.1(@vue/compiler-dom@3.5.43)(@vue/server-renderer@3.5.41)(vue@3.5.43(typescript@6.0.3))
@@ -4129,6 +4132,22 @@ packages:
       vitest: 5.0.2
     peerDependenciesMeta:
       '@vitest/browser':
+        optional: true
+
+  '@vitest/eslint-plugin@1.6.27':
+    resolution: {integrity: sha512-X1RCAfwbatG4GFbJ/1PIHP9MSZMt0JJThqbYID+vS4L783k6QGlLPe421wQE8dHXuGCcenVLsydiM4qzsYWxhg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@typescript-eslint/eslint-plugin': '*'
+      eslint: '>=8.57.0'
+      typescript: '>=5.0.0'
+      vitest: '*'
+    peerDependenciesMeta:
+      '@typescript-eslint/eslint-plugin':
+        optional: true
+      typescript:
+        optional: true
+      vitest:
         optional: true
 
   '@vitest/istanbul-lib-coverage@1.0.1':
@@ -13215,6 +13234,18 @@ snapshots:
       std-env: 4.2.0
       tinyrainbow: 3.1.1
       vitest: 5.0.2(@types/node@26.6.3)(@vitest/coverage-v8@5.0.2)(happy-dom@20.14.5)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))
+
+  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.66.0(@typescript-eslint/parser@8.66.0(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)(vitest@5.0.2)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.66.0
+      '@typescript-eslint/utils': 8.66.0(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+      eslint: 10.11.0(jiti@2.7.0)(supports-color@10.2.2)
+    optionalDependencies:
+      '@typescript-eslint/eslint-plugin': 8.66.0(@typescript-eslint/parser@8.66.0(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+      typescript: 6.0.3
+      vitest: 5.0.2(@types/node@26.6.3)(@vitest/coverage-v8@5.0.2)(happy-dom@20.14.5)(jsdom@30.0.1(@noble/hashes@2.3.0))(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))
+    transitivePeerDependencies:
+      - supports-color
 
   '@vitest/istanbul-lib-coverage@1.0.1': {}
 

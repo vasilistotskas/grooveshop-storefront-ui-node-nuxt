@@ -11,6 +11,7 @@ import promotionsEnabled from '~/middleware/promotions-enabled'
 import { FEATURE_GATED_ROUTES, featureRouteAllowed } from '~~/shared/utils/gatedRoutes'
 import type { FeatureGatedRoute, PlanFlags } from '~~/shared/utils/gatedRoutes'
 import { setTenant } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * `FEATURE_GATED_ROUTES` + `featureRouteAllowed` are the sitemap's and
@@ -65,7 +66,7 @@ function settingsFor(route: FeatureGatedRoute, state: SettingState): Record<stri
  * for a key without a row (server/api/loyalty/settings.get.ts).
  */
 function serve(settings: Record<string, string> | null) {
-  const unavailable = () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) }
+  const unavailable = failWith(502)
   api.routes({
     '/api/settings/public': settings === null ? unavailable : { settings },
     '/api/loyalty/settings': settings === null

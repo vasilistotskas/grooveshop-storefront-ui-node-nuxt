@@ -81,7 +81,7 @@ describe('isCachedResponse', () => {
 describe('warmOrder', () => {
   it('puts shallow pages first and keeps sitemap order within a depth', () => {
     const page = (pathname: string) => ({ host: 'webside.gr', pathname })
-    expect(warmOrder([page('/blog/post/1/a'), page('/blog'), page('/'), page('/products'), page('/blog/category/1/x')]).map(p => p.pathname))
+    expect(warmOrder([page('/blog/post/1/a'), page('/blog'), page('/'), page('/products'), page('/blog/category/1/x')]).map((p: { pathname: string }) => p.pathname))
       .toEqual(['/', '/blog', '/products', '/blog/post/1/a', '/blog/category/1/x'])
   })
 })

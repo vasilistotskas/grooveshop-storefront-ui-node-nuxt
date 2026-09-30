@@ -25,7 +25,6 @@ const { useTikTokPixel } = await import('~/composables/useTikTokPixel')
 const { setupTikTokPixelConsent } = await import('~/composables/setups')
 
 describe('useTikTokPixel — tenant-only pixel id resolution', () => {
-
   it('is provisioned and registers the tenant pixel id when the tenant has one', () => {
     setTenant({ tiktokPixelId: 'TENANT_TT_ID' })
 
@@ -48,7 +47,6 @@ describe('useTikTokPixel — tenant-only pixel id resolution', () => {
 })
 
 describe('setupTikTokPixelConsent — tenant-only pixel id resolution', () => {
-
   it('registers the tenant pixel id behind the consent trigger', () => {
     setTenant({ tiktokPixelId: 'TENANT_TT_ID' })
 

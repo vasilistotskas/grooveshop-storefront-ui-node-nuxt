@@ -54,6 +54,15 @@ mockNuxtImport('useUserSession', () => () => {
 mockNuxtImport('useAllAuthAuthentication', () => () => ({ deleteSession: mockDeleteSession }))
 mockNuxtImport('navigateTo', () => mockNavigateTo)
 
+/**
+ * Both navbars render the bell as `Lazy…`, which Nuxt compiles to a direct
+ * async import that no stub key matches; left real, the bell loaded after
+ * the test and its import hit a torn-down environment. So the modules the
+ * imports load are mocked.
+ */
+vi.mock('~/components/User/NotificationsBell.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('~/components/variants/webside/User/NotificationsBell.vue', () => ({ default: { template: '<div />' } }))
+
 describe.each(trees(PageNavbar, WebsidePageNavbar))('$tree PageNavbar', ({ C, own }) => {
   /** The desktop main-nav links, as `[href, aria-current]`. */
   const mainNav = (wrapper: VueWrapper) =>
@@ -63,14 +72,13 @@ describe.each(trees(PageNavbar, WebsidePageNavbar))('$tree PageNavbar', ({ C, ow
     [own('CartButton')]: { template: '<button data-test="cart" />' },
     // UserAvatar's tooltip needs UApp's TooltipProvider, which a bare mount lacks.
     UserAvatar: true,
-    [own('UserNotificationsBell')]: true,
   }
 
   beforeEach(() => {
     state.header = null
     state.flags = {}
-    session.loggedIn && (session.loggedIn.value = false)
-    session.user && (session.user.value = null)
+    if (session.loggedIn) session.loggedIn.value = false
+    if (session.user) session.user.value = null
     setTenant({ blogEnabled: false, promotionsEnabled: false, giftCardsEnabled: false })
   })
 

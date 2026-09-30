@@ -8,6 +8,7 @@ import {
   onAllAuthResponseError,
   tryAdvanceToPendingFlow,
 } from '~/utils/auth'
+import { asProxiedError, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The half of `app/utils/auth.ts` that talks to the Nuxt app: it fires
@@ -23,15 +24,6 @@ mockNuxtImport('navigateTo', () => navigateToMock)
 
 const response = (status: number, data: unknown) =>
   ({ status, _data: data }) as unknown as FetchResponse<any>
-
-const pending = (id: string, types?: string[]) => ({
-  status: 401,
-  data: { flows: [{ id, is_pending: true, ...(types ? { types } : {}) }] },
-  meta: { is_authenticated: false },
-})
-
-/** The thrown `$fetch` error: Nitro's wrapper at `data`, the allauth payload under it. */
-const thrown = (payload: unknown) => ({ data: { statusCode: 401, statusMessage: 'Unauthorized', data: payload } })
 
 let callHook: ReturnType<typeof vi.spyOn>
 
@@ -97,7 +89,7 @@ describe('navigateToPendingFlow', () => {
   it('goes to the pending flow\'s page, carrying a safe `next`', async () => {
     await useRouter().push('/account/login?next=/account/orders')
 
-    await navigateToPendingFlow(pending('verify_email') as never)
+    await navigateToPendingFlow(makePendingFlowResponse('verify_email'))
 
     expect(navigateToMock).toHaveBeenCalledWith(`${useLocalePath()('account-verify-email')}?next=%2Faccount%2Forders`)
   })
@@ -105,7 +97,7 @@ describe('navigateToPendingFlow', () => {
   it('drops a `next` that would leave the site', async () => {
     await useRouter().push('/account/login?next=//evil.test')
 
-    await navigateToPendingFlow(pending('verify_email') as never)
+    await navigateToPendingFlow(makePendingFlowResponse('verify_email'))
 
     expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-verify-email'))
   })
@@ -121,7 +113,7 @@ describe('tryAdvanceToPendingFlow', () => {
   it('advances to a pending flow on a different route, keeping a safe `next`', async () => {
     await useRouter().push('/account/login?next=/cart')
 
-    expect(await tryAdvanceToPendingFlow(thrown(pending('login_by_code')))).toBe(true)
+    expect(await tryAdvanceToPendingFlow(asProxiedError(makePendingFlowResponse('login_by_code')))).toBe(true)
     expect(navigateToMock).toHaveBeenCalledWith({
       path: useLocalePath()('account-login-code-confirm'),
       query: { next: '/cart' },
@@ -131,7 +123,7 @@ describe('tryAdvanceToPendingFlow', () => {
   it('drops a `next` that would leave the site', async () => {
     await useRouter().push('/account/login?next=https://evil.test')
 
-    await tryAdvanceToPendingFlow(thrown(pending('login_by_code')))
+    await tryAdvanceToPendingFlow(asProxiedError(makePendingFlowResponse('login_by_code')))
 
     expect(navigateToMock).toHaveBeenCalledWith({ path: useLocalePath()('account-login-code-confirm'), query: undefined })
   })
@@ -139,7 +131,7 @@ describe('tryAdvanceToPendingFlow', () => {
   it('does NOT advance when the pending flow maps back to the submitting form (wrong-code retry)', async () => {
     const webauthn = useLocalePath()('account-2fa-authenticate-webauthn')
 
-    const advanced = await tryAdvanceToPendingFlow(thrown(pending('mfa_authenticate', ['webauthn'])), { fromPath: webauthn })
+    const advanced = await tryAdvanceToPendingFlow(asProxiedError(makePendingFlowResponse('mfa_authenticate', { types: ['webauthn'] })), { fromPath: webauthn })
 
     expect(advanced).toBe(false)
     expect(navigateToMock).not.toHaveBeenCalled()
@@ -151,7 +143,7 @@ describe('tryAdvanceToPendingFlow', () => {
     const webauthn = useLocalePath()('account-2fa-authenticate-webauthn')
     await useRouter().push(webauthn)
 
-    const advanced = await tryAdvanceToPendingFlow(thrown(pending('mfa_authenticate', ['webauthn'])), { fromPath: useLocalePath()('account-login') })
+    const advanced = await tryAdvanceToPendingFlow(asProxiedError(makePendingFlowResponse('mfa_authenticate', { types: ['webauthn'] })), { fromPath: useLocalePath()('account-login') })
 
     expect(advanced).toBe(true)
     expect(navigateToMock).not.toHaveBeenCalled()

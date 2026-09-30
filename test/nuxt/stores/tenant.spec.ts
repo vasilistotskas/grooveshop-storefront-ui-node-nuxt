@@ -23,8 +23,7 @@ type OptionalKey = 'seoAuthor' | 'googleSiteVerification' | 'pinterestDomainVeri
 
 /** A valid payload that leaves out the optional `key`. */
 function configWithout(key: OptionalKey): TenantConfig {
-  const payload = config()
-  delete payload[key]
+  const { [key]: _left, ...payload } = config()
   return payload
 }
 

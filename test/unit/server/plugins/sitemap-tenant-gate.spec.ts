@@ -421,10 +421,10 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       // only the merchant can write one, so three of the four
       // production tenants answer 404 there.
       store.content = [
-          { slug: 'terms', translations: BOTH_LOCALES },
-          { slug: 'privacy', translations: BOTH_LOCALES },
-          { slug: 'cookies', translations: BOTH_LOCALES },
-        ]
+        { slug: 'terms', translations: BOTH_LOCALES },
+        { slug: 'privacy', translations: BOTH_LOCALES },
+        { slug: 'cookies', translations: BOTH_LOCALES },
+      ]
 
       const locs = await runLegal(OPEN)
 
@@ -508,7 +508,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       // pointing at it, so the 404 came back as an hreflang. The
       // locale gate cannot catch this — the tenant DOES serve `en`.
       store.content = Object.values(LEGAL_ROUTE_SLUGS)
-          .map(slug => ({ slug, translations: { el: {} } }))
+        .map(slug => ({ slug, translations: { el: {} } }))
 
       const ctx = {
         urls: [{

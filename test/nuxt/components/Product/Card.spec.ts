@@ -20,7 +20,7 @@ const NOW = new Date('2026-01-11T00:00:00Z')
 const mountCard = (product: Product) =>
   mountSuspended(ProductCard, {
     props: { product },
-    global: { stubs: { ImgWithFallback: true, ButtonProductAddToCart: true, LazyButtonProductAddToCart: true } },
+    global: { stubs: { ImgWithFallback: true, ButtonProductAddToCart: true } },
     route: false,
   })
 

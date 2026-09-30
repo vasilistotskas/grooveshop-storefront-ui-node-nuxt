@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/orders/index.post'
-import { zCreateOrderResponse } from '~~/shared/openapi/zod.gen'
+import { makeOrder } from '~~/test/fixtures/order'
 import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 
 /**
@@ -27,72 +27,8 @@ const orderBody = {
   phone: '+306900000000',
 }
 
-const TIMESTAMP = '2026-01-01T00:00:00Z'
-
-/** An `OrderDetail` as Django serialises it (proved against the schema below). */
-const createdOrder = {
-  id: 7,
-  user: null,
-  country: 'GR',
-  region: null,
-  street: 'Egnatias',
-  streetNumber: '12',
-  payWay: 1,
-  status: 'PENDING',
-  statusDisplay: 'Pending',
-  statusUpdatedAt: null,
-  firstName: 'Maria',
-  lastName: 'Papadopoulou',
-  email: 'maria@example.com',
-  zipcode: '546 22',
-  city: 'Thessaloniki',
-  phone: '+306900000000',
-  paidAmount: 0,
-  items: [],
-  shippingPrice: 0,
-  paymentMethodFee: 0,
-  billingVatId: '',
-  billingCountry: '',
-  billingCompanyName: '',
-  billingTaxOffice: '',
-  billingActivity: '',
-  billingStreet: '',
-  billingStreetNumber: '',
-  billingCity: '',
-  billingZipcode: '',
-  createdAt: TIMESTAMP,
-  updatedAt: TIMESTAMP,
-  uuid: '11111111-2222-4333-8444-555555555555',
-  totalPriceItems: 0,
-  totalPriceExtra: 0,
-  discountAmount: 0,
-  loyaltyDiscount: 0,
-  giftCardAmount: 0,
-  fullAddress: 'Egnatias 12, Thessaloniki',
-  paymentStatusDisplay: '',
-  payWayKey: 'PAY_ON_DELIVERY',
-  isOnlinePayment: false,
-  isCollectedOnDelivery: true,
-  canBeCanceled: true,
-  isPaid: false,
-  attribution: null,
-  orderTimeline: [],
-  pricingBreakdown: {},
-  trackingDetails: null,
-  hasInvoice: false,
-  boxnowShipment: null,
-  acsShipment: null,
-  shipment: null,
-  shipmentProviderCode: null,
-  cancellation: null,
-  appliedCouponCodes: [],
-  customerFullName: 'Maria Papadopoulou',
-  isCompleted: false,
-  isCanceled: false,
-  metaEventIds: {},
-  currency: 'EUR',
-  isFirstOrder: true,
-}
+/** The order Django creates: a first order, paid on delivery. */
+const createdOrder = makeOrder({ id: 7, isFirstOrder: true })
 
 function placeOrder(options: { body?: Record<string, unknown>, headers?: Record<string, string>, remoteAddress?: string } = {}) {
   return callRoute(handler, {
@@ -105,10 +41,6 @@ function placeOrder(options: { body?: Record<string, unknown>, headers?: Record<
 }
 
 describe('POST /api/orders', () => {
-  it('uses a response fixture the generated schema accepts', () => {
-    expect(zCreateOrderResponse.safeParse(createdOrder).success).toBe(true)
-  })
-
   it('creates the order for the session cart with the shopper\'s identity, not the pod\'s', async () => {
     backend.reply(createdOrder)
 

@@ -56,15 +56,15 @@ const addToCartStub = {
   props: ['product', 'text', 'iconOnly'],
   template: '<button class="add-to-cart" :aria-label="text" />',
 }
-// Nuxt resolves `Lazy*` to the same component, so both names are
-// stubbed — whichever the resolver registers first wins.
+// Both buttons and the carousel are rendered `Lazy…`, a direct async
+// import no `Lazy*` stub key matches; the plain name matches the
+// component that import resolves to, once it has loaded (mountStrip
+// flushes for it).
 const stubsFor = (own: (name: string) => string) => ({
   ImgWithFallback: true,
   [own('ButtonProductAddToFavourite')]: true,
-  [`Lazy${own('ButtonProductAddToFavourite')}`]: true,
   [own('ButtonProductAddToCart')]: addToCartStub,
-  [`Lazy${own('ButtonProductAddToCart')}`]: addToCartStub,
-  LazyUCarousel: {
+  UCarousel: {
     props: ['items'],
     template: '<div class="carousel"><slot v-for="(item, index) in items" :item="item" :index="index" /></div>',
   },

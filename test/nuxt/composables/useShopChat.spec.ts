@@ -40,7 +40,11 @@ function sseResponse(body: string, chunkSize = 8): Response {
  */
 function openStream() {
   let controller!: ReadableStreamDefaultController<Uint8Array>
-  const body = new ReadableStream<Uint8Array>({ start: (c) => { controller = c } })
+  const body = new ReadableStream<Uint8Array>({
+    start: (c) => {
+      controller = c
+    },
+  })
   const fetchMock = vi.fn((_url: string, init: RequestInit) => {
     init.signal?.addEventListener('abort', () =>
       controller.error(new DOMException('The operation was aborted.', 'AbortError')))

@@ -97,10 +97,28 @@ describe('useAccountMenus', () => {
   })
 
   describe.each([
-    ['loyalty', '/account/loyalty', { loyaltyEnabled: true }, () => { mockLoyaltyEnabled = true }, () => { mockLoyaltyEnabled = false }],
-    ['gift cards', '/account/gift-cards', { giftCardsEnabled: true }, () => {}, () => { mockSettingValues = { GIFT_CARDS_ENABLED: 'False' } }],
-    ['business account', '/account/business', { b2bEnabled: true }, () => {}, () => { mockSettingValues = { B2B_WHOLESALE_ENABLED: 'False' } }],
-  ])('the %s entry (tenant plan AND runtime toggle)', (_name, path, plan, runtimeOn, runtimeOff) => {
+    {
+      entry: 'loyalty',
+      path: '/account/loyalty',
+      plan: { loyaltyEnabled: true },
+      runtimeOn: () => { mockLoyaltyEnabled = true },
+      runtimeOff: () => { mockLoyaltyEnabled = false },
+    },
+    {
+      entry: 'gift cards',
+      path: '/account/gift-cards',
+      plan: { giftCardsEnabled: true },
+      runtimeOn: () => {},
+      runtimeOff: () => { mockSettingValues = { GIFT_CARDS_ENABLED: 'False' } },
+    },
+    {
+      entry: 'business account',
+      path: '/account/business',
+      plan: { b2bEnabled: true },
+      runtimeOn: () => {},
+      runtimeOff: () => { mockSettingValues = { B2B_WHOLESALE_ENABLED: 'False' } },
+    },
+  ])('the $entry entry (tenant plan AND runtime toggle)', ({ path, plan, runtimeOn, runtimeOff }) => {
     it('shows, just before settings, when both gates pass', async () => {
       setTenant(plan)
       runtimeOn()

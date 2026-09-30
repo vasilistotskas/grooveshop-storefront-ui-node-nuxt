@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useSubscriptionTopics } from '~/composables/useSubscriptionTopics'
-import { createMockTopic } from '~~/test/helpers/subscriptionTestData'
+import { makeSubscriptionTopic } from '~~/test/fixtures/subscription'
 
 /**
  * `fetchTopics` runs the REAL `useAsyncData` over a mocked
@@ -21,7 +21,7 @@ describe('useSubscriptionTopics', () => {
 
   describe('fetchTopics', () => {
     it('GETs the topics and hands back the page results', async () => {
-      const topics = [createMockTopic({ id: 1 }), createMockTopic({ id: 2 })]
+      const topics = [makeSubscriptionTopic({ id: 1 }), makeSubscriptionTopic({ id: 2 })]
       api.routes({ '/api/subscriptions/topics': { count: 2, next: null, previous: null, results: topics } })
 
       const { data, error } = await useSubscriptionTopics().fetchTopics()
@@ -45,7 +45,11 @@ describe('useSubscriptionTopics', () => {
     })
 
     it('surfaces a failed request as the error', async () => {
-      api.routes({ '/api/subscriptions/topics': () => { throw new Error('Network error') } })
+      api.routes({
+        '/api/subscriptions/topics': () => {
+          throw new Error('Network error')
+        },
+      })
 
       const { data, error } = await useSubscriptionTopics().fetchTopics()
 
@@ -55,7 +59,7 @@ describe('useSubscriptionTopics', () => {
   })
 
   describe('getTopicById', () => {
-    const topics = [createMockTopic({ id: 1 }), createMockTopic({ id: 2 })]
+    const topics = [makeSubscriptionTopic({ id: 1 }), makeSubscriptionTopic({ id: 2 })]
 
     it('finds the topic with that id', () => {
       expect(useSubscriptionTopics().getTopicById(topics, 2)).toBe(topics[1])
@@ -73,10 +77,10 @@ describe('useSubscriptionTopics', () => {
   describe('groupByCategory', () => {
     it('groups by category, putting uncategorised topics under OTHER', () => {
       const topics = [
-        createMockTopic({ id: 1, category: 'NEWSLETTER' }),
-        createMockTopic({ id: 2, category: undefined }),
-        createMockTopic({ id: 3, category: 'NEWSLETTER' }),
-        createMockTopic({ id: 4, category: 'PROMOTIONAL' }),
+        makeSubscriptionTopic({ id: 1, category: 'NEWSLETTER' }),
+        makeSubscriptionTopic({ id: 2, category: undefined }),
+        makeSubscriptionTopic({ id: 3, category: 'NEWSLETTER' }),
+        makeSubscriptionTopic({ id: 4, category: 'PROMOTIONAL' }),
       ]
 
       expect(useSubscriptionTopics().groupByCategory(topics)).toEqual({

@@ -43,7 +43,7 @@ async function mountBand() {
  */
 describe('PageSection/LoyaltyHero', () => {
   beforeEach(() => {
-    session.loggedIn && (session.loggedIn.value = true)
+    if (session.loggedIn) session.loggedIn.value = true
     setTenant({ loyaltyEnabled: true })
   })
 

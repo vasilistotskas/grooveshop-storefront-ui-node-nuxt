@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { defineComponent, h, onErrorCaptured } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -36,6 +36,14 @@ const makeAuthor = (overrides: Record<string, unknown> = {}) => ({
 const author = createAsyncDataMock<ReturnType<typeof makeAuthor>>()
 const posts = createAsyncDataMock<{ results: { id: number }[], count: number }>()
 
+/**
+ * Both bodies render the empty state as `<Lazy…EmptyState>`, which Nuxt
+ * compiles to a direct async import — no stub key matches it, so the
+ * module it imports is mocked instead.
+ */
+vi.mock('~/components/Empty/State.vue', () => ({ default: { template: '<div data-test="empty" />' } }))
+vi.mock('~/components/variants/webside/Empty/State.vue', () => ({ default: { template: '<div data-test="empty" />' } }))
+
 mockNuxtImport('useApi', () => () => author)
 mockNuxtImport('useLazyApi', () => () => posts)
 
@@ -45,7 +53,7 @@ const CardStub = defineComponent({
   setup: props => () => h('li', { 'data-post': (props.post as { id: number }).id }),
 })
 
-describe.each(trees(BlogAuthor, WebsideBlogAuthor))('$tree author page', ({ C, own }) => {
+describe.each(trees(BlogAuthor, WebsideBlogAuthor))('$tree author page', ({ C }) => {
   const mount = () => mountSuspended(C, {
     route: false,
     global: {
@@ -53,8 +61,6 @@ describe.each(trees(BlogAuthor, WebsideBlogAuthor))('$tree author page', ({ C, o
         BlogPostCard: CardStub,
         WebsideBlogPostCardMobile: CardStub,
         WebsideBlogPostCardDesktop: CardStub,
-        [`Lazy${own('EmptyState')}`]: { template: '<div data-test="empty" />' },
-        [own('EmptyState')]: { template: '<div data-test="empty" />' },
       },
     },
   })

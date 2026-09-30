@@ -48,13 +48,19 @@ mockNuxtImport('useUserSession', () => () => {
 const stubs = {
   ChromeAnnouncementBar: true,
   ChromeAccountMenu: true,
-  ChromeMobileMenu: true,
   TenantLogo: true,
-  SearchInput: true,
-  UserNotificationsBell: true,
-  LanguageSwitcher: { template: '<div data-test="languages" />' },
   CartButton: { template: '<button data-test="cart" />' },
 }
+
+/**
+ * The search, language switcher, notifications bell and mobile menu are
+ * rendered `Lazy…`, which Nuxt compiles to a direct async import that no
+ * stub key matches — so the modules those imports load are mocked.
+ */
+vi.mock('~/components/Search/Input.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('~/components/Language/Switcher.vue', () => ({ default: { template: '<div data-test="languages" />' } }))
+vi.mock('~/components/User/NotificationsBell.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('~/components/Chrome/MobileMenu.vue', () => ({ default: { template: '<div />' } }))
 
 const mountNavbar = (route: string | false = false) => mountSuspended(ChromeNavbar, { route, global: { stubs } })
 
@@ -78,7 +84,7 @@ describe('Chrome/Navbar', () => {
   beforeEach(() => {
     state.header = null
     state.flags = {}
-    session.loggedIn && (session.loggedIn.value = false)
+    if (session.loggedIn) session.loggedIn.value = false
     setTenant({ blogEnabled: false, promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false, availableLocales: ['el'] })
   })
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { zTenantConfig } from '~~/shared/openapi/zod.gen'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * `server/middleware/0.tenant.ts` validates the upstream resolve
@@ -21,16 +22,10 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
  * schema change fails in milliseconds and names the field.
  */
 describe('the e2e tenant fixture satisfies the generated schema', () => {
-  it('parses cleanly through zTenantConfig', () => {
-    const result = zTenantConfig.safeParse(validTenantConfig('example.test'))
-
-    // Surface the offending fields rather than a bare boolean — the
-    // whole point of this test is to say WHICH field drifted.
-    const problems = result.success
-      ? []
-      : result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`)
-
-    expect(problems).toEqual([])
+  it('parses cleanly, and strictly, through zTenantConfig', () => {
+    // `problems` names the offending fields rather than a bare boolean —
+    // the whole point of this test is to say WHICH field drifted.
+    expect(problems(zTenantConfig, validTenantConfig('example.test'))).toEqual([])
   })
 
   it('covers every required key, not merely the ones it happens to have', () => {

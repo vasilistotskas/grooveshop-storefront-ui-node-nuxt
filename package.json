@@ -113,6 +113,7 @@
     "@types/rss": "0.0.32",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitest/coverage-v8": "5.0.2",
+    "@vitest/eslint-plugin": "1.6.27",
     "@vue/test-utils": "2.5.1",
     "@vueuse/core": "15.0.0",
     "eslint": "10.11.0",

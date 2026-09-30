@@ -7,6 +7,7 @@ import { useCartStore } from '~/stores/cart'
 import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * A cart line: its prices, a stepper capped at the stock, and removal
@@ -21,7 +22,7 @@ mockNuxtImport('$api', () => api)
 mockNuxtImport('useToast', () => () => toast)
 
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
-const serverError = () => { throw Object.assign(new Error('Server Error'), { statusCode: 500 }) }
+const serverError = failWith(500)
 
 const LINE: CartItemOverrides = {
   id: 7,

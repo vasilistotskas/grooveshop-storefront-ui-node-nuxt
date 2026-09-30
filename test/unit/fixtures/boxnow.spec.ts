@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import { zBoxNowLocker, zBoxNowParcelEvent, zBoxNowShipmentDetail } from '~~/shared/openapi/zod.gen'
 import { parseBoxNowSelectedLocker } from '~~/shared/utils/boxnow-widget'
@@ -10,6 +9,7 @@ import {
   makeBoxNowSelectedLocker,
   makeBoxNowShipment,
 } from '~~/test/fixtures/boxnow'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * The Django payloads parse strictly through their generated schemas; the
@@ -17,13 +17,6 @@ import {
  * picker runs on every `postMessage` — a fixture the parser rejects would
  * make every "selects a locker" test a test of the rejection path.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('BoxNow fixtures', () => {
   it('the widget message parses into exactly the selected-locker fixture', () => {
     expect(parseBoxNowSelectedLocker(boxNowWidgetMessage())).toEqual(makeBoxNowSelectedLocker())

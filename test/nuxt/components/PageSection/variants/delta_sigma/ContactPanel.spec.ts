@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ContactPanel from '~/components/PageSection/variants/delta_sigma/ContactPanel.vue'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The Δelta Σigma contact page. What matters here is not the layout:
@@ -372,7 +373,7 @@ describe('delta_sigma ContactPanel', () => {
     { name: 'field errors', data: { email: ['Enter a valid email address.'] }, description: expect.stringContaining('Enter a valid email address.') },
     { name: 'a plain failure', data: 'Bad Gateway', description: undefined },
   ])('says the enquiry failed on $name, keeping what was typed', async ({ data, description }) => {
-    api.routes({ [CONTACT_URL]: () => { throw Object.assign(new Error('failed'), { statusCode: 400, data }) } })
+    api.routes({ [CONTACT_URL]: failWith(400, data) })
     const wrapper = await mountSuspended(ContactPanel, { route: false, props: PROPS })
 
     await fillAndSubmit(wrapper)
@@ -396,7 +397,11 @@ describe('delta_sigma ContactPanel', () => {
 
   it('sends one enquiry however often the form is submitted while it is pending', async () => {
     let settle!: (value: unknown) => void
-    api.routes({ [CONTACT_URL]: () => new Promise((resolve) => { settle = resolve }) })
+    api.routes({
+      [CONTACT_URL]: () => new Promise((resolve) => {
+        settle = resolve
+      }),
+    })
     const wrapper = await mountSuspended(ContactPanel, { route: false, props: PROPS })
 
     await fillAndSubmit(wrapper)

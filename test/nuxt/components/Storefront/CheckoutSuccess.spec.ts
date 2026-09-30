@@ -9,7 +9,9 @@ import CheckoutSuccess from '~/components/Storefront/CheckoutSuccess.vue'
 import WebsideCheckoutSuccess from '~/components/variants/webside/Storefront/CheckoutSuccess.vue'
 import { useCartStore } from '~/stores/cart'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { makeOrder } from '~~/test/fixtures/order'
+import { fixtureUuid } from '~~/test/fixtures/product'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The order-confirmation page. Arriving from a payment provider it
@@ -55,37 +57,26 @@ const UUID = fixtureUuid(7, 1)
 const ORDER_URL = `/api/orders/uuid/${UUID}`
 const POLL_INTERVAL = 2000
 
-/** The fields the page reads, as Django serialises an order. */
-function order(overrides: Partial<OrderDetail> = {}): Partial<OrderDetail> {
-  return {
+/** A Stripe order of 42€ (39€ of items + 3€ shipping), not yet paid. */
+function order(overrides: Partial<OrderDetail> = {}): OrderDetail {
+  return makeOrder({
     id: 1001,
     uuid: UUID,
-    firstName: 'Maria',
-    lastName: 'Papadopoulou',
-    email: 'maria@example.com',
-    items: [],
     paidAmount: 42,
     shippingPrice: 3,
     totalPriceItems: 39,
     totalPriceExtra: 3,
-    discountAmount: 0,
-    loyaltyDiscount: 0,
-    giftCardAmount: 0,
-    paymentStatus: 'PENDING',
     payWayKey: 'STRIPE',
-    isPaid: false,
     isCollectedOnDelivery: false,
-    createdAt: FIXTURE_TIMESTAMP,
-    updatedAt: FIXTURE_TIMESTAMP,
     ...overrides,
-  }
+  })
 }
 
 /**
  * Serve the order: the first answer is what the page loads with, each
  * later one what a refresh sees (the last repeats).
  */
-function serveOrders(...answers: Array<Partial<OrderDetail> | (() => never)>) {
+function serveOrders(...answers: Array<OrderDetail | (() => never)>) {
   let served = 0
   api.routes({
     [ORDER_URL]: () => {
@@ -218,7 +209,7 @@ describe.each([
 
     it('keeps polling through a failed refetch and still ends the verification', async () => {
       route.query = { session_id: 'cs_test_1' }
-      serveOrders(order(), () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) })
+      serveOrders(order(), failWith(502))
       const wrapper = await mount()
 
       await vi.advanceTimersByTimeAsync(POLL_INTERVAL * 10)
@@ -291,7 +282,7 @@ describe.each([
 
   describe('missing order', () => {
     it('404s when the order does not exist', async () => {
-      serveOrders(() => { throw Object.assign(new Error('Not Found'), { statusCode: 404 }) })
+      serveOrders(failWith(404))
 
       expect(await setupError()).toMatchObject({ statusCode: 404 })
     })

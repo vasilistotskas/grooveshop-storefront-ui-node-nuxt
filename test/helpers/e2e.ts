@@ -40,7 +40,9 @@ export function requestWithHost(
     const target = new URL(url(path))
     const req = httpRequest(target, { headers: { Host: host, ...headers } }, (res) => {
       let body = ''
-      res.on('data', (chunk: Buffer) => { body += chunk.toString() })
+      res.on('data', (chunk: Buffer) => {
+        body += chunk.toString()
+      })
       res.on('end', () =>
         resolve({
           statusCode: res.statusCode ?? 0,
@@ -138,8 +140,14 @@ export async function setupDevServer(
     },
   })
 
+  // A second `beforeAll` on purpose: hooks run in registration order,
+  // so this one runs after the boot hooks `setup()` just registered and
+  // the first one ran before them. One hook cannot sit on both sides.
+  // eslint-disable-next-line vitest/no-duplicate-hooks -- the order around setup()'s hooks is the point
   beforeAll(() => {
     devServerPid ??= serverPid()
+    // The boot time is what the 240s setup budget above is tuned against.
+    // eslint-disable-next-line no-console -- the e2e run reports it, like a CLI script
     console.info(`[e2e] dev server booted in ${Date.now() - bootStartedAt}ms`)
   })
 

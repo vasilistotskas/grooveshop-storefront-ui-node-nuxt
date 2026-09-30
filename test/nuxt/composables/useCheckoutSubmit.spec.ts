@@ -284,7 +284,11 @@ describe('useCheckoutSubmit', () => {
     describe('a deduction change after the intent was priced', () => {
       async function submitOnceWithoutAnOrder() {
         // The order POST fails at the network: the intent survives it.
-        api.routes({ '/api/orders': () => { throw new TypeError('fetch failed') } })
+        api.routes({
+          '/api/orders': () => {
+            throw new TypeError('fetch failed')
+          },
+        })
         const submit = setup(STRIPE)
         await submit.onSubmit()
         expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
@@ -356,7 +360,11 @@ describe('useCheckoutSubmit', () => {
     })
 
     it('releases the holds when the order request itself fails', async () => {
-      api.routes({ '/api/orders': () => { throw new TypeError('fetch failed') } })
+      api.routes({
+        '/api/orders': () => {
+          throw new TypeError('fetch failed')
+        },
+      })
       const { onSubmit } = setup(VIVA)
 
       await onSubmit()
@@ -565,8 +573,12 @@ describe('useCheckoutSubmit', () => {
     })
 
     it('never lets a failing pixel block the checkout', async () => {
-      m.meta.trackInitiateCheckout.mockImplementation(() => { throw new Error('fbq blocked') })
-      m.meta.trackAddPaymentInfo.mockImplementation(() => { throw new Error('fbq blocked') })
+      m.meta.trackInitiateCheckout.mockImplementation(() => {
+        throw new Error('fbq blocked')
+      })
+      m.meta.trackAddPaymentInfo.mockImplementation(() => {
+        throw new Error('fbq blocked')
+      })
       const { fireInitiateCheckout, nextStep, currentStep } = setup(COD)
 
       expect(() => fireInitiateCheckout()).not.toThrow()
@@ -616,7 +628,9 @@ describe('useCheckoutSubmit', () => {
   describe('guards', () => {
     it('ignores a second submit while the first is in flight', async () => {
       let resolveReserve!: (ids: number[]) => void
-      m.reserveStock.mockImplementationOnce(() => new Promise((resolve) => { resolveReserve = resolve }))
+      m.reserveStock.mockImplementationOnce(() => new Promise((resolve) => {
+        resolveReserve = resolve
+      }))
       api.routes({ '/api/orders': orderCreated() })
       const { onSubmit, isSubmitting } = setup(COD)
 
@@ -701,7 +715,11 @@ describe('useCheckoutSubmit', () => {
 
     it('releases the holds when the shopper leaves mid-order', async () => {
       let answerOrder!: () => void
-      api.routes({ '/api/orders': () => new Promise((resolve) => { answerOrder = () => resolve({}) }) })
+      api.routes({
+        '/api/orders': () => new Promise((resolve) => {
+          answerOrder = () => resolve({})
+        }),
+      })
       const { wrapper, submit } = await mountCheckout()
 
       const submitting = submit.onSubmit()

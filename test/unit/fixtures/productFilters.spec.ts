@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import {
   zAttribute,
@@ -20,6 +19,7 @@ import {
   makeProductSearchHit,
   makeProductSearchResponse,
 } from '~~/test/fixtures/productFilters'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * The listing and filter fixtures replace hand-built categories that
@@ -28,13 +28,6 @@ import {
  * strictly (an unknown key is a renamed field) so a schema change fails
  * here, naming the field.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('the catalogue fixtures', () => {
   it.each([
     ['makeCategory', zProductCategory, () => makeCategory()],

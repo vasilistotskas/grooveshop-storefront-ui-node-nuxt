@@ -1,21 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import { zOrder, zOrderDetail } from '~~/shared/openapi/zod.gen'
 import { makeOrder, makeOrderListItem } from '~~/test/fixtures/order'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * Parsed strictly (an unknown key is a renamed field) so the next
  * schema change fails here, naming the field, rather than as a payment
  * spec passing against an order Django cannot send.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('makeOrder', () => {
   it('builds a default order that parses through zOrderDetail', () => {
     expect(problems(zOrderDetail, makeOrder())).toEqual([])

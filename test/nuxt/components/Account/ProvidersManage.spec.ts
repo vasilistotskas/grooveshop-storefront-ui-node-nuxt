@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import type * as z from 'zod'
 import ProvidersManage from '~/components/Account/ProvidersManage.vue'
 import type { ZodProviderAccount } from '~~/shared/schemas/model/all-auth'
+import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The third-party accounts linked to this one, through allauth's
@@ -91,9 +92,9 @@ describe('Account/ProvidersManage', () => {
   })
 
   it('shows what allauth refused and keeps the account listed', async () => {
-    disconnectThirdPartyProviderAccount.mockRejectedValue({
-      data: { statusCode: 400, data: { status: 400, errors: [{ code: 'no_password', param: 'account', message: 'Your account has no password set up.' }] } },
-    })
+    disconnectThirdPartyProviderAccount.mockRejectedValue(asProxiedError(
+      makeBadResponse({ code: 'no_password', param: 'account', message: 'Your account has no password set up.' }),
+    ))
     const wrapper = await mountProviders()
 
     await disconnectItem(wrapper, 1).onSelect()

@@ -29,10 +29,13 @@ function resetConsent() {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
 }
 
-const mountBanner = () => mountSuspended(CookieControl, {
-  route: false,
-  global: { stubs: { CookieModal: { template: '<div data-test="modal" />' } } },
-})
+/**
+ * The modal is rendered `<LazyCookieModal>`, which Nuxt compiles to a
+ * direct async import that no stub key matches — so its module is mocked.
+ */
+vi.mock('~/components/Cookie/Modal.vue', () => ({ default: { template: '<div data-test="modal" />' } }))
+
+const mountBanner = () => mountSuspended(CookieControl, { route: false })
 
 const button = (wrapper: VueWrapper, label: string) =>
   wrapper.findAll('button').find(b => b.text() === label)

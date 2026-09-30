@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import ResetConfirmForm from '~/components/Account/Password/ResetConfirmForm.vue'
 import WebsideResetConfirmForm from '~/components/variants/webside/Account/Password/ResetConfirmForm.vue'
 import { trees } from '~~/test/helpers/trees'
+import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 /**
  * Setting a new password from the emailed reset link. Mocked at
@@ -25,7 +26,7 @@ const RESET_ROUTE = '/account/password/reset/key/abc-123'
 
 /** allauth answers a successful reset with 401 when it does not sign the user in. */
 const RESET_BUT_SIGNED_OUT = { data: { statusCode: 401, data: { status: 401, data: { flows: [] }, meta: { is_authenticated: false } } } }
-const TOO_COMMON = { data: { statusCode: 400, data: { status: 400, errors: [{ code: 'password_too_common', param: 'password', message: 'Αυτός ο κωδικός είναι πολύ συνηθισμένος.' }] } } }
+const TOO_COMMON = asProxiedError(makeBadResponse({ code: 'password_too_common', param: 'password', message: 'Αυτός ο κωδικός είναι πολύ συνηθισμένος.' }))
 
 beforeEach(() => {
   clearNuxtData('passwordReset')

@@ -5,6 +5,8 @@ import type { VueWrapper } from '@vue/test-utils'
 import AuthenticateCode from '~/components/Account/2Fa/AuthenticateCode.vue'
 import WebsideAuthenticateCode from '~/components/variants/webside/Account/2Fa/AuthenticateCode.vue'
 import { trees } from '~~/test/helpers/trees'
+import { asProxiedError, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
+import type { Flow } from '~~/shared/types/model/all-auth'
 
 /**
  * The second-factor code step of sign-in (TOTP or a recovery code). It
@@ -21,18 +23,9 @@ mockNuxtImport('useAllAuthAuthentication', () => () => ({ twoFaAuthenticate }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-const pendingMfa = (types: string[]) => ({
-  status: 401,
-  data: { flows: [{ id: 'mfa_authenticate', is_pending: true, types }] },
-  meta: { is_authenticated: false },
-})
-const SIGNED_IN = { status: 200, data: { user: { id: 7 }, methods: [] }, meta: { is_authenticated: true } }
-const WRONG_CODE = {
-  data: {
-    statusCode: 400,
-    data: { status: 400, errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }] },
-  },
-}
+const pendingMfa = (types: Flow['types']) => makePendingFlowResponse('mfa_authenticate', { types })
+const SIGNED_IN = makeSessionResponse()
+const WRONG_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }))
 
 beforeEach(() => {
   useState('auth-state').value = pendingMfa(['totp', 'recovery_codes'])
@@ -83,9 +76,7 @@ describe.each(trees(AuthenticateCode, WebsideAuthenticateCode))('$tree Account/2
   })
 
   it('moves on to the next pending step allauth asks for', async () => {
-    twoFaAuthenticate.mockRejectedValue({
-      data: { statusCode: 401, data: { status: 401, data: { flows: [{ id: 'verify_email', is_pending: true }] }, meta: { is_authenticated: false } } },
-    })
+    twoFaAuthenticate.mockRejectedValue(asProxiedError(makePendingFlowResponse('verify_email')))
     const wrapper = await mountCode()
 
     await enterCode(wrapper, '123456')
@@ -95,7 +86,7 @@ describe.each(trees(AuthenticateCode, WebsideAuthenticateCode))('$tree Account/2
   })
 
   it('sends a visitor with no second factor pending home', async () => {
-    useState('auth-state').value = { status: 200, data: { user: { id: 7 }, methods: [] }, meta: { is_authenticated: true } }
+    useState('auth-state').value = SIGNED_IN
 
     await mountCode()
 

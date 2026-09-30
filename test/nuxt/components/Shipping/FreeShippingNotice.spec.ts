@@ -4,6 +4,7 @@ import { clearNuxtData } from '#app'
 import FreeShippingNotice from '~/components/Shipping/FreeShippingNotice.vue'
 import WebsideFreeShippingNotice from '~/components/variants/webside/Shipping/FreeShippingNotice.vue'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -78,7 +79,7 @@ describe.each(trees(FreeShippingNotice, WebsideFreeShippingNotice))('$tree FreeS
   })
 
   it('renders nothing when the threshold lookup fails', async () => {
-    api.routes({ [INFO_URL]: () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) } })
+    api.routes({ [INFO_URL]: failWith(502) })
 
     const wrapper = await mountSuspended(C, { route: false, props: { cartTotal: 10 } })
 

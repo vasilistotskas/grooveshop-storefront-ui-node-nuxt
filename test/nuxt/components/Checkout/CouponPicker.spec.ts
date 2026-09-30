@@ -7,6 +7,7 @@ import WebsideCouponPicker from '~/components/variants/webside/Checkout/CouponPi
 import type { CartCoupon, PublicPromotion } from '~~/shared/openapi/types.gen'
 import { makeCart } from '~~/test/fixtures/cart'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * "Διαθέσιμα κουπόνια (x)": the coupons this cart can use, each with the
@@ -71,7 +72,7 @@ function coupon(overrides: Partial<Omit<CartCoupon, 'promotion'>> & { promotion?
 let coupons: CartCoupon[] = []
 
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
-const bodyText = () => (document.body.textContent ?? '').replace(/ /g, ' ')
+const bodyText = () => (document.body.textContent ?? '').replace(/\u00A0/g, ' ')
 /** The modal teleports to `document.body`, outside the wrapper. */
 const modalButtons = (label: string) =>
   [...document.querySelectorAll('button')].filter(node => node.textContent?.trim() === label)
@@ -196,7 +197,7 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
       coupons = [coupon({ code: 'SAVE5' })]
       api.routes({
         '/api/cart/coupons': () => coupons,
-        '/api/cart': () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) },
+        '/api/cart': failWith(502),
       })
       const wrapper = await mount()
       await open(wrapper)

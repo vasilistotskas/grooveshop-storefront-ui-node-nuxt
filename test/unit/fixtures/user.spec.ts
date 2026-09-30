@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import { zNotificationUserDetail, zUserDetails } from '~~/shared/openapi/zod.gen'
 import { makeNotificationUserDetail, makeUserDetails } from '~~/test/fixtures/user'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * `makeUserDetails` / `makeNotificationUserDetail` replace the
@@ -10,13 +10,6 @@ import { makeNotificationUserDetail, makeUserDetails } from '~~/test/fixtures/us
  * NotificationUserDetail` literals the store specs built. Parsed
  * strictly, so a stale key fails here and names itself.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('makeUserDetails', () => {
   it('builds a default user that parses through zUserDetails', () => {
     expect(problems(zUserDetails, makeUserDetails())).toEqual([])

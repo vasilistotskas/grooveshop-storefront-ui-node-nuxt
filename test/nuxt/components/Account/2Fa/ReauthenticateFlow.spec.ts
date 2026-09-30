@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import ReauthenticateFlow from '~/components/Account/2Fa/ReauthenticateFlow.vue'
+import { makeSessionResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The frame of a re-authentication step (a sensitive account change):
@@ -63,7 +64,7 @@ describe('Account/2Fa/ReauthenticateFlow', () => {
   })
 
   it('offers nothing without a re-authentication flow', async () => {
-    useState('auth-state').value = { status: 200, data: { user: { id: 7 }, methods: [] }, meta: { is_authenticated: true } }
+    useState('auth-state').value = makeSessionResponse()
 
     const wrapper = await mountFlow()
 

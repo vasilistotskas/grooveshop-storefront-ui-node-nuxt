@@ -14,6 +14,7 @@ import {
   pendingFlowRouteNameFromError,
   pickPreferredAuthenticatorType,
 } from '~/utils/auth'
+import { FIXTURE_EPOCH, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The pure half of `app/utils/auth.ts`. The flow constants (`Flows`,
@@ -57,14 +58,7 @@ describe('Utils - Auth', () => {
     })
 
     it('should identify authenticated user from 200 response', () => {
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: { is_authenticated: true },
-        data: {
-          user: { id: 1, email: 'test@example.com', username: 'test' },
-          methods: [],
-        },
-      }
+      const response = makeSessionResponse({ user: { id: 1, email: 'test@example.com', username: 'test' } })
 
       const result = authInfo(response)
 
@@ -74,13 +68,10 @@ describe('Utils - Auth', () => {
     })
 
     it('should identify reauthentication required from 401 response', () => {
-      const response: AllAuthResponse = {
+      const response: NotAuthenticatedResponse = {
         status: 401,
         meta: { is_authenticated: true },
-        data: {
-          user: { id: 1, email: 'test@example.com', username: 'test' },
-          methods: [],
-        },
+        data: { flows: [{ id: 'reauthenticate' }] },
       }
 
       const result = authInfo(response)
@@ -90,173 +81,76 @@ describe('Utils - Auth', () => {
     })
 
     it('should identify pending flow', () => {
-      const pendingFlow = { id: 'verify_email', is_pending: true, types: [] }
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: { is_authenticated: false },
-        data: {
-          flows: [pendingFlow],
-          methods: [],
-        },
-      }
+      const response = makePendingFlowResponse('verify_email')
 
       const result = authInfo(response)
 
-      expect(result.pendingFlow).toEqual(pendingFlow)
-    })
-
-    it('should handle response without user', () => {
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: { is_authenticated: true },
-        data: {
-          methods: [],
-        },
-      }
-
-      const result = authInfo(response)
-
-      expect(result.isAuthenticated).toBe(true)
-      expect(result.user).toBeUndefined()
+      expect(result.pendingFlow).toEqual({ id: 'verify_email', is_pending: true })
+      expect(result.user).toBeNull()
     })
   })
 
   describe('isAllAuthResponseSuccess', () => {
     it('should return true for 200 status', () => {
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: {},
-        data: { methods: [] },
-      }
-
-      expect(isAllAuthResponseSuccess(response)).toBe(true)
+      expect(isAllAuthResponseSuccess(makeSessionResponse())).toBe(true)
     })
 
     it('should return false for non-200 status', () => {
-      const response: AllAuthResponseError = {
-        status: 401,
-        meta: {},
-        errors: [],
-      }
-
-      expect(isAllAuthResponseSuccess(response)).toBe(false)
+      expect(isAllAuthResponseSuccess(makePendingFlowResponse('login'))).toBe(false)
     })
   })
 
   describe('isAllAuthResponseError', () => {
     it('should return true for non-200 status', () => {
-      const response: AllAuthResponseError = {
-        status: 400,
-        meta: {},
-        errors: [],
-      }
-
-      expect(isAllAuthResponseError(response)).toBe(true)
+      expect(isAllAuthResponseError(makeBadResponse())).toBe(true)
     })
 
     it('should return false for 200 status', () => {
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: {},
-        data: { methods: [] },
-      }
-
-      expect(isAllAuthResponseError(response)).toBe(false)
+      expect(isAllAuthResponseError(makeSessionResponse())).toBe(false)
     })
+  })
+
+  /** A visitor mid-sign-in: allauth's 401 listing `flows`, pending or not. */
+  const withFlows = (flows: Flow[]): NotAuthenticatedResponse => ({
+    status: 401,
+    meta: { is_authenticated: false },
+    data: { flows },
   })
 
   describe('getPendingFlows', () => {
     it('should return pending flows from response', () => {
-      const pendingFlow1 = { id: 'flow1', is_pending: true, types: [] }
-      const pendingFlow2 = { id: 'flow2', is_pending: true, types: [] }
-      const completedFlow = { id: 'flow3', is_pending: false, types: [] }
+      const pendingFlow1: Flow = { id: 'login_by_code', is_pending: true }
+      const pendingFlow2: Flow = { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }
+      const completedFlow: Flow = { id: 'login', is_pending: false }
 
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: {},
-        data: {
-          flows: [pendingFlow1, completedFlow, pendingFlow2],
-          methods: [],
-        },
-      }
+      const result = getPendingFlows(withFlows([pendingFlow1, completedFlow, pendingFlow2]))
 
-      const result = getPendingFlows(response)
-
-      expect(result).toHaveLength(2)
-      expect(result).toContain(pendingFlow1)
-      expect(result).toContain(pendingFlow2)
-      expect(result).not.toContain(completedFlow)
+      expect(result).toEqual([pendingFlow1, pendingFlow2])
     })
 
     it('should return empty array when no flows exist', () => {
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: {},
-        data: { methods: [] },
-      }
-
-      const result = getPendingFlows(response)
-
-      expect(result).toEqual([])
+      expect(getPendingFlows(makeSessionResponse())).toEqual([])
     })
 
     it('should return empty array for error response without data', () => {
-      const response: AllAuthResponseError = {
-        status: 400,
-        meta: {},
-        errors: [],
-      }
-
-      const result = getPendingFlows(response)
-
-      expect(result).toEqual([])
+      expect(getPendingFlows(makeBadResponse())).toEqual([])
     })
   })
 
   describe('getPendingFlow', () => {
     it('should return first pending flow', () => {
-      const pendingFlow1 = { id: 'flow1', is_pending: true, types: [] }
-      const pendingFlow2 = { id: 'flow2', is_pending: true, types: [] }
+      const pendingFlow1: Flow = { id: 'login_by_code', is_pending: true }
+      const pendingFlow2: Flow = { id: 'mfa_authenticate', is_pending: true, types: ['totp'] }
 
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: {},
-        data: {
-          flows: [pendingFlow1, pendingFlow2],
-          methods: [],
-        },
-      }
-
-      const result = getPendingFlow(response)
-
-      expect(result).toEqual(pendingFlow1)
+      expect(getPendingFlow(withFlows([pendingFlow1, pendingFlow2]))).toEqual(pendingFlow1)
     })
 
     it('should return null when no pending flows exist', () => {
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: {},
-        data: {
-          flows: [{ id: 'flow1', is_pending: false, types: [] }],
-          methods: [],
-        },
-      }
-
-      const result = getPendingFlow(response)
-
-      expect(result).toBeNull()
+      expect(getPendingFlow(withFlows([{ id: 'login', is_pending: false }]))).toBeNull()
     })
 
     it('should return null when no flows exist', () => {
-      const response: AllAuthResponse = {
-        status: 200,
-        meta: {},
-        data: { methods: [] },
-      }
-
-      const result = getPendingFlow(response)
-
-      expect(result).toBeNull()
+      expect(getPendingFlow(makeSessionResponse())).toBeNull()
     })
   })
 
@@ -373,16 +267,19 @@ describe('Utils - Auth', () => {
 
   describe('determineAuthChangeEvent', () => {
     const user = (id: number) => ({ id, email: `u${id}@shop.test`, username: `u${id}` })
-    const signedIn = (id = 1, extra: Record<string, unknown> = {}, methods: unknown[] = [{}]) => ({
-      status: 200,
-      meta: { is_authenticated: true, ...extra },
-      data: { user: user(id), methods },
-    }) as unknown as AllAuthResponse
-    const reauthRequired = { status: 401, meta: { is_authenticated: true }, data: { flows: [] } } as unknown as AllAuthResponseError
-    const signedOut = (flows: unknown[] = []) =>
-      ({ status: 401, meta: { is_authenticated: false }, data: { flows } }) as unknown as AllAuthResponseError
+    /** Signed in as user `id` with `methods` authentication methods behind the session. */
+    const signedIn = (id = 1, meta: SessionResponse['meta'] = {}, methods = 1): SessionResponse => {
+      const response = makeSessionResponse({
+        user: user(id),
+        methods: Array.from({ length: methods }, (_, i) => ({ method: 'password' as const, at: FIXTURE_EPOCH + i })),
+      })
+      return { ...response, meta: { ...response.meta, ...meta } }
+    }
+    const reauthRequired: NotAuthenticatedResponse = { status: 401, meta: { is_authenticated: true }, data: { flows: [] } }
+    const signedOut = (flows: Flow[] = []): NotAuthenticatedResponse =>
+      ({ status: 401, meta: { is_authenticated: false }, data: { flows } })
     // Even one carrying a pending flow: a dead session is not a flow step.
-    const gone = { status: 410, meta: { is_authenticated: false }, data: { flows: [{ id: 'login', is_pending: true }] } } as unknown as AllAuthResponseError
+    const gone: InvalidSessionResponse = { status: 410, meta: { is_authenticated: false }, data: { flows: [{ id: 'login', is_pending: true }] } }
 
     it.each([
       ['a torn-down session (410), whatever came before', gone, signedOut(), AuthChangeEvent.LOGGED_OUT],
@@ -391,7 +288,7 @@ describe('Utils - Auth', () => {
       ['a session that now asks to re-authenticate', reauthRequired, signedIn(), AuthChangeEvent.REAUTHENTICATION_REQUIRED],
       ['a re-authentication request on a fresh load', reauthRequired, null, AuthChangeEvent.REAUTHENTICATION_REQUIRED],
       ['a re-authentication that was asked for and given', signedIn(), reauthRequired, AuthChangeEvent.REAUTHENTICATED],
-      ['a session that gained an authentication method', signedIn(1, {}, [{}, {}]), signedIn(1, {}, [{}]), AuthChangeEvent.REAUTHENTICATED],
+      ['a session that gained an authentication method', signedIn(1, {}, 2), signedIn(1, {}, 1), AuthChangeEvent.REAUTHENTICATED],
       ['a re-authentication still outstanding', reauthRequired, reauthRequired, AuthChangeEvent.REAUTHENTICATION_REQUIRED],
       ['a session that ended', signedOut(), signedIn(), AuthChangeEvent.LOGGED_OUT],
       ['an anonymous visitor who stays anonymous', signedOut(), signedOut(), AuthChangeEvent.LOGGED_OUT],
@@ -427,26 +324,25 @@ describe('Utils - Auth', () => {
   })
 
   describe('pathForFlow', () => {
-    const signedOutWith = (flows: unknown[]) =>
-      ({ status: 401, meta: { is_authenticated: false }, data: { flows } }) as unknown as AllAuthResponseError
-
     it('routes a typed flow by its preferred authenticator, or the one asked for', () => {
-      const flow = { id: 'mfa_authenticate', is_pending: true, types: ['totp', 'webauthn'] } as Flow
+      const flow: Flow = { id: 'mfa_authenticate', is_pending: true, types: ['totp', 'webauthn'] }
       expect(pathForFlow(flow)).toBe('account-2fa-authenticate-webauthn')
       expect(pathForFlow(flow, 'totp')).toBe('account-2fa-authenticate-totp')
     })
 
     it('has no page for the external OAuth redirect', () => {
-      expect(pathForFlow({ id: 'provider_redirect', is_pending: true } as Flow)).toBeNull()
+      expect(pathForFlow({ id: 'provider_redirect', is_pending: true })).toBeNull()
     })
 
     it('fails loudly for a flow with no page', () => {
-      expect(() => pathForFlow({ id: 'unheard_of', is_pending: true } as Flow)).toThrow('Unknown path for flow: unheard_of')
+      // An id a newer allauth could send: outside `Flow['id']` by definition.
+      const unknownId = 'unheard_of' as string as Flow['id']
+      expect(() => pathForFlow({ id: unknownId, is_pending: true })).toThrow('Unknown path for flow: unheard_of')
     })
 
     it('routes the pending flow of a response, and nothing without one', () => {
-      expect(pathForPendingFlow(signedOutWith([{ id: 'verify_email', is_pending: true }]))).toBe('account-verify-email')
-      expect(pathForPendingFlow(signedOutWith([{ id: 'verify_email', is_pending: false }]))).toBeNull()
+      expect(pathForPendingFlow(withFlows([{ id: 'verify_email', is_pending: true }]))).toBe('account-verify-email')
+      expect(pathForPendingFlow(withFlows([{ id: 'verify_email', is_pending: false }]))).toBeNull()
     })
   })
 })

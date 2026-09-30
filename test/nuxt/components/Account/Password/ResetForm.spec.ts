@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import PasswordResetForm from '~/components/Account/Password/ResetForm.vue'
 import WebsidePasswordResetForm from '~/components/variants/webside/Account/Password/ResetForm.vue'
 import { trees } from '~~/test/helpers/trees'
+import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 /**
  * Asking allauth to email a password-reset link. Mocked at
@@ -18,16 +19,7 @@ const { passwordRequest, toastAdd } = vi.hoisted(() => ({
 mockNuxtImport('useAllAuthAuthentication', () => () => ({ passwordRequest }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-const REFUSED = {
-  statusCode: 400,
-  data: {
-    statusCode: 400,
-    data: {
-      status: 400,
-      errors: [{ code: 'invalid', param: 'email', message: 'Εισαγάγετε μια έγκυρη διεύθυνση email.' }],
-    },
-  },
-}
+const REFUSED = asProxiedError(makeBadResponse({ code: 'invalid', param: 'email', message: 'Εισαγάγετε μια έγκυρη διεύθυνση email.' }))
 
 const RATE_LIMITED = { statusCode: 429, data: { statusCode: 429, data: { status: 429 } } }
 
@@ -113,7 +105,9 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
 
   it('shows the submit button busy until allauth answers', async () => {
     let settle!: (value: { status: number }) => void
-    passwordRequest.mockReturnValue(new Promise((resolve) => { settle = resolve }))
+    passwordRequest.mockReturnValue(new Promise((resolve) => {
+      settle = resolve
+    }))
     const wrapper = await mountForm()
     const submit = () => wrapper.find('button[type="submit"]')
 

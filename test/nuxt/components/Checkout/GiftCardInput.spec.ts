@@ -6,6 +6,7 @@ import GiftCardInput from '~/components/Checkout/GiftCardInput.vue'
 import WebsideGiftCardInput from '~/components/variants/webside/Checkout/GiftCardInput.vue'
 import { setTenant } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The gift-card field at checkout. A code is checked with Django (`POST
@@ -43,7 +44,7 @@ function routes(check: unknown = REDEEMABLE) {
 }
 
 const NOT_REDEEMABLE = 'Η δωροκάρτα δεν είναι διαθέσιμη (ανενεργή, ληγμένη ή χωρίς υπόλοιπο)'
-const text = (wrapper: VueWrapper) => wrapper.text().replace(/ /g, ' ')
+const text = (wrapper: VueWrapper) => wrapper.text().replace(/\u00A0/g, ' ')
 
 describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCardInput', ({ C }) => {
   beforeEach(() => {
@@ -98,7 +99,7 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
       ['Django\'s detail', { detail: 'Η κάρτα έχει λήξει' }, 'Η κάρτα έχει λήξει'],
       ['"not valid" when the error says nothing', undefined, 'Ο κωδικός δωροκάρτας δεν είναι έγκυρος'],
     ])('shows %s when the check fails', async (_case, data, expected) => {
-      routes(() => { throw Object.assign(new Error('Not Found'), { statusCode: 404, data }) })
+      routes(failWith(404, data))
       const wrapper = await mount()
 
       await submitCode(wrapper, 'GC-NOPE-NOPE-NOPE')

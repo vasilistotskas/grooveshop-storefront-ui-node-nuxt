@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { z } from 'zod'
 
 import { zShippingOption } from '~~/shared/openapi/zod.gen'
 import {
@@ -8,6 +7,7 @@ import {
   boxNowLockerOption,
   makeShippingOption,
 } from '~~/test/fixtures/shippingOptions'
+import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * The shipping-option rows replace hand-built literals repeated across
@@ -16,13 +16,6 @@ import {
  * field, rather than as a checkout spec passing against a row Django
  * cannot send.
  */
-function problems(schema: z.ZodObject, value: unknown): string[] {
-  const result = schema.strict().safeParse(value)
-  return result.success
-    ? []
-    : result.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-}
-
 describe('shipping option fixtures', () => {
   it.each([
     ['makeShippingOption', makeShippingOption()],

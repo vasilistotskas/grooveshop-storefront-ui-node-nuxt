@@ -85,7 +85,11 @@ describe('useUserLanguage', () => {
 
     it('reports a failed save, after switching the UI', async () => {
       signIn('el')
-      api.routes({ '/api/user/account/7': () => { throw new Error('500') } })
+      api.routes({
+        '/api/user/account/7': () => {
+          throw new Error('500')
+        },
+      })
 
       await expect(useUserLanguage().setLanguage('en')).resolves.toBe(false)
 

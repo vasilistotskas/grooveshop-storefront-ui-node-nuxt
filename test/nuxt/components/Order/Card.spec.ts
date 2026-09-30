@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { Order } from '~~/shared/openapi/types.gen'
 import OrderCard from '~/components/Order/Card.vue'
 import { makeOrderListItem } from '~~/test/fixtures/order'
+import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -31,10 +32,6 @@ const makeOrder = (overrides: Partial<Order> = {}): Order => makeOrderListItem({
 })
 
 const t = (key: string) => useNuxtApp().$i18n.t(key)
-const failWith = (statusCode: number) => () => {
-  throw Object.assign(new Error('Request failed'), { statusCode })
-}
-
 const mountCard = (order = makeOrder()) =>
   mountSuspended(OrderCard, { props: { order }, global: { stubs: { OrderCardItem: true } }, route: false })
 
@@ -92,7 +89,11 @@ describe('Order/Card', () => {
 
   it('sends one cancellation however often the button is pressed while it is in flight', async () => {
     let settle!: () => void
-    api.routes({ '/api/orders/42/cancel': () => new Promise<void>((resolve) => { settle = resolve }) })
+    api.routes({
+      '/api/orders/42/cancel': () => new Promise<void>((resolve) => {
+        settle = resolve
+      }),
+    })
     const wrapper = await mountCard()
 
     await cancelButton(wrapper).trigger('click')

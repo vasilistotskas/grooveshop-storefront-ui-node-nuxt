@@ -64,7 +64,11 @@ describe('useSettingFlag / useSettingValue', () => {
   })
 
   it('falls back OPEN / CLOSED per caller once the fetch has failed', async () => {
-    api.routes({ '/api/settings/public': () => { throw new Error('settings endpoint down') } })
+    api.routes({
+      '/api/settings/public': () => {
+        throw new Error('settings endpoint down')
+      },
+    })
 
     const { unavailable, result: [open, closed] } = read(() => [
       useSettingFlag('UI_FLAG_FAIL_OPEN_PROBE', { fallback: true }),

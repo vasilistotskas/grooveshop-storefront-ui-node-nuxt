@@ -3,6 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { effectScope, nextTick } from 'vue'
 import type { EffectScope } from 'vue'
 import { setTenant } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 
@@ -44,9 +45,6 @@ const PRICE_ROW = {
 
 /** The composable's own batching delay (`FLUSH_DELAY_MS`). */
 const FLUSH_DELAY_MS = 50
-
-const httpError = (statusCode: number) =>
-  () => { throw Object.assign(new Error(`HTTP ${statusCode}`), { statusCode }) }
 
 const priceRequests = () => api.callsTo('/api/b2b/prices')
 
@@ -171,7 +169,7 @@ describe('useB2BPricing', () => {
   ])('halts for the session on a %i (%s)', async (statusCode) => {
     setLoggedIn(true)
     setTenant({ b2bEnabled: true })
-    api.routes({ '/api/b2b/prices': httpError(statusCode) })
+    api.routes({ '/api/b2b/prices': failWith(statusCode) })
 
     const { register, active } = b2bPricing()
     register(1)
@@ -184,7 +182,7 @@ describe('useB2BPricing', () => {
   })
 
   it.each([
-    ['a transient 401', httpError(401)],
+    ['a transient 401', failWith(401)],
     ['a network failure', () => { throw new TypeError('Failed to fetch') }],
   ])('does not halt on %s — the next registration retries the wanted set', async (_label, failure) => {
     setLoggedIn(true)

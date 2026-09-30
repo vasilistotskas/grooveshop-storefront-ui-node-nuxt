@@ -65,7 +65,7 @@ const unseenDot = (wrapper: Awaited<ReturnType<typeof mountBell>>) => wrapper.fi
 
 describe('NotificationsBell', () => {
   beforeEach(async () => {
-    session.loggedIn && (session.loggedIn.value = true)
+    if (session.loggedIn) session.loggedIn.value = true
     const store = useUserNotificationStore()
     // Seeded rows keep the bell from self-bootstrapping through the store.
     vi.spyOn(store, 'setupNotifications').mockResolvedValue(undefined as any)

@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import LoyaltyTransactions from '~/components/Loyalty/Transactions.vue'
 import { makeTransactionPage } from '~~/test/fixtures/loyalty'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * The account's points ledger. Mocked at the request (`useRequestApi`,
@@ -186,7 +187,7 @@ describe('Loyalty/Transactions', () => {
   })
 
   it('offers a retry that asks again when the ledger fails', async () => {
-    api.routes({ [LEDGER]: () => { throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 }) } })
+    api.routes({ [LEDGER]: failWith(502) })
     const wrapper = await mountLedger()
     expect(wrapper.text()).toContain('Αποτυχία φόρτωσης συναλλαγών')
 

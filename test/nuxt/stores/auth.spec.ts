@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
+import { makeAllAuthConfig, makeSessionResponse } from '~~/test/fixtures/allauth'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 /**
@@ -32,26 +33,12 @@ mockNuxtImport('useAllAuthAuthentication', () => () => ({ getSession: allauth.ge
 mockNuxtImport('useAllAuthSessions', () => () => ({ getSessions: allauth.getSessions }))
 mockNuxtImport('useAllAuthAccount', () => () => ({ getAuthenticators: allauth.getAuthenticators }))
 
-const CONFIG: ConfigResponse = {
-  status: 200,
-  data: {
-    account: { authentication_method: 'email', is_open_for_signup: true },
-    socialaccount: {
-      providers: [{ id: 'google', name: 'Google', flows: ['provider_redirect'] }],
-    },
-    mfa: { supported_types: ['totp', 'webauthn', 'recovery_codes'] },
-    usersessions: { track_activity: true },
-  },
-}
+const CONFIG = makeAllAuthConfig({
+  mfa: { supported_types: ['totp', 'webauthn', 'recovery_codes'] },
+  usersessions: { track_activity: true },
+})
 
-const SESSION: SessionResponse = {
-  status: 200,
-  data: {
-    user: { id: 1, email: 'shopper@example.com', has_usable_password: true },
-    methods: [{ method: 'password', at: 1_700_000_000 }],
-  },
-  meta: { is_authenticated: true },
-}
+const SESSION = makeSessionResponse({ user: { id: 1 } })
 
 const SESSIONS: SessionsGetResponse = {
   status: 200,
@@ -153,7 +140,11 @@ describe('useAuthStore', () => {
 
     it('is pending while the request is in flight', async () => {
       let answer!: (value: ConfigResponse) => void
-      api.routes({ '/api/_allauth/app/v1/config': () => new Promise((resolve) => { answer = resolve }) })
+      api.routes({
+        '/api/_allauth/app/v1/config': () => new Promise((resolve) => {
+          answer = resolve
+        }),
+      })
 
       const setup = store.setupConfig()
       expect(store.status.config).toBe('pending')
@@ -165,7 +156,11 @@ describe('useAuthStore', () => {
 
     it('records a failed request and drops any previous config', async () => {
       store.config = CONFIG.data
-      api.routes({ '/api/_allauth/app/v1/config': () => { throw new Error('Failed to fetch config') } })
+      api.routes({
+        '/api/_allauth/app/v1/config': () => {
+          throw new Error('Failed to fetch config')
+        },
+      })
 
       await store.setupConfig()
 

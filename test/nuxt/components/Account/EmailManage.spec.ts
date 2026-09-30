@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import EmailManage from '~/components/Account/EmailManage.vue'
 import type { EmailAddress } from '~~/shared/types/model/all-auth'
+import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The account's email addresses, through allauth's `/account/email`:
@@ -34,9 +35,7 @@ const PRIMARY: EmailAddress = { email: 'shopper@example.com', primary: true, ver
 const WORK: EmailAddress = { email: 'work@example.com', primary: false, verified: true }
 const NEW: EmailAddress = { email: 'new@example.com', primary: false, verified: false }
 
-const REFUSED = {
-  data: { statusCode: 400, data: { status: 400, errors: [{ code: 'email_taken', param: 'email', message: 'A user is already registered with this email address.' }] } },
-}
+const REFUSED = asProxiedError(makeBadResponse({ code: 'email_taken', param: 'email', message: 'A user is already registered with this email address.' }))
 
 beforeEach(() => {
   clearNuxtData('emailAddresses')

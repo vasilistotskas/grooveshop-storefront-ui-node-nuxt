@@ -5,7 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import SignupForm from '~/components/Account/Signup/Form.vue'
 import WebsideSignupForm from '~/components/variants/webside/Account/Signup/Form.vue'
 import { trees } from '~~/test/helpers/trees'
-import type { ConfigResponse } from '~~/shared/types/response/all-auth/config'
+import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The email + password sign-up. Mocked at `useAllAuthAuthentication`;
@@ -26,48 +26,15 @@ mockNuxtImport('useAllAuthAuthentication', () => () => ({ signup }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-const VERIFY_EMAIL_PENDING = {
-  statusCode: 401,
-  data: {
-    statusCode: 401,
-    data: {
-      status: 401,
-      data: { flows: [{ id: 'verify_email', is_pending: true }] },
-      meta: { is_authenticated: false },
-    },
-  },
-}
+const VERIFY_EMAIL_PENDING = asProxiedError(makePendingFlowResponse('verify_email'))
 
 /** allauth's 400 for an address that already has an account (no translation: its message is shown). */
-const EMAIL_TAKEN = {
-  statusCode: 400,
-  data: {
-    statusCode: 400,
-    data: {
-      status: 400,
-      errors: [{ code: 'email_taken', param: 'email', message: 'Υπάρχει ήδη χρήστης με αυτή τη διεύθυνση email.' }],
-    },
-  },
-}
+const EMAIL_TAKEN = asProxiedError(makeBadResponse({ code: 'email_taken', param: 'email', message: 'Υπάρχει ήδη χρήστης με αυτή τη διεύθυνση email.' }))
 
-const TOO_COMMON = {
-  statusCode: 400,
-  data: {
-    statusCode: 400,
-    data: {
-      status: 400,
-      errors: [{ code: 'password_too_common', param: 'password', message: 'This password is too common.' }],
-    },
-  },
-}
+const TOO_COMMON = asProxiedError(makeBadResponse({ code: 'password_too_common', param: 'password', message: 'This password is too common.' }))
 
 /** allauth's `/config` data with one social provider, as the auth store holds it. */
-const CONFIG_WITH_GOOGLE: ConfigResponse['data'] = {
-  account: { authentication_method: 'email', is_open_for_signup: true },
-  socialaccount: { providers: [{ id: 'google', name: 'Google', flows: ['provider_redirect'] }] },
-  mfa: { supported_types: ['totp', 'recovery_codes', 'webauthn'], passkey_login_enabled: true },
-  usersessions: { track_activity: false },
-}
+const CONFIG_WITH_GOOGLE = makeAllAuthConfig().data
 
 /** The component's own `<i18n>` copy (el) — the strings this form owns. */
 const COPY = {
@@ -196,7 +163,9 @@ describe.each(trees(SignupForm, WebsideSignupForm))('$tree Account/Signup/Form',
 
   it('shows the button busy, and locked, until allauth answers', async () => {
     let settle!: (value: { status: number }) => void
-    signup.mockReturnValue(new Promise((resolve) => { settle = resolve }))
+    signup.mockReturnValue(new Promise((resolve) => {
+      settle = resolve
+    }))
     const wrapper = await mountForm()
 
     await fill(wrapper)
