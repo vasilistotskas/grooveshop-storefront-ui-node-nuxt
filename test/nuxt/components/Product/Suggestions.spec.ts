@@ -23,10 +23,13 @@ const named = (id: number, name: string, overrides: Parameters<typeof makeProduc
     ...overrides,
   })
 
-// VAT-free so the struck list price (`product.price`) and the
-// pre-discount gross coincide: 40 € less 25 % is 30 €.
+// A VAT-bearing discount smaller than the VAT: net 50, 24 % VAT, 10 %
+// off makes a final 57 € and a pre-discount gross 62 €. Its NET price
+// (50) is below the final one, so a strike-through read off
+// `product.price` both missed the discount and would have struck the
+// wrong number — a VAT-free fixture had hidden that.
 const POT = named(2, 'Γλάστρα', { reviewAverage: 8, reviewCount: 12 })
-const SOIL = named(3, 'Χώμα', { price: 40, discountPercent: 25, vatPercent: 0 })
+const SOIL = named(3, 'Χώμα', { price: 50, discountPercent: 10, vatPercent: 24 })
 
 const payload = () => ({
   surface: 'pdp',
@@ -122,12 +125,12 @@ describe.each(trees(Suggestions, WebsideSuggestions))('$tree Product/Suggestions
     expect(tiles[1]!.find('p').text()).toBe('Ίδια κατηγορία')
   })
 
-  it('strikes the list price through beside the final price of a discounted tile only', async () => {
+  it('strikes the VAT-inclusive pre-discount price beside the final price of a discounted tile only', async () => {
     const wrapper = await mountStrip()
 
     const [pot, soil] = wrapper.findAll('article')
-    expect(soil!.find('.line-through').text()).toBe(money(40))
-    expect(soil!.find('.font-bold').text()).toBe(money(30))
+    expect(soil!.find('.line-through').text()).toBe(money(62))
+    expect(soil!.find('.font-bold').text()).toBe(money(57))
     expect(pot!.find('.line-through').exists()).toBe(false)
     expect(pot!.find('.font-bold').text()).toBe(money(POT.finalPrice))
   })

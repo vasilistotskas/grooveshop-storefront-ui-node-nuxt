@@ -90,10 +90,9 @@ const displayPrice = (product: Product) => {
     ? Number(b2b.finalPrice)
     : product.finalPrice
 }
-const isDiscounted = (product: Product) =>
-  product.price > product.finalPrice || displayPrice(product) < product.finalPrice
-const listPrice = (product: Product) =>
-  displayPrice(product) < product.finalPrice ? product.finalPrice : product.price
+// The struck-through price: the VAT-inclusive pre-discount price, or
+// the retail price under a lower wholesale one (see productWasPrice).
+const wasPrice = (product: Product) => productWasPrice(product, displayPrice(product))
 
 // Feedback loop. The impression is reported from onMounted, which
 // under ``hydrate-on-visible`` fires when the strip scrolls into view
@@ -267,13 +266,13 @@ const arrowButton = {
 
         <div class="mt-auto flex items-baseline gap-2">
           <span
-            v-if="isDiscounted(item.product)"
+            v-if="wasPrice(item.product)"
             class="
               text-xs text-neutral-600 line-through
               dark:text-neutral-400
             "
           >
-            {{ $i18n.n(listPrice(item.product), 'currency') }}
+            {{ $i18n.n(wasPrice(item.product)!, 'currency') }}
           </span>
           <span
             class="
