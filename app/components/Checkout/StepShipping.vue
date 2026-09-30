@@ -229,6 +229,7 @@ const shippingOptions = computed(() => {
       // Resolved through the same label map the payment step uses, so
       // the two never disagree on what a method is called.
       exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
+        .filter(name => name.length > 0)
         .map(name => getPaymentMethodName(name)),
       disabled: baseItem.disabled || overCap,
       disabledReason: overCap

@@ -115,18 +115,22 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // the charge — a PaymentIntent created before it is stale and would
   // hard-fail the order-create amount verification. Drop it and the
   // idempotency key that maps to it so the next submit prices fresh.
+  //
+  // Watched as primitive fingerprints so Vue compares VALUES: a `deep`
+  // watcher runs on every trigger, and every cart refresh replaces
+  // `cart.value` — which dropped a still-valid intent, so a retry minted
+  // an orphaned PaymentIntent under a fresh Idempotency-Key.
   watch(
     [
-      loyaltyDiscount,
-      giftCards,
-      () => cart.value?.appliedCouponCodes,
-      () => cart.value?.promotionDiscount,
+      () => loyaltyDiscount.value?.amount ?? null,
+      () => JSON.stringify(giftCards.value.map(card => [card.code, card.balance])),
+      () => JSON.stringify(cart.value?.appliedCouponCodes ?? []),
+      () => cart.value?.promotionDiscount ?? null,
     ],
     () => {
       paymentIntentId.value = null
       idempotencyKey.value = null
     },
-    { deep: true },
   )
 
   // Stock error state
@@ -406,12 +410,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
             // offline flow: clear the cart and land on success.
             retryCount.value = 0
             // No "order created" toast here — see the offline branch below.
-            try {
-              await $api('/api/cart/clear-session', { method: 'POST' })
-            }
-            catch (err) {
-              log.error({ action: 'checkout:clearCart', error: err })
-            }
             await cleanCartState()
             await fetch()
             if (response._data?.uuid) {
@@ -532,13 +530,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
           // signed-in shopper. A guest gets no live notification
           // (`order.user_id is None` skips it) but still lands on the
           // success page, which states the outcome in full.
-          // Clear cart server-side after order is confirmed
-          try {
-            await $api('/api/cart/clear-session', { method: 'POST' })
-          }
-          catch (err) {
-            log.error({ action: 'checkout:clearCart', error: err })
-          }
+          // Clear the cart, server-side and local, once the order is confirmed.
           await cleanCartState()
           await fetch()
           if (!response._data?.uuid) {
@@ -716,14 +708,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       description: t('order_completed_successfully'),
       color: 'success',
     })
-    // Clear cart server-side only after payment is confirmed so a failed
-    // Stripe confirmation doesn't wipe the cart before we know it succeeded.
-    try {
-      await $api('/api/cart/clear-session', { method: 'POST' })
-    }
-    catch (err) {
-      log.error({ action: 'checkout:clearCart', error: err })
-    }
+    // Clear the cart only after payment is confirmed so a failed Stripe
+    // confirmation doesn't wipe the cart before we know it succeeded.
     await cleanCartState()
     await fetch()
     await navigateTo(localePath({

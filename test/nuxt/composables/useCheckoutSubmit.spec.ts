@@ -220,9 +220,8 @@ describe('useCheckoutSubmit', () => {
 
         expect(orderBodies()).toHaveLength(1)
         expect(orderBodies()[0]).not.toHaveProperty('paymentIntentId')
-        // Not a count: this path POSTs clear-session itself and again
-        // through `cleanCartState()` (reported as a redundant request).
-        expect(api.callsTo('/api/cart/clear-session')).toContainEqual({ url: '/api/cart/clear-session', options: { method: 'POST' } })
+        // Once: `cleanCartState()` clears the server-side cart itself.
+        expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
         expect(cart.cart).toBeNull()
         expect(m.sessionFetch).toHaveBeenCalled()
         expect(m.navigateTo).toHaveBeenCalledWith({
@@ -305,6 +304,23 @@ describe('useCheckoutSubmit', () => {
         expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_1' })
       })
 
+      // A cart refresh (quantity edits elsewhere, the chat, a stock check)
+      // replaces the cart object without changing what is deducted; the
+      // intent and its idempotency key must survive it, or a retry mints
+      // an orphaned PaymentIntent and loses the duplicate-order guard.
+      it('reuses the intent and its idempotency key across a cart refresh that changes no deduction', async () => {
+        const { onSubmit } = await submitOnceWithoutAnOrder()
+        const firstKey = api.callsTo('/api/orders').at(0)!.options.headers
+
+        cart.cart = { ...cart.cart!, appliedCouponCodes: [...cart.cart!.appliedCouponCodes] }
+        await nextTick()
+        await onSubmit()
+
+        expect(m.createPaymentIntentFromCart).toHaveBeenCalledOnce()
+        expect(orderBodies().at(-1)).toMatchObject({ paymentIntentId: 'pi_1' })
+        expect(api.callsTo('/api/orders').at(-1)!.options.headers).toEqual(firstKey)
+      })
+
       it.each([
         ['loyalty points are redeemed', (s: ReturnType<typeof setup>) => s.onLoyaltyRedeemed({ amount: 5, currency: 'EUR', points: 500 })],
         ['a gift card is applied', (s: ReturnType<typeof setup>) => s.onGiftCardApplied({ code: 'GC-1', balance: 10 })],
@@ -382,7 +398,7 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(api.callsTo('/api/orders')[0]!.options.headers).not.toHaveProperty('Idempotency-Key')
-      expect(api.callsTo('/api/cart/clear-session')[0]!.options).toEqual({ method: 'POST' })
+      expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
       expect(cart.cart).toBeNull()
       expect(m.sessionFetch).toHaveBeenCalled()
       // ``placed=1`` gates the success page's purchase pixels and cart
@@ -597,6 +613,7 @@ describe('useCheckoutSubmit', () => {
       await onPaymentSuccess()
 
       expect(lastToast()).toMatchObject({ title: t('payment_successful'), color: 'success' })
+      expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
       expect(cart.cart).toBeNull()
       expect(m.sessionFetch).toHaveBeenCalled()
       expect(m.navigateTo).toHaveBeenCalledWith({ name: 'checkout-success-uuid', params: { uuid: 'order-paid' } })

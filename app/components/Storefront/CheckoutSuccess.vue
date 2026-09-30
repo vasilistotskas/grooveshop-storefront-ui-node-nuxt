@@ -47,7 +47,7 @@ const getImage = (mainImagePath: string) => {
   })
 }
 
-const { data: order, error, refresh } = await useApi(
+const { data: order, error } = await useApi(
   `/api/orders/uuid/${orderUUID}`,
   {
     key: `order${orderUUID}`,
@@ -308,8 +308,9 @@ onMounted(async () => {
   // For Viva Wallet the checkout page is unloaded before onPaymentSuccess fires
   // (window.location.href redirect), so the Pinia cart store still holds stale
   // data. Calling cleanCartState() here ensures the cart badge resets regardless
-  // of the payment method used. The server-side cart session is already cleared
-  // by orders/index.post.ts on order creation.
+  // of the payment method used. It also clears the server-side cart session,
+  // and for Viva this is the only place that happens: order creation does not
+  // clear it, and the checkout page left for Viva's before it could.
   //
   // Guard it to run at most ONCE per order: ``fromCheckout`` is derived
   // from URL query params that persist in history/bookmarks, so without
@@ -339,31 +340,36 @@ onMounted(async () => {
   const maxAttempts = fromViva.value ? 15 : 5
   const interval = 2000
 
-  try {
-    for (let i = 0; i < maxAttempts; i++) {
-      if (!isActive.value) break
-      pollAttempt.value = i + 1
-      await new Promise(resolve => setTimeout(resolve, interval))
-      if (!isActive.value) break
-      await refresh()
-
-      const status = order.value?.paymentStatus?.toLowerCase() || ''
-      if (
-        order.value?.isPaid
-        || ['completed', 'failed', 'canceled', 'refunded'].includes(status)
-      ) {
-        break
-      }
+  for (let i = 0; i < maxAttempts; i++) {
+    if (!isActive.value) break
+    pollAttempt.value = i + 1
+    await new Promise(resolve => setTimeout(resolve, interval))
+    if (!isActive.value) break
+    // Polled with `$api`, not `refresh()`: a failed refetch resets
+    // `useApi`'s data to its empty default, which blanked the whole
+    // confirmation. A missed poll keeps the last answer on screen and
+    // the next one tries again.
+    try {
+      order.value = await $api(`/api/orders/uuid/${orderUUID}`, {
+        method: 'GET',
+        query: { languageCode: locale.value },
+      })
     }
-    sessionVerified.value = true
+    catch (err) {
+      log.warn({ action: 'checkout:pollOrder', error: err })
+      continue
+    }
+
+    const status = order.value?.paymentStatus?.toLowerCase() || ''
+    if (
+      order.value?.isPaid
+      || ['completed', 'failed', 'canceled', 'refunded'].includes(status)
+    ) {
+      break
+    }
   }
-  catch (err) {
-    log.error({ action: 'checkout:verifySession', error: err })
-    sessionVerified.value = true
-  }
-  finally {
-    verifyingSession.value = false
-  }
+  sessionVerified.value = true
+  verifyingSession.value = false
 })
 
 const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {

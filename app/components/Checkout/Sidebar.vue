@@ -93,15 +93,11 @@ const payWayCost = computed(() => {
   return payWay.value.cost || 0
 })
 
+// A pay way may have no name in this language (parler allows a blank
+// one per locale): the row then says what it is, generically.
 const payWayName = computed(() => {
-  const name = extractTranslated(payWay.value, 'name', locale.value) ?? t('pay_way_fee')
-
-  if (name) {
-    return getPaymentMethodName(name)
-  }
-
-  // Fallback to extracting translated name from backend
-  return 'N/A'
+  const name = extractTranslated(payWay.value, 'name', locale.value)
+  return name ? getPaymentMethodName(name) : t('pay_way_fee')
 })
 
 // What is due BEFORE gift cards (they are payment, applied last).
