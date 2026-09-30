@@ -11,8 +11,8 @@ import { defineVitestProject } from '@nuxt/test-utils/config'
 // `allowImportingTsExtensions` with `moduleResolution: Bundler`.
 import { DEFAULT_LOCALE } from './i18n/locales.ts'
 import * as h3 from 'h3'
-import Unimport from 'unimport/unplugin'
 import { NITRO_SHIM_IMPORTS } from './test/helpers/nitro/imports.ts'
+import { autoImports } from './test/helpers/autoImports.ts'
 
 const path = (relative: string) => fileURLToPath(new URL(relative, import.meta.url))
 
@@ -71,7 +71,7 @@ const sourceGlob = (dir: string) => glob(`${dir}/**/*.ts`)
 const notDeclarations = ['**/*.d.ts', '**/node_modules/**']
 const sharedDirs = [sourceGlob('shared')]
 
-const nitroAutoImports = Unimport.vite({
+const nitroAutoImports = autoImports('nitro', {
   include: [sourceGlob('server'), sourceGlob('shared')],
   exclude: notDeclarations,
   presets: [
@@ -85,7 +85,7 @@ const nitroAutoImports = Unimport.vite({
   dirs: [sourceGlob('server/utils'), ...sharedDirs],
 })
 
-const appUtilsAutoImports = Unimport.vite({
+const appUtilsAutoImports = autoImports('app-utils', {
   include: [sourceGlob('app/utils')],
   exclude: notDeclarations,
   // Nuxt's default `utils/` scan: top-level files and `<dir>/index.ts`.
