@@ -92,7 +92,7 @@ el:
   stock_error:
     title: Ανεπαρκές Απόθεμα
     description: Ορισμένα προϊόντα στο καλάθι σου δεν έχουν επαρκές απόθεμα για να ολοκληρωθεί η παραγγελία.
-    requested_vs_available: 'Ζητήθηκαν: {requested} | Διαθέσιμα: {available}'
+    requested_vs_available: "Ζητήθηκαν: {requested} {'|'} Διαθέσιμα: {available}"
     shortage: '-{count}'
     update_cart: Ενημέρωση Καλαθιού
     retry: Δοκιμή Ξανά

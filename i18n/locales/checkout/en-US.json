@@ -39,14 +39,6 @@
   "payment_error_title": "Payment error",
   "payment_error_description": "An error occurred while processing your payment. Please try again or contact us.",
   "retry": "Try Again",
-  "stock_error": {
-    "title": "Insufficient Stock",
-    "description": "Some items in your basket do not have enough stock to complete the order.",
-    "requested_vs_available": "Requested: {requested} | Available: {available}",
-    "shortage": "-{count}",
-    "update_cart": "Update Basket",
-    "retry": "Try Again"
-  },
   "steps": {
     "info_and_address": "Details & Address",
     "payment": "Payment"
