@@ -41,6 +41,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const isRetryReentry = ref(false)
   const MAX_RETRIES = 3
   const paymentIntentId = ref<string | null>(null)
+  // What the current intent was priced from (`intentPricing`): it is
+  // reused only while that is unchanged.
+  const intentPricedFrom = ref<string | null>(null)
   const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
   // Idempotency key: generated once per checkout attempt, preserved
   // across retries so duplicate network submissions never double-charge.
@@ -110,24 +113,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const giftCards = ref<{ code: string, balance: number }[]>([])
   const giftCardBalanceTotal = computed(() =>
     giftCards.value.reduce((sum, card) => sum + card.balance, 0))
-
-  // Any deduction change (loyalty points, gift cards, coupon) reprices
-  // the charge — a PaymentIntent created before it is stale and would
-  // hard-fail the order-create amount verification. Drop it and the
-  // idempotency key that maps to it so the next submit prices fresh.
-  watch(
-    [
-      loyaltyDiscount,
-      giftCards,
-      () => cart.value?.appliedCouponCodes,
-      () => cart.value?.promotionDiscount,
-    ],
-    () => {
-      paymentIntentId.value = null
-      idempotencyKey.value = null
-    },
-    { deep: true },
-  )
 
   // Stock error state
   const stockError = ref<{
@@ -286,10 +271,55 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     }
   }
 
+  /**
+   * Everything a PaymentIntent's amount is computed from: the request
+   * body (pay way, shipping, destination, email, gift cards, loyalty)
+   * and the cart it prices — its lines, total, coupons and promotion.
+   */
+  const intentPricing = (body: Parameters<typeof createPaymentIntentFromCart>[0]) => JSON.stringify({
+    body,
+    lines: cart.value?.items?.map(item => [item.product.id, item.quantity]) ?? [],
+    total: cart.value?.totalPrice ?? null,
+    coupons: cart.value?.appliedCouponCodes ?? [],
+    promotion: cart.value?.promotionDiscount ?? null,
+  })
+
   const handleOnlinePaymentFlow = async () => {
     if (!formState.payWayId) {
       toast.add({ title: t('form.submit.error.general'), color: 'error' })
       return
+    }
+    const orderValues = buildOrderValues()
+    if (!orderValues) return
+    // ``shippingProviderCode`` is optional on the PI request:
+    // ``home_delivery`` is provider-agnostic in checkout (the backend
+    // resolves the active home-delivery provider at order creation), so
+    // for that path we send no code and the backend's generic-fallback
+    // shipping calc agrees with what the order-create verification will
+    // compute. Identity + gift cards keep the intent amount in lockstep
+    // with that verification: promotion eligibility can depend on the
+    // email, and gift cards settle part of the total before the charge.
+    const intentBody = {
+      payWayId: orderValues.payWayId,
+      shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
+      shippingProviderCode: orderValues.shippingProviderCode || undefined,
+      // Required: a ShippingRate is per-country, so the PI amount can't
+      // be computed without a destination.
+      countryId: orderValues.countryId,
+      regionId: orderValues.regionId || undefined,
+      email: orderValues.email || undefined,
+      giftCardCodes: orderValues.giftCardCodes,
+      loyaltyPointsToRedeem: orderValues.loyaltyPointsToRedeem,
+    }
+    const pricing = intentPricing(intentBody)
+    // An intent is priced once. If anything it was priced from changed
+    // since — a deduction, the cart, the address, the shipping or the
+    // pay way — order-create would reject it on the amount, so price a
+    // fresh one under a fresh idempotency key. A cart refresh that
+    // changes none of it keeps both, as does a plain retry.
+    if (paymentIntentId.value && pricing !== intentPricedFrom.value) {
+      paymentIntentId.value = null
+      idempotencyKey.value = null
     }
     let handledByResponseError = false
     // Generate an idempotency key on first attempt; reuse on retries
@@ -297,47 +327,17 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       idempotencyKey.value = crypto.randomUUID()
     }
     try {
-      // Create payment intent from cart if not already created.
-      // The PI amount MUST be computed against the per-carrier
-      // free-shipping threshold the order-create step will verify
-      // against, so forward the carrier + kind + address codes the
-      // shopper has already picked. ``buildOrderValues`` is the
-      // single source of truth for how those are derived from the
-      // form state — reuse it so any future field rename flows here
-      // automatically.
-      //
-      // ``shippingProviderCode`` is optional on the PI request:
-      // ``home_delivery`` is provider-agnostic in checkout (the
-      // backend resolves the active home-delivery provider at order
-      // creation), so for that path we send no code and the
-      // backend's generic-fallback shipping calc agrees with what
-      // the order-create verification will compute.
+      // Create a payment intent from the cart unless a current one exists.
+      // Its amount MUST be computed against the per-carrier free-shipping
+      // threshold the order-create step verifies against, so the body
+      // carries the carrier + kind + address codes ``buildOrderValues``
+      // derives from the form state.
       let giftCardsCoverTotal = false
       if (!paymentIntentId.value) {
-        const orderValues = buildOrderValues()
-        if (!orderValues) return
-
         try {
-          const paymentIntent = await createPaymentIntentFromCart(
-            {
-              payWayId: orderValues.payWayId,
-              shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
-              shippingProviderCode: orderValues.shippingProviderCode || undefined,
-              // Required now — a ShippingRate is per-country, so the
-              // PI amount can't be computed without a destination.
-              countryId: orderValues.countryId,
-              regionId: orderValues.regionId || undefined,
-              // Identity + gift cards keep the intent amount in
-              // lockstep with the order-create verification: promotion
-              // eligibility can depend on the email, and gift cards
-              // settle part of the total before the provider charge.
-              email: orderValues.email || undefined,
-              giftCardCodes: orderValues.giftCardCodes,
-              loyaltyPointsToRedeem: orderValues.loyaltyPointsToRedeem,
-            },
-            idempotencyKey.value,
-          )
+          const paymentIntent = await createPaymentIntentFromCart(intentBody, idempotencyKey.value)
           paymentIntentId.value = paymentIntent.paymentIntentId
+          intentPricedFrom.value = pricing
         }
         catch (piError: any) {
           const piReason = piError?.data?.reason
@@ -379,7 +379,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       // Create order with payment_intent_id (absent when gift cards
       // cover the full total — the backend routes order-first then).
       const submitValues = {
-        ...buildOrderValues(),
+        ...orderValues,
         ...(paymentIntentId.value
           ? { paymentIntentId: paymentIntentId.value }
           : {}),
@@ -406,12 +406,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
             // offline flow: clear the cart and land on success.
             retryCount.value = 0
             // No "order created" toast here — see the offline branch below.
-            try {
-              await $api('/api/cart/clear-session', { method: 'POST' })
-            }
-            catch (err) {
-              log.error({ action: 'checkout:clearCart', error: err })
-            }
             await cleanCartState()
             await fetch()
             if (response._data?.uuid) {
@@ -532,13 +526,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
           // signed-in shopper. A guest gets no live notification
           // (`order.user_id is None` skips it) but still lands on the
           // success page, which states the outcome in full.
-          // Clear cart server-side after order is confirmed
-          try {
-            await $api('/api/cart/clear-session', { method: 'POST' })
-          }
-          catch (err) {
-            log.error({ action: 'checkout:clearCart', error: err })
-          }
+          // Clear the cart, server-side and local, once the order is confirmed.
           await cleanCartState()
           await fetch()
           if (!response._data?.uuid) {
@@ -716,14 +704,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       description: t('order_completed_successfully'),
       color: 'success',
     })
-    // Clear cart server-side only after payment is confirmed so a failed
-    // Stripe confirmation doesn't wipe the cart before we know it succeeded.
-    try {
-      await $api('/api/cart/clear-session', { method: 'POST' })
-    }
-    catch (err) {
-      log.error({ action: 'checkout:clearCart', error: err })
-    }
+    // Clear the cart only after payment is confirmed so a failed Stripe
+    // confirmation doesn't wipe the cart before we know it succeeded.
     await cleanCartState()
     await fetch()
     await navigateTo(localePath({

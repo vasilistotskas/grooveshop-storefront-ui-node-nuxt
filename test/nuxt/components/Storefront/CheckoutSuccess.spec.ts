@@ -218,6 +218,25 @@ describe.each([
       expect(wrapper.text()).not.toContain(messages.verifying.payment)
     })
 
+    // A failed poll used to reset the page's order to its empty default
+    // (Nuxt clears `data` on a failed refetch): every total, line and the
+    // order number vanished from the confirmation mid-poll.
+    it('keeps the order on screen through a failed poll, and takes the next answer', async () => {
+      route.query = { session_id: 'cs_test_1' }
+      const paid = order({ isPaid: true, paymentStatus: 'COMPLETED' })
+      serveOrders(order(), failWith(502), paid)
+      const wrapper = await mount()
+      const email = order().email!
+
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL)
+      expect(wrapper.text()).toContain(email)
+
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL)
+      expect(wrapper.text()).toContain(email)
+      expect(wrapper.text()).toContain(messages.payment.completed.title)
+      expect(refreshes()).toBe(2)
+    })
+
     it('treats an order already paid on arrival as verified, without polling', async () => {
       route.query = { session_id: 'cs_test_1' }
       serveOrders(order({ isPaid: true, paymentStatus: 'COMPLETED' }))

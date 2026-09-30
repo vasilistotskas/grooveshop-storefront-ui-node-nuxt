@@ -105,6 +105,22 @@ describe.each(trees(CheckoutSidebar, WebsideCheckoutSidebar))('$tree Checkout/Si
       expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(62.5))
     })
 
+    // parler allows a blank name per locale; the row then says what it
+    // is generically, in the page's language — it used to read "N/A".
+    it('labels the fee generically for a pay way with no name in this language', async () => {
+      setPayWay(makePayWay({
+        cost: 2.5,
+        translations: {
+          el: { name: '', description: '', instructions: '' },
+          en: { name: 'Cash on delivery', description: '', instructions: '' },
+        },
+      }))
+
+      const wrapper = await mount({ showPaymentFee: true })
+
+      expect(amountBeside(wrapper, 'Προμήθεια Τρόπου πληρωμής')).toBe(money(2.5))
+    })
+
     it('neither shows nor charges the fee on steps that hide it', async () => {
       setPayWay(makePayWay({ cost: 2.5 }))
 

@@ -7,14 +7,11 @@ export function usePaymentMethod() {
 
   /**
    * Get the translated name for a payment method based on its provider name
-   * @param providerName - The payment provider name (e.g., 'PAY_ON_DELIVERY', 'STRIPE')
+   * @param providerName - The payment provider name (e.g., 'PAY_ON_DELIVERY', 'STRIPE');
+   *   callers label a pay way that has none themselves
    * @returns Translated payment method name
    */
-  const getPaymentMethodName = (providerName?: string | null): string => {
-    if (!providerName) {
-      return 'N/A'
-    }
-
+  const getPaymentMethodName = (providerName: string): string => {
     // Map provider name to i18n key
     const key = `payment_methods.${providerName}`
     const translated = t(key)
