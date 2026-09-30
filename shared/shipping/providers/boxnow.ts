@@ -87,6 +87,7 @@ const boxnowCarrier: ShippingCarrier = {
     const countryCode = stored.boxnowLockerCountryCode
     if (typeof countryCode !== 'string' || countryCode.length === 0) return null
     return {
+      key: id,
       id,
       name: typeof stored.boxnowLockerName === 'string' ? stored.boxnowLockerName : id,
       addressLine1: typeof stored.boxnowLockerAddressLine1 === 'string' ? stored.boxnowLockerAddressLine1 : '',

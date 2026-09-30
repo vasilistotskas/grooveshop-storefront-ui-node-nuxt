@@ -28,8 +28,8 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 const props = defineProps<{
   /** Bulk locker catalogue from ``carrier.fetchAll(country)``. */
   lockers: Locker[]
-  /** Optional pre-selected locker (from form state). */
-  selectedId?: string | null
+  /** The pre-selected locker's ``key`` (from form state). */
+  selectedKey?: string | null
   /** ``true`` while the parent is fetching the catalogue. */
   loading?: boolean
 }>()
@@ -113,14 +113,14 @@ function buildIcon(selected: boolean) {
 const ICON_NORMAL = buildIcon(false)
 const ICON_SELECTED = buildIcon(true)
 
-// Marker props are independent of ``selectedId`` — selection state is
+// Marker props are independent of ``selectedKey`` — selection state is
 // applied via ``setIcon`` on the affected markers without rebuilding
 // the cluster. The previous implementation re-evaluated the whole
 // computed (and re-instantiated 167 ``L.divIcon`` objects) on every
 // selection change.
 const markerProps = computed(() =>
   lockersWithCoords.value.map(locker => ({
-    id: locker.id,
+    key: locker.key,
     name: locker.name,
     lat: locker.lat,
     lng: locker.lng,
@@ -136,7 +136,7 @@ const markerProps = computed(() =>
         <span class="block text-sm">${escapeHtml(locker.addressLine1)}</span>
         <span class="block text-xs">${escapeHtml(locker.postalCode)} ${escapeHtml(locker.city)}</span>
         ${locker.workingHours ? `<span class="block mt-1 text-xs italic">${escapeHtml(locker.workingHours)}</span>` : ''}
-        <button type="button" class="acs-popup-select mt-2" data-locker-id="${escapeAttr(locker.id)}">
+        <button type="button" class="acs-popup-select mt-2" data-locker-key="${escapeAttr(locker.key)}">
           ${escapeHtml(t('shipping.locker_picker.choose', { carrier: '' }).trim())}
         </button>
       </div>`,
@@ -212,9 +212,9 @@ useResizeObserver(mapContainerRef, (entries) => {
 // when the locker set changes (country switch, refresh, etc.) —
 // otherwise we'd stack pins on every reload.
 let activeCluster: any = null
-// Cache the built marker per locker id so a selection change can
+// Cache the built marker per locker key so a selection change can
 // flip its icon in place instead of rebuilding the whole cluster.
-const markersById = new Map<string, any>()
+const markersByKey = new Map<string, any>()
 // In-flight guard: ``onMapReady``, ``useResizeObserver``, and the
 // ``props.lockers`` watcher can all call ``ensureClusters`` in the
 // same tick. Without this, two cluster groups would be added to
@@ -231,7 +231,7 @@ async function ensureClusters(): Promise<void> {
       map.removeLayer(activeCluster)
       activeCluster = null
     }
-    markersById.clear()
+    markersByKey.clear()
     // ``@nuxtjs/leaflet@1.3.2``'s ``useLMarkerCluster`` is broken: it
     // does ``const { MarkerClusterGroup } = await import('leaflet.
     // markercluster')`` but the plugin is a side-effect module that
@@ -251,14 +251,14 @@ async function ensureClusters(): Promise<void> {
       spiderfyOnMaxZoom: true,
     })
     for (const m of markerProps.value) {
-      const icon = m.id === props.selectedId ? ICON_SELECTED : ICON_NORMAL
+      const icon = m.key === props.selectedKey ? ICON_SELECTED : ICON_NORMAL
       const marker = L.marker([m.lat, m.lng], { ...m.options, icon })
       if (m.popup) {
         const popup = L.DomUtil.create('div', 'popup')
         popup.innerHTML = m.popup
         marker.bindPopup(popup)
       }
-      markersById.set(m.id, marker)
+      markersByKey.set(m.key, marker)
       markerCluster.addLayer(marker)
     }
     map.addLayer(markerCluster)
@@ -283,13 +283,13 @@ watch(
 // Selection change: flip the icon on just the two affected markers
 // instead of rebuilding 167 of them.
 watch(
-  () => props.selectedId,
-  (newId, oldId) => {
-    if (oldId) {
-      markersById.get(oldId)?.setIcon(ICON_NORMAL)
+  () => props.selectedKey,
+  (newKey, oldKey) => {
+    if (oldKey) {
+      markersByKey.get(oldKey)?.setIcon(ICON_NORMAL)
     }
-    if (newId) {
-      markersById.get(newId)?.setIcon(ICON_SELECTED)
+    if (newKey) {
+      markersByKey.get(newKey)?.setIcon(ICON_SELECTED)
     }
   },
 )
@@ -305,9 +305,10 @@ useEventListener(
       | HTMLElement
       | null
     if (!button) return
-    const id = button.dataset.lockerId
-    if (!id) return
-    const picked = props.lockers.find(l => l.id === id)
+    // By key: the lockers of one ACS area share their ``id``.
+    const key = button.dataset.lockerKey
+    if (!key) return
+    const picked = props.lockers.find(l => l.key === key)
     if (picked) emit('selected', picked)
   },
 )

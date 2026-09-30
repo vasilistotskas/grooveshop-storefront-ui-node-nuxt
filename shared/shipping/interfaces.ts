@@ -22,8 +22,14 @@
 
 /** A locker / pickup point — normalised across carriers. */
 export interface Locker {
-  /** Stable provider-side identifier — what we send back when the
-   *  shopper picks this row. ACS: ``external_id``. BoxNow: ``id``. */
+  /** Unique among one carrier's lockers — what a list keys its rows on
+   *  and what the map finds a picked marker by. ACS: ``external_id``
+   *  AND ``branch_code`` (a station code covers every locker in its
+   *  area); BoxNow: ``id``. Never sent to the backend. */
+  key: string
+  /** The provider's own reference for the locker, sent back in the
+   *  order. ACS: ``external_id`` — NOT unique on its own, see ``key``.
+   *  BoxNow: ``id``. */
   id: string
   /** Optional internal branch / station code (ACS only). */
   branchCode?: string | null

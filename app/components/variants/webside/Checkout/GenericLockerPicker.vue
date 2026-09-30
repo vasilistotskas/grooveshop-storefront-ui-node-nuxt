@@ -134,13 +134,14 @@ async function loadAllLockersForMap(): Promise<void> {
   }
 }
 
-// ``immediate: true`` so the bulk locker fetch fires when the modal
-// opens with the default-map tab already selected (no user interaction
-// has happened yet). Without it the watcher waits for an actual change,
-// so the first open showed an empty map; switching to List then back
-// to Map flipped activeTab and finally triggered the fetch.
-watch(activeTab, (tab) => {
-  if (tab === 'map') void loadAllLockersForMap()
+// The catalogue loads when the map is actually on screen: the modal
+// open AND the map tab active. The picker is mounted (closed) with its
+// card, so a tab-only trigger fetched the whole catalogue on every
+// shipping step, open or not; and a load aborted by closing the modal
+// early never retried, because reopening sets the tab to the value it
+// already had. ``immediate`` covers a picker mounted already open.
+watch([open, activeTab], ([isOpen, tab]) => {
+  if (isOpen && tab === 'map') void loadAllLockersForMap()
 }, { immediate: true })
 
 onUnmounted(() => {
@@ -332,7 +333,7 @@ function onClose(): void {
                 <ul v-else class="flex flex-col gap-2 p-4">
                   <li
                     v-for="station in stations"
-                    :key="station.id"
+                    :key="station.key"
                   >
                     <button
                       type="button"
