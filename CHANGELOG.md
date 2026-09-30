@@ -1,3 +1,10 @@
+## [3.224.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.9...v3.224.10) (2026-09-30)
+
+
+### Bug Fixes
+
+* handle every failed $api call in a catch, not in ofetch's hooks ([#52](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/52)) ([542f9ba](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/542f9ba9e08af9801d412df2c407e8046ec34c40))
+
 ## [3.224.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.8...v3.224.9) (2026-09-30)
 
 
