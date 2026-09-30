@@ -1,3 +1,10 @@
+## [3.224.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.3...v3.224.4) (2026-09-30)
+
+
+### Bug Fixes
+
+* **sitemap:** read the sitemap's catalogue in the request locale ([#49](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/49)) ([9388185](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/938818511852053b616e46872a15d4c3278169e3))
+
 ## [3.224.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.2...v3.224.3) (2026-09-30)
 
 
