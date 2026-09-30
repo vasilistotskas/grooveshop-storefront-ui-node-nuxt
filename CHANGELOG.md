@@ -1,3 +1,10 @@
+## [3.224.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.4...v3.224.5) (2026-09-30)
+
+
+### Bug Fixes
+
+* **cart:** read a missing stock figure the same way in every stock check ([#47](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/47)) ([0a2d3b1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0a2d3b16482a0d6f0920c36183980dd9d4e41f28))
+
 ## [3.224.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.3...v3.224.4) (2026-09-30)
 
 
