@@ -13164,6 +13164,7 @@ export const zListPayWayQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  country: z.string().optional(),
   createdAfter: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).optional(),
   cursor: z.string().optional(),

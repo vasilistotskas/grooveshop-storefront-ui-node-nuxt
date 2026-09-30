@@ -409,55 +409,82 @@ export async function useCheckoutForm() {
   })
 
   // Re-fetch pay ways whenever the shopper picks a different shipping
-  // method. Django's PayWayFilter dispatches through the carrier
-  // registry — BoxNow rejects COD on locker pickup; ACS allows COD
-  // on every kind. The filter request sends the API contract pair
-  // ``(shippingProviderCode, shippingKind)`` derived from the local
-  // ``shippingMethod`` UI key. The Nuxt server route's cache key
-  // includes the query so each (provider, kind) combination gets
-  // its own cached list.
+  // method or delivery country. Django's PayWayFilter dispatches
+  // through the carrier registry — BoxNow rejects COD on locker
+  // pickup; ACS allows COD on every kind — and applies the store's
+  // exclusions, which can be scoped to one country (PAY ON THE GO is
+  // offered to Greek lockers, not Cypriot ones). The filter request
+  // sends ``(shippingProviderCode, shippingKind, country)`` derived
+  // from the local form state. The Nuxt server route's cache key
+  // includes the query so each combination gets its own cached list.
+  //
+  // A pay way left out is simply absent from step 3. Nothing on the
+  // page names what was left out: a note listing "not available with
+  // this shipping method: …" was tried and dropped at the merchant's
+  // request (2026-09-12) — it read as an error on every locker checkout.
   /**
-   * Load the pay ways valid for the CURRENT shipping method and keep
-   * the selection inside that list.
+   * Load the pay ways valid for the CURRENT shipping method and
+   * delivery country, and keep the selection inside that list.
    *
-   * Extracted from the watcher so the initial render can await it. A
-   * watcher does not run during SSR, so when the initial reconcile
-   * changes the method (below) the server would otherwise render the
-   * pay ways of the method the shopper is NOT using.
+   * Called by the initial render (awaited: a watcher does not run
+   * during SSR) and by the method and country watchers, which on the
+   * client all fire for the same settled state — so a query identical
+   * to the last one issued is skipped: its caller gets that request's
+   * promise, so the initial render still waits for the list when a
+   * watcher got there first. Method and country can change while a
+   * request is in flight, so only the latest request may write the
+   * list.
    */
-  const applyPayWaysForShippingMethod = async () => {
-    try {
-      const method = formState.shippingMethod
-      const carrier = carrierForMethod(method)
-      const kind = method === 'home_delivery' ? 'home_delivery' : 'pickup_point'
-      const fresh = await $api<Pagination<PayWay>>('/api/pay-way', {
-        method: 'GET',
-        query: {
-          languageCode: locale.value,
-          // Empty for plain home_delivery without a registered carrier
-          // — Django's filter is a no-op then (returns the full set).
-          shippingProviderCode: carrier?.code,
-          shippingKind: kind,
-        },
-        headers: useRequestHeaders(),
-      })
-      payWays.value = fresh
-      // If the previously selected pay way is no longer in the list
-      // (e.g. user picked BoxNow and their COD selection was filtered
-      // out), reset to the first valid option so step 3 doesn't render
-      // with a stale/disabled selection.
-      const stillValid = fresh.results?.some(
-        pw => pw.id === formState.payWayId,
-      )
-      if (!stillValid && fresh.results?.[0]) {
-        formState.payWay = fresh.results[0].id
-        formState.payWayId = fresh.results[0].id
-        selectedPayWay.value = fresh.results[0]
+  let payWaysRequest = 0
+  let payWaysQuery = { key: '', done: Promise.resolve() }
+  const applyPayWaysForShippingMethod = (): Promise<void> => {
+    const method = formState.shippingMethod
+    const carrier = carrierForMethod(method)
+    const query = {
+      languageCode: locale.value,
+      // Empty for plain home_delivery without a registered carrier
+      // — Django's filter is a no-op then (returns the full set).
+      shippingProviderCode: carrier?.code,
+      shippingKind: method === 'home_delivery' ? 'home_delivery' : 'pickup_point',
+      country: formState.countryId
+        ? String(formState.countryId).toUpperCase()
+        : undefined,
+    }
+    const key = JSON.stringify(query)
+    if (key === payWaysQuery.key) return payWaysQuery.done
+    const request = ++payWaysRequest
+    const done = (async () => {
+      try {
+        const fresh = await $api<Pagination<PayWay>>('/api/pay-way', {
+          method: 'GET',
+          query,
+          headers: useRequestHeaders(),
+        })
+        if (request !== payWaysRequest) return
+        payWays.value = fresh
+        // If the previously selected pay way is no longer in the list
+        // (e.g. user picked BoxNow and their COD selection was filtered
+        // out), reset to the first valid option so step 3 doesn't render
+        // with a stale/disabled selection — or to none when nothing is
+        // offered, so the step's required rule stops the shopper.
+        const stillValid = fresh.results?.some(
+          pw => pw.id === formState.payWayId,
+        )
+        if (!stillValid) {
+          const first = fresh.results?.[0]
+          formState.payWay = first?.id
+          formState.payWayId = first?.id
+          selectedPayWay.value = first ?? null
+        }
       }
-    }
-    catch (error) {
-      log.warn({ tag: 'checkout', message: 'pay-way refetch failed', error })
-    }
+      catch (error) {
+        // Let the next trigger retry this query.
+        if (request === payWaysRequest) payWaysQuery = { key: '', done: Promise.resolve() }
+        log.warn({ tag: 'checkout', message: 'pay-way refetch failed', error })
+      }
+    })()
+    payWaysQuery = { key, done }
+    return done
   }
 
   watch(() => formState.shippingMethod, () => {
@@ -614,9 +641,11 @@ export async function useCheckoutForm() {
       // A new country or a heavier cart can drop the method the
       // shopper picked (a locker network that does not serve the
       // country, a carrier over its cap): move to one still offered.
-      if (reconcileShippingMethod()) {
-        await applyPayWaysForShippingMethod()
-      }
+      // The pay ways follow the method, and the country too — an
+      // exclusion can apply to one country only. Unchanged, they are
+      // not refetched.
+      reconcileShippingMethod()
+      await applyPayWaysForShippingMethod()
     },
     { immediate: false },
   )
@@ -922,7 +951,6 @@ export async function useCheckoutForm() {
     storeSettingsResult,
     b2bProfileResult,
     countriesResult,
-    payWaysResult,
     savedAddressesResult,
   ] = await Promise.all([
     // The eight checkout settings (shipping prices, free-shipping
@@ -962,38 +990,6 @@ export async function useCheckoutForm() {
         query: { languageCode: locale.value, shippable: true },
         headers: useRequestHeaders(),
       }).catch(() => null),
-    ),
-    useAsyncData<Pagination<PayWay> | null>(
-      // Static key — re-fetch on shipping-method changes is handled by
-      // the dedicated watcher below (line ~264). Including
-      // ``shippingMethod`` here would fire ``/api/pay-way`` twice for
-      // every method change (useAsyncData refetch + the watcher's
-      // explicit ``$fetch``). Initial SSR call uses the form-state's
-      // default ``home_delivery``; the watcher takes over after the
-      // shopper switches.
-      //
-      // The list is scoped by the carrier + kind below, so a method the
-      // chosen shipping cannot settle (cash to a courier at a locker)
-      // is simply absent from step 3. Nothing on the page names what
-      // was left out: a note listing "not available with this shipping
-      // method: …" was tried and dropped at the merchant's request
-      // (2026-09-12) — it read as an error on every locker checkout.
-      () => `checkout:pay-ways:${locale.value}`,
-      () => {
-        const carrier = carrierForMethod(formState.shippingMethod)
-        const kind = formState.shippingMethod === 'home_delivery'
-          ? 'home_delivery'
-          : 'pickup_point'
-        return $api<Pagination<PayWay>>('/api/pay-way', {
-          method: 'GET',
-          query: {
-            languageCode: locale.value,
-            shippingProviderCode: carrier?.code,
-            shippingKind: kind,
-          },
-          headers: useRequestHeaders(),
-        }).catch(() => null)
-      },
     ),
     useAsyncData<UserAddressDetail[]>(
       'checkout:saved-addresses',
@@ -1076,7 +1072,6 @@ export async function useCheckoutForm() {
     }
   }
   countries.value = countriesResult.data.value ?? null
-  payWays.value = payWaysResult.data.value ?? null
   savedAddresses.value = savedAddressesResult.data.value ?? []
 
   // Apply the main address to form state synchronously so the very
@@ -1128,21 +1123,12 @@ export async function useCheckoutForm() {
   // shows the live ACS quote on first render (SSR-safe).
   await fetchShippingOptions()
 
-  // Now that the offered methods are known, settle on one the store
-  // actually serves and derive the pay ways from it. A watcher does not
-  // fire during SSR, so the refetch is awaited here rather than left to
-  // the one above.
-  if (reconcileShippingMethod()) {
-    await applyPayWaysForShippingMethod()
-  }
-
-  // Initialize the payment method against the settled list. Skipped
-  // when the refetch above already chose one.
-  if (!formState.payWayId && payWays.value?.results?.[0]) {
-    formState.payWay = payWays.value.results[0].id
-    formState.payWayId = payWays.value.results[0].id
-    selectedPayWay.value = payWays.value.results[0]
-  }
+  // Now that the country and the offered methods are known, settle on a
+  // method the store actually serves and load the pay ways for both. A
+  // watcher does not fire during SSR, so the fetch is awaited here; it
+  // also picks the first pay way when none is selected.
+  reconcileShippingMethod()
+  await applyPayWaysForShippingMethod()
 
   /**
    * Re-fetches the live shipping options at submit time so the priced
