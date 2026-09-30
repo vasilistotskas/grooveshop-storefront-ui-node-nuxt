@@ -116,10 +116,12 @@ describe('usePromotionOffer', () => {
 
     expect(expiry(inDays(3))).toMatch(/3/)
     // Beyond a week the countdown stops helping, so it becomes a date
-    // and must NOT read as "in 30 days".
-    const distant = expiry(inDays(30))
+    // and must NOT read as "in 45 days". More than 31 days, so the
+    // count can never also be the date's day of the month (30 days
+    // from the 30th of a month is the 30th of the next).
+    const distant = expiry(inDays(45))
     expect(distant).toBeTruthy()
-    expect(distant).not.toMatch(/\b30\b/)
+    expect(distant).not.toMatch(/\b45\b/)
   })
 
   it('translates an ACP rejection reason and survives an unknown one', () => {
