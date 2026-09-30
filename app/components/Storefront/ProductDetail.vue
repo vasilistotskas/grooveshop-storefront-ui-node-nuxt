@@ -298,21 +298,11 @@ const displayFinalPrice = computed(() =>
     : product.value?.finalPrice,
 )
 
-/**
- * What the shopper would otherwise have paid — the number to strike
- * through.
- *
- * NOT `product.price`, which is the NET price: `final_price = price +
- * vat - discount`, so on a VAT-bearing product the net is lower than
- * the final and striking it showed the price going UP. Pre-discount and
- * VAT-inclusive is `finalPrice + discountValue`.
- */
-const wasPrice = computed(() => {
-  if (isWholesalePrice.value) return product.value?.finalPrice
-
-  const discount = Number(product.value?.discountValue ?? 0)
-  return discount > 0 ? (product.value?.finalPrice ?? 0) + discount : undefined
-})
+// What the shopper would otherwise have paid — the number to strike
+// through (see productWasPrice for why it is not `product.price`).
+const wasPrice = computed(() =>
+  product.value ? productWasPrice(product.value, displayFinalPrice.value ?? product.value.finalPrice) : undefined,
+)
 
 /**
  * The product's name in the best language it EXISTS in.

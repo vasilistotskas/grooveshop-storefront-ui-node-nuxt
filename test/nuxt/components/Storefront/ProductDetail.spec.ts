@@ -56,3 +56,43 @@ describe.each([
     wrapper.unmount()
   })
 })
+
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail price (%s tree)', (_tree, Component) => {
+  const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+
+  function serve(product: ReturnType<typeof makeProduct>) {
+    clearNuxtData()
+    setTenant()
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': product,
+      '/api/products/123/images': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+  }
+
+  // Net 50, 24 % VAT, 10 % off: final 57, pre-discount gross 62. The
+  // net price is below the final one, so striking it read as a rise.
+  it('strikes the VAT-inclusive pre-discount price beside a discounted final price', async () => {
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 10 }))
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(wrapper.findAll('.line-through').map(node => node.text())).toEqual([money(62)])
+    expect(wrapper.text()).toContain(money(57))
+    wrapper.unmount()
+  })
+
+  it('strikes nothing for an undiscounted product', async () => {
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 0 }))
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(wrapper.findAll('.line-through')).toHaveLength(0)
+    wrapper.unmount()
+  })
+})

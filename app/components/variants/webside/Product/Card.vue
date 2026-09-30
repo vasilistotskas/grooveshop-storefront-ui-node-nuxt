@@ -88,6 +88,8 @@ const displayFinalPrice = computed(() =>
     ? Number(b2bPrice.value.finalPrice)
     : product.value.finalPrice,
 )
+// The struck-through price (see productWasPrice for why not `price`).
+const wasPrice = computed(() => productWasPrice(product.value, displayFinalPrice.value))
 
 const shareOptions = computed(() => ({
   title: productName.value || '',
@@ -291,8 +293,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <div class="flex flex-col gap-2">
         <div
-          v-if="isWholesalePrice
-            || (showStartPrice && product.price !== product.finalPrice)"
+          v-if="wasPrice && (isWholesalePrice || showStartPrice)"
           class="flex items-center gap-2"
         >
           <span
@@ -301,7 +302,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               dark:text-neutral-300
             "
           >
-            {{ $i18n.n(isWholesalePrice ? product.finalPrice : product.price, 'currency') }}
+            {{ $i18n.n(wasPrice, 'currency') }}
           </span>
         </div>
 
