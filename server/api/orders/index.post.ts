@@ -27,8 +27,14 @@ export default defineEventHandler(async (event) => {
     // to ``True-Client-IP`` (CF Enterprise) and finally to XFF/socket so
     // local dev still works. Meta's event matching is its only reader,
     // so a forged value spoils only the forger's own attribution.
-    const cookieHeader = getRequestHeader(event, 'cookie')
-    const { fbp, fbc } = parseFbpFbcFromCookieHeader(cookieHeader)
+    //
+    // The pixel writes ``_fbp`` on every visit and ``_fbc`` after an
+    // ``?fbclid=`` landing; Meta wants both unhashed, as written. h3's
+    // cookie parser decodes what it can and keeps any value it cannot as
+    // written — decoding the whole header by hand threw on one malformed
+    // third-party cookie and failed the order with a 500.
+    const fbp = getCookie(event, '_fbp')
+    const fbc = getCookie(event, '_fbc')
     const userAgent = getRequestHeader(event, 'user-agent') ?? undefined
     const clientIp
       = getRequestHeader(event, 'cf-connecting-ip')
