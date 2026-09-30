@@ -27,19 +27,20 @@ export const useCartStore = defineStore('cart', () => {
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
   const getCartItemIds = computed(() => cart.value?.items?.map(item => item.id) ?? [])
 
-  const getItemsWithStockIssues = computed(() => {
-    return cart.value?.items?.filter((item) => {
-      return item.product.stock !== undefined
-        && item.quantity
-        && item.quantity > item.product.stock
-    }) ?? []
-  })
+  // Django's `stock` is a PositiveIntegerField defaulting to 0 and always
+  // serialised; the contract marks it optional, so a missing figure is that
+  // default. Every stock rule reads it through here, so the line a message
+  // calls sold out is the line the checks flag.
+  const getAvailableStock = (cartItem: CartItem) => cartItem.product.stock ?? 0
 
-  const getOutOfStockItems = computed(() => {
-    return cart.value?.items?.filter((item) => {
-      return item.product.stock === 0
-    }) ?? []
-  })
+  const hasStockIssue = (cartItem: CartItem) =>
+    (cartItem.quantity ?? 0) > getAvailableStock(cartItem)
+
+  const getItemsWithStockIssues = computed(() => cart.value?.items?.filter(hasStockIssue) ?? [])
+
+  const getOutOfStockItems = computed(() =>
+    cart.value?.items?.filter(item => getAvailableStock(item) === 0) ?? [],
+  )
 
   const hasStockIssues = computed(() => {
     return getItemsWithStockIssues.value.length > 0 || getOutOfStockItems.value.length > 0
@@ -51,18 +52,9 @@ export const useCartStore = defineStore('cart', () => {
   const getCartItemByProductId = (id: number) =>
     cart.value?.items?.find(item => item.product.id === id) ?? null
 
-  const hasStockIssue = (cartItem: CartItem) => {
-    return cartItem.product.stock !== undefined
-      && cartItem.quantity
-      && cartItem.quantity > cartItem.product.stock
-  }
-
-  const getAvailableStock = (cartItem: CartItem) => {
-    return cartItem.product.stock ?? 0
-  }
-
   const getStockStatusMessage = (cartItem: CartItem) => {
-    if (!cartItem.product.stock || cartItem.product.stock === 0) {
+    const available = getAvailableStock(cartItem)
+    if (available === 0) {
       return {
         type: 'out_of_stock' as const,
         message: t('out_of_stock'),
@@ -74,11 +66,11 @@ export const useCartStore = defineStore('cart', () => {
       return {
         type: 'limited_stock' as const,
         message: t('limited_stock', {
-          stock: cartItem.product.stock,
+          stock: available,
           quantity: cartItem.quantity,
         }),
         severity: 'warning' as const,
-        available: cartItem.product.stock,
+        available,
         requested: cartItem.quantity,
       }
     }

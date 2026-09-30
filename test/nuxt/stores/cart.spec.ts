@@ -148,6 +148,21 @@ describe('Cart Store', () => {
     it('has nothing to say about a line within stock', () => {
       expect(store.getStockStatusMessage(fine)).toBeNull()
     })
+
+    it('reads a product with no stock figure as out of stock in every getter, as Django defaults it to 0', () => {
+      // `stock` is optional in the contract; the getters used to disagree
+      // on what its absence means — the message said sold out while the
+      // issue lists and checks said all was well.
+      const noFigure = makeCartItem({ id: 4, quantity: 1, product: { id: 4, stock: undefined } })
+      store.cart = makeCart({ items: [noFigure] })
+
+      expect(store.getAvailableStock(noFigure)).toBe(0)
+      expect(store.getOutOfStockItems.map(item => item.id)).toEqual([4])
+      expect(store.getItemsWithStockIssues.map(item => item.id)).toEqual([4])
+      expect(store.hasStockIssues).toBe(true)
+      expect(Boolean(store.hasStockIssue(noFigure))).toBe(true)
+      expect(store.getStockStatusMessage(noFigure)?.type).toBe('out_of_stock')
+    })
   })
 
   describe('pending', () => {
