@@ -59,78 +59,38 @@ const toggleFavourite = async () => {
     return
   }
 
+  isLoading.value = true
   try {
-    isLoading.value = true
     if (!props.favouriteId) {
-      await $api(`/api/products/favourites`, {
+      const favourite = await $api(`/api/products/favourites`, {
         method: 'POST',
         body: {
           product: props.productId,
         },
-        onRequestError({ error }) {
-          toast.add({
-            title: error.message,
-            color: 'error',
-          })
-        },
-        onResponse({ response }) {
-          if (!response.ok) {
-            return
-          }
-          addFavouriteProduct(response._data)
-          toast.add({
-            title: t('added'),
-            color: 'success',
-          })
-        },
-        // ofetch only populates context.error for transport/parse
-        // failures — on an HTTP 4xx/5xx it is undefined, so the old
-        // `title: error?.message` rendered an empty toast.
-        onResponseError({ response }) {
-          toast.add({
-            title: getErrorDetail({ data: response._data }) || t('error_occurred'),
-            color: 'error',
-          })
-        },
+      })
+      addFavouriteProduct(favourite)
+      toast.add({
+        title: t('added'),
+        color: 'success',
       })
     }
     else {
       const id = props.favouriteId
-      await $api(`/api/products/favourites/${id}`, {
-        method: 'DELETE',
-        onRequestError({ error }) {
-          toast.add({
-            title: error.message,
-            color: 'error',
-          })
-        },
-        onResponse({ response }) {
-          if (!response.ok) {
-            return
-          }
-          emit('favourite-delete', id)
-          removeFavouriteProduct(props.productId)
-          toast.add({
-            title: t('removed'),
-            color: 'error',
-          })
-        },
-        // ofetch only populates context.error for transport/parse
-        // failures — on an HTTP 4xx/5xx it is undefined, so the old
-        // `title: error?.message` rendered an empty toast.
-        onResponseError({ response }) {
-          toast.add({
-            title: getErrorDetail({ data: response._data }) || t('error_occurred'),
-            color: 'error',
-          })
-        },
+      await $api(`/api/products/favourites/${id}`, { method: 'DELETE' })
+      emit('favourite-delete', id)
+      removeFavouriteProduct(props.productId)
+      toast.add({
+        title: t('removed'),
+        color: 'error',
       })
     }
   }
   catch (error) {
+    // One toast for every failure: an HTTP refusal carries Django's
+    // `detail`, a network failure does not.
     log.error({ action: 'favourite:toggle', error })
     toast.add({
-      title: 'An error occurred',
+      title: getErrorDetail(error) || t('error_occurred'),
       color: 'error',
     })
   }

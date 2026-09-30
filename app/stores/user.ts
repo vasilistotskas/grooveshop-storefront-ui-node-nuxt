@@ -50,6 +50,28 @@ export const useUserStore = defineStore('user', () => {
     ]
   }
 
+  /**
+   * Which of `commentIds` the signed-in reader has liked, merged into
+   * `blogLikedComments`. The like state only decorates comments already
+   * on screen, so a failed request leaves them unmarked and is logged
+   * rather than toasted.
+   */
+  const loadLikedComments = async (commentIds: number[]) => {
+    const { loggedIn } = useUserSession()
+    if (!loggedIn.value || commentIds.length === 0) return
+
+    try {
+      const { likedCommentIds } = await $api('/api/blog/comments/liked-comments', {
+        method: 'POST',
+        body: { commentIds },
+      })
+      updateLikedComments(likedCommentIds)
+    }
+    catch (error) {
+      log.error({ action: 'blog:likedComments', error })
+    }
+  }
+
   const addLikedPost = (postId: number) => {
     blogLikedPosts.value = [...blogLikedPosts.value, postId]
   }
@@ -106,6 +128,7 @@ export const useUserStore = defineStore('user', () => {
     blogCommentLiked,
     updateLikedPosts,
     updateLikedComments,
+    loadLikedComments,
     addLikedPost,
     removeLikedPost,
     addLikedComment,

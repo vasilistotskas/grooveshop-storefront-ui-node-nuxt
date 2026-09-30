@@ -5,7 +5,8 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import BlogPostComments from '~/components/Blog/Post/Comments/index.vue'
 import WebsideBlogPostComments from '~/components/variants/webside/Blog/Post/Comments/index.vue'
-import type { ApiRouteHandler } from '~~/test/helpers/api'
+import { makeBlogComment } from '~~/test/fixtures/blog'
+import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -43,25 +44,7 @@ const PROXY_URL = '/api/blog/posts/42/comments'
 const NEXT_PAGE_URL = 'https://api.webside.gr/api/v1/blog/post/42/comments'
   + '?cursor=Y3Vyc29yOjE%3D&pageSize=3&paginationType=cursor&languageCode=el&approved=true&parent_Isnull=true'
 
-function comment(id: number, createdAt: string) {
-  return {
-    id,
-    uuid: `uuid-${id}`,
-    translations: { el: { content: `Σχόλιο ${id}` } },
-    user: { pk: 1, id: 1, email: 'a@example.com' },
-    contentPreview: `Σχόλιο ${id}`,
-    isReply: false,
-    parent: null,
-    hasReplies: false,
-    approved: true,
-    isEdited: false,
-    likesCount: 0,
-    repliesCount: 0,
-    userHasLiked: false,
-    createdAt,
-    updatedAt: createdAt,
-  }
-}
+const comment = (id: number, createdAt: string) => makeBlogComment({ id, createdAt, updatedAt: createdAt })
 
 const page = (results: ReturnType<typeof comment>[], next: string | null = null) => ({
   count: results.length,
@@ -179,18 +162,56 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     session.user.value = { id: 7 }
     api.routes({
       [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z'), comment(2, '2026-07-01T00:00:00Z')]),
-      '/api/blog/comments/liked-comments': ((_url, options) => {
-        options.onResponse({ response: { ok: true, _data: { likedCommentIds: [2] } } })
-        return {}
-      }) satisfies ApiRouteHandler,
+      '/api/blog/comments/liked-comments': { likedCommentIds: [2] },
     })
 
     await mount()
     await flushPromises()
 
-    expect(api.callsTo('/api/blog/comments/liked-comments')[0]!.options)
-      .toMatchObject({ method: 'POST', body: { commentIds: [1, 2] } })
+    expect(api.callsTo('/api/blog/comments/liked-comments')).toEqual([{
+      url: '/api/blog/comments/liked-comments',
+      options: expect.objectContaining({ method: 'POST', body: { commentIds: [1, 2] } }),
+    }])
     expect(useUserStore().blogLikedComments).toEqual([2])
+  })
+
+  it('asks the like state of a loaded next page once, for that page only', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7 }
+    api.routes({
+      [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')], NEXT_PAGE_URL),
+      '/api/blog/comments/liked-comments': { likedCommentIds: [] },
+    })
+    const wrapper = await mount()
+    await flushPromises()
+    api.routes({
+      [PROXY_URL]: page([comment(2, '2026-07-01T00:00:00Z')]),
+      '/api/blog/comments/liked-comments': { likedCommentIds: [2] },
+    })
+
+    await loadMore(wrapper)!.trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/comments/liked-comments').map(call => call.options.body))
+      .toEqual([{ commentIds: [1] }, { commentIds: [2] }])
+    expect(useUserStore().blogLikedComments).toEqual([2])
+  })
+
+  it('still shows the comments when their like state cannot be loaded', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7 }
+    api.routes({
+      [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]),
+      '/api/blog/comments/liked-comments': failWith(502),
+    })
+
+    const wrapper = await mount()
+    await flushPromises()
+
+    expect(renderedIds(wrapper)).toEqual([1])
+    expect(useUserStore().blogLikedComments).toEqual([])
+    // An unmarked like is not worth interrupting the reader for.
+    expect(toastAdd).not.toHaveBeenCalled()
   })
 
   it('never asks a guest\'s like state', async () => {
@@ -208,10 +229,7 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     const created = comment(9, '2026-08-09T00:00:00Z')
     api.routes({
       [PROXY_URL]: page([]),
-      '/api/blog/comments': (async (_url, options) => {
-        await options.onResponse({ response: { ok: true, _data: created } })
-        return created
-      }) satisfies ApiRouteHandler,
+      '/api/blog/comments': created,
     })
     const wrapper = await mount()
     await flushPromises()
@@ -234,19 +252,19 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     session.user.value = { id: 7 }
     api.routes({
       [PROXY_URL]: page([]),
-      '/api/blog/comments': ((_url, options) => {
-        options.onResponseError()
-        return {}
-      }) satisfies ApiRouteHandler,
+      '/api/blog/comments': failWith(400),
     })
     const wrapper = await mount()
     await flushPromises()
+    const fetchesBefore = api.callsTo(PROXY_URL).length
 
     await wrapper.find('[data-test="submit"]').trigger('click')
     await flushPromises()
 
     expect(wrapper.emitted('reply-add')).toBeUndefined()
+    expect(toastAdd).toHaveBeenCalledTimes(1)
     expect(toastAdd).toHaveBeenCalledWith({ title: expect.any(String), color: 'error' })
+    expect(api.callsTo(PROXY_URL)).toHaveLength(fetchesBefore)
   })
 
   it('offers a guest the sign-in prompt instead of the comment form', async () => {

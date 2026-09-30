@@ -281,99 +281,88 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
   newSelectionRatio.value = leftBound / rightBound
 }
 
+/** The review body Django takes for a create and an update alike. */
+const reviewBody = (event: Schema) => ({
+  product: product.value?.id,
+  translations: {
+    [locale.value]: {
+      comment: event.comment,
+    },
+  },
+  rate: event.rate,
+})
+
+/** Django refuses a review of a product the customer never bought. */
+const isPurchaseRequired = (error: unknown) => {
+  const body = (error as { data?: { product?: unknown, data?: { product?: unknown } } }).data
+  const productError = body?.data?.product ?? body?.product
+  return productError === 'must_have_purchased'
+    || (Array.isArray(productError) && productError.includes('must_have_purchased'))
+}
+
 const createReviewEvent = async (event: Schema) => {
-  await $api(`/api/products/reviews`, {
-    method: 'POST',
-    body: {
-      product: product.value?.id,
-      translations: {
-        [locale.value]: {
-          comment: event.comment,
-        },
-      },
-      rate: event.rate,
-    },
-    async onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      emit('add-existing-review', userProductReview?.value)
-      toast.add({
-        title: t('add.success'),
-        color: 'success',
-      })
-    },
-    onResponseError({ response }) {
-      const errorBody = response?._data
-      const productError = errorBody?.data?.product ?? errorBody?.product
-      const isPurchaseRequired
-        = productError === 'must_have_purchased'
-          || (Array.isArray(productError) && productError.includes('must_have_purchased'))
-      toast.add({
-        title: isPurchaseRequired ? t('add.must_purchase_first') : t('add.error'),
-        color: 'error',
-      })
-    },
-  })
+  try {
+    const created = await $api(`/api/products/reviews`, {
+      method: 'POST',
+      body: reviewBody(event),
+    })
+    emit('add-existing-review', created)
+    toast.add({
+      title: t('add.success'),
+      color: 'success',
+    })
+  }
+  catch (error) {
+    log.error({ action: 'review:create', error })
+    toast.add({
+      title: isPurchaseRequired(error) ? t('add.must_purchase_first') : t('add.error'),
+      color: 'error',
+    })
+  }
 }
 
 const updateReviewEvent = async (event: Schema) => {
   if (!userProductReview?.value) return
-  await $api(`/api/products/reviews/${userProductReview?.value.id}`, {
-    method: 'PUT',
-    body: {
-      product: product.value?.id,
-      translations: {
-        [locale.value]: {
-          comment: event.comment,
-        },
-      },
-      rate: event.rate,
-    },
-    async onResponse({ response }) {
-      if (!userProductReview?.value) return
-      if (!response.ok) {
-        return
-      }
-      emit('update-existing-review', userProductReview?.value)
-      toast.add({
-        title: t('update.success'),
-        color: 'success',
-      })
-    },
-    onResponseError() {
-      toast.add({
-        title: t('update.error'),
-        color: 'error',
-      })
-    },
-  })
+  try {
+    const updated = await $api(`/api/products/reviews/${userProductReview.value.id}`, {
+      method: 'PUT',
+      body: reviewBody(event),
+    })
+    emit('update-existing-review', updated)
+    toast.add({
+      title: t('update.success'),
+      color: 'success',
+    })
+  }
+  catch (error) {
+    log.error({ action: 'review:update', error })
+    toast.add({
+      title: t('update.error'),
+      color: 'error',
+    })
+  }
 }
 
 const deleteReviewEvent = async () => {
   if (user?.value && userProductReview?.value) {
-    await $api(`/api/products/reviews/${userProductReview?.value.id}`, {
-      method: 'DELETE',
-      async onResponse({ response }) {
-        if (!userProductReview?.value) return
-        if (!response.ok) {
-          return
-        }
-        state.rate = 0
-        state.comment = ''
-        emit('delete-existing-review', userProductReview?.value)
-        toast.add({
-          title: t('delete.success'),
-          color: 'success',
-        })
-      },
-      onResponseError() {
-        toast.add({
-          title: t('delete.error'),
-          color: 'error',
-        })
-      },
-    })
+    const review = userProductReview.value
+    try {
+      await $api(`/api/products/reviews/${review.id}`, { method: 'DELETE' })
+      state.rate = 0
+      state.comment = ''
+      emit('delete-existing-review', review)
+      toast.add({
+        title: t('delete.success'),
+        color: 'success',
+      })
+    }
+    catch (error) {
+      log.error({ action: 'review:delete', error })
+      toast.add({
+        title: t('delete.error'),
+        color: 'error',
+      })
+    }
   }
   else {
     toast.add({

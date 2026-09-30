@@ -85,12 +85,11 @@ const userImage = computed(() => {
   })
 })
 
-const avatarSrc = computed(() => {
-  if (uploadFile.value) {
-    return URL.createObjectURL(uploadFile.value)
-  }
-  return userImage.value
-})
+// The chosen file's preview; VueUse revokes each URL once the file
+// changes or the avatar unmounts, where a computed minted a new one on
+// every re-evaluation and never released any.
+const uploadPreview = useObjectUrl(uploadFile)
+const avatarSrc = computed(() => uploadPreview.value ?? userImage.value)
 
 // One precedence for every surface that names a person: the name, then
 // the generated handle. Never the email — this renders on public review
@@ -129,30 +128,29 @@ const handleUpload = async (file: File | null) => {
     return
   }
 
-  await $api(`/api/user/account/${props.userAccount.id}`, {
-    method: 'PATCH',
-    body: formData,
-    async onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      toast.add({
-        title: t('image.updated'),
-        color: 'success',
-      })
-      await fetch()
-      uploadFile.value = null
-    },
-    onResponseError() {
-      toast.add({
-        title: t('image.upload.error'),
-        color: 'error',
-      })
-      uploadFile.value = null
-    },
-  })
-
-  loading.value = false
+  try {
+    await $api(`/api/user/account/${props.userAccount.id}`, {
+      method: 'PATCH',
+      body: formData,
+    })
+    toast.add({
+      title: t('image.updated'),
+      color: 'success',
+    })
+    // The session carries the avatar.
+    await fetch()
+  }
+  catch (error) {
+    log.error({ action: 'account:avatarUpload', error })
+    toast.add({
+      title: t('image.upload.error'),
+      color: 'error',
+    })
+  }
+  finally {
+    uploadFile.value = null
+    loading.value = false
+  }
 }
 
 watch(uploadFile, (newFile) => {
