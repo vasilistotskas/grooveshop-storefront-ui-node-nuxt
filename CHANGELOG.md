@@ -1,3 +1,10 @@
+## [3.224.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.8...v3.224.9) (2026-09-30)
+
+
+### Bug Fixes
+
+* **products:** show recommendation discounts at their VAT-inclusive price ([#46](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/46)) ([a3e56ba](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a3e56bac7c3d472698fd001bf37c181c59ccf20d))
+
 ## [3.224.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.7...v3.224.8) (2026-09-30)
 
 
