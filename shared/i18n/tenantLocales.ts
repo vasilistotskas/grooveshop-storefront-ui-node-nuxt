@@ -1,4 +1,8 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales'
+import type { SupportedLocale } from '../../i18n/locales'
+
+const isSupportedLocale = (code: string | null | undefined): code is SupportedLocale =>
+  (SUPPORTED_LOCALES as readonly string[]).includes(code ?? '')
 
 /**
  * The locales a given tenant may actually be served in.
@@ -19,16 +23,14 @@ import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales'
  */
 export function tenantAllowedLocales(
   tenant?: { defaultLocale?: string | null, availableLocales?: readonly string[] | null } | null,
-): string[] {
+): SupportedLocale[] {
   if (!tenant) return [...SUPPORTED_LOCALES]
 
-  const listed = (tenant.availableLocales ?? []).filter(code =>
-    (SUPPORTED_LOCALES as readonly string[]).includes(code),
-  )
-  if (listed.length) return [...listed]
+  const listed = (tenant.availableLocales ?? []).filter(isSupportedLocale)
+  if (listed.length) return listed
 
   const fallback = tenant.defaultLocale
-  if (fallback && (SUPPORTED_LOCALES as readonly string[]).includes(fallback)) {
+  if (isSupportedLocale(fallback)) {
     return [fallback]
   }
   return [...SUPPORTED_LOCALES]
@@ -57,9 +59,9 @@ export function tenantAllowedLocales(
 export function servedLocale(
   candidate: string | null | undefined,
   tenant?: Parameters<typeof tenantAllowedLocales>[0],
-): string {
+): SupportedLocale {
   if (!candidate || candidate === DEFAULT_LOCALE) return DEFAULT_LOCALE
-  return tenantAllowedLocales(tenant).includes(candidate)
+  return isSupportedLocale(candidate) && tenantAllowedLocales(tenant).includes(candidate)
     ? candidate
     : DEFAULT_LOCALE
 }

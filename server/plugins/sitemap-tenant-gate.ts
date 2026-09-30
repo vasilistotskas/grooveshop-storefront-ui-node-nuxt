@@ -207,7 +207,8 @@ export default defineNitroPlugin((nitroApp) => {
       GATED_ROUTES.filter((_, i) => !allowed[i]).map(route => route.path),
     )
 
-    const locales = new Set(tenantAllowedLocales(tenant))
+    // Checked against locales parsed out of URLs, which can be anything.
+    const locales = new Set<string>(tenantAllowedLocales(tenant))
 
     // A content-backed route that survived the gate above is CANONICAL
     // only in the locales its document is translated into. On the
