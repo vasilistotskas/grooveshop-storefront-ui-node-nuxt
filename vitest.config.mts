@@ -123,6 +123,15 @@ export default defineConfig({
       reporter: ['text', 'html', 'lcov', 'json', 'json-summary'],
       // A red run is exactly when the report is needed.
       reportOnFailure: true,
+      // A floor, not a target: the unit+nuxt run measured on 2026-09-30,
+      // rounded down. A change that drops coverage below it fails CI;
+      // raise it when coverage rises, never lower it to make a run pass.
+      thresholds: {
+        statements: 66,
+        branches: 61,
+        functions: 58,
+        lines: 67,
+      },
       include: ['app/**', 'server/**', 'shared/**'],
       exclude: [
         // Generated from Django's OpenAPI schema; not ours to test.

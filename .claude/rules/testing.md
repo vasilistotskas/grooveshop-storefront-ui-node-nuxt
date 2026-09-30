@@ -197,6 +197,10 @@ least N of them, so it cannot go blind silently.
 - One file: `pnpm vitest run test/unit/app/utils/str.spec.ts`
 - One project: `pnpm vitest run --project=unit` (or `nuxt`)
 - CI's run: `pnpm test:ci` (unit + nuxt with coverage); e2e: `pnpm test:e2e`
+- Coverage floors (`coverage.thresholds` in vitest.config.mts) are measured
+  on that whole unit + nuxt run, so a subset run with `--coverage` reports
+  them as failed by design. Raise a floor when coverage rises; never lower
+  one to make a run pass.
 - Lint: `test/**` is linted (`@vitest/eslint-plugin` recommended, in
   `eslint.config.mjs`). An assertion helper is named `expect…` so
   `vitest/expect-expect` sees the test assert.
