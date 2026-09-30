@@ -67,10 +67,6 @@ export default defineSitemapEventHandler(async (event) => {
     ? `https://${tenant.assetsDomain}${extractMediaStreamPath(config.public.mediaStreamPath as string | undefined)}`
     : config.public.mediaStreamPath as string
 
-  // Only 'el' is active per i18n config. When more locales activate,
-  // iterate SUPPORTED_LOCALES here and emit hreflang alternates per entry.
-  const ACTIVE_LOCALE = 'el'
-
   const blogEnabled = tenant?.blogEnabled ?? true
   // The catalogue is a merchant SETTING, not a plan flag: a store can
   // hold a product model and serve no shop (an engineering contractor
@@ -96,16 +92,16 @@ export default defineSitemapEventHandler(async (event) => {
     allContentPages,
   ] = await Promise.all([
     blogEnabled
-      ? cachedBlogPosts(host, locale, `${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedBlogPosts(host, locale, `${apiBaseUrl}/blog/post?languageCode=${locale}`)
       : Promise.resolve([]),
     blogEnabled
-      ? cachedBlogCategories(host, locale, `${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedBlogCategories(host, locale, `${apiBaseUrl}/blog/category?languageCode=${locale}`)
       : Promise.resolve([]),
     catalogueEnabled
-      ? cachedProducts(host, locale, `${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedProducts(host, locale, `${apiBaseUrl}/product?languageCode=${locale}`)
       : Promise.resolve([]),
     catalogueEnabled
-      ? cachedProductCategories(host, locale, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedProductCategories(host, locale, `${apiBaseUrl}/product/category?languageCode=${locale}`)
       : Promise.resolve([]),
     // Ungated: a content page is published or it is not, and the API
     // returns only published rows to an anonymous caller. pageSize is
@@ -114,7 +110,7 @@ export default defineSitemapEventHandler(async (event) => {
     cachedContentPages(
       host,
       locale,
-      `${apiBaseUrl}/content-page?languageCode=${ACTIVE_LOCALE}&pageSize=100`,
+      `${apiBaseUrl}/content-page?languageCode=${locale}&pageSize=100`,
     ),
   ])
 
@@ -168,16 +164,15 @@ export default defineSitemapEventHandler(async (event) => {
       images: product.mainImagePath
         ? [{
             loc: `${mediaStreamBase}/${product.mainImagePath}`,
-            // Prefer the active locale (el) translation; fall back to any
-            // available locale so the field is never silently empty.
-            title: product.translations?.el?.name
+            // The request locale's translation, as the data was read in
+            // it; any other locale's name so the field is never empty.
+            title: product.translations?.[locale]?.name
               || Object.values(product.translations ?? {}).find(t => t?.name)?.name
               || undefined,
             // Short product description as the image caption. Truncated at
             // 160 chars to keep the sitemap lean.
-            caption: product.translations?.el?.description
-              ? product.translations.el.description.replace(/<[^>]+>/g, '').slice(0, 160) || undefined
-              : undefined,
+            caption: product.translations?.[locale]?.description
+              ?.replace(/<[^>]+>/g, '').slice(0, 160) || undefined,
           }]
         : undefined,
     })),

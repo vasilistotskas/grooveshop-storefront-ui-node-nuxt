@@ -157,7 +157,7 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
     expect(urls).toContain('https://acme.test/blog/post/1/my-post')
   })
 
-  it('sends the request host and locale on every catalogue read', async () => {
+  it('sends the request host and locale on every catalogue read, header and query alike', async () => {
     serve()
 
     await sitemap({ ...tenantContext(), locale: 'en' })
@@ -167,6 +167,9 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
     for (const read of reads) {
       expect(read.headers.get('x-forwarded-host')).toBe(HOST)
       expect(read.headers.get('x-language')).toBe('en')
+      // The entries are cached under the request locale, so they must be
+      // read in it: a hardcoded `el` query put Greek data under `en` keys.
+      expect(read.query.languageCode).toBe('en')
     }
   })
 })
@@ -232,6 +235,20 @@ describe('server/api/__sitemap__/urls — product images', () => {
 
     expect(image?.title).toBe('Καρέκλα')
     expect(image?.caption).toBe('Λ'.repeat(160))
+  })
+
+  it('titles and captions the image in the request locale', async () => {
+    serve({
+      products: [productWithImage({
+        el: { name: 'Καρέκλα', description: '<p>Ξύλινη</p>', seoTitle: '', seoDescription: '', seoKeywords: '' },
+        en: { name: 'Chair', description: '<p>Wooden</p>', seoTitle: '', seoDescription: '', seoKeywords: '' },
+      })],
+    })
+
+    const image = productImage(await sitemap({ ...tenantContext(), locale: 'en' }))
+
+    expect(image?.title).toBe('Chair')
+    expect(image?.caption).toBe('Wooden')
   })
 
   it('falls back to any translated name, and omits an empty caption', async () => {
