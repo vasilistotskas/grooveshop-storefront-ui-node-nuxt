@@ -27,16 +27,3 @@ export function displayUserName(
   const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()
   return fullName || user.username || ''
 }
-
-/** Initials for an avatar, from the same identity the label uses. */
-export function displayUserInitials(
-  user: {
-    firstName?: string | null
-    lastName?: string | null
-    username?: string | null
-  } | null | undefined,
-): string {
-  if (!user) return ''
-  const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`
-  return (initials || displayUserName(user).slice(0, 1)).toUpperCase()
-}

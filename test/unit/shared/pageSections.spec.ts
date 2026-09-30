@@ -4,7 +4,7 @@ import {
   sectionsHeadingText,
   sectionsProvideForm,
   sectionsProvideHeading,
-} from '../../../shared/pageSections'
+} from '~~/shared/pageSections'
 
 /**
  * Which section owns a page's h1, which owns its form, and what the
@@ -32,7 +32,7 @@ describe('pageSections', () => {
     expect(sectionsProvideForm([{ componentType: 'page_hero' }])).toBe(false)
   })
 
-  it('takes the page title from the heading section, localised', () => {
+  it('takes the page title from the section that owns the heading', () => {
     const sections = [
       { componentType: 'partner_strip', props: { heading: 'Not this one' } },
       { componentType: 'page_hero', props: { heading: 'Project register' } },

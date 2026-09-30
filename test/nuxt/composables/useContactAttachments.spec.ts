@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 /**
@@ -13,21 +13,13 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
  * - cancel drops the row, retry re-sends it, and a sent enquiry spends
  *   the ids so a second submit cannot re-claim them.
  */
-const { mockFetch, settings } = vi.hoisted(() => ({
-  settings: {} as Record<string, string>,
-  mockFetch: vi.fn((...args: any[]) => {
-    const url = String(args[0])
-    if (url.includes('/api/settings/public')) {
-      return Promise.resolve({ settings: { ...settings } })
-    }
-    return Promise.resolve({})
-  }),
-}))
-mockNuxtImport('$api', () => mockFetch)
-// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
-// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
-// builds `$api` from `$fetch.create()` while the app boots.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+// `useApi` transports through Nuxt's own `$fetch`.
+mockNuxtImport('$fetch', () => api)
+
+/** The store's settings row this test serves; set in `beforeEach`. */
+let settings: Record<string, string> = {}
 
 /** One canned XHR exchange, driven by the test rather than a server. */
 class FakeXhr {
@@ -83,8 +75,6 @@ class FakeXhr {
   }
 }
 
-const originalXhr = globalThis.XMLHttpRequest
-
 function file(name: string, size: number): File {
   const blob = new Blob([new Uint8Array(size)], { type: 'application/pdf' })
   return new File([blob], name, { type: 'application/pdf' })
@@ -95,33 +85,34 @@ async function policy() {
   // `useFetch` caches by key across tests in the shared nuxt app, and
   // this composable's keys are fixed (they exist to DEDUPE readers of
   // the same setting), so without this a later test reads the value an
-  // earlier one mocked.
-  await nuxtApp.runWithContext(() => clearNuxtData())
-  const attachments = await nuxtApp.runWithContext(() =>
-    useContactAttachments(),
-  )
-  await settle()
+  // earlier one mocked. Named, not bare: a bare `clearNuxtData()` skips
+  // a key whose request is still in flight (it walks only the payload's
+  // keys), and the `dedupe: 'defer'` reader would join that request.
+  clearNuxtData(STORE_SETTINGS_KEY)
+  // `runWithContext` is typed as possibly async; these readers are sync.
+  let attachments!: ReturnType<typeof useContactAttachments>
+  let loaded!: ReturnType<typeof useStoreSettings>['settings']
+  nuxtApp.runWithContext(() => {
+    attachments = useContactAttachments()
+    loaded = useStoreSettings().settings
+  })
+  // Assert on the store's limits only once its row has landed — before
+  // that every reader is on its fallback.
+  await vi.waitFor(() => expect(loaded.value).toEqual(settings), { interval: 1 })
   return attachments
-}
-
-async function settle() {
-  await new Promise(resolve => setTimeout(resolve, 20))
-  await nextTick()
 }
 
 describe('useContactAttachments', () => {
   beforeEach(() => {
     FakeXhr.instances = []
-    globalThis.XMLHttpRequest = FakeXhr as unknown as typeof XMLHttpRequest
-    for (const key of Object.keys(settings)) delete settings[key]
-    settings.CONTACT_ATTACHMENTS_ENABLED = 'True'
-    settings.CONTACT_ATTACHMENTS_MAX_COUNT = '2'
-    settings.CONTACT_ATTACHMENTS_MAX_MB = '1'
-    settings.CONTACT_ATTACHMENTS_TYPES = 'application/pdf,application/zip'
-  })
-
-  afterEach(() => {
-    globalThis.XMLHttpRequest = originalXhr
+    vi.stubGlobal('XMLHttpRequest', FakeXhr)
+    settings = {
+      CONTACT_ATTACHMENTS_ENABLED: 'True',
+      CONTACT_ATTACHMENTS_MAX_COUNT: '2',
+      CONTACT_ATTACHMENTS_MAX_MB: '1',
+      CONTACT_ATTACHMENTS_TYPES: 'application/pdf,application/zip',
+    }
+    api.routes({ '/api/settings/public': () => ({ settings: { ...settings } }) })
   })
 
   it('reads the store own limits and offers them as a picker filter', async () => {
@@ -350,16 +341,15 @@ describe('useContactAttachments', () => {
 })
 
 describe('formatAttachmentSize', () => {
-  it('shows small files in kilobytes and larger ones in megabytes', () => {
-    expect(formatAttachmentSize(4096, 'en')).toContain('4')
-    expect(formatAttachmentSize(4096, 'en').toLowerCase()).toContain('kb')
-    expect(formatAttachmentSize(6 * 1024 * 1024, 'en').toLowerCase())
-      .toContain('mb')
-  })
-
-  it('formats the number the way the locale writes it', () => {
-    // Greek uses a comma for the decimal separator.
-    expect(formatAttachmentSize(2.5 * 1024 * 1024, 'el')).toContain('2,5')
-    expect(formatAttachmentSize(2.5 * 1024 * 1024, 'en')).toContain('2.5')
+  it.each([
+    [4096, 'en', '4 kB'],
+    [0.1 * 1024 * 1024 - 1, 'en', '102 kB'],
+    [0.1 * 1024 * 1024, 'en', '0.1 MB'],
+    [6 * 1024 * 1024, 'en', '6 MB'],
+    // Greek writes the decimal separator as a comma.
+    [2.5 * 1024 * 1024, 'el', '2,5 MB'],
+    [2.5 * 1024 * 1024, 'en', '2.5 MB'],
+  ])('formats %d bytes in %s as %j (kilobytes below 0.1 MB)', (bytes, locale, expected) => {
+    expect(formatAttachmentSize(bytes, locale)).toBe(expected)
   })
 })

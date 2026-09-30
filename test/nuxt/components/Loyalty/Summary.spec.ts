@@ -1,332 +1,173 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
+import type { VueWrapper } from '@vue/test-utils'
 import LoyaltySummary from '~/components/Loyalty/Summary.vue'
+import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import type { LoyaltySummary as Summary, LoyaltyTier } from '~~/shared/openapi/types.gen'
 
-// Mock UTooltip component to avoid TooltipProvider context issues
-mockComponent('UTooltip', {
-  template: '<div><slot /></div>',
+/**
+ * The account's loyalty overview: balance and its euro value, level and
+ * XP progress, the current tier and what the next one unlocks.
+ */
+
+// UTooltip needs UApp's TooltipProvider, which a bare mount does not have.
+mockComponent('UTooltip', { template: '<div><slot /></div>' })
+
+const { navigateToMock } = vi.hoisted(() => ({ navigateToMock: vi.fn() }))
+mockNuxtImport('navigateTo', () => navigateToMock)
+
+const summary = createAsyncDataMock<Summary>()
+const tiers = createAsyncDataMock<LoyaltyTier[]>()
+mockNuxtImport('useLoyalty', () => () => ({
+  fetchSummary: () => summary,
+  fetchTiers: () => tiers,
+}))
+
+const BRONZE = makeTier({ id: 1, requiredLevel: 1, pointsMultiplier: 1 })
+const SILVER = makeTier({
+  id: 2,
+  requiredLevel: 5,
+  pointsMultiplier: 1.5,
+  translations: {
+    el: { name: 'Ασημένιο', description: 'Ασημένια βαθμίδα με πολλαπλασιαστή 1.5x' },
+    en: { name: 'Silver', description: 'Silver tier with a 1.5x multiplier' },
+  },
+})
+const GOLD = makeTier({
+  id: 3,
+  requiredLevel: 10,
+  pointsMultiplier: 2,
+  translations: { el: { name: 'Χρυσό', description: '' }, en: { name: 'Gold', description: '' } },
 })
 
-
-// Mock navigateTo
-mockNuxtImport('navigateTo', () => vi.fn())
-
-// Mock useLocalePath
-mockNuxtImport('useLocalePath', () => () => (path: string) => path)
-
-// Mock the useLoyalty composable with new API
-const mockSummaryRef = ref<any>(null)
-const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
-const mockErrorRef = ref<any>(null)
-// The Summary component also reads `fetchTiers()` to drive the
-// "next tier unlocks" hint; tests render without tiers by default so we
-// mock an empty list (the preview is conditionally hidden when empty).
-const mockTiersRef = ref<any[]>([])
-const mockTiersStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
-const mockTiersErrorRef = ref<any>(null)
-
-const mockRefresh = vi.fn()
-
-mockNuxtImport('useLoyalty', () => {
-  return () => ({
-    fetchSummary: () => ({
-      data: mockSummaryRef,
-      status: mockStatusRef,
-      error: mockErrorRef,
-      refresh: mockRefresh,
-    }),
-    fetchTiers: () => ({
-      data: mockTiersRef,
-      status: mockTiersStatusRef,
-      error: mockTiersErrorRef,
-      refresh: vi.fn(),
-    }),
-  })
+beforeEach(() => {
+  summary.reset()
+  tiers.reset()
+  summary.data.value = makeSummary({ pointsBalance: 1500, totalXp: 5000, level: 5, tier: SILVER, pointsToNextTier: 500 })
+  summary.status.value = 'success'
+  // Out of order on purpose: the component sorts by requiredLevel.
+  tiers.data.value = [GOLD, BRONZE, SILVER]
 })
 
-describe('LoyaltySummary Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockRefresh.mockClear()
-    mockSummaryRef.value = null
-    mockStatusRef.value = 'idle'
-    mockErrorRef.value = null
+const mountSummary = () => mountSuspended(LoyaltySummary, { route: false })
+const cards = (wrapper: VueWrapper) => wrapper.findAllComponents({ name: 'UCard' })
+
+describe('Loyalty/Summary', () => {
+  it('shows the balance, what it is worth, the level and the XP', async () => {
+    const wrapper = await mountSummary()
+    const [points, level] = cards(wrapper)
+
+    expect(points!.find('.text-5xl').text()).toBe('1500')
+    expect(points!.text()).toContain(useNuxtApp().$i18n.n(15, 'currency'))
+    expect(level!.find('.text-5xl').text()).toBe('5')
+    expect(level!.text()).toContain('Επίπεδο 5')
+    expect(level!.text()).toContain(`${(5000).toLocaleString()} XP συνολικά`)
   })
 
-  describe('Test 3: Summary view displays all required fields with correct translations', () => {
-    it('should display points balance, level, tier name, and progress indicator with non-null tier', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 1500,
-        totalXp: 5000,
-        level: 5,
-        tier: {
-          id: 2,
-          translations: {
-            en: {
-              name: 'Silver',
-              description: 'Silver tier with 1.5x points multiplier',
-            },
-            el: {
-              name: 'Ασημένιο',
-              description: 'Ασημένια βαθμίδα με πολλαπλασιαστή 1.5x',
-            },
-            de: {
-              name: 'Silber',
-              description: 'Silber-Rang mit 1,5-fachem Punktemultiplikator',
-            },
-          },
-          requiredLevel: 5,
-          pointsMultiplier: '1.5',
-        },
-        pointsToNextTier: 500,
-      }
+  it('shows the XP still to go and the share of the way already covered', async () => {
+    const wrapper = await mountSummary()
 
-      const wrapper = await mountSuspended(LoyaltySummary)
+    expect(wrapper.text()).toContain('500 XP')
+    // 5000 of 5000 + 500.
+    expect(wrapper.findComponent({ name: 'UProgress' }).props('modelValue')).toBe(91)
+  })
 
-      // Wait for component to mount and fetch
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
+  it('shows a full bar and "top level" once there is no next tier', async () => {
+    summary.data.value = makeSummary({ tier: GOLD, pointsToNextTier: null })
 
-      // Verify points balance is displayed
-      expect(wrapper.text()).toContain('1500')
+    const wrapper = await mountSummary()
 
-      // Verify level is displayed
-      expect(wrapper.text()).toContain('5')
+    expect(wrapper.text()).toContain('Μέγιστο επίπεδο')
+    expect(wrapper.findComponent({ name: 'UProgress' }).props('modelValue')).toBe(100)
+  })
 
-      // Verify tier name is displayed (Greek locale by default)
-      expect(wrapper.text()).toContain('Ασημένιο')
+  describe('tier', () => {
+    it('names the current tier in the page language, with its description', async () => {
+      const wrapper = await mountSummary()
 
-      // Verify tier description is displayed
+      expect(wrapper.findComponent({ name: 'UBadge' }).text()).toBe('Ασημένιο')
       expect(wrapper.text()).toContain('Ασημένια βαθμίδα με πολλαπλασιαστή 1.5x')
-
-      // Verify points to next tier is displayed
-      expect(wrapper.text()).toContain('500')
-
-      // Verify progress indicator exists (UProgress component)
-      expect(wrapper.findComponent({ name: 'UProgress' }).exists()).toBe(true)
+      expect(wrapper.text()).not.toContain('Silver')
     })
 
-    it('should display translated tier name for Greek locale', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 1500,
-        totalXp: 5000,
-        level: 5,
-        tier: {
-          id: 2,
-          translations: {
-            en: {
-              name: 'Silver',
-              description: 'Silver tier',
-            },
-            el: {
-              name: 'Ασημένιο',
-              description: 'Ασημένια βαθμίδα',
-            },
-          },
-          requiredLevel: 5,
-          pointsMultiplier: '1.5',
-        },
-        pointsToNextTier: 500,
-      }
+    it('shows no name or description rather than another language\'s', async () => {
+      summary.data.value = makeSummary({
+        tier: makeTier({ id: 2, translations: { en: { name: 'Silver', description: 'Silver tier' } } }),
+      })
 
-      const wrapper = await mountSuspended(LoyaltySummary)
+      const wrapper = await mountSummary()
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // When locale is Greek, should display Greek tier name
-      expect(wrapper.text()).toContain('Ασημένιο')
+      expect(wrapper.findComponent({ name: 'UBadge' }).text()).toBe('')
+      expect(wrapper.text()).not.toContain('Silver')
     })
 
-    it('should display Greek tier name when data also includes German translation', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 1500,
-        totalXp: 5000,
-        level: 5,
-        tier: {
-          id: 2,
-          translations: {
-            en: {
-              name: 'Silver',
-              description: 'Silver tier',
-            },
-            el: {
-              name: 'Ασημένιο',
-              description: 'Ασημένια βαθμίδα',
-            },
-            de: {
-              name: 'Silber',
-              description: 'Silber-Rang',
-            },
-          },
-          requiredLevel: 5,
-          pointsMultiplier: '1.5',
-        },
-        pointsToNextTier: 500,
-      }
+    it('says so when no tier is assigned yet', async () => {
+      summary.data.value = makeSummary({ tier: null })
 
-      const wrapper = await mountSuspended(LoyaltySummary)
+      const wrapper = await mountSummary()
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // Component uses Greek by default, so it should display Greek tier name
-      // The test expectation should match the actual behavior
-      expect(wrapper.text()).toContain('Ασημένιο')
-
-      // Verify that German translation exists in the data (even if not displayed)
-      expect(mockSummaryRef.value.tier.translations.de.name).toBe('Silber')
-    })
-
-    it('should handle missing tier translation gracefully', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 1500,
-        totalXp: 5000,
-        level: 5,
-        tier: {
-          id: 2,
-          translations: {
-            en: {
-              name: 'Silver',
-              description: 'Silver tier',
-            },
-            // Greek translation missing - component should handle this
-          },
-          requiredLevel: 5,
-          pointsMultiplier: '1.5',
-        },
-        pointsToNextTier: 500,
-      }
-
-      const wrapper = await mountSuspended(LoyaltySummary)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // When Greek translation is missing, tierName computed will return null
-      // The component should still render without crashing
-      expect(wrapper.text()).toContain('1500') // Points should still display
-      expect(wrapper.text()).toContain('5') // Level should still display
-    })
-
-    it('should display "no tier" message when tier is null', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 100,
-        totalXp: 50,
-        level: 1,
-        tier: null,
-        pointsToNextTier: 900,
-      }
-
-      const wrapper = await mountSuspended(LoyaltySummary)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should display "No tier assigned" badge (Greek: "Δεν έχει ανατεθεί βαθμίδα")
-      expect(wrapper.text()).toContain('Δεν έχει ανατεθεί βαθμίδα')
-    })
-
-    it('should display max level message when pointsToNextTier is null', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 10000,
-        totalXp: 50000,
-        level: 50,
-        tier: {
-          id: 5,
-          translations: {
-            el: {
-              name: 'Διαμάντι',
-              description: 'Υψηλότερη βαθμίδα',
-            },
-          },
-          requiredLevel: 50,
-          pointsMultiplier: '3.0',
-        },
-        pointsToNextTier: null,
-      }
-
-      const wrapper = await mountSuspended(LoyaltySummary)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should display max level message (Greek: "Μέγιστο επίπεδο")
-      expect(wrapper.text()).toContain('Μέγιστο επίπεδο')
-
-      // Progress bar should be at 100%
-      const progressComponent = wrapper.findComponent({ name: 'UProgress' })
-      expect(progressComponent.exists()).toBe(true)
-      expect(progressComponent.props('modelValue')).toBe(100)
-    })
-
-    it('should display all required fields together', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 2500,
-        totalXp: 8000,
-        level: 8,
-        tier: {
-          id: 3,
-          translations: {
-            el: {
-              name: 'Χρυσό',
-              description: 'Χρυσή βαθμίδα με 2x πόντους',
-            },
-          },
-          requiredLevel: 8,
-          pointsMultiplier: '2.0',
-        },
-        pointsToNextTier: 200,
-      }
-
-      const wrapper = await mountSuspended(LoyaltySummary)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // All fields should be present
-      expect(wrapper.text()).toContain('2500') // Points balance
-      expect(wrapper.text()).toContain('8') // Level
-      expect(wrapper.text()).toContain('Χρυσό') // Tier name (Greek)
-      expect(wrapper.text()).toContain('Χρυσή βαθμίδα με 2x πόντους') // Tier description
-      expect(wrapper.text()).toContain('200') // Points to next tier
+      expect(wrapper.findComponent({ name: 'UBadge' }).text()).toBe('Δεν έχει ανατεθεί βαθμίδα')
     })
   })
 
-  describe('Loading and Error States', () => {
-    it('should display skeleton loading state when loading', async () => {
-      mockStatusRef.value = 'pending'
-      mockSummaryRef.value = null
+  describe('next tier preview', () => {
+    it('names the tier after the current one and the multiplier it unlocks', async () => {
+      const wrapper = await mountSummary()
 
-      const wrapper = await mountSuspended(LoyaltySummary)
-
-      await wrapper.vm.$nextTick()
-
-      // Should display skeleton components
-      const skeletons = wrapper.findAllComponents({ name: 'USkeleton' })
-      expect(skeletons.length).toBeGreaterThan(0)
+      expect(wrapper.text()).toContain('Ξεκλειδώστε τη βαθμίδα Χρυσό')
+      expect(wrapper.text()).toContain('Ξεκλειδώνεται πολλαπλασιαστής πόντων +100%')
     })
 
-    it('should display error message with retry button when error occurs', async () => {
-      mockStatusRef.value = 'error'
-      mockErrorRef.value = new Error('Network error')
-      mockSummaryRef.value = null
+    it('points a shopper with no tier at the first one, with no multiplier line for 1x', async () => {
+      summary.data.value = makeSummary({ tier: null })
 
-      const wrapper = await mountSuspended(LoyaltySummary)
+      const wrapper = await mountSummary()
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should display error message (Greek: "Αποτυχία φόρτωσης δεδομένων")
-      expect(wrapper.text()).toContain('Αποτυχία φόρτωσης δεδομένων')
-
-      // Should display retry button (Greek: "Δοκιμάστε ξανά")
-      const retryButton = wrapper.findAll('button').find(btn => btn.text().includes('Δοκιμάστε ξανά'))
-      expect(retryButton).toBeDefined()
-
-      // Clicking retry should call refresh
-      await retryButton!.trigger('click')
-      expect(mockRefresh).toHaveBeenCalled()
+      expect(wrapper.text()).toContain('Ξεκλειδώστε τη βαθμίδα Χάλκινο')
+      expect(wrapper.text()).not.toContain('Ξεκλειδώνεται πολλαπλασιαστής')
     })
+
+    it('shows nothing past the top tier', async () => {
+      summary.data.value = makeSummary({ tier: GOLD, pointsToNextTier: null })
+
+      const wrapper = await mountSummary()
+
+      expect(wrapper.text()).not.toContain('Ξεκλειδώστε')
+    })
+  })
+
+  it.each([
+    [2, '/products'],
+    [3, '/loyalty-program'],
+  ])('quick action card %i navigates to %s', async (index, path) => {
+    const wrapper = await mountSummary()
+
+    await cards(wrapper)[index]!.trigger('click')
+
+    expect(navigateToMock).toHaveBeenCalledWith(path)
+  })
+
+  it('shows skeletons, not the cards, while loading', async () => {
+    summary.data.value = undefined
+    summary.status.value = 'pending'
+
+    const wrapper = await mountSummary()
+
+    expect(wrapper.findAllComponents({ name: 'USkeleton' })).toHaveLength(2)
+    expect(cards(wrapper)).toHaveLength(0)
+  })
+
+  it('shows the error with a retry that refetches', async () => {
+    summary.data.value = undefined
+    summary.status.value = 'error'
+    summary.error.value = new Error('Network error')
+
+    const wrapper = await mountSummary()
+
+    expect(wrapper.text()).toContain('Αποτυχία φόρτωσης δεδομένων')
+    expect(wrapper.text()).toContain('Network error')
+    await wrapper.findAll('button').find(button => button.text() === 'Δοκιμάστε ξανά')!.trigger('click')
+    expect(summary.refresh).toHaveBeenCalledTimes(1)
   })
 })

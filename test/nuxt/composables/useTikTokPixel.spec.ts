@@ -5,9 +5,9 @@
  * Pixel; a shared id would mix ad accounts across merchants), mirroring
  * useMetaPixel/setupMetaPixelConsent.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { setActivePinia, createPinia } from 'pinia'
+import { setTenant } from '~~/test/helpers/tenant'
 
 const { scriptTikTokPixelMock, triggerConsentMock } = vi.hoisted(() => ({
   scriptTikTokPixelMock: vi.fn(() => ({ proxy: { ttq: { track: vi.fn() } } })),
@@ -24,22 +24,9 @@ mockNuxtImport('useCookieControl', () => () => ({
 const { useTikTokPixel } = await import('~/composables/useTikTokPixel')
 const { setupTikTokPixelConsent } = await import('~/composables/setups')
 
-function setTenantPixelId(id: string) {
-  const tenantStore = useTenantStore()
-  tenantStore.setConfig({
-    ...(tenantStore.config ?? {}),
-    tiktokPixelId: id,
-  } as TenantConfig)
-}
-
 describe('useTikTokPixel — tenant-only pixel id resolution', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia())
-    scriptTikTokPixelMock.mockClear()
-  })
-
   it('is provisioned and registers the tenant pixel id when the tenant has one', () => {
-    setTenantPixelId('TENANT_TT_ID')
+    setTenant({ tiktokPixelId: 'TENANT_TT_ID' })
 
     const { isProvisioned } = useTikTokPixel()
 
@@ -50,7 +37,7 @@ describe('useTikTokPixel — tenant-only pixel id resolution', () => {
   })
 
   it('is not provisioned when the tenant has no pixel id', () => {
-    setTenantPixelId('')
+    setTenant({ tiktokPixelId: '' })
 
     const { isProvisioned } = useTikTokPixel()
 
@@ -60,14 +47,8 @@ describe('useTikTokPixel — tenant-only pixel id resolution', () => {
 })
 
 describe('setupTikTokPixelConsent — tenant-only pixel id resolution', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia())
-    scriptTikTokPixelMock.mockClear()
-    triggerConsentMock.mockClear()
-  })
-
   it('registers the tenant pixel id behind the consent trigger', () => {
-    setTenantPixelId('TENANT_TT_ID')
+    setTenant({ tiktokPixelId: 'TENANT_TT_ID' })
 
     setupTikTokPixelConsent()
 
@@ -81,7 +62,7 @@ describe('setupTikTokPixelConsent — tenant-only pixel id resolution', () => {
   })
 
   it('is a no-op when the tenant has no pixel id', () => {
-    setTenantPixelId('')
+    setTenant({ tiktokPixelId: '' })
 
     setupTikTokPixelConsent()
 

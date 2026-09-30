@@ -1,15 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
   cacheKeyBelongsToHost,
   hashedCacheKey,
   nitroVaryHash,
   tenantCacheKey,
-} from '../../../../server/utils/cacheKey'
-
-// Stub Nuxt's auto-imported `getRequestHost` to an inspectable mock so
-// we can drive it per-test without standing up a full h3 event.
-const hostMock = vi.fn()
-vi.stubGlobal('getRequestHost', hostMock)
+} from '~~/server/utils/cacheKey'
+import { createTestEvent } from '~~/test/helpers/nitro'
 
 /**
  * Nitro passes custom getKey results through
@@ -22,47 +18,41 @@ function nitroEscape(key: string): string {
   return key.replace(/\W/g, '')
 }
 
-/** An event whose request locale is `locale` (`event.context.locale`). */
-function onLocale(locale?: string): any {
-  return { context: locale ? { locale } : {} }
+/** A request to `host` whose locale is `locale` (`event.context.locale`). */
+function on(host: string, locale?: string) {
+  return createTestEvent({ host, context: locale ? { locale } : {} })
 }
 
 describe('tenantCacheKey', () => {
   it('starts with the request host, the locale, the delimiters and the inner key', () => {
-    hostMock.mockReturnValueOnce('webside.gr')
-    const key = tenantCacheKey(onLocale('en'), 'product-detail:7')
+    const key = tenantCacheKey(on('webside.gr', 'en'), 'product-detail:7')
     expect(key.startsWith('webside.gr__en__product-detail:7')).toBe(true)
   })
 
   it('keys the same route per locale, so an en entry is never served to el', () => {
     // Django answers in the X-Language it is sent and returns flat text
     // in it (product attributes, variant axes): one entry per language.
-    hostMock.mockReturnValue('webside.gr')
-    const el = tenantCacheKey(onLocale('el'), 'product-detail:7')
-    const en = tenantCacheKey(onLocale('en'), 'product-detail:7')
+    const el = tenantCacheKey(on('webside.gr', 'el'), 'product-detail:7')
+    const en = tenantCacheKey(on('webside.gr', 'en'), 'product-detail:7')
     expect(nitroEscape(el)).not.toBe(nitroEscape(en))
   })
 
   it('uses the default locale when the context has none', () => {
-    hostMock.mockReturnValue('webside.gr')
-    expect(tenantCacheKey(onLocale(), 'settings'))
-      .toBe(tenantCacheKey(onLocale('el'), 'settings'))
+    expect(tenantCacheKey(on('webside.gr'), 'settings'))
+      .toBe(tenantCacheKey(on('webside.gr', 'el'), 'settings'))
   })
 
   it('keeps the host first, so a store-scoped purge still matches every locale', () => {
-    hostMock.mockReturnValue('webside.gr')
     for (const locale of ['el', 'en']) {
-      const stored = `nitro:handlers:ProductDetailViewSet:${nitroEscape(tenantCacheKey(onLocale(locale), 'product-detail:7'))}.json`
+      const stored = `nitro:handlers:ProductDetailViewSet:${nitroEscape(tenantCacheKey(on('webside.gr', locale), 'product-detail:7'))}.json`
       expect(cacheKeyBelongsToHost(stored, 'webside.gr')).toBe(true)
       expect(cacheKeyBelongsToHost(stored, 'other.gr')).toBe(false)
     }
   })
 
   it('differentiates keys for two tenants sharing the same inner key', () => {
-    hostMock.mockReturnValueOnce('tenant-a.example')
-    const a = tenantCacheKey({} as any, 'search:products:laptop')
-    hostMock.mockReturnValueOnce('tenant-b.example')
-    const b = tenantCacheKey({} as any, 'search:products:laptop')
+    const a = tenantCacheKey(on('tenant-a.example'), 'search:products:laptop')
+    const b = tenantCacheKey(on('tenant-b.example'), 'search:products:laptop')
     expect(nitroEscape(a)).not.toBe(nitroEscape(b))
   })
 
@@ -70,10 +60,8 @@ describe('tenantCacheKey', () => {
     // Without the hash suffix, `my-store.gr` and `mystore.gr` both
     // escape to `mystoregr…` and would share every cached response —
     // a cross-tenant data leak.
-    hostMock.mockReturnValueOnce('my-store.gr')
-    const a = tenantCacheKey({} as any, 'settings')
-    hostMock.mockReturnValueOnce('mystore.gr')
-    const b = tenantCacheKey({} as any, 'settings')
+    const a = tenantCacheKey(on('my-store.gr'), 'settings')
+    const b = tenantCacheKey(on('mystore.gr'), 'settings')
     expect(nitroEscape(a)).not.toBe(nitroEscape(b))
   })
 
@@ -81,32 +69,27 @@ describe('tenantCacheKey', () => {
     // `ordering=-price` vs `ordering=price` previously escaped to the
     // same storage key, so ascending and descending sorts shared one
     // cache entry.
-    hostMock.mockReturnValue('webside.gr')
-    const asc = tenantCacheKey({} as any, 'products:ordering=price')
-    const desc = tenantCacheKey({} as any, 'products:ordering=-price')
+    const asc = tenantCacheKey(on('webside.gr'), 'products:ordering=price')
+    const desc = tenantCacheKey(on('webside.gr'), 'products:ordering=-price')
     expect(nitroEscape(asc)).not.toBe(nitroEscape(desc))
   })
 
   it('is deterministic for identical inputs', () => {
-    hostMock.mockReturnValue('webside.gr')
-    const a = tenantCacheKey({} as any, 'products:page=1')
-    const b = tenantCacheKey({} as any, 'products:page=1')
+    const a = tenantCacheKey(on('webside.gr'), 'products:page=1')
+    const b = tenantCacheKey(on('webside.gr'), 'products:page=1')
     expect(a).toBe(b)
   })
 
   it('hash suffix consists of word characters only (survives escaping intact)', () => {
-    hostMock.mockReturnValueOnce('webside.gr')
-    const key = tenantCacheKey({} as any, 'anything')
+    const key = tenantCacheKey(on('webside.gr'), 'anything')
     const suffix = key.split('_').pop()!
     expect(suffix).toMatch(/^[a-z0-9]+$/)
   })
 
-  it('ignores X-Forwarded-Host (callers use the raw request host)', () => {
-    // Safety net against spoofing: the helper forwards a fixed option
-    // so a malicious X-Forwarded-Host cannot hop tenants in the cache.
-    hostMock.mockReturnValueOnce('webside.gr')
-    tenantCacheKey({} as any, 'any')
-    expect(hostMock).toHaveBeenCalledWith({}, { xForwardedHost: false })
+  it('ignores X-Forwarded-Host, so a spoofed header cannot read the entries of another store', () => {
+    const spoofed = createTestEvent({ host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } })
+
+    expect(tenantCacheKey(spoofed, 'any')).toBe(tenantCacheKey(on('webside.gr'), 'any'))
   })
 })
 
@@ -134,10 +117,8 @@ describe('cacheKeyBelongsToHost', () => {
   const HOST = 'webside.gr'
 
   describe('nitro:handlers (defineCachedEventHandler + tenantCacheKey)', () => {
-    const handlerKey = (host: string, inner: string) => {
-      hostMock.mockReturnValueOnce(host)
-      return `nitro:handlers:pageConfig:${nitroEscape(tenantCacheKey({} as any, inner))}.json`
-    }
+    const handlerKey = (host: string, inner: string) =>
+      `nitro:handlers:pageConfig:${nitroEscape(tenantCacheKey(on(host), inner))}.json`
 
     it('claims the tenant\'s own handler entry', () => {
       expect(cacheKeyBelongsToHost(handlerKey(HOST, 'page-config:products:el'), HOST)).toBe(true)
@@ -170,12 +151,6 @@ describe('cacheKeyBelongsToHost', () => {
     it('leaves another tenant\'s render alone', () => {
       expect(cacheKeyBelongsToHost(DEMO_PRODUCTS, HOST)).toBe(false)
       expect(cacheKeyBelongsToHost(DEMO_PRODUCTS, 'demo.grooveshop.space')).toBe(true)
-    })
-
-    it('never matches the escaped host — Nitro hashes vary headers', () => {
-      // The pre-fix filter looked for `websidegr` inside the key; no
-      // route key contains it, which is why page purges matched nothing.
-      expect(WEBSIDE_HOME.includes('websidegr')).toBe(false)
     })
   })
 

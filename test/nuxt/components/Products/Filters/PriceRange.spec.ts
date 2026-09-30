@@ -1,394 +1,178 @@
-/**
- * Unit tests for PriceRange component
- * Feature: meilisearch-product-filters
- * 
- * Tests the price range filter component including:
- * - Slider updates
- * - Input field updates
- * - Debouncing (500ms)
- * - Currency formatting
- */
-
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { nextTick } from 'vue'
+import type { VueWrapper } from '@vue/test-utils'
 import PriceRange from '~/components/Products/Filters/PriceRange.vue'
-import type { ProductFilters } from '#shared/types/product-filters'
+import WebsidePriceRange from '~/components/variants/webside/Products/Filters/PriceRange.vue'
+import { trees } from '~~/test/helpers/trees'
 
-// Mock useProductFilters
-const mockFilters = ref<ProductFilters>({
-  search: '',
-  priceMin: undefined,
-  priceMax: undefined,
-  likesMin: undefined,
-  viewsMin: undefined,
-  categories: [],
-  sort: '',
-  attributeValues: [],
-})
+/**
+ * The price filter writes the URL twice over: the slider on release
+ * (dragging only moves the numbers), the two inputs 300 ms after the
+ * last change. A bound left at the catalogue's own min/max is NOT a
+ * filter, so it goes to the URL as `undefined` and the query string
+ * stays clean. The two trees differ only in one class on the range
+ * readout.
+ */
+const pf = await vi.hoisted(async () =>
+  (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
+mockNuxtImport('useProductFilters', () => () => pf)
 
-const mockUpdateFilters = vi.fn()
-const mockFilterCountBySection = ref({ price: 0 })
-
-mockNuxtImport('useProductFilters', () => () => ({
-  filters: mockFilters,
-  updateFilters: mockUpdateFilters,
-  filterCountBySection: mockFilterCountBySection,
-}))
-
-// Mock usePriceFormat
-mockNuxtImport('usePriceFormat', () => () => ({
-  formatPriceValue: (value: number) => value.toFixed(2),
-}))
-
-// Mock useFetch to return price facet stats
-vi.mock('#app', async () => {
-  const actual = await vi.importActual('#app')
+const stats = await vi.hoisted(async () => {
+  const { ref } = await import('vue')
   return {
-    ...actual,
-    useFetch: vi.fn(() => ({
-      data: ref({
-        facetStats: {
-          finalPrice: {
-            min: 0,
-            max: 1000,
-          },
-        },
-      }),
-      status: ref('success'),
-      error: ref(null),
-      refresh: vi.fn(),
-    })),
+    priceStats: ref({ min: 0, max: 1000 }),
+    isPriceStatsLoaded: ref(true),
   }
 })
+mockNuxtImport('useProductSearchData', () => () => stats)
 
-describe('Feature: meilisearch-product-filters - PriceRange component', () => {
+const DEBOUNCE_MS = 300
+
+const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+
+/** The readout of the range the filter is set to: the one `<from> – <to>` text. */
+const readout = (wrapper: VueWrapper) => {
+  const spans = wrapper.findAll('span').filter(s => s.element.children.length === 0 && s.text().includes(' – '))
+  expect(spans, 'expected exactly one range readout').toHaveLength(1)
+  return spans[0]!.text()
+}
+
+const slider = (wrapper: VueWrapper) => wrapper.findComponent({ name: 'USlider' })
+
+/**
+ * Drag the slider: USlider's pointer handling lives in Reka, so the
+ * spec drives its two documented events — `update:modelValue` while
+ * dragging, `change` on release — rather than synthesising pointer
+ * geometry happy-dom cannot lay out.
+ */
+async function drag(wrapper: VueWrapper, range: [number, number]) {
+  slider(wrapper).vm.$emit('update:modelValue', range)
+  await nextTick()
+}
+
+async function release(wrapper: VueWrapper) {
+  slider(wrapper).vm.$emit('change')
+  await nextTick()
+}
+
+async function type(wrapper: VueWrapper, id: 'price-min-input' | 'price-max-input', value: string) {
+  const input = wrapper.find(`#${id}`)
+  await input.setValue(value)
+  await input.trigger('change')
+}
+
+describe.each(trees(PriceRange, WebsidePriceRange))('$tree Products/Filters/PriceRange', ({ C }) => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockFilters.value = {
-      search: '',
-      priceMin: undefined,
-      priceMax: undefined,
-      likesMin: undefined,
-      viewsMin: undefined,
-      categories: [],
-      sort: '',
-      attributeValues: [],
-    }
-    mockFilterCountBySection.value = { price: 0 }
+    pf.reset()
+    stats.priceStats.value = { min: 0, max: 1000 }
+    stats.isPriceStatsLoaded.value = true
   })
 
-  describe('22.2.1 Test slider updates', () => {
-    it('should render slider component', async () => {
-      const wrapper = await mountSuspended(PriceRange, {
-        global: {
-          stubs: {
-            UCollapsible: false,
-            USlider: false,
-            UInput: false,
-          },
-        },
-      })
-      
-      // Should have slider
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have min and max values from facet stats', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Component should be rendered with facet stats
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should update local state when slider changes', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Slider should be interactive
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have step of 1', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // The slider component uses step internally, verify it's configured
-      // by checking that the component renders successfully
-      expect(wrapper.exists()).toBe(true)
-      
-      // Verify slider is present
-      const slider = wrapper.find('[data-slider-impl]')
-      expect(slider.exists()).toBe(true)
-    })
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
-  describe('22.2.2 Test input field updates', () => {
-    it('should render min price input', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      expect(inputs.length).toBeGreaterThanOrEqual(2)
+  it('spans the catalogue from its cheapest to its dearest product with no filter set', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+
+    expect(readout(wrapper)).toBe(`${money(0)} – ${money(1000)}`)
+    expect(slider(wrapper).props()).toMatchObject({ min: 0, max: 1000, modelValue: [0, 1000] })
+  })
+
+  it('shows the range from the URL', async () => {
+    pf.filters.value = { ...pf.filters.value, priceMin: 100, priceMax: 500 }
+
+    const wrapper = await mountSuspended(C, { route: false })
+
+    expect(readout(wrapper)).toBe(`${money(100)} – ${money(500)}`)
+    expect((wrapper.find('#price-min-input').element as HTMLInputElement).value).toBe('100')
+    expect((wrapper.find('#price-max-input').element as HTMLInputElement).value).toBe('500')
+  })
+
+  it.each([
+    ['until the price stats arrive', { isPriceStatsLoaded: false, priceStats: { min: 0, max: 1000 } }],
+    ['when every product costs the same', { isPriceStatsLoaded: true, priceStats: { min: 20, max: 20 } }],
+  ])('shows a skeleton instead of the controls %s', async (_case, state) => {
+    stats.isPriceStatsLoaded.value = state.isPriceStatsLoaded
+    stats.priceStats.value = state.priceStats
+
+    const wrapper = await mountSuspended(C, { route: false })
+
+    expect(slider(wrapper).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'USkeleton' }).exists()).toBe(true)
+  })
+
+  describe('the slider', () => {
+    it('moves the readout while dragging but writes the URL only on release', async () => {
+      const wrapper = await mountSuspended(C, { route: false })
+
+      await drag(wrapper, [200, 800])
+      expect(readout(wrapper)).toBe(`${money(200)} – ${money(800)}`)
+      expect(pf.updateFilters).not.toHaveBeenCalled()
+
+      await release(wrapper)
+
+      expect(pf.updateFilters.mock.calls).toStrictEqual([[{ priceMin: 200, priceMax: 800 }]])
     })
 
-    it('should render max price input', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      expect(inputs.length).toBeGreaterThanOrEqual(2)
+    it('sends a bound dragged back to the catalogue edge as no bound', async () => {
+      pf.filters.value = { ...pf.filters.value, priceMin: 100, priceMax: 500 }
+      const wrapper = await mountSuspended(C, { route: false })
+
+      await drag(wrapper, [0, 500])
+      await release(wrapper)
+
+      expect(pf.updateFilters.mock.calls).toStrictEqual([[{ priceMin: undefined, priceMax: 500 }]])
     })
 
-    it('should update min value when input changes', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      if (inputs.length >= 2) {
-        const minInput = inputs[0]
-        if (minInput) {
-          await minInput.setValue('100')
-          expect((minInput.element as HTMLInputElement).value).toBe('100')
-        }
-      }
-    })
+    it('writes nothing on a release without a drag', async () => {
+      const wrapper = await mountSuspended(C, { route: false })
 
-    it('should update max value when input changes', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      if (inputs.length >= 2) {
-        const maxInput = inputs[1]
-        if (maxInput) {
-          await maxInput.setValue('500')
-          expect((maxInput.element as HTMLInputElement).value).toBe('500')
-        }
-      }
-    })
+      await release(wrapper)
 
-    it('should have min/max constraints on inputs', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      if (inputs.length >= 2) {
-        const minInput = inputs[0]
-        if (minInput) {
-          expect(minInput.attributes('min')).toBeDefined()
-          expect(minInput.attributes('max')).toBeDefined()
-        }
-      }
+      expect(pf.updateFilters).not.toHaveBeenCalled()
     })
   })
 
-  describe('22.2.3 Test debouncing', () => {
-    it('should use 500ms debounce delay', () => {
-      const debounceDelay = 500
-      expect(debounceDelay).toBe(500)
+  describe('the inputs', () => {
+    it('write the URL 300 ms after the last change, keeping the other bound', async () => {
+      pf.filters.value = { ...pf.filters.value, priceMax: 500 }
+      const wrapper = await mountSuspended(C, { route: false })
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+
+      await type(wrapper, 'price-min-input', '120')
+      await type(wrapper, 'price-min-input', '150')
+      expect(readout(wrapper)).toBe(`${money(150)} – ${money(500)}`)
+      await vi.advanceTimersByTimeAsync(DEBOUNCE_MS - 1)
+      expect(pf.updateFilters).not.toHaveBeenCalled()
+
+      await vi.advanceTimersByTimeAsync(1)
+
+      expect(pf.updateFilters.mock.calls).toStrictEqual([[{ priceMin: 150, priceMax: 500 }]])
     })
 
-    it('should debounce slider changes', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Component should handle rapid changes
-      expect(wrapper.exists()).toBe(true)
-    })
+    it('send a maximum typed back to the catalogue maximum as no bound', async () => {
+      pf.filters.value = { ...pf.filters.value, priceMax: 500 }
+      const wrapper = await mountSuspended(C, { route: false })
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
 
-    it('should debounce input changes', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      if (inputs.length >= 2) {
-        const minInput = inputs[0]
-        if (minInput) {
-          // Rapid changes
-          await minInput.setValue('100')
-          await minInput.setValue('150')
-          await minInput.setValue('200')
-          
-          // Should debounce
-          expect((minInput.element as HTMLInputElement).value).toBe('200')
-        }
-      }
-    })
+      await type(wrapper, 'price-max-input', '1000')
+      await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
 
-    it('should update after debounce delay', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      if (inputs.length >= 2) {
-        const minInput = inputs[0]
-        if (minInput) {
-          // Set value
-          await minInput.setValue('100')
-          
-          // The input should reflect the change immediately
-          expect((minInput.element as HTMLInputElement).value).toBe('100')
-          
-          // Wait for debounce to complete
-          await new Promise(resolve => setTimeout(resolve, 550))
-          
-          // After debounce, the value should still be present
-          // (The actual URL update happens in the background)
-          expect(wrapper.exists()).toBe(true)
-        }
-      }
+      expect(pf.updateFilters.mock.calls).toStrictEqual([[{ priceMin: undefined, priceMax: undefined }]])
     })
   })
 
-  describe('22.2.4 Test currency formatting', () => {
-    it('should display euro symbol', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have € symbol
-      expect(wrapper.html()).toContain('€')
-    })
+  it('drops an unsaved drag when the URL changes underneath it', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+    await drag(wrapper, [200, 800])
 
-    it('should show euro symbol in input leading slot', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Both inputs should have € symbol
-      const euroSymbols = wrapper.html().match(/€/g)
-      expect(euroSymbols).toBeDefined()
-      expect(euroSymbols!.length).toBeGreaterThanOrEqual(2)
-    })
+    pf.filters.value = { ...pf.filters.value, priceMin: 300, priceMax: 400 }
+    await nextTick()
 
-    it('should format aria-valuetext with currency', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have aria-valuetext with € formatting
-      expect(wrapper.html()).toContain('aria-valuetext')
-    })
-  })
-
-  describe('Collapsible behavior', () => {
-    it('should be wrapped in collapsible', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have collapsible structure
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have price icon in trigger', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // The icon is rendered as SVG, check for the icon component
-      // by looking for the data-slot attribute or icon presence
-      const html = wrapper.html()
-      expect(html).toBeTruthy()
-      
-      // Verify the collapsible structure exists
-      expect(wrapper.find('[data-slot="root"]').exists()).toBe(true)
-    })
-
-    it('should have price label in trigger', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have price label
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('Accessibility', () => {
-    it('should have aria-label on slider', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have aria-label
-      expect(wrapper.html()).toContain('aria-label')
-    })
-
-    it('should have aria-valuemin on slider', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have aria-valuemin
-      expect(wrapper.html()).toContain('aria-valuemin')
-    })
-
-    it('should have aria-valuemax on slider', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have aria-valuemax
-      expect(wrapper.html()).toContain('aria-valuemax')
-    })
-
-    it('should have aria-valuenow on slider', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have aria-valuenow
-      expect(wrapper.html()).toContain('aria-valuenow')
-    })
-
-    it('should have aria-valuetext on slider', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have aria-valuetext
-      expect(wrapper.html()).toContain('aria-valuetext')
-    })
-
-    it('should have aria-label on min input', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      if (inputs.length >= 2 && inputs[0]) {
-        expect(inputs[0].attributes('aria-label')).toBeDefined()
-      }
-    })
-
-    it('should have aria-label on max input', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      const inputs = wrapper.findAll('input[type="number"]')
-      if (inputs.length >= 2 && inputs[1]) {
-        expect(inputs[1].attributes('aria-label')).toBeDefined()
-      }
-    })
-  })
-
-  describe('Facet stats integration', () => {
-    it('should fetch facet stats on mount', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Component should fetch facet stats
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should use facet stats for slider range', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should use min/max from facet stats
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should handle missing facet stats gracefully', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should have default values
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should update when facet stats change', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should react to facet stats changes
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('URL synchronization', () => {
-    it('should sync with URL on mount', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should read from URL
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should update when URL changes', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should react to URL changes
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should not update URL when values equal facet stats', async () => {
-      const wrapper = await mountSuspended(PriceRange)
-      
-      // Should only update URL for non-default values
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(readout(wrapper)).toBe(`${money(300)} – ${money(400)}`)
+    await release(wrapper)
+    expect(pf.updateFilters).not.toHaveBeenCalled()
   })
 })

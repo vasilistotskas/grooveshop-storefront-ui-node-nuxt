@@ -20,17 +20,6 @@ export function contentShorten(
   return content.substring(from, to) + suffix
 }
 
-export function contentShortenByWords(
-  content: string,
-  from = 0,
-  to = 200,
-  suffix = '...',
-): string {
-  const words = content.split(' ')
-  if (words.length < to) return content
-  return words.slice(from, to).join(' ') + suffix
-}
-
 export function cleanHtml(html: string): string {
   return html.replace(/<\/?[^>]+(>|$)/g, '')
 }

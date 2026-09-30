@@ -1,209 +1,161 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { defineComponent, h } from 'vue'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { setActivePinia, createPinia } from 'pinia'
+import { useUserStore } from '~/stores/user'
+import { makeUserDetails } from '~~/test/fixtures/user'
 
-describe('User Store', () => {
+/**
+ * Plain `{ value }` holders, not refs: the setup plugin watches
+ * `loggedIn`, and a reactive one would start its own session, account,
+ * cart and language chain against these mocks whenever a test signs in.
+ * That watcher is inert here on purpose: the plugin's sign-in chain is
+ * not what these specs test.
+ */
+const { session, getUserAccount } = vi.hoisted(() => ({
+  session: { loggedIn: { value: false }, user: { value: null as { id?: number } | null } },
+  getUserAccount: vi.fn((_id: number) => Promise.resolve<unknown>(undefined)),
+}))
+
+mockNuxtImport('useUserSession', () => () => ({
+  ...session,
+  fetch: vi.fn(() => Promise.resolve()),
+  clear: vi.fn(() => Promise.resolve()),
+}))
+mockNuxtImport('useAllAuthAccount', () => () => ({ getUserAccount }))
+
+const ACCOUNT = makeUserDetails({ id: 7, email: 'shopper@example.com' })
+
+describe('useUserStore', () => {
+  let store: ReturnType<typeof useUserStore>
+
   beforeEach(() => {
-    vi.clearAllMocks()
+    setActivePinia(createPinia())
+    store = useUserStore()
+    session.loggedIn.value = false
+    session.user.value = null
   })
 
-  const createTestComponent = () => {
-    return defineComponent({
-      setup() {
-        const store = useUserStore()
-        return { store }
-      },
-      render() {
-        return h('div', { id: 'test' })
-      },
-    })
-  }
+  describe('setupAccount', () => {
+    it('does not fetch for a signed-out visitor, whatever user is cached', async () => {
+      session.user.value = { id: 7 }
 
-  describe('initial state', () => {
-    it('should have null account', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      expect(vm.store.account).toBeNull()
+      await store.setupAccount()
+
+      expect(getUserAccount).not.toHaveBeenCalled()
+      expect(store.account).toBeNull()
     })
 
-    it('should have empty favourite product IDs map', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      expect(Object.keys(vm.store.favouriteProductIds).length).toBe(0)
+    it('does not fetch when the session user has no id', async () => {
+      session.loggedIn.value = true
+      session.user.value = {}
+
+      await store.setupAccount()
+
+      expect(getUserAccount).not.toHaveBeenCalled()
+      expect(store.account).toBeNull()
     })
 
-    it('should have empty liked posts array', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      expect(vm.store.blogLikedPosts).toEqual([])
+    it('loads the signed-in user\'s account', async () => {
+      session.loggedIn.value = true
+      session.user.value = { id: 7 }
+      getUserAccount.mockResolvedValueOnce(ACCOUNT)
+
+      await store.setupAccount()
+
+      expect(getUserAccount).toHaveBeenCalledWith(7)
+      expect(store.account).toEqual(ACCOUNT)
     })
 
-    it('should have empty liked comments array', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      expect(vm.store.blogLikedComments).toEqual([])
+    it('swallows a failed fetch and leaves the account unset', async () => {
+      session.loggedIn.value = true
+      session.user.value = { id: 7 }
+      getUserAccount.mockRejectedValueOnce(new Error('network down'))
+
+      await expect(store.setupAccount()).resolves.toBeUndefined()
+      expect(store.account).toBeNull()
     })
   })
 
   describe('favourite products', () => {
-    it('should add favourite product', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      const favourite = { id: 100, product: 1 } as CreateProductFavouriteResponse
-      vm.store.addFavouriteProduct(favourite)
+    it('maps a product to the id of its favourite row', () => {
+      store.addFavouriteProduct({ id: 100, product: 1 } as CreateProductFavouriteResponse)
 
-      expect(vm.store.favouriteProductIds[1]).toBe(100)
+      expect(store.getFavouriteIdByProductId(1)).toBe(100)
+      expect(store.getFavouriteIdByProductId(2)).toBeUndefined()
     })
 
-    it('should get favourite ID by product ID', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      const favourite = { id: 200, product: 2 } as CreateProductFavouriteResponse
-      vm.store.addFavouriteProduct(favourite)
+    it('merges a batch of favourites into the map', () => {
+      store.addFavouriteProduct({ id: 100, product: 1 } as CreateProductFavouriteResponse)
 
-      const favouriteId = vm.store.getFavouriteIdByProductId(2)
-      expect(favouriteId).toBe(200)
-    })
-
-    it('should return undefined for non-existent product', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      const favouriteId = vm.store.getFavouriteIdByProductId(999)
-      expect(favouriteId).toBeUndefined()
-    })
-
-    it('should remove favourite product', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      const favourite = { id: 300, product: 3 } as CreateProductFavouriteResponse
-      vm.store.addFavouriteProduct(favourite)
-      expect(3 in vm.store.favouriteProductIds).toBe(true)
-
-      vm.store.removeFavouriteProduct(3)
-      expect(3 in vm.store.favouriteProductIds).toBe(false)
-    })
-
-    it('should update multiple favourite products', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      const favourites = [
-        { id: 100, productId: 1 },
+      store.updateFavouriteProducts([
         { id: 200, productId: 2 },
         { id: 300, productId: 3 },
-      ] as GetProductFavouritesByProductsResponse
+      ] as GetProductFavouritesByProductsResponse)
 
-      vm.store.updateFavouriteProducts(favourites)
+      expect(store.favouriteProductIds).toEqual({ 1: 100, 2: 200, 3: 300 })
+    })
 
-      expect(vm.store.favouriteProductIds[1]).toBe(100)
-      expect(vm.store.favouriteProductIds[2]).toBe(200)
-      expect(vm.store.favouriteProductIds[3]).toBe(300)
+    it('removes one product and keeps the others', () => {
+      store.updateFavouriteProducts([
+        { id: 200, productId: 2 },
+        { id: 300, productId: 3 },
+      ] as GetProductFavouritesByProductsResponse)
+
+      store.removeFavouriteProduct(2)
+
+      expect(store.favouriteProductIds).toEqual({ 3: 300 })
     })
   })
 
-  describe('blog liked posts', () => {
-    it('should check if post is liked', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      expect(vm.store.blogPostLiked(1)).toBe(false)
+  describe.each([
+    {
+      kind: 'posts',
+      liked: (s: typeof store) => s.blogLikedPosts,
+      isLiked: (s: typeof store, id: number) => s.blogPostLiked(id),
+      add: (s: typeof store, id: number) => s.addLikedPost(id),
+      remove: (s: typeof store, id: number) => s.removeLikedPost(id),
+      update: (s: typeof store, ids: number[]) => s.updateLikedPosts(ids),
+    },
+    {
+      kind: 'comments',
+      liked: (s: typeof store) => s.blogLikedComments,
+      isLiked: (s: typeof store, id: number) => s.blogCommentLiked(id),
+      add: (s: typeof store, id: number) => s.addLikedComment(id),
+      remove: (s: typeof store, id: number) => s.removeLikedComment(id),
+      update: (s: typeof store, ids: number[]) => s.updateLikedComments(ids),
+    },
+  ])('liked blog $kind', ({ liked, isLiked, add, remove, update }) => {
+    it('reports a liked id after it is added and not after it is removed', () => {
+      add(store, 1)
+      add(store, 2)
+      expect(isLiked(store, 2)).toBe(true)
+
+      remove(store, 2)
+
+      expect(isLiked(store, 2)).toBe(false)
+      expect(liked(store)).toEqual([1])
     })
 
-    it('should add liked post', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      vm.store.addLikedPost(1)
-      expect(vm.store.blogPostLiked(1)).toBe(true)
-      expect(vm.store.blogLikedPosts).toContain(1)
-    })
+    it('merges fetched likes without duplicating the ones already known', () => {
+      add(store, 1)
 
-    it('should remove liked post', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      vm.store.addLikedPost(1)
-      expect(vm.store.blogPostLiked(1)).toBe(true)
+      update(store, [1, 2, 3])
 
-      vm.store.removeLikedPost(1)
-      expect(vm.store.blogPostLiked(1)).toBe(false)
-      expect(vm.store.blogLikedPosts).not.toContain(1)
-    })
-
-    it('should update liked posts with array', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      vm.store.updateLikedPosts([1, 2, 3])
-      expect(vm.store.blogLikedPosts).toEqual([1, 2, 3])
-    })
-  })
-
-  describe('blog liked comments', () => {
-    it('should check if comment is liked', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      expect(vm.store.blogCommentLiked(1)).toBe(false)
-    })
-
-    it('should add liked comment', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      vm.store.addLikedComment(1)
-      expect(vm.store.blogCommentLiked(1)).toBe(true)
-      expect(vm.store.blogLikedComments).toContain(1)
-    })
-
-    it('should remove liked comment', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      vm.store.addLikedComment(1)
-      expect(vm.store.blogCommentLiked(1)).toBe(true)
-
-      vm.store.removeLikedComment(1)
-      expect(vm.store.blogCommentLiked(1)).toBe(false)
-      expect(vm.store.blogLikedComments).not.toContain(1)
-    })
-
-    it('should update liked comments with array', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      vm.store.updateLikedComments([10, 20, 30])
-      expect(vm.store.blogLikedComments).toEqual([10, 20, 30])
+      expect(liked(store)).toEqual([1, 2, 3])
     })
   })
 
-  describe('clearAccountState', () => {
-    it('should clear all account state', async () => {
-      const wrapper = await mountSuspended(createTestComponent())
-      const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      
-      // First clear any existing state from previous tests
-      vm.store.clearAccountState()
-      
-      // Setup some state
-      vm.store.addFavouriteProduct({ id: 100, product: 1 } as CreateProductFavouriteResponse)
-      vm.store.addLikedPost(1)
-      vm.store.addLikedComment(10)
+  it('clearAccountState forgets the account, favourites and likes', () => {
+    store.account = ACCOUNT
+    store.addFavouriteProduct({ id: 100, product: 1 } as CreateProductFavouriteResponse)
+    store.addLikedPost(1)
+    store.addLikedComment(10)
 
-      // Verify state is set
-      expect(Object.keys(vm.store.favouriteProductIds).length).toBe(1)
-      expect(vm.store.blogLikedPosts.length).toBe(1)
-      expect(vm.store.blogLikedComments.length).toBe(1)
+    store.clearAccountState()
 
-      // Clear state
-      vm.store.clearAccountState()
-
-      // Verify state is cleared
-      expect(Object.keys(vm.store.favouriteProductIds).length).toBe(0)
-      expect(vm.store.blogLikedPosts).toEqual([])
-      expect(vm.store.blogLikedComments).toEqual([])
-    })
+    expect(store.account).toBeNull()
+    expect(store.favouriteProductIds).toEqual({})
+    expect(store.blogLikedPosts).toEqual([])
+    expect(store.blogLikedComments).toEqual([])
   })
 })

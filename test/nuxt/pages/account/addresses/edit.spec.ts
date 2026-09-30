@@ -10,6 +10,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
+import { getQuery } from 'h3'
 import EditAddressPage from '~/pages/account/addresses/[id]/edit.vue'
 
 const { mockApi } = vi.hoisted(() => ({ mockApi: vi.fn() }))
@@ -36,18 +37,26 @@ function country(alpha2: string, phoneCode: number, el: string, exampleMobile: s
 const GR = country('GR', 30, 'Ελλάδα', '6912345678', ['\\d{3} ?\\d{2}', '151 24'], ['(?:[269]\\d|70)\\d{8}', [10]])
 const CY = country('CY', 357, 'Κύπρος', '96123456', ['\\d{4}', '1010'], ['(?:[279]\\d|[58]0)\\d{6}', [8]])
 
+const REGIONLESS = { ...country('XX', 999, 'Xland', '12345678', ['\\d{4}', '1234'], ['\\d{8}', [8]]), hasRegions: false }
+
 let savedPhone = '+35796123456'
+let regionRequests: unknown[] = []
 
 beforeEach(() => {
   clearNuxtData()
   savedPhone = '+35796123456'
-  registerEndpoint('/api/countries', () => ({ count: 2, next: null, previous: null, results: [GR, CY] }))
-  registerEndpoint('/api/regions', () => ({
-    count: 1,
-    next: null,
-    previous: null,
-    results: [{ alpha: 'ATTIKI', translations: { el: { name: 'Αττική' } } }],
-  }))
+  regionRequests = []
+  registerEndpoint('/api/countries', () => ({ count: 3, next: null, previous: null, results: [GR, CY, REGIONLESS] }))
+  registerEndpoint('/api/regions', (event) => {
+    const { country } = getQuery(event)
+    regionRequests.push(country)
+    const results = country === 'GR'
+      ? [{ alpha: 'ATTIKI', translations: { el: { name: 'Αττική' } } }]
+      : country === 'CY'
+        ? [{ alpha: 'CY-01', translations: { el: { name: 'Λευκωσία' } } }]
+        : []
+    return { count: results.length, next: null, previous: null, results }
+  })
   registerEndpoint('/api/user/addresses/5', () => ({
     id: 5,
     title: 'Home',
@@ -100,15 +109,25 @@ describe('account/addresses/[id]/edit phone flag picker', () => {
   })
 
   it('validates against the picked phone country, not the address\'s', async () => {
+    mockApi.mockReset().mockResolvedValue({})
     const { wrapper } = await mountPage()
-    const vm = wrapper.vm as unknown as { schema: { safeParse: (data: unknown) => { error?: { issues: Array<{ path: unknown[], message: string }> } } } }
-    const address = { title: 'Home', firstName: 'Test', lastName: 'User', street: 'Main St', streetNumber: '1', city: 'Athens', zipcode: '1010', country: 'CY', region: 'ATTIKI', isMain: false }
+    const saves = () => mockApi.mock.calls.filter(([url]) => url === '/api/user/addresses/5')
+    const phoneError = useNuxtApp().$i18n.t('validation.phone.invalid_example', { example: '96123456' })
 
-    // The +357 pick from the saved number: a 10-digit Greek mobile is wrong for it.
-    const invalid = vm.schema.safeParse({ ...address, phone: '+3576912345678' })
-    const issue = invalid.error?.issues.find(item => item.path[0] === 'phone')
-    expect(issue?.message).toContain('96123456')
-    expect(vm.schema.safeParse({ ...address, phone: '+35796123456' }).error?.issues.some(item => item.path[0] === 'phone') ?? false).toBe(false)
+    // The +357 pick from the saved number on a Greek address: a 10-digit
+    // Greek mobile is wrong for it, and the message names a Cypriot one.
+    await wrapper.find('input[type="tel"]').setValue('6912345678')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(saves()).toEqual([])
+    expect(wrapper.text()).toContain(phoneError)
+
+    await wrapper.find('input[type="tel"]').setValue('96123456')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.text()).not.toContain(phoneError)
+    expect(saves()).toHaveLength(1)
+    expect(saves()[0]![1].body.phone).toBe('+35796123456')
   })
 })
 
@@ -138,5 +157,56 @@ describe('account/addresses/[id]/edit country first', () => {
 
     const paddingClasses = (input: { classes: () => string[] }) => input.classes().filter(name => /^(?:py|px)-/.test(name)).sort()
     expect(paddingClasses(wrapper.find('input[type="tel"]'))).toEqual(paddingClasses(wrapper.find('input[autocomplete="address-line1"]')))
+  })
+})
+
+describe('account/addresses/[id]/edit region', () => {
+  async function pickCountry(wrapper: Awaited<ReturnType<typeof mountPage>>['wrapper'], alpha2: string) {
+    await wrapper.find('select[autocomplete="country"]').setValue(alpha2)
+    await flushPromises()
+  }
+
+  const regionSelect = (wrapper: Awaited<ReturnType<typeof mountPage>>['wrapper']) =>
+    wrapper.find<HTMLSelectElement>('select[autocomplete="address-level1"]')
+
+  it('clears the region and loads the regions of the new country when it changes', async () => {
+    const { wrapper } = await mountPage()
+    expect(regionSelect(wrapper).element.value).toBe('ATTIKI')
+
+    await pickCountry(wrapper, 'CY')
+
+    expect(regionRequests.at(-1)).toBe('CY')
+    expect(regionSelect(wrapper).element.value).toBe('')
+    // The dropdown's items, as the select is handed them: its hidden
+    // native <select> only lists the options it has seen selected.
+    const region = wrapper.findAllComponents({ name: 'USelect' }).find(select => select.props('autocomplete') === 'address-level1')!
+    await vi.waitFor(() => expect(region.props('items')).toEqual([{ label: 'Λευκωσία', value: 'CY-01' }]))
+  })
+
+  it('requires a region for a country that has them', async () => {
+    mockApi.mockReset().mockResolvedValue({})
+    const { wrapper } = await mountPage()
+
+    await pickCountry(wrapper, 'CY')
+    await wrapper.find('input[autocomplete="postal-code"]').setValue('1010')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(mockApi.mock.calls.filter(([url]) => url === '/api/user/addresses/5')).toEqual([])
+    expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('validation.required'))
+  })
+
+  it('saves without a region for a country that has none', async () => {
+    mockApi.mockReset().mockResolvedValue({})
+    const { wrapper } = await mountPage()
+
+    await pickCountry(wrapper, 'XX')
+    await wrapper.find('input[autocomplete="postal-code"]').setValue('1234')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    const call = mockApi.mock.calls.find(([url]) => url === '/api/user/addresses/5')
+    expect(call?.[1]).toMatchObject({ method: 'PUT', body: { country: 'XX' } })
+    expect(call?.[1]?.body.region ?? '').toBe('')
   })
 })

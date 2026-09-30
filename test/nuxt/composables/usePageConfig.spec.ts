@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
-import { injectHead } from '@unhead/vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { injectHead } from '#imports'
 
 const { mockUseFetchFn } = vi.hoisted(() => ({
   mockUseFetchFn: vi.fn(),
@@ -126,7 +126,7 @@ describe('usePageConfig', () => {
     expect(sections.value).toEqual([])
   })
 
-  it('should call useFetch with correct URL and key', async () => {
+  it('requests the route of its own page type', async () => {
     mockUseFetchFn.mockReturnValue({
       data: ref(null),
       status: ref('pending'),
@@ -135,11 +135,31 @@ describe('usePageConfig', () => {
 
     await callUsePageConfig('products')
 
-    expect(mockUseFetchFn).toHaveBeenCalledWith(
-      '/api/page-config/products',
-      expect.objectContaining({ key: expect.any(Function) }),
-      expect.anything(),
-    )
+    expect(mockUseFetchFn.mock.calls[0]![0]).toBe('/api/page-config/products')
+  })
+
+  it('renders the fallback for a layout that exists but is not published', async () => {
+    mockUseFetchFn.mockReturnValue({
+      data: ref({
+        layout: {
+          id: 1,
+          uuid: 'draft-uuid',
+          pageType: 'home',
+          title: 'Draft',
+          isPublished: false,
+          metadata: {},
+          sections: [
+            { id: 1, uuid: 'a', componentType: 'hero_carousel', title: '', isVisible: true, props: {}, sortOrder: 0 },
+          ],
+        },
+      }),
+      status: ref('success'),
+      error: ref(null),
+    })
+
+    const { sections } = await callUsePageConfig('home')
+
+    expect(sections.value.map(s => s.componentType)).toEqual(HOME_FALLBACK)
   })
 
   it('sends the locale and keys the payload on it', async () => {
@@ -207,13 +227,20 @@ describe('usePageConfig', () => {
         }),
       )
       // Paint the head and read it back deduped and weighted exactly as
-      // a browser sees it. unhead 3's client renderer queues the DOM
-      // write, so the paint lands on the next macrotask.
-      const paint = async () => {
-        head.render()
-        await new Promise(resolve => setTimeout(resolve, 50))
+      // a browser sees it. unhead 3's Vue client renderer defers the DOM
+      // write to a `setTimeout(0)` (`@unhead/vue/client` createHead), so
+      // the paint runs that one timer on a fake clock.
+      const paint = () => {
+        vi.useFakeTimers({ toFake: ['setTimeout'] })
+        try {
+          head.render()
+          vi.runOnlyPendingTimers()
+        }
+        finally {
+          vi.useRealTimers()
+        }
       }
-      await paint()
+      paint()
       const painted = {
         title: document.title,
         description: document
@@ -228,7 +255,7 @@ describe('usePageConfig', () => {
       for (const key of head.entries.keys()) {
         if (!before.has(key)) head.entries.delete(key)
       }
-      await paint()
+      paint()
       return painted
     }
 
@@ -260,7 +287,8 @@ describe('usePageConfig', () => {
 
       const head = await resolvedHead({ title: 'Code default', description: 'Code default description' })
 
-      expect(byLocale[asked]).toBeDefined()
+      // The harness pins the platform default locale (vitest.config.mts).
+      expect(asked).toBe('el')
       expect(head.title).toContain(byLocale[asked]!.seoTitle)
       expect(head.description).toBe(byLocale[asked]!.seoDescription)
     })

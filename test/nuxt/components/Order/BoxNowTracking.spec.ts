@@ -1,202 +1,66 @@
-/**
- * Tests for Order/BoxNowTracking.vue component.
- *
- * Renders a tracking card with voucher number, locker info,
- * BoxNow tracking link, and label download link.
- */
-
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import BoxNowTracking from '~/components/Order/BoxNowTracking.vue'
+import { makeBoxNowLocker, makeBoxNowParcelEvent, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
 
-// ---------------------------------------------------------------------------
-// Mock useBoxNowParcelState so tests get predictable presentations
-// instead of relying on i18n resolution for the nested StateBadge.
-// ---------------------------------------------------------------------------
+const t = (key: string) => useNuxtApp().$i18n.t(key)
 
-mockNuxtImport('useBoxNowParcelState', () => () => ({
-  presentationFor: (state: string) => ({
-    label: `label_${state}`,
-    color: state === 'delivered' ? 'success' : state === 'final_destination' ? 'warning' : 'neutral',
-    icon: 'i-lucide-package',
-  }),
-}))
-
-// ---------------------------------------------------------------------------
-// Test fixtures
-// ---------------------------------------------------------------------------
-
-// Fixture uses a subset of BoxNowShipmentDetail fields; cast to satisfy TS
-// until the spec is updated to provide the full generated type shape.
-function makeShipment(overrides: Record<string, unknown> = {}) {
-  return {
-    id: 1,
-    uuid: 'abc-123',
-    parcelState: 'new',
-    parcelId: null as string | null,
-    locker: null as Record<string, unknown> | null,
-    events: [] as unknown[],
-    lastEventAt: null as string | null,
-    ...overrides,
-  } as any
-}
-
-const FULL_LOCKER = {
-  id: 1,
-  externalId: '4',
-  name: 'Χαλάνδρι ΟΠΑΠ Play',
-  addressLine1: 'Λεωφ. Πεντέλης 125',
-  postalCode: '15234',
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+const mountCard = (shipment = makeBoxNowShipment(), orderId = 42) =>
+  mountSuspended(BoxNowTracking, { props: { shipment, orderId }, route: false })
 
 describe('Order/BoxNowTracking', () => {
-  describe('voucher number rendering', () => {
-    it('shows the parcel ID (voucher number) when parcelId is set', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelId: '9219709201' }),
-          orderId: 42,
-        },
-      })
+  it('shows the voucher, a BoxNow tracking link in a new tab and the label download once the parcel has an id', async () => {
+    const wrapper = await mountCard(makeBoxNowShipment({ parcelId: '9219709201' }), 999)
 
-      expect(wrapper.html()).toContain('9219709201')
-    })
+    expect(wrapper.text()).toContain(`${t('tracking.boxnow.voucher')}9219709201`)
 
-    it('does NOT show a voucher row when parcelId is null', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelId: null }),
-          orderId: 42,
-        },
-      })
+    // BoxNow's public tracking page is boxnow.gr/en?track=<parcelId>;
+    // the old tracking.boxnow.gr subdomain was internal.
+    const tracking = wrapper.get('a[href="https://boxnow.gr/en?track=9219709201"]')
+    expect(tracking.text()).toBe(t('tracking.boxnow.open_tracking'))
+    expect(tracking.attributes('target')).toBe('_blank')
+    expect(tracking.attributes('rel')).toBe('noopener noreferrer')
 
-      // The voucher is in a mono font span — its text won't appear
-      expect(wrapper.html()).not.toContain('font-mono')
-    })
+    const label = wrapper.get('a[href="/api/orders/999/boxnow-label"]')
+    expect(label.text()).toBe(t('tracking.boxnow.label_download'))
+    expect(label.attributes('target')).toBe('_blank')
   })
 
-  describe('locker info rendering', () => {
-    it('shows locker name and address when locker is set', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ locker: FULL_LOCKER }),
-          orderId: 42,
-        },
-      })
+  it('shows neither voucher nor links before BoxNow assigned a parcel id', async () => {
+    const wrapper = await mountCard(makeBoxNowShipment({ parcelState: 'pending_creation', parcelId: null }))
 
-      expect(wrapper.html()).toContain('Χαλάνδρι ΟΠΑΠ Play')
-      expect(wrapper.html()).toContain('Λεωφ. Πεντέλης 125')
-      expect(wrapper.html()).toContain('15234')
-    })
-
-    it('does NOT show locker info when locker is null', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ locker: null }),
-          orderId: 42,
-        },
-      })
-
-      expect(wrapper.html()).not.toContain('Χαλάνδρι ΟΠΑΠ Play')
-    })
+    expect(wrapper.text()).not.toContain(t('tracking.boxnow.voucher'))
+    expect(wrapper.findAll('a')).toHaveLength(0)
   })
 
-  describe('tracking link', () => {
-    it('renders the "Open BoxNow tracking" link with the correct href when parcelId is set', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelId: '9219709201' }),
-          orderId: 42,
-        },
-      })
+  it('shows the pickup locker\'s name and address only when there is one', async () => {
+    const withLocker = await mountCard(makeBoxNowShipment({ locker: makeBoxNowLocker() }))
+    const without = await mountCard(makeBoxNowShipment({ locker: null }))
 
-      const html = wrapper.html()
-      // BoxNow's public tracking page is at boxnow.gr/en?track=<parcelId>.
-      // The old subdomain (tracking.boxnow.gr/track/<id>) was an
-      // internal one that customers couldn't reach.
-      expect(html).toContain('https://boxnow.gr/en?track=9219709201')
-    })
-
-    it('does NOT render the tracking link when parcelId is null', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelId: null }),
-          orderId: 42,
-        },
-      })
-
-      expect(wrapper.html()).not.toContain('boxnow.gr/en?track')
-    })
+    expect(withLocker.text()).toContain(t('tracking.boxnow.locker'))
+    expect(withLocker.text()).toContain('Χαλάνδρι ΟΠΑΠ Play')
+    expect(withLocker.text()).toContain('Λεωφ. Πεντέλης 125, 15234')
+    expect(without.text()).not.toContain(t('tracking.boxnow.locker'))
   })
 
-  describe('label download link', () => {
-    it('renders the "Download label" button with the correct href when parcelId is set', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelId: '9219709201' }),
-          orderId: 42,
-        },
-      })
+  it('shows when the parcel was last heard of only once there is an event time', async () => {
+    const heard = await mountCard(makeBoxNowShipment({ lastEventAt: '2026-01-15T10:30:00Z' }))
+    const silent = await mountCard(makeBoxNowShipment({ lastEventAt: null }))
 
-      const html = wrapper.html()
-      expect(html).toContain('/api/orders/42/boxnow-label')
-    })
-
-    it('does NOT render the label download button when parcelId is null', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelId: null }),
-          orderId: 42,
-        },
-      })
-
-      expect(wrapper.html()).not.toContain('boxnow-label')
-    })
-
-    it('uses the correct orderId in the label download URL', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelId: '0000000001' }),
-          orderId: 999,
-        },
-      })
-
-      expect(wrapper.html()).toContain('/api/orders/999/boxnow-label')
-    })
+    expect(heard.text()).toContain(t('tracking.boxnow.last_update'))
+    expect(heard.find('time[datetime="2026-01-15T10:30:00.000Z"]').exists()).toBe(true)
+    expect(silent.text()).not.toContain(t('tracking.boxnow.last_update'))
   })
 
-  describe('pending_creation state', () => {
-    it('renders the tracking card (no crash) when parcelState is pending_creation and no parcelId', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelState: 'pending_creation', parcelId: null }),
-          orderId: 42,
-        },
-      })
+  it('heads the card with the parcel state and lists its events', async () => {
+    const wrapper = await mountCard(makeBoxNowShipment({
+      parcelState: 'delivered',
+      events: [makeBoxNowParcelEvent({ id: 1, eventType: 'final_destination', displayName: 'Χαλάνδρι' })],
+    }))
 
-      // Should mount without error; no voucher or label links shown
-      expect(wrapper.exists()).toBe(true)
-      expect(wrapper.html()).not.toContain('boxnow.gr/en?track')
-      expect(wrapper.html()).not.toContain('boxnow-label')
-    })
-  })
-
-  describe('BoxNowStateBadge integration', () => {
-    it('renders the OrderBoxNowStateBadge component', async () => {
-      const wrapper = await mountSuspended(BoxNowTracking, {
-        props: {
-          shipment: makeShipment({ parcelState: 'delivered' }),
-          orderId: 42,
-        },
-      })
-
-      const badge = wrapper.findComponent({ name: 'OrderBoxNowStateBadge' })
-      expect(badge.exists()).toBe(true)
-    })
+    expect(wrapper.find('h2').text()).toBe(t('tracking.boxnow.title'))
+    expect(wrapper.text()).toContain(t('tracking.boxnow.state.delivered'))
+    expect(wrapper.findAll('[data-slot="description"]').map(d => d.text())).toEqual(['Χαλάνδρι'])
+    expect(wrapper.text()).not.toContain(t('tracking.boxnow.no_events'))
   })
 })

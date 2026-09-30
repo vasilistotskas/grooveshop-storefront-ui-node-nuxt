@@ -1,11 +1,54 @@
 import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss'
+import vitest from '@vitest/eslint-plugin'
 // @ts-check
 import withNuxt from './.nuxt/eslint.config.mjs'
 import { globalIgnores } from 'eslint/config'
 
+/**
+ * `no-restricted-syntax` selectors, kept as values because the rule is
+ * set by more than one config object below. ESLint does not concatenate
+ * a rule's options across matching objects — the LATER object's options
+ * replace the earlier ones outright ("Configure Rules": the rule
+ * configuration is merged with the later object taking precedence) — so
+ * an object scoped to `app/components/**` has to repeat every app-wide
+ * selector, or it silently switches the app-wide ones off there.
+ */
+const APP_FETCHER_SELECTORS = [
+  {
+    selector: 'CallExpression[callee.name=/^(\\$fetch|useFetch|useLazyFetch|useRequestFetch)$/]',
+    message: 'Use $api / useApi / useLazyApi / useRequestApi — they send the page locale. See app/utils/api.ts.',
+  },
+  {
+    selector: 'MemberExpression[object.name="$fetch"]',
+    message: 'Use $api — it sends the page locale. See app/utils/api.ts.',
+  },
+]
+
+/**
+ * `usePageConfig()` must be awaited. Nuxt registers useFetch's promise
+ * with `onServerPrefetch` and lets setup continue, so an un-awaited call
+ * leaves `data`/`error` null for the rest of setup on the server — which
+ * made every layout-driven page (/about, /vision, custom [slug] pages)
+ * throw its own 404 on every cold server render.
+ */
+const PAGE_CONFIG_AWAITED = {
+  selector: ':not(AwaitExpression) > CallExpression[callee.name="usePageConfig"]',
+  message: 'Await usePageConfig() — un-awaited, its data is still null for the rest of setup on the server, and the page 404s.',
+}
+
+/**
+ * Page macros belong in `app/pages/`: Nuxt extracts `definePageMeta` and
+ * `defineRouteRules` only from page files, so in a component (a page
+ * BODY under `Storefront/` or `variants/`) they are inert and the route
+ * silently loses its middleware or robots rule.
+ */
+const NO_PAGE_MACROS = {
+  selector: 'CallExpression[callee.name=/^(definePageMeta|defineRouteRules)$/]',
+  message: 'Page macros only work in app/pages/ — move this to the page shell that mounts the component.',
+}
+
 export default withNuxt(
   globalIgnores([
-    '**/test/',
     // Only ignore the raw schema files at the project root, NOT the
     // generated TS/Zod sources in ``shared/openapi/`` — otherwise the
     // openapi-ts ESLint post-processor fails with "all matching files
@@ -111,16 +154,30 @@ export default withNuxt(
     files: ['app/**/*.{ts,vue}'],
     ignores: ['app/plugins/api.ts', 'app/composables/useApi.ts'],
     rules: {
-      'no-restricted-syntax': ['error',
-        {
-          selector: 'CallExpression[callee.name=/^(\\$fetch|useFetch|useLazyFetch|useRequestFetch)$/]',
-          message: 'Use $api / useApi / useLazyApi / useRequestApi — they send the page locale. See app/utils/api.ts.',
-        },
-        {
-          selector: 'MemberExpression[object.name="$fetch"]',
-          message: 'Use $api — it sends the page locale. See app/utils/api.ts.',
-        },
-      ],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED],
+    },
+  },
+  {
+    // Repeats the app-wide selectors — see APP_FETCHER_SELECTORS for why.
+    files: ['app/components/**/*.vue'],
+    rules: {
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS],
+    },
+  },
+  {
+    // Reka's `useForwardExpose` checks that `$el` exists as a KEY, never
+    // that it is non-null; a `Lazy*` component renders nothing until its
+    // chunk arrives, so `$el` is null in that window and it throws
+    // "Cannot read properties of null (reading 'nodeName')". Measured on
+    // staging 2026-09-21: `/account/sessions` threw it once per table
+    // row and hydrated with mismatches. The lazy wrapper bought nothing —
+    // `Page/Navbar.vue` renders `UDropdownMenu` eagerly on every page.
+    files: ['app/**/*.vue'],
+    rules: {
+      'vue/no-restricted-html-elements': ['error', {
+        element: ['LazyUDropdownMenu', 'lazy-u-dropdown-menu'],
+        message: 'Use <UDropdownMenu>: Reka\'s useForwardExpose throws on the null $el of a lazy component.',
+      }],
     },
   },
   {
@@ -160,6 +217,39 @@ export default withNuxt(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       'no-console': 'error',
+    },
+  },
+  {
+    // Tests are code. Until 2026-09-30 `test/` sat in the global ignores,
+    // and nothing flagged 26 spec files that asserted on their own
+    // literals, a stale import of a deleted function, or unused imports.
+    // The vitest plugin's recommended set catches the test-shaped
+    // mistakes (focused/disabled tests, tests with no assertion,
+    // conditional or standalone `expect`, identical titles); the rest keep
+    // hooks where a reader looks for them.
+    files: ['test/**/*.ts'],
+    plugins: { vitest },
+    rules: {
+      ...vitest.configs.recommended.rules,
+      // Vitest runs only `*.spec.ts` (vitest.config.mts), so a
+      // `*.test.ts` file is silently never run — that is how six such
+      // files once went uncounted. Suite modules that a spec imports
+      // (`test/e2e/pageRenders.ts`) match neither pattern and are fine.
+      'vitest/consistent-test-filename': ['error', {
+        pattern: String.raw`.*\.spec\.ts$`,
+        allTestPattern: String.raw`.*\.(test|spec)\.[cm]?[jt]sx?$`,
+      }],
+      'vitest/prefer-hooks-on-top': 'error',
+      'vitest/no-duplicate-hooks': 'error',
+      // Vitest's signature is `expect(actual, message?)`; the rule's
+      // default of one argument only lets a LITERAL message through, and
+      // flags a computed one (`expect(x, \`${slot} …\`)` passes, a
+      // concatenated or variable message does not) — the same valid API.
+      'vitest/valid-expect': ['error', { maxArgs: 2 }],
+      // An assertion helper is named `expect…` (`expectLastQuery`,
+      // `expectSnapshot`, `expectFailure`): the test that calls one does
+      // assert, and a helper that asserts is findable by its name.
+      'vitest/expect-expect': ['error', { assertFunctionNames: ['expect', 'expect*'] }],
     },
   },
   {

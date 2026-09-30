@@ -35,7 +35,7 @@ touching its files, read the rule file directly.
 - **Type check:** `pnpm typecheck` (= `nuxt typecheck`). This is the gate — it catches template errors `vue-tsc --noEmit` misses, notably Nuxt UI v4 typing `UButton`'s `onClick` as `(e: MouseEvent) => void | Promise<void>`, which rejects an inline `@click="open = true"` (the expression returns boolean). Use a block-bodied arrow: `@click="() => { open = true }"`.
 - **Run all tests:** `pnpm test`
 - **Run CI tests (unit + nuxt with coverage):** `pnpm test:ci`
-- **Run a single test file:** `pnpm vitest run test/unit/utils/str.spec.ts`
+- **Run a single test file:** `pnpm vitest run test/unit/app/utils/str.spec.ts`
 - **Run a single test project:** `pnpm vitest run --project=unit` or `--project=nuxt`
 - **Generate OpenAPI types:** `pnpm openapi-ts` (requires `openapi/schema.json` — fetch with `pnpm generate:schema`), then **`pnpm sync:schema`, which is required, not optional** — it regenerates the derived `.yml` files and CI fails on any diff. See `.claude/rules/server-routes.md`.
 - **Prepare Nuxt types:** `pnpm prepare`
@@ -72,7 +72,7 @@ Pinia stores in `app/stores/`:
 - `auth` — Session, config, authenticators, 2FA state, social providers, has_usable_password detection
 - `cart` — Cart items, totals, stock validation (out-of-stock, limited stock detection, stock status messages)
 - `user` — User account data, addresses, favorites, reviews, orders
-- `user-notification` — Notification state, unseen count
+- `user-notification` — The account notification list (the unseen count lives in `useUserNotification`)
 - `app` — Global UI state, health check
 
 ### Key Composables
@@ -81,7 +81,7 @@ Pinia stores in `app/stores/`:
 - `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent`/`setupMetaPixelConsent`/`setupTikTokPixelConsent` (GDPR-gated, tenant-only ids — no platform/env fallback), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
 - `useMediaStreamImage.ts` — `useMediaStreamBaseUrl`/`useMediaStreamImage`/`useMediaStreamSrc`: tenant-aware Media Stream origin resolution (see Image Handling)
 - `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
-- `useCheckout.ts` — Stock reservation, Stripe payment, status polling
+- `useCheckout.ts` — Stock reservation and release, cart payment intent (payment-status polling lives in `Storefront/CheckoutSuccess.vue`)
 - `useProductFilters.ts` — Product filtering with URL state
 - `useLoyalty.ts` — Loyalty program data (settings, transactions, tiers, redemption)
 - `useCookieControl.ts` — GDPR cookie consent management

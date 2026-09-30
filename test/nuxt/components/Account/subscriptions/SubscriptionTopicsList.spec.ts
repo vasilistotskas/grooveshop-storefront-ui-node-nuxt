@@ -1,450 +1,155 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
+import SubscriptionTopicsList from '~/components/Account/subscriptions/SubscriptionTopicsList.vue'
+import SubscriptionCategoryGroup from '~/components/Account/subscriptions/SubscriptionCategoryGroup.vue'
+import { makeSubscriptionTopic, makeUserSubscription } from '~~/test/fixtures/subscription'
+import type { SubscriptionTopic } from '~~/shared/openapi/types.gen'
 
-// Mock composables with new AsyncData API
-const mockTopicsRef = ref<SubscriptionTopic[] | null>(null)
-const mockTopicsStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
-const mockTopicsErrorRef = ref<Error | null>(null)
-const mockTopicsRefresh = vi.fn()
+/**
+ * The account's notification preferences: every topic, grouped by
+ * category, with a switch that subscribes or unsubscribes. Mocked at the
+ * request (`useRequestApi`, which both subscription composables fetch
+ * through), so the real composables and child cards run.
+ */
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('useRequestApi', () => () => api)
 
-const mockSubscriptionsRef = ref<UserSubscription[] | null>(null)
-const mockSubscriptionsStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
-const mockSubscriptionsErrorRef = ref<Error | null>(null)
-const mockSubscriptionsRefresh = vi.fn()
+const { toastAdd } = vi.hoisted(() => ({ toastAdd: vi.fn() }))
+mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-const mockSubscribe = vi.fn()
-const mockUnsubscribe = vi.fn()
-const mockGroupByCategory = vi.fn()
+const TOPICS = '/api/subscriptions/topics'
+const MINE = '/api/subscriptions/user'
 
-// Mock the composables using mockNuxtImport
-mockNuxtImport('useSubscriptionTopics', () => {
-  return () => ({
-    fetchTopics: () => ({
-      data: mockTopicsRef,
-      status: mockTopicsStatusRef,
-      error: mockTopicsErrorRef,
-      refresh: mockTopicsRefresh,
-    }),
-    groupByCategory: mockGroupByCategory,
+function topic(id: number, name: string, category: SubscriptionTopic['category']): SubscriptionTopic {
+  return makeSubscriptionTopic({ id, translations: { el: { name, description: `Περιγραφή ${name}` } }, category, subscriberCount: 10 * id })
+}
+
+const subscription = (id: number, of: SubscriptionTopic) => makeUserSubscription({ id, topicDetails: of })
+
+const OFFERS = topic(1, 'Προσφορές', 'MARKETING')
+const WEEKLY = topic(2, 'Εβδομαδιαίο δελτίο', 'NEWSLETTER')
+const DEALS = topic(3, 'Εκπτώσεις', 'MARKETING')
+const UNFILED = topic(4, 'Διάφορα', undefined)
+
+const page = <T>(results: T[]) => ({ count: results.length, results })
+
+beforeEach(() => {
+  clearNuxtData(['subscription:topics:list', 'subscription:user:list'])
+  api.routes({
+    [TOPICS]: page([OFFERS, WEEKLY, DEALS, UNFILED]),
+    [MINE]: (_url: string, options: any) => (options?.method === 'POST' ? subscription(51, OFFERS) : page([subscription(50, WEEKLY)])),
+    [`${MINE}/*`]: {},
   })
 })
 
-mockNuxtImport('useUserSubscriptions', () => {
-  return () => ({
-    fetchSubscriptions: () => ({
-      data: mockSubscriptionsRef,
-      status: mockSubscriptionsStatusRef,
-      error: mockSubscriptionsErrorRef,
-      refresh: mockSubscriptionsRefresh,
-    }),
-    subscribe: mockSubscribe,
-    unsubscribe: mockUnsubscribe,
-  })
-})
+async function mountList() {
+  const wrapper = await mountSuspended(SubscriptionTopicsList, { route: false })
+  await flushPromises()
+  return wrapper
+}
 
-// Create a simplified test version of the component
-const SubscriptionTopicsListTest = defineComponent({
-  name: 'SubscriptionTopicsListTest',
-  setup() {
-    const { fetchTopics, groupByCategory } = useSubscriptionTopics()
-    const { fetchSubscriptions, subscribe, unsubscribe } = useUserSubscriptions()
+const groups = (wrapper: VueWrapper) => wrapper.findAllComponents(SubscriptionCategoryGroup)
+/** The switch on the card titled `name`. */
+function switchFor(wrapper: VueWrapper, name: string) {
+  const card = wrapper.findAll('h3').find(heading => heading.text() === name)!
+  return card.element.closest('[data-slot="header"]')!.querySelector<HTMLButtonElement>('button[role="switch"]')!
+}
 
-    const { data: topics, status: topicsStatus, error: topicsError } = fetchTopics()
-    const { data: subscriptions, status: subscriptionsStatus, error: subscriptionsError } = fetchSubscriptions()
+describe('Account/subscriptions/SubscriptionTopicsList', () => {
+  it('groups the topics under their category, a topic without one under "other"', async () => {
+    const wrapper = await mountList()
 
-    const loading = computed(() => topicsStatus.value === 'pending' || subscriptionsStatus.value === 'pending')
-    const error = computed(() => topicsError.value || subscriptionsError.value)
-    const hasTopics = computed(() => topics.value && topics.value.length > 0)
-
-    const groupedByCategory = computed(() => groupByCategory(topics.value))
-
-    const categoriesWithTopics = computed(() => {
-      return Object.entries(groupedByCategory.value)
-        .filter(([_, topics]) => topics.length > 0)
-        .map(([category]) => category)
-    })
-
-    return {
-      topics,
-      subscriptions,
-      topicsStatus,
-      subscriptionsStatus,
-      topicsError,
-      subscriptionsError,
-      loading,
-      error,
-      hasTopics,
-      groupedByCategory,
-      categoriesWithTopics,
-      subscribe,
-      unsubscribe,
-    }
-  },
-  render() {
-    return h('div', { class: 'test-wrapper' }, [
-      this.loading && !this.hasTopics ? h('div', { class: 'loading' }, 'Loading...') : null,
-      this.error ? h('div', { class: 'error' }, this.error.message) : null,
-      !this.hasTopics && !this.loading && !this.error ? h('div', { class: 'empty' }, 'No topics') : null,
-      this.hasTopics ? h('div', { class: 'topics' }, `${this.categoriesWithTopics.length} categories`) : null,
+    expect(groups(wrapper).map(group => [
+      group.find('h3').text(),
+      group.findAll('[data-slot="header"] h3').map(heading => heading.text()),
+    ])).toEqual([
+      ['Μάρκετινγκ', ['Προσφορές', 'Εκπτώσεις']],
+      ['Ενημερωτικό Δελτίο', ['Εβδομαδιαίο δελτίο']],
+      ['Άλλο', ['Διάφορα']],
     ])
-  },
-})
-
-describe('SubscriptionTopicsList Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockTopicsRef.value = null
-    mockTopicsStatusRef.value = 'idle'
-    mockTopicsErrorRef.value = null
-    mockSubscriptionsRef.value = null
-    mockSubscriptionsStatusRef.value = 'idle'
-    mockSubscriptionsErrorRef.value = null
-    mockSubscribe.mockResolvedValue(undefined)
-    mockUnsubscribe.mockResolvedValue(undefined)
-    mockGroupByCategory.mockReturnValue({})
   })
 
-  describe('Loading State Display', () => {
-    it('should display loading state when topics are pending', () => {
-      mockTopicsStatusRef.value = 'pending'
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
+  it('switches on exactly the topics the shopper is subscribed to', async () => {
+    const wrapper = await mountList()
 
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should display loading state
-      expect(wrapper.find('.loading').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Loading')
-    })
-
-    it('should display loading state when subscriptions are pending', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = []
-      mockSubscriptionsStatusRef.value = 'pending'
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should display loading state
-      expect(wrapper.find('.loading').exists()).toBe(true)
-    })
-
-    it('should display loading state when both are pending', () => {
-      mockTopicsStatusRef.value = 'pending'
-      mockSubscriptionsStatusRef.value = 'pending'
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should display loading state
-      expect(wrapper.find('.loading').exists()).toBe(true)
-    })
-
-    it('should not display loading state when data is loaded', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = [
-        {
-          id: 1,
-          uuid: 'uuid-1',
-          slug: 'test-topic',
-          translations: {
-            el: {
-              name: 'Test Topic',
-              description: 'Test Description',
-            },
-          },
-          category: 'MARKETING',
-          isActive: true,
-          isDefault: false,
-          requiresConfirmation: false,
-          subscriberCount: 0,
-        },
-      ]
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
-      mockGroupByCategory.mockReturnValue({
-        MARKETING: [mockTopicsRef.value[0]],
-      })
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should not display loading state when data is present
-      expect(wrapper.find('.loading').exists()).toBe(false)
-      expect(wrapper.find('.topics').exists()).toBe(true)
-    })
+    expect(switchFor(wrapper, 'Εβδομαδιαίο δελτίο').getAttribute('aria-checked')).toBe('true')
+    expect(switchFor(wrapper, 'Προσφορές').getAttribute('aria-checked')).toBe('false')
   })
 
-  describe('Error State Display', () => {
-    it('should display error when topics fetch fails', () => {
-      mockTopicsStatusRef.value = 'error'
-      mockTopicsErrorRef.value = new Error('Failed to load topics')
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
+  it('subscribes to a topic switched on, then reloads both lists', async () => {
+    const wrapper = await mountList()
+    api.mockClear()
 
-      const wrapper = mount(SubscriptionTopicsListTest)
+    switchFor(wrapper, 'Προσφορές').click()
+    await flushPromises()
 
-      // Should display error
-      expect(wrapper.find('.error').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Failed to load topics')
-    })
-
-    it('should display error when subscriptions fetch fails', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = []
-      mockSubscriptionsStatusRef.value = 'error'
-      mockSubscriptionsErrorRef.value = new Error('Failed to load subscriptions')
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should display error
-      expect(wrapper.find('.error').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Failed to load subscriptions')
-    })
-
-    it('should display error when both fetches fail', () => {
-      mockTopicsStatusRef.value = 'error'
-      mockTopicsErrorRef.value = new Error('Topics error')
-      mockSubscriptionsStatusRef.value = 'error'
-      mockSubscriptionsErrorRef.value = new Error('Subscriptions error')
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should display error (first error takes precedence)
-      expect(wrapper.find('.error').exists()).toBe(true)
-    })
-
-    it('should use status.value === "pending" for loading check', () => {
-      mockTopicsStatusRef.value = 'pending'
-      mockSubscriptionsStatusRef.value = 'idle'
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Verify loading computed uses status.value === 'pending'
-      expect(wrapper.vm.loading).toBe(true)
-    })
+    expect(api.callsTo(MINE).map(call => [call.options.method, call.options.body])).toEqual([
+      ['POST', { topic: 1 }],
+      ['GET', undefined],
+    ])
+    expect(api.callsTo(TOPICS)).toHaveLength(1)
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
   })
 
-  describe('Successful Data Display', () => {
-    it('should display topics when data is loaded', () => {
-      const mockTopics: SubscriptionTopic[] = [
-        {
-          id: 1,
-          uuid: 'uuid-1',
-          slug: 'marketing-newsletter',
-          translations: {
-            el: {
-              name: 'Marketing Newsletter',
-              description: 'Weekly marketing updates',
-            },
-          },
-          category: 'MARKETING',
-          isActive: true,
-          isDefault: false,
-          requiresConfirmation: false,
-          subscriberCount: 0,
-        },
-        {
-          id: 2,
-          uuid: 'uuid-2',
-          slug: 'product-updates',
-          translations: {
-            el: {
-              name: 'Product Updates',
-              description: 'New product announcements',
-            },
-          },
-          category: 'PRODUCT',
-          isActive: true,
-          isDefault: false,
-          requiresConfirmation: false,
-          subscriberCount: 0,
-        },
-      ]
+  it('deletes the subscription behind a topic switched off', async () => {
+    const wrapper = await mountList()
+    api.mockClear()
 
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = mockTopics
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
-      mockGroupByCategory.mockReturnValue({
-        MARKETING: [mockTopics[0]],
-        PRODUCT: [mockTopics[1]],
-      })
+    switchFor(wrapper, 'Εβδομαδιαίο δελτίο').click()
+    await flushPromises()
 
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should display topics
-      expect(wrapper.find('.topics').exists()).toBe(true)
-      expect(wrapper.vm.categoriesWithTopics).toHaveLength(2)
-    })
-
-    it('should pass correct data to groupByCategory helper', () => {
-      const mockTopics: SubscriptionTopic[] = [
-        {
-          id: 1,
-          uuid: 'uuid-1',
-          slug: 'test-topic',
-          translations: {
-            el: {
-              name: 'Test Topic',
-              description: 'Test Description',
-            },
-          },
-          category: 'MARKETING',
-          isActive: true,
-          isDefault: false,
-          requiresConfirmation: false,
-          subscriberCount: 0,
-        },
-      ]
-
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = mockTopics
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
-      mockGroupByCategory.mockReturnValue({
-        MARKETING: [mockTopics[0]],
-      })
-
-      mount(SubscriptionTopicsListTest)
-
-      // groupByCategory should be called with topics data
-      expect(mockGroupByCategory).toHaveBeenCalledWith(mockTopics)
-    })
-
-    it('should display empty state when no topics available', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = []
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
-      mockGroupByCategory.mockReturnValue({})
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Should display empty state
-      expect(wrapper.find('.empty').exists()).toBe(true)
-      expect(wrapper.text()).toContain('No topics')
-    })
+    expect(api.callsTo(`${MINE}/*`)).toEqual([
+      { url: `${MINE}/50`, options: expect.objectContaining({ method: 'DELETE' }) },
+    ])
   })
 
-  describe('Subscribe/Unsubscribe Interactions', () => {
-    it('should expose subscribe method from composable', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = []
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Component should have access to subscribe method
-      expect(wrapper.vm.subscribe).toBeDefined()
-      expect(typeof wrapper.vm.subscribe).toBe('function')
+  it('says the change failed rather than throwing', async () => {
+    const wrapper = await mountList()
+    api.routes({
+      [TOPICS]: page([OFFERS]),
+      [MINE]: (_url: string, options: any) => {
+        if (options?.method === 'POST') throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 })
+        return page([])
+      },
     })
 
-    it('should expose unsubscribe method from composable', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = []
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
+    switchFor(wrapper, 'Προσφορές').click()
+    await flushPromises()
 
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Component should have access to unsubscribe method
-      expect(wrapper.vm.unsubscribe).toBeDefined()
-      expect(typeof wrapper.vm.unsubscribe).toBe('function')
-    })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      title: useNuxtApp().$i18n.t('subscription_notifications.subscribe.error_title'),
+      color: 'error',
+    }))
   })
 
-  describe('Component API Stability', () => {
-    it('should maintain consistent data structure', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = []
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
-      mockGroupByCategory.mockReturnValue({})
+  it('shows the empty state when there are no topics', async () => {
+    api.routes({ [TOPICS]: page([]), [MINE]: page([]) })
 
-      const wrapper = mount(SubscriptionTopicsListTest)
+    const wrapper = await mountList()
 
-      // Verify component exposes expected properties
-      expect(wrapper.vm.topics).toBeDefined()
-      expect(wrapper.vm.subscriptions).toBeDefined()
-      expect(wrapper.vm.topicsStatus).toBeDefined()
-      expect(wrapper.vm.subscriptionsStatus).toBeDefined()
-      expect(wrapper.vm.loading).toBeDefined()
-      expect(wrapper.vm.error).toBeDefined()
-      expect(wrapper.vm.hasTopics).toBeDefined()
-      expect(wrapper.vm.groupedByCategory).toBeDefined()
-      expect(wrapper.vm.categoriesWithTopics).toBeDefined()
-    })
+    expect(wrapper.text()).toContain('Δεν υπάρχουν διαθέσιμα θέματα')
+    expect(groups(wrapper)).toHaveLength(0)
+  })
 
-    it('should call fetchTopics and fetchSubscriptions on mount', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = []
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
+  it('shows the error when the topics cannot be loaded', async () => {
+    api.routes({ [TOPICS]: () => {
+      throw new Error('Bad Gateway')
+    }, [MINE]: page([]) })
 
-      const wrapper = mount(SubscriptionTopicsListTest)
+    const wrapper = await mountList()
 
-      // Composables should be called during component setup
-      // Verify the component has access to the data
-      expect(wrapper.vm.topics).toBeDefined()
-      expect(wrapper.vm.subscriptions).toBeDefined()
-    })
+    expect(wrapper.text()).toContain('Σφάλμα φόρτωσης')
+    expect(groups(wrapper)).toHaveLength(0)
+  })
 
-    it('should use status.value === "pending" pattern for loading state', () => {
-      // Test pending state
-      mockTopicsStatusRef.value = 'pending'
-      mockSubscriptionsStatusRef.value = 'idle'
+  it('shows skeletons while the topics load', async () => {
+    api.routes({ [TOPICS]: () => new Promise(() => {}), [MINE]: page([]) })
 
-      const wrapper1 = mount(SubscriptionTopicsListTest)
-      expect(wrapper1.vm.loading).toBe(true)
+    const wrapper = await mountList()
 
-      // Test success state
-      mockTopicsStatusRef.value = 'success'
-      mockSubscriptionsStatusRef.value = 'success'
-
-      const wrapper2 = mount(SubscriptionTopicsListTest)
-      expect(wrapper2.vm.loading).toBe(false)
-    })
-
-    it('should destructure data, status, error from AsyncData results', () => {
-      mockTopicsStatusRef.value = 'success'
-      mockTopicsRef.value = [
-        {
-          id: 1,
-          uuid: 'uuid-1',
-          slug: 'test-topic',
-          translations: {
-            el: {
-              name: 'Test Topic',
-              description: 'Test Description',
-            },
-          },
-          category: 'MARKETING',
-          isActive: true,
-          isDefault: false,
-          requiresConfirmation: false,
-          subscriberCount: 0,
-        },
-      ]
-      mockSubscriptionsStatusRef.value = 'success'
-      mockSubscriptionsRef.value = []
-      mockGroupByCategory.mockReturnValue({
-        MARKETING: [mockTopicsRef.value[0]],
-      })
-
-      const wrapper = mount(SubscriptionTopicsListTest)
-
-      // Verify component has access to all destructured properties
-      expect(wrapper.vm.topics).toBeDefined()
-      expect(wrapper.vm.subscriptions).toBeDefined()
-      expect(wrapper.vm.topicsStatus).toBeDefined()
-      expect(wrapper.vm.subscriptionsStatus).toBeDefined()
-      expect(wrapper.vm.topicsError).toBeDefined()
-      expect(wrapper.vm.subscriptionsError).toBeDefined()
-      
-      // Verify the component uses these properties correctly
-      expect(wrapper.vm.loading).toBe(false)
-      expect(wrapper.vm.hasTopics).toBe(true)
-    })
+    expect(wrapper.findAllComponents({ name: 'USkeleton' }).length).toBeGreaterThan(0)
+    expect(groups(wrapper)).toHaveLength(0)
   })
 })

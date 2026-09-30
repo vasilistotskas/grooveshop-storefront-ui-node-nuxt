@@ -1,382 +1,84 @@
-import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
-// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
-// mocked via mockNuxtImport like any other auto-import.
-const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+const { hooks } = vi.hoisted(() => ({
+  hooks: {
+    onResponse: vi.fn((..._args: unknown[]) => Promise.resolve()),
+    onResponseError: vi.fn((..._args: unknown[]) => Promise.resolve()),
+  },
+}))
 
-mockNuxtImport('$api', () => mockFetch)
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+mockNuxtImport('onAllAuthResponse', () => hooks.onResponse)
+mockNuxtImport('onAllAuthResponseError', () => hooks.onResponseError)
+
+const ACCOUNT = '/api/_allauth/app/v1/account'
+const OK = { ok: true, status: 200, _data: { status: 200, data: [] } }
+const REAUTH = { ok: false, status: 401, _data: { data: { status: 401, meta: { is_authenticated: true } } } }
+
+const credential = { type: 'public-key', id: 'credential-id', rawId: 'raw-id', response: {} }
+
+type Account = ReturnType<typeof useAllAuthAccount>
 
 describe('useAllAuthAccount', () => {
-  let mockUseRequestHeaders: ReturnType<typeof vi.fn>
-  let mockOnAllAuthResponse: ReturnType<typeof vi.fn>
-  let mockOnAllAuthResponseError: ReturnType<typeof vi.fn>
-
-  beforeAll(() => {
-    mockUseRequestHeaders = vi.fn(() => ({ 'Content-Type': 'application/json' }))
-    mockOnAllAuthResponse = vi.fn()
-    mockOnAllAuthResponseError = vi.fn()
-
-    vi.stubGlobal('useRequestHeaders', mockUseRequestHeaders)
-    vi.stubGlobal('onAllAuthResponse', mockOnAllAuthResponse)
-    vi.stubGlobal('onAllAuthResponseError', mockOnAllAuthResponseError)
-  })
-
-  afterAll(() => {
-    vi.unstubAllGlobals()
-  })
-
   beforeEach(() => {
-    mockFetch.mockClear()
-    mockUseRequestHeaders.mockClear()
-    mockOnAllAuthResponse.mockClear()
-    mockOnAllAuthResponseError.mockClear()
-  })
-
-  describe('getUserAccount', () => {
-    it('should get user account by id', async () => {
-      const mockResponse = { id: 1, email: 'test@example.com' }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getUserAccount } = useAllAuthAccount()
-      await getUserAccount(1)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/user/account/1',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
+    // ofetch's part: `onResponse` for the response, `onResponseError`
+    // after it for a failure — so a spec sees what each wrapper forwards.
+    api.mockImplementation(async (_url, options) => {
+      await options?.onResponse?.({ response: OK })
+      await options?.onResponseError?.({ response: REAUTH })
+      return REAUTH._data
     })
   })
 
-  describe('email management', () => {
-    it('should get email addresses', async () => {
-      const mockResponse = { data: [{ email: 'test@example.com', primary: true }] }
-      mockFetch.mockResolvedValue(mockResponse)
+  /**
+   * Every allauth account endpoint's answers go through the auth pipeline:
+   * a 401 here is allauth asking for reauthentication, which reaches the
+   * app as an `auth:change`.
+   */
+  it.each<[string, string, string, (a: Account) => Promise<unknown>, { body?: unknown, query?: unknown }]>([
+    ['getEmailAddresses', 'GET', '/email', a => a.getEmailAddresses(), {}],
+    ['addEmailAddress', 'POST', '/email', a => a.addEmailAddress({ email: 'new@example.com' }), { body: { email: 'new@example.com' } }],
+    ['requestEmailVerification', 'PUT', '/email', a => a.requestEmailVerification({ email: 'new@example.com' }), { body: { email: 'new@example.com' } }],
+    ['changePrimaryEmailAddress', 'PATCH', '/email', a => a.changePrimaryEmailAddress({ email: 'new@example.com', primary: true }), { body: { email: 'new@example.com', primary: true } }],
+    ['removeEmailAddress', 'DELETE', '/email', a => a.removeEmailAddress({ email: 'old@example.com' }), { body: { email: 'old@example.com' } }],
+    ['changePassword', 'POST', '/password/change', a => a.changePassword({ current_password: 'old', new_password: 'new' }), { body: { current_password: 'old', new_password: 'new' } }],
+    ['connectedThirdPartyProviderAccounts', 'GET', '/providers', a => a.connectedThirdPartyProviderAccounts(), {}],
+    ['disconnectThirdPartyProviderAccount', 'DELETE', '/providers', a => a.disconnectThirdPartyProviderAccount({ provider: 'google', account: 'uid-1' }), { body: { provider: 'google', account: 'uid-1' } }],
+    ['getAuthenticators', 'GET', '/authenticators', a => a.getAuthenticators(), {}],
+    ['totpAuthenticatorStatus', 'GET', '/authenticators/totp/svg', a => a.totpAuthenticatorStatus(), {}],
+    ['activateTotp', 'POST', '/authenticators/totp', a => a.activateTotp({ code: '123456' }), { body: { code: '123456' } }],
+    ['deactivateTotp', 'DELETE', '/authenticators/totp', a => a.deactivateTotp(), {}],
+    ['getRecoveryCodes', 'GET', '/authenticators/recovery-codes', a => a.getRecoveryCodes(), {}],
+    ['generateRecoveryCodes', 'POST', '/authenticators/recovery-codes', a => a.generateRecoveryCodes(), {}],
+    ['getWebAuthnCreateOptions (passkey)', 'GET', '/authenticators/webauthn', a => a.getWebAuthnCreateOptions(true), { query: { passwordless: true } }],
+    ['getWebAuthnCreateOptions (security key)', 'GET', '/authenticators/webauthn', a => a.getWebAuthnCreateOptions(false), { query: { passwordless: false } }],
+    ['addWebAuthnCredential', 'POST', '/authenticators/webauthn', a => a.addWebAuthnCredential({ name: 'Key', credential }), { body: { name: 'Key', credential } }],
+    ['deleteWebAuthnCredential', 'DELETE', '/authenticators/webauthn', a => a.deleteWebAuthnCredential({ authenticators: [1] }), { body: { authenticators: [1] } }],
+    ['updateWebAuthnCredential', 'PUT', '/authenticators/webauthn', a => a.updateWebAuthnCredential({ id: 1, name: 'Renamed' }), { body: { id: 1, name: 'Renamed' } }],
+  ])('%s sends %s %s and routes allauth\'s answers through the auth pipeline', async (_name, method, path, call, extra) => {
+    const result = await call(useAllAuthAccount())
 
-      const { getEmailAddresses } = useAllAuthAccount()
-      await getEmailAddresses()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/email',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should add email address', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { addEmailAddress } = useAllAuthAccount()
-      const body = { email: 'new@example.com' }
-      await addEmailAddress(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/email',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should request email verification', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { requestEmailVerification } = useAllAuthAccount()
-      const body = { email: 'test@example.com' }
-      await requestEmailVerification(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/email',
-        expect.objectContaining({
-          method: 'PUT',
-          body,
-        }),
-      )
-    })
-
-    it('should change primary email address', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { changePrimaryEmailAddress } = useAllAuthAccount()
-      const body = { email: 'primary@example.com', primary: true }
-      await changePrimaryEmailAddress(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/email',
-        expect.objectContaining({
-          method: 'PATCH',
-          body,
-        }),
-      )
-    })
-
-    it('should remove email address', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { removeEmailAddress } = useAllAuthAccount()
-      const body = { email: 'remove@example.com' }
-      await removeEmailAddress(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/email',
-        expect.objectContaining({
-          method: 'DELETE',
-          body,
-        }),
-      )
-    })
+    const [request] = api.callsTo(`${ACCOUNT}${path}`)
+    expect(api).toHaveBeenCalledTimes(1)
+    expect(request?.options.method).toBe(method)
+    expect(request?.options.body).toEqual(extra.body)
+    expect(request?.options.query).toEqual(extra.query)
+    expect(result).toEqual(REAUTH._data)
+    expect(hooks.onResponse.mock.calls).toEqual([[OK]])
+    expect(hooks.onResponseError.mock.calls).toEqual([[REAUTH]])
   })
 
-  describe('password management', () => {
-    it('should change password', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
+  /** The storefront's own account endpoint is not allauth: its answers carry no auth state. */
+  it('getUserAccount reads the Django account without touching the auth pipeline', async () => {
+    await useAllAuthAccount().getUserAccount(7)
 
-      const { changePassword } = useAllAuthAccount()
-      const body = { current_password: 'old123', new_password: 'new123' }
-      await changePassword(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/password/change',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('third-party provider management', () => {
-    it('should get connected third-party provider accounts', async () => {
-      const mockResponse = { data: [{ provider: 'google', uid: '123' }] }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { connectedThirdPartyProviderAccounts } = useAllAuthAccount()
-      await connectedThirdPartyProviderAccounts()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/providers',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should disconnect third-party provider account', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { disconnectThirdPartyProviderAccount } = useAllAuthAccount()
-      const body = { provider: 'google', account: '123' }
-      await disconnectThirdPartyProviderAccount(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/providers',
-        expect.objectContaining({
-          method: 'DELETE',
-          body,
-        }),
-      )
-    })
-  })
-
-  describe('authenticators management', () => {
-    it('should get authenticators', async () => {
-      const mockResponse = { data: [{ type: 'totp', id: 1 }] }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getAuthenticators } = useAllAuthAccount()
-      await getAuthenticators()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-  })
-
-  describe('TOTP management', () => {
-    it('should get TOTP authenticator status', async () => {
-      const mockResponse = { data: { svg: '<svg>...</svg>' } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { totpAuthenticatorStatus } = useAllAuthAccount()
-      await totpAuthenticatorStatus()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/totp/svg',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should activate TOTP', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { activateTotp } = useAllAuthAccount()
-      const body = { code: '123456' }
-      await activateTotp(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/totp',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should deactivate TOTP', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { deactivateTotp } = useAllAuthAccount()
-      await deactivateTotp()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/totp',
-        expect.objectContaining({
-          method: 'DELETE',
-        }),
-      )
-    })
-  })
-
-  describe('recovery codes management', () => {
-    it('should get recovery codes', async () => {
-      const mockResponse = { data: { codes: ['code1', 'code2'] } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getRecoveryCodes } = useAllAuthAccount()
-      await getRecoveryCodes()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/recovery-codes',
-        expect.objectContaining({
-          method: 'GET',
-        }),
-      )
-    })
-
-    it('should generate recovery codes', async () => {
-      const mockResponse = { data: { codes: ['new1', 'new2'] } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { generateRecoveryCodes } = useAllAuthAccount()
-      await generateRecoveryCodes()
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/recovery-codes',
-        expect.objectContaining({
-          method: 'POST',
-        }),
-      )
-    })
-  })
-
-  describe('WebAuthn management', () => {
-    it('should get WebAuthn create options with passwordless true', async () => {
-      const mockResponse = { data: { challenge: 'challenge123' } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getWebAuthnCreateOptions } = useAllAuthAccount()
-      await getWebAuthnCreateOptions(true)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/webauthn',
-        expect.objectContaining({
-          method: 'GET',
-          query: { passwordless: true },
-        }),
-      )
-    })
-
-    it('should get WebAuthn create options with passwordless false', async () => {
-      const mockResponse = { data: { challenge: 'challenge123' } }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { getWebAuthnCreateOptions } = useAllAuthAccount()
-      await getWebAuthnCreateOptions(false)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/webauthn',
-        expect.objectContaining({
-          method: 'GET',
-          query: { passwordless: false },
-        }),
-      )
-    })
-
-    it('should add WebAuthn credential', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { addWebAuthnCredential } = useAllAuthAccount()
-      const body = {
-        name: 'My Key',
-        credential: {
-          type: 'public-key',
-          id: 'credential-id',
-          rawId: 'raw-id',
-          response: {},
-        },
-      }
-      await addWebAuthnCredential(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/webauthn',
-        expect.objectContaining({
-          method: 'POST',
-          body,
-        }),
-      )
-    })
-
-    it('should delete WebAuthn credential', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { deleteWebAuthnCredential } = useAllAuthAccount()
-      const body = { authenticators: [1] }
-      await deleteWebAuthnCredential(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/webauthn',
-        expect.objectContaining({
-          method: 'DELETE',
-          body,
-        }),
-      )
-    })
-
-    it('should update WebAuthn credential', async () => {
-      const mockResponse = { status: 200 }
-      mockFetch.mockResolvedValue(mockResponse)
-
-      const { updateWebAuthnCredential } = useAllAuthAccount()
-      const body = { id: 1, name: 'Updated Key' }
-      await updateWebAuthnCredential(body)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/_allauth/app/v1/account/authenticators/webauthn',
-        expect.objectContaining({
-          method: 'PUT',
-          body,
-        }),
-      )
-    })
+    expect(api.callsTo('/api/user/account/7')).toEqual([
+      { url: '/api/user/account/7', options: expect.objectContaining({ method: 'GET' }) },
+    ])
+    expect(hooks.onResponse).not.toHaveBeenCalled()
+    expect(hooks.onResponseError).not.toHaveBeenCalled()
   })
 })

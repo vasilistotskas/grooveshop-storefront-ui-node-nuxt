@@ -6,7 +6,7 @@
  * always 404s in every built production image and can never be forged via a
  * client-supplied header.
  *
- * Exists solely so test/e2e/tenant-swr-host-propagation.spec.ts can drive a
+ * Exists solely so test/e2e/swrHostPropagation.ts can drive a
  * REAL, live `defineCachedEventHandler({ swr: true })` route through Nitro's
  * stale-while-revalidate background revalidation. It uses the exact same
  * `X-Forwarded-Host` resolution (`createHeaders()` -> `useEvent()`) and the

@@ -52,7 +52,7 @@ describe('zod validation messages', () => {
     expect(tooLong.error!.issues[0]!.message).toBe('Το πολύ 3 χαρακτήρες')
   })
 
-  it("leaves a schema's own message alone", () => {
+  it('leaves a schema\'s own message alone', () => {
     // The address form's phone `refine` passes its own translated text,
     // and a global map must not outrank it.
     const schema = z.object({

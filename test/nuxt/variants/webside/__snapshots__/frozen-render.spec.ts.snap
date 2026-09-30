@@ -450,7 +450,49 @@ exports[`webside frozen render > login form 1`] = `
 </section>"
 `;
 
-exports[`webside frozen render > mobile bottom nav 1`] = `"<!--v-if-->"`;
+exports[`webside frozen render > mobile bottom nav 1`] = `
+"<nav data-slot="root" aria-label="Mobile navigation" class="gap-1.5 [&amp;>div]:min-w-0 items-center justify-between fixed inset-x-0 bottom-0 z-50 block w-full border-t border-primary-200 bg-primary-50/90 backdrop-blur-md transition-transform duration-200 dark:border-primary-700 dark:bg-primary-900/90 translate-y-0" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
+  <div style="position: relative;">
+    <ul data-slot="list" class="isolate min-w-0 flex items-center w-full" data-orientation="horizontal">
+      <li data-menu-item="" data-slot="item" class="min-w-0 py-2 w-full"><a href="/" data-reka-collection-item="" data-active="" aria-current="page" data-slot="link" class="group w-full font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 px-2.5 py-1.5 before:inset-x-px before:inset-y-0 after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors data-[state=open]:before:bg-elevated/50 text-primary hover:before:bg-elevated/50 before:transition-colors after:bg-primary relative flex min-h-12 flex-col items-center justify-center gap-0.5 before:bg-transparent data-[active=true]:text-(--ui-secondary) data-[active=true]:before:bg-(--ui-secondary)/10 dark:before:bg-transparent"><span class="iconify i-heroicons:home shrink-0 text-primary group-data-[state=open]:text-primary size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium">Αρχική<!--v-if--></span>
+          <!--v-if-->
+        </a>
+        <!--v-if-->
+        <!--v-if-->
+      </li>
+      <li data-menu-item="" data-slot="item" class="min-w-0 py-2 w-full"><a href="/search" data-reka-collection-item="" data-slot="link" class="group w-full font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 px-2.5 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 flex-col items-center justify-center gap-0.5 before:bg-transparent data-[active=true]:text-(--ui-secondary) data-[active=true]:before:bg-(--ui-secondary)/10 dark:before:bg-transparent"><span class="iconify i-heroicons:magnifying-glass shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium">Αναζήτηση<!--v-if--></span>
+          <!--v-if-->
+        </a>
+        <!--v-if-->
+        <!--v-if-->
+      </li>
+      <li data-menu-item="" data-slot="item" class="min-w-0 py-2 w-full"><a href="/account/login" data-reka-collection-item="" data-slot="link" class="group w-full font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 px-2.5 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 flex-col items-center justify-center gap-0.5 before:bg-transparent data-[active=true]:text-(--ui-secondary) data-[active=true]:before:bg-(--ui-secondary)/10 dark:before:bg-transparent"><span class="iconify i-heroicons:heart shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium">Αγαπημένα<!--v-if--></span>
+          <!--v-if-->
+        </a>
+        <!--v-if-->
+        <!--v-if-->
+      </li>
+      <li data-menu-item="" data-slot="item" class="min-w-0 py-2 w-full"><a href="/cart" data-reka-collection-item="" data-slot="link" class="group w-full font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 px-2.5 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 flex-col items-center justify-center gap-0.5 before:bg-transparent data-[active=true]:text-(--ui-secondary) data-[active=true]:before:bg-(--ui-secondary)/10 dark:before:bg-transparent"><span class="iconify i-heroicons:shopping-cart shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium">Καλάθι<!--v-if--></span>
+          <!--v-if-->
+        </a>
+        <!--v-if-->
+        <!--v-if-->
+      </li>
+      <li data-menu-item="" data-slot="item" class="min-w-0 py-2 w-full"><a href="/account/login?next=/" data-reka-collection-item="" data-slot="link" class="group w-full font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 px-2.5 py-1.5 before:inset-x-px before:inset-y-0 text-muted after:absolute after:-bottom-2 after:inset-x-2.5 after:block after:h-px after:rounded-full after:transition-colors hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors data-[state=open]:text-highlighted data-[state=open]:before:bg-elevated/50 relative flex min-h-12 flex-col items-center justify-center gap-0.5 before:bg-transparent data-[active=true]:text-(--ui-secondary) data-[active=true]:before:bg-(--ui-secondary)/10 dark:before:bg-transparent"><span class="iconify i-heroicons:user shrink-0 text-dimmed group-hover:text-default transition-colors group-data-[state=open]:text-default size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-[10px] leading-tight font-medium">Λογαριασμός<!--v-if--></span>
+          <!--v-if-->
+        </a>
+        <!--v-if-->
+        <!--v-if-->
+      </li>
+    </ul>
+  </div>
+  <!--v-if-->
+  <div data-slot="viewportWrapper" class="absolute top-full start-0 flex w-full justify-center">
+    <!--v-if-->
+    <!---->
+  </div>
+</nav>"
+`;
 
 exports[`webside frozen render > navbar 1`] = `
 "<div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
@@ -675,7 +717,16 @@ exports[`webside frozen render > rating 1`] = `
 
 exports[`webside frozen render > section blog_categories 1`] = `
 "<div class="grid min-w-0 gap-2 md:flex w-full md:p-0!">
-  <!--v-if-->
+  <div role="region" aria-roledescription="carousel" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none overflow-hidden md:w-full" aria-label="Κατηγορίες">
+    <div data-slot="viewport" class="overflow-hidden">
+      <div data-slot="container" class="flex items-start flex-row -ms-4" style="transform: translate3d(0px,0px,0px);">
+        <div role="group" aria-roledescription="slide" data-slot="item" class="min-w-0 shrink-0 ps-4 flex basis-[33%] md:basis-[17%]"><a href="/blog/category/1/asfaleia" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-base gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) w-full !px-2 !py-2 font-bold"><img width="25" height="25" data-nuxt-img="" srcset="/_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_25x25/img/placeholder.png 1x, /_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_50x50/img/placeholder.png 2x" class="aspect-square" alt="Ασφάλεια" style="aspect-ratio: 25 / 25;" src="/_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_25x25/img/placeholder.png"><span>Ασφάλεια</span>
+            <!--v-if-->
+          </a></div>
+      </div>
+    </div>
+    <!--v-if-->
+  </div>
   <!--v-if-->
 </div>"
 `;
@@ -685,21 +736,34 @@ exports[`webside frozen render > section blog_posts_list 1`] = `
   <!--v-if-->
   <section class="flex gap-4 md:gap-8">
     <div class="row-start-2 grid w-full md:row-start-1">
+      <ol class="grid w-full grid-cols-1 items-center justify-center gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        <li class="container grid w-full gap-6 rounded-lg bg-primary-100 !p-0 text-primary-950 dark:bg-primary-900 dark:text-primary-50">
+          <div class="grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="376" height="247" data-nuxt-img="" sizes="(max-width: 1023px) 360px, (max-width: 1279px) 480px, (max-width: 1535px) 480px, 520px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/360/236/cover/attention/transparent/0/80.avif 360w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/480/315/cover/attention/transparent/0/80.avif 480w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/520/342/cover/attention/transparent/0/80.avif 520w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/720/472/cover/attention/transparent/0/80.avif 720w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/960/630/cover/attention/transparent/0/80.avif 960w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif 1040w" loading="lazy" fetchpriority="auto" class="h-auto w-full rounded-t-lg bg-primary-100" style="object-fit: cover; content-visibility: auto; aspect-ratio: 376 / 247;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif"></a></div>
+          <div class="grid gap-2 p-4">
+            <div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
+              <h2 class="grid h-20"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full text-2xl font-bold tracking-tight text-primary-950 md:text-3xl dark:text-primary-50" aria-label="Τι είναι τα mAh">Τι είναι τα mAh</a></h2>
+            </div>
+            <div class="flex justify-end gap-6 pt-5"><button type="button" data-slot="base" aria-label="Like" title="Like" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
+                <!--v-if-->
+              </button>
+              <!--v-if--><a href="/blog/post/82/ti-einai-ta-mah#blog-post-comments" data-slot="base" title="1 σχόλια" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex cursor-pointer flex-col items-center gap-1 p-0 hover:bg-transparent"><span class="iconify i-heroicons:chat-bubble-oval-left shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">1</span>
+                <!--v-if-->
+              </a>
+              <!--v-if-->
+            </div>
+          </div>
+        </li>
+      </ol>
       <!--v-if-->
-      <div data-slot="root" class="relative flex flex-col items-center justify-center gap-4 rounded-lg p-4 sm:p-6 lg:p-8 min-w-0 bg-default ring ring-default py-12">
-        <div data-slot="header" class="flex flex-col items-center gap-2 max-w-sm text-center"><span data-slot="avatar" class="inline-flex items-center justify-center select-none rounded-full align-middle bg-elevated shrink-0 mb-2 size-10 text-xl"><span class="iconify i-heroicons:newspaper shrink-0 text-muted" aria-hidden="true" data-slot="icon"></span></span>
-          <h2 data-slot="title" class="text-highlighted text-pretty font-medium text-base">Δεν υπάρχουν άρθρα ακόμη</h2>
-          <div data-slot="description" class="text-balance text-center text-sm text-muted">Σύντομα θα βρείτε εδώ τα νέα και τις ιστορίες μας.</div>
-        </div>
-        <!--v-if-->
-        <!--v-if-->
-      </div>
     </div>
   </section>
   <transition-stub appear="false" persisted="false" css="true">
     <!--v-if-->
   </transition-stub>
-  <!--v-if-->
+  <div class="my-4 flex flex-col items-center" count="1" page="1" page-size="9" page-total-results="1">
+    <!--v-if-->
+    <!--v-if-->
+  </div>
 </div>"
 `;
 
@@ -714,7 +778,25 @@ exports[`webside frozen render > section hero_carousel 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > section recently_viewed 1`] = `"<!--v-if-->"`;
+exports[`webside frozen render > section recently_viewed 1`] = `
+"<section aria-labelledby="recently-viewed-title" class="w-full max-w-full space-y-4 overflow-hidden w-full md:p-0!">
+  <header class="flex items-center justify-between gap-3">
+    <h2 id="recently-viewed-title" class="text-xl font-semibold text-primary-950 dark:text-primary-50">Είδες Πρόσφατα</h2>
+  </header>
+  <div role="region" aria-roledescription="carousel" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none w-full max-w-full md:mx-auto">
+    <div data-slot="viewport" class="overflow-hidden w-full">
+      <div data-slot="container" class="items-start flex-row -ms-4 flex w-full" style="transform: translate3d(0px,0px,0px);">
+        <div role="group" aria-roledescription="slide" data-slot="item" class="ps-4 min-w-0 shrink-0 grow-0 basis-1/2 md:basis-1/3 lg:basis-1/5"><a href="/products/2/mini-power-bank-5000mah" class="group flex h-full flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-3 transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary-500 dark:border-neutral-800 dark:bg-neutral-900">
+            <div class="relative aspect-square overflow-hidden rounded-md bg-neutral-50 dark:bg-neutral-800"><img width="280" height="280" data-nuxt-img="" sizes="200px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/200/200/contain/entropy/ffffff/0/80.avif 200w, https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/80.avif 400w" alt="Mini Power Bank 5000mAh" loading="lazy" class="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105" style="aspect-ratio: 280 / 280;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/80.avif"></div>
+            <p class="line-clamp-2 text-sm font-medium text-primary-950 dark:text-primary-50">Mini Power Bank 5000mAh</p>
+            <p class="text-sm font-semibold text-secondary-600 dark:text-secondary-400">16,63&nbsp;€</p>
+          </a></div>
+      </div>
+    </div>
+    <!--v-if-->
+  </div>
+</section>"
+`;
 
 exports[`webside frozen render > signup form 1`] = `
 "<section class="relative grid">

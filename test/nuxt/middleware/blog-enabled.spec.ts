@@ -24,14 +24,6 @@ describe('blog-enabled middleware', () => {
     mockBlogEnabled.mockReturnValue(false)
 
     const { default: middleware } = await import('~/middleware/blog-enabled')
-    expect(() => middleware({} as any, {} as any)).toThrow()
-
-    // Verify it throws a createError-style object with statusCode 404
-    try {
-      middleware({} as any, {} as any)
-    }
-    catch (error: unknown) {
-      expect(error).toMatchObject({ statusCode: 404 })
-    }
+    expect(() => middleware({} as any, {} as any)).toThrow(expect.objectContaining({ statusCode: 404 }))
   })
 })

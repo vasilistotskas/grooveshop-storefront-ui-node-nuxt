@@ -1,567 +1,201 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import LoyaltyTransactions from '~/components/Loyalty/Transactions.vue'
+import { makeTransactionPage } from '~~/test/fixtures/loyalty'
+import { failWith } from '~~/test/helpers/api'
 
-// Mock the useLoyalty composable with new API
-const mockTransactionsRef = ref<any>(null)
-const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
-const mockErrorRef = ref<any>(null)
-const mockRefresh = vi.fn()
+/**
+ * The account's points ledger. Mocked at the request (`useRequestApi`,
+ * which `useLoyalty` fetches through), so the filters are checked by
+ * the query they actually send.
+ */
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('useRequestApi', () => () => api)
 
-mockNuxtImport('useLoyalty', () => {
-  return () => ({
-    fetchTransactions: () => ({
-      data: mockTransactionsRef,
-      status: mockStatusRef,
-      error: mockErrorRef,
-      refresh: mockRefresh,
-    }),
+const LEDGER = '/api/loyalty/transactions'
+
+beforeEach(() => {
+  clearNuxtData('loyalty-transactions')
+  api.routes({
+    [LEDGER]: makeTransactionPage([
+      { points: 100, transactionType: 'EARN', description: 'Πόντοι από την παραγγελία #12345', createdAt: '2026-01-15T10:30:00Z' },
+      { points: -50, transactionType: 'REDEEM', referenceOrder: null, description: 'Εξαργύρωση για έκπτωση', createdAt: '2026-01-14T15:45:00Z' },
+      { points: 25, transactionType: 'BONUS', referenceOrder: null, description: 'Μπόνους γενεθλίων', createdAt: '2026-01-13T09:00:00Z' },
+    ]),
   })
 })
 
-describe('LoyaltyTransactions Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockRefresh.mockClear()
-    mockTransactionsRef.value = null
-    mockStatusRef.value = 'idle'
-    mockErrorRef.value = null
+/**
+ * Unmount after each test instead of leaving it to the next
+ * `mountSuspended`: the ledger's `useAsyncData` key is shared, and a
+ * still-mounted instance from the previous test kept the new one's
+ * filter watch from refetching.
+ */
+
+async function mountLedger() {
+  const wrapper = await mountSuspended(LoyaltyTransactions, { route: false })
+  await flushPromises()
+  return wrapper
+}
+
+const rows = (wrapper: VueWrapper) => wrapper.findAll('tbody tr')
+const lastQuery = () => api.callsTo(LEDGER).at(-1)?.options.query
+/**
+ * A filter change refetches through `useAsyncData`'s `watch`, which
+ * lands after more than one microtask flush — so wait for the request.
+ */
+const expectLastQuery = (query: Record<string, unknown>) =>
+  vi.waitFor(() => expect(lastQuery()).toEqual(query))
+
+describe('Loyalty/Transactions', () => {
+  it('lists each transaction: signed points, type, description and its timestamp', async () => {
+    const wrapper = await mountLedger()
+
+    expect(rows(wrapper).map(row => row.findAll('td').map(cell => cell.text()).slice(0, 3))).toEqual([
+      ['+100', 'Κέρδος', 'Πόντοι από την παραγγελία #12345'],
+      ['-50', 'Εξαργύρωση', 'Εξαργύρωση για έκπτωση'],
+      ['+25', 'Μπόνους', 'Μπόνους γενεθλίων'],
+    ])
+    expect(rows(wrapper).map(row => row.find('time').attributes('datetime'))).toEqual([
+      '2026-01-15T10:30:00.000Z',
+      '2026-01-14T15:45:00.000Z',
+      '2026-01-13T09:00:00.000Z',
+    ])
   })
 
-  describe('Test 4: Transaction list renders all required fields per item', () => {
-    it('should render all transaction fields: points, type, description, and date', async () => {
-      mockTransactionsRef.value = {
-        count: 3,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 100,
-            transactionType: 'EARN',
-            referenceOrder: 12345,
-            description: 'Points earned from order #12345',
-            createdAt: '2024-01-15T10:30:00Z',
-          },
-          {
-            id: 2,
-            points: -50,
-            transactionType: 'REDEEM',
-            referenceOrder: null,
-            description: 'Points redeemed for discount',
-            createdAt: '2024-01-14T15:45:00Z',
-          },
-          {
-            id: 3,
-            points: 25,
-            transactionType: 'BONUS',
-            referenceOrder: null,
-            description: 'Birthday bonus points',
-            createdAt: '2024-01-13T09:00:00Z',
-          },
-        ],
-      }
+  it('colours the points by sign, a shade darker than the fill token', async () => {
+    // The class IS the contract: `text-success-700` rather than
+    // `text-success` because the 500 fill measured 3.22:1 on the figure
+    // (see the comment on the points column in Transactions.vue).
+    const wrapper = await mountLedger()
+    const pointsCell = (index: number) => rows(wrapper)[index]!.find('td span')
 
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      // Wait for component to mount and fetch
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // Verify all transactions are rendered
-      expect(wrapper.text()).toContain('+100')
-      expect(wrapper.text()).toContain('-50')
-      expect(wrapper.text()).toContain('+25')
-
-      // Verify transaction types are displayed (Greek locale)
-      expect(wrapper.text()).toContain('Κέρδος') // Earn
-      expect(wrapper.text()).toContain('Εξαργύρωση') // Redeem
-      expect(wrapper.text()).toContain('Μπόνους') // Bonus
-
-      // Verify descriptions are displayed
-      expect(wrapper.text()).toContain('Points earned from order #12345')
-      expect(wrapper.text()).toContain('Points redeemed for discount')
-      expect(wrapper.text()).toContain('Birthday bonus points')
-
-      // Verify dates are formatted and displayed
-      const text = wrapper.text()
-      expect(text).toMatch(/Ιαν|15|2024/) // Greek month abbreviation
-    })
-
-    it('should render each transaction with all four required fields', async () => {
-      mockTransactionsRef.value = {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 150,
-            transactionType: 'EARN',
-            referenceOrder: 99999,
-            description: 'Test transaction',
-            createdAt: '2024-02-20T12:00:00Z',
-          },
-        ],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      const text = wrapper.text()
-
-      // 1. Points field
-      expect(text).toContain('+150')
-
-      // 2. Transaction type field (Greek)
-      expect(text).toContain('Κέρδος')
-
-      // 3. Description field
-      expect(text).toContain('Test transaction')
-
-      // 4. Date field (formatted)
-      expect(text).toMatch(/Φεβ|20|2024/)
-    })
-
-    it('should render multiple transactions with different types', async () => {
-      mockTransactionsRef.value = {
-        count: 5,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 100,
-            transactionType: 'EARN',
-            referenceOrder: null,
-            description: 'Earned points',
-            createdAt: '2024-01-01T00:00:00Z',
-          },
-          {
-            id: 2,
-            points: -75,
-            transactionType: 'REDEEM',
-            referenceOrder: null,
-            description: 'Redeemed points',
-            createdAt: '2024-01-02T00:00:00Z',
-          },
-          {
-            id: 3,
-            points: -10,
-            transactionType: 'EXPIRE',
-            referenceOrder: null,
-            description: 'Expired points',
-            createdAt: '2024-01-03T00:00:00Z',
-          },
-          {
-            id: 4,
-            points: 5,
-            transactionType: 'ADJUST',
-            referenceOrder: null,
-            description: 'Adjustment',
-            createdAt: '2024-01-04T00:00:00Z',
-          },
-          {
-            id: 5,
-            points: 50,
-            transactionType: 'BONUS',
-            referenceOrder: null,
-            description: 'Bonus points',
-            createdAt: '2024-01-05T00:00:00Z',
-          },
-        ],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Verify all transaction types are rendered (Greek)
-      expect(wrapper.text()).toContain('Κέρδος') // Earn
-      expect(wrapper.text()).toContain('Εξαργύρωση') // Redeem
-      expect(wrapper.text()).toContain('Λήξη') // Expire
-      expect(wrapper.text()).toContain('Προσαρμογή') // Adjust
-      expect(wrapper.text()).toContain('Μπόνους') // Bonus
-
-      // Verify all descriptions are rendered
-      expect(wrapper.text()).toContain('Earned points')
-      expect(wrapper.text()).toContain('Redeemed points')
-      expect(wrapper.text()).toContain('Expired points')
-      expect(wrapper.text()).toContain('Adjustment')
-      expect(wrapper.text()).toContain('Bonus points')
-    })
-
-    it('should format dates correctly for display', async () => {
-      mockTransactionsRef.value = {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 100,
-            transactionType: 'EARN',
-            referenceOrder: null,
-            description: 'Test',
-            createdAt: '2024-03-15T14:30:45Z',
-          },
-        ],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Date should be formatted (Greek locale)
-      const text = wrapper.text()
-      expect(text).toMatch(/Μαρ|15|2024/)
-    })
+    expect(pointsCell(0).classes()).toContain('text-success-700')
+    expect(pointsCell(1).classes()).toContain('text-error-700')
+    expect(pointsCell(1).classes()).not.toContain('text-success-700')
   })
 
-  describe('Test 5: Transaction points are color-coded by sign', () => {
-    it('should use green color class for positive points', async () => {
-      mockTransactionsRef.value = {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 100,
-            transactionType: 'EARN',
-            referenceOrder: null,
-            description: 'Positive points',
-            createdAt: '2024-01-01T00:00:00Z',
-          },
-        ],
-      }
+  it('labels a type it does not know by its raw code', async () => {
+    // A transaction type Django adds before the storefront knows it.
+    api.routes({ [LEDGER]: makeTransactionPage([{ transactionType: 'LEGACY' as 'EARN' }]) })
 
-      const wrapper = await mountSuspended(LoyaltyTransactions)
+    const wrapper = await mountLedger()
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Find the points element
-      const html = wrapper.html()
-
-      // Should contain success color class for positive points
-      expect(html).toMatch(/text-success/)
-
-      // Should display with + sign
-      expect(wrapper.text()).toContain('+100')
-    })
-
-    it('should use red color class for negative points', async () => {
-      mockTransactionsRef.value = {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: -50,
-            transactionType: 'REDEEM',
-            referenceOrder: null,
-            description: 'Negative points',
-            createdAt: '2024-01-01T00:00:00Z',
-          },
-        ],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Find the points element
-      const html = wrapper.html()
-
-      // Should contain error color class for negative points
-      expect(html).toMatch(/text-error/)
-
-      // Should display negative number
-      expect(wrapper.text()).toContain('-50')
-    })
-
-    it('should color-code multiple transactions correctly', async () => {
-      mockTransactionsRef.value = {
-        count: 4,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 100,
-            transactionType: 'EARN',
-            referenceOrder: null,
-            description: 'Positive 1',
-            createdAt: '2024-01-01T00:00:00Z',
-          },
-          {
-            id: 2,
-            points: -50,
-            transactionType: 'REDEEM',
-            referenceOrder: null,
-            description: 'Negative 1',
-            createdAt: '2024-01-02T00:00:00Z',
-          },
-          {
-            id: 3,
-            points: 75,
-            transactionType: 'BONUS',
-            referenceOrder: null,
-            description: 'Positive 2',
-            createdAt: '2024-01-03T00:00:00Z',
-          },
-          {
-            id: 4,
-            points: -25,
-            transactionType: 'EXPIRE',
-            referenceOrder: null,
-            description: 'Negative 2',
-            createdAt: '2024-01-04T00:00:00Z',
-          },
-        ],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      const html = wrapper.html()
-
-      // Should have both success and error color classes
-      expect(html).toMatch(/text-success/)
-      expect(html).toMatch(/text-error/)
-
-      // Should display positive points with + sign
-      expect(wrapper.text()).toContain('+100')
-      expect(wrapper.text()).toContain('+75')
-
-      // Should display negative points
-      expect(wrapper.text()).toContain('-50')
-      expect(wrapper.text()).toContain('-25')
-    })
-
-    it('should apply different colors to EARN vs REDEEM transactions', async () => {
-      mockTransactionsRef.value = {
-        count: 2,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 200,
-            transactionType: 'EARN',
-            referenceOrder: null,
-            description: 'Earned',
-            createdAt: '2024-01-01T00:00:00Z',
-          },
-          {
-            id: 2,
-            points: -100,
-            transactionType: 'REDEEM',
-            referenceOrder: null,
-            description: 'Redeemed',
-            createdAt: '2024-01-02T00:00:00Z',
-          },
-        ],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      const html = wrapper.html()
-
-      // EARN (positive) should have success color
-      expect(html).toMatch(/text-success/)
-
-      // REDEEM (negative) should have error color
-      expect(html).toMatch(/text-error/)
-    })
-
-    it('should handle zero points (edge case)', async () => {
-      mockTransactionsRef.value = {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            points: 0,
-            transactionType: 'ADJUST',
-            referenceOrder: null,
-            description: 'Zero adjustment',
-            createdAt: '2024-01-01T00:00:00Z',
-          },
-        ],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Zero points should use error color (not positive)
-      const html = wrapper.html()
-      expect(html).toMatch(/text-error/)
-
-      // Should display 0
-      expect(wrapper.text()).toContain('0')
-    })
+    expect(rows(wrapper)[0]!.findAll('td')[1]!.text()).toBe('LEGACY')
   })
 
-  describe('Filter Functionality', () => {
-    it('should render filter controls for transaction type and dates', async () => {
-      mockTransactionsRef.value = { count: 0, results: [], next: null, previous: null }
+  describe('filters', () => {
+    it('asks for the first page with no filters to start with', async () => {
+      await mountLedger()
 
-      const wrapper = await mountSuspended(LoyaltyTransactions)
+      expect(lastQuery()).toEqual({ page: 1 })
+    })
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
+    it('sends the chosen type and date range to Django', async () => {
+      const wrapper = await mountLedger()
 
-      // Should have transaction type select
+      await wrapper.findComponent({ name: 'USelect' }).setValue('REDEEM')
+      const [from, to] = wrapper.findAll('input[type="date"]')
+      await from!.setValue('2026-01-01')
+      await to!.setValue('2026-01-31')
+
+      await expectLastQuery({
+        page: 1,
+        transaction_type: 'REDEEM',
+        created_after: '2026-01-01',
+        created_before: '2026-01-31',
+      })
+    })
+
+    it('drops the type filter again for "all types"', async () => {
+      const wrapper = await mountLedger()
       const select = wrapper.findComponent({ name: 'USelect' })
-      expect(select.exists()).toBe(true)
 
-      // Should have date inputs
-      const inputs = wrapper.findAllComponents({ name: 'UInput' })
-      expect(inputs.length).toBeGreaterThanOrEqual(2)
-    })
+      await select.setValue('EARN')
+      await expectLastQuery({ page: 1, transaction_type: 'EARN' })
+      await select.setValue('all')
 
-    it('should reset page to 1 when filter changes', async () => {
-      mockTransactionsRef.value = { count: 0, results: [], next: null, previous: null }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Set page to 2 via VM
-      ;(wrapper.vm as any).currentPage = 2
-      await wrapper.vm.$nextTick()
-
-      // Change the transaction type filter
-      const select = wrapper.findComponent({ name: 'USelect' })
-      await select.vm.$emit('update:modelValue', 'EARN')
-      await wrapper.vm.$nextTick()
-
-      // Page should be reset to 1
-      expect((wrapper.vm as any).currentPage).toBe(1)
+      await expectLastQuery({ page: 1 })
     })
   })
 
-  describe('Empty and Error States', () => {
-    it('should display empty state when no transactions', async () => {
-      mockTransactionsRef.value = {
-        count: 0,
-        next: null,
-        previous: null,
-        results: [],
-      }
-
-      const wrapper = await mountSuspended(LoyaltyTransactions)
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Greek: "Δεν βρέθηκαν συναλλαγές"
-      expect(wrapper.text()).toContain('Δεν βρέθηκαν συναλλαγές')
+  describe('pagination', () => {
+    beforeEach(() => {
+      api.routes({ [LEDGER]: makeTransactionPage([{}], { count: 30 }) })
     })
 
-    it('should display loading skeleton when loading', async () => {
-      mockStatusRef.value = 'pending'
-      mockTransactionsRef.value = null
+    const pageButton = (wrapper: VueWrapper, page: number) => wrapper.find(`nav button[aria-label="Page ${page}"]`)
 
-      const wrapper = await mountSuspended(LoyaltyTransactions)
+    it('asks for the page clicked', async () => {
+      const wrapper = await mountLedger()
 
-      await wrapper.vm.$nextTick()
+      await pageButton(wrapper, 2).trigger('click')
 
-      const skeletons = wrapper.findAllComponents({ name: 'USkeleton' })
-      expect(skeletons.length).toBeGreaterThan(0)
+      await expectLastQuery({ page: 2 })
     })
 
-    it('should display error message with retry button', async () => {
-      mockErrorRef.value = new Error('Network error')
-      mockTransactionsRef.value = null
+    it.each([
+      ['type', (wrapper: VueWrapper) => wrapper.findComponent({ name: 'USelect' }).setValue('EARN')],
+      ['start date', (wrapper: VueWrapper) => wrapper.findAll('input[type="date"]')[0]!.setValue('2026-01-01')],
+    ])('goes back to page 1 when the %s filter changes', async (_filter, change) => {
+      const wrapper = await mountLedger()
+      await pageButton(wrapper, 3).trigger('click')
+      await expectLastQuery({ page: 3 })
 
-      const wrapper = await mountSuspended(LoyaltyTransactions)
+      await change(wrapper)
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await vi.waitFor(() => expect(lastQuery()).toMatchObject({ page: 1 }))
+      expect(pageButton(wrapper, 1).attributes('aria-current')).toBe('page')
+    })
 
-      // Greek: "Αποτυχία φόρτωσης συναλλαγών"
-      expect(wrapper.text()).toContain('Αποτυχία φόρτωσης συναλλαγών')
+    it('pages 12 rows at a time when Django does not say', async () => {
+      api.routes({ [LEDGER]: makeTransactionPage([{}], { count: 24, pageSize: undefined, totalPages: 2 }) })
 
-      // Greek: "Δοκιμάστε ξανά"
-      const retryButton = wrapper.findAll('button').find(btn => btn.text().includes('Δοκιμάστε ξανά'))
-      expect(retryButton).toBeDefined()
+      const wrapper = await mountLedger()
 
-      await retryButton!.trigger('click')
-      expect(mockRefresh).toHaveBeenCalled()
+      expect(pageButton(wrapper, 2).exists()).toBe(true)
+      expect(pageButton(wrapper, 3).exists()).toBe(false)
+    })
+
+    it('shows no pagination for a single page', async () => {
+      api.routes({ [LEDGER]: makeTransactionPage([{}]) })
+
+      const wrapper = await mountLedger()
+
+      expect(wrapper.find('nav').exists()).toBe(false)
     })
   })
 
-  describe('Pagination', () => {
-    it('should display pagination when there are multiple pages', async () => {
-      mockTransactionsRef.value = {
-        count: 50,
-        totalPages: 5,
-        pageSize: 12,
-        next: 'http://api/transactions?page=2',
-        previous: null,
-        results: Array(10).fill(null).map((_, i) => ({
-          id: i + 1,
-          points: 100,
-          transactionType: 'EARN',
-          referenceOrder: null,
-          description: `Transaction ${i + 1}`,
-          createdAt: '2024-01-01T00:00:00Z',
-        })),
-      }
+  it('says so when there are no transactions', async () => {
+    api.routes({ [LEDGER]: makeTransactionPage([]) })
 
-      const wrapper = await mountSuspended(LoyaltyTransactions)
+    const wrapper = await mountLedger()
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
+    expect(wrapper.text()).toContain('Δεν βρέθηκαν συναλλαγές')
+    expect(wrapper.find('table').exists()).toBe(false)
+  })
 
-      // Should display pagination component
-      const pagination = wrapper.findComponent({ name: 'UPagination' })
-      expect(pagination.exists()).toBe(true)
-    })
+  it('shows skeletons while the ledger loads', async () => {
+    api.routes({ [LEDGER]: () => new Promise(() => {}) })
 
-    it('should not display pagination when only one page', async () => {
-      mockTransactionsRef.value = {
-        count: 5,
-        totalPages: 1,
-        pageSize: 12,
-        next: null,
-        previous: null,
-        results: Array(5).fill(null).map((_, i) => ({
-          id: i + 1,
-          points: 100,
-          transactionType: 'EARN',
-          referenceOrder: null,
-          description: `Transaction ${i + 1}`,
-          createdAt: '2024-01-01T00:00:00Z',
-        })),
-      }
+    const wrapper = await mountLedger()
 
-      const wrapper = await mountSuspended(LoyaltyTransactions)
+    expect(wrapper.findAllComponents({ name: 'USkeleton' })).toHaveLength(4)
+    expect(wrapper.find('table').exists()).toBe(false)
+  })
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
+  it('offers a retry that asks again when the ledger fails', async () => {
+    api.routes({ [LEDGER]: failWith(502) })
+    const wrapper = await mountLedger()
+    expect(wrapper.text()).toContain('Αποτυχία φόρτωσης συναλλαγών')
 
-      // Should not display pagination component
-      const pagination = wrapper.findComponent({ name: 'UPagination' })
-      expect(pagination.exists()).toBe(false)
-    })
+    api.routes({ [LEDGER]: makeTransactionPage([{ description: 'Ξανά εδώ' }]) })
+    await wrapper.findAll('button').find(button => button.text() === 'Δοκιμάστε ξανά')!.trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo(LEDGER)).toHaveLength(2)
+    expect(wrapper.text()).toContain('Ξανά εδώ')
   })
 })

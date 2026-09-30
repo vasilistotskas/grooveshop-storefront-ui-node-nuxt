@@ -5,7 +5,7 @@
  * Ingresses route to the storefront.
  */
 import { describe, expect, it } from 'vitest'
-import { deviceClassFromUserAgent } from '../../../shared/utils/deviceClass'
+import { deviceClassFromUserAgent } from '~~/shared/utils/deviceClass'
 import {
   DEVICE_USER_AGENTS,
   isCachedResponse,
@@ -13,7 +13,7 @@ import {
   sitemapLocations,
   storefrontHosts,
   warmOrder,
-} from '../../../scripts/warm-cache.mjs'
+} from '~~/scripts/warm-cache.mjs'
 
 describe('DEVICE_USER_AGENTS', () => {
   it('holds one User-Agent per device class, classified into that class', () => {
@@ -81,7 +81,7 @@ describe('isCachedResponse', () => {
 describe('warmOrder', () => {
   it('puts shallow pages first and keeps sitemap order within a depth', () => {
     const page = (pathname: string) => ({ host: 'webside.gr', pathname })
-    expect(warmOrder([page('/blog/post/1/a'), page('/blog'), page('/'), page('/products'), page('/blog/category/1/x')]).map(p => p.pathname))
+    expect(warmOrder([page('/blog/post/1/a'), page('/blog'), page('/'), page('/products'), page('/blog/category/1/x')]).map((p: { pathname: string }) => p.pathname))
       .toEqual(['/', '/blog', '/products', '/blog/post/1/a', '/blog/category/1/x'])
   })
 })

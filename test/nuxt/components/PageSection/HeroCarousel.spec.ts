@@ -1,6 +1,15 @@
-import { describe, it, expect } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { ref } from 'vue'
+import type { DOMWrapper } from '@vue/test-utils'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import HeroCarousel from '~/components/PageSection/HeroCarousel.vue'
+
+/** The browser's media-query answers, per query; a missing one is `false`. */
+const media = vi.hoisted(() => ({ matches: {} as Record<string, boolean> }))
+mockNuxtImport('useMediaQuery', () => (query: string) => ref(media.matches[query] ?? false))
+
+const HOVER = '(hover: hover) and (pointer: fine)'
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
 
 /**
  * A hero given `slides` must render them, and must render them as a
@@ -43,11 +52,18 @@ const SLIDES = [
   },
 ]
 
+const mountHero = (props: Record<string, unknown>) => mountSuspended(HeroCarousel, { route: false, props })
+
+/** The column of a slide's grid an element sits in. */
+const column = (el: DOMWrapper<Element>) => el.element.closest('section > div')
+
 describe('PageSectionHeroCarousel', () => {
+  beforeEach(() => {
+    media.matches = {}
+  })
+
   it('renders the copy a slide carries', async () => {
-    const wrapper = await mountSuspended(HeroCarousel, {
-      props: { slides: SLIDES },
-    })
+    const wrapper = await mountHero({ slides: SLIDES })
 
     const text = wrapper.text()
     expect(text).toContain('Charge fast, once a day')
@@ -57,23 +73,24 @@ describe('PageSectionHeroCarousel', () => {
     expect(text).toContain('Buying guides')
   })
 
-  it('sets the copy on the accent panel, not over the photograph', async () => {
-    const wrapper = await mountSuspended(HeroCarousel, {
-      props: { slides: SLIDES },
-    })
+  it('sets the copy in its own panel, not over the photograph', async () => {
+    const wrapper = await mountHero({ slides: SLIDES })
 
-    const heading = wrapper.find('h2')
-    const panel = heading.element.closest('.bg-\\(--ui-secondary\\)')
-    expect(panel, 'the heading sits inside the accent panel').not.toBeNull()
-    // The photograph's box holds the image and nothing else.
-    expect(panel?.querySelector('img')).toBeNull()
-    expect(wrapper.find('img').element.closest('.bg-\\(--ui-secondary\\)')).toBeNull()
+    const slide = wrapper.find('h2').element.closest('section')!
+    const headingColumn = column(wrapper.find('h2'))
+    const imageColumn = column(wrapper.find('img'))
+    // Two columns of the same slide: the photograph's box holds the
+    // image and nothing else, and the panel holds the copy.
+    expect(headingColumn).not.toBeNull()
+    expect(imageColumn).not.toBeNull()
+    expect(headingColumn).not.toBe(imageColumn)
+    expect(slide.contains(imageColumn)).toBe(true)
+    expect(imageColumn!.querySelector('h2')).toBeNull()
+    expect(headingColumn!.querySelector('img')).toBeNull()
   })
 
   it('tells the visitor where they are when there is more than one slide', async () => {
-    const wrapper = await mountSuspended(HeroCarousel, {
-      props: { slides: SLIDES },
-    })
+    const wrapper = await mountHero({ slides: SLIDES })
 
     expect(wrapper.text()).toContain('1 / 2')
     expect(wrapper.text()).toContain('2 / 2')
@@ -82,18 +99,14 @@ describe('PageSectionHeroCarousel', () => {
   })
 
   it('draws no controls or counter for a single slide', async () => {
-    const wrapper = await mountSuspended(HeroCarousel, {
-      props: { slides: SLIDES.slice(0, 1) },
-    })
+    const wrapper = await mountHero({ slides: SLIDES.slice(0, 1) })
 
     expect(wrapper.text()).not.toContain('1 / 1')
     expect(wrapper.find('[data-slot="prev"]').exists()).toBe(false)
   })
 
   it('renders an image per slide, the first one eagerly', async () => {
-    const wrapper = await mountSuspended(HeroCarousel, {
-      props: { slides: SLIDES },
-    })
+    const wrapper = await mountHero({ slides: SLIDES })
 
     const images = wrapper.findAll('img')
     expect(images.length).toBe(SLIDES.length)
@@ -106,37 +119,42 @@ describe('PageSectionHeroCarousel', () => {
     // Layouts written before `slides` existed pass bare URLs and bake
     // their wording into the artwork: no panel, one link over the
     // picture.
-    const wrapper = await mountSuspended(HeroCarousel, {
-      props: {
-        images: ['https://assets.example.test/hero-charging.avif'],
-        link: '/products',
-      },
+    const wrapper = await mountHero({
+      images: ['https://assets.example.test/hero-charging.avif'],
+      link: '/products',
     })
 
     expect(wrapper.findAll('img').length).toBe(1)
-    expect(wrapper.find('.bg-\\(--ui-secondary\\)').exists()).toBe(false)
+    expect(wrapper.find('h2').exists()).toBe(false)
     expect(wrapper.find('a[href="/products"]').exists()).toBe(true)
   })
 
   it('renders nothing without artwork', async () => {
     // A prop-less `hero_carousel` is what `page_config.defaults` inserts
     // for a brand-new store. It must be absent, not an empty band.
-    const wrapper = await mountSuspended(HeroCarousel, { props: {} })
+    const wrapper = await mountHero({})
 
     expect(wrapper.text().trim()).toBe('')
     expect(wrapper.find('img').exists()).toBe(false)
   })
 
-  it('does not autorotate on the server render, whatever the operator set', async () => {
-    // Autoplay runs only where a pointer can pause it (`hover: hover`),
-    // which is a browser fact; the server render and a phone both get
-    // a still carousel. A hero that moves under a thumb is the band
-    // most likely to make someone tap the wrong page.
-    const wrapper = await mountSuspended(HeroCarousel, {
-      props: { slides: SLIDES, autoplayMs: 6000 },
-    })
+  /**
+   * Autoplay runs only where a pointer can pause it (`hover: hover`), and
+   * never under reduced motion: a hero that moves under a thumb is the
+   * band most likely to make someone tap the wrong page. The embla
+   * plugin leaves no mark in the DOM, so the carousel's `autoplay` prop
+   * is what is asserted.
+   */
+  it.each<{ name: string, matches: Record<string, boolean>, autoplayMs: number, autoplay: object | false }>([
+    { name: 'a pointer that can hover', matches: { [HOVER]: true }, autoplayMs: 6000, autoplay: { delay: 6000, stopOnMouseEnter: true, stopOnInteraction: true } },
+    { name: 'a touch screen', matches: {}, autoplayMs: 6000, autoplay: false },
+    { name: 'reduced motion', matches: { [HOVER]: true, [REDUCED_MOTION]: true }, autoplayMs: 6000, autoplay: false },
+    { name: 'autoplay off', matches: { [HOVER]: true }, autoplayMs: 0, autoplay: false },
+  ])('autorotates only where it can be paused: $name', async ({ matches, autoplayMs, autoplay }) => {
+    media.matches = matches
 
-    expect(wrapper.html()).toBeTruthy()
-    expect(wrapper.text()).toContain('1 / 2')
+    const wrapper = await mountHero({ slides: SLIDES, autoplayMs })
+
+    expect(wrapper.findComponent({ name: 'UCarousel' }).props('autoplay')).toEqual(autoplay)
   })
 })

@@ -21,26 +21,16 @@ import { mountSuspended, registerEndpoint, mockNuxtImport } from '@nuxt/test-uti
 import { flushPromises } from '@vue/test-utils'
 import { getQuery } from 'h3'
 import NewAddressPage from '~/pages/account/addresses/new.vue'
+import { makeCountry } from '~~/test/fixtures/country'
 
-const GR = {
-  alpha2: 'GR',
-  translations: { el: { name: 'Ελλάδα' } },
-  phoneCode: 30,
-  hasRegions: true,
-  postalCodePattern: '\\d{3} ?\\d{2}',
-  postalCodeExample: '151 24',
-  phoneMetadata: {
-    nationalNumberPattern: '5005000\\d{3}|8\\d{9,11}|(?:[269]\\d|70)\\d{8}',
-    possibleLengths: [10, 11, 12],
-    nationalPrefixForParsing: null,
-    exampleMobile: '6912345678',
-  },
-}
-const CY = {
+const GR = makeCountry()
+const CY = makeCountry({
   alpha2: 'CY',
-  translations: { el: { name: 'Κύπρος' } },
+  alpha3: 'CYP',
+  isoCc: 196,
   phoneCode: 357,
-  hasRegions: true,
+  sortOrder: 2,
+  translations: { el: { name: 'Κύπρος' }, en: { name: 'Cyprus' } },
   postalCodePattern: '\\d{4}',
   postalCodeExample: '1010',
   phoneMetadata: {
@@ -49,13 +39,20 @@ const CY = {
     nationalPrefixForParsing: null,
     exampleMobile: '96123456',
   },
-}
-const REGIONLESS = {
+})
+/** A country with no regions, postal-code rule or phone metadata. */
+const REGIONLESS = makeCountry({
   alpha2: 'XX',
-  translations: { el: { name: 'Xland' } },
+  alpha3: 'XXX',
+  isoCc: null,
   phoneCode: 999,
+  sortOrder: 3,
+  translations: { el: { name: 'Xland' } },
   hasRegions: false,
-}
+  postalCodePattern: undefined,
+  postalCodeExample: undefined,
+  phoneMetadata: null,
+})
 
 const { mockApi } = vi.hoisted(() => ({ mockApi: vi.fn() }))
 // The submit goes through `$api`; reads go through `useApi` (registerEndpoint).
@@ -155,20 +152,30 @@ describe('account/addresses/new', () => {
     it('validates against the picked phone country, not the form country', async () => {
       countriesResponse = { count: 2, next: null, previous: null, results: [GR, CY] }
       registerEndpoint('/api/countries', () => countriesResponse)
-      const { wrapper } = await mountWithCountry('CY')
+      const { wrapper, vm } = await mountWithCountry('CY')
+      mockApi.mockReset().mockResolvedValue({})
+      const saves = () => mockApi.mock.calls.filter(([url]) => url === '/api/user/addresses')
+      const phoneError = useNuxtApp().$i18n.t('validation.phone.invalid_example', { example: '6912345678' })
+      // A complete Cypriot address: CY postcode and district.
+      Object.assign(vm.state, VALID, { country: 'CY', zipcode: '1010', city: 'Λευκωσία', region: 'CY-01' })
+      await flushPromises()
+
+      // A well-formed E.164 that no Greek number matches: judged by the
+      // picked +30's own rules (not the generic foreign check the form
+      // country would apply), and the message names a GREEK example.
+      await wrapper.find('input[type="tel"]').setValue('+30 1234567890')
+      await wrapper.find('form').trigger('submit')
+      await flushPromises()
+      expect(saves()).toEqual([])
+      expect(wrapper.text()).toContain(phoneError)
 
       // A Greek mobile on a Cypriot address: +30 picked, checked against GR.
       await wrapper.find('input[type="tel"]').setValue('+30 6912345678')
+      await wrapper.find('form').trigger('submit')
       await flushPromises()
-
-      const vm = wrapper.vm as unknown as { schema: { safeParse: (data: unknown) => { success: boolean, error?: { issues: Array<{ path: unknown[] }> } } } }
-      // A complete Cypriot address: CY postcode and district.
-      const cyprus = { ...VALID, country: 'CY', zipcode: '1010', city: 'Λευκωσία', region: 'CY-01' }
-      const valid = vm.schema.safeParse({ ...cyprus, phone: '+306912345678' })
-      expect(valid.error?.issues).toBeUndefined()
-      expect(valid.success).toBe(true)
-      const invalid = vm.schema.safeParse({ ...cyprus, phone: '+30123' })
-      expect(invalid.error?.issues.map(issue => issue.path[0])).toEqual(['phone'])
+      expect(wrapper.text()).not.toContain(phoneError)
+      expect(saves()).toHaveLength(1)
+      expect(saves()[0]![1].body).toMatchObject({ country: 'CY', phone: '+306912345678' })
     })
 
     it('submits the E.164 the field built', async () => {

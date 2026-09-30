@@ -22,21 +22,13 @@
  * trippable here.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import { setTenant } from '~~/test/helpers/tenant'
 
 const { useOpenAIPixel, toMinorUnits } = await import('~/composables/useOpenAIPixel')
 
-function setTenantPixelId(id: string) {
-  const tenantStore = useTenantStore()
-  tenantStore.setConfig({
-    ...(tenantStore.config ?? {}),
-    openaiPixelId: id,
-  } as TenantConfig)
-}
-
 function installOaiq() {
   const oaiq = vi.fn()
-  ;(window as unknown as { oaiq?: unknown }).oaiq = oaiq
+  vi.stubGlobal('oaiq', oaiq)
   return oaiq
 }
 
@@ -65,8 +57,7 @@ describe('useOpenAIPixel — wire format', () => {
   let oaiq: ReturnType<typeof installOaiq>
 
   beforeEach(() => {
-    setActivePinia(createPinia())
-    setTenantPixelId('8MktrqpXN1MRdD2NUfkXmU')
+    setTenant({ openaiPixelId: '8MktrqpXN1MRdD2NUfkXmU' })
     oaiq = installOaiq()
   })
 
@@ -148,7 +139,7 @@ describe('useOpenAIPixel — wire format', () => {
   })
 
   it('stays silent when the tenant has no pixel id', () => {
-    setTenantPixelId('')
+    setTenant({ openaiPixelId: '' })
 
     const pixel = useOpenAIPixel()
     pixel.trackOrderCreated({ currency: 'EUR', amount: 1 })
@@ -160,7 +151,7 @@ describe('useOpenAIPixel — wire format', () => {
   it('does not throw before consent injects the SDK', () => {
     // `window.oaiq` is genuinely absent until the consent trigger
     // fires; a call site must not have to guard for it.
-    delete (window as unknown as { oaiq?: unknown }).oaiq
+    vi.stubGlobal('oaiq', undefined)
 
     expect(() =>
       useOpenAIPixel().trackOrderCreated({ currency: 'EUR', amount: 1 }),

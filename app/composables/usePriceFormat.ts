@@ -73,37 +73,9 @@ export function usePriceFormat() {
     return formatted.replace(/[\d\s.,]+/g, '').trim()
   }
 
-  /**
-   * Parse a formatted price string back to a number
-   * Handles locale-specific formatting and various currency symbols
-   *
-   * @param formattedPrice - The formatted price string
-   * @returns Parsed number value
-   *
-   * @example
-   * parsePrice("1.234,56") // 1234.56
-   * parsePrice("1.000 €") // 1000
-   */
-  const parsePrice = (formattedPrice: string): number => {
-    // Remove currency symbols and spaces (supports multiple currencies)
-    const cleaned = formattedPrice.replace(/[€$£¥₹₽¥₩\s]/g, '')
-    // Handle Greek locale format (period as thousands separator, comma as decimal)
-    // and English locale format (comma as thousands separator, period as decimal)
-    const normalized = cleaned.replace(/[,.]/g, (match, offset, string) => {
-      // If it's the last occurrence and followed by digits, it's a decimal separator
-      const lastIndex = string.lastIndexOf(match)
-      if (offset === lastIndex && string.slice(offset + 1).length <= 2) {
-        return '.'
-      }
-      return ''
-    })
-    return Number.parseFloat(normalized) || 0
-  }
-
   return {
     formatPrice,
     formatPriceValue,
     getCurrencySymbol,
-    parsePrice,
   }
 }

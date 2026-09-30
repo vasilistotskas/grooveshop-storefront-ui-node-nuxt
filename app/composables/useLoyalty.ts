@@ -25,22 +25,11 @@ export const useLoyalty = () => {
   /**
    * Fetch loyalty system configuration settings
    *
-   * Fetches all loyalty-related settings from the backend in parallel
-   * and aggregates them into a single settings object.
+   * Fetches all loyalty-related settings from the backend in one request
+   * and parses them into a single settings object (`parseLoyaltySettings`).
    *
    * Uses useAsyncData for SSR support and automatic caching.
    */
-  const LOYALTY_SETTING_KEYS = [
-    'LOYALTY_ENABLED',
-    'LOYALTY_REDEMPTION_RATIO_EUR',
-    'LOYALTY_POINTS_FACTOR',
-    'LOYALTY_TIER_MULTIPLIER_ENABLED',
-    'LOYALTY_POINTS_EXPIRATION_DAYS',
-    'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED',
-    'LOYALTY_NEW_CUSTOMER_BONUS_POINTS',
-    'LOYALTY_XP_PER_LEVEL',
-  ] as const
-
   const fetchSettings = () => {
     return useAsyncData<LoyaltySettings>(
       'loyalty-settings',
@@ -49,46 +38,11 @@ export const useLoyalty = () => {
           const settings = await requestFetch<Record<string, string>>('/api/loyalty/settings', {
             query: { keys: LOYALTY_SETTING_KEYS.join(',') },
           })
-
-          // The settings endpoint returns `value: ''` (not undefined) for a
-          // key whose Django fetch failed, so `?? default` never fires and a
-          // bare parseFloat/parseInt would yield NaN and poison checkout's
-          // redemption math. Guard on Number.isFinite so empty/missing/bad
-          // values all fall back to the default.
-          const num = (v: string | undefined, fallback: number) => {
-            const n = Number.parseFloat(v ?? '')
-            return Number.isFinite(n) ? n : fallback
-          }
-          const int = (v: string | undefined, fallback: number) => {
-            const n = Number.parseInt(v ?? '', 10)
-            return Number.isFinite(n) ? n : fallback
-          }
-          const bool = (v: string | undefined) => (v ?? '').toLowerCase() === 'true'
-
-          return {
-            enabled: bool(settings['LOYALTY_ENABLED']),
-            redemptionRatioEur: num(settings['LOYALTY_REDEMPTION_RATIO_EUR'], 100),
-            pointsFactor: num(settings['LOYALTY_POINTS_FACTOR'], 1.0),
-            tierMultiplierEnabled: bool(settings['LOYALTY_TIER_MULTIPLIER_ENABLED']),
-            pointsExpirationDays: int(settings['LOYALTY_POINTS_EXPIRATION_DAYS'], 0),
-            newCustomerBonusEnabled: bool(settings['LOYALTY_NEW_CUSTOMER_BONUS_ENABLED']),
-            newCustomerBonusPoints: int(settings['LOYALTY_NEW_CUSTOMER_BONUS_POINTS'], 0),
-            xpPerLevel: int(settings['LOYALTY_XP_PER_LEVEL'], 1000),
-          }
+          return parseLoyaltySettings(settings)
         }
         catch (err) {
           log.error({ action: 'loyalty:fetchSettings', error: err })
-          // Return default values on error
-          return {
-            enabled: false,
-            redemptionRatioEur: 100,
-            pointsFactor: 1.0,
-            tierMultiplierEnabled: false,
-            pointsExpirationDays: 0,
-            newCustomerBonusEnabled: false,
-            newCustomerBonusPoints: 0,
-            xpPerLevel: 1000,
-          }
+          return defaultLoyaltySettings()
         }
       },
       // Read by the navbar badge, the account menu, the product and
@@ -125,38 +79,15 @@ export const useLoyalty = () => {
    * @param params.dateFrom - Filter transactions from this date (ISO format)
    * @param params.dateTo - Filter transactions to this date (ISO format)
    */
-  const fetchTransactions = (params?: MaybeRefOrGetter<{
-    page?: number
-    transactionType?: string
-    dateFrom?: string
-    dateTo?: string
-  }>) => {
+  const fetchTransactions = (params?: MaybeRefOrGetter<LoyaltyTransactionsParams>) => {
     return useAsyncData<PaginatedPointsTransactionList>(
       'loyalty-transactions',
-      () => {
-        // Resolve reactive params inside the fetch function so each
-        // execution reads the latest values
-        const resolved = toValue(params)
-        const query: Record<string, string | number> = {}
-
-        if (resolved?.page !== undefined) {
-          query.page = resolved.page
-        }
-        if (resolved?.transactionType !== undefined) {
-          query.transaction_type = resolved.transactionType
-        }
-        if (resolved?.dateFrom !== undefined) {
-          query.created_after = resolved.dateFrom
-        }
-        if (resolved?.dateTo !== undefined) {
-          query.created_before = resolved.dateTo
-        }
-
-        return requestFetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
-          method: 'GET',
-          query,
-        })
-      },
+      // Resolve reactive params inside the fetch function so each
+      // execution reads the latest values
+      () => requestFetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
+        method: 'GET',
+        query: buildLoyaltyTransactionsQuery(toValue(params)),
+      }),
       {
         watch: [() => toValue(params)],
       },

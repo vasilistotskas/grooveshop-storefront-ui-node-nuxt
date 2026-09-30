@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { setActivePinia, createPinia } from 'pinia'
+import { setTenant } from '~~/test/helpers/tenant'
 
 const { gtagMock, scriptGoogleAnalyticsMock } = vi.hoisted(() => {
   const gtagMock = vi.fn()
@@ -31,24 +31,9 @@ const LABELS = {
   googleAdsPageViewLabel: 'x3diCPOe1_ocEPTc8tNE',
 }
 
-function setTenant(overrides: Record<string, unknown>) {
-  const tenantStore = useTenantStore()
-  tenantStore.setConfig({
-    ...(tenantStore.config ?? {}),
-    gaTrackingId: '',
-    googleAdsConversionId: '',
-    googleAdsPurchaseLabel: '',
-    googleAdsAddToCartLabel: '',
-    googleAdsBeginCheckoutLabel: '',
-    googleAdsPageViewLabel: '',
-    ...overrides,
-  } as TenantConfig)
-}
-
 beforeEach(() => {
-  setActivePinia(createPinia())
-  gtagMock.mockClear()
-  scriptGoogleAnalyticsMock.mockClear()
+  // No Google ids unless a test provisions them.
+  setTenant()
 })
 
 describe('googleTagIds — which id loads the tag', () => {

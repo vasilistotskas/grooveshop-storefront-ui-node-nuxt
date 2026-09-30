@@ -1,43 +1,53 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PageBreadcrumb from '~/components/Page/Breadcrumb.vue'
+import WebsidePageBreadcrumb from '~/components/variants/webside/Page/Breadcrumb.vue'
+import { trees } from '~~/test/helpers/trees'
 
-// The `routeName` prop drives the catalogue lookup, so these run
-// against the real i18n catalogue without mocking useRoute/useRouter
-// (an incomplete router mock breaks Nuxt's own plugins).
-describe('PageBreadcrumb', () => {
-  it('builds Home → current page from the shared catalogue', async () => {
-    const wrapper = await mountSuspended(PageBreadcrumb, {
-      props: { routeName: 'about' },
-    })
+/**
+ * Labels come from the real `i18n/locales/breadcrumb` catalogue, so the
+ * crumbs are asserted through `$i18n.t` rather than as literal Greek.
+ * The current crumb links to `route.path`, so these mount on a real
+ * route instead of mocking the router (an incomplete router mock breaks
+ * Nuxt's own plugins).
+ */
+function label(key: string) {
+  return useNuxtApp().$i18n.t(`breadcrumb.items.${key}.label`)
+}
 
-    // Real Greek messages: 'Αρχική' (index) then the about label.
-    expect(wrapper.text()).toContain('Αρχική')
-    expect(wrapper.text()).toContain('Σχετικά')
-    expect(wrapper.findAll('a').length).toBeGreaterThan(0)
+describe.each(trees(PageBreadcrumb, WebsidePageBreadcrumb))('$tree PageBreadcrumb', ({ C }) => {
+  it('links Home to the index and marks the current page', async () => {
+    const wrapper = await mountSuspended(C, { route: '/about', props: { routeName: 'about' } })
+
+    const links = wrapper.findAll('a')
+    expect(links.map(a => [a.text(), a.attributes('href')])).toEqual([
+      [label('index'), '/'],
+      [label('about'), '/about'],
+    ])
+    expect(links[1]!.attributes('aria-current')).toBe('page')
+    expect(links[0]!.attributes('aria-current')).toBeUndefined()
   })
 
-  it('resolves every route that ships a page-level breadcrumb', async () => {
-    for (const [name, label] of [
-      ['contact', 'Επικοινωνία'],
-      ['feedback', 'Σχόλια'],
-      ['vision', 'Όραμα'],
-      ['blog-categories', 'Κατηγορίες'],
-    ] as const) {
-      const wrapper = await mountSuspended(PageBreadcrumb, {
-        props: { routeName: name },
-      })
-      expect(wrapper.text(), name).toContain(label)
-    }
+  it('looks the label up by the route base name when no routeName is given', async () => {
+    const wrapper = await mountSuspended(C, { route: '/contact' })
+
+    expect(wrapper.find('[aria-current="page"]').text()).toBe(label('contact'))
+  })
+
+  it.each(['feedback', 'vision', 'blog-categories'])('resolves the %s crumb from the catalogue', async (name) => {
+    const wrapper = await mountSuspended(C, { route: false, props: { routeName: name } })
+
+    expect(wrapper.find('[aria-current="page"]').text()).toBe(label(name))
   })
 
   it('renders nothing when the route has no catalogue entry', async () => {
-    const wrapper = await mountSuspended(PageBreadcrumb, {
+    const wrapper = await mountSuspended(C, {
+      route: false,
       props: { routeName: 'route-with-no-crumb-label' },
     })
 
     // Never paint a raw `breadcrumb.items.*.label` key on the page.
-    expect(wrapper.text()).not.toContain('breadcrumb.items')
     expect(wrapper.find('nav').exists()).toBe(false)
+    expect(wrapper.text()).toBe('')
   })
 })

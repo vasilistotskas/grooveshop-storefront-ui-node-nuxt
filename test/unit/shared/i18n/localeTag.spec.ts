@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_LOCALE } from '../../../../i18n/locales'
-import { languageOfLocaleTag } from '../../../../shared/i18n/localeTag'
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { languageOfLocaleTag } from '~~/shared/i18n/localeTag'
 
 describe('languageOfLocaleTag', () => {
   it('reads the language off an hreflang', () => {

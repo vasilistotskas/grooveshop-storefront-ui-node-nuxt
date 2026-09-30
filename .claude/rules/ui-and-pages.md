@@ -50,7 +50,7 @@ body and pass the constant that told them apart as a prop (`Legal.vue` takes
 `resolveChrome('navbar' | 'footer' | 'mobile_nav' | 'checkout_header', schema)`
 in the layouts. Never put `definePageMeta`/`defineRouteRules` in a body (they are
 inert outside `pages/`), and never put visitor-facing markup in a shell.
-`test/unit/page-config-await.spec.ts` scans bodies as well as pages.
+ESLint enforces both across bodies and pages (`eslint.config.mjs`: page macros are banned under `app/components/**`, and an un-awaited `usePageConfig` anywhere in `app/**`).
 
 ## The frozen `webside` tree
 
@@ -71,10 +71,10 @@ Rules:
   `test/nuxt/variants/webside/frozen-render.spec.ts`, whose snapshots were
   captured before the freeze.
 - Its Greek-only `<i18n>` blocks are excluded from the translation debt list on
-  purpose (`test/unit/i18n/inline-blocks.spec.ts`): adding a locale would change
+  purpose (`test/unit/source-rules/inline-blocks.spec.ts`): adding a locale would change
   that store's render.
-- `test/unit/variants/webside-isolation.spec.ts` fails on an unprefixed
-  reference; `test/unit/variants/variant-registry.spec.ts` fails when a page or
+- `test/unit/source-rules/webside-isolation.spec.ts` fails on an unprefixed
+  reference; `test/unit/app/utils/variantRegistry.spec.ts` fails when a page or
   chrome key loses its `@webside` entry, which would hand webside the redesign.
 - A tenant that wants its own design registers `page:<key>@<schema>` /
   `chrome:<slot>@<schema>` the same way (Δelta Σigma ships only chrome).

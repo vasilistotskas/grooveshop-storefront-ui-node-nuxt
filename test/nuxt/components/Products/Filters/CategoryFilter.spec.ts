@@ -1,457 +1,168 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import type { VueWrapper } from '@vue/test-utils'
 import CategoryFilter from '~/components/Products/Filters/CategoryFilter.vue'
+import WebsideCategoryFilter from '~/components/variants/webside/Products/Filters/CategoryFilter.vue'
+import type { ProductCategory } from '~~/shared/openapi/types.gen'
+import { makeCategory } from '~~/test/fixtures/productFilters'
+import { trees } from '~~/test/helpers/trees'
 
-// Mock categories returned by useProductSearchData
-const mockAllCategories = [
-  { id: 1, name: 'Electronics', nameEl: 'Ηλεκτρονικά', nameEn: 'Electronics', nameDe: 'Elektronik' },
-  { id: 2, name: 'Clothing', nameEl: 'Ρούχα', nameEn: 'Clothing', nameDe: 'Kleidung' },
-  { id: 3, name: 'Books', nameEl: 'Βιβλία', nameEn: 'Books', nameDe: 'Bücher' },
-  { id: 4, name: 'Home & Garden', nameEl: 'Σπίτι & Κήπος', nameEn: 'Home & Garden', nameDe: 'Haus & Garten' },
-]
+/**
+ * The category list reads its names through parler `translations`
+ * (`extractTranslated`), so the fixtures carry them — the old fixture's
+ * top-level `name` rendered the empty state in every test. A category
+ * with no products under the other filters is shown but cannot be
+ * picked; a picked one can always be un-picked.
+ */
+const pf = await vi.hoisted(async () =>
+  (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
+mockNuxtImport('useProductFilters', () => () => pf)
 
-// Mock facet distribution (product counts per category)
-const mockCategoryFacets = {
-  1: 15, // Electronics has 15 products
-  2: 8, //  Clothing has 8 products
-  3: 0, //  Books has 0 products (should be disabled)
-  4: 5, //  Home & Garden has 5 products
+const data = await vi.hoisted(async () => {
+  const { ref } = await import('vue')
+  return {
+    allCategories: ref<ProductCategory[] | undefined>(undefined),
+    categoriesStatus: ref<'idle' | 'pending' | 'success' | 'error'>('success'),
+    categoryFacets: ref<Record<string, number>>({}),
+  }
+})
+mockNuxtImport('useProductSearchData', () => () => data)
+
+const ELECTRONICS = makeCategory({ id: 1, name: { el: 'Ηλεκτρονικά', en: 'Electronics' } })
+const CLOTHING = makeCategory({ id: 2, name: { el: 'Ρούχα', en: 'Clothing' } })
+const BOOKS = makeCategory({ id: 3, name: { el: 'Βιβλία', en: 'Books' } })
+const GARDEN = makeCategory({ id: 4, name: { el: 'Κήπος', en: 'Garden' } })
+
+const own = (wrapper: VueWrapper, key: string): string =>
+  (wrapper.vm as unknown as { t: (k: string) => string }).t(key)
+
+const categoryButtons = (wrapper: VueWrapper) => wrapper.findAll('button[aria-pressed]')
+
+/** A category button's name: its accessible name reads `<name> - <count> <products>`. */
+const nameOf = (b: ReturnType<VueWrapper['find']>) => b.attributes('aria-label')!.split(' - ')[0]
+
+/** The listed categories, in order, by name. */
+const listedNames = (wrapper: VueWrapper) => categoryButtons(wrapper).map(nameOf)
+
+const button = (wrapper: VueWrapper, name: string) => {
+  const found = categoryButtons(wrapper).find(b => nameOf(b) === name)
+  expect(found, `no category button named ${name}`).toBeDefined()
+  return found!
 }
 
-// Mock filters
-const mockFilters = ref({
-  search: '',
-  priceMin: undefined,
-  priceMax: undefined,
-  likesMin: undefined,
-  viewsMin: undefined,
-  categories: [],
-  sort: '',
-})
-
-const mockUpdateFilters = vi.fn()
-const mockFilterCountBySection = ref({
-  search: 0,
-  price: 0,
-  popularity: 0,
-  viewCount: 0,
-  categories: 0,
-})
-
-// Mock useProductFilters
-mockNuxtImport('useProductFilters', () => () => ({
-  filters: mockFilters,
-  updateFilters: mockUpdateFilters,
-  filterCountBySection: mockFilterCountBySection,
-}))
-
-// Mock useProductSearchData directly instead of the lower-level useFetch.
-// Mocking useFetch at module level runs before Nuxt bootstraps and breaks
-// @nuxtjs/i18n locale init, leaving $setup.t undefined at render (same class
-// of bug documented in CLAUDE.md for vi.stubGlobal('$fetch')).
-// Do NOT mock useI18n — the real @nuxtjs/i18n provides working t()/locale
-// in the nuxt test env; the component's <i18n lang="yaml"> scoped composer
-// is injected by @intlify/unplugin-vue-i18n and bypasses any mock anyway.
-mockNuxtImport('useProductSearchData', () => () => ({
-  allCategories: ref(mockAllCategories),
-  categoriesStatus: ref('success'),
-  categoryFacets: ref(mockCategoryFacets),
-}))
-
-describe('Feature: products-page-ui-enhancement - CategoryFilter disabled state', () => {
+describe.each(trees(CategoryFilter, WebsideCategoryFilter))('$tree Products/Filters/CategoryFilter', ({ C }) => {
   beforeEach(() => {
-    // Reset mocks
-    vi.clearAllMocks()
-    mockFilters.value = {
-      search: '',
-      priceMin: undefined,
-      priceMax: undefined,
-      likesMin: undefined,
-      viewsMin: undefined,
-      categories: [],
-      sort: '',
-    }
-    mockFilterCountBySection.value = {
-      search: 0,
-      price: 0,
-      popularity: 0,
-      viewCount: 0,
-      categories: 0,
-    }
+    pf.reset()
+    data.allCategories.value = [ELECTRONICS, CLOTHING, BOOKS, GARDEN]
+    data.categoriesStatus.value = 'success'
+    data.categoryFacets.value = { 1: 15, 2: 8, 3: 0, 4: 8 }
   })
 
-  describe('Zero-Count Filter Option State - Basic Rendering', () => {
-    it('should render category filter component', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('lists every category by its name in the page locale, the most stocked first', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
 
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should display category checkboxes', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      // Wait for component to load data
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Component shows empty state when no categories match search
-      // This is expected behavior with our mock setup
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should display category names', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      // Wait for component to load
-      await wrapper.vm.$nextTick()
-
-      // Component structure is rendered
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should display product count badges', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      // Component is rendered with badge support
-      expect(wrapper.html()).toBeTruthy()
-    })
+    // 2 and 4 tie on 8 products and keep their tree order.
+    expect(listedNames(wrapper)).toEqual(['Ηλεκτρονικά', 'Ρούχα', 'Κήπος', 'Βιβλία'])
+    expect(button(wrapper, 'Ηλεκτρονικά').attributes('aria-label'))
+      .toBe(`Ηλεκτρονικά - 15 ${own(wrapper, 'products')}`)
   })
 
-  describe('Disabled State for Zero-Count Categories', () => {
-    it('should apply disabled attribute to zero-count category checkboxes', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('lists the picked categories first, whatever their counts', async () => {
+    pf.filters.value.categories = ['4']
 
-      // Wait for data to load
-      await wrapper.vm.$nextTick()
+    const wrapper = await mountSuspended(C, { route: false })
 
-      // Check that component has the disabled logic in template
-      // The actual disabled state would be applied when categories load
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should apply opacity-50 class to zero-count category containers', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has the conditional class logic
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should apply cursor-not-allowed class to zero-count category containers', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has cursor-not-allowed in template
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should apply disabled styling to checkboxes', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component template includes disabled checkbox styling
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should apply muted text color to zero-count category names', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has conditional text color classes
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should apply opacity to zero-count category badges', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has badge opacity logic
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(listedNames(wrapper)).toEqual(['Κήπος', 'Ηλεκτρονικά', 'Ρούχα', 'Βιβλία'])
+    expect(button(wrapper, 'Κήπος').attributes('aria-pressed')).toBe('true')
+    expect(button(wrapper, 'Ρούχα').attributes('aria-pressed')).toBe('false')
   })
 
-  describe('Enabled State for Non-Zero Categories', () => {
-    it('should not apply disabled attribute to categories with products', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('adds a category to the selection', async () => {
+    pf.filters.value.categories = ['1']
+    const wrapper = await mountSuspended(C, { route: false })
 
-      await wrapper.vm.$nextTick()
+    await button(wrapper, 'Ρούχα').trigger('click')
 
-      // Component has conditional disabled logic
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should apply hover effects to enabled categories', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has hover classes in template
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should apply normal text color to enabled category names', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has conditional text color
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ categories: ['1', '2'] })
   })
 
-  describe('Selected Zero-Count Categories Edge Case', () => {
-    it('should allow deselection of previously selected zero-count categories', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('takes a picked category out of the selection', async () => {
+    pf.filters.value.categories = ['1', '2']
+    const wrapper = await mountSuspended(C, { route: false })
 
-      await wrapper.vm.$nextTick()
+    await button(wrapper, 'Ηλεκτρονικά').trigger('click')
 
-      // The component should handle this edge case
-      // Selected categories should not be disabled even if they have zero products
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should not disable checkboxes for selected categories', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Logic should check if category is selected before disabling
-      const html = wrapper.html()
-      expect(html).toBeTruthy()
-    })
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ categories: ['2'] })
   })
 
-  describe('Accessibility for Disabled Categories', () => {
-    it('should include product count in aria-label', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('shows a category with no matching products but will not pick it', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
 
-      await wrapper.vm.$nextTick()
+    const books = button(wrapper, 'Βιβλία')
+    expect(books.attributes('disabled')).toBeDefined()
+    await books.trigger('click')
 
-      // Check for aria-label attributes
-      const html = wrapper.html()
-      expect(html).toContain('aria-label')
-    })
-
-    it('should have aria-label on all checkboxes', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      const checkboxes = wrapper.findAll('input[type="checkbox"]')
-      checkboxes.forEach((checkbox) => {
-        // Each checkbox should have an aria-label
-        expect(checkbox.attributes('aria-label')).toBeDefined()
-      })
-    })
-
-    it('should communicate disabled state to screen readers', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Disabled attribute communicates state to screen readers
-      const html = wrapper.html()
-      expect(html).toContain('disabled')
-    })
+    expect(pf.updateFilters).not.toHaveBeenCalled()
   })
 
-  describe('Visual Consistency', () => {
-    it('should maintain consistent styling across all disabled elements', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('lets a picked category go even after its count dropped to zero', async () => {
+    pf.filters.value.categories = ['3']
+    const wrapper = await mountSuspended(C, { route: false })
 
-      await wrapper.vm.$nextTick()
+    const books = button(wrapper, 'Βιβλία')
+    expect(books.attributes('disabled')).toBeUndefined()
+    await books.trigger('click')
 
-      // Component has consistent disabled state styling
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should differentiate between enabled and disabled categories visually', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has both enabled and disabled state classes
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ categories: [] })
   })
 
-  describe('Conditional Hover Effects', () => {
-    it('should only apply hover effects to enabled categories', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('treats a category missing from the facets as empty, with no count badge', async () => {
+    data.categoryFacets.value = { 1: 15 }
 
-      await wrapper.vm.$nextTick()
+    const wrapper = await mountSuspended(C, { route: false })
 
-      // Component has conditional hover classes
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should not apply hover cursor to disabled categories', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Component has cursor-not-allowed for disabled
-      expect(wrapper.exists()).toBe(true)
-    })
+    const clothing = button(wrapper, 'Ρούχα')
+    expect(clothing.attributes('disabled')).toBeDefined()
+    expect(clothing.text()).toBe('Ρούχα')
+    expect(button(wrapper, 'Ηλεκτρονικά').text()).toBe('Ηλεκτρονικά15')
   })
 
-  describe('Facet Integration', () => {
-    it('should fetch category facets on mount', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('narrows the list to the names containing the search, ignoring case', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
 
-      // Component should fetch facet distribution
-      expect(wrapper.exists()).toBe(true)
-    })
+    await wrapper.find('input').setValue('ΡΟΎ')
 
-    it('should use facet counts to determine disabled state', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Facet counts should drive the disabled state logic
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should handle undefined facet counts gracefully', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Should not crash when facet data is missing
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should display badge with count even for zero-count categories', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Badges should show "0" for zero-count categories
-      // This helps users understand why the option is disabled
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(listedNames(wrapper)).toEqual(['Ρούχα'])
   })
 
-  describe('Toggle Behavior', () => {
-    it('should prevent selection of zero-count categories', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('shows the empty state when the search matches nothing, and the clear button brings the list back', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
 
-      await wrapper.vm.$nextTick()
+    await wrapper.find('input').setValue('zzz')
+    expect(categoryButtons(wrapper)).toHaveLength(0)
+    expect(wrapper.text()).toContain(own(wrapper, 'no_categories'))
 
-      // The toggleCategory function should check for zero count
-      // and prevent adding the category to selection
-      expect(wrapper.exists()).toBe(true)
-    })
+    await wrapper.find(`button[aria-label="${own(wrapper, 'clear_search')}"]`).trigger('click')
 
-    it('should allow removal of selected categories regardless of count', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Users should always be able to remove selected filters
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(listedNames(wrapper)).toHaveLength(4)
   })
 
-  describe('Collapsible behavior', () => {
-    it('should be wrapped in collapsible', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('shows skeletons instead of the list while the categories load', async () => {
+    data.categoriesStatus.value = 'pending'
 
-      // Should have collapsible structure
-      expect(wrapper.exists()).toBe(true)
-    })
+    const wrapper = await mountSuspended(C, { route: false })
 
-    it('should have folder icon in trigger', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      // Should have icon
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should have categories label in trigger', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      // Should have label
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should show active filter count badge in trigger', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      // Should have badge when filters are active
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(categoryButtons(wrapper)).toHaveLength(0)
+    expect(wrapper.findAllComponents({ name: 'USkeleton' })).toHaveLength(6)
+    expect(wrapper.text()).not.toContain(own(wrapper, 'no_categories'))
   })
 
-  describe('Search functionality', () => {
-    it('should have search input', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
+  it('shows the empty state when the store has no categories', async () => {
+    data.allCategories.value = []
 
-      // Should have search input for filtering categories
-      const inputs = wrapper.findAll('input')
-      expect(inputs.length).toBeGreaterThan(0)
-    })
+    const wrapper = await mountSuspended(C, { route: false })
 
-    it('should filter categories based on search query', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Search should filter the displayed categories
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should maintain disabled state after search filtering', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Disabled state should persist through search filtering
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('Loading state', () => {
-    it('should show skeleton loaders while loading', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      // Should handle loading state
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should show categories after loading', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Should display categories after data loads
-      expect(wrapper.exists()).toBe(true)
-    })
-  })
-
-  describe('Empty state', () => {
-    it('should show empty state when no categories match search', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Should have empty state handling
-      expect(wrapper.exists()).toBe(true)
-    })
-
-    it('should show appropriate message in empty state', async () => {
-      const wrapper = await mountSuspended(CategoryFilter)
-
-      await wrapper.vm.$nextTick()
-
-      // Empty state should have helpful message
-      expect(wrapper.exists()).toBe(true)
-    })
+    expect(categoryButtons(wrapper)).toHaveLength(0)
+    expect(wrapper.text()).toContain(own(wrapper, 'no_categories'))
   })
 })

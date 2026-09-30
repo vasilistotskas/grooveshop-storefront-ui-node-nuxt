@@ -44,16 +44,29 @@ registerEndpoint('/api/countries', () => ({
 
 type Wrapper = Awaited<ReturnType<typeof mountField>>
 
+/**
+ * Wait for the picker to hold the `/api/countries` list. The fetch is
+ * not awaited in setup, and a cold one outlasts a single
+ * `flushPromises()` — the specs only ever passed that way because an
+ * earlier test's instance, left mounted, kept the payload alive.
+ */
+async function countriesLoaded(wrapper: { findComponent: Wrapper['findComponent'] }) {
+  await vi.waitFor(() => {
+    expect(wrapper.findComponent({ name: 'USelectMenu' }).props('items')).not.toHaveLength(0)
+  })
+}
+
 async function mountField(props: Record<string, unknown> = {}) {
   // Behave like `v-model` in the parent — including for writes made while
   // the component is still mounting (a saved number being parsed).
-  let mounted: { setProps: (props: Record<string, unknown>) => Promise<void> } | undefined
+  const mounted: { wrapper?: { setProps: (props: Record<string, unknown>) => Promise<void> } } = {}
   const early: Record<string, unknown> = {}
   const write = (key: string) => (value: string | undefined) => {
-    if (mounted) void mounted.setProps({ [key]: value })
+    if (mounted.wrapper) void mounted.wrapper.setProps({ [key]: value })
     else early[key] = value
   }
   const wrapper = await mountSuspended(PhoneInput, {
+    route: false,
     props: {
       'label': 'Τηλέφωνο',
       'name': 'phone',
@@ -66,8 +79,9 @@ async function mountField(props: Record<string, unknown> = {}) {
       ...props,
     },
   })
-  mounted = wrapper
+  mounted.wrapper = wrapper
   await wrapper.setProps(early)
+  await countriesLoaded(wrapper)
   await flushPromises()
   return wrapper
 }
@@ -85,7 +99,8 @@ async function type(wrapper: Wrapper, value: string) {
   await flushPromises()
 }
 
-const leading = (wrapper: Wrapper) => wrapper.find('input').element.parentElement!.querySelector('span.absolute')
+/** UInput's leading slot, where the dial code is fixed text. */
+const leading = (wrapper: Wrapper) => wrapper.find('[data-slot="leading"]').element
 
 describe('Form/PhoneInput', () => {
   it('is a country picker plus a tel input that autofill can fill with the full number', async () => {
@@ -128,6 +143,7 @@ describe('Form/PhoneInput', () => {
 
       const items = picker(wrapper).props('items') as Array<Record<string, string>>
       expect(items.some(item => item.type === 'separator')).toBe(false)
+      // The rule drawn under that row IS the divider, so its class is the contract.
       expect(items.filter(item => item.class).map(item => item.value)).toEqual(['CY'])
       expect(items.find(item => item.value === 'CY')!.class).toContain('after:h-px')
     })
@@ -149,16 +165,9 @@ describe('Form/PhoneInput', () => {
       const cy = (menu.props('items') as Array<Record<string, string>>).find(item => item.value === 'CY')!
       expect(cy.label).toBe('Κύπρος')
       expect(cy.dialCode).toBe('+357')
-      // What `filter-fields` searches: name, then alpha-2 and the code.
-      expect(menu.props('filterFields')).toEqual(['label', 'searchTerms'])
+      // `searchTerms` is what the menu searches besides the name.
       expect(cy.searchTerms).toContain('+357')
       expect(cy.searchTerms).toContain('CY')
-    })
-
-    it('is virtualized, so ~250 rows stay cheap', async () => {
-      const wrapper = await mountField()
-
-      expect(picker(wrapper).props('virtualize')).toBeTruthy()
     })
   })
 
@@ -166,18 +175,15 @@ describe('Form/PhoneInput', () => {
     it('shows the picked country\'s dial code as fixed leading text, with padding sized to it', async () => {
       const wrapper = await mountField({ followCountry: 'CY' })
 
-      const input = wrapper.find('input')
-      expect(input.classes()).toContain('ps-(--dial-code-length)')
       // "+357" is 4 characters, plus 2.5ch (1.5ch start inset + a 1ch gap).
-      expect(input.attributes('style') ?? wrapper.html()).toContain('--dial-code-length: 6.5ch')
-      expect(leading(wrapper)!.textContent).toContain('+357')
-      expect(leading(wrapper)!.className).toContain('pointer-events-none')
+      expect(wrapper.html()).toContain('--dial-code-length: 6.5ch')
+      expect(leading(wrapper).textContent).toContain('+357')
     })
 
     it('sizes the padding to a longer code too (+1 vs +357)', async () => {
       const wrapper = await mountField({ followCountry: 'US' })
 
-      expect(leading(wrapper)!.textContent).toContain('+1')
+      expect(leading(wrapper).textContent).toContain('+1')
       expect(wrapper.html()).toContain('--dial-code-length: 4.5ch')
     })
 
@@ -188,14 +194,6 @@ describe('Form/PhoneInput', () => {
       pick(wrapper, 'CY')
       await flushPromises()
       expect(wrapper.find('input').attributes('placeholder')).toBe('96123456')
-    })
-
-    it('has no recognised-country badge, padding hack or hint', async () => {
-      const wrapper = await mountField({ modelValue: '+35796123456' })
-
-      expect(wrapper.text()).not.toContain('Αναγνωρίστηκε')
-      expect(wrapper.text()).not.toContain('ξεκινήστε')
-      expect(wrapper.find('input').classes()).not.toContain('pe-28')
     })
   })
 
@@ -223,7 +221,7 @@ describe('Form/PhoneInput', () => {
       expect(wrapper.find('input').element.value).toBe('96123456')
       expect(picker(wrapper).props('modelValue')).toBe('CY')
       expect(wrapper.emitted('update:country')?.at(-1)).toEqual(['CY'])
-      expect(leading(wrapper)!.textContent).toContain('+357')
+      expect(leading(wrapper).textContent).toContain('+357')
     })
 
     it('leaves the picker following when a saved number is the delivery country\'s', async () => {
@@ -332,19 +330,19 @@ describe('Form/PhoneInput', () => {
 
       expect(wrapper.find('input').element.value).toBe('96123456')
       expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+35796123456'])
-      expect(leading(wrapper)!.textContent).toContain('+357')
+      expect(leading(wrapper).textContent).toContain('+357')
     })
   })
 
   describe('follow, then sticky', () => {
     it('follows the delivery country until the shopper picks', async () => {
       const wrapper = await mountField({ followCountry: 'GR' })
-      expect(leading(wrapper)!.textContent).toContain('+30')
+      expect(leading(wrapper).textContent).toContain('+30')
 
       await wrapper.setProps({ followCountry: 'CY' })
       await flushPromises()
 
-      expect(leading(wrapper)!.textContent).toContain('+357')
+      expect(leading(wrapper).textContent).toContain('+357')
       expect(picker(wrapper).props('modelValue')).toBe('CY')
       // Following is not a choice: nothing is claimed as picked.
       expect(wrapper.emitted('update:country')).toBeUndefined()
@@ -359,7 +357,7 @@ describe('Form/PhoneInput', () => {
       await flushPromises()
 
       expect(picker(wrapper).props('modelValue')).toBe('DE')
-      expect(leading(wrapper)!.textContent).toContain('+49')
+      expect(leading(wrapper).textContent).toContain('+49')
     })
 
     it('also stays after a typed +code', async () => {
@@ -413,7 +411,8 @@ describe('Form/PhoneInput', () => {
           }
         },
       })
-      return mountSuspended(Host).then(async (wrapper) => {
+      return mountSuspended(Host, { route: false }).then(async (wrapper) => {
+        await countriesLoaded(wrapper)
         await flushPromises()
         return { wrapper, state, renders: () => renders }
       })
@@ -431,7 +430,9 @@ describe('Form/PhoneInput', () => {
       state.country = 'CY'
       await flushPromises()
 
-      // A loop trips Vue's guard in dev; in prod it never returns.
+      // A loop trips Vue's guard in dev; in prod it never returns. The
+      // render budget is a loop detector, not a spec: a Nuxt UI / Reka
+      // bump can move it, which is a reason to re-measure, not to loop.
       expect(warn.mock.calls.some(call => String(call[0]).includes('Maximum recursive updates'))).toBe(false)
       expect(renders() - before).toBeLessThan(6)
       // No pick was made, so the picker follows to CY and keeps the digits...

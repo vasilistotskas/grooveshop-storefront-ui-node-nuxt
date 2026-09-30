@@ -1,77 +1,62 @@
 /**
- * Unit tests for server/plugins/sitemap-tenant-gate.ts
- *
  * The sitemap's static routes come from a build-time manifest with no
  * tenant context, so a feature-gated page (whose route middleware hard
  * 404s when the feature is off) was advertised to every tenant. This
  * plugin removes those URLs per tenant at request time.
+ *
+ * Everything below the backend is real: the tenant lookup, the bulk
+ * readers in `server/utils/tenantSetting.ts`, the shared truthiness rule
+ * and the gated-route table. The backend answers from `store` below.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  pageTypePublishedForHost,
-  publicSettingsForHost,
-  publishedContentLocalesForHost,
-} from '../../../../server/utils/tenantSetting'
-import { parseSettingFlag } from '../../../../shared/utils/settingFlag'
-import { LEGAL_ROUTE_SLUGS } from '../../../../shared/utils/legalPages'
+import { beforeEach, describe, expect, it } from 'vitest'
+import plugin from '~~/server/plugins/sitemap-tenant-gate'
+import { LEGAL_ROUTE_SLUGS } from '~~/shared/utils/legalPages'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { backend, createTestEvent, jsonResponse, runNitroPlugin } from '~~/test/helpers/nitro'
+import type { BackendRequest, TestNitroApp } from '~~/test/helpers/nitro'
 
-vi.stubGlobal('useRuntimeConfig', () => ({
-  apiBaseUrl: 'https://api.example.com/api/v1',
-}))
+type ContentPage = { slug: string, translations: Record<string, unknown> }
 
-vi.stubGlobal('getRequestHost', () => 'example.com')
+/** What the store's backend holds; `'down'` makes that endpoint fail. */
+const store: {
+  settings: Record<string, string> | 'down'
+  content: ContentPage[] | 'down'
+  layout: (pageType: string) => { isPublished: boolean } | 'absent'
+} = { settings: {}, content: [], layout: () => ({ isPublished: true }) }
 
-const getTenantConfigMock = vi.fn()
-vi.stubGlobal('getTenantConfig', getTenantConfigMock)
-
-// The bulk reads the plugin makes: the store's public settings, and the
-// slugs of its published ContentPages (which say whether a legal route
-// resolves for this tenant at all).
-const settingsMock = vi.fn(async () => ({ settings: {} as Record<string, string> }))
 const BOTH_LOCALES = { el: {}, en: {} }
-const contentMock = vi.fn(async () => ({
-  // Default: the tenant has every legal document, in every locale, so
-  // these tests vary one gate at a time like the settings ones do.
-  results: Object.values(LEGAL_ROUTE_SLUGS)
-    .map(slug => ({ slug, translations: BOTH_LOCALES })),
-}))
-// One read per gated pageType: Django 404s when no layout is published.
-const layoutMock = vi.fn(async (_pageType: string) => ({ isPublished: true }))
-vi.stubGlobal('$fetch', (url: string) => {
-  if (url.endsWith('/settings/public')) return settingsMock()
-  if (url.endsWith('/content-page')) return contentMock()
-  const m = url.match(/\/page-config\/([^/?]+)$/)
-  if (m) return layoutMock(m[1]!)
-  throw new Error(`unexpected $fetch: ${url}`)
-})
+/** Default: the tenant has every legal document, in every locale, so tests vary one gate at a time. */
+const ALL_LEGAL = () => Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug, translations: BOTH_LOCALES }))
 
-// `publicSettingsForHost` and `parseSettingFlag` are auto-imports in
-// the plugin. The real ones are stubbed in (rather than fakes) so these
-// tests still exercise the shared truthiness rule and the fail-CLOSED
-// branch.
-vi.stubGlobal('publicSettingsForHost', publicSettingsForHost)
-vi.stubGlobal('publishedContentLocalesForHost', publishedContentLocalesForHost)
-vi.stubGlobal('pageTypePublishedForHost', pageTypePublishedForHost)
-vi.stubGlobal('parseSettingFlag', parseSettingFlag)
-// Read at MODULE scope by the plugin (the GATED_ROUTES literal derives
-// the legal entries from it), so this must be stubbed before the import
-// below rather than inside a test.
-vi.stubGlobal('LEGAL_ROUTE_SLUGS', LEGAL_ROUTE_SLUGS)
+function answer(request: BackendRequest) {
+  const down = jsonResponse({ detail: 'upstream down' }, 404)
+  if (request.path.endsWith('/settings/public')) return store.settings === 'down' ? down : { settings: store.settings }
+  if (request.path.endsWith('/content-page')) return store.content === 'down' ? down : { results: store.content }
+  const pageType = request.path.match(/\/page-config\/([^/?]+)$/)?.[1]
+  if (pageType) {
+    const layout = store.layout(pageType)
+    // Django answers 404 for "no published layout".
+    return layout === 'absent' ? jsonResponse({ detail: 'Not found.' }, 404) : layout
+  }
+  if (request.path.endsWith('/tenant/resolve')) return resolvedTenant ?? jsonResponse({ detail: 'Not found.' }, 404)
+  throw new Error(`unexpected backend request: ${request.path}`)
+}
 
-// Capture the hook the plugin registers so we can drive it directly.
-let resolvedHook: ((ctx: any) => Promise<void>) | undefined
-vi.stubGlobal('defineNitroPlugin', (fn: (app: any) => void) => {
-  fn({
-    hooks: {
-      hook: (name: string, handler: (ctx: any) => Promise<void>) => {
-        if (name === 'sitemap:resolved') resolvedHook = handler
-      },
-    },
-  })
-  return fn
-})
+/** The resolve payload for example.com; unset means no store owns it. */
+let resolvedTenant: unknown
+let nitroApp: TestNitroApp
 
-await import('../../../../server/plugins/sitemap-tenant-gate')
+const requestsTo = (suffix: string) => backend.requests.filter(r => r.path.includes(suffix))
+
+/** A sitemap request on example.com, with the tenant 0.tenant would have bound (none when null). */
+function eventFor(tenant: Record<string, unknown> | null, headers: Record<string, string> = {}) {
+  return createTestEvent({ url: '/sitemap.xml', host: 'example.com', headers, context: tenant ? { tenant } : {} })
+}
+
+async function gate<T extends { urls: unknown[] }>(ctx: T): Promise<T> {
+  await nitroApp.hooks.callHook('sitemap:resolved', ctx)
+  return ctx
+}
 
 const ALL_URLS = [
   { loc: 'https://example.com/' },
@@ -89,28 +74,28 @@ async function run(tenant: Record<string, unknown> | null) {
   const ctx = {
     urls: [...ALL_URLS],
     sitemapName: 'sitemap',
-    event: { context: tenant ? { tenant } : {} },
+    event: eventFor(tenant),
   }
-  await resolvedHook!(ctx)
+  await gate(ctx)
   return ctx.urls.map(u => u.loc)
 }
 
-describe('sitemap-tenant-gate', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
+describe('server/plugins/sitemap-tenant-gate', () => {
+  beforeEach(async () => {
     // Every runtime setting off — the seeded default of the commercial
     // gates, and the webside.gr state Ahrefs reported.
-    settingsMock.mockResolvedValue({ settings: {} })
-  })
-
-  it('registers the sitemap:resolved hook', () => {
-    expect(resolvedHook).toBeTypeOf('function')
+    store.settings = {}
+    store.content = ALL_LEGAL()
+    store.layout = () => ({ isPublished: true })
+    resolvedTenant = undefined
+    backend.reply(answer)
+    nitroApp = await runNitroPlugin(plugin)
   })
 
   it('drops a gated route when the tenant plan flag is off', async () => {
     // The plan gate decides on its own: a runtime setting that says ON
     // never overrides a plan that says OFF.
-    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: 'True' } })
+    store.settings = { LOYALTY_ENABLED: 'True' }
 
     const locs = await run({ ...OPEN, loyaltyEnabled: false })
 
@@ -123,13 +108,13 @@ describe('sitemap-tenant-gate', () => {
   it('reads the settings ONCE for every gate that needs one', async () => {
     await run(OPEN)
 
-    expect(settingsMock).toHaveBeenCalledTimes(1)
+    expect(requestsTo('/settings/public')).toHaveLength(1)
   })
 
   it('drops the catalogue when the merchant setting is off', async () => {
     // One tier, not two: a store can hold a product model and serve no
     // shop, which is not a plan the platform sells or withholds.
-    settingsMock.mockResolvedValue({ settings: { CATALOGUE_ENABLED: 'False' } })
+    store.settings = { CATALOGUE_ENABLED: 'False' }
 
     const locs = await run(OPEN)
 
@@ -149,7 +134,7 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('keeps the catalogue when the merchant setting is on', async () => {
-    settingsMock.mockResolvedValue({ settings: { CATALOGUE_ENABLED: 'True' } })
+    store.settings = { CATALOGUE_ENABLED: 'True' }
 
     const locs = await run(OPEN)
 
@@ -168,16 +153,16 @@ describe('sitemap-tenant-gate', () => {
     const ctx = {
       urls: [{ loc: '/blog' }, { loc: '/blog/categories' }],
       sitemapName: 'sitemap',
-      event: { context: { tenant: OPEN } },
+      event: eventFor(OPEN),
     }
-    await resolvedHook!(ctx)
+    await gate(ctx)
 
     expect(ctx.urls.map(u => u.loc)).toEqual(['/blog', '/blog/categories'])
   })
 
   it('drops a gated route when the plan flag is on but the runtime setting is false', async () => {
     // Exactly the webside.gr state that put a 404 in the sitemap.
-    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: 'False' } })
+    store.settings = { LOYALTY_ENABLED: 'False' }
 
     const locs = await run(OPEN)
 
@@ -185,7 +170,7 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('keeps a gated route when both gates pass', async () => {
-    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: 'True' } })
+    store.settings = { LOYALTY_ENABLED: 'True' }
 
     const locs = await run(OPEN)
 
@@ -193,7 +178,7 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('accepts the shared truthiness rule, not only "True"', async () => {
-    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: '1' } })
+    store.settings = { LOYALTY_ENABLED: '1' }
 
     const locs = await run(OPEN)
 
@@ -207,7 +192,7 @@ describe('sitemap-tenant-gate', () => {
     // returns without throwing. This feed used to fail closed here and
     // list fewer URLs than the store was serving. The rule lives in
     // shared/utils/gatedRoutes.ts so the two cannot drift apart again.
-    settingsMock.mockRejectedValue(new Error('upstream down'))
+    store.settings = 'down'
 
     const locs = await run(OPEN)
 
@@ -217,7 +202,7 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('drops the offers page when the promotions plan flag is off', async () => {
-    settingsMock.mockResolvedValue({ settings: { PROMOTIONS_ENABLED: 'True' } })
+    store.settings = { PROMOTIONS_ENABLED: 'True' }
 
     const locs = await run({ ...OPEN, promotionsEnabled: false })
 
@@ -226,7 +211,7 @@ describe('sitemap-tenant-gate', () => {
 
   it('drops the offers page when the plan flag is on but the runtime setting is false', async () => {
     // The webside.gr state Ahrefs reported on 2026-09-11.
-    settingsMock.mockResolvedValue({ settings: { PROMOTIONS_ENABLED: 'False' } })
+    store.settings = { PROMOTIONS_ENABLED: 'False' }
 
     const locs = await run(OPEN)
 
@@ -234,7 +219,7 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('keeps the offers page when both promotion gates pass', async () => {
-    settingsMock.mockResolvedValue({ settings: { PROMOTIONS_ENABLED: 'True' } })
+    store.settings = { PROMOTIONS_ENABLED: 'True' }
 
     const locs = await run(OPEN)
 
@@ -242,14 +227,11 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('resolves the tenant itself when the sitemap route bypassed tenant middleware', async () => {
-    getTenantConfigMock.mockResolvedValueOnce({
-      type: 'ok',
-      config: { ...OPEN, loyaltyEnabled: false },
-    })
+    resolvedTenant = validTenantConfig('example.com', { ...OPEN, loyaltyEnabled: false })
 
     const locs = await run(null)
 
-    expect(getTenantConfigMock).toHaveBeenCalledWith('example.com')
+    expect(requestsTo('/tenant/resolve')[0]?.query).toEqual({ domain: 'example.com' })
     expect(locs).not.toContain('https://example.com/loyalty-program')
   })
 
@@ -261,19 +243,52 @@ describe('sitemap-tenant-gate', () => {
         { loc: '/contact' },
       ],
       sitemapName: 'sitemap',
-      event: { context: { tenant: { ...OPEN, loyaltyEnabled: false } } },
+      event: eventFor({ ...OPEN, loyaltyEnabled: false }),
     }
-    await resolvedHook!(ctx)
+    await gate(ctx)
 
     expect(ctx.urls.map(u => u.loc)).toEqual(['/contact'])
   })
 
   it('leaves the sitemap untouched when the tenant cannot be resolved', async () => {
-    getTenantConfigMock.mockResolvedValueOnce({ type: 'not_found', config: null })
-
     const locs = await run(null)
 
     expect(locs).toEqual(ALL_URLS.map(u => u.loc))
+  })
+
+  it('drops the gift-card page when the plan does not include it', async () => {
+    store.settings = { GIFT_CARDS_ENABLED: 'True' }
+    const ctx = await gate({ urls: [{ loc: '/gift-cards' }, { loc: '/contact' }], event: eventFor({ ...OPEN, giftCardsEnabled: false }) })
+
+    expect(ctx.urls.map(u => u.loc)).toEqual(['/contact'])
+  })
+
+  it('keeps the gift-card page when plan and setting both allow it', async () => {
+    store.settings = { GIFT_CARDS_ENABLED: 'True' }
+    const ctx = await gate({ urls: [{ loc: '/gift-cards' }], event: eventFor({ ...OPEN, giftCardsEnabled: true }) })
+
+    expect(ctx.urls.map(u => u.loc)).toEqual(['/gift-cards'])
+  })
+
+  it('filters plain-string URL entries like object ones', async () => {
+    const ctx = await gate({ urls: ['/loyalty-program', '/contact'], event: eventFor({ ...OPEN, loyaltyEnabled: false }) })
+
+    expect(ctx.urls).toEqual(['/contact'])
+  })
+
+  it('leaves the list alone when the sitemap is built without a request', async () => {
+    const ctx = await gate({ urls: [...ALL_URLS], event: undefined })
+
+    expect(ctx.urls).toEqual(ALL_URLS)
+    expect(backend.requests).toEqual([])
+  })
+
+  it('reads the store settings for the Host, never a forwarded one', async () => {
+    await gate({ urls: [...ALL_URLS], event: eventFor(OPEN, { 'x-forwarded-host': 'evil.example' }) })
+
+    const [settings] = requestsTo('/settings/public')
+    expect(settings?.headers.get('x-forwarded-host')).toBe('example.com')
+    expect(requestsTo('/content-page')[0]?.query).toEqual({ pageSize: '100' })
   })
 
   describe('locale gate', () => {
@@ -291,11 +306,9 @@ describe('sitemap-tenant-gate', () => {
       const ctx = {
         urls: [...urls],
         sitemapName: 'sitemap',
-        event: {
-          context: { tenant: { ...OPEN, loyaltyEnabled: false, ...tenant } },
-        },
+        event: eventFor({ ...OPEN, loyaltyEnabled: false, ...tenant }),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
       return ctx.urls as Array<Record<string, any>>
     }
 
@@ -389,20 +402,13 @@ describe('sitemap-tenant-gate', () => {
     const URLS = Object.keys(LEGAL_ROUTE_SLUGS)
       .map(route => ({ loc: `https://example.com/${route}` }))
 
-    beforeEach(() => {
-      contentMock.mockResolvedValue({
-        results: Object.values(LEGAL_ROUTE_SLUGS)
-          .map(slug => ({ slug, translations: BOTH_LOCALES })),
-      })
-    })
-
     async function runLegal(tenant: Record<string, unknown>) {
       const ctx = {
         urls: [...URLS],
         sitemapName: 'sitemap',
-        event: { context: { tenant } },
+        event: eventFor(tenant),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
       return ctx.urls.map(u => u.loc)
     }
 
@@ -414,13 +420,11 @@ describe('sitemap-tenant-gate', () => {
       // The live case. `return-policy` is seeded UNPUBLISHED because
       // only the merchant can write one, so three of the four
       // production tenants answer 404 there.
-      contentMock.mockResolvedValue({
-        results: [
-          { slug: 'terms', translations: BOTH_LOCALES },
-          { slug: 'privacy', translations: BOTH_LOCALES },
-          { slug: 'cookies', translations: BOTH_LOCALES },
-        ],
-      })
+      store.content = [
+        { slug: 'terms', translations: BOTH_LOCALES },
+        { slug: 'privacy', translations: BOTH_LOCALES },
+        { slug: 'cookies', translations: BOTH_LOCALES },
+      ]
 
       const locs = await runLegal(OPEN)
 
@@ -429,7 +433,7 @@ describe('sitemap-tenant-gate', () => {
     })
 
     it('drops every legal route for a tenant with none published', async () => {
-      contentMock.mockResolvedValue({ results: [] })
+      store.content = []
 
       expect(await runLegal(OPEN)).toEqual([])
     })
@@ -437,7 +441,7 @@ describe('sitemap-tenant-gate', () => {
     it('fails CLOSED when the content lookup errors', async () => {
       // Same trade as the settings gate: a sitemap that fails open
       // publishes a URL its own gate then 404s.
-      contentMock.mockRejectedValue(new Error('upstream down'))
+      store.content = 'down'
 
       expect(await runLegal(OPEN)).toEqual([])
     })
@@ -445,7 +449,7 @@ describe('sitemap-tenant-gate', () => {
     it('reads the content pages ONCE for every legal route', async () => {
       await runLegal(OPEN)
 
-      expect(contentMock).toHaveBeenCalledTimes(1)
+      expect(requestsTo('/content-page')).toHaveLength(1)
     })
 
     it('drops the locale a document is not translated into', async () => {
@@ -453,10 +457,8 @@ describe('sitemap-tenant-gate', () => {
       // documents exist only in Greek, and `extractTranslated` does not
       // fall back — so /en/terms-of-use 404s while /terms-of-use is
       // fine. Three such URLs were in its sitemap.
-      contentMock.mockResolvedValue({
-        results: Object.values(LEGAL_ROUTE_SLUGS)
-          .map(slug => ({ slug, translations: { el: {} } })),
-      })
+      store.content = Object.values(LEGAL_ROUTE_SLUGS)
+        .map(slug => ({ slug, translations: { el: {} } }))
 
       const ctx = {
         urls: [
@@ -464,9 +466,9 @@ describe('sitemap-tenant-gate', () => {
           { loc: 'https://example.com/en/terms-of-use' },
         ],
         sitemapName: 'sitemap',
-        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+        event: eventFor({ ...OPEN, availableLocales: ['el', 'en'] }),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
 
       expect(ctx.urls.map(u => u.loc))
         .toEqual(['https://example.com/terms-of-use'])
@@ -478,17 +480,13 @@ describe('sitemap-tenant-gate', () => {
       // configured bilingual store with ONE untranslated legal document
       // hits exactly that combination, so the return has to account for
       // locale-restricted routes or the 404 survives.
-      settingsMock.mockResolvedValue({
-        settings: {
-          LOYALTY_ENABLED: 'True',
-          CATALOGUE_ENABLED: 'True',
-          PROMOTIONS_ENABLED: 'True',
-        },
-      })
-      contentMock.mockResolvedValue({
-        results: Object.values(LEGAL_ROUTE_SLUGS)
-          .map(slug => ({ slug, translations: { el: {} } })),
-      })
+      store.settings = {
+        LOYALTY_ENABLED: 'True',
+        CATALOGUE_ENABLED: 'True',
+        PROMOTIONS_ENABLED: 'True',
+      }
+      store.content = Object.values(LEGAL_ROUTE_SLUGS)
+        .map(slug => ({ slug, translations: { el: {} } }))
 
       const ctx = {
         urls: [
@@ -496,9 +494,9 @@ describe('sitemap-tenant-gate', () => {
           { loc: 'https://example.com/en/terms-of-use' },
         ],
         sitemapName: 'sitemap',
-        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+        event: eventFor({ ...OPEN, availableLocales: ['el', 'en'] }),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
 
       expect(ctx.urls.map(u => u.loc))
         .toEqual(['https://example.com/terms-of-use'])
@@ -509,10 +507,8 @@ describe('sitemap-tenant-gate', () => {
       // surviving /terms-of-use still advertised an `en` alternate
       // pointing at it, so the 404 came back as an hreflang. The
       // locale gate cannot catch this — the tenant DOES serve `en`.
-      contentMock.mockResolvedValue({
-        results: Object.values(LEGAL_ROUTE_SLUGS)
-          .map(slug => ({ slug, translations: { el: {} } })),
-      })
+      store.content = Object.values(LEGAL_ROUTE_SLUGS)
+        .map(slug => ({ slug, translations: { el: {} } }))
 
       const ctx = {
         urls: [{
@@ -524,9 +520,9 @@ describe('sitemap-tenant-gate', () => {
           ],
         }],
         sitemapName: 'sitemap',
-        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+        event: eventFor({ ...OPEN, availableLocales: ['el', 'en'] }),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
 
       // Only one distinct href would remain, which is a page declaring
       // itself its own alternate — so the set goes entirely.
@@ -543,9 +539,9 @@ describe('sitemap-tenant-gate', () => {
           ],
         }],
         sitemapName: 'sitemap',
-        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+        event: eventFor({ ...OPEN, availableLocales: ['el', 'en'] }),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
 
       expect(ctx.urls[0]!.alternatives.map((a: any) => a.hreflang))
         .toEqual(['el', 'en'])
@@ -558,16 +554,16 @@ describe('sitemap-tenant-gate', () => {
           { loc: 'https://example.com/en/terms-of-use' },
         ],
         sitemapName: 'sitemap',
-        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+        event: eventFor({ ...OPEN, availableLocales: ['el', 'en'] }),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
 
       expect(ctx.urls).toHaveLength(2)
     })
 
     it('is independent of the layout gate', async () => {
       // A tenant can have its legal documents without any brand page.
-      layoutMock.mockRejectedValue(new Error('404'))
+      store.layout = () => 'absent'
 
       expect(await runLegal(OPEN)).toEqual(URLS.map(u => u.loc))
     })
@@ -576,9 +572,7 @@ describe('sitemap-tenant-gate', () => {
       // `/terms-of-use` is backed by the slug `terms`. A tenant whose
       // only page is literally named `terms-of-use` does not have the
       // document this route renders.
-      contentMock.mockResolvedValue({
-        results: [{ slug: 'terms-of-use', translations: BOTH_LOCALES }],
-      })
+      store.content = [{ slug: 'terms-of-use', translations: BOTH_LOCALES }]
 
       expect(await runLegal(OPEN))
         .not.toContain('https://example.com/terms-of-use')
@@ -599,17 +593,13 @@ describe('sitemap-tenant-gate', () => {
     ]
     const URLS = LAYOUT_PATHS.map(p => ({ loc: `https://example.com${p}` }))
 
-    beforeEach(() => {
-      layoutMock.mockResolvedValue({ isPublished: true })
-    })
-
     async function runLayout(tenant: Record<string, unknown>) {
       const ctx = {
         urls: [...URLS],
         sitemapName: 'sitemap',
-        event: { context: { tenant } },
+        event: eventFor(tenant),
       }
-      await resolvedHook!(ctx)
+      await gate(ctx)
       return ctx.urls.map(u => u.loc)
     }
 
@@ -620,17 +610,13 @@ describe('sitemap-tenant-gate', () => {
     it('drops every brand page for a tenant that has none', async () => {
       // Django answers 404 for "no published layout" — the state of
       // every tenant but webside.
-      layoutMock.mockRejectedValue(new Error('404 Not Found'))
+      store.layout = () => 'absent'
 
       expect(await runLayout(OPEN)).toEqual([])
     })
 
     it('drops only the unpublished one', async () => {
-      layoutMock.mockImplementation(async (pageType: string) =>
-        pageType === 'about'
-          ? { isPublished: true }
-          : Promise.reject(new Error('404 Not Found')),
-      )
+      store.layout = pageType => pageType === 'about' ? { isPublished: true } : 'absent'
 
       expect(await runLayout(OPEN)).toEqual(['https://example.com/about'])
     })
@@ -638,7 +624,7 @@ describe('sitemap-tenant-gate', () => {
     it('treats an unpublished layout as absent', async () => {
       // A 200 carrying isPublished:false is the draft state, and the
       // page 404s on it exactly like a missing row.
-      layoutMock.mockResolvedValue({ isPublished: false })
+      store.layout = () => ({ isPublished: false })
 
       expect(await runLayout(OPEN)).toEqual([])
     })
@@ -646,7 +632,7 @@ describe('sitemap-tenant-gate', () => {
     it('reads each pageType once, in one pass', async () => {
       await runLayout(OPEN)
 
-      expect(layoutMock).toHaveBeenCalledTimes(LAYOUT_PATHS.length)
+      expect(requestsTo('/page-config/').map(r => r.path.split('/').pop()).sort()).toEqual(['about', 'vision', 'what-is-microlearning', 'why-microlearning'])
     })
   })
 })

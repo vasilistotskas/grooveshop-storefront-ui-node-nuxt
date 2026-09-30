@@ -12,9 +12,6 @@
  *
  * Works in both Nuxt app (Vite) and Nitro server (rollup) because
  * the imports are static.
- *
- * **Tests** can use {@link __registerForTest} / {@link __resetForTest}
- * to swap in stubs — the override Map takes priority on lookup.
  */
 import type { ShippingCarrier } from './interfaces'
 import acsCarrier from './providers/acs'
@@ -39,26 +36,17 @@ for (const carrier of _ALL_CARRIERS) {
   _registry.set(carrier.code, carrier)
 }
 
-const _overrides: Map<string, ShippingCarrier> = new Map()
-
 /** Look up a carrier by its ``ShippingProvider.code`` — returns
  *  ``null`` when no adapter is registered (e.g. a backend that
  *  exposes a provider this build doesn't know about yet). */
 export function getCarrier(code: string | null | undefined): ShippingCarrier | null {
   if (!code) return null
-  return _overrides.get(code) ?? _registry.get(code) ?? null
+  return _registry.get(code) ?? null
 }
 
-/** Iterate every registered carrier in the order their files were
- *  globbed. Stable across builds because Vite sorts the glob keys. */
+/** Every registered carrier, in the order ``_ALL_CARRIERS`` lists them. */
 export function listCarriers(): ShippingCarrier[] {
-  // Overrides take priority but we still surface base carriers that
-  // weren't stubbed.
-  const merged = new Map(_registry)
-  for (const [code, carrier] of _overrides) {
-    merged.set(code, carrier)
-  }
-  return [...merged.values()]
+  return [..._registry.values()]
 }
 
 /** Type guard: does this string match a registered carrier? Useful
@@ -67,16 +55,4 @@ export function listCarriers(): ShippingCarrier[] {
  *  ``supports_home_delivery`` provider). */
 export function isCarrierCode(value: unknown): value is string {
   return typeof value === 'string' && getCarrier(value) !== null
-}
-
-/** Test seam — register a stub adapter that wins over the file-based
- *  registry until {@link __resetForTest} runs. NEVER call from app
- *  code. */
-export function __registerForTest(carrier: ShippingCarrier): void {
-  _overrides.set(carrier.code, carrier)
-}
-
-/** Test seam — clear all stubs. Call in ``afterEach``. */
-export function __resetForTest(): void {
-  _overrides.clear()
 }

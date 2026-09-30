@@ -143,7 +143,7 @@ const variants: Record<string, Component> = {
   // webside: today's platform storefront, frozen byte-for-byte under
   // app/components/variants/webside/ while the defaults are redesigned.
   // Every page body and every piece of chrome — a key missing here
-  // would hand webside the redesign (test/unit/variants/variant-registry.spec.ts).
+  // would hand webside the redesign (test/unit/app/utils/variantRegistry.spec.ts).
   'chrome:navbar@webside': lazy(() => import('~/components/variants/webside/Chrome/Navbar.vue')),
   'chrome:footer@webside': lazy(() => import('~/components/variants/webside/Chrome/Footer.vue')),
   'chrome:mobile_nav@webside': lazy(() => import('~/components/variants/webside/MobileBottomNav.vue')),

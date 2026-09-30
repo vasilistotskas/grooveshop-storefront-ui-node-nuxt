@@ -1,26 +1,41 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { computed, ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { clearNuxtData } from '#app'
 import BlogPostComments from '~/components/Blog/Post/Comments/index.vue'
+import WebsideBlogPostComments from '~/components/variants/webside/Blog/Post/Comments/index.vue'
+import type { ApiRouteHandler } from '~~/test/helpers/api'
+import { trees } from '~~/test/helpers/trees'
 
-// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so it must be
-// mocked via mockNuxtImport like any other auto-import (see cart.spec.ts).
-const { mockFetch } = vi.hoisted(() => ({
-  mockFetch: vi.fn((_url: unknown, ..._rest: unknown[]) => Promise.resolve({} as any)),
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+
+const { state, toastAdd } = vi.hoisted(() => ({
+  state: {
+    /** Merchant runtime settings; a missing key takes the caller's fallback. */
+    flags: {} as Record<string, boolean>,
+  },
+  toastAdd: vi.fn(),
 }))
-mockNuxtImport('$api', () => mockFetch)
-// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
-// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
-// builds `$api` from `$fetch.create()` while the app boots.
-mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
-mockNuxtImport('useUserSession', () => () => ({
-  loggedIn: ref(false),
-  user: ref(null),
-  fetch: vi.fn().mockResolvedValue(undefined),
-}))
-mockNuxtImport('useUserStore', () => () => ({
-  updateLikedComments: vi.fn(),
-}))
+const session = vi.hoisted(() => ({ loggedIn: undefined as any, user: undefined as any }))
+
+mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
+  computed(() => state.flags[key] ?? options.fallback))
+mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+mockNuxtImport('useUserSession', () => () => {
+  session.loggedIn ??= ref(false)
+  session.user ??= ref(null)
+  return {
+    loggedIn: session.loggedIn,
+    user: session.user,
+    session: ref({}),
+    ready: ref(true),
+    fetch: () => Promise.resolve(),
+    clear: () => Promise.resolve(),
+  }
+})
 
 const PROXY_URL = '/api/blog/posts/42/comments'
 // DRF's `request.build_absolute_uri()` — an absolute Django origin that must
@@ -28,98 +43,230 @@ const PROXY_URL = '/api/blog/posts/42/comments'
 const NEXT_PAGE_URL = 'https://api.webside.gr/api/v1/blog/post/42/comments'
   + '?cursor=Y3Vyc29yOjE%3D&pageSize=3&paginationType=cursor&languageCode=el&approved=true&parent_Isnull=true'
 
-const baseComment = {
-  translations: { el: { content: 'Σχόλιο' } },
-  user: { pk: 1, id: 1, email: 'a@example.com' },
-  contentPreview: 'Σχόλιο',
-  isReply: false,
-  parent: null,
-  hasReplies: false,
-  approved: true,
-  isEdited: false,
-  likesCount: 0,
-  repliesCount: 0,
-  userHasLiked: false,
-  createdAt: '2026-08-01T00:00:00Z',
-  updatedAt: '2026-08-01T00:00:00Z',
+function comment(id: number, createdAt: string) {
+  return {
+    id,
+    uuid: `uuid-${id}`,
+    translations: { el: { content: `Σχόλιο ${id}` } },
+    user: { pk: 1, id: 1, email: 'a@example.com' },
+    contentPreview: `Σχόλιο ${id}`,
+    isReply: false,
+    parent: null,
+    hasReplies: false,
+    approved: true,
+    isEdited: false,
+    likesCount: 0,
+    repliesCount: 0,
+    userHasLiked: false,
+    createdAt,
+    updatedAt: createdAt,
+  }
 }
 
-const PAGE_ONE = {
-  count: 2,
-  links: { next: NEXT_PAGE_URL, previous: null },
-  results: [{ ...baseComment, id: 1, uuid: 'uuid-1' }],
-} as unknown as PaginatedBlogCommentList
+const page = (results: ReturnType<typeof comment>[], next: string | null = null) => ({
+  count: results.length,
+  links: { next, previous: null },
+  results,
+})
 
-const PAGE_TWO = {
-  count: 2,
-  links: { next: null, previous: null },
-  results: [{ ...baseComment, id: 2, uuid: 'uuid-2' }],
-} as unknown as PaginatedBlogCommentList
+/**
+ * The component's own `<i18n>` copy (el), which the global `$i18n.t`
+ * cannot reach: the button labels are how a reader finds the actions.
+ */
+const COPY = {
+  loadMore: 'Φόρτωσε περισσότερα',
+  guestPrompt: 'Συνδέσου για να σχολιάσεις',
+}
 
-describe('BlogPostComments load more', () => {
+/**
+ * Every child the body stubs is rendered `Lazy…`, which Nuxt compiles to a
+ * direct async import that no stub key matches — so the modules those
+ * imports load are mocked instead. The comments list renders the ids it
+ * was handed, in order; the form is one button submitting a fixed value.
+ */
+const { ListStub, FormStub, NoopStub } = await vi.hoisted(async () => {
+  const { defineComponent, h } = await import('vue')
+  return {
+    ListStub: defineComponent({
+      props: { comments: { type: Array as () => { id: number }[], default: () => [] } },
+      setup: props => () => h('ol', props.comments.map(c => h('li', { 'data-comment': c.id }))),
+    }),
+    FormStub: defineComponent({
+      emits: ['submit'],
+      setup: (_, { emit }) => () => h('button', { 'data-test': 'submit', 'onClick': () => emit('submit', { content: 'Νέο σχόλιο' }) }),
+    }),
+    NoopStub: defineComponent({ render: () => null }),
+  }
+})
+vi.mock('~/components/Blog/Post/Comments/List.vue', () => ({ default: ListStub }))
+vi.mock('~/components/variants/webside/Blog/Post/Comments/List.vue', () => ({ default: ListStub }))
+vi.mock('~/components/DynamicForm/index.vue', () => ({ default: FormStub }))
+vi.mock('~/components/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
+vi.mock('~/components/variants/webside/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
+
+describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostComments', ({ C }) => {
+  const mount = () => mountSuspended(C, {
+    route: false,
+    props: { blogPostId: '42', commentsCount: 2, displayImageOf: 'user' },
+  })
+
+  const renderedIds = (wrapper: Awaited<ReturnType<typeof mount>>) =>
+    wrapper.findAll('[data-comment]').map(li => Number(li.attributes('data-comment')))
+
+  const button = (wrapper: Awaited<ReturnType<typeof mount>>, label: string) =>
+    wrapper.findAll('button').find(b => b.text() === label)
+  const loadMore = (wrapper: Awaited<ReturnType<typeof mount>>) => button(wrapper, COPY.loadMore)
+
   beforeEach(() => {
+    clearNuxtData()
     useState<CursorState>('cursor-state').value = generateInitialCursorState()
-    mockFetch.mockReset()
-    mockFetch.mockImplementation((url: unknown) => {
-      const target = String(url)
-      if (target.includes('/api/settings/public')) {
-        return Promise.resolve({ settings: { BLOG_COMMENTS_ENABLED: 'true' } })
-      }
-      if (target === PROXY_URL) {
-        return Promise.resolve(PAGE_ONE)
-      }
-      return Promise.resolve({})
-    })
+    useUserStore().blogLikedComments = []
+    state.flags = {}
+    if (session.loggedIn) session.loggedIn.value = false
+    if (session.user) session.user.value = null
   })
 
   it('loads the next page through the Nuxt proxy route, never the absolute Django URL', async () => {
-    const wrapper = await mountSuspended(BlogPostComments, {
-      props: {
-        blogPostId: '42',
-        commentsCount: 2,
-        displayImageOf: 'user',
-      },
-      global: {
-        stubs: {
-          LazyBlogPostCommentsList: { template: '<div />' },
-          BlogPostCommentsList: { template: '<div />' },
-        },
-      },
-    })
+    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')], NEXT_PAGE_URL) })
+    const wrapper = await mount()
+    await flushPromises()
+    api.routes({ [PROXY_URL]: page([comment(2, '2026-07-01T00:00:00Z')]) })
+
+    await loadMore(wrapper)!.trigger('click')
     await flushPromises()
 
-    // Switch the mock to serve page two once the "load more" click fires.
-    mockFetch.mockImplementation((url: unknown) => {
-      const target = String(url)
-      if (target.includes('/api/settings/public')) {
-        return Promise.resolve({ settings: { BLOG_COMMENTS_ENABLED: 'true' } })
-      }
-      if (target === PROXY_URL) {
-        return Promise.resolve(PAGE_TWO)
-      }
-      return Promise.resolve({})
+    expect(api.mock.calls.filter(([url]) => String(url).startsWith('http'))).toEqual([])
+    // The load-more request carries the query parsed out of `links.next`.
+    expect(api.callsTo(PROXY_URL).at(-1)!.options).toEqual({
+      query: expect.objectContaining({ cursor: 'Y3Vyc29yOjE=', pageSize: '3' }),
     })
+    expect(renderedIds(wrapper)).toEqual([1, 2])
+    // The last page has no `next`: the button goes away.
+    expect(loadMore(wrapper)).toBeUndefined()
+  })
 
-    const loadMoreButton = wrapper
-      .findAll('button')
-      .find(button => button.text().includes('Φόρτωσε περισσότερα'))
-    expect(loadMoreButton).toBeTruthy()
+  it('merges a loaded page without duplicates, newest first', async () => {
+    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')], NEXT_PAGE_URL) })
+    const wrapper = await mount()
+    await flushPromises()
+    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z'), comment(3, '2026-08-05T00:00:00Z')]) })
 
-    await loadMoreButton!.trigger('click')
+    await loadMore(wrapper)!.trigger('click')
     await flushPromises()
 
-    // Nothing ever goes straight to the Django origin.
-    for (const call of mockFetch.mock.calls) {
-      expect(String(call[0]).startsWith('http')).toBe(false)
-    }
+    expect(renderedIds(wrapper)).toEqual([3, 1])
+  })
 
-    const proxyCalls = mockFetch.mock.calls.filter(call => call[0] === PROXY_URL)
-    expect(proxyCalls.length).toBeGreaterThanOrEqual(2)
-
-    // The load-more request carries the cursor parsed out of `links.next`.
-    const loadMoreCall = proxyCalls[proxyCalls.length - 1]
-    expect(loadMoreCall![1]).toMatchObject({
-      query: expect.objectContaining({ cursor: 'Y3Vyc29yOjE=' }),
+  it('toasts an error and keeps the loaded comments when the next page fails', async () => {
+    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')], NEXT_PAGE_URL) })
+    const wrapper = await mount()
+    await flushPromises()
+    api.routes({
+      [PROXY_URL]: () => {
+        throw new Error('502')
+      },
     })
+
+    await loadMore(wrapper)!.trigger('click')
+    await flushPromises()
+
+    expect(toastAdd).toHaveBeenCalledWith({ title: expect.any(String), color: 'error' })
+    expect(renderedIds(wrapper)).toEqual([1])
+  })
+
+  it('loads the signed-in reader\'s like state for the first page', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7 }
+    api.routes({
+      [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z'), comment(2, '2026-07-01T00:00:00Z')]),
+      '/api/blog/comments/liked-comments': ((_url, options) => {
+        options.onResponse({ response: { ok: true, _data: { likedCommentIds: [2] } } })
+        return {}
+      }) satisfies ApiRouteHandler,
+    })
+
+    await mount()
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/comments/liked-comments')[0]!.options)
+      .toMatchObject({ method: 'POST', body: { commentIds: [1, 2] } })
+    expect(useUserStore().blogLikedComments).toEqual([2])
+  })
+
+  it('never asks a guest\'s like state', async () => {
+    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]) })
+
+    await mount()
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/comments/liked-comments')).toEqual([])
+  })
+
+  it('posts a signed-in reader\'s comment in the page locale and re-fetches on success', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7 }
+    const created = comment(9, '2026-08-09T00:00:00Z')
+    api.routes({
+      [PROXY_URL]: page([]),
+      '/api/blog/comments': (async (_url, options) => {
+        await options.onResponse({ response: { ok: true, _data: created } })
+        return created
+      }) satisfies ApiRouteHandler,
+    })
+    const wrapper = await mount()
+    await flushPromises()
+    const fetchesBefore = api.callsTo(PROXY_URL).length
+
+    await wrapper.find('[data-test="submit"]').trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/comments')[0]!.options).toMatchObject({
+      method: 'POST',
+      body: { post: 42, user: 7, translations: { el: { content: 'Νέο σχόλιο' } } },
+    })
+    expect(wrapper.emitted('reply-add')).toEqual([[created]])
+    expect(api.callsTo(PROXY_URL).length).toBe(fetchesBefore + 1)
+    expect(toastAdd).toHaveBeenCalledWith({ title: expect.any(String), color: 'success' })
+  })
+
+  it('toasts an error when the comment is refused', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7 }
+    api.routes({
+      [PROXY_URL]: page([]),
+      '/api/blog/comments': ((_url, options) => {
+        options.onResponseError()
+        return {}
+      }) satisfies ApiRouteHandler,
+    })
+    const wrapper = await mount()
+    await flushPromises()
+
+    await wrapper.find('[data-test="submit"]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.emitted('reply-add')).toBeUndefined()
+    expect(toastAdd).toHaveBeenCalledWith({ title: expect.any(String), color: 'error' })
+  })
+
+  it('offers a guest the sign-in prompt instead of the comment form', async () => {
+    api.routes({ [PROXY_URL]: page([]) })
+
+    const wrapper = await mount()
+    await flushPromises()
+
+    expect(wrapper.find('[data-test="submit"]').exists()).toBe(false)
+    expect(button(wrapper, COPY.guestPrompt)).toBeTruthy()
+  })
+
+  it('renders nothing when the merchant turned comments off', async () => {
+    state.flags = { BLOG_COMMENTS_ENABLED: false }
+    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]) })
+
+    const wrapper = await mount()
+    await flushPromises()
+
+    expect(wrapper.find('#blog-post-comments').exists()).toBe(false)
+    expect(renderedIds(wrapper)).toEqual([])
   })
 })

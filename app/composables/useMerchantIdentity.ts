@@ -9,9 +9,8 @@
  *
  * A store that has filled none of it in renders nothing rather than an
  * empty scaffold: a heading over blank rows reads as a broken page, and
- * is no more compliant than showing nothing. `isComplete` is what tells
- * the merchant they still have to act — surfaced in the admin, not to
- * shoppers.
+ * is no more compliant than showing nothing. Telling the merchant what
+ * is still missing is the admin's job (Django), not the storefront's.
  */
 export function useMerchantIdentity() {
   const { data } = useApi('/api/tenant/legal-identity', {
@@ -86,7 +85,5 @@ export function useMerchantIdentity() {
     legalName,
     registeredSeat,
     inLiquidation: computed(() => data.value?.inLiquidation ?? false),
-    isComplete: computed(() => data.value?.isComplete ?? false),
-    missingFields: computed(() => data.value?.missingFields ?? []),
   }
 }

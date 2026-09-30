@@ -1,690 +1,314 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { createHeaders, getAllAuthSessionToken, getAllAuthAccessToken } from '../../../../server/utils/auth'
+import { H3Error } from 'h3'
+import { describe, expect, it } from 'vitest'
+import {
+  createHeaders,
+  fetchUserData,
+  getAllAuthAccessToken,
+  getAllAuthHeaders,
+  getAllAuthSessionToken,
+  processAllAuthSession,
+  requestHasSession,
+  requireAllAuthAccessToken,
+} from '~~/server/utils/auth'
+import { backend, createTestEvent, jsonResponse, setRuntimeConfig, testSession, withEvent } from '~~/test/helpers/nitro'
+import type { TestRequest } from '~~/test/helpers/nitro'
+import { ZodAllAuthResponse } from '~~/shared/schemas/response/all-auth/response'
+import type { AllAuthResponse } from '~~/shared/types/response/all-auth/response'
 
-describe('Server Utils - Auth', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    // getRequestProtocol is used by createHeaders() to set X-Forwarded-Proto
-    vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue('https'))
-    // getRequestIP is used by createHeaders() to set X-Real-IP for allauth
-    vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue(undefined))
-    // createHeaders() calls useRuntimeConfig() to get the public Django hostname
-    vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
-      public: { djangoHostName: '' },
-    }))
+/** Run `fn` inside a request to shop.test (see `createTestEvent`). */
+function inRequest<T>(fn: () => T, req: TestRequest = {}): T {
+  return withEvent(createTestEvent(req), fn)
+}
+
+/** A `UserDetails` as Django serialises it (parsed by the real `zUserDetails` below). */
+function userDetails(overrides: Record<string, unknown> = {}) {
+  return {
+    pk: 7,
+    id: 7,
+    email: 'maria@example.test',
+    firstName: 'Maria',
+    username: 'maria',
+    twitter: null,
+    linkedin: null,
+    facebook: null,
+    instagram: null,
+    website: null,
+    youtube: null,
+    github: null,
+    isActive: true,
+    isStaff: false,
+    isSuperuser: false,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    uuid: '00000000-0000-4000-8000-000000000007',
+    mainImagePath: '',
+    ...overrides,
+  }
+}
+
+/** The allauth login success `processAllAuthSession` receives, parsed by the real `ZodAllAuthResponse`. */
+function loginResponse(meta: NonNullable<AllAuthResponse['meta']>): AllAuthResponse {
+  return ZodAllAuthResponse.parse({
+    status: 200,
+    data: { user: { id: 7, display: 'maria' }, methods: [] },
+    meta,
+  })
+}
+
+describe('createHeaders', () => {
+  it('sends JSON, the request host, the page locale and no credentials by default', () => {
+    const headers = inRequest(() => createHeaders(), { context: { locale: 'en' } })
+
+    expect(headers).toMatchObject({
+      'Content-Type': 'application/json',
+      'X-Forwarded-Host': 'shop.test',
+      'X-Language': 'en',
+    })
+    expect(headers).not.toHaveProperty('X-Session-Token')
+    expect(headers).not.toHaveProperty('Authorization')
   })
 
-  describe('createHeaders - X-Forwarded-Proto (SSL-redirect immunity)', () => {
-    /**
-     * `apiBaseUrl` points at the in-cluster Service over plain HTTP, so
-     * any call that reaches Django without `X-Forwarded-Proto: https`
-     * gets a 301 to `https://<public-host>/api/v1/...`. ofetch follows
-     * it, the request leaves the cluster and returns whatever the public
-     * host serves — a basic-auth 401 on staging, a Nuxt 404 in
-     * production — instead of data. These pin the header for the
-     * contexts that used to lose it.
-     */
-    const mount = (protocol: string | undefined, baseUrl: string) => {
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue({
-        node: { req: { headers: {} } },
-      } as any))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue(protocol))
-      vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
-        public: { djangoHostName: 'api.example.test', baseUrl },
-      }))
-      return createHeaders()
-    }
-
-    it('keeps https when the incoming request is https', () => {
-      expect(mount('https', 'https://example.test')['X-Forwarded-Proto'])
-        .toBe('https')
-    })
-
-    it('falls back to the public https scheme when the event says http', () => {
-      expect(mount('http', 'https://example.test')['X-Forwarded-Proto'])
-        .toBe('https')
-    })
-
-    it('falls back to the public https scheme when the protocol is unavailable', () => {
-      expect(mount(undefined, 'https://example.test')['X-Forwarded-Proto'])
-        .toBe('https')
-    })
-
-    it('stays http for a local dev site so Django builds http absolute URIs', () => {
-      expect(mount('http', 'http://localhost:3000')['X-Forwarded-Proto'])
-        .toBe('http')
-    })
+  it('falls back to the default locale when the request has none', () => {
+    expect(inRequest(() => createHeaders())['X-Language']).toBe('el')
   })
 
-  describe('createHeaders', () => {
-    it('should create headers with Content-Type', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+  it('forwards the request host, never a spoofed X-Forwarded-Host', () => {
+    const headers = inRequest(() => createHeaders(), { host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders()
-
-      expect(headers['Content-Type']).toBe('application/json')
-    })
-
-    it('should include session token when provided', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders('test-session-token')
-
-      expect(headers['X-Session-Token']).toBe('test-session-token')
-    })
-
-    it('should include access token when provided', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders(null, 'test-access-token')
-
-      expect(headers['Authorization']).toBe('Bearer test-access-token')
-    })
-
-    it('should include both session and access tokens', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders('session-token', 'access-token')
-
-      expect(headers['X-Session-Token']).toBe('session-token')
-      expect(headers['Authorization']).toBe('Bearer access-token')
-    })
-
-    it('should include X-Forwarded-Host when host is available', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('example.com'))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Forwarded-Host']).toBe('example.com')
-    })
-
-    it('prefers the request host over djangoHostName for tenant resolution', () => {
-      // Under multi-tenant the request host is authoritative — Django's
-      // TenantMainMiddleware resolves the schema from X-Forwarded-Host,
-      // so the configured djangoHostName must NOT be preferred (that
-      // would pin every request to the webside tenant regardless of
-      // which domain the caller arrived on).
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('tenant-b.com'))
-      vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
-        public: { djangoHostName: 'api.webside.gr' },
-      }))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Forwarded-Host']).toBe('tenant-b.com')
-    })
-
-    it('falls back to djangoHostName when request has no host', () => {
-      // Prerender / startup contexts have no real request host; in
-      // those cases the configured platform host is the correct value.
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
-        public: { djangoHostName: 'api.webside.gr' },
-      }))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Forwarded-Host']).toBe('api.webside.gr')
-    })
-
-    it('should include User-Agent from request headers', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'user-agent': 'Mozilla/5.0',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders()
-
-      expect(headers['User-Agent']).toBe('Mozilla/5.0')
-    })
-
-    it('should include X-Forwarded-For from request headers', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'x-forwarded-for': '192.168.1.1',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
-    })
-
-    it('should set X-Real-IP from getRequestIP for allauth session tracking', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('203.0.113.42'))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Real-IP']).toBe('203.0.113.42')
-    })
-
-    it('should prefer CF-Connecting-IP over getRequestIP', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      const getRequestIPMock = vi.fn().mockReturnValue('10.42.0.1')
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'cf-connecting-ip': '203.0.113.42',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('getRequestIP', getRequestIPMock)
-
-      const headers = createHeaders()
-
-      expect(headers['X-Real-IP']).toBe('203.0.113.42')
-    })
-
-    it('should prefer True-Client-IP over getRequestIP when CF-Connecting-IP is absent', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'true-client-ip': '203.0.113.99',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('10.42.0.1'))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Real-IP']).toBe('203.0.113.99')
-    })
-
-    it('should prefer CF-Connecting-IP over True-Client-IP when both are present', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'cf-connecting-ip': '203.0.113.42',
-        'true-client-ip': '203.0.113.99',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('10.42.0.1'))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Real-IP']).toBe('203.0.113.42')
-    })
-
-    it('should omit X-Real-IP when getRequestIP returns undefined', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue(undefined))
-
-      const headers = createHeaders()
-
-      expect(headers).not.toHaveProperty('X-Real-IP')
-    })
-
-    it('should create complete headers with all fields', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'user-agent': 'Mozilla/5.0',
-        'x-forwarded-for': '192.168.1.1',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('example.com'))
-      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('192.168.1.1'))
-
-      const headers = createHeaders('session-token', 'access-token')
-
-      expect(headers).toEqual({
-        'Content-Type': 'application/json',
-        'X-Forwarded-Proto': 'https',
-        'X-Forwarded-Host': 'example.com',
-        'X-Session-Token': 'session-token',
-        'Authorization': 'Bearer access-token',
-        'User-Agent': 'Mozilla/5.0',
-        'X-Real-IP': '192.168.1.1',
-        'X-Forwarded-For': '192.168.1.1',
-        'X-Language': 'el',
-      })
-    })
-
-    it('should forward X-Language from event.context.locale', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-        context: { locale: 'en' },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Language']).toBe('en')
-    })
-
-    it('should fall back to DEFAULT_LOCALE when event.context.locale is missing', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders()
-
-      expect(headers['X-Language']).toBe('el')
-    })
-
-    it('should not include session token when null', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders(null, 'access-token')
-
-      expect(headers).not.toHaveProperty('X-Session-Token')
-      expect(headers['Authorization']).toBe('Bearer access-token')
-    })
-
-    it('should not include access token when null', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders('session-token', null)
-
-      expect(headers['X-Session-Token']).toBe('session-token')
-      expect(headers).not.toHaveProperty('Authorization')
-    })
+    expect(headers['X-Forwarded-Host']).toBe('webside.gr')
   })
 
-  describe('getAllAuthSessionToken', () => {
-    it('should return session token from user session', async () => {
-      const mockEvent = {} as any
+  it('sends the session token and the access token when given', () => {
+    const headers = inRequest(() => createHeaders('session-1', 'knox-1'))
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({
-        secure: {
-          sessionToken: 'test-session-token',
-        },
-      }))
-
-      const token = await getAllAuthSessionToken()
-
-      expect(token).toBe('test-session-token')
-    })
-
-    it('should return undefined when no session token exists', async () => {
-      const mockEvent = {} as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({
-        secure: {},
-      }))
-
-      const token = await getAllAuthSessionToken()
-
-      expect(token).toBeUndefined()
-    })
-
-    it('should return undefined when secure object is missing', async () => {
-      const mockEvent = {} as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
-
-      const token = await getAllAuthSessionToken()
-
-      expect(token).toBeUndefined()
-    })
+    expect(headers['X-Session-Token']).toBe('session-1')
+    expect(headers['Authorization']).toBe('Bearer knox-1')
   })
 
-  describe('getAllAuthAccessToken', () => {
-    it('should return access token from user session', async () => {
-      const mockEvent = {} as any
+  it.each([['empty', ''], ['null', null], ['undefined', undefined]])('omits %s tokens', (_label, token) => {
+    const headers = inRequest(() => createHeaders(token, token))
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({
-        secure: {
-          accessToken: 'test-access-token',
-        },
-      }))
-
-      const token = await getAllAuthAccessToken()
-
-      expect(token).toBe('test-access-token')
-    })
-
-    it('should return undefined when no access token exists', async () => {
-      const mockEvent = {} as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({
-        secure: {},
-      }))
-
-      const token = await getAllAuthAccessToken()
-
-      expect(token).toBeUndefined()
-    })
-
-    it('should use provided event instead of useEvent', async () => {
-      const providedEvent = { id: 'custom-event' } as any
-
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({
-        secure: {
-          accessToken: 'custom-token',
-        },
-      }))
-
-      const token = await getAllAuthAccessToken(providedEvent)
-
-      expect(token).toBe('custom-token')
-      expect(getUserSession).toHaveBeenCalledWith(providedEvent)
-    })
-
-    it('should handle null session', async () => {
-      const mockEvent = {} as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue(null))
-
-      const token = await getAllAuthAccessToken()
-
-      expect(token).toBeUndefined()
-    })
+    expect(headers).not.toHaveProperty('X-Session-Token')
+    expect(headers).not.toHaveProperty('Authorization')
   })
 
-  describe('Edge Cases', () => {
-    it('should handle empty string tokens', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+  it('merges in who the visitor is (clientIdentityHeaders)', () => {
+    const headers = inRequest(() => createHeaders(), { headers: { 'user-agent': 'UA/1', 'cf-connecting-ip': '203.0.113.9' } })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders('', '')
-
-      // Empty strings are falsy, so they won't be included
-      expect(headers).not.toHaveProperty('X-Session-Token')
-      expect(headers).not.toHaveProperty('Authorization')
-    })
-
-    it('should handle undefined tokens', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders(undefined, undefined)
-
-      expect(headers).not.toHaveProperty('X-Session-Token')
-      expect(headers).not.toHaveProperty('Authorization')
-    })
-
-    it('should handle missing request headers gracefully', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
-
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
-
-      const headers = createHeaders()
-
-      expect(headers['Content-Type']).toBe('application/json')
-      expect(headers).not.toHaveProperty('User-Agent')
-      expect(headers).not.toHaveProperty('X-Forwarded-For')
-    })
+    expect(headers).toMatchObject({ 'User-Agent': 'UA/1', 'X-Real-IP': '203.0.113.9' })
   })
 
-  describe('createHeaders - Additional Coverage', () => {
-    it('should include both session and access tokens', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+  /**
+   * `apiBaseUrl` is the in-cluster Service over plain HTTP, so a call
+   * without `X-Forwarded-Proto: https` gets a 301 to the public host and
+   * ofetch follows it out of the cluster (a basic-auth 401 on staging, a
+   * Nuxt 404 in production). The header comes from the site's public
+   * scheme whenever the request itself is not https.
+   */
+  it.each([
+    ['an https request', { 'x-forwarded-proto': 'https' }, 'http://localhost:3000', 'https'],
+    ['an http request on an https site', {}, 'https://platform.test', 'https'],
+    ['an http request on a local http site', {}, 'http://localhost:3000', 'http'],
+  ])('sends X-Forwarded-Proto for %s', (_label, requestHeaders, baseUrl, expected) => {
+    setRuntimeConfig({ public: { baseUrl } })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+    expect(inRequest(() => createHeaders(), { headers: requestHeaders })['X-Forwarded-Proto']).toBe(expected)
+  })
+})
 
-      const headers = createHeaders('session-token', 'access-token')
+describe('requestHasSession', () => {
+  // Reading a session on a request that has none MINTS one and sets a
+  // cookie (h3 getSession), which put `nuxt-session` on every anonymous
+  // page and kept every page out of the edge cache. It looks where h3
+  // looks: header first, then cookie.
+  it('is false for a request with neither the cookie nor the header, and sets no cookie', () => {
+    const event = createTestEvent()
 
-      expect(headers['X-Session-Token']).toBe('session-token')
-      expect(headers['Authorization']).toBe('Bearer access-token')
-      expect(headers['Content-Type']).toBe('application/json')
-    })
+    expect(requestHasSession(event)).toBe(false)
+    expect(event.node.res.getHeader('set-cookie')).toBeUndefined()
+  })
 
-    it('should include X-Forwarded-Host when host is present', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+  it('finds the session cookie named in runtimeConfig.session', () => {
+    expect(requestHasSession(createTestEvent({ headers: { cookie: 'nuxt-session=Fe26.2**sealed' } }))).toBe(true)
+  })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('example.com'))
+  it('finds the header h3 derives from the session name (x-<name>-session)', () => {
+    expect(requestHasSession(createTestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(true)
+  })
 
-      const headers = createHeaders()
+  it('honours a custom session header', () => {
+    setRuntimeConfig({ session: { sessionHeader: 'x-custom' } })
 
-      expect(headers['X-Forwarded-Host']).toBe('example.com')
-    })
+    expect(requestHasSession(createTestEvent({ headers: { 'x-custom': 'Fe26.2**sealed' } }))).toBe(true)
+    expect(requestHasSession(createTestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
+  })
 
-    it('should include User-Agent from request headers', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+  it('ignores headers when sessionHeader is false, as h3 does', () => {
+    setRuntimeConfig({ session: { sessionHeader: false } })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'user-agent': 'Mozilla/5.0',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+    expect(requestHasSession(createTestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
+  })
 
-      const headers = createHeaders()
+  it('fails loudly when the session is not configured, rather than guessing a name', () => {
+    setRuntimeConfig({ session: { name: '' } })
 
-      expect(headers['User-Agent']).toBe('Mozilla/5.0')
-    })
+    expect(() => requestHasSession(createTestEvent())).toThrow('runtimeConfig.session.name is not set')
+  })
+})
 
-    it('should include X-Forwarded-For from request headers', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+describe('session token readers', () => {
+  it('read the tokens from the encrypted session', async () => {
+    testSession.set({ secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'x-forwarded-for': '192.168.1.1',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+    await expect(inRequest(() => getAllAuthSessionToken())).resolves.toBe('session-1')
+    await expect(inRequest(() => getAllAuthAccessToken())).resolves.toBe('knox-1')
+  })
 
-      const headers = createHeaders()
+  it('read undefined from an anonymous session', async () => {
+    await expect(inRequest(() => getAllAuthSessionToken())).resolves.toBeUndefined()
+    await expect(inRequest(() => getAllAuthAccessToken())).resolves.toBeUndefined()
+  })
 
-      expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
-    })
+  it('getAllAuthAccessToken takes an explicit event outside a bound request', async () => {
+    testSession.set({ secure: { accessToken: 'knox-1' } })
 
-    it('should include all headers when all data is present', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+    await expect(getAllAuthAccessToken(createTestEvent())).resolves.toBe('knox-1')
+  })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'user-agent': 'Mozilla/5.0',
-        'x-forwarded-for': '192.168.1.1',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('example.com'))
+  it('getAllAuthHeaders is createHeaders with the stored tokens', async () => {
+    testSession.set({ secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 
-      const headers = createHeaders('session-token', 'access-token')
+    const headers = await inRequest(() => getAllAuthHeaders())
 
-      expect(headers['Content-Type']).toBe('application/json')
-      expect(headers['X-Forwarded-Host']).toBe('example.com')
-      expect(headers['X-Session-Token']).toBe('session-token')
-      expect(headers['Authorization']).toBe('Bearer access-token')
-      expect(headers['User-Agent']).toBe('Mozilla/5.0')
-      expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
-    })
+    expect(headers).toMatchObject({ 'X-Session-Token': 'session-1', 'Authorization': 'Bearer knox-1', 'X-Forwarded-Host': 'shop.test' })
+  })
+})
 
-    it('should handle null tokens', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+describe('requireAllAuthAccessToken', () => {
+  it('returns the access token of a signed-in session', async () => {
+    testSession.set({ user: { id: 7 }, secure: { accessToken: 'knox-1' } })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+    await expect(inRequest(() => requireAllAuthAccessToken())).resolves.toBe('knox-1')
+  })
 
-      const headers = createHeaders(null, null)
+  it('rejects an anonymous session with 401', async () => {
+    await expect(inRequest(() => requireAllAuthAccessToken())).rejects.toMatchObject({ statusCode: 401 })
+  })
 
-      expect(headers['X-Session-Token']).toBeUndefined()
-      expect(headers['Authorization']).toBeUndefined()
-      expect(headers['Content-Type']).toBe('application/json')
-    })
+  it('rejects a signed-in session without an access token with 401 "Access token required"', async () => {
+    testSession.set({ user: { id: 7 }, secure: { sessionToken: 'session-1' } })
 
-    it('should handle undefined tokens', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+    const error = await inRequest(() => requireAllAuthAccessToken()).catch((caught: H3Error) => caught)
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+    expect(error).toBeInstanceOf(H3Error)
+    expect(error).toMatchObject({ statusCode: 401, statusMessage: 'Access token required' })
+  })
+})
 
-      const headers = createHeaders(undefined, undefined)
+describe('processAllAuthSession', () => {
+  const PENDING = { status: 200 as const, data: {}, meta: {} }
 
-      expect(headers['X-Session-Token']).toBeUndefined()
-      expect(headers['Authorization']).toBeUndefined()
-      expect(headers['Content-Type']).toBe('application/json')
-    })
+  it('stores the tokens allauth returned, keeping the rest of the session', async () => {
+    testSession.set({ oauthState: 'x', secure: { sessionToken: 'old', accessToken: 'old-knox' } })
 
-    it('should handle empty string tokens', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+    await inRequest(() => processAllAuthSession({ ...PENDING, meta: { session_token: 'new', access_token: 'new-knox' } }))
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+    expect(testSession.data).toEqual({ oauthState: 'x', secure: { sessionToken: 'new', accessToken: 'new-knox' } })
+  })
 
-      const headers = createHeaders('', '')
+  it('falls back to the tokens the caller passed, then to the stored ones', async () => {
+    testSession.set({ secure: { sessionToken: 'stored', accessToken: 'stored-knox' } })
 
-      // Empty strings are falsy, so they won't be included
-      expect(headers['X-Session-Token']).toBeUndefined()
-      expect(headers['Authorization']).toBeUndefined()
-    })
+    await inRequest(() => processAllAuthSession(PENDING, 'passed-knox', null))
 
-    it('should handle missing user-agent in request headers', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+    expect(testSession.data.secure).toEqual({ sessionToken: 'stored', accessToken: 'passed-knox' })
+  })
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'x-forwarded-for': '192.168.1.1',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+  it('leaves the session untouched when there is no token anywhere', async () => {
+    testSession.set({ keep: true })
 
-      const headers = createHeaders()
+    await inRequest(() => processAllAuthSession(PENDING))
 
-      expect(headers['User-Agent']).toBeUndefined()
-      expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
-    })
+    expect(testSession.data).toEqual({ keep: true })
+    expect(backend.requests).toEqual([])
+  })
 
-    it('should handle missing x-forwarded-for in request headers', () => {
-      const mockEvent = {
-        node: { req: { headers: {} } },
-      } as any
+  it('loads the user once login returns an access token', async () => {
+    backend.reply(userDetails())
 
-      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
-      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
-        'user-agent': 'Mozilla/5.0',
-      }))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+    await inRequest(() => processAllAuthSession(loginResponse({ access_token: 'knox-1', session_token: 's' })))
 
-      const headers = createHeaders()
+    expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/user/account/7')
+    expect(testSession.data.user).toMatchObject({ id: 7, email: 'maria@example.test' })
+  })
 
-      expect(headers['User-Agent']).toBe('Mozilla/5.0')
-      expect(headers['X-Forwarded-For']).toBeUndefined()
-    })
+  it('loads the user for an authenticated session without a new token', async () => {
+    testSession.set({ secure: { sessionToken: 'session-1' } })
+    backend.reply(userDetails())
+
+    await inRequest(() => processAllAuthSession(loginResponse({ is_authenticated: true })))
+
+    expect(testSession.data.user).toMatchObject({ id: 7 })
+  })
+
+  it('does not load a user for an unauthenticated response', async () => {
+    await inRequest(() => processAllAuthSession(loginResponse({ is_authenticated: false, session_token: 's' })))
+
+    expect(backend.requests).toEqual([])
+  })
+})
+
+describe('fetchUserData', () => {
+  it('asks for the user as the tenant with the Knox token, and replaces the session user', async () => {
+    testSession.set({ user: { id: 7, staleField: 'old' }, secure: { sessionToken: 's', accessToken: 'knox-1' } })
+    backend.reply(userDetails())
+
+    const user = await inRequest(
+      () => fetchUserData(loginResponse({ access_token: 'knox-1' })),
+      { host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example', 'x-forwarded-proto': 'https' }, context: { locale: 'en' } },
+    )
+
+    const request = backend.lastRequest
+    expect(request.method).toBe('GET')
+    expect(request.headers.get('authorization')).toBe('Bearer knox-1')
+    expect(request.headers.get('x-forwarded-host')).toBe('webside.gr')
+    expect(request.headers.get('x-forwarded-proto')).toBe('https')
+    expect(request.headers.get('x-language')).toBe('en')
+    expect(user).toMatchObject({ id: 7, email: 'maria@example.test' })
+    // replaceUserSession, not a merge: the stale key is gone, `secure` carried over.
+    expect(testSession.data.user).not.toHaveProperty('staleField')
+    expect(testSession.data.secure).toEqual({ sessionToken: 's', accessToken: 'knox-1' })
+  })
+
+  it('prefers the token the caller passes over the one in meta', async () => {
+    backend.reply(userDetails())
+
+    await inRequest(() => fetchUserData(loginResponse({ access_token: 'meta-knox' }), 'passed-knox'))
+
+    expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer passed-knox')
+  })
+
+  it('uses the stored session headers for an authenticated response without any token', async () => {
+    testSession.set({ secure: { sessionToken: 'session-1' } })
+    backend.reply(userDetails())
+
+    await inRequest(() => fetchUserData(loginResponse({ is_authenticated: true })))
+
+    expect(backend.lastRequest.headers.get('x-session-token')).toBe('session-1')
+    expect(backend.lastRequest.headers.has('authorization')).toBe(false)
+  })
+
+  it('rejects a user payload that drifted from zUserDetails and leaves the session alone', async () => {
+    testSession.set({ user: { id: 7 } })
+    backend.reply(userDetails({ email: 'not-an-email' }))
+
+    await expect(inRequest(() => fetchUserData(loginResponse({ access_token: 'k' })))).rejects.toMatchObject({ statusCode: 422 })
+    expect(testSession.data).toEqual({ user: { id: 7 } })
+  })
+
+  it('lets an upstream failure through', async () => {
+    backend.reply(jsonResponse({ detail: 'Not found.' }, 404))
+
+    await expect(inRequest(() => fetchUserData(loginResponse({ access_token: 'k' })))).rejects.toMatchObject({ statusCode: 404 })
   })
 })

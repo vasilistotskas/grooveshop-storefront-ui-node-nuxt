@@ -1,466 +1,219 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import LoyaltyRedemption from '~/components/Loyalty/Redemption.vue'
+import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { makeCart } from '~~/test/fixtures/cart'
+import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
+import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
+import type { CartDetail, LoyaltySummary } from '~~/shared/openapi/types.gen'
 
-// Mock the useLoyalty composable with new API
-const mockSummaryRef = ref<any>(null)
-const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
-const mockErrorRef = ref<any>(null)
-const mockRefresh = vi.fn()
+/**
+ * Checkout's points redemption. Nothing is spent here: the component
+ * only records the shopper's intent (`redeemed`) for order creation,
+ * capped by BOTH the balance and what the products are worth at the
+ * store's points-per-euro ratio.
+ */
+const settings = createAsyncDataMock<LoyaltySettings>()
+const summary = createAsyncDataMock<LoyaltySummary>()
+const { toastAdd } = vi.hoisted(() => ({ toastAdd: vi.fn() }))
 
-// Default to enabled so the self-gate lets the component render; per-test
-// suites that need the disabled-state can override mockSettingsRef.value.
-const mockSettingsRef = ref<{ enabled: boolean } | null>({ enabled: true })
+mockNuxtImport('useLoyalty', () => () => ({
+  fetchSettings: () => settings,
+  fetchSummary: () => summary,
+}))
+mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-mockNuxtImport('useLoyalty', () => {
-  return () => ({
-    fetchSettings: () => ({
-      data: mockSettingsRef,
-    }),
-    fetchSummary: () => ({
-      data: mockSummaryRef,
-      status: mockStatusRef,
-      error: mockErrorRef,
-      refresh: mockRefresh,
-    }),
+beforeEach(() => {
+  settings.reset()
+  summary.reset()
+  settings.data.value = makeLoyaltySettings()
+  summary.data.value = makeSummary({ pointsBalance: 100 })
+  summary.status.value = 'success'
+  useCartStore().cart = makeCart()
+})
+
+function mountRedemption(maxDiscountAmount = 100) {
+  return mountSuspended(LoyaltyRedemption, {
+    props: { currency: 'EUR', maxDiscountAmount },
+    route: false,
   })
-})
+}
 
-// Mock useToast since the component uses it
-mockNuxtImport('useToast', () => {
-  return () => ({
-    add: vi.fn(),
-  })
-})
+const pointsInput = (wrapper: VueWrapper) => wrapper.findComponent({ name: 'UInputNumber' })
+const submitButton = (wrapper: VueWrapper) => wrapper.find('button[type="submit"]')
+/** The number inside the hexagon: the balance left after what was applied. */
+const shownBalance = (wrapper: VueWrapper) => wrapper.find('svg + div span').text()
 
-// The component self-gates on the cart's b2bPricing.allowLoyalty as well
-// as LOYALTY_ENABLED. Defaults to a retail cart so the existing suites
-// are unaffected (no b2b block => never suppressed).
-const cartRef = ref<any>(null)
-mockNuxtImport('useCartStore', () => {
-  return () => ({ cart: cartRef })
-})
-mockNuxtImport('storeToRefs', () => {
-  return (store: any) => ({ cart: store.cart })
-})
+async function enterPoints(wrapper: VueWrapper, points: number) {
+  await pointsInput(wrapper).setValue(points)
+  await flushPromises()
+}
 
-describe('LoyaltyRedemption Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockRefresh.mockClear()
-    mockSummaryRef.value = {
-      pointsBalance: 100,
-      totalXp: 500,
-      level: 2,
-      tier: null,
-      pointsToNextTier: 400,
-    }
-    mockStatusRef.value = 'success'
-    mockErrorRef.value = null
-    mockSettingsRef.value = { enabled: true }
-    cartRef.value = null
-  })
+async function submit(wrapper: VueWrapper) {
+  await wrapper.find('form').trigger('submit')
+  await flushPromises()
+}
 
-  describe('Test 6: Client-side validation rejects over-balance redemption', () => {
-    it('should display validation error when redemption amount exceeds available balance', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
+describe('Loyalty/Redemption', () => {
+  describe('refusing a redemption', () => {
+    it.each([
+      [150, 100, 'Δεν έχετε αρκετούς πόντους'],
+      // 500 points are within the 1000 balance but worth 5 € against 2 € of products.
+      [500, 2, 'Δεν μπορείτε να εξαργυρώσετε πόντους αξίας μεγαλύτερης από το σύνολο προϊόντων'],
+      [-10, 100, 'Πρέπει να εξαργυρώσετε τουλάχιστον 1 πόντο'],
+    ])('refuses %i points against %i € of products with its reason', async (points, maxDiscountAmount, message) => {
+      summary.data.value = makeSummary({ pointsBalance: maxDiscountAmount === 2 ? 1000 : 100 })
+      const wrapper = await mountRedemption(maxDiscountAmount)
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await enterPoints(wrapper, points)
+      await submit(wrapper)
 
-      // Set points via component VM (UInputNumber doesn't render plain input[type="number"])
-      ;(wrapper.vm as any).formState.pointsToRedeem = 150
-      await wrapper.vm.$nextTick()
-
-      // Trigger form submission
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should display validation error (Greek locale)
-      expect(wrapper.text()).toContain('Δεν έχετε αρκετούς πόντους')
-
-      // Should NOT emit redeemed event
+      expect(wrapper.text()).toContain(message)
       expect(wrapper.emitted('redeemed')).toBeUndefined()
-    })
-
-    it('should display validation error for zero points', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      ;(wrapper.vm as any).formState.pointsToRedeem = 0
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should display validation error (Greek locale)
-      expect(wrapper.text()).toContain('Πρέπει να εξαργυρώσετε τουλάχιστον 1 πόντο')
-
-      // Should NOT emit redeemed event
-      expect(wrapper.emitted('redeemed')).toBeUndefined()
-    })
-
-    it('should display validation error for negative points', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      ;(wrapper.vm as any).formState.pointsToRedeem = -10
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should display validation error (Greek locale)
-      expect(wrapper.text()).toContain('Πρέπει να εξαργυρώσετε τουλάχιστον 1 πόντο')
-
-      // Should NOT emit redeemed event
-      expect(wrapper.emitted('redeemed')).toBeUndefined()
-    })
-
-    it('should allow redemption when amount is within balance', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      ;(wrapper.vm as any).formState.pointsToRedeem = 50
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should NOT display validation error
-      expect(wrapper.text()).not.toContain('Δεν έχετε αρκετούς πόντους')
-
-      // Should emit redeemed event with local intent (no API call)
-      const emittedEvents = wrapper.emitted('redeemed')
-      expect(emittedEvents).toBeDefined()
-      expect(emittedEvents![0]).toEqual([{
-        amount: 0.50,
-        currency: 'EUR',
-        points: 50,
-      }])
-    })
-
-    it('should allow redemption of exact balance amount', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      ;(wrapper.vm as any).formState.pointsToRedeem = 100
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Should NOT display validation error
-      expect(wrapper.text()).not.toContain('Δεν έχετε αρκετούς πόντους')
-
-      // Should emit redeemed event
-      const emittedEvents = wrapper.emitted('redeemed')
-      expect(emittedEvents).toBeDefined()
-      expect(emittedEvents![0]).toEqual([{
-        amount: 1.00,
-        currency: 'EUR',
-        points: 100,
-      }])
+      expect(toastAdd).not.toHaveBeenCalled()
     })
   })
 
-  describe('Test 7: Successful redemption updates displayed balance', () => {
-    it('should update displayed balance after redemption', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
+  describe('applying a redemption', () => {
+    it.each([
+      [50, 0.5],
+      [75, 0.75],
+      [100, 1],
+    ])('records %i points as a %s € discount and says so', async (points, amount) => {
+      const wrapper = await mountRedemption()
+
+      await enterPoints(wrapper, points)
+      await submit(wrapper)
+
+      expect(wrapper.emitted('redeemed')).toEqual([[{ amount, currency: 'EUR', points }]])
+      expect(toastAdd).toHaveBeenCalledWith({
+        title: 'Η έκπτωση εφαρμόστηκε',
+        description: `Εξαργυρώσατε ${points} πόντους για έκπτωση ${amount} EUR`,
+        color: 'success',
       })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // Initial balance should be 100
-      expect(wrapper.text()).toContain('100')
-
-      ;(wrapper.vm as any).formState.pointsToRedeem = 50
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      // After redemption, displayed balance should be 50 (100 - 50)
-      expect(wrapper.text()).toContain('50')
     })
 
-    it('should emit redeemed event with discount details including points', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
+    it('shows the discount and the balance left, and locks the form until cleared', async () => {
+      const wrapper = await mountRedemption()
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await enterPoints(wrapper, 40)
+      await submit(wrapper)
 
-      ;(wrapper.vm as any).formState.pointsToRedeem = 75
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      // Should emit redeemed event with amount, currency, and points
-      const emittedEvents = wrapper.emitted('redeemed')
-      expect(emittedEvents).toBeDefined()
-      expect(emittedEvents![0]).toEqual([{
-        amount: 0.75,
-        currency: 'EUR',
-        points: 75,
-      }])
+      const alert = wrapper.findComponent({ name: 'UAlert' })
+      expect(alert.findAll('p').map(row => [row.find('span').text(), row.find('strong').text()])).toEqual([
+        ['Ποσό έκπτωσης:', '0.40 EUR'],
+        ['Υπόλοιπο:', '60'],
+      ])
+      expect(shownBalance(wrapper)).toBe('60')
+      expect(pointsInput(wrapper).find('input').attributes('disabled')).toBeDefined()
+      expect(submitButton(wrapper).attributes('disabled')).toBeDefined()
     })
 
-    it('should display success alert after redemption', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
+    it('prices points at the store\'s own ratio', async () => {
+      // 50 points per euro: 100 points are worth 2 €, not the default 1 €.
+      settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 50 })
+      const wrapper = await mountRedemption()
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await enterPoints(wrapper, 100)
+      expect(submitButton(wrapper).text()).toBe('Εξαργύρωση 2.00 €')
+      await submit(wrapper)
 
-      ;(wrapper.vm as any).formState.pointsToRedeem = 100
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      // Should display success alert with discount information (Greek locale)
-      expect(wrapper.text()).toContain('Η έκπτωση εφαρμόστηκε')
-      expect(wrapper.text()).toContain('Υπόλοιπο')
-      expect(wrapper.text()).toContain('0')
+      expect(wrapper.emitted('redeemed')).toEqual([[{ amount: 2, currency: 'EUR', points: 100 }]])
     })
 
-    it('should reset form after successful redemption', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
+    it('gives the points back when the applied discount is dismissed', async () => {
+      const wrapper = await mountRedemption()
+      await enterPoints(wrapper, 40)
+      await submit(wrapper)
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await wrapper.findComponent({ name: 'UAlert' }).find('button').trigger('click')
+      await flushPromises()
 
-      ;(wrapper.vm as any).formState.pointsToRedeem = 50
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      // Form state should be cleared
-      expect((wrapper.vm as any).formState.pointsToRedeem).toBeUndefined()
+      expect(wrapper.emitted('cleared')).toHaveLength(1)
+      expect(wrapper.findComponent({ name: 'UAlert' }).exists()).toBe(false)
+      expect(shownBalance(wrapper)).toBe('100')
+      expect(pointsInput(wrapper).find('input').attributes('disabled')).toBeUndefined()
     })
   })
 
-  describe('Additional Functionality', () => {
-    it('should display loading state while fetching summary', async () => {
-      mockStatusRef.value = 'pending'
-      mockSummaryRef.value = null
+  describe('the redeem button', () => {
+    it('is disabled until points are entered, then states their value', async () => {
+      const wrapper = await mountRedemption()
 
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
+      expect(submitButton(wrapper).attributes('disabled')).toBeDefined()
+      expect(submitButton(wrapper).text()).toBe('Εξαργύρωση 0.00 €')
 
-      await wrapper.vm.$nextTick()
+      await enterPoints(wrapper, 25)
 
-      // Should display skeleton loading components
-      const skeletons = wrapper.findAllComponents({ name: 'USkeleton' })
-      expect(skeletons.length).toBeGreaterThan(0)
+      expect(submitButton(wrapper).attributes('disabled')).toBeUndefined()
+      expect(submitButton(wrapper).text()).toBe('Εξαργύρωση 0.25 €')
     })
 
-    it('should disable submit button when no points entered', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
+    it.each([
+      // The whole balance when the products are worth more…
+      [250, 100, 'Εξαργύρωση 2.50 €'],
+      // …but only what the products are worth when the balance is bigger.
+      [1000, 3, 'Εξαργύρωση 3.00 €'],
+    ])('"redeem all" with %i points against %i € of products fills in the most that can be used', async (pointsBalance, maxDiscountAmount, label) => {
+      summary.data.value = makeSummary({ pointsBalance })
+      const wrapper = await mountRedemption(maxDiscountAmount)
 
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
+      const redeemAll = wrapper.findAll('button').find(button => button.text() === 'Εξαργύρωση όλων')
+      await redeemAll!.trigger('click')
 
-      // Submit button should be disabled when no points entered
-      const submitButton = wrapper.find('button[type="submit"]')
-      expect(submitButton.attributes('disabled')).toBeDefined()
+      expect(submitButton(wrapper).text()).toBe(label)
     })
 
-    it('should populate input with full balance when "Redeem All" button is clicked', async () => {
-      mockSummaryRef.value = {
-        pointsBalance: 250,
-        totalXp: 1000,
-        level: 3,
-        tier: null,
-        pointsToNextTier: 500,
-      }
+    it.each([
+      ['no points', 0, 100],
+      ['no products to discount', 500, 0],
+    ])('offers nothing to redeem with %s', async (_case, pointsBalance, maxDiscountAmount) => {
+      summary.data.value = makeSummary({ pointsBalance })
+      const wrapper = await mountRedemption(maxDiscountAmount)
 
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // Find the "Redeem All" button (Greek: "Εξαργύρωση όλων")
-      const buttons = wrapper.findAll('button')
-      const redeemAllButton = buttons.find(btn => btn.text().includes('όλων'))
-      expect(redeemAllButton).toBeDefined()
-
-      await redeemAllButton!.trigger('click')
-      await wrapper.vm.$nextTick()
-
-      // Form state should be populated with full balance
-      expect((wrapper.vm as any).formState.pointsToRedeem).toBe(250)
-    })
-
-    it('should emit cleared event when discount is dismissed', async () => {
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-          maxDiscountAmount: 100,
-        },
-      })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // Apply a discount first
-      ;(wrapper.vm as any).formState.pointsToRedeem = 50
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Now clear the redemption via the VM
-      ;(wrapper.vm as any).clearRedemption()
-      await wrapper.vm.$nextTick()
-
-      // Should emit cleared event
-      expect(wrapper.emitted('cleared')).toBeDefined()
+      expect(pointsInput(wrapper).find('input').attributes('disabled')).toBeDefined()
+      expect(submitButton(wrapper).attributes('disabled')).toBeDefined()
+      expect(wrapper.text()).not.toContain('Εξαργύρωση όλων')
     })
   })
 
-  describe('B2B loyalty gate', () => {
-    const mount = () =>
-      mountSuspended(LoyaltyRedemption, {
-        props: { currency: 'EUR', maxDiscountAmount: 100 },
-      })
+  it('shows a skeleton, not the form, while the balance loads', async () => {
+    summary.data.value = undefined
+    summary.status.value = 'pending'
 
-    it('offers redemption on a retail cart', async () => {
-      const wrapper = await mount()
-      await new Promise(resolve => setTimeout(resolve, 50))
+    const wrapper = await mountRedemption()
 
-      expect(wrapper.find('form').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'USkeleton' }).exists()).toBe(true)
+    expect(wrapper.find('form').exists()).toBe(false)
+  })
+
+  describe('self-gating', () => {
+    it.each([
+      ['loyalty is off', () => { settings.data.value = makeLoyaltySettings({ enabled: false }) }],
+      ['the settings have not arrived', () => { settings.data.value = undefined }],
+    ])('renders nothing when %s', async (_case, arrange) => {
+      arrange()
+
+      const wrapper = await mountRedemption()
+
+      expect(wrapper.text()).toBe('')
     })
 
-    it('offers nothing on a wholesale cart', async () => {
-      // Order creation drops the redemption on these carts, so offering
-      // it here would burn points and discount nothing.
-      cartRef.value = {
-        b2bPricing: {
-          applied: true,
-          groupName: 'Wholesale',
-          allowPromotions: false,
-          allowLoyalty: false,
-        },
-      }
+    // Order creation drops a redemption on a wholesale cart unless the
+    // merchant opts in, so offering it there would discount nothing.
+    it.each<[string, CartDetail['b2bPricing'], boolean]>([
+      ['a retail cart', null, true],
+      ['a wholesale cart', { applied: true, groupName: 'Wholesale', allowPromotions: false, allowLoyalty: false }, false],
+      ['a wholesale cart whose merchant opted in', { applied: true, groupName: 'Wholesale', allowPromotions: false, allowLoyalty: true }, true],
+      ['a wholesale group that did not apply', { applied: false, allowLoyalty: false }, true],
+    ])('on %s offers the form: %s', async (_case, b2bPricing, offered) => {
+      useCartStore().cart = makeCart({ b2bPricing })
 
-      const wrapper = await mount()
-      await new Promise(resolve => setTimeout(resolve, 50))
+      const wrapper = await mountRedemption()
 
-      expect(wrapper.find('form').exists()).toBe(false)
-    })
-
-    it('offers redemption again when the merchant opts in', async () => {
-      cartRef.value = {
-        b2bPricing: {
-          applied: true,
-          groupName: 'Wholesale',
-          allowPromotions: false,
-          allowLoyalty: true,
-        },
-      }
-
-      const wrapper = await mount()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      expect(wrapper.find('form').exists()).toBe(true)
-    })
-
-    it('is unaffected by a b2b block that never applied', async () => {
-      cartRef.value = { b2bPricing: { applied: false, allowLoyalty: false } }
-
-      const wrapper = await mount()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      expect(wrapper.find('form').exists()).toBe(true)
+      expect(wrapper.find('form').exists()).toBe(offered)
     })
   })
 })
