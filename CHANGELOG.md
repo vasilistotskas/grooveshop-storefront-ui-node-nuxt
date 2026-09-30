@@ -1,3 +1,10 @@
+## [3.224.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.10...v3.224.11) (2026-09-30)
+
+
+### Bug Fixes
+
+* **checkout:** book the ACS locker the shopper picked on the map ([#53](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/53)) ([5181442](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5181442c95d4c3c9f7fd6804edffaa426fd7d6bf))
+
 ## [3.224.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.9...v3.224.10) (2026-09-30)
 
 
