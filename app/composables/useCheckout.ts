@@ -16,38 +16,7 @@ export const useCheckout = () => {
     catch (error: unknown) {
       log.error({ action: 'checkout:reserveStock', error })
 
-      // Extract structured error data for insufficient stock
-      // Server route normalizes 409 errors with {code, detail, failedItems} at error.data.data
-      const errorData = error
-        && typeof error === 'object'
-        && 'data' in error
-        && error.data
-        && typeof error.data === 'object'
-        && 'data' in error.data
-        ? (error.data as { data: unknown }).data
-        : null
-      if (
-        errorData
-        && typeof errorData === 'object'
-        && 'code' in errorData
-        && (errorData as { code: unknown }).code === 'insufficient_stock'
-        && 'failedItems' in errorData
-      ) {
-        const ed = errorData as {
-          code: string
-          failedItems: unknown
-          detail?: unknown
-        }
-        const structuredError = new Error('Insufficient stock for one or more items')
-        Object.assign(structuredError, {
-          code: ed.code,
-          failedItems: ed.failedItems,
-          detail: ed.detail,
-        })
-        throw structuredError
-      }
-
-      throw error
+      throw parseInsufficientStockError(error) ?? error
     }
   }
 

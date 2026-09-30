@@ -45,38 +45,6 @@ type TtqTracker = {
   track: (event: string, properties?: Record<string, unknown>) => void
 }
 
-/**
- * Translate the camelCase ``TikTokCommonData`` fields into the exact
- * snake_case names TikTok's pixel expects. A key mismatch
- * (``contentId`` vs ``content_id``) silently disables value/content
- * matching — TikTok drops the field rather than warning.
- * Reference: https://business-api.tiktok.com/portal/docs?id=1739585696931842
- */
-function toTikTokPayload(
-  data: TikTokCommonData | undefined,
-): Record<string, unknown> {
-  if (!data) return {}
-  const out: Record<string, unknown> = {}
-  if (data.value !== undefined) out.value = data.value
-  if (data.currency !== undefined) out.currency = data.currency
-  if (data.contentId !== undefined) out.content_id = data.contentId
-  if (data.contentType !== undefined) out.content_type = data.contentType
-  if (data.contentName !== undefined) out.content_name = data.contentName
-  if (data.description !== undefined) out.description = data.description
-  if (data.query !== undefined) out.query = data.query
-  if (data.orderId !== undefined) out.order_id = data.orderId
-  if (data.contents !== undefined) {
-    out.contents = data.contents.map(c => ({
-      content_id: c.contentId,
-      ...(c.contentType !== undefined ? { content_type: c.contentType } : {}),
-      ...(c.contentName !== undefined ? { content_name: c.contentName } : {}),
-      ...(c.price !== undefined ? { price: c.price } : {}),
-      ...(c.quantity !== undefined ? { quantity: c.quantity } : {}),
-    }))
-  }
-  return out
-}
-
 export function useTikTokPixel() {
   const tenantStore = useTenantStore()
   // Tenant-only — no platform/env fallback (every tenant provisions its

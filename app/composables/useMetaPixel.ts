@@ -42,8 +42,6 @@ type FbqEventName
     | 'Lead'
     | 'Subscribe'
 
-type FbqCustomEventData = Record<string, unknown>
-
 const newEventId = (): string => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID().replace(/-/g, '')
@@ -52,37 +50,6 @@ const newEventId = (): string => {
   // cryptographically strong; Meta only uses it as an opaque dedup
   // key.
   return `${Date.now()}${Math.random().toString(16).slice(2)}`
-}
-
-/**
- * Translate the camelCase ``MetaCommonData`` fields into the exact
- * snake_case names Meta's pixel + Conversions API expect. Non-trivial:
- * a key mismatch (``contentIds`` vs ``content_ids``) silently
- * disables event matching — Meta drops the field rather than warning.
- * Reference: https://developers.facebook.com/docs/meta-pixel/reference
- */
-function toMetaPayload(data: MetaCommonData | undefined): FbqCustomEventData {
-  if (!data) return {}
-  const out: FbqCustomEventData = {}
-  if (data.value !== undefined) out.value = data.value
-  if (data.currency !== undefined) out.currency = data.currency
-  if (data.contentName !== undefined) out.content_name = data.contentName
-  if (data.contentCategory !== undefined) out.content_category = data.contentCategory
-  if (data.contentType !== undefined) out.content_type = data.contentType
-  if (data.contentIds !== undefined) out.content_ids = data.contentIds
-  if (data.numItems !== undefined) out.num_items = data.numItems
-  if (data.orderId !== undefined) out.order_id = data.orderId
-  if (data.searchString !== undefined) out.search_string = data.searchString
-  if (data.status !== undefined) out.status = data.status
-  if (data.predictedLtv !== undefined) out.predicted_ltv = data.predictedLtv
-  if (data.contents !== undefined) {
-    out.contents = data.contents.map(c => ({
-      ...(c.id !== undefined ? { id: c.id } : {}),
-      ...(c.quantity !== undefined ? { quantity: c.quantity } : {}),
-      ...(c.itemPrice !== undefined ? { item_price: c.itemPrice } : {}),
-    }))
-  }
-  return out
 }
 
 export function useMetaPixel() {

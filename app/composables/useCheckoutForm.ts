@@ -712,15 +712,10 @@ export async function useCheckoutForm() {
         name = getPaymentMethodName(name)
       }
 
-      // Django waives the fee on items + shipping
-      // (``OrderService.calculate_payment_method_fee`` is handed
-      // ``cart_total + shipping_cost``), so comparing the cart total
-      // alone showed a surcharge the shopper was never charged:
-      // at items 48,00 € the backend sees 50,99 € and waives, while
-      // this displayed "+2,99 €". Same base, same answer.
+      // Items + shipping: the base Django waives the fee on (see
+      // ``payWayDisplayCost``). Same base, same answer.
       const feeBase = (cart.value?.totalPrice || 0) + (shippingPrice.value ?? 0)
-      const threshold = payWay.freeThreshold || 0
-      const displayCost = (threshold > 0 && feeBase >= threshold) ? 0 : (payWay.cost || 0)
+      const { cost: displayCost, freeAbove } = payWayDisplayCost(payWay, feeBase)
       // Only show the surcharge suffix when it's a real charge — a
       // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
       // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer
@@ -733,8 +728,8 @@ export async function useCheckoutForm() {
       // Answers the question the surcharge provokes — "why 2,99 €, and
       // can I avoid it?" — next to the charge itself, rather than in a
       // separate notice the shopper has to go find.
-      const freeThresholdHint = displayCost > 0 && threshold > 0
-        ? t('pay_way_free_above', { amount: n(threshold, 'currency') })
+      const freeThresholdHint = freeAbove !== null
+        ? t('pay_way_free_above', { amount: n(freeAbove, 'currency') })
         : ''
 
       return {
