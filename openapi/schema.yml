@@ -17057,6 +17057,11 @@ paths:
               - type: number
           description: Φίλτρο ανά ελάχιστο κόστος
         - in: query
+          name: country
+          schema:
+            type: string
+          description: Χώρα παράδοσης (ISO 3166-1 alpha-2). Αφαιρεί τους τρόπους πληρωμής που ο διαχειριστής έχει αποκλείσει για τη χώρα αυτή (π.χ. BoxNow PAY ON THE GO στην Κύπρο). Δεν έχει επίδραση χωρίς το ``shippingKind``· αν παραλείπεται ισχύουν μόνο οι αποκλεισμοί για όλες τις χώρες.
+        - in: query
           name: createdAfter
           schema:
             type: string

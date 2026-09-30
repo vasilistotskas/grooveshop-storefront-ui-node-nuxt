@@ -398,6 +398,67 @@ describe('useCheckoutForm', () => {
     })
   })
 
+  describe('pay ways follow the delivery country', () => {
+    const CARD = { id: 1, name: 'Card', providerCode: 'viva_wallet', cost: 0 }
+    const PAY_ON_THE_GO = { id: 2, name: 'PAY ON THE GO', providerCode: 'boxnow_pay_on_the_go', cost: 0 }
+    const payWayCalls = () => mockFetch.mock.calls.filter(([url]) => url === '/api/pay-way')
+
+    it('asks once, for the settled method and the delivery country', async () => {
+      // The only option offered is a BoxNow locker, so the form settles
+      // on it before the pay ways are fetched.
+      await useCheckoutForm()
+
+      expect(payWayCalls()).toHaveLength(1)
+      expect(payWayCalls()[0]![1].query).toMatchObject({ country: 'GR', shippingProviderCode: 'boxnow', shippingKind: 'pickup_point' })
+    })
+
+    it('refetches for the new country and drops a pay way that country excludes', async () => {
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/pay-way') {
+          return Promise.resolve(paginated(options.query.country === 'CY' ? [CARD] : [PAY_ON_THE_GO, CARD]))
+        }
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+      const { formState, payWays } = await useCheckoutForm()
+      expect(formState.payWayId).toBe(PAY_ON_THE_GO.id)
+
+      formState.countryId = 'CY'
+      await flushPromises()
+
+      expect(payWayCalls().at(-1)![1].query).toMatchObject({ country: 'CY' })
+      expect(payWays.value?.results?.map(payWay => payWay.id)).toEqual([CARD.id])
+      expect(formState.payWayId).toBe(CARD.id)
+    })
+
+    it('keeps the list of the latest request when an older one lands last', async () => {
+      const { formState, payWays } = await useCheckoutForm()
+      const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/pay-way') {
+          return new Promise((resolve) => {
+            pending.push({ country: options.query.country, resolve })
+          })
+        }
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+
+      formState.countryId = 'CY'
+      await flushPromises()
+      formState.countryId = 'GR'
+      await flushPromises()
+
+      const oldest = pending[0]!
+      const newest = pending.at(-1)!
+      expect([oldest.country, newest.country]).toEqual(['CY', 'GR'])
+      newest.resolve(paginated([PAY_ON_THE_GO, CARD]))
+      await flushPromises()
+      oldest.resolve(paginated([CARD]))
+      await flushPromises()
+
+      expect(payWays.value?.results?.map(payWay => payWay.id)).toEqual([PAY_ON_THE_GO.id, CARD.id])
+    })
+  })
+
   describe('switching country quickly', () => {
     it('keeps the regions of the country selected last when an older response lands last', async () => {
       const { formState, regionOptions } = await useCheckoutForm()
