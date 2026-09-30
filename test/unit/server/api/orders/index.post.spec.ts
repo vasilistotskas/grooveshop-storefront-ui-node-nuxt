@@ -88,6 +88,42 @@ describe('POST /api/orders', () => {
     })
   })
 
+  it('places the order when an unrelated cookie is not valid percent-encoding', async () => {
+    // Any third-party script can set such a cookie. Decoding the whole
+    // header by hand threw on it, and the shopper could not check out.
+    backend.reply(createdOrder)
+
+    const response = await placeOrder({ headers: { cookie: 'tracker=%E0%A4%A; _fbp=fb.1.1700000000.123' } })
+
+    expect(response.status).toBe(200)
+    expect(response.body).toMatchObject({ id: 7 })
+    expect(backend.lastRequest.body.meta).toEqual({ fbp: 'fb.1.1700000000.123' })
+  })
+
+  it('forwards a pixel cookie it cannot decode exactly as the browser holds it', async () => {
+    backend.reply(createdOrder)
+
+    await placeOrder({ headers: { cookie: '_fbp=%E0%A4%A' } })
+
+    expect(backend.lastRequest.body.meta).toEqual({ fbp: '%E0%A4%A' })
+  })
+
+  it('reads the click id through loose spacing and percent-encoding', async () => {
+    backend.reply(createdOrder)
+
+    await placeOrder({ headers: { cookie: ' _fbc = fb.1.1.IwAR%2Fabc ;_fbp=fb.1.1.2' } })
+
+    expect(backend.lastRequest.body.meta).toEqual({ fbp: 'fb.1.1.2', fbc: 'fb.1.1.IwAR/abc' })
+  })
+
+  it('attributes nothing to an empty pixel cookie or a look-alike name', async () => {
+    backend.reply(createdOrder)
+
+    await placeOrder({ headers: { cookie: '_fbp=; _fbc=; x_fbp=1; _fbpx=2' } })
+
+    expect(backend.lastRequest.body).not.toHaveProperty('meta')
+  })
+
   it('overrides a client-supplied IP and user agent with the request\'s own', async () => {
     backend.reply(createdOrder)
 
