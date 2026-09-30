@@ -1,3 +1,10 @@
+## [3.224.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.6...v3.224.7) (2026-09-30)
+
+
+### Bug Fixes
+
+* **account:** keep the saved birth day, and settle a rejected profile save ([#50](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/50)) ([7acf56f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7acf56f93ebf870227d00db15625a3ca1801fb47))
+
 ## [3.224.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.5...v3.224.6) (2026-09-30)
 
 
