@@ -251,5 +251,40 @@ describe('useAcsAddressValidation', () => {
       expect(api.callsTo(URL)[0]!.options.signal.aborted).toBe(true)
       expect(resolved.value).toBeNull()
     })
+
+    // The suggestion is switched off (the shopper picked a country ACS
+    // does not serve, say) while a lookup is in flight: nothing may stay
+    // "checking", and no earlier answer may stay on offer.
+    it('cancel() mid-request stops the loading state and drops the earlier answer', async () => {
+      const request = deferred()
+      const answers = [Promise.resolve(resolvedAddress()), request.promise]
+      api.routes({ [URL]: () => answers.shift() })
+      const { validate, cancel, resolved, isLoading } = useAcsAddressValidation()
+      validate(ADDRESS)
+      await vi.advanceTimersByTimeAsync(600)
+      await flushPromises()
+      expect(resolved.value).toEqual(resolvedAddress())
+
+      validate('Ermou 2 Athens 10563')
+      await vi.advanceTimersByTimeAsync(600)
+      expect(isLoading.value).toBe(true)
+      cancel()
+
+      expect(isLoading.value).toBe(false)
+      expect(resolved.value).toBeNull()
+    })
+
+    it('offers no earlier answer for an address that has since changed', async () => {
+      api.routes({ [URL]: () => resolvedAddress() })
+      const { validate, resolved } = useAcsAddressValidation()
+      validate(ADDRESS)
+      await vi.advanceTimersByTimeAsync(600)
+      await flushPromises()
+      expect(resolved.value).toEqual(resolvedAddress())
+
+      validate('Ermou 2 Athens 10563')
+
+      expect(resolved.value).toBeNull()
+    })
   })
 })

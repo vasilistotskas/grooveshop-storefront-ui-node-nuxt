@@ -22,18 +22,30 @@ export type AddressIssue = 'zipcode' | 'street' | 'streetNumber'
 // postcodes are four digits.
 const MIN_POSTCODE_LOOKALIKE_LENGTH = 4
 
-const compiled = new Map<string, RegExp>()
+const compiled = new Map<string, RegExp | null>()
 
-function patternRegExp(pattern: string): RegExp {
-  let regExp = compiled.get(pattern)
-  if (!regExp) {
-    // Anchored like Python's ``re.fullmatch``. No ``u`` flag: Django
-    // compiles with ``re.ASCII``, and without ``u`` JavaScript's ``\d``
-    // and ``\b`` are ASCII too.
-    regExp = new RegExp(`^(?:${pattern})$`)
+/**
+ * The pattern as a JavaScript RegExp, or null when JavaScript cannot
+ * compile it: the pattern comes from Django, which validates it with
+ * Python's ``re`` — a dialect with syntax JavaScript lacks (``(?P<x>…)``,
+ * inline flags, possessive quantifiers). Such a pattern is no format to
+ * check here; Django still checks every address it is sent.
+ */
+function patternRegExp(pattern: string): RegExp | null {
+  if (!compiled.has(pattern)) {
+    let regExp: RegExp | null
+    try {
+      // Anchored like Python's ``re.fullmatch``. No ``u`` flag: Django
+      // compiles with ``re.ASCII``, and without ``u`` JavaScript's ``\d``
+      // and ``\b`` are ASCII too.
+      regExp = new RegExp(`^(?:${pattern})$`)
+    }
+    catch {
+      regExp = null
+    }
     compiled.set(pattern, regExp)
   }
-  return regExp
+  return compiled.get(pattern) ?? null
 }
 
 /**
@@ -54,9 +66,13 @@ export function normalizePostcode(value: string): string {
 export function postcodeMatches(country: PostalFormat | undefined, value: string): boolean {
   const postcode = normalizePostcode(value)
   if (!postcode) return false
+  return postcodeFormat(country)?.test(postcode) ?? true
+}
+
+/** The country's postcode format, or null when there is none to check. */
+function postcodeFormat(country: PostalFormat | undefined): RegExp | null {
   const pattern = country?.postalCodePattern
-  if (!pattern) return true
-  return patternRegExp(pattern).test(postcode)
+  return pattern ? patternRegExp(pattern) : null
 }
 
 /**
@@ -71,11 +87,14 @@ export function addressIssues(
   if (address.street && !/\p{L}/u.test(address.street)) {
     issues.push('street')
   }
+  // Only against a real format: without one every long number would
+  // "look like" a postcode.
+  const format = postcodeFormat(country)
   const number = normalizePostcode(address.streetNumber)
   if (
-    country?.postalCodePattern
+    format
     && number.replace(/ /g, '').length >= MIN_POSTCODE_LOOKALIKE_LENGTH
-    && postcodeMatches(country, number)
+    && format.test(number)
   ) {
     issues.push('streetNumber')
   }

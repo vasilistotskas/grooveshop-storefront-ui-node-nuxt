@@ -51,6 +51,15 @@ describe('postcodeMatches', () => {
     expect(postcodeMatches(GREECE, '٧٠٣٠٠')).toBe(false)
   })
 
+  // Django's validator compiles a pattern with Python's `re`, which takes
+  // syntax JavaScript cannot (`(?P<name>…)`, inline flags). A pattern the
+  // browser cannot compile must not throw out of address validation —
+  // during SSR it took the checkout page down — it is no format to check
+  // here; Django still checks the address it is sent.
+  it.each(['(?P<zip>\\d{5})', '(?i)[a-z]{3}', '\\d{5}++'])('treats a pattern JavaScript cannot compile (%s) as no format', (pattern) => {
+    expect(postcodeMatches({ postalCodePattern: pattern }, '10557')).toBe(true)
+  })
+
   it('accepts any non-empty value for a country without a format', () => {
     expect(postcodeMatches(NO_FORMAT, 'anything')).toBe(true)
     expect(postcodeMatches(undefined, 'anything')).toBe(true)
@@ -91,8 +100,11 @@ describe('addressIssues', () => {
     })).toEqual(['streetNumber'])
   })
 
-  it('only checks the street for a country without a format', () => {
-    expect(addressIssues(NO_FORMAT, {
+  it.each([
+    ['without a format', NO_FORMAT],
+    ['whose format JavaScript cannot compile', { postalCodePattern: '(?P<zip>\\d{5})' }],
+  ])('only checks the street for a country %s', (_case, country) => {
+    expect(addressIssues(country, {
       street: 'Main Street',
       streetNumber: '70300',
       zipcode: 'whatever',

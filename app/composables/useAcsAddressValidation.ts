@@ -36,6 +36,14 @@ export function useAcsAddressValidation() {
   let pending: AbortController | null = null
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
+  /**
+   * Stop looking: the pending wait, the request in flight, and what the
+   * last lookup found. The consumer calls this when the suggestion no
+   * longer applies (the shopper switched it off or left ACS's country),
+   * so nothing may stay "checking" and no earlier answer may stay on
+   * offer — the aborted request leaves its state to its owner, which is
+   * this call.
+   */
   function cancel() {
     if (debounceTimer) {
       clearTimeout(debounceTimer)
@@ -45,6 +53,9 @@ export function useAcsAddressValidation() {
       pending.abort()
       pending = null
     }
+    isLoading.value = false
+    resolved.value = null
+    errorMessage.value = null
   }
 
   async function runFetch(address: string) {
@@ -100,9 +111,10 @@ export function useAcsAddressValidation() {
       clearTimeout(debounceTimer)
       debounceTimer = null
     }
+    // The previous answer was for a different address.
+    resolved.value = null
     const trimmed = address.trim()
     if (trimmed.length < 5) {
-      resolved.value = null
       isLoading.value = false
       return
     }
