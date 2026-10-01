@@ -147,6 +147,16 @@ describe('Loyalty/Summary', () => {
       expect(wrapper.text()).toContain('Ξεκλειδώνεται πολλαπλασιαστής πόντων +100%')
     })
 
+    // A tier the list does not hold (removed since, say) is no position
+    // on the ladder: there is no "next" to name, least of all the first.
+    it('names no next tier when the current one is not on the ladder', async () => {
+      summary.data.value = makeSummary({ tier: makeTier({ id: 99, requiredLevel: 7 }) })
+
+      const wrapper = await mountSummary()
+
+      expect(wrapper.text()).not.toContain('Ξεκλειδώστε τη βαθμίδα')
+    })
+
     it('points a shopper with no tier at the first one, with no multiplier line for 1x', async () => {
       summary.data.value = makeSummary({ tier: null })
 

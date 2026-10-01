@@ -36,7 +36,9 @@ const currentTierRank = computed(() => {
 // working toward.
 const nextTier = computed<LoyaltyTier | null>(() => {
   if (!tiers.value || !summary.value) return null
-  // No current tier yet → the first tier is the next unlock.
+  // No current tier yet → the first tier is the next unlock. A current
+  // tier missing from the list leaves no ladder to read the next one off.
+  if (summary.value.tier && currentTierRank.value === -1) return null
   return orderedTiers.value[currentTierRank.value + 1] ?? null
 })
 
@@ -76,11 +78,11 @@ const xpProgressPercentage = computed(() => {
   return Math.round((summary.value.totalXp / totalNeeded) * 100)
 })
 
-// A tier's colour by its rank on the ladder — bronze, silver, gold,
-// platinum, diamond as seeded — never by its name: merchants rename tiers
-// and every locale names them differently (matching names missed the
-// seeded "Ασημένιο" and "Πλατινένιο" outright). A ladder taller than the
-// palette takes the brand colour.
+// A tier's colour by its rank on the ladder — bronze, silver, gold and
+// platinum as Django seeds them, then a fifth — never by its name:
+// merchants rename tiers and every locale names them differently
+// (matching names missed the seeded "Ασημένιο" and "Πλατινένιο"
+// outright). A ladder taller than the palette takes the brand colour.
 const TIER_COLORS = ['warning', 'neutral', 'warning', 'info', 'secondary'] as const
 const tierColor = computed(() => TIER_COLORS[currentTierRank.value] ?? 'primary')
 

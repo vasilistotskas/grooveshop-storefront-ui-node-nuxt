@@ -9,20 +9,16 @@ const { data: settings, status } = useLoyalty().fetchSettings()
 const loading = computed(() => status.value === 'pending')
 
 // Computed values for dynamic content
+// The store's redemption ratio (points per 1 EUR), or null for a store
+// that redeems no points: a ratio of 0 printed "0 points = 1€".
 const redemptionRate = computed(() => {
-  if (!settings.value) return { points: 100, euros: 1 }
-  return {
-    points: settings.value.redemptionRatioEur,
-    euros: 1,
-  }
+  const ratio = settings.value?.redemptionRatioEur
+  return ratio && ratio > 0 ? { points: ratio, euros: 1 } : null
 })
 
-const redemptionExample = computed(() => {
-  const ratio = redemptionRate.value.points
-  return {
-    examplePoints: ratio * 5, // 5x the ratio
-    exampleEuros: 5,
-  }
+const redemptionExample = computed(() => redemptionRate.value && {
+  examplePoints: redemptionRate.value.points * 5, // 5x the ratio
+  exampleEuros: 5,
 })
 
 const earningRate = computed(() => {
@@ -300,7 +296,7 @@ useHead({
           {{ t('redeeming.description') }}
         </p>
 
-        <UCard variant="soft" color="primary">
+        <UCard v-if="loading || redemptionRate" variant="soft" color="primary">
           <div v-if="loading" class="flex items-center gap-4">
             <USkeleton class="size-8 shrink-0" />
             <div class="flex-1 space-y-2">
@@ -308,7 +304,7 @@ useHead({
               <USkeleton class="h-4 w-48" />
             </div>
           </div>
-          <div v-else class="flex items-center gap-4">
+          <div v-else-if="redemptionRate && redemptionExample" class="flex items-center gap-4">
             <UIcon name="i-heroicons-information-circle" class="size-8 text-info-600 dark:text-info-400" />
             <div>
               <p class="font-semibold text-primary-900 dark:text-primary-100">
