@@ -1,3 +1,10 @@
+## [3.224.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.14...v3.224.15) (2026-10-01)
+
+
+### Bug Fixes
+
+* **loyalty:** ask for points only on a loyalty store, and price them at its ratio ([#56](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/56)) ([9b8013d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9b8013d783af1ee7559ad4a7521d53ed7e284a00))
+
 ## [3.224.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.13...v3.224.14) (2026-10-01)
 
 
