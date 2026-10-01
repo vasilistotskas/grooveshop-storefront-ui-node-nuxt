@@ -38,6 +38,19 @@ describe('PageSection/BlogCategories', () => {
     expect(api.callsTo(CATEGORIES_URL)[0]!.options.query).toEqual({ pageSize: 10, languageCode: 'el' })
   })
 
+  // One fetch feeds the band and its rail: they used to read the same key
+  // with different page sizes and options.
+  it('hands the rail the categories it fetched, in one request', async () => {
+    const wrapper = await mountSuspended(BlogCategories, {
+      route: false,
+      props: { title: 'Κατηγορίες' },
+      global: { stubs: { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } } },
+    })
+
+    expect(wrapper.text()).toContain('Νέα')
+    expect(api.callsTo(CATEGORIES_URL)).toHaveLength(1)
+  })
+
   it('draws no band when the blog has no categories', async () => {
     api.routes({ [CATEGORIES_URL]: { results: [], count: 0 } })
 

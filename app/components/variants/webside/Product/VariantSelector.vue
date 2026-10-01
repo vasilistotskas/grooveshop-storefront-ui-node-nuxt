@@ -131,7 +131,7 @@ async function onSelect(axisId: number, rawValue: unknown) {
                 {{ item.label }}
               </span>
               <span class="text-xs text-muted">
-                <template v-if="item.showFrom">{{ t('from') }} </template>{{ formatPrice(item.price) }}
+                {{ item.showFrom ? t('from_price', { price: formatPrice(item.price) }) : formatPrice(item.price) }}
               </span>
             </span>
           </template>
@@ -143,7 +143,7 @@ async function onSelect(axisId: number, rawValue: unknown) {
 
 <i18n lang="yaml">
 el:
-  from: από
+  from_price: 'από {price}'
 en:
-  from: from
+  from_price: 'from {price}'
 </i18n>

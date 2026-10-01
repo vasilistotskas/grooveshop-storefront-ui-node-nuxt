@@ -60,6 +60,22 @@ describe.each(trees(CartItemCard, WebsideCartItemCard))('$tree Cart/ItemCard', (
     expect(text).toContain(`Σύνολο: ${money(item.totalPrice)}`)
   })
 
+  it('cuts a long product name after its first 50 characters, keeping the whole name as the title', async () => {
+    const name = `${'Α'.repeat(50)}${'Ω'.repeat(10)}`
+    const wrapper = await mountSuspended(C, {
+      route: false,
+      props: {
+        cartItem: makeCartItem({
+          ...LINE,
+          product: { ...LINE.product, translations: { el: { name, description: '', seoTitle: '', seoDescription: '', seoKeywords: '' } } },
+        }),
+      },
+    })
+
+    expect(wrapper.find('h3').text()).toBe(`${'Α'.repeat(50)}...`)
+    expect(wrapper.find('h3 a').attributes('title')).toBe(name)
+  })
+
   it('caps the quantity stepper at the product stock', async () => {
     const wrapper = await mount()
 

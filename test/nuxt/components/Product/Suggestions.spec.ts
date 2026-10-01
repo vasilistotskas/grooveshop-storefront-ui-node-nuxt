@@ -79,7 +79,7 @@ type StripProps = { surface: SurfaceEnum, seedId?: number, items?: Product[], li
 const events = () => api.callsTo('/api/analytics/recommendation-event')
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
-describe.each(trees(Suggestions, WebsideSuggestions))('$tree Product/Suggestions', ({ tree, C, own }) => {
+describe.each(trees(Suggestions, WebsideSuggestions))('$tree Product/Suggestions', ({ C, own }) => {
   const mountStrip = async (props: StripProps = { surface: 'pdp', seedId: 1 }) => {
     const wrapper = await mountSuspended(C, { props, global: { stubs: stubsFor(own) }, route: false })
     await flushPromises()
@@ -188,9 +188,8 @@ describe.each(trees(Suggestions, WebsideSuggestions))('$tree Product/Suggestions
 
   // `hydrate-on-visible` runs the strip's setup after the app finished
   // hydrating; only `getCachedData: payloadCachedData` still reads the
-  // server payload then. The frozen copy lacks it (reported to the
-  // owner), so this is not a webside contract.
-  it.runIf(tree === 'default')('still reads the server payload when set up after hydration (hydrate-on-visible)', async () => {
+  // server payload then.
+  it('still reads the server payload when set up after hydration (hydrate-on-visible)', async () => {
     const wrapper = await mountOverServerPayload(false)
 
     expect(wrapper.findAll('article')).toHaveLength(2)

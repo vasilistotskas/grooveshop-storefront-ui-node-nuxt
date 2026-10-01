@@ -57,6 +57,9 @@ const { data } = useApi(`/api/products/${props.seedId}/recommendations`, {
   },
   immediate: fetches,
   default: () => null,
+  // `hydrate-on-visible`: set up after hydration, when Nuxt's default no
+  // longer reads the payload. See app/utils/payloadCachedData.ts.
+  getCachedData: payloadCachedData,
 })
 
 const tiles = computed<Tile[]>(() => {
