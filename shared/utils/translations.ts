@@ -13,7 +13,12 @@ const NBSP_ENTITY = /&(?:nbsp|#160|#x0*a0);/gi
 export function hasVisibleContent(value: string | null | undefined): value is string {
   if (!value) return false
   if (EMBEDDED_MEDIA.test(value)) return true
-  return value.replace(/<[^>]*>/g, '').replace(NBSP_ENTITY, ' ').trim() !== ''
+  // Whether any text sits between the tags. A presence test: nothing
+  // here strips markup for rendering, so it reads the segments rather
+  // than producing a "tag-free" string.
+  return value
+    .split(/<[^>]*>/)
+    .some(text => text.replace(NBSP_ENTITY, ' ').trim() !== '')
 }
 
 /**
