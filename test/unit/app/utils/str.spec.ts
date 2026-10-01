@@ -32,6 +32,11 @@ describe('String Utilities', () => {
       expect(contentShorten('Short text', 0, 20)).toBe('Short text')
     })
 
+    // Nothing was cut, so there is nothing to mark.
+    it('returns content exactly at the limit untouched', () => {
+      expect(contentShorten('0123456789', 0, 10)).toBe('0123456789')
+    })
+
     it.each([[null], [undefined], ['']])('renders %j as nothing', (content) => {
       expect(contentShorten(content, 0, 20)).toBe('')
     })

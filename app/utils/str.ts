@@ -16,7 +16,7 @@ export function contentShorten(
 ): string {
   if (!content) return ''
 
-  if (content.length < to) return content
+  if (content.length <= to) return content
   return content.substring(from, to) + suffix
 }
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zBlogComment } from '~~/shared/openapi/zod.gen'
-import { makeBlogComment } from '~~/test/fixtures/blog'
+import { zBlogCategory, zBlogComment } from '~~/shared/openapi/zod.gen'
+import { makeBlogCategory, makeBlogComment } from '~~/test/fixtures/blog'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -21,5 +21,15 @@ describe('makeBlogComment', () => {
     expect(problems(zBlogComment, reply)).toEqual([])
     expect(reply).toMatchObject({ id: 4, parent: 1, translations: { el: { content: 'Σχόλιο 4' } } })
     expect(reply.uuid).not.toBe(makeBlogComment().uuid)
+  })
+})
+
+describe('makeBlogCategory', () => {
+  it('builds a default category that parses through zBlogCategory', () => {
+    expect(problems(zBlogCategory, makeBlogCategory())).toEqual([])
+  })
+
+  it('derives the name and slug from the id', () => {
+    expect(makeBlogCategory({ id: 3 })).toMatchObject({ slug: 'category-3', translations: { el: { name: 'Κατηγορία 3' } } })
   })
 })

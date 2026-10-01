@@ -1,4 +1,4 @@
-import type { BlogComment } from '~~/shared/openapi/types.gen'
+import type { BlogCategory, BlogComment } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -29,6 +29,32 @@ export function makeBlogComment(overrides: Partial<BlogComment> = {}): BlogComme
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(22, id),
+    ...overrides,
+  }
+}
+
+/**
+ * A `BlogCategory` as Django serialises it, valid against the generated
+ * `zBlogCategory` (proved by `test/unit/fixtures/blog.spec.ts`).
+ *
+ * Defaults: a top-level Greek category with one post and no image; the
+ * name and slug follow `id`. An explicit override wins.
+ */
+export function makeBlogCategory(overrides: Partial<BlogCategory> = {}): BlogCategory {
+  const id = overrides.id ?? 1
+
+  return {
+    id,
+    translations: { el: { name: `Κατηγορία ${id}`, description: '' } },
+    slug: `category-${id}`,
+    parent: null,
+    level: 0,
+    sortOrder: id,
+    postCount: 1,
+    hasChildren: false,
+    mainImagePath: '',
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
     ...overrides,
   }
 }

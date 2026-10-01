@@ -43,11 +43,10 @@ export function useProductSearchData() {
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)
   // ============================================
-  // Fetch global price min/max once (without any filters applied)
-  // This gives us the absolute bounds for the price slider
-  // Key is locale-based so it's shared across all components
-  // Using useAsyncData with getCachedData to ensure proper SSR hydration
-  const { data: priceStatsData, status: priceStatsStatus } = useAsyncData(
+  // The store-wide price min/max (no filters applied): the absolute
+  // bounds of the price slider. One fetch per locale, shared by every
+  // reader through the same options as the facets below.
+  const { data: priceStatsData } = useAsyncData(
     `price-stats-${$i18n.locale.value}`,
     () => requestFetch('/api/products/search', {
       query: {
@@ -56,22 +55,21 @@ export function useProductSearchData() {
         languageCode: $i18n.locale.value,
       },
     }),
-    {
-      dedupe: 'defer',
-      // Use cached data if available (prevents refetch on client)
-      getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key],
-    },
+    shared,
   )
 
-  // Check if price stats are loaded - data is available when useAsyncData completes
-  const isPriceStatsLoaded = computed(() => priceStatsData.value !== null)
+  // The real bounds, or undefined: before they arrive (Nuxt 4 starts
+  // `data` as undefined, so a `!== null` check was always true), when
+  // the fetch failed, or when the search reports no priced product.
+  const priceBounds = computed(() =>
+    (priceStatsData.value?.facetStats as FacetStats | undefined)?.finalPrice)
 
-  // Extract price stats from the response
-  // This computed is reactive and will update when data changes
-  const priceStats = computed(() => {
-    const stats = priceStatsData.value?.facetStats as FacetStats | undefined
-    return stats?.finalPrice || { min: 0, max: 1000 }
-  })
+  // Gates the slider: without real bounds it shows its skeleton.
+  const isPriceStatsLoaded = computed(() => priceBounds.value !== undefined)
+
+  // Only ever rendered once loaded; the placeholder keeps the slider's
+  // props defined while the skeleton is up.
+  const priceStats = computed(() => priceBounds.value ?? { min: 0, max: 1000 })
 
   // ============================================
   // CATEGORY FACETS (product counts per category)
@@ -234,7 +232,6 @@ export function useProductSearchData() {
   return {
     // Price data
     priceStats,
-    priceStatsStatus,
     isPriceStatsLoaded,
 
     // Category data

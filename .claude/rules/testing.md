@@ -92,7 +92,7 @@ and fake timers for debounce, polling and timeouts
 | `test/helpers/sourceText.ts` | the source-rule toolkit: file walks, memoised SFC/AST parsing, `classesOf`, `componentName` |
 | `test/helpers/nitro/` | the server harness (below) |
 | `test/helpers/e2e.ts` | dev-server boot, fake Django, `requestWithHost` |
-| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeOrder`, `makeContentPage`, `makeBlogComment`, `makeSubscriptionTopic`, `makeUserSubscription`, `makeUserDetails`, `validTenantConfig`, … |
+| `test/fixtures/*.ts` | `makeProduct`, `makeCart`, `makeCartItem`, `makePayWay`, `makeCountry`, `makeOrder`, `makeContentPage`, `makeBlogComment`, `makeBlogCategory`, `makeSubscriptionTopic`, `makeUserSubscription`, `makeUserDetails`, `validTenantConfig`, … |
 | `test/fixtures/allauth.ts` | allauth replies: `makeSessionResponse`, `makePendingFlowResponse(id)`, `makeBadResponse(...errors)`, `makeAllAuthConfig`, and `asProxiedError(body)` — a body as the app's `$fetch` throws it |
 
 Every fixture factory's defaults are parsed against its Zod schema (the

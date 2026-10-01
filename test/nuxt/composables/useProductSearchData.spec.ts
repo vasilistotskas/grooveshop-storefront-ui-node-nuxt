@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { failWith } from '~~/test/helpers/api'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { effectScope, nextTick, ref } from 'vue'
@@ -145,6 +146,31 @@ describe('useProductSearchData', () => {
       await flushPromises()
 
       expect(priceStats.value).toEqual(bounds)
+    })
+
+    // `isPriceStatsLoaded` gates the slider: it must be true only with
+    // real bounds, or the slider renders the placeholder 0–1000 range —
+    // until the stats arrive, and for good when they cannot.
+    it('reports the bounds as loaded only once the price facet answered', async () => {
+      api.routes({ [SEARCH]: byFacet({ final_price: { facetStats: { finalPrice: { min: 5, max: 250 } } } }) })
+
+      const { isPriceStatsLoaded } = setup()
+      expect(isPriceStatsLoaded.value).toBe(false)
+      await flushPromises()
+
+      expect(isPriceStatsLoaded.value).toBe(true)
+    })
+
+    it.each([
+      ['the price search fails', failWith(502)],
+      ['the search reports no price facet', byFacet({ final_price: { facetStats: {} } })],
+    ])('never reports the bounds as loaded when %s', async (_case, answer) => {
+      api.routes({ [SEARCH]: answer })
+
+      const { isPriceStatsLoaded } = setup()
+      await flushPromises()
+
+      expect(isPriceStatsLoaded.value).toBe(false)
     })
   })
 

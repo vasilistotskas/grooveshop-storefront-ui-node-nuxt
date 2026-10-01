@@ -24,6 +24,10 @@ const { data: categories } = useLazyApi(`/api/blog/categories`, {
     pageSize: max,
     languageCode: locale,
   },
+  // A lazily hydrated page-builder section: set up after hydration, when
+  // Nuxt's default no longer reads the payload. See
+  // app/utils/payloadCachedData.ts.
+  getCachedData: payloadCachedData,
 })
 const categoryResults = computed(() => categories.value?.results ?? [])
 

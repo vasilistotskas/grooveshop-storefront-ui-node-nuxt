@@ -108,14 +108,12 @@ describe.each(trees(ProductVariantSelector, WebsideProductVariantSelector))('$tr
     const wrapper = await mountForProduct()
 
     // Λευκό: 10 € (256GB) or 15 € (512GB); 256GB: 10 € in both colours.
-    // Prefix and price are asserted apart: the template's space between
-    // them does not survive compilation (reported, not pinned).
+    // One message with the price in it: a space between a separate "από"
+    // and the price did not survive template compilation ("από10,00 €").
     const price = (text: string) => card(wrapper, text).find('.text-muted').text()
-    expect(price('Λευκό')).toMatch(/^από\s?/)
-    expect(price('Λευκό').replace(/^από\s?/, '')).toBe(money(10))
+    expect(price('Λευκό')).toBe(`από ${money(10)}`)
     expect(price('256GB')).toBe(money(10))
-    expect(price('512GB')).toMatch(/^από\s?/)
-    expect(price('512GB').replace(/^από\s?/, '')).toBe(money(15))
+    expect(price('512GB')).toBe(`από ${money(15)}`)
   })
 
   it('marks the values of the product on screen with a check', async () => {

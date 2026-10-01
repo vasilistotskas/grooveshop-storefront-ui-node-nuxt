@@ -54,6 +54,21 @@ describe('parseProductFilters', () => {
     },
   )
 
+  // A hand-edited or mangled URL: every value the search API would
+  // refuse (its query schema: decimals for prices, integers for likes and
+  // views) is no filter, instead of a NaN chip and a 400 from the search.
+  it.each([
+    ['priceMin', 'abc'],
+    ['priceMax', '12abc'],
+    ['priceMin', 'Infinity'],
+    ['priceMin', ['1', '2']],
+    ['likesMin', '1.5'],
+    ['viewsMin', 'x'],
+    ['viewsMin', '1e3'],
+  ])('ignores ?%s=%j, which the search would refuse', (param, value) => {
+    expect(parseProductFilters({ [param]: value })).toEqual(NONE)
+  })
+
   it('reads every filter at once', () => {
     expect(parseProductFilters({
       q: 'laptop',

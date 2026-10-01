@@ -12,6 +12,18 @@ function queryList(value: LocationQuery[string] | undefined): string[] {
   return Array.isArray(value) ? (value as string[]) : [value]
 }
 
+/**
+ * A numeric filter as the search API accepts it — its query schema
+ * (`zApiV1SearchProductRetrieveQuery`): a plain decimal, or an integer.
+ * Anything else (text, a repeated parameter, `Infinity`, an exponent)
+ * is no filter, rather than a NaN the search would refuse with a 400.
+ */
+const DECIMAL = /^-?\d+(?:\.\d+)?$/
+const INTEGER = /^-?\d+$/
+function queryNumber(value: LocationQuery[string] | undefined, pattern: RegExp): number | undefined {
+  return typeof value === 'string' && pattern.test(value) ? Number(value) : undefined
+}
+
 /** A list filter as the URL stores it: one value bare, several as an array. */
 function listQueryValue(values: string[]): string | string[] {
   return values.length === 1 ? values[0]! : values
@@ -21,10 +33,10 @@ function listQueryValue(values: string[]): string | string[] {
 export function parseProductFilters(query: LocationQuery): ProductFilters {
   return {
     search: (query.q as string) || '',
-    priceMin: query.priceMin ? Number(query.priceMin) : undefined,
-    priceMax: query.priceMax ? Number(query.priceMax) : undefined,
-    likesMin: query.likesMin ? Number(query.likesMin) : undefined,
-    viewsMin: query.viewsMin ? Number(query.viewsMin) : undefined,
+    priceMin: queryNumber(query.priceMin, DECIMAL),
+    priceMax: queryNumber(query.priceMax, DECIMAL),
+    likesMin: queryNumber(query.likesMin, INTEGER),
+    viewsMin: queryNumber(query.viewsMin, INTEGER),
     categories: queryList(query.category),
     sort: (query.sort as string) || '',
     attributeValues: queryList(query.attributeValue),

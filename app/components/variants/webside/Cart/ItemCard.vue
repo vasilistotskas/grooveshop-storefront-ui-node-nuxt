@@ -134,7 +134,7 @@ const formattedTotal = computed(() => {
             :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
             :title="alt"
           >
-            {{ contentShorten(alt, 50) }}
+            {{ contentShorten(alt, 0, 50) }}
           </Anchor>
         </h3>
         <div
