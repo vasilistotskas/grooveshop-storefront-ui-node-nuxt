@@ -8,9 +8,8 @@
  * rail is 80px of blank page, and on the demo store this section is
  * FIRST, so a store with no posts opened on it.
  *
- * The count is read here rather than inside the rail because the BAND
- * is what has to decide. Same key as the rail's own fetch, so the two
- * share one request.
+ * The categories are fetched here rather than inside the rail because
+ * the BAND is what has to decide; the rail renders what it is handed.
  */
 defineProps<{
   /** The operator's section title, from the section row itself. */
@@ -32,9 +31,8 @@ const { data } = await useApi('/api/blog/categories', {
   getCachedData: payloadCachedData,
 })
 
-const hasCategories = computed(
-  () => enabled && (data.value?.results?.length ?? 0) > 0,
-)
+const categories = computed(() => (enabled && data.value?.results) || [])
+const hasCategories = computed(() => categories.value.length > 0)
 </script>
 
 <template>
@@ -43,6 +41,6 @@ const hasCategories = computed(
     :heading="title"
     padding="sm"
   >
-    <BlogCategoriesSlider class="w-full p-0!" />
+    <BlogCategoriesSlider :categories="categories" class="w-full p-0!" />
   </PageSectionBand>
 </template>

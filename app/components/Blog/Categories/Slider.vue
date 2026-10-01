@@ -1,8 +1,17 @@
 <script lang="ts" setup>
-const props = defineProps({
-  max: {
-    type: Number,
-    default: 8,
+import type { PropType } from 'vue'
+
+/**
+ * The categories rail. It renders the categories it is handed: the
+ * `blog_categories` band fetches them, because the band decides whether
+ * to draw at all. Rail and band used to fetch the same key with
+ * different queries and options (10 vs 8 a page), so which answer showed
+ * depended on who registered first.
+ */
+defineProps({
+  categories: {
+    type: Array as PropType<BlogCategory[]>,
+    required: true,
   },
   showAllButton: {
     type: Boolean,
@@ -10,26 +19,10 @@ const props = defineProps({
   },
 })
 
-const { max } = toRefs(props)
 const { locale, t } = useI18n()
 const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
-
-const { data: categories } = useLazyApi(`/api/blog/categories`, {
-  key: 'blogCategories-slider',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    pageSize: max,
-    languageCode: locale,
-  },
-  // The same key as the `blog_categories` band, which hydrates lazily;
-  // Nuxt requires every reader of one key to agree on this option.
-  // See app/utils/payloadCachedData.ts.
-  getCachedData: payloadCachedData,
-})
-const categoryResults = computed(() => categories.value?.results ?? [])
 
 const INLINED_FA6_ICONS = new Set([
   'shield',
@@ -68,9 +61,9 @@ function deriveIconName(mainImagePath: string | null | undefined): string | null
     "
   >
     <LazyUCarousel
-      v-if="categoryResults && categoryResults?.length > 0"
+      v-if="categories.length > 0"
       v-slot="{ item }"
-      :items="categoryResults"
+      :items="categories"
       :ui="{
         item: `
           flex basis-[33%]
