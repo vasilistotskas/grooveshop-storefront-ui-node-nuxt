@@ -89,7 +89,7 @@ describe('useUserSubscriptions', () => {
       expect(mockToast.add).toHaveBeenCalledExactlyOnceWith(success())
     })
 
-    it('rethrows a failure after an error toast, refreshing nothing', async () => {
+    it('rethrows a failure after an error toast, re-reading only the user list', async () => {
       const rejection = new Error('API error')
       api.routes({
         [url]: () => {
@@ -99,7 +99,8 @@ describe('useUserSubscriptions', () => {
 
       await expect(run()).rejects.toBe(rejection)
 
-      expect(mockRefreshNuxtData).not.toHaveBeenCalled()
+      // A refusal is usually stale state: the switch must show what is true.
+      expect(mockRefreshNuxtData.mock.calls).toEqual([['subscription:user:list']])
       expect(mockToast.add).toHaveBeenCalledExactlyOnceWith(failure())
     })
   })

@@ -5,7 +5,7 @@
  * deduplication, and payload forwarding from server to client.
  *
  * Provides access to user subscriptions with mutation operations for
- * subscribing, unsubscribing, and bulk operations.
+ * subscribing and unsubscribing.
  */
 export function useUserSubscriptions() {
   const toast = useToast()
@@ -74,6 +74,10 @@ export function useUserSubscriptions() {
       return response
     }
     catch (err) {
+      // A refusal usually means the list was stale (another tab, an
+      // email's confirmation link): read it again so the switch shows
+      // what is true rather than what was asked.
+      await refreshNuxtData('subscription:user:list')
       toast.add({
         title: t('subscription_notifications.subscribe.error_title'),
         description: t('subscription_notifications.subscribe.error_description'),
@@ -110,6 +114,10 @@ export function useUserSubscriptions() {
       })
     }
     catch (err) {
+      // A refusal usually means the list was stale (another tab, an
+      // email's confirmation link): read it again so the switch shows
+      // what is true rather than what was asked.
+      await refreshNuxtData('subscription:user:list')
       toast.add({
         title: t('subscription_notifications.unsubscribe.error_title'),
         description: t('subscription_notifications.unsubscribe.error_description'),
