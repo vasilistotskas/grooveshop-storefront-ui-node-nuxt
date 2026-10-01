@@ -1,5 +1,5 @@
 import { afterEach, beforeAll } from 'vitest'
-import { enableAutoUnmount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises } from '@vue/test-utils'
 
 /**
  * Setup for every `nuxt` project spec. Must run after the @nuxt/test-utils
@@ -42,4 +42,16 @@ beforeAll(async () => {
   ])
   const wrapper = await mountSuspended(defineComponent({ render: () => null }), { route: false })
   wrapper.unmount()
+
+  // Let the app's boot finish its deferred work here, not inside a test.
+  // `plugins/setup.ts` defers the sessions, authenticators and
+  // notifications loads to `requestIdleCallback`, which happy-dom lacks —
+  // so its fallback `setTimeout(cb, 1)`, registered while the app booted.
+  // A timer of the same delay registered now fires after it; the flush
+  // then settles the calls it started. Otherwise a fast runner reached the
+  // first tests before it fired, and a spec that resets its mocks per test
+  // counted the boot's `getSessions` as its own (seen in CI: "reads the
+  // sessions … once" got two calls).
+  await new Promise(resolve => setTimeout(resolve, 1))
+  await flushPromises()
 })

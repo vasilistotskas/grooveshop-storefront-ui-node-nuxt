@@ -127,7 +127,10 @@ of hand-building a payload in a second spec.
   endpoint serves between renders.
 - **`mountSuspended(C, { route: false })`** unless the test reads the route;
   the first mount per file is paid by `test/fixtures/setup/nuxt.ts`, which
-  also unmounts every wrapper after each test (`enableAutoUnmount`).
+  also unmounts every wrapper after each test (`enableAutoUnmount`) and
+  lets the app boot's deferred loads (`plugins/setup.ts`: sessions,
+  authenticators, notifications) run before the first test — a spec that
+  counts calls to those mocks would otherwise count the boot's too.
 - **Call composables before the first `await`** in an async `setup`.
 - **Replace a lazy child by mocking its module.** Nuxt compiles
   `<LazyUserNotificationsBell>` into a direct `defineAsyncComponent` import
