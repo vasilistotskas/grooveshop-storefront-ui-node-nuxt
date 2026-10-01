@@ -36,7 +36,7 @@ export function resolveTranslated<T>(
     if (!code || tried.has(code)) continue
     tried.add(code)
     const value = extractTranslated(object, field, code)
-    if (value && value.replace(/<[^>]*>/g, '').trim()) {
+    if (value && hasVisibleText(value)) {
       return { value, locale: code }
     }
   }

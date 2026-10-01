@@ -41,6 +41,15 @@ describe('tenantAllowedLocales', () => {
     expect(tenantAllowedLocales({ defaultLocale: 'el', availableLocales: ['fr', 'de'] })).toEqual(['el'])
   })
 
+  // A store that names nothing the storefront builds declared no second
+  // language: it gets the unprefixed default only, never every locale.
+  // Django's `tenant_storefront_locales` answers the same.
+  it('serves only the unprefixed default when nothing it names is buildable', () => {
+    expect(tenantAllowedLocales({ defaultLocale: 'de', availableLocales: [] })).toEqual(['el'])
+    expect(tenantAllowedLocales({ defaultLocale: 'de', availableLocales: ['de'] })).toEqual(['el'])
+    expect(tenantAllowedLocales({ defaultLocale: null })).toEqual(['el'])
+  })
+
   it('treats a missing allow-list like an empty one', () => {
     expect(tenantAllowedLocales({ defaultLocale: 'en', availableLocales: null })).toEqual(['en'])
     expect(tenantAllowedLocales({ defaultLocale: 'en' })).toEqual(['en'])

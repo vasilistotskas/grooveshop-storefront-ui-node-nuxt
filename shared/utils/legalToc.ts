@@ -9,9 +9,12 @@ export interface LegalTocResult {
   links: LegalTocLink[]
 }
 
-const SECTION_WITH_ID = /<section\b[^>]*?\bid="([^"]*)"[^>]*>/gi
+// `id` as an attribute of its own: `\bid=` also matched inside `data-id=`,
+// since `-` is a word boundary. Attributes are whitespace-separated.
+const SECTION_WITH_ID = /<section\b[^>]*?\sid="([^"]*)"[^>]*>/gi
 const HEADING = /<h2\b([^>]*)>([\s\S]*?)<\/h2>/gi
-const ID_ATTR = /\bid="([^"]*)"/i
+const ID_ATTR = /(?:^|\s)id="([^"]*)"/i
+const ANY_ID = /\sid="([^"]*)"/gi
 
 const ENTITIES: Record<string, string> = {
   '&amp;': '&',
@@ -51,6 +54,14 @@ function plainText(html: string): string {
  * 3. otherwise a generated `section-N`, which is INJECTED into the
  *    returned html so the link it produces always has a target.
  *
+ * Every link gets a target of its own: an anchor another link already
+ * uses — two headings with one id, a heading reusing a section's — is
+ * replaced by a generated one, and a generated one never repeats an id
+ * the document already carries (`section-N-2` then), or the link would
+ * jump to whichever element with that id came first. `N` stays the
+ * heading's position, so the anchors of an unchanged document do not
+ * move.
+ *
  * Case 3 is what makes this safe for merchant-written HTML: a merchant
  * typing headings into TinyMCE gets a working jump list without knowing
  * anchors exist. A document with no headings yields no links, and
@@ -86,6 +97,15 @@ export function buildLegalToc(html: string): LegalTocResult {
   const injections: { index: number, from: string, to: string }[] = []
   let openSectionId: string | null = null
   let generated = 0
+  // Every id in the document, and those a link already points at.
+  const taken = new Set([...html.matchAll(ANY_ID)].map(m => m[1] ?? ''))
+  const linked = new Set<string>()
+  const freshId = (position: number) => {
+    let id = `section-${position}`
+    for (let suffix = 2; taken.has(id); suffix++) id = `section-${position}-${suffix}`
+    taken.add(id)
+    return id
+  }
 
   for (const token of tokens) {
     if (token.kind === 'section') {
@@ -100,15 +120,18 @@ export function buildLegalToc(html: string): LegalTocResult {
     const ownId = ID_ATTR.exec(token.attrs)?.[1]
     let id = ownId || openSectionId || ''
 
-    if (!id) {
-      id = `section-${generated}`
+    if (!id || linked.has(id)) {
+      id = freshId(generated)
       injections.push({
         index: token.index,
         from: token.match,
-        to: `<h2${token.attrs} id="${id}">${token.inner}</h2>`,
+        // Replaces a duplicate id of the heading's own rather than
+        // adding a second `id` attribute beside it.
+        to: `<h2${token.attrs.replace(ID_ATTR, '')} id="${id}">${token.inner}</h2>`,
       })
     }
 
+    linked.add(id)
     links.push({ id, text })
     // A section's id belongs to the first heading inside it; a second
     // heading in the same section needs an anchor of its own.

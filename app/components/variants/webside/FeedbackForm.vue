@@ -26,7 +26,7 @@ const feedbackZodSchema = z.object({
   })
     .int({ error: () => t('validation.required') })
     .min(1, { error: t('validation.required') })
-    .max(5, { error: t('validation.max', { max: 5 }) }),
+    .max(5, { error: t('validation.max_value', { max: 5 }) }),
 
   category: z.enum(CATEGORY_VALUES),
 

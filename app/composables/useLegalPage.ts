@@ -125,11 +125,7 @@ export async function useLegalPage(routeName: LegalRouteName) {
   // Tell the head pipeline which locales this document exists in, so
   // the canonical and the hreflang set say what is true for THIS route.
   if (page.value) {
-    declare(
-      Object.keys(page.value.translations ?? {}).filter(code =>
-        !!resolveTranslated(page.value, 'body', code, []),
-      ),
-    )
+    declare(translatedLocales(page.value.translations, 'body'))
   }
 
   return {

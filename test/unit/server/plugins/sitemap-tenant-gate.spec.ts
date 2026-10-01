@@ -24,7 +24,9 @@ const store: {
   layout: (pageType: string) => { isPublished: boolean } | 'absent'
 } = { settings: {}, content: [], layout: () => ({ isPublished: true }) }
 
-const BOTH_LOCALES = { el: {}, en: {} }
+/** A translation with its body written; a key alone is no document. */
+const WRITTEN = { title: 'T', body: '<p>text</p>' }
+const BOTH_LOCALES = { el: WRITTEN, en: WRITTEN }
 /** Default: the tenant has every legal document, in every locale, so tests vary one gate at a time. */
 const ALL_LEGAL = () => Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug, translations: BOTH_LOCALES }))
 
@@ -432,6 +434,38 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       expect(locs).toContain('https://example.com/terms-of-use')
     })
 
+    it('drops a document whose body is written in no language', async () => {
+      // The row exists, published, with the editor emptied: the page
+      // 404s it (`hasDocument`), so the sitemap must not list it.
+      store.content = [
+        ...ALL_LEGAL().filter(page => page.slug !== 'terms'),
+        { slug: 'terms', translations: { el: { title: 'Όροι', body: '<p></p>' } } },
+      ]
+
+      const locs = await runLegal(OPEN)
+
+      expect(locs).not.toContain('https://example.com/terms-of-use')
+      expect(locs).toContain('https://example.com/privacy-policy')
+    })
+
+    it('drops the locale whose translation has an empty body', async () => {
+      store.content = Object.values(LEGAL_ROUTE_SLUGS)
+        .map(slug => ({ slug, translations: { el: WRITTEN, en: { title: 'Terms', body: '' } } }))
+
+      const ctx = {
+        urls: [
+          { loc: 'https://example.com/terms-of-use' },
+          { loc: 'https://example.com/en/terms-of-use' },
+        ],
+        sitemapName: 'sitemap',
+        event: eventFor({ ...OPEN, availableLocales: ['el', 'en'] }),
+      }
+      await gate(ctx)
+
+      expect(ctx.urls.map(u => u.loc))
+        .toEqual(['https://example.com/terms-of-use'])
+    })
+
     it('drops every legal route for a tenant with none published', async () => {
       store.content = []
 
@@ -458,7 +492,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       // fall back — so /en/terms-of-use 404s while /terms-of-use is
       // fine. Three such URLs were in its sitemap.
       store.content = Object.values(LEGAL_ROUTE_SLUGS)
-        .map(slug => ({ slug, translations: { el: {} } }))
+        .map(slug => ({ slug, translations: { el: WRITTEN } }))
 
       const ctx = {
         urls: [
@@ -486,7 +520,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
         PROMOTIONS_ENABLED: 'True',
       }
       store.content = Object.values(LEGAL_ROUTE_SLUGS)
-        .map(slug => ({ slug, translations: { el: {} } }))
+        .map(slug => ({ slug, translations: { el: WRITTEN } }))
 
       const ctx = {
         urls: [
@@ -508,7 +542,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       // pointing at it, so the 404 came back as an hreflang. The
       // locale gate cannot catch this — the tenant DOES serve `en`.
       store.content = Object.values(LEGAL_ROUTE_SLUGS)
-        .map(slug => ({ slug, translations: { el: {} } }))
+        .map(slug => ({ slug, translations: { el: WRITTEN } }))
 
       const ctx = {
         urls: [{

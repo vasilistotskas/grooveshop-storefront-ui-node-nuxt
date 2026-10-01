@@ -170,13 +170,14 @@ const schema = z.object({
         max: 1000,
       }),
     }),
+  // A score from 0 to 10, where 0 is "not rated yet".
   rate: z
     .number()
     .min(1, {
-      error: t('validation.min', { min: 1 }),
+      error: t('validation.required'),
     })
     .max(10, {
-      error: t('validation.max', { max: 10 }),
+      error: t('validation.max_value', { max: 10 }),
     }),
 })
 
