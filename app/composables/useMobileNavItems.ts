@@ -1,3 +1,5 @@
+import { parsePath } from 'ufo'
+
 interface MobileNavOptions {
   includeCart?: boolean
 }
@@ -29,6 +31,12 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
   })
 
   const isLoginPage = computed(() => $routeBaseName(route) === RedirectToURLs.LOGIN_URL)
+  // The page without its hash: the server never receives one, so a
+  // `next` carrying it would differ between the SSR HTML and hydration.
+  const returnPath = computed(() => {
+    const { pathname, search } = parsePath(route.fullPath)
+    return `${pathname}${search}`
+  })
 
   const items = computed(() => {
     const result = [
@@ -70,7 +78,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
         // page itself there is nowhere to come back to.
         to: localePath({
           name: RedirectToURLs.LOGIN_URL,
-          query: isLoginPage.value ? undefined : { next: route.fullPath },
+          query: isLoginPage.value ? undefined : { next: returnPath.value },
         }),
         label: t('account'),
       })

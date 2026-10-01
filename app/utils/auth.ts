@@ -327,7 +327,9 @@ const SAME_SITE = 'https://same-site.invalid'
  * so `/\t/evil.com` passed a prefix check and still went to evil.com.
  * Only a root-relative path qualifies — `account` would resolve against
  * whatever page is open — and callers navigate to the RETURNED path, so
- * the check and the navigation cannot disagree.
+ * the check and the navigation cannot disagree. That path must not start
+ * with `//` either: dot segments collapse at the root, so `/..//evil.com`
+ * parses as a same-site `//evil.com`, which a browser reads as a host.
  */
 export function safeRelativePath(value: string | undefined): string | undefined {
   if (!value?.trimStart().startsWith('/')) return undefined
@@ -338,7 +340,8 @@ export function safeRelativePath(value: string | undefined): string | undefined 
   catch {
     return undefined
   }
-  return url.origin === SAME_SITE ? `${url.pathname}${url.search}${url.hash}` : undefined
+  if (url.origin !== SAME_SITE || url.pathname.startsWith('//')) return undefined
+  return `${url.pathname}${url.search}${url.hash}`
 }
 
 export const navigateToPendingFlow = async (

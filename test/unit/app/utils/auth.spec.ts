@@ -257,6 +257,13 @@ describe('Utils - Auth', () => {
       ['a tab between the slashes', '/\t/evil.com'],
       ['a newline between the slashes', '/\n/evil.com'],
       ['a tab before the slashes', '\t//evil.com'],
+      // Dot segments collapse at the root: same origin to the parser,
+      // `//evil.com` to the browser.
+      ['a parent segment before the slashes', '/..//evil.com'],
+      ['a current segment before the slashes', '/.//evil.com'],
+      ['an encoded parent segment', '/%2e%2e//evil.com'],
+      ['a segment undone before the slashes', '/a/..//evil.com'],
+      ['a parent segment and a backslash', '/..\\/evil.com'],
       ['absolute http', 'http://evil.com'],
       ['absolute https', 'https://evil.com/account'],
       ['javascript:', 'javascript:alert(1)'],

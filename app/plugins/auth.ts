@@ -1,3 +1,4 @@
+import { withQuery } from 'ufo'
 import type { Composer } from 'vue-i18n'
 import type { RouteMapI18n } from 'vue-router'
 
@@ -183,9 +184,11 @@ export default defineNuxtPlugin({
     async function navigateToUrl({ path, query, replace = false }: { path: keyof RouteMapI18n, query?: Record<string, string>, replace?: boolean }) {
       try {
         const localePath = useLocalePath()
-        const url = localePath(path)
+        // A string, not `{ path }`: the router keeps only the pathname of a
+        // location object's path, which dropped `next`'s query and hash.
+        const url = withQuery(localePath(path), query ?? {})
         log.info({ tag: 'auth', message: 'Navigating to URL', url })
-        return nuxtApp.runWithContext(() => navigateTo({ path: url, query }, { replace }))
+        return nuxtApp.runWithContext(() => navigateTo(url, { replace }))
       }
       catch (error) {
         log.error({ action: 'auth:navigate', error })

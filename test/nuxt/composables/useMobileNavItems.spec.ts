@@ -49,10 +49,11 @@ describe('useMobileNavItems', () => {
   })
 
   it('brings a signed-out shopper back to the page they left, query and all', () => {
-    Object.assign(route, { fullPath: '/search?q=a%20b&sort=-price', query: { q: 'a b', sort: '-price' } })
+    Object.assign(route, { fullPath: '/search?q=a%20b&sort=-price#results', query: { q: 'a b', sort: '-price' }, hash: '#results' })
 
     const account = items().at(-1)!
 
+    // No hash: the server never sees one, so SSR and hydration would differ.
     expect(nextOf(account.to)).toBe('/search?q=a%20b&sort=-price')
   })
 
