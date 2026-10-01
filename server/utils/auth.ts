@@ -44,15 +44,12 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   headers['X-Forwarded-Proto']
     = requestProtocol === 'https' ? requestProtocol : publicScheme
 
-  // Tenant resolution: prefer the actual request host so Django's
-  // TenantMainMiddleware picks the tenant the caller is on. Falls back
-  // to the configured public Django hostname only when outside a request
-  // context (prerender/startup). django-tenants sets ALLOWED_HOSTS=["*"]
-  // because domain validation happens at the tenant-resolution layer.
-  const host = requestTenantHost(event) || config.public.djangoHostName
-  if (host) {
-    headers['X-Forwarded-Host'] = host
-  }
+  // Tenant resolution: the store this request is for, so Django's
+  // TenantMainMiddleware picks its schema. `useEvent()` above throws
+  // outside a request, so there always is one. django-tenants sets
+  // ALLOWED_HOSTS=["*"] because domain validation happens at the
+  // tenant-resolution layer.
+  headers['X-Forwarded-Host'] = requestTenantHost(event)
 
   if (sessionToken) {
     headers['X-Session-Token'] = sessionToken
@@ -167,18 +164,15 @@ export async function fetchUserData(response: AllAuthResponse) {
   let headers: Record<string, string>
   if (response.meta?.is_authenticated && !token) {
     // getAllAuthHeaders → createHeaders, which already sets the
-    // tenant-aware X-Forwarded-Host (actual request host, falling back
-    // to djangoHostName only outside a request context).
+    // tenant-aware X-Forwarded-Host: the store this request is for.
     headers = await getAllAuthHeaders()
   }
   else {
     headers = {
       'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
-      // Tenant resolution: prefer the actual request host so Django's
-      // TenantMainMiddleware picks the right schema; fall back to the
-      // configured public hostname only when outside a request context
-      // (prerender/startup). Matches the createHeaders() convention.
-      'X-Forwarded-Host': requestTenantHost(event) || config.public.djangoHostName,
+      // Tenant resolution: the store this request is for, so Django's
+      // TenantMainMiddleware picks the right schema, as createHeaders() does.
+      'X-Forwarded-Host': requestTenantHost(event),
       'X-Language': locale,
     }
     if (token) {

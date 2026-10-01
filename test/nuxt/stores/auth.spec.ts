@@ -154,6 +154,17 @@ describe('useAuthStore', () => {
       expect(store.status.config).toBe('success')
     })
 
+    it('records an empty answer as a failure, not pending for ever', async () => {
+      // Login and Signup spin while the config is pending: an answer
+      // with no body has to end that state.
+      api.routes({ '/api/_allauth/app/v1/config': undefined })
+
+      await store.setupConfig()
+
+      expect(store.status.config).toBe('error')
+      expect(store.config).toBeUndefined()
+    })
+
     it('records a failed request and drops any previous config', async () => {
       store.config = CONFIG.data
       api.routes({

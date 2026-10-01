@@ -56,16 +56,14 @@ export default defineNitroPlugin(() => {
         options.headers.set('X-Forwarded-Proto', 'https')
       }
 
-      // X-Forwarded-Host and X-Language both need the request context.
-      // Prefer the request host (tenant resolution); fall back to publicHost
-      // (single-tenant config) when outside a request context.
+      // X-Forwarded-Host and X-Language both need the request context:
+      // inside a request, the store it is for; outside one (startup,
+      // background revalidation) `useEvent()` throws and the platform
+      // host stands in.
       try {
         const event = useEvent()
         if (!options.headers.has('X-Forwarded-Host')) {
-          const host = requestTenantHost(event) || publicHost
-          if (host) {
-            options.headers.set('X-Forwarded-Host', host)
-          }
+          options.headers.set('X-Forwarded-Host', requestTenantHost(event))
         }
         if (!options.headers.has('X-Language')) {
           const locale = event?.context?.locale

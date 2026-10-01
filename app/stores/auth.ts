@@ -58,10 +58,11 @@ export const useAuthStore = defineStore('auth', () => {
           headers: useRequestHeaders(),
         },
       )
-      if (data) {
-        config.value = data.data
-        status.value.config = 'success'
-      }
+      // An empty answer is no config: report it, rather than leave the
+      // sign-in and sign-up forms waiting on 'pending' for ever.
+      if (!data) throw new Error('allauth config: empty response')
+      config.value = data.data
+      status.value.config = 'success'
     }
     catch (err) {
       config.value = undefined

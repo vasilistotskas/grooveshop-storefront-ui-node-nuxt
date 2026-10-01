@@ -3,10 +3,12 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import ProductsToolbar from '~/components/Products/Toolbar.vue'
+import WebsideProductsToolbar from '~/components/variants/webside/Products/Toolbar.vue'
 
 /**
- * The bar above the product grid. Default tree only: the webside
- * toolbar is a different component (its own labels, no chip list).
+ * The bar above the product grid. The webside toolbar is a different
+ * component (its own labels, no chip list); its page-size control is
+ * covered at the end of this file.
  *
  * Picking a page size has to actually change the page size. `USelect`
  * hands back the `value-key`'d value as a STRING — Reka's select stores
@@ -134,5 +136,38 @@ describe('Products/Toolbar', () => {
       expect(toggleButton(wrapper).text()).toBe(own(wrapper, 'filters'))
       expect(wrapper.findComponent({ name: 'ProductsFiltersActiveFilters' }).exists()).toBe(false)
     })
+  })
+})
+
+/**
+ * The webside toolbar is its own component, with the same page-size
+ * select and the same `:model-value` + `@update:model-value` binding —
+ * so the same string. Its `typeof value === 'number'` guard rejected it:
+ * measured on webside.gr in production (2026-10-01), picking 24 left the
+ * select at 12 and the URL untouched, while the sort select beside it
+ * worked through the same clicks.
+ */
+describe('webside Products/Toolbar: the items-per-page control', () => {
+  const mountWebside = () => mountSuspended(WebsideProductsToolbar, { route: false, props })
+
+  it('emits a NUMBER when the select hands back a string', async () => {
+    const wrapper = await mountWebside()
+
+    select(wrapper, 'items_per_page').vm.$emit('update:modelValue', '24')
+    await nextTick()
+
+    expect(wrapper.emitted('update:itemsPerPage')).toStrictEqual([[24]])
+  })
+
+  it('ignores a value that is not a usable page size', async () => {
+    const wrapper = await mountWebside()
+    const pageSize = select(wrapper, 'items_per_page')
+
+    for (const junk of ['', 'all', null, undefined, '0', '-5']) {
+      pageSize.vm.$emit('update:modelValue', junk)
+    }
+    await nextTick()
+
+    expect(wrapper.emitted('update:itemsPerPage')).toBeUndefined()
   })
 })
