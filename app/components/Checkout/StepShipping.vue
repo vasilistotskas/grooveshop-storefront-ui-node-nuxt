@@ -18,6 +18,12 @@ const props = defineProps<{
    * step renders a retry prompt instead of a picker with no prices.
    */
   optionsError?: boolean
+  /**
+   * Set when the cart is over the weight cap of EVERY method offered
+   * (``useCheckoutForm``'s ``shippingOverWeight``). Every card is then
+   * disabled, so the step says why once, above them.
+   */
+  overWeight?: ShippingOverWeight | null
 }>()
 
 const emit = defineEmits<{
@@ -26,7 +32,8 @@ const emit = defineEmits<{
   'retry-options': []
 }>()
 
-const { t } = useI18n()
+const { t, n } = useI18n()
+const localePath = useLocalePath()
 const { getPaymentMethodName } = usePaymentMethod()
 
 // True when the BoxNow widget is unconfigured (tenantStore.boxNowPartnerId
@@ -234,7 +241,7 @@ const shippingOptions = computed(() => {
       disabled: baseItem.disabled || overCap,
       disabledReason: overCap
         ? t('shipping.method.exceeds_max_weight', {
-            maxKg: Math.max(...sameMethod.map(o => o.maxWeightGrams ?? 0)) / 1000,
+            maxWeight: n(Math.max(...sameMethod.map(o => o.maxWeightGrams ?? 0)) / 1000, 'weight'),
           })
         : boxNowCountryUnsupported
           ? t('shipping.method.boxnow.country_unsupported')
@@ -403,6 +410,22 @@ defineExpose({ submit: onSubmit })
          still drives inline error rendering for the locker field via
          the watcher below. -->
     <UForm v-else ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError">
+      <!-- No method can carry the cart (Django would refuse the order):
+           each card names its own limit, this says what to do about it.
+           Advancing is already blocked — every card is disabled. -->
+      <UAlert
+        v-if="overWeight"
+        data-testid="step-shipping-over-weight"
+        color="error"
+        variant="subtle"
+        icon="i-heroicons-scale"
+        :title="t('shipping.method.over_weight_title')"
+        :description="t('shipping.method.over_weight_description', overWeight)"
+        :actions="[
+          { label: t('shipping.method.over_weight_contact'), color: 'neutral', variant: 'outline', to: localePath('contact'), target: '_blank' },
+        ]"
+      />
+
       <!-- Shipping method radio group -->
       <URadioGroup
         v-model="formState.shippingMethod"

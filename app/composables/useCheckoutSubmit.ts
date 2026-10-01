@@ -1,6 +1,6 @@
 import type { FormError } from '@nuxt/ui'
 
-export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions }: {
+export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions, shippingOverWeight }: {
   // The reactive form-state object from ``useCheckoutForm`` —
   // its inferred shape isn't exported, so we accept a permissive
   // record here. Field-level reads in ``buildOrderValues`` are
@@ -13,6 +13,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   selectedCountry: Ref<Country | undefined>
   /** Resolves whether the selected method still has a live price. */
   refetchShippingOptions?: () => Promise<boolean>
+  /** Set when the cart is over every offered method's weight cap. */
+  shippingOverWeight?: Ref<ShippingOverWeight | null>
 }) {
   const { fetch } = useUserSession()
   const localePath = useLocalePath()
@@ -639,11 +641,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
           message: 'submit:shipping-unavailable',
           shippingMethod: formState.shippingMethod,
         })
-        toast.add({
-          title: t('form.submit.error.shipping_unavailable'),
-          description: t('form.submit.error.shipping_unavailable_description'),
-          color: 'error',
-        })
+        // A cart no method can carry is the shopper's to fix (fewer
+        // items), not a pricing hiccup to retry — say which it is.
+        const overWeight = shippingOverWeight?.value
+        toast.add(overWeight
+          ? {
+              title: t('form.submit.error.shipping_over_weight'),
+              description: t('shipping.method.over_weight_description', overWeight),
+              color: 'error',
+            }
+          : {
+              title: t('form.submit.error.shipping_unavailable'),
+              description: t('form.submit.error.shipping_unavailable_description'),
+              color: 'error',
+            })
         currentStep.value = 1
         return
       }

@@ -104,6 +104,7 @@ function setup(payWay: PayWay, options: {
   formState?: Record<string, any>
   selectedCountry?: Country
   refetchShippingOptions?: () => Promise<boolean>
+  shippingOverWeight?: Ref<ShippingOverWeight | null>
 } = {}) {
   return useCheckoutSubmit({
     formState: options.formState ?? makeFormState(),
@@ -111,6 +112,7 @@ function setup(payWay: PayWay, options: {
     payWays: ref<Pagination<PayWay>>({ count: 1, results: [payWay] }),
     selectedCountry: ref(options.selectedCountry),
     refetchShippingOptions: options.refetchShippingOptions,
+    shippingOverWeight: options.shippingOverWeight,
   })
 }
 
@@ -717,6 +719,25 @@ describe('useCheckoutSubmit', () => {
       expect(orderBodies()).toEqual([])
       // No order will follow: the holds are let go.
       expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
+    })
+
+    it('says the cart is too heavy when no method can carry it, not that shipping is unavailable', async () => {
+      const overWeight = { cartWeight: '12,5 κιλά', maxWeight: '10 κιλά' }
+      const { onSubmit, currentStep } = setup(COD, {
+        refetchShippingOptions: () => Promise.resolve(false),
+        shippingOverWeight: ref(overWeight),
+      })
+      currentStep.value = 2
+
+      await onSubmit()
+
+      expect(currentStep.value).toBe(1)
+      expect(lastToast()).toEqual({
+        title: t('form.submit.error.shipping_over_weight'),
+        description: useNuxtApp().$i18n.t('shipping.method.over_weight_description', overWeight),
+        color: 'error',
+      })
+      expect(orderBodies()).toEqual([])
     })
 
     /**

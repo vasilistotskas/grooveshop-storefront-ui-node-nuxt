@@ -690,6 +690,18 @@ export async function useCheckoutForm() {
     return typeof live?.price === 'number' ? live.price : null
   })
 
+  // Set when the cart is over the weight cap of every method offered:
+  // StepShipping explains it and cannot advance, and submit says so
+  // instead of the generic "shipping unavailable".
+  const shippingOverWeight = computed<ShippingOverWeight | null>(() => {
+    const maxWeightGrams = exceededWeightCapGrams(shippingOptions.value)
+    if (maxWeightGrams === null || !cart.value) return null
+    return {
+      cartWeight: n(cart.value.totalWeightGrams / 1000, 'weight'),
+      maxWeight: n(maxWeightGrams / 1000, 'weight'),
+    }
+  })
+
   const countryOptions = computed(() => {
     return countries.value?.results?.map(country => ({
       label: extractTranslated(country, 'name', locale.value) ?? country.alpha2,
@@ -1177,6 +1189,7 @@ export async function useCheckoutForm() {
     // Set when the live options fetch fails; StepShipping renders a
     // full error + retry in its place and blocks advancing.
     shippingOptionsError,
+    shippingOverWeight,
     retryShippingOptions,
     // Live, priority-sorted carrier options from
     // ``/api/v1/shipping/options``. Exposed so the StepShipping

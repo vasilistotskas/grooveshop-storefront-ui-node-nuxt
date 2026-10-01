@@ -64,7 +64,10 @@
         "tagline": "Collect in your own time",
         "description": "Collect your order from any ACS Smartpoint locker, based on the delivery postcode."
       },
-      "exceeds_max_weight": "Your cart exceeds this method's weight limit ({maxKg} kg).",
+      "exceeds_max_weight": "Your cart exceeds this method's weight limit ({maxWeight}).",
+      "over_weight_title": "Your cart is too heavy to ship",
+      "over_weight_description": "Your cart weighs {cartWeight}, but no shipping method accepts more than {maxWeight}. Reduce the quantities or contact us.",
+      "over_weight_contact": "Contact us",
       "options_error_title": "Shipping options could not be loaded",
       "options_error_description": "Check your connection and try again."
     },
@@ -185,6 +188,7 @@
         "reservation_expired_description": "The stock reservation expired. Please try again.",
         "shipping_unavailable": "Shipping is unavailable",
         "shipping_unavailable_description": "We could not confirm the shipping cost for your choice. Check the delivery method and try again.",
+        "shipping_over_weight": "Your cart is over the shipping weight limit",
         "max_retries": "Too many attempts",
         "stock_reservation": "Stock reservation error",
         "stock_reservation_description": "The stock could not be reserved. Please try again.",

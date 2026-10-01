@@ -361,6 +361,39 @@ describe('useCheckoutForm', () => {
 
       expect(shippingOptionsError.value).toBe(false)
     })
+
+    describe('shippingOverWeight — a cart no offered method can carry', () => {
+      const capped = (overrides: Record<string, unknown>) => shippingOption({ exceedsMaxWeight: true, ...overrides })
+
+      it('names the cart\'s weight and the largest cap when the cart is over every one', async () => {
+        setCart(makeCart({ totalWeightGrams: 12500 }))
+        api.routes({
+          ...defaultRoutes(),
+          '/api/shipping/options': [
+            capped({ maxWeightGrams: 4000 }),
+            capped({ providerCode: 'acs', kind: 'home_delivery', maxWeightGrams: 10000 }),
+          ],
+        })
+
+        const { shippingOverWeight } = await setup()
+
+        expect(shippingOverWeight.value).toEqual({ cartWeight: '12,5 κιλά', maxWeight: '10 κιλά' })
+      })
+
+      it('is null while one method still carries the cart', async () => {
+        api.routes({
+          ...defaultRoutes(),
+          '/api/shipping/options': [
+            capped({ maxWeightGrams: 4000 }),
+            shippingOption({ providerCode: 'acs', kind: 'home_delivery' }),
+          ],
+        })
+
+        const { shippingOverWeight } = await setup()
+
+        expect(shippingOverWeight.value).toBeNull()
+      })
+    })
   })
 
   describe('shipping method and pay ways', () => {

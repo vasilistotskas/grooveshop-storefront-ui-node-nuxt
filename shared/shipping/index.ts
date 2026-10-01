@@ -110,3 +110,27 @@ export function resolveShippingMethod(
   if (available.includes(current)) return null
   return available[0] ?? null
 }
+
+/**
+ * A cart heavier than every method the store offers can carry: its
+ * weight and the largest cap, formatted for the shopper's locale.
+ */
+export type ShippingOverWeight = { cartWeight: string, maxWeight: string }
+
+/**
+ * The largest weight cap among the offered options, when the cart is
+ * over EVERY one of them — no method can carry it and Django refuses the
+ * order (``ShippingWeightExceededError``). ``null`` while any option
+ * still fits, or when nothing is offered.
+ *
+ * Options checkout cannot render are ignored. A home-delivery card that
+ * stands for several carriers is over the cap only when every carrier
+ * behind it is, so "every rendered card is over" is "every option is".
+ */
+export function exceededWeightCapGrams(
+  options: ReadonlyArray<{ providerCode: string, kind: string, maxWeightGrams?: number | null, exceedsMaxWeight?: boolean }>,
+): number | null {
+  const offered = options.filter(option => methodKeyForOption(option))
+  if (!offered.length || !offered.every(option => option.exceedsMaxWeight)) return null
+  return Math.max(...offered.map(option => option.maxWeightGrams ?? 0))
+}
