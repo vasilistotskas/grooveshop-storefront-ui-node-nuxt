@@ -87,10 +87,14 @@ const handleSortChange = (value: any) => {
   }
 }
 
-const handleItemsPerPageChange = (value: any) => {
-  if (value && typeof value === 'number') {
-    emit('update:itemsPerPage', value)
-  }
+const handleItemsPerPageChange = (value: unknown) => {
+  // USelect hands back the selected value as a STRING through
+  // `@update:model-value` (a number needs v-model's `number` modifier),
+  // so a `typeof value === 'number'` guard rejected every pick and the
+  // control did nothing — the default tree's Products/Toolbar.vue had
+  // the same bug.
+  const next = Number(value)
+  if (Number.isFinite(next) && next > 0) emit('update:itemsPerPage', next)
 }
 
 const handleToggleFilters = () => {

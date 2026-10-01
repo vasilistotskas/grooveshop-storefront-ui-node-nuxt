@@ -105,14 +105,13 @@ export async function getCartHeaders(event: H3Event, cartIdOverride?: string): P
   // before ever writing it to the session) pass an explicit override.
   const effectiveCartId = cartIdOverride ?? cartId
   const accessToken = await getAllAuthAccessToken(event)
-  const config = useRuntimeConfig(event)
   const locale = event?.context?.locale || DEFAULT_LOCALE
   const headers: Record<string, string> = {
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
     // Tenant resolution — prefer the actual request host so cart
     // operations hit the caller's tenant schema. Falls back to the
     // configured Django hostname outside request context.
-    'X-Forwarded-Host': requestTenantHost(event) || config.public.djangoHostName,
+    'X-Forwarded-Host': requestTenantHost(event),
     'X-Language': locale,
   }
 
