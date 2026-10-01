@@ -128,7 +128,7 @@ export default defineNitroPlugin((nitroApp) => {
     const event = ctx.event
     if (!event) return
 
-    const host = getRequestHost(event, { xForwardedHost: false })
+    const host = requestTenantHost(event)
     if (!host) return
 
     // The sitemap routes bypass server/middleware/0.tenant.ts, so resolve

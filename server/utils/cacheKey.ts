@@ -50,7 +50,7 @@ const TENANT_KEY_DELIMITER = '__'
  * debuggability; the 64 bits of FNV-1a carry the actual uniqueness.
  */
 export function tenantCacheKey(event: H3Event, key: string): string {
-  const host = getRequestHost(event, { xForwardedHost: false })
+  const host = requestTenantHost(event)
   return hashedCacheKey(
     `${host}${TENANT_KEY_DELIMITER}${requestLocale(event)}${TENANT_KEY_DELIMITER}${key}`,
   )

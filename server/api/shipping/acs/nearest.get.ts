@@ -41,7 +41,7 @@ export default defineCachedEventHandler(
         },
       )
 
-      return parseDataAs(raw, zFindNearestAcsStationsResponse)
+      return await parseDataAs(raw, zFindNearestAcsStationsResponse)
     }
     catch (error) {
       handleError(error)

@@ -107,7 +107,9 @@ export default defineEventHandler(async (event) => {
     // Prefer the tenant's primary domain for the public URLs in feed items —
     // falls back to the build-time NUXT_PUBLIC_BASE_URL when tenant context
     // is missing (e.g. during prerender).
-    const host = getRequestHost(event, { xForwardedHost: false })
+    // The store's host: it keys the cached fetchers and names the store
+    // to Django (X-Forwarded-Host).
+    const host = requestTenantHost(event)
     const tenantDomain = event.context.tenant?.primaryDomain || host
     const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
     const apiBaseUrl = config.apiBaseUrl

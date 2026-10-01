@@ -102,7 +102,9 @@ export default defineEventHandler(async (event) => {
 
   const body = await readValidatedBody(event, bodySchema.parse)
   const storage = useStorage('cache')
-  const host = body.host
+  // As the keys name the store (`requestTenantHost`), whatever case the
+  // caller sends it in.
+  const host = body.host === undefined ? undefined : tenantHostOf(body.host)
 
   let matched = 0
   let deleted = 0

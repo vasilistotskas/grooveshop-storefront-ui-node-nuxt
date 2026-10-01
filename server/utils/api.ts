@@ -67,7 +67,7 @@ export function createCachedFetcher<T>(
       // it the fetch falls back to the public schema and every tenant's
       // sitemap/RSS would be built from public-schema data (then cached
       // under the tenant key, so the wrong data sticks). The tenantKey
-      // IS the request host (callers pass getRequestHost(event)).
+      // IS the store's host (callers pass requestTenantHost(event)).
       const headers = {
         ...(tenantKey ? { 'X-Forwarded-Host': tenantKey } : {}),
         'X-Language': locale,

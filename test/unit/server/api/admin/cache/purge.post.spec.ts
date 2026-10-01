@@ -144,6 +144,12 @@ describe('POST /api/admin/cache/purge', () => {
       expect(remaining.filter(key => key.includes('websidegr__'))).toEqual([])
     })
 
+    it('names the store as its keys do, whatever case the host is sent in', async () => {
+      const response = await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE.toUpperCase() })
+
+      expect(response.body).toEqual({ matched: 6, deleted: 6, blocked: 0, dryRun: false })
+    })
+
     it('purges the store sitemap feeds and leaves the other stores feeds', async () => {
       const response = await purge({ patterns: SITEMAP_PATTERNS, host: WEBSIDE })
 

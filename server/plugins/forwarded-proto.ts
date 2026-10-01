@@ -30,22 +30,6 @@
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig()
 
-  // Deduplicate internal origins from both config keys
-  const internalOrigins = [...new Set(
-    [config.djangoUrl, config.apiBaseUrl]
-      .filter((url): url is string => typeof url === 'string' && url.length > 0)
-      .map((url) => {
-        try {
-          return new URL(url).origin
-        }
-        catch {
-          return url
-        }
-      }),
-  )]
-
-  if (internalOrigins.length === 0) return
-
   const publicHost = typeof config.public.djangoHostName === 'string'
     ? config.public.djangoHostName
     : undefined
@@ -63,7 +47,8 @@ export default defineNitroPlugin(() => {
           ? request.href
           : request.url
 
-      if (!internalOrigins.some(origin => url.startsWith(origin))) return
+      // The one origin test `useBackendFetch` applies too.
+      if (!isInternalBackendUrl(url)) return
 
       // Normalize to Headers instance per ofetch docs, then set if absent.
       options.headers = new Headers(options.headers as HeadersInit)
@@ -77,7 +62,7 @@ export default defineNitroPlugin(() => {
       try {
         const event = useEvent()
         if (!options.headers.has('X-Forwarded-Host')) {
-          const host = getRequestHost(event, { xForwardedHost: false }) || publicHost
+          const host = requestTenantHost(event) || publicHost
           if (host) {
             options.headers.set('X-Forwarded-Host', host)
           }
@@ -96,5 +81,5 @@ export default defineNitroPlugin(() => {
     },
   }) as typeof globalThis.$fetch
 
-  log.info({ tag: 'forwarded-headers', message: 'Backend header interceptor active', origins: internalOrigins, publicHost })
+  log.info({ tag: 'forwarded-headers', message: 'Backend header interceptor active', backends: [config.apiBaseUrl, config.djangoUrl], publicHost })
 })

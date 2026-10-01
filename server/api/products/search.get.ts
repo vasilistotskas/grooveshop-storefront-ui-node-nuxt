@@ -28,14 +28,6 @@ export default defineCachedEventHandler(async (event) => {
       zSearchProductQuery.parse,
     )
 
-    // Ensure query is defined (validation should guarantee this)
-    if (!query) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid query parameters',
-      })
-    }
-
     // Transform camelCase to snake_case for Django backend
     const backendQuery: Record<string, any> = {
       query: query.query || '',

@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   if (!isAiSurface) return
   if (getRequestHeader(event, 'x-md-negotiation-internal')) return
 
-  const host = getRequestHost(event, { xForwardedHost: false })
+  const host = requestTenantHost(event)
   const result = host ? await getTenantConfig(host) : null
   if (result?.type !== 'ok' || result.config.isPlatformStorefront !== true) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })

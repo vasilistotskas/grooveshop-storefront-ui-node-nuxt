@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   // never populated here. Resolve it ourselves when a real Host is present;
   // any resolution failure (404/5xx/no host) just falls back to the
   // platform-default manifest below rather than erroring the response.
-  const host = getRequestHost(event, { xForwardedHost: false })
+  const host = requestTenantHost(event)
   let tenant = event.context.tenant as TenantConfig | undefined
   if (!tenant && host) {
     const result = await getTenantConfig(host)

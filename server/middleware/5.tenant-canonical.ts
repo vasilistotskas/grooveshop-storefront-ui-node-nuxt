@@ -30,10 +30,11 @@ export default defineEventHandler((event) => {
   if (event.method !== 'GET' && event.method !== 'HEAD') return
   if (event.path.startsWith('/api/')) return
 
-  const host = getRequestHost(event, { xForwardedHost: false }).replace(
-    /:\d+$/,
-    '',
-  )
+  // The Host as sent, port aside — not `requestTenantHost`, which folds
+  // case: a case variant resolves the same store, but the page cache
+  // varies on the raw Host, so it must land on the one canonical spelling
+  // before anything is rendered or cached under it.
+  const host = getRequestHost(event, { xForwardedHost: false }).replace(/:\d+$/, '')
   if (host === tenant.primaryDomain) return
 
   return sendRedirect(

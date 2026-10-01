@@ -158,6 +158,21 @@ describe('GET /rss.xml', () => {
     expect(xml).not.toContain('assets.platform.test')
   })
 
+  it('names the store to Django as it was resolved, whatever case or port the Host carries', async () => {
+    djangoServesTheCatalogue()
+
+    await callRoute(handler, {
+      route,
+      host: 'Shop.TEST:443',
+      context: { locale: 'en', siteConfig: siteConfig(), tenant: validTenantConfig('shop.test', { blogEnabled: true }) },
+    })
+
+    expect(backend.requests.length).toBeGreaterThan(0)
+    for (const request of backend.requests) {
+      expect(request.headers.get('x-forwarded-host')).toBe('shop.test')
+    }
+  })
+
   it('fetches everything as the requesting store, in the page\'s language', async () => {
     djangoServesTheCatalogue()
 

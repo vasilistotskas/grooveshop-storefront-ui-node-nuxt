@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/shipping/acs/nearest.get'
-import { backend, cacheOptionsOf, callRoute, createTestEvent } from '~~/test/helpers/nitro'
+import { backend, cacheOptionsOf, callRoute, createTestEvent, log } from '~~/test/helpers/nitro'
 
 /**
  * GET /api/shipping/acs/nearest: the ACS Smartpoint lockers nearest a
@@ -24,6 +24,18 @@ describe('GET /api/shipping/acs/nearest', () => {
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/shipping/acs/stations/nearest')
     expect(backend.lastRequest.query).toEqual({ postalCode: '54622', city: 'Thessaloniki', shopKind: '7', countryCode: 'GR' })
     expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('shop.test')
+  })
+
+  it('answers 422 and reports it when the lockers drift from the contract', async () => {
+    backend.reply([{ id: 'not-a-station' }])
+
+    const response = await callRoute(handler, { route, url: `${route}?postalCode=54622` })
+
+    expect(response.status).toBe(422)
+    // `handleError` is what reports a drifted response loudly; a parse
+    // rejection that escapes the try reached the client as the same 422
+    // and was never logged.
+    expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation:response' }))
   })
 
   it.each([

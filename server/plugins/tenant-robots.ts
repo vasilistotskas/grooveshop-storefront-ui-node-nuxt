@@ -1,5 +1,4 @@
-import { getRequestHost } from 'h3'
-import { getTenantConfig } from '../utils/tenant'
+import { getTenantConfig, requestTenantHost } from '../utils/tenant'
 
 /**
  * Per-tenant robots.txt via @nuxtjs/robots' runtime Nitro hook.
@@ -18,8 +17,7 @@ import { getTenantConfig } from '../utils/tenant'
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('robots:robots-txt', async (ctx) => {
     const event = ctx.e
-    const host = getRequestHost(event, { xForwardedHost: false })
-    const hostNoPort = host.replace(/:\d+$/, '')
+    const host = requestTenantHost(event)
     const result = await getTenantConfig(host)
 
     if (result.type !== 'ok') {
@@ -28,7 +26,7 @@ export default defineNitroPlugin((nitroApp) => {
     }
 
     const primaryDomain = result.config.primaryDomain
-    if (primaryDomain && primaryDomain !== hostNoPort) {
+    if (primaryDomain && primaryDomain !== host) {
       // Alias domain — disallow so it can't be indexed as duplicate
       // content of the primary.
       ctx.robotsTxt = 'User-agent: *\nDisallow: /\n'
@@ -36,7 +34,7 @@ export default defineNitroPlugin((nitroApp) => {
     }
 
     // Rewrite every Sitemap line onto the tenant's own origin.
-    const siteUrl = `https://${primaryDomain || hostNoPort}`
+    const siteUrl = `https://${primaryDomain || host}`
     ctx.robotsTxt = ctx.robotsTxt.replace(
       /^Sitemap:.*$/gm,
       `Sitemap: ${siteUrl}/sitemap.xml`,

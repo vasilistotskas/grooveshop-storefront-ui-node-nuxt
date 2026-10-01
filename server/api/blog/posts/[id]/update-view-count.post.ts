@@ -57,7 +57,10 @@ export default defineEventHandler(async (event) => {
   }).catch(() => {})
 
   try {
-    const response = await $fetch(
+    // useBackendFetch relays the visitor's identity: Django throttles
+    // view counting per visitor, and a bare $fetch reaches it as this
+    // pod, putting every anonymous reader in one shared bucket.
+    const response = await useBackendFetch()(
       `${config.apiBaseUrl}/blog/post/${params.id}/update_view_count`,
       {
         method: 'POST',

@@ -12,7 +12,15 @@ const { t } = useI18n()
 
 const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, isModalActive, moduleOptions } = useCookieControl()
 
-const localCookiesEnabled = ref([...(cookiesEnabled.value || [])])
+const necessaryIds = getCookieIds(moduleOptions.cookies.necessary)
+
+// The visitor's working selection: the saved one, with the necessary
+// categories always on — they are set whatever is chosen, so their
+// locked switches must not read "off" on a first visit.
+const localCookiesEnabled = ref([
+  ...moduleOptions.cookies.necessary,
+  ...(cookiesEnabled.value || []).filter(cookie => !necessaryIds.includes(cookie.id)),
+])
 
 // Forced modals (first-visit consent) must not be dismissible — disable
 // click-outside + ESC + hide the close button so users cannot bypass
@@ -40,20 +48,14 @@ function isCookieEnabled(cookie: Cookie) {
   return localCookiesEnabled.value.some(c => c.id === cookie.id)
 }
 
-const toggleCookie = (cookie: Cookie, cookieType: string) => {
+// Only the working selection. The consent ids are what Google consent
+// mode and the ad pixels read, so they change when the visitor saves —
+// writing them here granted ad_storage for a switch flipped and then
+// abandoned. A necessary category's switch is disabled.
+const toggleCookie = (cookie: Cookie) => {
   const cookieIndex = getCookieIds(localCookiesEnabled.value).indexOf(cookie.id)
-  if (cookieIndex < 0) {
-    localCookiesEnabled.value.push(cookie)
-    cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
-  }
-  else {
-    if (cookieType === 'necessary') {
-      cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
-      return
-    }
-    localCookiesEnabled.value.splice(cookieIndex, 1)
-    cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
-  }
+  if (cookieIndex < 0) localCookiesEnabled.value.push(cookie)
+  else localCookiesEnabled.value.splice(cookieIndex, 1)
 }
 
 const setCookies = ({
@@ -98,11 +100,14 @@ const declineAll = () => {
   })
 }
 
-const isUnSaved = computed(() => {
-  return getCookieIds(cookiesEnabled.value || [])
-    .sort()
-    .join(COOKIE_ID_SEPARATOR) !== getCookieIds(localCookiesEnabled.value).sort().join(COOKIE_ID_SEPARATOR)
-})
+// The optional choices only: the necessary categories are on in every
+// selection, and a first visit has saved nothing yet.
+const optionalSelection = (cookies: Cookie[]) =>
+  getCookieIds(cookies).filter(id => !necessaryIds.includes(id)).sort().join(COOKIE_ID_SEPARATOR)
+
+const isUnSaved = computed(() =>
+  optionalSelection(cookiesEnabled.value || []) !== optionalSelection(localCookiesEnabled.value),
+)
 </script>
 
 <template>
@@ -156,7 +161,7 @@ const isUnSaved = computed(() => {
                       wrapper: 'm-0 w-full',
                       label: 'cursor-pointer',
                     }"
-                    @update:model-value="(_: boolean) => toggleCookie(cookie, cookieType)"
+                    @update:model-value="() => toggleCookie(cookie)"
                   />
                   <div>
                     <span

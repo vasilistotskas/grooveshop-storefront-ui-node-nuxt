@@ -14,8 +14,10 @@ Tenant resolution, the event.context.tenant contract, cache keying and hydration
 
 ## Tenant Resolution Flow
 
-1. `server/middleware/0.tenant.ts` runs first (before all other middleware). It reads `getRequestHost(event)` (no X-Forwarded-Host, to prevent spoofing) and calls `getTenantConfig(host)`.
-2. `getTenantConfig` (in `server/utils/tenant.ts`) strips the port, checks a 5-minute in-memory cache, then proxies `GET /api/v1/tenant/resolve?domain=<host>` to Django. The response is validated with `parseDataAs(response, zTenantConfig)`.
+1. `server/middleware/0.tenant.ts` runs first (before all other middleware). It reads `requestTenantHost(event)` and calls `getTenantConfig(host)`.
+2. `getTenantConfig` (in `server/utils/tenant.ts`) checks a 5-minute in-memory cache, then proxies `GET /api/v1/tenant/resolve?domain=<host>` to Django. The response is validated with `parseDataAs(response, zTenantConfig)`.
+
+**The store's host is `requestTenantHost(event)`, everywhere it identifies the store** — resolution, `tenantCacheKey`, cached-fetcher keys, rate-limit keys, and the `X-Forwarded-Host` sent to Django. It is the Host header (never X-Forwarded-Host, which the client controls) lower-cased and without a port (`tenantHostOf`): Django matches `TenantDomain` exactly and stores bare hostnames, so a raw `Webside.GR` was "Store not found" and a raw `webside.gr:443` resolved the store but missed every cache and rate-limit bucket keyed on it. Read the raw `getRequestHost` only to BUILD a URL or forward a request as received.
 3. On success, `event.context.tenant` is set to the validated `TenantConfig` object.
 4. On Django 5xx: respond 503 (transient — not cached). On 404: respond 404 "Store not found" (not cached).
 5. Certain paths bypass tenant resolution entirely (see `BYPASS_PREFIXES` / `BYPASS_EXACT` in the middleware file): `/_nuxt`, `/_ipx`, `/assets`, `/api/health`, `/health`, `/favicon.ico`, `/favicon.png`, `/logo.svg`, `/robots.txt`, `/manifest.webmanifest`, `/openapi`, `/_health`.
