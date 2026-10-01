@@ -134,7 +134,7 @@ export default defineNitroPlugin((nitroApp) => {
     // The sitemap routes bypass server/middleware/0.tenant.ts, so resolve
     // the tenant here the same way urls.ts does. No tenant (platform
     // host, resolution failure) means no gating decision to make.
-    let tenant = event.context.tenant as TenantConfig | undefined
+    let tenant = event.context.tenant
     if (!tenant) {
       const result = await getTenantConfig(host)
       if (result.type !== 'ok') return

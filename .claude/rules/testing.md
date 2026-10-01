@@ -220,9 +220,10 @@ least N of them, so it cannot go blind silently.
 - Lint: `test/**` is linted (`@vitest/eslint-plugin` recommended, in
   `eslint.config.mjs`). An assertion helper is named `expect…` so
   `vitest/expect-expect` sees the test assert.
-- Types: `pnpm typecheck` checks `test/nuxt` and
-  `test/unit/{app,shared,openapi,fixtures}` (the app context, extended in
-  `nuxt.config.ts`). `test/unit/server`, `test/unit/{source-rules,scripts}`
-  and `test/e2e` need the server and node contexts, which the gate does not
-  check until the root tsconfig moves to Nuxt's `references` layout — keep
-  them typed anyway; the kit's typed helpers make that the easy path.
+- Types: `pnpm typecheck` checks every spec, each in the Nuxt type context
+  of the code it tests (the root tsconfig references all four):
+  `test/nuxt`, `test/e2e` and `test/unit/{app,shared,openapi,fixtures,
+  source-rules,scripts}` in the app context (`typescript.tsConfig` in
+  `nuxt.config.ts`); `test/unit/server` and `test/helpers/nitro` in the
+  server context (`nitro.typescript.tsConfig`). A new spec directory goes
+  into one of those lists, or it is not type-checked.

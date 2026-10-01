@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { isAuthFlowRoute, isRouteProtected } from '~/utils/route'
-import { AuthFlowRoutes, AuthenticatedRoutes, RedirectToURLs } from '~~/shared/constants'
+import { AuthFlowRoutes, AuthenticatedRoutes, isAuthFlowRoute, isRouteProtected } from '~/utils/route'
+import { RedirectToURLs } from '~~/shared/constants'
 
 /**
  * `isRouteProtected` is what `auth.global.ts` bounces a guest on, and

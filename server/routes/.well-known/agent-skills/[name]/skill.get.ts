@@ -11,7 +11,7 @@ export default defineEventHandler((event) => {
     throw createError({ statusCode: 404, statusMessage: 'Skill not found' })
 
   const config = useRuntimeConfig(event)
-  const tenant = event.context.tenant as TenantConfig | undefined
+  const tenant = event.context.tenant
   const host = getRequestHost(event, { xForwardedHost: false })
   const tenantDomain = tenant?.primaryDomain || host
   const siteUrl = tenantDomain ? `https://${tenantDomain}` : (config.public.baseUrl as string)

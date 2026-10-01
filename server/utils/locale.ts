@@ -18,5 +18,5 @@ export function requestLocale(event: H3Event): SupportedLocale {
   // both mean "the store's default language".
   // Only `1.locale` writes it, through `servedLocale`, which yields a
   // supported locale.
-  return (event?.context?.locale as SupportedLocale | undefined) || DEFAULT_LOCALE
+  return event?.context?.locale || DEFAULT_LOCALE
 }

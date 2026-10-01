@@ -26,12 +26,11 @@ const _ALL_CARRIERS: ShippingCarrier[] = [
 
 const _registry: Map<string, ShippingCarrier> = new Map()
 for (const carrier of _ALL_CARRIERS) {
+  // A repeated code in this hand-written list is a programming error:
+  // fail at load, where every test that imports the registry sees it,
+  // rather than warn in production and silently keep the first.
   if (_registry.has(carrier.code)) {
-    log.warn(
-      'shipping/registry',
-      `Duplicate carrier code '${carrier.code}' — first registration wins`,
-    )
-    continue
+    throw new Error(`Duplicate shipping carrier code '${carrier.code}'`)
   }
   _registry.set(carrier.code, carrier)
 }

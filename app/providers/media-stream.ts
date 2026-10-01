@@ -1,6 +1,11 @@
 import type { ImageModifiers } from '@nuxt/image'
 import { defineProvider } from '@nuxt/image/runtime'
 import { hasProtocol, joinURL } from 'ufo'
+// Explicit, not auto-imported: @nuxt/image's generated providers.d.ts
+// pulls this file into the shared and node type contexts too, which have
+// no app auto-imports. `evlog/client` is the module the app's `log`
+// auto-import resolves to — the same instance.
+import { log } from 'evlog/client'
 
 /**
  * Media Stream service modifiers — the standard {@link ImageModifiers} plus the

@@ -21,6 +21,11 @@
  * resolves the REAL per-tenant Host — never `config.public.djangoHostName`
  * — even after the response has already been sent to the client.
  */
+import { z } from 'zod'
+
+/** What the e2e harness's fake Django answers: the host it was sent, and how many times. */
+const zProbeResponse = z.object({ host: z.string(), revision: z.int() })
+
 export default defineCachedEventHandler(async () => {
   if (!import.meta.dev) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
@@ -29,10 +34,14 @@ export default defineCachedEventHandler(async () => {
   const config = useRuntimeConfig()
   const headers = createHeaders()
 
-  return await $fetch(`${config.apiBaseUrl}/swr-tenant-probe`, {
+  // Typed and parsed like every proxy route; the explicit response type
+  // also keeps TypeScript from matching the URL against every internal
+  // route type, which ran past its stack depth.
+  const response = await $fetch<unknown>(`${config.apiBaseUrl}/swr-tenant-probe`, {
     method: 'GET',
     headers,
   })
+  return await parseDataAs(response, zProbeResponse)
 }, {
   name: 'SwrTenantProbe',
   maxAge: 1,

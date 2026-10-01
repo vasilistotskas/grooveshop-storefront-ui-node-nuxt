@@ -116,7 +116,7 @@ export default defineEventHandler(async (event) => {
 
     const locale: SupportedLocale = (event.context.locale || siteConfig.defaultLocale).split('-')[0]
 
-    const tenant = event.context.tenant as TenantConfig | undefined
+    const tenant = event.context.tenant
     const currency = tenant?.defaultCurrency ?? 'EUR'
     const blogEnabled = tenant?.blogEnabled ?? true
 

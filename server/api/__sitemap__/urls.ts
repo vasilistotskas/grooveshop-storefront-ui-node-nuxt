@@ -43,7 +43,7 @@ export default defineSitemapEventHandler(async (event) => {
   // when a real Host is present; any resolution failure (404/5xx/no host)
   // just falls back to platform-wide behavior below (the same behavior
   // this route already had before this fix).
-  let tenant = event.context.tenant as TenantConfig | undefined
+  let tenant = event.context.tenant
   if (!tenant && host) {
     const result = await getTenantConfig(host)
     if (result.type === 'ok') {

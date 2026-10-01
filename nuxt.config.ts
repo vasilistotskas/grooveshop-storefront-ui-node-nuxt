@@ -392,6 +392,8 @@ export default defineNuxtConfig({
   },
   compatibilityDate: 'latest',
   nitro: {
+    // Server specs and their harness, type-checked in the server context.
+    typescript: { tsConfig: { include: ['../test/unit/server/**/*', '../test/helpers/nitro/**/*'] } },
     // Plugins listed here run BEFORE every module's server plugin (modules
     // append to this list, scanned server/plugins/ come after both). Only
     // what must see a request first belongs here; see the file.
@@ -562,12 +564,12 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
-    // Unit specs of app and shared code join `test/nuxt` in the app
-    // context — the one `pnpm typecheck` checks, because the root
-    // tsconfig extends the legacy `.nuxt/tsconfig.json`. Server-side and
-    // Node-side specs need the server/node contexts, which only a root
-    // `references` tsconfig (Nuxt's documented layout) would gate.
-    tsConfig: { include: ['../test/unit/app/**/*', '../test/unit/shared/**/*', '../test/unit/openapi/**/*', '../test/unit/fixtures/**/*'] },
+    // The root tsconfig references every Nuxt type context, so
+    // `pnpm typecheck` checks each spec in the context of the code it
+    // tests: these join `test/nuxt` in the app context, and the server
+    // specs join the server context (`nitro.typescript` above — Nuxt 4.5
+    // has no `serverTsConfig` yet).
+    tsConfig: { include: ['../test/unit/app/**/*', '../test/unit/shared/**/*', '../test/unit/openapi/**/*', '../test/unit/fixtures/**/*', '../test/unit/source-rules/**/*', '../test/unit/scripts/**/*', '../test/e2e/**/*'] },
   },
   debug: false,
   hooks: {

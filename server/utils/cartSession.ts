@@ -106,7 +106,7 @@ export async function getCartHeaders(event: H3Event, cartIdOverride?: string): P
   const effectiveCartId = cartIdOverride ?? cartId
   const accessToken = await getAllAuthAccessToken(event)
   const config = useRuntimeConfig(event)
-  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
+  const locale = event?.context?.locale || DEFAULT_LOCALE
   const headers: Record<string, string> = {
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
     // Tenant resolution — prefer the actual request host so cart

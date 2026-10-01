@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   // any resolution failure (404/5xx/no host) just falls back to the
   // platform-default manifest below rather than erroring the response.
   const host = requestTenantHost(event)
-  let tenant = event.context.tenant as TenantConfig | undefined
+  let tenant = event.context.tenant
   if (!tenant && host) {
     const result = await getTenantConfig(host)
     if (result.type === 'ok') {
