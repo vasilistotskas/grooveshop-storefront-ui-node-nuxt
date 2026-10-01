@@ -274,6 +274,23 @@ describe('useAcsAddressValidation', () => {
       expect(resolved.value).toBeNull()
     })
 
+    it('drops the request for the old address when the shopper keeps typing', async () => {
+      const older = deferred()
+      api.routes({ [URL]: () => older.promise })
+      const { validate, resolved, isLoading } = useAcsAddressValidation()
+      validate(ADDRESS)
+      await vi.advanceTimersByTimeAsync(600)
+
+      // Typing again inside the next wait, before the old answer lands.
+      validate('Ermou 2 Athens 10563')
+      older.resolve(resolvedAddress())
+      await flushPromises()
+
+      expect(api.callsTo(URL)[0]!.options.signal.aborted).toBe(true)
+      expect(resolved.value).toBeNull()
+      expect(isLoading.value).toBe(false)
+    })
+
     it('offers no earlier answer for an address that has since changed', async () => {
       api.routes({ [URL]: () => resolvedAddress() })
       const { validate, resolved } = useAcsAddressValidation()

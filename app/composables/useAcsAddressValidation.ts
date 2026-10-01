@@ -107,17 +107,12 @@ export function useAcsAddressValidation() {
     address: string,
     { debounceMs = DEFAULT_DEBOUNCE_MS } = {},
   ) {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer)
-      debounceTimer = null
-    }
-    // The previous answer was for a different address.
-    resolved.value = null
+    // A new address voids everything about the previous one: its wait,
+    // its request in flight, and its answer — which could otherwise land
+    // during this wait and be offered (and applied) for this address.
+    cancel()
     const trimmed = address.trim()
-    if (trimmed.length < 5) {
-      isLoading.value = false
-      return
-    }
+    if (trimmed.length < 5) return
     debounceTimer = setTimeout(() => {
       debounceTimer = null
       runFetch(trimmed)
