@@ -1,3 +1,10 @@
+## [3.224.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.18...v3.224.19) (2026-10-01)
+
+
+### Bug Fixes
+
+* **account:** subscriptions through the topic action, honest session and security lists, and one regions request ([#61](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/61)) ([088e4ec](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/088e4ecb90e0178a1b6c856c3d5caa16cdd12455))
+
 ## [3.224.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.17...v3.224.18) (2026-10-01)
 
 
