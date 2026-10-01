@@ -182,14 +182,17 @@ onReactivated(async () => {
         >
           <UTable
             :columns="columns"
-            :empty-state="{
-              icon: 'i-heroicons-key',
-              label: t('empty.title'),
-              description: t('empty.description'),
-            }"
             :data="rows"
             :loading="loading"
           >
+            <template #empty>
+              <UEmpty
+                icon="i-heroicons-key"
+                :title="t('empty.title')"
+                :description="t('empty.description')"
+                variant="naked"
+              />
+            </template>
             <template #name-cell="{ row }">
               <div class="flex items-center gap-2">
                 <UInput
@@ -336,6 +339,7 @@ el:
   total: Σύνολο
   total_keys: Δεν υπάρχουν κλειδιά | 1 κλειδί | {count} κλειδιά
   empty:
+    title: Δεν υπάρχουν κλειδιά ασφαλείας
     description: Πρόσθεσε ένα κλειδί ασφαλείας για να ξεκινήσεις
 en:
   type_unspecified: Type not specified
@@ -349,5 +353,6 @@ en:
   total: Total
   total_keys: "No keys | 1 key | {count} keys"
   empty:
+    title: No security keys
     description: Add a security key to get started
 </i18n>

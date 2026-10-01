@@ -39,8 +39,7 @@ mockNuxtImport('useUserSession', () => () => ({
 }))
 
 const CHROME_WINDOWS = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36'
-// Desktop agents only: the OS guess reads an iPhone as macOS and an
-// Android phone as Linux (see the report), which is not pinned here.
+const SAFARI_IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1'
 const FIREFOX_LINUX = 'Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0'
 const EDGE_WINDOWS = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36 Edg/140.0'
 
@@ -80,6 +79,18 @@ const signOutOthers = (wrapper: VueWrapper) =>
   wrapper.findAll('button').find(button => button.text() === 'Αποσύνδεση από όλες τις υπόλοιπες συσκευές')!
 
 describe('Account/SessionsManage', () => {
+  it('says there is no session to show when allauth lists none', async () => {
+    getSessions.mockResolvedValue(answer([]))
+
+    const wrapper = await mountSessions()
+
+    // Nuxt UI v4's table takes its empty state through the `#empty` slot;
+    // an `empty-state` object fell through as an attribute and the shopper
+    // read the generic "no data" instead.
+    expect(wrapper.text()).toContain('Δεν υπάρχουν ενεργές συνεδρίες')
+    expect(wrapper.text()).toContain('Θα δείς τις συνδεδεμένες συσκευές σου εδώ')
+  })
+
   it('reads the sessions from allauth when mounted and lists each device', async () => {
     const wrapper = await mountSessions()
 
@@ -99,7 +110,30 @@ describe('Account/SessionsManage', () => {
 
     expect(getSessions).not.toHaveBeenCalled()
     expect(rows(wrapper).some(row => row.text().includes('10.0.0.'))).toBe(false)
-    expect(wrapper.text()).toContain('Σύνολο: 0 συνεδρία/συνεδρίες (0 άλλες)')
+    expect(wrapper.text()).toContain('Συνεδρίες: 0 · Σε άλλες συσκευές: 0')
+  })
+
+  it('names a phone as the phone it is: its browser, its system and a phone icon', async () => {
+    // "like Mac OS X" in every iPhone UA read as macOS; the icon came
+    // from rules of its own rather than the SSR device class.
+    getSessions.mockResolvedValue(answer([CURRENT, session(4, SAFARI_IPHONE)]))
+
+    const wrapper = await mountSessions()
+
+    const phone = rows(wrapper)[1]!
+    expect(phone.text()).toContain('Safari')
+    expect(phone.text()).toContain('iOS')
+    expect(phone.text()).not.toContain('macOS')
+    expect(phone.findComponent({ name: 'UIcon' }).props('name')).toBe('i-heroicons-device-phone-mobile')
+  })
+
+  it('words a browser it cannot name in the reader\'s language', async () => {
+    getSessions.mockResolvedValue(answer([CURRENT, session(5, 'curl/8.9.1')]))
+
+    const wrapper = await mountSessions()
+
+    expect(rows(wrapper)[1]!.text()).toContain('Άγνωστο')
+    expect(rows(wrapper)[1]!.text()).not.toContain('Unknown')
   })
 
   it('marks only the session in use as the active one', async () => {
@@ -133,7 +167,8 @@ describe('Account/SessionsManage', () => {
     expect(deleteSession).toHaveBeenCalledWith({ sessions: [LAPTOP.id] })
     expect(rows(wrapper)).toHaveLength(2)
     expect(wrapper.text()).not.toContain('Firefox')
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Αποσυνδέθηκες από όλες τις άλλες συνεδρίες', color: 'success' })
+    // One session ended: it says so, not "every other session".
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η συνεδρία αποσυνδέθηκε', color: 'success' })
     expect(wrapper.emitted('deleteSession')).toHaveLength(1)
   })
 
@@ -146,13 +181,14 @@ describe('Account/SessionsManage', () => {
 
     expect(deleteSession).toHaveBeenCalledWith({ sessions: [LAPTOP.id, WORK.id] })
     expect(rows(wrapper)).toHaveLength(1)
-    expect(wrapper.text()).toContain('Σύνολο: 1 συνεδρία/συνεδρίες (0 άλλες)')
+    expect(toastAdd).toHaveBeenCalledWith({ title: '2 συνεδρίες αποσυνδέθηκαν', color: 'success' })
+    expect(wrapper.text()).toContain('Συνεδρίες: 1 · Σε άλλες συσκευές: 0')
   })
 
   it('counts the sessions and warns about the others while there are any', async () => {
     const wrapper = await mountSessions()
 
-    expect(wrapper.text()).toContain('Σύνολο: 3 συνεδρία/συνεδρίες (2 άλλες)')
+    expect(wrapper.text()).toContain('Συνεδρίες: 3 · Σε άλλες συσκευές: 2')
     expect(wrapper.text()).toContain('Ασφάλεια Λογαριασμού')
     expect(signOutOthers(wrapper).attributes('disabled')).toBeUndefined()
   })

@@ -59,6 +59,18 @@ const disconnectItem = (wrapper: VueWrapper, row: number) =>
   (wrapper.findAllComponents({ name: 'UDropdownMenu' })[row]!.props('items')[0] as Array<{ label: string, onSelect: () => unknown }>)[0]!
 
 describe('Account/ProvidersManage', () => {
+  it('says no provider is linked yet, and how to link one', async () => {
+    connectedThirdPartyProviderAccounts.mockResolvedValue(accounts([]))
+
+    const wrapper = await mountProviders()
+
+    // Nuxt UI v4's table takes its empty state through the `#empty` slot;
+    // an `empty-state` object fell through as an attribute and the shopper
+    // read the generic "no data" instead.
+    expect(wrapper.text()).toContain('Δεν έχεις συνδεθεί με κάποιον πάροχο')
+    expect(wrapper.text()).toContain('Σύνδεσε λογαριασμούς τρίτων για ευκολότερη σύνδεση')
+  })
+
   it('lists each linked account with its provider and the account it signs in as', async () => {
     const wrapper = await mountProviders()
 

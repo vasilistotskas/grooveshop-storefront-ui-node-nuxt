@@ -63,8 +63,8 @@ describe('useUserSubscriptions', () => {
     {
       name: 'subscribe',
       run: () => useUserSubscriptions().subscribe(7),
-      url: '/api/subscriptions/user',
-      options: { method: 'POST', body: { topic: 7 } },
+      url: '/api/subscriptions/topics/7/subscribe',
+      options: { method: 'POST' },
       success: () => toast('subscribe', 'success'),
       failure: () => toast('subscribe', 'error'),
       answer: makeUserSubscription({ topic: 7 }),
@@ -77,24 +77,6 @@ describe('useUserSubscriptions', () => {
       success: () => toast('unsubscribe', 'success'),
       failure: () => toast('unsubscribe', 'error'),
       answer: undefined,
-    },
-    {
-      name: 'bulkSubscribe(subscribe)',
-      run: () => useUserSubscriptions().bulkSubscribe([1, 2], 'subscribe'),
-      url: '/api/subscriptions/user/bulk-subscribe',
-      options: { method: 'POST', body: { topicIds: [1, 2], action: 'subscribe' } },
-      success: () => toast('bulk_subscribe', 'success'),
-      failure: () => toast('bulk_operation', 'error'),
-      answer: { success: true },
-    },
-    {
-      name: 'bulkSubscribe(unsubscribe)',
-      run: () => useUserSubscriptions().bulkSubscribe([1, 2], 'unsubscribe'),
-      url: '/api/subscriptions/user/bulk-subscribe',
-      options: { method: 'POST', body: { topicIds: [1, 2], action: 'unsubscribe' } },
-      success: () => toast('bulk_unsubscribe', 'success'),
-      failure: () => toast('bulk_operation', 'error'),
-      answer: { success: true },
     },
   ])('$name', ({ run, url, options, success, failure, answer }) => {
     it('sends the request, refreshes the user list then the topics list, and confirms', async () => {
@@ -122,15 +104,29 @@ describe('useUserSubscriptions', () => {
     })
   })
 
+  describe('subscribe to a topic that asks for confirmation', () => {
+    it('tells the shopper to confirm by email rather than that they are subscribed', async () => {
+      api.routes({ '/api/subscriptions/topics/7/subscribe': makeUserSubscription({ topic: 7, status: 'PENDING' }) })
+
+      await useUserSubscriptions().subscribe(7)
+
+      expect(mockToast.add).toHaveBeenCalledExactlyOnceWith(toast('subscribe', 'success', 'pending' as never))
+    })
+  })
+
   describe('isSubscribed', () => {
     const subscriptions = [
       makeUserSubscription({ id: 1, topic: 1, status: 'ACTIVE' }),
       makeUserSubscription({ id: 2, topic: 2, status: 'UNSUBSCRIBED' }),
+      makeUserSubscription({ id: 3, topic: 3, status: 'PENDING' }),
+      makeUserSubscription({ id: 4, topic: 4, status: 'BOUNCED' }),
     ]
 
     it.each([
       ['an active subscription', subscriptions, 1, true],
-      ['an inactive subscription', subscriptions, 2, false],
+      ['a subscription unsubscribed by email', subscriptions, 2, false],
+      ['a subscription pending its confirmation', subscriptions, 3, true],
+      ['a bounced subscription', subscriptions, 4, false],
       ['a topic not subscribed', subscriptions, 999, false],
       ['no subscriptions', [], 1, false],
       ['null subscriptions', null, 1, false],

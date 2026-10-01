@@ -81,7 +81,6 @@ export default defineEventHandler(async (event) => {
 ## Known Exceptions
 - `server/api/products/categories/index.get.ts` — Uses `getQuery` without Zod validation (manually sanitized)
 - `server/api/products/attributes/` — Uses `getQuery` without Zod validation (manually built query)
-- `server/api/subscriptions/user/bulk-subscribe.post.ts` — No response Zod schema exists in OpenAPI spec
 - `server/api/auth/oauth-params.get.ts` — Reads directly from session, not a Django proxy
 - `server/routes/rss.xml.get.ts` — Static route, not an API proxy
 - `server/api/__sitemap__/urls.ts` — Sitemap utility, custom pattern

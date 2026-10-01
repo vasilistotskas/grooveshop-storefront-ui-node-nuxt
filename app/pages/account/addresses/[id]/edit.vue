@@ -115,10 +115,12 @@ const countryOptions = computed(() => {
 const shippableCountryCodes = computed(() => countryOptions.value.map(option => option.value))
 
 // Regions data
-const { data: regions, execute: fetchRegions } = await useApi<Pagination<Region>>(
+// The query is reactive, so a country change refetches by itself;
+// `enabled` holds it back until there is a country to ask about.
+const { data: regions } = await useApi<Pagination<Region>>(
   '/api/regions',
   {
-    immediate: !!state.country,
+    enabled: computed(() => !!state.country),
     query: computed(() => ({
       country: state.country,
       languageCode: locale.value,
@@ -154,14 +156,11 @@ const locationTypeOptions = computed(() => [
   { label: t('form.location_type_options.OTHER'), value: 'OTHER' },
 ])
 
-// Watch country changes to fetch regions
+// A new country's regions are its own: the old pick no longer applies.
 watch(
   () => state.country,
-  async (newCountry) => {
-    if (newCountry) {
-      state.region = undefined
-      await fetchRegions()
-    }
+  (newCountry) => {
+    if (newCountry) state.region = undefined
   },
 )
 

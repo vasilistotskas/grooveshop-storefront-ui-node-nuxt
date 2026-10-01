@@ -45,6 +45,19 @@ const menu = (wrapper: VueWrapper, row: number) =>
   wrapper.findAllComponents({ name: 'UDropdownMenu' })[row]!.props('items')[0] as Array<{ onSelect: () => unknown }>
 
 describe('Account/2Fa/WebAuthn/List', () => {
+  it('says there is no key yet, and how to add one', async () => {
+    useAuthStore().authenticators = [TOTP]
+
+    const wrapper = await mountList()
+
+    // Nuxt UI v4's table takes its empty state through the `#empty` slot;
+    // an `empty-state` object fell through as an attribute and the shopper
+    // read the generic "no data" instead.
+    expect(wrapper.text()).toContain('Δεν υπάρχουν κλειδιά ασφαλείας')
+    expect(wrapper.text()).toContain('Πρόσθεσε ένα κλειδί ασφαλείας για να ξεκινήσεις')
+    expect(wrapper.text()).not.toContain('empty.title')
+  })
+
   it('lists only the security keys, marking the passwordless one and the unused one', async () => {
     const wrapper = await mountList()
     const rows = wrapper.findAll('tbody tr')

@@ -67,7 +67,6 @@ These are documented in `MEMORY.md` and `.claude/agents/api-route-validator.md`:
 
 - `server/api/products/categories/index.get.ts` — uses `getQuery` with manual sanitization (deferred I15).
 - `server/api/products/attributes/` — uses `getQuery` with manual query building (deferred I16).
-- `server/api/subscriptions/user/bulk-subscribe.post.ts` — no response Zod schema exists in the OpenAPI spec (deferred I18).
 - `server/api/auth/oauth-params.get.ts` — reads OAuth params from session, not a Django proxy.
 
 If new routes match these *exact* paths, skip them with a note in the report. Otherwise treat the rule as binding.

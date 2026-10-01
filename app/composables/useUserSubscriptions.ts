@@ -43,19 +43,19 @@ export function useUserSubscriptions() {
   }
 
   /**
-   * Subscribe to a topic
-   *
-   * Creates a new subscription and invalidates related caches to ensure
-   * the UI reflects the updated subscription state.
+   * Subscribe to a topic, through Django's topic action: it applies the
+   * topic's confirmation rule and re-arms an UNSUBSCRIBED or BOUNCED
+   * subscription, where creating a row bypassed the first and collided
+   * with the second. A topic that asks for confirmation answers PENDING —
+   * the shopper has an email to click, and the toast says so.
    *
    * @param topicId - ID of the topic to subscribe to
-   * @returns The created subscription
+   * @returns The subscription, ACTIVE or PENDING
    */
   const subscribe = async (topicId: number) => {
     try {
-      const response = await requestFetch('/api/subscriptions/user', {
+      const response = await requestFetch(`/api/subscriptions/topics/${topicId}/subscribe`, {
         method: 'POST',
-        body: { topic: topicId },
       })
 
       // Invalidate caches to refresh UI
@@ -64,9 +64,10 @@ export function useUserSubscriptions() {
         refreshNuxtData('subscription:topics:list'),
       ])
 
+      const outcome = response?.status === 'PENDING' ? 'pending' : 'success'
       toast.add({
-        title: t('subscription_notifications.subscribe.success_title'),
-        description: t('subscription_notifications.subscribe.success_description'),
+        title: t(`subscription_notifications.subscribe.${outcome}_title`),
+        description: t(`subscription_notifications.subscribe.${outcome}_description`),
         color: 'success',
       })
 
@@ -119,59 +120,12 @@ export function useUserSubscriptions() {
   }
 
   /**
-   * Bulk subscribe or unsubscribe from multiple topics
-   *
-   * Performs bulk subscription operations and invalidates related caches
-   * to ensure the UI reflects the updated subscription state.
-   *
-   * @param topicIds - Array of topic IDs to operate on
-   * @param action - Action to perform ('subscribe' or 'unsubscribe')
-   * @returns The bulk operation response
-   */
-  const bulkSubscribe = async (topicIds: number[], action: 'subscribe' | 'unsubscribe') => {
-    try {
-      const response = await requestFetch('/api/subscriptions/user/bulk-subscribe', {
-        method: 'POST',
-        body: { topicIds, action },
-      })
-
-      // Invalidate caches to refresh UI
-      await Promise.all([
-        refreshNuxtData('subscription:user:list'),
-        refreshNuxtData('subscription:topics:list'),
-      ])
-
-      toast.add({
-        title: action === 'subscribe'
-          ? t('subscription_notifications.bulk_subscribe.success_title')
-          : t('subscription_notifications.bulk_unsubscribe.success_title'),
-        description: action === 'subscribe'
-          ? t('subscription_notifications.bulk_subscribe.success_description')
-          : t('subscription_notifications.bulk_unsubscribe.success_description'),
-        color: 'success',
-      })
-
-      return response
-    }
-    catch (err) {
-      toast.add({
-        title: t('subscription_notifications.bulk_operation.error_title'),
-        description: t('subscription_notifications.bulk_operation.error_description'),
-        color: 'error',
-      })
-      throw err
-    }
-  }
-
-  /**
-   * Helper function to check if user is subscribed to a topic
-   *
-   * @param subscriptions - Array of user subscriptions
-   * @param topicId - Topic ID to check
-   * @returns True if user is subscribed and active
+   * Whether the shopper's subscription to a topic stands: ACTIVE, or
+   * PENDING their confirmation. An UNSUBSCRIBED (an email's unsubscribe
+   * link) or BOUNCED row is kept by Django but is no subscription.
    */
   const isSubscribed = (subscriptions: UserSubscription[] | null, topicId: number) => {
-    return subscriptions?.some(sub => sub.topic === topicId && sub.status === 'ACTIVE') || false
+    return subscriptions?.some(sub => sub.topic === topicId && (sub.status === 'ACTIVE' || sub.status === 'PENDING')) || false
   }
 
   /**
@@ -189,7 +143,6 @@ export function useUserSubscriptions() {
     fetchSubscriptions,
     subscribe,
     unsubscribe,
-    bulkSubscribe,
     isSubscribed,
     getSubscriptionByTopicId,
   }

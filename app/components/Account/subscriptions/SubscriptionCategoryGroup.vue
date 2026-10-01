@@ -29,13 +29,11 @@ const categoryIcon = computed(() => {
   return iconMap[props.category] || 'i-heroicons-ellipsis-horizontal-circle'
 })
 
-const isTopicSubscribed = (topicId: number): boolean => {
-  return props.subscriptions.some(sub => sub.topic === topicId)
-}
-
-const getSubscriptionId = (topicId: number): number | undefined => {
-  return props.subscriptions.find(sub => sub.topic === topicId)?.id
-}
+// The composable's rule: a row Django keeps after an unsubscribe link or
+// a bounce is no subscription, and its switch reads off.
+const { isSubscribed, getSubscriptionByTopicId } = useUserSubscriptions()
+const isTopicSubscribed = (topicId: number) => isSubscribed(props.subscriptions, topicId)
+const getSubscriptionId = (topicId: number) => getSubscriptionByTopicId(props.subscriptions, topicId)?.id
 
 const handleSubscribe = (topicId: number) => {
   emit('subscribe', topicId)

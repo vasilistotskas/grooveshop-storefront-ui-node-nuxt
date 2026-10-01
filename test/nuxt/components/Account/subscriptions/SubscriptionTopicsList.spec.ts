@@ -39,7 +39,8 @@ beforeEach(() => {
   clearNuxtData(['subscription:topics:list', 'subscription:user:list'])
   api.routes({
     [TOPICS]: page([OFFERS, WEEKLY, DEALS, UNFILED]),
-    [MINE]: (_url: string, options: any) => (options?.method === 'POST' ? subscription(51, OFFERS) : page([subscription(50, WEEKLY)])),
+    [MINE]: page([subscription(50, WEEKLY)]),
+    '/api/subscriptions/topics/*': (url: string) => subscription(51, url.includes(`/${OFFERS.id}/`) ? OFFERS : DEALS),
     [`${MINE}/*`]: {},
   })
 })
@@ -85,12 +86,29 @@ describe('Account/subscriptions/SubscriptionTopicsList', () => {
     switchFor(wrapper, 'Προσφορές').click()
     await flushPromises()
 
-    expect(api.callsTo(MINE).map(call => [call.options.method, call.options.body])).toEqual([
-      ['POST', { topic: 1 }],
-      ['GET', undefined],
+    expect(api.callsTo('/api/subscriptions/topics/*')).toEqual([
+      { url: `/api/subscriptions/topics/${OFFERS.id}/subscribe`, options: expect.objectContaining({ method: 'POST' }) },
     ])
+    expect(api.callsTo(MINE).map(call => call.options.method)).toEqual(['GET'])
     expect(api.callsTo(TOPICS)).toHaveLength(1)
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+  })
+
+  it('reads a topic unsubscribed by email as off, and subscribes it again through the topic', async () => {
+    // Django keeps the row; it is no subscription, and a new row would
+    // collide with it.
+    api.routes({
+      [TOPICS]: page([OFFERS, WEEKLY]),
+      [MINE]: page([subscription(50, WEEKLY), { ...subscription(52, OFFERS), status: 'UNSUBSCRIBED' }]),
+      '/api/subscriptions/topics/*': subscription(52, OFFERS),
+    })
+    const wrapper = await mountList()
+
+    expect(switchFor(wrapper, 'Προσφορές').getAttribute('aria-checked')).toBe('false')
+    switchFor(wrapper, 'Προσφορές').click()
+    await flushPromises()
+
+    expect(api.callsTo('/api/subscriptions/topics/*').map(call => call.url)).toEqual([`/api/subscriptions/topics/${OFFERS.id}/subscribe`])
   })
 
   it('deletes the subscription behind a topic switched off', async () => {
@@ -109,9 +127,9 @@ describe('Account/subscriptions/SubscriptionTopicsList', () => {
     const wrapper = await mountList()
     api.routes({
       [TOPICS]: page([OFFERS]),
-      [MINE]: (_url: string, options: any) => {
-        if (options?.method === 'POST') throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 })
-        return page([])
+      [MINE]: page([]),
+      '/api/subscriptions/topics/*': () => {
+        throw Object.assign(new Error('Bad Gateway'), { statusCode: 502 })
       },
     })
 

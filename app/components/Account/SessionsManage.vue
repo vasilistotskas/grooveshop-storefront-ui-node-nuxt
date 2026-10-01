@@ -27,8 +27,9 @@ const logout = async (fromSessions: Session[]) => {
     if (newSessions) {
       sessions.value = newSessions.data
     }
+    // Worded for what was ended: one session, or every other one.
     toast.add({
-      title: t('session.logged_out'),
+      title: t('session.logged_out', fromSessions.length),
       color: 'success',
     })
     emit('deleteSession')
@@ -41,36 +42,16 @@ const logout = async (fromSessions: Session[]) => {
   }
 }
 
-function getDeviceIcon(userAgent: string): string {
-  const ua = userAgent.toLowerCase()
-  if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
-    return 'i-heroicons-device-phone-mobile'
-  }
-  if (ua.includes('tablet') || ua.includes('ipad')) {
-    return 'i-heroicons-device-tablet'
-  }
-  return 'i-heroicons-computer-desktop'
+// One icon per device class, from the same UA rules the SSR render uses.
+const DEVICE_ICON: Readonly<Record<DeviceClass, string>> = {
+  mobile: 'i-heroicons-device-phone-mobile',
+  tablet: 'i-heroicons-device-tablet',
+  desktop: 'i-heroicons-computer-desktop',
 }
 
-function getBrowserName(userAgent: string): string {
-  const ua = userAgent.toLowerCase()
-  if (ua.includes('edg/')) return 'Edge'
-  if (ua.includes('chrome/')) return 'Chrome'
-  if (ua.includes('firefox/')) return 'Firefox'
-  if (ua.includes('safari/') && !ua.includes('chrome')) return 'Safari'
-  if (ua.includes('opera/') || ua.includes('opr/')) return 'Opera'
-  return 'Unknown'
-}
-
-function getOSName(userAgent: string): string {
-  const ua = userAgent.toLowerCase()
-  if (ua.includes('windows')) return 'Windows'
-  if (ua.includes('mac os')) return 'macOS'
-  if (ua.includes('linux')) return 'Linux'
-  if (ua.includes('android')) return 'Android'
-  if (ua.includes('ios') || ua.includes('iphone') || ua.includes('ipad')) return 'iOS'
-  return 'Unknown'
-}
+const deviceIcon = (userAgent: string) => DEVICE_ICON[deviceClassFromUserAgent(userAgent)]
+const browserName = (userAgent: string) => browserOf(userAgent) ?? t('unknown')
+const systemName = (userAgent: string) => operatingSystemOf(userAgent) ?? t('unknown')
 
 const columns: TableColumn<Session>[] = [
   {
@@ -167,15 +148,18 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
             :data="data"
             :columns="columns"
             :loading="loading"
-            :empty-state="{
-              icon: 'i-heroicons-signal-slash',
-              label: t('sessions.empty.title'),
-              description: t('sessions.empty.description'),
-            }"
             :ui="{
               root: 'max-w-2xl',
             }"
           >
+            <template #empty>
+              <UEmpty
+                icon="i-heroicons-signal-slash"
+                :title="t('sessions.empty.title')"
+                :description="t('sessions.empty.description')"
+                variant="naked"
+              />
+            </template>
             <template #is_current-cell="{ row }">
               <UTooltip
                 :text="row.original.is_current ? t('sessions.current') : t('sessions.other')"
@@ -195,17 +179,17 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
             <template #device-cell="{ row }">
               <div class="flex items-center gap-3">
                 <UIcon
-                  :name="getDeviceIcon(row.original.user_agent)"
+                  :name="deviceIcon(row.original.user_agent)"
                   class="size-5 text-muted"
                 />
                 <div class="flex flex-col">
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium">
-                      {{ getBrowserName(row.original.user_agent) }}
+                      {{ browserName(row.original.user_agent) }}
                     </span>
                     <span class="text-xs text-muted">•</span>
                     <span class="text-xs text-muted">
-                      {{ getOSName(row.original.user_agent) }}
+                      {{ systemName(row.original.user_agent) }}
                     </span>
                   </div>
                   <UTooltip :text="row.original.user_agent">
@@ -302,10 +286,11 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
 <i18n lang="yaml">
 el:
   is_current: Τρέχουσα
+  unknown: Άγνωστο
   device: Συσκευή
   logout_all_other_sessions: Αποσύνδεση από όλες τις υπόλοιπες συσκευές
   session:
-    logged_out: Αποσυνδέθηκες από όλες τις άλλες συνεδρίες
+    logged_out: Η συνεδρία αποσυνδέθηκε | {count} συνεδρίες αποσυνδέθηκαν
   sessions:
     info:
       title: Ενεργές Συνεδρίες
@@ -314,7 +299,7 @@ el:
     current: Αυτή είναι η τρέχουσα συνεδρία σου
     other: Άλλη συσκευή
     cannot_logout_current: Δεν μπορείς να αποσυνδεθείς από την τρέχουσα συνεδρία
-    total: 'Σύνολο: {count} συνεδρία/συνεδρίες ({other} άλλες)'
+    total: 'Συνεδρίες: {count} · Σε άλλες συσκευές: {other}'
     empty:
       title: Δεν υπάρχουν ενεργές συνεδρίες
       description: Θα δείς τις συνδεδεμένες συσκευές σου εδώ
@@ -323,10 +308,11 @@ el:
       description: Αν δείς συνεδρίες που δεν αναγνωρίζεις, αποσυνδέσου αμέσως και αλλάξτε τον κωδικό σου.
 en:
   is_current: Current
+  unknown: Unknown
   device: Device
   logout_all_other_sessions: Sign out of every other device
   session:
-    logged_out: You were signed out of every other session
+    logged_out: The session was signed out | {count} sessions were signed out
   sessions:
     info:
       title: Active Sessions
@@ -335,7 +321,7 @@ en:
     current: This is the session you are using now
     other: Another device
     cannot_logout_current: You cannot sign out of the session you are using
-    total: 'Total: {count} session(s) ({other} other)'
+    total: 'Sessions: {count} · On other devices: {other}'
     empty:
       title: No active sessions
       description: The devices you are signed in on will appear here

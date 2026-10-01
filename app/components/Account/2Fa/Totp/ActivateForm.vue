@@ -52,6 +52,13 @@ watchEffect(async () => {
 
 const { copy, isSupported } = useClipboard({ source: totpSecret.value })
 
+// Six filled cells, by reka-ui's own rule: in number mode the digit zero
+// is the number 0, a filled cell — a "falsy is empty" test kept the
+// button disabled for every code containing a zero.
+const isCodeComplete = computed(() =>
+  code.value.filter(digit => digit === 0 || !!digit).length === 6,
+)
+
 const codeSchema = computed(() => z.string()
   .min(6, { message: t('error.code_length') })
   .max(6, { message: t('error.code_length') })
@@ -228,7 +235,7 @@ async function onSubmit() {
             color="neutral"
             variant="outline"
             :loading="loading"
-            :disabled="code.length !== 6 || code.some(c => !c)"
+            :disabled="!isCodeComplete"
             class="
               w-full
               sm:w-auto
