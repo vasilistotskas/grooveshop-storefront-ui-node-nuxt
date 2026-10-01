@@ -1,3 +1,10 @@
+## [3.224.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.15...v3.224.16) (2026-10-01)
+
+
+### Bug Fixes
+
+* **auth:** parse the return path like the browser, and drop the dead token handoff ([#58](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/58)) ([ea2fad8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ea2fad8fd641a97fda351bf33bfa0fac911d3704))
+
 ## [3.224.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.14...v3.224.15) (2026-10-01)
 
 
