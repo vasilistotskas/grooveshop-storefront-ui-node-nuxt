@@ -38,8 +38,16 @@ const b2bSuppressesLoyalty = computed(() => {
   return Boolean(b2b?.applied) && !b2b?.allowLoyalty
 })
 
+// The store's redemption ratio (points per 1 EUR), or null when it
+// redeems nothing: a ratio of 0 is a real setting, and dividing by it
+// offered unbounded points at an infinite discount.
+const redemptionRatio = computed(() => {
+  const ratio = settings.value?.redemptionRatioEur
+  return ratio && ratio > 0 ? ratio : null
+})
+
 const loyaltyEnabled = computed(() =>
-  (settings.value?.enabled ?? false) && !b2bSuppressesLoyalty.value)
+  (settings.value?.enabled ?? false) && redemptionRatio.value !== null && !b2bSuppressesLoyalty.value)
 
 // Component state - no API call, just local intent
 const applied = ref(false)
@@ -53,8 +61,8 @@ const availableBalance = computed(() => summary.value?.pointsBalance || 0)
 
 // Max redeemable points: capped by both balance and products total
 const maxRedeemablePoints = computed(() => {
-  const ratio = settings.value?.redemptionRatioEur ?? 100 // points per 1 EUR
-  const maxFromProductsTotal = Math.floor(props.maxDiscountAmount * ratio)
+  if (redemptionRatio.value === null) return 0
+  const maxFromProductsTotal = Math.floor(props.maxDiscountAmount * redemptionRatio.value)
   return Math.min(availableBalance.value, maxFromProductsTotal)
 })
 
@@ -71,10 +79,8 @@ const displayedBalance = computed(() => {
 
 // Calculate discount based on points using the admin-configured ratio
 const calculateDiscount = (points: number) => {
-  if (points === 0) return '0.00'
-  const ratio = settings.value?.redemptionRatioEur ?? 100 // points per 1 EUR
-  const discount = points / ratio
-  return discount.toFixed(2)
+  if (points === 0 || redemptionRatio.value === null) return '0.00'
+  return (points / redemptionRatio.value).toFixed(2)
 }
 
 // Validation schema

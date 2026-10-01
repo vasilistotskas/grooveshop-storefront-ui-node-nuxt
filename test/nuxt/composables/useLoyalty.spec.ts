@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import { useLoyalty } from '~/composables/useLoyalty'
 import { defaultLoyaltySettings } from '~/utils/loyalty'
@@ -87,7 +88,7 @@ describe('useLoyalty', () => {
   describe.each([
     ['fetchSummary', () => useLoyalty().fetchSummary(), '/api/loyalty/summary', { pointsBalance: 100, totalXp: 500, level: 5, tier: null, pointsToNextTier: 200 }],
     ['fetchTiers', () => useLoyalty().fetchTiers(), '/api/loyalty/tiers', [{ id: 1 }]],
-    ['fetchProductPoints', () => useLoyalty().fetchProductPoints(42), '/api/loyalty/product/42/points', { points: 12 }],
+    ['fetchProductPoints', () => useLoyalty().fetchProductPoints(42, true), '/api/loyalty/product/42/points', { points: 12 }],
   ] as const)('%s', (_name, fetch, url, body) => {
     it(`GETs ${url} and hands back its answer`, async () => {
       api.routes({ [url]: body })
@@ -109,6 +110,29 @@ describe('useLoyalty', () => {
 
       expect(error.value?.message).toBe('Server error')
       expect(data.value).toBeUndefined()
+    })
+  })
+
+  // Django answers 404 for a store with loyalty off: no request until the
+  // caller says the points can exist, and one as soon as it does.
+  describe('fetchProductPoints gating', () => {
+    // Its own product: a key's options are its first reader's, and the
+    // generic case above already registered product 42 outside any scope.
+    const URL = '/api/loyalty/product/43/points'
+
+    it('asks nothing while disabled, and asks once it is enabled', async () => {
+      api.routes({ [URL]: { productId: 43, potentialPoints: 12, tierMultiplierApplied: false } })
+      const enabled = ref(false)
+
+      const { data } = useLoyalty().fetchProductPoints(43, enabled)
+      await flushPromises()
+      expect(api.callsTo(URL)).toEqual([])
+
+      enabled.value = true
+      await flushPromises()
+
+      expect(api.callsTo(URL)).toHaveLength(1)
+      expect(data.value).toMatchObject({ potentialPoints: 12 })
     })
   })
 })

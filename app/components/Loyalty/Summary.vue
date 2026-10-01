@@ -7,37 +7,39 @@ const localePath = useLocalePath()
 const loyalty = useLoyalty()
 const { data: summary, status, error, refresh } = loyalty.fetchSummary()
 const { data: tiers } = loyalty.fetchTiers()
+const { data: settings } = loyalty.fetchSettings()
 
 // Computed for loading state (compatible with existing template)
 const loading = computed(() => status.value === 'pending')
 
 // Get translated tier name and description
-const tierName = computed(() => {
-  if (!summary.value?.tier) return null
-  const translations = summary.value.tier.translations
-  return translations?.[locale.value]?.name || null
+const tierName = computed(() =>
+  (summary.value?.tier && extractTranslated(summary.value.tier, 'name', locale.value)) || null)
+
+const tierDescription = computed(() =>
+  (summary.value?.tier && extractTranslated(summary.value.tier, 'description', locale.value)) || null)
+
+// The tiers in the order a shopper climbs them — the backend returns them
+// ordered by required_level, but we guard with a sort in case that changes.
+const orderedTiers = computed(() =>
+  [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
+
+// The current tier's rank on that ladder, -1 without one (or before the
+// tiers arrive).
+const currentTierRank = computed(() => {
+  const currentId = summary.value?.tier?.id
+  return currentId ? orderedTiers.value.findIndex(tier => tier.id === currentId) : -1
 })
 
-const tierDescription = computed(() => {
-  if (!summary.value?.tier) return null
-  const translations = summary.value.tier.translations
-  return translations?.[locale.value]?.description || null
-})
-
-// The next tier relative to the user's current one (sorted by requiredLevel).
-// Drives the "Unlock next" hint below the XP progress bar so users can see
-// what they're working toward — the backend returns tiers ordered by
-// required_level but we guard with a sort in case that ever changes.
+// The next tier relative to the user's current one. Drives the "Unlock
+// next" hint below the XP progress bar so users can see what they're
+// working toward.
 const nextTier = computed<LoyaltyTier | null>(() => {
   if (!tiers.value || !summary.value) return null
-  const ordered = [...tiers.value].sort((a, b) => a.requiredLevel - b.requiredLevel)
-  const currentId = summary.value.tier?.id
-  const currentIndex = currentId
-    ? ordered.findIndex(t => t.id === currentId)
-    : -1
-  // No current tier yet → the first tier is the next unlock.
-  if (currentIndex === -1) return ordered[0] ?? null
-  return ordered[currentIndex + 1] ?? null
+  // No current tier yet → the first tier is the next unlock. A current
+  // tier missing from the list leaves no ladder to read the next one off.
+  if (summary.value.tier && currentTierRank.value === -1) return null
+  return orderedTiers.value[currentTierRank.value + 1] ?? null
 })
 
 const nextTierName = computed(() => {
@@ -52,14 +54,19 @@ const nextTierMultiplierBonus = computed(() => {
   return `+${Math.round((multiplier - 1) * 100)}%`
 })
 
-// Calculate coin value in EUR (100 points = 1 EUR by default)
-const coinValueInEur = computed(() => {
-  if (!summary.value) return 0
-  const ratio = 100 // Default: 100 points = 1 EUR
-  return summary.value.pointsBalance / ratio
+// The store's own redemption ratio (points per 1 EUR,
+// `LOYALTY_REDEMPTION_RATIO_EUR`): undefined until the settings arrive,
+// and for a ratio that redeems no points at all.
+const redemptionRatio = computed(() => {
+  const ratio = settings.value?.redemptionRatioEur
+  return ratio && ratio > 0 ? ratio : undefined
 })
 
-const formattedEur = computed(() => $i18n.n(coinValueInEur.value, 'currency'))
+// What the balance is worth at that ratio.
+const formattedEur = computed(() => {
+  if (!summary.value || !redemptionRatio.value) return null
+  return $i18n.n(summary.value.pointsBalance / redemptionRatio.value, 'currency')
+})
 
 // Calculate XP progress percentage
 const xpProgressPercentage = computed(() => {
@@ -71,21 +78,13 @@ const xpProgressPercentage = computed(() => {
   return Math.round((summary.value.totalXp / totalNeeded) * 100)
 })
 
-// Tier color mapping — maps translated tier names to UI colors.
-// WARNING: This relies on matching translated strings (English + Greek).
-// If new languages are added, the name checks below must be extended.
-// A more robust approach would be to map by tier slug or ID from the backend
-// (e.g., tier.slug === 'bronze') instead of translated display names.
-const tierColor = computed<'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'>(() => {
-  if (!tierName.value) return 'neutral'
-  const name = tierName.value.toLowerCase()
-  if (name.includes('bronze') || name.includes('χάλκινο')) return 'warning'
-  if (name.includes('silver') || name.includes('αργυρό')) return 'neutral'
-  if (name.includes('gold') || name.includes('χρυσό')) return 'warning'
-  if (name.includes('platinum') || name.includes('πλατίνα')) return 'info'
-  if (name.includes('diamond') || name.includes('διαμάντι')) return 'secondary'
-  return 'primary'
-})
+// A tier's colour by its rank on the ladder — bronze, silver, gold and
+// platinum as Django seeds them, then a fifth — never by its name:
+// merchants rename tiers and every locale names them differently
+// (matching names missed the seeded "Ασημένιο" and "Πλατινένιο"
+// outright). A ladder taller than the palette takes the brand colour.
+const TIER_COLORS = ['warning', 'neutral', 'warning', 'info', 'secondary'] as const
+const tierColor = computed(() => TIER_COLORS[currentTierRank.value] ?? 'primary')
 
 const handleRetry = () => {
   refresh()
@@ -172,7 +171,7 @@ const handleRetry = () => {
               </div>
 
               <!-- Points Value in EUR -->
-              <div class="text-center">
+              <div v-if="formattedEur" class="text-center">
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                   {{ t('points_value_label') }}
                 </p>
@@ -194,6 +193,9 @@ const handleRetry = () => {
                   </p>
                   <p class="text-gray-600 dark:text-gray-300">
                     {{ t('points_info_description') }}
+                    <template v-if="redemptionRatio">
+                      {{ t('points_info_ratio', { points: redemptionRatio }) }}
+                    </template>
                   </p>
                 </div>
               </div>
@@ -367,7 +369,8 @@ el:
   coins_label: "Πόντοι"
   points_value_label: "Αξία σε έκπτωση"
   points_info_title: "Τι είναι οι Πόντοι;"
-  points_info_description: "Κερδίζετε πόντους με κάθε αγορά. Εξαργυρώστε τους για εκπτώσεις (100 πόντοι = 1€)."
+  points_info_description: "Κερδίζετε πόντους με κάθε αγορά. Εξαργυρώστε τους για εκπτώσεις."
+  points_info_ratio: "({points} πόντοι = 1€)"
   level_display: "Επίπεδο {level}"
   total_xp_display: "{xp} XP συνολικά"
   progress_to_next: "Πρόοδος προς το επόμενο επίπεδο"
@@ -389,7 +392,8 @@ en:
   coins_label: "Points"
   points_value_label: "Worth as a discount"
   points_info_title: "What are Points?"
-  points_info_description: "You earn points on every order. Redeem them for discounts (100 points = 1€)."
+  points_info_description: "You earn points on every order. Redeem them for discounts."
+  points_info_ratio: "({points} points = 1€)"
   level_display: "Level {level}"
   total_xp_display: "{xp} XP in total"
   progress_to_next: "Progress to the next level"

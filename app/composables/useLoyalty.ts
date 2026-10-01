@@ -102,12 +102,16 @@ export const useLoyalty = () => {
    *
    * @param productId - The product ID
    */
-  const fetchProductPoints = (productId: number) => {
+  const fetchProductPoints = (productId: number, enabled: MaybeRefOrGetter<boolean>) => {
     return useAsyncData<ProductPoints>(
       `loyalty-product-points-${productId}`,
       () => requestFetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
         method: 'GET',
       }),
+      // Only while the points can exist: Django answers 404 on a store
+      // with loyalty off. `enabled` blocks a fetch but never starts one
+      // when it turns true; the watch does.
+      { enabled, watch: [() => toValue(enabled)] },
     )
   }
 
