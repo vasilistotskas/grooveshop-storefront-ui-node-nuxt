@@ -1,3 +1,10 @@
+## [3.224.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.17...v3.224.18) (2026-10-01)
+
+
+### Bug Fixes
+
+* **server:** one tenant host, backend origins by origin, and drift reported loudly ([#60](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/60)) ([b0ed919](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b0ed919116f5a1fe54ef8920c9d94520d48e5906))
+
 ## [3.224.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.16...v3.224.17) (2026-10-01)
 
 
