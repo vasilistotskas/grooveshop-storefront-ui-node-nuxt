@@ -47,6 +47,13 @@ describe('server/middleware/5.tenant-canonical', () => {
     expect(await run({ tenant: ACME, host: 'acme.example:3000' })).toBeUndefined()
   })
 
+  it('301s a Host in another case onto the canonical one, before anything renders or caches', async () => {
+    // The page cache varies on the raw Host: `ACME.example` would be an
+    // entry of its own that the merchant's purge (lower-case) never reaches.
+    expect(await run({ tenant: ACME, host: 'ACME.example', url: '/products/3' }))
+      .toMatchObject({ status: 301, location: 'https://acme.example/products/3' })
+  })
+
   it('skips API routes even on alias hosts', async () => {
     expect(await run({ tenant: ACME, host: 'alias.example', url: '/api/cart' })).toBeUndefined()
   })

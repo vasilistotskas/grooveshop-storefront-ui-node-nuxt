@@ -53,14 +53,17 @@ const NO_PAGE_MACROS = {
  * route, `handleError`, which is what reports a drifted response loudly.
  * Three shipping routes returned `parseDataAs(...)` that way: a contract
  * break reached the client as a 422 and was never logged. The callees
- * named here are the async ones every route returns from its `try`;
+ * named here are the async ones routes return from their `try` —
+ * `parseDataAs`, `$fetch` / `$fetch.raw`, `useBackendFetch()(...)` and
+ * its `backendFetch` alias — bare or behind `as` / `!`.
  * typescript-eslint's `return-await` would cover any promise, but needs
  * typed linting, which this config does not run.
  */
-const RETURN_AWAITED_IN_TRY = {
-  selector: 'TryStatement > BlockStatement ReturnStatement > CallExpression[callee.name=/^(parseDataAs|\\$fetch)$/]',
+const ASYNC_CALLEE = ':matches([callee.name=/^(parseDataAs|\\$fetch|backendFetch)$/], [callee.object.name="$fetch"], [callee.callee.name="useBackendFetch"])'
+const RETURN_AWAITED_IN_TRY = ['', 'TSAsExpression > ', 'TSNonNullExpression > '].map(wrapper => ({
+  selector: `TryStatement > BlockStatement ReturnStatement > ${wrapper}CallExpression${ASYNC_CALLEE}`,
   message: 'Return `await` inside try: an un-awaited promise rejects after the try exits, so the catch (handleError) never sees the failure.',
-}
+}))
 
 export default withNuxt(
   globalIgnores([
@@ -168,7 +171,7 @@ export default withNuxt(
     // only places allowed to touch them.
     files: ['server/**/*.ts'],
     rules: {
-      'no-restricted-syntax': ['error', RETURN_AWAITED_IN_TRY],
+      'no-restricted-syntax': ['error', ...RETURN_AWAITED_IN_TRY],
     },
   },
   {
