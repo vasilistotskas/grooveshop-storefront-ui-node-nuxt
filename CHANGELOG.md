@@ -1,3 +1,10 @@
+## [3.224.22](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.21...v3.224.22) (2026-10-01)
+
+
+### Bug Fixes
+
+* **checkout:** say why a cart too heavy for every carrier cannot ship ([#65](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/65)) ([7dd108b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7dd108b34a1325151f2ddfadfe6520a554566954))
+
 ## [3.224.21](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.20...v3.224.21) (2026-10-01)
 
 
