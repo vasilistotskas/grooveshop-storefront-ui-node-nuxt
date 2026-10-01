@@ -193,6 +193,9 @@ describe('Loyalty/Redemption', () => {
     it.each([
       ['loyalty is off', () => { settings.data.value = makeLoyaltySettings({ enabled: false }) }],
       ['the settings have not arrived', () => { settings.data.value = undefined }],
+      // A ratio of 0 redeems nothing; dividing by it offered unbounded
+      // points at an infinite discount.
+      ['the store redeems no points (a ratio of 0)', () => { settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 0 }) }],
     ])('renders nothing when %s', async (_case, arrange) => {
       arrange()
 

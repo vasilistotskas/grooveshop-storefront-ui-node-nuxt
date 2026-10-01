@@ -13,16 +13,22 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const { loggedIn } = useUserSession()
+const tenantStore = useTenantStore()
 const loyalty = useLoyalty()
 
-// Fetch loyalty settings and product points
-const { data: settings } = loyalty.fetchSettings()
-const { data: productPoints, status } = loyalty.fetchProductPoints(props.productId)
+// Awaited so the server knows, before it registers the points fetch,
+// whether there are points to ask for. Shared with the navbar and the
+// CTAs, so it costs no extra request.
+const { data: settings } = await loyalty.fetchSettings()
 
-// Computed states
+// The store's plan AND the merchant's setting, as every loyalty surface
+// gates; Django refuses the points of a store without either.
+const shouldFetch = computed(() =>
+  loggedIn.value && tenantStore.loyaltyEnabled && (settings.value?.enabled ?? false))
+const { data: productPoints, status } = loyalty.fetchProductPoints(props.productId, shouldFetch)
+
 const loading = computed(() => status.value === 'pending')
-const shouldFetch = computed(() => loggedIn.value && settings.value?.enabled)
-const shouldShow = computed(() => shouldFetch.value && productPoints.value !== null)
+const shouldShow = computed(() => shouldFetch.value && productPoints.value != null)
 </script>
 
 <template>
@@ -41,6 +47,15 @@ const shouldShow = computed(() => shouldFetch.value && productPoints.value !== n
     >
       <UIcon name="i-heroicons-star" class="h-4 w-4" />
       <span>{{ t('earn_points', { points: productPoints.potentialPoints }) }}</span>
+    </UBadge>
+    <UBadge
+      v-if="shouldShow && productPoints?.tierMultiplierApplied"
+      color="primary"
+      size="lg"
+      variant="subtle"
+      :title="t('tier_bonus_tooltip')"
+    >
+      {{ t('tier_bonus') }}
     </UBadge>
   </div>
 </template>
