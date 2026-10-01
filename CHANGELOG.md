@@ -1,3 +1,10 @@
+## [3.224.20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.19...v3.224.20) (2026-10-01)
+
+
+### Bug Fixes
+
+* webside's page-size control works, an empty allauth config fails, and dead host fallbacks go ([#63](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/63)) ([fb55f1f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fb55f1f5e84e1ca42bae82869079717f6726a5ea))
+
 ## [3.224.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.18...v3.224.19) (2026-10-01)
 
 
