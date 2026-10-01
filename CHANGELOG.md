@@ -1,3 +1,10 @@
+## [3.224.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.16...v3.224.17) (2026-10-01)
+
+
+### Bug Fixes
+
+* **i18n:** languages a page is written in, unique legal anchors, and validation worded per kind ([#59](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/59)) ([fc0e18a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fc0e18ac717444e5d9ce186aed66581597c1ad20)), closes [grooveshop-django-api#103](https://github.com/grooveshop-django-api/issues/103)
+
 ## [3.224.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.15...v3.224.16) (2026-10-01)
 
 
