@@ -1,3 +1,10 @@
+## [3.224.21](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.20...v3.224.21) (2026-10-01)
+
+
+### Bug Fixes
+
+* take page-section props from Django's contract, leave view throttling to Django, and type the Viva return as the union it is ([#64](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/64)) ([33f7f78](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/33f7f78a058b9914a79075733fd597e88fcba7ce))
+
 ## [3.224.20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.19...v3.224.20) (2026-10-01)
 
 
