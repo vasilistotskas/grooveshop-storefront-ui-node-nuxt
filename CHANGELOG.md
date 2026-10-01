@@ -1,3 +1,10 @@
+## [3.224.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.13...v3.224.14) (2026-10-01)
+
+
+### Bug Fixes
+
+* **checkout:** settle the ACS address check, and survive a Python-only postcode format ([#57](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/57)) ([8ef05e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8ef05e12799c3eaaf118ecb2fab1c334be604db7))
+
 ## [3.224.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.12...v3.224.13) (2026-10-01)
 
 
