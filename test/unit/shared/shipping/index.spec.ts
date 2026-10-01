@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   carrierForMethod,
+  exceededWeightCapGrams,
   methodForCarrier,
   methodKeyForOption,
   resolveShippingMethod,
@@ -99,5 +100,42 @@ describe('resolveShippingMethod', () => {
     ['another locker', [capped(BOXNOW_LOCKER), ACS_SMARTPOINT], 'acs_smartpoint'],
   ])('moves a shopper off a locker the cart outgrew, to %s', (_case, options, expected) => {
     expect(resolveShippingMethod(options, 'box_now_locker')).toBe(expected)
+  })
+})
+
+/**
+ * A cart over the weight cap of EVERY option the store offers cannot be
+ * shipped at all (Django refuses the order), so checkout explains it once
+ * instead of leaving each card to say "max X kg".
+ */
+describe('exceededWeightCapGrams', () => {
+  const HOME = { providerCode: 'acs', kind: 'home_delivery', maxWeightGrams: 2000, exceedsMaxWeight: false }
+  const FLAT_HOME = { providerCode: 'flat_rate', kind: 'home_delivery', maxWeightGrams: 3000, exceedsMaxWeight: false }
+  const BOXNOW_LOCKER = { providerCode: 'boxnow', kind: 'pickup_point', maxWeightGrams: 4000, exceedsMaxWeight: false }
+  const capped = <T extends object>(option: T) => ({ ...option, exceedsMaxWeight: true })
+
+  it('is the largest cap when the cart is over every option\'s cap', () => {
+    expect(exceededWeightCapGrams([capped(HOME), capped(BOXNOW_LOCKER), capped(FLAT_HOME)])).toBe(4000)
+  })
+
+  it('is null while one option still fits the cart', () => {
+    expect(exceededWeightCapGrams([capped(HOME), BOXNOW_LOCKER])).toBeNull()
+  })
+
+  it('is null while one carrier behind the home-delivery card still fits', () => {
+    // The card stands for both carriers and the server routes the cart
+    // to the one that fits, so home delivery is still on offer.
+    expect(exceededWeightCapGrams([capped(HOME), FLAT_HOME, capped(BOXNOW_LOCKER)])).toBeNull()
+  })
+
+  it('ignores options checkout does not render', () => {
+    expect(exceededWeightCapGrams([capped(HOME), { providerCode: 'elta', kind: 'pickup_point', maxWeightGrams: null, exceedsMaxWeight: false }]))
+      .toBe(2000)
+  })
+
+  it('is null when nothing is offered', () => {
+    // No options is a different dead end (none loaded, or none served),
+    // not a weight problem.
+    expect(exceededWeightCapGrams([])).toBeNull()
   })
 })

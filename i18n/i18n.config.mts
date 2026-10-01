@@ -22,6 +22,11 @@ export default defineI18nConfig(() => ({
         style: 'percent',
         useGrouping: false,
       },
+      weight: {
+        style: 'unit',
+        unit: 'kilogram',
+        maximumFractionDigits: 1,
+      },
     },
     en: {
       currency: {
@@ -37,6 +42,11 @@ export default defineI18nConfig(() => ({
       percent: {
         style: 'percent',
         useGrouping: false,
+      },
+      weight: {
+        style: 'unit',
+        unit: 'kilogram',
+        maximumFractionDigits: 1,
       },
     },
   },

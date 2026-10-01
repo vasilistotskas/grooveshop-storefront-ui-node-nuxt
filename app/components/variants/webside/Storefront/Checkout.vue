@@ -61,6 +61,7 @@ const {
   b2bInvoicingEnabled,
   refetchShippingOptions,
   shippingOptionsError,
+  shippingOverWeight,
   retryShippingOptions,
   shippingOptions,
 } = await useCheckoutForm()
@@ -89,7 +90,7 @@ const {
   onGiftCardApplied,
   onGiftCardRemoved,
   fireInitiateCheckout,
-} = useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions })
+} = useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions, shippingOverWeight })
 
 // Meta Pixel: InitiateCheckout fires once when the customer lands on
 // the checkout page. The eventID is stashed inside useCheckoutSubmit
@@ -305,6 +306,7 @@ useSeoMeta({
             :partner-id="boxnowPartnerId"
             :api-options="shippingOptions"
             :options-error="shippingOptionsError"
+            :over-weight="shippingOverWeight"
             @next="nextStep"
             @back="prevStep"
             @retry-options="retryShippingOptions"

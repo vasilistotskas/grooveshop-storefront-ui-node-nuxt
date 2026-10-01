@@ -322,7 +322,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
 
       expect(radio(wrapper, 'box_now_locker').attributes()).toHaveProperty('data-disabled')
       expect(card(wrapper, 'box_now_locker').text())
-        .toContain(t('shipping.method.exceeds_max_weight', { maxKg: 4 }))
+        .toContain(t('shipping.method.exceeds_max_weight', { maxWeight: '4 κιλά' }))
       expect(radio(wrapper, 'home_delivery').attributes()).not.toHaveProperty('data-disabled')
     })
 
@@ -355,7 +355,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
 
         expect(radio(wrapper, 'home_delivery').attributes()).toHaveProperty('data-disabled')
         expect(card(wrapper, 'home_delivery').text())
-          .toContain(t('shipping.method.exceeds_max_weight', { maxKg: 3 }))
+          .toContain(t('shipping.method.exceeds_max_weight', { maxWeight: '3 κιλά' }))
       })
 
       it('does not advance on a selection whose card is disabled', async () => {
@@ -369,6 +369,39 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
         submitStep(wrapper)
 
         expect(wrapper.emitted('next')).toBeUndefined()
+      })
+    })
+
+    describe('when the cart is over every carrier\'s cap', () => {
+      // Django refuses such an order, so the step says why once, above the cards.
+      const overWeight = { cartWeight: '12,5 κιλά', maxWeight: '10 κιλά' }
+      const allCapped = () => [
+        boxNowLockerOption({ maxWeightGrams: 4000, exceedsMaxWeight: true }),
+        acsHomeDeliveryOption({ maxWeightGrams: 10000, exceedsMaxWeight: true }),
+      ]
+
+      it('explains it once, with the cart\'s weight and the largest cap, and links to the contact page', async () => {
+        const wrapper = await mount({ apiOptions: allCapped(), overWeight })
+
+        const alert = wrapper.find('[data-testid="step-shipping-over-weight"]')
+        expect(alert.text()).toContain(t('shipping.method.over_weight_title'))
+        expect(alert.text()).toContain(t('shipping.method.over_weight_description', overWeight))
+        const contact = alert.findAll('a').find(a => a.text() === t('shipping.method.over_weight_contact'))
+        expect(contact?.attributes('href')).toBe(useLocalePath()('contact'))
+      })
+
+      it('does not advance', async () => {
+        const wrapper = await mount({ apiOptions: allCapped(), overWeight })
+
+        submitStep(wrapper)
+
+        expect(wrapper.emitted('next')).toBeUndefined()
+      })
+
+      it('says nothing while one carrier still fits the cart', async () => {
+        const wrapper = await mount({ overWeight: null })
+
+        expect(wrapper.find('[data-testid="step-shipping-over-weight"]').exists()).toBe(false)
       })
     })
   })
