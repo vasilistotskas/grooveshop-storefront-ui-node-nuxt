@@ -1,3 +1,10 @@
+## [3.224.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.12...v3.224.13) (2026-10-01)
+
+
+### Bug Fixes
+
+* **products:** real price bounds, sane URL filters, and exact product text ([#55](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/55)) ([e1ec20b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e1ec20b877ab0565a3ebc0310f0f4464e1974ba4))
+
 ## [3.224.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.11...v3.224.12) (2026-09-30)
 
 
