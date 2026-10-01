@@ -62,7 +62,7 @@ export type AcsPickupList = {
   /**
      * Εκδόθηκε από
      *
-     * Admin who triggered the manual issue. Null when the daily Celery beat task issued the list. Stores a PLATFORM-schema user id; not FK-enforced (see db_constraint above).
+     * Διαχειριστής που ενεργοποίησε τη χειροκίνητη έκδοση. Null όταν η λίστα εκδόθηκε από την καθημερινή εργασία Celery beat. Αποθηκεύει ID χρήστη του schema της ΠΛΑΤΦΟΡΜΑΣ· δεν επιβάλλεται ως FK (δείτε το db_constraint παραπάνω).
      */
   readonly issuedBy: number | null
   readonly issuedByUsername: string | null
@@ -410,46 +410,46 @@ export type AddTrackingRequest = {
  */
 export type AgentFavourite = {
   /**
-     * Product ID
+     * ID προϊόντος
      */
   productId: number
   /**
-     * Localized product name
+     * Όνομα προϊόντος στην τρέχουσα γλώσσα
      */
   name: string
   /**
-     * Current VAT-inclusive price
+     * Τρέχουσα τιμή με ΦΠΑ
      */
   finalPrice: string
   /**
-     * Price currency
+     * Νόμισμα τιμής
      */
   currency: string
   /**
-     * Whether the product is currently in stock
+     * Αν το προϊόν είναι αυτή τη στιγμή διαθέσιμο σε απόθεμα
      */
   inStock: boolean
   /**
-     * When the product was favourited
+     * Πότε προστέθηκε το προϊόν στα αγαπημένα
      */
   addedAt: string
 }
 
 export type AgentProfile = {
   /**
-     * User ID
+     * ID χρήστη
      */
   id: number
   /**
-     * Account email
+     * Email λογαριασμού
      */
   email: string
   /**
-     * First name
+     * Όνομα
      */
   firstName: string
   /**
-     * Last name
+     * Επώνυμο
      */
   lastName: string
 }
@@ -560,11 +560,11 @@ export type B2bPrice = {
 }
 
 /**
- * * `PERCENTAGE` - Percentage off
- * * `FIXED_AMOUNT` - Fixed amount off
- * * `FREE_SHIPPING` - Free shipping
- * * `BXGY` - Buy X get Y discounted
- * * `FREE_GIFT` - Free gift item
+ * * `PERCENTAGE` - Ποσοστιαία έκπτωση
+ * * `FIXED_AMOUNT` - Έκπτωση σταθερού ποσού
+ * * `FREE_SHIPPING` - Δωρεάν μεταφορικά
+ * * `BXGY` - Αγόρασε X, πάρε Y με έκπτωση
+ * * `FREE_GIFT` - Δωρεάν προϊόν δώρου
  */
 export type BenefitTypeEnum = 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING' | 'BXGY' | 'FREE_GIFT'
 
@@ -655,6 +655,9 @@ export type BlogAuthorWriteRequest = {
       bio?: string
     }
   }
+  /**
+     * Χρήστης
+     */
   user: number
   /**
      * Ιστότοπος
@@ -682,6 +685,9 @@ export type BlogCategory = {
     }
   }
   slug: string
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
   readonly level: number
   /**
@@ -731,6 +737,9 @@ export type BlogCategoryDetail = {
     }
   }
   slug: string
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
   readonly level: number
   /**
@@ -816,6 +825,9 @@ export type BlogCategoryWriteRequest = {
     }
   }
   slug: string
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
   /**
      * Εικόνα
@@ -848,6 +860,9 @@ export type BlogComment = {
      * Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο
      */
   readonly isReply: boolean
+  /**
+     * Γονικό σχόλιο
+     */
   readonly parent: number | null
   /**
      * Αν αυτό το σχόλιο έχει εγκεκριμένες απαντήσεις
@@ -903,6 +918,9 @@ export type BlogCommentDetail = {
      * Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο
      */
   readonly isReply: boolean
+  /**
+     * Γονικό σχόλιο
+     */
   readonly parent: number | null
   /**
      * Αν αυτό το σχόλιο έχει εγκεκριμένες απαντήσεις
@@ -1403,7 +1421,7 @@ export type BoxNowLocker = {
      */
   type: TypeEnum
   /**
-     * Locker photo, or null when BoxNow supplies none
+     * Φωτογραφία locker, ή null όταν το BoxNow δεν παρέχει
      */
   readonly imageUrl: string | null
   /**
@@ -1484,7 +1502,7 @@ export type BoxNowLockerDetail = {
      */
   type: TypeEnum
   /**
-     * Locker photo, or null when BoxNow supplies none
+     * Φωτογραφία locker, ή null όταν το BoxNow δεν παρέχει
      */
   readonly imageUrl: string | null
   /**
@@ -2055,6 +2073,9 @@ export type CancelOrderRequestRequest = {
 
 export type Cart = {
   readonly id: number
+  /**
+     * Χρήστης
+     */
   user?: number | null
   readonly uuid: string
   readonly items: Array<CartItem>
@@ -2084,11 +2105,11 @@ export type Cart = {
      */
   readonly currency: string
   /**
-     * Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+     * Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
      */
   readonly promotionDiscount: number
   /**
-     * Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.
+     * Ανάλυση του promotion_discount ανά προσφορά: μία εγγραφή για κάθε προσφορά που πράγματι μείωσε το ποσό, με τον κωδικό κουπονιού που την ενεργοποίησε, όταν υπήρχε. Το storefront τη χρειάζεται για να δείξει στον αγοραστή ΠΟΙΕΣ προσφορές εφαρμόστηκαν και να εμφανίσει σε κάθε κουπόνι το ΔΙΚΟ του ποσό αντί για το σύνολο του καλαθιού.
      */
   readonly appliedPromotions: Array<{
     promotionId?: number
@@ -2097,15 +2118,15 @@ export type Cart = {
     amount?: number
   }>
   /**
-     * Whether a live promotion waives the shipping cost
+     * Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
      */
   readonly promotionFreeShipping: boolean
   /**
-     * Coupon codes currently attached to this cart
+     * Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
      */
   readonly appliedCouponCodes: Array<string>
   /**
-     * Free-gift entitlements earned by this cart
+     * Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
      */
   readonly promotionGiftItems: Array<{
     promotionId?: number
@@ -2116,7 +2137,7 @@ export type Cart = {
     quantity?: number
   }>
   /**
-     * Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
+     * Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
      */
   readonly promotionNearMiss: Array<{
     promotionId?: number
@@ -2124,7 +2145,7 @@ export type Cart = {
     remainingAmount?: number
   }>
   /**
-     * Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
+     * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
      */
   readonly b2bPricing: {
     applied?: boolean
@@ -2165,15 +2186,15 @@ export type Cart = {
 export type CartCoupon = {
   promotion: PublicPromotion
   /**
-     * The coupon code to apply.
+     * Ο κωδικός κουπονιού προς εφαρμογή.
      */
   readonly code: string
   /**
-     * Whether applying this code to the cart as it stands would succeed. False rows carry a machine-readable reason.
+     * Αν η εφαρμογή αυτού του κωδικού στο καλάθι, όπως είναι τώρα, θα ήταν επιτυχής. Οι γραμμές με False φέρουν μηχανικά αναγνώσιμη αιτιολογία.
      */
   readonly eligible: boolean
   /**
-     * Why the code is refused, from the ACP discount vocabulary (discount_code_expired, discount_code_minimum_not_met, …). Null when the code is eligible.
+     * Γιατί απορρίπτεται ο κωδικός, από το λεξιλόγιο εκπτώσεων του ACP (discount_code_expired, discount_code_minimum_not_met, …). Null όταν ο κωδικός είναι επιλέξιμος.
      */
   readonly reason: string | null
   /**
@@ -2181,11 +2202,11 @@ export type CartCoupon = {
      */
   readonly discountAmount: number
   /**
-     * Whether applying this code would waive the shipping cost. False when an automatic promotion already waives it — the code adds nothing there.
+     * Αν η εφαρμογή αυτού του κωδικού θα μηδένιζε το κόστος αποστολής. False όταν μια αυτόματη προσφορά το μηδενίζει ήδη — ο κωδικός δεν προσθέτει τίποτα σε αυτή την περίπτωση.
      */
   readonly freeShipping: boolean
   /**
-     * Whether this code is the one currently on the cart.
+     * Αν αυτός ο κωδικός είναι αυτός που βρίσκεται τώρα στο καλάθι.
      */
   readonly applied: boolean
 }
@@ -2229,15 +2250,15 @@ export type CartCreatePaymentIntentRequestRequest = {
      */
   regionId?: string
   /**
-     * Checkout email. Lets promotion eligibility checks that depend on customer identity (first-order-only, per-customer limits) run against the same identity the order-create verification will use, keeping the PaymentIntent amount in lockstep.
+     * Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.
      */
   email?: string | string
   /**
-     * Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.
+     * Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
      */
   giftCardCodes?: Array<string>
   /**
-     * Loyalty points the shopper will redeem at order creation. The intent amount subtracts the resulting discount so the provider captures what the customer was shown. Pass the same value in the order-create body. Requires an authenticated request.
+     * Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
      */
   loyaltyPointsToRedeem?: number | null
 }
@@ -2250,6 +2271,9 @@ export type CartCreatePaymentIntentRequestShippingKindEnum = 'home_delivery' | '
 
 export type CartDetail = {
   readonly id: number
+  /**
+     * Χρήστης
+     */
   user?: number | null
   readonly uuid: string
   readonly items: Array<CartItem>
@@ -2279,11 +2303,11 @@ export type CartDetail = {
      */
   readonly currency: string
   /**
-     * Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+     * Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
      */
   readonly promotionDiscount: number
   /**
-     * Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.
+     * Ανάλυση του promotion_discount ανά προσφορά: μία εγγραφή για κάθε προσφορά που πράγματι μείωσε το ποσό, με τον κωδικό κουπονιού που την ενεργοποίησε, όταν υπήρχε. Το storefront τη χρειάζεται για να δείξει στον αγοραστή ΠΟΙΕΣ προσφορές εφαρμόστηκαν και να εμφανίσει σε κάθε κουπόνι το ΔΙΚΟ του ποσό αντί για το σύνολο του καλαθιού.
      */
   readonly appliedPromotions: Array<{
     promotionId?: number
@@ -2292,15 +2316,15 @@ export type CartDetail = {
     amount?: number
   }>
   /**
-     * Whether a live promotion waives the shipping cost
+     * Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
      */
   readonly promotionFreeShipping: boolean
   /**
-     * Coupon codes currently attached to this cart
+     * Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
      */
   readonly appliedCouponCodes: Array<string>
   /**
-     * Free-gift entitlements earned by this cart
+     * Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
      */
   readonly promotionGiftItems: Array<{
     promotionId?: number
@@ -2311,7 +2335,7 @@ export type CartDetail = {
     quantity?: number
   }>
   /**
-     * Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
+     * Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
      */
   readonly promotionNearMiss: Array<{
     promotionId?: number
@@ -2319,7 +2343,7 @@ export type CartDetail = {
     remainingAmount?: number
   }>
   /**
-     * Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
+     * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
      */
   readonly b2bPricing: {
     applied?: boolean
@@ -2384,13 +2408,16 @@ export type CartItem = {
 }
 
 export type CartItemCreateRequest = {
+  /**
+     * Προϊόν
+     */
   product: number
   /**
      * Ποσότητα
      */
   quantity?: number
   /**
-     * Recommendation impression
+     * Εμφάνιση σύστασης
      */
   recommendationImpressionId?: string | null
 }
@@ -2441,7 +2468,7 @@ export type CartItemUpdateRequest = {
      */
   quantity?: number
   /**
-     * Recommendation impression
+     * Εμφάνιση σύστασης
      */
   recommendationImpressionId?: string | null
 }
@@ -2489,50 +2516,50 @@ export type ClickIdsEnum = 'gclid' | 'gbraid' | 'wbraid' | 'msclkid' | 'ttclid' 
 export type CompartmentSizeEnum = 1 | 2 | 3
 
 /**
- * * `hero_banner` - Hero Banner
- * * `hero_carousel` - Hero Carousel
- * * `products_slider` - Products Slider
- * * `products_grid` - Products Grid
+ * * `hero_banner` - Κεντρικό banner
+ * * `hero_carousel` - Κεντρικό καρουζέλ
+ * * `products_slider` - Slider προϊόντων
+ * * `products_grid` - Πλέγμα προϊόντων
  * * `featured_products` - Προβεβλημένα Προϊόντα
  * * `product_categories` - Κατηγορίες προϊόντος
- * * `blog_categories` - Blog Categories Rail
- * * `blog_posts_carousel` - Blog Posts Carousel
- * * `blog_posts_grid` - Blog Posts Grid
- * * `blog_posts_list` - Blog Posts List
- * * `recently_viewed` - Recently Viewed Rail
- * * `rich_text` - Rich Text Block
- * * `cta_banner` - Call to Action Banner
- * * `newsletter_signup` - Newsletter Signup
- * * `testimonials` - Testimonials
- * * `about_content` - About Content
- * * `vision_content` - Vision Content
- * * `what_is_microlearning` - What Is Microlearning
- * * `why_microlearning` - Why Microlearning
- * * `spacer` - Spacer
- * * `divider` - Divider
- * * `loyalty_hero` - Loyalty Program Hero
- * * `search_bar` - Search Bar
- * * `business_hours` - Business Hours
- * * `location_map` - Location Map
- * * `features_grid` - Features Grid
- * * `media_text` - Media + Text
- * * `image_gallery` - Image Gallery
- * * `story_timeline` - Story Timeline
- * * `faq` - FAQ Accordion
- * * `trust_badges` - Trust Badges
- * * `offers_preview` - Offers Preview
- * * `stats_strip` - Stats Strip
- * * `partner_strip` - Partner Strip
- * * `pull_quote` - Pull Quote
- * * `reference_cards` - Reference Cards
- * * `page_hero` - Page Hero
- * * `feature_lists` - Feature Lists
- * * `option_selector` - Option Selector
- * * `comparison_table` - Comparison Table
- * * `flow_steps` - Flow Steps
- * * `project_register` - Project Register
- * * `vendor_cards` - Vendor Cards
- * * `contact_panel` - Contact Panel
+ * * `blog_categories` - Λωρίδα κατηγοριών Blog
+ * * `blog_posts_carousel` - Καρουζέλ άρθρων Blog
+ * * `blog_posts_grid` - Πλέγμα άρθρων Blog
+ * * `blog_posts_list` - Λίστα άρθρων Blog
+ * * `recently_viewed` - Λωρίδα πρόσφατα προβληθέντων
+ * * `rich_text` - Μπλοκ εμπλουτισμένου κειμένου
+ * * `cta_banner` - Banner παρότρυνσης για δράση
+ * * `newsletter_signup` - Εγγραφή στο newsletter
+ * * `testimonials` - Μαρτυρίες πελατών
+ * * `about_content` - Περιεχόμενο «Σχετικά με εμάς»
+ * * `vision_content` - Περιεχόμενο «Όραμα»
+ * * `what_is_microlearning` - Τι είναι η μικρομάθηση
+ * * `why_microlearning` - Γιατί μικρομάθηση
+ * * `spacer` - Κενό διάστημα
+ * * `divider` - Διαχωριστικό
+ * * `loyalty_hero` - Κεντρική ενότητα προγράμματος επιβράβευσης
+ * * `search_bar` - Γραμμή αναζήτησης
+ * * `business_hours` - Ωράριο λειτουργίας
+ * * `location_map` - Χάρτης τοποθεσίας
+ * * `features_grid` - Πλέγμα χαρακτηριστικών
+ * * `media_text` - Πολυμέσα + κείμενο
+ * * `image_gallery` - Συλλογή εικόνων
+ * * `story_timeline` - Χρονολόγιο ιστορίας
+ * * `faq` - Συχνές ερωτήσεις (accordion)
+ * * `trust_badges` - Σήματα εμπιστοσύνης
+ * * `offers_preview` - Προεπισκόπηση προσφορών
+ * * `stats_strip` - Λωρίδα στατιστικών
+ * * `partner_strip` - Λωρίδα συνεργατών
+ * * `pull_quote` - Επισημασμένο απόσπασμα
+ * * `reference_cards` - Κάρτες αναφοράς
+ * * `page_hero` - Κεντρική ενότητα σελίδας
+ * * `feature_lists` - Λίστες χαρακτηριστικών
+ * * `option_selector` - Επιλογέας επιλογών
+ * * `comparison_table` - Πίνακας σύγκρισης
+ * * `flow_steps` - Βήματα ροής
+ * * `project_register` - Μητρώο έργων
+ * * `vendor_cards` - Κάρτες προμηθευτών
+ * * `contact_panel` - Πλαίσιο επικοινωνίας
  */
 export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'about_content' | 'vision_content' | 'what_is_microlearning' | 'why_microlearning' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar' | 'business_hours' | 'location_map' | 'features_grid' | 'media_text' | 'image_gallery' | 'story_timeline' | 'faq' | 'trust_badges' | 'offers_preview' | 'stats_strip' | 'partner_strip' | 'pull_quote' | 'reference_cards' | 'page_hero' | 'feature_lists' | 'option_selector' | 'comparison_table' | 'flow_steps' | 'project_register' | 'vendor_cards' | 'contact_panel'
 
@@ -2576,12 +2603,23 @@ export type ConfirmResponse = {
  */
 export type ContactAttachment = {
   readonly uuid: string
+  /**
+     * Αρχικό όνομα
+     */
   readonly originalName: string
+  /**
+     * Τύπος περιεχομένου
+     */
   readonly contentType: string
   /**
+     * Μέγεθος
+     *
      * Bytes.
      */
   readonly size: number
+  /**
+     * Κατάσταση σάρωσης
+     */
   scanStatus: ScanStatusEnum
   /**
      * Δημιουργήθηκε στις
@@ -2608,6 +2646,9 @@ export type ContactWrite = {
      * Τηλέφωνο
      */
   phone?: string
+  /**
+     * Θέμα
+     */
   subject?: string
   /**
      * Δημιουργήθηκε στις
@@ -2638,6 +2679,9 @@ export type ContactWriteRequest = {
      * Τηλέφωνο
      */
   phone?: string
+  /**
+     * Θέμα
+     */
   subject?: string
 }
 
@@ -2968,7 +3012,7 @@ export type CountryWriteRequest = {
  */
 export type CouponApplyRequestRequest = {
   /**
-     * Coupon code to apply (case-insensitive)
+     * Κωδικός κουπονιού προς εφαρμογή (χωρίς διάκριση πεζών/κεφαλαίων)
      */
   code: string
 }
@@ -2982,7 +3026,7 @@ export type CouponErrorResponse = {
      */
   detail: string
   /**
-     * Machine-readable rejection reason (ACP discount-extension vocabulary, e.g. discount_code_invalid)
+     * Αιτία απόρριψης σε μορφή αναγνώσιμη από μηχανή (λεξιλόγιο της επέκτασης εκπτώσεων ACP, π.χ. discount_code_invalid)
      */
   reason: string
 }
@@ -3019,15 +3063,15 @@ export type CreatePaymentIntentRequestRequest = {
     [key: string]: string
   }
   /**
-     * Provider payment-method id to charge
+     * ID μεθόδου πληρωμής του παρόχου προς χρέωση
      */
   paymentMethodId?: string
   /**
-     * Provider customer id to attach the payment to
+     * ID πελάτη του παρόχου στον οποίο θα συνδεθεί η πληρωμή
      */
   customerId?: string
   /**
-     * Where the provider should send the shopper back to
+     * Πού πρέπει ο πάροχος να επιστρέψει τον πελάτη
      */
   returnUrl?: string | string
 }
@@ -3251,10 +3295,10 @@ export type FeedbackWrite = {
 
 /**
  * * `general` - Γενικά
- * * `website` - Website & UX
+ * * `website` - Ιστότοπος & UX
  * * `products` - Προϊόντα
- * * `delivery` - Delivery
- * * `support` - Customer support
+ * * `delivery` - Παράδοση
+ * * `support` - Εξυπηρέτηση πελατών
  * * `other` - Άλλο
  */
 export type FeedbackWriteCategoryEnum = 'general' | 'website' | 'products' | 'delivery' | 'support' | 'other'
@@ -3331,7 +3375,7 @@ export type GiftCard = {
   /**
      * Κωδικός
      *
-     * Crypto-random, uppercased; the bearer secret
+     * Κρυπτογραφικά τυχαίος, με κεφαλαία· το μυστικό του κατόχου
      */
   readonly code: string
   readonly initialValue: number
@@ -3343,16 +3387,28 @@ export type GiftCard = {
   /**
      * Λήγει στις
      *
-     * Defaults to GIFT_CARD_VALIDITY_DAYS after issue (Greek law: 5 years); empty means never expires
+     * Προεπιλογή: GIFT_CARD_VALIDITY_DAYS μετά την έκδοση (ελληνική νομοθεσία: 5 έτη)· κενό σημαίνει ότι δεν λήγει ποτέ
      */
   readonly expiresAt: string | null
+  /**
+     * Email παραλήπτη
+     */
   readonly recipientEmail: string
+  /**
+     * Όνομα παραλήπτη
+     */
   readonly recipientName: string
+  /**
+     * Όνομα αποστολέα
+     */
   readonly senderName: string
   /**
      * Μήνυμα
      */
   readonly message: string
+  /**
+     * Παραδόθηκε στις
+     */
   readonly deliveredAt: string | null
   readonly transactions: Array<GiftCardTransaction>
   /**
@@ -3363,7 +3419,7 @@ export type GiftCard = {
 
 export type GiftCardCheckRequestRequest = {
   /**
-     * Gift card code (case-insensitive)
+     * Κωδικός δωροκάρτας (χωρίς διάκριση πεζών/κεφαλαίων)
      */
   code: string
 }
@@ -3382,18 +3438,18 @@ export type GiftCardErrorResponse = {
      */
   detail: string
   /**
-     * Machine-readable reason, e.g. gift_card_invalid
+     * Αιτία σε μηχαναγνώσιμη μορφή, π.χ. gift_card_invalid
      */
   reason: string
 }
 
 export type GiftCardPurchaseRequestRequest = {
   /**
-     * Card value in EUR — bounded by GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT
+     * Αξία κάρτας σε EUR — εντός των ορίων GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT
      */
   amount: number
   /**
-     * Required for guests; authenticated buyers default to their account email
+     * Υποχρεωτικό για επισκέπτες· για συνδεδεμένους αγοραστές η προεπιλογή είναι το email του λογαριασμού τους
      */
   buyerEmail?: string | string
   recipientEmail: string
@@ -3401,11 +3457,11 @@ export type GiftCardPurchaseRequestRequest = {
   senderName?: string
   message?: string
   /**
-     * Empty means deliver right after payment
+     * Κενό σημαίνει παράδοση αμέσως μετά την πληρωμή
      */
   deliverAt?: string | null
   /**
-     * stripe = inline card element (clientSecret in the response); viva_wallet = hosted Smart Checkout redirect (checkoutUrl in the response). Only providers the store has credentials for are accepted.
+     * stripe = ενσωματωμένο στοιχείο κάρτας (clientSecret στην απάντηση)· viva_wallet = ανακατεύθυνση στο φιλοξενούμενο Smart Checkout (checkoutUrl στην απάντηση). Γίνονται δεκτοί μόνο οι πάροχοι για τους οποίους το κατάστημα έχει διαπιστευτήρια.
      *
      * * `stripe` - stripe
      * * `viva_wallet` - viva_wallet
@@ -3416,19 +3472,19 @@ export type GiftCardPurchaseRequestRequest = {
 export type GiftCardPurchaseResponse = {
   purchaseUuid: string
   /**
-     * Which provider flow the client must run
+     * Ποια ροή παρόχου πρέπει να εκτελέσει ο client
      */
   provider: string
   /**
-     * Stripe PaymentIntent client secret (stripe only)
+     * Client secret του Stripe PaymentIntent (μόνο για stripe)
      */
   clientSecret?: string
   /**
-     * Stripe PaymentIntent id (stripe only)
+     * ID του Stripe PaymentIntent (μόνο για stripe)
      */
   paymentIntentId?: string
   /**
-     * Viva Smart Checkout URL to redirect the buyer to (viva_wallet only)
+     * URL του Viva Smart Checkout για ανακατεύθυνση του αγοραστή (μόνο για viva_wallet)
      */
   checkoutUrl?: string
   amount: number
@@ -3449,7 +3505,7 @@ export type GiftCardPurchaseStatusResponse = {
 
 /**
  * * `ACTIVE` - Ενεργή
- * * `DISABLED` - Disabled
+ * * `DISABLED` - Απενεργοποιημένη
  */
 export type GiftCardStatusEnum = 'ACTIVE' | 'DISABLED'
 
@@ -3460,9 +3516,14 @@ export type GiftCardTransaction = {
      */
   kind: GiftCardTransactionKindEnum
   /**
-     * Signed: positive adds balance (issue/refund credit), negative removes it (redeem/expire)
+     * Ποσό
+     *
+     * Προσημασμένο: θετικό προσθέτει υπόλοιπο (έκδοση/πίστωση επιστροφής), αρνητικό αφαιρεί (εξαργύρωση/λήξη)
      */
   readonly amount: number
+  /**
+     * Παραγγελία
+     */
   readonly order: number | null
   /**
      * Δημιουργήθηκε στις
@@ -3471,9 +3532,9 @@ export type GiftCardTransaction = {
 }
 
 /**
- * * `ISSUE` - Issue
+ * * `ISSUE` - Έκδοση
  * * `REDEEM` - Εξαργύρωση
- * * `REFUND_CREDIT` - Refund credit
+ * * `REFUND_CREDIT` - Πίστωση επιστροφής
  * * `ADJUST` - Προσαρμογή
  * * `EXPIRE` - Λήξη
  */
@@ -3652,6 +3713,9 @@ export type MerchantLegalIdentity = {
  * no longer exists on the model.
  */
 export type NavigationMenu = {
+  /**
+     * Θέση
+     */
   slot: SlotEnum
 }
 
@@ -3663,6 +3727,9 @@ export type NavigationMenu = {
  * no longer exists on the model.
  */
 export type NavigationMenuRequest = {
+  /**
+     * Θέση
+     */
   slot: SlotEnum
 }
 
@@ -3837,11 +3904,11 @@ export type NotificationUser = {
   readonly user: number
   readonly notification: number
   /**
-     * Ορατό
+     * Αναγνωσμένη
      */
   seen?: boolean
   /**
-     * Ορατό στις
+     * Αναγνώστηκε στις
      */
   seenAt?: string | null
   /**
@@ -3867,11 +3934,11 @@ export type NotificationUserDetail = {
   user: UserDetails
   notification: Notification
   /**
-     * Ορατό
+     * Αναγνωσμένη
      */
   seen?: boolean
   /**
-     * Ορατό στις
+     * Αναγνώστηκε στις
      */
   seenAt?: string | null
   /**
@@ -3887,7 +3954,7 @@ export type NotificationUserDetail = {
 
 export type NotificationUserWriteRequest = {
   /**
-     * Ορατό
+     * Αναγνωσμένη
      */
   seen?: boolean
 }
@@ -3896,6 +3963,9 @@ export type NullEnum = never
 
 export type Order = {
   readonly id: number
+  /**
+     * Χρήστης
+     */
   user?: number | null
   /**
      * Κωδικός Χώρας (Alpha 2)
@@ -4020,17 +4090,21 @@ export type Order = {
   readonly totalPriceItems: number
   readonly totalPriceExtra: number
   /**
-     * Promotion Discount
+     * Έκπτωση προσφορών
      *
-     * Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+     * Συνολική έκπτωση που χορηγήθηκε από προσφορές/κουπόνια, καταγεγραμμένη κατά τη δημιουργία της παραγγελίας. Η ανάλυση βρίσκεται στο metadata['promotions'] + στις γραμμές PromotionRedemption. Αφαιρείται από την calculate_order_total_amount().
      */
   readonly discountAmount: number
   /**
-     * Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+     * Έκπτωση πόντων
+     *
+     * Ποσό που αφαιρείται από το σύνολο της παραγγελίας σε αντάλλαγμα για πόντους πιστότητας. Αφαιρείται από την calculate_order_total_amount().
      */
   readonly loyaltyDiscount: number
   /**
-     * Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
+     * Ποσό δωροκάρτας
+     *
+     * Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
      */
   readonly giftCardAmount: number
   readonly fullAddress: string
@@ -4047,7 +4121,7 @@ export type Order = {
      */
   readonly paymentStatusDisplay: string
   /**
-     * Μέθοδος πληρωμής
+     * Πύλη πληρωμής
      */
   paymentMethod?: string
   /**
@@ -4156,7 +4230,7 @@ export type OrderCreateError = {
   detail?: string
   error?: OrderCreateErrorDetail
   /**
-     * ``insufficient_stock`` / ``cart_invalid`` from the cart check: one message per problem, for display.
+     * ``insufficient_stock`` / ``cart_invalid`` από τον έλεγχο καλαθιού: ένα μήνυμα ανά πρόβλημα, για εμφάνιση.
      */
   cart?: Array<string>
   fieldErrors?: {
@@ -4166,53 +4240,53 @@ export type OrderCreateError = {
 
 export type OrderCreateErrorDetail = {
   /**
-     * Stable code for why the order was refused. Branch on this, never on ``detail`` or ``cart``, which are in the request's language.
+     * Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.
      *
-     * * `insufficient_stock` - Insufficient stock
-     * * `cart_invalid` - Cart not ready for checkout
-     * * `reservation_unavailable` - Stock reservation no longer valid
+     * * `insufficient_stock` - Ανεπαρκές απόθεμα
+     * * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+     * * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
      * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
-     * * `invalid_coupon` - Invalid coupon
-     * * `invalid_gift_card` - Invalid gift card
+     * * `invalid_coupon` - Μη έγκυρο κουπόνι
+     * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
      * * `payment_not_found` - Δεν βρέθηκε πληρωμή
      * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
-     * * `payment_amount_mismatch` - Payment amount mismatch
-     * * `payment_currency_mismatch` - Payment currency mismatch
+     * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
+     * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
      */
   type: OrderCreateErrorType
   /**
-     * ``insufficient_stock`` only.
+     * Μόνο για ``insufficient_stock``.
      */
   productId?: number
   /**
-     * ``insufficient_stock`` only.
+     * Μόνο για ``insufficient_stock``.
      */
   available?: number
   /**
-     * ``insufficient_stock`` only.
+     * Μόνο για ``insufficient_stock``.
      */
   requested?: number
   /**
-     * ``invalid_coupon`` only.
+     * Μόνο για ``invalid_coupon``.
      */
   code?: string
   /**
-     * ``invalid_coupon`` / ``invalid_gift_card`` only.
+     * Μόνο για ``invalid_coupon`` / ``invalid_gift_card``.
      */
   reason?: string
 }
 
 /**
- * * `insufficient_stock` - Insufficient stock
- * * `cart_invalid` - Cart not ready for checkout
- * * `reservation_unavailable` - Stock reservation no longer valid
+ * * `insufficient_stock` - Ανεπαρκές απόθεμα
+ * * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+ * * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
  * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
- * * `invalid_coupon` - Invalid coupon
- * * `invalid_gift_card` - Invalid gift card
+ * * `invalid_coupon` - Μη έγκυρο κουπόνι
+ * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
  * * `payment_not_found` - Δεν βρέθηκε πληρωμή
  * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
- * * `payment_amount_mismatch` - Payment amount mismatch
- * * `payment_currency_mismatch` - Payment currency mismatch
+ * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
+ * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
  */
 export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'payment_not_found' | 'payment_verification' | 'payment_amount_mismatch' | 'payment_currency_mismatch'
 
@@ -4260,7 +4334,7 @@ export type OrderCreateFromCartRequest = {
      */
   city: string
   /**
-     * Postal/ZIP code. Must match the country's ``postal_code_pattern``; stored normalised (trimmed, upper-case, single spaces).
+     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
      */
   zipcode: string
   /**
@@ -4280,7 +4354,7 @@ export type OrderCreateFromCartRequest = {
      */
   customerNotes?: string
   /**
-     * Floor, as a FloorChoicesEnum member (e.g. FIRST_FLOOR)
+     * Όροφος, ως μέλος του FloorChoicesEnum (π.χ. FIRST_FLOOR)
      *
      * * `BASEMENT` - Υπόγειο
      * * `GROUND_FLOOR` - Ισόγειο
@@ -4293,7 +4367,7 @@ export type OrderCreateFromCartRequest = {
      */
   floor?: FloorEnum | BlankEnum
   /**
-     * Location, as a LocationChoicesEnum member (e.g. HOME)
+     * Τοποθεσία, ως μέλος του LocationChoicesEnum (π.χ. HOME)
      *
      * * `HOME` - Σπίτι
      * * `OFFICE` - Γραφείο
@@ -4384,6 +4458,9 @@ export type OrderCreateFromCartRequest = {
 
 export type OrderDetail = {
   readonly id: number
+  /**
+     * Χρήστης
+     */
   user?: number | null
   /**
      * Κωδικός Χώρας (Alpha 2)
@@ -4508,17 +4585,21 @@ export type OrderDetail = {
   readonly totalPriceItems: number
   readonly totalPriceExtra: number
   /**
-     * Promotion Discount
+     * Έκπτωση προσφορών
      *
-     * Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+     * Συνολική έκπτωση που χορηγήθηκε από προσφορές/κουπόνια, καταγεγραμμένη κατά τη δημιουργία της παραγγελίας. Η ανάλυση βρίσκεται στο metadata['promotions'] + στις γραμμές PromotionRedemption. Αφαιρείται από την calculate_order_total_amount().
      */
   readonly discountAmount: number
   /**
-     * Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+     * Έκπτωση πόντων
+     *
+     * Ποσό που αφαιρείται από το σύνολο της παραγγελίας σε αντάλλαγμα για πόντους πιστότητας. Αφαιρείται από την calculate_order_total_amount().
      */
   readonly loyaltyDiscount: number
   /**
-     * Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
+     * Ποσό δωροκάρτας
+     *
+     * Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
      */
   readonly giftCardAmount: number
   readonly fullAddress: string
@@ -4535,7 +4616,7 @@ export type OrderDetail = {
      */
   readonly paymentStatusDisplay: string
   /**
-     * Μέθοδος πληρωμής
+     * Πύλη πληρωμής
      */
   paymentMethod?: string
   /**
@@ -4681,7 +4762,13 @@ export type OrderDocumentType = 'RECEIPT' | 'INVOICE' | 'PROFORMA' | 'SHIPPING_L
 export type OrderItem = {
   readonly id: number
   readonly uuid: string
+  /**
+     * Παραγγελία
+     */
   order: number
+  /**
+     * Προϊόν
+     */
   product: number
   readonly price: number
   /**
@@ -4709,6 +4796,9 @@ export type OrderItem = {
 }
 
 export type OrderItemCreateRequest = {
+  /**
+     * Προϊόν
+     */
   product: number
   /**
      * Ποσότητα
@@ -4723,6 +4813,9 @@ export type OrderItemCreateRequest = {
 export type OrderItemDetail = {
   readonly id: number
   readonly uuid: string
+  /**
+     * Παραγγελία
+     */
   order: number
   product: Product
   readonly price: number
@@ -4782,7 +4875,13 @@ export type OrderItemRefundResponse = {
 }
 
 export type OrderItemWriteRequest = {
+  /**
+     * Παραγγελία
+     */
   order: number
+  /**
+     * Προϊόν
+     */
   product: number
   /**
      * Ποσότητα
@@ -4819,11 +4918,11 @@ export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | '
 
 export type OrderWriteRequest = {
   /**
-     * Κωδικός Χώρας (Alpha 2)
+     * Χώρα
      */
   country?: string | null
   /**
-     * Κωδικός περιφέρειας
+     * Περιοχή
      */
   region?: string | null
   /**
@@ -4881,13 +4980,15 @@ export type PageLayout = {
   readonly id: number
   readonly uuid: string
   /**
-     * Identifier for the page (e.g. "home", "products", "blog").
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
      */
   pageType: string
   /**
      * Τίτλος
      *
-     * Admin display name for this layout.
+     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
      */
   title: string
   readonly seoTitle: string
@@ -4911,13 +5012,15 @@ export type PageLayoutAdminDetail = {
   readonly id: number
   readonly uuid: string
   /**
-     * Identifier for the page (e.g. "home", "products", "blog").
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
      */
   pageType: string
   /**
      * Τίτλος
      *
-     * Admin display name for this layout.
+     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
      */
   title: string
   translations: {
@@ -4953,13 +5056,15 @@ export type PageLayoutAdminDetail = {
  */
 export type PageLayoutAdminDetailRequest = {
   /**
-     * Identifier for the page (e.g. "home", "products", "blog").
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
      */
   pageType: string
   /**
      * Τίτλος
      *
-     * Admin display name for this layout.
+     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
      */
   title: string
   translations: {
@@ -4992,14 +5097,22 @@ export type PageLayoutAdminDetailRequest = {
 export type PageSection = {
   readonly id: number
   readonly uuid: string
+  /**
+     * Τύπος στοιχείου
+     */
   componentType: ComponentTypeEnum
   /**
      * Τίτλος
      */
   title?: string
+  /**
+     * Ορατό
+     */
   isVisible?: boolean
   /**
-     * Component-specific configuration as JSON.
+     * Ιδιότητες
+     *
+     * Ρυθμίσεις του στοιχείου σε μορφή JSON.
      */
   props?: unknown
   /**
@@ -5009,14 +5122,22 @@ export type PageSection = {
 }
 
 export type PageSectionRequest = {
+  /**
+     * Τύπος στοιχείου
+     */
   componentType: ComponentTypeEnum
   /**
      * Τίτλος
      */
   title?: string
+  /**
+     * Ορατό
+     */
   isVisible?: boolean
   /**
-     * Component-specific configuration as JSON.
+     * Ιδιότητες
+     *
+     * Ρυθμίσεις του στοιχείου σε μορφή JSON.
      */
   props?: unknown
 }
@@ -5530,6 +5651,9 @@ export type PatchedBlogAuthorWriteRequest = {
       bio?: string
     }
   }
+  /**
+     * Χρήστης
+     */
   user?: number
   /**
      * Ιστότοπος
@@ -5556,6 +5680,9 @@ export type PatchedBlogCategoryWriteRequest = {
     }
   }
   slug?: string
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
   /**
      * Εικόνα
@@ -5653,7 +5780,7 @@ export type PatchedCartItemUpdateRequest = {
      */
   quantity?: number
   /**
-     * Recommendation impression
+     * Εμφάνιση σύστασης
      */
   recommendationImpressionId?: string | null
 }
@@ -5756,18 +5883,27 @@ export type PatchedCountryWriteRequest = {
  * no longer exists on the model.
  */
 export type PatchedNavigationMenuRequest = {
+  /**
+     * Θέση
+     */
   slot?: SlotEnum
 }
 
 export type PatchedNotificationUserWriteRequest = {
   /**
-     * Ορατό
+     * Αναγνωσμένη
      */
   seen?: boolean
 }
 
 export type PatchedOrderItemWriteRequest = {
+  /**
+     * Παραγγελία
+     */
   order?: number
+  /**
+     * Προϊόν
+     */
   product?: number
   /**
      * Ποσότητα
@@ -5781,11 +5917,11 @@ export type PatchedOrderItemWriteRequest = {
 
 export type PatchedOrderWriteRequest = {
   /**
-     * Κωδικός Χώρας (Alpha 2)
+     * Χώρα
      */
   country?: string | null
   /**
-     * Κωδικός περιφέρειας
+     * Περιοχή
      */
   region?: string | null
   /**
@@ -5837,13 +5973,15 @@ export type PatchedOrderWriteRequest = {
  */
 export type PatchedPageLayoutAdminDetailRequest = {
   /**
-     * Identifier for the page (e.g. "home", "products", "blog").
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
      */
   pageType?: string
   /**
      * Τίτλος
      *
-     * Admin display name for this layout.
+     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
      */
   title?: string
   translations?: {
@@ -5911,20 +6049,16 @@ export type PatchedPayWayWriteRequest = {
      */
   providerCode?: string
   /**
-     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     * Διακανονισμός
      *
-     * * `online` - Paid online at checkout
-     * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Paid to the carrier before pickup
-     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     * Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
+     *
+     * * `online` - Πληρωμή online κατά το checkout
+     * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+     * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+     * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
      */
   settlement?: SettlementEnum
-  /**
-     * Διαμόρφωση Παρόχου
-     *
-     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
-     */
-  configuration?: unknown
 }
 
 export type PatchedProductCategoryImageBulkUpdateRequest = {
@@ -5998,6 +6132,9 @@ export type PatchedProductCategoryWriteRequest = {
      * Ενεργή
      */
   active?: boolean
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
 }
 
@@ -6206,7 +6343,13 @@ export type PatchedTagWriteRequest = {
 }
 
 export type PatchedTaggedItemWriteRequest = {
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType?: number
+  /**
+     * ID αντικειμένου
+     */
   objectId?: number
 }
 
@@ -6288,7 +6431,7 @@ export type PatchedUserWriteRequest = {
   /**
      * Όνομα χρήστη
      *
-     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+     * Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
      */
   username?: string | string | null
   /**
@@ -6313,11 +6456,11 @@ export type PatchedUserWriteRequest = {
      */
   place?: string
   /**
-     * Κωδικός Χώρας (Alpha 2)
+     * Χώρα
      */
   country?: string | null
   /**
-     * Κωδικός περιφέρειας
+     * Περιοχή
      */
   region?: string | null
   /**
@@ -6418,103 +6561,28 @@ export type PayWay = {
      */
   providerCode?: string
   /**
-     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     * Διακανονισμός
      *
-     * * `online` - Paid online at checkout
-     * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Paid to the carrier before pickup
-     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     * Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
+     *
+     * * `online` - Πληρωμή online κατά το checkout
+     * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+     * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+     * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
      */
   settlement?: SettlementEnum
   /**
      * Είναι online πληρωμή
      *
-     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
+     * Παρωχημένο αντίγραφο του ``settlement == ONLINE``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
      */
   isOnlinePayment?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
+     * Παρωχημένο αντίγραφο του ``settlement == OFFLINE_TRANSFER``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
      */
   requiresConfirmation?: boolean
-}
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export type PayWayDetail = {
-  translations: {
-    el?: {
-      name?: string
-      description?: string
-      instructions?: string
-    }
-    en?: {
-      name?: string
-      description?: string
-      instructions?: string
-    }
-    de?: {
-      name?: string
-      description?: string
-      instructions?: string
-    }
-  }
-  readonly id: number
-  /**
-     * Ενεργή
-     */
-  active?: boolean
-  cost: number
-  freeThreshold: number
-  /**
-     * Εικονίδιο
-     */
-  icon?: string | null
-  /**
-     * Σειρά ταξινόμησης
-     */
-  readonly sortOrder: number | null
-  readonly mainImagePath: string
-  /**
-     * Δημιουργήθηκε στις
-     */
-  readonly createdAt: string
-  /**
-     * Ενημερώθηκε στις
-     */
-  readonly updatedAt: string
-  readonly uuid: string
-  readonly iconFilename: string
-  /**
-     * Κωδικός παρόχου
-     *
-     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
-     */
-  providerCode?: string
-  /**
-     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
-     *
-     * * `online` - Paid online at checkout
-     * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Paid to the carrier before pickup
-     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
-     */
-  settlement?: SettlementEnum
-  /**
-     * Είναι online πληρωμή
-     *
-     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
-     */
-  isOnlinePayment?: boolean
-  /**
-     * Απαιτείται Επιβεβαίωση
-     *
-     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
-     */
-  requiresConfirmation?: boolean
-  readonly configuration: unknown
 }
 
 /**
@@ -6569,20 +6637,16 @@ export type PayWayWriteRequest = {
      */
   providerCode?: string
   /**
-     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     * Διακανονισμός
      *
-     * * `online` - Paid online at checkout
-     * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Paid to the carrier before pickup
-     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     * Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
+     *
+     * * `online` - Πληρωμή online κατά το checkout
+     * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+     * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+     * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
      */
   settlement?: SettlementEnum
-  /**
-     * Διαμόρφωση Παρόχου
-     *
-     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
-     */
-  configuration?: unknown
 }
 
 /**
@@ -6676,6 +6740,9 @@ export type PointsTransaction = {
      * Τύπος συναλλαγής
      */
   transactionType: TransactionTypeEnum
+  /**
+     * Σχετική παραγγελία
+     */
   readonly referenceOrder: number | null
   /**
      * Περιγραφή
@@ -6727,9 +6794,14 @@ export type Product = {
   slug: string
   category: number
   /**
+     * Ομάδα παραλλαγών
+     *
      * Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
      */
   readonly variantGroup: number | null
+  /**
+     * Μάρκα
+     */
   readonly brand: number | null
   readonly brandName: string | null
   price: number
@@ -6797,7 +6869,13 @@ export type ProductAlert = {
      * Είδος
      */
   kind: ProductAlertKindEnum
+  /**
+     * Προϊόν
+     */
   product: number
+  /**
+     * Χρήστης
+     */
   readonly user: number | null
   email?: string | null
   targetPrice?: number | null
@@ -6830,6 +6908,9 @@ export type ProductAlertRequest = {
      * Είδος
      */
   kind: ProductAlertKindEnum
+  /**
+     * Προϊόν
+     */
   product: number
   email?: string | null
   targetPrice?: number | null
@@ -6899,6 +6980,9 @@ export type ProductCategory = {
      * Ενεργή
      */
   active?: boolean
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
   readonly level: number
   readonly treeId: number
@@ -6947,6 +7031,9 @@ export type ProductCategoryDetail = {
      * Ενεργή
      */
   active?: boolean
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
   readonly level: number
   readonly treeId: number
@@ -7135,6 +7222,9 @@ export type ProductCategoryWriteRequest = {
      * Ενεργή
      */
   active?: boolean
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
 }
 
@@ -7169,9 +7259,14 @@ export type ProductDetail = {
   slug: string
   category: number
   /**
+     * Ομάδα παραλλαγών
+     *
      * Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
      */
   readonly variantGroup: number | null
+  /**
+     * Μάρκα
+     */
   readonly brand: number | null
   readonly brandName: string | null
   price: number
@@ -7269,9 +7364,14 @@ export type ProductDetailResponse = {
   slug: string
   category: number
   /**
+     * Ομάδα παραλλαγών
+     *
      * Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
      */
   readonly variantGroup: number | null
+  /**
+     * Μάρκα
+     */
   readonly brand: number | null
   readonly brandName: string | null
   price: number
@@ -7601,17 +7701,27 @@ export type ProductPromotion = {
   readonly name: string
   readonly description: string
   /**
-     * Automatic promotions apply to every eligible cart; code promotions require the shopper to enter a coupon code
+     * Τρόπος ενεργοποίησης
      *
-     * * `AUTOMATIC` - Automatic
-     * * `CODE` - Coupon code
+     * Οι αυτόματες προσφορές εφαρμόζονται σε κάθε επιλέξιμο καλάθι· οι προσφορές με κωδικό απαιτούν από τον αγοραστή να εισαγάγει κωδικό κουπονιού
+     *
+     * * `AUTOMATIC` - Αυτόματη
+     * * `CODE` - Κωδικός κουπονιού
      */
   trigger: TriggerEnum
+  /**
+     * Τύπος οφέλους
+     */
   benefitType: BenefitTypeEnum
   /**
-     * Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping
+     * Τιμή οφέλους
+     *
+     * Ποσοστό (0-100) για ποσοστιαία οφέλη, ποσό σε EUR για οφέλη σταθερού ποσού· αγνοείται για δωρεάν μεταφορικά
      */
   readonly benefitValue: number
+  /**
+     * Εύρος στόχευσης
+     */
   targetScope: TargetScopeEnum
   /**
      * The coupon code to enter at checkout. Null for an AUTOMATIC promotion, which needs no code.
@@ -7626,37 +7736,50 @@ export type ProductPromotion = {
      */
   readonly maxDiscountAmount: number | null
   /**
-     * Minimum Quantity
+     * Ελάχιστη ποσότητα
      *
-     * Minimum number of ELIGIBLE units (after scope and exclusions) the cart must contain
+     * Ελάχιστος αριθμός ΕΠΙΛΕΞΙΜΩΝ τεμαχίων (μετά το εύρος και τις εξαιρέσεις) που πρέπει να περιέχει το καλάθι
      */
   readonly minQuantity: number | null
   /**
-     * BXGY: eligible units the shopper must buy per application
+     * Ποσότητα αγοράς
+     *
+     * BXGY: επιλέξιμα τεμάχια που πρέπει να αγοράσει ο αγοραστής ανά εφαρμογή
      */
   readonly buyQuantity: number | null
   /**
-     * BXGY: units discounted per application. FREE_GIFT: gift units added to the order
+     * Ποσότητα λήψης
+     *
+     * BXGY: τεμάχια με έκπτωση ανά εφαρμογή. FREE_GIFT: τεμάχια δώρου που προστίθενται στην παραγγελία
      */
   readonly getQuantity: number | null
   /**
-     * BXGY: discount applied to the 'get' units — 100 means free, 50 means half price
+     * Ποσοστό έκπτωσης λήψης
+     *
+     * BXGY: έκπτωση που εφαρμόζεται στα τεμάχια 'λήψης' — 100 σημαίνει δωρεάν, 50 σημαίνει μισή τιμή
      */
   readonly getDiscountPercent: number
   /**
-     * Exclude Already-discounted Products
+     * Εξαίρεση προϊόντων που έχουν ήδη έκπτωση
      *
-     * Skip products that already carry a product-level markdown (discount percent > 0)
+     * Παράλειψη προϊόντων που έχουν ήδη έκπτωση σε επίπεδο προϊόντος (ποσοστό έκπτωσης > 0)
      */
   readonly excludeDiscountedProducts: boolean
   /**
-     * Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.
+     * Μόνο για την πρώτη παραγγελία
+     *
+     * Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email του checkout και είναι κατά προσέγγιση.
      */
   readonly firstOrderOnly: boolean
   /**
-     * Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.
+     * Συνδυάσιμη
+     *
+     * Οι συνδυάσιμες προσφορές συνδυάζονται μεταξύ τους· μια μη συνδυάσιμη προσφορά εφαρμόζεται μόνη της και μόνο όταν υπερβαίνει τη συνδυασμένη έκπτωση των συνδυάσιμων. Αγνοείται για δωρεάν μεταφορικά, τα οποία συνδυάζονται πάντα.
      */
   readonly stackable: boolean
+  /**
+     * Λήξη
+     */
   readonly endsAt: string | null
   readonly rewardProducts: Array<PromotionProductRef>
   readonly eligibleProducts: Array<PromotionProductRef>
@@ -7665,10 +7788,10 @@ export type ProductPromotion = {
   /**
      * Why this offer is shown on the product: PRODUCT (the promotion names it), REWARD (the shopper receives it), CATEGORY (its category is targeted), ORDER (store-wide).
      *
-     * * `PRODUCT` - Targets this product
-     * * `REWARD` - This product is the reward
-     * * `CATEGORY` - Targets this product's category
-     * * `ORDER` - Applies to the whole order
+     * * `PRODUCT` - Στοχεύει αυτό το προϊόν
+     * * `REWARD` - Αυτό το προϊόν είναι η ανταμοιβή
+     * * `CATEGORY` - Στοχεύει την κατηγορία αυτού του προϊόντος
+     * * `ORDER` - Ισχύει για ολόκληρη την παραγγελία
      */
   relation: RelationEnum
 }
@@ -7920,17 +8043,27 @@ export type PublicPromotion = {
   readonly name: string
   readonly description: string
   /**
-     * Automatic promotions apply to every eligible cart; code promotions require the shopper to enter a coupon code
+     * Τρόπος ενεργοποίησης
      *
-     * * `AUTOMATIC` - Automatic
-     * * `CODE` - Coupon code
+     * Οι αυτόματες προσφορές εφαρμόζονται σε κάθε επιλέξιμο καλάθι· οι προσφορές με κωδικό απαιτούν από τον αγοραστή να εισαγάγει κωδικό κουπονιού
+     *
+     * * `AUTOMATIC` - Αυτόματη
+     * * `CODE` - Κωδικός κουπονιού
      */
   trigger: TriggerEnum
+  /**
+     * Τύπος οφέλους
+     */
   benefitType: BenefitTypeEnum
   /**
-     * Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping
+     * Τιμή οφέλους
+     *
+     * Ποσοστό (0-100) για ποσοστιαία οφέλη, ποσό σε EUR για οφέλη σταθερού ποσού· αγνοείται για δωρεάν μεταφορικά
      */
   readonly benefitValue: number
+  /**
+     * Εύρος στόχευσης
+     */
   targetScope: TargetScopeEnum
   /**
      * The coupon code to enter at checkout. Null for an AUTOMATIC promotion, which needs no code.
@@ -7945,37 +8078,50 @@ export type PublicPromotion = {
      */
   readonly maxDiscountAmount: number | null
   /**
-     * Minimum Quantity
+     * Ελάχιστη ποσότητα
      *
-     * Minimum number of ELIGIBLE units (after scope and exclusions) the cart must contain
+     * Ελάχιστος αριθμός ΕΠΙΛΕΞΙΜΩΝ τεμαχίων (μετά το εύρος και τις εξαιρέσεις) που πρέπει να περιέχει το καλάθι
      */
   readonly minQuantity: number | null
   /**
-     * BXGY: eligible units the shopper must buy per application
+     * Ποσότητα αγοράς
+     *
+     * BXGY: επιλέξιμα τεμάχια που πρέπει να αγοράσει ο αγοραστής ανά εφαρμογή
      */
   readonly buyQuantity: number | null
   /**
-     * BXGY: units discounted per application. FREE_GIFT: gift units added to the order
+     * Ποσότητα λήψης
+     *
+     * BXGY: τεμάχια με έκπτωση ανά εφαρμογή. FREE_GIFT: τεμάχια δώρου που προστίθενται στην παραγγελία
      */
   readonly getQuantity: number | null
   /**
-     * BXGY: discount applied to the 'get' units — 100 means free, 50 means half price
+     * Ποσοστό έκπτωσης λήψης
+     *
+     * BXGY: έκπτωση που εφαρμόζεται στα τεμάχια 'λήψης' — 100 σημαίνει δωρεάν, 50 σημαίνει μισή τιμή
      */
   readonly getDiscountPercent: number
   /**
-     * Exclude Already-discounted Products
+     * Εξαίρεση προϊόντων που έχουν ήδη έκπτωση
      *
-     * Skip products that already carry a product-level markdown (discount percent > 0)
+     * Παράλειψη προϊόντων που έχουν ήδη έκπτωση σε επίπεδο προϊόντος (ποσοστό έκπτωσης > 0)
      */
   readonly excludeDiscountedProducts: boolean
   /**
-     * Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.
+     * Μόνο για την πρώτη παραγγελία
+     *
+     * Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email του checkout και είναι κατά προσέγγιση.
      */
   readonly firstOrderOnly: boolean
   /**
-     * Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.
+     * Συνδυάσιμη
+     *
+     * Οι συνδυάσιμες προσφορές συνδυάζονται μεταξύ τους· μια μη συνδυάσιμη προσφορά εφαρμόζεται μόνη της και μόνο όταν υπερβαίνει τη συνδυασμένη έκπτωση των συνδυάσιμων. Αγνοείται για δωρεάν μεταφορικά, τα οποία συνδυάζονται πάντα.
      */
   readonly stackable: boolean
+  /**
+     * Λήξη
+     */
   readonly endsAt: string | null
   readonly rewardProducts: Array<PromotionProductRef>
   readonly eligibleProducts: Array<PromotionProductRef>
@@ -7992,7 +8138,7 @@ export type PublicPromotion = {
  */
 export type PublicSettings = {
   /**
-     * Setting values keyed by setting name.
+     * Τιμές ρυθμίσεων με κλειδί το όνομα της ρύθμισης.
      */
   settings: {
     [key: string]: string
@@ -8020,8 +8166,8 @@ export type RecommendationEventItemRequest = {
 }
 
 /**
- * * `impression` - Impression
- * * `click` - Click
+ * * `impression` - Προβολή
+ * * `click` - Κλικ
  */
 export type RecommendationEventRequestKindEnum = 'impression' | 'click'
 
@@ -8052,7 +8198,7 @@ export type RecommendationResponse = {
   surface: SurfaceEnum
   readonly items: Array<RecommendationItem>
   /**
-     * Echo on click events so attach can be attributed.
+     * Στείλτε το ξανά στα συμβάντα κλικ, ώστε να μπορεί να αποδοθεί η προσθήκη.
      */
   impressionId: string
 }
@@ -8202,19 +8348,19 @@ export type RegionWriteRequest = {
 }
 
 /**
- * * `PRODUCT` - Targets this product
- * * `REWARD` - This product is the reward
- * * `CATEGORY` - Targets this product's category
- * * `ORDER` - Applies to the whole order
+ * * `PRODUCT` - Στοχεύει αυτό το προϊόν
+ * * `REWARD` - Αυτό το προϊόν είναι η ανταμοιβή
+ * * `CATEGORY` - Στοχεύει την κατηγορία αυτού του προϊόντος
+ * * `ORDER` - Ισχύει για ολόκληρη την παραγγελία
  */
 export type RelationEnum = 'PRODUCT' | 'REWARD' | 'CATEGORY' | 'ORDER'
 
 /**
- * * `similar` - Similar product
- * * `complementary` - Goes well with
- * * `accessory` - Accessory for
- * * `replacement` - Replacement for
- * * `bundle` - Bundle with
+ * * `similar` - Παρόμοιο προϊόν
+ * * `complementary` - Ταιριάζει με
+ * * `accessory` - Αξεσουάρ για
+ * * `replacement` - Αντικατάσταση για
+ * * `bundle` - Πακέτο με
  */
 export type RelationTypeEnum = 'similar' | 'complementary' | 'accessory' | 'replacement' | 'bundle'
 
@@ -8223,7 +8369,7 @@ export type RelationTypeEnum = 'similar' | 'complementary' | 'accessory' | 'repl
  */
 export type ReleaseReservationsRequestRequest = {
   /**
-     * List of reservation IDs to release (at most 100)
+     * Λίστα ID δεσμεύσεων προς αποδέσμευση (έως 100)
      */
   reservationIds: Array<number>
 }
@@ -8289,11 +8435,11 @@ export type ResultTypeEnum = 'product' | 'blog_post'
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE'
 
 /**
- * * `PENDING` - Pending scan
- * * `CLEAN` - Clean
- * * `INFECTED` - Infected
- * * `ERROR` - Scan failed
- * * `SKIPPED` - Not scanned
+ * * `PENDING` - Εκκρεμεί σάρωση
+ * * `CLEAN` - Καθαρό
+ * * `INFECTED` - Μολυσμένο
+ * * `ERROR` - Η σάρωση απέτυχε
+ * * `SKIPPED` - Δεν σαρώθηκε
  */
 export type ScanStatusEnum = 'PENDING' | 'CLEAN' | 'INFECTED' | 'ERROR' | 'SKIPPED'
 
@@ -8390,10 +8536,10 @@ export type SettingDetail = {
 }
 
 /**
- * * `online` - Paid online at checkout
- * * `courier_cash` - Cash or card to the courier on delivery
- * * `carrier_terminal` - Paid to the carrier before pickup
- * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+ * * `online` - Πληρωμή online κατά το checkout
+ * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+ * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+ * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
  */
 export type SettlementEnum = 'online' | 'courier_cash' | 'carrier_terminal' | 'offline_transfer'
 
@@ -8456,7 +8602,7 @@ export type ShippingOption = {
     [key: string]: unknown
   }
   /**
-     * Active payment methods this (provider, kind) can settle, by the same rules checkout applies when the shopper picks it. Stated as a fact per option rather than as 'exclusive to this row': the storefront collapses several carriers into one home-delivery card, so only it knows which rows it actually renders and can work out what a given choice uniquely unlocks. Lets the delivery step advertise a carrier-only product — BOX NOW Αντικαταβολή is reachable ONLY via a BoxNow locker, and a shopper who never picks one has no way to discover it exists.
+     * Ενεργές μέθοδοι πληρωμής που μπορεί να εξοφλήσει αυτός ο συνδυασμός (provider, kind), με τους ίδιους κανόνες που εφαρμόζει το checkout όταν τον επιλέγει ο αγοραστής. Δηλώνεται ως γεγονός ανά επιλογή και όχι ως 'αποκλειστικό σε αυτή τη γραμμή': το storefront συγχωνεύει πολλούς μεταφορείς σε μία κάρτα παράδοσης στο σπίτι, οπότε μόνο αυτό γνωρίζει ποιες γραμμές εμφανίζει πραγματικά και μπορεί να υπολογίσει τι ξεκλειδώνει αποκλειστικά μια συγκεκριμένη επιλογή. Επιτρέπει στο βήμα παράδοσης να προβάλλει ένα προϊόν αποκλειστικό του μεταφορέα — η BOX NOW Αντικαταβολή είναι διαθέσιμη ΜΟΝΟ μέσω locker BoxNow, και ένας αγοραστής που δεν επιλέγει ποτέ locker δεν έχει τρόπο να ανακαλύψει ότι υπάρχει.
      */
   payWays: Array<ShippingOptionPayWay>
 }
@@ -8560,21 +8706,21 @@ export type ShippingProvider = {
 export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 
 /**
- * * `header` - Header
- * * `footer` - Footer
- * * `mobile` - Mobile
+ * * `header` - Κεφαλίδα
+ * * `footer` - Υποσέλιδο
+ * * `mobile` - Κινητό
  */
 export type SlotEnum = 'header' | 'footer' | 'mobile'
 
 /**
- * * `curated` - Merchant curated
- * * `variant_group` - Same variant group
- * * `category` - Same category
- * * `attributes` - Shared attributes, tags and brand
- * * `semantic` - Semantic similarity
- * * `co_purchase` - Bought together
- * * `co_view` - Viewed together
- * * `popular` - Popular
+ * * `curated` - Επιλογή εμπόρου
+ * * `variant_group` - Ίδια ομάδα παραλλαγών
+ * * `category` - Ίδια κατηγορία
+ * * `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα
+ * * `semantic` - Σημασιολογική ομοιότητα
+ * * `co_purchase` - Αγοράζονται μαζί
+ * * `co_view` - Προβάλλονται μαζί
+ * * `popular` - Δημοφιλή
  */
 export type StrategyEnum = 'curated' | 'variant_group' | 'category' | 'attributes' | 'semantic' | 'co_purchase' | 'co_view' | 'popular'
 
@@ -8769,11 +8915,11 @@ export type SubscriptionTopicWriteRequest = {
 }
 
 /**
- * * `pdp` - Product page
+ * * `pdp` - Σελίδα προϊόντος
  * * `cart` - Καλάθι
  * * `out_of_stock` - Εξαντλημένο
- * * `empty_cart` - Empty cart
- * * `order_email` - Order email
+ * * `empty_cart` - Άδειο καλάθι
+ * * `order_email` - Email παραγγελίας
  */
 export type SurfaceEnum = 'pdp' | 'cart' | 'out_of_stock' | 'empty_cart' | 'order_email'
 
@@ -8883,11 +9029,17 @@ export type TagWriteRequest = {
 export type TaggedItem = {
   readonly id: number
   tag: Tag
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType: number
   /**
      * Όνομα τύπου περιεχομένου
      */
   readonly contentTypeName: string
+  /**
+     * ID αντικειμένου
+     */
   objectId: number
   /**
      * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
@@ -8914,11 +9066,17 @@ export type TaggedItem = {
 export type TaggedItemDetail = {
   readonly id: number
   tag: TagDetail
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType: number
   /**
      * Όνομα τύπου περιεχομένου
      */
   readonly contentTypeName: string
+  /**
+     * ID αντικειμένου
+     */
   objectId: number
   /**
      * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
@@ -8943,14 +9101,20 @@ export type TaggedItemDetail = {
 }
 
 export type TaggedItemWriteRequest = {
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType: number
+  /**
+     * ID αντικειμένου
+     */
   objectId: number
 }
 
 /**
- * * `ORDER` - Entire order
- * * `PRODUCTS` - Specific products
- * * `CATEGORIES` - Specific categories
+ * * `ORDER` - Ολόκληρη η παραγγελία
+ * * `PRODUCTS` - Συγκεκριμένα προϊόντα
+ * * `CATEGORIES` - Συγκεκριμένες κατηγορίες
  */
 export type TargetScopeEnum = 'ORDER' | 'PRODUCTS' | 'CATEGORIES'
 
@@ -9104,8 +9268,8 @@ export type TrendingSearchResponse = {
 }
 
 /**
- * * `AUTOMATIC` - Automatic
- * * `CODE` - Coupon code
+ * * `AUTOMATIC` - Αυτόματη
+ * * `CODE` - Κωδικός κουπονιού
  */
 export type TriggerEnum = 'AUTOMATIC' | 'CODE'
 
@@ -9354,7 +9518,7 @@ export type UserDetails = {
   /**
      * Όνομα χρήστη
      *
-     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+     * Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
      */
   username?: string | string | null
   phone?: string
@@ -9375,11 +9539,11 @@ export type UserDetails = {
      */
   place?: string
   /**
-     * Κωδικός Χώρας (Alpha 2)
+     * Χώρα
      */
   country?: string | null
   /**
-     * Κωδικός περιφέρειας
+     * Περιοχή
      */
   region?: string | null
   /**
@@ -9458,7 +9622,7 @@ export type UserPublic = {
   /**
      * Όνομα χρήστη
      *
-     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+     * Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
      */
   readonly username: string | null
   /**
@@ -9470,7 +9634,7 @@ export type UserPublic = {
      */
   readonly lastName: string
   /**
-     * Avatar path or empty string
+     * Διαδρομή avatar ή κενή συμβολοσειρά
      */
   readonly mainImagePath: string
 }
@@ -9569,7 +9733,7 @@ export type UserWriteRequest = {
   /**
      * Όνομα χρήστη
      *
-     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+     * Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
      */
   username?: string | string | null
   /**
@@ -9594,11 +9758,11 @@ export type UserWriteRequest = {
      */
   place?: string
   /**
-     * Κωδικός Χώρας (Alpha 2)
+     * Χώρα
      */
   country?: string | null
   /**
-     * Κωδικός περιφέρειας
+     * Περιοχή
      */
   region?: string | null
   /**
@@ -9732,6 +9896,467 @@ export type ZeroResultQuery = {
   languageCode: string
 }
 
+export type PageSectionHeroBannerProps = {
+  heading?: string
+  stats?: Array<{
+    value: string
+    label: string
+  }>
+  subheading?: string
+  eyebrow?: string
+  imageUrl?: string
+  ctaText?: string
+  ctaLink?: string
+  secondaryCtaText?: string
+  secondaryCtaLink?: string
+  overlayOpacity?: number
+  decor?: 'none' | 'orbs' | 'gradient'
+  mobileImageUrl?: string
+  imageAlt?: string
+  align?: 'left' | 'center'
+  theme?: 'light' | 'dark' | 'auto'
+}
+
+export type PageSectionHeroCarouselProps = {
+  slides?: Array<{
+    imageUrl: string
+    mobileImageUrl?: string
+    alt?: string
+    eyebrow?: string
+    heading?: string
+    subheading?: string
+    ctaText?: string
+    ctaLink?: string
+    secondaryCtaText?: string
+    secondaryCtaLink?: string
+  }>
+  autoplayMs?: 0 | number
+  aspect?: 'wide' | 'banner' | 'square'
+  images?: Array<string>
+  mobileImages?: Array<string>
+  link?: string
+}
+
+export type PageSectionProductsSliderProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  ordering?: 'featured' | 'newest' | 'popular' | 'discounted' | 'rating'
+  categoryId?: number
+  showAddToCart?: boolean
+  pageSize?: number
+}
+
+export type PageSectionProductsGridProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  ordering?: 'featured' | 'newest' | 'popular' | 'discounted' | 'rating'
+  categoryId?: number
+  showAddToCart?: boolean
+  pageSize?: number
+}
+
+export type PageSectionFeaturedProductsProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  ordering?: 'featured' | 'newest' | 'popular' | 'discounted' | 'rating'
+  categoryId?: number
+  showAddToCart?: boolean
+  pageSize?: number
+  columns?: number
+}
+
+export type PageSectionProductCategoriesProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  layout?: 'slider' | 'grid' | 'tiles'
+  parentId?: number
+  limit?: number
+}
+
+export type PageSectionBlogCategoriesProps = {
+  [key: string]: never
+}
+
+export type PageSectionBlogPostsCarouselProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  categoryId?: number
+  count?: number
+}
+
+export type PageSectionBlogPostsGridProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  categoryId?: number
+  count?: number
+}
+
+export type PageSectionBlogPostsListProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  categoryId?: number
+  pageSize?: number
+}
+
+export type PageSectionRecentlyViewedProps = {
+  heading?: string
+}
+
+export type PageSectionRichTextProps = {
+  content?: string
+}
+
+export type PageSectionCtaBannerProps = {
+  heading?: string
+  description?: string
+  buttonText?: string
+  buttonLink?: string
+  backgroundColor?: string
+  surface?: 'default' | 'muted'
+}
+
+export type PageSectionNewsletterSignupProps = {
+  heading?: string
+  description?: string
+  placeholder?: string
+  buttonText?: string
+  surface?: 'default' | 'muted'
+}
+
+export type PageSectionTestimonialsProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  items?: Array<{
+    name?: string
+    text?: string
+    avatar?: string
+    role?: string
+    rating?: number
+  }>
+}
+
+export type PageSectionSpacerProps = {
+  height?: 'sm' | 'md' | 'lg' | 'xl'
+}
+
+export type PageSectionDividerProps = {
+  variant?: 'line' | 'thread'
+}
+
+export type PageSectionLoyaltyHeroProps = {
+  [key: string]: never
+}
+
+export type PageSectionSearchBarProps = {
+  [key: string]: never
+}
+
+export type PageSectionAboutContentProps = {
+  [key: string]: never
+}
+
+export type PageSectionVisionContentProps = {
+  [key: string]: never
+}
+
+export type PageSectionWhatIsMicrolearningProps = {
+  [key: string]: never
+}
+
+export type PageSectionWhyMicrolearningProps = {
+  [key: string]: never
+}
+
+export type PageSectionBusinessHoursProps = {
+  surface?: 'default' | 'muted'
+}
+
+export type PageSectionLocationMapProps = {
+  surface?: 'default' | 'muted'
+  embedUrl?: string
+  lat?: number
+  lng?: number
+  address?: string
+}
+
+export type PageSectionPartnerStripProps = {
+  label?: string
+  items?: Array<{
+    name: string
+    href?: string
+  }>
+}
+
+export type PageSectionPageHeroProps = {
+  eyebrow?: string
+  heading?: string
+  standfirst?: string
+  body?: string
+  ctaText?: string
+  ctaLink?: string
+  secondaryCtaText?: string
+  secondaryCtaLink?: string
+  stats?: Array<{
+    value: string
+    label: string
+  }>
+  callout?: {
+    tone?: 'info' | 'warning' | 'success'
+    title: string
+    text?: string
+    note?: string
+  }
+  facts?: Array<{
+    label: string
+    value: string
+  }>
+}
+
+export type PageSectionFeatureListsProps = {
+  heading?: string
+  note?: string
+  emphasis?: string
+  items?: Array<{
+    title: string
+    icon?: string
+    bullets?: Array<string>
+  }>
+}
+
+export type PageSectionOptionSelectorProps = {
+  heading?: string
+  standfirst?: string
+  rowsLabel?: string
+  rationaleLabel?: string
+  bulletsLabel?: string
+  layout?: 'cards' | 'strip' | 'rail'
+  prompt?: {
+    title: string
+    text?: string
+    ctaText?: string
+    ctaLink?: string
+  }
+  options?: Array<{
+    name: string
+    label?: string
+    model?: string
+    title?: string
+    rationale?: string
+    note?: string
+    ctaText?: string
+    ctaLink?: string
+    bullets?: Array<string>
+    rows?: Array<{
+      label: string
+      value: string
+    }>
+  }>
+}
+
+export type PageSectionComparisonTableProps = {
+  heading?: string
+  rowLabel?: string
+  note?: string
+  columns?: Array<string>
+  rows?: Array<{
+    label: string
+    values: Array<string>
+  }>
+}
+
+export type PageSectionFlowStepsProps = {
+  heading?: string
+  body?: string
+  items?: Array<{
+    title: string
+    label?: string
+    lines?: Array<string>
+  }>
+}
+
+export type PageSectionReferenceCardsProps = {
+  heading?: string
+  metaLabel?: string
+  ctaText?: string
+  ctaLink?: string
+  items?: Array<{
+    title: string
+    label?: string
+    text?: string
+    meta?: string
+  }>
+}
+
+export type PageSectionProjectRegisterProps = {
+  metaLabel?: string
+  note?: string
+  sectors?: Array<{
+    key: string
+    label: string
+  }>
+  items?: Array<{
+    title: string
+    sector?: string
+    note?: string
+    meta?: string
+  }>
+}
+
+export type PageSectionVendorCardsProps = {
+  note?: string
+  items?: Array<{
+    title: string
+    label?: string
+    text?: string
+    tags?: Array<string>
+  }>
+}
+
+export type PageSectionContactPanelProps = {
+  eyebrow?: string
+  heading?: string
+  body?: string
+  hint?: string
+  responseTime?: string
+  subjects?: Array<{
+    label: string
+  }>
+}
+
+export type PageSectionPullQuoteProps = {
+  quote?: string
+  text?: string
+  attribution?: string
+}
+
+export type PageSectionFeaturesGridProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  items?: Array<{
+    title: string
+    text?: string
+    icon?: string
+  }>
+  body?: string
+  columns?: number
+  decor?: 'none' | 'gradient_tiles' | 'framed'
+  ctaText?: string
+  ctaLink?: string
+  prompt?: {
+    title: string
+    text?: string
+    ctaText?: string
+    ctaLink?: string
+  }
+}
+
+export type PageSectionMediaTextProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  body?: string
+  eyebrow?: string
+  note?: string
+  emphasis?: string
+  bullets?: Array<{
+    text: string
+  }>
+  specs?: Array<{
+    label?: string
+    name: string
+    subtitle?: string
+    rows?: Array<{
+      label: string
+      value: string
+    }>
+  }>
+  imageUrl?: string
+  imagePosition?: 'left' | 'right'
+  ctaText?: string
+  ctaLink?: string
+  decor?: 'none' | 'orbs' | 'gradient'
+}
+
+export type PageSectionImageGalleryProps = {
+  surface?: 'default' | 'muted'
+  items?: Array<{
+    src: string
+    alt: string
+    caption?: string
+  }>
+  columns?: number
+}
+
+export type PageSectionStoryTimelineProps = {
+  heading?: string
+  subheading?: string
+  items?: Array<{
+    title: string
+    date?: string
+    text?: string
+    icon?: string
+  }>
+  surface?: 'default' | 'muted'
+}
+
+export type PageSectionFaqProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  items?: Array<{
+    question: string
+    answer: string
+  }>
+  multiple?: boolean
+}
+
+export type PageSectionTrustBadgesProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  items?: Array<unknown & {
+    kind: 'payment' | 'shipping' | 'ai' | 'custom'
+    label: string
+    imageUrl?: string
+    icon?: string
+    href?: string
+  }>
+  marquee?: boolean
+}
+
+export type PageSectionOffersPreviewProps = {
+  surface?: 'default' | 'muted'
+  heading?: string
+  subheading?: string
+  limit?: number
+  ctaText?: string
+  ctaLink?: string
+}
+
+export type PageSectionStatsStripProps = {
+  items?: Array<{
+    value: string
+    label: string
+  }>
+  surface?: 'default' | 'muted'
+}
+
 /**
  * Serializer for Attribute with translations.
  */
@@ -9828,6 +10453,9 @@ export type BlogCategoryWritable = {
     }
   }
   slug: string
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
 }
 
@@ -9850,6 +10478,9 @@ export type BlogCategoryDetailWritable = {
     }
   }
   slug: string
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
 }
 
@@ -10016,10 +10647,16 @@ export type BlogTagDetailWritable = {
 }
 
 export type CartWritable = {
+  /**
+     * Χρήστης
+     */
   user?: number | null
 }
 
 export type CartDetailWritable = {
+  /**
+     * Χρήστης
+     */
   user?: number | null
 }
 
@@ -10055,6 +10692,9 @@ export type ContactWriteWritable = {
      * Τηλέφωνο
      */
   phone?: string
+  /**
+     * Θέμα
+     */
   subject?: string
 }
 
@@ -10076,6 +10716,9 @@ export type ContactWriteRequestWritable = {
      * Τηλέφωνο
      */
   phone?: string
+  /**
+     * Θέμα
+     */
   subject?: string
   attachmentIds?: Array<string>
 }
@@ -10354,27 +10997,30 @@ export type NotificationWritable = {
 
 export type NotificationUserWritable = {
   /**
-     * Ορατό
+     * Αναγνωσμένη
      */
   seen?: boolean
   /**
-     * Ορατό στις
+     * Αναγνώστηκε στις
      */
   seenAt?: string | null
 }
 
 export type NotificationUserDetailWritable = {
   /**
-     * Ορατό
+     * Αναγνωσμένη
      */
   seen?: boolean
   /**
-     * Ορατό στις
+     * Αναγνώστηκε στις
      */
   seenAt?: string | null
 }
 
 export type OrderWritable = {
+  /**
+     * Χρήστης
+     */
   user?: number | null
   /**
      * Κωδικός Χώρας (Alpha 2)
@@ -10445,7 +11091,7 @@ export type OrderWritable = {
      */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   /**
-     * Μέθοδος πληρωμής
+     * Πύλη πληρωμής
      */
   paymentMethod?: string
 }
@@ -10494,7 +11140,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   city: string
   /**
-     * Postal/ZIP code. Must match the country's ``postal_code_pattern``; stored normalised (trimmed, upper-case, single spaces).
+     * Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
      */
   zipcode: string
   /**
@@ -10514,7 +11160,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   customerNotes?: string
   /**
-     * Floor, as a FloorChoicesEnum member (e.g. FIRST_FLOOR)
+     * Όροφος, ως μέλος του FloorChoicesEnum (π.χ. FIRST_FLOOR)
      *
      * * `BASEMENT` - Υπόγειο
      * * `GROUND_FLOOR` - Ισόγειο
@@ -10527,7 +11173,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   floor?: FloorEnum | BlankEnum
   /**
-     * Location, as a LocationChoicesEnum member (e.g. HOME)
+     * Τοποθεσία, ως μέλος του LocationChoicesEnum (π.χ. HOME)
      *
      * * `HOME` - Σπίτι
      * * `OFFICE` - Γραφείο
@@ -10624,6 +11270,9 @@ export type OrderCreateFromCartRequestWritable = {
 }
 
 export type OrderDetailWritable = {
+  /**
+     * Χρήστης
+     */
   user?: number | null
   /**
      * Κωδικός Χώρας (Alpha 2)
@@ -10693,7 +11342,7 @@ export type OrderDetailWritable = {
      */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   /**
-     * Μέθοδος πληρωμής
+     * Πύλη πληρωμής
      */
   paymentMethod?: string
   /**
@@ -10707,7 +11356,13 @@ export type OrderDetailWritable = {
 }
 
 export type OrderItemWritable = {
+  /**
+     * Παραγγελία
+     */
   order: number
+  /**
+     * Προϊόν
+     */
   product: number
   /**
      * Ποσότητα
@@ -10716,6 +11371,9 @@ export type OrderItemWritable = {
 }
 
 export type OrderItemDetailWritable = {
+  /**
+     * Παραγγελία
+     */
   order: number
   /**
      * Ποσότητα
@@ -10742,13 +11400,15 @@ export type OrderItemRefundResponseWritable = {
  */
 export type PageLayoutWritable = {
   /**
-     * Identifier for the page (e.g. "home", "products", "blog").
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
      */
   pageType: string
   /**
      * Τίτλος
      *
-     * Admin display name for this layout.
+     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
      */
   title: string
   /**
@@ -10766,13 +11426,15 @@ export type PageLayoutWritable = {
  */
 export type PageLayoutAdminDetailWritable = {
   /**
-     * Identifier for the page (e.g. "home", "products", "blog").
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
      */
   pageType: string
   /**
      * Τίτλος
      *
-     * Admin display name for this layout.
+     * Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
      */
   title: string
   translations: {
@@ -10803,14 +11465,22 @@ export type PageLayoutAdminDetailWritable = {
 }
 
 export type PageSectionWritable = {
+  /**
+     * Τύπος στοιχείου
+     */
   componentType: ComponentTypeEnum
   /**
      * Τίτλος
      */
   title?: string
+  /**
+     * Ορατό
+     */
   isVisible?: boolean
   /**
-     * Component-specific configuration as JSON.
+     * Ιδιότητες
+     *
+     * Ρυθμίσεις του στοιχείου σε μορφή JSON.
      */
   props?: unknown
 }
@@ -11301,7 +11971,13 @@ export type PatchedTaggedItemWriteRequestWritable = {
      * ID ετικέτας προς ανάθεση
      */
   tagId?: number
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType?: number
+  /**
+     * ID αντικειμένου
+     */
   objectId?: number
 }
 
@@ -11343,84 +12019,26 @@ export type PayWayWritable = {
      */
   providerCode?: string
   /**
-     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     * Διακανονισμός
      *
-     * * `online` - Paid online at checkout
-     * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Paid to the carrier before pickup
-     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     * Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
+     *
+     * * `online` - Πληρωμή online κατά το checkout
+     * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+     * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+     * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
      */
   settlement?: SettlementEnum
   /**
      * Είναι online πληρωμή
      *
-     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
+     * Παρωχημένο αντίγραφο του ``settlement == ONLINE``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
      */
   isOnlinePayment?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
-     */
-  requiresConfirmation?: boolean
-}
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export type PayWayDetailWritable = {
-  translations: {
-    el?: {
-      name?: string
-      description?: string
-      instructions?: string
-    }
-    en?: {
-      name?: string
-      description?: string
-      instructions?: string
-    }
-    de?: {
-      name?: string
-      description?: string
-      instructions?: string
-    }
-  }
-  /**
-     * Ενεργή
-     */
-  active?: boolean
-  cost: number
-  freeThreshold: number
-  /**
-     * Εικονίδιο
-     */
-  icon?: string | null
-  /**
-     * Κωδικός παρόχου
-     *
-     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
-     */
-  providerCode?: string
-  /**
-     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
-     *
-     * * `online` - Paid online at checkout
-     * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Paid to the carrier before pickup
-     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
-     */
-  settlement?: SettlementEnum
-  /**
-     * Είναι online πληρωμή
-     *
-     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
-     */
-  isOnlinePayment?: boolean
-  /**
-     * Απαιτείται Επιβεβαίωση
-     *
-     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
+     * Παρωχημένο αντίγραφο του ``settlement == OFFLINE_TRANSFER``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
      */
   requiresConfirmation?: boolean
 }
@@ -11479,6 +12097,9 @@ export type ProductAlertWritable = {
      * Είδος
      */
   kind: ProductAlertKindEnum
+  /**
+     * Προϊόν
+     */
   product: number
   email?: string | null
   targetPrice?: number | null
@@ -11530,6 +12151,9 @@ export type ProductCategoryWritable = {
      * Ενεργή
      */
   active?: boolean
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
 }
 
@@ -11565,6 +12189,9 @@ export type ProductCategoryDetailWritable = {
      * Ενεργή
      */
   active?: boolean
+  /**
+     * Γονική κατηγορία
+     */
   parent?: number | null
 }
 
@@ -11899,7 +12526,7 @@ export type RecommendationItemWritable = {
 export type RecommendationResponseWritable = {
   surface: SurfaceEnum
   /**
-     * Echo on click events so attach can be attributed.
+     * Στείλτε το ξανά στα συμβάντα κλικ, ώστε να μπορεί να αποδοθεί η προσθήκη.
      */
   impressionId: string
 }
@@ -12109,12 +12736,24 @@ export type TagDetailWritable = {
 }
 
 export type TaggedItemWritable = {
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType: number
+  /**
+     * ID αντικειμένου
+     */
   objectId: number
 }
 
 export type TaggedItemDetailWritable = {
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType: number
+  /**
+     * ID αντικειμένου
+     */
   objectId: number
 }
 
@@ -12123,7 +12762,13 @@ export type TaggedItemWriteRequestWritable = {
      * ID ετικέτας προς ανάθεση
      */
   tagId: number
+  /**
+     * Τύπος Περιεχομένου
+     */
   contentType: number
+  /**
+     * ID αντικειμένου
+     */
   objectId: number
 }
 
@@ -12272,7 +12917,7 @@ export type UserDetailsWritable = {
   /**
      * Όνομα χρήστη
      *
-     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+     * Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
      */
   username?: string | string | null
   phone?: string
@@ -12293,11 +12938,11 @@ export type UserDetailsWritable = {
      */
   place?: string
   /**
-     * Κωδικός Χώρας (Alpha 2)
+     * Χώρα
      */
   country?: string | null
   /**
-     * Κωδικός περιφέρειας
+     * Περιοχή
      */
   region?: string | null
   /**
@@ -12342,6 +12987,34 @@ export type UserSubscriptionDetailWritable = {
      * Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
      */
   metadata?: unknown
+}
+
+export type PageSectionBlogCategoriesPropsWritable = {
+  [key: string]: never
+}
+
+export type PageSectionLoyaltyHeroPropsWritable = {
+  [key: string]: never
+}
+
+export type PageSectionSearchBarPropsWritable = {
+  [key: string]: never
+}
+
+export type PageSectionAboutContentPropsWritable = {
+  [key: string]: never
+}
+
+export type PageSectionVisionContentPropsWritable = {
+  [key: string]: never
+}
+
+export type PageSectionWhatIsMicrolearningPropsWritable = {
+  [key: string]: never
+}
+
+export type PageSectionWhyMicrolearningPropsWritable = {
+  [key: string]: never
 }
 
 export type GetAgentProfileData = {
@@ -12805,7 +13478,7 @@ export type GetBlogAuthorPostsData = {
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -12846,7 +13519,7 @@ export type GetBlogAuthorPostsData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -13261,7 +13934,7 @@ export type ListBlogCategoryAncestorsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -13269,7 +13942,7 @@ export type ListBlogCategoryAncestorsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -13315,7 +13988,7 @@ export type ListBlogCategoryChildrenData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -13323,7 +13996,7 @@ export type ListBlogCategoryChildrenData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -13369,7 +14042,7 @@ export type ListBlogCategoryDescendantsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -13377,7 +14050,7 @@ export type ListBlogCategoryDescendantsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -13576,7 +14249,7 @@ export type ListBlogCategorySiblingsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -13584,7 +14257,7 @@ export type ListBlogCategorySiblingsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -13651,7 +14324,7 @@ export type GetBlogCategoryTreeData = {
   path?: never
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -13659,7 +14332,7 @@ export type GetBlogCategoryTreeData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -14135,7 +14808,7 @@ export type ListBlogCommentRepliesData = {
          */
     createdBefore?: string
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -14218,7 +14891,7 @@ export type ListBlogCommentRepliesData = {
          */
     minReplies?: string | number
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -14368,7 +15041,7 @@ export type GetBlogCommentThreadData = {
          */
     createdBefore?: string
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -14451,7 +15124,7 @@ export type GetBlogCommentThreadData = {
          */
     minReplies?: string | number
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -14647,7 +15320,7 @@ export type ListMyBlogCommentsData = {
          */
     createdBefore?: string
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -14730,7 +15403,7 @@ export type ListMyBlogCommentsData = {
          */
     minReplies?: string | number
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -15428,7 +16101,7 @@ export type ListFeaturedBlogPostsData = {
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -15465,7 +16138,7 @@ export type ListFeaturedBlogPostsData = {
          */
     minViewCount?: string | number
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -15610,7 +16283,7 @@ export type ListPopularBlogPostsData = {
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -15647,7 +16320,7 @@ export type ListPopularBlogPostsData = {
          */
     minViewCount?: string | number
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -16465,11 +17138,11 @@ export type ListCartItemData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter items in abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
+         * Φίλτρο ειδών σε εγκαταλελειμμένα καλάθια — αδρανή για περισσότερο από όσο ορίζει η ρύθμιση καταστήματος CART_ABANDONED_HOURS.
          */
     inAbandonedCarts?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items in active carts — idle no longer than the CART_ABANDONED_HOURS store setting.
+         * Φίλτρο ειδών σε ενεργά καλάθια — αδρανή όχι περισσότερο από όσο ορίζει η ρύθμιση καταστήματος CART_ABANDONED_HOURS.
          */
     inActiveCarts?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -16798,11 +17471,11 @@ export type ListCartData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
+         * Φίλτρο εγκαταλελειμμένων καλαθιών — αδρανή για περισσότερο από όσο ορίζει η ρύθμιση καταστήματος CART_ABANDONED_HOURS.
          */
     isAbandoned?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter active/abandoned carts. The window is the CART_ABANDONED_HOURS store setting, not a fixed period.
+         * Φίλτρο ενεργών/εγκαταλελειμμένων καλαθιών. Το χρονικό παράθυρο είναι η ρύθμιση καταστήματος CART_ABANDONED_HOURS, όχι μια σταθερή περίοδος.
          */
     isActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -17655,7 +18328,7 @@ export type ListMyGiftCardsData = {
   path?: never
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -17663,7 +18336,7 @@ export type ListMyGiftCardsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -17877,7 +18550,7 @@ export type ListLoyaltyTransactionsData = {
   path?: never
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -17885,7 +18558,7 @@ export type ListLoyaltyTransactionsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -19785,7 +20458,7 @@ export type ListMyOrdersData = {
          */
     createdBefore?: string
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     customerNotes?: string
@@ -19871,7 +20544,7 @@ export type ListMyOrdersData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -20533,10 +21206,6 @@ export type ListPayWayData = {
          */
     freeThresholdMin?: string | number
     /**
-         * Φίλτρο μεθόδων πληρωμής με/χωρίς διαμόρφωση
-         */
-    hasConfiguration?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Φίλτρο μεθόδων πληρωμής με/χωρίς εικονίδιο
          */
     hasIcon?: 'true' | 'false' | '1' | '0' | boolean
@@ -20545,7 +21214,7 @@ export type ListPayWayData = {
          */
     id?: string | number
     /**
-         * Deprecated — use ``settlement=online``. Removed with the column in the release after settlement lands.
+         * Παρωχημένο — χρησιμοποιήστε ``settlement=online``. Αφαιρείται μαζί με τη στήλη στην έκδοση μετά την εισαγωγή του settlement.
          */
     isOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -20590,20 +21259,22 @@ export type ListPayWayData = {
          */
     search?: string
     /**
-         * Filter by how the money changes hands
+         * Διακανονισμός
          *
-         * * `online` - Paid online at checkout
-         * * `courier_cash` - Cash or card to the courier on delivery
-         * * `carrier_terminal` - Paid to the carrier before pickup
-         * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+         * Φίλτρο ανά τρόπο καταβολής των χρημάτων
+         *
+         * * `online` - Πληρωμή online κατά το checkout
+         * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+         * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+         * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
          */
     settlement?: 'carrier_terminal' | 'courier_cash' | 'offline_transfer' | 'online'
     /**
-         * Filter pay ways by the shipping kind. Pair with ``shippingProviderCode`` for one carrier's rules; on its own it returns only the pay ways every carrier serving that kind accepts, which is what a provider-agnostic ``home_delivery`` checkout needs.
+         * Φίλτρο τρόπων πληρωμής ανά είδος αποστολής. Συνδυάστε το με ``shippingProviderCode`` για τους κανόνες ενός μεταφορέα· από μόνο του επιστρέφει μόνο τους τρόπους πληρωμής που δέχεται κάθε μεταφορέας που εξυπηρετεί αυτό το είδος, κάτι που χρειάζεται ένα checkout ``home_delivery`` ανεξάρτητο από πάροχο.
          */
     shippingKind?: string
     /**
-         * Filter pay ways compatible with the given shipping carrier. Each carrier declares which settlements it can physically perform, per kind: a BoxNow locker takes a card at its terminal (PAY ON THE GO) and never courier cash, while an ACS courier is the exact opposite. Has no effect without ``shippingKind`` — the rules are per-kind, so a carrier alone says nothing.
+         * Φίλτρο τρόπων πληρωμής συμβατών με τη δεδομένη εταιρεία μεταφοράς. Κάθε μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, ανά είδος: ένα locker BoxNow δέχεται κάρτα στο τερματικό του (PAY ON THE GO) και ποτέ μετρητά στον κούριερ, ενώ ένας κούριερ ACS είναι το ακριβώς αντίθετο. Δεν έχει καμία επίδραση χωρίς ``shippingKind`` — οι κανόνες ισχύουν ανά είδος, οπότε ένας μεταφορέας από μόνος του δεν προσδιορίζει τίποτα.
          */
     shippingProviderCode?: string
     /**
@@ -20675,7 +21346,7 @@ export type CreatePayWayErrors = {
 export type CreatePayWayError = CreatePayWayErrors[keyof CreatePayWayErrors]
 
 export type CreatePayWayResponses = {
-  201: PayWayDetail
+  201: PayWay
 }
 
 export type CreatePayWayResponse = CreatePayWayResponses[keyof CreatePayWayResponses]
@@ -20730,7 +21401,7 @@ export type RetrievePayWayErrors = {
 export type RetrievePayWayError = RetrievePayWayErrors[keyof RetrievePayWayErrors]
 
 export type RetrievePayWayResponses = {
-  200: PayWayDetail
+  200: PayWay
 }
 
 export type RetrievePayWayResponse = RetrievePayWayResponses[keyof RetrievePayWayResponses]
@@ -20760,7 +21431,7 @@ export type PartialUpdatePayWayErrors = {
 export type PartialUpdatePayWayError = PartialUpdatePayWayErrors[keyof PartialUpdatePayWayErrors]
 
 export type PartialUpdatePayWayResponses = {
-  200: PayWayDetail
+  200: PayWay
 }
 
 export type PartialUpdatePayWayResponse = PartialUpdatePayWayResponses[keyof PartialUpdatePayWayResponses]
@@ -20790,7 +21461,7 @@ export type UpdatePayWayErrors = {
 export type UpdatePayWayError = UpdatePayWayErrors[keyof UpdatePayWayErrors]
 
 export type UpdatePayWayResponses = {
-  200: PayWayDetail
+  200: PayWay
 }
 
 export type UpdatePayWayResponse = UpdatePayWayResponses[keyof UpdatePayWayResponses]
@@ -23640,29 +24311,29 @@ export type ApiV1RecommendationsRetrieveData = {
   path?: never
   query?: {
     /**
-         * Comma-separated product ids never to suggest.
+         * ID προϊόντων διαχωρισμένα με κόμμα που δεν πρέπει να προταθούν ποτέ.
          */
     exclude?: string
     /**
-         * Override the slot's limit, capped at 12.
+         * Παράκαμψη του ορίου της θέσης, με μέγιστο το 12.
          */
     limit?: string | number
     /**
-         * The product the shopper is looking at.
+         * Το προϊόν που βλέπει ο αγοραστής.
          */
     seed?: string | number
     /**
-         * Comma-separated product ids for multi-seed surfaces (cart lines, recently viewed).
+         * ID προϊόντων διαχωρισμένα με κόμμα για επιφάνειες με πολλά προϊόντα αναφοράς (γραμμές καλαθιού, πρόσφατα προβεβλημένα).
          */
     seeds?: string
     /**
-         * Where the strip is rendered; selects the slot.
+         * Πού εμφανίζεται η λωρίδα· καθορίζει τη θέση.
          *
-         * * `pdp` - Product page
+         * * `pdp` - Σελίδα προϊόντος
          * * `cart` - Καλάθι
          * * `out_of_stock` - Εξαντλημένο
-         * * `empty_cart` - Empty cart
-         * * `order_email` - Order email
+         * * `empty_cart` - Άδειο καλάθι
+         * * `order_email` - Email παραγγελίας
          */
     surface?: 'pdp' | 'cart' | 'out_of_stock' | 'empty_cart' | 'order_email'
   }
@@ -25565,7 +26236,7 @@ export type GetUserAccountAddressesData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -25577,7 +26248,7 @@ export type GetUserAccountAddressesData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -25623,7 +26294,7 @@ export type GetUserAccountBlogPostCommentsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -25635,7 +26306,7 @@ export type GetUserAccountBlogPostCommentsData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -25706,7 +26377,7 @@ export type ListUserAccountDataExportsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -25714,7 +26385,7 @@ export type ListUserAccountDataExportsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -25785,7 +26456,7 @@ export type GetUserAccountFavouriteProductsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -25797,7 +26468,7 @@ export type GetUserAccountFavouriteProductsData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -25843,7 +26514,7 @@ export type GetUserAccountLikedBlogPostsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -25855,7 +26526,7 @@ export type GetUserAccountLikedBlogPostsData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -25947,7 +26618,7 @@ export type GetUserAccountOrdersData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -25959,7 +26630,7 @@ export type GetUserAccountOrdersData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**
@@ -26005,7 +26676,7 @@ export type GetUserAccountProductReviewsData = {
   }
   query?: {
     /**
-         * Opaque cursor (cursor pagination strategy)
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
          */
     cursor?: string
     /**
@@ -26017,7 +26688,7 @@ export type GetUserAccountProductReviewsData = {
          */
     ordering?: string
     /**
-         * Page number (pageNumber pagination strategy)
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
          */
     page?: string | number
     /**

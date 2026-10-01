@@ -4,110 +4,40 @@ import {
   pageSectionPropsSchemas,
   parseSectionProps,
 } from '../../../../server/utils/pageSectionProps'
+import { zComponentTypeEnum } from '../../../../shared/openapi/zod.gen'
 
 /**
  * The page-config route ships ONLY what these schemas parse, so a prop
  * the schema does not know is stripped before it reaches a component —
- * silently, with the section rendering its defaults instead. That makes
- * this file's agreement with Django's `page_config/schemas.py` a
- * correctness property rather than housekeeping.
- *
- * The lockstep test below reads the generated `ComponentTypeEnum`,
- * which IS Django's list of section types, so a type added on the
- * backend without a schema here fails in CI rather than in a merchant's
- * layout.
+ * silently, with the section rendering its defaults instead. The
+ * schemas are generated from Django's `page_config/schemas.py`, so
+ * these tests pin the storefront-side properties: every type Django can
+ * send has one, unknown keys never survive, and the rules the generator
+ * cannot express still hold.
  */
-
-/** Every section type Django knows, from the generated OpenAPI types. */
-const DJANGO_SECTION_TYPES: ComponentTypeEnum[] = [
-  'hero_banner',
-  'hero_carousel',
-  'products_slider',
-  'products_grid',
-  'featured_products',
-  'product_categories',
-  'blog_categories',
-  'blog_posts_carousel',
-  'blog_posts_grid',
-  'blog_posts_list',
-  'recently_viewed',
-  'rich_text',
-  'cta_banner',
-  'newsletter_signup',
-  'testimonials',
-  'about_content',
-  'vision_content',
-  'what_is_microlearning',
-  'why_microlearning',
-  'spacer',
-  'divider',
-  'loyalty_hero',
-  'search_bar',
-  'business_hours',
-  'location_map',
-  'features_grid',
-  'media_text',
-  'image_gallery',
-  'story_timeline',
-  'faq',
-  'trust_badges',
-  'offers_preview',
-  'stats_strip',
-  'partner_strip',
-  'pull_quote',
-  'reference_cards',
-  'page_hero',
-  'feature_lists',
-  'option_selector',
-  'comparison_table',
-  'flow_steps',
-  'project_register',
-  'vendor_cards',
-  'contact_panel',
-]
-
-/**
- * Sections whose rendering takes NO props at all: the four brand pages
- * whose markup lives entirely in a tenant variant component. They have
- * no schema on purpose — `parseSectionProps` answers `{}` for an
- * unknown type, which is exactly right for a section that has nothing
- * to configure.
- */
-const PROPLESS_SECTIONS = new Set<string>([
-  'about_content',
-  'vision_content',
-  'what_is_microlearning',
-  'why_microlearning',
-])
 
 describe('the prop contract covers every section Django can send', () => {
-  it('lists the same section types the generated OpenAPI enum does', () => {
-    // Guards the guard: if Django gains a type, `pnpm openapi-ts`
-    // regenerates the enum and this array has to grow with it, which is
-    // what makes the next assertion meaningful.
-    const fromSchemas = Object.keys(pageSectionPropsSchemas)
-    const unknown = fromSchemas.filter(
-      type => !DJANGO_SECTION_TYPES.includes(type as ComponentTypeEnum),
-    )
-    expect(unknown, 'schemas for types Django does not have').toEqual([])
+  it('has a schema for exactly the generated section types', () => {
+    expect(Object.keys(pageSectionPropsSchemas).sort())
+      .toEqual([...zComponentTypeEnum.options].sort())
   })
 
-  it.each(DJANGO_SECTION_TYPES.filter(type => !PROPLESS_SECTIONS.has(type)))(
-    '%s has a schema, so its props are not stripped',
-    (type) => {
-      expect(pageSectionPropsSchemas[type]).toBeDefined()
-    },
-  )
-
   it('answers {} for a section that configures nothing', () => {
-    for (const type of PROPLESS_SECTIONS) {
-      expect(parseSectionProps(type, { anything: 1 })).toEqual({ props: {} })
-    }
+    expect(parseSectionProps('about_content', {})).toEqual({ props: {} })
+  })
+
+  it('refuses props on a section that takes none', () => {
+    // Django's contract for these is an object with no keys, and its
+    // write boundary enforces it — a stray key is a fault worth a log.
+    const { props, error } = parseSectionProps('about_content', { anything: 1 })
+
+    expect(props).toEqual({})
+    expect(error).toContain('anything')
   })
 })
 
 describe('a product rail says what it draws', () => {
-  it.each(['products_slider', 'products_grid', 'featured_products'])(
+  it.each(['products_slider', 'products_grid', 'featured_products'] as const)(
     '%s keeps heading, CTA, ordering and category',
     (type) => {
       const { props, error } = parseSectionProps(type, {
@@ -208,6 +138,19 @@ describe('a trust badge needs a mark', () => {
 
     expect(error).toBeUndefined()
     expect(props.items).toHaveLength(2)
+  })
+
+  it('strips unknown keys from a badge', () => {
+    // The generator renders Django's anyOf on the item as an
+    // intersection with `unknown`, which passes the raw object through.
+    const { props, error } = parseSectionProps('trust_badges', {
+      items: [
+        { kind: 'payment', label: 'Visa', icon: 'i-x', onclick: 'alert(1)', class: 'fixed' },
+      ],
+    })
+
+    expect(error).toBeUndefined()
+    expect(props.items).toEqual([{ kind: 'payment', label: 'Visa', icon: 'i-x' }])
   })
 
   it('refuses a badge that is only a word', () => {
