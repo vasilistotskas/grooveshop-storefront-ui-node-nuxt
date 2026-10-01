@@ -236,32 +236,6 @@ describe('useAuthStore', () => {
     })
   })
 
-  describe('refreshSession', () => {
-    it('forwards the encrypted token and stores the session it gets back', async () => {
-      allauth.getSession.mockResolvedValueOnce(SESSION)
-
-      await store.refreshSession('encrypted-token')
-
-      expect(allauth.getSession).toHaveBeenCalledWith('encrypted-token')
-      expect(store.session).toEqual(SESSION.data)
-    })
-
-    it('asks without a token by default', async () => {
-      await store.refreshSession()
-
-      expect(allauth.getSession).toHaveBeenCalledWith(null)
-    })
-
-    it('keeps the current session when allauth answers nothing', async () => {
-      store.session = SESSION.data
-      allauth.getSession.mockResolvedValueOnce(undefined)
-
-      await store.refreshSession('encrypted-token')
-
-      expect(store.session).toEqual(SESSION.data)
-    })
-  })
-
   it('clearAuthState forgets the session, sessions and authenticators but keeps the config', () => {
     store.config = CONFIG.data
     store.session = SESSION.data

@@ -2,8 +2,6 @@
 const {
   providerToken,
 } = useAllAuthAuthentication()
-const authStore = useAuthStore()
-const { refreshSession } = authStore
 
 const { t, locale } = useI18n()
 const route = useRoute(`account-provider-callback___${locale.value}`)
@@ -14,7 +12,6 @@ const {
   provider,
   process,
   messages,
-  encrypted_token,
 } = route.query
 // NOTE: access_token, id_token, client_id are fetched from session API, not URL.
 // authInfo intentionally NOT imported: navigation is fully driven by the
@@ -33,19 +30,6 @@ const title = computed(() => {
 })
 
 onMounted(async () => {
-  if (encrypted_token) {
-    try {
-      await refreshSession(String(encrypted_token))
-      // auth:change hook (fired inside refreshSession) drives navigation
-      // via the auth plugin's handleLoggedIn. No duplicate navigateTo here.
-      return
-    }
-    catch {
-      error.value = true
-      return
-    }
-  }
-
   if (apiError) {
     error.value = true
   }
@@ -86,7 +70,7 @@ onMounted(async () => {
     loading.value = false
   }
 
-  if (!encrypted_token && !(provider && process)) {
+  if (!(provider && process)) {
     error.value = true
   }
 })

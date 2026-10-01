@@ -11,16 +11,30 @@ const OAUTH_COOKIE_OPTIONS = {
   path: '/',
 }
 
+type OAuthProcess = 'login' | 'connect'
+
+/**
+ * The OAuth process a value names, by allauth's own enum (the provider
+ * token body's `process`); anything else — absent, a forged cookie, a
+ * mangled query — is a sign-in.
+ */
+function oauthProcessOf(value: unknown): OAuthProcess {
+  return ZodProviderTokenBody.shape.process.safeParse(value).data ?? 'login'
+}
+
 export function captureOAuthProcess(event: H3Event, query: Record<string, string | string[]>) {
   if (!query.code && !query.error) {
-    const rawProcess = String(query.process || 'login')
-    const oauthProcess = ['login', 'connect'].includes(rawProcess) ? rawProcess : 'login'
-    setCookie(event, OAUTH_PROCESS_COOKIE, oauthProcess, OAUTH_COOKIE_OPTIONS)
+    setCookie(event, OAUTH_PROCESS_COOKIE, oauthProcessOf(query.process), OAUTH_COOKIE_OPTIONS)
   }
 }
 
-export function readAndClearOAuthProcess(event: H3Event): 'login' | 'connect' {
-  const process = (getCookie(event, OAUTH_PROCESS_COOKIE) || 'login') as 'login' | 'connect'
+/**
+ * The process remembered for this sign-in, validated like the query it
+ * came from: the cookie is httpOnly and set here, but a client (or a
+ * sibling subdomain's cookie on the parent domain) can send any value.
+ */
+export function readAndClearOAuthProcess(event: H3Event): OAuthProcess {
+  const process = oauthProcessOf(getCookie(event, OAUTH_PROCESS_COOKIE))
   deleteCookie(event, OAUTH_PROCESS_COOKIE)
   return process
 }
@@ -30,7 +44,7 @@ export async function storeOAuthTokensAndRedirect(
   provider: string,
   tokens: { access_token?: string | null, id_token?: string | null },
   clientId: string | undefined,
-  oauthProcess: 'login' | 'connect',
+  oauthProcess: OAuthProcess,
 ) {
   // Preserve any existing session (e.g. an already-authenticated user
   // running ``process=connect`` to add a social provider) — a bare

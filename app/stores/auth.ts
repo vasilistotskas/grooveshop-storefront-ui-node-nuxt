@@ -132,19 +132,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const refreshSession = async (encrypted_token: string | null = null) => {
-    const { getSession } = useAllAuthAuthentication()
-    const response = await getSession(encrypted_token)
-    if (response) {
-      // Set BEFORE the function resolves so the destination page (after
-      // auth:change → handleLoggedIn → navigateTo) sees populated
-      // session.value on first render. The auth plugin's hook fires
-      // INSIDE getSession's onResponse, so by the time this line runs,
-      // navigation may have already been dispatched.
-      session.value = response.data
-    }
-  }
-
   const clearAuthState = () => {
     session.value = undefined
     sessions.value = []
@@ -168,7 +155,6 @@ export const useAuthStore = defineStore('auth', () => {
     setupSession,
     setupSessions,
     setupAuthenticators,
-    refreshSession,
     clearAuthState,
   }
 })

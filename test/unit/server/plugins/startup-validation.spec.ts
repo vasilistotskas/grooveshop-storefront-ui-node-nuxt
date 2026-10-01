@@ -11,7 +11,6 @@ describe('server/plugins/startup-validation', () => {
   it.each([
     ['the session password is unset', { session: { password: '' } }, 'NUXT_SESSION_PASSWORD is not set'],
     ['the session password is shorter than 32 characters', { session: { password: 'x'.repeat(31) } }, 'at least 32 characters'],
-    ['the secret key is unset', { secretKey: '' }, 'NUXT_SECRET_KEY is not set'],
   ])('refuses to boot when %s', async (_label, config, message) => {
     setRuntimeConfig(config)
 

@@ -12,7 +12,7 @@ import authPlugin from '~/plugins/auth'
  * `next`.
  *
  * The event rule (`determineAuthChangeEvent`) and the path check
- * (`isSafeRelativePath`) are unit-tested on their own; this is the
+ * (`safeRelativePath`) are unit-tested on their own; this is the
  * wiring. Each test installs a FRESH copy of the plugin on a stand-in
  * app, so the previous auth state it remembers starts empty.
  */

@@ -5,10 +5,13 @@ interface MobileNavOptions {
 export function useMobileNavItems(options: MobileNavOptions = {}) {
   const { includeCart = true } = options
 
-  const { $i18n } = useNuxtApp()
+  const { $i18n, $routeBaseName } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
   const { loggedIn, user } = useUserSession()
   const route = useRoute()
+  // Every link in the page's language: a bare `/search` on an `/en/`
+  // page led to the Greek one.
+  const localePath = useLocalePath()
   const tenantStore = useTenantStore()
   const img = useMediaStreamImage()
 
@@ -25,16 +28,18 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
     })
   })
 
+  const isLoginPage = computed(() => $routeBaseName(route) === RedirectToURLs.LOGIN_URL)
+
   const items = computed(() => {
     const result = [
       {
         icon: 'i-heroicons-home',
-        to: '/',
+        to: localePath('index'),
         label: t('home'),
       },
       {
         icon: 'i-heroicons-magnifying-glass',
-        to: '/search',
+        to: localePath('search'),
         label: t('search.title'),
       },
       // Points at a BLOG surface, so it follows blogEnabled the way the
@@ -43,7 +48,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
       ...(tenantStore.blogEnabled
         ? [{
             icon: 'i-heroicons-heart',
-            to: loggedIn.value ? '/account/favourites/posts' : '/account/login',
+            to: localePath(loggedIn.value ? 'account-favourites-posts' : RedirectToURLs.LOGIN_URL),
             label: t('favourites'),
           }]
         : []),
@@ -52,7 +57,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
     if (includeCart) {
       result.push({
         icon: 'i-heroicons-shopping-cart',
-        to: '/cart',
+        to: localePath('cart'),
         label: t('cart.title'),
       })
     }
@@ -60,13 +65,19 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
     if (!loggedIn.value) {
       result.push({
         icon: 'i-heroicons-user',
-        to: `/account/login?next=${route.path}`,
+        // Back to this very page — query and all, encoded — after the
+        // sign-in, as the auth middleware sends it; from the sign-in
+        // page itself there is nowhere to come back to.
+        to: localePath({
+          name: RedirectToURLs.LOGIN_URL,
+          query: isLoginPage.value ? undefined : { next: route.fullPath },
+        }),
         label: t('account'),
       })
     }
     else if (avatarImg.value) {
       result.push({
-        to: '/account',
+        to: localePath('account'),
         label: t('account'),
         avatar: {
           src: avatarImg.value,
@@ -76,7 +87,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
     else {
       result.push({
         icon: 'i-heroicons-user',
-        to: '/account',
+        to: localePath('account'),
         label: t('account'),
       })
     }

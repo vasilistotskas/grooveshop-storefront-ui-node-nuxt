@@ -1,23 +1,18 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import ProviderCallback from '~/components/Storefront/Auth/ProviderCallback.vue'
 import WebsideProviderCallback from '~/components/variants/webside/Storefront/Auth/ProviderCallback.vue'
-import { useAuthStore } from '~/stores/auth'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 import { asProxiedError, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 import { failWith } from '~~/test/helpers/api'
 
 /**
- * Where a social login lands. Two ways in:
- *
- * - `?encrypted_token=` — the server finished the OAuth dance and hands
- *   back a session token, which `refreshSession` exchanges;
- * - `?provider=&process=` — the provider's tokens sit in the server
- *   session (never in the URL), are read from `/api/auth/oauth-params`
- *   and sent to allauth's provider-token endpoint.
+ * Where a social login lands, with `?provider=&process=`: the provider's
+ * tokens sit in the server session (never in the URL), are read from
+ * `/api/auth/oauth-params` and sent to allauth's provider-token endpoint.
  *
  * Navigation afterwards belongs to the auth plugin's `auth:change`
  * chain; this page only shows a failure. A first-time user's 401 with a
@@ -56,7 +51,7 @@ function pendingSignup() {
 describe.each([
   ['default', ProviderCallback, 'app/components/Storefront/Auth/ProviderCallback.vue'],
   ['webside', WebsideProviderCallback, 'app/components/variants/webside/Storefront/Auth/ProviderCallback.vue'],
-])('ProviderCallback (%s tree)', (_tree, Component, file) => {
+])('ProviderCallback (%s tree)', (tree, Component, file) => {
   const block = parseSfc(resolve(REPO, file)).customBlocks.find(b => b.type === 'i18n')!
   const messages = YAML.parse(block.content).el
 
@@ -77,35 +72,6 @@ describe.each([
     expect(wrapper.text()).not.toContain(messages.title.error)
     expect(wrapper.text()).not.toContain(messages.description)
   }
-
-  let refreshSession: ReturnType<typeof vi.fn>
-
-  beforeEach(() => {
-    refreshSession = vi.spyOn(useAuthStore(), 'refreshSession').mockResolvedValue(undefined as never) as never
-  })
-
-  describe('with an encrypted session token', () => {
-    it('exchanges the token and leaves navigation to the auth plugin', async () => {
-      const wrapper = await mount({ encrypted_token: 'enc-123' })
-
-      expect(refreshSession).toHaveBeenCalledWith('enc-123')
-      expect(api.callsTo(OAUTH_PARAMS)).toEqual([])
-      expect(providerToken).not.toHaveBeenCalled()
-      expect(navigateToMock).not.toHaveBeenCalled()
-      expectNoFailure(wrapper)
-    })
-
-    // Only the message is asserted: this branch returns before clearing
-    // `loading`, so the spinner and the "connecting" title stay up next
-    // to it — reported as a bug, deliberately not pinned here.
-    it('shows the failure message when the exchange is rejected', async () => {
-      refreshSession.mockRejectedValue(new Error('invalid token'))
-
-      const wrapper = await mount({ encrypted_token: 'enc-123' })
-
-      expect(wrapper.text()).toContain(messages.description)
-    })
-  })
 
   describe('with a provider and a process', () => {
     it('sends the tokens from the server session, never from the URL', async () => {
@@ -185,6 +151,14 @@ describe.each([
     })
   })
 
+  // The tab says what the heading says; it said "connecting" for good.
+  it.runIf(tree === 'default')('names the failure in the browser tab too', async () => {
+    await mount({})
+
+    // unhead writes the head to the DOM on its own schedule.
+    await vi.waitFor(() => expect(document.title).toContain(messages.title.error))
+  })
+
   it.each([
     ['no query at all', {}],
     ['only an error from the provider', { error: 'access_denied' }],
@@ -193,7 +167,6 @@ describe.each([
     const wrapper = await mount(query)
 
     expectFailure(wrapper)
-    expect(refreshSession).not.toHaveBeenCalled()
     expect(providerToken).not.toHaveBeenCalled()
   })
 })

@@ -139,8 +139,7 @@ export default defineNuxtPlugin({
         const router = useRouter()
         const route = router.currentRoute.value
         const localePath = useLocalePath()
-        const rawNext = route.query.next?.toString()
-        const returnToPath = isSafeRelativePath(rawNext) ? rawNext : undefined
+        const returnToPath = safeRelativePath(route.query.next?.toString())
         const loginPath = localePath(RedirectToURLs.LOGIN_URL)
         const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
         const redirectTo = isRedirectingToLogin || !returnToPath
@@ -156,8 +155,7 @@ export default defineNuxtPlugin({
     async function handleReauthenticated() {
       try {
         const router = useRouter()
-        const rawNext = router.currentRoute.value.query.next?.toString()
-        const safeNext = isSafeRelativePath(rawNext) ? rawNext as keyof RouteMapI18n : undefined
+        const safeNext = safeRelativePath(router.currentRoute.value.query.next?.toString()) as keyof RouteMapI18n | undefined
         return await navigateToUrl({ path: safeNext || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {

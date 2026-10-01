@@ -308,22 +308,37 @@ export async function tryAdvanceToPendingFlow(
     log.info({ tag: 'auth', message: 'Pending flow already reached via auth:change hook', route: routeName })
     return true
   }
-  const rawNext = router.currentRoute.value.query.next?.toString()
-  const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
+  const safeNext = safeRelativePath(router.currentRoute.value.query.next?.toString())
   log.info({ tag: 'auth', message: 'Advancing to pending flow', route: routeName })
   await navigateTo({ path: target, query: safeNext ? { next: safeNext } : undefined })
   return true
 }
 
-const UNSAFE_PATH_PREFIXES = ['http://', 'https://', '//', 'data:', 'javascript:', 'vbscript:']
+// A stand-in origin no real link can carry (`.invalid` is reserved).
+const SAME_SITE = 'https://same-site.invalid'
 
-export function isSafeRelativePath(value: string | undefined): boolean {
-  if (!value) return false
-  const trimmed = value.trim()
-  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return false
-  if (trimmed.includes('\\')) return false
-  const lower = trimmed.toLowerCase()
-  return !UNSAFE_PATH_PREFIXES.some(prefix => lower.startsWith(prefix))
+/**
+ * `value` as a path on this site, normalised the way the browser will
+ * follow it, or undefined when it would leave the site — the open
+ * redirect guard for `?next=`.
+ *
+ * Parsed with the WHATWG URL parser, not matched by prefix: the browser
+ * drops tabs and newlines and reads `\` as `/` before it finds the host,
+ * so `/\t/evil.com` passed a prefix check and still went to evil.com.
+ * Only a root-relative path qualifies — `account` would resolve against
+ * whatever page is open — and callers navigate to the RETURNED path, so
+ * the check and the navigation cannot disagree.
+ */
+export function safeRelativePath(value: string | undefined): string | undefined {
+  if (!value?.trimStart().startsWith('/')) return undefined
+  let url: URL
+  try {
+    url = new URL(value, SAME_SITE)
+  }
+  catch {
+    return undefined
+  }
+  return url.origin === SAME_SITE ? `${url.pathname}${url.search}${url.hash}` : undefined
 }
 
 export const navigateToPendingFlow = async (
@@ -334,8 +349,7 @@ export const navigateToPendingFlow = async (
   const path = pathForPendingFlow(response)
   log.info({ tag: 'auth', message: 'Navigating to pending flow', path })
   if (path) {
-    const rawNext = useRouter().currentRoute.value.query.next?.toString()
-    const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
+    const safeNext = safeRelativePath(useRouter().currentRoute.value.query.next?.toString())
     const url = withQuery(localePath(path), { next: safeNext })
     log.info({ tag: 'auth', message: 'Navigating to URL', url })
     return nuxtApp.runWithContext(() => navigateTo(url))

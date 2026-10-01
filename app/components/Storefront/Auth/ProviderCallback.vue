@@ -2,15 +2,9 @@
 const {
   providerToken,
 } = useAllAuthAuthentication()
-const authStore = useAuthStore()
-const { refreshSession } = authStore
 
 const { t, locale } = useI18n()
 
-// The page's document title — see the sibling auth bodies. Its heading
-// is conditional (still connecting, or failed), and the tab should say
-// the same thing rather than the store name twice.
-useHead({ title: () => t('title.loading') })
 const route = useRoute(`account-provider-callback___${locale.value}`)
 const localePath = useLocalePath()
 
@@ -19,7 +13,6 @@ const {
   provider,
   process,
   messages,
-  encrypted_token,
 } = route.query
 // NOTE: access_token, id_token, client_id are fetched from session API, not URL.
 // authInfo intentionally NOT imported: navigation is fully driven by the
@@ -37,20 +30,12 @@ const title = computed(() => {
   return ''
 })
 
-onMounted(async () => {
-  if (encrypted_token) {
-    try {
-      await refreshSession(String(encrypted_token))
-      // auth:change hook (fired inside refreshSession) drives navigation
-      // via the auth plugin's handleLoggedIn. No duplicate navigateTo here.
-      return
-    }
-    catch {
-      error.value = true
-      return
-    }
-  }
+// The page's document title — see the sibling auth bodies. Its heading
+// is conditional (still connecting, or failed), and the tab should say
+// the same thing rather than the store name twice.
+useHead({ title: () => String(title.value) })
 
+onMounted(async () => {
   if (apiError) {
     error.value = true
   }
@@ -91,7 +76,7 @@ onMounted(async () => {
     loading.value = false
   }
 
-  if (!encrypted_token && !(provider && process)) {
+  if (!(provider && process)) {
     error.value = true
   }
 })
