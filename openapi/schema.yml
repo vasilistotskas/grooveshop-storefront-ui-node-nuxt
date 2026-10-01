@@ -942,7 +942,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: featured
           schema:
@@ -1050,7 +1050,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -2002,7 +2002,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -2028,7 +2028,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -2114,7 +2114,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -2140,7 +2140,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -2226,7 +2226,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -2252,7 +2252,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -2693,7 +2693,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -2719,7 +2719,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -2863,7 +2863,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: languageCode
           schema:
@@ -2881,7 +2881,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -3929,7 +3929,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: descendantOf
           schema:
@@ -4144,7 +4144,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -4460,7 +4460,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: descendantOf
           schema:
@@ -4675,7 +4675,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -5104,7 +5104,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: descendantOf
           schema:
@@ -5311,7 +5311,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -6852,7 +6852,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: featured
           schema:
@@ -6945,7 +6945,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -7270,7 +7270,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: featured
           schema:
@@ -7363,7 +7363,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -8888,8 +8888,8 @@ paths:
   /api/v1/cart/coupons:
     get:
       operationId: listCartCoupons
-      description: Every coupon the shopper may be offered — the codes the store advertises publicly, plus the personal coupons assigned to the signed-in customer — each pre-judged against the cart as it stands. ``eligible`` is exactly what applying the code would do, so a disabled row and a refusal at apply time can never disagree; ``reason`` carries the ACP discount vocabulary and ``discountAmount`` what the code would take off right now. Empty when the store has promotions disabled.
-      summary: List the coupons available for this cart
+      description: Κάθε κουπόνι που μπορεί να προσφερθεί στον αγοραστή — οι κωδικοί που το κατάστημα προβάλλει δημόσια, καθώς και τα προσωπικά κουπόνια που έχουν αντιστοιχιστεί στον συνδεδεμένο πελάτη — το καθένα αξιολογημένο εκ των προτέρων έναντι του καλαθιού όπως είναι τώρα. Το ``eligible`` αντιστοιχεί ακριβώς σε ό,τι θα έκανε η εφαρμογή του κωδικού, ώστε μια απενεργοποιημένη γραμμή και μια άρνηση κατά την εφαρμογή να μη διαφωνούν ποτέ· το ``reason`` φέρει το λεξιλόγιο εκπτώσεων ACP και το ``discountAmount`` το ποσό που θα αφαιρούσε ο κωδικός αυτή τη στιγμή. Κενό όταν το κατάστημα έχει απενεργοποιημένες τις προσφορές.
+      summary: Λίστα των διαθέσιμων κουπονιών για αυτό το καλάθι
       parameters:
         - in: header
           name: X-Cart-Id
@@ -9131,7 +9131,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Filter items in abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
+          description: Φίλτρο ειδών σε εγκαταλελειμμένα καλάθια — αδρανή για περισσότερο από όσο ορίζει η ρύθμιση καταστήματος CART_ABANDONED_HOURS.
         - in: query
           name: inActiveCarts
           schema:
@@ -9143,7 +9143,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Filter items in active carts — idle no longer than the CART_ABANDONED_HOURS store setting.
+          description: Φίλτρο ειδών σε ενεργά καλάθια — αδρανή όχι περισσότερο από όσο ορίζει η ρύθμιση καταστήματος CART_ABANDONED_HOURS.
         - in: query
           name: maxDiscountPercent
           schema:
@@ -9845,7 +9845,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Filter abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
+          description: Φίλτρο εγκαταλελειμμένων καλαθιών — αδρανή για περισσότερο από όσο ορίζει η ρύθμιση καταστήματος CART_ABANDONED_HOURS.
         - in: query
           name: isActive
           schema:
@@ -9857,7 +9857,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Filter active/abandoned carts. The window is the CART_ABANDONED_HOURS store setting, not a fixed period.
+          description: Φίλτρο ενεργών/εγκαταλελειμμένων καλαθιών. Το χρονικό παράθυρο είναι η ρύθμιση καταστήματος CART_ABANDONED_HOURS, όχι μια σταθερή περίοδος.
         - in: query
           name: isGuest
           schema:
@@ -10284,8 +10284,8 @@ paths:
   /api/v1/contact/attachment:
     post:
       operationId: createContactAttachment
-      description: Upload one file to attach to a contact enquiry. Returns the id to send back in the enquiry's attachmentIds. Only available while the store accepts attachments.
-      summary: Upload a contact-form attachment
+      description: Ανέβασμα ενός αρχείου για επισύναψη σε μήνυμα επικοινωνίας. Επιστρέφει το id που πρέπει να σταλεί στο attachmentIds του μηνύματος. Διαθέσιμο μόνο όσο το κατάστημα δέχεται συνημμένα.
+      summary: Ανέβασμα συνημμένου φόρμας επικοινωνίας
       tags:
         - Contact
       requestBody:
@@ -10335,8 +10335,8 @@ paths:
   /api/v1/content-page:
     get:
       operationId: listContentPage
-      description: 'Ανάκτηση λίστας Content Pages με δυνατότητες φιλτραρίσματος και αναζήτησης. Υποστηρίζει πολλαπλές στρατηγικές σελιδοποίησης: pageNumber (προεπιλογή), cursor και limitOffset.'
-      summary: Λίστα Content Pages
+      description: 'Ανάκτηση λίστας Σελίδες περιεχομένου με δυνατότητες φιλτραρίσματος και αναζήτησης. Υποστηρίζει πολλαπλές στρατηγικές σελιδοποίησης: pageNumber (προεπιλογή), cursor και limitOffset.'
+      summary: Λίστα Σελίδες περιεχομένου
       parameters:
         - in: query
           name: cursor
@@ -10446,8 +10446,8 @@ paths:
           description: ''
     post:
       operationId: createContentPage
-      description: Δημιουργία νέου Content Page. Απαιτεί ταυτοποίηση.
-      summary: Δημιουργία Content Page
+      description: Δημιουργία νέου Σελίδα περιεχομένου. Απαιτεί ταυτοποίηση.
+      summary: Δημιουργία Σελίδα περιεχομένου
       parameters:
         - in: query
           name: languageCode
@@ -10515,8 +10515,8 @@ paths:
   /api/v1/content-page/{slug}:
     get:
       operationId: retrieveContentPage
-      description: Λήψη λεπτομερών πληροφοριών για συγκεκριμένο Content Page.
-      summary: Ανάκτηση Content Page
+      description: Λήψη λεπτομερών πληροφοριών για συγκεκριμένο Σελίδα περιεχομένου.
+      summary: Ανάκτηση Σελίδα περιεχομένου
       parameters:
         - in: query
           name: languageCode
@@ -10571,8 +10571,8 @@ paths:
           description: ''
     put:
       operationId: updateContentPage
-      description: Ενημέρωση πληροφοριών Content Page. Απαιτεί ταυτοποίηση.
-      summary: Ενημέρωση Content Page
+      description: Ενημέρωση πληροφοριών Σελίδα περιεχομένου. Απαιτεί ταυτοποίηση.
+      summary: Ενημέρωση Σελίδα περιεχομένου
       parameters:
         - in: query
           name: languageCode
@@ -10644,8 +10644,8 @@ paths:
           description: ''
     patch:
       operationId: partialUpdateContentPage
-      description: Μερική ενημέρωση πληροφοριών Content Page. Απαιτεί ταυτοποίηση.
-      summary: Μερική ενημέρωση Content Page
+      description: Μερική ενημέρωση πληροφοριών Σελίδα περιεχομένου. Απαιτεί ταυτοποίηση.
+      summary: Μερική ενημέρωση Σελίδα περιεχομένου
       parameters:
         - in: query
           name: languageCode
@@ -10716,8 +10716,8 @@ paths:
           description: ''
     delete:
       operationId: destroyContentPage
-      description: Διαγραφή Content Page. Απαιτεί ταυτοποίηση.
-      summary: Διαγραφή Content Page
+      description: Διαγραφή Σελίδα περιεχομένου. Απαιτεί ταυτοποίηση.
+      summary: Διαγραφή Σελίδα περιεχομένου
       parameters:
         - in: path
           name: slug
@@ -11553,8 +11553,8 @@ paths:
   /api/v1/feedback:
     post:
       operationId: createFeedback
-      description: Submit storefront feedback (rating, category, message).
-      summary: Create a feedback submission
+      description: Υποβολή feedback για το κατάστημα (βαθμολογία, κατηγορία, μήνυμα).
+      summary: Δημιουργία υποβολής feedback
       tags:
         - Feedback
       requestBody:
@@ -11587,8 +11587,8 @@ paths:
   /api/v1/giftcard/check:
     post:
       operationId: checkGiftCard
-      description: Check a gift card's balance
-      summary: Check a gift card's balance
+      description: Έλεγχος υπολοίπου δωροκάρτας
+      summary: Έλεγχος υπολοίπου δωροκάρτας
       tags:
         - Gift Cards
       requestBody:
@@ -11646,14 +11646,14 @@ paths:
   /api/v1/giftcard/mine:
     get:
       operationId: listMyGiftCards
-      description: List the gift cards linked to my account
-      summary: List the gift cards linked to my account
+      description: Λίστα των δωροκαρτών που είναι συνδεδεμένες με τον λογαριασμό μου
+      summary: Λίστα των δωροκαρτών που είναι συνδεδεμένες με τον λογαριασμό μου
       parameters:
         - in: query
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: languageCode
           schema:
@@ -11671,7 +11671,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -11749,8 +11749,8 @@ paths:
   /api/v1/giftcard/purchase:
     post:
       operationId: purchaseGiftCard
-      description: Buy a gift card (Stripe payment)
-      summary: Buy a gift card (Stripe payment)
+      description: Αγορά δωροκάρτας (πληρωμή Stripe)
+      summary: Αγορά δωροκάρτας (πληρωμή Stripe)
       tags:
         - Gift Cards
       requestBody:
@@ -11808,8 +11808,8 @@ paths:
   /api/v1/giftcard/purchase-status:
     get:
       operationId: getGiftCardPurchaseStatus
-      description: Poll a gift card purchase's payment status
-      summary: Poll a gift card purchase's payment status
+      description: Έλεγχος κατάστασης πληρωμής αγοράς δωροκάρτας
+      summary: Έλεγχος κατάστασης πληρωμής αγοράς δωροκάρτας
       tags:
         - Gift Cards
       security:
@@ -12120,7 +12120,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: languageCode
           schema:
@@ -12138,7 +12138,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -15314,7 +15314,7 @@ paths:
   /api/v1/order/{id}/acs_label:
     get:
       operationId: getAcsLabelForOrder
-      description: Streams the ACS label PDF through Django auth. Accessible by the order owner or store staff; guest orders cannot download labels. Returns 404 when no ACS shipment exists for the order or the voucher has not been minted yet.
+      description: Μεταδίδει το PDF ετικέτας ACS μέσω ταυτοποίησης Django. Προσβάσιμο από τον ιδιοκτήτη της παραγγελίας ή το προσωπικό του καταστήματος· οι παραγγελίες επισκεπτών δεν μπορούν να κατεβάσουν ετικέτες. Επιστρέφει 404 όταν δεν υπάρχει αποστολή ACS για την παραγγελία ή δεν έχει εκδοθεί ακόμα το voucher.
       summary: Λήψη του PDF ετικέτας voucher ACS για παραγγελία
       parameters:
         - in: path
@@ -15486,7 +15486,7 @@ paths:
   /api/v1/order/{id}/boxnow_label:
     get:
       operationId: getBoxNowLabelForOrder
-      description: Streams the BoxNow label PDF through Django auth. Accessible by the order owner or store staff; guest orders cannot download labels. Returns 404 when no BoxNow shipment exists for the order or the parcel ID has not yet been assigned.
+      description: Μεταδίδει το PDF ετικέτας BoxNow μέσω ταυτοποίησης Django. Προσβάσιμο από τον ιδιοκτήτη της παραγγελίας ή το προσωπικό του καταστήματος· οι παραγγελίες επισκεπτών δεν μπορούν να κατεβάσουν ετικέτες. Επιστρέφει 404 όταν δεν υπάρχει αποστολή BoxNow για την παραγγελία ή δεν έχει ακόμα ανατεθεί ID δέματος.
       summary: Λήψη του PDF ετικέτας δέματος BoxNow για παραγγελία
       parameters:
         - in: path
@@ -15608,8 +15608,8 @@ paths:
   /api/v1/order/{id}/confirm_agent_payment:
     post:
       operationId: confirmAgentPaymentForOrder
-      description: Charge a Stripe SharedPaymentToken granted by an AI agent platform (ACP/UCP delegated payments) for this order. Only available when agent-delegated payments are enabled for the store and the order's payment method is Stripe.
-      summary: Complete payment with an agent-granted Stripe token
+      description: Χρέωση ενός Stripe SharedPaymentToken που παραχωρήθηκε από πλατφόρμα AI πρακτόρων (εξουσιοδοτημένες πληρωμές ACP/UCP) για αυτή την παραγγελία. Διαθέσιμο μόνο όταν οι εξουσιοδοτημένες πληρωμές μέσω πράκτορα είναι ενεργοποιημένες για το κατάστημα και η μέθοδος πληρωμής της παραγγελίας είναι Stripe.
+      summary: Ολοκλήρωση πληρωμής με token Stripe που παραχωρήθηκε από AI πράκτορα
       parameters:
         - in: path
           name: id
@@ -16344,7 +16344,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: query
           name: customerNotes
           schema:
@@ -16558,7 +16558,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -17661,8 +17661,8 @@ paths:
   /api/v1/pay_way:
     get:
       operationId: listPayWay
-      description: 'Ανάκτηση λίστας Τρόποι πληρωμής με δυνατότητες φιλτραρίσματος και αναζήτησης. Υποστηρίζει πολλαπλές στρατηγικές σελιδοποίησης: pageNumber (προεπιλογή), cursor και limitOffset.'
-      summary: Λίστα Τρόποι πληρωμής
+      description: 'Ανάκτηση λίστας Μέθοδοι πληρωμής με δυνατότητες φιλτραρίσματος και αναζήτησης. Υποστηρίζει πολλαπλές στρατηγικές σελιδοποίησης: pageNumber (προεπιλογή), cursor και limitOffset.'
+      summary: Λίστα Μέθοδοι πληρωμής
       parameters:
         - in: query
           name: active
@@ -17764,18 +17764,6 @@ paths:
               - type: number
           description: Φίλτρο ανά ελάχιστο όριο δωρεάν
         - in: query
-          name: hasConfiguration
-          schema:
-            oneOf:
-              - type: string
-                enum:
-                  - 'true'
-                  - 'false'
-                  - '1'
-                  - '0'
-              - type: boolean
-          description: Φίλτρο μεθόδων πληρωμής με/χωρίς διαμόρφωση
-        - in: query
           name: hasIcon
           schema:
             oneOf:
@@ -17806,7 +17794,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Deprecated — use ``settlement=online``. Removed with the column in the release after settlement lands.
+          description: Παρωχημένο — χρησιμοποιήστε ``settlement=online``. Αφαιρείται μαζί με τη στήλη στην έκδοση μετά την εισαγωγή του settlement.
         - in: query
           name: languageCode
           schema:
@@ -17896,28 +17884,29 @@ paths:
           name: settlement
           schema:
             type: string
+            title: Διακανονισμός
             enum:
               - carrier_terminal
               - courier_cash
               - offline_transfer
               - online
           description: |-
-            Filter by how the money changes hands
+            Φίλτρο ανά τρόπο καταβολής των χρημάτων
 
-            * `online` - Paid online at checkout
-            * `courier_cash` - Cash or card to the courier on delivery
-            * `carrier_terminal` - Paid to the carrier before pickup
-            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+            * `online` - Πληρωμή online κατά το checkout
+            * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+            * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+            * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
         - in: query
           name: shippingKind
           schema:
             type: string
-          description: Filter pay ways by the shipping kind. Pair with ``shippingProviderCode`` for one carrier's rules; on its own it returns only the pay ways every carrier serving that kind accepts, which is what a provider-agnostic ``home_delivery`` checkout needs.
+          description: Φίλτρο τρόπων πληρωμής ανά είδος αποστολής. Συνδυάστε το με ``shippingProviderCode`` για τους κανόνες ενός μεταφορέα· από μόνο του επιστρέφει μόνο τους τρόπους πληρωμής που δέχεται κάθε μεταφορέας που εξυπηρετεί αυτό το είδος, κάτι που χρειάζεται ένα checkout ``home_delivery`` ανεξάρτητο από πάροχο.
         - in: query
           name: shippingProviderCode
           schema:
             type: string
-          description: 'Filter pay ways compatible with the given shipping carrier. Each carrier declares which settlements it can physically perform, per kind: a BoxNow locker takes a card at its terminal (PAY ON THE GO) and never courier cash, while an ACS courier is the exact opposite. Has no effect without ``shippingKind`` — the rules are per-kind, so a carrier alone says nothing.'
+          description: 'Φίλτρο τρόπων πληρωμής συμβατών με τη δεδομένη εταιρεία μεταφοράς. Κάθε μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, ανά είδος: ένα locker BoxNow δέχεται κάρτα στο τερματικό του (PAY ON THE GO) και ποτέ μετρητά στον κούριερ, ενώ ένας κούριερ ACS είναι το ακριβώς αντίθετο. Δεν έχει καμία επίδραση χωρίς ``shippingKind`` — οι κανόνες ισχύουν ανά είδος, οπότε ένας μεταφορέας από μόνος του δεν προσδιορίζει τίποτα.'
         - in: query
           name: sortOrder
           schema:
@@ -18052,7 +18041,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PayWayDetail'
+                $ref: '#/components/schemas/PayWay'
           description: ''
         '400':
           content:
@@ -18115,7 +18104,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PayWayDetail'
+                $ref: '#/components/schemas/PayWay'
           description: ''
         '401':
           content:
@@ -18182,7 +18171,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PayWayDetail'
+                $ref: '#/components/schemas/PayWay'
           description: ''
         '400':
           content:
@@ -18254,7 +18243,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PayWayDetail'
+                $ref: '#/components/schemas/PayWay'
           description: ''
         '400':
           content:
@@ -18355,6 +18344,7 @@ paths:
               - type: array
                 items:
                   type: integer
+                  title: Χαρακτηριστικό
           description: Filter by multiple attribute IDs (comma-separated)
           explode: false
           style: form
@@ -18375,6 +18365,7 @@ paths:
               - type: array
                 items:
                   type: integer
+                  title: Τιμή Χαρακτηριστικού
           description: Filter by multiple attribute value IDs (comma-separated)
           explode: false
           style: form
@@ -20440,6 +20431,7 @@ paths:
               - type: array
                 items:
                   type: integer
+                  title: Χαρακτηριστικό
           description: Filter by multiple attribute IDs (comma-separated)
           explode: false
           style: form
@@ -24508,8 +24500,8 @@ paths:
   /api/v1/promotion:
     get:
       operationId: listPublicPromotions
-      description: 'Currently-live promotions that a shopper can act on: every AUTOMATIC promotion, plus CODE promotions that have at least one publicly advertisable code. Personal coupons, single-use codes, and promotions that have reached their total usage limit are excluded. Returns 404 when the store has promotions disabled at either tier.'
-      summary: List public offers
+      description: 'Προσφορές σε ισχύ αυτή τη στιγμή, τις οποίες μπορεί να αξιοποιήσει ένας αγοραστής: κάθε προσφορά AUTOMATIC, καθώς και προσφορές CODE που έχουν τουλάχιστον έναν κωδικό που μπορεί να προβληθεί δημόσια. Εξαιρούνται τα προσωπικά κουπόνια, οι κωδικοί μίας χρήσης και οι προσφορές που έχουν φτάσει το συνολικό όριο χρήσης τους. Επιστρέφει 404 όταν το κατάστημα έχει απενεργοποιημένες τις προσφορές σε οποιοδήποτε από τα δύο επίπεδα.'
+      summary: Λίστα δημόσιων προσφορών
       parameters:
         - in: query
           name: languageCode
@@ -24544,8 +24536,8 @@ paths:
   /api/v1/promotion/product/{product_id}:
     get:
       operationId: listProductPromotions
-      description: 'Currently-live, publicly advertisable promotions that touch this product, each carrying the RELATION that makes it relevant: the promotion names the product (PRODUCT), gives it away (REWARD), targets its category (CATEGORY), or applies to any order (ORDER). Scope and exclusions are resolved with the same rules the cart engine uses, so an excluded product never advertises the offer that skips it. Returns 404 when the store has promotions disabled at either tier, or when the product does not exist.'
-      summary: List the offers that apply to a product
+      description: 'Προσφορές σε ισχύ αυτή τη στιγμή, που μπορούν να προβληθούν δημόσια και αφορούν αυτό το προϊόν, καθεμία με τη ΣΧΕΣΗ (RELATION) που την καθιστά σχετική: η προσφορά κατονομάζει το προϊόν (PRODUCT), το δίνει ως δώρο (REWARD), στοχεύει την κατηγορία του (CATEGORY) ή ισχύει για οποιαδήποτε παραγγελία (ORDER). Το εύρος και οι εξαιρέσεις επιλύονται με τους ίδιους κανόνες που χρησιμοποιεί ο μηχανισμός του καλαθιού, ώστε ένα εξαιρεμένο προϊόν να μην προβάλλει ποτέ την προσφορά που το παραλείπει. Επιστρέφει 404 όταν το κατάστημα έχει απενεργοποιημένες τις προσφορές σε οποιοδήποτε από τα δύο επίπεδα ή όταν το προϊόν δεν υπάρχει.'
+      summary: Λίστα των προσφορών που ισχύουν για ένα προϊόν
       parameters:
         - in: query
           name: languageCode
@@ -24588,14 +24580,14 @@ paths:
   /api/v1/recommendations:
     get:
       operationId: api_v1_recommendations_retrieve
-      description: Products to show beside the seed product(s) on a given surface (product page, cart, out-of-stock, empty cart). Each item carries the strategy that produced it and, for merchant-curated links, the relation type. An empty list means the store has nothing worth showing here — render nothing. Report an impression event with impression_id once the strip is shown, and echo it on click events.
-      summary: Suggested products for a surface
+      description: Προϊόντα προς εμφάνιση δίπλα στο προϊόν ή στα προϊόντα αναφοράς σε μια συγκεκριμένη επιφάνεια (σελίδα προϊόντος, καλάθι, εξαντλημένο προϊόν, άδειο καλάθι). Κάθε στοιχείο περιέχει τη στρατηγική που το παρήγαγε και, για συνδέσεις που επιμελήθηκε ο έμπορος, τον τύπο σχέσης. Μια κενή λίστα σημαίνει ότι το κατάστημα δεν έχει τίποτα αξιόλογο να δείξει εδώ — μην εμφανίσετε τίποτα. Αναφέρετε ένα συμβάν προβολής με το impression_id μόλις εμφανιστεί η λωρίδα και στείλτε το ξανά στα συμβάντα κλικ.
+      summary: Προτεινόμενα προϊόντα για μια επιφάνεια
       parameters:
         - in: query
           name: exclude
           schema:
             type: string
-          description: Comma-separated product ids never to suggest.
+          description: ID προϊόντων διαχωρισμένα με κόμμα που δεν πρέπει να προταθούν ποτέ.
         - in: query
           name: limit
           schema:
@@ -24603,7 +24595,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Override the slot's limit, capped at 12.
+          description: Παράκαμψη του ορίου της θέσης, με μέγιστο το 12.
         - in: query
           name: seed
           schema:
@@ -24611,12 +24603,12 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: The product the shopper is looking at.
+          description: Το προϊόν που βλέπει ο αγοραστής.
         - in: query
           name: seeds
           schema:
             type: string
-          description: Comma-separated product ids for multi-seed surfaces (cart lines, recently viewed).
+          description: ID προϊόντων διαχωρισμένα με κόμμα για επιφάνειες με πολλά προϊόντα αναφοράς (γραμμές καλαθιού, πρόσφατα προβεβλημένα).
         - in: query
           name: surface
           schema:
@@ -24630,13 +24622,13 @@ paths:
             default: pdp
             minLength: 1
           description: |-
-            Where the strip is rendered; selects the slot.
+            Πού εμφανίζεται η λωρίδα· καθορίζει τη θέση.
 
-            * `pdp` - Product page
+            * `pdp` - Σελίδα προϊόντος
             * `cart` - Καλάθι
             * `out_of_stock` - Εξαντλημένο
-            * `empty_cart` - Empty cart
-            * `order_email` - Order email
+            * `empty_cart` - Άδειο καλάθι
+            * `order_email` - Email παραγγελίας
       tags:
         - Recommendations
       security:
@@ -24664,8 +24656,8 @@ paths:
   /api/v1/recommendations/events:
     post:
       operationId: api_v1_recommendations_events_create
-      description: Feeds the learning loop. Pass the impression_id from the suggestions response. Attach events are written server-side when an order completes and cannot be posted here.
-      summary: Record a suggestion impression or click
+      description: Τροφοδοτεί τον βρόχο εκμάθησης. Περάστε το impression_id από την απόκριση των προτάσεων. Τα συμβάντα προσθήκης καταγράφονται στον server όταν ολοκληρώνεται μια παραγγελία και δεν μπορούν να υποβληθούν εδώ.
+      summary: Καταγραφή προβολής ή κλικ πρότασης
       tags:
         - Recommendations
       requestBody:
@@ -25501,8 +25493,8 @@ paths:
   /api/v1/search/click:
     post:
       operationId: api_v1_search_click_create
-      description: Attribute a click on a search result to the query that produced it. The query_id comes from the search response. Feeds the click-through ranking signal and search analytics.
-      summary: Log a click on a search result
+      description: Αποδίδει ένα κλικ σε αποτέλεσμα αναζήτησης στο ερώτημα που το παρήγαγε. Το query_id προέρχεται από την απόκριση της αναζήτησης. Τροφοδοτεί το σήμα κατάταξης βάσει κλικ και τα στατιστικά αναζήτησης.
+      summary: Καταγραφή κλικ σε αποτέλεσμα αναζήτησης
       tags:
         - Search
       requestBody:
@@ -25785,8 +25777,8 @@ paths:
   /api/v1/settings/public:
     get:
       operationId: api_v1_settings_public_retrieve
-      description: Retrieve every anonymously readable store setting in one call, keyed by setting name. Only PUBLIC_SETTING_KEYS are ever included; a key without a row (or with an empty value) is omitted so the caller applies its own default.
-      summary: Get public settings
+      description: Ανάκτηση όλων των ρυθμίσεων καταστήματος που είναι αναγνώσιμες ανώνυμα, σε μία κλήση, με κλειδί το όνομα της ρύθμισης. Περιλαμβάνονται μόνο τα PUBLIC_SETTING_KEYS· ένα κλειδί χωρίς εγγραφή (ή με κενή τιμή) παραλείπεται, ώστε ο καλών να εφαρμόσει τη δική του προεπιλογή.
+      summary: Λήψη δημόσιων ρυθμίσεων
       tags:
         - Settings
       security:
@@ -27199,6 +27191,7 @@ paths:
                   type: integer
                   maximum: 2147483647
                   minimum: 0
+                  title: ID αντικειμένου
           description: Φίλτρο ανά πολλαπλά ID αντικειμένων (διαχωρισμένα με κόμμα)
           explode: false
           style: form
@@ -28080,7 +28073,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -28113,7 +28106,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -28198,7 +28191,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -28231,7 +28224,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -28383,7 +28376,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -28409,7 +28402,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -28561,7 +28554,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -28594,7 +28587,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -28679,7 +28672,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -28712,7 +28705,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -28895,7 +28888,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -28928,7 +28921,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -29013,7 +29006,7 @@ paths:
           name: cursor
           schema:
             type: string
-          description: Opaque cursor (cursor pagination strategy)
+          description: Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
         - in: path
           name: id
           schema:
@@ -29046,7 +29039,7 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Page number (pageNumber pagination strategy)
+          description: Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
         - in: query
           name: pageSize
           schema:
@@ -30745,7 +30738,7 @@ paths:
   /api/v1/user/subscription/newsletter:
     get:
       operationId: getNewsletterAvailability
-      description: True when the store has a default newsletter topic, i.e. when a newsletter form submission can be honoured.
+      description: True όταν το κατάστημα έχει προεπιλεγμένο θέμα newsletter, δηλαδή όταν μια υποβολή της φόρμας newsletter μπορεί να εξυπηρετηθεί.
       summary: Αν μπορεί να προσφερθεί η φόρμα ενημερωτικού δελτίου
       tags:
         - User Subscriptions
@@ -30767,7 +30760,7 @@ paths:
           description: ''
     post:
       operationId: subscribeToNewsletter
-      description: 'Subscribes an email address to the store''s default newsletter topic. Always answers 202: a confirmation email is sent unless the address is already confirmed or one was sent in the last 10 minutes.'
+      description: 'Εγγράφει μια διεύθυνση email στο προεπιλεγμένο θέμα newsletter του καταστήματος. Απαντά πάντα 202: αποστέλλεται email επιβεβαίωσης, εκτός αν η διεύθυνση έχει ήδη επιβεβαιωθεί ή έχει ήδη σταλεί ένα τα τελευταία 10 λεπτά.'
       summary: Εγγραφή μιας διεύθυνσης email στο ενημερωτικό δελτίο
       tags:
         - User Subscriptions
@@ -31827,7 +31820,7 @@ components:
           readOnly: true
           nullable: true
           title: Εκδόθηκε από
-          description: Admin who triggered the manual issue. Null when the daily Celery beat task issued the list. Stores a PLATFORM-schema user id; not FK-enforced (see db_constraint above).
+          description: Διαχειριστής που ενεργοποίησε τη χειροκίνητη έκδοση. Null όταν η λίστα εκδόθηκε από την καθημερινή εργασία Celery beat. Αποθηκεύει ID χρήστη του schema της ΠΛΑΤΦΟΡΜΑΣ· δεν επιβάλλεται ως FK (δείτε το db_constraint παραπάνω).
         issuedByUsername:
           type: string
           nullable: true
@@ -32313,23 +32306,23 @@ components:
       properties:
         productId:
           type: integer
-          description: Product ID
+          description: ID προϊόντος
         name:
           type: string
-          description: Localized product name
+          description: Όνομα προϊόντος στην τρέχουσα γλώσσα
         finalPrice:
           type: string
-          description: Current VAT-inclusive price
+          description: Τρέχουσα τιμή με ΦΠΑ
         currency:
           type: string
-          description: Price currency
+          description: Νόμισμα τιμής
         inStock:
           type: boolean
-          description: Whether the product is currently in stock
+          description: Αν το προϊόν είναι αυτή τη στιγμή διαθέσιμο σε απόθεμα
         addedAt:
           type: string
           format: date-time
-          description: When the product was favourited
+          description: Πότε προστέθηκε το προϊόν στα αγαπημένα
       required:
         - addedAt
         - currency
@@ -32342,17 +32335,17 @@ components:
       properties:
         id:
           type: integer
-          description: User ID
+          description: ID χρήστη
         email:
           type: string
           format: email
-          description: Account email
+          description: Email λογαριασμού
         firstName:
           type: string
-          description: First name
+          description: Όνομα
         lastName:
           type: string
-          description: Last name
+          description: Επώνυμο
       required:
         - email
         - firstName
@@ -32547,11 +32540,11 @@ components:
         - FREE_GIFT
       type: string
       description: |-
-        * `PERCENTAGE` - Percentage off
-        * `FIXED_AMOUNT` - Fixed amount off
-        * `FREE_SHIPPING` - Free shipping
-        * `BXGY` - Buy X get Y discounted
-        * `FREE_GIFT` - Free gift item
+        * `PERCENTAGE` - Ποσοστιαία έκπτωση
+        * `FIXED_AMOUNT` - Έκπτωση σταθερού ποσού
+        * `FREE_SHIPPING` - Δωρεάν μεταφορικά
+        * `BXGY` - Αγόρασε X, πάρε Y με έκπτωση
+        * `FREE_GIFT` - Δωρεάν προϊόν δώρου
     BlankEnum:
       enum:
         - ''
@@ -32720,6 +32713,7 @@ components:
                   type: string
         user:
           type: integer
+          title: Χρήστης
         website:
           title: Ιστότοπος
           oneOf:
@@ -32769,6 +32763,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
         level:
           type: integer
           readOnly: true
@@ -32853,6 +32848,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
         level:
           type: integer
           readOnly: true
@@ -33006,6 +33002,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
         image:
           type: string
           format: binary
@@ -33056,6 +33053,7 @@ components:
           type: integer
           readOnly: true
           nullable: true
+          title: Γονικό σχόλιο
         hasReplies:
           type: boolean
           readOnly: true
@@ -33150,6 +33148,7 @@ components:
           type: integer
           readOnly: true
           nullable: true
+          title: Γονικό σχόλιο
         hasReplies:
           type: boolean
           readOnly: true
@@ -33980,7 +33979,7 @@ components:
           format: uri
           nullable: true
           readOnly: true
-          description: Locker photo, or null when BoxNow supplies none
+          description: Φωτογραφία locker, ή null όταν το BoxNow δεν παρέχει
         lat:
           type: number
           format: double
@@ -34098,7 +34097,7 @@ components:
           format: uri
           nullable: true
           readOnly: true
-          description: Locker photo, or null when BoxNow supplies none
+          description: Φωτογραφία locker, ή null όταν το BoxNow δεν παρέχει
         lat:
           type: number
           format: double
@@ -34895,6 +34894,7 @@ components:
         user:
           type: integer
           nullable: true
+          title: Χρήστης
         uuid:
           type: string
           format: uuid
@@ -34960,7 +34960,7 @@ components:
           type: number
           format: double
           readOnly: true
-          description: Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+          description: Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
         appliedPromotions:
           type: array
           items:
@@ -34975,18 +34975,18 @@ components:
                 nullable: true
               amount:
                 type: number
-          description: 'Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.'
+          description: 'Ανάλυση του promotion_discount ανά προσφορά: μία εγγραφή για κάθε προσφορά που πράγματι μείωσε το ποσό, με τον κωδικό κουπονιού που την ενεργοποίησε, όταν υπήρχε. Το storefront τη χρειάζεται για να δείξει στον αγοραστή ΠΟΙΕΣ προσφορές εφαρμόστηκαν και να εμφανίσει σε κάθε κουπόνι το ΔΙΚΟ του ποσό αντί για το σύνολο του καλαθιού.'
           readOnly: true
         promotionFreeShipping:
           type: boolean
           readOnly: true
-          description: Whether a live promotion waives the shipping cost
+          description: Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
         appliedCouponCodes:
           type: array
           items:
             type: string
           readOnly: true
-          description: Coupon codes currently attached to this cart
+          description: Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
         promotionGiftItems:
           type: array
           items:
@@ -35004,7 +35004,7 @@ components:
                 type: string
               quantity:
                 type: integer
-          description: Free-gift entitlements earned by this cart
+          description: Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
           readOnly: true
         promotionNearMiss:
           type: array
@@ -35017,7 +35017,7 @@ components:
                 type: string
               remainingAmount:
                 type: number
-          description: Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
+          description: Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
           readOnly: true
         b2bPricing:
           type: object
@@ -35036,7 +35036,7 @@ components:
             belowMinimum:
               type: boolean
           readOnly: true
-          description: Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
+          description: Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
         createdAt:
           type: string
           format: date-time
@@ -35096,16 +35096,16 @@ components:
         code:
           type: string
           readOnly: true
-          description: The coupon code to apply.
+          description: Ο κωδικός κουπονιού προς εφαρμογή.
         eligible:
           type: boolean
           readOnly: true
-          description: Whether applying this code to the cart as it stands would succeed. False rows carry a machine-readable reason.
+          description: Αν η εφαρμογή αυτού του κωδικού στο καλάθι, όπως είναι τώρα, θα ήταν επιτυχής. Οι γραμμές με False φέρουν μηχανικά αναγνώσιμη αιτιολογία.
         reason:
           type: string
           readOnly: true
           nullable: true
-          description: Why the code is refused, from the ACP discount vocabulary (discount_code_expired, discount_code_minimum_not_met, …). Null when the code is eligible.
+          description: Γιατί απορρίπτεται ο κωδικός, από το λεξιλόγιο εκπτώσεων του ACP (discount_code_expired, discount_code_minimum_not_met, …). Null όταν ο κωδικός είναι επιλέξιμος.
         discountAmount:
           type: number
           format: double
@@ -35118,11 +35118,11 @@ components:
         freeShipping:
           type: boolean
           readOnly: true
-          description: Whether applying this code would waive the shipping cost. False when an automatic promotion already waives it — the code adds nothing there.
+          description: Αν η εφαρμογή αυτού του κωδικού θα μηδένιζε το κόστος αποστολής. False όταν μια αυτόματη προσφορά το μηδενίζει ήδη — ο κωδικός δεν προσθέτει τίποτα σε αυτή την περίπτωση.
         applied:
           type: boolean
           readOnly: true
-          description: Whether this code is the one currently on the cart.
+          description: Αν αυτός ο κωδικός είναι αυτός που βρίσκεται τώρα στο καλάθι.
       required:
         - applied
         - code
@@ -35173,7 +35173,7 @@ components:
           description: Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
           maxLength: 16
         email:
-          description: Checkout email. Lets promotion eligibility checks that depend on customer identity (first-order-only, per-customer limits) run against the same identity the order-create verification will use, keeping the PaymentIntent amount in lockstep.
+          description: Email ολοκλήρωσης αγοράς. Επιτρέπει στους ελέγχους επιλεξιμότητας προσφορών που εξαρτώνται από την ταυτότητα του πελάτη (μόνο για πρώτη παραγγελία, όρια ανά πελάτη) να εκτελούνται με την ίδια ταυτότητα που θα χρησιμοποιήσει η επαλήθευση κατά τη δημιουργία παραγγελίας, ώστε το ποσό του PaymentIntent να παραμένει συγχρονισμένο.
           oneOf:
             - type: string
               format: email
@@ -35185,13 +35185,13 @@ components:
             type: string
             minLength: 1
             maxLength: 32
-          description: Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.
+          description: Κωδικοί δωροκαρτών που θέλει να εξαργυρώσει ο αγοραστής — το intent δημιουργείται για το ΠΟΣΟ ΠΟΥ ΑΠΟΜΕΝΕΙ αφού αφαιρεθούν τα υπόλοιπά τους. Στείλτε τους ίδιους κωδικούς στο σώμα της δημιουργίας παραγγελίας.
           maxItems: 3
         loyaltyPointsToRedeem:
           type: integer
           minimum: 0
           nullable: true
-          description: Loyalty points the shopper will redeem at order creation. The intent amount subtracts the resulting discount so the provider captures what the customer was shown. Pass the same value in the order-create body. Requires an authenticated request.
+          description: Πόντοι πιστότητας που θα εξαργυρώσει ο αγοραστής κατά τη δημιουργία της παραγγελίας. Από το ποσό του intent αφαιρείται η έκπτωση που προκύπτει, ώστε ο πάροχος να χρεώσει ό,τι εμφανίστηκε στον πελάτη. Στείλτε την ίδια τιμή στο σώμα της δημιουργίας παραγγελίας. Απαιτεί πιστοποιημένο αίτημα.
       required:
         - countryId
         - payWayId
@@ -35213,6 +35213,7 @@ components:
         user:
           type: integer
           nullable: true
+          title: Χρήστης
         uuid:
           type: string
           format: uuid
@@ -35278,7 +35279,7 @@ components:
           type: number
           format: double
           readOnly: true
-          description: Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+          description: Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
         appliedPromotions:
           type: array
           items:
@@ -35293,18 +35294,18 @@ components:
                 nullable: true
               amount:
                 type: number
-          description: 'Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.'
+          description: 'Ανάλυση του promotion_discount ανά προσφορά: μία εγγραφή για κάθε προσφορά που πράγματι μείωσε το ποσό, με τον κωδικό κουπονιού που την ενεργοποίησε, όταν υπήρχε. Το storefront τη χρειάζεται για να δείξει στον αγοραστή ΠΟΙΕΣ προσφορές εφαρμόστηκαν και να εμφανίσει σε κάθε κουπόνι το ΔΙΚΟ του ποσό αντί για το σύνολο του καλαθιού.'
           readOnly: true
         promotionFreeShipping:
           type: boolean
           readOnly: true
-          description: Whether a live promotion waives the shipping cost
+          description: Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
         appliedCouponCodes:
           type: array
           items:
             type: string
           readOnly: true
-          description: Coupon codes currently attached to this cart
+          description: Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
         promotionGiftItems:
           type: array
           items:
@@ -35322,7 +35323,7 @@ components:
                 type: string
               quantity:
                 type: integer
-          description: Free-gift entitlements earned by this cart
+          description: Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
           readOnly: true
         promotionNearMiss:
           type: array
@@ -35335,7 +35336,7 @@ components:
                 type: string
               remainingAmount:
                 type: number
-          description: Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
+          description: Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
           readOnly: true
         b2bPricing:
           type: object
@@ -35354,7 +35355,7 @@ components:
             belowMinimum:
               type: boolean
           readOnly: true
-          description: Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
+          description: Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
         createdAt:
           type: string
           format: date-time
@@ -35527,6 +35528,7 @@ components:
       properties:
         product:
           type: integer
+          title: Προϊόν
         quantity:
           type: integer
           maximum: 2147483647
@@ -35536,7 +35538,7 @@ components:
           type: string
           format: uuid
           nullable: true
-          title: Recommendation impression
+          title: Εμφάνιση σύστασης
       required:
         - product
     CartItemDetail:
@@ -35682,7 +35684,7 @@ components:
           type: string
           format: uuid
           nullable: true
-          title: Recommendation impression
+          title: Εμφάνιση σύστασης
     CartPaymentIntentResponse:
       type: object
       description: Response body returned by the create-payment-intent cart action.
@@ -35790,50 +35792,50 @@ components:
         - contact_panel
       type: string
       description: |-
-        * `hero_banner` - Hero Banner
-        * `hero_carousel` - Hero Carousel
-        * `products_slider` - Products Slider
-        * `products_grid` - Products Grid
+        * `hero_banner` - Κεντρικό banner
+        * `hero_carousel` - Κεντρικό καρουζέλ
+        * `products_slider` - Slider προϊόντων
+        * `products_grid` - Πλέγμα προϊόντων
         * `featured_products` - Προβεβλημένα Προϊόντα
         * `product_categories` - Κατηγορίες προϊόντος
-        * `blog_categories` - Blog Categories Rail
-        * `blog_posts_carousel` - Blog Posts Carousel
-        * `blog_posts_grid` - Blog Posts Grid
-        * `blog_posts_list` - Blog Posts List
-        * `recently_viewed` - Recently Viewed Rail
-        * `rich_text` - Rich Text Block
-        * `cta_banner` - Call to Action Banner
-        * `newsletter_signup` - Newsletter Signup
-        * `testimonials` - Testimonials
-        * `about_content` - About Content
-        * `vision_content` - Vision Content
-        * `what_is_microlearning` - What Is Microlearning
-        * `why_microlearning` - Why Microlearning
-        * `spacer` - Spacer
-        * `divider` - Divider
-        * `loyalty_hero` - Loyalty Program Hero
-        * `search_bar` - Search Bar
-        * `business_hours` - Business Hours
-        * `location_map` - Location Map
-        * `features_grid` - Features Grid
-        * `media_text` - Media + Text
-        * `image_gallery` - Image Gallery
-        * `story_timeline` - Story Timeline
-        * `faq` - FAQ Accordion
-        * `trust_badges` - Trust Badges
-        * `offers_preview` - Offers Preview
-        * `stats_strip` - Stats Strip
-        * `partner_strip` - Partner Strip
-        * `pull_quote` - Pull Quote
-        * `reference_cards` - Reference Cards
-        * `page_hero` - Page Hero
-        * `feature_lists` - Feature Lists
-        * `option_selector` - Option Selector
-        * `comparison_table` - Comparison Table
-        * `flow_steps` - Flow Steps
-        * `project_register` - Project Register
-        * `vendor_cards` - Vendor Cards
-        * `contact_panel` - Contact Panel
+        * `blog_categories` - Λωρίδα κατηγοριών Blog
+        * `blog_posts_carousel` - Καρουζέλ άρθρων Blog
+        * `blog_posts_grid` - Πλέγμα άρθρων Blog
+        * `blog_posts_list` - Λίστα άρθρων Blog
+        * `recently_viewed` - Λωρίδα πρόσφατα προβληθέντων
+        * `rich_text` - Μπλοκ εμπλουτισμένου κειμένου
+        * `cta_banner` - Banner παρότρυνσης για δράση
+        * `newsletter_signup` - Εγγραφή στο newsletter
+        * `testimonials` - Μαρτυρίες πελατών
+        * `about_content` - Περιεχόμενο «Σχετικά με εμάς»
+        * `vision_content` - Περιεχόμενο «Όραμα»
+        * `what_is_microlearning` - Τι είναι η μικρομάθηση
+        * `why_microlearning` - Γιατί μικρομάθηση
+        * `spacer` - Κενό διάστημα
+        * `divider` - Διαχωριστικό
+        * `loyalty_hero` - Κεντρική ενότητα προγράμματος επιβράβευσης
+        * `search_bar` - Γραμμή αναζήτησης
+        * `business_hours` - Ωράριο λειτουργίας
+        * `location_map` - Χάρτης τοποθεσίας
+        * `features_grid` - Πλέγμα χαρακτηριστικών
+        * `media_text` - Πολυμέσα + κείμενο
+        * `image_gallery` - Συλλογή εικόνων
+        * `story_timeline` - Χρονολόγιο ιστορίας
+        * `faq` - Συχνές ερωτήσεις (accordion)
+        * `trust_badges` - Σήματα εμπιστοσύνης
+        * `offers_preview` - Προεπισκόπηση προσφορών
+        * `stats_strip` - Λωρίδα στατιστικών
+        * `partner_strip` - Λωρίδα συνεργατών
+        * `pull_quote` - Επισημασμένο απόσπασμα
+        * `reference_cards` - Κάρτες αναφοράς
+        * `page_hero` - Κεντρική ενότητα σελίδας
+        * `feature_lists` - Λίστες χαρακτηριστικών
+        * `option_selector` - Επιλογέας επιλογών
+        * `comparison_table` - Πίνακας σύγκρισης
+        * `flow_steps` - Βήματα ροής
+        * `project_register` - Μητρώο έργων
+        * `vendor_cards` - Κάρτες προμηθευτών
+        * `contact_panel` - Πλαίσιο επικοινωνίας
     ConfirmAgentPaymentRequestRequest:
       type: object
       properties:
@@ -35888,17 +35890,21 @@ components:
         originalName:
           type: string
           readOnly: true
+          title: Αρχικό όνομα
         contentType:
           type: string
           readOnly: true
+          title: Τύπος περιεχομένου
         size:
           type: integer
           readOnly: true
+          title: Μέγεθος
           description: Bytes.
         scanStatus:
           allOf:
             - $ref: '#/components/schemas/ScanStatusEnum'
           readOnly: true
+          title: Κατάσταση σάρωσης
         createdAt:
           type: string
           format: date-time
@@ -35938,6 +35944,7 @@ components:
           maxLength: 30
         subject:
           type: string
+          title: Θέμα
           maxLength: 60
         createdAt:
           type: string
@@ -35988,6 +35995,7 @@ components:
           maxLength: 30
         subject:
           type: string
+          title: Θέμα
           maxLength: 60
         attachmentIds:
           type: array
@@ -36507,7 +36515,7 @@ components:
         code:
           type: string
           minLength: 1
-          description: Coupon code to apply (case-insensitive)
+          description: Κωδικός κουπονιού προς εφαρμογή (χωρίς διάκριση πεζών/κεφαλαίων)
           maxLength: 40
       required:
         - code
@@ -36520,7 +36528,7 @@ components:
           description: Μήνυμα σε αναγνώσιμη μορφή
         reason:
           type: string
-          description: Machine-readable rejection reason (ACP discount-extension vocabulary, e.g. discount_code_invalid)
+          description: Αιτία απόρριψης σε μορφή αναγνώσιμη από μηχανή (λεξιλόγιο της επέκτασης εκπτώσεων ACP, π.χ. discount_code_invalid)
       required:
         - detail
         - reason
@@ -36590,14 +36598,14 @@ components:
           description: Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών
         paymentMethodId:
           type: string
-          description: Provider payment-method id to charge
+          description: ID μεθόδου πληρωμής του παρόχου προς χρέωση
           maxLength: 255
         customerId:
           type: string
-          description: Provider customer id to attach the payment to
+          description: ID πελάτη του παρόχου στον οποίο θα συνδεθεί η πληρωμή
           maxLength: 255
         returnUrl:
-          description: Where the provider should send the shopper back to
+          description: Πού πρέπει ο πάροχος να επιστρέψει τον πελάτη
           oneOf:
             - type: string
               format: uri
@@ -36908,10 +36916,10 @@ components:
       type: string
       description: |-
         * `general` - Γενικά
-        * `website` - Website & UX
+        * `website` - Ιστότοπος & UX
         * `products` - Προϊόντα
-        * `delivery` - Delivery
-        * `support` - Customer support
+        * `delivery` - Παράδοση
+        * `support` - Εξυπηρέτηση πελατών
         * `other` - Άλλο
     FeedbackWriteRequest:
       type: object
@@ -37043,7 +37051,7 @@ components:
           type: string
           readOnly: true
           title: Κωδικός
-          description: Crypto-random, uppercased; the bearer secret
+          description: Κρυπτογραφικά τυχαίος, με κεφαλαία· το μυστικό του κατόχου
         initialValue:
           type: number
           format: double
@@ -37071,17 +37079,20 @@ components:
           readOnly: true
           nullable: true
           title: Λήγει στις
-          description: 'Defaults to GIFT_CARD_VALIDITY_DAYS after issue (Greek law: 5 years); empty means never expires'
+          description: 'Προεπιλογή: GIFT_CARD_VALIDITY_DAYS μετά την έκδοση (ελληνική νομοθεσία: 5 έτη)· κενό σημαίνει ότι δεν λήγει ποτέ'
         recipientEmail:
           type: string
           format: email
           readOnly: true
+          title: Email παραλήπτη
         recipientName:
           type: string
           readOnly: true
+          title: Όνομα παραλήπτη
         senderName:
           type: string
           readOnly: true
+          title: Όνομα αποστολέα
         message:
           type: string
           readOnly: true
@@ -37091,6 +37102,7 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+          title: Παραδόθηκε στις
         transactions:
           type: array
           items:
@@ -37122,7 +37134,7 @@ components:
         code:
           type: string
           minLength: 1
-          description: Gift card code (case-insensitive)
+          description: Κωδικός δωροκάρτας (χωρίς διάκριση πεζών/κεφαλαίων)
           maxLength: 32
       required:
         - code
@@ -37161,7 +37173,7 @@ components:
           description: Μήνυμα σε αναγνώσιμη μορφή
         reason:
           type: string
-          description: Machine-readable reason, e.g. gift_card_invalid
+          description: Αιτία σε μηχαναγνώσιμη μορφή, π.χ. gift_card_invalid
       required:
         - detail
         - reason
@@ -37174,9 +37186,9 @@ components:
           maximum: 1000000000
           minimum: 0
           exclusiveMaximum: true
-          description: Card value in EUR — bounded by GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT
+          description: Αξία κάρτας σε EUR — εντός των ορίων GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT
         buyerEmail:
-          description: Required for guests; authenticated buyers default to their account email
+          description: Υποχρεωτικό για επισκέπτες· για συνδεδεμένους αγοραστές η προεπιλογή είναι το email του λογαριασμού τους
           oneOf:
             - type: string
               format: email
@@ -37202,13 +37214,13 @@ components:
           type: string
           format: date-time
           nullable: true
-          description: Empty means deliver right after payment
+          description: Κενό σημαίνει παράδοση αμέσως μετά την πληρωμή
         paymentProvider:
           allOf:
             - $ref: '#/components/schemas/PaymentProviderEnum'
           default: stripe
           description: |-
-            stripe = inline card element (clientSecret in the response); viva_wallet = hosted Smart Checkout redirect (checkoutUrl in the response). Only providers the store has credentials for are accepted.
+            stripe = ενσωματωμένο στοιχείο κάρτας (clientSecret στην απάντηση)· viva_wallet = ανακατεύθυνση στο φιλοξενούμενο Smart Checkout (checkoutUrl στην απάντηση). Γίνονται δεκτοί μόνο οι πάροχοι για τους οποίους το κατάστημα έχει διαπιστευτήρια.
 
             * `stripe` - stripe
             * `viva_wallet` - viva_wallet
@@ -37223,16 +37235,16 @@ components:
           format: uuid
         provider:
           type: string
-          description: Which provider flow the client must run
+          description: Ποια ροή παρόχου πρέπει να εκτελέσει ο client
         clientSecret:
           type: string
-          description: Stripe PaymentIntent client secret (stripe only)
+          description: Client secret του Stripe PaymentIntent (μόνο για stripe)
         paymentIntentId:
           type: string
-          description: Stripe PaymentIntent id (stripe only)
+          description: ID του Stripe PaymentIntent (μόνο για stripe)
         checkoutUrl:
           type: string
-          description: Viva Smart Checkout URL to redirect the buyer to (viva_wallet only)
+          description: URL του Viva Smart Checkout για ανακατεύθυνση του αγοραστή (μόνο για viva_wallet)
         amount:
           type: number
           format: double
@@ -37270,7 +37282,7 @@ components:
       type: string
       description: |-
         * `ACTIVE` - Ενεργή
-        * `DISABLED` - Disabled
+        * `DISABLED` - Απενεργοποιημένη
     GiftCardTransaction:
       type: object
       properties:
@@ -37290,11 +37302,13 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: 'Signed: positive adds balance (issue/refund credit), negative removes it (redeem/expire)'
+          title: Ποσό
+          description: 'Προσημασμένο: θετικό προσθέτει υπόλοιπο (έκδοση/πίστωση επιστροφής), αρνητικό αφαιρεί (εξαργύρωση/λήξη)'
         order:
           type: integer
           readOnly: true
           nullable: true
+          title: Παραγγελία
         createdAt:
           type: string
           format: date-time
@@ -37315,9 +37329,9 @@ components:
         - EXPIRE
       type: string
       description: |-
-        * `ISSUE` - Issue
+        * `ISSUE` - Έκδοση
         * `REDEEM` - Εξαργύρωση
-        * `REFUND_CREDIT` - Refund credit
+        * `REFUND_CREDIT` - Πίστωση επιστροφής
         * `ADJUST` - Προσαρμογή
         * `EXPIRE` - Λήξη
     HealthCheckResponse:
@@ -37613,7 +37627,9 @@ components:
         no longer exists on the model.
       properties:
         slot:
-          $ref: '#/components/schemas/SlotEnum'
+          allOf:
+            - $ref: '#/components/schemas/SlotEnum'
+          title: Θέση
       required:
         - slot
     NavigationMenuRequest:
@@ -37626,7 +37642,9 @@ components:
         no longer exists on the model.
       properties:
         slot:
-          $ref: '#/components/schemas/SlotEnum'
+          allOf:
+            - $ref: '#/components/schemas/SlotEnum'
+          title: Θέση
       required:
         - slot
     NewsletterAvailability:
@@ -37885,12 +37903,12 @@ components:
           readOnly: true
         seen:
           type: boolean
-          title: Ορατό
+          title: Αναγνωσμένη
         seenAt:
           type: string
           format: date-time
           nullable: true
-          title: Ορατό στις
+          title: Αναγνώστηκε στις
         createdAt:
           type: string
           format: date-time
@@ -37938,12 +37956,12 @@ components:
           readOnly: true
         seen:
           type: boolean
-          title: Ορατό
+          title: Αναγνωσμένη
         seenAt:
           type: string
           format: date-time
           nullable: true
-          title: Ορατό στις
+          title: Αναγνώστηκε στις
         createdAt:
           type: string
           format: date-time
@@ -37970,7 +37988,7 @@ components:
       properties:
         seen:
           type: boolean
-          title: Ορατό
+          title: Αναγνωσμένη
     NullEnum:
       enum:
         - null
@@ -37983,6 +38001,7 @@ components:
         user:
           type: integer
           nullable: true
+          title: Χρήστης
         country:
           type: string
           title: Κωδικός Χώρας (Alpha 2)
@@ -38163,8 +38182,8 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          title: Promotion Discount
-          description: Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+          title: Έκπτωση προσφορών
+          description: Συνολική έκπτωση που χορηγήθηκε από προσφορές/κουπόνια, καταγεγραμμένη κατά τη δημιουργία της παραγγελίας. Η ανάλυση βρίσκεται στο metadata['promotions'] + στις γραμμές PromotionRedemption. Αφαιρείται από την calculate_order_total_amount().
         loyaltyDiscount:
           type: number
           format: double
@@ -38173,7 +38192,8 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+          title: Έκπτωση πόντων
+          description: Ποσό που αφαιρείται από το σύνολο της παραγγελίας σε αντάλλαγμα για πόντους πιστότητας. Αφαιρείται από την calculate_order_total_amount().
         giftCardAmount:
           type: number
           format: double
@@ -38182,7 +38202,8 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
+          title: Ποσό δωροκάρτας
+          description: Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
         fullAddress:
           type: string
           readOnly: true
@@ -38202,7 +38223,7 @@ components:
           description: 'Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. In the request''s language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``).'
         paymentMethod:
           type: string
-          title: Μέθοδος πληρωμής
+          title: Πύλη πληρωμής
           maxLength: 50
         payWayKey:
           readOnly: true
@@ -38374,7 +38395,7 @@ components:
           type: array
           items:
             type: string
-          description: '``insufficient_stock`` / ``cart_invalid`` from the cart check: one message per problem, for display.'
+          description: '``insufficient_stock`` / ``cart_invalid`` από τον έλεγχο καλαθιού: ένα μήνυμα ανά πρόβλημα, για εμφάνιση.'
         fieldErrors:
           type: object
           additionalProperties:
@@ -38388,33 +38409,33 @@ components:
           allOf:
             - $ref: '#/components/schemas/OrderCreateErrorType'
           description: |-
-            Stable code for why the order was refused. Branch on this, never on ``detail`` or ``cart``, which are in the request's language.
+            Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.
 
-            * `insufficient_stock` - Insufficient stock
-            * `cart_invalid` - Cart not ready for checkout
-            * `reservation_unavailable` - Stock reservation no longer valid
+            * `insufficient_stock` - Ανεπαρκές απόθεμα
+            * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+            * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
             * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
-            * `invalid_coupon` - Invalid coupon
-            * `invalid_gift_card` - Invalid gift card
+            * `invalid_coupon` - Μη έγκυρο κουπόνι
+            * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
             * `payment_not_found` - Δεν βρέθηκε πληρωμή
             * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
-            * `payment_amount_mismatch` - Payment amount mismatch
-            * `payment_currency_mismatch` - Payment currency mismatch
+            * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
+            * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
         productId:
           type: integer
-          description: '``insufficient_stock`` only.'
+          description: Μόνο για ``insufficient_stock``.
         available:
           type: integer
-          description: '``insufficient_stock`` only.'
+          description: Μόνο για ``insufficient_stock``.
         requested:
           type: integer
-          description: '``insufficient_stock`` only.'
+          description: Μόνο για ``insufficient_stock``.
         code:
           type: string
-          description: '``invalid_coupon`` only.'
+          description: Μόνο για ``invalid_coupon``.
         reason:
           type: string
-          description: '``invalid_coupon`` / ``invalid_gift_card`` only.'
+          description: Μόνο για ``invalid_coupon`` / ``invalid_gift_card``.
       required:
         - type
     OrderCreateErrorType:
@@ -38431,16 +38452,16 @@ components:
         - payment_currency_mismatch
       type: string
       description: |-
-        * `insufficient_stock` - Insufficient stock
-        * `cart_invalid` - Cart not ready for checkout
-        * `reservation_unavailable` - Stock reservation no longer valid
+        * `insufficient_stock` - Ανεπαρκές απόθεμα
+        * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+        * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
         * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
-        * `invalid_coupon` - Invalid coupon
-        * `invalid_gift_card` - Invalid gift card
+        * `invalid_coupon` - Μη έγκυρο κουπόνι
+        * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
         * `payment_not_found` - Δεν βρέθηκε πληρωμή
         * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
-        * `payment_amount_mismatch` - Payment amount mismatch
-        * `payment_currency_mismatch` - Payment currency mismatch
+        * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
+        * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
     OrderCreateFromCartRequest:
       type: object
       description: |-
@@ -38493,7 +38514,7 @@ components:
         zipcode:
           type: string
           minLength: 1
-          description: Postal/ZIP code. Must match the country's ``postal_code_pattern``; stored normalised (trimmed, upper-case, single spaces).
+          description: Ταχυδρομικός κώδικας. Πρέπει να ταιριάζει με το ``postal_code_pattern`` της χώρας· αποθηκεύεται κανονικοποιημένος (χωρίς κενά στα άκρα, κεφαλαία, μονά κενά).
           maxLength: 20
         countryId:
           type: string
@@ -38513,7 +38534,7 @@ components:
           maxLength: 500
         floor:
           description: |-
-            Floor, as a FloorChoicesEnum member (e.g. FIRST_FLOOR)
+            Όροφος, ως μέλος του FloorChoicesEnum (π.χ. FIRST_FLOOR)
 
             * `BASEMENT` - Υπόγειο
             * `GROUND_FLOOR` - Ισόγειο
@@ -38528,7 +38549,7 @@ components:
             - $ref: '#/components/schemas/BlankEnum'
         locationType:
           description: |-
-            Location, as a LocationChoicesEnum member (e.g. HOME)
+            Τοποθεσία, ως μέλος του LocationChoicesEnum (π.χ. HOME)
 
             * `HOME` - Σπίτι
             * `OFFICE` - Γραφείο
@@ -38668,6 +38689,7 @@ components:
         user:
           type: integer
           nullable: true
+          title: Χρήστης
         country:
           type: string
           title: Κωδικός Χώρας (Alpha 2)
@@ -38849,8 +38871,8 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          title: Promotion Discount
-          description: Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+          title: Έκπτωση προσφορών
+          description: Συνολική έκπτωση που χορηγήθηκε από προσφορές/κουπόνια, καταγεγραμμένη κατά τη δημιουργία της παραγγελίας. Η ανάλυση βρίσκεται στο metadata['promotions'] + στις γραμμές PromotionRedemption. Αφαιρείται από την calculate_order_total_amount().
         loyaltyDiscount:
           type: number
           format: double
@@ -38859,7 +38881,8 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+          title: Έκπτωση πόντων
+          description: Ποσό που αφαιρείται από το σύνολο της παραγγελίας σε αντάλλαγμα για πόντους πιστότητας. Αφαιρείται από την calculate_order_total_amount().
         giftCardAmount:
           type: number
           format: double
@@ -38868,7 +38891,8 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
+          title: Ποσό δωροκάρτας
+          description: Τμήμα της παραγγελίας που εξοφλήθηκε με υπόλοιπο δωροκάρτας. Πληρωμή, όχι έκπτωση — δεν μειώνει ποτέ τη φορολογητέα αξία της παραγγελίας, μόνο το ποσό που χρεώνει ο πάροχος πληρωμής.
         fullAddress:
           type: string
           readOnly: true
@@ -38888,7 +38912,7 @@ components:
           description: 'Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. In the request''s language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``).'
         paymentMethod:
           type: string
-          title: Μέθοδος πληρωμής
+          title: Πύλη πληρωμής
           maxLength: 50
         payWayKey:
           readOnly: true
@@ -39174,8 +39198,10 @@ components:
           readOnly: true
         order:
           type: integer
+          title: Παραγγελία
         product:
           type: integer
+          title: Προϊόν
         price:
           type: number
           format: double
@@ -39235,6 +39261,7 @@ components:
       properties:
         product:
           type: integer
+          title: Προϊόν
         quantity:
           type: integer
           maximum: 2147483647
@@ -39257,6 +39284,7 @@ components:
           readOnly: true
         order:
           type: integer
+          title: Παραγγελία
         product:
           allOf:
             - $ref: '#/components/schemas/Product'
@@ -39382,8 +39410,10 @@ components:
       properties:
         order:
           type: integer
+          title: Παραγγελία
         product:
           type: integer
+          title: Προϊόν
         quantity:
           type: integer
           maximum: 2147483647
@@ -39439,12 +39469,12 @@ components:
         country:
           type: string
           minLength: 1
-          title: Κωδικός Χώρας (Alpha 2)
+          title: Χώρα
           nullable: true
         region:
           type: string
           minLength: 1
-          title: Κωδικός περιφέρειας
+          title: Περιοχή
           nullable: true
         floor:
           title: Όροφος
@@ -39528,12 +39558,13 @@ components:
           readOnly: true
         pageType:
           type: string
-          description: Identifier for the page (e.g. "home", "products", "blog").
+          title: Τύπος σελίδας
+          description: Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
           maxLength: 50
         title:
           type: string
           title: Τίτλος
-          description: Admin display name for this layout.
+          description: Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
           maxLength: 200
         seoTitle:
           type: string
@@ -39576,12 +39607,13 @@ components:
           readOnly: true
         pageType:
           type: string
-          description: Identifier for the page (e.g. "home", "products", "blog").
+          title: Τύπος σελίδας
+          description: Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
           maxLength: 50
         title:
           type: string
           title: Τίτλος
-          description: Admin display name for this layout.
+          description: Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
           maxLength: 200
         translations:
           type: object
@@ -39637,13 +39669,14 @@ components:
         pageType:
           type: string
           minLength: 1
-          description: Identifier for the page (e.g. "home", "products", "blog").
+          title: Τύπος σελίδας
+          description: Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
           maxLength: 50
         title:
           type: string
           minLength: 1
           title: Τίτλος
-          description: Admin display name for this layout.
+          description: Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
           maxLength: 200
         translations:
           type: object
@@ -39695,15 +39728,19 @@ components:
           format: uuid
           readOnly: true
         componentType:
-          $ref: '#/components/schemas/ComponentTypeEnum'
+          allOf:
+            - $ref: '#/components/schemas/ComponentTypeEnum'
+          title: Τύπος στοιχείου
         title:
           type: string
           title: Τίτλος
           maxLength: 200
         isVisible:
           type: boolean
+          title: Ορατό
         props:
-          description: Component-specific configuration as JSON.
+          title: Ιδιότητες
+          description: Ρυθμίσεις του στοιχείου σε μορφή JSON.
         sortOrder:
           type: integer
           readOnly: true
@@ -39718,15 +39755,19 @@ components:
       type: object
       properties:
         componentType:
-          $ref: '#/components/schemas/ComponentTypeEnum'
+          allOf:
+            - $ref: '#/components/schemas/ComponentTypeEnum'
+          title: Τύπος στοιχείου
         title:
           type: string
           title: Τίτλος
           maxLength: 200
         isVisible:
           type: boolean
+          title: Ορατό
         props:
-          description: Component-specific configuration as JSON.
+          title: Ιδιότητες
+          description: Ρυθμίσεις του στοιχείου σε μορφή JSON.
       required:
         - componentType
     PaginatedAcsStationList:
@@ -41197,6 +41238,7 @@ components:
                   type: string
         user:
           type: integer
+          title: Χρήστης
         website:
           title: Ιστότοπος
           oneOf:
@@ -41241,6 +41283,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
         image:
           type: string
           format: binary
@@ -41381,7 +41424,7 @@ components:
           type: string
           format: uuid
           nullable: true
-          title: Recommendation impression
+          title: Εμφάνιση σύστασης
     PatchedContentPageWriteRequest:
       type: object
       description: |-
@@ -41514,20 +41557,24 @@ components:
         no longer exists on the model.
       properties:
         slot:
-          $ref: '#/components/schemas/SlotEnum'
+          allOf:
+            - $ref: '#/components/schemas/SlotEnum'
+          title: Θέση
     PatchedNotificationUserWriteRequest:
       type: object
       properties:
         seen:
           type: boolean
-          title: Ορατό
+          title: Αναγνωσμένη
     PatchedOrderItemWriteRequest:
       type: object
       properties:
         order:
           type: integer
+          title: Παραγγελία
         product:
           type: integer
+          title: Προϊόν
         quantity:
           type: integer
           maximum: 2147483647
@@ -41542,12 +41589,12 @@ components:
         country:
           type: string
           minLength: 1
-          title: Κωδικός Χώρας (Alpha 2)
+          title: Χώρα
           nullable: true
         region:
           type: string
           minLength: 1
-          title: Κωδικός περιφέρειας
+          title: Περιοχή
           nullable: true
         floor:
           title: Όροφος
@@ -41611,13 +41658,14 @@ components:
         pageType:
           type: string
           minLength: 1
-          description: Identifier for the page (e.g. "home", "products", "blog").
+          title: Τύπος σελίδας
+          description: Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
           maxLength: 50
         title:
           type: string
           minLength: 1
           title: Τίτλος
-          description: Admin display name for this layout.
+          description: Όνομα εμφάνισης αυτής της διάταξης στη διαχείριση.
           maxLength: 200
         translations:
           type: object
@@ -41718,17 +41766,14 @@ components:
         settlement:
           allOf:
             - $ref: '#/components/schemas/SettlementEnum'
+          title: Διακανονισμός
           description: |-
-            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+            Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
 
-            * `online` - Paid online at checkout
-            * `courier_cash` - Cash or card to the courier on delivery
-            * `carrier_terminal` - Paid to the carrier before pickup
-            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
-        configuration:
-          nullable: true
-          title: Διαμόρφωση Παρόχου
-          description: Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
+            * `online` - Πληρωμή online κατά το checkout
+            * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+            * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+            * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
     PatchedProductCategoryImageBulkUpdateRequest:
       type: object
       properties:
@@ -41839,6 +41884,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
     PatchedProductFavouriteWriteRequest:
       type: object
       properties:
@@ -42123,10 +42169,12 @@ components:
           description: ID ετικέτας προς ανάθεση
         contentType:
           type: integer
+          title: Τύπος Περιεχομένου
         objectId:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: ID αντικειμένου
     PatchedUserAddressWriteRequest:
       type: object
       properties:
@@ -42217,7 +42265,7 @@ components:
         username:
           nullable: true
           title: Όνομα χρήστη
-          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+          description: Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
           oneOf:
             - type: string
               pattern: ^[\w.@+#-]+$
@@ -42250,12 +42298,12 @@ components:
         country:
           type: string
           minLength: 1
-          title: Κωδικός Χώρας (Alpha 2)
+          title: Χώρα
           nullable: true
         region:
           type: string
           minLength: 1
-          title: Κωδικός περιφέρειας
+          title: Περιοχή
           nullable: true
         birthDate:
           type: string
@@ -42419,143 +42467,23 @@ components:
         settlement:
           allOf:
             - $ref: '#/components/schemas/SettlementEnum'
+          title: Διακανονισμός
           description: |-
-            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+            Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
 
-            * `online` - Paid online at checkout
-            * `courier_cash` - Cash or card to the courier on delivery
-            * `carrier_terminal` - Paid to the carrier before pickup
-            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+            * `online` - Πληρωμή online κατά το checkout
+            * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+            * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+            * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
         isOnlinePayment:
           type: boolean
           title: Είναι online πληρωμή
-          description: Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
+          description: Παρωχημένο αντίγραφο του ``settlement == ONLINE``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
         requiresConfirmation:
           type: boolean
           title: Απαιτείται Επιβεβαίωση
-          description: Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
+          description: Παρωχημένο αντίγραφο του ``settlement == OFFLINE_TRANSFER``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
       required:
-        - cost
-        - createdAt
-        - freeThreshold
-        - iconFilename
-        - id
-        - mainImagePath
-        - sortOrder
-        - translations
-        - updatedAt
-        - uuid
-    PayWayDetail:
-      type: object
-      description: Serializer that saves :class:`TranslatedFieldsField` automatically.
-      properties:
-        translations:
-          type: object
-          properties:
-            el:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                instructions:
-                  type: string
-            en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                instructions:
-                  type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                instructions:
-                  type: string
-        id:
-          type: integer
-          readOnly: true
-        active:
-          type: boolean
-          title: Ενεργή
-        cost:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-        freeThreshold:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-        icon:
-          type: string
-          format: uri
-          nullable: true
-          title: Εικονίδιο
-        sortOrder:
-          type: integer
-          readOnly: true
-          nullable: true
-          title: Σειρά ταξινόμησης
-        mainImagePath:
-          type: string
-          readOnly: true
-        createdAt:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Δημιουργήθηκε στις
-        updatedAt:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Ενημερώθηκε στις
-        uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        iconFilename:
-          type: string
-          readOnly: true
-        providerCode:
-          type: string
-          title: Κωδικός παρόχου
-          description: Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
-          maxLength: 50
-        settlement:
-          allOf:
-            - $ref: '#/components/schemas/SettlementEnum'
-          description: |-
-            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
-
-            * `online` - Paid online at checkout
-            * `courier_cash` - Cash or card to the courier on delivery
-            * `carrier_terminal` - Paid to the carrier before pickup
-            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
-        isOnlinePayment:
-          type: boolean
-          title: Είναι online πληρωμή
-          description: Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
-        requiresConfirmation:
-          type: boolean
-          title: Απαιτείται Επιβεβαίωση
-          description: Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
-        configuration:
-          readOnly: true
-      required:
-        - configuration
         - cost
         - createdAt
         - freeThreshold
@@ -42654,17 +42582,14 @@ components:
         settlement:
           allOf:
             - $ref: '#/components/schemas/SettlementEnum'
+          title: Διακανονισμός
           description: |-
-            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+            Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
 
-            * `online` - Paid online at checkout
-            * `courier_cash` - Cash or card to the courier on delivery
-            * `carrier_terminal` - Paid to the carrier before pickup
-            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
-        configuration:
-          nullable: true
-          title: Διαμόρφωση Παρόχου
-          description: Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
+            * `online` - Πληρωμή online κατά το checkout
+            * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+            * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+            * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
       required:
         - cost
         - translations
@@ -42801,6 +42726,7 @@ components:
           type: integer
           readOnly: true
           nullable: true
+          title: Σχετική παραγγελία
         description:
           type: string
           readOnly: true
@@ -42890,11 +42816,13 @@ components:
           type: integer
           readOnly: true
           nullable: true
+          title: Ομάδα παραλλαγών
           description: Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
         brand:
           type: integer
           readOnly: true
           nullable: true
+          title: Μάρκα
         brandName:
           type: string
           readOnly: true
@@ -43052,10 +42980,12 @@ components:
           title: Είδος
         product:
           type: integer
+          title: Προϊόν
         user:
           type: integer
           readOnly: true
           nullable: true
+          title: Χρήστης
         email:
           type: string
           format: email
@@ -43116,6 +43046,7 @@ components:
           title: Είδος
         product:
           type: integer
+          title: Προϊόν
         email:
           type: string
           format: email
@@ -43247,6 +43178,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
         level:
           type: integer
           readOnly: true
@@ -43339,6 +43271,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
         level:
           type: integer
           readOnly: true
@@ -43668,6 +43601,7 @@ components:
         parent:
           type: integer
           nullable: true
+          title: Γονική κατηγορία
       required:
         - slug
         - translations
@@ -43730,11 +43664,13 @@ components:
           type: integer
           readOnly: true
           nullable: true
+          title: Ομάδα παραλλαγών
           description: Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
         brand:
           type: integer
           readOnly: true
           nullable: true
+          title: Μάρκα
         brandName:
           type: string
           readOnly: true
@@ -43941,11 +43877,13 @@ components:
           type: integer
           readOnly: true
           nullable: true
+          title: Ομάδα παραλλαγών
           description: Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
         brand:
           type: integer
           readOnly: true
           nullable: true
+          title: Μάρκα
         brandName:
           type: string
           readOnly: true
@@ -44591,15 +44529,17 @@ components:
           allOf:
             - $ref: '#/components/schemas/TriggerEnum'
           readOnly: true
+          title: Τρόπος ενεργοποίησης
           description: |-
-            Automatic promotions apply to every eligible cart; code promotions require the shopper to enter a coupon code
+            Οι αυτόματες προσφορές εφαρμόζονται σε κάθε επιλέξιμο καλάθι· οι προσφορές με κωδικό απαιτούν από τον αγοραστή να εισαγάγει κωδικό κουπονιού
 
-            * `AUTOMATIC` - Automatic
-            * `CODE` - Coupon code
+            * `AUTOMATIC` - Αυτόματη
+            * `CODE` - Κωδικός κουπονιού
         benefitType:
           allOf:
             - $ref: '#/components/schemas/BenefitTypeEnum'
           readOnly: true
+          title: Τύπος οφέλους
         benefitValue:
           type: number
           format: double
@@ -44608,11 +44548,13 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping
+          title: Τιμή οφέλους
+          description: Ποσοστό (0-100) για ποσοστιαία οφέλη, ποσό σε EUR για οφέλη σταθερού ποσού· αγνοείται για δωρεάν μεταφορικά
         targetScope:
           allOf:
             - $ref: '#/components/schemas/TargetScopeEnum'
           readOnly: true
+          title: Εύρος στόχευσης
         code:
           type: string
           nullable: true
@@ -44642,18 +44584,20 @@ components:
           type: integer
           readOnly: true
           nullable: true
-          title: Minimum Quantity
-          description: Minimum number of ELIGIBLE units (after scope and exclusions) the cart must contain
+          title: Ελάχιστη ποσότητα
+          description: Ελάχιστος αριθμός ΕΠΙΛΕΞΙΜΩΝ τεμαχίων (μετά το εύρος και τις εξαιρέσεις) που πρέπει να περιέχει το καλάθι
         buyQuantity:
           type: integer
           readOnly: true
           nullable: true
-          description: 'BXGY: eligible units the shopper must buy per application'
+          title: Ποσότητα αγοράς
+          description: 'BXGY: επιλέξιμα τεμάχια που πρέπει να αγοράσει ο αγοραστής ανά εφαρμογή'
         getQuantity:
           type: integer
           readOnly: true
           nullable: true
-          description: 'BXGY: units discounted per application. FREE_GIFT: gift units added to the order'
+          title: Ποσότητα λήψης
+          description: 'BXGY: τεμάχια με έκπτωση ανά εφαρμογή. FREE_GIFT: τεμάχια δώρου που προστίθενται στην παραγγελία'
         getDiscountPercent:
           type: number
           format: double
@@ -44662,25 +44606,29 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: 'BXGY: discount applied to the ''get'' units — 100 means free, 50 means half price'
+          title: Ποσοστό έκπτωσης λήψης
+          description: 'BXGY: έκπτωση που εφαρμόζεται στα τεμάχια ''λήψης'' — 100 σημαίνει δωρεάν, 50 σημαίνει μισή τιμή'
         excludeDiscountedProducts:
           type: boolean
           readOnly: true
-          title: Exclude Already-discounted Products
-          description: Skip products that already carry a product-level markdown (discount percent > 0)
+          title: Εξαίρεση προϊόντων που έχουν ήδη έκπτωση
+          description: Παράλειψη προϊόντων που έχουν ήδη έκπτωση σε επίπεδο προϊόντος (ποσοστό έκπτωσης > 0)
         firstOrderOnly:
           type: boolean
           readOnly: true
-          description: Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.
+          title: Μόνο για την πρώτη παραγγελία
+          description: Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email του checkout και είναι κατά προσέγγιση.
         stackable:
           type: boolean
           readOnly: true
-          description: Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.
+          title: Συνδυάσιμη
+          description: Οι συνδυάσιμες προσφορές συνδυάζονται μεταξύ τους· μια μη συνδυάσιμη προσφορά εφαρμόζεται μόνη της και μόνο όταν υπερβαίνει τη συνδυασμένη έκπτωση των συνδυάσιμων. Αγνοείται για δωρεάν μεταφορικά, τα οποία συνδυάζονται πάντα.
         endsAt:
           type: string
           format: date-time
           readOnly: true
           nullable: true
+          title: Λήξη
         rewardProducts:
           type: array
           items:
@@ -44705,10 +44653,10 @@ components:
           description: |-
             Why this offer is shown on the product: PRODUCT (the promotion names it), REWARD (the shopper receives it), CATEGORY (its category is targeted), ORDER (store-wide).
 
-            * `PRODUCT` - Targets this product
-            * `REWARD` - This product is the reward
-            * `CATEGORY` - Targets this product's category
-            * `ORDER` - Applies to the whole order
+            * `PRODUCT` - Στοχεύει αυτό το προϊόν
+            * `REWARD` - Αυτό το προϊόν είναι η ανταμοιβή
+            * `CATEGORY` - Στοχεύει την κατηγορία αυτού του προϊόντος
+            * `ORDER` - Ισχύει για ολόκληρη την παραγγελία
           readOnly: true
       required:
         - benefitType
@@ -45198,15 +45146,17 @@ components:
           allOf:
             - $ref: '#/components/schemas/TriggerEnum'
           readOnly: true
+          title: Τρόπος ενεργοποίησης
           description: |-
-            Automatic promotions apply to every eligible cart; code promotions require the shopper to enter a coupon code
+            Οι αυτόματες προσφορές εφαρμόζονται σε κάθε επιλέξιμο καλάθι· οι προσφορές με κωδικό απαιτούν από τον αγοραστή να εισαγάγει κωδικό κουπονιού
 
-            * `AUTOMATIC` - Automatic
-            * `CODE` - Coupon code
+            * `AUTOMATIC` - Αυτόματη
+            * `CODE` - Κωδικός κουπονιού
         benefitType:
           allOf:
             - $ref: '#/components/schemas/BenefitTypeEnum'
           readOnly: true
+          title: Τύπος οφέλους
         benefitValue:
           type: number
           format: double
@@ -45215,11 +45165,13 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping
+          title: Τιμή οφέλους
+          description: Ποσοστό (0-100) για ποσοστιαία οφέλη, ποσό σε EUR για οφέλη σταθερού ποσού· αγνοείται για δωρεάν μεταφορικά
         targetScope:
           allOf:
             - $ref: '#/components/schemas/TargetScopeEnum'
           readOnly: true
+          title: Εύρος στόχευσης
         code:
           type: string
           nullable: true
@@ -45249,18 +45201,20 @@ components:
           type: integer
           readOnly: true
           nullable: true
-          title: Minimum Quantity
-          description: Minimum number of ELIGIBLE units (after scope and exclusions) the cart must contain
+          title: Ελάχιστη ποσότητα
+          description: Ελάχιστος αριθμός ΕΠΙΛΕΞΙΜΩΝ τεμαχίων (μετά το εύρος και τις εξαιρέσεις) που πρέπει να περιέχει το καλάθι
         buyQuantity:
           type: integer
           readOnly: true
           nullable: true
-          description: 'BXGY: eligible units the shopper must buy per application'
+          title: Ποσότητα αγοράς
+          description: 'BXGY: επιλέξιμα τεμάχια που πρέπει να αγοράσει ο αγοραστής ανά εφαρμογή'
         getQuantity:
           type: integer
           readOnly: true
           nullable: true
-          description: 'BXGY: units discounted per application. FREE_GIFT: gift units added to the order'
+          title: Ποσότητα λήψης
+          description: 'BXGY: τεμάχια με έκπτωση ανά εφαρμογή. FREE_GIFT: τεμάχια δώρου που προστίθενται στην παραγγελία'
         getDiscountPercent:
           type: number
           format: double
@@ -45269,25 +45223,29 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-          description: 'BXGY: discount applied to the ''get'' units — 100 means free, 50 means half price'
+          title: Ποσοστό έκπτωσης λήψης
+          description: 'BXGY: έκπτωση που εφαρμόζεται στα τεμάχια ''λήψης'' — 100 σημαίνει δωρεάν, 50 σημαίνει μισή τιμή'
         excludeDiscountedProducts:
           type: boolean
           readOnly: true
-          title: Exclude Already-discounted Products
-          description: Skip products that already carry a product-level markdown (discount percent > 0)
+          title: Εξαίρεση προϊόντων που έχουν ήδη έκπτωση
+          description: Παράλειψη προϊόντων που έχουν ήδη έκπτωση σε επίπεδο προϊόντος (ποσοστό έκπτωσης > 0)
         firstOrderOnly:
           type: boolean
           readOnly: true
-          description: Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.
+          title: Μόνο για την πρώτη παραγγελία
+          description: Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email του checkout και είναι κατά προσέγγιση.
         stackable:
           type: boolean
           readOnly: true
-          description: Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.
+          title: Συνδυάσιμη
+          description: Οι συνδυάσιμες προσφορές συνδυάζονται μεταξύ τους· μια μη συνδυάσιμη προσφορά εφαρμόζεται μόνη της και μόνο όταν υπερβαίνει τη συνδυασμένη έκπτωση των συνδυάσιμων. Αγνοείται για δωρεάν μεταφορικά, τα οποία συνδυάζονται πάντα.
         endsAt:
           type: string
           format: date-time
           readOnly: true
           nullable: true
+          title: Λήξη
         rewardProducts:
           type: array
           items:
@@ -45342,7 +45300,7 @@ components:
           type: object
           additionalProperties:
             type: string
-          description: Setting values keyed by setting name.
+          description: Τιμές ρυθμίσεων με κλειδί το όνομα της ρύθμισης.
       required:
         - settings
     RateEnum:
@@ -45389,8 +45347,8 @@ components:
         - click
       type: string
       description: |-
-        * `impression` - Impression
-        * `click` - Click
+        * `impression` - Προβολή
+        * `click` - Κλικ
     RecommendationEventRequestRequest:
       type: object
       properties:
@@ -45464,7 +45422,7 @@ components:
         impressionId:
           type: string
           format: uuid
-          description: Echo on click events so attach can be attributed.
+          description: Στείλτε το ξανά στα συμβάντα κλικ, ώστε να μπορεί να αποδοθεί η προσθήκη.
       required:
         - impressionId
         - items
@@ -45678,10 +45636,10 @@ components:
         - ORDER
       type: string
       description: |-
-        * `PRODUCT` - Targets this product
-        * `REWARD` - This product is the reward
-        * `CATEGORY` - Targets this product's category
-        * `ORDER` - Applies to the whole order
+        * `PRODUCT` - Στοχεύει αυτό το προϊόν
+        * `REWARD` - Αυτό το προϊόν είναι η ανταμοιβή
+        * `CATEGORY` - Στοχεύει την κατηγορία αυτού του προϊόντος
+        * `ORDER` - Ισχύει για ολόκληρη την παραγγελία
     RelationTypeEnum:
       enum:
         - similar
@@ -45691,11 +45649,11 @@ components:
         - bundle
       type: string
       description: |-
-        * `similar` - Similar product
-        * `complementary` - Goes well with
-        * `accessory` - Accessory for
-        * `replacement` - Replacement for
-        * `bundle` - Bundle with
+        * `similar` - Παρόμοιο προϊόν
+        * `complementary` - Ταιριάζει με
+        * `accessory` - Αξεσουάρ για
+        * `replacement` - Αντικατάσταση για
+        * `bundle` - Πακέτο με
     ReleaseReservationsRequestRequest:
       type: object
       description: Serializer for releasing stock reservations.
@@ -45704,7 +45662,7 @@ components:
           type: array
           items:
             type: integer
-          description: List of reservation IDs to release (at most 100)
+          description: Λίστα ID δεσμεύσεων προς αποδέσμευση (έως 100)
           maxItems: 100
       required:
         - reservationIds
@@ -45803,11 +45761,11 @@ components:
         - SKIPPED
       type: string
       description: |-
-        * `PENDING` - Pending scan
-        * `CLEAN` - Clean
-        * `INFECTED` - Infected
-        * `ERROR` - Scan failed
-        * `SKIPPED` - Not scanned
+        * `PENDING` - Εκκρεμεί σάρωση
+        * `CLEAN` - Καθαρό
+        * `INFECTED` - Μολυσμένο
+        * `ERROR` - Η σάρωση απέτυχε
+        * `SKIPPED` - Δεν σαρώθηκε
     SearchAnalyticsResponse:
       type: object
       description: Serializer for search analytics response.
@@ -45934,10 +45892,10 @@ components:
         - offline_transfer
       type: string
       description: |-
-        * `online` - Paid online at checkout
-        * `courier_cash` - Cash or card to the courier on delivery
-        * `carrier_terminal` - Paid to the carrier before pickup
-        * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+        * `online` - Πληρωμή online κατά το checkout
+        * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+        * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+        * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
     ShipmentStateEnum:
       enum:
         - pending_creation
@@ -46024,7 +45982,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ShippingOptionPayWay'
-          description: 'Active payment methods this (provider, kind) can settle, by the same rules checkout applies when the shopper picks it. Stated as a fact per option rather than as ''exclusive to this row'': the storefront collapses several carriers into one home-delivery card, so only it knows which rows it actually renders and can work out what a given choice uniquely unlocks. Lets the delivery step advertise a carrier-only product — BOX NOW Αντικαταβολή is reachable ONLY via a BoxNow locker, and a shopper who never picks one has no way to discover it exists.'
+          description: 'Ενεργές μέθοδοι πληρωμής που μπορεί να εξοφλήσει αυτός ο συνδυασμός (provider, kind), με τους ίδιους κανόνες που εφαρμόζει το checkout όταν τον επιλέγει ο αγοραστής. Δηλώνεται ως γεγονός ανά επιλογή και όχι ως ''αποκλειστικό σε αυτή τη γραμμή'': το storefront συγχωνεύει πολλούς μεταφορείς σε μία κάρτα παράδοσης στο σπίτι, οπότε μόνο αυτό γνωρίζει ποιες γραμμές εμφανίζει πραγματικά και μπορεί να υπολογίσει τι ξεκλειδώνει αποκλειστικά μια συγκεκριμένη επιλογή. Επιτρέπει στο βήμα παράδοσης να προβάλλει ένα προϊόν αποκλειστικό του μεταφορέα — η BOX NOW Αντικαταβολή είναι διαθέσιμη ΜΟΝΟ μέσω locker BoxNow, και ένας αγοραστής που δεν επιλέγει ποτέ locker δεν έχει τρόπο να ανακαλύψει ότι υπάρχει.'
       required:
         - countryCode
         - currency
@@ -46174,9 +46132,9 @@ components:
         - mobile
       type: string
       description: |-
-        * `header` - Header
-        * `footer` - Footer
-        * `mobile` - Mobile
+        * `header` - Κεφαλίδα
+        * `footer` - Υποσέλιδο
+        * `mobile` - Κινητό
     StrategyEnum:
       enum:
         - curated
@@ -46189,14 +46147,14 @@ components:
         - popular
       type: string
       description: |-
-        * `curated` - Merchant curated
-        * `variant_group` - Same variant group
-        * `category` - Same category
-        * `attributes` - Shared attributes, tags and brand
-        * `semantic` - Semantic similarity
-        * `co_purchase` - Bought together
-        * `co_view` - Viewed together
-        * `popular` - Popular
+        * `curated` - Επιλογή εμπόρου
+        * `variant_group` - Ίδια ομάδα παραλλαγών
+        * `category` - Ίδια κατηγορία
+        * `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα
+        * `semantic` - Σημασιολογική ομοιότητα
+        * `co_purchase` - Αγοράζονται μαζί
+        * `co_view` - Προβάλλονται μαζί
+        * `popular` - Δημοφιλή
     SubscriptionStatus:
       enum:
         - ACTIVE
@@ -46443,11 +46401,11 @@ components:
         - order_email
       type: string
       description: |-
-        * `pdp` - Product page
+        * `pdp` - Σελίδα προϊόντος
         * `cart` - Καλάθι
         * `out_of_stock` - Εξαντλημένο
-        * `empty_cart` - Empty cart
-        * `order_email` - Order email
+        * `empty_cart` - Άδειο καλάθι
+        * `order_email` - Email παραγγελίας
     Tag:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -46610,6 +46568,7 @@ components:
           readOnly: true
         contentType:
           type: integer
+          title: Τύπος Περιεχομένου
         contentTypeName:
           type: string
           readOnly: true
@@ -46618,6 +46577,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: ID αντικειμένου
         contentObject:
           type: object
           description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
@@ -46675,6 +46635,7 @@ components:
           readOnly: true
         contentType:
           type: integer
+          title: Τύπος Περιεχομένου
         contentTypeName:
           type: string
           readOnly: true
@@ -46683,6 +46644,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: ID αντικειμένου
         contentObject:
           type: object
           description: Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
@@ -46737,10 +46699,12 @@ components:
           description: ID ετικέτας προς ανάθεση
         contentType:
           type: integer
+          title: Τύπος Περιεχομένου
         objectId:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: ID αντικειμένου
       required:
         - contentType
         - objectId
@@ -46752,9 +46716,9 @@ components:
         - CATEGORIES
       type: string
       description: |-
-        * `ORDER` - Entire order
-        * `PRODUCTS` - Specific products
-        * `CATEGORIES` - Specific categories
+        * `ORDER` - Ολόκληρη η παραγγελία
+        * `PRODUCTS` - Συγκεκριμένα προϊόντα
+        * `CATEGORIES` - Συγκεκριμένες κατηγορίες
     TenantConfig:
       type: object
       description: |-
@@ -47097,8 +47061,8 @@ components:
         - CODE
       type: string
       description: |-
-        * `AUTOMATIC` - Automatic
-        * `CODE` - Coupon code
+        * `AUTOMATIC` - Αυτόματη
+        * `CODE` - Κωδικός κουπονιού
     TypeEnum:
       enum:
         - apm
@@ -47464,7 +47428,7 @@ components:
         username:
           nullable: true
           title: Όνομα χρήστη
-          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+          description: Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
           oneOf:
             - type: string
               pattern: ^[\w.@+#-]+$
@@ -47491,11 +47455,11 @@ components:
           maxLength: 255
         country:
           type: string
-          title: Κωδικός Χώρας (Alpha 2)
+          title: Χώρα
           nullable: true
         region:
           type: string
-          title: Κωδικός περιφέρειας
+          title: Περιοχή
           nullable: true
         birthDate:
           type: string
@@ -47612,7 +47576,7 @@ components:
           readOnly: true
           nullable: true
           title: Όνομα χρήστη
-          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+          description: Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
         firstName:
           type: string
           readOnly: true
@@ -47623,7 +47587,7 @@ components:
           title: Επώνυμο
         mainImagePath:
           type: string
-          description: Avatar path or empty string
+          description: Διαδρομή avatar ή κενή συμβολοσειρά
           readOnly: true
       required:
         - firstName
@@ -47763,7 +47727,7 @@ components:
         username:
           nullable: true
           title: Όνομα χρήστη
-          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
+          description: Προαιρετικό όνομα σύνδεσης — ΟΧΙ το όνομα του ατόμου, το οποίο ανήκει στα πεδία Όνομα/Επώνυμο. Αν μείνει κενό, δημιουργείται αυτόματα από το email. Έως 30 χαρακτήρες· μόνο γράμματα, ψηφία και @/./+/-/_ (χωρίς κενά).
           oneOf:
             - type: string
               pattern: ^[\w.@+#-]+$
@@ -47796,12 +47760,12 @@ components:
         country:
           type: string
           minLength: 1
-          title: Κωδικός Χώρας (Alpha 2)
+          title: Χώρα
           nullable: true
         region:
           type: string
           minLength: 1
-          title: Κωδικός περιφέρειας
+          title: Περιοχή
           nullable: true
         birthDate:
           type: string
@@ -47996,6 +47960,1409 @@ components:
         - count
         - languageCode
         - query
+    PageSectionHeroBannerProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        stats:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                minLength: 1
+                maxLength: 12
+              label:
+                type: string
+                minLength: 1
+                maxLength: 80
+            additionalProperties: false
+            required:
+              - value
+              - label
+          maxItems: 4
+        subheading:
+          type: string
+          maxLength: 500
+        eyebrow:
+          type: string
+          maxLength: 100
+        imageUrl:
+          type: string
+          maxLength: 1000
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        secondaryCtaText:
+          type: string
+          maxLength: 100
+        secondaryCtaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        overlayOpacity:
+          type: number
+          minimum: 0
+          maximum: 1
+        decor:
+          enum:
+            - none
+            - orbs
+            - gradient
+        mobileImageUrl:
+          type: string
+          maxLength: 1000
+        imageAlt:
+          type: string
+          maxLength: 200
+        align:
+          enum:
+            - left
+            - center
+        theme:
+          enum:
+            - light
+            - dark
+            - auto
+      additionalProperties: false
+    PageSectionHeroCarouselProps:
+      type: object
+      properties:
+        slides:
+          type: array
+          items:
+            type: object
+            properties:
+              imageUrl:
+                type: string
+                minLength: 1
+                maxLength: 1000
+              mobileImageUrl:
+                type: string
+                maxLength: 1000
+              alt:
+                type: string
+                maxLength: 200
+              eyebrow:
+                type: string
+                maxLength: 100
+              heading:
+                type: string
+                maxLength: 200
+              subheading:
+                type: string
+                maxLength: 500
+              ctaText:
+                type: string
+                maxLength: 100
+              ctaLink:
+                type: string
+                maxLength: 1000
+                pattern: ^(/|https://)
+              secondaryCtaText:
+                type: string
+                maxLength: 100
+              secondaryCtaLink:
+                type: string
+                maxLength: 1000
+                pattern: ^(/|https://)
+            additionalProperties: false
+            required:
+              - imageUrl
+          maxItems: 8
+        autoplayMs:
+          oneOf:
+            - enum:
+                - 0
+            - type: integer
+              minimum: 3000
+              maximum: 15000
+        aspect:
+          enum:
+            - wide
+            - banner
+            - square
+        images:
+          type: array
+          items:
+            type: string
+            maxLength: 1000
+          maxItems: 10
+        mobileImages:
+          type: array
+          items:
+            type: string
+            maxLength: 1000
+          maxItems: 10
+        link:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+      additionalProperties: false
+    PageSectionProductsSliderProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        ordering:
+          enum:
+            - featured
+            - newest
+            - popular
+            - discounted
+            - rating
+        categoryId:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        showAddToCart:
+          type: boolean
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 24
+      additionalProperties: false
+    PageSectionProductsGridProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        ordering:
+          enum:
+            - featured
+            - newest
+            - popular
+            - discounted
+            - rating
+        categoryId:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        showAddToCart:
+          type: boolean
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 48
+      additionalProperties: false
+    PageSectionFeaturedProductsProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        ordering:
+          enum:
+            - featured
+            - newest
+            - popular
+            - discounted
+            - rating
+        categoryId:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        showAddToCart:
+          type: boolean
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 24
+        columns:
+          type: integer
+          minimum: 1
+          maximum: 6
+      additionalProperties: false
+    PageSectionProductCategoriesProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        layout:
+          enum:
+            - slider
+            - grid
+            - tiles
+        parentId:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 24
+      additionalProperties: false
+    PageSectionBlogCategoriesProps:
+      type: object
+      properties: {}
+      additionalProperties: false
+    PageSectionBlogPostsCarouselProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        categoryId:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        count:
+          type: integer
+          minimum: 1
+          maximum: 12
+      additionalProperties: false
+    PageSectionBlogPostsGridProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        categoryId:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        count:
+          type: integer
+          minimum: 1
+          maximum: 24
+      additionalProperties: false
+    PageSectionBlogPostsListProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        categoryId:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 24
+      additionalProperties: false
+    PageSectionRecentlyViewedProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+      additionalProperties: false
+    PageSectionRichTextProps:
+      type: object
+      properties:
+        content:
+          type: string
+          maxLength: 20000
+      additionalProperties: false
+    PageSectionCtaBannerProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        buttonText:
+          type: string
+          maxLength: 100
+        buttonLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        backgroundColor:
+          type: string
+          pattern: ^#[0-9a-fA-F]{6}$
+        surface:
+          enum:
+            - default
+            - muted
+      additionalProperties: false
+    PageSectionNewsletterSignupProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        placeholder:
+          type: string
+          maxLength: 100
+        buttonText:
+          type: string
+          maxLength: 60
+        surface:
+          enum:
+            - default
+            - muted
+      additionalProperties: false
+    PageSectionTestimonialsProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                maxLength: 100
+              text:
+                type: string
+                maxLength: 1000
+              avatar:
+                type: string
+                maxLength: 1000
+              role:
+                type: string
+                maxLength: 100
+              rating:
+                type: integer
+                minimum: 1
+                maximum: 5
+            additionalProperties: false
+          maxItems: 20
+      additionalProperties: false
+    PageSectionSpacerProps:
+      type: object
+      properties:
+        height:
+          enum:
+            - sm
+            - md
+            - lg
+            - xl
+      additionalProperties: false
+    PageSectionDividerProps:
+      type: object
+      properties:
+        variant:
+          enum:
+            - line
+            - thread
+      additionalProperties: false
+    PageSectionLoyaltyHeroProps:
+      type: object
+      properties: {}
+      additionalProperties: false
+    PageSectionSearchBarProps:
+      type: object
+      properties: {}
+      additionalProperties: false
+    PageSectionAboutContentProps:
+      type: object
+      properties: {}
+      additionalProperties: false
+    PageSectionVisionContentProps:
+      type: object
+      properties: {}
+      additionalProperties: false
+    PageSectionWhatIsMicrolearningProps:
+      type: object
+      properties: {}
+      additionalProperties: false
+    PageSectionWhyMicrolearningProps:
+      type: object
+      properties: {}
+      additionalProperties: false
+    PageSectionBusinessHoursProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+      additionalProperties: false
+    PageSectionLocationMapProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        embedUrl:
+          type: string
+          maxLength: 1000
+          pattern: ^https://
+        lat:
+          type: number
+          minimum: -90
+          maximum: 90
+        lng:
+          type: number
+          minimum: -180
+          maximum: 180
+        address:
+          type: string
+          maxLength: 300
+      additionalProperties: false
+    PageSectionPartnerStripProps:
+      type: object
+      properties:
+        label:
+          type: string
+          maxLength: 80
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 60
+              href:
+                type: string
+                maxLength: 1000
+                pattern: ^(/|https://)
+            additionalProperties: false
+            required:
+              - name
+          maxItems: 12
+      additionalProperties: false
+    PageSectionPageHeroProps:
+      type: object
+      properties:
+        eyebrow:
+          type: string
+          maxLength: 100
+        heading:
+          type: string
+          maxLength: 200
+        standfirst:
+          type: string
+          maxLength: 300
+        body:
+          type: string
+          maxLength: 1000
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        secondaryCtaText:
+          type: string
+          maxLength: 100
+        secondaryCtaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        stats:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                minLength: 1
+                maxLength: 12
+              label:
+                type: string
+                minLength: 1
+                maxLength: 80
+            additionalProperties: false
+            required:
+              - value
+              - label
+          maxItems: 4
+        callout:
+          type: object
+          properties:
+            tone:
+              enum:
+                - info
+                - warning
+                - success
+            title:
+              type: string
+              minLength: 1
+              maxLength: 100
+            text:
+              type: string
+              maxLength: 400
+            note:
+              type: string
+              maxLength: 160
+          additionalProperties: false
+          required:
+            - title
+        facts:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                minLength: 1
+                maxLength: 40
+              value:
+                type: string
+                minLength: 1
+                maxLength: 60
+            additionalProperties: false
+            required:
+              - label
+              - value
+          maxItems: 6
+      additionalProperties: false
+    PageSectionFeatureListsProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        note:
+          type: string
+          maxLength: 1000
+        emphasis:
+          type: string
+          maxLength: 120
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+                maxLength: 100
+              icon:
+                type: string
+                pattern: ^i-[a-z0-9:-]+$
+                maxLength: 100
+              bullets:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 300
+                maxItems: 8
+            additionalProperties: false
+            required:
+              - title
+          maxItems: 4
+      additionalProperties: false
+    PageSectionOptionSelectorProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        standfirst:
+          type: string
+          maxLength: 400
+        rowsLabel:
+          type: string
+          maxLength: 60
+        rationaleLabel:
+          type: string
+          maxLength: 60
+        bulletsLabel:
+          type: string
+          maxLength: 60
+        layout:
+          enum:
+            - cards
+            - strip
+            - rail
+        prompt:
+          type: object
+          properties:
+            title:
+              type: string
+              minLength: 1
+              maxLength: 100
+            text:
+              type: string
+              maxLength: 300
+            ctaText:
+              type: string
+              maxLength: 100
+            ctaLink:
+              type: string
+              maxLength: 1000
+              pattern: ^(/|https://)
+          additionalProperties: false
+          required:
+            - title
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 60
+              label:
+                type: string
+                maxLength: 40
+              model:
+                type: string
+                maxLength: 120
+              title:
+                type: string
+                maxLength: 120
+              rationale:
+                type: string
+                maxLength: 600
+              note:
+                type: string
+                maxLength: 400
+              ctaText:
+                type: string
+                maxLength: 100
+              ctaLink:
+                type: string
+                maxLength: 1000
+                pattern: ^(/|https://)
+              bullets:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                maxItems: 10
+              rows:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    label:
+                      type: string
+                      minLength: 1
+                      maxLength: 60
+                    value:
+                      type: string
+                      minLength: 1
+                      maxLength: 120
+                  additionalProperties: false
+                  required:
+                    - label
+                    - value
+                maxItems: 12
+            additionalProperties: false
+            required:
+              - name
+          maxItems: 8
+      additionalProperties: false
+    PageSectionComparisonTableProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        rowLabel:
+          type: string
+          maxLength: 60
+        note:
+          type: string
+          maxLength: 600
+        columns:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 60
+          maxItems: 4
+          minItems: 1
+        rows:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                minLength: 1
+                maxLength: 60
+              values:
+                type: array
+                items:
+                  type: string
+                  maxLength: 120
+                maxItems: 4
+                minItems: 1
+            additionalProperties: false
+            required:
+              - label
+              - values
+          maxItems: 24
+      additionalProperties: false
+    PageSectionFlowStepsProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          maxLength: 600
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+                maxLength: 100
+              label:
+                type: string
+                maxLength: 60
+              lines:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 120
+                maxItems: 8
+            additionalProperties: false
+            required:
+              - title
+          maxItems: 4
+      additionalProperties: false
+    PageSectionReferenceCardsProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        metaLabel:
+          type: string
+          maxLength: 40
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+                maxLength: 160
+              label:
+                type: string
+                maxLength: 60
+              text:
+                type: string
+                maxLength: 300
+              meta:
+                type: string
+                maxLength: 80
+            additionalProperties: false
+            required:
+              - title
+          maxItems: 6
+      additionalProperties: false
+    PageSectionProjectRegisterProps:
+      type: object
+      properties:
+        metaLabel:
+          type: string
+          maxLength: 60
+        note:
+          type: string
+          maxLength: 400
+        sectors:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                minLength: 1
+                maxLength: 40
+              label:
+                type: string
+                minLength: 1
+                maxLength: 40
+            additionalProperties: false
+            required:
+              - key
+              - label
+          maxItems: 12
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+                maxLength: 200
+              sector:
+                type: string
+                maxLength: 40
+              note:
+                type: string
+                maxLength: 200
+              meta:
+                type: string
+                maxLength: 120
+            additionalProperties: false
+            required:
+              - title
+          maxItems: 200
+      additionalProperties: false
+    PageSectionVendorCardsProps:
+      type: object
+      properties:
+        note:
+          type: string
+          maxLength: 400
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+                maxLength: 60
+              label:
+                type: string
+                maxLength: 60
+              text:
+                type: string
+                maxLength: 600
+              tags:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 40
+                maxItems: 8
+            additionalProperties: false
+            required:
+              - title
+          maxItems: 8
+      additionalProperties: false
+    PageSectionContactPanelProps:
+      type: object
+      properties:
+        eyebrow:
+          type: string
+          maxLength: 100
+        heading:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          maxLength: 600
+        hint:
+          type: string
+          maxLength: 400
+        responseTime:
+          type: string
+          maxLength: 120
+        subjects:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                minLength: 1
+                maxLength: 40
+            additionalProperties: false
+            required:
+              - label
+          maxItems: 6
+      additionalProperties: false
+    PageSectionPullQuoteProps:
+      type: object
+      properties:
+        quote:
+          type: string
+          maxLength: 300
+        text:
+          type: string
+          maxLength: 1000
+        attribution:
+          type: string
+          maxLength: 120
+      additionalProperties: false
+    PageSectionFeaturesGridProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+                maxLength: 100
+              text:
+                type: string
+                maxLength: 500
+              icon:
+                type: string
+                pattern: ^i-[a-z0-9:-]+$
+                maxLength: 100
+            additionalProperties: false
+            required:
+              - title
+          maxItems: 12
+        body:
+          type: string
+          maxLength: 600
+        columns:
+          type: integer
+          minimum: 1
+          maximum: 4
+        decor:
+          enum:
+            - none
+            - gradient_tiles
+            - framed
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        prompt:
+          type: object
+          properties:
+            title:
+              type: string
+              minLength: 1
+              maxLength: 100
+            text:
+              type: string
+              maxLength: 300
+            ctaText:
+              type: string
+              maxLength: 100
+            ctaLink:
+              type: string
+              maxLength: 1000
+              pattern: ^(/|https://)
+          additionalProperties: false
+          required:
+            - title
+      additionalProperties: false
+    PageSectionMediaTextProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          maxLength: 5000
+        eyebrow:
+          type: string
+          maxLength: 100
+        note:
+          type: string
+          maxLength: 200
+        emphasis:
+          type: string
+          maxLength: 120
+        bullets:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+                minLength: 1
+                maxLength: 300
+            additionalProperties: false
+            required:
+              - text
+          maxItems: 6
+        specs:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                maxLength: 40
+              name:
+                type: string
+                minLength: 1
+                maxLength: 60
+              subtitle:
+                type: string
+                maxLength: 120
+              rows:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    label:
+                      type: string
+                      minLength: 1
+                      maxLength: 40
+                    value:
+                      type: string
+                      minLength: 1
+                      maxLength: 80
+                  additionalProperties: false
+                  required:
+                    - label
+                    - value
+                maxItems: 8
+            additionalProperties: false
+            required:
+              - name
+          maxItems: 4
+        imageUrl:
+          type: string
+          maxLength: 1000
+        imagePosition:
+          enum:
+            - left
+            - right
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        decor:
+          enum:
+            - none
+            - orbs
+            - gradient
+      additionalProperties: false
+    PageSectionImageGalleryProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              src:
+                type: string
+                minLength: 1
+                maxLength: 1000
+              alt:
+                type: string
+                minLength: 1
+                maxLength: 200
+              caption:
+                type: string
+                maxLength: 200
+            additionalProperties: false
+            required:
+              - src
+              - alt
+          maxItems: 24
+        columns:
+          type: integer
+          minimum: 2
+          maximum: 4
+      additionalProperties: false
+    PageSectionStoryTimelineProps:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+                maxLength: 100
+              date:
+                type: string
+                maxLength: 50
+              text:
+                type: string
+                maxLength: 500
+              icon:
+                type: string
+                pattern: ^i-[a-z0-9:-]+$
+                maxLength: 100
+            additionalProperties: false
+            required:
+              - title
+          maxItems: 20
+        surface:
+          enum:
+            - default
+            - muted
+      additionalProperties: false
+    PageSectionFaqProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                minLength: 1
+                maxLength: 200
+              answer:
+                type: string
+                minLength: 1
+                maxLength: 2000
+            additionalProperties: false
+            required:
+              - question
+              - answer
+          maxItems: 30
+        multiple:
+          type: boolean
+      additionalProperties: false
+    PageSectionTrustBadgesProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              kind:
+                enum:
+                  - payment
+                  - shipping
+                  - ai
+                  - custom
+              label:
+                type: string
+                minLength: 1
+                maxLength: 60
+              imageUrl:
+                type: string
+                maxLength: 1000
+              icon:
+                type: string
+                pattern: ^i-[a-z0-9:-]+$
+              href:
+                type: string
+                maxLength: 1000
+                pattern: ^(/|https://)
+            additionalProperties: false
+            required:
+              - kind
+              - label
+            anyOf:
+              - required:
+                  - imageUrl
+              - required:
+                  - icon
+          maxItems: 12
+        marquee:
+          type: boolean
+      additionalProperties: false
+    PageSectionOffersPreviewProps:
+      type: object
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        heading:
+          type: string
+          maxLength: 200
+        subheading:
+          type: string
+          maxLength: 500
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 6
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+      additionalProperties: false
+    PageSectionStatsStripProps:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                minLength: 1
+                maxLength: 12
+              label:
+                type: string
+                minLength: 1
+                maxLength: 80
+            additionalProperties: false
+            required:
+              - value
+              - label
+          maxItems: 4
+        surface:
+          enum:
+            - default
+            - muted
+      additionalProperties: false
   securitySchemes:
     cookieAuth:
       type: apiKey

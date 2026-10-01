@@ -81,6 +81,22 @@ describe('GET /checkout/viva-return', () => {
     expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'vivaReturn:resolveOrder', orderCode: ORDER_CODE }))
   })
 
+  it.each([
+    ['an order with no uuid', { kind: 'order', id: 7 }],
+    ['a gift-card purchase with no purchase uuid', { kind: 'gift_card_purchase', purchaseStatus: 'PENDING' }],
+  ])('sends the shopper to the cart when Django answers %s', async (_label, answer) => {
+    // Django publishes the answer as one object with every field
+    // optional, so the shape the redirect needs is not guaranteed by the
+    // contract — a missing id must never become /checkout/success/undefined.
+    backend.reply(answer)
+
+    const response = await land(`?s=${ORDER_CODE}`)
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('location')).toBe(LOOKUP_FAILED)
+    expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'vivaReturn:resolveOrder', orderCode: ORDER_CODE }))
+  })
+
   it('refuses an oversized parameter before any lookup', async () => {
     const response = await land(`?t=${'x'.repeat(65)}`)
 

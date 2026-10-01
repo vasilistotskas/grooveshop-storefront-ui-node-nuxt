@@ -24,6 +24,21 @@ import * as z from 'zod'
 // race) and 302s the customer to the canonical success page. The
 // success page reads ``s`` (``fromViva``) to kick off its
 // payment-status polling.
+// Django answers one of two things — an order, or a gift-card purchase —
+// but publishes them as ONE object with every field optional. The
+// redirect needs the id that `kind` implies, so the answer is parsed as
+// the union it is: `kind` picks the branch, and that branch's id is
+// required. An answer without it is a failed lookup, not a redirect to
+// `/checkout/success/undefined`.
+const zResolvedReturn = z.discriminatedUnion('kind', [
+  zVivaReturnLookupResponse
+    .required({ uuid: true })
+    .extend({ kind: z.literal('order') }),
+  zVivaReturnLookupResponse
+    .required({ purchaseUuid: true })
+    .extend({ kind: z.literal('gift_card_purchase') }),
+])
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const backendFetch = useBackendFetch()
@@ -46,13 +61,13 @@ export default defineEventHandler(async (event) => {
       { query: { t: transactionId, s: orderCode } },
     )
 
-    const parsed = zVivaReturnLookupResponse.parse(result)
+    const parsed = zResolvedReturn.parse(result)
 
     // A Smart Checkout return can also resolve to a gift-card
     // PURCHASE (not an order — purchases share the same static
     // portal return URL). Those land on the gift-card result page,
     // which polls purchase-status until the webhook settles it.
-    if (parsed.kind === 'gift_card_purchase' && parsed.purchaseUuid) {
+    if (parsed.kind === 'gift_card_purchase') {
       log.info({
         tag: 'vivaReturn',
         message: 'resolved gift-card purchase, forwarding to result page',

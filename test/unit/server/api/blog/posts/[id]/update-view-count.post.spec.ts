@@ -1,13 +1,11 @@
-import memoryDriver from 'unstorage/drivers/memory'
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/blog/posts/[id]/update-view-count.post'
 import { zBlogPostDetail } from '~~/shared/openapi/zod.gen'
-import { backend, callRoute, testSession, useStorage } from '~~/test/helpers/nitro'
+import { backend, callRoute, jsonResponse, testSession, useStorage } from '~~/test/helpers/nitro'
 
 /**
  * POST /api/blog/posts/[id]/update-view-count: counts a post view once
- * per session, behind a per-IP limit of 10 a minute kept in the cache
- * storage (Redis in production).
+ * per session; how often one visitor may count is Django's to say.
  */
 
 const route = '/api/blog/posts/:id/update-view-count'
@@ -109,34 +107,16 @@ describe('POST /api/blog/posts/[id]/update-view-count', () => {
     expect(backend.requests).toEqual([])
   })
 
-  it('refuses the eleventh view from one IP within the window', async () => {
-    await useStorage('cache').setItem('rate:view-count:203.0.113.9', 10)
+  it('leaves the per-visitor limit to Django and relays its 429', async () => {
+    // Django's ViewCountThrottle budgets view counting per visitor, for
+    // products and posts alike; a second counter here only disagreed
+    // with it.
+    backend.reply(jsonResponse({ detail: 'Request was throttled.' }, 429))
 
     const response = await view()
 
     expect(response.status).toBe(429)
-    expect(backend.requests).toEqual([])
-  })
-
-  it('counts each IP against its own budget, for a minute from the last hit', async () => {
-    const ttls: unknown[] = []
-    const memory = memoryDriver()
-    useStorage().mount('cache', {
-      ...memory,
-      setItem(key, value, options) {
-        ttls.push(options?.ttl)
-        return memory.setItem!(key, value, options)
-      },
-    })
-    await useStorage('cache').setItem('rate:view-count:203.0.113.9', 10)
-    ttls.length = 0
-    backend.reply(postDetail)
-
-    const response = await view('3', '198.51.100.7')
-
-    expect(response.status).toBe(200)
-    expect(await useStorage('cache').getItem('rate:view-count:198.51.100.7')).toBe(1)
-    expect(ttls).toEqual([60])
+    expect(await useStorage('cache').getKeys('rate')).toEqual([])
   })
 
   it('rejects a non-numeric post id', async () => {

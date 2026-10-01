@@ -162,11 +162,11 @@ export const zB2bPrice = z.object({
 })
 
 /**
- * * `PERCENTAGE` - Percentage off
- * * `FIXED_AMOUNT` - Fixed amount off
- * * `FREE_SHIPPING` - Free shipping
- * * `BXGY` - Buy X get Y discounted
- * * `FREE_GIFT` - Free gift item
+ * * `PERCENTAGE` - Ποσοστιαία έκπτωση
+ * * `FIXED_AMOUNT` - Έκπτωση σταθερού ποσού
+ * * `FREE_SHIPPING` - Δωρεάν μεταφορικά
+ * * `BXGY` - Αγόρασε X, πάρε Y με έκπτωση
+ * * `FREE_GIFT` - Δωρεάν προϊόν δώρου
  */
 export const zBenefitTypeEnum = z.enum([
   'PERCENTAGE',
@@ -833,50 +833,50 @@ export const zCompartmentSizeEnum = z.union([
 ])
 
 /**
- * * `hero_banner` - Hero Banner
- * * `hero_carousel` - Hero Carousel
- * * `products_slider` - Products Slider
- * * `products_grid` - Products Grid
+ * * `hero_banner` - Κεντρικό banner
+ * * `hero_carousel` - Κεντρικό καρουζέλ
+ * * `products_slider` - Slider προϊόντων
+ * * `products_grid` - Πλέγμα προϊόντων
  * * `featured_products` - Προβεβλημένα Προϊόντα
  * * `product_categories` - Κατηγορίες προϊόντος
- * * `blog_categories` - Blog Categories Rail
- * * `blog_posts_carousel` - Blog Posts Carousel
- * * `blog_posts_grid` - Blog Posts Grid
- * * `blog_posts_list` - Blog Posts List
- * * `recently_viewed` - Recently Viewed Rail
- * * `rich_text` - Rich Text Block
- * * `cta_banner` - Call to Action Banner
- * * `newsletter_signup` - Newsletter Signup
- * * `testimonials` - Testimonials
- * * `about_content` - About Content
- * * `vision_content` - Vision Content
- * * `what_is_microlearning` - What Is Microlearning
- * * `why_microlearning` - Why Microlearning
- * * `spacer` - Spacer
- * * `divider` - Divider
- * * `loyalty_hero` - Loyalty Program Hero
- * * `search_bar` - Search Bar
- * * `business_hours` - Business Hours
- * * `location_map` - Location Map
- * * `features_grid` - Features Grid
- * * `media_text` - Media + Text
- * * `image_gallery` - Image Gallery
- * * `story_timeline` - Story Timeline
- * * `faq` - FAQ Accordion
- * * `trust_badges` - Trust Badges
- * * `offers_preview` - Offers Preview
- * * `stats_strip` - Stats Strip
- * * `partner_strip` - Partner Strip
- * * `pull_quote` - Pull Quote
- * * `reference_cards` - Reference Cards
- * * `page_hero` - Page Hero
- * * `feature_lists` - Feature Lists
- * * `option_selector` - Option Selector
- * * `comparison_table` - Comparison Table
- * * `flow_steps` - Flow Steps
- * * `project_register` - Project Register
- * * `vendor_cards` - Vendor Cards
- * * `contact_panel` - Contact Panel
+ * * `blog_categories` - Λωρίδα κατηγοριών Blog
+ * * `blog_posts_carousel` - Καρουζέλ άρθρων Blog
+ * * `blog_posts_grid` - Πλέγμα άρθρων Blog
+ * * `blog_posts_list` - Λίστα άρθρων Blog
+ * * `recently_viewed` - Λωρίδα πρόσφατα προβληθέντων
+ * * `rich_text` - Μπλοκ εμπλουτισμένου κειμένου
+ * * `cta_banner` - Banner παρότρυνσης για δράση
+ * * `newsletter_signup` - Εγγραφή στο newsletter
+ * * `testimonials` - Μαρτυρίες πελατών
+ * * `about_content` - Περιεχόμενο «Σχετικά με εμάς»
+ * * `vision_content` - Περιεχόμενο «Όραμα»
+ * * `what_is_microlearning` - Τι είναι η μικρομάθηση
+ * * `why_microlearning` - Γιατί μικρομάθηση
+ * * `spacer` - Κενό διάστημα
+ * * `divider` - Διαχωριστικό
+ * * `loyalty_hero` - Κεντρική ενότητα προγράμματος επιβράβευσης
+ * * `search_bar` - Γραμμή αναζήτησης
+ * * `business_hours` - Ωράριο λειτουργίας
+ * * `location_map` - Χάρτης τοποθεσίας
+ * * `features_grid` - Πλέγμα χαρακτηριστικών
+ * * `media_text` - Πολυμέσα + κείμενο
+ * * `image_gallery` - Συλλογή εικόνων
+ * * `story_timeline` - Χρονολόγιο ιστορίας
+ * * `faq` - Συχνές ερωτήσεις (accordion)
+ * * `trust_badges` - Σήματα εμπιστοσύνης
+ * * `offers_preview` - Προεπισκόπηση προσφορών
+ * * `stats_strip` - Λωρίδα στατιστικών
+ * * `partner_strip` - Λωρίδα συνεργατών
+ * * `pull_quote` - Επισημασμένο απόσπασμα
+ * * `reference_cards` - Κάρτες αναφοράς
+ * * `page_hero` - Κεντρική ενότητα σελίδας
+ * * `feature_lists` - Λίστες χαρακτηριστικών
+ * * `option_selector` - Επιλογέας επιλογών
+ * * `comparison_table` - Πίνακας σύγκρισης
+ * * `flow_steps` - Βήματα ροής
+ * * `project_register` - Μητρώο έργων
+ * * `vendor_cards` - Κάρτες προμηθευτών
+ * * `contact_panel` - Πλαίσιο επικοινωνίας
  */
 export const zComponentTypeEnum = z.enum([
   'hero_banner',
@@ -1272,10 +1272,10 @@ export const zFederatedSearchResponse = z.object({
 
 /**
  * * `general` - Γενικά
- * * `website` - Website & UX
+ * * `website` - Ιστότοπος & UX
  * * `products` - Προϊόντα
- * * `delivery` - Delivery
- * * `support` - Customer support
+ * * `delivery` - Παράδοση
+ * * `support` - Εξυπηρέτηση πελατών
  * * `other` - Άλλο
  */
 export const zFeedbackWriteCategoryEnum = z.enum([
@@ -1372,14 +1372,14 @@ export const zGiftCardPurchaseStatusResponse = z.object({
 
 /**
  * * `ACTIVE` - Ενεργή
- * * `DISABLED` - Disabled
+ * * `DISABLED` - Απενεργοποιημένη
  */
 export const zGiftCardStatusEnum = z.enum(['ACTIVE', 'DISABLED'])
 
 /**
- * * `ISSUE` - Issue
+ * * `ISSUE` - Έκδοση
  * * `REDEEM` - Εξαργύρωση
- * * `REFUND_CREDIT` - Refund credit
+ * * `REFUND_CREDIT` - Πίστωση επιστροφής
  * * `ADJUST` - Προσαρμογή
  * * `EXPIRE` - Λήξη
  */
@@ -1703,16 +1703,16 @@ export const zOrderAttributionInputRequest = z.object({
 export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE'])
 
 /**
- * * `insufficient_stock` - Insufficient stock
- * * `cart_invalid` - Cart not ready for checkout
- * * `reservation_unavailable` - Stock reservation no longer valid
+ * * `insufficient_stock` - Ανεπαρκές απόθεμα
+ * * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+ * * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
  * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
- * * `invalid_coupon` - Invalid coupon
- * * `invalid_gift_card` - Invalid gift card
+ * * `invalid_coupon` - Μη έγκυρο κουπόνι
+ * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
  * * `payment_not_found` - Δεν βρέθηκε πληρωμή
  * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
- * * `payment_amount_mismatch` - Payment amount mismatch
- * * `payment_currency_mismatch` - Payment currency mismatch
+ * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
+ * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
  */
 export const zOrderCreateErrorType = z.enum([
   'insufficient_stock',
@@ -3995,8 +3995,8 @@ export const zProductReviewWriteRequest = z.object({
 })
 
 /**
- * * `impression` - Impression
- * * `click` - Click
+ * * `impression` - Προβολή
+ * * `click` - Κλικ
  */
 export const zRecommendationEventRequestKindEnum = z.enum(['impression', 'click'])
 
@@ -4102,10 +4102,10 @@ export const zRegionWriteRequest = z.object({
 })
 
 /**
- * * `PRODUCT` - Targets this product
- * * `REWARD` - This product is the reward
- * * `CATEGORY` - Targets this product's category
- * * `ORDER` - Applies to the whole order
+ * * `PRODUCT` - Στοχεύει αυτό το προϊόν
+ * * `REWARD` - Αυτό το προϊόν είναι η ανταμοιβή
+ * * `CATEGORY` - Στοχεύει την κατηγορία αυτού του προϊόντος
+ * * `ORDER` - Ισχύει για ολόκληρη την παραγγελία
  */
 export const zRelationEnum = z.enum([
   'PRODUCT',
@@ -4115,11 +4115,11 @@ export const zRelationEnum = z.enum([
 ])
 
 /**
- * * `similar` - Similar product
- * * `complementary` - Goes well with
- * * `accessory` - Accessory for
- * * `replacement` - Replacement for
- * * `bundle` - Bundle with
+ * * `similar` - Παρόμοιο προϊόν
+ * * `complementary` - Ταιριάζει με
+ * * `accessory` - Αξεσουάρ για
+ * * `replacement` - Αντικατάσταση για
+ * * `bundle` - Πακέτο με
  */
 export const zRelationTypeEnum = z.enum([
   'similar',
@@ -4184,11 +4184,11 @@ export const zReviewStatus = z.enum([
 ])
 
 /**
- * * `PENDING` - Pending scan
- * * `CLEAN` - Clean
- * * `INFECTED` - Infected
- * * `ERROR` - Scan failed
- * * `SKIPPED` - Not scanned
+ * * `PENDING` - Εκκρεμεί σάρωση
+ * * `CLEAN` - Καθαρό
+ * * `INFECTED` - Μολυσμένο
+ * * `ERROR` - Η σάρωση απέτυχε
+ * * `SKIPPED` - Δεν σαρώθηκε
  */
 export const zScanStatusEnum = z.enum([
   'PENDING',
@@ -4245,10 +4245,10 @@ export const zSettingDetail = z.object({
 })
 
 /**
- * * `online` - Paid online at checkout
- * * `courier_cash` - Cash or card to the courier on delivery
- * * `carrier_terminal` - Paid to the carrier before pickup
- * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+ * * `online` - Πληρωμή online κατά το checkout
+ * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
+ * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
+ * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
  */
 export const zSettlementEnum = z.enum([
   'online',
@@ -4284,7 +4284,6 @@ export const zPatchedPayWayWriteRequest = z.object({
   icon: z.string().nullish(),
   providerCode: z.string().max(50).optional(),
   settlement: zSettlementEnum.optional(),
-  configuration: z.unknown().optional(),
 })
 
 /**
@@ -4341,45 +4340,6 @@ export const zPaginatedPayWayList = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zPayWayDetail = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-  }),
-  id: z.int().readonly(),
-  active: z.boolean().optional(),
-  cost: z.number().gt(-1000000000).lt(1000000000),
-  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
-  icon: z.url().nullish(),
-  sortOrder: z.int().readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  iconFilename: z.string().readonly(),
-  providerCode: z.string().max(50).optional(),
-  settlement: zSettlementEnum.optional(),
-  isOnlinePayment: z.boolean().optional(),
-  requiresConfirmation: z.boolean().optional(),
-  configuration: z.unknown(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zPayWayWriteRequest = z.object({
   translations: z.object({
     el: z.object({
@@ -4404,7 +4364,6 @@ export const zPayWayWriteRequest = z.object({
   icon: z.string().nullish(),
   providerCode: z.string().max(50).optional(),
   settlement: zSettlementEnum.optional(),
-  configuration: z.unknown().optional(),
 })
 
 /**
@@ -4690,9 +4649,9 @@ export const zPaginatedAcsStationList = z.object({
 })
 
 /**
- * * `header` - Header
- * * `footer` - Footer
- * * `mobile` - Mobile
+ * * `header` - Κεφαλίδα
+ * * `footer` - Υποσέλιδο
+ * * `mobile` - Κινητό
  */
 export const zSlotEnum = z.enum([
   'header',
@@ -4747,14 +4706,14 @@ export const zPatchedNavigationMenuRequest = z.object({
 })
 
 /**
- * * `curated` - Merchant curated
- * * `variant_group` - Same variant group
- * * `category` - Same category
- * * `attributes` - Shared attributes, tags and brand
- * * `semantic` - Semantic similarity
- * * `co_purchase` - Bought together
- * * `co_view` - Viewed together
- * * `popular` - Popular
+ * * `curated` - Επιλογή εμπόρου
+ * * `variant_group` - Ίδια ομάδα παραλλαγών
+ * * `category` - Ίδια κατηγορία
+ * * `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα
+ * * `semantic` - Σημασιολογική ομοιότητα
+ * * `co_purchase` - Αγοράζονται μαζί
+ * * `co_view` - Προβάλλονται μαζί
+ * * `popular` - Δημοφιλή
  */
 export const zStrategyEnum = z.enum([
   'curated',
@@ -4801,11 +4760,11 @@ export const zSubscriptionStatus = z.enum([
 ])
 
 /**
- * * `pdp` - Product page
+ * * `pdp` - Σελίδα προϊόντος
  * * `cart` - Καλάθι
  * * `out_of_stock` - Εξαντλημένο
- * * `empty_cart` - Empty cart
- * * `order_email` - Order email
+ * * `empty_cart` - Άδειο καλάθι
+ * * `order_email` - Email παραγγελίας
  */
 export const zSurfaceEnum = z.enum([
   'pdp',
@@ -4964,9 +4923,9 @@ export const zTaggedItemWriteRequest = z.object({
 })
 
 /**
- * * `ORDER` - Entire order
- * * `PRODUCTS` - Specific products
- * * `CATEGORIES` - Specific categories
+ * * `ORDER` - Ολόκληρη η παραγγελία
+ * * `PRODUCTS` - Συγκεκριμένα προϊόντα
+ * * `CATEGORIES` - Συγκεκριμένες κατηγορίες
  */
 export const zTargetScopeEnum = z.enum([
   'ORDER',
@@ -5257,8 +5216,8 @@ export const zTrendingSearchResponse = z.object({
 })
 
 /**
- * * `AUTOMATIC` - Automatic
- * * `CODE` - Coupon code
+ * * `AUTOMATIC` - Αυτόματη
+ * * `CODE` - Κωδικός κουπονιού
  */
 export const zTriggerEnum = z.enum(['AUTOMATIC', 'CODE'])
 
@@ -6246,6 +6205,516 @@ export const zSearchAnalyticsResponse = z.object({
   searchVolume: zSearchVolume,
   performance: zPerformanceMetrics,
   clickThroughRate: z.number(),
+})
+
+export const zPageSectionHeroBannerProps = z.object({
+  heading: z.string().max(200).optional(),
+  stats: z.array(z.object({
+    value: z.string().min(1).max(12),
+    label: z.string().min(1).max(80),
+  })).max(4).optional(),
+  subheading: z.string().max(500).optional(),
+  eyebrow: z.string().max(100).optional(),
+  imageUrl: z.string().max(1000).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  secondaryCtaText: z.string().max(100).optional(),
+  secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  overlayOpacity: z.number().gte(0).lte(1).optional(),
+  decor: z.enum([
+    'none',
+    'orbs',
+    'gradient',
+  ]).optional(),
+  mobileImageUrl: z.string().max(1000).optional(),
+  imageAlt: z.string().max(200).optional(),
+  align: z.enum(['left', 'center']).optional(),
+  theme: z.enum([
+    'light',
+    'dark',
+    'auto',
+  ]).optional(),
+})
+
+export const zPageSectionHeroCarouselProps = z.object({
+  slides: z.array(z.object({
+    imageUrl: z.string().min(1).max(1000),
+    mobileImageUrl: z.string().max(1000).optional(),
+    alt: z.string().max(200).optional(),
+    eyebrow: z.string().max(100).optional(),
+    heading: z.string().max(200).optional(),
+    subheading: z.string().max(500).optional(),
+    ctaText: z.string().max(100).optional(),
+    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+    secondaryCtaText: z.string().max(100).optional(),
+    secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  })).max(8).optional(),
+  autoplayMs: z.union([
+    z.literal(0),
+    z.int().gte(3000).lte(15000),
+  ]).optional(),
+  aspect: z.enum([
+    'wide',
+    'banner',
+    'square',
+  ]).optional(),
+  images: z.array(z.string().max(1000)).max(10).optional(),
+  mobileImages: z.array(z.string().max(1000)).max(10).optional(),
+  link: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+})
+
+export const zPageSectionProductsSliderProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  ordering: z.enum([
+    'featured',
+    'newest',
+    'popular',
+    'discounted',
+    'rating',
+  ]).optional(),
+  categoryId: z.int().gte(1).lte(2147483647).optional(),
+  showAddToCart: z.boolean().optional(),
+  pageSize: z.int().gte(1).lte(24).optional(),
+})
+
+export const zPageSectionProductsGridProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  ordering: z.enum([
+    'featured',
+    'newest',
+    'popular',
+    'discounted',
+    'rating',
+  ]).optional(),
+  categoryId: z.int().gte(1).lte(2147483647).optional(),
+  showAddToCart: z.boolean().optional(),
+  pageSize: z.int().gte(1).lte(48).optional(),
+})
+
+export const zPageSectionFeaturedProductsProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  ordering: z.enum([
+    'featured',
+    'newest',
+    'popular',
+    'discounted',
+    'rating',
+  ]).optional(),
+  categoryId: z.int().gte(1).lte(2147483647).optional(),
+  showAddToCart: z.boolean().optional(),
+  pageSize: z.int().gte(1).lte(24).optional(),
+  columns: z.int().gte(1).lte(6).optional(),
+})
+
+export const zPageSectionProductCategoriesProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  layout: z.enum([
+    'slider',
+    'grid',
+    'tiles',
+  ]).optional(),
+  parentId: z.int().gte(1).lte(2147483647).optional(),
+  limit: z.int().gte(1).lte(24).optional(),
+})
+
+export const zPageSectionBlogCategoriesProps = z.record(z.string(), z.never())
+
+export const zPageSectionBlogPostsCarouselProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  categoryId: z.int().gte(1).lte(2147483647).optional(),
+  count: z.int().gte(1).lte(12).optional(),
+})
+
+export const zPageSectionBlogPostsGridProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  categoryId: z.int().gte(1).lte(2147483647).optional(),
+  count: z.int().gte(1).lte(24).optional(),
+})
+
+export const zPageSectionBlogPostsListProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  categoryId: z.int().gte(1).lte(2147483647).optional(),
+  pageSize: z.int().gte(1).lte(24).optional(),
+})
+
+export const zPageSectionRecentlyViewedProps = z.object({
+  heading: z.string().max(200).optional(),
+})
+
+export const zPageSectionRichTextProps = z.object({
+  content: z.string().max(20000).optional(),
+})
+
+export const zPageSectionCtaBannerProps = z.object({
+  heading: z.string().max(200).optional(),
+  description: z.string().max(1000).optional(),
+  buttonText: z.string().max(100).optional(),
+  buttonLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  surface: z.enum(['default', 'muted']).optional(),
+})
+
+export const zPageSectionNewsletterSignupProps = z.object({
+  heading: z.string().max(200).optional(),
+  description: z.string().max(1000).optional(),
+  placeholder: z.string().max(100).optional(),
+  buttonText: z.string().max(60).optional(),
+  surface: z.enum(['default', 'muted']).optional(),
+})
+
+export const zPageSectionTestimonialsProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  items: z.array(z.object({
+    name: z.string().max(100).optional(),
+    text: z.string().max(1000).optional(),
+    avatar: z.string().max(1000).optional(),
+    role: z.string().max(100).optional(),
+    rating: z.int().gte(1).lte(5).optional(),
+  })).max(20).optional(),
+})
+
+export const zPageSectionSpacerProps = z.object({
+  height: z.enum([
+    'sm',
+    'md',
+    'lg',
+    'xl',
+  ]).optional(),
+})
+
+export const zPageSectionDividerProps = z.object({
+  variant: z.enum(['line', 'thread']).optional(),
+})
+
+export const zPageSectionLoyaltyHeroProps = z.record(z.string(), z.never())
+
+export const zPageSectionSearchBarProps = z.record(z.string(), z.never())
+
+export const zPageSectionAboutContentProps = z.record(z.string(), z.never())
+
+export const zPageSectionVisionContentProps = z.record(z.string(), z.never())
+
+export const zPageSectionWhatIsMicrolearningProps = z.record(z.string(), z.never())
+
+export const zPageSectionWhyMicrolearningProps = z.record(z.string(), z.never())
+
+export const zPageSectionBusinessHoursProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+})
+
+export const zPageSectionLocationMapProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  embedUrl: z.string().max(1000).regex(/^https:\/\//).optional(),
+  lat: z.number().gte(-90).lte(90).optional(),
+  lng: z.number().gte(-180).lte(180).optional(),
+  address: z.string().max(300).optional(),
+})
+
+export const zPageSectionPartnerStripProps = z.object({
+  label: z.string().max(80).optional(),
+  items: z.array(z.object({
+    name: z.string().min(1).max(60),
+    href: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  })).max(12).optional(),
+})
+
+export const zPageSectionPageHeroProps = z.object({
+  eyebrow: z.string().max(100).optional(),
+  heading: z.string().max(200).optional(),
+  standfirst: z.string().max(300).optional(),
+  body: z.string().max(1000).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  secondaryCtaText: z.string().max(100).optional(),
+  secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  stats: z.array(z.object({
+    value: z.string().min(1).max(12),
+    label: z.string().min(1).max(80),
+  })).max(4).optional(),
+  callout: z.object({
+    tone: z.enum([
+      'info',
+      'warning',
+      'success',
+    ]).optional(),
+    title: z.string().min(1).max(100),
+    text: z.string().max(400).optional(),
+    note: z.string().max(160).optional(),
+  }).optional(),
+  facts: z.array(z.object({
+    label: z.string().min(1).max(40),
+    value: z.string().min(1).max(60),
+  })).max(6).optional(),
+})
+
+export const zPageSectionFeatureListsProps = z.object({
+  heading: z.string().max(200).optional(),
+  note: z.string().max(1000).optional(),
+  emphasis: z.string().max(120).optional(),
+  items: z.array(z.object({
+    title: z.string().min(1).max(100),
+    icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
+    bullets: z.array(z.string().min(1).max(300)).max(8).optional(),
+  })).max(4).optional(),
+})
+
+export const zPageSectionOptionSelectorProps = z.object({
+  heading: z.string().max(200).optional(),
+  standfirst: z.string().max(400).optional(),
+  rowsLabel: z.string().max(60).optional(),
+  rationaleLabel: z.string().max(60).optional(),
+  bulletsLabel: z.string().max(60).optional(),
+  layout: z.enum([
+    'cards',
+    'strip',
+    'rail',
+  ]).optional(),
+  prompt: z.object({
+    title: z.string().min(1).max(100),
+    text: z.string().max(300).optional(),
+    ctaText: z.string().max(100).optional(),
+    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  }).optional(),
+  options: z.array(z.object({
+    name: z.string().min(1).max(60),
+    label: z.string().max(40).optional(),
+    model: z.string().max(120).optional(),
+    title: z.string().max(120).optional(),
+    rationale: z.string().max(600).optional(),
+    note: z.string().max(400).optional(),
+    ctaText: z.string().max(100).optional(),
+    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+    bullets: z.array(z.string().min(1).max(200)).max(10).optional(),
+    rows: z.array(z.object({
+      label: z.string().min(1).max(60),
+      value: z.string().min(1).max(120),
+    })).max(12).optional(),
+  })).max(8).optional(),
+})
+
+export const zPageSectionComparisonTableProps = z.object({
+  heading: z.string().max(200).optional(),
+  rowLabel: z.string().max(60).optional(),
+  note: z.string().max(600).optional(),
+  columns: z.array(z.string().min(1).max(60)).min(1).max(4).optional(),
+  rows: z.array(z.object({
+    label: z.string().min(1).max(60),
+    values: z.array(z.string().max(120)).min(1).max(4),
+  })).max(24).optional(),
+})
+
+export const zPageSectionFlowStepsProps = z.object({
+  heading: z.string().max(200).optional(),
+  body: z.string().max(600).optional(),
+  items: z.array(z.object({
+    title: z.string().min(1).max(100),
+    label: z.string().max(60).optional(),
+    lines: z.array(z.string().min(1).max(120)).max(8).optional(),
+  })).max(4).optional(),
+})
+
+export const zPageSectionReferenceCardsProps = z.object({
+  heading: z.string().max(200).optional(),
+  metaLabel: z.string().max(40).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  items: z.array(z.object({
+    title: z.string().min(1).max(160),
+    label: z.string().max(60).optional(),
+    text: z.string().max(300).optional(),
+    meta: z.string().max(80).optional(),
+  })).max(6).optional(),
+})
+
+export const zPageSectionProjectRegisterProps = z.object({
+  metaLabel: z.string().max(60).optional(),
+  note: z.string().max(400).optional(),
+  sectors: z.array(z.object({
+    key: z.string().min(1).max(40),
+    label: z.string().min(1).max(40),
+  })).max(12).optional(),
+  items: z.array(z.object({
+    title: z.string().min(1).max(200),
+    sector: z.string().max(40).optional(),
+    note: z.string().max(200).optional(),
+    meta: z.string().max(120).optional(),
+  })).max(200).optional(),
+})
+
+export const zPageSectionVendorCardsProps = z.object({
+  note: z.string().max(400).optional(),
+  items: z.array(z.object({
+    title: z.string().min(1).max(60),
+    label: z.string().max(60).optional(),
+    text: z.string().max(600).optional(),
+    tags: z.array(z.string().min(1).max(40)).max(8).optional(),
+  })).max(8).optional(),
+})
+
+export const zPageSectionContactPanelProps = z.object({
+  eyebrow: z.string().max(100).optional(),
+  heading: z.string().max(200).optional(),
+  body: z.string().max(600).optional(),
+  hint: z.string().max(400).optional(),
+  responseTime: z.string().max(120).optional(),
+  subjects: z.array(z.object({
+    label: z.string().min(1).max(40),
+  })).max(6).optional(),
+})
+
+export const zPageSectionPullQuoteProps = z.object({
+  quote: z.string().max(300).optional(),
+  text: z.string().max(1000).optional(),
+  attribution: z.string().max(120).optional(),
+})
+
+export const zPageSectionFeaturesGridProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  items: z.array(z.object({
+    title: z.string().min(1).max(100),
+    text: z.string().max(500).optional(),
+    icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
+  })).max(12).optional(),
+  body: z.string().max(600).optional(),
+  columns: z.int().gte(1).lte(4).optional(),
+  decor: z.enum([
+    'none',
+    'gradient_tiles',
+    'framed',
+  ]).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  prompt: z.object({
+    title: z.string().min(1).max(100),
+    text: z.string().max(300).optional(),
+    ctaText: z.string().max(100).optional(),
+    ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  }).optional(),
+})
+
+export const zPageSectionMediaTextProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  body: z.string().max(5000).optional(),
+  eyebrow: z.string().max(100).optional(),
+  note: z.string().max(200).optional(),
+  emphasis: z.string().max(120).optional(),
+  bullets: z.array(z.object({
+    text: z.string().min(1).max(300),
+  })).max(6).optional(),
+  specs: z.array(z.object({
+    label: z.string().max(40).optional(),
+    name: z.string().min(1).max(60),
+    subtitle: z.string().max(120).optional(),
+    rows: z.array(z.object({
+      label: z.string().min(1).max(40),
+      value: z.string().min(1).max(80),
+    })).max(8).optional(),
+  })).max(4).optional(),
+  imageUrl: z.string().max(1000).optional(),
+  imagePosition: z.enum(['left', 'right']).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  decor: z.enum([
+    'none',
+    'orbs',
+    'gradient',
+  ]).optional(),
+})
+
+export const zPageSectionImageGalleryProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  items: z.array(z.object({
+    src: z.string().min(1).max(1000),
+    alt: z.string().min(1).max(200),
+    caption: z.string().max(200).optional(),
+  })).max(24).optional(),
+  columns: z.int().gte(2).lte(4).optional(),
+})
+
+export const zPageSectionStoryTimelineProps = z.object({
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  items: z.array(z.object({
+    title: z.string().min(1).max(100),
+    date: z.string().max(50).optional(),
+    text: z.string().max(500).optional(),
+    icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
+  })).max(20).optional(),
+  surface: z.enum(['default', 'muted']).optional(),
+})
+
+export const zPageSectionFaqProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  items: z.array(z.object({
+    question: z.string().min(1).max(200),
+    answer: z.string().min(1).max(2000),
+  })).max(30).optional(),
+  multiple: z.boolean().optional(),
+})
+
+export const zPageSectionTrustBadgesProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  items: z.array(z.intersection(z.unknown(), z.object({
+    kind: z.enum([
+      'payment',
+      'shipping',
+      'ai',
+      'custom',
+    ]),
+    label: z.string().min(1).max(60),
+    imageUrl: z.string().max(1000).optional(),
+    icon: z.string().regex(/^i-[a-z0-9:-]+$/).optional(),
+    href: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  }))).max(12).optional(),
+  marquee: z.boolean().optional(),
+})
+
+export const zPageSectionOffersPreviewProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  heading: z.string().max(200).optional(),
+  subheading: z.string().max(500).optional(),
+  limit: z.int().gte(1).lte(6).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+})
+
+export const zPageSectionStatsStripProps = z.object({
+  items: z.array(z.object({
+    value: z.string().min(1).max(12),
+    label: z.string().min(1).max(80),
+  })).max(4).optional(),
+  surface: z.enum(['default', 'muted']).optional(),
 })
 
 /**
@@ -7261,37 +7730,6 @@ export const zPaginatedPayWayListWritable = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zPayWayDetailWritable = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-  }),
-  active: z.boolean().optional(),
-  cost: z.number().gt(-1000000000).lt(1000000000),
-  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
-  icon: z.url().nullish(),
-  providerCode: z.string().max(50).optional(),
-  settlement: zSettlementEnum.optional(),
-  isOnlinePayment: z.boolean().optional(),
-  requiresConfirmation: z.boolean().optional(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zProductWritable = z.object({
   translations: z.object({
     el: z.object({
@@ -8091,6 +8529,20 @@ export const zUserSubscriptionDetailWritable = z.object({
   status: zSubscriptionStatus.optional(),
   metadata: z.unknown().optional(),
 })
+
+export const zPageSectionBlogCategoriesPropsWritable = z.record(z.string(), z.never())
+
+export const zPageSectionLoyaltyHeroPropsWritable = z.record(z.string(), z.never())
+
+export const zPageSectionSearchBarPropsWritable = z.record(z.string(), z.never())
+
+export const zPageSectionAboutContentPropsWritable = z.record(z.string(), z.never())
+
+export const zPageSectionVisionContentPropsWritable = z.record(z.string(), z.never())
+
+export const zPageSectionWhatIsMicrolearningPropsWritable = z.record(z.string(), z.never())
+
+export const zPageSectionWhyMicrolearningPropsWritable = z.record(z.string(), z.never())
 
 export const zGetAgentProfileResponse = zAgentProfile
 
@@ -13394,13 +13846,6 @@ export const zListPayWayQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  hasConfiguration: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   hasIcon: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -13495,7 +13940,7 @@ export const zCreatePayWayQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zCreatePayWayResponse = zPayWayDetail
+export const zCreatePayWayResponse = zPayWay
 
 export const zDestroyPayWayPath = z.object({
   id: z.string(),
@@ -13518,7 +13963,7 @@ export const zRetrievePayWayQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zRetrievePayWayResponse = zPayWayDetail
+export const zRetrievePayWayResponse = zPayWay
 
 export const zPartialUpdatePayWayBody = zPatchedPayWayWriteRequest
 
@@ -13534,7 +13979,7 @@ export const zPartialUpdatePayWayQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zPartialUpdatePayWayResponse = zPayWayDetail
+export const zPartialUpdatePayWayResponse = zPayWay
 
 export const zUpdatePayWayBody = zPayWayWriteRequest
 
@@ -13550,7 +13995,7 @@ export const zUpdatePayWayQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zUpdatePayWayResponse = zPayWayDetail
+export const zUpdatePayWayResponse = zPayWay
 
 export const zListProductQuery = z.object({
   active: z.union([
