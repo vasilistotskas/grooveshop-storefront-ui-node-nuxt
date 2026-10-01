@@ -9,12 +9,19 @@ export interface LegalTocResult {
   links: LegalTocLink[]
 }
 
-// `id` as an attribute of its own: `\bid=` also matched inside `data-id=`,
-// since `-` is a word boundary. Attributes are whitespace-separated.
-const SECTION_WITH_ID = /<section\b[^>]*?\sid="([^"]*)"[^>]*>/gi
+// `id` as an attribute of its own — `\bid=` also matched inside `data-id=`,
+// since `-` is a word boundary; attributes are whitespace-separated — and
+// its value however HTML lets it be written: double-quoted, single-quoted
+// or bare, with optional spaces around `=`.
+const ID_VALUE = String.raw`id\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>\x60]+))`
+const SECTION_WITH_ID = new RegExp(String.raw`<section\b[^>]*?\s${ID_VALUE}[^>]*>`, 'gi')
 const HEADING = /<h2\b([^>]*)>([\s\S]*?)<\/h2>/gi
-const ID_ATTR = /(?:^|\s)id="([^"]*)"/i
-const ANY_ID = /\sid="([^"]*)"/gi
+const ID_ATTR = new RegExp(String.raw`(?:^|\s)${ID_VALUE}`, 'i')
+const ANY_ID = new RegExp(String.raw`\s${ID_VALUE}`, 'gi')
+
+/** The id an `ID_VALUE` match captured, in whichever quoting it used. */
+const idOf = (match: RegExpMatchArray | RegExpExecArray | null | undefined) =>
+  match ? (match[1] ?? match[2] ?? match[3]) : undefined
 
 const ENTITIES: Record<string, string> = {
   '&amp;': '&',
@@ -80,7 +87,7 @@ export function buildLegalToc(html: string): LegalTocResult {
 
   const tokens: Token[] = []
   for (const m of html.matchAll(SECTION_WITH_ID)) {
-    tokens.push({ kind: 'section', index: m.index ?? 0, id: m[1] ?? '' })
+    tokens.push({ kind: 'section', index: m.index ?? 0, id: idOf(m) ?? '' })
   }
   for (const m of html.matchAll(HEADING)) {
     tokens.push({
@@ -98,7 +105,7 @@ export function buildLegalToc(html: string): LegalTocResult {
   let openSectionId: string | null = null
   let generated = 0
   // Every id in the document, and those a link already points at.
-  const taken = new Set([...html.matchAll(ANY_ID)].map(m => m[1] ?? ''))
+  const taken = new Set([...html.matchAll(ANY_ID)].map(m => idOf(m) ?? ''))
   const linked = new Set<string>()
   const freshId = (position: number) => {
     let id = `section-${position}`
@@ -117,7 +124,7 @@ export function buildLegalToc(html: string): LegalTocResult {
     if (!text) continue
 
     generated += 1
-    const ownId = ID_ATTR.exec(token.attrs)?.[1]
+    const ownId = idOf(ID_ATTR.exec(token.attrs))
     let id = ownId || openSectionId || ''
 
     if (!id || linked.has(id)) {

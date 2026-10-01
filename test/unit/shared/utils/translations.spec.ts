@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { hasVisibleText, translatedLocales } from '~~/shared/utils/translations'
+import { hasVisibleContent, translatedLocales } from '~~/shared/utils/translations'
 
 /**
- * A translation is written when its field carries visible text. A key
- * saved with an empty editor value (`""`, `<p></p>`, whitespace) is no
- * document in that language, and everything that lists a page's
- * languages — its hreflang set, the sitemap — must say so.
+ * A translation is written when its field shows something: text, or an
+ * embedded image or video. A key saved with an emptied editor (`""`,
+ * `<p></p>`, TinyMCE's `<p>&nbsp;</p>`) is no document in that
+ * language, and everything that lists a page's languages — its hreflang
+ * set, the sitemap — must say so.
  */
-describe('hasVisibleText', () => {
+describe('hasVisibleContent', () => {
   it.each([
     ['text', 'Όροι', true],
     ['markup around text', '<p>κείμενο</p>', true],
@@ -15,10 +16,15 @@ describe('hasVisibleText', () => {
     ['whitespace', '  \n', false],
     ['an empty paragraph', '<p></p>', false],
     ['markup around whitespace', '<p> <br> </p>', false],
+    ['an emptied TinyMCE field', '<p>&nbsp;</p>', false],
+    ['numeric non-breaking spaces', '<p>&#160;&#xA0;</p>', false],
+    ['an image alone', '<p><img src="/size-chart.png" alt=""></p>', true],
+    ['an embedded video alone', '<iframe src="https://www.youtube.com/embed/x"></iframe>', true],
+    ['an entity that is text', '<p>&amp;</p>', true],
     ['undefined', undefined, false],
     ['null', null, false],
   ])('%s → %s', (_case, value, expected) => {
-    expect(hasVisibleText(value)).toBe(expected)
+    expect(hasVisibleContent(value)).toBe(expected)
   })
 })
 

@@ -94,6 +94,19 @@ describe('buildLegalToc', () => {
     expect(idCount(html, links[1]!.id)).toBe(1)
   })
 
+  it.each([
+    ['a single-quoted heading id', `<h2 id='x'>Τίτλος</h2>`],
+    ['an unquoted heading id', '<h2 id=x>Τίτλος</h2>'],
+    ['spaces around the equals sign', '<h2 id = "x">Τίτλος</h2>'],
+    ['a single-quoted section id', `<section id='x'><h2>Τίτλος</h2></section>`],
+  ])('reads %s', (_case, body) => {
+    const { links, html } = buildLegalToc(body)
+
+    expect(links).toEqual([{ id: 'x', text: 'Τίτλος' }])
+    // Nothing injected: a second `id` would lose to the first.
+    expect(html).toBe(body)
+  })
+
   it('does not read a data-id as the heading id', () => {
     const { links, html } = buildLegalToc('<h2 data-id="x">Τίτλος</h2>')
 

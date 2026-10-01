@@ -396,6 +396,67 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     })
   })
 
+  describe('content page gate', () => {
+    // `/info/<slug>` renders a ContentPage like a legal route does, and
+    // 404s one written in no language: the same document gate, for the
+    // pages the sitemap source lists.
+    const BILINGUAL = { ...OPEN, availableLocales: ['el', 'en'] }
+
+    async function runInfo(urls: { loc: string, alternatives?: { hreflang: string, href: string }[] }[]) {
+      const ctx = { urls, sitemapName: 'sitemap', event: eventFor(BILINGUAL) }
+      await gate(ctx)
+      return ctx.urls
+    }
+
+    it('drops the locale an info page is not written in, and its alternate', async () => {
+      store.content = [...ALL_LEGAL(), { slug: 'shipping', translations: { el: WRITTEN, en: { title: 'Shipping', body: '<p>&nbsp;</p>' } } }]
+
+      const urls = await runInfo([
+        {
+          loc: 'https://example.com/info/shipping',
+          alternatives: [
+            { hreflang: 'el', href: 'https://example.com/info/shipping' },
+            { hreflang: 'en', href: 'https://example.com/en/info/shipping' },
+          ],
+        },
+        { loc: 'https://example.com/en/info/shipping' },
+      ])
+
+      expect(urls).toEqual([{ loc: 'https://example.com/info/shipping', alternatives: undefined }])
+    })
+
+    it('drops an info page written in no language, which 404s', async () => {
+      store.content = [...ALL_LEGAL(), { slug: 'blank', translations: { el: { title: 'Κενό', body: '' } } }]
+
+      const urls = await runInfo([
+        { loc: 'https://example.com/info/blank' },
+        { loc: 'https://example.com/en/info/blank' },
+      ])
+
+      expect(urls).toEqual([])
+    })
+
+    it('keeps an info page written in every locale the store serves', async () => {
+      store.content = [...ALL_LEGAL(), { slug: 'shipping', translations: BOTH_LOCALES }]
+      const alternatives = [
+        { hreflang: 'el', href: 'https://example.com/info/shipping' },
+        { hreflang: 'en', href: 'https://example.com/en/info/shipping' },
+      ]
+
+      const urls = await runInfo([
+        { loc: 'https://example.com/info/shipping', alternatives },
+        { loc: 'https://example.com/en/info/shipping', alternatives },
+      ])
+
+      expect(urls.map(u => u.loc)).toEqual([
+        'https://example.com/info/shipping',
+        'https://example.com/en/info/shipping',
+      ])
+      expect(urls[0]!.alternatives).toEqual(alternatives)
+      expect(requestsTo('/content-page')).toHaveLength(1)
+    })
+  })
+
   describe('legal document gate', () => {
     // The legal routes exist in the build-time route manifest for every
     // tenant, but each renders that tenant's ContentPage and throws a
