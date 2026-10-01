@@ -98,11 +98,12 @@ describe('useLegalPage', () => {
     expect(legal.fallbackLanguageName.value).toBe('x!')
   })
 
-  it('tells the head pipeline which locales the document exists in', async () => {
-    // A blank translation should be left out too; it is not today — see
-    // the report on useLegalPage.ts `declare()` — so it is not pinned.
+  it('tells the head pipeline which locales the document is written in', async () => {
+    // An `en` row saved with an empty body is no English document: no
+    // `en` hreflang, and the English page's canonical points at `el`.
     page = withTranslations({
       el: { title: 'Όροι', body: '<p>κείμενο</p>' },
+      en: { title: 'Terms', body: '<p></p>' },
     })
 
     await legalPage()

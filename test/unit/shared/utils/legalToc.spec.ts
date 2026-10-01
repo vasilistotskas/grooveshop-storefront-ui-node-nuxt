@@ -65,6 +65,55 @@ describe('buildLegalToc', () => {
     }
   })
 
+  /** How many elements carry `id` in `html` — an anchor must be unique. */
+  const idCount = (html: string, id: string) =>
+    html.split(/\s/).filter(part => part.startsWith(`id="${id}"`)).length
+
+  it('never generates an anchor the document already uses', () => {
+    // A merchant's own `id="section-1"` elsewhere: a second element with
+    // that id would make the link jump to whichever comes first.
+    const { links, html } = buildLegalToc(
+      '<h2>Πρώτο</h2><p id="section-1">σημείωση</p>',
+    )
+
+    expect(links).toHaveLength(1)
+    expect(links[0]!.id).not.toBe('section-1')
+    for (const link of links) {
+      expect(idCount(html, link.id)).toBe(1)
+    }
+  })
+
+  it.each([
+    ['two headings with the same id', '<h2 id="a">Ένα</h2><h2 id="a">Δύο</h2>'],
+    ['a heading reusing an earlier section id', '<section id="a"><h2>Ένα</h2></section><h2 id="a">Δύο</h2>'],
+  ])('gives every link its own target for %s', (_case, body) => {
+    const { links, html } = buildLegalToc(body)
+
+    expect(new Set(links.map(l => l.id)).size).toBe(2)
+    expect(links[1]!.id).not.toBe('a')
+    expect(idCount(html, links[1]!.id)).toBe(1)
+  })
+
+  it.each([
+    ['a single-quoted heading id', `<h2 id='x'>Τίτλος</h2>`],
+    ['an unquoted heading id', '<h2 id=x>Τίτλος</h2>'],
+    ['spaces around the equals sign', '<h2 id = "x">Τίτλος</h2>'],
+    ['a single-quoted section id', `<section id='x'><h2>Τίτλος</h2></section>`],
+  ])('reads %s', (_case, body) => {
+    const { links, html } = buildLegalToc(body)
+
+    expect(links).toEqual([{ id: 'x', text: 'Τίτλος' }])
+    // Nothing injected: a second `id` would lose to the first.
+    expect(html).toBe(body)
+  })
+
+  it('does not read a data-id as the heading id', () => {
+    const { links, html } = buildLegalToc('<h2 data-id="x">Τίτλος</h2>')
+
+    expect(links).toEqual([{ id: 'section-1', text: 'Τίτλος' }])
+    expect(html).toBe('<h2 data-id="x" id="section-1">Τίτλος</h2>')
+  })
+
   it('strips markup and entities out of the link text', () => {
     const { links } = buildLegalToc(
       '<h2><strong>Όροι</strong> &amp; Προϋποθέσεις</h2>',

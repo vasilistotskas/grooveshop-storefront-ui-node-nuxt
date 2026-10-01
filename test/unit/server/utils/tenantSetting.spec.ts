@@ -89,11 +89,14 @@ describe('pageTypePublishedForHost', () => {
 })
 
 describe('publishedContentLocalesForHost', () => {
-  it('maps each published slug to the locales it is written in, asking for 100 per page', async () => {
+  it('maps each published slug to the locales its body is written in, asking for 100 per page', async () => {
     backend.reply({
       results: [
-        { slug: 'terms-of-use', translations: { el: {}, en: {} } },
-        { slug: 'privacy-policy', translations: { el: {} } },
+        { slug: 'terms-of-use', translations: { el: { body: '<p>όροι</p>' }, en: { body: '<p>terms</p>' } } },
+        // A key with an empty body is no English document.
+        { slug: 'privacy-policy', translations: { el: { body: '<p>απόρρητο</p>' }, en: { title: 'Privacy', body: '<p></p>' } } },
+        // Nothing written in any language: the page 404s, so no entry.
+        { slug: 'returns', translations: { el: { title: 'Επιστροφές', body: '' } } },
         { slug: 'shipping', translations: null },
       ],
     })
@@ -103,7 +106,6 @@ describe('publishedContentLocalesForHost', () => {
     expect(pages).toEqual(new Map([
       ['terms-of-use', new Set(['el', 'en'])],
       ['privacy-policy', new Set(['el'])],
-      ['shipping', new Set()],
     ]))
     expect(backend.lastRequest.path).toBe(`${API}/content-page`)
     // The endpoint's default page is 12.

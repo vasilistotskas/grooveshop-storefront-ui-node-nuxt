@@ -120,6 +120,9 @@ function pathOf(loc: string | URL | undefined): string {
   return raw.startsWith('http') ? new URL(raw).pathname : raw
 }
 
+const INFO_PREFIX = '/info/'
+const NO_LOCALES: ReadonlySet<string> = new Set()
+
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('sitemap:resolved', async (ctx) => {
     const event = ctx.event
@@ -164,9 +167,19 @@ export default defineNitroPlugin((nitroApp) => {
       ? await publicSettingsForHost(host, apiBaseUrl)
       : null
 
+    // `/info/<slug>` renders a ContentPage just as a legal route does,
+    // and 404s one written in no language: the same document gate, for
+    // the content pages the sitemap source lists.
+    const infoSlugOf = (route: string) =>
+      route.startsWith(INFO_PREFIX) ? route.slice(INFO_PREFIX.length) : undefined
+    const hasInfoPages = ctx.urls.some((url) => {
+      const path = pathOf(typeof url === 'string' ? url : url.loc)
+      return !!path && infoSlugOf(splitLocale(path).route) !== undefined
+    })
+
     // Same shape for the content gate: one bulk read, and only when a
-    // route whose earlier gates passed actually needs it.
-    const needsContent = GATED_ROUTES.some(
+    // route whose earlier gates passed, or an info page, needs it.
+    const needsContent = hasInfoPages || GATED_ROUTES.some(
       route => planAllows(route) && route.contentSlug,
     )
     const contentLocales = needsContent
@@ -236,8 +249,21 @@ export default defineNitroPlugin((nitroApp) => {
     if (
       !blocked.size
       && !routeLocales.size
+      && !hasInfoPages
       && locales.size === SUPPORTED_LOCALES.length
     ) return
+
+    // The locales a route's document is written in, when it is one:
+    // a gated legal route missing a locale, or any info page — none at
+    // all for a page written in nothing, or when the lookup failed
+    // (closed, like the legal gate).
+    const documentLocales = (route: string): ReadonlySet<string> | undefined => {
+      const gated = routeLocales.get(route)
+      if (gated) return gated
+      const slug = infoSlugOf(route)
+      if (slug === undefined) return undefined
+      return contentLocales?.get(slug) ?? NO_LOCALES
+    }
 
     ctx.urls = ctx.urls.flatMap((url) => {
       const path = pathOf(typeof url === 'string' ? url : url.loc)
@@ -246,7 +272,7 @@ export default defineNitroPlugin((nitroApp) => {
       if (blocked.has(route)) return []
       if (!locales.has(locale)) return []
       // The document exists but not in THIS language.
-      const available = routeLocales.get(route)
+      const available = documentLocales(route)
       if (available && !available.has(locale)) return []
       if (typeof url === 'string' || !url.alternatives?.length) return [url]
 

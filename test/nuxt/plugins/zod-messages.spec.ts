@@ -20,7 +20,19 @@ const translations: Record<string, string> = {
   'validation.required': 'Απαιτούμενο',
   'validation.min': 'Τουλάχιστον {min} χαρακτήρες',
   'validation.max': 'Το πολύ {max} χαρακτήρες',
+  'validation.length': 'Ακριβώς {length} χαρακτήρες',
+  'validation.min_value': 'Τουλάχιστον {min}',
+  'validation.max_value': 'Το πολύ {max}',
+  'validation.greater_than': 'Μεγαλύτερη από {min}',
+  'validation.less_than': 'Μικρότερη από {max}',
+  'validation.min_items': 'Επιλέξτε τουλάχιστον {min}',
+  'validation.max_items': 'Επιλέξτε το πολύ {max}',
+  'validation.items_exact': 'Επιλέξτε ακριβώς {count}',
 }
+
+/** The message the one field of `schema` shows for `value`. */
+const messageFor = (schema: z.ZodType, value: unknown) =>
+  z.object({ field: schema }).safeParse({ field: value }).error!.issues[0]!.message
 
 const t = (key: string, named?: Record<string, unknown>) => {
   const template = translations[key]
@@ -50,6 +62,40 @@ describe('zod validation messages', () => {
 
     const tooLong = z.object({ title: z.string().max(3) }).safeParse({ title: 'abcdef' })
     expect(tooLong.error!.issues[0]!.message).toBe('Το πολύ 3 χαρακτήρες')
+  })
+
+  it('words an exact length as one', () => {
+    expect(messageFor(z.string().length(5), 'abc')).toBe('Ακριβώς 5 χαρακτήρες')
+  })
+
+  // A number's bound is a value, not a length: "at least 1 characters"
+  // under a quantity or a rating is what the shopper used to read.
+  it.each([
+    ['a number below its minimum', z.number().min(1), 0, 'Τουλάχιστον 1'],
+    ['a number above its maximum', z.number().max(5), 6, 'Το πολύ 5'],
+    ['an integer below its minimum', z.int().min(1), 0, 'Τουλάχιστον 1'],
+    ['a positive number at zero', z.number().positive(), 0, 'Μεγαλύτερη από 0'],
+    ['a number at an exclusive maximum', z.number().lt(10), 10, 'Μικρότερη από 10'],
+    ['a bigint below its minimum', z.bigint().min(2n), 1n, 'Τουλάχιστον 2'],
+  ])('words %s as a value', (_case, schema, value, expected) => {
+    expect(messageFor(schema, value)).toBe(expected)
+  })
+
+  it.each([
+    ['too few items', z.array(z.string()).min(2), ['a'], 'Επιλέξτε τουλάχιστον 2'],
+    ['too many items', z.array(z.string()).max(1), ['a', 'b'], 'Επιλέξτε το πολύ 1'],
+    ['the wrong item count', z.array(z.string()).length(2), ['a'], 'Επιλέξτε ακριβώς 2'],
+    ['a set too small', z.set(z.string()).min(2), new Set(['a']), 'Επιλέξτε τουλάχιστον 2'],
+  ])('words %s as a count', (_case, schema, value, expected) => {
+    expect(messageFor(schema, value)).toBe(expected)
+  })
+
+  it('leaves a bound it has no wording for to Zod', () => {
+    // A date's minimum is a timestamp; "at least 1735689600000" is no
+    // better than Zod's own message.
+    const message = messageFor(z.date().min(new Date('2026-01-01')), new Date('2025-01-01'))
+    expect(message).not.toMatch(/χαρακτήρες|Τουλάχιστον/)
+    expect(message.length).toBeGreaterThan(0)
   })
 
   it('leaves a schema\'s own message alone', () => {

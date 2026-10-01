@@ -87,11 +87,7 @@ const fallbackLanguageName = computed(() => {
     return documentLocale.value
   }
 })
-declare(
-  Object.keys(contentPage.value.translations ?? {}).filter(
-    code => !!resolveTranslated(contentPage.value, 'body', code, []),
-  ),
-)
+declare(translatedLocales(contentPage.value.translations, 'body'))
 
 const pageTitle = computed(() =>
   extractTranslated(contentPage.value, 'title', documentLocale.value)

@@ -123,7 +123,7 @@ export async function publishedContentLocalesForHost(
 ): Promise<ReadonlyMap<string, ReadonlySet<string>> | null> {
   try {
     const { results } = await $fetch<{
-      results: { slug: string, translations?: Record<string, unknown> | null }[]
+      results: { slug: string, translations?: Record<string, Record<string, unknown> | null> | null }[]
     }>(
       `${apiBaseUrl}/content-page`,
       {
@@ -132,11 +132,14 @@ export async function publishedContentLocalesForHost(
         headers: host ? { 'X-Forwarded-Host': host } : undefined,
       },
     )
+    // Written locales only (a key with an empty body is no document),
+    // and no entry for a page written in none: it 404s, so its route
+    // must not be listed.
     return new Map(
-      results.map(page => [
-        page.slug,
-        new Set(Object.keys(page.translations ?? {})),
-      ]),
+      results.flatMap((page) => {
+        const locales = translatedLocales(page.translations, 'body')
+        return locales.length ? [[page.slug, new Set(locales)] as const] : []
+      }),
     )
   }
   catch {

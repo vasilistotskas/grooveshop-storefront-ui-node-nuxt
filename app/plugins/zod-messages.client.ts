@@ -46,15 +46,56 @@ export default defineNuxtPlugin({
               ? t('validation.required')
               : undefined
 
-          case 'too_small':
-            return typeof issue.minimum === 'number'
-              ? t('validation.min', { min: issue.minimum })
-              : undefined
+          // A bound means what its `origin` says: a string's is a length,
+          // a number's a value, an array's a count. One "characters"
+          // message for all of them told a shopper who skipped a rating
+          // it needed "at least 1 characters". Any other origin (a date,
+          // a file) keeps Zod's wording rather than a wrong one.
+          case 'too_small': {
+            const min = issue.minimum.toString()
+            switch (issue.origin) {
+              case 'string':
+                return issue.exact
+                  ? t('validation.length', { length: min })
+                  : t('validation.min', { min })
+              case 'number':
+              case 'int':
+              case 'bigint':
+                return issue.inclusive === false
+                  ? t('validation.greater_than', { min })
+                  : t('validation.min_value', { min })
+              case 'array':
+              case 'set':
+                return issue.exact
+                  ? t('validation.items_exact', { count: min })
+                  : t('validation.min_items', { min })
+              default:
+                return undefined
+            }
+          }
 
-          case 'too_big':
-            return typeof issue.maximum === 'number'
-              ? t('validation.max', { max: issue.maximum })
-              : undefined
+          case 'too_big': {
+            const max = issue.maximum.toString()
+            switch (issue.origin) {
+              case 'string':
+                return issue.exact
+                  ? t('validation.length', { length: max })
+                  : t('validation.max', { max })
+              case 'number':
+              case 'int':
+              case 'bigint':
+                return issue.inclusive === false
+                  ? t('validation.less_than', { max })
+                  : t('validation.max_value', { max })
+              case 'array':
+              case 'set':
+                return issue.exact
+                  ? t('validation.items_exact', { count: max })
+                  : t('validation.max_items', { max })
+              default:
+                return undefined
+            }
+          }
 
           default:
             // Everything else keeps Zod's wording rather than inventing

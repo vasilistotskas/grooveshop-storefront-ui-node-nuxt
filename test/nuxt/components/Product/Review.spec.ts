@@ -125,6 +125,20 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
     expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('validation.min', { min: 10 }))
   })
 
+  it('asks for a rating, not a length, when none is chosen', async () => {
+    // The rating is a number from 0 to 10; with none chosen the field
+    // used to say "at least 1 characters".
+    const wrapper = await mountReview()
+
+    await wrapper.get('textarea').setValue('Πολύ καλή ποιότητα, το συνιστώ.')
+    await submit(wrapper, 'Γράψε μια κριτική')
+
+    const { t } = useNuxtApp().$i18n
+    expect(api.callsTo('/api/products/reviews')).toHaveLength(0)
+    expect(wrapper.text()).toContain(t('validation.required'))
+    expect(wrapper.text()).not.toContain(t('validation.min', { min: 1 }))
+  })
+
   // The refusal arrives through the Nitro proxy (`data.product`) or
   // straight from DRF (`product`), as a code or a list of codes.
   it.each([

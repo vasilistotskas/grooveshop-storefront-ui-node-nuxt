@@ -34,6 +34,8 @@ mockNuxtImport('useRoute', () => () => ({
   meta: {},
 }))
 mockNuxtImport('navigateTo', () => navigateToMock)
+const { declare } = vi.hoisted(() => ({ declare: vi.fn() }))
+mockNuxtImport('useDocumentLocales', () => () => ({ declare }))
 
 /** A content page as `/api/content-pages/<slug>` serves it. */
 function page(slug: string, translations: ContentPageDetail['translations']) {
@@ -102,6 +104,22 @@ describe.each([
     api.routes({ '/api/content-pages/shipping': { page: page('shipping', { el: { title: 'Κενό', body: '' } }) } })
 
     expect((await render()).error).toMatchObject({ statusCode: 404 })
+  })
+
+  it('tells the head pipeline only the locales the page is written in', async () => {
+    // An `en` key saved with an empty body is no English page.
+    api.routes({
+      '/api/content-pages/shipping': {
+        page: page('shipping', {
+          el: { title: 'Αποστολή', body: '<p>κείμενο</p>' },
+          en: { title: 'Shipping', body: '<p></p>' },
+        }),
+      },
+    })
+
+    await render()
+
+    expect(declare).toHaveBeenCalledWith(['el'])
   })
 
   it('301s a legal slug to its dedicated route', async () => {
