@@ -1,3 +1,4 @@
+import type { H3Event } from 'h3'
 // In-memory cache with 5-minute TTL.
 //
 // Negative results (404 / 5xx) are explicitly NOT cached, so adversarial
@@ -7,6 +8,29 @@
 // adds runtime weight for no real-world payoff. Sweep on every set
 // keeps stale entries out without a setInterval (which leaks under
 // Nitro HMR / test isolation). See H17 in MULTI_TENANT_AUDIT.md.
+/**
+ * A Host as the store it names: lower case — hostnames are
+ * case-insensitive, and Django matches `TenantDomain` exactly — and
+ * without a port, since `TenantDomain` stores bare hostnames. Idempotent.
+ */
+export function tenantHostOf(host: string): string {
+  return host.toLowerCase().replace(/:\d+$/, '')
+}
+
+/**
+ * The store a request is for: its Host header — never X-Forwarded-Host,
+ * which the client controls — as {@link tenantHostOf} names it.
+ *
+ * Everything keyed on the store uses this one value: tenant resolution,
+ * `tenantCacheKey`, the rate limits and the X-Forwarded-Host sent to
+ * Django. A raw Host differing in case or port resolved the same store
+ * yet missed its caches and rate-limit buckets, and a capital letter
+ * was "Store not found".
+ */
+export function requestTenantHost(event: H3Event): string {
+  return tenantHostOf(getRequestHost(event, { xForwardedHost: false }))
+}
+
 const TENANT_CACHE_TTL = 5 * 60 * 1000
 const TENANT_CACHE_MAX_ENTRIES = 1000
 const tenantCache = new Map<string, { config: TenantConfig, expiry: number }>()
@@ -40,8 +64,7 @@ type TenantResult
     | { type: 'error_5xx', config: null }
 
 export async function getTenantConfig(host: string): Promise<TenantResult> {
-  // Strip port — TenantDomain stores bare hostnames (e.g. "localhost", not "localhost:3000")
-  const domain = host.replace(/:\d+$/, '')
+  const domain = tenantHostOf(host)
 
   const cached = tenantCache.get(domain)
   if (cached && cached.expiry > Date.now()) {
@@ -124,8 +147,7 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
 
 export function clearTenantCache(host?: string) {
   if (host) {
-    const domain = host.replace(/:\d+$/, '')
-    tenantCache.delete(domain)
+    tenantCache.delete(tenantHostOf(host))
   }
   else {
     tenantCache.clear()

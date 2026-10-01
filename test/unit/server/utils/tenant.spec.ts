@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { clearTenantCache, getTenantConfig, isPlatformTenantConfig } from '~~/server/utils/tenant'
+import { clearTenantCache, getTenantConfig, isPlatformTenantConfig, requestTenantHost } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
-import { backend, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
+import { backend, createTestEvent, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
 
 /**
  * `getTenantConfig` runs on every request (server/middleware/0.tenant.ts),
@@ -25,6 +25,27 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
+/**
+ * The store a request is for, as everything keyed on it must name it:
+ * the resolver, the caches, the rate limits and Django. A Host differing
+ * only in case or port is the same store.
+ */
+describe('requestTenantHost', () => {
+  it.each([
+    ['a bare host', 'webside.gr', 'webside.gr'],
+    ['a port', 'webside.gr:443', 'webside.gr'],
+    ['upper case', 'WebSide.GR', 'webside.gr'],
+    ['both', 'WEBSIDE.gr:3000', 'webside.gr'],
+    ['an IPv6 literal with a port', '[::1]:3000', '[::1]'],
+  ])('names the store for %s', (_label, host, expected) => {
+    expect(requestTenantHost(createTestEvent({ host }))).toBe(expected)
+  })
+
+  it('never reads X-Forwarded-Host, which the client controls', () => {
+    expect(requestTenantHost(createTestEvent({ host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } }))).toBe('webside.gr')
+  })
+})
+
 describe('getTenantConfig', () => {
   it('resolves the host through Django, port stripped, and returns the validated config', async () => {
     backend.reply(WEBSIDE)
@@ -33,6 +54,16 @@ describe('getTenantConfig', () => {
 
     expect(result).toEqual({ type: 'ok', config: expect.objectContaining({ schemaName: 'webside', primaryDomain: 'webside.gr' }) })
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/tenant/resolve')
+    expect(backend.lastRequest.query).toEqual({ domain: 'webside.gr' })
+  })
+
+  it('resolves a Host in any case to the store: hostnames are case-insensitive', async () => {
+    // Django matches TenantDomain exactly, so `Webside.GR` was "Store not
+    // found" for a host that is the store's.
+    backend.reply(WEBSIDE)
+
+    await getTenantConfig('Webside.GR:443')
+
     expect(backend.lastRequest.query).toEqual({ domain: 'webside.gr' })
   })
 

@@ -240,7 +240,10 @@ export async function handleAllAuthError(
   handleError(error)
 }
 
-const HTTP_STATUS_TEXT: Record<number, string> = {
+// One reason phrase per status an allauth error can carry, keyed by that
+// union: a status added to `AllAuthError` fails the build here until it
+// has one, instead of going out as a generic "Error".
+const HTTP_STATUS_TEXT: Record<AllAuthError['data']['status'], string> = {
   400: 'Bad Request',
   401: 'Unauthorized',
   403: 'Forbidden',
@@ -283,7 +286,7 @@ export async function forwardAllAuthFlow(error: unknown): Promise<undefined> {
       setResponseStatus(event, status)
       return {
         statusCode: status,
-        statusMessage: HTTP_STATUS_TEXT[status] ?? 'Error',
+        statusMessage: HTTP_STATUS_TEXT[status],
         data: error.data,
       } as unknown as undefined
     }

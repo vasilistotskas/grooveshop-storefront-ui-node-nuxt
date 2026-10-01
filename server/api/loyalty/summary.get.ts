@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Unauthenticated — serve from cache, keyed per tenant host.
-    const host = getRequestHost(event, { xForwardedHost: false })
+    const host = requestTenantHost(event)
     return await fetchLoyaltySummary(host, requestLocale(event))
   }
   catch (error) {

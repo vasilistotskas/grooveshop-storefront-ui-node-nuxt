@@ -90,6 +90,16 @@ describe('POST /api/blog/posts/[id]/update-view-count', () => {
     expect(testSession.data.viewedPosts).toEqual(['3'])
   })
 
+  it('counts the view at Django as the visitor, not as this pod', async () => {
+    // Django throttles view counting per caller: a bare $fetch reaches it
+    // as this pod and puts every anonymous reader in one bucket.
+    backend.reply(postDetail)
+
+    await view('3', '198.51.100.4')
+
+    expect(backend.lastRequest.headers.get('x-real-ip')).toBe('198.51.100.4')
+  })
+
   it('does not count a post twice in one session', async () => {
     testSession.set({ viewedPosts: ['3'] })
 

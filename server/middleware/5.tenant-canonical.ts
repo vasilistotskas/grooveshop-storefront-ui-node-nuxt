@@ -30,11 +30,7 @@ export default defineEventHandler((event) => {
   if (event.method !== 'GET' && event.method !== 'HEAD') return
   if (event.path.startsWith('/api/')) return
 
-  const host = getRequestHost(event, { xForwardedHost: false }).replace(
-    /:\d+$/,
-    '',
-  )
-  if (host === tenant.primaryDomain) return
+  if (requestTenantHost(event) === tenant.primaryDomain) return
 
   return sendRedirect(
     event,

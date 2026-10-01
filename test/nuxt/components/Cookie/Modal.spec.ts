@@ -202,6 +202,35 @@ describe('Cookie/Modal', () => {
 
       expect(state().isModalActive.value).toBe(false)
       expect(ids(state().cookiesEnabled.value)).toEqual(NECESSARY)
+      // The consent ids are what Google consent mode and the ad pixels
+      // read: an unsaved switch must not grant ad_storage.
+      expect(state().cookiesEnabledIds.value).toEqual(NECESSARY)
+    })
+
+    it('changes no consent while the visitor is still choosing', async () => {
+      consentGiven(NECESSARY)
+      await openModal()
+
+      await click(categorySwitch('cookies.ad_storage'))
+
+      expect(isOn('cookies.ad_storage')).toBe(true)
+      expect(state().cookiesEnabledIds.value).toEqual(NECESSARY)
+    })
+  })
+
+  describe('a first visit, before any decision', () => {
+    it('shows the necessary categories on, as they are set whatever is chosen', async () => {
+      await openModal()
+
+      expect(isOn('cookies.necessary')).toBe(true)
+      expect(isOn('cookies.functionality_storage')).toBe(true)
+      expect(isOn('cookies.ad_storage')).toBe(false)
+    })
+
+    it('reports no unsaved change before the visitor makes one', async () => {
+      await openModal()
+
+      expect(dialog()!.textContent).not.toContain(COPY.unsaved)
     })
   })
 

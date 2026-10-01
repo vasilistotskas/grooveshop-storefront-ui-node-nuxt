@@ -92,12 +92,25 @@ describe('server/plugins/forwarded-proto', () => {
     expect(headers.get('x-forwarded-proto')).toBe('https')
   })
 
-  it('does not patch $fetch when no backend origin is configured', async () => {
-    setRuntimeConfig({ apiBaseUrl: '', djangoUrl: '' })
-    const before = globalFetch()
-
+  it.each([
+    ['a host extending the backend host', 'http://backend.test.evil.example/x'],
+    ['userinfo naming the backend', 'http://backend.test@evil.example/x'],
+  ])('leaves %s untouched', async (_label, url) => {
     await runNitroPlugin(plugin)
+    backend.reply({})
 
-    expect(globalFetch()).toBe(before)
+    await inRequest({ context: { locale: 'en' } }, () => $fetch(url))
+
+    expect([...backend.lastRequest.headers.keys()]).toEqual([])
+  })
+
+  it('stamps nothing when no backend origin is configured', async () => {
+    setRuntimeConfig({ apiBaseUrl: '', djangoUrl: '' })
+    await runNitroPlugin(plugin)
+    backend.reply({})
+
+    await inRequest({ context: { locale: 'en' } }, () => $fetch('http://backend.test/api/v1/x'))
+
+    expect([...backend.lastRequest.headers.keys()]).toEqual([])
   })
 })

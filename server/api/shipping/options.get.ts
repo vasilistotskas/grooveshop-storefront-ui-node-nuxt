@@ -37,7 +37,7 @@ export default defineCachedEventHandler(
         },
       )
 
-      return parseDataAs(raw, zListShippingOptionsResponse)
+      return await parseDataAs(raw, zListShippingOptionsResponse)
     }
     catch (error) {
       handleError(error)

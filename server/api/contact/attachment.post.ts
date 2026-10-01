@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
         // `SECURE_SSL_REDIRECT` would 301 an in-cluster request to the
         // public HTTPS URL, and a 301 loses the body.
         'X-Forwarded-Proto': 'https',
-        'X-Forwarded-Host': getRequestHost(event, { xForwardedHost: false }),
+        'X-Forwarded-Host': requestTenantHost(event),
         'X-Language': (event.context.locale as string) || DEFAULT_LOCALE,
       },
     },

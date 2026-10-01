@@ -120,7 +120,7 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  const host = getRequestHost(event, { xForwardedHost: false })
+  const host = requestTenantHost(event)
   const result = await getTenantConfig(host)
 
   if (result.type === 'error_5xx') {

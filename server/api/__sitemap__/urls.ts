@@ -34,7 +34,7 @@ const cachedContentPages = createCachedFetcher<ContentPage>(
 
 export default defineSitemapEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const host = getRequestHost(event, { xForwardedHost: false })
+  const host = requestTenantHost(event)
   const locale = requestLocale(event)
 
   // This route is bypassed in server/middleware/0.tenant.ts (hit by

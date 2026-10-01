@@ -37,6 +37,13 @@ describe('tenantCacheKey', () => {
     expect(nitroEscape(el)).not.toBe(nitroEscape(en))
   })
 
+  it('files a store under one key whatever case or port its Host carries', () => {
+    // Otherwise a port or a capital letter in the Host is a cache miss for
+    // a store that resolved fine — a cache bust anyone can trigger.
+    expect(tenantCacheKey(on('Webside.GR:443', 'el'), 'settings'))
+      .toBe(tenantCacheKey(on('webside.gr', 'el'), 'settings'))
+  })
+
   it('uses the default locale when the context has none', () => {
     expect(tenantCacheKey(on('webside.gr'), 'settings'))
       .toBe(tenantCacheKey(on('webside.gr', 'el'), 'settings'))

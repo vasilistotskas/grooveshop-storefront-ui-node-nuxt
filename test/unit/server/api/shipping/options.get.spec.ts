@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/shipping/options.get'
 import { zListShippingOptionsResponse } from '~~/shared/openapi/zod.gen'
-import { backend, cacheOptionsOf, callRoute, createTestEvent } from '~~/test/helpers/nitro'
+import { backend, cacheOptionsOf, callRoute, createTestEvent, log } from '~~/test/helpers/nitro'
 
 /**
  * GET /api/shipping/options: the checkout's per-carrier shipping prices,
@@ -60,6 +60,10 @@ describe('GET /api/shipping/options', () => {
     const response = await callRoute(handler, { route, url: `${route}?countryCode=GR` })
 
     expect(response.status).toBe(422)
+    // `handleError` is what reports a drifted response loudly; a parse
+    // rejection that escapes the try reached the client as the same 422
+    // and was never logged.
+    expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation:response' }))
   })
 
   it.each(['countryCode=CY', 'orderValueAmount=99', 'currency=USD', 'weightGrams=5000'])(

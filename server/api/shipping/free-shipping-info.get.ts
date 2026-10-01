@@ -39,7 +39,7 @@ export default defineCachedEventHandler(
         },
       )
 
-      return parseDataAs(raw, zResponse)
+      return await parseDataAs(raw, zResponse)
     }
     catch (error) {
       handleError(error)

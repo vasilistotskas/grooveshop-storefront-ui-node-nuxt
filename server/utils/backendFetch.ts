@@ -35,7 +35,7 @@ import { clientIdentityHeaders } from './clientIdentity'
 
 /**
  * The `$fetch.create` instance is cached at module level, but the
- * configuration values it depends on (`internalOrigins`, `fallbackPublicHost`)
+ * configuration values it depends on (the backend origins, `fallbackPublicHost`)
  * are resolved on every onRequest call. Previously these were baked
  * at first call, so a runtime-config swap (dev hot-reload, test
  * isolation) silently kept the stale origin list. See H16 in
@@ -43,19 +43,38 @@ import { clientIdentityHeaders } from './clientIdentity'
  */
 let _backendFetch: typeof $fetch | undefined
 
-function deriveInternalOrigins(config: ReturnType<typeof useRuntimeConfig>): string[] {
-  return [...new Set(
-    [config.djangoUrl, config.apiBaseUrl]
-      .filter((url): url is string => typeof url === 'string' && url.length > 0)
-      .map((url) => {
-        try {
-          return new URL(url).origin
-        }
-        catch {
-          return url
-        }
-      }),
-  )]
+/** The origin of `url`, or undefined for one that is not absolute. */
+function originOf(url: string): string | undefined {
+  try {
+    return new URL(url).origin
+  }
+  catch {
+    return undefined
+  }
+}
+
+/**
+ * Whether `url` is a call to Django — the one test for which requests
+ * carry the forwarded headers and the visitor's identity, including
+ * `X-Origin-Verify`, the edge secret Django trusts.
+ *
+ * Its ORIGIN must be one of the configured backend origins
+ * (`NUXT_DJANGO_URL`, `NUXT_API_BASE_URL`). A prefix test passed
+ * `http://backend.test.evil.example` and `http://backend.test@evil.example`
+ * (userinfo; the host is evil.example) for `http://backend.test`. A URL
+ * that does not parse, a relative one, or one checked with no backend
+ * configured is not internal: the secret goes nowhere it was not meant
+ * for. `startup-validation` refuses to boot without both origins.
+ */
+export function isInternalBackendUrl(
+  url: string,
+  config: ReturnType<typeof useRuntimeConfig> = useRuntimeConfig(),
+): boolean {
+  const origin = originOf(url)
+  if (!origin) return false
+  return [config.djangoUrl, config.apiBaseUrl].some(
+    base => typeof base === 'string' && originOf(base) === origin,
+  )
 }
 
 export function useBackendFetch(): typeof $fetch {
@@ -64,7 +83,6 @@ export function useBackendFetch(): typeof $fetch {
   _backendFetch = $fetch.create({
     onRequest({ request, options }) {
       const config = useRuntimeConfig()
-      const internalOrigins = deriveInternalOrigins(config)
       const fallbackPublicHost = typeof config.public.djangoHostName === 'string'
         ? config.public.djangoHostName
         : undefined
@@ -75,7 +93,7 @@ export function useBackendFetch(): typeof $fetch {
           ? request.href
           : request.url
 
-      if (internalOrigins.length > 0 && !internalOrigins.some(origin => url.startsWith(origin))) return
+      if (!isInternalBackendUrl(url, config)) return
 
       options.headers = new Headers(options.headers as HeadersInit)
       if (!options.headers.has('X-Forwarded-Proto')) {
@@ -89,7 +107,7 @@ export function useBackendFetch(): typeof $fetch {
       let locale: string | undefined
       try {
         const event = useEvent()
-        requestHost = event ? getRequestHost(event, { xForwardedHost: false }) : undefined
+        requestHost = event ? requestTenantHost(event) : undefined
         locale = event?.context?.locale as string | undefined
       }
       catch {

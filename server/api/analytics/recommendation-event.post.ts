@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
   // Prefix with the tenant host so tenants don't share the same
   // rate-limit budget.
-  const host = getRequestHost(event, { xForwardedHost: false })
+  const host = requestTenantHost(event)
   const storage = useStorage('cache')
   const rateLimitKey = `rate:recommendation-event:${host}:${clientIp}`
   const current = await storage.getItem<number>(rateLimitKey)

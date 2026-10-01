@@ -49,7 +49,7 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // to the configured public Django hostname only when outside a request
   // context (prerender/startup). django-tenants sets ALLOWED_HOSTS=["*"]
   // because domain validation happens at the tenant-resolution layer.
-  const host = getRequestHost(event, { xForwardedHost: false }) || config.public.djangoHostName
+  const host = requestTenantHost(event) || config.public.djangoHostName
   if (host) {
     headers['X-Forwarded-Host'] = host
   }
@@ -175,7 +175,7 @@ export async function fetchUserData(response: AllAuthResponse) {
       // TenantMainMiddleware picks the right schema; fall back to the
       // configured public hostname only when outside a request context
       // (prerender/startup). Matches the createHeaders() convention.
-      'X-Forwarded-Host': getRequestHost(event, { xForwardedHost: false }) || config.public.djangoHostName,
+      'X-Forwarded-Host': requestTenantHost(event) || config.public.djangoHostName,
       'X-Language': locale,
     }
     if (token) {

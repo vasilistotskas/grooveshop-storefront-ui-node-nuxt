@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { useBackendFetch } from '~~/server/utils/backendFetch'
+import { isInternalBackendUrl, useBackendFetch } from '~~/server/utils/backendFetch'
 import { backend, createTestEvent, setRuntimeConfig, withEvent } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
@@ -16,6 +16,13 @@ async function send(input: string | URL | Request = `${API}/contact`, options: R
 describe('useBackendFetch', () => {
   it('resolves the tenant from the request host, never a spoofed X-Forwarded-Host', async () => {
     const headers = await send(undefined, {}, { host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } })
+
+    expect(headers.get('x-forwarded-host')).toBe('webside.gr')
+  })
+
+  it('names the store to Django as it was resolved: lower case, no port', async () => {
+    // Django's tenant middleware matches the domain exactly.
+    const headers = await send(undefined, {}, { host: 'Webside.GR:443' })
 
     expect(headers.get('x-forwarded-host')).toBe('webside.gr')
   })
@@ -82,10 +89,45 @@ describe('useBackendFetch', () => {
     expect([...headers.keys()]).toEqual([])
   })
 
+  // The visitor's identity carries X-Origin-Verify, the edge secret
+  // Django trusts: it must reach the backend's ORIGIN and nothing that
+  // merely starts like it.
+  it.each([
+    ['a host that extends the backend\'s', 'http://backend.test.evil.example/x'],
+    ['userinfo naming the backend', 'http://backend.test@evil.example/x'],
+    ['the backend\'s host on another port', 'http://backend.test:8080/x'],
+    ['the backend\'s host over https', 'https://backend.test/x'],
+  ])('leaves %s untouched', async (_label, url) => {
+    const headers = await send(url, {}, { host: 'webside.gr', headers: { 'cf-connecting-ip': '203.0.113.9', 'x-origin-verify': 's' } })
+
+    expect([...headers.keys()]).toEqual([])
+  })
+
+  it('stamps nothing when no backend origin is configured', async () => {
+    setRuntimeConfig({ apiBaseUrl: '', djangoUrl: '' })
+
+    const headers = await send(`${API}/contact`, {}, { host: 'webside.gr', headers: { 'x-origin-verify': 's' } })
+
+    expect([...headers.keys()]).toEqual([])
+  })
+
   it('reads the internal origins per request, not once at first use', async () => {
     await send()
     setRuntimeConfig({ apiBaseUrl: 'http://moved.test/api/v1', djangoUrl: 'http://moved.test' })
 
     expect((await send('http://moved.test/api/v1/contact', {}, { host: 'webside.gr' })).get('x-forwarded-host')).toBe('webside.gr')
+  })
+})
+
+describe('isInternalBackendUrl', () => {
+  it.each([
+    ['the API base', `${API}/contact`, true],
+    ['the Django root', 'http://backend.test/admin/', true],
+    ['a host extending the backend host', 'http://backend.test.evil.example/x', false],
+    ['userinfo naming the backend', 'http://backend.test@evil.example/x', false],
+    ['a relative URL', '/api/v1/contact', false],
+    ['no URL at all', 'not a url', false],
+  ])('%s → %s', (_label, url, expected) => {
+    expect(isInternalBackendUrl(url)).toBe(expected)
   })
 })
