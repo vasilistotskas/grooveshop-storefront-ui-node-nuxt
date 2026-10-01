@@ -12,7 +12,7 @@ import { defineEventHandler, getRequestHost, setHeader } from 'h3'
  */
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event)
-  const tenant = event.context.tenant as TenantConfig | undefined
+  const tenant = event.context.tenant
   const host = getRequestHost(event, { xForwardedHost: false })
   const tenantDomain = tenant?.primaryDomain || host
   const siteUrl = tenantDomain ? `https://${tenantDomain}` : (config.public.baseUrl as string)

@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import type { H3Event, SessionConfig } from 'h3'
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
 import { clientIdentityHeaders } from './clientIdentity'
 
@@ -72,7 +72,7 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // the app's fetchers state on an /api request), clamped to the tenant.
   // allauth's adapter + every Celery email task reads this header to
   // capture/override user language.
-  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
+  const locale = event?.context?.locale || DEFAULT_LOCALE
   headers['X-Language'] = locale
 
   return headers
@@ -116,7 +116,10 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
  * come from the same `runtimeConfig.session` nuxt-auth-utils uses.
  */
 export function requestHasSession(event: H3Event): boolean {
-  const { name, sessionHeader } = useRuntimeConfig(event).session
+  // Read through h3's own `SessionConfig`, the contract this mirrors:
+  // nuxt.config declares no `sessionHeader`, so the inferred runtime
+  // config type has none, though h3 honours one when it is set.
+  const { name, sessionHeader }: Pick<SessionConfig, 'name' | 'sessionHeader'> = useRuntimeConfig(event).session
   // nuxt-auth-utils defaults it (`nuxt-session`); absent means the module is not configured.
   if (!name) throw new Error('runtimeConfig.session.name is not set')
   if (sessionHeader !== false) {
@@ -160,7 +163,7 @@ export async function fetchUserData(response: AllAuthResponse) {
   const config = useRuntimeConfig()
   const event = useEvent()
   const token = response.meta?.access_token
-  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
+  const locale = event?.context?.locale || DEFAULT_LOCALE
   let headers: Record<string, string>
   if (response.meta?.is_authenticated && !token) {
     // getAllAuthHeaders → createHeaders, which already sets the

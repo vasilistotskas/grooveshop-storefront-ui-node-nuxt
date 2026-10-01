@@ -23,12 +23,11 @@
  * from `server/utils/parser`.
  */
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook('error', (error, ctx: { event?: { context?: { log?: unknown } } }) => {
-    const event = ctx?.event
+  nitroApp.hooks.hook('error', (error, { event }) => {
     // useLogger throws if evlog's request logger isn't initialised (an error
     // raised before the evlog plugin ran). Guard on it being present.
-    if (!event?.context?.log || !isClientError(error)) return
+    if (!event?.context.log || !isClientError(error)) return
     if (isResponseContractError(error)) return
-    useLogger(event as Parameters<typeof useLogger>[0]).setLevel('warn')
+    useLogger(event).setLevel('warn')
   })
 })

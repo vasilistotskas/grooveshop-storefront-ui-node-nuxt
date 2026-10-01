@@ -35,5 +35,5 @@ export default defineEventHandler((event) => {
     ? getHeader(event, 'x-language')
     : localeFromPath(path)
 
-  event.context.locale = servedLocale(candidate, event.context.tenant as TenantConfig | undefined)
+  event.context.locale = servedLocale(candidate, event.context.tenant)
 })

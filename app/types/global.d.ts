@@ -1,5 +1,6 @@
-/* prettier-ignore */
-// global.d.ts
+// App-context augmentations: the Vue instance, the Nuxt app and the
+// browser window. Here, not at the project root, because each Nuxt type
+// context only sees the augmentations inside it.
 import type { HookResult } from '@nuxt/schema'
 import type { Ref } from 'vue'
 import type { UseWebSocketReturn } from '@vueuse/core'
@@ -19,13 +20,6 @@ declare module '#app' {
 
   interface RuntimeNuxtHooks {
     'auth:change': (payload: { detail: AllAuthResponse | AllAuthResponseError, explicit?: boolean }) => HookResult
-  }
-}
-
-declare module 'h3' {
-  interface H3EventContext {
-    tenant?: TenantConfig | null
-    locale?: string
   }
 }
 

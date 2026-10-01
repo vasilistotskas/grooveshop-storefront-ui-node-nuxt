@@ -108,7 +108,7 @@ export function useBackendFetch(): typeof $fetch {
       try {
         const event = useEvent()
         requestHost = event ? requestTenantHost(event) : undefined
-        locale = event?.context?.locale as string | undefined
+        locale = event?.context?.locale
       }
       catch {
         requestHost = undefined

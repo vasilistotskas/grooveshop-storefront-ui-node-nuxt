@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { getCarrier, isCarrierCode, listCarriers } from '~~/shared/shipping/registry'
 
 /**
@@ -28,5 +28,21 @@ describe('shipping/registry', () => {
     // `home_delivery` ships through any provider and has no adapter.
     expect(isCarrierCode('home_delivery')).toBe(false)
     expect(isCarrierCode(42)).toBe(false)
+  })
+})
+
+describe('shipping/registry with a repeated carrier code', () => {
+  it('refuses to load, rather than silently keep the first', async () => {
+    // A hand-written list: a duplicate is a programming error, caught
+    // wherever the registry is imported — this spec included.
+    vi.resetModules()
+    vi.doMock('~~/shared/shipping/providers/boxnow', async () => ({
+      default: { ...(await vi.importActual<typeof import('~~/shared/shipping/providers/boxnow')>('~~/shared/shipping/providers/boxnow')).default, code: 'acs' },
+    }))
+
+    await expect(import('~~/shared/shipping/registry')).rejects.toThrow('Duplicate shipping carrier code \'acs\'')
+
+    vi.doUnmock('~~/shared/shipping/providers/boxnow')
+    vi.resetModules()
   })
 })

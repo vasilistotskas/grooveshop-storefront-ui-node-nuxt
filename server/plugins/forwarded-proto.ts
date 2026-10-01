@@ -68,7 +68,7 @@ export default defineNitroPlugin(() => {
           }
         }
         if (!options.headers.has('X-Language')) {
-          const locale = event?.context?.locale as string | undefined
+          const locale = event?.context?.locale
           if (locale) options.headers.set('X-Language', locale)
         }
       }

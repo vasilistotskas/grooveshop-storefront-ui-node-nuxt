@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 
-import type { CookieOptions } from '#app'
+import type { CookieOptions } from 'nuxt/app'
 
 // Plain const map, deliberately NOT a z.enum: this module loads in the
 // entry chunk (cookie-consent runtime), and its former zod import was
