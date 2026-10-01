@@ -78,11 +78,11 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   return headers
 }
 
-export async function processAllAuthSession(response: AllAuthResponse | PartialAllAuthResponse, accessToken?: string | null, sessionToken?: string | null) {
+export async function processAllAuthSession(response: AllAuthResponse | PartialAllAuthResponse) {
   const event = useEvent()
 
-  const resolvedSessionToken = response.meta?.session_token ?? sessionToken
-  const resolvedAccessToken = response.meta?.access_token ?? accessToken
+  const resolvedSessionToken = response.meta?.session_token
+  const resolvedAccessToken = response.meta?.access_token
 
   // Tokens are stored exclusively in the server-side encrypted session cookie.
   // Do NOT expose them in response headers — they are only needed server-to-server.
@@ -100,7 +100,7 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
 
   if (response.data?.user && ((response.status === 200 && response.meta?.access_token) || response.meta?.is_authenticated)) {
     log.debug('auth', 'Fetching user data')
-    await fetchUserData(response as AllAuthResponse, accessToken)
+    await fetchUserData(response as AllAuthResponse)
   }
 }
 
@@ -156,10 +156,10 @@ export async function requireAllAuthAccessToken(event?: H3Event): Promise<string
   return accessToken
 }
 
-export async function fetchUserData(response: AllAuthResponse, accessToken?: string | null) {
+export async function fetchUserData(response: AllAuthResponse) {
   const config = useRuntimeConfig()
   const event = useEvent()
-  const token = accessToken || response.meta?.access_token
+  const token = response.meta?.access_token
   const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
   let headers: Record<string, string>
   if (response.meta?.is_authenticated && !token) {

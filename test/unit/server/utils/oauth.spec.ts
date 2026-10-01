@@ -61,6 +61,12 @@ describe('readAndClearOAuthProcess', () => {
   it('answers "login" when nothing was remembered', () => {
     expect(readAndClearOAuthProcess(createTestEvent())).toBe('login')
   })
+
+  // The cookie is httpOnly and ours, but a client (or a sibling
+  // subdomain's cookie on the parent domain) can send any value.
+  it.each(['admin', 'Connect', ''])('reads a cookie that is neither process, %j, as "login"', (value) => {
+    expect(readAndClearOAuthProcess(withProcessCookie(value))).toBe('login')
+  })
 })
 
 describe('storeOAuthTokensAndRedirect', () => {

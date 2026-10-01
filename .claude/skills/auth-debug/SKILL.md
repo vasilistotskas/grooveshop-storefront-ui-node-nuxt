@@ -143,7 +143,7 @@ Error responses (401, 410, 403, 404, 409):
 grep -E "ACCOUNT_|SOCIALACCOUNT_|MFA_|HEADLESS_|REST_KNOX" settings.py
 
 # Nuxt — verify env vars are set
-grep "NUXT_SESSION_PASSWORD\|NUXT_SECRET_KEY\|NUXT_OAUTH" .env
+grep "NUXT_SESSION_PASSWORD\|NUXT_OAUTH" .env
 
 # Check allauth rate limit isn't blocking (look for 429s)
 # AllAuthRateLimitMiddleware is disabled when DEBUG=True or DISABLE_CACHE=True
@@ -165,7 +165,6 @@ grep "NUXT_SESSION_PASSWORD\|NUXT_SECRET_KEY\|NUXT_OAUTH" .env
 ### 5. Fix checklist
 
 - [ ] `NUXT_SESSION_PASSWORD` ≥ 32 chars and consistent across restarts
-- [ ] `NUXT_SECRET_KEY` set (used for X-Encrypted-Token decryption)
 - [ ] `APP_MAIN_HOST_NAME` matches production domain (WebAuthn RP ID)
 - [ ] `ALLOWED_HOSTS` set in production (not wildcarded)
 - [ ] `DEBUG=False` in production (enables SSL, CSRF, CORS restrictions)

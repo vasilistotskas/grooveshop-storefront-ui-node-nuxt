@@ -12,7 +12,7 @@ import authPlugin from '~/plugins/auth'
  * `next`.
  *
  * The event rule (`determineAuthChangeEvent`) and the path check
- * (`isSafeRelativePath`) are unit-tested on their own; this is the
+ * (`safeRelativePath`) are unit-tested on their own; this is the
  * wiring. Each test installs a FRESH copy of the plugin on a stand-in
  * app, so the previous auth state it remembers starts empty.
  */
@@ -76,11 +76,16 @@ const REAUTH_REQUIRED = {
   meta: { is_authenticated: true },
 }
 
-/** The path (and query) the plugin navigated to, the one time it did. */
+/**
+ * Where the plugin's one navigation lands, as the router resolves it —
+ * not the argument's shape: a `{ path }` carrying a query resolved to the
+ * bare path, which is how `next`'s query used to be lost.
+ */
 function navigatedTo() {
   expect(navigateToMock).toHaveBeenCalledTimes(1)
   const [target] = navigateToMock.mock.calls[0]!
-  return { path: target.path, query: target.query }
+  const { path, query, fullPath } = useRouter().resolve(target)
+  return { path, query, fullPath }
 }
 
 async function visit(path: string) {
@@ -97,6 +102,8 @@ describe('auth plugin', () => {
   describe('on sign-in', () => {
     it.each([
       ['/account/orders?tab=2', '/account/orders?tab=2'],
+      // vue-router writes the space as `+`; it reads back as the same query.
+      ['/search?q=a%20b&sort=-price#results', '/search?q=a+b&sort=-price#results'],
       ['/cart', '/cart'],
     ])('returns the visitor to next=%s', async (next, expected) => {
       const change = await install()
@@ -104,7 +111,7 @@ describe('auth plugin', () => {
 
       await change(SIGNED_IN)
 
-      expect(navigatedTo().path).toBe(expected)
+      expect(navigatedTo().fullPath).toBe(expected)
     })
 
     it.each([
@@ -211,7 +218,7 @@ describe('auth plugin', () => {
 
       await change(REAUTH_REQUIRED)
 
-      expect(navigatedTo()).toEqual({
+      expect(navigatedTo()).toMatchObject({
         path: '/account/reauthenticate',
         query: { next: '/account/settings?section=email' },
       })
@@ -219,6 +226,7 @@ describe('auth plugin', () => {
 
     it.each([
       ['/account/settings', '/account/settings'],
+      ['/account/settings?section=email', '/account/settings?section=email'],
       ['https://evil.example', '/account'],
     ])('returns to next=%s → %s once reauthenticated', async (next, expected) => {
       const change = await install()
@@ -229,7 +237,7 @@ describe('auth plugin', () => {
 
       await change(SIGNED_IN)
 
-      expect(navigatedTo().path).toBe(expected)
+      expect(navigatedTo().fullPath).toBe(expected)
     })
   })
 })

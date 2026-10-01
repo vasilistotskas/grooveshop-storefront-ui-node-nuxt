@@ -216,14 +216,6 @@ describe('processAllAuthSession', () => {
     expect(testSession.data).toEqual({ oauthState: 'x', secure: { sessionToken: 'new', accessToken: 'new-knox' } })
   })
 
-  it('falls back to the tokens the caller passed, then to the stored ones', async () => {
-    testSession.set({ secure: { sessionToken: 'stored', accessToken: 'stored-knox' } })
-
-    await inRequest(() => processAllAuthSession(PENDING, 'passed-knox', null))
-
-    expect(testSession.data.secure).toEqual({ sessionToken: 'stored', accessToken: 'passed-knox' })
-  })
-
   it('leaves the session untouched when there is no token anywhere', async () => {
     testSession.set({ keep: true })
 
@@ -278,14 +270,6 @@ describe('fetchUserData', () => {
     // replaceUserSession, not a merge: the stale key is gone, `secure` carried over.
     expect(testSession.data.user).not.toHaveProperty('staleField')
     expect(testSession.data.secure).toEqual({ sessionToken: 's', accessToken: 'knox-1' })
-  })
-
-  it('prefers the token the caller passes over the one in meta', async () => {
-    backend.reply(userDetails())
-
-    await inRequest(() => fetchUserData(loginResponse({ access_token: 'meta-knox' }), 'passed-knox'))
-
-    expect(backend.lastRequest.headers.get('authorization')).toBe('Bearer passed-knox')
   })
 
   it('uses the stored session headers for an authenticated response without any token', async () => {

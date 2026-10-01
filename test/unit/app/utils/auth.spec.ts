@@ -5,7 +5,7 @@ import {
   determineAuthChangeEvent,
   isAllAuthResponseSuccess,
   isAllAuthResponseError,
-  isSafeRelativePath,
+  safeRelativePath,
   getPendingFlows,
   getPendingFlow,
   extractAllAuthError,
@@ -232,24 +232,38 @@ describe('Utils - Auth', () => {
     })
   })
 
-  describe('isSafeRelativePath', () => {
+  describe('safeRelativePath', () => {
     // The open-redirect guard for `?next=`: a login that bounces the
     // shopper to an attacker's page after they authenticate is the
-    // phishing shape this exists to stop.
+    // phishing shape this exists to stop. It parses the value the way
+    // the browser parses a link, so what it allows is what is followed.
     it.each([
-      '/account',
-      '/account?x=1',
-      '/products/shoes#reviews',
-      '  /account  ',
-    ])('allows the same-site path %j', (value) => {
-      expect(isSafeRelativePath(value)).toBe(true)
+      ['/account', '/account'],
+      ['/account?x=1', '/account?x=1'],
+      ['/products/shoes#reviews', '/products/shoes#reviews'],
+      ['  /account  ', '/account'],
+      // A backslash is a slash to the browser: still this site.
+      ['/account\\..\\evil', '/evil'],
+    ])('allows the same-site path %j, as %j', (value, path) => {
+      expect(safeRelativePath(value)).toBe(path)
     })
 
     it.each([
       ['protocol-relative', '//evil.com'],
       ['protocol-relative after whitespace', '  //evil.com'],
       ['a backslash (browsers read /\\ as //)', '/\\evil.com'],
-      ['a backslash anywhere', '/account\\..\\evil'],
+      // The URL parser drops tabs and newlines before it reads the host:
+      // a prefix check saw "/" then "\t", the browser sees "//evil.com".
+      ['a tab between the slashes', '/\t/evil.com'],
+      ['a newline between the slashes', '/\n/evil.com'],
+      ['a tab before the slashes', '\t//evil.com'],
+      // Dot segments collapse at the root: same origin to the parser,
+      // `//evil.com` to the browser.
+      ['a parent segment before the slashes', '/..//evil.com'],
+      ['a current segment before the slashes', '/.//evil.com'],
+      ['an encoded parent segment', '/%2e%2e//evil.com'],
+      ['a segment undone before the slashes', '/a/..//evil.com'],
+      ['a parent segment and a backslash', '/..\\/evil.com'],
       ['absolute http', 'http://evil.com'],
       ['absolute https', 'https://evil.com/account'],
       ['javascript:', 'javascript:alert(1)'],
@@ -261,7 +275,7 @@ describe('Utils - Auth', () => {
       ['whitespace only', '   '],
       ['undefined', undefined],
     ])('rejects %s', (_case, value) => {
-      expect(isSafeRelativePath(value)).toBe(false)
+      expect(safeRelativePath(value)).toBeUndefined()
     })
   })
 

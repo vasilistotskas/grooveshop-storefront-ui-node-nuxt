@@ -97,19 +97,12 @@ describe('useAllAuthAuthentication', () => {
 
   describe('request headers', () => {
     it.each<[string, (a: Authentication) => Promise<unknown>, string, Record<string, string>]>([
-      ['getSession with a token', a => a.getSession('encrypted-token'), '/session', { 'X-Encrypted-Token': 'encrypted-token' }],
       ['getEmailVerify', a => a.getEmailVerify('verify-key'), '/email/verify', { 'X-Email-Verification-Key': 'verify-key' }],
       ['getPasswordReset', a => a.getPasswordReset('reset-key'), '/password/reset', { 'X-Password-Reset-Key': 'reset-key' }],
     ])('%s carries the key allauth reads from a header', async (_name, call, path, headers) => {
       await call(useAllAuthAuthentication())
 
       expect(api.callsTo(`${AUTH}${path}`)[0]?.options.headers).toEqual(expect.objectContaining(headers))
-    })
-
-    it('getSession sends no encrypted token when it has none', async () => {
-      await useAllAuthAuthentication().getSession()
-
-      expect(api.callsTo(`${AUTH}/session`)[0]?.options.headers).not.toHaveProperty('X-Encrypted-Token')
     })
   })
 

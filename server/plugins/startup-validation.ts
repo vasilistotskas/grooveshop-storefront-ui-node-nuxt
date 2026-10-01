@@ -18,11 +18,4 @@ export default defineNitroPlugin(() => {
       '[startup] NUXT_SESSION_PASSWORD must be at least 32 characters long.',
     )
   }
-
-  if (!config.secretKey) {
-    throw new Error(
-      '[startup] NUXT_SECRET_KEY is not set. '
-      + 'This is required for encrypted token handling.',
-    )
-  }
 })

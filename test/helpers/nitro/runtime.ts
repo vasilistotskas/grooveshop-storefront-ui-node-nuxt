@@ -43,7 +43,6 @@ export function defaultRuntimeConfig() {
     djangoUrl: 'http://backend.test',
     mediaStreamPath: '',
     cacheBase: 'memory',
-    secretKey: 'unit-test-secret-key',
     session: {
       name: 'nuxt-session',
       password: TEST_SESSION_PASSWORD,

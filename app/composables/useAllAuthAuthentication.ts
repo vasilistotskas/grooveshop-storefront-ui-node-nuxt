@@ -9,17 +9,10 @@ export default function () {
   const metaPixel = useMetaPixel()
   const tiktokPixel = useTikTokPixel()
   const ga4 = useGA4()
-  async function getSession(encrypted_token: string | null = null) {
-    const headers = useRequestHeaders()
-    if (encrypted_token) {
-      Object.assign(headers, {
-        'X-Encrypted-Token': encrypted_token,
-      })
-    }
-
+  async function getSession() {
     return $api(`${API_BASE_URL}/session`, {
       method: 'GET',
-      headers,
+      headers: useRequestHeaders(),
       async onResponse({ response }) {
         await onAllAuthResponse(response)
       },
