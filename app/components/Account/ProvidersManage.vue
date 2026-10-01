@@ -162,13 +162,16 @@ onReactivated(async () => {
             class="w-full"
             :columns="columns"
             :data="data"
-            :empty-state="{
-              icon: 'i-heroicons-link-slash',
-              label: t('providers.empty.title'),
-              description: t('providers.empty.description'),
-            }"
             :loading="loading"
           >
+            <template #empty>
+              <UEmpty
+                icon="i-heroicons-link-slash"
+                :title="t('providers.empty.title')"
+                :description="t('providers.empty.description')"
+                variant="naked"
+              />
+            </template>
             <template #name-cell="{ row }">
               <div class="flex items-center gap-2">
                 <UIcon

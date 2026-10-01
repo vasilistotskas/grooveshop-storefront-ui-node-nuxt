@@ -78,10 +78,6 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   }
 }
 
-const submitButtonDisabled = computed(() => {
-  return !selected.value || isSubmitting.value
-})
-
 const backgroundImage = computed(() => {
   return img(
     '/img/login-background.png',
@@ -223,7 +219,7 @@ const backgroundImage = computed(() => {
             </div>
 
             <UButton
-              :disabled="submitButtonDisabled"
+              :disabled="!selected"
               :loading="isSubmitting"
               :label="t('submit')"
               block

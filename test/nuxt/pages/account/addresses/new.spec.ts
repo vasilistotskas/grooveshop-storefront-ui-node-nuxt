@@ -72,6 +72,8 @@ const VALID = {
 }
 
 let countriesResponse: unknown = { count: 1, next: null, previous: null, results: [GR] }
+/** The `country` of every regions request, in order. */
+let regionRequests: unknown[] = []
 
 beforeEach(() => {
   // useApi caches by its fixed 'countries' key across calls within the
@@ -80,8 +82,10 @@ beforeEach(() => {
   clearNuxtData()
   countriesResponse = { count: 1, next: null, previous: null, results: [GR] }
   registerEndpoint('/api/countries', () => countriesResponse)
+  regionRequests = []
   registerEndpoint('/api/regions', (event) => {
     const country = getQuery(event).country
+    regionRequests.push(country)
     if (country === 'GR') {
       return { count: 1, next: null, previous: null, results: [{ alpha: 'ATTIKI', translations: { el: { name: 'Αττική' } } }] }
     }
@@ -93,6 +97,18 @@ beforeEach(() => {
 })
 
 describe('account/addresses/new', () => {
+  it('asks for no regions before a country is picked, then once per country', async () => {
+    const wrapper = await mountSuspended(NewAddressPage)
+    await flushPromises()
+    expect(regionRequests).toEqual([])
+
+    const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
+    vm.state.country = 'GR'
+    await flushPromises()
+
+    expect(regionRequests).toEqual(['GR'])
+  })
+
   it('fetches countries with shippable: true', async () => {
     let capturedQuery: Record<string, unknown> | undefined
     registerEndpoint('/api/countries', (event) => {

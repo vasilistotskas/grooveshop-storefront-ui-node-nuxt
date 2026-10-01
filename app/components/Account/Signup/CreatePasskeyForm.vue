@@ -109,7 +109,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
         color="neutral"
         variant="subtle"
         :loading="isSubmitting"
-        :disabled="isSubmitting"
         block
         size="lg"
         icon="i-heroicons-finger-print"

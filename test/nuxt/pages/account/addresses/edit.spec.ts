@@ -181,6 +181,9 @@ describe('account/addresses/[id]/edit region', () => {
     // native <select> only lists the options it has seen selected.
     const region = wrapper.findAllComponents({ name: 'USelect' }).find(select => select.props('autocomplete') === 'address-level1')!
     await vi.waitFor(() => expect(region.props('items')).toEqual([{ label: 'Λευκωσία', value: 'CY-01' }]))
+    // One request per country: the reactive query refetches by itself,
+    // and a manual fetch beside it asked twice.
+    expect(regionRequests).toEqual(['GR', 'CY'])
   })
 
   it('requires a region for a country that has them', async () => {

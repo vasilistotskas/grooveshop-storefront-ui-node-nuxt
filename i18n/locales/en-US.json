@@ -30,6 +30,8 @@
     "subscribe": {
       "success_title": "Subscribed",
       "success_description": "You have been subscribed to this notification topic",
+      "pending_title": "Confirm your subscription",
+      "pending_description": "We sent you an email: follow its link to finish subscribing.",
       "error_title": "Subscription error",
       "error_description": "You could not be subscribed. Please try again."
     },
@@ -38,18 +40,6 @@
       "success_description": "You have been unsubscribed from this notification topic",
       "error_title": "Unsubscribe error",
       "error_description": "You could not be unsubscribed. Please try again."
-    },
-    "bulk_subscribe": {
-      "success_title": "Bulk subscription complete",
-      "success_description": "You have been subscribed to all selected topics"
-    },
-    "bulk_unsubscribe": {
-      "success_title": "Bulk unsubscribe complete",
-      "success_description": "You have been unsubscribed from all selected topics"
-    },
-    "bulk_operation": {
-      "error_title": "Bulk operation error",
-      "error_description": "The operation could not be carried out. Please try again."
     }
   },
   "settings": "Settings",

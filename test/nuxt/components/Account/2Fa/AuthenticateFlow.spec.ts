@@ -21,7 +21,7 @@ beforeEach(() => {
   useState('auth-state').value = pendingMfa(['recovery_codes', 'totp', 'webauthn'])
 })
 
-/** The factors the shopper can switch to: links that lead somewhere (the current one does not). */
+/** The factors the shopper can switch to. */
 const alternatives = (wrapper: VueWrapper) =>
   wrapper.findAll('a[href]').map(link => [link.text(), link.attributes('href')])
 
@@ -40,6 +40,15 @@ describe.each(trees(AuthenticateFlow, WebsideAuthenticateFlow))('$tree Account/2
       ['Χρησιμοποίησε το κλειδί ασφαλείας', href('account-2fa-authenticate-webauthn')],
       ['Χρησιμοποίησε κωδικούς ανάκτησης', href('account-2fa-authenticate-recovery-codes')],
     ])
+  })
+
+  it('does not offer the factor already in use as an alternative', async () => {
+    // The filter compared a route NAME with the current PATH, which never
+    // match: the factor in use was listed as a dead, disabled option.
+    const wrapper = await mountFlow()
+
+    expect(wrapper.text()).not.toContain('Χρησιμοποίησε την εφαρμογή πολλαπλών παραγόντων')
+    expect(wrapper.findAll('[disabled]')).toHaveLength(0)
   })
 
   it('offers no alternatives to a shopper with one factor', async () => {

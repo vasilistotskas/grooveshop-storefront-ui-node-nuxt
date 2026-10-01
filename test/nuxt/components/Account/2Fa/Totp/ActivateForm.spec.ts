@@ -84,6 +84,28 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-settings'))
   })
 
+  it('lets the shopper retry a code containing a zero', async () => {
+    // The pin input submits on its own when the sixth digit lands; the
+    // button is the way to try again after a rejection. A number-mode
+    // input holds 0 for the digit zero, which a "falsy means empty" test
+    // read as a missing digit: for about half of all codes the button
+    // stayed disabled and the shopper had to retype.
+    activateTotp.mockRejectedValueOnce({
+      data: { statusCode: 400, data: { status: 400, errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }] } },
+    })
+    const wrapper = await mountForm()
+    await wrapper.findComponent({ name: 'UPinInput' }).setValue([1, 0, 3, 4, 5, 0])
+    await flushPromises()
+
+    const retry = wrapper.findAll('button').find(button => button.text() === useNuxtApp().$i18n.t('entry'))!
+    expect(retry.attributes('disabled')).toBeUndefined()
+    await retry.trigger('click')
+    await flushPromises()
+
+    expect(activateTotp).toHaveBeenLastCalledWith({ code: '103450' })
+    expect(activateTotp).toHaveBeenCalledTimes(2)
+  })
+
   it('keeps the shopper on the form when allauth rejects the code', async () => {
     activateTotp.mockRejectedValue({
       data: { statusCode: 400, data: { status: 400, errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }] } },

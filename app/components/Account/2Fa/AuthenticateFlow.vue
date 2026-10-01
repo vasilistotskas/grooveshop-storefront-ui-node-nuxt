@@ -39,8 +39,8 @@ const isCurrentPath = (path: FlowPathValue) => {
   return targetRoute?.path === router.currentRoute.value.path
 }
 
+// The OTHER factors: the one in use is this page.
 const filteredFlows = computed(() => {
-  const currentPath = router.currentRoute.value.path
   if (!flow.value || !flow.value.types) return []
   const sortedTypes = [...flow.value.types].sort((a, b) => {
     const ai = AUTHENTICATOR_TYPE_PRIORITY.indexOf(a)
@@ -55,7 +55,7 @@ const filteredFlows = computed(() => {
       path: flow.value ? pathForFlow(flow.value, type)! : 'index' as FlowPathValue,
     }
   })
-    .filter(f => f.path !== currentPath)
+    .filter(f => !isCurrentPath(f.path))
 })
 </script>
 
@@ -88,7 +88,6 @@ const filteredFlows = computed(() => {
             name: f.path,
             query: { next },
           })"
-          :disabled="isCurrentPath(f.path)"
           variant="outline"
           color="neutral"
           size="lg"
