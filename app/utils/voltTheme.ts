@@ -29,11 +29,14 @@ export const VOLT_UI = {
     },
     variants: {
       size: {
-        xs: { base: 'h-8 px-3 text-xs gap-1.5', leadingIcon: 'size-4', trailingIcon: 'size-4' },
-        sm: { base: 'h-9 px-3.5 text-sm gap-2', leadingIcon: 'size-4', trailingIcon: 'size-4' },
-        md: { base: 'h-11 px-5 text-[0.9375rem] gap-2', leadingIcon: 'size-5', trailingIcon: 'size-5' },
-        lg: { base: 'h-13 px-6.5 text-base gap-2', leadingIcon: 'size-5', trailingIcon: 'size-5' },
-        xl: { base: 'h-14 px-7 text-base gap-2.5', leadingIcon: 'size-6', trailingIcon: 'size-6' },
+        // A MINIMUM height, not a fixed one: a label button is exactly
+        // the board's height either way, but a button that wraps content
+        // — the product gallery's image buttons — was cropped to 44px.
+        xs: { base: 'min-h-8 px-3 text-xs gap-1.5', leadingIcon: 'size-4', trailingIcon: 'size-4' },
+        sm: { base: 'min-h-9 px-3.5 text-sm gap-2', leadingIcon: 'size-4', trailingIcon: 'size-4' },
+        md: { base: 'min-h-11 px-5 text-[0.9375rem] gap-2', leadingIcon: 'size-5', trailingIcon: 'size-5' },
+        lg: { base: 'min-h-13 px-6.5 text-base gap-2', leadingIcon: 'size-5', trailingIcon: 'size-5' },
+        xl: { base: 'min-h-14 px-7 text-base gap-2.5', leadingIcon: 'size-6', trailingIcon: 'size-6' },
       },
     },
     compoundVariants: [
