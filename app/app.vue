@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // The Nuxt UI locale bundles live in `app/utils/uiLocales.ts` so
-// `UApp` here and `ULocaleSelect` in Language/Switcher.vue read one
-// map — activating a locale is a single edit. That file also documents
+// `UApp` here and the language switchers read one map — activating a
+// locale is a single edit. That file also documents
 // why they are imported by name rather than as a namespace.
 
 setupPageHeader()

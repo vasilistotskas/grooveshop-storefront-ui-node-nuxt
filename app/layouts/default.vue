@@ -53,13 +53,15 @@ const showUserChrome = computed(
   () => isAccountRoute.value && !onAuthFlowRoute.value && loggedIn.value && user.value,
 )
 
-// MobileBottomNav is `fixed bottom-0` and nothing used to reserve room
-// for it, so it covered the end of the footer (merchant identity +
-// opening hours). Reserve its height — min-h-12 plus its safe-area
-// padding — only while it is rendered, and only below `lg`, which is
-// the breakpoint `MobileOrTabletOnly` (max-width: 1023px) shows it at.
+// The frozen tree's tab bar is `fixed bottom-0` and nothing used to
+// reserve room for it, so it covered the end of the footer (merchant
+// identity + opening hours). Reserve its height — min-h-12 plus its
+// safe-area padding — only while it is rendered, and only below `lg`,
+// which is the breakpoint `MobileOrTabletOnly` (max-width: 1023px)
+// shows it at. A designed storefront's footer keeps its own last line
+// clear of its floating dock, so it gets no strip of ground under it.
 const footerClass = computed(() =>
-  mobileBottomNavEnabled.value
+  mobileBottomNavEnabled.value && !resolveDesign(tenantStore.schemaName)
     ? 'pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0'
     : '',
 )

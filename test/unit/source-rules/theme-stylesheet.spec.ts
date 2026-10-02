@@ -90,3 +90,40 @@ describe('the tap-press class', () => {
     expect(css).not.toMatch(/^\s*a:active/m)
   })
 })
+
+/**
+ * The Groove Volt scope: `<html data-design="volt">`, which
+ * `app/plugins/design.ts` sets for every store but the frozen webside
+ * tree. Its rules restate the base `:root` / `.dark` tokens at the same
+ * specificity, so they must come AFTER them; the tenant theme's
+ * `html:root` / `html.dark` out-specifies both (`themeTokens.spec.ts`).
+ */
+describe('the Volt design scope', () => {
+  const VOLT = '[data-design="volt"]'
+  const VOLT_DARK = '[data-design="volt"]:where(.dark)'
+
+  it.each([
+    '--ui-secondary-soft',
+    '--ui-secondary-hover',
+    '--ui-success-soft',
+    '--ui-warning-soft',
+    '--ui-error-soft',
+    '--ui-info-soft',
+    '--ui-scrim',
+    '--ui-overlay-shadow',
+  ])('defines %s, which the Volt theme paints with', (token) => {
+    expect(declares(ruleBody(VOLT), token), `${token} missing from ${VOLT}`).toBe(true)
+  })
+
+  it('overrides the base tokens by coming after them', () => {
+    expect(css.indexOf(`\n${VOLT} {`)).toBeGreaterThan(css.indexOf('\n:root {'))
+    expect(css.indexOf(`\n${VOLT_DARK} {`)).toBeGreaterThan(css.indexOf('\n.dark {'))
+  })
+
+  it('keeps its dark block at attribute specificity, below a tenant\'s html.dark', () => {
+    // `[data-design="volt"].dark` would be (0,2,0) and beat the tenant
+    // theme's `html.dark` (0,1,1); `:where()` adds nothing.
+    expect(ruleBody(VOLT_DARK)).toMatch(/--ui-bg:/)
+    expect(css).not.toMatch(/\[data-design="volt"\]\.dark\b/)
+  })
+})

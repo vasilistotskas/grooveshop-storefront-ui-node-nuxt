@@ -13,6 +13,11 @@ import type { NavigationMenuItem } from '@nuxt/ui'
  * are UHeader's, so `UMain`, the toaster offset and a future switch
  * back all keep working.
  *
+ * Desk: logo, the navigation (Shop opens the catalogue panel), then
+ * search, language, colour mode, favourites, notifications, cart and
+ * the account control. Phone: the menu button, the logo, search and
+ * cart — the rest lives in the menu and the tab bar.
+ *
  * Everything per-visitor (cart count, favourites, the account menu,
  * notifications) is `ClientOnly`: this header is part of the cached
  * anonymous render on `/`, `/products/**` and `/blog/**`.
@@ -69,43 +74,47 @@ const isPathActive = (path?: string) => {
   return route.path === path || route.path.startsWith(`${path}/`)
 }
 
+const SHOP = 'shop'
+
+/** The listing the Shop entry stands for. */
+const CATALOGUE_PATH = '/products'
+
 /**
- * The Shop entry, with the category tree hanging off it.
- *
- * `children` is what turns a link into a dropdown panel; without
- * categories it stays a plain link to the listing, which is also what a
- * store with the catalogue switched off gets (the composable then
- * fetches nothing at all).
+ * The Shop entry. With categories it opens the catalogue panel (its
+ * `#shop-content` slot); without them — or with the catalogue switched
+ * off, where the composable fetches nothing — it is a plain link to the
+ * listing.
  */
 const shopItem = computed<NavigationMenuItem>(() => ({
   label: t('shop'),
-  to: localePath('/products'),
+  value: SHOP,
+  slot: SHOP,
+  to: localePath(CATALOGUE_PATH),
   active: isRouteActive('products'),
   children: hasCategories.value
-    ? categories.value.map(category => ({
-        label: category.label,
-        to: localePath(category.to),
-        description: category.children
-          .slice(0, 4)
-          .map(child => child.label)
-          .join(' · '),
-      }))
+    ? categories.value.map(category => ({ label: category.label, to: localePath(category.to) }))
     : undefined,
 }))
 
 const items = computed<NavigationMenuItem[]>(() => {
-  // An operator-configured header REPLACES the code menu entirely —
-  // same contract the mobile menu and the footer follow.
+  // An operator-configured header REPLACES the code menu — same
+  // contract the mobile menu and the footer follow — except that its
+  // entry for the listing stays the Shop entry, under the operator's
+  // label: configuring the header must not take away the catalogue
+  // panel here, or the category tree that replaces the entry in the
+  // phone menu.
   const configured = headerItems.value
   if (configured) {
-    return configured.map(item => ({
-      label: item.label,
-      icon: item.icon,
-      to: item.to ? localePath(item.to) : undefined,
-      href: item.to ? undefined : item.href,
-      target: item.href ? '_blank' : undefined,
-      active: isPathActive(item.to),
-    }))
+    return configured.map(item => item.to === CATALOGUE_PATH
+      ? { ...shopItem.value, label: item.label, icon: item.icon }
+      : {
+          label: item.label,
+          icon: item.icon,
+          to: item.to ? localePath(item.to) : undefined,
+          href: item.to ? undefined : item.href,
+          target: item.href ? '_blank' : undefined,
+          active: isPathActive(item.to),
+        })
   }
 
   const base: NavigationMenuItem[] = [shopItem.value]
@@ -140,22 +149,11 @@ const items = computed<NavigationMenuItem[]>(() => {
   return base
 })
 
-const mobileMenuOpen = ref(false)
+/** The open dropdown's value — the catalogue panel dims the page below it. */
+const openItem = ref<string>()
+const catalogueOpen = computed(() => openItem.value === SHOP)
 
-// A border only once the page has moved under the header: at rest the
-// header sits on the page, and a rule there would draw a line across a
-// hero that is supposed to run to the top.
-const scrolled = ref(false)
-if (import.meta.client) {
-  useEventListener(
-    window,
-    'scroll',
-    () => {
-      scrolled.value = window.scrollY > 8
-    },
-    { passive: true },
-  )
-}
+const mobileMenuOpen = ref(false)
 
 const appTitle = computed(() => tenantStore.storeName || '')
 </script>
@@ -166,21 +164,24 @@ const appTitle = computed(() => tenantStore.storeName || '')
 
     <header
       data-slot="root"
-      :class="[
-        'h-(--ui-header-height) bg-default/80 backdrop-blur transition-shadow',
-        scrolled ? 'border-b border-default' : 'border-b border-transparent',
-      ]"
+      class="
+        h-(--ui-header-height) border-b border-default bg-muted/90
+        backdrop-blur
+      "
     >
       <UContainer
         data-slot="container"
-        class="flex h-full items-center gap-2"
+        class="
+          flex h-full items-center gap-1
+          max-lg:ps-1 max-lg:pe-2
+          lg:gap-6
+        "
       >
         <UButton
           :aria-label="t('menu')"
           icon="i-heroicons-bars-3"
           color="neutral"
           variant="ghost"
-          size="lg"
           square
           class="lg:hidden"
           @click="() => { mobileMenuOpen = true }"
@@ -194,89 +195,127 @@ const appTitle = computed(() => tenantStore.storeName || '')
              asset renders its NAME here, and a name long enough to
              fill the row has to ellipse rather than push the header
              past the viewport — which needs both this and the
-             wordmark's own `min-w-0`. An image logo is unaffected:
-             `NuxtImg` carries an explicit width, which flexbox will
-             not shrink below without `min-width: 0` on the image
-             itself — measured on fyteia at 390/768/1440, the logo
-             stays 132px either way. -->
+             wordmark's own `min-w-0`. -->
         <Anchor
           :to="'index'"
           :aria-label="appTitle"
-          class="
-            !w-auto flex min-w-0 items-center
-            max-lg:mx-auto
-          "
+          class="!w-auto flex min-w-0 items-center"
         >
           <TenantLogo
             :width="132"
-            :height="36"
+            :height="34"
             priority
           />
           <span class="sr-only">{{ appTitle }}</span>
         </Anchor>
 
+        <!-- `static`: the catalogue panel is positioned against the
+             sticky wrapper, so it spans the full width under the
+             header instead of the width of the menu. -->
         <UNavigationMenu
+          v-model="openItem"
           :items="items"
           :aria-label="t('navigation')"
-          variant="link"
           color="neutral"
           class="
             hidden
             lg:flex
           "
           :ui="{
-            link: 'text-sm font-medium',
-            childLinkDescription: 'line-clamp-1 text-xs text-muted',
+            root: 'static',
+            item: 'py-0',
+            link: 'h-10 px-3 text-[0.9375rem]',
+            linkTrailingIcon: 'size-4',
+            viewportWrapper: 'z-10',
+            viewport: `
+              rounded-none border-b border-default shadow-(--ui-overlay-shadow)
+              ring-0
+            `,
           }"
-        />
+        >
+          <template #shop-content>
+            <ChromeMegaMenu
+              :categories="categories"
+              :offers-enabled="promotionsEnabled"
+            />
+          </template>
+        </UNavigationMenu>
 
-        <div class="ml-auto flex items-center gap-0.5">
-          <LazySearchInput hydrate-on-idle />
+        <div class="ms-auto flex items-center gap-0.5">
+          <LazySearchInput
+            compact
+            hydrate-on-idle
+            class="lg:me-1"
+          />
 
           <LazyLanguageSwitcher
             v-if="tenantStore.availableLocales.length > 1"
+            compact
             hydrate-on-visible
             class="
               hidden
-              sm:block
+              lg:flex
             "
           />
 
           <UColorModeButton
             color="neutral"
             variant="ghost"
-            size="lg"
             class="
               hidden
-              sm:inline-flex
+              lg:inline-flex
             "
           />
 
           <UButton
-            v-if="favouritesEnabled && tenantStore.blogEnabled"
+            v-if="favouritesEnabled"
             :to="localePath(loggedIn ? '/account/favourites/products' : '/account/login')"
             :aria-label="t('favourites')"
             icon="i-heroicons-heart"
             color="neutral"
             variant="ghost"
-            size="lg"
             square
             class="
               hidden
-              sm:inline-flex
+              lg:inline-flex
             "
           />
 
           <ClientOnly>
-            <LazyUserNotificationsBell v-if="loggedIn" />
+            <LazyUserNotificationsBell
+              v-if="loggedIn"
+              class="
+                hidden
+                lg:flex
+              "
+            />
           </ClientOnly>
 
           <CartButton v-if="cartEnabled" />
 
-          <ChromeAccountMenu />
+          <ChromeAccountMenu
+            class="
+              hidden
+              lg:ms-2 lg:flex
+            "
+          />
         </div>
       </UContainer>
     </header>
+
+    <!-- Dims the page under the open catalogue panel. Pointer events
+         pass through: leaving the panel closes it, as the menu's own
+         hover handling expects. `-z-10` keeps it under the header —
+         whose backdrop filter makes it a stacking context of its own —
+         and over the page, which sits outside this sticky wrapper. -->
+    <div
+      v-if="catalogueOpen"
+      aria-hidden="true"
+      class="
+        pointer-events-none absolute inset-x-0 top-full -z-10 h-dvh
+        bg-(--ui-scrim)
+      "
+    />
 
     <ClientOnly>
       <LazyChromeMobileMenu

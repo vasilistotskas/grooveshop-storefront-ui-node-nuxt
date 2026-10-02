@@ -56,6 +56,6 @@ describe('Language/Switcher', () => {
 
     expect(setLanguage).toHaveBeenCalledWith('en')
     expect(wrapper.emitted('languageChanged')).toBeUndefined()
-    expect(wrapper.findComponent({ name: 'ULocaleSelect' }).props('modelValue')).toBe('el')
+    expect(wrapper.find('button').text()).toBe('Ελληνικά')
   })
 })

@@ -52,6 +52,11 @@ export const FONT_ALLOWLIST: Record<string, string> = {
   // Plex's own. Mirrored in Django's tenant/validators.py.
   'ibm-plex-sans': '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
   'jetbrains-mono': '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+  // The Groove Volt display face. Chosen over Bricolage Grotesque,
+  // which the design was first drawn in, because Bricolage ships no
+  // Greek subset — every heading on a Greek page would have fallen back
+  // glyph by glyph to the body face.
+  'geologica': '"Geologica", ui-sans-serif, system-ui, sans-serif',
 }
 
 /** Google Fonts family names for the pre-bundled entries above. */
@@ -70,6 +75,7 @@ export const FONT_FAMILY_NAMES: Record<string, string> = {
   'source-serif-4': 'Source Serif 4',
   'ibm-plex-sans': 'IBM Plex Sans',
   'jetbrains-mono': 'JetBrains Mono',
+  'geologica': 'Geologica',
 }
 
 /**
@@ -81,9 +87,16 @@ export const FONT_FAMILY_NAMES: Record<string, string> = {
  * (the unconstrained cross product once reached 472 @font-face rules /
  * 169KB — see the fonts comment in nuxt.config.ts), so a face used only
  * for numerics and code declares just the weights the design uses.
+ *
+ * The Groove Volt weights are the ones its boards actually set: headings
+ * in Geologica 700 only, Manrope up to 800 (menu headings, totals), and
+ * prices in JetBrains Mono 600-800. 400/500 stay on the mono face for
+ * the tenants that already use it as their `fontMono`.
  */
 export const FONT_WEIGHTS: Record<string, number[]> = {
-  'jetbrains-mono': [400, 500],
+  'jetbrains-mono': [400, 500, 600, 700, 800],
+  'manrope': [400, 500, 600, 700, 800],
+  'geologica': [700],
 }
 
 /**
