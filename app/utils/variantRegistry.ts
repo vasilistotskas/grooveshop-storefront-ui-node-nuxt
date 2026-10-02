@@ -27,7 +27,7 @@ import { defineAsyncComponent } from 'vue'
  * hop costs nothing on first paint.
  */
 
-export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header'
+export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell'
 
 export type PageKey
   = | 'home'
@@ -70,6 +70,37 @@ export type PageKey
     | '2fa-authenticate-webauthn'
     | '2fa-authenticate-recovery-codes'
     | 'newsletter-confirm'
+    | 'account'
+    | 'account-2fa'
+    | 'account-2fa-recovery-codes-generate'
+    | 'account-2fa-recovery-codes'
+    | 'account-2fa-totp-activate'
+    | 'account-2fa-totp-deactivate'
+    | 'account-2fa-webauthn-add'
+    | 'account-2fa-webauthn'
+    | 'account-addresses-id-edit'
+    | 'account-addresses'
+    | 'account-addresses-new'
+    | 'account-business'
+    | 'account-email'
+    | 'account-favourites-posts'
+    | 'account-favourites-products'
+    | 'account-gift-cards'
+    | 'account-loyalty'
+    | 'account-notifications'
+    | 'account-orders-id'
+    | 'account-orders'
+    | 'account-password-change'
+    | 'account-providers'
+    | 'account-reviews'
+    | 'account-sessions'
+    | 'account-settings'
+    | 'account-settings-privacy'
+    | 'account-subscriptions'
+    | 'reauthenticate'
+    | '2fa-reauthenticate-totp'
+    | '2fa-reauthenticate-webauthn'
+    | '2fa-reauthenticate-recovery-codes'
 
 type Loader = () => Promise<{ default: Component }>
 
@@ -80,6 +111,7 @@ const chromeDefaults: Record<ChromeKey, Component> = {
   footer: lazy(() => import('~/components/Chrome/Footer.vue')),
   mobile_nav: lazy(() => import('~/components/MobileBottomNav.vue')),
   checkout_header: lazy(() => import('~/components/Chrome/CheckoutHeader.vue')),
+  account_shell: lazy(() => import('~/components/Chrome/AccountShell.vue')),
 }
 
 const pageDefaults: Record<PageKey, Component> = {
@@ -122,9 +154,38 @@ const pageDefaults: Record<PageKey, Component> = {
   '2fa-authenticate-totp': lazy(() => import('~/components/Storefront/Auth/TwoFactorTotp.vue')),
   '2fa-authenticate-webauthn': lazy(() => import('~/components/Storefront/Auth/TwoFactorWebauthn.vue')),
   '2fa-authenticate-recovery-codes': lazy(() => import('~/components/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
-  // Newer than the webside freeze, so there is no frozen copy to keep:
-  // webside renders this default like every other tenant.
   'newsletter-confirm': lazy(() => import('~/components/Storefront/NewsletterConfirm.vue')),
+  'account': lazy(() => import('~/components/Storefront/Account/Overview.vue')),
+  'account-2fa': lazy(() => import('~/components/Storefront/Account/TwoFactor.vue')),
+  'account-2fa-recovery-codes-generate': lazy(() => import('~/components/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),
+  'account-2fa-recovery-codes': lazy(() => import('~/components/Storefront/Account/TwoFactorRecoveryCodes.vue')),
+  'account-2fa-totp-activate': lazy(() => import('~/components/Storefront/Account/TwoFactorTotpActivate.vue')),
+  'account-2fa-totp-deactivate': lazy(() => import('~/components/Storefront/Account/TwoFactorTotpDeactivate.vue')),
+  'account-2fa-webauthn-add': lazy(() => import('~/components/Storefront/Account/TwoFactorWebauthnAdd.vue')),
+  'account-2fa-webauthn': lazy(() => import('~/components/Storefront/Account/TwoFactorWebauthn.vue')),
+  'account-addresses-id-edit': lazy(() => import('~/components/Storefront/Account/AddressEdit.vue')),
+  'account-addresses': lazy(() => import('~/components/Storefront/Account/Addresses.vue')),
+  'account-addresses-new': lazy(() => import('~/components/Storefront/Account/AddressNew.vue')),
+  'account-business': lazy(() => import('~/components/Storefront/Account/Business.vue')),
+  'account-email': lazy(() => import('~/components/Storefront/Account/Email.vue')),
+  'account-favourites-posts': lazy(() => import('~/components/Storefront/Account/FavouritePosts.vue')),
+  'account-favourites-products': lazy(() => import('~/components/Storefront/Account/FavouriteProducts.vue')),
+  'account-gift-cards': lazy(() => import('~/components/Storefront/Account/GiftCards.vue')),
+  'account-loyalty': lazy(() => import('~/components/Storefront/Account/Loyalty.vue')),
+  'account-notifications': lazy(() => import('~/components/Storefront/Account/Notifications.vue')),
+  'account-orders-id': lazy(() => import('~/components/Storefront/Account/OrderDetail.vue')),
+  'account-orders': lazy(() => import('~/components/Storefront/Account/Orders.vue')),
+  'account-password-change': lazy(() => import('~/components/Storefront/Account/PasswordChange.vue')),
+  'account-providers': lazy(() => import('~/components/Storefront/Account/Providers.vue')),
+  'account-reviews': lazy(() => import('~/components/Storefront/Account/Reviews.vue')),
+  'account-sessions': lazy(() => import('~/components/Storefront/Account/Sessions.vue')),
+  'account-settings': lazy(() => import('~/components/Storefront/Account/Settings.vue')),
+  'account-settings-privacy': lazy(() => import('~/components/Storefront/Account/Privacy.vue')),
+  'account-subscriptions': lazy(() => import('~/components/Storefront/Account/Subscriptions.vue')),
+  'reauthenticate': lazy(() => import('~/components/Storefront/Auth/Reauthenticate.vue')),
+  '2fa-reauthenticate-totp': lazy(() => import('~/components/Storefront/Auth/TwoFactorReauthenticateTotp.vue')),
+  '2fa-reauthenticate-webauthn': lazy(() => import('~/components/Storefront/Auth/TwoFactorReauthenticateWebauthn.vue')),
+  '2fa-reauthenticate-recovery-codes': lazy(() => import('~/components/Storefront/Auth/TwoFactorReauthenticateRecoveryCodes.vue')),
 }
 
 /**
@@ -148,6 +209,7 @@ const variants: Record<string, Component> = {
   'chrome:footer@webside': lazy(() => import('~/components/variants/webside/Chrome/Footer.vue')),
   'chrome:mobile_nav@webside': lazy(() => import('~/components/variants/webside/MobileBottomNav.vue')),
   'chrome:checkout_header@webside': lazy(() => import('~/components/variants/webside/Chrome/CheckoutHeader.vue')),
+  'chrome:account_shell@webside': lazy(() => import('~/components/variants/webside/Chrome/AccountShell.vue')),
   'page:home@webside': lazy(() => import('~/components/variants/webside/Storefront/Home.vue')),
   'page:products@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductsIndex.vue')),
   'page:products-category@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductsCategory.vue')),
@@ -187,6 +249,43 @@ const variants: Record<string, Component> = {
   'page:2fa-authenticate-totp@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorTotp.vue')),
   'page:2fa-authenticate-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorWebauthn.vue')),
   'page:2fa-authenticate-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
+  // The account area, the re-auth pages and the newsletter confirmation
+  // were frozen later than the rest, from the defaults webside rendered
+  // then. Where a default had already drifted from its first frozen copy,
+  // the version webside showed in these pages is frozen apart under
+  // `variants/webside/AccountArea/`.
+  'page:newsletter-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/NewsletterConfirm.vue')),
+  'page:account@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Overview.vue')),
+  'page:account-2fa@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactor.vue')),
+  'page:account-2fa-recovery-codes-generate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),
+  'page:account-2fa-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorRecoveryCodes.vue')),
+  'page:account-2fa-totp-activate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorTotpActivate.vue')),
+  'page:account-2fa-totp-deactivate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorTotpDeactivate.vue')),
+  'page:account-2fa-webauthn-add@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorWebauthnAdd.vue')),
+  'page:account-2fa-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorWebauthn.vue')),
+  'page:account-addresses-id-edit@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/AddressEdit.vue')),
+  'page:account-addresses@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Addresses.vue')),
+  'page:account-addresses-new@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/AddressNew.vue')),
+  'page:account-business@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Business.vue')),
+  'page:account-email@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Email.vue')),
+  'page:account-favourites-posts@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/FavouritePosts.vue')),
+  'page:account-favourites-products@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/FavouriteProducts.vue')),
+  'page:account-gift-cards@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/GiftCards.vue')),
+  'page:account-loyalty@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Loyalty.vue')),
+  'page:account-notifications@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Notifications.vue')),
+  'page:account-orders-id@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/OrderDetail.vue')),
+  'page:account-orders@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Orders.vue')),
+  'page:account-password-change@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/PasswordChange.vue')),
+  'page:account-providers@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Providers.vue')),
+  'page:account-reviews@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Reviews.vue')),
+  'page:account-sessions@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Sessions.vue')),
+  'page:account-settings@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Settings.vue')),
+  'page:account-settings-privacy@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Privacy.vue')),
+  'page:account-subscriptions@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Subscriptions.vue')),
+  'page:reauthenticate@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/Reauthenticate.vue')),
+  'page:2fa-reauthenticate-totp@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateTotp.vue')),
+  'page:2fa-reauthenticate-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateWebauthn.vue')),
+  'page:2fa-reauthenticate-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateRecoveryCodes.vue')),
 }
 
 /**

@@ -22,10 +22,21 @@ const PAGE_KEYS: PageKey[] = [
   'signup-passkey-create', 'password-reset', 'password-reset-key',
   'verify-email', 'verify-email-key', 'provider-callback', 'provider-signup',
   '2fa-authenticate-totp', '2fa-authenticate-webauthn',
-  '2fa-authenticate-recovery-codes',
+  '2fa-authenticate-recovery-codes', 'newsletter-confirm',
+  'account', 'account-2fa', 'account-2fa-recovery-codes-generate',
+  'account-2fa-recovery-codes', 'account-2fa-totp-activate',
+  'account-2fa-totp-deactivate', 'account-2fa-webauthn-add', 'account-2fa-webauthn',
+  'account-addresses-id-edit', 'account-addresses', 'account-addresses-new',
+  'account-business', 'account-email', 'account-favourites-posts',
+  'account-favourites-products', 'account-gift-cards', 'account-loyalty',
+  'account-notifications', 'account-orders-id', 'account-orders',
+  'account-password-change', 'account-providers', 'account-reviews',
+  'account-sessions', 'account-settings', 'account-settings-privacy',
+  'account-subscriptions', 'reauthenticate', '2fa-reauthenticate-totp',
+  '2fa-reauthenticate-webauthn', '2fa-reauthenticate-recovery-codes',
 ]
 
-const CHROME_KEYS: ChromeKey[] = ['navbar', 'footer', 'mobile_nav', 'checkout_header']
+const CHROME_KEYS: ChromeKey[] = ['navbar', 'footer', 'mobile_nav', 'checkout_header', 'account_shell']
 
 describe('variantRegistry', () => {
   it.each(PAGE_KEYS)('resolves a webside body for page %s', (key) => {

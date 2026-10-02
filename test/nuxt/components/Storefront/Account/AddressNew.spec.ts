@@ -1,5 +1,5 @@
 /**
- * Tests for the "new address" page (app/pages/account/addresses/new.vue).
+ * Tests for the "new address" page body (app/components/Storefront/Account/AddressNew.vue).
  *
  * Covers the address-book rules that changed for BoxNow Cyprus:
  *   - Countries are fetched with ``shippable: true`` — a country the
@@ -20,7 +20,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { getQuery } from 'h3'
-import NewAddressPage from '~/pages/account/addresses/new.vue'
+import NewAddressPage from '~/components/Storefront/Account/AddressNew.vue'
 import { makeCountry } from '~~/test/fixtures/country'
 
 const GR = makeCountry()
