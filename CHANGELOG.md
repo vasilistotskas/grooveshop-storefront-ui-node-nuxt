@@ -1,3 +1,10 @@
+# [3.227.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.226.0...v3.227.0) (2026-10-02)
+
+
+### Features
+
+* **home:** Groove Volt home bands and product card ([#68](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/68)) ([b68f04b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b68f04baffeb47f725275662461d28b1d193db13))
+
 # [3.226.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.225.0...v3.226.0) (2026-10-02)
 
 
