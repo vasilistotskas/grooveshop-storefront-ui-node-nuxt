@@ -1,37 +1,43 @@
 <script lang="ts" setup>
+/**
+ * Whether the store is open right now — "Open now · until 20:00" — in
+ * the footer. Green when open, muted when closed; the words say which,
+ * so the colour is never the only signal.
+ */
 const { t } = useI18n()
 const { hasData, todayHours, isOpen } = useBusinessHours()
 </script>
 
 <template>
-  <div
+  <p
     v-if="hasData"
-    class="
-      flex items-center gap-2 text-sm text-primary-950
-      dark:text-primary-100
-    "
+    :class="[
+      'flex items-center gap-2 text-sm font-bold',
+      isOpen ? 'text-success' : 'text-muted',
+    ]"
   >
-    <UBadge
-      :color="isOpen ? 'success' : 'error'"
-      variant="subtle"
-      size="sm"
-    >
-      {{ isOpen ? t('open_now') : t('closed_now') }}
-    </UBadge>
     <span
-      v-if="todayHours"
-      class="tabular-nums"
-    >{{ t('today') }} {{ todayHours.opens }}–{{ todayHours.closes }}</span>
-  </div>
+      aria-hidden="true"
+      class="size-2 shrink-0 rounded-full bg-current"
+    />
+    <span v-if="isOpen">
+      {{ t('open_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('until', { time: todayHours.closes }) }}</span></template>
+    </span>
+    <span v-else>
+      {{ t('closed_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('today', { opens: todayHours.opens, closes: todayHours.closes }) }}</span></template>
+    </span>
+  </p>
 </template>
 
 <i18n lang="yaml">
 el:
   open_now: Ανοιχτά τώρα
   closed_now: Κλειστά τώρα
-  today: Σήμερα
+  until: 'έως {time}'
+  today: 'Σήμερα {opens}–{closes}'
 en:
   open_now: Open now
   closed_now: Closed now
-  today: Today
+  until: 'until {time}'
+  today: 'Today {opens}–{closes}'
 </i18n>

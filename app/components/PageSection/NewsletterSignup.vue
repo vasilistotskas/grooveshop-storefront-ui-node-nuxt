@@ -1,31 +1,15 @@
 <script lang="ts" setup>
 /**
  * The newsletter band: an email form for the store's default newsletter
- * topic, open to everyone — signed in or not.
- *
- * Subscribing is double opt-in: the form only asks, Django emails a
- * confirmation link, and the subscription starts when that link's page
- * is confirmed (`app/pages/newsletter/confirm/[token].vue`). The API
- * answers the same way whether or not it knows the address, so the band
- * has one success state for everyone: "check your inbox".
- *
- * The consent box is never pre-ticked, and its label is the consent
- * sentence from `shared/i18n/newsletterConsent.ts` — the module the
- * server route also reads, so the sentence Django stores as proof of
- * consent is the sentence this label showed. `$api` states the page's
- * locale on the request (`pageLocaleHeader`) — the locale this label
- * was rendered in — so the server picks the same sentence.
- *
- * Rendered only when the store can honour a submission: the merchant
- * toggle is on AND the store has a default newsletter topic.
+ * topic, open to everyone — signed in or not. The signup itself — the
+ * double opt-in, the consent sentence, when a form may be offered — is
+ * `useNewsletterSignup`, shared with the footer's form.
  *
  * Laid out as a STATEMENT — the promise on the left, the one action on
  * the right — like `cta_banner`, so the two conversion bands read as
  * the same kind of thing and neither is a centred icon over a heading.
  */
-import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import { newsletterConsent } from '~~/shared/i18n/newsletterConsent'
 
 withDefaults(defineProps<{
   title?: string
@@ -38,76 +22,22 @@ withDefaults(defineProps<{
   surface: 'muted',
 })
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const localePath = useLocalePath()
 
-const newsletterEnabled = useSettingFlag('NEWSLETTER_ENABLED', {
-  fallback: true,
+const { available, consent, schema, state, submitting, sent, failure, subscribe }
+  = await useNewsletterSignup({ consentRequired: () => t('consent_required') })
+
+const errorMessage = computed(() => {
+  const value = failure.value
+  if (!value) return ''
+  if (value.kind === 'rate_limited') return t('error.rate_limited')
+  if (value.kind === 'fields') return formatDrfFieldErrors(value.errors, t)
+  return t('failed')
 })
 
-// The request itself is gated, not just the render: Django 404s it
-// while the toggle is off.
-const { data: availability } = await useApi('/api/subscriptions/newsletter', {
-  key: 'newsletter-availability',
-  dedupe: 'defer',
-  immediate: newsletterEnabled.value,
-  server: newsletterEnabled.value,
-  // The band hydrates when it scrolls into view, after the app has
-  // finished hydrating — see app/utils/payloadCachedData.ts.
-  getCachedData: payloadCachedData,
-})
-
-const available = computed(
-  () => newsletterEnabled.value && availability.value?.available === true,
-)
-
-const consent = computed(() => newsletterConsent(locale.value))
-
-const schema = z.object({
-  email: z.email({ error: () => t('validation.email.valid') }).max(254),
-  consent: z.boolean().refine(value => value, {
-    error: () => t('consent_required'),
-  }),
-})
-
-type Schema = z.output<typeof schema>
-
-const state = reactive<{ email: string, consent: boolean }>({
-  email: '',
-  consent: false,
-})
-
-const submitting = ref(false)
-const sent = ref(false)
-const errorMessage = ref('')
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (submitting.value) return
-  submitting.value = true
-  errorMessage.value = ''
-  try {
-    await $api('/api/subscriptions/newsletter', {
-      method: 'POST',
-      body: event.data,
-    })
-    sent.value = true
-  }
-  catch (error) {
-    // The proxy returns Django's 4xx body with its status. A throttled
-    // visitor is told to wait; a field rejection says which field; the
-    // rest is a plain failure.
-    const data = error && typeof error === 'object' && 'data' in error
-      ? (error as { data: unknown }).data
-      : null
-    errorMessage.value = isRateLimitedClientError(error)
-      ? t('error.rate_limited')
-      : isDrfFieldErrorMap(data)
-        ? formatDrfFieldErrors(data, t)
-        : t('failed')
-  }
-  finally {
-    submitting.value = false
-  }
+async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>) {
+  await subscribe(event.data)
 }
 </script>
 

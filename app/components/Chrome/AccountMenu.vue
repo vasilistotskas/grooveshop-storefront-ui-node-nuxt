@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 /**
- * The header's account control: a link to sign in, or the signed-in
- * shopper's menu.
+ * The header's account control: the "Sign in" button, or the signed-in
+ * shopper's avatar opening their menu.
  *
  * Entirely `ClientOnly`. Which of the two it is depends on the visitor,
- * and this header is part of the cached anonymous render — the SSR
- * fallback is a dimensionally identical placeholder so nothing shifts
- * when the real control hydrates.
+ * and this header is part of the cached anonymous render. The SSR
+ * fallback is the sign-in button — what an anonymous visitor, the
+ * common case on a cached page, ends up seeing — so nothing shifts for
+ * them when the real control hydrates.
  */
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -16,6 +17,21 @@ const { user, loggedIn } = useUserSession()
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
 const { deleteSession } = useAllAuthAuthentication()
+const img = useMediaStreamImage()
+
+/** The shopper's name for the avatar's initials, else their email. */
+const displayName = computed(() => {
+  const name = [user.value?.firstName, user.value?.lastName]
+    .filter(Boolean)
+    .join(' ')
+  return name || user.value?.email || ''
+})
+
+const avatarSrc = computed(() => {
+  const path = user.value?.mainImagePath
+  if (!path) return undefined
+  return img(path, { width: 64, height: 64, fit: 'cover' }, { provider: 'mediaStream' })
+})
 
 const onClickLogout = async () => {
   const name = $routeBaseName(route)
@@ -82,17 +98,21 @@ const items = computed(() => [
       :ui="{ content: 'w-56' }"
     >
       <UButton
-        :aria-label="t('account')"
+        :aria-label="t('account_menu')"
         color="neutral"
         variant="ghost"
-        size="lg"
-        square
+        size="sm"
+        trailing-icon="i-heroicons-chevron-down"
+        class="ps-1 pe-1.5"
       >
-        <UserAvatar
-          :img-height="28"
-          :img-width="28"
-          :show-name="false"
-          :user-account="user"
+        <UAvatar
+          :src="avatarSrc"
+          :alt="displayName"
+          size="md"
+          :ui="{
+            root: 'bg-(--ui-secondary-soft)',
+            fallback: 'text-[0.8125rem] font-extrabold text-accent',
+          }"
         />
       </UButton>
 
@@ -111,25 +131,15 @@ const items = computed(() => [
     <UButton
       v-else
       :to="localePath('/account/login')"
-      :aria-label="t('login')"
-      icon="i-heroicons-user"
-      color="neutral"
-      variant="ghost"
-      size="lg"
-      square
+      :label="t('login')"
+      size="sm"
     />
 
-    <!-- SSR placeholder: the same square button, so the header does not
-         reflow when the session resolves. -->
     <template #fallback>
       <UButton
-        :aria-label="t('account')"
-        icon="i-heroicons-user"
-        color="neutral"
-        variant="ghost"
-        size="lg"
-        square
-        disabled
+        :to="localePath('/account/login')"
+        :label="t('login')"
+        size="sm"
       />
     </template>
   </ClientOnly>
@@ -139,7 +149,9 @@ const items = computed(() => [
 el:
   signed_in_as: Συνδεδεμένος ως
   orders: Παραγγελίες
+  account_menu: Μενού λογαριασμού
 en:
   signed_in_as: Signed in as
   orders: Orders
+  account_menu: Account menu
 </i18n>

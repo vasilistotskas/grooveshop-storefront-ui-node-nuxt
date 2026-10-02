@@ -1,6 +1,28 @@
 <script lang="ts" setup>
 import type { Locale } from '@nuxt/ui'
 
+/**
+ * `compact` is the header's form — a ghost control showing the locale
+ * code ("EL"); without it the control names the language ("Ελληνικά"),
+ * as the footer and the phone menu do.
+ *
+ * A `USelectMenu` with a globe, not `ULocaleSelect`: that component
+ * hard-codes an emoji flag into its leading slot and does not forward
+ * slots (nuxt/ui `locale/LocaleSelect.vue`, unchanged through v4.11.3),
+ * so `leading-icon` is ignored. A flag is the wrong mark for a language
+ * — English is not the United States — and Windows ships no flag
+ * glyphs, so it rendered as the letters "US". The design draws a globe.
+ *
+ * Content width rather than the app config's form-field `w-full`: in
+ * the header row a full-width control squeezed its neighbours to their
+ * icons.
+ */
+withDefaults(defineProps<{
+  compact?: boolean
+}>(), {
+  compact: false,
+})
+
 const { locale, t } = useI18n()
 const { setLanguage } = useUserLanguage()
 const tenantStore = useTenantStore()
@@ -10,12 +32,8 @@ const emit = defineEmits(['languageChanged'])
 const currentLocale = ref(locale.value)
 
 /**
- * Only the locales this tenant actually serves.
- *
- * `ULocaleSelect` takes Nuxt UI `Locale` objects, NOT the
- * `@nuxtjs/i18n` locale objects from `useI18n().locales` — the two
- * shapes are unrelated, which is what forced the `as any` this
- * replaces. `toUiLocales` does the lookup and the narrowing.
+ * Only the locales this tenant actually serves, as Nuxt UI `Locale`
+ * objects (`toUiLocales`) — each carries the language's own name.
  *
  * The i18n locale list is platform-wide and fixed at build time, so it
  * includes languages the current store 404s — see
@@ -47,14 +65,24 @@ watch(currentLocale, async (newLocale) => {
 </script>
 
 <template>
-  <ULocaleSelect
+  <USelectMenu
     v-if="tenantLocales.length > 1"
     v-model="currentLocale"
-    :locales="tenantLocales"
+    :items="tenantLocales"
+    value-key="code"
+    :label-key="compact ? 'code' : 'name'"
+    :search-input="false"
+    :variant="compact ? 'ghost' : 'outline'"
+    :trailing-icon="compact ? '' : undefined"
+    leading-icon="i-heroicons-globe-alt"
     color="neutral"
-    variant="ghost"
-    size="xl"
+    size="sm"
     :aria-label="t('change_language')"
+    :ui="{
+      base: 'w-auto rounded-full font-semibold',
+      value: compact ? 'uppercase' : '',
+      content: 'min-w-40',
+    }"
   />
 </template>
 

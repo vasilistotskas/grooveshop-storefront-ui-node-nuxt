@@ -118,6 +118,7 @@
   },
   "enter_password": "Enter your password",
   "home": "Home",
+  "saved": "Saved",
   "account": "Account",
   "save": "Save",
   "actions": "Actions",
@@ -362,7 +363,13 @@
     "contact": {
       "us": "Contact"
     },
-    "feedback": "Feedback & Comments"
+    "feedback": "Feedback & Comments",
+    "shop": "Shop",
+    "help": "Help",
+    "all_products": "All products",
+    "rewards_programme": "Rewards programme",
+    "leave_feedback": "Leave feedback",
+    "company_legal": "Company & legal"
   },
   "promotion": {
     "code_label": "Code",

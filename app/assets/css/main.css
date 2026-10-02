@@ -15,6 +15,11 @@
      unless the tenant theme sets metadata.fontDisplay, which the
      injected <style id="tenant-theme"> overrides per request. */
   --font-display: var(--font-sans);
+  /* Groove Volt's highlight for savings, rewards and promotions. A FILL
+     only — `bg-volt` with `text-on-volt` on it, in both colour schemes;
+     never a text colour (`volt-is-a-fill.spec.ts`). */
+  --color-volt: #d6f94a;
+  --color-on-volt: #17171a;
 }
 
 :root {
@@ -131,6 +136,176 @@
   --ui-info: var(--color-info-400);
   --ui-warning: var(--color-warning-400);
   --ui-error: var(--color-error-400);
+}
+
+/* Groove Volt — the platform-default design.
+   ------------------------------------------------------------------
+   Scoped to `<html data-design="volt">`, which `app/plugins/design.ts`
+   sets for every tenant except the frozen webside tree. The `:root` and
+   `.dark` blocks above are what that tree was captured against, so
+   they stay as they are and these blocks override them.
+
+   Precedence, all unlayered:
+   - `:root` / `.dark` (0,1,0) lose to these blocks by source order.
+   - The tenant theme block (`html:root` / `html.dark`, (0,1,1),
+     `server/plugins/tenant-theme.ts`) wins over both, so a store's own
+     accent, fonts, radius and container still apply. That block emits
+     only what a tenant changed — `PLATFORM_COLORS` is the Django field
+     default, so an untouched accent field lets Volt's accent through.
+   - The dark block is `:where(.dark)` so it stays at (0,1,0): it must
+     beat `.dark` by order and still lose to the tenant's `html.dark`.
+
+   Surfaces follow Nuxt UI's semantics rather than a literal reading of
+   the board's names, because Nuxt UI paints with them:
+   - `--ui-bg` is the white SURFACE: cards, inputs, modals, slideovers,
+     popovers and menus all render on `bg-default`.
+   - `--ui-bg-muted` is the warm GROUND the page sits on. `body` takes
+     it below, and bands alternate between it and `bg-default`.
+   - `--ui-bg-elevated` is the SUNKEN tone — hovers, soft fills, image
+     tiles, skeletons — which Nuxt UI draws with `bg-elevated`.
+
+   Neutrals are explicit values rather than the zinc ramp: the board's
+   surfaces are warm and its text greys are not, and tenants re-skin a
+   Volt store through the accent, not the greys. Measured contrast:
+   muted text is 6.73:1 on white, 6.27:1 on the ground and 5.84:1 on
+   the sunken tone; every status colour is at least 5.4:1 on its tint. */
+[data-design="volt"] {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Geologica", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ui-radius: 0.75rem;
+  --ui-container: 82rem;
+  --ui-header-height: 3.75rem;
+
+  --ui-bg: #ffffff;
+  --ui-bg-muted: #f7f7f5;
+  --ui-bg-elevated: #efefec;
+  --ui-bg-accented: #e4e4e1;
+  --ui-bg-inverted: #17171a;
+
+  --ui-border: #e4e4e1;
+  --ui-border-muted: #efefec;
+  --ui-border-accented: #c9c9c4;
+  --ui-border-inverted: #17171a;
+
+  --ui-text-dimmed: #8a8a92;
+  --ui-text-muted: #5b5b63;
+  --ui-text-toned: #3f3f46;
+  --ui-text: #17171a;
+  --ui-text-highlighted: #17171a;
+  --ui-text-inverted: #ffffff;
+
+  /* Ink. Nuxt UI's documented way to make a solid near-black the
+     primary colour: a single value here, not a ramp in app config. */
+  --ui-primary: #17171a;
+
+  --ui-secondary: #0038e8;
+  --ui-on-secondary: #ffffff;
+  /* The accent AS TEXT and the pressed accent fill: 85% accent, 15%
+     black gives the board's #0030C4 (9.42:1 on white) from #0038E8, and
+     a tenant's own accent gets the same treatment. */
+  --ui-secondary-text: color-mix(in srgb, var(--ui-secondary) 85%, black);
+  --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 85%, black);
+  --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 9%, white);
+
+  /* Status colours are dark enough to be TEXT on their own tint, and
+     to carry white text as a fill — hence the white on-colours, where
+     the base stylesheet needs near-black for its lighter greens and
+     ambers. */
+  --ui-success: #13703a;
+  --ui-warning: #8a5a00;
+  --ui-error: #b4232a;
+  --ui-info: #0030c4;
+  --ui-on-success: #ffffff;
+  --ui-on-warning: #ffffff;
+  --ui-success-soft: #e6f6ec;
+  --ui-warning-soft: #fff4d6;
+  --ui-error-soft: #fdecec;
+  --ui-info-soft: #e8edff;
+
+  /* Only overlays get a shadow; cards are flat with a line. */
+  --ui-scrim: rgb(23 23 26 / 0.45);
+  --ui-overlay-shadow: 0 24px 64px -16px rgb(23 23 26 / 0.28), 0 2px 8px rgb(23 23 26 / 0.06);
+}
+
+@media (width >= 64rem) {
+  [data-design="volt"] {
+    --ui-header-height: 4.5rem;
+  }
+}
+
+/* Volt's dark mode is not drawn: ground #0E0E10 and the accent lifted
+   to #4D73FF are the design's only two givens. White on #4D73FF is
+   4.03:1, under AA for a button label, and ink is 4.79:1 — so the
+   accent carries ink, the same choice `readableTextOn` makes for a
+   tenant accent (`server/utils/themeTokens.ts`). */
+[data-design="volt"]:where(.dark) {
+  --ui-bg: #17171a;
+  --ui-bg-muted: #0e0e10;
+  --ui-bg-elevated: #232327;
+  --ui-bg-accented: #2e2e33;
+  --ui-bg-inverted: #f7f7f5;
+
+  --ui-border: #2a2a2f;
+  --ui-border-muted: #232327;
+  --ui-border-accented: #3a3a40;
+  --ui-border-inverted: #f7f7f5;
+
+  --ui-text-dimmed: #71717a;
+  --ui-text-muted: #a1a1aa;
+  --ui-text-toned: #d4d4d8;
+  --ui-text: #f4f4f5;
+  --ui-text-highlighted: #ffffff;
+  --ui-text-inverted: #17171a;
+
+  --ui-primary: #f7f7f5;
+
+  --ui-secondary: #4d73ff;
+  --ui-on-secondary: #0e0e10;
+  --ui-secondary-text: color-mix(in oklab, var(--ui-secondary) 80%, white);
+  --ui-secondary-hover: color-mix(in srgb, var(--ui-secondary) 85%, white);
+  --ui-secondary-soft: color-mix(in srgb, var(--ui-secondary) 18%, #17171a);
+
+  --ui-success: #4ade80;
+  --ui-warning: #fbbf24;
+  --ui-error: #f87171;
+  --ui-info: #8aa4ff;
+  --ui-on-success: #0e0e10;
+  --ui-on-warning: #0e0e10;
+  --ui-success-soft: color-mix(in srgb, var(--ui-success) 14%, #17171a);
+  --ui-warning-soft: color-mix(in srgb, var(--ui-warning) 14%, #17171a);
+  --ui-error-soft: color-mix(in srgb, var(--ui-error) 14%, #17171a);
+  --ui-info-soft: color-mix(in srgb, var(--ui-info) 14%, #17171a);
+
+  --ui-scrim: rgb(0 0 0 / 0.6);
+  --ui-overlay-shadow: 0 24px 64px -16px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.3);
+}
+
+/* The page sits on the ground; `bg-default` is the surface on it. */
+[data-design="volt"] body {
+  background-color: var(--ui-bg-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Focus is drawn in the accent, a ring held 2px off the control — the
+   board's focus state. Nuxt UI's documented way to recolour every
+   component's outline at once: a rule outside any `@layer`, so it
+   beats the per-component `outline-*` colours. */
+[data-design="volt"] *,
+[data-design="volt"] ::before,
+[data-design="volt"] ::after {
+  outline-color: var(--ui-secondary);
+}
+
+[data-design="volt"] :focus-visible {
+  outline-offset: 2px;
+}
+
+[data-design="volt"] *:focus-visible,
+[data-design="volt"] *:has(> a:focus-visible) {
+  --tw-ring-color: var(--ui-secondary);
 }
 
 /* Respect reduced motion preferences */

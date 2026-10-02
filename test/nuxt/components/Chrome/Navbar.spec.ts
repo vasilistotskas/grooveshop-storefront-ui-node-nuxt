@@ -4,6 +4,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { NavLink } from '~/composables/useNavigation'
+import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
 import ChromeNavbar from '~/components/Chrome/Navbar.vue'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
 import { setTenant } from '~~/test/helpers/tenant'
@@ -26,9 +27,10 @@ mockNuxtImport('useNavigation', () => () => ({
   footerColumns: computed(() => null),
   mobileItems: computed(() => null),
 }))
+const categories = ref<CategoryMenuEntry[]>([])
 mockNuxtImport('useCategoryMenu', () => () => ({
-  categories: computed(() => []),
-  hasCategories: computed(() => false),
+  categories,
+  hasCategories: computed(() => categories.value.length > 0),
 }))
 mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
   computed(() => state.flags[key] ?? options.fallback))
@@ -47,6 +49,7 @@ mockNuxtImport('useUserSession', () => () => {
 /** Everything but the gates under test: each child has its own spec (or none to need). */
 const stubs = {
   ChromeAnnouncementBar: true,
+  ChromeMegaMenu: true,
   ChromeAccountMenu: true,
   TenantLogo: true,
   CartButton: { template: '<button data-test="cart" />' },
@@ -84,6 +87,7 @@ describe('Chrome/Navbar', () => {
   beforeEach(() => {
     state.header = null
     state.flags = {}
+    categories.value = []
     if (session.loggedIn) session.loggedIn.value = false
     setTenant({ blogEnabled: false, promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false, availableLocales: ['el'] })
   })
@@ -137,6 +141,22 @@ describe('Chrome/Navbar', () => {
     ])
   })
 
+  it('keeps the catalogue on the operator\'s entry for the listing', async () => {
+    categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', children: [] }]
+    state.header = [
+      { label: 'Σχετικά', to: '/about' },
+      { label: 'Κατάστημα', to: '/products', icon: 'i-heroicons-shopping-bag' },
+    ]
+
+    const wrapper = await mountNavbar()
+
+    const items = wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]
+    expect(items.map(item => [item.label, item.to, item.slot, item.children?.map(child => child.to)])).toEqual([
+      ['Σχετικά', '/about', undefined, undefined],
+      ['Κατάστημα', '/products', 'shop', ['/products/category/1/charging']],
+    ])
+  })
+
   it('shows the cart unless the merchant turned it off (fails open)', async () => {
     const shown = await mountNavbar()
     expect(shown.find('[data-test="cart"]').exists()).toBe(true)
@@ -156,6 +176,31 @@ describe('Chrome/Navbar', () => {
     const wrapper = await mountNavbar()
 
     expect(wrapper.find(`a[aria-label="${t('favourites')}"]`).attributes('href')).toBe(href)
+  })
+
+  it('offers favourites whether or not the store runs a blog', async () => {
+    // Favourites are products; the button used to hide with the blog.
+    setTenant({ blogEnabled: false, availableLocales: ['el'] })
+
+    const wrapper = await mountNavbar()
+
+    expect(wrapper.find(`a[aria-label="${t('favourites')}"]`).exists()).toBe(true)
+  })
+
+  it('opens the catalogue panel from Shop, and dims the page under it', async () => {
+    categories.value = [{ id: 1, slug: 'charging', label: 'Φόρτιση', to: '/products/category/1/charging', imagePath: '', children: [] }]
+
+    const wrapper = await mountNavbar()
+    const nav = wrapper.findComponent({ name: 'UNavigationMenu' })
+    const shop = (nav.props('items') as NavigationMenuItem[])[0]!
+
+    expect([shop.slot, shop.value, shop.children?.map(child => child.to)])
+      .toEqual(['shop', 'shop', ['/products/category/1/charging']])
+    expect(wrapper.find('.bg-\\(--ui-scrim\\)').exists()).toBe(false)
+
+    await nav.vm.$emit('update:modelValue', 'shop')
+
+    expect(wrapper.find('.bg-\\(--ui-scrim\\)').exists()).toBe(true)
   })
 
   it('draws no favourites button when the merchant turned favourites off', async () => {

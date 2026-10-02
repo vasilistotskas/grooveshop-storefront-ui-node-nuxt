@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   resolveChrome,
+  resolveDesign,
   resolvePage,
   type ChromeKey,
   type PageKey,
@@ -45,6 +46,21 @@ describe('variantRegistry', () => {
   it('serves the platform default to a tenant without a variant, and to no tenant at all', () => {
     expect(resolvePage('home', 'demo')).toBe(resolvePage('home', null))
     expect(resolveChrome('navbar', 'demo')).toBe(resolveChrome('navbar', undefined))
+  })
+
+  it('draws every tenant in the Volt design except the frozen webside', () => {
+    expect(resolveDesign('demo')).toBe('volt')
+    expect(resolveDesign('ekfyseosfyteias')).toBe('volt')
+    expect(resolveDesign('delta_sigma')).toBe('volt')
+    // webside renders with the base stylesheet and app config, which is
+    // what its frozen tree was captured against.
+    expect(resolveDesign('webside')).toBeNull()
+  })
+
+  it('leaves a request without a tenant on the base design', () => {
+    expect(resolveDesign(null)).toBeNull()
+    expect(resolveDesign(undefined)).toBeNull()
+    expect(resolveDesign('')).toBeNull()
   })
 
   it('keeps the delta_sigma chrome variants', () => {

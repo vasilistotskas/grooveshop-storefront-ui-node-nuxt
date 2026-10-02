@@ -8,16 +8,17 @@ import { COMPONENTS, callsIn, sfcTemplate, walkElements } from '../../helpers/so
  * 5(1)) and "σε εμφανές σημείο" (N. 4919/2022 art. 22 §4).
  *
  * "Permanently accessible" and "prominent" is why the identity lives in
- * the footer of BOTH layouts rather than on a single legal page — a
- * mobile shopper who never sees the desktop footer is owed the same
- * disclosure. Which footer a visitor gets is decided by the device, so
- * no single render shows both; the templates are read instead. What the
- * block renders is `test/nuxt/components/MerchantIdentity.spec.ts`.
+ * the footer — on every page — rather than on a single legal page. The
+ * default footer is one component for every width; webside's frozen
+ * tree picks a desktop or a mobile footer by device, so a mobile
+ * shopper who never sees its desktop footer is owed the same disclosure
+ * and both are checked. No single render shows them all, so the
+ * templates are read instead. What the block renders is
+ * `test/nuxt/components/MerchantIdentity.spec.ts`.
  */
 describe('the merchant identity', () => {
   it.each([
-    ['default desktop', 'Footer/Desktop.vue', 'MerchantIdentity'],
-    ['default mobile', 'Footer/Mobile.vue', 'MerchantIdentity'],
+    ['default', 'Chrome/Footer.vue', 'MerchantIdentity'],
     // The frozen tree renders its own copy under the Webside prefix.
     ['webside desktop', 'variants/webside/Footer/Desktop.vue', 'WebsideMerchantIdentity'],
     ['webside mobile', 'variants/webside/Footer/Mobile.vue', 'WebsideMerchantIdentity'],

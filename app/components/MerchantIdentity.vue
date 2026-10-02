@@ -9,54 +9,48 @@
  * "permanently accessible" test (art. 5(1)), and art. 22 §3 puts the
  * GEMI number on the e-shop.
  *
+ * One line, as the footer's fine print draws it: name and seat, then
+ * the register numbers. The store's phone and email are the footer's
+ * own contact row, where they are links a shopper taps.
+ *
  * Renders nothing at all for a store that has published none of it. A
- * heading over empty rows is not more compliant than silence, and it
+ * line of empty separators is not more compliant than silence, and it
  * reads as a broken page to every shopper.
  */
 const { t } = useI18n()
 const { identity, hasIdentity, legalName, registeredSeat, inLiquidation }
   = useMerchantIdentity()
+
+const parts = computed(() => [
+  legalName.value,
+  registeredSeat.value,
+  identity.value?.registrationNumber ? `${t('gemi')} ${identity.value.registrationNumber}` : '',
+  identity.value?.vatId ? `${t('vat_id')} ${identity.value.vatId}` : '',
+].filter(Boolean))
 </script>
 
 <template>
   <address
     v-if="hasIdentity"
-    class="
-      flex flex-col gap-0.5 text-xs not-italic text-primary-700
-      dark:text-primary-300
-    "
+    class="not-italic"
   >
-    <span class="font-medium">{{ legalName }}</span>
-
-    <span v-if="registeredSeat">{{ registeredSeat }}</span>
-
-    <span class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-      <span v-if="identity?.registrationNumber">
-        {{ t('gemi') }}: {{ identity.registrationNumber }}
-      </span>
-      <span v-if="identity?.vatId">
-        {{ t('vat_id') }}: {{ identity.vatId }}
-      </span>
-      <span v-if="identity?.phone">
-        <a :href="`tel:${identity.phone}`" class="hover:underline">
-          {{ identity.phone }}
-        </a>
-      </span>
-      <span v-if="identity?.email">
-        <a :href="`mailto:${identity.email}`" class="hover:underline">
-          {{ identity.email }}
-        </a>
-      </span>
-    </span>
-
+    <template
+      v-for="(part, index) in parts"
+      :key="part"
+    >
+      <span
+        v-if="index"
+        aria-hidden="true"
+      > · </span><span>{{ part }}</span>
+    </template>
     <!-- Disclosing liquidation is itself the art. 22 §4 obligation, so
          it must be legible rather than tucked in with the rest. -->
-    <span
+    <strong
       v-if="inLiquidation"
-      class="font-semibold text-warning-600 dark:text-warning-400"
+      class="block font-semibold text-warning"
     >
       {{ t('in_liquidation') }}
-    </span>
+    </strong>
   </address>
 </template>
 

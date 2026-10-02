@@ -20,7 +20,11 @@ import MerchantIdentity from '~/components/MerchantIdentity.vue'
  * mount this block is `test/unit/source-rules/merchant-identity.spec.ts`.
  *
  * The register labels are asserted verbatim: ΓΕΜΗ and ΑΦΜ are the names
- * of the Greek registers, which is the point of printing them.
+ * of the Greek registers, which is the point of printing them. Each
+ * label is followed by its number, as the footer prints them.
+ *
+ * The phone and email are not this block's: the footer publishes them
+ * as its own call and email links (`Chrome/Footer.spec.ts`).
  */
 const EMPTY = {
   name: '',
@@ -85,10 +89,8 @@ describe('MerchantIdentity', () => {
     const text = address.text().replace(/\s+/g, ' ')
     expect(text).toContain('Acme ΙΚΕ')
     expect(text).toContain('Ερμού 1, 10563 Αθήνα, GR')
-    expect(text).toContain('ΓΕΜΗ: 123456701000')
-    expect(text).toContain('ΑΦΜ: 801234567')
-    expect(address.find('a[href="tel:+302101234567"]').text()).toBe('+302101234567')
-    expect(address.find('a[href="mailto:info@acme.test"]').text()).toBe('info@acme.test')
+    expect(text).toContain('ΓΕΜΗ 123456701000')
+    expect(text).toContain('ΑΦΜ 801234567')
     expect(text).not.toContain('Υπό εκκαθάριση')
   })
 
@@ -102,9 +104,8 @@ describe('MerchantIdentity', () => {
     const wrapper = await mountIdentity({ ...EMPTY, name: 'Acme', vatId: '801234567' })
 
     const address = wrapper.find('address')
-    expect(address.text()).toContain('ΑΦΜ: 801234567')
+    expect(address.text()).toContain('ΑΦΜ 801234567')
     expect(address.text()).not.toContain('ΓΕΜΗ')
-    expect(address.find('a').exists()).toBe(false)
   })
 
   it('renders nothing for a store that has published nothing to disclose', async () => {

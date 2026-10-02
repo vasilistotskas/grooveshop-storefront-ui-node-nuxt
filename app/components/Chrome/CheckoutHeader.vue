@@ -1,83 +1,88 @@
 <script lang="ts" setup>
+/**
+ * The checkout's header: the way back to the cart, the store's logo and
+ * the reassurance that the page is secure — nothing that would lead the
+ * shopper out of the checkout.
+ *
+ * Three equal outer columns keep the logo centred whatever the two
+ * sides hold. On a phone the back link shortens to "Cart" and the
+ * reassurance to its lock icon, which keeps its name for screen readers.
+ */
 const { t } = useI18n()
 const localePath = useLocalePath()
-const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 
-const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
+const appTitle = computed(() => tenantStore.storeName || '')
 </script>
 
 <template>
-  <header
-    class="
-      sticky top-0 z-40 w-full border-b border-primary-200
-      bg-transparent backdrop-blur-md
-      dark:border-primary-800
-    "
-  >
-    <!-- Mobile: 3-column grid (back | logo | spacer) guarantees the
-         logo column is centered regardless of the back-button width.
-         Desktop: single flex row with the logo at the top-left. -->
-    <div
+  <header class="sticky top-0 z-40 border-b border-default bg-default">
+    <UContainer
       class="
-        mx-auto grid w-full max-w-(--ui-container)
-        grid-cols-[auto_1fr_auto] items-center px-4 py-3
-        sm:px-6
-        md:py-4
-        lg:flex lg:px-8
+        grid h-(--ui-header-height) grid-cols-[1fr_auto_1fr] items-center
+        gap-3
       "
     >
       <UButton
-        :aria-label="t('back_to_cart')"
-        :title="t('back_to_cart')"
         :to="localePath('cart')"
-        icon="i-heroicons-arrow-left"
+        :aria-label="t('back_to_cart')"
+        icon="i-heroicons-chevron-left"
         color="neutral"
-        variant="soft"
-        size="lg"
-        square
-        class="
-          rounded-full justify-self-start
-          lg:hidden
-        "
-      />
+        variant="ghost"
+        size="sm"
+        class="justify-self-start px-2.5"
+      >
+        <span class="lg:hidden">{{ t('cart') }}</span>
+        <span
+          class="
+            hidden
+            lg:inline
+          "
+        >{{ t('back_to_cart') }}</span>
+      </UButton>
 
       <Anchor
         :to="'index'"
         :aria-label="appTitle"
-        class="
-          flex items-center justify-center justify-self-center
-          lg:justify-start lg:justify-self-start
-        "
+        class="!w-auto flex items-center"
       >
         <TenantLogo
-          :width="145"
-          :height="40"
+          :width="132"
+          :height="34"
           priority
-          img-class="
-            object-center
-            lg:object-left
-          "
+          img-class="object-center"
         />
         <span class="sr-only">{{ appTitle }}</span>
       </Anchor>
 
-      <!-- Spacer matches the back-button square so the middle
-           column stays geometrically centered. -->
-      <div
+      <span
         class="
-          size-9 justify-self-end
-          lg:hidden
+          inline-flex items-center gap-1.5 justify-self-end text-[0.8125rem]
+          font-bold text-success
         "
-        aria-hidden="true"
-      />
-    </div>
+      >
+        <UIcon
+          name="i-heroicons-lock-closed"
+          class="size-4"
+        />
+        <span
+          class="
+            sr-only
+            lg:not-sr-only
+          "
+        >{{ t('secure_checkout') }}</span>
+      </span>
+    </UContainer>
   </header>
 </template>
 
 <i18n lang="yaml">
 el:
   back_to_cart: Επιστροφή στο καλάθι
+  cart: Καλάθι
+  secure_checkout: Ασφαλής ολοκλήρωση αγοράς
 en:
   back_to_cart: Back to cart
+  cart: Cart
+  secure_checkout: Secure checkout
 </i18n>

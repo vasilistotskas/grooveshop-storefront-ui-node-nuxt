@@ -1,10 +1,17 @@
 <script lang="ts" setup>
+import type { NavigationMenuItem } from '@nuxt/ui'
+
 /**
- * The phone tab bar.
+ * The phone tab bar — a floating dock.
  *
- * Styled from semantic tokens rather than the neutral ramp directly, so
- * a tenant's own surface and accent colours reach it like every other
- * piece of chrome.
+ * Held 12px off the screen's edges and bottom (plus the device's safe
+ * area), so the page reads under it rather than ending at a strip. The
+ * active tab is an ink pill carrying its icon and label; the others are
+ * icons whose label stays in the accessibility tree. The footer keeps
+ * its last line clear of the dock with its own bottom padding.
+ *
+ * Styled from semantic tokens, so a tenant's surface and accent reach
+ * it like every other piece of chrome.
  */
 const props = withDefaults(defineProps<{
   includeCart?: boolean
@@ -12,9 +19,23 @@ const props = withDefaults(defineProps<{
   includeCart: true,
 })
 
-const { items } = useMobileNavItems({ includeCart: props.includeCart })
+const { t } = useI18n()
+const { items } = useBottomNavItems({ includeCart: props.includeCart })
 
-// Hide the bar while the on-screen keyboard is open so it does not eat
+/** Per-item classes, last in Nuxt UI's merge, so they win over the variants. */
+const dockItems = computed<NavigationMenuItem[]>(() =>
+  items.value.map(item => ({
+    ...item,
+    class: item.active
+      ? 'h-11.5 gap-2 rounded-2xl bg-inverted px-4 text-inverted'
+      : 'size-11.5 justify-center rounded-2xl px-0 text-toned',
+    ui: {
+      linkLabel: item.active ? 'text-[0.8125rem] font-bold' : 'sr-only',
+    },
+  })),
+)
+
+// Hide the dock while the on-screen keyboard is open so it does not eat
 // the visible viewport. `visualViewport.height` shrinks when the
 // keyboard deploys (iOS & Android); the 150px threshold avoids toggling
 // on browser-chrome address-bar collapses.
@@ -36,30 +57,34 @@ onMounted(() => {
   <MobileOrTabletOnly>
     <UNavigationMenu
       orientation="horizontal"
-      :items="items"
-      :aria-label="'Mobile navigation'"
-      highlight
-      highlight-color="secondary"
+      :items="dockItems"
+      :aria-label="t('mobile_navigation')"
+      color="neutral"
+      variant="link"
       :ui="{
+        // `[&>div]:flex-1`: the list sits in a wrapper Reka adds, which
+        // would otherwise shrink to the icons and bunch them in the
+        // middle of the bar.
         root: `
-          fixed inset-x-0 bottom-0 z-50 block w-full border-t border-default
-          bg-default/90 backdrop-blur-md transition-transform duration-200
-          ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}
+          fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))]
+          z-50 h-16 rounded-[1.375rem] border border-default bg-default/95 px-2
+          shadow-(--ui-overlay-shadow) backdrop-blur-md transition-transform
+          duration-200
+          [&>div]:flex-1
+          ${keyboardOpen ? 'translate-y-[calc(100%+2rem)]' : 'translate-y-0'}
         `,
-        list: 'w-full',
-        item: 'w-full',
-        link: `
-          relative flex min-h-12 flex-col items-center justify-center gap-0.5
-          text-muted
-          data-[active=true]:text-highlighted
-        `,
-        linkLabel: 'text-[10px] leading-tight font-medium',
-        linkLeadingIcon: 'size-6',
-        linkLeadingAvatar: 'size-6',
-      }"
-      :style="{
-        paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))',
+        list: 'flex size-full items-center justify-between',
+        item: 'py-0',
+        link: 'before:hidden',
+        linkLeadingIcon: 'size-5 text-current',
       }"
     />
   </MobileOrTabletOnly>
 </template>
+
+<i18n lang="yaml">
+el:
+  mobile_navigation: Κύρια πλοήγηση κινητού
+en:
+  mobile_navigation: Mobile navigation
+</i18n>

@@ -19,35 +19,15 @@ export function useFooterLinks() {
   })
 
   // Published ContentPages (per-tenant CMS pages, e.g. FAQ/shipping info)
-  // are always safe to link unconditionally — unlike the removed
-  // brand-only routes above, every entry here is a row that actually
-  // exists and is published for THIS tenant, so it can never 404.
-  const { data: contentPagesData } = useApi('/api/content-pages', {
-    key: 'footer-content-pages',
-    query: { pageSize: 50, ordering: 'slug' },
-  })
+  // are always safe to link unconditionally — see useFooterContentPages.
+  const { links: contentPageLinks } = useFooterContentPages()
 
   const contentPagesColumn = computed<FooterLinkColumn | null>(() => {
-    const pages = contentPagesData.value?.results
-    if (!pages || pages.length === 0) return null
+    if (contentPageLinks.value.length === 0) return null
     return {
       label: t('footer.pages'),
       icon: 'i-heroicons-document-text',
-      children: pages.map((page) => {
-        // A slug with a dedicated route is linked at THAT route, not at
-        // /info/<slug>. Both render the same document and /info/<slug>
-        // permanently redirects to the canonical one, so linking the
-        // redirect would make every footer click a 301 for no reason.
-        const canonical = (
-          Object.keys(LEGAL_ROUTE_SLUGS) as LegalRouteName[]
-        ).find(name => LEGAL_ROUTE_SLUGS[name] === page.slug)
-        return {
-          label: extractTranslated(page, 'title', $i18n.locale.value) ?? page.slug,
-          to: canonical
-            ? localePath(canonical)
-            : localePath({ name: 'info-slug', params: { slug: page.slug } }),
-        }
-      }),
+      children: contentPageLinks.value,
     }
   })
 

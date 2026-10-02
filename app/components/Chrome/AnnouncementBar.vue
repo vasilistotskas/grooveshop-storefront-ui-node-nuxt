@@ -42,18 +42,23 @@ const bannerId = computed(() =>
 </script>
 
 <template>
+  <!-- Ink by default — the design's bar. An operator who picks a
+       colour in the setting still gets it. -->
   <UBanner
     v-if="bar"
     :id="bannerId"
     :icon="bar.icon"
     :title="text"
     :to="bar.link"
-    :color="bar.color ?? 'secondary'"
+    :color="bar.color ?? 'neutral'"
     :close="bar.dismissible !== false"
     :ui="{
       root: 'z-40',
+      container: 'h-9.5 justify-center',
+      center: 'justify-center',
+      icon: 'size-4',
       title: `
-        text-sm font-medium
+        text-[0.8125rem] font-semibold
         sm:truncate
       `,
     }"

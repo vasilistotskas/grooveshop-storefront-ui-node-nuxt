@@ -23,6 +23,15 @@ describe('buildTenantThemeCss', () => {
     expect(css).not.toContain('--ui-liked')
   })
 
+  it('out-specifies the platform design scope, so a store\'s own theme wins', () => {
+    // `html:root` / `html.dark` are (0,1,1); main.css's Groove Volt rules
+    // (`[data-design="volt"]`, `[data-design="volt"]:where(.dark)`) are
+    // (0,1,0). A bare `:root` would lose to Volt by source order.
+    const { css } = buildTenantThemeCss({ accentHex: '#FF5500' })
+    expect(css).toMatch(/^html:root \{/)
+    expect(css).toContain(' html.dark {')
+  })
+
   it('emits nothing for a tenant carrying the platform defaults', () => {
     // Every colour field on the Tenant model has a NON-BLANK default
     // equal to the platform value, so this is the shape the serializer

@@ -88,33 +88,31 @@ onClickOutside(dropdown, () => {
     ref="toggleButton"
     class="relative grid items-center"
   >
+    <!-- The unread dot is the accent, ringed in the header's ground so
+         it reads as cut out of the bell. -->
     <UChip
       :key="'notifications'"
-      size="md"
-      color="success"
+      size="lg"
+      color="secondary"
       :show="show"
+      inset
+      :ui="{ base: 'top-2.5 right-2.5 ring-2 ring-(--ui-bg-muted)' }"
     >
       <UButton
         color="neutral"
-        size="xl"
         type="button"
         variant="ghost"
+        square
         :aria-label="t('notifications.title')"
         :aria-expanded="isDropdownVisible"
         :title="t('notifications.title')"
-        :ui="{
-          base: `
-            p-0
-            hover:bg-transparent
-          `,
-        }"
         @click="toggleDropdown"
       >
         <Transition name="bell-fade" mode="out-in">
           <UIcon
             :key="isDropdownVisible ? 'solid' : 'outline'"
             :name="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
-            class="size-6"
+            class="size-5"
           />
         </Transition>
       </UButton>
