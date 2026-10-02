@@ -45,20 +45,22 @@ const giftCardsEnabled = computed(
  *
  * Named the way checkout names them: a pay way's `name` holds its
  * `PayWayEnum` key (`PAY_ON_DELIVERY`), which `getPaymentMethodName`
- * turns into the shopper's words.
+ * turns into the shopper's words. Each way is listed once: two pay ways
+ * can share a key (card payments through two processors), and the
+ * shopper is told how they can pay, not by whom.
  */
 const { data: payWays } = await useApi('/api/pay-way', {
   key: 'footer-pay-ways',
   query: { active: 'true', pageSize: 50 },
 })
 
-const paymentMarks = computed(() => [
+const paymentMarks = computed(() => [...new Set([
   ...(payWays.value?.results ?? [])
     .map(payWay => extractTranslated(payWay, 'name', locale.value))
     .filter((name): name is string => Boolean(name))
     .map(name => getPaymentMethodName(name)),
   ...(giftCardsEnabled.value ? [t('gift_card')] : []),
-])
+])])
 
 const primaryColumns = computed<FooterColumn[]>(() =>
   primary.value.map(column => ({
@@ -243,8 +245,8 @@ const storeName = computed(() => tenantStore.storeName || '')
             <template #content>
               <ul class="flex flex-col gap-3 pb-1">
                 <li
-                  v-for="link in secondary"
-                  :key="link.to"
+                  v-for="(link, index) in secondary"
+                  :key="index"
                 >
                   <ULink
                     :to="link.to"
@@ -325,7 +327,7 @@ const storeName = computed(() => tenantStore.storeName || '')
       >
         <template
           v-for="(link, index) in secondary"
-          :key="link.to"
+          :key="index"
         >
           <span
             v-if="index"

@@ -98,6 +98,20 @@ describe('Chrome/Footer', () => {
     expect(wrapper.text()).not.toContain('PAY_ON_DELIVERY')
   })
 
+  it('lists a way to pay once when two pay ways share it', async () => {
+    // Card payments through two processors are one way to pay.
+    state.payWays = [
+      makePayWay({ translations: { el: { name: 'CREDIT_CARD' } } }),
+      makePayWay({ translations: { el: { name: 'CREDIT_CARD' } } }),
+    ]
+
+    const wrapper = await mountFooter()
+
+    const card = useNuxtApp().$i18n.t('payment_methods.CREDIT_CARD')
+    // Once in the desk row and once in the phone row.
+    expect(wrapper.text().split(card).length - 1).toBe(2)
+  })
+
   it.each<{ name: string, tenant: Partial<TenantConfig>, flags: Record<string, boolean>, shown: boolean }>([
     { name: 'the plan flag only', tenant: { giftCardsEnabled: true }, flags: {}, shown: false },
     { name: 'the setting only', tenant: { giftCardsEnabled: false }, flags: { GIFT_CARDS_ENABLED: true }, shown: false },
