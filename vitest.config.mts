@@ -16,6 +16,13 @@ import { autoImports } from './test/helpers/autoImports.ts'
 
 const path = (relative: string) => fileURLToPath(new URL(relative, import.meta.url))
 
+// One time zone on every machine, the one CI runs in: a snapshot or an
+// assertion that prints a local time otherwise passes on one desk and
+// fails on another. Set here, in the main process, because Node applies
+// `TZ` only there — a setup file or `test.env` does not reach thread
+// workers (vitest docs, "Time Zone Does Not Change in Worker Threads").
+process.env.TZ = 'UTC'
+
 /**
  * Nuxt's own source aliases, for the projects that do not boot Nuxt.
  * The `nuxt` project gets them from the generated Nuxt config.
@@ -123,14 +130,14 @@ export default defineConfig({
       reporter: ['text', 'html', 'lcov', 'json', 'json-summary'],
       // A red run is exactly when the report is needed.
       reportOnFailure: true,
-      // A floor, not a target: the unit+nuxt run measured on 2026-09-30,
+      // A floor, not a target: the unit+nuxt run measured on 2026-10-02,
       // rounded down. A change that drops coverage below it fails CI;
       // raise it when coverage rises, never lower it to make a run pass.
       thresholds: {
-        statements: 66,
-        branches: 61,
-        functions: 58,
-        lines: 67,
+        statements: 70,
+        branches: 68,
+        functions: 62,
+        lines: 70,
       },
       include: ['app/**', 'server/**', 'shared/**'],
       exclude: [
@@ -138,6 +145,12 @@ export default defineConfig({
         'shared/openapi/**',
         // Type-only modules carry no runtime code.
         'shared/types/**',
+        // The frozen webside tree: byte-for-byte copies of defaults that
+        // are tested where they live. It never changes, so it is pinned by
+        // `test/nuxt/variants/webside/frozen-render.spec.ts` and the SSR
+        // and pixel diffs instead — measured, every freeze diluted the
+        // floor (PR 2's account copies took lines from 70.9% to 64.6%).
+        'app/components/variants/webside/**',
         '**/*.d.ts',
       ],
     },

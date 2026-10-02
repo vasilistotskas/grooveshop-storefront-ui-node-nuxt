@@ -1265,7 +1265,7 @@ exports[`webside frozen render > signed in > account orders 1`] = `
             </div>
             <div class="flex justify-between gap-8">
               <div>
-                <div class="mb-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-200"><span class="iconify i-heroicons:calendar h-4 w-4" aria-hidden="true"></span> Ημερομηνία Παραγγελίας</div><time datetime="2026-01-01T00:00:00.000Z" class="text-gray-700 dark:text-gray-300">1 Ιαν 2026, 2:00:00 π.μ.</time>
+                <div class="mb-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-200"><span class="iconify i-heroicons:calendar h-4 w-4" aria-hidden="true"></span> Ημερομηνία Παραγγελίας</div><time datetime="2026-01-01T00:00:00.000Z" class="text-gray-700 dark:text-gray-300">1 Ιαν 2026, 12:00:00 π.μ.</time>
               </div>
               <!--v-if-->
             </div>
