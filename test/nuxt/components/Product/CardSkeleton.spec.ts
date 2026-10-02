@@ -31,8 +31,9 @@ describe('ProductCardSkeleton', () => {
   it('reserves every row of the card, not just a box', async () => {
     const wrapper = await mountSuspended(ProductCardSkeleton, { route: false })
 
-    // Image, brand, two title lines, rating, price, button.
+    // Image, brand, two title lines, rating, price — the buy button
+    // sits on the photograph, so it takes no row of its own.
     const skeletons = wrapper.findAllComponents({ name: 'USkeleton' })
-    expect(skeletons.length).toBeGreaterThanOrEqual(8)
+    expect(skeletons).toHaveLength(6)
   })
 })

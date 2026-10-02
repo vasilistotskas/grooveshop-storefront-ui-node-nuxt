@@ -118,6 +118,28 @@ export function usePromotionOffer() {
     return out
   }
 
+  /**
+   * The benefit as a bare figure — "10%", "5 €" — for a surface that
+   * sets it large (the homepage's coupon cards), where the headline's
+   * minus sign and words would not fit. Null for a benefit that is not
+   * a number — free shipping, a gift, buy-x-get-y — which keeps its
+   * headline.
+   */
+  function figure(offer: OfferLike): string | null {
+    const value = Number(offer.benefitValue)
+    switch (offer.benefitType) {
+      case 'PERCENTAGE':
+        return n(value / 100, { key: 'percent', maximumFractionDigits: 2 })
+      case 'FIXED_AMOUNT':
+        return n(value, {
+          key: 'currency',
+          minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+        })
+      default:
+        return null
+    }
+  }
+
   const icon = (offer: OfferLike): string =>
     BENEFIT_ICON[offer.benefitType] ?? 'i-heroicons-tag'
 
@@ -162,5 +184,5 @@ export function usePromotionOffer() {
     return message === key ? t('promotion.rejection.generic') : message
   }
 
-  return { headline, conditions, icon, color, expiry, rejectionMessage }
+  return { headline, figure, conditions, icon, color, expiry, rejectionMessage }
 }

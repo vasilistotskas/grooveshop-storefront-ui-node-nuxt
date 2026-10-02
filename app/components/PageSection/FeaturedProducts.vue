@@ -2,11 +2,12 @@
 /**
  * What the merchant wants seen first.
  *
- * The same band as `products_slider` with a different default ordering
+ * The same band as `products_grid` with a different default ordering
  * — the store's own arrangement rather than recency — so a homepage can
- * carry both without showing one set of products twice. `columns` is
- * kept for layouts written against the old prop; the rail sizes itself
- * from the viewport, so it only caps how many are fetched.
+ * carry two grids of products (a layout holds one section of each
+ * type) without showing one set twice. `columns` is kept for layouts
+ * written against the old prop; the grid sizes itself from the
+ * viewport, so it only caps how many are fetched.
  */
 const props = withDefaults(defineProps<{
   title?: string
@@ -32,7 +33,7 @@ const effectivePageSize = computed(
 </script>
 
 <template>
-  <PageSectionProductsSlider
+  <PageSectionProductsGrid
     :title="title"
     :heading="heading"
     :subheading="subheading"

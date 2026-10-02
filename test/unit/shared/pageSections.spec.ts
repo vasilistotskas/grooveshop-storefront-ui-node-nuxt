@@ -27,6 +27,28 @@ describe('pageSections', () => {
     expect(sectionsProvideHeading(undefined)).toBe(false)
   })
 
+  it('counts a hero carousel only when its first slide has a heading', () => {
+    const carousel = (props: unknown) => [{ componentType: 'hero_carousel', props }]
+
+    expect(sectionsProvideHeading(carousel({ slides: [{ imageUrl: '/a.jpg', heading: 'Charge fast' }] })))
+      .toBe(true)
+    // Artwork only: the flat form, a slide without copy, a blank heading,
+    // or a heading on a LATER slide (rendered as an h2) owns no h1.
+    expect(sectionsProvideHeading(carousel({ images: ['/a.jpg'] }))).toBe(false)
+    expect(sectionsProvideHeading(carousel({ slides: [{ imageUrl: '/a.jpg' }] }))).toBe(false)
+    expect(sectionsProvideHeading(carousel({ slides: [{ imageUrl: '/a.jpg', heading: '  ' }] }))).toBe(false)
+    expect(sectionsProvideHeading(carousel({
+      slides: [{ imageUrl: '/a.jpg' }, { imageUrl: '/b.jpg', heading: 'Second' }],
+    }))).toBe(false)
+  })
+
+  it('takes the page title from a hero carousel\'s first slide', () => {
+    expect(sectionsHeadingText([
+      { componentType: 'trust_badges', props: { heading: 'Not this one' } },
+      { componentType: 'hero_carousel', props: { slides: [{ imageUrl: '/a.jpg', heading: ' Charge fast ' }] } },
+    ])).toBe('Charge fast')
+  })
+
   it('reports a form only for the section that carries one', () => {
     expect(sectionsProvideForm([{ componentType: 'contact_panel' }])).toBe(true)
     expect(sectionsProvideForm([{ componentType: 'page_hero' }])).toBe(false)

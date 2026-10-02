@@ -4,23 +4,29 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import BlogPosts from '~/components/PageSection/BlogPosts.vue'
 import { setTenant } from '~~/test/helpers/tenant'
+import { makeBlogCategory } from '~~/test/fixtures/blog'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
 const POSTS_URL = '/api/blog/posts'
+const CATEGORIES_URL = '/api/blog/categories'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
 const COPY = { heading: 'Από το blog', allPosts: 'Όλα τα άρθρα' }
 
-/** Stands in for the rail: renders the ids of the posts it was handed. */
+/** Stands in for the rail: renders the ids of the posts it was handed, and their category's name. */
 const RailStub = defineComponent({
-  props: { posts: { type: Array as () => { id: number }[], default: () => [] } },
-  setup: props => () => h('ol', props.posts.map(p => h('li', { 'data-post': p.id }))),
+  props: {
+    posts: { type: Array as () => { id: number, category: number }[], default: () => [] },
+    categoryName: { type: Function, default: undefined },
+  },
+  setup: props => () => h('ol', props.posts.map(p =>
+    h('li', { 'data-post': p.id, 'data-category': props.categoryName?.(p.category) }))),
 })
 
-const post = (id: number) => ({ id, slug: `post-${id}`, translations: { el: { title: `Άρθρο ${id}` } } })
+const post = (id: number, category = 1) => ({ id, category, slug: `post-${id}`, translations: { el: { title: `Άρθρο ${id}` } } })
 
 const mountPosts = (props: Record<string, unknown> = {}) =>
   mountSuspended(BlogPosts, { route: false, props, global: { stubs: { BlogRail: RailStub } } })
@@ -35,7 +41,10 @@ describe('PageSection/BlogPosts', () => {
     // `useBlogRail` serves a cached payload for its key.
     clearNuxtData()
     setTenant({ blogEnabled: true })
-    api.routes({ [POSTS_URL]: { results: [post(1), post(2)], count: 2 } })
+    api.routes({
+      [POSTS_URL]: { results: [post(1), post(2, 2)], count: 2 },
+      [CATEGORIES_URL]: { results: [makeBlogCategory({ id: 1 }), makeBlogCategory({ id: 2 })], count: 2 },
+    })
   })
 
   it('draws the band with the posts, a heading and a link to the blog', async () => {
@@ -45,6 +54,13 @@ describe('PageSection/BlogPosts', () => {
     expect(wrapper.findAll('[data-post]').map(li => li.attributes('data-post'))).toEqual(['1', '2'])
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual([COPY.allPosts, '/blog'])
+  })
+
+  it('names each post\'s category from the store\'s categories, in the page\'s language', async () => {
+    const wrapper = await mountPosts()
+
+    expect(wrapper.findAll('[data-post]').map(li => li.attributes('data-category'))).toEqual(['Κατηγορία 1', 'Κατηγορία 2'])
+    expect(api.callsTo(CATEGORIES_URL)[0]!.options.query).toEqual({ pageSize: 100, languageCode: 'el' })
   })
 
   it('renders nothing at all when the store has published nothing', async () => {
@@ -63,6 +79,7 @@ describe('PageSection/BlogPosts', () => {
     const wrapper = await mountPosts()
 
     expect(api.callsTo(POSTS_URL)).toEqual([])
+    expect(api.callsTo(CATEGORIES_URL)).toEqual([])
     expect(wrapper.find('section').exists()).toBe(false)
   })
 

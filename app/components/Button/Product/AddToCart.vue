@@ -26,6 +26,32 @@ const props = defineProps({
     required: false,
     default: 'lg',
   },
+  // How the button looks where it is placed. The product page's CTA is
+  // the store's accent across the buy box; a product card's is an ink
+  // "Add" pill on the photograph. Same logic, toasts and disabled rules.
+  color: {
+    type: String as PropType<ButtonProps['color']>,
+    required: false,
+    default: 'secondary',
+  },
+  icon: {
+    type: String,
+    required: false,
+    default: 'i-heroicons-shopping-cart',
+  },
+  // Whether the labelled button fills its container.
+  block: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  // A short visible label ("Add") when `text`, the accessible name,
+  // would not fit; the name must contain the label (WCAG 2.5.3).
+  label: {
+    type: String,
+    required: false,
+    default: undefined,
+  },
 })
 
 const cartStore = useCartStore()
@@ -67,11 +93,11 @@ const disabled = computed(() => {
   }
   return false
 })
-const label = computed(() => {
+const visibleLabel = computed(() => {
   if (disabled.value) {
     return t('unavailable')
   }
-  return text.value
+  return props.label ?? text.value
 })
 
 const addToCartEvent = async () => {
@@ -142,29 +168,29 @@ const addToCartEvent = async () => {
        toast uses to confirm it afterwards. -->
   <UButton
     v-if="iconOnly"
-    icon="i-heroicons-shopping-cart"
+    :icon="icon"
     :size="size"
     square
     loading-auto
-    color="secondary"
+    :color="color"
     variant="solid"
     :disabled="disabled"
-    :aria-label="label"
-    :title="label"
+    :aria-label="disabled ? t('unavailable') : text"
+    :title="disabled ? t('unavailable') : text"
     @click.prevent="addToCartEvent"
   />
   <UButton
     v-else
-    icon="i-heroicons-shopping-cart"
-    :label="label"
+    :icon="icon"
+    :label="visibleLabel"
     :size="size"
-    trailing
+    :trailing="block"
     loading-auto
-    color="secondary"
+    :color="color"
     variant="solid"
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
-    :ui="{ base: 'w-full place-content-center place-items-center' }"
+    :ui="{ base: block ? 'w-full place-content-center place-items-center' : '' }"
     @click.prevent="addToCartEvent"
   />
 </template>

@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 /**
- * What customers said, set as quotations.
+ * What customers said, as quotation cards.
  *
- * Not cards: a quote is somebody's words, and boxing each one in the
- * same ring as a product made the homepage one grid of identical tiles
- * from top to bottom. Each is a `<figure>` — the words in a
- * `<blockquote>`, the person in its `<figcaption>` — which is the
- * structure HTML gives a quotation and its attribution, so a screen
- * reader hears who said what without extra labelling.
+ * Each is a `<figure>` — the stars, the words in a `<blockquote>`, the
+ * person in its `<figcaption>` — which is the structure HTML gives a
+ * quotation and its attribution, so a screen reader hears who said what
+ * without extra labelling. The person sits at the foot of the card
+ * whatever the quote's length, so a row of cards ends on one line.
  *
  * `rating` is the five-point scale a reader expects, not
  * `ProductReview`'s internal 1..10 — the merchant types what the stars
@@ -39,22 +38,26 @@ const { t } = useI18n()
   >
     <div
       class="
-        grid gap-x-10 gap-y-10
+        grid gap-3
         md:grid-cols-2
-        lg:grid-cols-3
+        lg:grid-cols-3 lg:gap-5
       "
     >
       <figure
         v-for="(item, idx) in items"
         :key="idx"
-        class="flex flex-col gap-4"
+        class="flex flex-col gap-4.5 rounded-md border border-default bg-default p-6"
       >
         <UInputRating
           v-if="item.rating"
           :model-value="item.rating"
           :length="5"
           size="xs"
-          color="warning"
+          color="primary"
+          icon="i-heroicons-star-solid"
+          :ui="{ item: 'size-3.5', icon: 'size-3.5', emptyIcon: `
+            text-(--ui-border-accented)
+          ` }"
           readonly
           :aria-label="t('rated', { n: item.rating })"
         />
@@ -63,9 +66,8 @@ const { t } = useI18n()
              the markup they would be English on both. -->
         <blockquote
           class="
-            font-display text-lg text-pretty text-highlighted
+            text-base/[1.55] text-pretty text-highlighted
             [quotes:auto]
-            md:text-xl
           "
         >
           <p
@@ -77,16 +79,17 @@ const { t } = useI18n()
             {{ item.text }}
           </p>
         </blockquote>
-        <!-- `toned`, not the muted UUser paints a description in: muted
-             is calibrated against `bg-default` and measured 3.06:1 on a
-             raised surface in dark mode. -->
         <figcaption class="mt-auto">
           <UUser
             :name="item.name"
             :description="item.role"
-            :avatar="item.avatar ? { src: item.avatar, alt: item.name } : { text: item.name.slice(0, 1) }"
-            size="sm"
-            :ui="{ description: 'text-toned' }"
+            :avatar="item.avatar
+              ? { src: item.avatar, alt: item.name }
+              : { text: item.name.slice(0, 1), ui: { root: 'bg-elevated', fallback: 'text-sm font-extrabold text-highlighted' } }"
+            size="xl"
+            :ui="{ root: 'gap-3', name: 'text-sm font-bold', description: `
+              text-[0.8125rem]
+            ` }"
           />
         </figcaption>
       </figure>

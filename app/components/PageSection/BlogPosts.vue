@@ -35,10 +35,14 @@ const props = withDefaults(defineProps<{
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const { posts, hasPosts } = await useBlogRail({
-  count: () => props.pageSize ?? props.count,
-  categoryId: () => props.categoryId,
-})
+// In parallel: each composable registers its fetch before it awaits.
+const [{ posts, hasPosts }, categoryName] = await Promise.all([
+  useBlogRail({
+    count: () => props.pageSize ?? props.count,
+    categoryId: () => props.categoryId,
+  }),
+  useBlogCategoryNames(),
+])
 </script>
 
 <template>
@@ -50,7 +54,10 @@ const { posts, hasPosts } = await useBlogRail({
     :cta-link="ctaLink ? localePath(ctaLink) : localePath('/blog')"
     :surface="surface"
   >
-    <BlogRail :posts="posts" />
+    <BlogRail
+      :posts="posts"
+      :category-name="categoryName"
+    />
   </PageSectionBand>
 </template>
 
@@ -60,5 +67,5 @@ el:
   all_posts: Όλα τα άρθρα
 en:
   heading: From the blog
-  all_posts: All articles
+  all_posts: All posts
 </i18n>
