@@ -15,10 +15,15 @@
  * the component's FILE PATH, and neither changes what is painted.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
-import { h } from 'vue'
+import { mockComponent, mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { h, ref } from 'vue'
+import type { Ref } from 'vue'
 import type { Window as HappyDOMWindow } from 'happy-dom'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { makeUserDetails } from '~~/test/fixtures/user'
+import { makeOrderListItem } from '~~/test/fixtures/order'
+import { makeProduct } from '~~/test/fixtures/product'
+import { makeSummary, makeTier } from '~~/test/fixtures/loyalty'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
 import PageNavbar from '~/components/variants/webside/Page/Navbar.vue'
@@ -43,6 +48,13 @@ import BlogCategories from '~/components/variants/webside/PageSection/BlogCatego
 import BlogPostsList from '~/components/variants/webside/PageSection/BlogPostsList.vue'
 import RecentlyViewed from '~/components/variants/webside/PageSection/RecentlyViewed.vue'
 import DefaultLayout from '~/layouts/default.vue'
+import AccountOverview from '~/pages/account/index.vue'
+import AccountOrders from '~/pages/account/orders/index.vue'
+import AccountFavouriteProducts from '~/pages/account/favourites/products.vue'
+import AccountAddresses from '~/pages/account/addresses/index.vue'
+import AccountSettings from '~/pages/account/settings/index.vue'
+import AccountReauthenticate from '~/pages/account/reauthenticate.vue'
+import NewsletterConfirm from '~/components/Storefront/NewsletterConfirm.vue'
 
 /**
  * Every request — `$api`, and the `$fetch` that `useApi` / `useLazyApi`
@@ -56,6 +68,29 @@ import DefaultLayout from '~/layouts/default.vue'
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
+mockNuxtImport('useRequestApi', () => () => api)
+
+/**
+ * Signed out for everything captured before the account area was frozen;
+ * the account cases sign in. The full surface, because the auth plugin
+ * reads it while the app boots.
+ */
+const session = vi.hoisted(() => ({
+  loggedIn: undefined as unknown as Ref<boolean>,
+  user: undefined as unknown as Ref<UserDetails | null>,
+}))
+mockNuxtImport('useUserSession', () => () => {
+  session.loggedIn ??= ref(false)
+  session.user ??= ref(null)
+  return {
+    loggedIn: session.loggedIn,
+    user: session.user,
+    session: ref({}),
+    ready: ref(true),
+    fetch: () => Promise.resolve(),
+    clear: () => Promise.resolve(),
+  }
+})
 
 /**
  * The default layout renders the shared (not frozen) chat widget as
@@ -66,6 +101,13 @@ mockNuxtImport('$fetch', () => api)
  * component), to a stub that renders the same `<!---->`.
  */
 vi.mock('~/components/Chat/Widget.vue', () => ({ default: { render: () => null } }))
+
+/**
+ * `UTooltip` needs `UApp`'s TooltipProvider, which a bare mount does not
+ * have. The stub keeps the trigger and the tooltip's text (as `title`),
+ * so a changed tooltip still changes the snapshot.
+ */
+mockComponent('UTooltip', { props: { text: { type: String, default: '' } }, template: '<div :title="text"><slot /></div>' })
 
 const PRODUCT = {
   id: 2,
@@ -223,6 +265,10 @@ describe('webside frozen render', () => {
     // `app.vue` seeds this on every real render; the harness mounts a
     // component without it, and the blog list reads it in setup.
     useState<CursorState>('cursor-state').value = generateInitialCursorState()
+    if (session.loggedIn) {
+      session.loggedIn.value = false
+      session.user.value = null
+    }
     useTenantStore().setConfig(validTenantConfig('webside.gr', {
       schemaName: 'webside',
       name: 'Webside',
@@ -349,5 +395,81 @@ describe('webside frozen render', () => {
 
   it('default layout with the webside schema', async () => {
     await expectSnapshot(DefaultLayout, { slots: { default: () => h('p', 'page') } })
+  })
+
+  /**
+   * The account area, the re-auth pages and the newsletter confirmation
+   * were captured BEFORE they moved behind `@webside` page keys: until
+   * then webside rendered the platform defaults there, so these pin what
+   * a signed-in webside shopper sees today.
+   */
+  describe('signed in', () => {
+    const USER = makeUserDetails({ id: 1, firstName: 'Μαρία', lastName: 'Παπαδοπούλου', email: 'maria@webside.test' })
+    const FAVOURITE: ProductFavourite = {
+      id: 1,
+      userId: USER.id,
+      userUsername: USER.username,
+      product: { ...makeProduct({ id: 2, translations: { el: { name: 'Mini Power Bank 5000mAh' } } }), priceDropAlertsEnabled: false },
+      createdAt: '2026-09-01T09:00:00Z',
+      uuid: 'f0000000-0000-4000-8000-000000000001',
+    }
+
+    beforeEach(() => {
+      session.loggedIn.value = true
+      session.user.value = USER
+    })
+
+    it('account chrome', async () => {
+      await expectSnapshot(DefaultLayout, { route: '/account', slots: { default: () => h('p', 'page') } }, (html) => {
+        expect(html).toContain('Μαρία')
+      })
+    })
+
+    it('account overview', async () => {
+      api.routes({
+        '/api/loyalty/settings': { LOYALTY_ENABLED: 'true' },
+        '/api/loyalty/summary': makeSummary(),
+        '/api/loyalty/tiers': [makeTier()],
+      })
+
+      await expectSnapshot(AccountOverview, { route: '/account' })
+    })
+
+    it('account orders', async () => {
+      api.routes({ '/api/orders/my-orders': page([makeOrderListItem({ id: 7 })], 10) })
+
+      await expectSnapshot(AccountOrders, { route: '/account/orders' })
+    })
+
+    it('account favourite products', async () => {
+      api.routes({
+        '/api/user/account/1/favourite-products': page([FAVOURITE], 10),
+        '/api/products/favourites/favourites-by-products': [],
+      })
+
+      await expectSnapshot(AccountFavouriteProducts, { route: '/account/favourites/products' }, (html) => {
+        expect(html).toContain('Mini Power Bank 5000mAh')
+      })
+    })
+
+    it('account addresses', async () => {
+      api.routes({ '/api/user/account/1/addresses': page([], 10) })
+
+      await expectSnapshot(AccountAddresses, { route: '/account/addresses' })
+    })
+
+    it('account settings', async () => {
+      api.routes({ '/api/user/account/1': USER })
+
+      await expectSnapshot(AccountSettings, { route: '/account/settings' })
+    })
+
+    it('re-authenticate', async () => {
+      await expectSnapshot(AccountReauthenticate, { route: '/account/reauthenticate' })
+    })
+  })
+
+  it('newsletter confirmation', async () => {
+    await expectSnapshot(NewsletterConfirm, { route: '/newsletter/confirm/abc' })
   })
 })
