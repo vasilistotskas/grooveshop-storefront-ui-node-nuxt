@@ -1,3 +1,10 @@
+# [3.225.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.22...v3.225.0) (2026-10-02)
+
+
+### Features
+
+* **design:** Groove Volt theme and chrome ([#66](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/66)) ([97ad435](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/97ad435e0a6ef1055bd4c2a9e49b202181161488))
+
 ## [3.224.22](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.21...v3.224.22) (2026-10-01)
 
 
