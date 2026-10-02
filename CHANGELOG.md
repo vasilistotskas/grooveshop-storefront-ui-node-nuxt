@@ -1,3 +1,10 @@
+# [3.226.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.225.0...v3.226.0) (2026-10-02)
+
+
+### Features
+
+* **webside:** freeze the account area, re-auth pages and newsletter confirmation ([#67](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/67)) ([8b132be](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b132beb6cdbda9954e44596f1a011ec2951a729))
+
 # [3.225.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.22...v3.225.0) (2026-10-02)
 
 
