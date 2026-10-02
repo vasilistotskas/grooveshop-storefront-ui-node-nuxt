@@ -55,7 +55,14 @@ const SLIDES = [
 const mountHero = (props: Record<string, unknown>) => mountSuspended(HeroCarousel, { route: false, props })
 
 /** The column of a slide's grid an element sits in. */
-const column = (el: DOMWrapper<Element>) => el.element.closest('section > div')
+const column = (el: DOMWrapper<Element>) => el.element.closest('[data-slot="item"] > div > div')
+
+/** The chips' group (each slide is a `role=group` of its own too). */
+const CHIPS = '[role="group"][aria-label="Επιλογή διαφάνειας"]'
+
+/** The carousel's Embla instance — `UCarousel`'s exposed contract. */
+const emblaOf = (wrapper: Awaited<ReturnType<typeof mountHero>>) =>
+  wrapper.findComponent({ name: 'UCarousel' }).vm.emblaApi
 
 describe('PageSectionHeroCarousel', () => {
   beforeEach(() => {
@@ -73,11 +80,21 @@ describe('PageSectionHeroCarousel', () => {
     expect(text).toContain('Buying guides')
   })
 
+  it('makes the first slide\'s heading the page\'s h1 and the later ones h2s', async () => {
+    // `heroCarouselHeading` (shared/pageSections.ts) tells the page the
+    // same thing, so it stands its own h1 down.
+    const wrapper = await mountHero({ slides: SLIDES })
+
+    expect(wrapper.findAll('h1').map(h => h.text())).toEqual(['Charge fast, once a day'])
+    expect(wrapper.findAll('h2').map(h => h.text())).toEqual(['Earbuds that actually fit'])
+  })
+
   it('sets the copy in its own panel, not over the photograph', async () => {
     const wrapper = await mountHero({ slides: SLIDES })
 
-    const slide = wrapper.find('h2').element.closest('section')!
-    const headingColumn = column(wrapper.find('h2'))
+    const heading = wrapper.find('h1')
+    const slide = heading.element.closest('[data-slot="item"]')!
+    const headingColumn = column(heading)
     const imageColumn = column(wrapper.find('img'))
     // Two columns of the same slide: the photograph's box holds the
     // image and nothing else, and the panel holds the copy.
@@ -85,24 +102,60 @@ describe('PageSectionHeroCarousel', () => {
     expect(imageColumn).not.toBeNull()
     expect(headingColumn).not.toBe(imageColumn)
     expect(slide.contains(imageColumn)).toBe(true)
-    expect(imageColumn!.querySelector('h2')).toBeNull()
+    expect(imageColumn!.querySelector('h1')).toBeNull()
     expect(headingColumn!.querySelector('img')).toBeNull()
   })
 
   it('tells the visitor where they are when there is more than one slide', async () => {
     const wrapper = await mountHero({ slides: SLIDES })
 
-    expect(wrapper.text()).toContain('1 / 2')
-    expect(wrapper.text()).toContain('2 / 2')
-    expect(wrapper.find('[data-slot="prev"]').exists()).toBe(true)
-    expect(wrapper.find('[data-slot="next"]').exists()).toBe(true)
+    // Each slide's badge: its eyebrow, then its place in the run.
+    const badges = wrapper.findAllComponents({ name: 'UBadge' })
+      .map(badge => badge.findAll('span').filter(part => !part.element.children.length).map(part => part.text()))
+    expect(badges).toEqual([['Charging', '·', '1 / 2'], ['2 / 2']])
+    // Read aloud as words, not as a fraction: the visible counter is
+    // hidden from assistive technology and this line says it instead.
+    expect(wrapper.findAll('.sr-only').map(el => el.text())).toEqual([
+      'Διαφάνεια 1 από 2',
+      'Διαφάνεια 2 από 2',
+    ])
+  })
+
+  it('offers a chip per slide, named after it, and a previous/next pair', async () => {
+    const wrapper = await mountHero({ slides: SLIDES })
+
+    const chips = wrapper.get(CHIPS).findAll('button')
+    // The second slide has no eyebrow, so its chip says its place.
+    expect(chips.map(chip => chip.text())).toEqual(['Charging', '2'])
+    expect(chips.map(chip => chip.attributes('aria-current'))).toEqual(['true', undefined])
+    expect(wrapper.find('button[aria-label="Προηγούμενη διαφάνεια"]').exists()).toBe(true)
+    expect(wrapper.find('button[aria-label="Επόμενη διαφάνεια"]').exists()).toBe(true)
+  })
+
+  it('moves where the visitor points, and stops autorotating for good', async () => {
+    media.matches = { [HOVER]: true }
+    const wrapper = await mountHero({ slides: SLIDES, autoplayMs: 6000 })
+    // The autoplay plugin loads after the carousel mounts.
+    await vi.waitFor(() => expect(emblaOf(wrapper)?.plugins().autoplay).toBeTruthy())
+    const embla = emblaOf(wrapper)!
+    const scrollTo = vi.spyOn(embla, 'scrollTo')
+    const scrollNext = vi.spyOn(embla, 'scrollNext')
+    const stop = vi.spyOn(embla.plugins().autoplay!, 'stop')
+
+    await wrapper.get(CHIPS).findAll('button')[1]!.trigger('click')
+    await wrapper.get('button[aria-label="Επόμενη διαφάνεια"]').trigger('click')
+
+    expect(scrollTo).toHaveBeenCalledWith(1)
+    expect(scrollNext).toHaveBeenCalledOnce()
+    expect(stop).toHaveBeenCalledTimes(2)
   })
 
   it('draws no controls or counter for a single slide', async () => {
     const wrapper = await mountHero({ slides: SLIDES.slice(0, 1) })
 
     expect(wrapper.text()).not.toContain('1 / 1')
-    expect(wrapper.find('[data-slot="prev"]').exists()).toBe(false)
+    expect(wrapper.find(CHIPS).exists()).toBe(false)
+    expect(wrapper.find('button[aria-label="Επόμενη διαφάνεια"]').exists()).toBe(false)
   })
 
   it('renders an image per slide, the first one eagerly', async () => {
@@ -125,7 +178,7 @@ describe('PageSectionHeroCarousel', () => {
     })
 
     expect(wrapper.findAll('img').length).toBe(1)
-    expect(wrapper.find('h2').exists()).toBe(false)
+    expect(wrapper.find('h1, h2').exists()).toBe(false)
     expect(wrapper.find('a[href="/products"]').exists()).toBe(true)
   })
 

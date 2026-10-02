@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 /**
- * Live promotions, on a page that is not `/offers`.
+ * Live promotions, on a page that is not `/offers`: the ink band, with
+ * each offer as a coupon whose code copies in one tap, and a link to
+ * the rest that says how many there are.
  *
  * Gated on BOTH tiers of the promotions gate and on there being an
  * offer to show, so an operator can leave the band published between
@@ -14,6 +16,11 @@ const props = defineProps<{
   limit?: number
   ctaText?: string
   ctaLink?: string
+  /**
+   * Accepted from the layout, not drawn: the design sets the offers on
+   * the ink surface, and the page-config schema cannot ask for it yet
+   * (PLAN F11 adds `inverted` to the band's choices).
+   */
   surface?: 'default' | 'muted'
 }>()
 
@@ -45,10 +52,8 @@ const { data } = await useApi('/api/promotions', {
   getCachedData: payloadCachedData,
 })
 
-const offers = computed<PublicPromotion[]>(() => {
-  if (!enabled.value) return []
-  return (data.value ?? []).slice(0, props.limit ?? 3)
-})
+const live = computed<PublicPromotion[]>(() => (enabled.value ? data.value ?? [] : []))
+const offers = computed(() => live.value.slice(0, props.limit ?? 3))
 
 // Same affordance as the /offers page: a code is copied in one tap
 // rather than selected by hand on a phone.
@@ -61,31 +66,45 @@ function onCopy(code: string) {
 <template>
   <PageSectionBand
     v-if="offers.length"
+    :eyebrow="t('eyebrow')"
     :heading="heading || title || t('heading')"
     :subheading="subheading"
-    :cta-text="ctaText || t('all_offers')"
+    :cta-text="ctaText || t('all_offers', { count: live.length }, live.length)"
     :cta-link="ctaLink ? localePath(ctaLink) : localePath('/offers')"
-    :surface="surface ?? 'muted'"
+    surface="inverted"
+    heading-size="lg"
   >
-    <UPageGrid class="lg:grid-cols-3">
-      <OffersCard
+    <ul
+      class="
+        grid gap-3.5
+        lg:grid-cols-3 lg:gap-5
+      "
+    >
+      <li
         v-for="offer in offers"
         :key="offer.id"
-        :offer="offer"
-        :clipboard-supported="clipboardSupported"
-        @copy="onCopy"
-      />
-    </UPageGrid>
+        class="flex"
+      >
+        <OffersCoupon
+          :offer="offer"
+          :clipboard-supported="clipboardSupported"
+          class="w-full"
+          @copy="onCopy"
+        />
+      </li>
+    </ul>
   </PageSectionBand>
 </template>
 
 <i18n lang="yaml">
 el:
-  heading: Τρέχουσες προσφορές
-  all_offers: Όλες οι προσφορές
+  eyebrow: Τρέχουσες προσφορές
+  heading: Κωδικοί που όντως ισχύουν.
+  all_offers: 'Δες την προσφορά | Όλες οι {count} προσφορές'
   copied: 'Ο κωδικός {code} αντιγράφηκε'
 en:
-  heading: Current offers
-  all_offers: All offers
+  eyebrow: Running offers
+  heading: Codes that actually work.
+  all_offers: 'See the offer | All {count} offers'
   copied: 'Code {code} copied'
 </i18n>

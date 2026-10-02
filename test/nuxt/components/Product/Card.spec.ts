@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { Product } from '~~/shared/openapi/types.gen'
 import ProductCard from '~/components/Product/Card.vue'
@@ -9,10 +10,13 @@ import { makeProduct } from '~~/test/fixtures/product'
  * component (447 lines of diff), pinned by its frozen-render snapshot.
  */
 
-const { b2bPrice } = vi.hoisted(() => ({
+const { b2bPrice, flags } = vi.hoisted(() => ({
   b2bPrice: vi.fn((_id: number): { finalPrice: string } | undefined => undefined),
+  flags: {} as Record<string, boolean>,
 }))
 mockNuxtImport('useB2BPricing', () => () => ({ register: vi.fn(), priceFor: b2bPrice }))
+mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
+  computed(() => flags[key] ?? options.fallback))
 
 /** `makeProduct`'s `createdAt` is 2026-01-01; "now" is ten days later. */
 const NOW = new Date('2026-01-11T00:00:00Z')
@@ -24,10 +28,14 @@ const mountCard = (product: Product) =>
     route: false,
   })
 
+/** The badge on the photograph, as a shopper reads it: its words and its paint. */
 const badgeOf = async (product: Product) => {
   const wrapper = await mountCard(product)
   const badge = wrapper.findComponent({ name: 'UBadge' })
-  return badge.exists() ? { label: badge.text(), color: badge.props('color') } : undefined
+  if (!badge.exists()) return undefined
+  const classes = badge.classes()
+  const paint = classes.includes('bg-volt') ? 'volt' : `${badge.props('color')}-${badge.props('variant')}`
+  return { label: badge.text(), paint }
 }
 
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
@@ -47,33 +55,51 @@ describe('Product/Card', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(NOW)
+    for (const key of Object.keys(flags)) Reflect.deleteProperty(flags, key)
   })
 
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  // One badge, most urgent first: cannot buy it, almost cannot, cheaper
-  // than usual, new. Every product below is also new (ten days old).
+  // One badge, most urgent first: cannot buy it, cheaper than usual,
+  // new. Every product below is also new (ten days old).
   it.each([
-    ['out of stock beats everything', { stock: 0, discountPercent: 20 }, { label: 'Εξαντλημένο', color: 'neutral' }],
-    ['low stock beats a discount', { stock: 3, discountPercent: 20 }, { label: 'Μόνο 3 απέμειναν', color: 'warning' }],
-    ['stock at the product\'s own threshold is low', { stock: 5, lowStockThreshold: 5 }, { label: 'Μόνο 5 απέμειναν', color: 'warning' }],
-    ['a discount beats newness', { stock: 50, discountPercent: 12.6 }, { label: '-13%', color: 'error' }],
-    ['a new product says so', { stock: 50 }, { label: 'Νέο', color: 'secondary' }],
+    ['sold out beats everything', { stock: 0, discountPercent: 20 }, { label: 'Εξαντλήθηκε', paint: 'neutral-soft' }],
+    ['a discount beats newness, in volt', { stock: 50, discountPercent: 12.6 }, { label: '−13%', paint: 'volt' }],
+    ['a new product says so in ink', { stock: 50 }, { label: 'Νέο', paint: 'primary-solid' }],
   ])('badge: %s', async (_case, overrides, expected) => {
     expect(await badgeOf(makeProduct(overrides))).toEqual(expected)
-  })
-
-  it('treats up to 10 left as low stock when the product sets no threshold', async () => {
-    expect((await badgeOf(makeProduct({ stock: 10, lowStockThreshold: 0 })))?.label).toBe('Μόνο 10 απέμειναν')
-    expect((await badgeOf(makeProduct({ stock: 11, lowStockThreshold: 0 })))?.label).toBe('Νέο')
   })
 
   it('shows no badge on an ordinary product older than three weeks', async () => {
     const product = makeProduct({ stock: 50, createdAt: '2025-12-20T23:59:59Z' })
 
     expect(await badgeOf(product)).toBeUndefined()
+  })
+
+  it.each([
+    ['at the product\'s own threshold', { stock: 5, lowStockThreshold: 5 }, 'Μόνο 5 απέμειναν'],
+    ['up to 10 left when the product sets no threshold', { stock: 10, lowStockThreshold: 0 }, 'Μόνο 10 απέμειναν'],
+    ['one left, in the singular', { stock: 1, lowStockThreshold: 0 }, 'Μόνο 1 απέμεινε'],
+  ])('says how few are left under the price %s', async (_case, overrides, line) => {
+    const wrapper = await mountCard(makeProduct(overrides))
+
+    expect(wrapper.text()).toContain(line)
+  })
+
+  it('says nothing about stock while there is plenty', async () => {
+    const wrapper = await mountCard(makeProduct({ stock: 11, lowStockThreshold: 0 }))
+
+    expect(wrapper.text()).not.toContain('Μόνο')
+  })
+
+  it('offers a restock alert on a sold-out product only when the store sends them', async () => {
+    expect((await mountCard(makeProduct({ stock: 0 }))).text()).not.toContain('Ειδοποίησέ με')
+
+    flags.PRODUCT_ALERTS_ENABLED = true
+    expect((await mountCard(makeProduct({ stock: 0 }))).text()).toContain('Ειδοποίησέ με όταν ξαναέρθει')
+    expect((await mountCard(makeProduct({ stock: 9 }))).text()).not.toContain('Ειδοποίησέ με')
   })
 
   it('strikes through the pre-discount VAT-inclusive price, never the net price', async () => {
@@ -127,12 +153,12 @@ describe('Product/Card', () => {
     expect(wrapper.get('a').attributes('href')).toBe('/products/7/glastra')
   })
 
-  it('shows the review count and a rating out of five only once the product has reviews', async () => {
+  it('shows the rating out of five and the review count only once the product has reviews', async () => {
     const reviewed = await mountCard(makeProduct({ reviewAverage: 7, reviewCount: 12 }))
     const unreviewed = await mountCard(makeProduct({ reviewCount: 0 }))
 
-    expect(reviewed.text()).toContain('(12)')
-    expect(reviewed.find('[aria-label="Βαθμολογία 3.5 στα 5"]').exists()).toBe(true)
+    expect(reviewed.text()).toContain('3,5 · 12')
+    expect(reviewed.find('[aria-label="Βαθμολογία 3,5 στα 5"]').exists()).toBe(true)
     expect(unreviewed.find('[aria-label^="Βαθμολογία"]').exists()).toBe(false)
   })
 })

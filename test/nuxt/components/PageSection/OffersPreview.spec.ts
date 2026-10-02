@@ -23,9 +23,14 @@ mockNuxtImport('useClipboard', () => () => ({ copy, isSupported: ref(true) }))
 const PROMOTIONS_URL = '/api/promotions'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
-const COPY = { heading: 'Τρέχουσες προσφορές', allOffers: 'Όλες οι προσφορές', copied: 'Ο κωδικός SAVE5 αντιγράφηκε' }
+const COPY = {
+  eyebrow: 'Τρέχουσες προσφορές',
+  heading: 'Κωδικοί που όντως ισχύουν.',
+  allOffers: 'Όλες οι 4 προσφορές',
+  copied: 'Ο κωδικός SAVE5 αντιγράφηκε',
+}
 
-/** Stands in for an offer card: shows its id and offers its code. */
+/** Stands in for an offer coupon: shows its id and offers its code. */
 const CardStub = defineComponent({
   props: { offer: { type: Object, required: true } },
   emits: ['copy'],
@@ -38,7 +43,7 @@ const CardStub = defineComponent({
 const offer = (id: number) => ({ id, code: `CODE${id}` })
 
 const mountBand = (props: Record<string, unknown> = {}) =>
-  mountSuspended(OffersPreview, { route: false, props, global: { stubs: { OffersCard: CardStub } } })
+  mountSuspended(OffersPreview, { route: false, props, global: { stubs: { OffersCoupon: CardStub } } })
 
 const cards = (wrapper: Awaited<ReturnType<typeof mountBand>>) =>
   wrapper.findAll('[data-offer]').map(card => card.attributes('data-offer'))
@@ -57,9 +62,10 @@ describe('PageSection/OffersPreview', () => {
     api.routes({ [PROMOTIONS_URL]: [offer(1), offer(2), offer(3), offer(4)] })
   })
 
-  it('shows the first three offers under a heading and a link to all of them', async () => {
+  it('shows the first three offers under a heading and a link that counts them all', async () => {
     const wrapper = await mountBand()
 
+    expect(wrapper.text()).toContain(COPY.eyebrow)
     expect(wrapper.find('h2').text()).toBe(COPY.heading)
     expect(cards(wrapper)).toEqual(['1', '2', '3'])
     const link = wrapper.find('a')
@@ -67,10 +73,27 @@ describe('PageSection/OffersPreview', () => {
     expect(api.callsTo(PROMOTIONS_URL)[0]!.options.query).toEqual({ languageCode: 'el' })
   })
 
-  it('shows as many offers as the operator asked for', async () => {
+  it('shows as many offers as the operator asked for, and still counts them all', async () => {
     const wrapper = await mountBand({ limit: 2 })
 
     expect(cards(wrapper)).toEqual(['1', '2'])
+    expect(wrapper.find('a').text()).toBe(COPY.allOffers)
+  })
+
+  it('lets the operator\'s own words and link win over the counted one', async () => {
+    const wrapper = await mountBand({ ctaText: 'Δες τα κουπόνια', ctaLink: '/info/coupons' })
+
+    const link = wrapper.find('a')
+    expect([link.text(), link.attributes('href')]).toEqual(['Δες τα κουπόνια', '/info/coupons'])
+  })
+
+  it('draws the ink band whatever surface the layout names', async () => {
+    // The class IS the contract: the design sets the offers on ink, and
+    // the layout's surface choice cannot reach it yet (PLAN F11).
+    const wrapper = await mountBand({ surface: 'muted' })
+
+    expect(wrapper.find('section').classes()).toContain('bg-inverted')
+    expect(wrapper.find('section').attributes('surface')).toBeUndefined()
   })
 
   it.each<{ name: string, tenant: boolean, flags: Record<string, boolean> }>([

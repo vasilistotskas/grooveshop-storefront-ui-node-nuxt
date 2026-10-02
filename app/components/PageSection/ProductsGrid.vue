@@ -52,8 +52,8 @@ const label = computed(
     <UPageGrid
       as="ul"
       class="
-        grid-cols-2
-        lg:grid-cols-4
+        grid-cols-2 gap-3.5
+        lg:grid-cols-4 lg:gap-6
       "
     >
       <ProductCard
@@ -61,8 +61,6 @@ const label = computed(
         :key="product.id"
         :product="product"
         :show-add-to-cart-button="showAddToCart"
-        :img-width="420"
-        :img-height="420"
       />
     </UPageGrid>
   </PageSectionBand>

@@ -8,10 +8,11 @@
  * stack, which is what lets one section paint edge to edge (a hero, a
  * photo strip) while the next keeps the store's measure.
  *
- * `surface` alternates ground and raised. The two tokens are one step
- * apart in both colour modes on purpose (`app/assets/css/main.css`), so
- * alternating them separates two bands without a rule and without a
- * third colour.
+ * `surface` alternates the warm ground (`muted`) and the white raised
+ * band (`default`), which carries a hairline above and below as the
+ * design draws it; `inverted` is the ink band (the offers). The ground
+ * and the white are one step apart in both colour modes on purpose
+ * (`app/assets/css/main.css`).
  *
  * The heading block is here rather than in each section because it is
  * the same three lines everywhere — eyebrow, heading, standfirst — and
@@ -22,7 +23,7 @@
  */
 const props = withDefaults(defineProps<{
   /** Which page surface this band paints. */
-  surface?: 'default' | 'muted'
+  surface?: 'default' | 'muted' | 'inverted'
   /** Small line above the heading. */
   eyebrow?: string
   heading?: string
@@ -33,11 +34,17 @@ const props = withDefaults(defineProps<{
   ctaLink?: string
   /** Vertical rhythm. `none` is for a band that paints its own. */
   padding?: 'none' | 'sm' | 'md'
+  /**
+   * `lg` is the heading of a band that leads with it (the offers): set
+   * larger, and on a phone its link goes under it rather than beside.
+   */
+  headingSize?: 'md' | 'lg'
   /** Drop the container for a band that runs edge to edge. */
   bleed?: boolean
 }>(), {
   surface: 'default',
   padding: 'md',
+  headingSize: 'md',
 })
 
 defineSlots<{
@@ -61,45 +68,52 @@ const container = computed(() =>
   <section
     :class="[
       'w-full',
-      surface === 'muted' ? 'bg-muted' : 'bg-default',
-      padding === 'md' && 'py-12 md:py-16',
-      padding === 'sm' && 'py-8 md:py-10',
+      surface === 'muted' && 'bg-muted',
+      surface === 'default' && 'border-y border-default bg-default',
+      surface === 'inverted' && 'bg-inverted text-inverted',
+      padding === 'md' && 'py-12 lg:py-22',
+      padding === 'sm' && 'py-8 lg:py-14',
     ]"
   >
     <component
       :is="container"
-      class="flex flex-col gap-6 md:gap-8"
+      class="flex flex-col gap-5 lg:gap-7"
     >
       <slot name="header">
         <div
           v-if="heading || subheading || eyebrow || (ctaText && ctaLink)"
-          class="
-            flex flex-col gap-3
-            sm:flex-row sm:items-end sm:justify-between
-          "
+          class="flex justify-between gap-4"
+          :class="headingSize === 'lg'
+            ? 'flex-col items-start gap-3.5 lg:flex-row lg:items-end lg:gap-4'
+            : 'items-end'"
         >
-          <div class="flex flex-col gap-1.5">
-            <!-- Sentence case, as the operator typed it: a tracked
-                 capitals label is a typographic device, not a word. -->
+          <div
+            class="flex min-w-0 flex-col"
+            :class="headingSize === 'lg' ? 'gap-2' : 'gap-1.5'"
+          >
             <p
               v-if="eyebrow"
-              class="text-sm font-medium text-accent"
+              class="text-xs font-bold tracking-[0.08em] uppercase"
+              :class="surface === 'inverted' ? 'text-(--ui-volt-on-inverted)' : 'text-muted'"
             >
               {{ eyebrow }}
             </p>
             <h2
               v-if="heading"
-              class="
-                font-display text-2xl font-semibold tracking-tight
-                text-highlighted text-balance
-                md:text-3xl
-              "
+              class="font-display font-bold tracking-[-0.02em] text-balance"
+              :class="[
+                surface === 'inverted' ? 'text-inverted' : 'text-highlighted',
+                headingSize === 'lg'
+                  ? 'text-[1.875rem]/[1.05] lg:text-[2.75rem]/[1.05]'
+                  : 'text-[1.625rem]/[1.1] lg:text-4xl/[1.1]',
+              ]"
             >
               {{ heading }}
             </h2>
             <p
               v-if="subheading"
-              class="max-w-2xl text-sm text-muted md:text-base"
+              class="max-w-2xl text-sm lg:text-base"
+              :class="surface === 'inverted' ? 'text-inverted/75' : 'text-muted'"
             >
               {{ subheading }}
             </p>
@@ -109,10 +123,12 @@ const container = computed(() =>
             v-if="ctaText && ctaLink"
             :to="ctaLink"
             :label="ctaText"
-            color="neutral"
-            variant="link"
+            size="sm"
             trailing-icon="i-heroicons-arrow-right"
-            class="shrink-0 self-start sm:self-auto"
+            color="neutral"
+            :variant="surface === 'inverted' ? 'solid' : 'outline'"
+            :class="surface === 'inverted' && 'bg-volt text-on-volt hover:bg-volt/90'"
+            class="shrink-0"
           />
         </div>
       </slot>

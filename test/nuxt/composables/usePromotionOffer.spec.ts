@@ -52,6 +52,23 @@ describe('usePromotionOffer', () => {
     }))).toMatch(/5,00/)
   })
 
+  it('gives a numeric benefit as a bare figure, without the headline\'s sign', () => {
+    const { figure } = usePromotionOffer()
+
+    expect(figure(offer({ benefitValue: 10 }))).toBe('10%')
+    expect(figure(offer({ benefitValue: 12.5 }))).toBe('12,5%')
+    // Whole euros drop the cents; a fraction keeps them. Intl puts a
+    // no-break space before the sign.
+    expect(figure(offer({ benefitType: 'FIXED_AMOUNT', benefitValue: 5 }))).toBe('5\u00A0€')
+    expect(figure(offer({ benefitType: 'FIXED_AMOUNT', benefitValue: 2.5 }))).toBe('2,50\u00A0€')
+  })
+
+  it.each(['FREE_SHIPPING', 'BXGY', 'FREE_GIFT'])('has no figure for a %s benefit, which keeps its headline', (benefitType) => {
+    const { figure } = usePromotionOffer()
+
+    expect(figure(offer({ benefitType }))).toBeNull()
+  })
+
   it('says FREE for a 100% BXGY and DISCOUNTED below that', () => {
     const { headline } = usePromotionOffer()
     const bxgy = (getDiscountPercent: number) => headline(offer({

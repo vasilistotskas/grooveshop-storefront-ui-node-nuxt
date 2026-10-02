@@ -59,15 +59,26 @@ describe('product card / skeleton parity', () => {
     expect(aspects(SKELETON)).toEqual(card)
   })
 
-  it('draws the same frame on its root element', () => {
-    // The rounding and the ring are what make a card a card; a
-    // skeleton without them is a grey rectangle in a row of cards.
-    for (const file of [CARD, SKELETON]) {
-      const frame = tokens(classesOf(root(file)))
-      for (const token of ['rounded-xl', 'ring', 'ring-default', 'bg-default']) {
-        expect(frame, `${file} root lost ${token}`).toContain(token)
-      }
+  it('draws the photograph on the same tile', () => {
+    // The tile IS the card's frame — rounded and sunken around the
+    // photograph, with nothing boxed around the text below. A skeleton
+    // with a different tile is a different card in a row of cards.
+    const tile = (file: string) => {
+      let found: Set<string> | undefined
+      walkElements(sfcTemplate(file), (node) => {
+        const classes = tokens(classesOf(node))
+        if (!found && [...classes].some(token => /^aspect-/.test(token))) found = classes
+      })
+      if (!found) throw new Error(`${file} has no image tile`)
+      return [...found].filter(token => /^(rounded|bg-|aspect-)/.test(token)).sort()
     }
+    expect(tile(SKELETON)).toEqual(tile(CARD))
+    expect(tile(CARD)).toContain('bg-elevated')
+  })
+
+  it('spaces the tile and the rows alike on its root element', () => {
+    const gaps = (file: string) => [...tokens(classesOf(root(file)))].filter(token => /gap-/.test(token)).sort()
+    expect(gaps(SKELETON)).toEqual(gaps(CARD))
   })
 
   it('renders as the same element by default, and follows it out of a list', () => {

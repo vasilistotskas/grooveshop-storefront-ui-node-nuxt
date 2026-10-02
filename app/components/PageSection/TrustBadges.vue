@@ -5,10 +5,12 @@
  * agents — that it is agent-readable.
  *
  * A STRIP, not a grid: one row that the eye reads in a line. On a desk
- * the row is centred; on a phone it scrolls sideways under the thumb
+ * it is one white bar with the reassurances spread across it; on a
+ * phone each is a pill, and the row scrolls sideways under the thumb
  * (with the snap points a swipe expects) instead of wrapping into
  * three uneven rows, which is how five badges laid out at 390px on
- * the demo store — 1, 2 and 2.
+ * the demo store — 1, 2 and 2. It sits close under the hero, so it
+ * carries only a top margin.
  *
  * `kind: 'ai'` is gated on the tenant's agent-commerce flag rather than
  * on the operator's word, so a store cannot advertise a surface it does
@@ -43,8 +45,11 @@ const visible = computed(() =>
     v-if="visible.length"
     :heading="heading || title"
     :surface="surface"
-    padding="sm"
-    :bleed="!marquee"
+    padding="none"
+    class="
+      pt-2
+      lg:pt-6
+    "
   >
     <UMarquee
       v-if="marquee"
@@ -55,39 +60,41 @@ const visible = computed(() =>
         v-for="badge in visible"
         :key="badge.label"
         :to="badge.href ? localePath(badge.href) : undefined"
-        class="flex items-center gap-2 text-toned"
+        class="flex items-center gap-2.5 text-sm font-semibold text-highlighted"
       >
         <ImgWithFallback
           v-if="badge.imageUrl"
           :src="badge.imageUrl"
           :alt="badge.label"
           :width="72"
-          :height="28"
+          :height="24"
           fit="contain"
           loading="lazy"
-          densities="x1"
-          class="h-7 w-auto object-contain"
+          densities="x1 x2"
+          class="h-6 w-auto object-contain"
         />
         <UIcon
           v-else-if="badge.icon"
           :name="badge.icon"
-          class="size-6"
+          class="size-4"
         />
-        <span class="text-sm font-medium">{{ badge.label }}</span>
+        <span>{{ badge.label }}</span>
       </component>
     </UMarquee>
 
-    <!-- The band bleeds so the strip can scroll to the viewport's
-         edges on a phone; the container's gutters come back as the
-         list's own padding, and `scroll-px` keeps a snapped badge off
-         the edge. -->
+    <!-- On a phone the row runs to the viewport's edges, so it can
+         scroll there: it takes the container's gutters back as its own
+         padding, and the scroll padding keeps a snapped pill off the
+         edge. On a desk it is the white bar itself. -->
     <ul
       v-else
       class="
-        flex snap-x snap-mandatory gap-x-8 overflow-x-auto px-4
+        -mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4
         [scrollbar-width:none]
-        sm:px-6
-        lg:justify-center lg:px-8
+        sm:-mx-6 sm:px-6
+        lg:mx-0 lg:justify-between lg:gap-4 lg:overflow-visible
+        lg:rounded-[1.25rem] lg:border lg:border-default lg:bg-default lg:px-7
+        lg:py-4.5
       "
       style="scroll-padding-inline: 1rem"
     >
@@ -99,25 +106,29 @@ const visible = computed(() =>
         <component
           :is="badge.href ? 'ULink' : 'div'"
           :to="badge.href ? localePath(badge.href) : undefined"
-          class="flex items-center gap-2 text-toned"
+          class="
+            flex h-10 items-center gap-2.5 rounded-full border border-default
+            bg-default px-3.5 text-sm font-semibold text-highlighted
+            lg:h-auto lg:rounded-none lg:border-0 lg:bg-transparent lg:px-0
+          "
         >
           <ImgWithFallback
             v-if="badge.imageUrl"
             :src="badge.imageUrl"
             :alt="badge.label"
             :width="72"
-            :height="28"
+            :height="24"
             fit="contain"
             loading="lazy"
-            densities="x1"
-            class="h-7 w-auto object-contain"
+            densities="x1 x2"
+            class="h-6 w-auto object-contain"
           />
           <UIcon
             v-else-if="badge.icon"
             :name="badge.icon"
-            class="size-6"
+            class="size-4 shrink-0"
           />
-          <span class="text-sm font-medium whitespace-nowrap">{{ badge.label }}</span>
+          <span class="whitespace-nowrap">{{ badge.label }}</span>
         </component>
       </li>
     </ul>

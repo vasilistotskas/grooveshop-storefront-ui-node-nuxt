@@ -21,8 +21,9 @@
  * defect the navbar logo used to cause site-wide.
  *
  * Keep this in sync with ``pageSectionPropsSchemas``
- * (``server/utils/pageSectionProps.ts``): it is the one place that
- * records which components own the document heading.
+ * (``server/utils/pageSectionProps.ts``): together with
+ * `heroCarouselHeading` it is the one place that records which
+ * components own the document heading.
  */
 export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'hero_banner',
@@ -35,13 +36,41 @@ export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'contact_panel',
 ])
 
+interface SectionLike {
+  componentType: string
+  props?: unknown
+}
+
+const trimmedText = (value: unknown): string =>
+  typeof value === 'string' ? value.trim() : ''
+
+/**
+ * The heading of a hero carousel's FIRST slide — the page's h1 when it
+ * has one.
+ *
+ * A carousel is not in `HEADING_SECTION_TYPES` because its type alone
+ * does not decide: an editorial carousel renders its first slide's
+ * heading as the h1 (the later slides' as h2s), while an artwork-only
+ * one — the flat `images` form, or slides without copy — renders no
+ * heading at all, and the page has to keep its own. (The webside tree's
+ * frozen carousel reads only the flat form, which is what webside's
+ * home hero is seeded with — Django's `BRAND_HOME_HERO_PROPS`.)
+ */
+export function heroCarouselHeading(props: unknown): string {
+  const slides = (props as { slides?: unknown } | undefined)?.slides
+  if (!Array.isArray(slides)) return ''
+  return trimmedText((slides[0] as { heading?: unknown } | undefined)?.heading)
+}
+
+const ownsHeading = (section: SectionLike): boolean =>
+  HEADING_SECTION_TYPES.has(section.componentType)
+  || (section.componentType === 'hero_carousel' && heroCarouselHeading(section.props) !== '')
+
 /** Whether a rendered section list already provides the page's h1. */
 export function sectionsProvideHeading(
-  sections: readonly { componentType: string }[] | undefined,
+  sections: readonly SectionLike[] | undefined,
 ): boolean {
-  return (sections ?? []).some(section =>
-    HEADING_SECTION_TYPES.has(section.componentType),
-  )
+  return (sections ?? []).some(ownsHeading)
 }
 
 /**
@@ -57,13 +86,13 @@ export function sectionsProvideHeading(
  * title and needs no new model field.
  */
 export function sectionsHeadingText(
-  sections: readonly { componentType: string, props?: unknown }[] | undefined,
+  sections: readonly SectionLike[] | undefined,
 ): string | undefined {
-  const owner = (sections ?? []).find(section =>
-    HEADING_SECTION_TYPES.has(section.componentType),
-  )
-  const props = owner?.props as { heading?: unknown } | undefined
-  const heading = typeof props?.heading === 'string' ? props.heading.trim() : ''
+  const owner = (sections ?? []).find(ownsHeading)
+  if (!owner) return undefined
+  const heading = owner.componentType === 'hero_carousel'
+    ? heroCarouselHeading(owner.props)
+    : trimmedText((owner.props as { heading?: unknown } | undefined)?.heading)
   return heading || undefined
 }
 

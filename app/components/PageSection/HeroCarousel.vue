@@ -2,26 +2,25 @@
 /**
  * The top of a page, as more than one promise.
  *
- * A slide is a PANEL beside a photograph, not copy over one. The copy
- * sits on the store's accent surface, in the accent's own foreground
- * token, so it is readable by construction — on every artwork, in both
- * colour schemes, for every tenant palette (`--ui-on-secondary` is
- * luminance-picked per tenant). On a desk the panel takes the left
- * five twelfths and the photograph the rest; on a phone the photograph
- * sits on top and the panel under it, so the copy is never squeezed
- * into the artwork's box. The previous overlay reading clipped both
- * CTAs at 390px (a 16/9 box is 219px tall, the copy was more) and put
- * white type over the light half of a photo — measured on the demo
- * store, 2026-09-22.
+ * One ink card inside the store's measure: on a desk the copy takes the
+ * left five twelfths and the photograph the rest; on a phone the
+ * photograph sits on top and the copy under it, so the copy is never
+ * squeezed into the artwork's box. The copy is set in the inverted
+ * surface's own text tokens, so it is readable by construction on every
+ * artwork and in both colour schemes.
+ *
+ * The FIRST slide's heading is the page's h1 (`heroCarouselHeading` in
+ * `shared/pageSections.ts` is the same rule, read by the page so it
+ * stands its own h1 down); the later slides' are h2s.
  *
  * The carousel follows the ten requirements Baymard's testing puts on
  * a homepage carousel (baymard.com/blog/homepage-carousel): the first
- * slide is the operator's; every slide is also reachable by scrolling
- * nothing else (each carries its own link); the controls are always
- * visible, inside the panel, with a "1 / 3" counter; autoplay runs only
- * where a pointer can pause it (`hover: hover`), pauses on hover and
- * stops for good after the visitor touches a control; a phone never
- * autorotates, swipes, and reads its own crop (`mobileImageUrl`).
+ * slide is the operator's; every slide carries its own link; the
+ * controls are always visible on a desk — a chip per slide, named after
+ * it, and a previous/next pair — and the badge says "1 / 3"; autoplay
+ * runs only where a pointer can pause it (`hover: hover`), pauses on
+ * hover and stops for good once the visitor touches a control; a phone
+ * never autorotates, swipes, and reads its own crop (`mobileImageUrl`).
  *
  * `slides` wins when present. The flat `images`/`mobileImages`/`link`
  * triple is the artwork-only carousel — wording baked into the
@@ -69,6 +68,8 @@ const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
+const carousel = useTemplateRef('carousel')
+
 /**
  * One shape downstream. The flat form becomes a slide with artwork and
  * nothing else, so the template never asks which form it was given.
@@ -84,59 +85,81 @@ const items = computed<HeroSlide[]>(() => {
   }))
 })
 
+const several = computed(() => items.value.length > 1)
+
 const artwork = (slide: HeroSlide) =>
   (isMobileOrTablet.value && slide.mobileImageUrl) || slide.imageUrl
 
 const hasCopy = (slide: HeroSlide) =>
-  !!(slide.eyebrow || slide.heading || slide.subheading || slide.ctaText)
+  !!(slide.eyebrow || slide.heading?.trim() || slide.subheading || slide.ctaText)
+
+/** Whether any slide carries copy — the card then has a copy column. */
+const editorial = computed(() => items.value.some(hasCopy))
 
 /**
- * The photograph's box, and the crop requested to fill it — one table so
- * the two cannot drift. Below `lg` the panel sits under the photograph,
- * so the phone crop is the taller of each pair; from `lg` the photograph
- * is the right column. The pixel sizes are the crop's SHAPE at its
- * largest 1x width: `sizes` below makes `NuxtImg` emit a width-based
- * `srcset` from them, so a 3x phone gets a sharp image and a desktop no
- * longer downloads 1.5x the pixels it paints (Lighthouse
- * `image-delivery-insight`, 2026-09-22). Classes stay literal strings so
- * Tailwind sees them.
+ * The photograph's box on a phone, and the crop requested to fill it —
+ * one table so the two cannot drift. An artwork-only slide keeps its
+ * shape on a desk too (`desk`); an editorial slide's photograph fills
+ * the card's right seven twelfths instead, whatever its height, so it
+ * asks for that column's shape (`EDITORIAL_DESK_CROP`). The pixel sizes
+ * are the crop's SHAPE at its largest 1x width: `sizes` below makes
+ * `NuxtImg` emit a width-based `srcset` from them, so a 3x phone gets a
+ * sharp image and a desktop does not download pixels it never paints.
+ * Classes stay literal strings so Tailwind sees them.
  */
 const ASPECTS = {
-  wide: { class: 'aspect-4/3 lg:aspect-[16/10]', phone: [768, 576], desk: [960, 600] },
-  banner: { class: 'aspect-video lg:aspect-[2/1]', phone: [768, 432], desk: [960, 480] },
-  square: { class: 'aspect-square lg:aspect-square', phone: [768, 768], desk: [960, 960] },
+  wide: { class: 'aspect-[6/5]', desk: 'lg:aspect-[16/10]', phone: [768, 640], deskCrop: [1216, 760] },
+  banner: { class: 'aspect-video', desk: 'lg:aspect-[2/1]', phone: [768, 432], deskCrop: [1216, 608] },
+  square: { class: 'aspect-square', desk: 'lg:aspect-square', phone: [768, 768], deskCrop: [1216, 1216] },
 } as const satisfies Record<NonNullable<typeof props.aspect>, {
   class: string
+  desk: string
   phone: readonly [number, number]
-  desk: readonly [number, number]
+  deskCrop: readonly [number, number]
 }>
+
+/** The copy-beside-photograph column at the card's full 600px height. */
+const EDITORIAL_DESK_CROP = [720, 600] as const
 
 const aspect = computed(() => ASPECTS[props.aspect])
 
 /**
  * The crop is a device-class choice for the same reason the artwork is:
- * a phone and a desk frame the photograph differently (4:3 vs 16:10), a
- * choice `srcset` cannot express. The WIDTH within that crop is the
- * browser's, through `sizes`.
+ * a phone and a desk frame the photograph differently, a choice
+ * `srcset` cannot express. The WIDTH within that crop is the browser's,
+ * through `sizes`.
  */
-const crop = computed(() => (isMobileOrTablet.value ? aspect.value.phone : aspect.value.desk))
+const crop = (slide: HeroSlide) => {
+  if (isMobileOrTablet.value) return aspect.value.phone
+  return hasCopy(slide) ? EDITORIAL_DESK_CROP : aspect.value.deskCrop
+}
 
 /**
- * How wide the photograph renders: the full viewport on a phone, and
- * from `lg` the 7/12 column beside the panel — or the full width again
- * for an artwork-only slide, which has no panel.
+ * How wide the photograph renders: the card's width on a phone, and
+ * from `lg` the 7/12 column beside the copy — capped at the container's
+ * measure, which the card reaches at 1312px.
  */
 const imageSizes = (slide: HeroSlide) =>
-  hasCopy(slide) ? 'xs:100vw lg:59vw' : 'xs:100vw'
+  hasCopy(slide) ? 'xs:100vw lg:56vw xl:710px' : 'xs:100vw xl:1216px'
+
+/**
+ * The buttons are a size down on a phone, and the main one drops its
+ * arrow, as the design draws them;
+ * a device-class choice like the crop, so the server renders the size
+ * the visitor sees.
+ */
+const ctaSize = computed(() => (isMobileOrTablet.value ? 'md' : 'lg'))
+const ctaIcon = computed(() => (isMobileOrTablet.value ? undefined : 'i-heroicons-arrow-right'))
 
 /**
  * Autorotation is opt-in, refused under reduced motion, and only ever
  * runs where a pointer can pause it: a phone has no hover, so a slide
  * that moves on its own there changes under the reader's thumb.
- * `stopOnMouseEnter` is the pause; `stopOnInteraction` is the stop —
- * once the visitor has touched a control they are reading, not
- * waiting. Both are client-only by construction, which also keeps
- * the plugin off the server render.
+ * `stopOnMouseEnter` is the pause and `stopOnInteraction` the stop for
+ * a drag; a control stops it explicitly (`go`), because the controls
+ * sit outside the slides Embla watches. Both media queries are
+ * client-only by construction, which also keeps the plugin off the
+ * server render.
  */
 const reducedMotion = import.meta.client
   ? useMediaQuery('(prefers-reduced-motion: reduce)')
@@ -151,191 +174,303 @@ const autoplay = computed(() =>
     : false,
 )
 
-const carouselUi = {
-  // `overflow-hidden`: each slide fills its box, and without a clip
-  // the document takes the widest of them. The theme spaces slides
-  // with a negative start margin on the container and a start padding
-  // on each item; a full-bleed slide wants neither, or it is 16px
-  // narrower than the viewport and leaves a strip of ground on the
-  // right.
-  root: 'w-full overflow-hidden',
-  container: 'ms-0',
-  item: 'basis-full ps-0',
-  // The arrows sit as a pair at the panel's bottom-left, where the
-  // counter in every panel leaves room for them — the same corner on
-  // a desk (the panel is the left column) and on a phone (the panel
-  // is the bottom row). `static` takes them out of the carousel's own
-  // absolute placement; every inset the theme sets needs its `sm:`
-  // twin overridden too, or the default wins at exactly the widths
-  // that matter (the theme hangs them OUTSIDE the box from `sm` up).
-  arrows: `
-    absolute start-6 bottom-6 z-10 flex items-center gap-2
-    sm:start-8 sm:bottom-8
-    lg:start-12 lg:bottom-12
-  `,
-  prev: `
-    static top-auto start-auto end-auto translate-y-0
-    sm:static sm:start-auto sm:end-auto
-  `,
-  next: `
-    static top-auto start-auto end-auto translate-y-0
-    sm:static sm:start-auto sm:end-auto
-  `,
+const selected = ref(0)
+const onSelect = (index: number) => {
+  selected.value = index
 }
 
-const arrowButton = {
-  color: 'neutral' as const,
-  variant: 'solid' as const,
-  size: 'md' as const,
-  square: true,
+/** Moves to a slide on the visitor's word, and stops the clock for good. */
+const go = (move: 'prev' | 'next' | number) => {
+  const embla = carousel.value?.emblaApi
+  if (!embla) return
+  embla.plugins().autoplay?.stop()
+  if (move === 'prev') embla.scrollPrev()
+  else if (move === 'next') embla.scrollNext()
+  else embla.scrollTo(move)
 }
+
+/** What a slide's chip says: its eyebrow, or its place in the run. */
+const chipLabel = (slide: HeroSlide, index: number) =>
+  slide.eyebrow || String(index + 1)
+
+const headingTag = (index: number) => (index === 0 ? 'h1' : 'h2')
+
+const carouselUi = {
+  // The card. `overflow-hidden` clips each slide to the radius, and
+  // without it the document takes the widest slide. The theme spaces
+  // slides with a negative start margin on the container and a start
+  // padding on each item; a card-wide slide wants neither. Items
+  // stretch, and each slide fills its item (`h-full`), so every slide
+  // is the height of the tallest and the controls stay where they are
+  // as the slides change.
+  root: 'w-full overflow-hidden rounded-[1.625rem] bg-inverted text-inverted lg:rounded-[2rem]',
+  container: 'ms-0 items-stretch',
+  item: 'basis-full ps-0',
+}
+
+/**
+ * The chips and the arrows sit on the inverted surface, so they are
+ * drawn in its tokens: the current chip is the page surface on it (a
+ * white pill on ink), the rest are an outline in the surface's text
+ * colour. Both hold in dark mode, where the surface is light.
+ */
+const ON_CARD_OUTLINE = `
+  bg-transparent text-inverted ring-(--ui-text-inverted)/25
+  hover:bg-(--ui-text-inverted)/10 hover:ring-(--ui-text-inverted)/40
+  active:bg-(--ui-text-inverted)/10
+`
+/** A chip that is not the current slide reads a step quieter than a button. */
+const ON_CARD_CHIP = `${ON_CARD_OUTLINE} text-inverted/80`
+const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-default'
 </script>
 
 <template>
-  <UCarousel
+  <div
     v-if="items.length"
-    v-slot="{ item, index }"
-    :items="items"
-    :ui="carouselUi"
-    :aria-label="t('carousel.banner')"
-    :autoplay="autoplay"
-    :arrows="items.length > 1"
-    :prev="arrowButton"
-    :next="arrowButton"
-    :loop="items.length > 1"
-    class="w-full"
+    class="
+      pt-4 pb-2
+      lg:pt-6
+    "
   >
-    <section
-      :class="[
-        'grid w-full',
-        hasCopy(item) && 'lg:grid-cols-12',
-      ]"
-    >
-      <div
-        :class="[
-          'relative overflow-hidden bg-elevated',
-          aspect.class,
-          hasCopy(item) && 'lg:col-span-7 lg:order-2',
-        ]"
-      >
-        <ImgWithFallback
-          :src="artwork(item)"
-          :alt="item.alt || item.heading || appTitle"
-          :width="crop[0]"
-          :height="crop[1]"
-          :sizes="imageSizes(item)"
-          class="absolute inset-0 size-full object-cover"
-          fit="cover"
-          quality="80"
-          densities="x1 x2"
-          :loading="index === 0 ? 'eager' : 'lazy'"
-          :fetchpriority="index === 0 ? 'high' : 'auto'"
-          :preload="index === 0"
-        />
-
-        <!-- The flat form's single link covers the photograph, because
-             there is no panel to put a button in. -->
-        <NuxtLink
-          v-if="!hasCopy(item) && item.ctaLink"
-          :to="localePath(item.ctaLink)"
-          :aria-label="t('carousel.bannerLink')"
-          class="absolute inset-0"
-        />
-      </div>
-
-      <!-- The panel's padding is the arrows' inset (`carouselUi.arrows`),
-           step for step, so the bottom row lands exactly where the
-           arrows are pinned. -->
-      <div
-        v-if="hasCopy(item)"
-        class="
-          flex flex-col bg-(--ui-secondary) p-6 text-(--ui-on-secondary)
-          sm:p-8
-          lg:col-span-5 lg:p-12
-        "
-      >
-        <div
-          class="
-            my-auto flex flex-col gap-4
-            lg:gap-5
-          "
+    <UContainer>
+      <div class="relative">
+        <UCarousel
+          ref="carousel"
+          v-slot="{ item, index }"
+          :items="items"
+          :ui="carouselUi"
+          :aria-label="t('carousel.banner')"
+          :autoplay="autoplay"
+          :loop="several"
+          @select="onSelect"
         >
-          <p
-            v-if="item.eyebrow"
-            class="text-sm font-medium"
-          >
-            {{ item.eyebrow }}
-          </p>
-
-          <h2
-            v-if="item.heading"
-            class="
-              font-display text-3xl font-semibold tracking-tight text-balance
-              sm:text-4xl
-              xl:text-5xl
-            "
-          >
-            {{ item.heading }}
-          </h2>
-
-          <p
-            v-if="item.subheading"
-            class="max-w-xl text-base text-pretty md:text-lg"
-          >
-            {{ item.subheading }}
-          </p>
-
           <div
-            v-if="(item.ctaText && item.ctaLink) || (item.secondaryCtaText && item.secondaryCtaLink)"
-            class="flex flex-wrap items-center gap-3 pt-2"
+            :class="[
+              'grid h-full w-full grid-rows-[auto_1fr]',
+              hasCopy(item) && 'lg:min-h-150 lg:grid-cols-[5fr_7fr] lg:grid-rows-1',
+            ]"
+          >
+            <div
+              :class="[
+                'relative overflow-hidden bg-elevated',
+                aspect.class,
+                hasCopy(item) ? 'lg:order-2 lg:aspect-auto' : aspect.desk,
+              ]"
+            >
+              <ImgWithFallback
+                :src="artwork(item)"
+                :alt="item.alt || item.heading || appTitle"
+                :width="crop(item)[0]"
+                :height="crop(item)[1]"
+                :sizes="imageSizes(item)"
+                class="absolute inset-0 size-full object-cover"
+                fit="cover"
+                quality="85"
+                densities="x1 x2"
+                :loading="index === 0 ? 'eager' : 'lazy'"
+                :fetchpriority="index === 0 ? 'high' : 'auto'"
+                :preload="index === 0"
+              />
+
+              <!-- The flat form's single link covers the photograph,
+                   because there is no copy to put a button in. -->
+              <NuxtLink
+                v-if="!hasCopy(item) && item.ctaLink"
+                :to="localePath(item.ctaLink)"
+                :aria-label="t('carousel.bannerLink')"
+                class="absolute inset-0"
+              />
+            </div>
+
+            <div
+              v-if="hasCopy(item)"
+              class="
+                flex flex-col px-5.5 pt-6 pb-6.5
+                lg:px-14 lg:py-16
+              "
+            >
+              <div
+                class="
+                  flex flex-col items-start gap-3.5
+                  lg:gap-5.5
+                "
+              >
+                <UBadge
+                  v-if="item.eyebrow || several"
+                  size="md"
+                  color="neutral"
+                  class="bg-volt text-on-volt"
+                  :class="!item.eyebrow && 'max-lg:hidden'"
+                >
+                  <span v-if="item.eyebrow">{{ item.eyebrow }}</span>
+                  <!-- The counter is the desk's: a phone swipes, and its
+                       dots say the same thing. Read aloud as words, by
+                       the line after the badge. The badge's own gap
+                       spaces the parts. -->
+                  <template v-if="several">
+                    <span
+                      v-if="item.eyebrow"
+                      aria-hidden="true"
+                      class="
+                        hidden
+                        lg:inline
+                      "
+                    >·</span>
+                    <span
+                      aria-hidden="true"
+                      class="
+                        hidden tabular-nums
+                        lg:inline
+                      "
+                    >{{ index + 1 }} / {{ items.length }}</span>
+                  </template>
+                </UBadge>
+                <span
+                  v-if="several"
+                  class="sr-only"
+                >{{ t('carousel.position', { current: index + 1, total: items.length }) }}</span>
+
+                <component
+                  :is="headingTag(index)"
+                  v-if="item.heading?.trim()"
+                  class="
+                    font-display text-[2.375rem]/[1.02] font-bold tracking-[-0.03em]
+                    text-balance
+                    sm:text-5xl/[1]
+                    xl:text-[4.75rem]/[0.98] xl:tracking-[-0.035em]
+                  "
+                >
+                  {{ item.heading }}
+                </component>
+
+                <p
+                  v-if="item.subheading"
+                  class="
+                    max-w-105 text-[0.9375rem] text-pretty text-inverted/80
+                    lg:text-[1.1875rem]
+                  "
+                >
+                  {{ item.subheading }}
+                </p>
+
+                <div
+                  v-if="(item.ctaText && item.ctaLink) || (item.secondaryCtaText && item.secondaryCtaLink)"
+                  class="
+                    flex flex-wrap items-center gap-2.5
+                    lg:gap-3 lg:pt-1.5
+                  "
+                >
+                  <UButton
+                    v-if="item.ctaText && item.ctaLink"
+                    :to="localePath(item.ctaLink)"
+                    :label="item.ctaText"
+                    :size="ctaSize"
+                    color="neutral"
+                    :trailing-icon="ctaIcon"
+                    class="
+                      bg-volt text-on-volt
+                      hover:bg-volt/90
+                      active:bg-volt/90
+                    "
+                  />
+                  <UButton
+                    v-if="item.secondaryCtaText && item.secondaryCtaLink"
+                    :to="localePath(item.secondaryCtaLink)"
+                    :label="item.secondaryCtaText"
+                    :size="ctaSize"
+                    color="neutral"
+                    variant="outline"
+                    :class="ON_CARD_OUTLINE"
+                  />
+                </div>
+              </div>
+
+              <!-- The bottom row of every panel. On a desk it is room for
+                   the controls laid over it below (one set for the whole
+                   carousel, so it does not slide away with its slide):
+                   their 36px row under a 40px gap from the copy. On a
+                   phone it carries this slide's place as dots. Kept for
+                   a single slide too, so a hero that grows a second one
+                   does not jump. -->
+              <div
+                class="
+                  mt-auto flex items-center gap-1.5 pt-4.5
+                  lg:h-19 lg:pt-0
+                "
+                aria-hidden="true"
+              >
+                <template v-if="several">
+                  <span
+                    v-for="dot in items.length"
+                    :key="dot"
+                    :class="[
+                      'h-1.5 rounded-full lg:hidden',
+                      dot - 1 === index ? 'w-5.5 bg-volt' : 'w-1.5 bg-(--ui-text-inverted)/30',
+                    ]"
+                  />
+                </template>
+              </div>
+            </div>
+          </div>
+        </UCarousel>
+
+        <!-- The desk's controls, laid over the copy column's bottom row:
+             a chip per slide, named after it, then the previous/next
+             pair. Outside the slides, so they stay put while the slides
+             move; `go` stops the autoplay, which cannot see them. -->
+        <div
+          v-if="several"
+          :class="[
+            'absolute z-10 hidden items-center gap-3 lg:flex',
+            editorial
+              ? 'start-14 bottom-16 w-[calc((100%*5/12)-7rem)] justify-between'
+              : 'end-6 bottom-6',
+          ]"
+        >
+          <div
+            v-if="editorial"
+            role="group"
+            :aria-label="t('carousel.slides')"
+            class="flex min-w-0 flex-wrap gap-2"
           >
             <UButton
-              v-if="item.ctaText && item.ctaLink"
-              :to="localePath(item.ctaLink)"
-              :label="item.ctaText"
+              v-for="(slide, index) in items"
+              :key="index"
+              :label="chipLabel(slide, index)"
+              size="sm"
               color="neutral"
-              size="xl"
+              :variant="selected === index ? 'solid' : 'outline'"
+              :aria-current="selected === index ? 'true' : undefined"
+              :class="selected === index ? ON_CARD_CURRENT : ON_CARD_CHIP"
+              @click="() => go(index)"
             />
-            <!-- `bg-transparent`: the outline variant paints the page
-                 surface under its label, which on the accent panel is
-                 a pale box with the panel's light text on it. -->
+          </div>
+          <div class="flex shrink-0 items-center gap-2">
             <UButton
-              v-if="item.secondaryCtaText && item.secondaryCtaLink"
-              :to="localePath(item.secondaryCtaLink)"
-              :label="item.secondaryCtaText"
+              icon="i-heroicons-arrow-left"
+              size="sm"
               color="neutral"
               variant="outline"
-              size="xl"
-              class="
-                bg-transparent text-(--ui-on-secondary)
-                ring-(--ui-on-secondary)/40
-                hover:bg-(--ui-on-secondary)/10
-              "
+              square
+              :aria-label="t('carousel.prev')"
+              :class="ON_CARD_OUTLINE"
+              @click="() => go('prev')"
+            />
+            <UButton
+              icon="i-heroicons-arrow-right"
+              size="sm"
+              color="neutral"
+              variant="outline"
+              square
+              :aria-label="t('carousel.next')"
+              :class="ON_CARD_OUTLINE"
+              @click="() => go('next')"
             />
           </div>
         </div>
-
-        <!-- The bottom row of every panel: room for the arrows, then
-             where the visitor is. Rendered even for a single slide,
-             as an empty row, so a page whose hero grows a second slide
-             does not jump. -->
-        <p
-          class="
-            mt-6 flex h-9 items-center text-sm font-medium tabular-nums
-            lg:mt-8
-          "
-          :class="items.length > 1 && 'ps-22'"
-        >
-          <span
-            v-if="items.length > 1"
-            :aria-label="t('carousel.position', { current: index + 1, total: items.length })"
-          >
-            {{ index + 1 }} / {{ items.length }}
-          </span>
-        </p>
       </div>
-    </section>
-  </UCarousel>
+    </UContainer>
+  </div>
 </template>
 
 <i18n lang="yaml">
@@ -344,9 +479,15 @@ el:
     banner: Κύριο banner
     bannerLink: Άνοιγμα συνδέσμου banner
     position: Διαφάνεια {current} από {total}
+    slides: Επιλογή διαφάνειας
+    prev: Προηγούμενη διαφάνεια
+    next: Επόμενη διαφάνεια
 en:
   carousel:
     banner: Main banner
     bannerLink: Open banner link
     position: Slide {current} of {total}
+    slides: Choose a slide
+    prev: Previous slide
+    next: Next slide
 </i18n>

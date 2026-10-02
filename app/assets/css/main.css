@@ -16,8 +16,10 @@
      injected <style id="tenant-theme"> overrides per request. */
   --font-display: var(--font-sans);
   /* Groove Volt's highlight for savings, rewards and promotions. A FILL
-     only — `bg-volt` with `text-on-volt` on it, in both colour schemes;
-     never a text colour (`volt-is-a-fill.spec.ts`). */
+     — `bg-volt` with `text-on-volt` on it, in both colour schemes —
+     never a text colour: on white it reads at 1.2:1. The one place the
+     design sets it as type is ON the ink surface, through
+     `--ui-volt-on-inverted` below (`volt-is-a-fill.spec.ts`). */
   --color-volt: #d6f94a;
   --color-on-volt: #17171a;
 }
@@ -196,6 +198,10 @@
   --ui-text-highlighted: #17171a;
   --ui-text-inverted: #ffffff;
 
+  /* Volt as TYPE, on the inverted surface only — the offers band's
+     eyebrow, 14.9:1 on ink. */
+  --ui-volt-on-inverted: var(--color-volt);
+
   /* Ink. Nuxt UI's documented way to make a solid near-black the
      primary colour: a single value here, not a ramp in app config. */
   --ui-primary: #17171a;
@@ -258,6 +264,9 @@
   --ui-text: #f4f4f5;
   --ui-text-highlighted: #ffffff;
   --ui-text-inverted: #17171a;
+  /* The inverted surface is light here, where volt would read at
+     1.1:1: the highlight falls back to the surface's own text. */
+  --ui-volt-on-inverted: var(--ui-text-inverted);
 
   --ui-primary: #f7f7f5;
 

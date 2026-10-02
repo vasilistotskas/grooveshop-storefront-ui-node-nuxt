@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 /**
- * The way into the catalogue: the store's categories as tiles, a grid
- * or a swipeable rail.
+ * The way into the catalogue: the store's categories as square photo
+ * tiles in a grid (`tiles` and `grid` draw the same one — the design
+ * has one) or a swipeable rail.
  *
  * Renders NOTHING when the store has no categories (or the catalogue is
  * switched off, in which case nothing is fetched at all). A section on
@@ -48,6 +49,20 @@ const entries = computed(() => {
 })
 
 const label = computed(() => props.heading || props.title || t('heading'))
+
+/**
+ * Up to six tiles in a row on a desk, as the design sets them — and
+ * fewer when there are fewer, so four categories fill the row instead
+ * of leaving two empty columns. Literal classes so Tailwind sees them.
+ */
+const DESK_COLUMNS = [
+  'lg:grid-cols-1',
+  'lg:grid-cols-2',
+  'lg:grid-cols-3',
+  'lg:grid-cols-4',
+  'lg:grid-cols-5',
+  'lg:grid-cols-6',
+] as const
 </script>
 
 <template>
@@ -74,26 +89,20 @@ const label = computed(() => props.heading || props.title || t('heading'))
       }"
       class="-mx-2"
     >
-      <PageSectionCategoryTile
-        :category="item"
-        :tile="false"
-      />
+      <PageSectionCategoryTile :category="item" />
     </UCarousel>
 
     <div
       v-else
       :class="[
-        'grid gap-4',
-        layout === 'tiles'
-          ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-          : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6',
+        'grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:gap-5',
+        DESK_COLUMNS[Math.min(entries.length, DESK_COLUMNS.length) - 1],
       ]"
     >
       <PageSectionCategoryTile
         v-for="entry in entries"
         :key="entry.id"
         :category="entry"
-        :tile="layout === 'tiles'"
       />
     </div>
   </PageSectionBand>
