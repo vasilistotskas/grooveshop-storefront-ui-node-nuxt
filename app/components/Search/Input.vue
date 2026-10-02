@@ -3,7 +3,8 @@
  * The search field that opens the search palette.
  *
  * `compact` is the header's form: an icon button on a phone and a pill
- * from `lg` up, switched by CSS rather than by sniffing the user agent,
+ * from `lg` up (300px, giving way to 144px when the header row runs
+ * short — the placeholder truncates), switched by CSS rather than by sniffing the user agent,
  * so the cached anonymous render is the same for every device and
  * neither control shifts when the page hydrates. Without it the field
  * fills its container — the search-bar section.
@@ -51,7 +52,7 @@ defineShortcuts({
   <div
     :class="[
       'flex items-center',
-      compact ? '' : 'w-full',
+      compact ? 'min-w-0' : 'w-full',
     ]"
   >
     <UButton
@@ -71,7 +72,7 @@ defineShortcuts({
       variant="outline"
       :class="[
         'h-10.5 justify-start gap-2 px-3.5 text-sm font-medium text-muted',
-        compact ? 'hidden w-75 lg:flex' : 'w-full',
+        compact ? 'hidden w-75 min-w-36 lg:flex' : 'w-full',
       ]"
       aria-keyshortcuts="Control+K Meta+K /"
       @click="openSearchModal"

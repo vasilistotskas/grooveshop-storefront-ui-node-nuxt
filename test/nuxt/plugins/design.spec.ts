@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { UChip } from '#components'
+import { UButton, UChip } from '#components'
 import designPlugin from '~/plugins/design'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
@@ -56,6 +56,21 @@ describe('design plugin', () => {
     const classes = wrapper.find('[data-slot="base"]').attributes('class')?.split(' ') ?? []
     expect(classes).toEqual(expect.arrayContaining(['h-4.5', 'min-w-4.5']))
     expect(classes).not.toContain('h-[16px]')
+  })
+
+  it('sizes a button by a minimum height, so content it wraps is never cropped', async () => {
+    // The product gallery's image buttons wrap a square picture. A fixed
+    // `h-11` cropped every one of them to 44px; the board's label buttons
+    // are 44px either way. jsdom has no layout, so the class is the
+    // contract.
+    useState('tenant').value = validTenantConfig('demo.example', { schemaName: 'demo' })
+    run()
+
+    const wrapper = await mountSuspended(UButton, { props: { size: 'md' }, slots: { default: () => 'Image' } })
+
+    const classes = wrapper.find('[data-slot="base"]').attributes('class')?.split(' ') ?? []
+    expect(classes).toContain('min-h-11')
+    expect(classes.filter(name => /^h-/.test(name))).toEqual([])
   })
 
   it('leaves webside on the base app config', () => {

@@ -46,16 +46,6 @@ const member = computed(() => mounted.value && loggedIn.value)
 
 const ladder = computed(() => tiers.value ?? [])
 
-/**
- * Up to four tiers in a row on a desk, two on a phone — and fewer
- * columns than four when there are fewer tiers. Literal classes so
- * Tailwind sees them.
- */
-const DESK_COLUMNS = ['lg:grid-cols-1', 'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4'] as const
-const deskColumns = computed(
-  () => DESK_COLUMNS[Math.min(Math.max(ladder.value.length, 1), DESK_COLUMNS.length) - 1],
-)
-
 const number = (value: number) => $i18n.n(value, { maximumFractionDigits: 2 })
 
 const headline = computed(() => {
@@ -128,10 +118,18 @@ const tierTerms = (tier: LoyaltyTier) =>
               {{ pitch }}
             </p>
             <div class="flex flex-wrap gap-2.5">
+              <!-- Ink in both colour schemes: the volt card does not
+                   change with the mode, so the theme's primary (which
+                   turns light in dark mode) would vanish into it. -->
               <UButton
                 :to="localePath('account-signup')"
                 :label="t('cta_join')"
-                color="primary"
+                color="neutral"
+                class="
+                  bg-on-volt text-white
+                  hover:bg-on-volt/90
+                  active:bg-on-volt/90
+                "
               />
               <UButton
                 :to="localePath('loyalty-program')"
@@ -147,11 +145,13 @@ const tierTerms = (tier: LoyaltyTier) =>
             </div>
           </div>
 
-          <!-- The ladder, top tier last and in ink: the one to aim for. -->
+          <!-- The ladder, top tier last and in ink: the one to aim for.
+               Two to a row at every width: four across leaves a tier
+               ~72px of text, and the store names its own tiers —
+               "Πλατινένιο" overran its card on staging. -->
           <ol
             v-if="ladder.length"
             class="grid grid-cols-2 gap-3"
-            :class="deskColumns"
           >
             <li
               v-for="(tier, index) in ladder"

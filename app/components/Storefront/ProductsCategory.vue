@@ -52,10 +52,16 @@ const categoryName = computed(() =>
 // `undefined`, never '': an empty value still emits
 // `<meta name="description" content>`, which is strictly worse than no
 // tag at all (see blog/category/[id]/[slug].vue).
+//
+// Plain text: the description is the editor's rich text, and it feeds
+// both the meta tag and the excerpt under the title — which printed
+// "<p>Όλα όσα χρειάζεται…</p>" with its tags as text.
 const categoryDescription = computed(() =>
-  extractTranslated(category.value, 'seoDescription', locale.value)
-  || extractTranslated(category.value, 'description', locale.value)
-  || undefined,
+  htmlToPlainText(
+    extractTranslated(category.value, 'seoDescription', locale.value)
+    || extractTranslated(category.value, 'description', locale.value)
+    || '',
+  ) || undefined,
 )
 
 // ProductCategoryDetail has no image field — use the first product image
