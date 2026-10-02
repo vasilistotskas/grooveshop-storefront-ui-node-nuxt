@@ -48,13 +48,13 @@ import BlogCategories from '~/components/variants/webside/PageSection/BlogCatego
 import BlogPostsList from '~/components/variants/webside/PageSection/BlogPostsList.vue'
 import RecentlyViewed from '~/components/variants/webside/PageSection/RecentlyViewed.vue'
 import DefaultLayout from '~/layouts/default.vue'
-import AccountOverview from '~/pages/account/index.vue'
-import AccountOrders from '~/pages/account/orders/index.vue'
-import AccountFavouriteProducts from '~/pages/account/favourites/products.vue'
-import AccountAddresses from '~/pages/account/addresses/index.vue'
-import AccountSettings from '~/pages/account/settings/index.vue'
-import AccountReauthenticate from '~/pages/account/reauthenticate.vue'
-import NewsletterConfirm from '~/components/Storefront/NewsletterConfirm.vue'
+import AccountOverview from '~/components/variants/webside/Storefront/Account/Overview.vue'
+import AccountOrders from '~/components/variants/webside/Storefront/Account/Orders.vue'
+import AccountFavouriteProducts from '~/components/variants/webside/Storefront/Account/FavouriteProducts.vue'
+import AccountAddresses from '~/components/variants/webside/Storefront/Account/Addresses.vue'
+import AccountSettings from '~/components/variants/webside/Storefront/Account/Settings.vue'
+import AccountReauthenticate from '~/components/variants/webside/Storefront/Auth/Reauthenticate.vue'
+import NewsletterConfirm from '~/components/variants/webside/Storefront/NewsletterConfirm.vue'
 
 /**
  * Every request — `$api`, and the `$fetch` that `useApi` / `useLazyApi`
@@ -408,7 +408,7 @@ describe('webside frozen render', () => {
     const FAVOURITE: ProductFavourite = {
       id: 1,
       userId: USER.id,
-      userUsername: USER.username,
+      userUsername: USER.username ?? '',
       product: { ...makeProduct({ id: 2, translations: { el: { name: 'Mini Power Bank 5000mAh' } } }), priceDropAlertsEnabled: false },
       createdAt: '2026-09-01T09:00:00Z',
       uuid: 'f0000000-0000-4000-8000-000000000001',

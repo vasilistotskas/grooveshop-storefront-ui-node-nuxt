@@ -1,0 +1,171 @@
+<script lang="ts" setup>
+const { t, locale } = useI18n()
+// Every account route rendered with the document title left at the
+// store name, twice — 46 pages whose browser tab and history entry were
+// indistinguishable. The `title` string was already here and simply
+// never applied.
+useHead({ title: () => t('title') })
+const route = useRoute(`account-orders___${locale.value}`)
+const { user } = useUserSession()
+const localePath = useLocalePath()
+
+const pageSize = ref(8)
+const pending = ref(true)
+const page = computed(() => route.query.page || 1)
+const ordering = computed(() => route.query.ordering || '-createdAt')
+
+const entityOrdering = ref<EntityOrdering<any>>([
+  {
+    value: 'status',
+    label: t('ordering.status'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'createdAt',
+    label: t('ordering.created_at'),
+    options: ['ascending', 'descending'],
+  },
+  {
+    value: 'updatedAt',
+    label: t('ordering.updated_at'),
+    options: ['ascending', 'descending'],
+  },
+])
+
+const { data: orders, status, error, refresh: refreshOrders } = await useApi(
+  `/api/orders/my-orders`,
+  {
+    key: `userOrders${user.value?.id}`,
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      page: page,
+      ordering: ordering,
+      pageSize: pageSize,
+    },
+    onResponse({ response }) {
+      if (!response.ok) {
+        return
+      }
+      pending.value = false
+    },
+  },
+)
+
+async function onOrderCancelled() {
+  await refreshOrders()
+}
+
+const pagination = computed(() => {
+  if (!orders.value?.count) return
+  return usePagination<Order>(orders.value)
+})
+
+const orderingOptions = computed(() => {
+  return useOrdering<any>(entityOrdering.value)
+})
+
+watch(
+  () => route.query,
+  async () => {
+    await refreshOrders()
+  },
+)
+</script>
+
+<template>
+  <PageWrapper
+    class="
+      flex flex-col gap-4
+      md:mt-1 md:gap-8 md:!p-0
+    "
+  >
+    <PageTitle
+      :text="t('title')"
+      class="md:mt-0"
+    />
+
+    <div class="flex flex-row flex-wrap items-center gap-2">
+      <PaginationPageNumber
+        v-if="pagination"
+        :count="pagination.count"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
+      />
+      <Ordering
+        :ordering="String(ordering)"
+        :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+    </div>
+    <LazyOrderList
+      v-if="status !== 'pending' && orders?.count"
+      :orders="orders?.results"
+      :orders-total="orders?.count"
+      @cancelled="onOrderCancelled"
+    />
+    <div
+      v-else-if="status === 'pending'"
+      class="
+        grid gap-2
+        md:gap-4
+      "
+    >
+      <USkeleton
+        v-for="i in (orders?.count || 4)"
+        :key="i"
+        class="h-[202px] w-full"
+      />
+    </div>
+    <Error
+      v-else-if="error"
+      :error="error"
+    />
+    <LazyEmptyState
+      v-else-if="!orders?.count"
+      class="w-full"
+      :title="t('empty.title')"
+    >
+      <template
+        #icon
+      >
+        <UIcon
+          name="i-mdi-package-variant-closed"
+          size="xl"
+        />
+      </template>
+      <template
+        #actions
+      >
+        <UButton
+          :label="t('empty.description')"
+          :to="localePath('index')"
+          class="font-semibold"
+          color="secondary"
+          size="xl"
+          type="button"
+        />
+      </template>
+    </LazyEmptyState>
+  </PageWrapper>
+</template>
+
+<i18n lang="yaml">
+el:
+  title: Παραγγελίες
+  ordering:
+    status: Κατάσταση
+    created_at: Δημιουργήθηκε
+    updated_at: Ενημερώθηκε
+  empty:
+    title: Δεν υπάρχουν παραγγελίες
+    description: Ξεκινήστε τις αγορές σας
+en:
+  title: Orders
+  ordering:
+    status: Status
+    created_at: Created
+    updated_at: Updated
+  empty:
+    title: No orders yet
+    description: Start shopping
+</i18n>

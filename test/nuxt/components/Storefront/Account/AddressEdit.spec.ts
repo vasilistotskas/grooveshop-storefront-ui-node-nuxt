@@ -1,5 +1,5 @@
 /**
- * Tests for the "edit address" page (app/pages/account/addresses/[id]/edit.vue).
+ * Tests for the "edit address" page body (app/components/Storefront/Account/AddressEdit.vue).
  *
  * The saved phone is E.164 and is parsed back into the flag picker plus the
  * national digits; the form validates and submits E.164 against the country
@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { getQuery } from 'h3'
-import EditAddressPage from '~/pages/account/addresses/[id]/edit.vue'
+import EditAddressPage from '~/components/Storefront/Account/AddressEdit.vue'
 
 const { mockApi } = vi.hoisted(() => ({ mockApi: vi.fn() }))
 mockNuxtImport('$api', () => mockApi)

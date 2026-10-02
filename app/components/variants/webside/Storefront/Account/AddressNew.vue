@@ -1,0 +1,432 @@
+<script lang="ts" setup>
+import type * as z from 'zod'
+import type { FormSubmitEvent } from '#ui/types'
+
+const localePath = useLocalePath()
+const { t, locale } = useI18n()
+// Every account route rendered with the document title left at the
+// store name, twice — 46 pages whose browser tab and history entry were
+// indistinguishable. The `title` string was already here and simply
+// never applied.
+useHead({ title: () => t('title') })
+const toast = useToast()
+
+const isSubmitting = ref(false)
+
+// Every dial code, for the phone field's country picker, and the country
+// the shopper picked there (empty while it follows the form's country).
+const { data: phoneCountries } = usePhoneCountries()
+const phonePick = ref('')
+
+// Auto-generated contract schema, tightened with the same client-side
+// phone plausibility check and delivery-address rules checkout applies
+// — the OpenAPI schema can't express either, and Django re-validates.
+// ``region`` is already ``.nullish()`` on the generated schema
+// (mirrors ``UserAddressWriteSerializer.region`` being optional); the
+// superRefine below adds it back as required only when the selected
+// country actually has regions (``Country.hasRegions``).
+const schema = zUserAddressWriteRequest.superRefine((data, ctx) => {
+  const country = selectedCountry(data.country)
+  refineAddress(ctx, country, data, t)
+  if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
+    ctx.addIssue({ path: ['region'], code: 'custom', message: t('validation.required') })
+  }
+  // The phone is E.164, built by ``FormPhoneInput`` from the country picked
+  // in the field (it follows the form's country until then).
+  const phoneCountry = resolvePhoneCountry(phoneCountries.value?.results, phonePick.value) ?? country
+  if (!isPlausiblePhone(data.phone, phoneCountry)) {
+    ctx.addIssue({
+      path: ['phone'],
+      code: 'custom',
+      message: phoneCountry?.phoneMetadata?.exampleMobile
+        ? t('validation.phone.invalid_example', { example: phoneCountry.phoneMetadata.exampleMobile })
+        : t('validation.phone.invalid'),
+    })
+  }
+})
+
+type Schema = z.output<typeof schema>
+
+// Form state. ``region`` narrowed to drop ``null`` — the generated
+// schema allows it (Django's serializer accepts a blank region), but
+// this form only ever assigns it a string or leaves it undefined, and
+// USelect's v-model doesn't accept null.
+const state = reactive<Partial<Omit<Schema, 'region'>> & { region?: string }>({
+  title: undefined,
+  firstName: undefined,
+  lastName: undefined,
+  street: undefined,
+  streetNumber: undefined,
+  city: undefined,
+  zipcode: undefined,
+  phone: undefined,
+  notes: undefined,
+  isMain: false,
+  country: undefined,
+  region: undefined,
+  floor: undefined,
+  locationType: undefined,
+})
+
+// Countries data — shippable only: a country this store doesn't ship
+// to would 400 at submit either way.
+const { data: countries } = await useApi('/api/countries', {
+  key: 'countries-shippable',
+  method: 'GET',
+  headers: useRequestHeaders(),
+  query: {
+    languageCode: locale,
+    shippable: true,
+  },
+})
+
+// The row carrying the country's postcode format — the one Django
+// validates the address against.
+function selectedCountry(alpha2: string | undefined) {
+  return countries.value?.results?.find(country => country.alpha2 === alpha2)
+}
+
+const countryOptions = computed(() => {
+  return (
+    countries.value?.results?.map(country => ({
+      label: extractTranslated(country, 'name', locale.value),
+      value: country.alpha2,
+    })) || []
+  )
+})
+
+// The store's shippable countries, listed first in the phone picker.
+const shippableCountryCodes = computed(() => countryOptions.value.map(option => option.value))
+
+// Regions data
+// The query is reactive, so a country change refetches by itself;
+// `enabled` holds it back until there is a country to ask about.
+const { data: regions } = await useApi<Pagination<Region>>(
+  '/api/regions',
+  {
+    enabled: computed(() => !!state.country),
+    query: computed(() => ({
+      country: state.country,
+      languageCode: locale.value,
+    })),
+  },
+)
+
+const regionOptions = computed(() => {
+  return (
+    regions.value?.results?.map(region => ({
+      label: extractTranslated(region, 'name', locale.value),
+      value: region.alpha,
+    })) || []
+  )
+})
+
+// Floor options
+const floorOptions = computed(() => [
+  { label: t('form.floor_options.BASEMENT'), value: 'BASEMENT' },
+  { label: t('form.floor_options.GROUND_FLOOR'), value: 'GROUND_FLOOR' },
+  { label: t('form.floor_options.FIRST_FLOOR'), value: 'FIRST_FLOOR' },
+  { label: t('form.floor_options.SECOND_FLOOR'), value: 'SECOND_FLOOR' },
+  { label: t('form.floor_options.THIRD_FLOOR'), value: 'THIRD_FLOOR' },
+  { label: t('form.floor_options.FOURTH_FLOOR'), value: 'FOURTH_FLOOR' },
+  { label: t('form.floor_options.FIFTH_FLOOR'), value: 'FIFTH_FLOOR' },
+  { label: t('form.floor_options.SIXTH_FLOOR_PLUS'), value: 'SIXTH_FLOOR_PLUS' },
+])
+
+// Location type options
+const locationTypeOptions = computed(() => [
+  { label: t('form.location_type_options.HOME'), value: 'HOME' },
+  { label: t('form.location_type_options.OFFICE'), value: 'OFFICE' },
+  { label: t('form.location_type_options.OTHER'), value: 'OTHER' },
+])
+
+// A new country's regions are its own: the old pick no longer applies.
+watch(
+  () => state.country,
+  (newCountry) => {
+    if (newCountry) state.region = undefined
+  },
+)
+
+// Form submission
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+  try {
+    await $api('/api/user/addresses', {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body: {
+        ...event.data,
+        // Canonical form, the same one Django stores.
+        zipcode: normalizePostcode(event.data.zipcode),
+      },
+    })
+
+    toast.add({
+      title: t('success'),
+      color: 'success',
+    })
+
+    await navigateTo(localePath('account-addresses'))
+  }
+  catch {
+    toast.add({
+      title: t('error'),
+      color: 'error',
+    })
+  }
+  finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+
+<template>
+  <WebsideAccountAreaPageWrapper class="flex flex-col gap-4 md:mt-1 md:gap-8 md:p-0!">
+    <div class="flex items-center gap-4">
+      <UButton
+        :to="localePath('account-addresses')"
+        color="neutral"
+        variant="outline"
+        icon="i-heroicons-arrow-left"
+        size="sm"
+        trailing
+      />
+      <WebsidePageTitle class="text-center md:mt-0">
+        {{ t('title') }}
+      </WebsidePageTitle>
+    </div>
+
+    <UCard>
+      <UForm :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
+        <!-- Title -->
+        <UFormField :label="t('form.title')" name="title" required>
+          <UInput
+            v-model="state.title"
+            :placeholder="t('form.title')"
+            autocomplete="honorific-prefix"
+            icon="i-heroicons-tag"
+            size="xl"
+          />
+        </UFormField>
+
+        <!-- First Name -->
+        <UFormField :label="t('form.first_name')" name="firstName" required>
+          <UInput
+            v-model="state.firstName"
+            :placeholder="t('form.first_name')"
+            autocomplete="given-name"
+            icon="i-heroicons-user"
+            size="xl"
+          />
+        </UFormField>
+
+        <!-- Last Name -->
+        <UFormField :label="t('form.last_name')" name="lastName" required>
+          <UInput
+            v-model="state.lastName"
+            :placeholder="t('form.last_name')"
+            autocomplete="family-name"
+            icon="i-heroicons-user"
+            size="xl"
+          />
+        </UFormField>
+
+        <!-- Phone — a country picker + the number; it follows this form's country until picked -->
+        <FormPhoneInput
+          v-model="state.phone"
+          v-model:country="phonePick"
+          :label="t('form.phone')"
+          name="phone"
+          required
+          :follow-country="state.country"
+          :pinned-countries="shippableCountryCodes"
+          size="xl"
+        />
+
+        <!-- Address: country first (postcode format, regions, delivery), then street → number → zipcode → city → region -->
+        <UFormField :label="t('form.country')" name="country" required>
+          <USelect
+            v-model="state.country"
+            size="xl"
+            :aria-label="t('form.country')"
+            icon="i-heroicons-globe-alt"
+            :items="countryOptions"
+            :placeholder="t('form.select_placeholder')"
+            autocomplete="country"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField :label="t('form.street')" name="street" required>
+          <UInput
+            v-model="state.street"
+            :placeholder="t('form.street')"
+            autocomplete="address-line1"
+            icon="i-heroicons-map-pin"
+            size="xl"
+          />
+        </UFormField>
+
+        <UFormField :label="t('form.street_number')" name="streetNumber" required>
+          <UInput
+            v-model="state.streetNumber"
+            :placeholder="t('form.street_number')"
+            size="xl"
+          />
+        </UFormField>
+
+        <UFormField :label="t('form.zipcode')" name="zipcode" required>
+          <UInput
+            v-model="state.zipcode"
+            :placeholder="t('form.zipcode')"
+            autocomplete="postal-code"
+            inputmode="numeric"
+            size="xl"
+          />
+        </UFormField>
+
+        <UFormField :label="t('form.city')" name="city" required>
+          <UInput
+            v-model="state.city"
+            :placeholder="t('form.city')"
+            autocomplete="address-level2"
+            icon="i-heroicons-building-office-2"
+            size="xl"
+          />
+        </UFormField>
+
+        <UFormField
+          v-if="selectedCountry(state.country)?.hasRegions !== false"
+          :label="t('form.region')"
+          name="region"
+          required
+        >
+          <USelect
+            v-model="state.region"
+            size="xl"
+            :aria-label="t('form.region')"
+            icon="i-heroicons-map"
+            :items="regionOptions"
+            :placeholder="t('form.select_placeholder')"
+            :disabled="!state.country"
+            autocomplete="address-level1"
+            class="w-full"
+          />
+        </UFormField>
+
+        <!-- Floor -->
+        <UFormField :label="t('form.floor')" name="floor">
+          <USelectMenu
+            v-model="state.floor"
+            :aria-label="t('form.floor')"
+            icon="i-heroicons-building-office"
+            :items="floorOptions"
+            :placeholder="t('form.select_placeholder')"
+            value-key="value"
+            clear
+          />
+        </UFormField>
+
+        <!-- Location Type -->
+        <UFormField :label="t('form.location_type')" name="locationType">
+          <USelectMenu
+            v-model="state.locationType"
+            :aria-label="t('form.location_type')"
+            icon="i-heroicons-home"
+            :items="locationTypeOptions"
+            :placeholder="t('form.select_placeholder')"
+            value-key="value"
+            clear
+          />
+        </UFormField>
+
+        <!-- Notes -->
+        <UFormField :label="t('form.notes')" name="notes" class="md:col-span-2">
+          <UTextarea
+            v-model="state.notes"
+            :placeholder="t('form.notes')"
+            :rows="3"
+          />
+        </UFormField>
+
+        <!-- Submit Button -->
+        <div class="md:col-span-2">
+          <UButton type="submit" color="secondary" block :loading="isSubmitting" :disabled="isSubmitting">
+            {{ t('form.submit') }}
+          </UButton>
+        </div>
+      </UForm>
+    </UCard>
+  </WebsideAccountAreaPageWrapper>
+</template>
+
+<i18n lang="yaml">
+el:
+  title: Νέα διεύθυνση
+  error: Σφάλμα δημιουργίας διεύθυνσης
+  success: Η διεύθυνση δημιουργήθηκε με επιτυχία
+  form:
+    select_placeholder: Επέλεξε
+    title: Διεύθυνση
+    first_name: Όνομα
+    last_name: Επίθετο
+    street: Δρόμος
+    street_number: Αριθμός δρόμου
+    city: Πόλη
+    zipcode: Ταχυδρομικός Κώδικας
+    phone: Τηλέφωνο
+    notes: Σημειώσεις
+    floor: Όροφος
+    floor_options:
+      BASEMENT: Υπόγειο
+      GROUND_FLOOR: Ισόγειο
+      FIRST_FLOOR: 1ος Όροφος
+      SECOND_FLOOR: 2ος Όροφος
+      THIRD_FLOOR: 3ος Όροφος
+      FOURTH_FLOOR: 4ος Όροφος
+      FIFTH_FLOOR: 5ος Όροφος
+      SIXTH_FLOOR_PLUS: 6ος+ Όροφος
+    location_type: Τοποθεσία
+    location_type_options:
+      HOME: Κατοικία
+      OFFICE: Γραφείο
+      OTHER: Άλλο
+    country: Χώρα
+    region: Περιφέρεια
+    submit: Αποθήκευση
+en:
+  title: New address
+  error: The address could not be created
+  success: Address created
+  form:
+    select_placeholder: Choose
+    title: Address
+    first_name: First name
+    last_name: Last name
+    street: Street
+    street_number: Street number
+    city: City
+    zipcode: Postcode
+    phone: Phone
+    notes: Notes
+    floor: Floor
+    floor_options:
+      BASEMENT: Basement
+      GROUND_FLOOR: Ground floor
+      FIRST_FLOOR: 1st floor
+      SECOND_FLOOR: 2nd floor
+      THIRD_FLOOR: 3rd floor
+      FOURTH_FLOOR: 4th floor
+      FIFTH_FLOOR: 5th floor
+      SIXTH_FLOOR_PLUS: 6th floor or above
+    location_type: Location
+    location_type_options:
+      HOME: Home
+      OFFICE: Office
+      OTHER: Other
+    country: Country
+    region: Region
+    submit: Save
+</i18n>

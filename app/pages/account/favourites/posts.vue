@@ -1,161 +1,16 @@
 <script lang="ts" setup>
-// Blog favourites are a blog surface: gate them with the rest (every
-// app/pages/blog/** page carries this), or a tenant with the blog
-// switched off still exposes the route.
 definePageMeta({
   middleware: ['blog-enabled', 'favourites-enabled'],
 })
-
-const { t, locale } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
-useHead({ title: () => t('title') })
-const route = useRoute(`account-favourites-posts___${locale.value}`)
-const { user } = useUserSession()
-
-const pageSize = ref(4)
-const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-createdAt')
-
-const entityOrdering = ref<EntityOrdering<any>>([
-  {
-    value: 'createdAt',
-    label: t('ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-  {
-    value: 'updatedAt',
-    label: t('ordering.updated_at'),
-    options: ['ascending', 'descending'],
-  },
-])
-
-const { data: favourites, status } = useApi(
-  `/api/user/account/${user.value?.id}/liked-blog-posts`,
-  {
-    key: `likedBlogPosts${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-  },
-)
-
-const refreshFavourites = async () => {
-  status.value = 'pending'
-  const favourites = await $api(
-    `/api/user/account/${user.value?.id}/liked-blog-posts`,
-    {
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        page: page.value,
-        ordering: ordering.value,
-        pageSize: pageSize.value,
-      },
-    },
-  )
-  status.value = 'success'
-  return favourites
-}
-
-const pagination = computed(() => {
-  if (!favourites.value?.count) return
-  return usePagination<BlogPost>(favourites.value)
-})
-
-const orderingOptions = computed(() => {
-  return useOrdering<any>(entityOrdering.value)
-})
-
-watch(
-  () => route.query,
-  async () => {
-    favourites.value = await refreshFavourites()
-  },
-)
-
 defineRouteRules({
   robots: false,
 })
+const tenantStore = useTenantStore()
+const body = computed(() => resolvePage('account-favourites-posts', tenantStore.schemaName))
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="md:mt-0"
-    />
-    <LazyUserAccountFavouritesNavbar />
-
-    <div class="flex flex-row flex-wrap items-center gap-2">
-      <PaginationPageNumber
-        v-if="pagination"
-        :count="pagination.count"
-        :page="pagination.page"
-        :page-size="pagination.pageSize"
-      />
-      <Ordering
-        :ordering="String(ordering)"
-        :ordering-options="orderingOptions.orderingOptionsArray.value"
-      />
-    </div>
-    <LazyBlogPostFavouritesList
-      v-if="status === 'success' && favourites?.count"
-      :favourites="favourites?.results"
-      :favourites-count="favourites?.count"
-    />
-    <div
-      v-else-if="status === 'pending' || !favourites"
-      class="grid w-full items-start gap-4"
-    >
-      <USkeleton
-        class="flex h-4 w-full items-center justify-center"
-      />
-      <div
-        class="
-          grid grid-cols-2 gap-4
-          lg:grid-cols-3
-          xl:grid-cols-4
-        "
-      >
-        <USkeleton
-          v-for="i in 4"
-          :key="i"
-          class="h-72 w-full"
-        />
-      </div>
-    </div>
-    <div
-      v-else-if="status === 'success' && !favourites?.count"
-      class="flex flex-col items-center justify-center gap-4 py-12"
-    >
-      <UIcon
-        name="i-heroicons-heart"
-        class="h-16 w-16 text-dimmed"
-      />
-      <p class="text-muted">
-        {{ t('no_favourites') }}
-      </p>
-    </div>
-  </PageWrapper>
+  <component
+    :is="body"
+  />
 </template>
-
-<i18n lang="yaml">
-el:
-  title: Αγαπημένες Δημοσιεύσεις
-  no_favourites: Δεν έχετε αγαπημένες δημοσιεύσεις ακόμα
-en:
-  title: Favourite Posts
-  no_favourites: You have no favourite posts yet
-</i18n>
