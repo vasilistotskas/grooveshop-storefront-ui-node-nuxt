@@ -1,3 +1,10 @@
+## [3.227.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.227.0...v3.227.1) (2026-10-02)
+
+
+### Bug Fixes
+
+* **chrome:** the header fits every desktop width; Rewards and stats polish ([#69](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/69)) ([3a7915a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3a7915ad7134d5fe1caeb4ef5e39d0d0f63e3c66))
+
 # [3.227.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.226.0...v3.227.0) (2026-10-02)
 
 
