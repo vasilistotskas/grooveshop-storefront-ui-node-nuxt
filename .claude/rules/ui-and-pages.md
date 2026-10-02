@@ -47,8 +47,9 @@ a tenant that keeps or specifies its own design registers `page:<key>@<schema>`
 pointing at `app/components/variants/<schema>/…`. Four-of-a-kind pages share one
 body and pass the constant that told them apart as a prop (`Legal.vue` takes
 `route`, `BrandPage.vue` takes `pageType`). Chrome resolves the same way:
-`resolveChrome('navbar' | 'footer' | 'mobile_nav' | 'checkout_header', schema)`
-in the layouts. Never put `definePageMeta`/`defineRouteRules` in a body (they are
+`resolveChrome('navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell', schema)`
+in the layouts (`account_shell` is the signed-in account pages' frame: banner +
+sidebar). Never put `definePageMeta`/`defineRouteRules` in a body (they are
 inert outside `pages/`), and never put visitor-facing markup in a shell.
 ESLint enforces both across bodies and pages (`eslint.config.mjs`: page macros are banned under `app/components/**`, and an un-awaited `usePageConfig` anywhere in `app/**`).
 
@@ -62,7 +63,14 @@ inside that tree every reference to another frozen component carries the prefix
 (`<WebsideProductCard>`, `<LazyWebsideSearchInput>`,
 `resolveComponent('WebsideBlogPostCardMobile')`). References to SHARED components
 (`Anchor`, `ImgWithFallback`, `TenantLogo`, `DynamicForm`, `Cookie*`, `Chat*`,
+`MobileOrTabletOnly`, `DesktopOnly`, `FormPhoneInput`, `FormCountryFlag`, `UserAvatar`,
 Stripe/Viva glue, the locker/map pickers, `U*`) stay unprefixed.
+
+The account area, the re-auth pages and the newsletter confirmation were frozen
+later than the rest. Where a default had drifted from its first frozen copy by
+then, the version those pages rendered is frozen apart under
+`variants/webside/AccountArea/` (`WebsideAccountAreaProductCard`,
+`WebsideAccountAreaPageWrapper`, …) — those copies are for those pages only.
 
 Rules:
 
