@@ -32,12 +32,14 @@ const entries = computed(() => props.items ?? [])
            DOM order — a `<dl>` group holds only `dt`/`dd`, and the old
            visible label was a `<p>` beside a hidden copy of itself
            (Lighthouse `definition-list`). `flex-col-reverse` keeps the
-           figure on top on screen. -->
+           figure on top on screen, and `justify-end` (the TOP, in a
+           reversed column) keeps a row's figures level when one label
+           wraps to two lines. -->
       <div
         v-for="entry in entries"
         :key="entry.label"
         class="
-          flex flex-col-reverse gap-1
+          flex flex-col-reverse justify-end gap-1
           lg:border-s lg:border-default lg:ps-6
         "
       >

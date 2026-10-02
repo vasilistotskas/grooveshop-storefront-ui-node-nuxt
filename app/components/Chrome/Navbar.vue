@@ -18,6 +18,13 @@ import type { NavigationMenuItem } from '@nuxt/ui'
  * the account control. Phone: the menu button, the logo, search and
  * cart — the rest lives in the menu and the tab bar.
  *
+ * The navigation shows from `xl`, not `lg`: the row has to fit the
+ * logo, the five links and the icon cluster in the store's LONGEST
+ * language, and Greek's links are 525px against the board's English
+ * 385px. From `lg` to `xl` the menu button stands in for them; at
+ * 1024px the row used to push the page 192px past the viewport and
+ * squeeze the logo to nothing (measured on staging, 2026-10-02).
+ *
  * Everything per-visitor (cart count, favourites, the account menu,
  * notifications) is `ClientOnly`: this header is part of the cached
  * anonymous render on `/`, `/products/**` and `/blog/**`.
@@ -174,7 +181,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
         class="
           flex h-full items-center gap-1
           max-lg:ps-1 max-lg:pe-2
-          lg:gap-6
+          lg:gap-4
         "
       >
         <UButton
@@ -183,7 +190,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
           color="neutral"
           variant="ghost"
           square
-          class="lg:hidden"
+          class="xl:hidden"
           @click="() => { mobileMenuOpen = true }"
         />
 
@@ -195,11 +202,18 @@ const appTitle = computed(() => tenantStore.storeName || '')
              asset renders its NAME here, and a name long enough to
              fill the row has to ellipse rather than push the header
              past the viewport — which needs both this and the
-             wordmark's own `min-w-0`. -->
+             wordmark's own `min-w-0` — on a phone. From `lg` it does
+             not shrink (the board's `flex-shrink: 0`): the search pill
+             gives way instead, and a long name ellipses at a 240px cap.
+             Shrinking first, it cut "GrooveShop Demo" to "Gr…" beside
+             the Greek menu. -->
         <Anchor
           :to="'index'"
           :aria-label="appTitle"
-          class="!w-auto flex min-w-0 items-center"
+          class="
+            !w-auto flex min-w-0 items-center
+            lg:max-w-60 lg:shrink-0
+          "
         >
           <TenantLogo
             :width="132"
@@ -219,7 +233,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
           color="neutral"
           class="
             hidden
-            lg:flex
+            xl:flex
           "
           :ui="{
             root: 'static',
@@ -241,7 +255,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
           </template>
         </UNavigationMenu>
 
-        <div class="ms-auto flex items-center gap-0.5">
+        <div class="ms-auto flex min-w-0 items-center gap-0.5">
           <LazySearchInput
             compact
             hydrate-on-idle
