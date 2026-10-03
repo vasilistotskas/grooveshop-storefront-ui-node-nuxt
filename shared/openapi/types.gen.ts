@@ -7441,7 +7441,7 @@ export type ProductDetailResponse = {
 export type ProductFavourite = {
   readonly id: number
   readonly userId: number
-  readonly userUsername: string
+  readonly userUsername: string | null
   product: ProductDetail
   /**
      * Δημιουργήθηκε στις
@@ -7467,7 +7467,7 @@ export type ProductFavouriteByProductsResponse = {
 export type ProductFavouriteDetail = {
   readonly id: number
   readonly userId: number
-  readonly userUsername: string
+  readonly userUsername: string | null
   product: ProductDetail
   /**
      * Δημιουργήθηκε στις
@@ -24881,7 +24881,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     attributeValues?: string
     /**
-         * ID κατηγοριών διαχωρισμένα με κόμμα (category IN [ids])
+         * ID κατηγοριών χωρισμένα με κόμμα· το καθένα περιλαμβάνει και όλες τις υποκατηγορίες του
          */
     categories?: string
     /**

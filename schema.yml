@@ -25591,7 +25591,7 @@ paths:
           name: categories
           schema:
             type: string
-          description: ID κατηγοριών διαχωρισμένα με κόμμα (category IN [ids])
+          description: ID κατηγοριών χωρισμένα με κόμμα· το καθένα περιλαμβάνει και όλες τις υποκατηγορίες του
         - in: query
           name: facets
           schema:
@@ -44043,6 +44043,7 @@ components:
         userUsername:
           type: string
           readOnly: true
+          nullable: true
         product:
           allOf:
             - $ref: '#/components/schemas/ProductDetail'
@@ -44103,6 +44104,7 @@ components:
         userUsername:
           type: string
           readOnly: true
+          nullable: true
         product:
           allOf:
             - $ref: '#/components/schemas/ProductDetail'
