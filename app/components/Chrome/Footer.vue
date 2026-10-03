@@ -357,7 +357,11 @@ const storeName = computed(() => tenantStore.storeName || '')
           </button>
         </ClientOnly>
       </nav>
-      <p class="leading-relaxed">
+      <!-- A <div>, not a <p>: the seller identity is an <address>, which
+           a paragraph cannot hold. The browser's parser closed the <p>
+           before it, so the server's DOM no longer matched the client's
+           and every page hydrated with a mismatch. -->
+      <div class="leading-relaxed">
         <!-- Seller identity: N. 4919/2022 art. 22 §4 requires it "σε
              εμφανές σημείο"; the footer is on every page, which is also
              what makes it "permanently accessible" under ECD art. 5(1). -->
@@ -375,7 +379,7 @@ const storeName = computed(() => tenantStore.storeName || '')
             lg:inline
           "
         >© {{ currentYear }} {{ storeName }}</span>
-      </p>
+      </div>
     </template>
 
     <template #right>

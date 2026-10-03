@@ -83,6 +83,15 @@ describe('Chrome/Footer', () => {
     expect(wrapper.find('[data-test="identity"]').exists()).toBe(true)
   })
 
+  // The identity is an <address>, which no <p> may hold: the browser's
+  // parser closes the paragraph in front of it, the server's DOM stops
+  // matching the client's, and every page hydrated with a mismatch.
+  it('never puts the legal identity inside a paragraph', async () => {
+    const wrapper = await mountFooter()
+
+    expect(wrapper.find('[data-test="identity"]').element.closest('p')).toBeNull()
+  })
+
   it('lists the store\'s active pay ways in the shopper\'s words', async () => {
     // A pay way's name is its `PayWayEnum` key, as checkout reads it.
     state.payWays = [
