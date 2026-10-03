@@ -3618,7 +3618,7 @@ export const zProductDetailResponse = z.object({
 export const zProductFavourite = z.object({
   id: z.int().readonly(),
   userId: z.int().readonly(),
-  userUsername: z.string().readonly(),
+  userUsername: z.string().readonly().nullable(),
   product: zProductDetail,
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -3651,7 +3651,7 @@ export const zProductFavouriteByProductsResponse = z.object({
 export const zProductFavouriteDetail = z.object({
   id: z.int().readonly(),
   userId: z.int().readonly(),
-  userUsername: z.string().readonly(),
+  userUsername: z.string().readonly().nullable(),
   product: zProductDetail,
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),

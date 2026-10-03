@@ -43386,7 +43386,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "ID κατηγοριών διαχωρισμένα με κόμμα (category IN [ids])"
+                        "description": "ID κατηγοριών χωρισμένα με κόμμα· το καθένα περιλαμβάνει και όλες τις υποκατηγορίες του"
                     },
                     {
                         "in": "query",
@@ -69243,7 +69243,8 @@
                     },
                     "userUsername": {
                         "type": "string",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "product": {
                         "allOf": [
@@ -69327,7 +69328,8 @@
                     },
                     "userUsername": {
                         "type": "string",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "product": {
                         "allOf": [
