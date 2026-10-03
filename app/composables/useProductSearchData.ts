@@ -22,9 +22,20 @@
  * ```
  */
 
-export function useProductSearchData() {
+export interface ProductSearchScope {
+  /**
+   * The category a listing page is about. Its price bounds and attribute
+   * counts are then the category's own: a charger page offering a
+   * "Colour" of a case it does not sell, or a slider reaching the price
+   * of the dearest product in the store, describes another page.
+   */
+  categoryId?: MaybeRefOrGetter<number | undefined>
+}
+
+export function useProductSearchData(scope: ProductSearchScope = {}) {
   const { $i18n } = useNuxtApp()
   const { filters } = useProductFilters()
+  const scopeCategory = computed(() => toValue(scope.categoryId))
   // Every fetch below runs during SSR inside useAsyncData. A bare
   // $fetch to a relative path creates an internal request with no
   // inbound headers, so Nitro stamps host: "localhost" and
@@ -43,16 +54,20 @@ export function useProductSearchData() {
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)
   // ============================================
-  // The store-wide price min/max (no filters applied): the absolute
-  // bounds of the price slider. One fetch per locale, shared by every
-  // reader through the same options as the facets below.
+  // The price min/max with no filters applied — store-wide, or the
+  // scoped category's: the absolute bounds of the price slider. One
+  // fetch per locale (and category), shared by every reader through the
+  // same options as the facets below.
   const { data: priceStatsData } = useAsyncData(
-    `price-stats-${$i18n.locale.value}`,
+    () => scopeCategory.value === undefined
+      ? `price-stats-${$i18n.locale.value}`
+      : `price-stats-${$i18n.locale.value}-category-${scopeCategory.value}`,
     () => requestFetch('/api/products/search', {
       query: {
         facets: 'final_price',
         limit: 1,
         languageCode: $i18n.locale.value,
+        ...(scopeCategory.value === undefined ? {} : { categories: String(scopeCategory.value) }),
       },
     }),
     shared,
@@ -159,7 +174,15 @@ export function useProductSearchData() {
   // ATTRIBUTE VALUE FACETS (product counts per attribute value)
   // ============================================
   // Fetch attribute value facets based on current filters (excluding attribute values)
-  // This shows how many products match each attribute value given other filters
+  // This shows how many products match each attribute value given other filters.
+  // The scoped category joins the URL's category filter, as it does in
+  // the listing's own query (Products/List.vue).
+  const attributeFacetCategories = computed(() => {
+    const categories = [...filters.value.categories]
+    const own = scopeCategory.value === undefined ? undefined : String(scopeCategory.value)
+    if (own !== undefined && !categories.includes(own)) categories.unshift(own)
+    return categories
+  })
   const attributeFacetQuery = computed(() => ({
     languageCode: $i18n.locale.value,
     query: filters.value.search || undefined,
@@ -167,7 +190,7 @@ export function useProductSearchData() {
     priceMax: filters.value.priceMax,
     likesMin: filters.value.likesMin,
     viewsMin: filters.value.viewsMin,
-    categories: filters.value.categories.length > 0 ? filters.value.categories.join(',') : undefined,
+    categories: attributeFacetCategories.value.length > 0 ? attributeFacetCategories.value.join(',') : undefined,
     sort: filters.value.sort,
     facets: 'attribute_values',
     limit: 1,
@@ -181,7 +204,7 @@ export function useProductSearchData() {
     if (filters.value.priceMax !== undefined) params.set('priceMax', filters.value.priceMax.toString())
     if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
     if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
-    if (filters.value.categories.length > 0) params.set('categories', filters.value.categories.join(','))
+    if (attributeFacetCategories.value.length > 0) params.set('categories', attributeFacetCategories.value.join(','))
     if (filters.value.sort) params.set('sort', filters.value.sort)
     return `attribute-facets-${$i18n.locale.value}-${params.toString()}`
   })

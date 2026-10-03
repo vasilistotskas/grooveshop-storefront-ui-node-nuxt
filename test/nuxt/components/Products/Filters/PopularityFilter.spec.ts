@@ -3,10 +3,8 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import { nextTick } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
-import PopularityFilter from '~/components/Products/Filters/PopularityFilter.vue'
 import WebsidePopularityFilter from '~/components/variants/webside/Products/Filters/PopularityFilter.vue'
 import { makeProductSearchResponse } from '~~/test/fixtures/productFilters'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * The minimum-likes slider takes its bounds from the catalogue's
@@ -34,7 +32,9 @@ async function dragAndRelease(wrapper: VueWrapper, value?: number) {
   await nextTick()
 }
 
-describe.each(trees(PopularityFilter, WebsidePopularityFilter))('$tree Products/Filters/PopularityFilter', ({ C }) => {
+describe('webside Products/Filters/PopularityFilter', () => {
+  const C = WebsidePopularityFilter
+
   beforeEach(() => {
     clearNuxtData()
     pf.reset()

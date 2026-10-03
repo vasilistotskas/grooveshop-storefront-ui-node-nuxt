@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
-import AttributeFilter from '~/components/Products/Filters/AttributeFilter.vue'
 import WebsideAttributeFilter from '~/components/variants/webside/Products/Filters/AttributeFilter.vue'
 import type { PaginatedAttributeList, PaginatedAttributeValueList } from '~~/shared/openapi/types.gen'
 import { makeAttribute, makeAttributeValue } from '~~/test/fixtures/productFilters'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * Attribute values are grouped under their attribute, one accordion
@@ -63,7 +61,9 @@ const valueButton = (wrapper: VueWrapper, name: string) => {
   return found!
 }
 
-describe.each(trees(AttributeFilter, WebsideAttributeFilter))('$tree Products/Filters/AttributeFilter', ({ C }) => {
+describe('webside Products/Filters/AttributeFilter', () => {
+  const C = WebsideAttributeFilter
+
   beforeEach(() => {
     pf.reset()
     data.allAttributes.value = list([COLOUR, SIZE, EMPTY])

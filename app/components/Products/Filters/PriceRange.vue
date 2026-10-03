@@ -3,7 +3,9 @@
  * Price Range Filter Component
  *
  * Interactive price range filter using dual-thumb slider for min/max selection.
- * Uses shared price statistics from useProductSearchData composable.
+ * Uses shared price statistics from useProductSearchData composable, in
+ * the listing's scope: a category page's slider spans that category's
+ * prices.
  *
  * Features:
  * - Dual-thumb slider for intuitive range selection
@@ -19,10 +21,9 @@
 
 const { t, n } = useI18n()
 const { filters, updateFilters } = useProductFilters()
-const { formatPriceValue } = usePriceFormat()
 
 // Use shared price stats from the centralized composable
-const { priceStats, isPriceStatsLoaded } = useProductSearchData()
+const { priceStats, isPriceStatsLoaded } = useProductSearchData(useListingScope())
 
 // Get currency symbol from i18n
 const currencySymbol = computed(() => {
@@ -53,10 +54,6 @@ const currentPriceRange = computed<[number, number]>(() => {
     filters.value.priceMax ?? priceStats.value.max,
   ]
 })
-
-// Formatted price display for slider labels
-const formattedMinPrice = computed(() => formatPriceValue(currentPriceRange.value[0]))
-const formattedMaxPrice = computed(() => formatPriceValue(currentPriceRange.value[1]))
 
 /**
  * Debounced update to URL parameters (for input fields)
@@ -137,115 +134,69 @@ watch(
 </script>
 
 <template>
-  <div v-if="hasValidStats" class="space-y-5">
-    <!-- Price range display -->
-    <div
-      class="
-        flex items-center justify-between
-        px-3 py-2 rounded-lg
-        bg-neutral-50 dark:bg-neutral-800/50
-      "
-    >
-      <span class="text-sm text-neutral-600 dark:text-neutral-300">
-        {{ t('selected_range') }} :
-      </span>
-      <!-- A semantic token, not a palette shade: `primary` is aliased
-           to neutral here, so `dark:text-primary-400` resolved to
-           zinc-400 on the filter's own translucent surface — 3.11:1
-           on the numbers that say what the filter is set to. -->
-      <span class="text-sm font-semibold text-highlighted">
-        {{ n(currentPriceRange[0] ?? 0, 'currency') }} – {{ n(currentPriceRange[1] ?? 0, 'currency') }}
-      </span>
-    </div>
+  <div
+    v-if="hasValidStats"
+    class="flex flex-col gap-3.5"
+  >
+    <USlider
+      :model-value="currentPriceRange"
+      :min="priceStats.min"
+      :max="priceStats.max"
+      :step="1"
+      color="secondary"
+      :aria-label="t('price_range')"
+      @update:model-value="onSliderChange"
+      @change="onSliderCommit"
+    />
 
-    <!-- Slider -->
-    <div class="px-1">
-      <USlider
-        :model-value="currentPriceRange"
+    <div class="grid grid-cols-2 gap-2.5">
+      <UInput
+        :model-value="currentPriceRange[0]"
+        type="number"
         :min="priceStats.min"
+        :max="currentPriceRange[1]"
+        :aria-label="t('price_min')"
+        :placeholder="priceStats.min.toString()"
+        :ui="{ base: 'h-10 font-mono' }"
+        @change="onMinChange"
+      >
+        <template #trailing>
+          <span class="font-mono text-sm text-muted">{{ currencySymbol }}</span>
+        </template>
+      </UInput>
+      <UInput
+        :model-value="currentPriceRange[1]"
+        type="number"
+        :min="currentPriceRange[0]"
         :max="priceStats.max"
-        :step="1"
-        :aria-label="t('price_range')"
-        :aria-valuetext="t('price_range_value', { min: formattedMinPrice, max: formattedMaxPrice })"
-        class="py-2"
-        @update:model-value="onSliderChange"
-        @change="onSliderCommit"
-      />
-    </div>
-
-    <!-- Min/Max input fields -->
-    <div class="grid grid-cols-2 gap-3">
-      <div class="space-y-1.5">
-        <label
-          for="price-min-input"
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-        >
-          {{ t('minimum') }}
-        </label>
-        <UInput
-          id="price-min-input"
-          :model-value="currentPriceRange[0]"
-          type="number"
-          :min="priceStats.min"
-          :max="currentPriceRange[1]"
-          size="sm"
-          :aria-label="t('price_min')"
-          :placeholder="priceStats.min.toString()"
-          @change="onMinChange"
-        >
-          <template #leading>
-            <span class="text-neutral-400 text-sm">{{ currencySymbol }}</span>
-          </template>
-        </UInput>
-      </div>
-
-      <div class="space-y-1.5">
-        <label
-          for="price-max-input"
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-        >
-          {{ t('maximum') }}
-        </label>
-        <UInput
-          id="price-max-input"
-          :model-value="currentPriceRange[1]"
-          type="number"
-          :min="currentPriceRange[0]"
-          :max="priceStats.max"
-          size="sm"
-          :aria-label="t('price_max')"
-          :placeholder="priceStats.max.toString()"
-          @change="onMaxChange"
-        >
-          <template #leading>
-            <span class="text-neutral-400 text-sm">{{ currencySymbol }}</span>
-          </template>
-        </UInput>
-      </div>
+        :aria-label="t('price_max')"
+        :placeholder="priceStats.max.toString()"
+        :ui="{ base: 'h-10 font-mono' }"
+        @change="onMaxChange"
+      >
+        <template #trailing>
+          <span class="font-mono text-sm text-muted">{{ currencySymbol }}</span>
+        </template>
+      </UInput>
     </div>
   </div>
 
   <!-- Loading state -->
-  <div v-else class="flex items-center gap-2 py-4">
+  <div
+    v-else
+    class="flex items-center gap-2 py-4"
+  >
     <USkeleton class="h-2 w-full rounded-full" />
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  selected_range: Εύρος
   price_range: Εύρος τιμής
-  price_range_value: "{min} έως {max}"
-  minimum: Από
-  maximum: Έως
   price_min: Ελάχιστη τιμή
   price_max: Μέγιστη τιμή
 en:
-  selected_range: Range
   price_range: Price range
-  price_range_value: "{min} to {max}"
-  minimum: From
-  maximum: To
   price_min: Minimum price
   price_max: Maximum price
 </i18n>

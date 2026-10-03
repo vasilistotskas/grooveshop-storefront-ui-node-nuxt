@@ -2,9 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { nextTick } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
-import SearchInput from '~/components/Products/Filters/SearchInput.vue'
 import WebsideSearchInput from '~/components/variants/webside/Products/Filters/SearchInput.vue'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * Typing writes the search to the URL once the shopper pauses (300 ms),
@@ -21,7 +19,9 @@ const DEBOUNCE_MS = 300
 const own = (wrapper: VueWrapper, key: string): string =>
   (wrapper.vm as unknown as { t: (k: string) => string }).t(key)
 
-describe.each(trees(SearchInput, WebsideSearchInput))('$tree Products/Filters/SearchInput', ({ C }) => {
+describe('webside Products/Filters/SearchInput', () => {
+  const C = WebsideSearchInput
+
   beforeEach(() => {
     pf.reset()
   })

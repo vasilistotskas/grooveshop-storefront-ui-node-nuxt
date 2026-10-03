@@ -1,20 +1,26 @@
 <script lang="ts" setup>
 /**
- * The page breadcrumb: Home → current page.
+ * The page breadcrumb: Home → … → current page.
  *
- * Every page used to hand-roll this same two-item array (and the four
- * webside section variants each carried their own copy INSIDE the
- * section, which is why a tenant rendering generic sections on the
- * same route — /about — got no breadcrumb at all). Labels come from
- * the shared `i18n/locales/breadcrumb` catalogue, keyed by route base
- * name, so a page only has to say `<PageBreadcrumb />`.
+ * A page names its own trail with `items` (a category page walks its
+ * ancestors). Without it the crumb is Home → this route, labelled from
+ * the shared `i18n/locales/breadcrumb` catalogue by route base name, so
+ * a page only has to say `<PageBreadcrumb />` — and renders nothing for
+ * a route with no catalogue entry: a missing key must not paint a raw
+ * `breadcrumb.items.foo.label` string on the page.
  *
- * Renders nothing when the route has no catalogue entry: a missing key
- * must not paint a raw `breadcrumb.items.foo.label` string on the page.
- * Padding is deliberately absent — the page frame (`PageWrapper`) owns
- * the gutters, and adding them here again double-indented the crumb.
+ * The look is the theme's (`breadcrumb` in `utils/voltTheme.ts`), and
+ * spacing is the page's: the crumb carries no margin of its own.
  */
+export interface BreadcrumbTrailItem {
+  label: string
+  /** Unprefixed path; the last item is the current page and takes none. */
+  to?: string
+}
+
 const props = defineProps<{
+  /** The crumbs after Home, the current page last. */
+  items?: BreadcrumbTrailItem[]
   /** Override the route base name used to look the label up. */
   routeName?: string
 }>()
@@ -42,43 +48,28 @@ const storeName = computed(
 const name = computed(
   () => props.routeName ?? ($routeBaseName(route) as string | undefined) ?? '',
 )
-const hasEntry = computed(
-  () => !!name.value && te(`breadcrumb.items.${name.value}.label`),
-)
 
-const items = computed(() => {
-  if (!hasEntry.value) return []
-  const key = `breadcrumb.items.${name.value}`
+const trail = computed<BreadcrumbTrailItem[]>(() => {
+  if (props.items) return props.items
+  const key = `breadcrumb.items.${name.value}.label`
+  return name.value && te(key) ? [{ label: t(key, { storeName: storeName.value }) }] : []
+})
+
+const crumbs = computed(() => {
+  if (!trail.value.length) return []
+  const last = trail.value.length - 1
   return [
-    {
-      to: localePath('index'),
-      label: t('breadcrumb.items.index.label'),
-      icon: t('breadcrumb.items.index.icon'),
-    },
-    {
-      to: route.path,
-      label: t(`${key}.label`, { storeName: storeName.value }),
-      icon: te(`${key}.icon`) ? t(`${key}.icon`) : undefined,
-      current: true,
-    },
+    { label: t('breadcrumb.items.index.label'), to: localePath('index') },
+    ...trail.value.map((item, index) => index === last
+      ? { label: item.label, to: route.path, current: true }
+      : { label: item.label, to: item.to ? localePath(item.to) : undefined }),
   ]
 })
 </script>
 
 <template>
   <UBreadcrumb
-    v-if="items.length"
-    :items="items"
-    :ui="{
-      item: `
-        text-primary-950
-        dark:text-primary-50
-      `,
-      root: `
-        text-xs
-        md:text-base
-      `,
-    }"
-    class="relative mb-5 min-w-0"
+    v-if="crumbs.length"
+    :items="crumbs"
   />
 </template>

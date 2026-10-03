@@ -168,3 +168,18 @@ export function buildFilterChips(filters: ProductFilters, t: (key: string) => st
 
   return chips
 }
+
+/**
+ * The update that clears every filter and keeps the sort: a listing's
+ * "Clear all" sits beside the chips it removes, and the order a shopper
+ * chose is not one of them.
+ */
+export const CLEARED_FILTERS: Partial<ProductFilters> = {
+  search: '',
+  priceMin: undefined,
+  priceMax: undefined,
+  likesMin: undefined,
+  viewsMin: undefined,
+  categories: [],
+  attributeValues: [],
+}

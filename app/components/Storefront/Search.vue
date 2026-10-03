@@ -1,460 +1,440 @@
 <script lang="ts" setup>
+/**
+ * The search page: one big field, what others search for under it, then
+ * the products found — with the guides that match beside them — or the
+ * guides alone on their own tab.
+ *
+ * The URL is the state (`?query=`, `?tab=guides`, `?page=`), so a search
+ * can be shared, reloaded and walked back. Products and guides are two
+ * searches, each paged on its own (`/api/products/search`,
+ * `/api/search/blog-posts`): one request for both made the guides follow
+ * whatever page of products was open.
+ */
 const { t, locale } = useI18n()
 const route = useRoute(`search___${locale.value}`)
-
-const query = ref(
-  Array.isArray(route.query.query)
-    ? route.query.query[0] ?? ''
-    : route.query.query ?? '',
-)
-const limit = ref(12)
-const page = ref(1)
-const activeTab = ref<'all' | 'products' | 'blogPosts'>('all')
-
-const offset = computed(() => (page.value - 1) * limit.value)
-
-// Two fetch lanes with genuinely different pagination semantics:
-//
-// - The per-type request drives the Products/Blog tabs (offset/limit
-//   map 1:1 onto each type's own list) and always supplies the tab
-//   badge counts.
-// - The "All" tab uses the FEDERATED endpoint: one relevance-merged,
-//   correctly paginated list. Concatenating the two per-type lists
-//   here used to render up to 2x the page size, advertise phantom
-//   trailing pages (summed totals over a single limit), and always
-//   rank products above blog posts regardless of relevance.
-const {
-  data: searchResults,
-  status,
-} = await useApi<SearchResponse>('/api/search', {
-  key: computed(() => `search-${query.value}-${limit.value}-${offset.value}`),
-  query: {
-    query,
-    languageCode: locale,
-    limit,
-    offset,
-  },
-  watch: [query, limit, offset],
-})
-
-const isAllTab = computed(() => activeTab.value === 'all')
-
-const {
-  data: federatedResults,
-  status: federatedStatus,
-} = await useApi<FederatedSearchResponse>('/api/search/federated', {
-  key: computed(
-    () => `search-federated-${query.value}-${limit.value}-${offset.value}`,
-  ),
-  query: {
-    query,
-    languageCode: locale,
-    limit,
-    offset,
-  },
-  watch: [query, limit, offset],
-  immediate: !!query.value,
-})
-
-const displayResults = computed<SearchResult[]>(() => {
-  if (activeTab.value === 'products') {
-    return searchResults.value?.products?.results || []
-  }
-  if (activeTab.value === 'blogPosts') {
-    return searchResults.value?.blogPosts?.results || []
-  }
-  // Safe refinement: the backend always emits master/slug on enriched
-  // federated hits (see EnrichedFederatedSearchResult).
-  return (federatedResults.value?.results || []) as SearchResult[]
-})
-
-const totalResults = computed(() => {
-  if (activeTab.value === 'products') {
-    return searchResults.value?.products?.estimatedTotalHits || 0
-  }
-  if (activeTab.value === 'blogPosts') {
-    return searchResults.value?.blogPosts?.estimatedTotalHits || 0
-  }
-  return federatedResults.value?.estimatedTotalHits || 0
-})
-
-const totalPages = computed(() => Math.ceil(totalResults.value / limit.value))
-
-const isSearching = computed(() =>
-  isAllTab.value
-    ? federatedStatus.value === 'pending'
-    : status.value === 'pending',
-)
-
-// The disclosure must describe the result set actually on screen —
-// product and blog relaxation are computed independently backend-side.
-const relaxedQuery = computed(() => {
-  if (activeTab.value === 'products') {
-    return searchResults.value?.products?.relaxedQuery ?? null
-  }
-  if (activeTab.value === 'blogPosts') {
-    return searchResults.value?.blogPosts?.relaxedQuery ?? null
-  }
-  return federatedResults.value?.relaxedQuery ?? null
-})
-
 const { trackResultClick } = useSearchClickTracking()
 
-function onResultClick(result: SearchResult, index: number) {
-  // Federated hits type master as optional - without it the click
-  // cannot be attributed to a rankable entity, so skip tracking.
-  if (result.master == null) return
-  const isProduct = result.contentType === 'product'
+/** How many guides sit beside the products. */
+const ASIDE_GUIDES = 3
+
+type Tab = 'products' | 'guides'
+
+const firstOf = (value: unknown): string =>
+  typeof value === 'string' ? value : Array.isArray(value) && typeof value[0] === 'string' ? value[0] : ''
+
+const query = computed(() => firstOf(route.query.query).trim())
+const tab = computed<Tab>(() => route.query.tab === 'guides' ? 'guides' : 'products')
+const page = computed(() => Math.max(1, Number(firstOf(route.query.page)) || 1))
+const limit = ref(12)
+const offset = computed(() => (page.value - 1) * limit.value)
+
+/** The URL for a state change; `page` drops back to the first unless given. */
+function stateQuery(change: { query?: string, tab?: Tab, page?: number }) {
+  const next = { query: change.query ?? query.value, tab: change.tab ?? tab.value, page: change.page ?? 1 }
+  return {
+    ...(next.query ? { query: next.query } : {}),
+    ...(next.tab === 'guides' ? { tab: 'guides' } : {}),
+    ...(next.page > 1 ? { page: String(next.page) } : {}),
+  }
+}
+
+// The field types freely; the URL — and the searches — follow a beat
+// later, replacing the entry rather than stacking one per keystroke.
+const draft = ref(query.value)
+watch(query, (value) => {
+  if (value !== draft.value.trim()) draft.value = value
+})
+const commitDraft = useDebounceFn(() => {
+  if (draft.value.trim() === query.value) return
+  navigateTo({ query: stateQuery({ query: draft.value.trim() }) }, { replace: true })
+}, 300)
+
+function search(value: string) {
+  draft.value = value
+  navigateTo({ query: stateQuery({ query: value }) })
+}
+
+const hasQuery = computed(() => query.value.length > 0)
+
+// Each search runs only with something to search for: an empty query
+// would list the whole catalogue. Both run on either tab, for the
+// counts on the tabs; the open tab's search is the one that pages.
+const productsOffset = computed(() => tab.value === 'products' ? offset.value : 0)
+const {
+  data: products,
+  status: productsStatus,
+  refresh: refreshProducts,
+} = await useApi<ProductMeiliSearchResponse>('/api/products/search', {
+  query: { query, languageCode: locale, limit, offset: productsOffset, facets: 'category' },
+  immediate: hasQuery.value,
+  watch: false,
+})
+
+const guidesLimit = computed(() => tab.value === 'guides' ? limit.value : ASIDE_GUIDES)
+const guidesOffset = computed(() => tab.value === 'guides' ? offset.value : 0)
+const {
+  data: guides,
+  status: guidesStatus,
+  refresh: refreshGuides,
+} = await useApi<BlogPostMeiliSearchResponse>('/api/search/blog-posts', {
+  query: { query, languageCode: locale, limit: guidesLimit, offset: guidesOffset },
+  immediate: hasQuery.value,
+  watch: false,
+})
+
+watch([query, locale, limit, productsOffset], () => {
+  if (hasQuery.value) refreshProducts()
+})
+watch([query, locale, guidesLimit, guidesOffset], () => {
+  if (hasQuery.value) refreshGuides()
+})
+
+const trending = useLazyApi<TrendingSearchResponse>('/api/search/trending', {
+  query: { languageCode: locale, contentType: 'product', limit: 4 },
+})
+const trendingQueries = computed(() => (trending.data.value?.results ?? []).map(result => result.query))
+
+const productCount = computed(() => products.value?.estimatedTotalHits ?? 0)
+const guideCount = computed(() => guides.value?.estimatedTotalHits ?? 0)
+const openCount = computed(() => tab.value === 'guides' ? guideCount.value : productCount.value)
+const pending = computed(() => (tab.value === 'guides' ? guidesStatus : productsStatus).value === 'pending')
+// The engine widened the query when nothing matched it: say so, the
+// results are not the ones that were asked for.
+const relaxedQuery = computed(() => (tab.value === 'guides' ? guides : products).value?.relaxedQuery ?? null)
+
+const tabItems = computed(() => [
+  { value: 'products', label: t('tabs.products'), badge: productCount.value },
+  { value: 'guides', label: t('tabs.guides'), badge: guideCount.value },
+])
+
+function selectTab(value: string | number) {
+  navigateTo({ query: stateQuery({ tab: value === 'guides' ? 'guides' : 'products' }) })
+}
+
+const pageLink = (target: number) => ({ path: route.path, query: stateQuery({ page: target }) })
+
+function changeLimit(value: unknown) {
+  const next = Number(value)
+  if (!Number.isFinite(next) || next <= 0) return
+  limit.value = next
+  navigateTo({ query: stateQuery({}) }, { replace: true })
+}
+
+const limitOptions = computed(() => [12, 24, 48].map(value => ({ label: t('per_page', { n: value }), value })))
+
+function onProductClick(product: ProductMeiliSearchResult, index: number) {
   trackResultClick({
-    queryId: isAllTab.value
-      ? federatedResults.value?.queryId
-      : isProduct
-        ? searchResults.value?.products?.queryId
-        : searchResults.value?.blogPosts?.queryId,
-    resultId: result.master,
-    resultType: isProduct ? 'product' : 'blog_post',
-    position: offset.value + index,
+    queryId: products.value?.queryId,
+    resultId: product.master,
+    resultType: 'product',
+    position: productsOffset.value + index,
   })
 }
 
-const tabItems = computed(() => {
-  const productsCount = searchResults.value?.products?.estimatedTotalHits || 0
-  const blogPostsCount = searchResults.value?.blogPosts?.estimatedTotalHits || 0
-
-  return [
-    {
-      value: 'all',
-      label: t('page.tabs.all'),
-      badge: productsCount + blogPostsCount,
-    },
-    {
-      value: 'products',
-      label: t('page.tabs.products_label'),
-      badge: productsCount,
-    },
-    {
-      value: 'blogPosts',
-      label: t('page.tabs.blog_posts_label'),
-      badge: blogPostsCount,
-    },
-  ]
-})
-
-watch([activeTab, query], () => {
-  page.value = 1
-})
-
-watch(query, (newQuery) => {
-  if (newQuery) {
-    navigateTo({
-      query: { query: newQuery },
-    })
-  }
-  else {
-    navigateTo({
-      query: {},
-    })
-  }
-})
-
-const shortcuts = computed(() => [
-  {
-    key: '/',
-    description: t('page.shortcuts.focus_search'),
-  },
-  {
-    key: 'Escape',
-    description: t('page.shortcuts.clear_search'),
-  },
-])
-
-const inputRef = ref()
-
-const handleKeydown = (e: KeyboardEvent) => {
-  const activeEl = document.activeElement as HTMLElement | null
-  const activeTag = activeEl?.tagName
-  const isEditable = activeEl?.isContentEditable
-  if (e.key === '/' && activeTag !== 'INPUT' && activeTag !== 'TEXTAREA' && !isEditable) {
-    e.preventDefault()
-    inputRef.value?.$el?.querySelector('input')?.focus()
-  }
-  if (e.key === 'Escape' && (activeTag === 'INPUT' || activeTag === 'TEXTAREA')) {
-    query.value = ''
-  }
+function onGuideClick(post: BlogPostMeiliSearchResult, index: number) {
+  trackResultClick({
+    queryId: guides.value?.queryId,
+    resultId: post.master,
+    resultType: 'blog_post',
+    position: guidesOffset.value + index,
+  })
 }
 
-useEventListener('keydown', handleKeydown)
-
-onMounted(() => {
-  if (inputRef.value) {
-    inputRef.value.$el.querySelector('input')?.focus()
-  }
+// `/` from anywhere on the page puts the cursor in the field.
+const field = useTemplateRef<{ inputRef: HTMLInputElement | null }>('field')
+defineShortcuts({
+  '/': () => field.value?.inputRef?.focus(),
 })
 
 useHead({
-  title: computed(() =>
-    query.value
-      ? t('page.search_query', { query: query.value })
-      : t('page.title'),
-  ),
+  title: () => query.value ? t('title_query', { query: query.value }) : t('title'),
 })
 </script>
 
 <template>
-  <div class="flex min-h-[calc(100dvh-200px)] flex-col">
-    <!-- The field is the page. It stays at the top of the band that
-         carries it, above the counts and the tabs it drives. -->
-    <PageSectionBand
-      surface="muted"
-      padding="sm"
-    >
-      <template #header>
-        <div class="flex flex-col gap-5">
-          <UBreadcrumb
-            :items="[
-              { label: t('page.breadcrumb.home'), to: '/' },
-              { label: t('page.breadcrumb.search') },
-            ]"
+  <UContainer class="flex flex-col pt-5 pb-12 lg:pt-10 lg:pb-22">
+    <PageBreadcrumb :items="[{ label: t('title') }]" />
+    <h1 class="sr-only">
+      {{ query ? t('title_query', { query }) : t('title') }}
+    </h1>
+
+    <div class="mx-auto mt-5 w-full max-w-205 lg:mt-7">
+      <UInput
+        ref="field"
+        v-model="draft"
+        icon="i-heroicons-magnifying-glass"
+        :placeholder="t('placeholder')"
+        :aria-label="t('title')"
+        autofocus
+        class="w-full"
+        :ui="{
+          base: `
+            h-13 rounded-full ps-12 text-base font-semibold
+            lg:h-16 lg:ps-13 lg:text-[1.1875rem]
+          `,
+          leading: `
+            ps-4.5
+            lg:ps-5
+          `,
+          leadingIcon: `
+            size-5
+            lg:size-6
+          `,
+          trailing: 'gap-2 pe-2.5',
+        }"
+        @update:model-value="commitDraft"
+      >
+        <template #trailing>
+          <UButton
+            v-if="draft"
+            icon="i-heroicons-x-mark"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            :aria-label="t('clear')"
+            @click="() => search('')"
           />
+          <UKbd
+            value="/"
+            class="hidden lg:inline-flex"
+          />
+        </template>
+      </UInput>
+    </div>
 
-          <h1
-            class="
-              font-display text-2xl font-semibold tracking-tight
-              text-highlighted
-              md:text-3xl
-            "
-          >
-            {{ t('page.title') }}
-          </h1>
+    <div
+      v-if="trendingQueries.length"
+      class="mt-4 flex flex-wrap items-center justify-center gap-2"
+    >
+      <span class="text-[0.8125rem] font-semibold text-muted">{{ t('trending') }}</span>
+      <UButton
+        v-for="term in trendingQueries"
+        :key="term"
+        :to="{ path: route.path, query: stateQuery({ query: term }) }"
+        color="neutral"
+        variant="outline"
+        size="xs"
+        :label="term"
+        class="text-[0.8125rem]"
+      />
+    </div>
 
-          <UInput
-            ref="inputRef"
-            v-model="query"
-            icon="i-heroicons-magnifying-glass"
-            size="xl"
-            :placeholder="t('page.search_placeholder')"
-            autofocus
-            class="w-full"
-            :ui="{ root: 'w-full' }"
-          >
-            <template #trailing>
-              <UKbd
-                v-if="!query"
-                value="/"
-                size="sm"
-              />
-              <UButton
-                v-else
-                icon="i-heroicons-x-mark"
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                :aria-label="t('page.no_results.clear_search')"
-                @click="() => { query = '' }"
-              />
-            </template>
-          </UInput>
-        </div>
-      </template>
-
+    <template v-if="hasQuery">
       <div
-        v-if="query && searchResults"
         class="
-          flex flex-col gap-4
-          md:flex-row md:items-center md:justify-between
+          mt-8 flex items-end justify-between gap-4 border-b border-default
+          lg:mt-11
         "
       >
-        <p
-          class="flex flex-wrap items-center gap-2 text-sm text-muted"
-          role="status"
-          aria-live="polite"
-        >
-          <span>{{ t('page.results_count', { count: totalResults, query }) }}</span>
-          <!-- Say so when the engine widened the query: the results
-               below are not the ones that were asked for. -->
-          <span
-            v-if="relaxedQuery"
-            class="text-warning"
-          >
-            {{ t('page.relaxed_notice', { query: relaxedQuery }) }}
-          </span>
-        </p>
-
-        <!-- The INACTIVE trigger is `text-muted`, and a pill list sits
-             on `bg-elevated` — the surface muted is not calibrated
-             against. Measured 4.39:1 on "Προϊόντα"/"Άρθρα", the labels
-             that say what else the search found. -->
         <UTabs
-          v-model="activeTab"
+          :model-value="tab"
           :items="tabItems"
+          :content="false"
+          variant="link"
           color="neutral"
-          variant="pill"
-          size="sm"
-          :ui="{ trigger: 'data-[state=inactive]:text-toned' }"
-        />
-      </div>
-    </PageSectionBand>
+          :ui="{ list: 'gap-6 border-0',
+                 trigger: `px-1 pb-3 text-[0.9375rem] font-semibold`,
+                 indicator: `h-0.5` }"
+          @update:model-value="selectTab"
+        >
+          <template #trailing="{ item }">
+            <UBadge
+              :label="String(item.badge)"
+              :color="item.value === tab ? 'primary' : 'neutral'"
+              :variant="item.value === tab ? 'solid' : 'soft'"
+              size="sm"
+            />
+          </template>
+        </UTabs>
 
-    <UContainer class="flex-1 pt-10 pb-16">
+        <div class="hidden items-center gap-2 pb-2 lg:flex">
+          <p class="text-sm text-muted">
+            <i18n-t
+              keypath="results"
+              :plural="openCount"
+            >
+              <template #count>
+                {{ openCount }}
+              </template>
+              <template #query>
+                <strong class="text-highlighted">“{{ query }}”</strong>
+              </template>
+            </i18n-t>
+          </p>
+          <USelect
+            :model-value="limit"
+            :items="limitOptions"
+            value-key="value"
+            :aria-label="t('per_page_label')"
+            :ui="{ base: 'h-9 rounded-full ps-3.5 font-semibold ring-default' }"
+            @update:model-value="changeLimit"
+          />
+        </div>
+      </div>
+
       <div
-        v-if="isSearching && displayResults.length === 0"
-        class="flex flex-col gap-4"
+        v-if="openCount"
+        role="status"
+        class="
+          mt-5 hidden gap-3 rounded-[0.875rem] bg-(--ui-info-soft) px-4 py-3.5
+          text-info
+          lg:flex
+        "
       >
-        <div
+        <UIcon
+          name="i-heroicons-sparkles"
+          class="mt-0.5 size-5 shrink-0"
+        />
+        <div class="flex flex-col gap-0.5 text-sm">
+          <strong>{{ relaxedQuery ? t('relaxed', { query: relaxedQuery }) : t('forgiving.title') }}</strong>
+          <span class="text-toned">{{ t('forgiving.body') }}</span>
+        </div>
+      </div>
+
+      <div
+        v-if="pending && !openCount"
+        class="mt-6 grid grid-cols-2 gap-3.5 lg:grid-cols-3 lg:gap-6"
+      >
+        <ProductCardSkeleton
           v-for="i in 6"
           :key="i"
-          class="flex gap-4 rounded-xl bg-default p-4 ring ring-default"
-        >
-          <USkeleton class="size-28 shrink-0 rounded-lg" />
-          <div class="flex flex-1 flex-col gap-3">
-            <USkeleton class="h-6 w-3/4" />
-            <USkeleton class="h-4 w-full" />
-            <USkeleton class="h-4 w-5/6" />
-          </div>
-        </div>
-      </div>
-
-      <div
-        v-else-if="!query"
-        class="flex flex-col items-center gap-6 py-16"
-      >
-        <UEmpty
-          icon="i-heroicons-magnifying-glass"
-          :title="t('page.empty.title')"
-          :description="t('page.empty.description')"
-          size="lg"
         />
-        <div class="flex flex-wrap items-center justify-center gap-4">
-          <div
-            v-for="shortcut in shortcuts"
-            :key="shortcut.key"
-            class="flex items-center gap-2 text-sm text-muted"
-          >
-            <UKbd :value="shortcut.key" />
-            <span>{{ shortcut.description }}</span>
-          </div>
-        </div>
       </div>
 
       <UEmpty
-        v-else-if="searchResults && displayResults.length === 0 && !isSearching"
+        v-else-if="!openCount"
         icon="i-heroicons-magnifying-glass-minus"
-        :title="t('page.no_results.title')"
-        :description="t('page.no_results.description', { query })"
-        size="lg"
-        class="py-16"
-        :actions="[
-          {
-            label: t('page.no_results.clear_search'),
-            icon: 'i-heroicons-arrow-path',
-            color: 'secondary',
-            size: 'lg',
-            onClick: () => { query = '' },
-          },
-        ]"
+        :title="t('empty.title')"
+        :description="t('empty.description', { query })"
+        class="mt-10"
       />
 
       <div
-        v-else
-        class="flex flex-col gap-8"
+        v-else-if="tab === 'products'"
+        class="
+          mt-6 grid gap-10
+          lg:grid-cols-[minmax(0,1fr)_21.25rem]
+        "
       >
-        <ul class="flex flex-col gap-3">
-          <li
-            v-for="(result, index) in displayResults"
-            :key="`${result.contentType}-${result.id}`"
-            class="
-              rounded-xl bg-default p-3 ring ring-default transition
-              hover:ring-accented
-              sm:p-4
-            "
+        <div class="flex flex-col gap-10">
+          <ol class="grid grid-cols-2 gap-3.5 lg:grid-cols-3 lg:gap-6">
+            <ProductCard
+              v-for="(product, index) in products?.results ?? []"
+              :key="product.id"
+              :product="product as unknown as Product"
+              :img-loading="index > 5 ? 'lazy' : 'eager'"
+              @click.capture="onProductClick(product, index)"
+            />
+          </ol>
+          <ProductsPagination
+            v-if="productCount > limit"
+            :page="page"
+            :total="productCount"
+            :items-per-page="limit"
+            :to="pageLink"
+          />
+        </div>
+
+        <aside
+          v-if="guides?.results.length"
+          class="hidden flex-col gap-3 lg:flex"
+          :aria-labelledby="'search-guides-heading'"
+        >
+          <h2
+            id="search-guides-heading"
+            class="text-[0.9375rem] font-extrabold text-highlighted"
           >
-            <SearchResult
-              :result="result"
-              @click="onResultClick(result, index)"
+            {{ t('from_guides') }}
+          </h2>
+          <SearchGuideCard
+            v-for="(post, index) in guides.results"
+            :key="post.id"
+            :post="post"
+            @click="onGuideClick(post, index)"
+          />
+        </aside>
+      </div>
+
+      <div
+        v-else
+        class="mt-6 flex flex-col gap-10"
+      >
+        <ul class="grid gap-3 lg:grid-cols-2">
+          <li
+            v-for="(post, index) in guides?.results ?? []"
+            :key="post.id"
+          >
+            <SearchGuideCard
+              :post="post"
+              @click="onGuideClick(post, index)"
             />
           </li>
         </ul>
-
-        <div
-          v-if="totalPages > 1"
-          class="flex flex-col items-center gap-4"
-        >
-          <UPagination
-            v-model:page="page"
-            :total="totalResults"
-            :items-per-page="limit"
-            color="neutral"
-            variant="outline"
-            active-color="secondary"
-            active-variant="solid"
-            show-edges
-          />
-          <div class="flex items-center gap-2 text-sm text-muted">
-            <span>{{ t('page.per_page') }}</span>
-            <USelectMenu
-              v-model="limit"
-              :aria-label="t('page.per_page')"
-              :items="[12, 24, 48, 96]"
-              size="sm"
-              class="w-20"
-              @change="page = 1"
-            />
-          </div>
-        </div>
+        <ProductsPagination
+          v-if="guideCount > limit"
+          :page="page"
+          :total="guideCount"
+          :items-per-page="limit"
+          :to="pageLink"
+        />
       </div>
-    </UContainer>
-  </div>
+    </template>
+
+    <UEmpty
+      v-else
+      icon="i-heroicons-magnifying-glass"
+      :title="t('start.title')"
+      :description="t('start.description')"
+      class="mt-12"
+    />
+  </UContainer>
 </template>
 
 <i18n lang="yaml">
 el:
-  page:
-    title: "Αναζήτηση"
-    search_query: "Αναζήτηση {query}"
-    search_placeholder: "Πληκτρολογήστε για αναζήτηση..."
-    results_count: "{count} αποτελέσματα για \"{query}\""
-    relaxed_notice: "— εμφανίζονται αποτελέσματα για \"{query}\""
-    per_page: "Ανά σελίδα"
-    breadcrumb:
-      home: "Αρχική"
-      search: "Αναζήτηση"
-    tabs:
-      all: "Όλα"
-      products_label: "Προϊόντα"
-      blog_posts_label: "Άρθρα"
-    empty:
-      title: "Ξεκινήστε την αναζήτησή σας"
-      description: "Χρησιμοποιήστε το πεδίο αναζήτησης παραπάνω για να βρείτε προϊόντα και άρθρα που σας ενδιαφέρουν"
-    no_results:
-      title: "Δεν βρέθηκαν αποτελέσματα"
-      description: "Δεν βρέθηκαν αποτελέσματα για \"{query}\". Δοκιμάστε διαφορετικούς όρους αναζήτησης"
-      clear_search: "Εκκαθάριση αναζήτησης"
-    shortcuts:
-      focus_search: "Εστίαση στην αναζήτηση"
-      clear_search: "Εκκαθάριση αναζήτησης"
+  title: Αναζήτηση
+  title_query: "Αναζήτηση: {query}"
+  placeholder: Τι ψάχνεις;
+  clear: Καθαρισμός αναζήτησης
+  trending: "Δημοφιλή:"
+  tabs:
+    products: Προϊόντα
+    guides: Οδηγοί
+  results: "{count} αποτέλεσμα για {query} | {count} αποτελέσματα για {query}"
+  per_page: "{n} ανά σελίδα"
+  per_page_label: Αποτελέσματα ανά σελίδα
+  relaxed: "Δεν βρήκαμε κάτι ακριβώς γι' αυτό — δείχνουμε αποτελέσματα για «{query}»"
+  forgiving:
+    title: Βρίσκουμε ό,τι ψάχνεις, όπως κι αν το γράψεις
+    body: Τα greeklish και τα ορθογραφικά λάθη αναγνωρίζονται αυτόματα.
+  from_guides: Από τους οδηγούς
+  empty:
+    title: Δεν βρέθηκαν αποτελέσματα
+    description: "Τίποτα για «{query}». Δοκίμασε μια πιο γενική λέξη ή ένα από τα δημοφιλή."
+  start:
+    title: Ξεκίνα την αναζήτηση
+    description: Γράψε το όνομα ενός προϊόντος, μιας μάρκας ή ενός θέματος.
 en:
-  page:
-    title: "Search"
-    search_query: "Search {query}"
-    search_placeholder: "Type to search..."
-    results_count: "{count} results for \"{query}\""
-    relaxed_notice: "— showing results for \"{query}\""
-    per_page: "Per page"
-    breadcrumb:
-      home: "Home"
-      search: "Search"
-    tabs:
-      all: "All"
-      products_label: "Products"
-      blog_posts_label: "Articles"
-    empty:
-      title: "Start your search"
-      description: "Use the search box above to find the products and articles you are interested in"
-    no_results:
-      title: "No results found"
-      description: "No results were found for \"{query}\". Try different search terms"
-      clear_search: "Clear the search"
-    shortcuts:
-      focus_search: "Focus the search"
-      clear_search: "Clear the search"
+  title: Search
+  title_query: "Search: {query}"
+  placeholder: What are you looking for?
+  clear: Clear the search
+  trending: "Trending:"
+  tabs:
+    products: Products
+    guides: Guides
+  results: "{count} result for {query} | {count} results for {query}"
+  per_page: "{n} per page"
+  per_page_label: Results per page
+  relaxed: "Nothing matched exactly — showing results for “{query}”"
+  forgiving:
+    title: We find what you mean, however you type it
+    body: Greeklish and typos are understood automatically.
+  from_guides: From the guides
+  empty:
+    title: No results found
+    description: "Nothing for “{query}”. Try a broader word or one of the trending searches."
+  start:
+    title: Start your search
+    description: Type the name of a product, a brand or a topic.
 </i18n>

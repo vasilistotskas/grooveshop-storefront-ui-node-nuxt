@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   applyFilterUpdates,
   buildFilterChips,
+  CLEARED_FILTERS,
   countActiveFilters,
   countFiltersBySection,
   parseProductFilters,
@@ -152,6 +153,24 @@ describe('applyFilterUpdates', () => {
     const query = { q: 'laptop' }
     applyFilterUpdates(query, { search: '' })
     expect(query).toEqual({ q: 'laptop' })
+  })
+})
+
+describe('CLEARED_FILTERS', () => {
+  it('drops every filter from the query and keeps the sort and anything else', () => {
+    const query = {
+      q: 'cable',
+      priceMin: '10',
+      priceMax: '60',
+      likesMin: '2',
+      viewsMin: '50',
+      category: ['1', '2'],
+      attributeValue: '7',
+      sort: '-finalPrice',
+      utm_source: 'mail',
+    }
+
+    expect(applyFilterUpdates(query, CLEARED_FILTERS)).toEqual({ sort: '-finalPrice', utm_source: 'mail' })
   })
 })
 

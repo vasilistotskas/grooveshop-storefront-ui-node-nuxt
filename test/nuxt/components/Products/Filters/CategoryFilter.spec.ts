@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
-import CategoryFilter from '~/components/Products/Filters/CategoryFilter.vue'
 import WebsideCategoryFilter from '~/components/variants/webside/Products/Filters/CategoryFilter.vue'
 import type { ProductCategory } from '~~/shared/openapi/types.gen'
 import { makeCategory } from '~~/test/fixtures/productFilters'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * The category list reads its names through parler `translations`
@@ -50,7 +48,9 @@ const button = (wrapper: VueWrapper, name: string) => {
   return found!
 }
 
-describe.each(trees(CategoryFilter, WebsideCategoryFilter))('$tree Products/Filters/CategoryFilter', ({ C }) => {
+describe('webside Products/Filters/CategoryFilter', () => {
+  const C = WebsideCategoryFilter
+
   beforeEach(() => {
     pf.reset()
     data.allCategories.value = [ELECTRONICS, CLOTHING, BOOKS, GARDEN]

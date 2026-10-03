@@ -63,7 +63,7 @@ if (error.value || !layout.value?.isPublished) {
   <!-- PageWrapper is THE content frame (width + gutters) for every
        page; sections are width-agnostic and simply fill it. -->
   <PageWrapper>
-    <PageBreadcrumb />
+    <PageBreadcrumb class="mb-5" />
     <PageTitle
       v-if="showTitle"
       :text="pageTitle"

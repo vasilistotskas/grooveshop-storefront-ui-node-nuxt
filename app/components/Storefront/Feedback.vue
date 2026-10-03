@@ -19,7 +19,7 @@ const { sections: brandSections } = await usePageConfig('feedback')
   <PageWrapper class="flex flex-col">
     <!-- Breadcrumb ABOVE the branded band (crumb landed mid-page for
          tenants with published sections). -->
-    <PageBreadcrumb />
+    <PageBreadcrumb class="mb-5" />
     <div
       v-if="brandSections.length"
       class="

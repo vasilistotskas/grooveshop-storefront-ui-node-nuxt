@@ -4,7 +4,6 @@ import type { VueWrapper } from '@vue/test-utils'
 import ActiveFilters from '~/components/Products/Filters/ActiveFilters.vue'
 import WebsideActiveFilters from '~/components/variants/webside/Products/Filters/ActiveFilters.vue'
 import type { FilterChip } from '~~/shared/types/product-filters'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * The chip list's output is the filter it removes. The chips themselves
@@ -45,7 +44,9 @@ const removeButton = (wrapper: VueWrapper, label: string) => {
 const chipText = (wrapper: VueWrapper, label: string) =>
   removeButton(wrapper, label).element.parentElement!.textContent!.trim()
 
-describe.each(trees(ActiveFilters, WebsideActiveFilters))('$tree Products/Filters/ActiveFilters', ({ C }) => {
+describe('webside Products/Filters/ActiveFilters', () => {
+  const C = WebsideActiveFilters
+
   beforeEach(() => {
     pf.reset()
   })
@@ -153,5 +154,85 @@ describe.each(trees(ActiveFilters, WebsideActiveFilters))('$tree Products/Filter
 
     expect(pf.clearFilters).toHaveBeenCalledOnce()
     expect(pf.removeFilter).not.toHaveBeenCalled()
+  })
+})
+
+/**
+ * The default tree's chips sit inline beside the result count: no
+ * heading, no sort chip (the sort has its own control), and "Clear
+ * all" clears the filters while keeping the sort.
+ */
+describe('default Products/Filters/ActiveFilters', () => {
+  const n = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+
+  beforeEach(() => {
+    pf.reset()
+  })
+
+  it('renders nothing while no filter is active', async () => {
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    expect(wrapper.find('ul').exists()).toBe(false)
+  })
+
+  it('renders nothing for a sort alone, and no chip for the sort beside filters', async () => {
+    showChips({ key: 'sort', type: 'sort', label: 'sort', value: '-finalPrice' })
+    const sortOnly = await mountSuspended(ActiveFilters, { route: false })
+    expect(sortOnly.find('ul').exists()).toBe(false)
+    sortOnly.unmount()
+
+    showChips(
+      { key: 'attributeValues', type: 'attribute', label: 'c', value: '7' },
+      { key: 'sort', type: 'sort', label: 'sort', value: '-finalPrice' },
+    )
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    expect(wrapper.findAll('li').map(item => item.text())).toEqual(['Κόκκινο', own(wrapper, 'clear_all')])
+  })
+
+  it.each<[string, FilterChip, (w: VueWrapper) => string]>([
+    ['a full price range as from – to', { key: 'priceMin', type: 'price', label: 'c', value: { min: 10, max: 60 } }, () => `${n(10)} – ${n(60)}`],
+    ['a floor-only price as from', { key: 'priceMin', type: 'price', label: 'c', value: { min: 10, max: undefined } }, w => own(w, 'from', { price: n(10) })],
+    ['a ceiling-only price as up to', { key: 'priceMin', type: 'price', label: 'c', value: { min: undefined, max: 60 } }, w => own(w, 'up_to', { price: n(60) })],
+    ['a category by its name', { key: 'categories', type: 'category', label: 'c', value: '2' }, () => 'Βιβλία'],
+    ['an attribute value by its name', { key: 'attributeValues', type: 'attribute', label: 'c', value: '8' }, () => 'Μπλε'],
+    ['a search in quotes', { key: 'search', type: 'search', label: 'c', value: 'cable' }, () => '“cable”'],
+  ])('shows %s, and names it on its remove button', async (_case, chip, expected) => {
+    showChips(chip)
+
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    const label = expected(wrapper)
+    expect(wrapper.find('li').text()).toBe(label)
+    expect(wrapper.find('li button').attributes('aria-label')).toBe(own(wrapper, 'remove', { filter: label }))
+  })
+
+  it('takes one attribute value out of the selection, keeping the others', async () => {
+    pf.filters.value.attributeValues = ['7', '8']
+    showChips({ key: 'attributeValues', type: 'attribute', label: 'c', value: '8' })
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    await wrapper.find('li button').trigger('click')
+
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ attributeValues: ['7'] })
+  })
+
+  it('clears both ends of the price range with one chip', async () => {
+    showChips({ key: 'priceMin', type: 'price', label: 'c', value: { min: 10, max: 60 } })
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    await wrapper.find('li button').trigger('click')
+
+    expect(pf.updateFilters.mock.calls).toStrictEqual([[{ priceMin: undefined, priceMax: undefined }]])
+  })
+
+  it('clears every filter and keeps the sort from "Clear all"', async () => {
+    showChips({ key: 'search', type: 'search', label: 'c', value: 'cable' })
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    await wrapper.findAll('li').at(-1)!.find('button').trigger('click')
+
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith(CLEARED_FILTERS)
+    expect(pf.clearFilters).not.toHaveBeenCalled()
   })
 })

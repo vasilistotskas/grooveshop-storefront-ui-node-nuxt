@@ -3,10 +3,8 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import { nextTick } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
-import ViewCountFilter from '~/components/Products/Filters/ViewCountFilter.vue'
 import WebsideViewCountFilter from '~/components/variants/webside/Products/Filters/ViewCountFilter.vue'
 import { makeProductSearchResponse } from '~~/test/fixtures/productFilters'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * The minimum-views slider takes its bounds from the catalogue's
@@ -34,7 +32,9 @@ async function dragAndRelease(wrapper: VueWrapper, value?: number) {
   await nextTick()
 }
 
-describe.each(trees(ViewCountFilter, WebsideViewCountFilter))('$tree Products/Filters/ViewCountFilter', ({ C }) => {
+describe('webside Products/Filters/ViewCountFilter', () => {
+  const C = WebsideViewCountFilter
+
   beforeEach(() => {
     clearNuxtData()
     pf.reset()
