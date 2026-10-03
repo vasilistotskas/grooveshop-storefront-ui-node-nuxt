@@ -1,3 +1,10 @@
+## [3.228.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.228.0...v3.228.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **footer:** the seller identity is not inside a paragraph ([#71](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/71)) ([df8d9ba](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/df8d9ba21bc9f2228e32d3ca775167fb2fa30f8b))
+
 # [3.228.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.227.1...v3.228.0) (2026-10-03)
 
 
