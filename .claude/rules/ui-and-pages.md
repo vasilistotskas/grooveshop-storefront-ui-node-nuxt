@@ -98,8 +98,8 @@ Components in `app/components/` organized by domain:
 - **DynamicForm** — Multi-step form system
 - **Loyalty** — PointsBadge, Summary, TierSystem, ProgressHero, Transactions, Redemption
 - **Order** — Order list, card items
-- **Product** — Image/ImageModal, Reviews (List/Summary/Card), Favourites, CardSkeleton, Categories slider
-- **Products** — List, Slider, Toolbar, Sidebar, Filters (SearchInput, PriceRange, ActiveFilters, CategoryFilter, AttributeFilter, PopularityFilter, ViewCountFilter)
+- **Product** — the product page's parts (Images/ImageModal gallery and zoom, VariantSelector, Offers, NotifyMe alerts dialog, Review dialog, Suggestions grid), Reviews (Overview/Item on the product page; List/Summary/Card for the account's reviews), Favourites, CardSkeleton, Categories slider
+- **Products** — the listing (Header, CategoryChips, Browse, List, Toolbar, Sidebar, Pagination, Filters: CategoryTree, AttributeValues, PriceRange, ActiveFilters) and the Rail of product cards
 - **Search** — Input, Modal, Result
 - **User** — Avatar, NotificationsBell, Account info/favourites navbar
 - **Page** — Header, Navbar, Title

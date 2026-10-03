@@ -46,21 +46,16 @@ function close() {
     :title="t('title')"
     :description="t('description')"
     :ui="{
+      ...DIALOG_UI,
       // Centred on a wide screen; on a phone it rises from the bottom,
       // where the banner that opened it sat.
       content: `
-        max-w-140 rounded-[1.375rem]
+        ${DIALOG_UI.content}
+        max-w-140
         max-sm:top-auto max-sm:bottom-[calc(1rem+env(safe-area-inset-bottom))]
         max-sm:translate-y-0
       `,
-      header: 'border-b border-default px-6 py-5',
-      title: 'font-display text-[1.375rem] font-bold',
       description: 'sr-only',
-      body: `
-        p-6
-        sm:p-6
-      `,
-      footer: 'justify-end gap-2.5 border-t border-default bg-muted px-6 py-4',
     }"
   >
     <template #body>

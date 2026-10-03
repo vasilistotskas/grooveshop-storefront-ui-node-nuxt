@@ -1,103 +1,69 @@
 <script lang="ts" setup>
 /**
- * "Δωρεάν μεταφορικά άνω των X €" notice for the PDP and cart summary.
+ * How far the shopper's cart is from free delivery, as a line of copy
+ * over a meter — on the product page and the cart summary.
  *
- * Data comes from ``useFreeShippingInfo()`` — the Nitro proxy returns
- * the aggregate ``minThreshold`` across active carriers, so the headline
- * number always matches the earliest cart subtotal at which at least
- * one carrier ships free. No per-carrier mention here on purpose: the
- * shopper picks the carrier in checkout; this is upstream marketing copy.
+ * The threshold is `useFreeShippingInfo()`'s `minThreshold`: the
+ * smallest subtotal at which at least one active carrier ships free. No
+ * per-carrier mention on purpose — the shopper picks the carrier in
+ * checkout; this is the store's promise, not a quote.
  *
- * Progressive messaging kicks in when ``cartTotal`` is provided:
- *   - cartTotal === null / undefined → "Free shipping over X €" (PDP)
- *   - cartTotal < min                → "Add Y € for free shipping"
- *   - cartTotal >= min               → "Free shipping unlocked"
- * The cart page passes its subtotal so the copy reflects the shopper's
- * actual progress; the PDP omits it because the PDP doesn't know cart
- * state and a "you need X more" line would mislead.
+ * The cart total is per visitor, so a caller on a cached page (the
+ * product page) renders this on the client only.
  */
-
 const props = defineProps<{
-  /**
-   * Pre-shipping cart subtotal (already in the carrier's currency).
-   * Omit on the PDP — the carrier has no cart context there.
-   */
-  cartTotal?: number | null
+  /** The cart's subtotal before shipping. */
+  cartTotal: number
 }>()
 
 const { t, n } = useI18n()
 const { data, pending, error } = await useFreeShippingInfo()
 
-const minThreshold = computed(() => data.value?.minThreshold ?? null)
-
-const formattedThreshold = computed(() => {
-  if (minThreshold.value == null) return ''
-  return n(minThreshold.value, 'currency')
-})
-
-const remainingToFree = computed(() => {
-  if (minThreshold.value == null) return null
-  if (props.cartTotal == null) return null
-  const remaining = minThreshold.value - props.cartTotal
-  return remaining > 0 ? remaining : 0
-})
-
-const formattedRemaining = computed(() => {
-  if (remainingToFree.value == null) return ''
-  return n(remainingToFree.value, 'currency')
-})
-
-const state = computed<'idle' | 'progress' | 'qualified'>(() => {
-  if (props.cartTotal == null) return 'idle'
-  if (remainingToFree.value == null) return 'idle'
-  return remainingToFree.value <= 0 ? 'qualified' : 'progress'
-})
-
-const title = computed(() => {
-  switch (state.value) {
-    case 'qualified':
-      return t('qualified')
-    case 'progress':
-      return t('progress', { amount: formattedRemaining.value })
-    default:
-      return t('idle', { amount: formattedThreshold.value })
-  }
-})
-
-const icon = computed(() =>
-  state.value === 'qualified'
-    ? 'i-heroicons-check-badge'
-    : 'i-heroicons-truck',
+const threshold = computed(() => data.value?.minThreshold ?? 0)
+const remaining = computed(() => Math.max(0, threshold.value - props.cartTotal))
+const qualified = computed(() => remaining.value <= 0)
+const progress = computed(() =>
+  threshold.value > 0 ? Math.min(100, (props.cartTotal / threshold.value) * 100) : 0,
 )
 
-const color = computed<'success' | 'info'>(() =>
-  state.value === 'qualified' ? 'success' : 'info',
-)
-
-const shouldRender = computed(() => {
-  if (pending.value) return false
-  if (error.value) return false
-  return minThreshold.value != null && minThreshold.value > 0
-})
+const shouldRender = computed(() => !pending.value && !error.value && threshold.value > 0)
 </script>
 
 <template>
-  <UAlert
+  <div
     v-if="shouldRender"
-    :title="title"
-    :icon="icon"
-    :color="color"
-    variant="soft"
-  />
+    class="flex flex-col gap-2"
+  >
+    <p class="text-sm font-semibold text-highlighted">
+      <i18n-t
+        v-if="!qualified"
+        keypath="progress"
+      >
+        <template #amount>
+          <span class="font-mono">{{ n(remaining, 'currency') }}</span>
+        </template>
+      </i18n-t>
+      <template v-else>
+        {{ t('qualified') }}
+      </template>
+    </p>
+    <UProgress
+      :model-value="progress"
+      :color="qualified ? 'success' : 'secondary'"
+      size="md"
+      :ui="{ base: 'bg-elevated' }"
+      :aria-label="t('meter')"
+    />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  idle: Δωρεάν μεταφορικά σε αγορές άνω των {amount}
-  progress: Πρόσθεσε ακόμα {amount} για δωρεάν μεταφορικά
-  qualified: Έχεις δωρεάν μεταφορικά
+  progress: Σου λείπουν {amount} για δωρεάν μεταφορικά
+  qualified: Τα μεταφορικά σου είναι δωρεάν
+  meter: Πρόοδος προς τα δωρεάν μεταφορικά
 en:
-  idle: Free delivery on orders over {amount}
-  progress: Add {amount} more for free delivery
+  progress: You're {amount} away from free delivery
   qualified: Your delivery is free
+  meter: Progress towards free delivery
 </i18n>

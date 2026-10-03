@@ -1,4 +1,14 @@
 <script setup lang="ts">
+/**
+ * The product's variant axes — colour, capacity, length — one radio
+ * group per axis. Choosing a value opens that variant's own page.
+ *
+ * An axis whose variants have photographs of their own is a row of
+ * photo swatches, labelled with the chosen value ("Colour: Black");
+ * any other axis is a grid of cards carrying the value and its price.
+ * A value whose variant is sold out stays choosable — its page says so
+ * and offers the restock alert — but reads dimmed.
+ */
 interface Props {
   product: ProductDetail
 }
@@ -21,19 +31,18 @@ const {
   axisHasDistinctImages,
 } = await useProductVariants(() => props.product.id)
 
-const formatPrice = (value?: number): string => n(value ?? 0, 'currency')
-
-// Pre-build the per-axis display data so the template stays declarative. Each
-// axis becomes a URadioGroup; each value an image-or-text card.
 const axisGroups = computed(() =>
   axes.value.map((axis) => {
     const visual = axisHasDistinctImages(axis.id)
+    const current = currentValueFor(axis.id)
     return {
       id: axis.id,
       name: axis.name,
       visual,
+      currentLabel: axis.values.find(value => value.id === current)?.value,
       items: axis.values.map((value) => {
         const variant = variantForValue(axis.id, value.id)
+        const price = minPriceForValue(axis.id, value.id)
         return {
           value: value.id,
           label: value.value,
@@ -41,8 +50,10 @@ const axisGroups = computed(() =>
           alt: variant
             ? extractTranslated(variant, 'name', locale.value) ?? value.value
             : value.value,
-          price: minPriceForValue(axis.id, value.id),
-          showFrom: valueHasPriceRange(axis.id, value.id),
+          price: valueHasPriceRange(axis.id, value.id)
+            ? t('from_price', { price: n(price ?? 0, 'currency') })
+            : n(price ?? 0, 'currency'),
+          soldOut: (variant?.stock ?? 0) <= 0,
         }
       }),
     }
@@ -55,96 +66,104 @@ async function onSelect(axisId: number, rawValue: unknown) {
   const target = resolveTarget(axisId, valueId)
   if (target) await navigateTo(localePath(productUrl(target.id, target.slug)))
 }
+
+const LEGEND = 'mb-3 text-sm font-bold text-highlighted'
+// The chosen swatch's ring is ink, marked important: Volt colours every
+// outline with the accent from an unlayered rule (main.css).
 </script>
 
 <template>
   <div
     v-if="hasVariants"
-    class="flex flex-col gap-6"
+    class="flex flex-col gap-4"
     data-testid="variant-selector"
   >
-    <div
+    <template
       v-for="group in axisGroups"
       :key="group.id"
-      class="flex flex-col gap-2"
     >
-      <span class="text-sm font-semibold text-highlighted">
-        {{ group.name }}:
-      </span>
-
-      <!-- Mobile renders as a swipe strip: snap-aligned cards, hidden
-           scrollbar. The scroll container is this wrapper div, NOT the
-           URadioGroup's <fieldset>: Chromium lays fieldset content out
-           in a special anonymous box that neither shrinks nor clips
-           reliably, so overflow-x:auto on the fieldset itself computed
-           but its content still painted past it and stretched the whole
-           page sideways (the mobile horizontal-scroll bug — min-w-0
-           did not defeat it). Radiogroup semantics and arrow-key
-           navigation live on the fieldset inside, unaffected. -->
-      <div
-        class="
-          max-sm:snap-x max-sm:snap-mandatory max-sm:overflow-x-auto
-          max-sm:scrollbar-none
-          max-sm:[&::-webkit-scrollbar]:hidden
-        "
+      <URadioGroup
+        v-if="group.visual"
+        :default-value="currentValueFor(group.id)"
+        :items="group.items"
+        :legend="group.name"
+        orientation="horizontal"
+        indicator="hidden"
+        :ui="{
+          legend: LEGEND,
+          fieldset: 'flex-wrap gap-2.5',
+          item: `
+            size-16 overflow-hidden rounded-[0.875rem] bg-elevated p-0
+            outline-offset-2
+            has-data-[state=checked]:outline-2
+            has-data-[state=checked]:outline-inverted!
+          `,
+          wrapper: 'size-full',
+        }"
+        @update:model-value="value => onSelect(group.id, value)"
       >
-        <URadioGroup
-          :default-value="currentValueFor(group.id)"
-          :items="group.items"
-          variant="card"
-          orientation="horizontal"
-          indicator="hidden"
-          :ui="{
-            fieldset: `
-              flex gap-3
-              max-sm:w-max
-              sm:flex-wrap
-            `,
-            item: `
-              p-3
-              max-sm:w-28 max-sm:shrink-0 max-sm:snap-start
-            `,
-          }"
-          @update:model-value="value => onSelect(group.id, value)"
-        >
-          <template #label="{ item }">
+        <template #legend>
+          {{ group.name }}:
+          <span class="font-medium">{{ group.currentLabel }}</span>
+        </template>
+        <template #label="{ item }">
+          <ImgWithFallback
+            v-if="item.image"
+            :src="item.image"
+            alt=""
+            :width="64"
+            :height="64"
+            fit="cover"
+            densities="x1 x2"
+            quality="75"
+            class="size-16 object-cover"
+            :class="item.soldOut && 'opacity-45'"
+          />
+          <span class="sr-only">
+            {{ item.alt }}{{ item.soldOut ? ` — ${t('sold_out')}` : '' }}
+          </span>
+        </template>
+      </URadioGroup>
+
+      <URadioGroup
+        v-else
+        :default-value="currentValueFor(group.id)"
+        :items="group.items"
+        :legend="group.name"
+        variant="card"
+        orientation="horizontal"
+        indicator="hidden"
+        :ui="{
+          legend: LEGEND,
+          fieldset: 'grid grid-cols-3 gap-2',
+          item: 'rounded-[0.875rem] px-3 py-2.5',
+          wrapper: 'items-start gap-0.5 text-start',
+        }"
+        @update:model-value="value => onSelect(group.id, value)"
+      >
+        <template #label="{ item }">
+          <span
+            class="flex flex-col gap-0.5"
+            :class="item.soldOut && 'opacity-45'"
+          >
+            <span class="text-sm font-bold text-highlighted">{{ item.label }}</span>
+            <span class="font-mono text-xs text-muted">{{ item.price }}</span>
             <span
-              class="relative flex w-full flex-col gap-1"
-              :class="group.visual ? 'sm:w-24' : 'sm:min-w-28'"
-            >
-              <UIcon
-                v-if="isCurrentValue(group.id, Number(item.value))"
-                name="i-lucide-circle-check"
-                class="absolute end-0 top-0 size-5 text-primary"
-              />
-              <ImgWithFallback
-                v-if="group.visual && item.image"
-                :src="item.image"
-                :alt="item.alt"
-                :width="96"
-                :height="96"
-                fit="contain"
-                background="transparent"
-                quality="100"
-                class="aspect-square w-full rounded-md bg-white object-contain"
-              />
-              <span class="truncate text-sm font-medium text-highlighted">
-                {{ item.label }}
-              </span>
-              <span class="text-xs text-muted">
-                {{ item.showFrom ? t('from_price', { price: formatPrice(item.price) }) : formatPrice(item.price) }}
-              </span>
-            </span>
-          </template>
-        </URadioGroup>
-      </div>
-    </div>
+              v-if="item.soldOut"
+              class="sr-only"
+            >{{ t('sold_out') }}</span>
+          </span>
+        </template>
+      </URadioGroup>
+    </template>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
   from_price: 'από {price}'
+  sold_out: Εξαντλήθηκε
 en:
   from_price: 'from {price}'
+  sold_out: Sold out
 </i18n>

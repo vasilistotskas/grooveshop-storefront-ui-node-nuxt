@@ -5,7 +5,6 @@ import Suggestions from '~/components/Product/Suggestions.vue'
 import WebsideSuggestions from '~/components/variants/webside/Product/Suggestions.vue'
 import type { Product, SurfaceEnum } from '~~/shared/openapi/types.gen'
 import { makeProduct } from '~~/test/fixtures/product'
-import { trees } from '~~/test/helpers/trees'
 
 const IMPRESSION_ID = '0f6d3d3e-6d2b-4c4e-9c2a-2a1f4b6c8d90'
 /** The strip's `useApi` key for `{ surface: 'pdp', seedId: 1 }`. */
@@ -63,25 +62,26 @@ const addToCartStub = {
 // import no `Lazy*` stub key matches; the plain name matches the
 // component that import resolves to, once it has loaded (mountStrip
 // flushes for it).
-const stubsFor = (own: (name: string) => string) => ({
+const websideStubs = {
   ImgWithFallback: true,
-  [own('ButtonProductAddToFavourite')]: true,
-  [own('ButtonProductAddToCart')]: addToCartStub,
+  WebsideButtonProductAddToFavourite: true,
+  WebsideButtonProductAddToCart: addToCartStub,
   UCarousel: {
     props: ['items'],
     template: '<div class="carousel"><slot v-for="(item, index) in items" :item="item" :index="index" /></div>',
   },
-})
+}
 
 /** The strip's props (`Product/Suggestions.vue` `defineProps`). */
-type StripProps = { surface: SurfaceEnum, seedId?: number, items?: Product[], limit?: number, hideTitle?: boolean }
+type StripProps = { surface: SurfaceEnum, seedId?: number, items?: Product[], limit?: number, hideTitle?: boolean, band?: boolean }
 
 const events = () => api.callsTo('/api/analytics/recommendation-event')
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
-describe.each(trees(Suggestions, WebsideSuggestions))('$tree Product/Suggestions', ({ C, own }) => {
+/** The frozen copy, pinned as it renders on webside.gr: a carousel strip. */
+describe('webside Product/Suggestions', () => {
   const mountStrip = async (props: StripProps = { surface: 'pdp', seedId: 1 }) => {
-    const wrapper = await mountSuspended(C, { props, global: { stubs: stubsFor(own) }, route: false })
+    const wrapper = await mountSuspended(WebsideSuggestions, { props, global: { stubs: websideStubs }, route: false })
     await flushPromises()
     return wrapper
   }
@@ -226,6 +226,107 @@ describe.each(trees(Suggestions, WebsideSuggestions))('$tree Product/Suggestions
     expect(tiles[0]!.find('p').exists()).toBe(false)
 
     await tiles[0]!.find('h3').trigger('click')
+
+    expect(api.callsTo('/api/products/*')).toHaveLength(0)
+    expect(events()).toHaveLength(0)
+  })
+})
+
+/**
+ * The default: the store's product cards in a grid. The card is its own
+ * component with its own spec; here it is a stub that shows which
+ * product it was handed.
+ */
+describe('default Product/Suggestions', () => {
+  const CardStub = {
+    props: ['product', 'as'],
+    template: '<li class="card"><h3>{{ product.translations.el.name }}</h3></li>',
+  }
+
+  const mountGrid = async (props: StripProps = { surface: 'pdp', seedId: 1 }) => {
+    const wrapper = await mountSuspended(Suggestions, { props, global: { stubs: { ProductCard: CardStub } }, route: false })
+    await flushPromises()
+    return wrapper
+  }
+  const names = (wrapper: Awaited<ReturnType<typeof mountGrid>>) => wrapper.findAll('ul > li.card h3').map(h3 => h3.text())
+
+  beforeEach(() => {
+    clearNuxtData()
+    api.routes({
+      '/api/products/1/recommendations': () => payload(),
+      '/api/products/9/recommendations': () => ({ surface: 'pdp', impressionId: IMPRESSION_ID, items: [] }),
+    })
+  })
+
+  it('titles the grid and hands each suggested product to a card, in order', async () => {
+    const wrapper = await mountGrid()
+
+    expect(wrapper.find('h2').text()).toBe('Μπορεί να σου αρέσουν')
+    expect(wrapper.find('section').attributes('aria-labelledby')).toBe(wrapper.find('h2').attributes('id'))
+    expect(names(wrapper)).toEqual(['Γλάστρα', 'Χώμα'])
+  })
+
+  it('draws a page band of its own, titled, when asked to', async () => {
+    const wrapper = await mountGrid({ surface: 'pdp', seedId: 1, band: true })
+
+    expect(wrapper.findComponent({ name: 'PageSectionBand' }).props('heading')).toBe('Μπορεί να σου αρέσουν')
+    expect(names(wrapper)).toEqual(['Γλάστρα', 'Χώμα'])
+  })
+
+  it('leaves no band, and reports nothing, when the engine has nothing to show', async () => {
+    const wrapper = await mountGrid({ surface: 'pdp', seedId: 9, band: true })
+
+    expect(api.callsTo('/api/products/9/recommendations')).toHaveLength(1)
+    expect(wrapper.find('section').exists()).toBe(false)
+    expect(events()).toHaveLength(0)
+  })
+
+  it('asks for the surface and the limit, and labels the section itself when the title is hidden', async () => {
+    const wrapper = await mountGrid({ surface: 'pdp', seedId: 1, limit: 4, hideTitle: true })
+
+    expect(api.callsTo('/api/products/1/recommendations')).toEqual([
+      { url: '/api/products/1/recommendations', options: expect.objectContaining({ query: { surface: 'pdp', limit: 4 } }) },
+    ])
+    expect(wrapper.find('h2').exists()).toBe(false)
+    expect(wrapper.find('section').attributes('aria-label')).toBe('Μπορεί να σου αρέσουν')
+  })
+
+  it('reports one impression for the grid when set up after hydration over the server payload', async () => {
+    const nuxtApp = useNuxtApp()
+    nuxtApp.payload.data[PDP_KEY] = payload()
+    const wasHydrating = nuxtApp.isHydrating
+    nuxtApp.isHydrating = false
+    try {
+      const wrapper = await mountGrid()
+
+      expect(names(wrapper)).toEqual(['Γλάστρα', 'Χώμα'])
+      expect(api.callsTo('/api/products/1/recommendations')).toHaveLength(0)
+      expect(events()).toHaveLength(1)
+      expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'impression', seedId: 1 })
+    }
+    finally {
+      nuxtApp.isHydrating = wasHydrating
+    }
+  })
+
+  it('reports a click on a card with its position and echoes the impression', async () => {
+    const wrapper = await mountGrid()
+    api.mockClear()
+
+    await wrapper.findAll('li.card h3')[1]!.trigger('click')
+
+    expect(events()).toHaveLength(1)
+    expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'click' })
+    expect(events()[0]!.options.body.items).toEqual([{ productId: 3, strategy: 'category', position: 1 }])
+  })
+
+  it('renders passed items without a fetch or a report (the cart path)', async () => {
+    const wrapper = await mountGrid({ surface: 'cart', items: [named(7, 'Λίπασμα'), named(8, 'Σπόροι')], limit: 1 })
+
+    expect(wrapper.find('h2').text()).toBe('Πρόσθεσε στην παραγγελία σου')
+    expect(names(wrapper)).toEqual(['Λίπασμα'])
+
+    await wrapper.find('li.card h3').trigger('click')
 
     expect(api.callsTo('/api/products/*')).toHaveLength(0)
     expect(events()).toHaveLength(0)

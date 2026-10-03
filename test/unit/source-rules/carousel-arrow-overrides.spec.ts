@@ -79,6 +79,8 @@ describe('a carousel arrow override', () => {
     // spelling matched nothing, and Blog/Posts/Carousel.vue was unchecked.
     const withInsets = overrides.filter(o => o.bare.size > 0)
     expect(withInsets.map(o => o.site)).toContain('components/Blog/Posts/Carousel.vue')
-    expect(withInsets.length).toBeGreaterThanOrEqual(10)
+    // Six since the product page's gallery, zoom viewer and suggestion
+    // strip stopped being arrowed carousels (Groove Volt PR 5).
+    expect(withInsets.length).toBeGreaterThanOrEqual(6)
   })
 })

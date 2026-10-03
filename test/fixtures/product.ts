@@ -1,4 +1,4 @@
-import type { Product } from '~~/shared/openapi/types.gen'
+import type { Product, ProductReview } from '~~/shared/openapi/types.gen'
 
 /** The timestamp every fixture carries; fixed so snapshots never drift. */
 export const FIXTURE_TIMESTAMP = '2026-01-01T00:00:00Z'
@@ -84,6 +84,32 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(1, id),
     attributes: [],
+    ...overrides,
+  }
+}
+
+/**
+ * A published `ProductReview` as the product's review list serialises it,
+ * valid against the generated `zProductReview` (proved by
+ * `test/unit/fixtures/product.spec.ts`).
+ *
+ * Defaults: id 1, a rate of 8 (four stars), by Μαρία Παπαδοπούλου, on
+ * product 1, with a Greek comment. `uuid` follows `id`.
+ */
+export function makeProductReview(overrides: Partial<ProductReview> = {}): ProductReview {
+  const id = overrides.id ?? 1
+  return {
+    id,
+    product: { id: 1, name: 'Προϊόν 1', slug: 'product-1', mainImagePath: '' },
+    user: { id: 7, username: null, firstName: 'Μαρία', lastName: 'Παπαδοπούλου', mainImagePath: '' },
+    rate: 8,
+    status: 'TRUE',
+    isPublished: true,
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
+    publishedAt: FIXTURE_TIMESTAMP,
+    uuid: fixtureUuid(24, id),
+    translations: { el: { comment: `Κριτική ${id}` } },
     ...overrides,
   }
 }

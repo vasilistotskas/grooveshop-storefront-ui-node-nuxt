@@ -22,6 +22,10 @@ export const useCartStore = defineStore('cart', () => {
   // mid-interaction.
   const initialLoading = computed(() => pending.value && cart.value === null)
   const error = ref<SerializedError | null>(null)
+  // True once the first cart read has answered — with a cart or with
+  // none (a visitor who never added anything gets a 204). `cart` alone
+  // cannot tell "no cart" from "not asked yet".
+  const loaded = ref(false)
 
   const getCartItems = computed(() => cart.value?.items ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
@@ -337,6 +341,7 @@ export const useCartStore = defineStore('cart', () => {
     }
     finally {
       inFlight.delete(opId)
+      loaded.value = true
     }
   }
 
@@ -373,6 +378,7 @@ export const useCartStore = defineStore('cart', () => {
 
   return {
     cart,
+    loaded,
     pending,
     initialLoading,
     error,

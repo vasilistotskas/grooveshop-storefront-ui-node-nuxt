@@ -5,7 +5,6 @@ import type { ProductAlert, ProductAlertKindEnum } from '~~/shared/openapi/types
 import NotifyMe from '~/components/Product/NotifyMe.vue'
 import WebsideNotifyMe from '~/components/variants/webside/Product/NotifyMe.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
-import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -59,7 +58,9 @@ const UModal = {
   </div>`,
 }
 
-describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ C }) => {
+/** The frozen copy, pinned as it renders on webside.gr: one trigger and dialog per kind. */
+describe('webside Product/NotifyMe', () => {
+  const C = WebsideNotifyMe
   const mountAlert = async (props: { kind?: ProductAlertKindEnum, currentPrice?: number | null } = {}) => {
     const wrapper = await mountSuspended(C, {
       props: { productId: 3, ...props },
@@ -207,5 +208,175 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ C }
 
       expect(wrapper.text()).toContain('Θα σε ειδοποιήσουμε μόλις η τιμή φτάσει στα 15 € ή χαμηλότερα.')
     })
+  })
+})
+
+/**
+ * The default's one alerts dialog. The parent owns the trigger and opens
+ * it on a kind (`v-model:open`, `v-model:kind`); the stub renders the
+ * body and the footer while it is open.
+ */
+describe('default Product/NotifyMe', () => {
+  const Dialog = {
+    props: ['open', 'title', 'description', 'ui'],
+    template: '<div v-if="open" data-testid="modal"><slot name="body" /><div data-testid="footer"><slot name="footer" /></div></div>',
+  }
+
+  const mountDialog = async (props: { soldOut?: boolean, priceDrop?: boolean, kind?: ProductAlertKindEnum, currentPrice?: number | null } = {}) => {
+    const wrapper = await mountSuspended(NotifyMe, {
+      props: {
+        'productId': 3,
+        'productName': 'Γλάστρα',
+        'soldOut': true,
+        'priceDrop': false,
+        'currentPrice': 20,
+        'open': true,
+        'kind': 'restock' as ProductAlertKindEnum,
+        'onUpdate:open': (open: boolean) => wrapper.setProps({ open }),
+        'onUpdate:kind': (kind: ProductAlertKindEnum) => wrapper.setProps({ kind }),
+        ...props,
+      },
+      global: { stubs: { UModal: Dialog } },
+      route: false,
+    })
+    await flushPromises()
+    return wrapper
+  }
+  type Wrapper = Awaited<ReturnType<typeof mountDialog>>
+
+  const footerButton = (wrapper: Wrapper, label: string) =>
+    wrapper.get('[data-testid="footer"]').findAll('button').find(b => b.text() === label)!
+  const create = async (wrapper: Wrapper, fill: Record<string, string> = {}) => {
+    for (const [selector, value] of Object.entries(fill)) {
+      await wrapper.get(`[data-testid="modal"] ${selector}`).setValue(value)
+    }
+    // The footer's button submits the form through its `form` attribute;
+    // happy-dom does not run that default action, so the wiring is checked
+    // and the form submitted the way the click would.
+    const button = footerButton(wrapper, 'Δημιουργία ειδοποίησης')
+    const form = wrapper.get('form')
+    expect(button.attributes('type')).toBe('submit')
+    expect(button.attributes('form')).toBe(form.attributes('id'))
+    await form.trigger('submit')
+    await flushPromises()
+  }
+  const posts = () => api.callsTo(ALERTS).filter(call => call.options?.method === 'POST')
+  const lookups = () => api.callsTo(ALERTS).filter(call => call.options?.method === 'GET')
+
+  beforeEach(() => {
+    clearNuxtData()
+    session.loggedIn.value = false
+    session.user.value = null
+    api.routes({ [ALERTS]: (_url: string, options?: { method?: string }) => (options?.method === 'GET' ? page([]) : makeAlert()) })
+  })
+
+  it('subscribes a guest by email to the restock alert, confirms it and closes, without a lookup', async () => {
+    const wrapper = await mountDialog()
+
+    await create(wrapper, { 'input[type="email"]': 'guest@example.com' })
+
+    expect(posts()).toEqual([{
+      url: ALERTS,
+      options: expect.objectContaining({ body: { kind: 'restock', product: 3, email: 'guest@example.com' } }),
+    }])
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Θα σε ειδοποιήσουμε μόλις είναι ξανά διαθέσιμο', color: 'success' }))
+    expect(wrapper.find('[data-testid="modal"]').exists()).toBe(false)
+    expect(lookups()).toHaveLength(0)
+  })
+
+  it('refuses a guest without a valid email', async () => {
+    const wrapper = await mountDialog()
+
+    await create(wrapper, { 'input[type="email"]': 'not-an-email' })
+
+    expect(posts()).toHaveLength(0)
+    expect(wrapper.get('[data-testid="modal"]').text()).toContain(useNuxtApp().$i18n.t('validation.email.valid'))
+  })
+
+  it('looks up a signed-in shopper\'s alerts once and subscribes them without an email', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7, email: 'maria@example.com' }
+    const wrapper = await mountDialog()
+
+    expect(lookups()).toEqual([{
+      url: ALERTS,
+      options: expect.objectContaining({ query: { product: 3, isActive: true, pageSize: 2 } }),
+    }])
+    expect(wrapper.get('[data-testid="modal"]').text()).toContain('Θα στείλουμε την ειδοποίηση στο maria@example.com.')
+    expect(wrapper.find('input[type="email"]').exists()).toBe(false)
+
+    await create(wrapper)
+
+    expect(posts()[0]!.options.body).toEqual({ kind: 'restock', product: 3 })
+  })
+
+  it('offers the choice of kind only when both apply', async () => {
+    const one = await mountDialog({ soldOut: true, priceDrop: false })
+    expect(one.find('[role="radiogroup"]').exists()).toBe(false)
+
+    const both = await mountDialog({ soldOut: true, priceDrop: true })
+    expect(both.findAll('[role="radio"]').map(radio => radio.element.closest('[data-slot="item"]')!.textContent!.trim()))
+      .toEqual(['Επαναφορά αποθέματος', 'Πτώση τιμής'])
+  })
+
+  it('asks for a target price on the price-drop kind, below today\'s price', async () => {
+    const wrapper = await mountDialog({ soldOut: true, priceDrop: true })
+    expect(wrapper.find('input[type="number"]').exists()).toBe(false)
+
+    await wrapper.findAll('[role="radio"]')[1]!.trigger('click')
+    await flushPromises()
+
+    await create(wrapper, { 'input[type="email"]': 'guest@example.com', 'input[type="number"]': '25' })
+    expect(posts()).toHaveLength(0)
+    expect(wrapper.text()).toContain('Η επιθυμητή τιμή πρέπει να είναι κάτω από τη σημερινή.')
+
+    await create(wrapper, { 'input[type="number"]': '15.5' })
+    expect(posts()[0]!.options.body).toEqual({ kind: 'price_drop', product: 3, email: 'guest@example.com', targetPrice: 15.5 })
+  })
+
+  it('shows an active alert of the chosen kind instead of the form, and turns it off', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7, email: 'maria@example.com' }
+    let active = [makeAlert({ kind: 'price_drop', targetPrice: 15 })]
+    api.routes({
+      [ALERTS]: () => page(active),
+      [`${ALERTS}/5`]: () => { active = [] },
+    })
+    const wrapper = await mountDialog({ soldOut: false, priceDrop: true, kind: 'price_drop' })
+
+    expect(wrapper.text()).toContain('Η ειδοποίηση τιμής είναι ενεργή')
+    expect(wrapper.text()).toContain(`Θα σε ειδοποιήσουμε μόλις φτάσει στα ${useNuxtApp().$i18n.n(15, 'currency')} ή χαμηλότερα.`)
+    expect(wrapper.find('form').exists()).toBe(false)
+
+    await footerButton(wrapper, 'Απενεργοποίηση ειδοποίησης').trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo(`${ALERTS}/5`)).toEqual([
+      { url: `${ALERTS}/5`, options: expect.objectContaining({ method: 'DELETE' }) },
+    ])
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Η ειδοποίηση απενεργοποιήθηκε' }))
+    expect(wrapper.find('form').exists()).toBe(true)
+  })
+
+  it('treats a 409 as "already subscribed" and re-reads the alerts', async () => {
+    session.loggedIn.value = true
+    session.user.value = { id: 7, email: 'maria@example.com' }
+    api.routes({ [ALERTS]: (_url: string, options?: { method?: string }) => (options?.method === 'GET' ? page([]) : failWith(409)()) })
+    const wrapper = await mountDialog()
+
+    await create(wrapper)
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Έχεις ήδη ενεργή ειδοποίηση για αυτό', color: 'warning' }))
+    expect(lookups()).toHaveLength(2)
+  })
+
+  it('reports any other failure as an error and stays open', async () => {
+    api.routes({ [ALERTS]: failWith(500) })
+    const wrapper = await mountDialog()
+
+    await create(wrapper, { 'input[type="email"]': 'guest@example.com' })
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+    expect(wrapper.find('[data-testid="modal"]').exists()).toBe(true)
   })
 })

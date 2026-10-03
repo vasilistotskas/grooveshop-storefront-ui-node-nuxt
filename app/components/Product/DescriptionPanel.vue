@@ -14,19 +14,17 @@ const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
 </script>
 
 <template>
-  <div class="max-w-none pt-2 md:py-4">
-    <div
-      v-if="hasHtml"
-      class="article"
-      v-html="sanitizedHtml"
-    />
-    <p
-      v-else
-      class="text-gray-500 dark:text-gray-200"
-    >
-      {{ t('no_description_available') }}
-    </p>
-  </div>
+  <div
+    v-if="hasHtml"
+    class="article max-w-none text-[1.0625rem]/[1.65]"
+    v-html="sanitizedHtml"
+  />
+  <p
+    v-else
+    class="text-muted"
+  >
+    {{ t('no_description_available') }}
+  </p>
 </template>
 
 <i18n lang="yaml">

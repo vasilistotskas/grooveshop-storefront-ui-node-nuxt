@@ -126,7 +126,9 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it('counts every offer that applies in the heading', async () => {
+  // The frozen card counts every offer; the default counts what it
+  // lists open, as the design's "Offers for this product 3" does.
+  it.runIf(tree === 'webside')('counts every offer that applies in the heading', async () => {
     offers = [
       offer({ id: 1, relation: 'PRODUCT' }),
       offer({ id: 2, relation: 'CATEGORY' }),
@@ -137,6 +139,29 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
 
     expect(wrapper.find('section').attributes('aria-label')).toBe('Προσφορές για αυτό το προϊόν')
     expect(wrapper.find('h2').text()).toBe('Προσφορές για αυτό το προϊόν 3')
+  })
+
+  it.runIf(tree === 'default')('counts the offers it lists open in the heading', async () => {
+    offers = [
+      offer({ id: 1, relation: 'PRODUCT' }),
+      offer({ id: 2, relation: 'CATEGORY' }),
+      offer({ id: 3, relation: 'ORDER' }),
+    ]
+
+    const wrapper = await mountPanel()
+
+    expect(wrapper.find('section').attributes('aria-label')).toBe('Προσφορές για αυτό το προϊόν')
+    // The count sits beside the heading, so the heading's name stays the card's.
+    expect(wrapper.find('h2').text()).toBe('Προσφορές για αυτό το προϊόν')
+    expect(wrapper.get('h2 + span').text()).toBe('2')
+  })
+
+  it.runIf(tree === 'default')('counts the store-wide offers when they are all it lists', async () => {
+    offers = [offer({ id: 2, relation: 'ORDER' }), offer({ id: 3, relation: 'ORDER' })]
+
+    const wrapper = await mountPanel()
+
+    expect(wrapper.get('h2 + span').text()).toBe('2')
   })
 
   it('renders product-specific offers openly and store-wide ones behind a toggle', async () => {
@@ -151,7 +176,9 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     expect(wrapper.text()).toContain('Μόνο για αυτό')
     expect(wrapper.text()).not.toContain('Και αυτό παντού')
 
-    const toggle = wrapper.findAll('button').find(b => b.text() === '2 προσφορές σε όλο το κατάστημα')
+    // The two cards word the toggle differently.
+    const label = tree === 'default' ? 'Προσφορές σε όλο το κατάστημα (2)' : '2 προσφορές σε όλο το κατάστημα'
+    const toggle = wrapper.findAll('button').find(b => b.text() === label)
     expect(toggle).toBeDefined()
     await toggle!.trigger('click')
     await flushPromises()
@@ -184,7 +211,8 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
   it('copies a coupon code and confirms it with a toast', async () => {
     offers = [offer({ id: 1, relation: 'PRODUCT', trigger: 'CODE', code: 'PICK20' })]
     const wrapper = await mountPanel()
-    const label = useNuxtApp().$i18n.t('promotion.copy_code')
+    // The default names the code it copies; the frozen card says "copy code".
+    const label = tree === 'default' ? 'Αντιγραφή του PICK20' : useNuxtApp().$i18n.t('promotion.copy_code')
 
     await wrapper.get(`button[aria-label="${label}"]`).trigger('click')
     await flushPromises()

@@ -1,512 +1,200 @@
 <script setup lang="ts">
-import type { PropType } from 'vue'
+/**
+ * The full-screen photo viewer the gallery's zoom opens.
+ *
+ * Dark in both colour modes, as a photo viewer is: the position and the
+ * close button along the top, the photograph as large as the screen
+ * allows with the arrows beside it, and the thumbnails along the bottom.
+ * A click (or tap) on the photograph magnifies it 2.5x around the
+ * pointer and the pointer then pans it; a second click lets go. While it
+ * is magnified the carousel stops taking drags, so panning does not
+ * swipe to the next photograph.
+ */
+const props = defineProps<{
+  images: ProductImage[]
+  initialIndex: number
+  productName: string
+}>()
 
-const props = defineProps({
-  images: {
-    type: Array as PropType<ProductImage[]>,
-    required: true,
-  },
-  initialIndex: {
-    type: Number,
-    default: 0,
-  },
-})
+const open = defineModel<boolean>({ required: true })
 
-const modelValue = defineModel<boolean>({ required: true })
+const { t } = useI18n()
 
-const { t, locale } = useI18n()
-const img = useMediaStreamImage()
-
-const activeIndex = ref(props.initialIndex)
 const carousel = useTemplateRef('carousel')
-const imageContainerRef = ref<HTMLElement | null>(null)
+const active = ref(props.initialIndex)
+const zoomed = ref(false)
 
-const magnifierSize = 360
-const zoomLevel = 2.5
-const showMagnifier = ref(false)
-
-const { isMobileOrTablet } = useDevice()
-
-const getImage = (mainImagePath: string) => {
-  return img(mainImagePath, {
-    width: 1920,
-    height: 1920,
-    fit: 'cover',
-    quality: 100,
-    format: 'png',
-  }, {
-    provider: 'mediaStream',
-  })
-}
-
-const { elementX, elementY, isOutside } = useMouseInElement(imageContainerRef)
-const { width: containerWidth, height: containerHeight } = useElementBounding(imageContainerRef)
-
-const magnifierStyle = computed(() => {
-  if (!showMagnifier.value || isOutside.value || isMobileOrTablet.value) {
-    return { display: 'none' }
-  }
-
-  const left = elementX.value - magnifierSize / 2
-  const top = elementY.value - magnifierSize / 2
-
-  const bgX = (elementX.value / containerWidth.value) * 100
-  const bgY = (elementY.value / containerHeight.value) * 100
-
-  return {
-    left: `${left}px`,
-    top: `${top}px`,
-    width: `${magnifierSize}px`,
-    height: `${magnifierSize}px`,
-    backgroundPosition: `${bgX}% ${bgY}%`,
-    backgroundSize: `${containerWidth.value * zoomLevel}px ${containerHeight.value * zoomLevel}px`,
-  }
+// The active photograph fills the carousel's viewport, so the pointer's
+// place in the viewport is its place in the photograph.
+const viewport = computed(() => carousel.value?.emblaRef)
+const { elementX, elementY, elementWidth, elementHeight } = useMouseInElement(viewport)
+const zoomOrigin = computed(() => {
+  if (!elementWidth.value || !elementHeight.value) return 'center'
+  const x = Math.min(100, Math.max(0, (elementX.value / elementWidth.value) * 100))
+  const y = Math.min(100, Math.max(0, (elementY.value / elementHeight.value) * 100))
+  return `${x}% ${y}%`
 })
 
-watch(() => props.initialIndex, (newIndex) => {
-  activeIndex.value = newIndex
-})
+const hasMany = computed(() => props.images.length > 1)
 
-watch(activeIndex, (newIndex) => {
-  showMagnifier.value = false
-
-  nextTick(() => {
-    carousel.value?.emblaApi?.scrollTo(newIndex)
-  })
-})
-
-function onClickPrev() {
-  if (activeIndex.value > 0) {
-    activeIndex.value--
-  }
-}
-
-function onClickNext() {
-  if (activeIndex.value < props.images.length - 1) {
-    activeIndex.value++
-  }
+function go(index: number) {
+  if (index < 0 || index >= props.images.length) return
+  carousel.value?.emblaApi?.scrollTo(index)
 }
 
 function onSelect(index: number) {
-  activeIndex.value = index
+  active.value = index
+  zoomed.value = false
 }
-
-function selectImage(index: number) {
-  activeIndex.value = index
-}
-
-function onImageClick() {
-  if (!isMobileOrTablet.value) {
-    showMagnifier.value = !showMagnifier.value
-  }
-}
-
-function closeModal() {
-  modelValue.value = false
-}
-
-const hasMultipleImages = computed(() => props.images.length > 1)
-const currentImagePosition = computed(() => `${activeIndex.value + 1}/${props.images.length}`)
-const currentImage = computed(() => props.images[activeIndex.value])
 
 defineShortcuts({
-  arrowleft: {
-    usingInput: false,
-    handler: () => {
-      if (modelValue.value && activeIndex.value > 0) {
-        activeIndex.value--
-      }
-    },
-  },
-  arrowright: {
-    usingInput: false,
-    handler: () => {
-      if (modelValue.value && activeIndex.value < props.images.length - 1) {
-        activeIndex.value++
-      }
-    },
-  },
-  home: {
-    usingInput: false,
-    handler: () => {
-      if (modelValue.value) {
-        activeIndex.value = 0
-      }
-    },
-  },
-  end: {
-    usingInput: false,
-    handler: () => {
-      if (modelValue.value) {
-        activeIndex.value = props.images.length - 1
-      }
-    },
-  },
+  arrowleft: { usingInput: false, handler: () => go(active.value - 1) },
+  arrowright: { usingInput: false, handler: () => go(active.value + 1) },
+  home: { usingInput: false, handler: () => go(0) },
+  end: { usingInput: false, handler: () => go(props.images.length - 1) },
 })
 
-watch(modelValue, (isOpen) => {
-  if (!isOpen) {
-    showMagnifier.value = false
-  }
-})
+// The square the photograph fills: the screen's width on a phone, and
+// never taller than what the bars above and below leave of its height.
+const FRAME = `
+  w-[min(100vw,calc(100dvh_-_11rem),42.5rem)]
+  lg:w-[min(calc(100vw_-_10rem),calc(100dvh_-_11rem),42.5rem)]
+`
+
+const ARROW = 'bg-transparent text-white ring-white/20 hover:bg-white/10 disabled:opacity-30'
 </script>
 
 <template>
   <UModal
-    v-model:open="modelValue"
-    :title="t('productImage', { product: currentImage?.product })"
-    :description="currentImagePosition"
+    v-model:open="open"
+    :title="productName"
+    :description="t('position', { current: active + 1, total: images.length })"
     fullscreen
-    :ui="{
-      content: 'bg-white',
-    }"
+    :ui="{ content: 'flex flex-col bg-neutral-950 text-white' }"
   >
     <template #content>
+      <div class="flex items-center justify-between px-5 py-4">
+        <span
+          class="font-mono text-sm"
+          aria-hidden="true"
+        >{{ active + 1 }} / {{ images.length }}</span>
+        <UButton
+          icon="i-lucide-x"
+          color="neutral"
+          variant="outline"
+          square
+          :aria-label="t('close')"
+          :class="ARROW"
+          @click="() => { open = false }"
+        />
+      </div>
+
       <div
         class="
-          flex h-dvh flex-col
-          md:h-full
+          flex min-h-0 flex-1 items-center justify-center gap-5
+          lg:px-5
         "
       >
-        <div
-          class="
-            absolute top-2 right-2 z-10 mb-2 flex items-center justify-between
-            gap-3
-            sm:mb-4
-          "
-        >
-          <UBadge
-            v-if="hasMultipleImages"
-            :label="currentImagePosition"
-            color="neutral"
-            variant="soft"
-            size="lg"
-            class="backdrop-blur-sm"
-          />
+        <UButton
+          v-if="hasMany"
+          icon="i-lucide-chevron-left"
+          color="neutral"
+          variant="outline"
+          square
+          :disabled="active === 0"
+          :aria-label="t('previous')"
+          :class="[ARROW, 'max-lg:hidden']"
+          @click="go(active - 1)"
+        />
 
-          <div
-            v-if="!isMobileOrTablet && hasMultipleImages"
-            class="
-              hidden items-center gap-2 rounded-lg bg-white/80 px-3 py-2 text-xs
-              text-black backdrop-blur-sm
-              md:flex
-            "
-          >
-            <span>{{ t('navigate') }}:</span>
-            <div class="flex items-center gap-1">
-              <UKbd value="←" size="sm" />
-              <UKbd value="→" size="sm" />
-            </div>
-            <span>|</span>
-            <span>{{ t('jump') }}:</span>
-            <div class="flex items-center gap-1">
-              <UKbd :value="t('first')" size="sm" />
-              <UKbd :value="t('last')" size="sm" />
-            </div>
-          </div>
-
-          <UButton
-            :aria-label="t('close')"
-            color="error"
-            variant="subtle"
-            icon="i-heroicons-x-mark"
-            size="lg"
-            class="rounded-full backdrop-blur-sm"
-            @click="closeModal"
-          />
-        </div>
-
-        <div
-          class="
-            flex flex-1 flex-col gap-2 overflow-hidden
-            sm:gap-4
-            md:flex-row
-          "
+        <UCarousel
+          ref="carousel"
+          v-slot="{ item }"
+          :items="images"
+          :start-index="initialIndex"
+          :watch-drag="!zoomed"
+          :class="FRAME"
+          :ui="{ container: 'ms-0', item: 'ps-0' }"
+          @select="onSelect"
         >
           <div
             class="
-              relative order-1 flex flex-1 items-center justify-center
-              md:order-2
+              aspect-square overflow-hidden
+              lg:rounded-[1.25rem]
             "
           >
-            <UCarousel
-              v-if="hasMultipleImages"
-              ref="carousel"
-              v-slot="{ item, index }"
-              :items="images"
-              :start-index="activeIndex"
-              arrows
-              :prev="{
-                color: 'neutral',
-                variant: 'subtle',
-                size: isMobileOrTablet ? 'md' : 'lg',
-                square: true,
-                onClick: onClickPrev,
-                disabled: activeIndex === 0,
-              }"
-              :next="{
-                color: 'neutral',
-                variant: 'subtle',
-                size: isMobileOrTablet ? 'md' : 'lg',
-                square: true,
-                onClick: onClickNext,
-                disabled: activeIndex === images.length - 1,
-              }"
-              :ui="{
-                root: 'flex size-full items-center',
-                // Each slide must fill the viewer's height for the
-                // `h-full` wrapper below to centre the image in it; the
-                // carousel's own `items-start` leaves the slide the
-                // height of its content and the image sits at the top.
-                container: 'items-stretch',
-                prev: `
-                  left-2
-                  sm:left-4
-                `,
-                next: `
-                  right-2
-                  sm:right-4
-                `,
-              }"
-              class="h-full w-full"
-              @select="onSelect"
-            >
-              <div class="flex h-full max-h-full items-center justify-center">
-                <div
-                  v-if="index === activeIndex"
-                  ref="imageContainerRef"
-                  class="relative overflow-hidden"
-                  :style="{ cursor: !isMobileOrTablet ? (showMagnifier ? 'zoom-out' : 'zoom-in') : 'default' }"
-                  @click="onImageClick"
-                >
-                  <ImgWithFallback
-                    class="
-                      max-h-full w-auto touch-pinch-zoom rounded-lg bg-white
-                      object-contain select-none
-                    "
-                    loading="eager"
-                    width="1000"
-                    height="1000"
-                    fit="contain"
-                    quality="100"
-                    :src="item?.mainImagePath"
-                    :alt="extractTranslated(item, 'title', locale)"
-                    @dragstart.prevent
-                  />
-
-                  <div
-                    v-if="!isMobileOrTablet && showMagnifier"
-                    id="magnifier"
-                    class="
-                      pointer-events-none absolute z-50 rounded-full border-4
-                      border-white shadow-2xl backdrop-blur-none
-                    "
-                    :style="{
-                      ...magnifierStyle,
-                      backgroundImage: `url(${getImage(item?.mainImagePath)})`,
-                      backgroundRepeat: 'no-repeat',
-                    }"
-                  />
-                </div>
-                <div
-                  v-else
-                  class="relative overflow-hidden"
-                >
-                  <ImgWithFallback
-                    class="
-                      max-h-full w-auto touch-pinch-zoom rounded-lg bg-white
-                      object-contain select-none
-                    "
-                    loading="eager"
-                    width="1000"
-                    height="1000"
-                    fit="contain"
-                    quality="100"
-                    :src="item?.mainImagePath"
-                    :alt="extractTranslated(item, 'title', locale)"
-                    @dragstart.prevent
-                  />
-                </div>
-              </div>
-            </UCarousel>
-
-            <div
-              v-else
-              class="flex h-full max-h-full items-center justify-center"
-            >
-              <div
-                ref="imageContainerRef"
-                class="relative overflow-hidden"
-                :style="{ cursor: !isMobileOrTablet ? (showMagnifier ? 'zoom-out' : 'zoom-in') : 'default' }"
-                @click="onImageClick"
-              >
-                <ImgWithFallback
-                  class="
-                    max-h-[90vh] w-auto touch-pinch-zoom rounded-lg bg-white
-                    object-contain select-none
-                  "
-                  loading="eager"
-                  width="1000"
-                  height="1000"
-                  fit="contain"
-                  quality="100"
-                  :src="images[0]?.mainImagePath"
-                  :alt="extractTranslated(images[0], 'title', locale)"
-                  @dragstart.prevent
-                />
-
-                <div
-                  v-if="!isMobileOrTablet && showMagnifier && images[0]?.mainImagePath"
-                  id="magnifier"
-                  class="
-                    pointer-events-none absolute z-50 rounded-full border-4
-                    border-white shadow-2xl backdrop-blur-none
-                  "
-                  :style="{
-                    ...magnifierStyle,
-                    backgroundImage: `url(${getImage(images[0].mainImagePath)})`,
-                    backgroundRepeat: 'no-repeat',
-                  }"
-                />
-              </div>
-            </div>
-
-            <template v-if="!isMobileOrTablet && hasMultipleImages">
-              <UTooltip
-                v-if="activeIndex > 0"
-                :text="t('previous')"
-                :kbds="['←']"
-                class="
-                  absolute left-2
-                  sm:left-4
-                "
-              >
-                <div
-                  class="
-                    pointer-events-none h-10 w-10
-                    sm:h-12 sm:w-12
-                  "
-                />
-              </UTooltip>
-
-              <UTooltip
-                v-if="activeIndex < images.length - 1"
-                :text="t('next')"
-                :kbds="['→']"
-                class="
-                  absolute right-2
-                  sm:right-4
-                "
-              >
-                <div
-                  class="
-                    pointer-events-none h-10 w-10
-                    sm:h-12 sm:w-12
-                  "
-                />
-              </UTooltip>
-            </template>
+            <ProductImage
+              :image="item"
+              :width="680"
+              :height="680"
+              img-loading="eager"
+              class="size-full object-cover transition-transform duration-200 select-none"
+              :class="zoomed && item === images[active] ? 'scale-[2.5] cursor-zoom-out' : 'cursor-zoom-in'"
+              :style="zoomed && item === images[active] ? { transformOrigin: zoomOrigin } : undefined"
+              draggable="false"
+              @click="() => { zoomed = !zoomed }"
+            />
           </div>
+        </UCarousel>
 
-          <div
-            v-if="hasMultipleImages"
-            class="
-              order-2 flex flex-row gap-4 overflow-x-auto px-4 py-2 pb-2
-              sm:gap-3 sm:px-6
-              md:order-1 md:my-4 md:w-20 md:flex-col md:gap-4
-              md:overflow-x-visible md:overflow-y-auto md:px-6 md:py-2
-              lg:w-32
-            "
-          >
-            <UButton
-              v-for="(image, index) in images"
-              :key="image.id"
-              :aria-label="t('viewImage', { number: index + 1 })"
-              variant="ghost"
-              color="neutral"
-              :ui="{
-                base: `
-                  relative shrink-0 bg-transparent p-0
-                  hover:bg-transparent
-                `,
-              }"
-              @click="selectImage(index)"
-            >
-              <ProductImage
-                :image="image"
-                :width="136"
-                :height="136"
-                img-loading="lazy"
-                class="aspect-square rounded-lg object-cover"
-                :class="isMobileOrTablet ? `
-                  h-16 w-16
-                  sm:h-20 sm:w-20
-                ` : 'w-full'"
-              />
-              <span
-                v-if="activeIndex === index"
-                class="
-                  absolute inset-0 flex aspect-square items-center
-                  justify-center rounded-lg bg-primary-500/20 ring-2
-                  ring-primary-500
-                "
-              />
-            </UButton>
-          </div>
-        </div>
+        <UButton
+          v-if="hasMany"
+          icon="i-lucide-chevron-right"
+          color="neutral"
+          variant="outline"
+          square
+          :disabled="active === images.length - 1"
+          :aria-label="t('next')"
+          :class="[ARROW, 'max-lg:hidden']"
+          @click="go(active + 1)"
+        />
+      </div>
 
-        <div
+      <div
+        v-if="hasMany"
+        class="flex justify-center gap-2 overflow-x-auto p-4"
+      >
+        <button
+          v-for="(image, index) in images"
+          :key="image.id"
+          type="button"
+          :aria-label="t('show_image', { number: index + 1 })"
+          :aria-current="active === index ? 'true' : undefined"
           class="
-            mt-2 flex items-center justify-center gap-2 text-xs
-            dark:text-white/50
+            size-13 shrink-0 cursor-pointer overflow-hidden rounded-[0.75rem]
+            opacity-50 outline-offset-2 transition-opacity
+            hover:opacity-80
+            aria-[current=true]:opacity-100 aria-[current=true]:outline-2
+            aria-[current=true]:outline-white
+            focus-visible:opacity-100 focus-visible:outline-2
+            focus-visible:outline-white
           "
-          :class="isMobileOrTablet ? 'text-black/50' : `
-            text-black/70
-            dark:text-white/70
-          `"
+          @click="go(index)"
         >
-          <UIcon
-            :name="isMobileOrTablet ? 'i-heroicons-arrows-pointing-in' : 'i-heroicons-magnifying-glass-plus'"
-            class="h-4 w-4"
+          <ProductImage
+            :image="image"
+            :width="52"
+            :height="52"
+            img-loading="lazy"
+            class="size-full object-cover"
           />
-          <span>{{ isMobileOrTablet ? t('swipeHint') : t('hoverToMagnify') }}</span>
-        </div>
+        </button>
       </div>
     </template>
   </UModal>
 </template>
 
-<style scoped>
-.touch-pinch-zoom {
-  touch-action: pinch-zoom;
-}
-</style>
-
 <i18n lang="yaml">
 el:
-  first: Αρχή
-  last: Τέλος
-  productImage: Εικόνα προϊόντος {product}
-  navigate: Πλοήγηση
-  jump: Μετάβαση
-  imageNumber: Εικόνα {number}
-  viewImage: Προβολή εικόνας {number}
-  previous: Προηγούμενη
-  next: Επόμενη
-  swipeHint: Σύρετε για πλοήγηση • Πιέστε για μεγέθυνση
-  hoverToMagnify: Κλικ για μεγέθυνση
+  position: Εικόνα {current} από {total}
+  show_image: Εικόνα {number}
+  previous: Προηγούμενη εικόνα
+  next: Επόμενη εικόνα
   close: Κλείσιμο
 en:
-  first: First
-  last: Last
-  productImage: Image of {product}
-  navigate: Navigate
-  jump: Jump to
-  imageNumber: Image {number}
-  viewImage: View image {number}
-  previous: Previous
-  next: Next
-  swipeHint: Swipe to navigate • tap to zoom
-  hoverToMagnify: Click to zoom
+  position: Image {current} of {total}
+  show_image: Image {number}
+  previous: Previous image
+  next: Next image
   close: Close
 </i18n>
