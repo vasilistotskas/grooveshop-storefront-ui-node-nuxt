@@ -1,3 +1,10 @@
+## [3.231.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.231.0...v3.231.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **auth:** keep the two-factor re-authentication pages behind sign-in ([#76](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/76)) ([4559525](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4559525a7e87d854fb834bb196154157c6aaa320))
+
 # [3.231.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.230.0...v3.231.0) (2026-10-03)
 
 
