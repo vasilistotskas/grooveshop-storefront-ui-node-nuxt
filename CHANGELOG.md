@@ -1,3 +1,10 @@
+## [3.228.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.228.1...v3.228.2) (2026-10-03)
+
+
+### Bug Fixes
+
+* **search:** one "/" shortcut, and the search page hydrates cleanly ([#72](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/72)) ([b0d1d0a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b0d1d0a71dfee29cdae57f5621a706dec9174514))
+
 ## [3.228.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.228.0...v3.228.1) (2026-10-03)
 
 
