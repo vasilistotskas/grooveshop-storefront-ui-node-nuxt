@@ -61,6 +61,10 @@ describe('isAuthPageRoute', () => {
     expect([...AuthFlowRoutes, ...ReauthenticateRoutes].filter(name => !isAuthPageRoute(name))).toEqual([])
   })
 
+  it('keeps every re-authentication page behind sign-in: allauth refuses a guest on each', () => {
+    expect(ReauthenticateRoutes.filter(name => !isRouteProtected(name))).toEqual([])
+  })
+
   it.each([
     ['account'],
     ['account-orders'],
