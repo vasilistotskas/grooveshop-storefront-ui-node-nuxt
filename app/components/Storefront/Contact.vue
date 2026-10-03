@@ -45,7 +45,7 @@ const showBreadcrumb = computed(
         v-if="showBreadcrumb"
         class="pt-6"
       >
-        <PageBreadcrumb />
+        <PageBreadcrumb class="mb-5" />
       </UContainer>
     </template>
     <template #after>

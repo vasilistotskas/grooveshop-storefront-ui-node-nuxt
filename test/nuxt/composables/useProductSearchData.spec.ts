@@ -5,6 +5,7 @@ import { flushPromises } from '@vue/test-utils'
 import { effectScope, nextTick, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import type { ProductFilters } from '~~/shared/types/product-filters'
+import type { ProductSearchScope } from '~/composables/useProductSearchData'
 
 /**
  * The filter sidebar's data: the listing's filters become the facet
@@ -50,12 +51,12 @@ function byFacet(answers: Record<string, unknown>) {
   return (_url: string, options: { query: { facets: string } }) => answers[options.query.facets] ?? {}
 }
 
-function setup() {
+function setup(searchScope?: ProductSearchScope) {
   scope = effectScope()
   // `runWithContext` is typed as possibly async; this composable is sync.
   let data!: ReturnType<typeof useProductSearchData>
   scope.run(() => useNuxtApp().runWithContext(() => {
-    data = useProductSearchData()
+    data = useProductSearchData(searchScope)
   }))
   return data
 }
@@ -113,6 +114,17 @@ describe('useProductSearchData', () => {
       expect(facetRequests('category').map(query => query.attributeValues)).toEqual([undefined, '7'])
     })
 
+    it('counts attribute values inside the scoped category, beside the URL\'s own category filter', async () => {
+      filters.value = { ...NO_FILTERS, categories: ['9'] }
+
+      setup({ categoryId: 4 })
+      await flushPromises()
+
+      expect(facetRequests('attribute_values').map(query => query.categories)).toEqual(['4,9'])
+      // The category facet stays store-wide: it draws the whole tree.
+      expect(facetRequests('category').map(query => query.categories)).toEqual([undefined])
+    })
+
     it('exposes each facet\'s distribution, or none', async () => {
       api.routes({
         [SEARCH]: byFacet({ category: { facetDistribution: { category: { 1: 4 } } } }),
@@ -134,6 +146,18 @@ describe('useProductSearchData', () => {
       await flushPromises()
 
       expect(facetRequests('final_price')).toEqual([{ facets: 'final_price', limit: 1, languageCode: 'el' }])
+    })
+
+    it('asks for the scoped category\'s price facet, under a key of its own', async () => {
+      setup({ categoryId: 4 })
+      await flushPromises()
+      setup()
+      await flushPromises()
+
+      expect(facetRequests('final_price')).toEqual([
+        { facets: 'final_price', limit: 1, languageCode: 'el', categories: '4' },
+        { facets: 'final_price', limit: 1, languageCode: 'el' },
+      ])
     })
 
     it.each([

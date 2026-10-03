@@ -9,6 +9,11 @@ const categoryId = 'id' in route.params
   ? route.params.id
   : undefined
 
+// The filters, chips and tree on this page are about this category.
+const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : undefined }
+provideListingScope(scope)
+const { trail } = useCategoryForest(scope)
+
 const { data: category, error: categoryError } = await useApi<ProductCategoryDetail>(
   `/api/products/categories/${categoryId}`,
   {
@@ -83,21 +88,16 @@ const ogImage = computed(() => {
   return ogImageUrl.value
 })
 
-// The narrow-screen filter drawer, opened from the toolbar.
-const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
-
 /**
- * The category's own children, as a row of pills. A category page whose
- * subject has subdivisions is a signpost as much as a listing, and
- * without these the only way down the tree was the global nav.
+ * Home → Products → each parent → this category. The tree's own trail
+ * where it has one; before the categories arrive, the category alone.
  */
-const childCategories = computed(() =>
-  (category.value?.children ?? []).map(child => ({
-    id: child.id,
-    label: extractTranslated(child, 'name', locale.value) ?? child.slug,
-    to: categoryUrl(child.id, child.slug),
-  })),
-)
+const breadcrumb = computed(() => [
+  { label: t('products'), to: '/products' },
+  ...(trail.value.length
+    ? trail.value.map(node => ({ label: node.label, to: node.to }))
+    : [{ label: categoryName.value }]),
+])
 
 const baseUrl = siteConfig.url
 
@@ -156,71 +156,19 @@ useSchemaOrg([
 
 <template>
   <div>
-    <UContainer class="pt-6">
-      <PageBreadcrumb />
+    <UContainer class="pt-5 pb-5 lg:pt-9 lg:pb-8">
+      <PageBreadcrumb :items="breadcrumb" />
+      <!-- The category's OWN name, which is the subject of the page. -->
+      <ProductsHeader
+        class="mt-3.5"
+        :title="categoryName || t('title')"
+        :description="categoryDescription"
+      />
     </UContainer>
 
-    <PageSectionBand padding="sm">
-      <template #header>
-        <div class="flex flex-col gap-3">
-          <!-- The category's OWN name, which is the subject of the
-               page. This said "Category" on every one of them. -->
-          <PageTitle
-            :text="categoryName || t('title')"
-            class="capitalize"
-          />
-          <ReadMore
-            v-if="categoryDescription"
-            :text="categoryDescription"
-            :max-chars="240"
-            class="max-w-3xl text-sm text-muted md:text-base"
-          />
-          <p
-            v-if="category?.recursiveProductCount"
-            class="text-sm text-muted"
-          >
-            {{ t('n_products', { count: category.recursiveProductCount }) }}
-          </p>
-        </div>
-      </template>
-
-      <div
-        v-if="childCategories.length"
-        class="flex flex-wrap gap-2"
-      >
-        <UButton
-          v-for="child in childCategories"
-          :key="child.id"
-          :to="child.to"
-          :label="child.label"
-          color="neutral"
-          variant="outline"
-          size="sm"
-          class="rounded-full"
-        />
-      </div>
-    </PageSectionBand>
-
-    <UContainer class="pb-16">
-      <UPage
-        :ui="{
-          left: 'lg:col-span-2',
-          center: 'lg:col-span-8',
-        }"
-      >
-        <template #left>
-          <ProductsSidebar
-            id="filters"
-            ref="sidebarRef"
-          />
-        </template>
-
-        <ProductsList
-          v-if="categoryId"
-          :category-id="Number(categoryId)"
-          @toggle-filters="sidebarRef?.toggleDrawer()"
-        />
-      </UPage>
+    <UContainer class="flex flex-col gap-4.5 pb-12 lg:gap-7 lg:pb-22">
+      <ProductsCategoryChips />
+      <ProductsBrowse />
     </UContainer>
   </div>
 </template>
@@ -228,12 +176,12 @@ useSchemaOrg([
 <i18n lang="yaml">
 el:
   title: Κατηγορία
-  n_products: "{count} προϊόν | {count} προϊόντα"
+  products: Προϊόντα
   page:
     title: "{name} — Αγορά online"
 en:
   title: Category
-  n_products: "{count} product | {count} products"
+  products: Products
   page:
     title: "{name} — buy online"
 </i18n>

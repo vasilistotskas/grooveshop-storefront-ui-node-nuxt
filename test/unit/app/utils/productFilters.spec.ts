@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import {
   applyFilterUpdates,
   buildFilterChips,
+  CLEARED_FILTERS,
+  isFilterChip,
   countActiveFilters,
   countFiltersBySection,
   parseProductFilters,
@@ -152,6 +154,32 @@ describe('applyFilterUpdates', () => {
     const query = { q: 'laptop' }
     applyFilterUpdates(query, { search: '' })
     expect(query).toEqual({ q: 'laptop' })
+  })
+})
+
+describe('CLEARED_FILTERS', () => {
+  it('drops every filter from the query and keeps the sort and anything else', () => {
+    const query = {
+      q: 'cable',
+      priceMin: '10',
+      priceMax: '60',
+      likesMin: '2',
+      viewsMin: '50',
+      category: ['1', '2'],
+      attributeValue: '7',
+      sort: '-finalPrice',
+      utm_source: 'mail',
+    }
+
+    expect(applyFilterUpdates(query, CLEARED_FILTERS)).toEqual({ sort: '-finalPrice', utm_source: 'mail' })
+  })
+})
+
+describe('isFilterChip', () => {
+  it('counts every chip a shopper set as a filter, and the sort as none', () => {
+    const chips = buildFilterChips({ ...NONE, search: 'cable', priceMin: 10, categories: ['1'], attributeValues: ['7'], sort: '-finalPrice' }, key => key)
+
+    expect(chips.filter(isFilterChip).map(chip => chip.type)).toEqual(['search', 'price', 'category', 'attribute'])
   })
 })
 

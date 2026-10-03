@@ -79,6 +79,21 @@ export const VOLT_UI = {
     ],
   },
 
+  breadcrumb: {
+    slots: {
+      link: 'text-[0.8125rem] font-semibold',
+      separatorIcon: 'size-4',
+    },
+    variants: {
+      active: {
+        false: { link: 'font-semibold' },
+      },
+    },
+    defaultVariants: {
+      color: 'neutral',
+    },
+  },
+
   kbd: {
     base: 'rounded-xs font-mono font-semibold normal-case',
     variants: {
@@ -142,6 +157,11 @@ export const VOLT_UI = {
   },
 
   checkbox: {
+    slots: {
+      // 6px: on Volt's 12px `--ui-radius` the base's `rounded-sm`
+      // turned a 20px box into a circle, which reads as a radio.
+      base: 'rounded-[0.375rem]',
+    },
     defaultVariants: {
       color: 'secondary',
     },

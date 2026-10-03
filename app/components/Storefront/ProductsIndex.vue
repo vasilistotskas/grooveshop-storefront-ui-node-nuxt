@@ -3,9 +3,8 @@ const { t, locale } = useI18n()
 const siteConfig = useSiteConfig()
 const { ogImageUrl } = useTenantBranding()
 
-// The narrow-screen filter drawer lives in the sidebar; the toolbar
-// above the grid is what opens it.
-const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
+// The whole store: no category narrows the filters, chips or tree.
+provideListingScope({ categoryId: undefined })
 
 // A small page-1 fetch for the Schema.org ItemList. It does NOT
 // duplicate the listing's own fetch — different limit, different key —
@@ -70,55 +69,31 @@ const { sections: brandSections } = await usePageConfig('products')
       {{ t('skip_to_content') }}
     </a>
 
-    <UContainer class="pt-6">
+    <UContainer class="pt-5 lg:pt-9">
       <PageBreadcrumb />
     </UContainer>
 
+    <!-- The store's own branded sections, under the crumb and above the
+         listing; their heading, when they carry one, is the page's. -->
     <PageSectionRenderer
       v-for="section in brandSections"
       :key="section.uuid"
       :section="section"
     />
 
-    <PageSectionBand
-      padding="sm"
-      :surface="brandSections.length % 2 === 0 ? 'default' : 'muted'"
-    >
-      <template #header>
-        <div class="flex flex-col gap-2">
-          <PageTitle
-            v-if="!sectionsProvideHeading(brandSections)"
-            :text="t('title')"
-          />
-          <p class="max-w-2xl text-sm text-muted md:text-base">
-            {{ t('seo.description') }}
-          </p>
-        </div>
-      </template>
+    <UContainer class="pt-3.5 pb-5 lg:pb-8">
+      <ProductsHeader
+        :title="sectionsProvideHeading(brandSections) ? undefined : t('title')"
+        :description="t('seo.description')"
+      />
+    </UContainer>
 
-      <!-- The only internal link into /products/category/**. Without it
-           those pages sit in the sitemap with no inbound link at all. -->
-      <ProductCategoriesNav />
-    </PageSectionBand>
-
-    <UContainer class="pb-16">
-      <UPage
-        :ui="{
-          left: 'lg:col-span-2',
-          center: 'lg:col-span-8',
-        }"
-      >
-        <template #left>
-          <ProductsSidebar
-            id="filters"
-            ref="sidebarRef"
-          />
-        </template>
-
-        <div id="product-results">
-          <ProductsList @toggle-filters="sidebarRef?.toggleDrawer()" />
-        </div>
-      </UPage>
+    <!-- The chips and the tree are the internal links into
+         /products/category/**; without them those pages sit in the
+         sitemap with no inbound link at all. -->
+    <UContainer class="flex flex-col gap-4.5 pb-12 lg:gap-7 lg:pb-22">
+      <ProductsCategoryChips />
+      <ProductsBrowse />
     </UContainer>
   </div>
 </template>

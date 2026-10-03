@@ -26,10 +26,6 @@ export interface CategoryMenuEntry {
   children: CategoryMenuEntry[]
 }
 
-export function categoryUrl(id: number, slug: string) {
-  return `/products/category/${id}/${slug}`
-}
-
 export function useCategoryMenu() {
   const { locale } = useI18n()
   const catalogueEnabled = useSettingFlag('CATALOGUE_ENABLED', {

@@ -15,7 +15,7 @@ function label(key: string) {
   return useNuxtApp().$i18n.t(`breadcrumb.items.${key}.label`)
 }
 
-describe.each(trees(PageBreadcrumb, WebsidePageBreadcrumb))('$tree PageBreadcrumb', ({ C }) => {
+describe.each(trees(PageBreadcrumb, WebsidePageBreadcrumb))('$tree PageBreadcrumb', ({ tree, C }) => {
   it('links Home to the index and marks the current page', async () => {
     const wrapper = await mountSuspended(C, { route: '/about', props: { routeName: 'about' } })
 
@@ -38,6 +38,28 @@ describe.each(trees(PageBreadcrumb, WebsidePageBreadcrumb))('$tree PageBreadcrum
     const wrapper = await mountSuspended(C, { route: false, props: { routeName: name } })
 
     expect(wrapper.find('[aria-current="page"]').text()).toBe(label(name))
+  })
+
+  // A category page walks its ancestors: Home, the listing, each parent,
+  // then the category itself, which links to the page it is on.
+  it.runIf(tree === 'default')('walks the trail a page names, the last crumb current', async () => {
+    const wrapper = await mountSuspended(C, {
+      route: '/products/category/3/cables',
+      props: { items: [
+        { label: 'Products', to: '/products' },
+        { label: 'Charging', to: '/products/category/2/charging' },
+        { label: 'Cables' },
+      ] },
+    })
+
+    const links = wrapper.findAll('a')
+    expect(links.map(a => [a.text(), a.attributes('href')])).toEqual([
+      [label('index'), '/'],
+      ['Products', '/products'],
+      ['Charging', '/products/category/2/charging'],
+      ['Cables', '/products/category/3/cables'],
+    ])
+    expect(wrapper.findAll('[aria-current="page"]').map(a => a.text())).toEqual(['Cables'])
   })
 
   it('renders nothing when the route has no catalogue entry', async () => {

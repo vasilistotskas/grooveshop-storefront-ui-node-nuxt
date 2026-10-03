@@ -144,7 +144,7 @@ describe('Products/List', () => {
       expect(emptyState(wrapper).find('button').exists()).toBe(false)
     })
 
-    it('clears every filter from its action', async () => {
+    it('clears every filter and keeps the sort from its action', async () => {
       setFilters({ search: 'laptop' })
       const wrapper = await mountList()
 
@@ -152,7 +152,8 @@ describe('Products/List', () => {
       expect(action.text()).toBe(t('products.no_results.clear_filters'))
       await action.trigger('click')
 
-      expect(pf.clearFilters).toHaveBeenCalledOnce()
+      expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith(CLEARED_FILTERS)
+      expect(pf.clearFilters).not.toHaveBeenCalled()
     })
 
     it.each<[string, Partial<ProductFilters>, string]>([
@@ -173,12 +174,13 @@ describe('Products/List', () => {
   })
 
   describe('pagination', () => {
-    it('offers page links while the results span several pages', async () => {
+    it('offers a link per page while the results span several pages', async () => {
       returns(12, 30)
 
       const wrapper = await mountList()
 
-      expect(wrapper.find('nav').text()).toContain(t('pagination.page_info', { current: 1, total: 3 }))
+      const pages = wrapper.find('nav').findAll('a').map(a => a.text()).filter(Boolean)
+      expect(pages).toEqual(['1', '2', '3'])
       expect(wrapper.find('nav a[href*="page=2"]').exists()).toBe(true)
     })
 
@@ -189,6 +191,14 @@ describe('Products/List', () => {
 
       expect(wrapper.find('nav').exists()).toBe(false)
     })
+  })
+
+  it('reports how many products match, for the filter drawer', async () => {
+    returns(12, 30)
+
+    const wrapper = await mountList()
+
+    expect(wrapper.emitted('update:totalResults')).toEqual([[30]])
   })
 
   describe('the toolbar', () => {

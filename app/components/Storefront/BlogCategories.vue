@@ -24,7 +24,7 @@ useSeoMeta({
       :text="t('title')"
       class="sr-only"
     />
-    <PageBreadcrumb />
+    <PageBreadcrumb class="mb-5" />
     <BlogCategoriesList class="w-full" />
   </PageWrapper>
 </template>

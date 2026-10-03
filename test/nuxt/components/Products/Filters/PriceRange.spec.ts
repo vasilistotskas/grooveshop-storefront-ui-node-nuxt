@@ -4,7 +4,6 @@ import { nextTick } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
 import PriceRange from '~/components/Products/Filters/PriceRange.vue'
 import WebsidePriceRange from '~/components/variants/webside/Products/Filters/PriceRange.vue'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * The price filter writes the URL twice over: the slider on release
@@ -62,7 +61,9 @@ async function type(wrapper: VueWrapper, id: 'price-min-input' | 'price-max-inpu
   await input.trigger('change')
 }
 
-describe.each(trees(PriceRange, WebsidePriceRange))('$tree Products/Filters/PriceRange', ({ C }) => {
+describe('webside Products/Filters/PriceRange', () => {
+  const C = WebsidePriceRange
+
   beforeEach(() => {
     pf.reset()
     stats.priceStats.value = { min: 0, max: 1000 }
@@ -174,5 +175,78 @@ describe.each(trees(PriceRange, WebsidePriceRange))('$tree Products/Filters/Pric
     expect(readout(wrapper)).toBe(`${money(300)} – ${money(400)}`)
     await release(wrapper)
     expect(pf.updateFilters).not.toHaveBeenCalled()
+  })
+})
+
+/**
+ * The default tree draws the same filter without the range readout or
+ * the visible labels: the slider, then two fields named for screen
+ * readers. Its bounds are the listing's scope (a category page's own
+ * prices), which the search data mock stands in for.
+ */
+describe('default Products/Filters/PriceRange', () => {
+  /** A bound's field by its accessible name. */
+  const field = (wrapper: VueWrapper, bound: 'price_min' | 'price_max') => {
+    const name = (wrapper.vm as unknown as { t: (k: string) => string }).t(bound)
+    const input = wrapper.find(`input[aria-label="${name}"]`)
+    expect(input.exists(), `no field named "${name}"`).toBe(true)
+    return input
+  }
+
+  beforeEach(() => {
+    pf.reset()
+    stats.priceStats.value = { min: 5, max: 120 }
+    stats.isPriceStatsLoaded.value = true
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('spans the listing\'s prices in its two fields with no filter set, and the URL\'s range with one', async () => {
+    const plain = await mountSuspended(PriceRange, { route: false })
+    expect([(field(plain, 'price_min').element as HTMLInputElement).value, (field(plain, 'price_max').element as HTMLInputElement).value]).toEqual(['5', '120'])
+    plain.unmount()
+
+    pf.filters.value = { ...pf.filters.value, priceMin: 10, priceMax: 60 }
+    const set = await mountSuspended(PriceRange, { route: false })
+    expect(slider(set).props('modelValue')).toEqual([10, 60])
+  })
+
+  it('writes the URL on release, a bound left at the edge as no bound', async () => {
+    const wrapper = await mountSuspended(PriceRange, { route: false })
+
+    await drag(wrapper, [20, 120])
+    expect(pf.updateFilters).not.toHaveBeenCalled()
+    await release(wrapper)
+
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ priceMin: 20, priceMax: undefined })
+  })
+
+  it('writes a typed bound 300 ms after the last change, keeping the other', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    pf.filters.value = { ...pf.filters.value, priceMin: 10 }
+    const wrapper = await mountSuspended(PriceRange, { route: false })
+
+    const max = field(wrapper, 'price_max')
+    await max.setValue('70')
+    await max.trigger('change')
+    await vi.advanceTimersByTimeAsync(DEBOUNCE_MS - 1)
+    expect(pf.updateFilters).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1)
+
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ priceMin: 10, priceMax: 70 })
+  })
+
+  it.each([
+    ['before the bounds arrive', false, { min: 0, max: 1000 }],
+    ['when every product costs the same', true, { min: 9, max: 9 }],
+  ])('shows no slider %s', async (_case, loaded, bounds) => {
+    stats.isPriceStatsLoaded.value = loaded
+    stats.priceStats.value = bounds
+
+    const wrapper = await mountSuspended(PriceRange, { route: false })
+
+    expect(slider(wrapper).exists()).toBe(false)
   })
 })

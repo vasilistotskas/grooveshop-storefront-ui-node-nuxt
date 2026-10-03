@@ -17,9 +17,7 @@ const { updateFavouriteProducts } = userStore
 const {
   filters,
   hasActiveFilters,
-  activeFilterCount,
   updateFilters,
-  clearFilters,
 } = useProductFilters()
 
 /**
@@ -28,11 +26,9 @@ const {
  * when the products arrived.
  */
 const GRID_CLASS = `
-  grid grid-cols-2 gap-4
-  lg:grid-cols-3 lg:gap-6
-  xl:grid-cols-4
+  grid grid-cols-2 gap-3.5
+  lg:grid-cols-3 lg:gap-7
 `
-const { isMobile } = useDevice()
 
 // Effective category set sent to the search API: the page's own category
 // (when on a category page) unioned with any category filters from the URL.
@@ -206,10 +202,14 @@ const shouldFetchFavouriteProducts = computed(() => {
 const totalResults = computed(() => products.value?.estimatedTotalHits || 0)
 const totalPages = computed(() => Math.ceil(totalResults.value / limit.value))
 
-// Emit event to toggle filters (for mobile drawer)
 const emit = defineEmits<{
+  /** The narrow-screen filter drawer. */
   'toggle-filters': []
+  /** How many products match, for the drawer's "Show N products". */
+  'update:totalResults': [total: number]
 }>()
+
+watch(totalResults, total => emit('update:totalResults', total), { immediate: true })
 
 // Handle sort changes from Toolbar
 const handleSortChange = async (value: string) => {
@@ -357,14 +357,18 @@ onMounted(() => {
 <template>
   <div
     ref="productGridRef"
-    class="flex w-full flex-col gap-6"
+    class="flex w-full flex-col gap-4.5 lg:gap-7"
   >
+    <!-- The results' own heading, for the outline: the cards' titles are
+         h3s, and the page's h1 is the listing's name. -->
+    <h2 class="sr-only">
+      {{ t('heading') }}
+    </h2>
+
     <ProductsToolbar
       :total-results="totalResults"
       :current-sort="filters.sort"
       :items-per-page="limit"
-      :has-active-filters="hasActiveFilters"
-      :active-filter-count="activeFilterCount"
       @update:sort="handleSortChange"
       @update:items-per-page="handleItemsPerPageChange"
       @toggle-filters="emit('toggle-filters')"
@@ -394,7 +398,7 @@ onMounted(() => {
           color: 'secondary',
           variant: 'solid',
           leadingIcon: 'i-heroicons-arrow-path',
-          onClick: () => clearFilters(),
+          onClick: () => updateFilters(CLEARED_FILTERS),
         },
       ] : undefined"
     />
@@ -413,31 +417,15 @@ onMounted(() => {
         />
       </TransitionGroup>
 
-      <nav
+      <ProductsPagination
         v-if="totalPages > 1"
-        class="flex flex-col items-center gap-3 pt-6"
-        :aria-label="t('pagination.navigation')"
-      >
-        <!-- `to` makes every page a real link, so a crawler can walk
-             the catalogue and a shopper can open page 3 in a new tab.
-             `handlePageChange` still runs for the in-page update. -->
-        <UPagination
-          :page="page"
-          :total="totalResults"
-          :items-per-page="limit"
-          :to="pageLink"
-          :sibling-count="isMobile ? 0 : 1"
-          :size="isMobile ? 'lg' : 'md'"
-          color="neutral"
-          variant="outline"
-          active-color="secondary"
-          active-variant="solid"
-          @update:page="handlePageChange"
-        />
-        <p class="text-sm text-muted">
-          {{ t('pagination.page_info', { current: page, total: totalPages }) }}
-        </p>
-      </nav>
+        class="pt-4"
+        :page="page"
+        :total="totalResults"
+        :items-per-page="limit"
+        :to="pageLink"
+        @update:page="handlePageChange"
+      />
     </template>
 
     <div
@@ -450,6 +438,13 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  heading: Αποτελέσματα
+en:
+  heading: Results
+</i18n>
 
 <style scoped>
 .product-fade-enter-active {

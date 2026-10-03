@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import ProductsToolbar from '~/components/Products/Toolbar.vue'
@@ -14,21 +14,22 @@ import WebsideProductsToolbar from '~/components/variants/webside/Products/Toolb
  * hands back the `value-key`'d value as a STRING — Reka's select stores
  * strings, and getting a number out needs the `number` model modifier,
  * which is only reachable through `v-model`. This toolbar binds
- * `:model-value` + `@update:model-value`, so the handler received
- * `"24"`, its old `typeof value === 'number'` guard rejected it, and the
- * control silently did nothing: measured on staging, the list stayed at
- * 12 products whichever option was picked. The assertion is on the
- * EMIT, because that is the contract the list consumes.
+ * `:model-value` + `@update:model-value`, so the handler receives
+ * `"24"`; the assertion is on the EMIT, because that is the contract
+ * the list consumes.
  *
  * The selects are driven through their `update:modelValue` event: the
- * options live in a Reka portal the harness does not lay out.
+ * options live in a Reka portal the harness does not lay out. Wide and
+ * narrow screens each have their own sort select, shown by CSS.
  */
+const pf = await vi.hoisted(async () =>
+  (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
+mockNuxtImport('useProductFilters', () => () => pf)
+
 const props = {
   totalResults: 55,
   currentSort: '',
   itemsPerPage: 12,
-  hasActiveFilters: false,
-  activeFilterCount: 0,
 }
 
 // The chip list reads the URL filters and the search facets; it has its own spec.
@@ -40,51 +41,67 @@ const mountToolbar = (overrides: Partial<typeof props> = {}) =>
   })
 
 /** The component's own `<i18n>` messages; the app-level `$i18n.t` cannot see a component-scoped block. */
-const own = (wrapper: VueWrapper, key: string, params: Record<string, unknown> = {}): string =>
-  (wrapper.vm as unknown as { t: (k: string, p: Record<string, unknown>) => string }).t(key, params)
-
-/** A select by its accessible name — fails loudly rather than falling back to a position. */
-function select(wrapper: VueWrapper, key: 'sort_products' | 'items_per_page') {
-  const label = own(wrapper, `toolbar.aria.${key}`)
-  const found = wrapper.findAllComponents({ name: 'USelect' }).filter(s => s.find(`[aria-label="${label}"]`).exists())
-  expect(found, `expected one select labelled "${label}"`).toHaveLength(1)
-  return found[0]!
+const own = (wrapper: VueWrapper, key: string, params: Record<string, unknown> = {}, plural?: number): string => {
+  const { t } = wrapper.vm as unknown as { t: (k: string, ...args: unknown[]) => string }
+  return plural === undefined ? t(key, params) : t(key, plural, { named: params })
 }
 
-const toggleButton = (wrapper: VueWrapper) =>
-  wrapper.find(`button[aria-label="${own(wrapper, 'toolbar.aria.toggle_filters')}"]`)
+/** The selects with this accessible name, wide first. */
+function selects(wrapper: VueWrapper, key: 'sort_products' | 'items_per_page') {
+  const label = own(wrapper, key)
+  return wrapper.findAllComponents({ name: 'USelect' }).filter(s => s.find(`[aria-label="${label}"]`).exists())
+}
 
-describe('Products/Toolbar', () => {
-  it('announces the result count with the locale\'s thousands separator', async () => {
+/** The narrow screen's way into the filters, by the start of its accessible name. */
+const filterButton = (wrapper: VueWrapper) => {
+  const button = wrapper.find(`button[aria-label^="${own(wrapper, 'open_filters')}"]`)
+  expect(button.exists(), 'no filter button').toBe(true)
+  return button
+}
+
+describe('default Products/Toolbar', () => {
+  beforeEach(() => {
+    pf.reset()
+  })
+
+  it('counts the results with the locale\'s thousands separator, in both frames', async () => {
     const wrapper = await mountToolbar({ totalResults: 1234 })
 
     const count = new Intl.NumberFormat('el').format(1234)
-    expect(wrapper.find('[role="status"]').text()).toBe(own(wrapper, 'resultsCount', { count }))
+    const text = own(wrapper, 'resultsCount', { count }, 1234)
+    expect(wrapper.findAll('p').filter(p => p.text() === text)).toHaveLength(2)
+  })
+
+  it('says one product in the singular', async () => {
+    const wrapper = await mountToolbar({ totalResults: 1 })
+
+    expect(wrapper.find('p').text()).toBe(own(wrapper, 'resultsCount', { count: '1' }, 1))
   })
 
   describe('the sort control', () => {
-    it('shows the store\'s own order as "recommended" when the URL has no sort', async () => {
+    it('reads "Sort: Featured" on a wide screen when the URL has no sort', async () => {
       const wrapper = await mountToolbar()
 
-      expect(select(wrapper, 'sort_products').text()).toContain(own(wrapper, 'sort.recommended'))
+      const [wide] = selects(wrapper, 'sort_products')
+      expect(wide!.text()).toBe(own(wrapper, 'sort_by', { sort: own(wrapper, 'sort.recommended') }))
     })
 
     it.each([
       ['a sort field as-is', '-finalPrice', '-finalPrice'],
       ['"recommended" as no sort at all', 'recommended', ''],
-    ])('emits %s', async (_case, picked, emitted) => {
+    ])('emits %s from either frame', async (_case, picked, emitted) => {
       const wrapper = await mountToolbar({ currentSort: '-createdAt' })
 
-      select(wrapper, 'sort_products').vm.$emit('update:modelValue', picked)
+      for (const control of selects(wrapper, 'sort_products')) control.vm.$emit('update:modelValue', picked)
       await nextTick()
 
-      expect(wrapper.emitted('update:sort')).toEqual([[emitted]])
+      expect(wrapper.emitted('update:sort')).toEqual([[emitted], [emitted]])
     })
 
     it('ignores a value that is not a sort', async () => {
       const wrapper = await mountToolbar()
 
-      select(wrapper, 'sort_products').vm.$emit('update:modelValue', 24)
+      selects(wrapper, 'sort_products')[0]!.vm.$emit('update:modelValue', 24)
       await nextTick()
 
       expect(wrapper.emitted('update:sort')).toBeUndefined()
@@ -95,7 +112,7 @@ describe('Products/Toolbar', () => {
     it('emits a NUMBER when the select hands back a string', async () => {
       const wrapper = await mountToolbar()
 
-      select(wrapper, 'items_per_page').vm.$emit('update:modelValue', '24')
+      selects(wrapper, 'items_per_page')[0]!.vm.$emit('update:modelValue', '24')
       await nextTick()
 
       expect(wrapper.emitted('update:itemsPerPage')).toStrictEqual([[24]])
@@ -103,7 +120,7 @@ describe('Products/Toolbar', () => {
 
     it('ignores a value that is not a usable page size', async () => {
       const wrapper = await mountToolbar()
-      const pageSize = select(wrapper, 'items_per_page')
+      const pageSize = selects(wrapper, 'items_per_page')[0]!
 
       for (const junk of ['', 'all', null, undefined, '0', '-5']) {
         pageSize.vm.$emit('update:modelValue', junk)
@@ -118,23 +135,41 @@ describe('Products/Toolbar', () => {
     it('opens the filter drawer from its button', async () => {
       const wrapper = await mountToolbar()
 
-      await toggleButton(wrapper).trigger('click')
+      await filterButton(wrapper).trigger('click')
 
       expect(wrapper.emitted('toggle-filters')).toEqual([[]])
     })
 
-    it('counts the active filters on the drawer button and lists them under the bar', async () => {
-      const wrapper = await mountToolbar({ hasActiveFilters: true, activeFilterCount: 3 })
+    it('counts the filters a shopper set on the drawer button, never the sort', async () => {
+      pf.activeFilterChips.value = [
+        { key: 'attributeValues', type: 'attribute', label: 'a', value: '7' },
+        { key: 'priceMin', type: 'price', label: 'p', value: { min: 10, max: 60 } },
+        { key: 'sort', type: 'sort', label: 's', value: '-finalPrice' },
+      ]
 
-      expect(toggleButton(wrapper).text()).toBe(`${own(wrapper, 'filters')}3`)
-      expect(wrapper.findComponent({ name: 'ProductsFiltersActiveFilters' }).exists()).toBe(true)
-    })
-
-    it('shows no count and no chip list without active filters', async () => {
       const wrapper = await mountToolbar()
 
-      expect(toggleButton(wrapper).text()).toBe(own(wrapper, 'filters'))
-      expect(wrapper.findComponent({ name: 'ProductsFiltersActiveFilters' }).exists()).toBe(false)
+      expect(filterButton(wrapper).attributes('aria-label')).toBe(own(wrapper, 'open_filters_n', { count: 2 }))
+      expect(filterButton(wrapper).text()).toBe(`${own(wrapper, 'filters')}2`)
+    })
+
+    it('clears the filters and keeps the sort from the narrow screen\'s "Clear filters"', async () => {
+      pf.activeFilterChips.value = [{ key: 'attributeValues', type: 'attribute', label: 'a', value: '7' }]
+      const wrapper = await mountToolbar()
+
+      const clear = wrapper.findAll('button').find(button => button.text() === own(wrapper, 'clear_filters'))
+      await clear!.trigger('click')
+
+      expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith(CLEARED_FILTERS)
+    })
+
+    it('offers no count and nothing to clear with only a sort set', async () => {
+      pf.activeFilterChips.value = [{ key: 'sort', type: 'sort', label: 's', value: '-finalPrice' }]
+
+      const wrapper = await mountToolbar()
+
+      expect(filterButton(wrapper).text()).toBe(own(wrapper, 'filters'))
+      expect(wrapper.findAll('button').some(button => button.text() === own(wrapper, 'clear_filters'))).toBe(false)
     })
   })
 })
@@ -149,6 +184,14 @@ describe('Products/Toolbar', () => {
  */
 describe('webside Products/Toolbar: the items-per-page control', () => {
   const mountWebside = () => mountSuspended(WebsideProductsToolbar, { route: false, props })
+
+  /** The webside select by its accessible name — fails loudly rather than falling back to a position. */
+  function select(wrapper: VueWrapper, key: 'items_per_page') {
+    const label = own(wrapper, `toolbar.aria.${key}`)
+    const found = wrapper.findAllComponents({ name: 'USelect' }).filter(s => s.find(`[aria-label="${label}"]`).exists())
+    expect(found, `expected one select labelled "${label}"`).toHaveLength(1)
+    return found[0]!
+  }
 
   it('emits a NUMBER when the select hands back a string', async () => {
     const wrapper = await mountWebside()
