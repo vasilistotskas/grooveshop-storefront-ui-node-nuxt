@@ -1,3 +1,10 @@
+## [3.232.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.232.0...v3.232.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **favourites:** accept a favourite without a username ([#78](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/78)) ([09733b4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/09733b4848aa8c80152af6c4839712913d9b61e2))
+
 # [3.232.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.231.1...v3.232.0) (2026-10-03)
 
 
