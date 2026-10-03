@@ -1,3 +1,10 @@
+# [3.231.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.230.0...v3.231.0) (2026-10-03)
+
+
+### Features
+
+* **auth:** Groove Volt sign-in, sign-up and re-authentication pages ([#75](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/75)) ([6731254](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6731254184831075c118136120cc2a62296c1647))
+
 # [3.230.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.229.0...v3.230.0) (2026-10-03)
 
 
