@@ -2,15 +2,14 @@
 const { twoFaReauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
+
 useHead({ title: () => t('title') })
+
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
-const code = ref<number[]>([])
+const code = ref<string[]>([])
+const submitting = ref(false)
 
 if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
   await navigateTo(localePath('index'))
@@ -18,148 +17,70 @@ if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHE
 
 async function onSubmit() {
   const codeValue = code.value.join('')
-
-  if (codeValue.length !== 6) {
-    toast.add({
-      title: t('error.invalid_code'),
-      color: 'error',
-      icon: 'i-heroicons-exclamation-circle',
-    })
-    return
-  }
-
+  if (codeValue.length !== 6 || submitting.value) return
+  submitting.value = true
   try {
     await twoFaReauthenticate({ code: codeValue })
     toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
+      title: t('success'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
   }
   catch (error) {
     handleAllAuthClientError(error)
     code.value = []
   }
-}
-
-function handleComplete(value: number[]) {
-  code.value = value
-  onSubmit()
+  finally {
+    submitting.value = false
+  }
 }
 </script>
 
 <template>
-  <div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
-    <UCard
-      class="w-full max-w-lg"
-      :ui="{
-        body: 'space-y-6',
-      }"
-    >
-      <template #header>
-        <div class="space-y-2 text-center">
-          <div
-            class="
-              mx-auto flex size-12 items-center justify-center rounded-full
-              bg-primary/10
-            "
-          >
-            <UIcon
-              name="i-heroicons-device-phone-mobile"
-              class="size-6 text-primary"
-            />
-          </div>
-          <h2 class="text-2xl font-bold tracking-tight">
-            {{ t('title') }}
-          </h2>
-          <p class="text-sm text-muted">
-            {{ t('description') }}
-          </p>
-        </div>
-      </template>
-
-      <Account2FaReauthenticateFlow :flow="Flows.MFA_REAUTHENTICATE">
-        <form
-          class="space-y-6"
-          @submit.prevent="onSubmit"
-        >
-          <div class="flex flex-col items-center space-y-4">
-            <UFormField
-              name="code"
-              class="w-full text-center"
-            >
-              <div class="flex justify-center">
-                <UPinInput
-                  v-model="code"
-                  :length="6"
-                  type="number"
-                  size="xl"
-                  otp
-                  @complete="handleComplete"
-                />
-              </div>
-            </UFormField>
-
-            <p class="text-xs text-muted">
-              {{ t('code.hint') }}
-            </p>
-          </div>
-
-          <UButton
-            type="submit"
-            color="neutral"
-            size="lg"
-            block
-            :disabled="code.join('').length !== 6"
-            icon="i-heroicons-arrow-right"
-            trailing
-          >
-            {{ t('submit') }}
-          </UButton>
-        </form>
-      </Account2FaReauthenticateFlow>
-
-      <template #footer>
-        <UAlert
-          color="warning"
-          variant="soft"
-          icon="i-heroicons-exclamation-triangle"
-          :title="t('warning.title')"
-          :description="t('warning.description')"
+  <AuthPanel
+    icon="i-lucide-shield-check"
+    :title="t('title')"
+    :lead="t('lead')"
+  >
+    <Account2FaReauthenticateFlow>
+      <form
+        class="flex flex-col gap-6"
+        @submit.prevent="onSubmit"
+      >
+        <UPinInput
+          v-model="code"
+          :length="6"
+          type="text"
+          otp
+          size="xl"
+          :aria-label="t('code')"
+          @complete="onSubmit"
         />
-      </template>
-    </UCard>
-  </div>
+        <UButton
+          :label="t('submit')"
+          :loading="submitting"
+          :disabled="code.join('').length !== 6"
+          size="lg"
+          block
+          type="submit"
+        />
+      </form>
+    </Account2FaReauthenticateFlow>
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Επαλήθευση 2FA
-  description: Εισάγετε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης
-  code:
-    label: Κωδικός Επαλήθευσης
-    hint: Ανοίξτε την εφαρμογή επαλήθευσης και εισάγετε τον κωδικό
-  submit: Επαλήθευση
-  success:
-    description: Επιτυχής επαλήθευση
-  error:
-    invalid_code: Μη έγκυρος κωδικός επαλήθευσης
-  warning:
-    title: Δεν έχετε πρόσβαση στην εφαρμογή;
-    description: Μπορείτε να χρησιμοποιήσετε έναν κωδικό ανάκτησης ή άλλη μέθοδο επαλήθευσης
+  title: Επιβεβαίωσε ότι είσαι εσύ
+  lead: Πας να αλλάξεις μια ρύθμιση ασφαλείας. Γράψε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης.
+  code: Κωδικός 6 ψηφίων
+  submit: Επιβεβαίωση
+  success: Επιβεβαιώθηκε
 en:
-  title: Two-factor verification
-  description: Enter the 6-digit code from your authenticator app
-  code:
-    label: Verification Code
-    hint: Open your authenticator app and enter the code
-  submit: Verify
-  success:
-    description: Verified
-  error:
-    invalid_code: That verification code is not valid
-  warning:
-    title: Cannot get at your app?
-    description: You can use a recovery code, or another verification method
+  title: Confirm it is you
+  lead: You are about to change a security setting. Enter the 6-digit code from your authenticator app.
+  code: 6-digit code
+  submit: Confirm
+  success: Confirmed
 </i18n>

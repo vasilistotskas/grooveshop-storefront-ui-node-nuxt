@@ -25,7 +25,7 @@ beforeEach(() => {
 const alternatives = (wrapper: VueWrapper) =>
   wrapper.findAll('a[href]').map(link => [link.text(), link.attributes('href')])
 
-describe.each(trees(AuthenticateFlow, WebsideAuthenticateFlow))('$tree Account/2Fa/AuthenticateFlow', ({ C }) => {
+describe.each(trees(AuthenticateFlow, WebsideAuthenticateFlow))('$tree Account/2Fa/AuthenticateFlow', ({ tree, C }) => {
   const mountFlow = () => mountSuspended(C, {
     props: { authenticatorType: 'totp' },
     route: '/account/2fa/authenticate/totp?next=/account/orders',
@@ -36,8 +36,10 @@ describe.each(trees(AuthenticateFlow, WebsideAuthenticateFlow))('$tree Account/2
     const localePath = useLocalePath()
     const href = (name: FlowPathValue) => localePath({ name, query: { next: '/account/orders' } })
 
+    // The default names passkeys beside security keys; the frozen copy does not.
+    const keyLabel = tree === 'default' ? 'Χρησιμοποίησε κλειδί ασφαλείας ή passkey' : 'Χρησιμοποίησε το κλειδί ασφαλείας'
     expect(alternatives(wrapper)).toEqual([
-      ['Χρησιμοποίησε το κλειδί ασφαλείας', href('account-2fa-authenticate-webauthn')],
+      [keyLabel, href('account-2fa-authenticate-webauthn')],
       ['Χρησιμοποίησε κωδικούς ανάκτησης', href('account-2fa-authenticate-recovery-codes')],
     ])
   })

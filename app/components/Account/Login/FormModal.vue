@@ -1,7 +1,11 @@
 <script lang="ts" setup>
+/**
+ * Sign in without leaving the page — the blog opens this when a guest
+ * comments or likes. The same form as the sign-in page, in the board's
+ * dialog frame; it closes itself once the session arrives.
+ */
 const { t } = useI18n()
 const { loggedIn } = useUserSession()
-const { isMobileOrTablet } = useDevice()
 const isOpen = defineModel<boolean>()
 
 watch(loggedIn, () => {
@@ -14,44 +18,19 @@ watch(loggedIn, () => {
 <template>
   <UModal
     v-model:open="isOpen"
-    :fullscreen="isMobileOrTablet"
     :title="t('title')"
     :description="t('description')"
+    :ui="{
+      ...DIALOG_UI,
+      content: `
+        ${DIALOG_UI.content}
+        max-w-110
+      `,
+      description: 'text-sm text-muted',
+    }"
   >
-    <template #content>
-      <UCard
-        class="relative"
-        :ui="{
-          body: isMobileOrTablet? `
-            p-0
-            sm:p-0
-          ` : `
-            p-0
-            sm:p-0
-          `,
-        }"
-      >
-        <UButton
-          color="neutral"
-          variant="ghost"
-          size="xl"
-          icon="i-heroicons-x-mark-20-solid"
-          class="absolute top-4 right-4 z-50"
-          :ui="{
-            base: `
-              absolute top-4 right-4 z-50 cursor-pointer
-              hover:bg-transparent
-            `,
-          }"
-          @click="() => { isOpen = false }"
-        />
-        <AccountLoginForm
-          class="
-            p-4
-            md:p-8
-          "
-        />
-      </UCard>
+    <template #body>
+      <AccountLoginForm />
     </template>
   </UModal>
 </template>

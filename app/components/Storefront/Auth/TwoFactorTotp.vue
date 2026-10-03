@@ -2,29 +2,9 @@
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 const { t } = useI18n()
-// The page's document title — see the sibling auth bodies. This one
-// had no `title` string of its own, so one is authored here rather
-// than reusing a description that reads as a sentence in a tab.
-useHead({ title: () => t('title') })
+const tenantStore = useTenantStore()
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('account-login'),
-    label: t('breadcrumb.items.account-login.label'),
-    icon: t('breadcrumb.items.account-login.icon'),
-  },
-  {
-    to: localePath('account-2fa-authenticate-totp'),
-    label: t('breadcrumb.items.account-2fa-authenticate-totp.label'),
-    icon: t('breadcrumb.items.account-2fa-authenticate-totp.icon'),
-    current: true,
-  },
-])
+useHead({ title: () => t('title') })
 
 // Only redirect if authEvent is defined and is the wrong event. On hard
 // refresh authEvent.value is undefined (useState has no SSR value); without
@@ -35,78 +15,20 @@ if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UP
 </script>
 
 <template>
-  <div class="flex min-h-[calc(100dvh-4rem)] items-start justify-center p-4">
-    <UContainer class="max-w-2xl">
-      <UBreadcrumb
-        :items="items"
-        :ui="{
-          item: `
-            text-primary-950
-            dark:text-primary-50
-          `,
-          root: `
-            text-xs
-            md:text-base
-          `,
-        }"
-        class="mb-6"
-      />
-
-      <UPageCard variant="outline">
-        <div class="space-y-6">
-          <div class="text-center">
-            <div class="mb-4 inline-flex items-center justify-center">
-              <UIcon
-                name="i-heroicons-device-phone-mobile" class="
-                  size-12 text-primary
-                "
-              />
-            </div>
-            <h1 class="text-2xl font-bold text-highlighted">
-              {{ t('authenticate.totp') }}
-            </h1>
-            <p class="mt-2 text-sm text-muted">
-              {{ t('description') }}
-            </p>
-          </div>
-
-          <UAlert
-            color="info"
-            variant="soft"
-            icon="i-heroicons-information-circle"
-            :description="t('info_text')"
-          />
-
-          <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.TOTP" />
-        </div>
-      </UPageCard>
-    </UContainer>
-  </div>
+  <AuthPanel
+    icon="i-lucide-shield-check"
+    :title="t('title')"
+    :lead="t('lead', { store: tenantStore.storeName })"
+  >
+    <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.TOTP" />
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Επαλήθευση δύο παραγόντων
-  description: Εισάγετε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας
-  info_text: Άνοιξε την εφαρμογή authenticator (Google Authenticator, Authy, κλπ.) και εισάγαγε τον 6-ψήφιο κωδικό.
-  breadcrumb:
-    items:
-      account-login:
-        label: Σύνδεση
-        icon: i-heroicons-arrow-right-on-rectangle
-      account-2fa-authenticate-totp:
-        label: TOTP
-        icon: i-heroicons-lock-closed
+  title: Επαλήθευση σε δύο βήματα
+  lead: Άνοιξε την εφαρμογή επαλήθευσης και γράψε τον 6ψήφιο κωδικό για το {store}.
 en:
-  title: Two-factor verification
-  description: Enter the code from your authenticator app
-  info_text: Open your authenticator app (Google Authenticator, Authy and so on) and enter the 6-digit code.
-  breadcrumb:
-    items:
-      account-login:
-        label: Sign in
-        icon: i-heroicons-arrow-right-on-rectangle
-      account-2fa-authenticate-totp:
-        label: TOTP
-        icon: i-heroicons-lock-closed
+  title: Two-step verification
+  lead: Open your authenticator app and enter the 6-digit code for {store}.
 </i18n>

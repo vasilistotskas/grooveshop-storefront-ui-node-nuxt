@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   resolveChrome,
   resolveDesign,
+  resolveLayout,
   resolvePage,
   type ChromeKey,
   type PageKey,
@@ -76,6 +77,15 @@ describe('variantRegistry', () => {
     // webside renders with the base stylesheet and app config, which is
     // what its frozen tree was captured against.
     expect(resolveDesign('webside')).toBeNull()
+  })
+
+  it('frames the sign-in pages in the split layout for Volt tenants only', () => {
+    expect(resolveLayout('auth', 'demo')).toBe('auth-split')
+    expect(resolveLayout('auth', 'ekfyseosfyteias')).toBe('auth-split')
+    // webside and a request without a tenant keep the layout their page
+    // declares: the frozen sign-in pages were captured inside it.
+    expect(resolveLayout('auth', 'webside')).toBeNull()
+    expect(resolveLayout('auth', null)).toBeNull()
   })
 
   it('leaves a request without a tenant on the base design', () => {

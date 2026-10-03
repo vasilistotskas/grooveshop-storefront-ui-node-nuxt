@@ -924,7 +924,7 @@ useSchemaOrg([
               :quantity="selectorQuantity || 1"
               :text="t('add_to_cart')"
               size="lg"
-              class="flex-1"
+              class="min-w-0 flex-1"
             />
             <ButtonProductAddToFavourite
               :favourite-id="favouriteId"
@@ -1226,7 +1226,7 @@ el:
   weight: Βάρος
   description: Περιγραφή
   specifications: Προδιαγραφές
-  add_to_cart: Προσθήκη στο καλάθι
+  add_to_cart: Στο καλάθι
   out_of_stock: Εξαντλήθηκε
   low_stock: "Έμεινε μόνο {count} | Έμειναν μόνο {count}"
   in_stock: Διαθέσιμο

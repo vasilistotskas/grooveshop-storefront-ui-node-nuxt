@@ -1,57 +1,43 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-// The page's document title. These auth bodies are the ones that own
-// it — their page files are thin shells — and none of them set it, so
-// every step of the sign-in flow showed the store name twice.
-useHead({ title: () => t('title') })
 const localePath = useLocalePath()
+const authInfo = useAuthInfo()
+
+useHead({ title: () => t('title') })
+
+/** The provider the shopper came through, when the pending flow names it. */
+const providerName = computed(() => authInfo?.pendingFlow?.provider?.name)
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:gap-8
-    "
+  <AuthPanel
+    :title="t('title')"
+    :lead="providerName ? t('lead_provider', { provider: providerName }) : t('lead')"
   >
-    <PageTitle
-      :text="t('title')"
-      class="text-center capitalize"
-    />
-    <div
-      class="
-        flex flex-col items-center justify-end
-        sm:flex-row
-      "
-    >
-      <span
-        class="
-          text-sm text-primary-950
-          dark:text-primary-50
-        "
-      >{{
-        t('description')
-      }}</span>
-
-      <UButton
-        :label="t('login')"
-        :to="localePath('account-login')"
-        color="secondary"
-        size="md"
-        type="button"
-        variant="link"
-      />
-    </div>
-
     <AccountProviderSignup />
-  </PageWrapper>
+    <p class="text-center text-sm text-muted">
+      {{ t('have_account') }}
+      <ULink
+        :to="localePath('account-login')"
+        class="font-semibold text-accent"
+      >
+        {{ t('login') }}
+      </ULink>
+    </p>
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Εγγραφή
-  description: Έχεις λογαριασμό;
+  title: Σχεδόν έτοιμοι
+  lead: Έλεγξε τα στοιχεία σου για να ολοκληρώσεις.
+  lead_provider: Συνδέθηκες με {provider}. Έλεγξε τα στοιχεία σου για να ολοκληρώσεις.
+  have_account: Έχεις ήδη λογαριασμό;
+  login: Σύνδεση
 en:
-  title: Sign up
-  description: Already have an account?
+  title: Almost there
+  lead: Check your details to finish.
+  lead_provider: You signed in with {provider}. Check your details to finish.
+  have_account: Already have an account?
+  login: Sign in
 </i18n>

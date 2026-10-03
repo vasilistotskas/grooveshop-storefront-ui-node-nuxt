@@ -1,30 +1,27 @@
 <script lang="ts" setup>
 /**
- * Password strength indicator — 4 requirements, 4-step progress bar.
+ * How strong a new password is: four segments filling as it meets the
+ * rubric, and one line saying the verdict and the rubric — the board's
+ * "Strong · 8+ characters, …" under the field.
  *
- * Extracted from Account/Password/ChangeForm.vue so signup and reset
- * flows share the exact same strength rubric: length ≥ 8, a digit, a
- * lowercase and an uppercase letter. Score is `requirements met`.
- * Reduced-motion is inherited from the global CSS rule.
+ * The rubric is advisory: length ≥ 8, a digit, a lowercase and an
+ * uppercase letter, scored as the number met. Django enforces only the
+ * length (8), "not all digits", "not common" and "not like your
+ * details", so a form never gates on the score — the server's own
+ * refusals arrive as its translated error codes. Letters are Unicode
+ * classes: `[a-z]` never matches Greek, so «Καλημέρα2024» scored as if
+ * it had no letters at all.
  */
-
 const props = defineProps<{
   password: string
 }>()
 
 const { t } = useI18n()
 
-const requirements = computed(() => {
-  const p = props.password ?? ''
-  return [
-    { met: /.{8,}/.test(p), text: t('requirements.length') },
-    { met: /\d/.test(p), text: t('requirements.number') },
-    { met: /[a-z]/.test(p), text: t('requirements.lowercase') },
-    { met: /[A-Z]/.test(p), text: t('requirements.uppercase') },
-  ]
+const score = computed(() => {
+  const value = props.password ?? ''
+  return [/.{8,}/, /\d/, /\p{Ll}/u, /\p{Lu}/u].filter(rule => rule.test(value)).length
 })
-
-const score = computed(() => requirements.value.filter(r => r.met).length)
 
 const color = computed<'neutral' | 'error' | 'warning' | 'success'>(() => {
   if (score.value === 0) return 'neutral'
@@ -33,8 +30,14 @@ const color = computed<'neutral' | 'error' | 'warning' | 'success'>(() => {
   return 'success'
 })
 
+const FILL: Record<typeof color.value, string> = {
+  neutral: 'bg-accented',
+  error: 'bg-error',
+  warning: 'bg-warning',
+  success: 'bg-success',
+}
+
 const label = computed(() => {
-  if (score.value === 0) return t('strength.none')
   if (score.value <= 2) return t('strength.weak')
   if (score.value === 3) return t('strength.medium')
   return t('strength.strong')
@@ -46,66 +49,38 @@ defineExpose({ score, color })
 <template>
   <div
     v-if="password"
-    class="mt-3 space-y-2"
+    class="mt-2 flex flex-col gap-1.5"
     role="status"
     aria-live="polite"
   >
-    <UProgress
-      :color="color"
-      :model-value="score"
-      :max="4"
-      size="sm"
-    />
-
-    <p class="flex items-center gap-2 text-sm font-medium">
-      <UIcon
-        :name="score === 4 ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
-        :class="score === 4 ? 'text-success' : 'text-warning'"
-        class="size-4"
+    <div
+      class="grid grid-cols-4 gap-1"
+      aria-hidden="true"
+    >
+      <span
+        v-for="segment in 4"
+        :key="segment"
+        class="h-1 rounded-full"
+        :class="segment <= score ? FILL[color] : 'bg-elevated'"
       />
-      {{ label }}
+    </div>
+    <p class="text-xs text-muted">
+      <span class="font-semibold text-toned">{{ label }}</span> · {{ t('rubric') }}
     </p>
-
-    <ul class="mt-3 space-y-1.5" :aria-label="t('requirements.title')">
-      <li
-        v-for="(req, index) in requirements"
-        :key="index"
-        class="flex items-center gap-2 text-xs"
-        :class="req.met ? 'text-success' : 'text-gray-500 dark:text-gray-200'"
-      >
-        <UIcon
-          :name="req.met ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
-          class="size-4 shrink-0"
-        />
-        <span>{{ req.text }}</span>
-      </li>
-    </ul>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  requirements:
-    title: Απαιτήσεις κωδικού πρόσβασης
-    length: Τουλάχιστον 8 χαρακτήρες
-    number: Τουλάχιστον 1 αριθμός
-    lowercase: Τουλάχιστον 1 πεζό γράμμα
-    uppercase: Τουλάχιστον 1 κεφαλαίο γράμμα
+  rubric: 8+ χαρακτήρες, ένας αριθμός, κεφαλαία και πεζά
   strength:
-    none: Εισάγετε κωδικό
-    weak: Αδύναμος κωδικός
-    medium: Μέτριος κωδικός
-    strong: Ισχυρός κωδικός
+    weak: Αδύναμος
+    medium: Μέτριος
+    strong: Ισχυρός
 en:
-  requirements:
-    title: Password requirements
-    length: At least 8 characters
-    number: At least 1 number
-    lowercase: At least 1 lowercase letter
-    uppercase: At least 1 uppercase letter
+  rubric: 8+ characters, a number, upper and lower case
   strength:
-    none: Enter a password
-    weak: Weak password
-    medium: Medium-strength password
-    strong: Strong password
+    weak: Weak
+    medium: Fair
+    strong: Strong
 </i18n>

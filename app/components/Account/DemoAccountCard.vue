@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 /**
- * The demo store's shared accounts, offered on its login page.
+ * The demo store's shared accounts, offered on its sign-in page.
  *
  * A prospect cannot see the signed-in half of a shop — orders, saved
  * addresses, loyalty, favourites — without an account, and asking them
@@ -8,9 +8,16 @@
  * store publishes one and says so.
  *
  * A second, WHOLESALE account is offered when the store has one. It is
- * deliberately not the default: a B2B account changes every price on
- * the storefront, so a prospect handed only that login would read
- * wholesale numbers as the retail ones.
+ * deliberately not first: a B2B account changes every price on the
+ * storefront, so a prospect handed only that login would read wholesale
+ * numbers as the retail ones.
+ *
+ * One strip, one row per account — who it is, its email, its password
+ * masked with a copy button, and a "Sign in" that hands the credentials
+ * to the page's form (`login`): the form owns the one sign-in path, the
+ * pending two-factor flow and the `next` bookkeeping. Not a second set
+ * of form fields — two pairs of them stacked over the real form read as
+ * three login forms.
  *
  * Fails CLOSED per account: the merchant setting must be on, and BOTH
  * that account's credentials must be non-empty. They reach the browser
@@ -19,7 +26,7 @@
  * description says so — and no other tenant has it on.
  *
  * Client-only: a cached anonymous page is shared by every visitor, and
- * whether the card renders depends on the settings payload for THIS
+ * whether the strip renders depends on the settings payload for THIS
  * store rather than on the build.
  */
 const emit = defineEmits<{
@@ -27,7 +34,7 @@ const emit = defineEmits<{
 }>()
 
 defineProps<{
-  /** True while the form this card drives is signing in. */
+  /** True while the form this strip drives is signing in. */
   loading?: boolean
 }>()
 
@@ -52,153 +59,104 @@ const accounts = computed<DemoAccount[]>(() => {
     rows.push({ key: 'retail', email: email.value, password: password.value })
   }
   if (b2bEmail.value && b2bPassword.value) {
-    rows.push({
-      key: 'wholesale',
-      email: b2bEmail.value,
-      password: b2bPassword.value,
-    })
+    rows.push({ key: 'wholesale', email: b2bEmail.value, password: b2bPassword.value })
   }
   return rows
 })
 
-/**
- * One account needs no heading — a label over a single pair of fields
- * only asks the reader what the other kind would have been.
- */
-const labelled = computed(() => accounts.value.length > 1)
-
 const { copy, copied } = useClipboard()
-const copiedField = ref<string | null>(null)
+const copiedKey = ref<DemoAccount['key'] | null>(null)
 
-const copyField = async (account: DemoAccount, field: 'email' | 'password') => {
-  await copy(field === 'email' ? account.email : account.password)
-  copiedField.value = `${account.key}:${field}`
+async function copyPassword(account: DemoAccount) {
+  await copy(account.password)
+  copiedKey.value = account.key
 }
-
-const copyIcon = (account: DemoAccount, field: 'email' | 'password') =>
-  copied.value && copiedField.value === `${account.key}:${field}`
-    ? 'i-heroicons-check'
-    : 'i-heroicons-clipboard-document'
 </script>
 
 <template>
   <ClientOnly>
-    <UPageCard
+    <section
       v-if="accounts.length"
-      variant="soft"
-      highlight
-      highlight-color="secondary"
-      icon="i-heroicons-sparkles"
-      :title="t('title')"
-      :description="t('description')"
-      :ui="{
-        title: 'font-display text-base font-semibold',
-        description: 'text-sm',
-        container: 'gap-4',
-      }"
+      :aria-label="t('title')"
+      class="flex flex-col gap-3 rounded-[1.125rem] border border-(--ui-volt-edge) bg-(--ui-volt-soft) p-4.5"
     >
-      <!-- The ACTION first, the credentials under it as a line to
-           read or copy — not as form fields.
+      <div class="flex flex-wrap items-center gap-2">
+        <UBadge
+          :label="t('title')"
+          color="neutral"
+          variant="solid"
+        />
+        <span class="text-[0.8125rem] font-semibold text-highlighted">{{ t('lead') }}</span>
+      </div>
 
-           Two labelled email+password pairs stacked directly above the
-           real login form made the page read as three login forms: six
-           input boxes, three submit buttons, one screen. Reported as
-           "weird and broken (duplicate content)", and it was. The card
-           only ever needed to say "here is a way in, and here are the
-           credentials if you want them". -->
       <div
         v-for="account in accounts"
         :key="account.key"
-        class="flex flex-col gap-2"
+        class="flex items-center gap-3 rounded-[0.875rem] border border-default bg-default py-2.5 ps-3.5 pe-2.5"
       >
-        <p
-          v-if="labelled"
-          class="text-xs font-semibold tracking-wide text-toned uppercase"
-        >
-          {{ t(`account.${account.key}`) }}
-        </p>
-
-        <UButton
-          block
-          :color="account.key === 'retail' ? 'secondary' : 'neutral'"
-          :variant="account.key === 'retail' ? 'solid' : 'subtle'"
-          size="lg"
-          icon="i-heroicons-arrow-right-on-rectangle"
-          :label="labelled ? t(`sign_in_as.${account.key}`) : t('sign_in')"
-          :loading="loading"
-          @click="emit('login', {
-            email: account.email,
-            password: account.password,
-          })"
-        />
-
-        <!-- Shown in clear on purpose: these are published to every
-             visitor of this store, and hiding the password behind a
-             reveal would only suggest it is a secret. -->
-        <dl
-          class="
-            grid grid-cols-[auto_1fr_auto] items-center gap-x-2 text-xs
-          "
-        >
-          <template
-            v-for="field in (['email', 'password'] as const)"
-            :key="field"
-          >
-            <dt class="text-toned">
-              {{ t(field) }}
-            </dt>
-            <dd class="truncate font-mono text-toned">
-              {{ account[field] }}
-            </dd>
+        <div class="flex min-w-0 flex-1 flex-col">
+          <span class="flex flex-wrap items-baseline gap-x-1.5">
+            <strong class="text-sm text-highlighted">{{ t(`account.${account.key}.name`) }}</strong>
+            <span class="text-xs text-muted">{{ t(`account.${account.key}.purpose`) }}</span>
+          </span>
+          <span class="truncate font-mono text-xs text-toned">{{ account.email }}</span>
+          <span class="flex items-center gap-1 font-mono text-xs text-muted">
+            <span aria-hidden="true">••••••••••</span>
+            <span class="sr-only">{{ t('password_hidden') }}</span>
             <UButton
-              :icon="copyIcon(account, field)"
+              :icon="copied && copiedKey === account.key ? 'i-lucide-check' : 'i-lucide-copy'"
               color="neutral"
-              variant="link"
+              variant="ghost"
               size="xs"
-              :aria-label="t('copy')"
-              @click="copyField(account, field)"
+              square
+              :aria-label="t(`account.${account.key}.copy`)"
+              @click="copyPassword(account)"
             />
-          </template>
-        </dl>
+          </span>
+        </div>
+        <UButton
+          :label="t('sign_in')"
+          :aria-label="t(`account.${account.key}.sign_in`)"
+          size="sm"
+          :loading="loading"
+          @click="emit('login', { email: account.email, password: account.password })"
+        />
       </div>
-
-      <!-- `toned`: this card is a soft UPageCard, and the muted token
-           is calibrated against `bg-default` — on that surface it
-           measured 3.06:1 in dark mode. -->
-      <p class="text-center text-xs text-toned">
-        {{ t('reset_notice') }}
-      </p>
-    </UPageCard>
+    </section>
   </ClientOnly>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Δοκιμαστικός λογαριασμός
-  description: Μπες με έτοιμο λογαριασμό για να δεις παραγγελίες, διευθύνσεις, αγαπημένα και πόντους.
-  email: Email
-  password: Κωδικός
-  copy: Αντιγραφή
-  sign_in: Σύνδεση ως επισκέπτης δοκιμής
+  lead: Δες τα πάντα με έτοιμα δεδομένα
+  sign_in: Σύνδεση
+  password_hidden: Κωδικός κρυμμένος
   account:
-    retail: Λιανική
-    wholesale: Χονδρική
-  sign_in_as:
-    retail: Σύνδεση ως πελάτης λιανικής
-    wholesale: Σύνδεση ως πελάτης χονδρικής
-  reset_notice: Οι λογαριασμοί μηδενίζονται κάθε βράδυ.
+    retail:
+      name: Πελάτης
+      purpose: Παραγγελίες, πόντοι, αγαπημένα
+      copy: Αντιγραφή του κωδικού πελάτη
+      sign_in: Σύνδεση ως πελάτης
+    wholesale:
+      name: Χονδρική
+      purpose: Τιμές χονδρικής
+      copy: Αντιγραφή του κωδικού χονδρικής
+      sign_in: Σύνδεση ως πελάτης χονδρικής
 en:
   title: Demo account
-  description: Sign in with a ready-made account to see orders, addresses, favourites and points.
-  email: Email
-  password: Password
-  copy: Copy
-  sign_in: Sign in as the demo shopper
+  lead: Explore everything with sample data
+  sign_in: Sign in
+  password_hidden: Password hidden
   account:
-    retail: Retail
-    wholesale: Wholesale
-  sign_in_as:
-    retail: Sign in as a retail shopper
-    wholesale: Sign in as a wholesale buyer
-  reset_notice: The accounts are reset every night.
+    retail:
+      name: Shopper
+      purpose: Orders, points, favourites
+      copy: Copy the shopper password
+      sign_in: Sign in as the shopper
+    wholesale:
+      name: Wholesale
+      purpose: Wholesale prices
+      copy: Copy the wholesale password
+      sign_in: Sign in as the wholesale buyer
 </i18n>

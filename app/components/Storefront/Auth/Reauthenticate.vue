@@ -4,11 +4,9 @@ const emit = defineEmits(['reauthenticate'])
 const { reauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
+
 useHead({ title: () => t('title') })
+
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
@@ -20,24 +18,16 @@ if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHE
 }
 
 async function onSubmit() {
-  if (!password.value) {
-    toast.add({
-      title: t('validation.required'),
-      color: 'error',
-    })
-    return
-  }
-
+  if (!password.value) return
   try {
     loading.value = true
     await reauthenticate({
       password: password.value,
     })
     toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
+      title: t('success'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
     emit('reauthenticate')
   }
@@ -51,115 +41,61 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
-    <UCard
-      class="w-full max-w-lg"
-      :ui="{
-        body: 'space-y-6',
-      }"
-    >
-      <template #header>
-        <div class="space-y-2 text-center">
-          <div
-            class="
-              mx-auto flex size-12 items-center justify-center rounded-full
-              bg-primary/10
-            "
-          >
-            <UIcon
-              name="i-heroicons-shield-check"
-              class="size-6 text-info"
-            />
-          </div>
-          <h2 class="text-2xl font-bold tracking-tight">
-            {{ t('title') }}
-          </h2>
-          <p class="text-sm text-muted">
-            {{ t('description') }}
-          </p>
-        </div>
-      </template>
-
-      <Account2FaReauthenticateFlow :flow="Flows.REAUTHENTICATE">
-        <form
-          class="space-y-4"
-          @submit.prevent="onSubmit"
+  <AuthPanel
+    icon="i-lucide-shield-check"
+    :title="t('title')"
+    :lead="t('lead')"
+  >
+    <Account2FaReauthenticateFlow :flow="Flows.REAUTHENTICATE">
+      <form
+        class="flex flex-col gap-4"
+        @submit.prevent="onSubmit"
+      >
+        <UFormField
+          :label="t('password')"
+          name="password"
+          required
         >
-          <UFormField
-            :label="t('password.label')"
-            name="password"
-            :ui="{
-              container: '',
-            }"
-            required
-          >
-            <FormPasswordInput
-              v-model="password"
-              :placeholder="t('password.placeholder')"
-              size="xl"
-              icon="i-heroicons-lock-closed"
-              autocomplete="current-password"
-              :disabled="loading"
-            />
-          </UFormField>
-
-          <UButton
-            type="submit"
-            color="neutral"
-            size="lg"
-            block
-            :loading="loading"
-            :disabled="!password"
-            icon="i-heroicons-arrow-right"
-            trailing
-          >
-            {{ t('submit') }}
-          </UButton>
-        </form>
-      </Account2FaReauthenticateFlow>
-
-      <template #footer>
-        <UAlert
-          color="info"
-          variant="soft"
-          icon="i-heroicons-information-circle"
-          :title="t('info.title')"
-          :description="t('info.description')"
+          <template #hint>
+            <ULink
+              :to="localePath('account-password-reset')"
+              class="text-[0.8125rem] font-semibold text-accent"
+            >
+              {{ t('forgot') }}
+            </ULink>
+          </template>
+          <FormPasswordInput
+            v-model="password"
+            autocomplete="current-password"
+            :disabled="loading"
+          />
+        </UFormField>
+        <UButton
+          :label="t('submit')"
+          :loading="loading"
+          :disabled="!password"
+          size="lg"
+          block
+          type="submit"
         />
-      </template>
-    </UCard>
-  </div>
+      </form>
+    </Account2FaReauthenticateFlow>
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Επαναπιστοποίηση
-  description: Για λόγους ασφαλείας, παρακαλούμε επιβεβαιώστε τον κωδικό σας
-  password:
-    label: Κωδικός Πρόσβασης
-    placeholder: Εισάγετε τον κωδικό σας
-    show: Εμφάνιση κωδικού
-    hide: Απόκρυψη κωδικού
+  title: Επιβεβαίωσε ότι είσαι εσύ
+  lead: Πας να αλλάξεις μια ρύθμιση ασφαλείας. Γράψε τον κωδικό σου για να συνεχίσεις.
+  password: Κωδικός
+  forgot: Ξέχασες τον κωδικό;
   submit: Επιβεβαίωση
-  success:
-    title: Επιτυχής επαναπιστοποίηση
-    description: Επιτυχής επαναπιστοποίηση
-  info:
-    title: Γιατί χρειάζεται αυτό;
-    description: Για την προστασία του λογαριασμού σας, απαιτείται επαναπιστοποίηση για ευαίσθητες ενέργειες
+  success: Επιβεβαιώθηκε
 en:
   title: Confirm it is you
-  description: For security, please confirm your password
-  password:
-    label: Password
-    placeholder: Enter your password
-    show: Show password
-    hide: Hide password
+  lead: You are about to change a security setting. Enter your password to continue.
+  password: Password
+  forgot: Forgot password?
   submit: Confirm
-  success:
-    title: Confirmed
-    description: Confirmed
-  info:
-    title: Why is this needed?
-    description: To protect your account, we ask again before anything sensitive
+  success: Confirmed
 </i18n>

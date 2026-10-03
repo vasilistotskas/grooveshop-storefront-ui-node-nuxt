@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-const authStore = useAuthStore()
-const { config } = storeToRefs(authStore)
-
+/**
+ * The store's usable social sign-in providers as a two-column grid of
+ * labelled buttons — the board's "Google · Facebook · GitHub · Discord".
+ * Renders nothing on a store without one (`useSocialProviders`).
+ */
 defineProps({
   loading: {
     type: Boolean,
@@ -9,103 +11,53 @@ defineProps({
   },
 })
 
+const { providers } = useSocialProviders()
 const {
   providerRedirect,
   browserProviderRedirect,
 } = useAllAuthAuthentication()
 
-const providers = computed(() => {
-  return config.value?.socialaccount?.providers
-})
-
-const availableProviders = computed(() => {
-  return providers.value?.filter((provider: Provider) => {
-    return provider.client_id !== ''
-  })
-})
+const PROVIDER_ICONS: Record<string, string> = {
+  google: 'i-mdi-google',
+  facebook: 'i-mdi-facebook',
+  github: 'i-mdi-github',
+  discord: 'i-mdi-discord',
+}
 
 const loginWithProvider = async (provider: Provider) => {
-  let webOnly = false
-
-  if (provider.flows.includes('provider_token')) {
-    webOnly = false
-  }
-  else if (provider.flows.includes('provider_redirect')) {
-    webOnly = true
-  }
-
-  if (webOnly) {
+  // A provider that can hand the browser a token signs in in place;
+  // one that only redirects sends the browser through its own page.
+  if (!provider.flows.includes('provider_token') && provider.flows.includes('provider_redirect')) {
     return await browserProviderRedirect({
       provider: String(provider.id),
       callback_url: '/account/provider/callback',
       process: 'login',
     })
   }
-  else {
-    return providerRedirect(provider)
-  }
-}
-
-const providerColor = (provider: string) => {
-  switch (provider) {
-    case 'google':
-      return 'error'
-    case 'facebook':
-      return 'info'
-    case 'github':
-      return 'neutral'
-    case 'discord':
-      return 'secondary'
-    default:
-      return 'neutral'
-  }
+  return providerRedirect(provider)
 }
 </script>
 
 <template>
   <ul
-    v-if="availableProviders"
-    class="flex gap-4"
+    v-if="providers.length"
+    class="grid list-none grid-cols-2 gap-2.5 p-0"
   >
     <li
-      v-for="provider in availableProviders"
+      v-for="provider in providers"
       :key="provider.id"
     >
       <UButton
-        :aria-busy="loading"
-        :aria-label="provider.name"
+        :label="provider.name"
+        :icon="PROVIDER_ICONS[provider.id] ?? 'i-lucide-log-in'"
         :disabled="loading"
         :loading="loading"
-        class="capitalize"
-        :color="providerColor(provider.id)"
-        size="xl"
+        color="neutral"
+        variant="outline"
+        block
         type="button"
-        variant="solid"
         @click="loginWithProvider(provider)"
-      >
-        <template #leading>
-          <LazyUIcon
-            v-if="provider.id === 'google'"
-            name="i-mdi-google"
-            class="text-xl text-primary-50"
-          />
-          <LazyUIcon
-            v-if="provider.id === 'facebook'"
-            name="i-mdi-facebook"
-            class="text-xl text-primary-50"
-          />
-          <LazyUIcon
-            v-if="provider.id === 'github'"
-            name="i-mdi-github"
-            class="text-xl text-primary-50"
-          />
-          <LazyUIcon
-            v-if="provider.id === 'discord'"
-            name="i-mdi-discord"
-            class="text-xl text-primary-50"
-          />
-        </template>
-      </UButton>
+      />
     </li>
   </ul>
 </template>

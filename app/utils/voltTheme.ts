@@ -156,6 +156,27 @@ export const VOLT_UI = {
     },
   },
 
+  // A code is six boxes the board draws 48×56 with a 12px radius, the
+  // digits in the mono face at 22px — the sign-in, verification and
+  // two-step pages all use the `xl` size.
+  pinInput: {
+    slots: {
+      root: 'gap-2',
+      base: 'rounded-[0.75rem] font-mono font-semibold',
+    },
+    variants: {
+      size: {
+        xl: { base: 'h-14 w-12 text-[1.375rem]' },
+      },
+      variant: {
+        outline: 'ring-default',
+      },
+    },
+    defaultVariants: {
+      color: 'secondary',
+    },
+  },
+
   // A choice is the accent, as the boards draw every one: a card choice
   // is a white card with a 14px radius that turns accent-tinted with an
   // accent edge when chosen. The base theme tints at 10% behind an edge

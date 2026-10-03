@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { FormSubmitEvent, AuthFormField } from '#ui/types'
+import type { FormSubmitEvent } from '#ui/types'
 
 const emit = defineEmits(['passwordRequest'])
 
 const { passwordRequest } = useAllAuthAuthentication()
-const toast = useToast()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
@@ -22,15 +21,10 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
-const fields: AuthFormField[] = [
-  {
-    name: 'email',
-    type: 'email',
-    label: t('email.title'),
-    placeholder: 'example@email.com',
-    required: true,
-  },
-]
+const state = reactive<Partial<Schema>>({ email: undefined })
+// Said in place once the request went through: Django answers the same
+// whether or not the address has an account, and so does the page.
+const sent = ref(false)
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
@@ -41,12 +35,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       email: event.data.email,
     })
 
-    toast.add({
-      title: t('password.reset.request.success'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
+    sent.value = true
 
     emit('passwordRequest')
   }
@@ -61,73 +50,86 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 </script>
 
 <template>
-  <div>
-    <UAuthForm
-      :schema="schema"
-      :fields="fields"
-      :loading="loading"
-      :submit="{
-        label: t('reset'),
-        icon: 'i-heroicons-paper-airplane',
-        block: true,
-        size: 'lg',
-        color: 'neutral',
-        variant: 'subtle',
-      }"
-      @submit="onSubmit"
+  <UForm
+    :schema="schema"
+    :state="state"
+    class="flex flex-col gap-4"
+    @error="scrollToFirstFormError"
+    @submit="onSubmit"
+  >
+    <UFormField
+      :label="t('email.title')"
+      name="email"
+      required
     >
-      <template #validation>
-        <UAlert
-          v-if="hasError"
-          color="error"
-          variant="soft"
-          icon="i-heroicons-exclamation-circle"
-          :title="t('error.title')"
-          :description="t('error.description')"
-        />
-      </template>
+      <UInput
+        v-model="state.email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        icon="i-lucide-mail"
+        class="w-full"
+      />
+    </UFormField>
 
-      <template #footer>
-        <div class="text-center text-sm text-muted">
-          {{ t('footer.text') }}
-          <ULink
-            :to="localePath('account-login')"
-            class="
-              font-medium text-primary
-              hover:underline
-            "
-          >
-            {{ t('footer.link') }}
-          </ULink>
-        </div>
-      </template>
-    </UAuthForm>
-  </div>
+    <UButton
+      :label="t('reset')"
+      :loading="loading"
+      size="lg"
+      block
+      type="submit"
+    />
+
+    <UAlert
+      v-if="sent"
+      color="success"
+      variant="soft"
+      icon="i-lucide-mail-check"
+      :title="t('sent.title')"
+      :description="t('sent.description')"
+      role="status"
+    />
+    <UAlert
+      v-else-if="hasError"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      :title="t('error.title')"
+      :description="t('error.description')"
+    />
+
+    <p class="text-center text-sm">
+      <ULink
+        :to="localePath('account-login')"
+        class="font-semibold text-accent"
+      >
+        {{ t('back') }}
+      </ULink>
+    </p>
+  </UForm>
 </template>
 
 <i18n lang="yaml">
 el:
   email:
     title: Email
-  reset: Αποστολή συνδέσμου
-  success:
-    description: Ελέγξτε το email σας για οδηγίες επαναφοράς.
+  reset: Στείλε σύνδεσμο επαναφοράς
+  sent:
+    title: Δες το email σου
+    description: Αν υπάρχει λογαριασμός με αυτό το email, ο σύνδεσμος είναι καθ' οδόν.
   error:
-    title: Σφάλμα αποστολής
-    description: Δεν ήταν δυνατή η αποστολή του συνδέσμου. Παρακαλώ δοκιμάστε ξανά.
-  footer:
-    text: Θυμήθηκες τον κωδικό σου;
-    link: Σύνδεση
+    title: Ο σύνδεσμος δεν στάλθηκε
+    description: Δοκίμασε ξανά σε λίγο.
+  back: Πίσω στη σύνδεση
 en:
   email:
     title: Email
-  reset: Send the link
-  success:
-    description: Check your email for instructions.
+  reset: Send reset link
+  sent:
+    title: Check your inbox
+    description: If an account exists for that email, a link is on its way.
   error:
-    title: The email could not be sent
-    description: We could not send the link. Please try again.
-  footer:
-    text: Remembered your password?
-    link: Sign in
+    title: The link could not be sent
+    description: Try again in a moment.
+  back: Back to sign in
 </i18n>

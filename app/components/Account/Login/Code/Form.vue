@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { FormSubmitEvent, AuthFormField } from '#ui/types'
+import type { FormSubmitEvent } from '#ui/types'
 
 const emit = defineEmits(['requestLoginCode'])
 
@@ -25,15 +25,7 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
-const fields: AuthFormField[] = [
-  {
-    name: 'email',
-    type: 'email',
-    label: t('email.title'),
-    placeholder: 'example@email.com',
-    required: true,
-  },
-]
+const state = reactive<Partial<Schema>>({ email: undefined })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
@@ -75,46 +67,55 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 </script>
 
 <template>
-  <UAuthForm
+  <UForm
     :schema="schema"
-    :fields="fields"
-    :loading="loading"
-    :submit="{
-      label: t('submit'),
-      icon: 'i-heroicons-paper-airplane',
-      block: true,
-      size: 'lg',
-      color: 'neutral',
-      variant: 'subtle',
-    }"
+    :state="state"
+    class="flex flex-col gap-4"
+    @error="scrollToFirstFormError"
     @submit="onSubmit"
   >
-    <template #validation>
-      <UAlert
-        v-if="hasError"
-        color="error"
-        variant="soft"
-        icon="i-heroicons-exclamation-circle"
-        :title="t('error.title')"
-        :description="t('error.description')"
+    <UFormField
+      :label="t('email.title')"
+      name="email"
+      required
+    >
+      <UInput
+        v-model="state.email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        icon="i-lucide-mail"
+        class="w-full"
       />
-    </template>
+    </UFormField>
 
-    <template #footer>
-      <div class="text-center text-sm text-muted">
-        {{ t('footer.text') }}
-        <ULink
-          :to="localePath('account-login')"
-          class="
-            font-medium text-primary
-            hover:underline
-          "
-        >
-          {{ t('footer.link') }}
-        </ULink>
-      </div>
-    </template>
-  </UAuthForm>
+    <UAlert
+      v-if="hasError"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      :title="t('error.title')"
+      :description="t('error.description')"
+    />
+
+    <UButton
+      :label="t('submit')"
+      :loading="loading"
+      size="lg"
+      block
+      type="submit"
+    />
+
+    <p class="text-center text-sm text-muted">
+      {{ t('footer.text') }}
+      <ULink
+        :to="localePath('account-login')"
+        class="font-semibold text-accent"
+      >
+        {{ t('footer.link') }}
+      </ULink>
+    </p>
+  </UForm>
 </template>
 
 <i18n lang="yaml">
@@ -129,12 +130,12 @@ el:
     title: Σφάλμα αποστολής
     description: Δεν ήταν δυνατή η αποστολή του κωδικού.
   footer:
-    text: Έχεις ήδη κωδικό;
-    link: Εισήγαγε τον εδώ
+    text: Τον θυμήθηκες;
+    link: Σύνδεση με κωδικό πρόσβασης
 en:
   email:
     title: Email
-  submit: Send me a code
+  submit: Send code
   success:
     title: Email sent
     description: Check your email for the sign-in code.
@@ -142,6 +143,6 @@ en:
     title: The email could not be sent
     description: We could not send the code.
   footer:
-    text: Already have a code?
-    link: Enter it here
+    text: Remembered it?
+    link: Sign in with password
 </i18n>

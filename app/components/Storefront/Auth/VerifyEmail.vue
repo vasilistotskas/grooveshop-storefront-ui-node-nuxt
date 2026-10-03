@@ -6,36 +6,13 @@ const emit = defineEmits(['emailVerify'])
 
 const { emailVerify } = useAllAuthAuthentication()
 const { t } = useI18n()
-// The page's document title. These auth bodies are the ones that own
-// it — their page files are thin shells — and none of them set it, so
-// every step of the sign-in flow showed the store name twice.
 useHead({ title: () => t('title') })
 const toast = useToast()
 const localePath = useLocalePath()
 const router = useRouter()
-const { isMobileOrTablet } = useDevice()
 
 const hasError = ref(false)
 const code = ref<string[]>([])
-
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('account-login'),
-    label: t('breadcrumb.items.account-login.label'),
-    icon: t('breadcrumb.items.account-login.icon'),
-  },
-  {
-    to: localePath('account-verify-email'),
-    label: t('breadcrumb.items.account-verify-email.label'),
-    icon: t('breadcrumb.items.account-verify-email.icon'),
-    current: true,
-  },
-])
 
 const codeString = computed(() => code.value.join(''))
 
@@ -58,7 +35,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
         title: t('auth.email.verified'),
         description: t('success.description'),
         color: 'success',
-        icon: 'i-heroicons-check-circle',
+        icon: 'i-lucide-circle-check',
       })
 
       emit('emailVerify')
@@ -79,170 +56,95 @@ watch(codeString, (newCode) => {
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      !mt-0 flex flex-col gap-0 p-0
-      md:!mt-4
-    "
+  <!-- 5 minutes: Django's ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT is 300 s. -->
+  <AuthPanel
+    icon="i-lucide-mail-check"
+    :title="t('title')"
+    :lead="t('lead')"
   >
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: isMobileOrTablet ? `
-          text-primary-950
-          dark:text-primary-50
-        ` : `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          text-xs
-          md:text-base
-        `,
-      }"
-      class="
-        relative mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
-        !pt-2
-        md:mb-5 md:w-full md:!pt-0
-        dark:bg-transparent
-      "
-    />
-    <UContainer
-      class="
-        mt-12 w-xl max-w-full
-        sm:px-0
-        md:mt-0
-        lg:px-0
-      "
+    <UForm
+      :schema="schema"
+      :state="{ key: codeString }"
+      class="flex flex-col gap-6"
+      @error="scrollToFirstFormError"
+      @submit="onSubmit"
     >
-      <UPageCard variant="outline" class="w-full max-w-full">
-        <div class="space-y-6">
-          <div class="text-center">
-            <div class="mb-4 inline-flex items-center justify-center">
-              <UIcon
-                name="i-heroicons-envelope-open" class="size-12 text-primary"
-              />
-            </div>
-            <h1 class="text-2xl font-bold text-highlighted">
-              {{ t('title') }}
-            </h1>
-            <p class="mt-2 text-sm text-muted">
-              {{ t('description') }}
-            </p>
-          </div>
+      <UFormField
+        name="key"
+        :label="t('key')"
+        :ui="{ label: 'sr-only' }"
+      >
+        <UPinInput
+          v-model="code"
+          :length="6"
+          type="text"
+          otp
+          size="xl"
+          :aria-label="t('key')"
+        />
+      </UFormField>
 
-          <UAlert
-            v-if="hasError"
-            color="error"
-            variant="soft"
-            icon="i-heroicons-exclamation-circle"
-            :title="t('error.title')"
-            :description="t('error.description')"
-            close
-            @update:open="hasError = false"
-          />
+      <UAlert
+        v-if="hasError"
+        color="error"
+        variant="soft"
+        icon="i-lucide-circle-alert"
+        :title="t('error.title')"
+        :description="t('error.description')"
+        close
+        @update:open="hasError = false"
+      />
 
-          <UForm
-            :schema="schema"
-            :state="{ key: codeString }"
-            class="space-y-6"
-            @error="scrollToFirstFormError"
-            @submit="onSubmit"
-          >
-            <UFormField
-              name="key"
-              :label="t('key')"
-              :ui="{
-                labelWrapper: 'items-center justify-center gap-2',
-              }"
-            >
-              <div class="flex justify-center">
-                <UPinInput
-                  v-model="code"
-                  :length="6"
-                  type="text"
-                  otp
-                  size="xl"
-                  placeholder="○"
-                  class="gap-2 pt-2"
-                />
-              </div>
+      <UButton
+        :label="t('submit')"
+        :disabled="codeString.length !== 6"
+        size="lg"
+        block
+        type="submit"
+      />
 
-              <template #hint>
-                <div class="text-center text-xs text-muted">
-                  ({{ t('code_hint') }})
-                </div>
-              </template>
-            </UFormField>
-
-            <UButton
-              type="submit"
-              :disabled="codeString.length !== 6"
-              block
-              color="neutral"
-              variant="subtle"
-              size="lg"
-              icon="i-heroicons-check-circle"
-            >
-              {{ t('entry') }}
-            </UButton>
-          </UForm>
-
-          <UAlert
-            color="info"
-            variant="soft"
-            icon="i-heroicons-information-circle"
-            :description="t('info_text')"
-          />
-        </div>
-      </UPageCard>
-    </UContainer>
-  </PageWrapper>
+      <p class="text-center text-sm text-muted">
+        {{ t('wrong_address') }}
+        <ULink
+          :to="localePath('account-signup')"
+          class="font-semibold text-accent"
+        >
+          {{ t('change') }}
+        </ULink>
+      </p>
+    </UForm>
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Επιβεβαίωση Email
-  description: Θα πρέπει να επιβεβαιώσεις το email σου πριν συνεχίσεις.
-  key: Κωδικός
-  code_hint: Εισάγετε τον 6-ψήφιο κωδικό από το email σας
-  info_text: Δεν έλαβες το email; Ελέγξε τον φάκελο spam ή ζήτησε νέο κωδικό.
+  title: Επιβεβαίωσε το email σου
+  lead: Σου στείλαμε έναν κωδικό. Γράψε τον μέσα σε 5 λεπτά για να ολοκληρώσεις τη δημιουργία του λογαριασμού σου.
+  key: Κωδικός 6 ψηφίων
+  submit: Επιβεβαίωση email
+  wrong_address: Λάθος διεύθυνση;
+  change: Άλλαξέ την
   success:
-    description: Το email σας επιβεβαιώθηκε επιτυχώς!
+    description: Το email σου επιβεβαιώθηκε.
   error:
     title: Μη έγκυρος κωδικός
-    description: Ο κωδικός που εισαγάγατε δεν είναι έγκυρος ή έχει λήξει.
+    description: Ο κωδικός δεν είναι σωστός ή έχει λήξει.
   validation:
     code:
       length: Ο κωδικός πρέπει να έχει 6 ψηφία
-  breadcrumb:
-    items:
-      account-login:
-        label: Σύνδεση
-        icon: i-heroicons-arrow-right-on-rectangle
-      account-verify-email:
-        label: Επιβεβαίωση
-        icon: i-heroicons-envelope-open
 en:
   title: Confirm your email
-  description: You need to confirm your email before you can carry on.
-  key: Code
-  code_hint: Enter the 6-digit code from your email
-  info_text: No email? Check your spam folder, or ask for a new code.
+  lead: We sent you a code. Enter it within 5 minutes to finish creating your account.
+  key: 6-digit code
+  submit: Confirm email
+  wrong_address: Wrong address?
+  change: Change it
   success:
-    description: Your email has been confirmed.
+    description: Your email is confirmed.
   error:
     title: That code is not valid
-    description: The code you entered is not valid, or it has expired.
+    description: The code is not right, or it has expired.
   validation:
     code:
       length: The code must be 6 digits
-  breadcrumb:
-    items:
-      account-login:
-        label: Sign in
-        icon: i-heroicons-arrow-right-on-rectangle
-      account-verify-email:
-        label: Confirm
-        icon: i-heroicons-envelope-open
 </i18n>

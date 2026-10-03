@@ -33,7 +33,11 @@ const formPath = useRoute().path
 const showError = ref(false)
 const code = ref<string[]>([])
 
-const codeString = computed(() => code.value.join(''))
+// A recovery code is typed into one field, as the board draws it; the
+// authenticator's six digits go into the pin boxes.
+const isRecovery = computed(() => props.authenticatorType === AuthenticatorType.RECOVERY_CODES)
+const recoveryCode = ref('')
+const codeString = computed(() => (isRecovery.value ? recoveryCode.value.trim() : code.value.join('')))
 
 const { twoFaAuthenticate } = useAllAuthAuthentication()
 
@@ -44,7 +48,7 @@ if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
 const schema = z.object({
   code: z.string()
     .min(1, t('validation.required'))
-    .length(codeLength.value, t('validation.code.length')),
+    .length(codeLength.value, t('validation.code.length', { n: codeLength.value })),
 })
 
 type Schema = z.output<typeof schema>
@@ -89,67 +93,65 @@ watch(codeString, (newCode) => {
 <template>
   <Account2FaAuthenticateFlow :authenticator-type="authenticatorType">
     <slot />
+    <UForm
+      :schema="schema"
+      :state="{ code: codeString }"
+      class="flex flex-col gap-6"
+      @error="scrollToFirstFormError"
+      @submit="onSubmit"
+    >
+      <UFormField
+        name="code"
+        :label="isRecovery ? t('recovery_label') : t('code_label')"
+        :ui="isRecovery ? undefined : { label: 'sr-only' }"
+      >
+        <UInput
+          v-if="isRecovery"
+          v-model="recoveryCode"
+          icon="i-lucide-life-buoy"
+          autocomplete="one-time-code"
+          inputmode="numeric"
+          :maxlength="codeLength"
+          class="w-full"
+        />
+        <UPinInput
+          v-else
+          v-model="code"
+          :length="codeLength"
+          type="text"
+          otp
+          size="xl"
+          :aria-label="t('code_label')"
+        />
+      </UFormField>
 
-    <div class="space-y-6">
       <UAlert
         v-if="showError"
         color="error"
         variant="soft"
-        icon="i-heroicons-exclamation-circle"
+        icon="i-lucide-circle-alert"
         :title="t('error.title')"
         :description="t('error.invalid_code')"
         close
         @update:open="showError = false"
       />
 
-      <UForm
-        :schema="schema"
-        :state="{ code: codeString }"
-        class="space-y-6"
-        @error="scrollToFirstFormError"
-        @submit="onSubmit"
-      >
-        <UFormField
-          name="code"
-          :label="t('code_label')"
-        >
-          <div class="flex justify-center">
-            <UPinInput
-              v-model="code"
-              :length="codeLength"
-              type="text"
-              otp
-              size="xl"
-              placeholder="○"
-              class="gap-2"
-            />
-          </div>
-
-          <template #hint>
-            <div class="mt-2 text-center text-sm text-muted">
-              {{ t('code_hint') }}
-            </div>
-          </template>
-        </UFormField>
-
-        <UButton
-          type="submit"
-          :disabled="codeString.length !== codeLength"
-          block
-          size="lg"
-          icon="i-heroicons-arrow-right-on-rectangle"
-        >
-          {{ t('entry') }}
-        </UButton>
-      </UForm>
-    </div>
+      <UButton
+        :label="t('entry')"
+        :disabled="codeString.length !== codeLength"
+        size="lg"
+        block
+        type="submit"
+      />
+    </UForm>
   </Account2FaAuthenticateFlow>
 </template>
 
 <i18n lang="yaml">
 el:
-  code_label: Κωδικός
-  code_hint: Εισάγετε τον 6-ψήφιο κωδικό
+  code_label: Κωδικός 6 ψηφίων
+  recovery_label: Κωδικός ανάκτησης
+  entry: Επαλήθευση
   success:
     logged_in: Συνδέθηκες με επιτυχία
     description: Η ταυτοποίηση ολοκληρώθηκε!
@@ -157,10 +159,11 @@ el:
     invalid_code: Ο κωδικός που εισαγάγατε δεν είναι έγκυρος. Παρακαλώ δοκιμάστε ξανά.
   validation:
     code:
-      length: Ο κωδικός πρέπει να έχει 6 ψηφία
+      length: Ο κωδικός πρέπει να έχει {n} ψηφία
 en:
-  code_label: Code
-  code_hint: Enter the 6-digit code
+  code_label: 6-digit code
+  recovery_label: Recovery code
+  entry: Verify
   success:
     logged_in: You are signed in
     description: Verification complete.
@@ -168,5 +171,5 @@ en:
     invalid_code: That code is not valid. Please try again.
   validation:
     code:
-      length: The code must be 6 digits
+      length: The code must be {n} digits
 </i18n>

@@ -1,30 +1,12 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const localePath = useLocalePath()
-
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('account-login'),
-    label: t('breadcrumb.items.account-login.label'),
-    icon: t('breadcrumb.items.account-login.icon'),
-    current: true,
-  },
-])
 
 useSeoMeta({
-  title: t('title'),
-})
-useHead({
-  title: t('title'),
+  title: t('seo_title'),
 })
 
 /**
- * The form owns the login. The demo card hands it credentials rather
+ * The form owns the login. The demo strip hands it credentials rather
  * than signing in itself, so there is one path through the pending
  * two-factor flow, the cart refresh and the `next` bookkeeping.
  */
@@ -32,51 +14,25 @@ const form = useTemplateRef('form')
 </script>
 
 <template>
-  <div>
-    <UContainer class="pt-6">
-      <UBreadcrumb :items="items" />
-    </UContainer>
-
-    <PageSectionBand surface="muted">
-      <template #header>
-        <PageTitle
-          :text="t('title')"
-          class="sr-only"
-        />
-      </template>
-
-      <div class="mx-auto flex w-full max-w-md flex-col gap-6">
-        <AccountDemoAccountCard
-          :loading="form?.isSubmitting"
-          @login="({ email, password }) => form?.performLogin(email, password)"
-        />
-
-        <UPageCard
-          variant="outline" :ui="{ container: `
-            p-0
-            sm:p-0
-          ` }"
-        >
-          <AccountLoginForm ref="form" />
-        </UPageCard>
-      </div>
-    </PageSectionBand>
-  </div>
+  <AuthPanel
+    :title="t('title')"
+    :lead="t('lead')"
+  >
+    <AccountDemoAccountCard
+      :loading="form?.isSubmitting"
+      @login="({ email, password }) => form?.performLogin(email, password)"
+    />
+    <AccountLoginForm ref="form" />
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Σύνδεση
-  breadcrumb:
-    items:
-      account-login:
-        label: Σύνδεση
-        icon: i-heroicons-arrow-right-on-rectangle
+  seo_title: Σύνδεση
+  title: Καλώς ήρθες ξανά
+  lead: Συνδέσου για να βλέπεις τις παραγγελίες σου, να κρατάς αγαπημένα και να εξαργυρώνεις πόντους.
 en:
-  title: Sign in
-  breadcrumb:
-    items:
-      account-login:
-        label: Sign in
-        icon: i-heroicons-arrow-right-on-rectangle
+  seo_title: Sign in
+  title: Welcome back
+  lead: Sign in to track orders, save favourites and spend your points.
 </i18n>

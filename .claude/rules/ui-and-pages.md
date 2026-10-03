@@ -20,12 +20,14 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 
 - `default` — Public pages: header/navbar, mobile bottom navigation, footer (lazy-loaded, device-aware)
 - `user` — Authenticated pages: header, user account info banner, sidebar navigation, footer
-- `auth` — Login/signup flows
+- `auth` — Login/signup flows, as their page files name it (and as webside renders them)
+- `auth-split` — The Volt sign-in frame: the store's ink panel beside the form on desktop, a back button and logo over it on a phone. Page files cannot name it per store, so `design-layout.global.ts` swaps it in for every sign-in, sign-up and re-authentication page (`isAuthPageRoute`) of a tenant `resolveLayout('auth', schema)` puts on Volt
 
 ## Middleware
 
 - `auth.global.ts` — Global: redirects unauthenticated users from protected routes
 - `identity.global.ts` — Global: hydrates identity/session state
+- `design-layout.global.ts` — Global: the layout a tenant's design draws a kind of page in (`resolveLayout` in `variantRegistry.ts`); `setPageLayout` is how a middleware overrides the layout a page file fixed at build time
 - `guest.ts` — Prevents logged-in users from accessing login/signup pages
 - `loyalty-enabled.ts` — Redirects to home if loyalty system is disabled for the tenant
 - `blog-enabled.ts` — Redirects to home if blog is disabled for the tenant

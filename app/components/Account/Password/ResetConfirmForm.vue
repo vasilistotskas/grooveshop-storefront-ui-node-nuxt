@@ -22,38 +22,8 @@ await useAsyncData('passwordReset', () => getPasswordReset(String(key)))
 const hasError = ref(false)
 const isSubmitting = ref(false)
 
-function checkStrength(str: string) {
-  // Unicode property classes — ``[a-z]`` is ASCII-only and never
-  // matches Greek letters, so «Καλημέρα2024» scored 2/4 forever.
-  const requirements = [
-    { regex: /.{8,}/, text: t('password.requirements.length') },
-    { regex: /\d/, text: t('password.requirements.number') },
-    { regex: /\p{Ll}/u, text: t('password.requirements.lowercase') },
-    { regex: /\p{Lu}/u, text: t('password.requirements.uppercase') },
-  ]
-  return requirements.map(req => ({ met: req.regex.test(str), text: req.text }))
-}
-
 const newPassword1 = ref('')
 const newPassword2 = ref('')
-
-const strength = computed(() => checkStrength(newPassword1.value))
-const score = computed(() => strength.value.filter(req => req.met).length)
-
-const color = computed(() => {
-  if (score.value === 0) return 'neutral'
-  if (score.value <= 1) return 'error'
-  if (score.value <= 2) return 'warning'
-  if (score.value === 3) return 'warning'
-  return 'success'
-})
-
-const strengthText = computed(() => {
-  if (score.value === 0) return t('password.strength.none')
-  if (score.value <= 2) return t('password.strength.weak')
-  if (score.value === 3) return t('password.strength.medium')
-  return t('password.strength.strong')
-})
 
 const schema = z.object({
   // Mirrors Django's AUTH_PASSWORD_VALIDATORS where a pure function
@@ -72,7 +42,7 @@ const schema = z.object({
     .max(255),
   key: z.string(),
 }).refine(data => data.newPassword1 === data.newPassword2, {
-  message: t('form.newPassword2.errors.match'),
+  message: t('errors.match'),
   path: ['newPassword2'],
 })
 
@@ -83,25 +53,23 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   isSubmitting.value = true
   try {
     hasError.value = false
-
     await passwordReset({
       password: event.data.newPassword1,
       key: event.data.key,
     })
-
     toast.add({
       title: t('password.reset.success'),
       description: t('success.description'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
-
     emit('passwordReset')
-
     await router.push(localePath('account-login'))
   }
   catch (error) {
     if (isAllAuthClientError(error)) {
+      // allauth answers a reset that went through without signing the
+      // shopper in with a 401: the password changed, sign in with it.
       if (error.data.data.status === 401) {
         toast.add({
           title: t('password.reset.success'),
@@ -132,159 +100,78 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <UForm
+    :schema="schema"
+    :state="{ newPassword1, newPassword2, key: String(key) }"
+    class="flex flex-col gap-4"
+    @error="scrollToFirstFormError"
+    @submit="onSubmit"
+  >
     <UAlert
       v-if="hasError"
       color="error"
       variant="soft"
-      icon="i-heroicons-exclamation-circle"
+      icon="i-lucide-circle-alert"
       :title="t('error.title')"
       :description="t('error.description')"
       close
       @update:open="hasError = false"
     />
 
-    <UForm
-      :schema="schema"
-      :state="{ newPassword1, newPassword2, key: String(key) }"
-      class="space-y-5"
-      @error="scrollToFirstFormError"
-      @submit="onSubmit"
+    <UFormField
+      name="newPassword1"
+      :label="t('new_password')"
+      required
     >
-      <UFormField
-        name="newPassword1"
-        :label="t('form.newPassword1.label')"
-        required
-      >
-        <FormPasswordInput
-          v-model="newPassword1"
-          icon="i-heroicons-key"
-          :color="color"
-          autocomplete="new-password"
-          :placeholder="t('password.placeholder')"
-        />
+      <FormPasswordInput
+        v-model="newPassword1"
+        autocomplete="new-password"
+      />
+      <FormPasswordStrengthMeter :password="newPassword1" />
+    </UFormField>
 
-        <template v-if="newPassword1" #hint>
-          <div class="mt-2 space-y-2">
-            <UProgress
-              :color="color"
-              :model-value="score"
-              :max="4"
-              size="sm"
-            />
+    <UFormField
+      name="newPassword2"
+      :label="t('repeat_password')"
+      required
+    >
+      <FormPasswordInput
+        v-model="newPassword2"
+        autocomplete="new-password"
+      />
+    </UFormField>
 
-            <p class="text-xs font-medium text-muted">
-              {{ strengthText }}. {{ t('password.requirements.title') }}
-            </p>
-
-            <ul class="space-y-1">
-              <li
-                v-for="(req, index) in strength"
-                :key="index"
-                class="flex items-center gap-1"
-                :class="req.met ? 'text-success' : 'text-muted'"
-              >
-                <UIcon
-                  :name="req.met ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
-                  class="size-4 shrink-0"
-                />
-                <span class="text-xs">{{ req.text }}</span>
-              </li>
-            </ul>
-          </div>
-        </template>
-      </UFormField>
-
-      <UFormField
-        name="newPassword2"
-        :label="t('form.newPassword2.label')"
-        required
-      >
-        <FormPasswordInput
-          v-model="newPassword2"
-          icon="i-heroicons-check-badge"
-          autocomplete="new-password"
-          :placeholder="t('password.placeholder_confirm')"
-        />
-      </UFormField>
-
-      <UButton
-        type="submit"
-        color="neutral"
-        variant="subtle"
-        :disabled="isSubmitting"
-        :loading="isSubmitting"
-        block
-        size="lg"
-        icon="i-heroicons-check-circle"
-      >
-        {{ t('form.submit') }}
-      </UButton>
-
-      <p v-if="score < 4 && newPassword1" class="text-center text-xs text-muted">
-        {{ t('password.requirements.complete') }}
-      </p>
-    </UForm>
-  </div>
+    <UButton
+      :label="t('submit')"
+      :loading="isSubmitting"
+      size="lg"
+      block
+      type="submit"
+    />
+  </UForm>
 </template>
 
 <i18n lang="yaml">
 el:
-  form:
-    newPassword1:
-      label: Κωδικός πρόσβασης
-    newPassword2:
-      label: Επιβεβαίωση κωδικού πρόσβασης
-      errors:
-        match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον κωδικό πρόσβασης
-    submit: Επαναφορά
-  password:
-    placeholder: Εισάγετε νέο κωδικό πρόσβασης
-    placeholder_confirm: Επιβεβαιώστε τον νέο κωδικό
-    strength:
-      none: Εισάγετε κωδικό πρόσβασης
-      weak: Αδύναμος κωδικός
-      medium: Μέτριος κωδικός
-      strong: Ισχυρός κωδικός
-    requirements:
-      title: Πρέπει να περιέχει
-      length: Τουλάχιστον 8 χαρακτήρες
-      number: Τουλάχιστον 1 αριθμό
-      lowercase: Τουλάχιστον 1 πεζό γράμμα
-      uppercase: Τουλάχιστον 1 κεφαλαίο γράμμα
-      complete: Ολοκληρώστε όλες τις απαιτήσεις για να συνεχίσετε
+  new_password: Νέος κωδικός
+  repeat_password: Επανάληψη κωδικού
+  submit: Αποθήκευση κωδικού
+  errors:
+    match: Οι δύο κωδικοί πρέπει να είναι ίδιοι
   success:
-    description: Ο κωδικός σας έχει επαναφερθεί επιτυχώς.
+    description: Συνδέσου με τον νέο σου κωδικό.
   error:
-    title: Σφάλμα επαναφοράς
-    description: Ο σύνδεσμος επαναφοράς μπορεί να έχει λήξει ή να είναι άκυρος.
+    title: Ο κωδικός δεν άλλαξε
+    description: Ο σύνδεσμος μπορεί να έχει λήξει. Ζήτα έναν νέο.
 en:
-  form:
-    newPassword1:
-      label: Password
-    newPassword2:
-      label: Confirm password
-      errors:
-        match: The confirmation must match the password
-    submit: Reset
-  password:
-    placeholder: Enter a new password
-    placeholder_confirm: Confirm the new password
-    strength:
-      none: Enter a password
-      weak: Weak password
-      medium: Fair password
-      strong: Strong password
-    requirements:
-      title: It must contain
-      length: At least 8 characters
-      number: At least 1 number
-      lowercase: At least 1 lowercase letter
-      uppercase: At least 1 capital letter
-      complete: Meet every requirement to continue
+  new_password: New password
+  repeat_password: Repeat password
+  submit: Save password
+  errors:
+    match: The two passwords have to match
   success:
-    description: Your password has been reset.
+    description: Sign in with your new password.
   error:
-    title: The reset failed
-    description: The reset link may have expired or be invalid.
+    title: The password was not changed
+    description: The link may have expired. Ask for a new one.
 </i18n>

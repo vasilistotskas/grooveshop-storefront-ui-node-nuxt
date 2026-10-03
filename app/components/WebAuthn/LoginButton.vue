@@ -61,31 +61,21 @@ async function finalizeLogin() {
   emit('getWebAuthnRequestOptionsForLogin')
   emit('loginUsingWebAuthn')
 }
-
-const submitButtonDisabled = computed(() => {
-  return loading.value
-})
-
-const submitButtonLabel = computed(() => {
-  return !loading.value
-    ? t('webauthn.login')
-    : t('loading')
-})
 </script>
 
 <template>
+  <!-- A passkey or a security key: the browser offers whichever the
+       shopper has. `type="button"`: it sits beside the sign-in form,
+       and must never submit it. -->
   <UButton
-    icon="i-heroicons-solid:lock-closed"
-    :aria-busy="loading"
-    :disabled="submitButtonDisabled"
-    :label="
-      submitButtonLabel"
+    icon="i-lucide-key-round"
+    :label="t('webauthn.login')"
     :loading="loading"
-    block
+    color="neutral"
+    variant="outline"
     size="lg"
-    type="submit"
-    variant="solid"
-    color="secondary"
+    block
+    type="button"
     @click="onSubmit"
   />
 </template>
@@ -93,14 +83,14 @@ const submitButtonLabel = computed(() => {
 <i18n lang="yaml">
 el:
   webauthn:
-    login: Σύνδεση με κλειδί ασφαλείας
+    login: Σύνδεση με passkey
     error:
       title: Η σύνδεση απέτυχε
-      description: Υπήρξε πρόβλημα με την αυθεντικοποίηση μέσω WebAuthn. Παρακαλώ προσπάθησε ξανά.
+      description: Η συσκευή σου δεν επιβεβαίωσε τη σύνδεση. Δοκίμασε ξανά.
 en:
   webauthn:
-    login: Sign in with a security key
+    login: Sign in with a passkey
     error:
       title: Sign-in failed
-      description: Something went wrong with WebAuthn. Please try again.
+      description: Your device did not confirm the sign-in. Try again.
 </i18n>

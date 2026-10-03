@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { UButton, UChip, UModal, URadioGroup } from '#components'
+import { UButton, UChip, UModal, UPinInput, URadioGroup } from '#components'
 import designPlugin from '~/plugins/design'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
@@ -104,6 +104,21 @@ describe('design plugin', () => {
       'has-data-[state=checked]:bg-(--ui-secondary-soft)',
     ]))
     expect(item).not.toContain('has-data-[state=checked]:bg-secondary/10')
+  })
+
+  it('draws a one-time code as the boards do: tall mono boxes on the plain edge', async () => {
+    // The base `xl` box is `size-10`; tailwind-merge keeps it beside
+    // `h-14 w-12`, and Tailwind emits the two-property `size-*` rule
+    // first, so the box renders 48 x 56. happy-dom computes no layout, so
+    // the classes are the contract.
+    useState('tenant').value = validTenantConfig('demo.example', { schemaName: 'demo' })
+    run()
+
+    const wrapper = await mountSuspended(UPinInput, { props: { length: 6, size: 'xl' } })
+
+    const box = wrapper.find('[data-slot="base"]').attributes('class')?.split(' ') ?? []
+    expect(box).toEqual(expect.arrayContaining(['h-14', 'w-12', 'font-mono', 'ring-default']))
+    expect(box).not.toContain('text-base')
   })
 
   it('leaves webside on the base app config', () => {

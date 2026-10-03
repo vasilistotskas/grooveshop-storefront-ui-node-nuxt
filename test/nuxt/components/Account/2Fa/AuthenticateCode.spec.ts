@@ -38,7 +38,13 @@ async function enterCode(wrapper: VueWrapper, code: string) {
   await flushPromises()
 }
 
-describe.each(trees(AuthenticateCode, WebsideAuthenticateCode))('$tree Account/2Fa/AuthenticateCode', ({ C }) => {
+/** The default takes a recovery code in one text field, as the board draws it. */
+async function enterRecoveryCode(wrapper: VueWrapper, code: string) {
+  await wrapper.get('input[autocomplete="one-time-code"]').setValue(code)
+  await flushPromises()
+}
+
+describe.each(trees(AuthenticateCode, WebsideAuthenticateCode))('$tree Account/2Fa/AuthenticateCode', ({ tree, C }) => {
   const mountCode = (authenticatorType = 'totp') =>
     mountSuspended(C, { props: { authenticatorType }, route: '/account/2fa/authenticate/totp' })
 
@@ -55,12 +61,13 @@ describe.each(trees(AuthenticateCode, WebsideAuthenticateCode))('$tree Account/2
 
   it('waits for all eight digits of a recovery code', async () => {
     const wrapper = await mountCode('recovery_codes')
+    const enter = tree === 'default' ? enterRecoveryCode : enterCode
 
-    await enterCode(wrapper, '123456')
+    await enter(wrapper, '123456')
     expect(twoFaAuthenticate).not.toHaveBeenCalled()
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
 
-    await enterCode(wrapper, '12345678')
+    await enter(wrapper, '12345678')
     expect(twoFaAuthenticate).toHaveBeenCalledWith({ code: '12345678' })
   })
 

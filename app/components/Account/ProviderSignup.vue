@@ -1,15 +1,23 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { FormSubmitEvent } from '#ui/types'
 
-const { t } = useI18n()
+/**
+ * The last step of signing up through a social provider: the email the
+ * account will use (the provider's, editable) and the terms. No username
+ * — the store signs in by email.
+ */
 const emit = defineEmits(['providerSignup'])
 
+const { t } = useI18n()
+const localePath = useLocalePath()
 const { providerSignup } = useAllAuthAuthentication()
 const toast = useToast()
 
 const loading = ref(false)
+const acceptedTerms = ref(false)
 
-const providerSignupZodSchema = z.object({
+const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
       ? t('validation.required')
@@ -17,12 +25,16 @@ const providerSignupZodSchema = z.object({
   }),
 })
 
-async function onSubmit(values: z.infer<typeof providerSignupZodSchema>) {
+type Schema = z.output<typeof schema>
+
+const state = reactive<Partial<Schema>>({ email: undefined })
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
     loading.value = true
-    await providerSignup(values) // Properly typed as { email: string }
+    await providerSignup(event.data)
     toast.add({
-      title: t('success.title'),
+      title: t('success'),
       color: 'success',
     })
     emit('providerSignup')
@@ -30,43 +42,74 @@ async function onSubmit(values: z.infer<typeof providerSignupZodSchema>) {
   catch (error) {
     handleAllAuthClientError(error)
   }
+  finally {
+    loading.value = false
+  }
 }
-
-const formSchema = computed(() => ({
-  fields: [
-    {
-      label: t('email.title'),
-      name: 'email',
-      as: 'input',
-      rules: providerSignupZodSchema.shape.email,
-      ui: {
-        root: 'w-full',
-      },
-      autocomplete: 'email',
-      readonly: false,
-      required: true,
-      condition: () => true,
-      disabledCondition: () => false,
-      placeholder: t('email.title'),
-      type: 'email',
-    },
-  ],
-} as const satisfies DynamicFormSchema))
 </script>
 
 <template>
-  <div
-    class="
-      container mx-auto p-0
-      md:px-6
-    "
+  <UForm
+    :schema="schema"
+    :state="state"
+    class="flex flex-col gap-4"
+    @error="scrollToFirstFormError"
+    @submit="onSubmit"
   >
-    <section class="grid items-center">
-      <DynamicForm
-        :button-label="t('submit')"
-        :schema="formSchema"
-        @submit="onSubmit"
+    <UFormField
+      :label="t('email')"
+      name="email"
+      required
+    >
+      <UInput
+        v-model="state.email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        icon="i-lucide-mail"
+        class="w-full"
       />
-    </section>
-  </div>
+    </UFormField>
+
+    <UCheckbox
+      v-model="acceptedTerms"
+      name="terms"
+    >
+      <template #label>
+        {{ t('terms.before') }}<ULink
+          :to="localePath('terms-of-use')"
+          target="_blank"
+          class="font-semibold text-accent"
+        >{{ t('terms.terms') }}</ULink>{{ t('terms.after') }}
+      </template>
+    </UCheckbox>
+
+    <UButton
+      :label="t('submit')"
+      :disabled="!acceptedTerms"
+      :loading="loading"
+      size="lg"
+      block
+      type="submit"
+    />
+  </UForm>
 </template>
+
+<i18n lang="yaml">
+el:
+  email: Email
+  terms:
+    before: "Αποδέχομαι τους "
+    terms: όρους χρήσης
+    after: .
+  submit: Ολοκλήρωση εγγραφής
+  success: Ο λογαριασμός σου δημιουργήθηκε
+en:
+  email: Email
+  terms:
+    before: "I accept the "
+    terms: terms of use
+    after: .
+  submit: Finish sign-up
+  success: Your account was created
+</i18n>
