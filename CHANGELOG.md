@@ -1,3 +1,10 @@
+# [3.232.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.231.1...v3.232.0) (2026-10-03)
+
+
+### Features
+
+* **account:** Groove Volt account shell, overview, orders, addresses, favourites and reviews ([#77](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/77)) ([156bbfb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/156bbfb3321df068db271af677cf08435b31deb7))
+
 ## [3.231.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.231.0...v3.231.1) (2026-10-03)
 
 
