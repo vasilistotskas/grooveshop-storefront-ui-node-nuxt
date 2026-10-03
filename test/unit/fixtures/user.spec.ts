@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zNotificationUserDetail, zUserDetails } from '~~/shared/openapi/zod.gen'
-import { makeNotificationUserDetail, makeUserDetails } from '~~/test/fixtures/user'
+import { zNotificationUserDetail, zUserAddress, zUserDetails } from '~~/shared/openapi/zod.gen'
+import { makeNotificationUserDetail, makeUserAddress, makeUserDetails } from '~~/test/fixtures/user'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -34,5 +34,15 @@ describe('makeNotificationUserDetail', () => {
 
     expect(problems(zNotificationUserDetail, row)).toEqual([])
     expect(row).toMatchObject({ id: 3, seen: true, notification: { id: 3, link: '/orders/1' } })
+  })
+})
+
+describe('makeUserAddress', () => {
+  it('parses strictly', () => {
+    expect(problems(zUserAddress, makeUserAddress())).toEqual([])
+  })
+
+  it('gives two addresses distinct uuids', () => {
+    expect(makeUserAddress({ id: 6 }).uuid).not.toBe(makeUserAddress().uuid)
   })
 })

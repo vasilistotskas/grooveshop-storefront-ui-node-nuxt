@@ -422,5 +422,32 @@
       "discount_code_combination_disallowed": "Ο κωδικός δεν συνδυάζεται με τις ενεργές προσφορές",
       "discount_code_user_ineligible": "Ο κωδικός δεν είναι διαθέσιμος για τον λογαριασμό σου"
     }
+  },
+  "account_nav": {
+    "overview": "Επισκόπηση",
+    "orders": "Παραγγελίες",
+    "addresses": "Διευθύνσεις",
+    "favourites": "Αγαπημένα",
+    "reviews": "Κριτικές",
+    "notifications": "Ειδοποιήσεις",
+    "rewards": "Επιβράβευση",
+    "gift_cards": "Δωροκάρτες",
+    "business": "Επιχείρηση",
+    "newsletter": "Newsletter",
+    "profile": "Προφίλ",
+    "privacy": "Απόρρητο",
+    "sign_out": "Αποσύνδεση",
+    "sign_out_error": "Η αποσύνδεση δεν ολοκληρώθηκε. Δοκίμασε ξανά.",
+    "back": "Λογαριασμός"
+  },
+  "reorder": {
+    "cta": "Αγόρασέ τα ξανά",
+    "success_title": "Προστέθηκαν στο καλάθι",
+    "success_description": "Προστέθηκε {count} προϊόν στο καλάθι σου. | Προστέθηκαν {count} προϊόντα στο καλάθι σου.",
+    "success_with_skipped": "Στο καλάθι: {added}. Δεν διατίθενται πια: {skipped}.",
+    "empty_title": "Κανένα προϊόν δεν είναι διαθέσιμο",
+    "empty_description": "Τα προϊόντα αυτής της παραγγελίας δεν πωλούνται πια.",
+    "error_title": "Δεν προστέθηκαν στο καλάθι",
+    "error_description": "Δεν μπορέσαμε να βάλουμε τα προϊόντα στο καλάθι. Δοκίμασε ξανά."
   }
 }

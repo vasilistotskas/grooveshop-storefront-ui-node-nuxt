@@ -1,9 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import type { UserAddress } from '~~/shared/openapi/types.gen'
 import AddressCard from '~/components/Address/Card.vue'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
+import { makeUserAddress } from '~~/test/fixtures/user'
 import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -12,89 +11,74 @@ mockNuxtImport('$api', () => api)
 const { toastAdd } = vi.hoisted(() => ({ toastAdd: vi.fn() }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-function makeAddress(overrides: Partial<UserAddress> = {}): UserAddress {
-  const id = overrides.id ?? 5
-  return {
-    id,
-    title: 'Σπίτι',
-    firstName: 'Μαρία',
-    lastName: 'Παπαδοπούλου',
-    street: 'Ερμού',
-    streetNumber: '12',
-    city: 'Αθήνα',
-    zipcode: '10563',
-    floor: '',
-    locationType: '',
-    phone: '+306912345678',
-    notes: '',
-    isMain: false,
-    user: 7,
-    country: 'GR',
-    region: 'GR-I',
-    createdAt: FIXTURE_TIMESTAMP,
-    updatedAt: FIXTURE_TIMESTAMP,
-    uuid: fixtureUuid(11, id),
-    ...overrides,
-  }
-}
-
-const mountCard = (address = makeAddress()) =>
+const mountCard = (address = makeUserAddress()) =>
   mountSuspended(AddressCard, { props: { address }, route: false })
-const deleteButton = (wrapper: Awaited<ReturnType<typeof mountCard>>) =>
-  wrapper.findAll('button').find(button => button.text() === 'Διαγραφή')!
-const deleteControl = (wrapper: Awaited<ReturnType<typeof mountCard>>) =>
-  wrapper.findAllComponents({ name: 'UButton' }).find(button => button.text() === 'Διαγραφή')!
+const button = (wrapper: Awaited<ReturnType<typeof mountCard>>, name: string) =>
+  wrapper.findAll('button, a').find(control => control.text() === name || control.attributes('aria-label') === name)
 
+/**
+ * One saved address: its label, the address, Edit, "Set as default"
+ * and delete. The default address can be neither deleted nor set as the
+ * default again, so it offers neither.
+ */
 describe('Address/Card', () => {
-  it('lists the address\'s recipient, street, town, country and phone, and links to its edit page', async () => {
-    const wrapper = await mountCard(makeAddress({ floor: 'SECOND_FLOOR', notes: 'Κουδούνι 3' }))
-
-    expect(wrapper.find('h3').text()).toBe('Σπίτι')
-    const text = wrapper.text()
-    for (const line of ['Μαρία Παπαδοπούλου', 'Ερμού 12', 'Αθήνα 10563', 'GR GR-I', '+306912345678', 'Κουδούνι 3']) {
-      expect(text).toContain(line)
-    }
-    expect(wrapper.get('a').attributes('href')).toBe('/account/addresses/5/edit')
-    expect(text).not.toContain('Κύρια διεύθυνση')
-  })
-
-  it('refuses to delete the main address, without asking the server', async () => {
-    const wrapper = await mountCard(makeAddress({ isMain: true }))
-    expect(wrapper.text()).toContain('Κύρια διεύθυνση')
-
-    await deleteButton(wrapper).trigger('click')
-    await flushPromises()
-
-    expect(api.callsTo('/api/user/addresses/*')).toHaveLength(0)
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
-    expect(toastAdd.mock.calls[0]![0].title).toMatch(/^Δεν μπορείς να διαγράψεις την κύρια διεύθυνσή σου/)
-  })
-
-  it('deletes another address, confirms it and tells the list which one went', async () => {
-    api.routes({ '/api/user/addresses/5': null })
+  it('shows the label, the name, the street, the postcode with the city and country, and the phone', async () => {
     const wrapper = await mountCard()
 
-    await deleteButton(wrapper).trigger('click')
-    await flushPromises()
-
-    expect(api.callsTo('/api/user/addresses/5')).toEqual([
-      { url: '/api/user/addresses/5', options: expect.objectContaining({ method: 'DELETE' }) },
+    expect(wrapper.get('h2').text()).toBe('Σπίτι')
+    expect(wrapper.findAll('address span').map(line => line.text())).toEqual([
+      'Μαρία Παπαδοπούλου',
+      'Ερμού 12',
+      '10563 Αθήνα, Ελλάδα',
+      '+306912345678',
     ])
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η διεύθυνση διαγράφηκε', color: 'success' })
-    expect(wrapper.emitted('address-delete')).toEqual([[5]])
   })
 
-  it('says so when the server refuses, keeps the address and frees the button', async () => {
-    api.routes({ '/api/user/addresses/5': failWith(409) })
+  it('opens the address form for an edit', async () => {
     const wrapper = await mountCard()
 
-    // UButton awaits its click handler: a rejection would leave it.
-    await expect(deleteControl(wrapper).props('onClick')(new MouseEvent('click'))).resolves.toBeUndefined()
+    expect(button(wrapper, 'Επεξεργασία της διεύθυνσης «Σπίτι»')?.attributes('href'))
+      .toBe(useLocalePath()({ name: 'account-addresses-id-edit', params: { id: 5 } }))
+  })
+
+  it('makes it the default through set-main, then reports the change', async () => {
+    api.routes({ '/api/user/addresses/5/set-main': {} })
+    const wrapper = await mountCard()
+
+    await button(wrapper, 'Ορισμός ως προεπιλογή')!.trigger('click')
     await flushPromises()
 
-    expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η διεύθυνση δεν διαγράφηκε', color: 'error' })
-    expect(wrapper.emitted('address-delete')).toBeUndefined()
-    expect(deleteControl(wrapper).props('loading')).toBe(false)
+    expect(api.callsTo('/api/user/addresses/5/set-main').map(call => call.options?.method)).toEqual(['POST'])
+    expect(wrapper.emitted('changed')).toHaveLength(1)
+  })
+
+  it('deletes it, then reports the change', async () => {
+    api.routes({ '/api/user/addresses/5': {} })
+    const wrapper = await mountCard()
+
+    await button(wrapper, 'Διαγραφή της διεύθυνσης «Σπίτι»')!.trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo('/api/user/addresses/5').map(call => call.options?.method)).toEqual(['DELETE'])
+    expect(wrapper.emitted('changed')).toHaveLength(1)
+  })
+
+  it('reports a refused delete and changes nothing', async () => {
+    api.routes({ '/api/user/addresses/5': failWith(400) })
+    const wrapper = await mountCard()
+
+    await button(wrapper, 'Διαγραφή της διεύθυνσης «Σπίτι»')!.trigger('click')
+    await flushPromises()
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+    expect(wrapper.emitted('changed')).toBeUndefined()
+  })
+
+  it('marks the default address and offers neither delete nor set-as-default on it', async () => {
+    const wrapper = await mountCard(makeUserAddress({ isMain: true }))
+
+    expect(wrapper.text()).toContain('Προεπιλογή')
+    expect(button(wrapper, 'Ορισμός ως προεπιλογή')).toBeUndefined()
+    expect(button(wrapper, 'Διαγραφή της διεύθυνσης «Σπίτι»')).toBeUndefined()
   })
 })

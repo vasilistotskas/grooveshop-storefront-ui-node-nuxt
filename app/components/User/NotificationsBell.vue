@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { getUnseenCount, markAsSeen } = useUserNotification()
+const { markAsSeen } = useUserNotification()
 const { presentationFor } = useNotificationPresentation()
 const userNotificationStore = useUserNotificationStore()
 const { notifications } = storeToRefs(userNotificationStore)
@@ -23,25 +23,9 @@ const isDropdownVisible = ref(false)
 const dropdown = ref<HTMLDivElement>()
 const toggleButton = ref<HTMLButtonElement>()
 
-// Unseen count is an aggregate over the *whole* history (paginated
-// list only covers page 1), so it has its own endpoint.
-const { data: unseen, status: unseenStatus } = useAsyncData(
-  'unseenNotificationsCount',
-  () => getUnseenCount(),
-  {
-    immediate: loggedIn.value,
-    watch: [notifications],
-    server: false,
-    lazy: true,
-  },
-)
+const { count: unseenCount, pending } = useUnseenNotificationsCount()
 
-const pending = computed(() => unseenStatus.value === 'pending')
-
-const show = computed(() => {
-  if (!unseen.value || !('count' in unseen.value)) return false
-  return unseen.value.count > 0
-})
+const show = computed(() => unseenCount.value > 0)
 
 // Drop directly into the store's detail-serialised rows instead of
 // fetching Notification objects by ID (that path returned plain

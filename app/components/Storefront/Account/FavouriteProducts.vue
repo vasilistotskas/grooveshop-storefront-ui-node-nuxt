@@ -1,185 +1,125 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
+/**
+ * The products the shopper saved, as the same cards the shop lists them
+ * with. Each one is a favourite by definition, so the hearts are primed
+ * from this list itself — on the server as well as in the browser, so
+ * the first client render matches the server's (the shop's lists prime
+ * theirs after mount for the opposite reason: there, most products are
+ * not favourites). Removing one reloads the list and the tab's count.
+ */
+const { t } = useI18n()
 useHead({ title: () => t('title') })
-const route = useRoute(`account-favourites-products___${locale.value}`)
-const { user } = useUserSession()
-const userStore = useUserStore()
-const { updateFavouriteProducts } = userStore
+const route = useRoute()
 const localePath = useLocalePath()
+const { user } = useUserSession()
+const { updateFavouriteProducts } = useUserStore()
 
-const pageSize = ref(8)
-const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-createdAt')
+const PAGE_SIZE = 12
+const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
-const entityOrdering = ref<EntityOrdering<any>>([
-  {
-    value: 'createdAt',
-    label: t('ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-  {
-    value: 'updatedAt',
-    label: t('ordering.updated_at'),
-    options: ['ascending', 'descending'],
-  },
-])
-
-const { data: favourites, refresh: refreshFavourites, status, error } = await useApi(
-  `/api/user/account/${user.value?.id}/favourite-products`,
-  {
-    key: `favouriteProducts${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-    },
-  },
-)
-
-const productIds = computed(() => {
-  if (!favourites.value) return []
-  return favourites.value.results?.map(favourite =>
-    favourite.product.id,
-  )
+const { data: favourites, status, refresh } = await useApi(`/api/user/account/${user.value?.id}/favourite-products`, {
+  key: `favourite-products-${user.value?.id}`,
+  method: 'GET',
+  query: { page, pageSize: PAGE_SIZE, ordering: '-createdAt' },
 })
 
-const { refresh: refreshFavouriteProducts } = await useApi('/api/products/favourites/favourites-by-products', {
-  key: `favouritesByProducts${user.value?.id}`,
-  method: 'POST',
-  headers: useRequestHeaders(),
-  body: {
-    productIds: productIds,
-  },
-  onResponse({ response }) {
-    if (!response.ok) {
-      return
-    }
-    const favourites = response._data
-    if (favourites) {
-      updateFavouriteProducts(favourites)
-    }
-  },
-})
+async function onRemoved() {
+  await Promise.all([refresh(), refreshNuxtData(favouriteCountKey('products', user.value?.id))])
+}
 
-const pagination = computed(() => {
-  if (!favourites.value?.count) return
-  return usePagination<ProductFavourite>(favourites.value)
-})
-
-const orderingOptions = computed(() => {
-  return useOrdering<any>(entityOrdering.value)
-})
-
-watch(
-  () => route.query,
-  async () => {
-    await refreshFavourites()
-    if (productIds.value && productIds.value.length > 0) {
-      await refreshFavouriteProducts()
-    }
-  },
-)
+watch(favourites, (value) => {
+  updateFavouriteProducts((value?.results ?? []).map(favourite => ({
+    id: favourite.id,
+    userId: favourite.userId,
+    productId: favourite.product.id,
+    createdAt: favourite.createdAt,
+  })))
+}, { immediate: true })
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="md:mt-0"
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader
+      :title="t('title')"
+      :lead="t('lead')"
     />
+    <AccountFavouritesTabs current="products" />
 
-    <LazyUserAccountFavouritesNavbar />
-    <div class="flex flex-row flex-wrap items-center gap-2">
-      <PaginationPageNumber
-        v-if="pagination"
-        :count="pagination.count"
-        :page="pagination.page"
-        :page-size="pagination.pageSize"
-      />
-      <Ordering
-        :ordering="String(ordering)"
-        :ordering-options="orderingOptions.orderingOptionsArray.value"
-      />
-    </div>
-    <LazyProductFavouritesList
-      v-if="status === 'success' && favourites?.count"
-      :favourites="favourites?.results"
-      :favourites-total="favourites?.count"
-      @refresh-favourites="refreshFavourites"
-    />
     <div
-      v-else-if="status === 'pending' || !favourites"
-      class="grid w-full items-start gap-4"
+      v-if="status === 'pending' && !favourites"
+      class="grid grid-cols-2 gap-4 lg:grid-cols-3"
     >
       <USkeleton
-        class="flex h-5 w-full items-center justify-center"
+        v-for="index in 3"
+        :key="index"
+        class="aspect-[3/4] rounded-[1.25rem]"
       />
-      <div
-        class="
-          grid grid-cols-2 gap-4
-          lg:grid-cols-3
-          xl:grid-cols-4
-        "
-      >
-        <USkeleton
-          v-for="i in 4"
-          :key="i"
-          class="h-72 w-full"
-        />
-      </div>
     </div>
-    <Error
-      v-else-if="error"
-      :error="error"
+
+    <AccountLoadError
+      v-else-if="status === 'error'"
+      :message="t('load_error')"
+      @retry="() => refresh()"
     />
-    <LazyEmptyState
-      v-else-if="status === 'success' && !favourites?.count"
-      class="w-full"
-      :title="t('empty.title')"
+
+    <ul
+      v-else-if="favourites?.results.length"
+      class="grid grid-cols-2 gap-4 lg:grid-cols-3"
     >
-      <template
-        #icon
+      <li
+        v-for="favourite in favourites.results"
+        :key="favourite.id"
       >
-        <UIcon
-          name="i-mdi-package-variant-closed"
-          size="xl"
+        <ProductCard
+          :product="favourite.product"
+          @favourite-delete="onRemoved"
         />
-      </template>
-      <template
-        #actions
-      >
-        <UButton
-          :label="t('empty.description')"
-          :to="localePath('index')"
-          class="font-semibold"
-          color="secondary"
-          size="xl"
-          type="button"
-        />
-      </template>
-    </LazyEmptyState>
-  </PageWrapper>
+      </li>
+    </ul>
+
+    <div
+      v-else
+      class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
+    >
+      <p class="font-semibold text-highlighted">
+        {{ t('empty.title') }}
+      </p>
+      <p class="text-toned">
+        {{ t('empty.description') }}
+      </p>
+      <UButton
+        :label="t('empty.cta')"
+        :to="localePath('products')"
+        color="neutral"
+      />
+    </div>
+
+    <UPagination
+      v-if="favourites && favourites.count > PAGE_SIZE"
+      :page="page"
+      :total="favourites.count"
+      :items-per-page="PAGE_SIZE"
+      :to="(target: number) => ({ query: { ...route.query, page: target > 1 ? target : undefined } })"
+      class="self-center"
+    />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Αγαπημένα Προϊόντα
+  title: Αγαπημένα
+  lead: Τα προϊόντα και τα άρθρα που αποθήκευσες.
+  load_error: Τα αγαπημένα δεν φορτώθηκαν.
+  empty:
+    title: Κανένα αγαπημένο προϊόν ακόμα
+    description: Πάτα την καρδιά σε ένα προϊόν για να το βρίσκεις εδώ.
+    cta: Δες τα προϊόντα
 en:
-  title: Favourite Products
+  title: Favourites
+  lead: The products and posts you saved.
+  load_error: Your favourites did not load.
+  empty:
+    title: No favourite products yet
+    description: Tap the heart on a product to keep it here.
+    cta: Browse products
 </i18n>

@@ -11,12 +11,8 @@
  */
 const { t } = useI18n()
 const localePath = useLocalePath()
-const route = useRoute()
-const { $routeBaseName } = useNuxtApp()
 const { user, loggedIn } = useUserSession()
-const cartStore = useCartStore()
-const { cleanCartState, refreshCart } = cartStore
-const { deleteSession } = useAllAuthAuthentication()
+const { signOut } = useSignOut()
 const img = useMediaStreamImage()
 
 /** The shopper's name for the avatar's initials, else their email. */
@@ -32,23 +28,6 @@ const avatarSrc = computed(() => {
   if (!path) return undefined
   return img(path, { width: 64, height: 64, fit: 'cover' }, { provider: 'mediaStream' })
 })
-
-const onClickLogout = async () => {
-  const name = $routeBaseName(route)
-  if (!name) return
-  // Leave a protected page BEFORE the session goes, or the route guard
-  // races the logout and bounces through the login page.
-  if (isRouteProtected(String(name))) await navigateTo(localePath('/'))
-
-  await cleanCartState()
-  try {
-    await deleteSession({ explicit: true })
-    await refreshCart()
-  }
-  catch (error) {
-    log.error({ action: 'auth:logout', error })
-  }
-}
 
 const items = computed(() => [
   [
@@ -84,7 +63,7 @@ const items = computed(() => [
     {
       label: t('logout'),
       icon: 'i-heroicons-arrow-left-on-rectangle',
-      onSelect: () => onClickLogout(),
+      onSelect: () => signOut(),
     },
   ],
 ])

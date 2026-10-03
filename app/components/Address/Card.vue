@@ -1,265 +1,152 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
-
-const props = defineProps({
-  address: {
-    type: Object as PropType<UserAddress>,
-    required: true,
-  },
-})
-
-const emit = defineEmits<{
-  (e: 'address-delete', id: number): void
+/**
+ * One saved address, as the boards draw it: its label and the default
+ * pill, the address itself, then Edit, "Set as default" and delete.
+ *
+ * The default address is the one checkout fills in, so it cannot be
+ * deleted (Django refuses): another address has to become the default
+ * first, which is why it offers no delete. Both changes are made here
+ * and announced with `changed`, so the list can reload.
+ */
+const props = defineProps<{
+  address: UserAddress
 }>()
 
-const { address } = toRefs(props)
+const emit = defineEmits<{
+  changed: []
+}>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
-const { contentShorten } = useText()
 const localePath = useLocalePath()
 
-const isDeleting = ref(false)
+const busy = ref<'default' | 'delete' | null>(null)
 
-const submit = async () => {
-  if (address?.value && address?.value.isMain) {
-    toast.add({
-      title: t('cant_delete_main'),
-      color: 'error',
-    })
-    return
-  }
+const countryName = computed(() => {
+  const code = props.address.country
+  if (!code) return ''
+  return new Intl.DisplayNames([locale.value], { type: 'region' }).of(code) ?? code
+})
 
-  isDeleting.value = true
+const lines = computed(() => {
+  const address = props.address
+  return [
+    `${address.firstName} ${address.lastName}`.trim(),
+    `${address.street} ${address.streetNumber}`.trim(),
+    [`${address.zipcode} ${address.city}`.trim(), countryName.value].filter(Boolean).join(', '),
+    address.phone,
+  ].filter(Boolean)
+})
+
+async function makeDefault() {
+  busy.value = 'default'
   try {
-    await $api(`/api/user/addresses/${address.value.id}`, { method: 'DELETE' })
-    toast.add({
-      title: t('success'),
-      color: 'success',
-    })
-    emit('address-delete', address.value.id)
+    await $api(`/api/user/addresses/${props.address.id}/set-main`, { method: 'POST' })
+    toast.add({ title: t('default_set'), color: 'success' })
+    emit('changed')
   }
   catch (error) {
-    log.error({ action: 'address:delete', error })
-    toast.add({
-      title: t('error'),
-      color: 'error',
-    })
+    log.error({ action: 'address:set-main', error })
+    toast.add({ title: t('default_error'), color: 'error' })
   }
   finally {
-    isDeleting.value = false
+    busy.value = null
   }
 }
 
-const addressDetails = computed(() => {
-  const details = []
-
-  if (address.value.firstName || address.value.lastName) {
-    details.push({
-      icon: 'i-heroicons-user',
-      text: `${address.value.firstName} ${address.value.lastName}`,
-    })
+async function remove() {
+  busy.value = 'delete'
+  try {
+    await $api(`/api/user/addresses/${props.address.id}`, { method: 'DELETE' })
+    toast.add({ title: t('deleted'), color: 'success' })
+    emit('changed')
   }
-
-  if (address.value.street || address.value.streetNumber) {
-    details.push({
-      icon: 'i-heroicons-map-pin',
-      text: `${address.value.street} ${address.value.streetNumber}`,
-    })
+  catch (error) {
+    log.error({ action: 'address:delete', error })
+    toast.add({ title: t('delete_error'), color: 'error' })
   }
-
-  if (address.value.city || address.value.zipcode) {
-    details.push({
-      icon: 'i-heroicons-building-office-2',
-      text: `${address.value.city} ${address.value.zipcode}`,
-    })
+  finally {
+    busy.value = null
   }
-
-  if (address.value.country || address.value.region) {
-    details.push({
-      icon: 'i-heroicons-globe-alt',
-      text: `${address.value.country} ${address.value.region}`,
-    })
-  }
-
-  if (address.value.phone) {
-    details.push({
-      icon: 'i-heroicons-phone',
-      text: address.value.phone,
-    })
-  }
-
-  return details
-})
+}
 </script>
 
 <template>
-  <UCard
-    v-if="address"
-    as="li"
-    class="relative h-full"
-    variant="soft"
-    :ui="{
-      body: `
-        p-2
-        sm:p-4
-      `,
-    }"
+  <article
+    class="flex h-full flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring ring-default"
+    :aria-label="address.title"
   >
-    <UBadge
-      v-if="address.isMain"
-      color="info"
-      variant="soft"
-      class="absolute top-4 right-4"
-    >
-      <div class="flex items-center gap-1">
-        <UIcon
-          name="i-heroicons-star-solid"
-          class="size-3"
-        />
-        <span class="text-xs font-medium">{{ t('main_address') }}</span>
-      </div>
-    </UBadge>
-
-    <div class="mb-4 flex items-start justify-between gap-2">
-      <h3
-        class="
-          text-lg font-bold text-gray-900
-          dark:text-gray-100
-        "
-      >
-        {{ contentShorten(address.title, 0, 25) }}
-      </h3>
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="font-semibold text-highlighted">
+        {{ address.title }}
+      </h2>
+      <UBadge
+        v-if="address.isMain"
+        :label="t('default')"
+        class="bg-inverted text-inverted ring-0"
+      />
     </div>
-
-    <USeparator class="mb-4" />
-
-    <div class="mb-4 space-y-3">
-      <div
-        v-for="detail in addressDetails"
-        :key="detail.text"
-        class="flex items-start gap-2"
-      >
-        <UIcon
-          :name="detail.icon"
-          class="
-            mt-0.5 size-4 shrink-0 text-gray-400
-            dark:text-gray-500
-          "
-        />
-        <span
-          class="
-            text-sm text-gray-700
-            dark:text-gray-300
-          "
-        >
-          {{ detail.text }}
-        </span>
-      </div>
-
-      <div
-        v-if="address.floor"
-        class="flex items-start gap-2"
-      >
-        <UIcon
-          name="i-heroicons-building-office"
-          class="
-            mt-0.5 size-4 shrink-0 text-gray-400
-            dark:text-gray-500
-          "
-        />
-        <span
-          class="
-            text-sm text-gray-700
-            dark:text-gray-300
-          "
-        >
-          {{ t('floor') }}: {{ address.floor }}
-        </span>
-      </div>
-
-      <div
-        v-if="address.locationType"
-        class="flex items-start gap-2"
-      >
-        <UIcon
-          name="i-heroicons-home"
-          class="
-            mt-0.5 size-4 shrink-0 text-gray-400
-            dark:text-gray-500
-          "
-        />
-        <span
-          class="
-            text-sm text-gray-700
-            dark:text-gray-300
-          "
-        >
-          {{ address.locationType }}
-        </span>
-      </div>
-
-      <div
-        v-if="address.notes"
-        class="flex items-start gap-2"
-      >
-        <UIcon
-          name="i-heroicons-document-text"
-          class="
-            mt-0.5 size-4 shrink-0 text-gray-400
-            dark:text-gray-500
-          "
-        />
-        <span
-          class="
-            text-sm text-gray-600 italic
-            dark:text-gray-200
-          "
-        >
-          {{ contentShorten(address.notes, 0, 50) }}
-        </span>
-      </div>
-    </div>
-
-    <USeparator class="mb-4" />
-
-    <div class="flex items-center gap-2">
+    <address class="flex flex-1 flex-col gap-0.5 text-sm text-toned not-italic">
+      <span
+        v-for="(line, index) in lines"
+        :key="index"
+      >{{ line }}</span>
+    </address>
+    <div class="flex flex-wrap items-center gap-2">
       <UButton
-        icon="i-heroicons-pencil"
-        :to="localePath({ name: 'account-addresses-id-edit', params: { id: address.id } })"
-        color="neutral"
-        variant="soft"
-        class="flex-1"
         :label="t('edit')"
+        :to="localePath({ name: 'account-addresses-id-edit', params: { id: address.id } })"
+        :aria-label="t('edit_named', { name: address.title })"
+        icon="i-lucide-pencil"
+        color="neutral"
+        variant="outline"
+        size="sm"
       />
       <UButton
-        icon="i-heroicons-trash"
-        color="error"
-        variant="soft"
-        :loading="isDeleting"
-        :disabled="isDeleting"
-        @click="submit"
-      >
-        <span v-if="!isDeleting">{{ t('delete') }}</span>
-      </UButton>
+        v-if="!address.isMain"
+        :label="t('make_default')"
+        :loading="busy === 'default'"
+        :disabled="busy !== null"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        @click="makeDefault"
+      />
+      <UButton
+        v-if="!address.isMain"
+        :aria-label="t('delete_named', { name: address.title })"
+        :loading="busy === 'delete'"
+        :disabled="busy !== null"
+        icon="i-lucide-trash-2"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        class="ms-auto"
+        @click="remove"
+      />
     </div>
-  </UCard>
+  </article>
 </template>
 
 <i18n lang="yaml">
 el:
-  success: Η διεύθυνση διαγράφηκε
-  error: Η διεύθυνση δεν διαγράφηκε
-  cant_delete_main: Δεν μπορείς να διαγράψεις την κύρια διεύθυνσή σου, όρισε
-    μια άλλη διεύθυνση ως κύρια και ξαναπροσπάθησε.
-  main_address: Κύρια διεύθυνση
+  default: Προεπιλογή
   edit: Επεξεργασία
-  delete: Διαγραφή
+  edit_named: Επεξεργασία της διεύθυνσης «{name}»
+  make_default: Ορισμός ως προεπιλογή
+  delete_named: Διαγραφή της διεύθυνσης «{name}»
+  default_set: Η προεπιλεγμένη διεύθυνση άλλαξε
+  default_error: Η προεπιλεγμένη διεύθυνση δεν άλλαξε
+  deleted: Η διεύθυνση διαγράφηκε
+  delete_error: Η διεύθυνση δεν διαγράφηκε
 en:
-  success: Address deleted
-  error: The address could not be deleted
-  cant_delete_main: You cannot delete your main address — set another one as your main address and try again.
-  main_address: Main address
+  default: Default
   edit: Edit
-  delete: Delete
+  edit_named: Edit the address “{name}”
+  make_default: Set as default
+  delete_named: Delete the address “{name}”
+  default_set: Your default address changed
+  default_error: Your default address did not change
+  deleted: Address deleted
+  delete_error: The address could not be deleted
 </i18n>
