@@ -1,3 +1,10 @@
+# [3.230.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.229.0...v3.230.0) (2026-10-03)
+
+
+### Features
+
+* **product:** Groove Volt product page, gallery, alerts and review dialogs ([#74](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/74)) ([f1b7fda](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f1b7fda18091f86612bc65eb3390b4d191d57a00))
+
 # [3.229.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.228.2...v3.229.0) (2026-10-03)
 
 
