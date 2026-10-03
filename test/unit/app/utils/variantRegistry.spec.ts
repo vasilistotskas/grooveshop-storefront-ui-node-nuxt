@@ -36,7 +36,17 @@ const PAGE_KEYS: PageKey[] = [
   '2fa-reauthenticate-webauthn', '2fa-reauthenticate-recovery-codes',
 ]
 
-const CHROME_KEYS: ChromeKey[] = ['navbar', 'footer', 'mobile_nav', 'checkout_header', 'account_shell']
+// Every chrome key, exhaustively: `satisfies Record<ChromeKey, true>` fails
+// the typecheck the day a key is added here-less, so a new slot cannot
+// ship without its webside entry being checked.
+const CHROME_KEYS = Object.keys({
+  navbar: true,
+  footer: true,
+  mobile_nav: true,
+  checkout_header: true,
+  account_shell: true,
+  cookie_consent: true,
+} satisfies Record<ChromeKey, true>) as ChromeKey[]
 
 describe('variantRegistry', () => {
   it.each(PAGE_KEYS)('resolves a webside body for page %s', (key) => {

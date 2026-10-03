@@ -206,9 +206,12 @@ defineExpose({
               />
             </slot>
           </div>
+          <!-- `flex-wrap`: three large buttons are wider than a phone, and
+               the last one — Decline, the answer that must be as easy to
+               give as Accept — ran off the screen. -->
           <div
             class="
-              mt-4 ml-auto flex items-center gap-2
+              mt-4 ml-auto flex flex-wrap items-center justify-end gap-2
               md:flex-row-reverse md:space-y-0
               lg:mt-0
             "

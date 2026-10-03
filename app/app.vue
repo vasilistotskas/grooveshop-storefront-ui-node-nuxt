@@ -21,6 +21,13 @@ const { locales, locale } = useI18n()
 const tenantStore = useTenantStore()
 const { ogImageUrl } = useTenantBranding()
 
+// The consent banner and its preferences, per tenant like the rest of
+// the chrome (app/utils/variantRegistry.ts). Mounted here rather than in
+// a layout so every layout — checkout and auth included — asks.
+const cookieConsent = computed(() =>
+  resolveChrome('cookie_consent', tenantStore.schemaName),
+)
+
 // Tenant-aware SEO metadata. siteConfig is already overridden per
 // tenant by server/middleware/4.tenant-site-config.ts; tenantStore
 // exposes the branding fields (logo, store name) — the env-level
@@ -186,6 +193,6 @@ useHead({
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <CookieControl />
+    <component :is="cookieConsent" />
   </UApp>
 </template>

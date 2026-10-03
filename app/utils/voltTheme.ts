@@ -156,6 +156,40 @@ export const VOLT_UI = {
     },
   },
 
+  // Overlays dim the page with the scrim token, as the boards draw them —
+  // ink at 45% (black at 60% in the dark scheme) rather than a light
+  // wash. A modal sets its overlay through a variant, the others through
+  // the slot.
+  modal: {
+    variants: {
+      overlay: {
+        true: { overlay: 'bg-(--ui-scrim)' },
+      },
+    },
+  },
+
+  slideover: {
+    slots: {
+      overlay: 'bg-(--ui-scrim)',
+    },
+  },
+
+  drawer: {
+    slots: {
+      overlay: 'bg-(--ui-scrim)',
+    },
+  },
+
+  switch: {
+    slots: {
+      // Off is a neutral track, on is the accent. The base theme draws
+      // off as the accent at half strength, for 3:1 against its ground —
+      // on Volt that reads as a lighter "on". Dimmed grey keeps the 3:1
+      // (3.4:1 on white) without looking switched on.
+      base: 'data-[state=unchecked]:bg-(--ui-text-dimmed) data-[state=unchecked]:dark:bg-(--ui-text-dimmed)',
+    },
+  },
+
   checkbox: {
     slots: {
       // 6px: on Volt's 12px `--ui-radius` the base's `rounded-sm`
