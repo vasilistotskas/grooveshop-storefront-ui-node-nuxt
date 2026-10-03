@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zOrder, zOrderDetail } from '~~/shared/openapi/zod.gen'
-import { makeOrder, makeOrderListItem } from '~~/test/fixtures/order'
+import { zOrder, zOrderDetail, zOrderItemDetail } from '~~/shared/openapi/zod.gen'
+import { makeOrder, makeOrderItem, makeOrderListItem } from '~~/test/fixtures/order'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -54,5 +54,18 @@ describe('makeOrderListItem', () => {
     })
 
     expect(problems(zOrder, order)).toEqual([])
+  })
+})
+
+describe('makeOrderItem', () => {
+  it('parses strictly', () => {
+    expect(problems(zOrderItemDetail, makeOrderItem())).toEqual([])
+  })
+
+  it('gives two lines distinct uuids and products', () => {
+    const [a, b] = [makeOrderItem(), makeOrderItem({ id: 2 })]
+
+    expect(b.uuid).not.toBe(a.uuid)
+    expect(b.product.id).not.toBe(a.product.id)
   })
 })

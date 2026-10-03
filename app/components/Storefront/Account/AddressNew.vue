@@ -183,22 +183,21 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col gap-4 md:mt-1 md:gap-8 md:p-0!">
-    <div class="flex items-center gap-4">
-      <UButton
-        :to="localePath('account-addresses')"
-        color="neutral"
-        variant="outline"
-        icon="i-heroicons-arrow-left"
-        size="sm"
-        trailing
-      />
-      <PageTitle class="text-center md:mt-0">
-        {{ t('title') }}
-      </PageTitle>
-    </div>
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader :title="t('title')">
+      <template #actions>
+        <UButton
+          :label="t('back')"
+          :to="localePath('account-addresses')"
+          icon="i-lucide-arrow-left"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+        />
+      </template>
+    </AccountPageHeader>
 
-    <UCard>
+    <div class="rounded-[1.25rem] bg-default p-6 ring ring-default">
       <UForm :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
         <!-- Title -->
         <UFormField :label="t('form.title')" name="title" required>
@@ -353,18 +352,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
         <!-- Submit Button -->
         <div class="md:col-span-2">
-          <UButton type="submit" color="secondary" block :loading="isSubmitting" :disabled="isSubmitting">
+          <UButton type="submit" color="neutral" size="lg" :loading="isSubmitting" :disabled="isSubmitting">
             {{ t('form.submit') }}
           </UButton>
         </div>
       </UForm>
-    </UCard>
-  </PageWrapper>
+    </div>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Νέα διεύθυνση
+  back: Επιστροφή στις διευθύνσεις
   error: Σφάλμα δημιουργίας διεύθυνσης
   success: Η διεύθυνση δημιουργήθηκε με επιτυχία
   form:
@@ -398,6 +398,7 @@ el:
     submit: Αποθήκευση
 en:
   title: New address
+  back: Back to addresses
   error: The address could not be created
   success: Address created
   form:

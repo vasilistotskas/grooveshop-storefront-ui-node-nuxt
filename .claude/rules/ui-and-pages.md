@@ -19,7 +19,6 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 ## Layouts
 
 - `default` — Public pages: header/navbar, mobile bottom navigation, footer (lazy-loaded, device-aware)
-- `user` — Authenticated pages: header, user account info banner, sidebar navigation, footer
 - `auth` — Login/signup flows, as their page files name it (and as webside renders them)
 - `auth-split` — The Volt sign-in frame: the store's ink panel beside the form on desktop, a back button and logo over it on a phone. Page files cannot name it per store, so `design-layout.global.ts` swaps it in for every sign-in, sign-up and re-authentication page (`isAuthPageRoute`) of a tenant `resolveLayout('auth', schema)` puts on Volt
 
@@ -92,18 +91,18 @@ Rules:
 ## Component Categories
 
 Components in `app/components/` organized by domain:
-- **Account** — Login/Signup forms, 2FA flows (TOTP, WebAuthn, recovery codes), email/password/sessions/providers management, settings, auth navigation
+- **Account** — Login/Signup forms, 2FA flows (TOTP, WebAuthn, recovery codes), email/password/sessions/providers management, settings, auth navigation; the account pages' PageHeader and the favourites tabs. The signed-in frame is `Chrome/AccountShell.vue` (band + sidebar, mounted by `default.vue` on account routes), its navigation `useAccountNavigation` (the frozen webside tree keeps `useAccountMenus`), its figures one BFF request (`server/api/user/account/summary.get.ts`)
 - **Blog** — Post lists/carousels, comments (with likes), categories, tags, content renderer
 - **Cart** — Cart button (with item count), item cards
 - **Checkout** — Items list
 - **Cookie** — GDPR consent modal/control
 - **DynamicForm** — Multi-step form system
-- **Loyalty** — PointsBadge, Summary, TierSystem, ProgressHero, Transactions, Redemption
-- **Order** — Order list, card items
-- **Product** — the product page's parts (Images/ImageModal gallery and zoom, VariantSelector, Offers, NotifyMe alerts dialog, Review dialog, Suggestions grid), Reviews (Overview/Item on the product page; List/Summary/Card for the account's reviews), Favourites, CardSkeleton, Categories slider
+- **Loyalty** — PointsBadge, RewardsCard (the account overview's), Summary, TierSystem, ProgressHero, Transactions, Redemption
+- **Order** — Progress (the five-step strip), StatusBadge, Thumbs — the account's order rows and order page (`app/utils/orderStatus.ts` holds the flow and the status tints)
+- **Product** — the product page's parts (Images/ImageModal gallery and zoom, VariantSelector, Offers, NotifyMe alerts dialog, Review dialog, Suggestions grid), Reviews (Overview/Item on the product page), Favourites, CardSkeleton, Categories slider
 - **Products** — the listing (Header, CategoryChips, Browse, List, Toolbar, Sidebar, Pagination, Filters: CategoryTree, AttributeValues, PriceRange, ActiveFilters) and the Rail of product cards
 - **Search** — Input, Modal, Result
-- **User** — Avatar, NotificationsBell, Account info/favourites navbar
+- **User** — Avatar, NotificationsBell
 - **Page** — Header, Navbar, Title
 - **UI/Layout** — Pagination (PageNumber, LimitOffset, Cursor), Ordering, Rating, Quantity Selector, ReadMore, Empty state, LoadingIndicator, DesktopOnly, MobileOrTabletOnly, Socials, Anchor, ImgWithFallback, IframeModal, DemoModeMessage, Error
 - **Integrations** — StripePayment, WebAuthn LoginButton, Language Switcher, Logout Button

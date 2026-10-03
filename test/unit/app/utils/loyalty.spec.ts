@@ -4,6 +4,8 @@ import {
   defaultLoyaltySettings,
   LOYALTY_SETTING_KEYS,
   parseLoyaltySettings,
+  tierProgress,
+  tierStartXp,
 } from '~/utils/loyalty'
 
 /** Every setting present and valid, as a correctly configured tenant returns them. */
@@ -142,5 +144,32 @@ describe('buildLoyaltyTransactionsQuery', () => {
   it('leaves out only the unset filters', () => {
     expect(buildLoyaltyTransactionsQuery({ page: 1, dateTo: '2026-02-01' }))
       .toEqual({ page: 1, created_before: '2026-02-01' })
+  })
+})
+
+describe('tierStartXp', () => {
+  it.each([
+    [1, 1000, 0],
+    [3, 1000, 2000],
+    [5, 2500, 10000],
+  ])('starts a tier that needs level %i at %i XP per level on %i XP', (requiredLevel, xpPerLevel, expected) => {
+    expect(tierStartXp({ requiredLevel }, xpPerLevel)).toBe(expected)
+  })
+})
+
+describe('tierProgress', () => {
+  it('measures the way from one tier start to the next', () => {
+    expect(tierProgress(2500, 2000, 4000)).toBe(25)
+  })
+
+  it.each([
+    ['below the start', 1500, 0],
+    ['past the next start', 4500, 100],
+  ])('keeps a total %s inside 0–100', (_case, totalXp, expected) => {
+    expect(tierProgress(totalXp, 2000, 4000)).toBe(expected)
+  })
+
+  it('is full when there is no step left to take', () => {
+    expect(tierProgress(5000, 4000, 4000)).toBe(100)
   })
 })

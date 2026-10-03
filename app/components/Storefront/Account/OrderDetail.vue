@@ -1,1477 +1,640 @@
 <script lang="ts" setup>
-const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n()
+/**
+ * One order, as the boards draw it: how far it has come, one timeline
+ * of what happened to it — the store's own steps and the carrier's
+ * scans, newest first — beside where it is going, then its items and
+ * totals, the invoice details and the payment.
+ *
+ * No delivery estimate: Django has none to give (PLAN B5).
+ */
+const { t, n, locale } = useI18n()
+const toast = useToast()
 const route = useRoute(`account-orders-id___${locale.value}`)
-const orderId = 'id' in route.params
-  ? route.params.id
-  : undefined
+const orderId = 'id' in route.params ? route.params.id : undefined
 
-// The one account route with no `title` string of its own: the order
-// number IS the title here, and without this the tab read the store
-// name twice like every other account page.
-useHead({ title: () => `${t('order')} #${orderId}` })
+useHead({ title: () => t('title', { id: orderId }) })
 
 const { data: order, refresh: refreshOrder } = await useApi<OrderDetail>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    languageCode: locale,
-  },
+  query: { languageCode: locale },
 })
 
 const { cancelOrder } = useOrder()
-const toast = useToast()
-const isCanceling = ref(false)
+const { reorder, reordering } = useReorder()
+const { getPaymentMethodName } = usePaymentMethod()
+const { presentationFor: boxNowPresentation } = useBoxNowParcelState()
 
-const localePath = useLocalePath()
-const { productUrl } = useUrls()
-const { isMobileOrTablet } = useDevice()
-
-// Map raw OrderHistory.change_type values to user-friendly i18n
-// labels. The customer-facing payload is already curated by the
-// backend (synthetic CREATED + STATUS/PAYMENT/SHIPPING/REFUND
-// transitions — operational NOTE rows stay in the admin audit
-// log). This map gives each kept type a localised title; the
-// per-row description carries the actual transition.
-const TIMELINE_TITLE_KEYS: Record<string, string> = {
-  CREATED: 'timeline.title.created',
-  STATUS: 'timeline.title.status',
-  PAYMENT: 'timeline.title.payment',
-  SHIPPING: 'timeline.title.shipping',
-  REFUND: 'timeline.title.refund',
+const HISTORY_TITLE_KEYS: Record<string, string> = {
+  CREATED: 'history.created',
+  STATUS: 'history.status',
+  PAYMENT: 'history.payment',
+  SHIPPING: 'history.shipping',
+  REFUND: 'history.refund',
 }
 
-// The shopper's chosen payment method, resolved through the same
-// `payment_methods.*` map the checkout list uses. NOT
-// `order.paymentMethod` — that is the gateway code a payment handler
-// writes (`acs_cod`, `viva_wallet`, `stripe`), which this row showed
-// verbatim to the customer, and which is empty on a COD order until
-// the courier remits.
-const { getPaymentMethodName } = usePaymentMethod()
+interface TimelineEntry {
+  key: string
+  date: string
+  title: string
+  description: string
+}
 
-const paymentMethodLabel = computed(() =>
+/**
+ * The store's own steps (Django curates them: creation and the status,
+ * payment, shipping and refund transitions) and the carrier's scans,
+ * merged and newest first.
+ */
+const timeline = computed<TimelineEntry[]>(() => {
+  const value = order.value
+  if (!value) return []
+  const history = (value.orderTimeline ?? [])
+    .filter(entry => Boolean(entry.timestamp))
+    .map((entry, index) => {
+      const key = entry.changeType ? HISTORY_TITLE_KEYS[entry.changeType] : undefined
+      return {
+        key: `history-${index}`,
+        date: entry.timestamp!,
+        title: key ? t(key) : (entry.changeType ?? ''),
+        description: entry.description ?? '',
+      }
+    })
+  const boxNow = (value.boxnowShipment?.events ?? []).map((event, index) => ({
+    key: `boxnow-${index}`,
+    date: event.eventTime,
+    title: boxNowPresentation(event.eventType).label,
+    description: event.displayName || event.postalCode || '',
+  }))
+  const acs = (value.acsShipment?.events ?? []).map((event, index) => ({
+    key: `acs-${index}`,
+    date: event.eventTime,
+    title: event.checkpointAction,
+    description: event.checkpointLocation || event.notes || '',
+  }))
+  return [...history, ...boxNow, ...acs]
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+})
+
+/** Where the parcel is going: a locker, a station, or the address. */
+const destination = computed(() => {
+  const value = order.value
+  if (!value) return null
+  const locker = value.boxnowShipment?.locker
+  if (locker) {
+    return {
+      kind: 'pickup' as const,
+      name: `BOX NOW · ${locker.name}`,
+      address: [locker.addressLine1, locker.postalCode].filter(Boolean).join(', '),
+    }
+  }
+  const station = value.acsShipment?.station
+  if (station) {
+    return {
+      kind: 'pickup' as const,
+      name: `ACS · ${station.name}`,
+      address: [station.addressLine1, station.postalCode].filter(Boolean).join(', '),
+    }
+  }
+  return value.fullAddress
+    ? { kind: 'address' as const, name: `${value.firstName} ${value.lastName}`, address: value.fullAddress }
+    : null
+})
+
+/** The carrier's own tracking page, and the shipping label where there is one. */
+const tracking = computed(() => {
+  const value = order.value
+  if (!value) return null
+  const parcelId = value.boxnowShipment?.parcelId
+  if (parcelId) {
+    return {
+      label: t('track', { carrier: 'BOX NOW' }),
+      url: `https://boxnow.gr/en?track=${parcelId}`,
+      labelUrl: `/api/orders/${value.id}/boxnow-label`,
+    }
+  }
+  const voucher = value.acsShipment?.voucherNo
+  if (voucher) {
+    return {
+      label: t('track', { carrier: 'ACS' }),
+      url: `https://webapp.acscourier.net/track-shipment/${voucher}`,
+      labelUrl: `/api/orders/${value.id}/acs-label`,
+    }
+  }
+  const url = value.trackingDetails?.trackingUrl
+  return url ? { label: t('track_generic'), url, labelUrl: null } : null
+})
+
+const totals = computed(() => {
+  const breakdown = order.value?.pricingBreakdown
+  if (!breakdown) return []
+  const discounts = (breakdown.discount ?? 0) + (breakdown.loyaltyDiscount ?? 0) + (breakdown.giftCardAmount ?? 0)
+  return [
+    { key: 'subtotal', label: t('totals.subtotal'), value: n(breakdown.itemsSubtotal ?? 0, 'currency') },
+    ...(discounts > 0 ? [{ key: 'discounts', label: t('totals.discounts'), value: `−${n(discounts, 'currency')}` }] : []),
+    {
+      key: 'delivery',
+      label: t('totals.delivery'),
+      value: breakdown.shippingCost ? n(breakdown.shippingCost, 'currency') : t('totals.free'),
+    },
+    ...(breakdown.paymentMethodFee ? [{ key: 'fee', label: t('totals.payment_fee'), value: n(breakdown.paymentMethodFee, 'currency') }] : []),
+  ]
+})
+
+const paymentLabel = computed(() =>
   order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
 )
 
-const orderTimeline = computed(() => {
-  if (!order.value?.orderTimeline) return []
-
-  return order.value.orderTimeline
-    .filter(item => Boolean(item.timestamp))
-    .map((item) => {
-      const titleKey = item.changeType
-        ? TIMELINE_TITLE_KEYS[item.changeType]
-        : undefined
-      return {
-        // Raw ISO timestamp — formatted via <NuxtTime> in the
-        // UTimeline `#date` slot for SSR-safe localised output.
-        // The upstream `.filter` guarantees `timestamp` is defined.
-        date: item.timestamp!,
-        title: titleKey ? t(titleKey) : (item.changeType || t('status_change')),
-        description: item.description || '',
-        icon: getTimelineIcon(item.changeType),
-        user: item.user,
-      }
-    })
-    .reverse()
-})
-
-const pricingItems = computed(() => {
-  if (!order.value?.pricingBreakdown) return []
-
-  const breakdown = order.value.pricingBreakdown
-  const items = []
-
-  if (breakdown.itemsSubtotal) {
-    items.push({
-      label: t('products'),
-      amount: breakdown.itemsSubtotal,
-      currency: breakdown.currency || 'EUR',
-    })
-  }
-
-  if (breakdown.shippingCost) {
-    items.push({
-      label: t('shipping'),
-      amount: breakdown.shippingCost,
-      currency: breakdown.currency || 'EUR',
-    })
-  }
-
-  if (breakdown.paymentMethodFee) {
-    items.push({
-      label: t('payment_method_fee'),
-      amount: breakdown.paymentMethodFee,
-      currency: breakdown.currency || 'EUR',
-    })
-  }
-
-  return items
-})
-
-// Happy-path order flow, aligned with Django's `OrderStatus` enum
-// (see order/enum/status.py + the allowed_transitions map in
-// order/services.py). Typed as `OrderStatus` so TS errors the moment
-// the backend renames or removes one of these values. The remaining
-// enum members (CANCELED, RETURNED, REFUNDED) are off-path terminal
-// states surfaced via the alert banner / status badge, not the stepper.
-const ORDER_STATUS_FLOW = [
-  'PENDING',
-  'PROCESSING',
-  'SHIPPED',
-  'DELIVERED',
-  'COMPLETED',
-] as const satisfies readonly OrderStatus[]
-
-const ORDER_STEP_META: Record<typeof ORDER_STATUS_FLOW[number], { titleKey: string, descKey: string, icon: string }> = {
-  PENDING: { titleKey: 'order_placed', descKey: 'order_placed_desc', icon: 'i-heroicons-shopping-cart' },
-  PROCESSING: { titleKey: 'processing', descKey: 'processing_desc', icon: 'i-heroicons-archive-box' },
-  SHIPPED: { titleKey: 'shipped', descKey: 'shipped_desc', icon: 'i-heroicons-truck' },
-  DELIVERED: { titleKey: 'delivered', descKey: 'delivered_desc', icon: 'i-heroicons-truck' },
-  COMPLETED: { titleKey: 'completed', descKey: 'completed_desc', icon: 'i-heroicons-check-circle' },
-}
-
-const currentStatusIndex = computed(() => {
-  const status = order.value?.status
-  if (!status) return 0
-  return ORDER_STATUS_FLOW.indexOf(status as typeof ORDER_STATUS_FLOW[number])
-})
-
-// CANCELED / RETURNED / REFUNDED are off-path terminal states. The
-// happy-path stepper has no place to render them — keeping it visible
-// with progress=0% confusingly suggests the order is still pending
-// even though the alert banner above announces cancellation/refund.
-// Hide the stepper entirely for these states and rely on the alert.
-const isOffPathTerminalStatus = computed(() => {
-  const status = order.value?.status
-  if (!status) return false
-  return !(ORDER_STATUS_FLOW as readonly string[]).includes(status)
-})
-
-const orderSteps = computed(() =>
-  ORDER_STATUS_FLOW.map((value, index) => {
-    const meta = ORDER_STEP_META[value]
+const alert = computed(() => {
+  const value = order.value
+  if (!value) return null
+  if (value.status === 'CANCELED') {
     return {
-      title: t(meta.titleKey),
-      description: t(meta.descKey),
-      icon: meta.icon,
-      value,
-      completed: index <= currentStatusIndex.value,
-      active: index === currentStatusIndex.value,
-    }
-  }),
-)
-
-const orderProgressPercentage = computed(() => {
-  const index = currentStatusIndex.value
-  return index >= 0 ? ((index + 1) / ORDER_STATUS_FLOW.length) * 100 : 0
-})
-
-const currentStepValue = computed(() => {
-  const status = order.value?.status
-  return status && (ORDER_STATUS_FLOW as readonly string[]).includes(status)
-    ? status
-    : ORDER_STATUS_FLOW[0]
-})
-
-const stepperColor = computed(() => {
-  const percentage = orderProgressPercentage.value
-  if (percentage >= 100) {
-    return 'success'
-  }
-  else if (percentage >= 75) {
-    return 'neutral'
-  }
-  else if (percentage >= 25) {
-    return 'warning'
-  }
-  else {
-    return 'info'
-  }
-})
-
-const orderAlert = computed(() => {
-  const status = order.value?.status?.toLowerCase()
-
-  // Backend emits ``CANCELED`` (US spelling). Accept both spellings
-  // defensively so a stray ``CANCELLED`` in historical metadata doesn't
-  // silently fall through.
-  if (status === 'canceled' || status === 'cancelled') {
-    // Surface the operator-supplied cancellation reason when the
-    // backend captured one — falls back to the generic copy so we
-    // never render an empty-string description.
-    const reason = order.value?.cancellation?.reason?.trim()
-    return {
-      show: true,
       color: 'error' as const,
-      title: t('order_cancelled'),
-      description: reason || t('order_cancelled_desc'),
-      icon: 'i-heroicons-x-circle',
+      icon: 'i-lucide-circle-x',
+      title: t('alert.canceled'),
+      description: value.cancellation?.reason?.trim() || t('alert.canceled_description'),
     }
   }
-
-  if (status === 'delivered') {
+  // Cash on delivery owes its whole total until the courier collects
+  // it: an unpaid remainder is news only for an online payment.
+  const remaining = value.pricingBreakdown?.remainingAmount
+  if (remaining && remaining > 0 && value.isOnlinePayment) {
     return {
-      show: true,
-      color: 'success' as const,
-      title: t('order_delivered'),
-      description: t('order_delivered_desc'),
-      icon: 'i-heroicons-check-circle',
-    }
-  }
-
-  // ``remainingAmount`` is always positive for cash-on-delivery /
-  // bank-transfer orders because the customer paid €0 at checkout
-  // by design; the alert is only meaningful for online pay ways
-  // where a non-zero remaining balance signals an actual unfinished
-  // payment. Suppress for offline pay ways. ``isOnlinePayment``
-  // ships from OrderDetailSerializer.get_is_online_payment.
-  const remaining = order.value?.pricingBreakdown?.remainingAmount
-  if (
-    remaining
-    && remaining > 0
-    && order.value?.isOnlinePayment
-  ) {
-    return {
-      show: true,
       color: 'warning' as const,
-      title: t('payment_pending'),
-      description: t('payment_pending_desc', { amount: $i18n.n(remaining, 'currency') }),
-      icon: 'i-heroicons-credit-card',
+      icon: 'i-lucide-credit-card',
+      title: t('alert.payment_pending'),
+      description: t('alert.payment_pending_description', { amount: n(remaining, 'currency') }),
     }
   }
-
-  return { show: false, color: 'neutral' as const }
+  return null
 })
 
-const sectionsState = reactive({
-  orderItems: true,
-  orderSummary: true,
-  shippingInfo: true,
-  orderDetails: true,
-  trackingInfo: true,
-  orderHistory: true,
-})
+const cancelOpen = ref(false)
+const canceling = ref(false)
 
-function getTimelineIcon(changeType?: string) {
-  switch (changeType?.toLowerCase()) {
-    case 'created':
-    case 'placed':
-      return 'i-heroicons-shopping-cart'
-    case 'confirmed':
-      return 'i-heroicons-check-circle'
-    case 'shipped':
-      return 'i-heroicons-truck'
-    case 'delivered':
-      return 'i-heroicons-check-circle'
-    case 'canceled':
-    case 'cancelled':
-      return 'i-heroicons-x-circle'
-    case 'payment':
-      return 'i-heroicons-credit-card'
-    default:
-      return 'i-heroicons-clock'
-  }
-}
-
-function getStatusColor(status?: string): 'success' | 'error' | 'warning' | 'info' | 'neutral' {
-  if (!status) return 'neutral'
-
-  switch (status.toUpperCase()) {
-    case 'COMPLETED':
-    case 'DELIVERED':
-      return 'success'
-    case 'CANCELED':
-    case 'CANCELLED':
-    case 'REFUNDED':
-      return 'error'
-    case 'PROCESSING':
-    case 'SHIPPED':
-      return 'warning'
-    case 'PENDING':
-      return 'info'
-    default:
-      return 'neutral'
-  }
-}
-
-function getPaymentStatusColor(status?: string): 'success' | 'error' | 'warning' | 'info' | 'neutral' {
-  if (!status) return 'neutral'
-
-  switch (status.toUpperCase()) {
-    case 'COMPLETED':
-      return 'success'
-    case 'FAILED':
-    case 'CANCELED':
-    case 'CANCELLED':
-      return 'error'
-    case 'PENDING':
-    case 'PROCESSING':
-      return 'warning'
-    case 'REFUNDED':
-    case 'PARTIALLY_REFUNDED':
-      return 'info'
-    default:
-      return 'neutral'
-  }
-}
-
-async function handleCancelOrder() {
-  if (!order.value?.canBeCanceled || isCanceling.value) return
-  isCanceling.value = true
+async function confirmCancel() {
+  if (!order.value?.canBeCanceled || canceling.value) return
+  canceling.value = true
   try {
     await cancelOrder(order.value.id)
+    cancelOpen.value = false
     await refreshOrder()
-    toast.add({
-      title: t('cancel.success_title'),
-      description: t('cancel.success_description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
+    toast.add({ title: t('cancel.success'), color: 'success', icon: 'i-lucide-circle-check' })
   }
   catch (error) {
     const status = (error as { statusCode?: number })?.statusCode
     log.error({ action: 'order:cancel', status, error })
-    const isConflict = status === 409 || status === 400
+    // The order moved on since the page loaded (or someone else
+    // canceled it): show its real state.
+    const moved = status === 409 || status === 400
     toast.add({
       title: t('cancel.error_title'),
-      description: isConflict
-        ? t('cancel.error_conflict')
-        : t('cancel.error_description'),
+      description: moved ? t('cancel.error_moved') : t('cancel.error_description'),
       color: 'error',
-      icon: 'i-heroicons-x-circle',
+      icon: 'i-lucide-circle-x',
     })
-    // Sync to the authoritative state — maybe someone else already
-    // canceled it or the status moved on since page load.
-    if (isConflict) await refreshOrder()
+    if (moved) {
+      cancelOpen.value = false
+      await refreshOrder()
+    }
   }
   finally {
-    isCanceling.value = false
+    canceling.value = false
   }
 }
 
-async function handleTrackOrder() {
-  const trackingUrl = order.value?.trackingDetails?.trackingUrl
-  if (trackingUrl) {
-    // ``noopener,noreferrer`` blocks tabnabbing: without it the
-    // opened courier site could call ``window.opener.location`` and
-    // redirect the customer's tab to a phishing page.
-    window.open(trackingUrl, '_blank', 'noopener,noreferrer')
-  }
-}
+const fetchingInvoice = ref(false)
 
-const isFetchingInvoice = ref(false)
-
-async function handleDownloadInvoice() {
-  if (!order.value?.id || isFetchingInvoice.value) return
-  isFetchingInvoice.value = true
+async function openInvoice() {
+  if (!order.value?.id || fetchingInvoice.value) return
+  fetchingInvoice.value = true
   try {
-    const data = await $api(`/api/orders/${order.value.id}/invoice`, {
-      method: 'GET',
-      headers: useRequestHeaders(),
-    })
-    const downloadUrl = data?.downloadUrl
-    if (!downloadUrl) {
-      toast.add({
-        title: t('invoice.error_title'),
-        description: t('invoice.error_missing'),
-        color: 'error',
-        icon: 'i-heroicons-x-circle',
-      })
+    const data = await $api(`/api/orders/${order.value.id}/invoice`, { method: 'GET' })
+    if (!data?.downloadUrl) {
+      toast.add({ title: t('invoice.error_title'), description: t('invoice.error_missing'), color: 'error' })
       return
     }
-    // Opening in a new tab keeps the order page context; the URL is a
-    // short-lived signed link so there's no value in deep-linking.
-    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
+    // A short-lived signed link: opened, not linked to.
+    window.open(data.downloadUrl, '_blank', 'noopener,noreferrer')
   }
   catch (error) {
     log.error({ action: 'order:invoice:download', error })
-    toast.add({
-      title: t('invoice.error_title'),
-      description: t('invoice.error_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
-    })
+    toast.add({ title: t('invoice.error_title'), description: t('invoice.error_description'), color: 'error' })
   }
   finally {
-    isFetchingInvoice.value = false
+    fetchingInvoice.value = false
   }
 }
 
-const cartStore = useCartStore()
-const isReordering = ref(false)
-
-async function handleReorder() {
-  if (!order.value?.id || isReordering.value) return
-  isReordering.value = true
-  try {
-    const result = await $api<ReorderResponse>(`/api/orders/${order.value.id}/reorder`, {
-      method: 'POST',
-      headers: useRequestHeaders(),
-    })
-    await cartStore.refreshCart()
-
-    // Reorder adds cart lines server-side, bypassing the store's
-    // create/update actions — report each added line so add_to_cart
-    // analytics stay complete. Prices come from the refreshed cart.
-    for (const item of result.addedItems ?? []) {
-      const addedQuantity = Number(
-        item.addedQuantity ?? item.requestedQuantity ?? 0,
-      )
-      const cartItem = cartStore.getCartItemByProductId(item.productId)
-      const unitPrice = Number(
-        cartItem?.product?.finalPrice ?? cartItem?.product?.price ?? 0,
-      )
-      cartStore.trackCartQuantityChange(item.productId, addedQuantity, unitPrice)
-    }
-
-    const skippedCount = result.skippedItems?.length ?? 0
-    const addedCount = result.addedItems?.length ?? 0
-    if (addedCount === 0) {
-      toast.add({
-        title: t('reorder.empty_title'),
-        description: t('reorder.empty_description'),
-        color: 'warning',
-        icon: 'i-heroicons-exclamation-triangle',
-      })
-      return
-    }
-
-    toast.add({
-      title: t('reorder.success_title'),
-      description: skippedCount > 0
-        ? t('reorder.success_with_skipped', { added: addedCount, skipped: skippedCount })
-        : t('reorder.success_description', { count: addedCount }),
-      color: 'success',
-      icon: 'i-heroicons-shopping-cart',
-    })
-    await navigateTo(localePath('cart'))
-  }
-  catch (error) {
-    log.error({ action: 'order:reorder', error })
-    toast.add({
-      title: t('reorder.error_title'),
-      description: t('reorder.error_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
-    })
-  }
-  finally {
-    isReordering.value = false
-  }
-}
+const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
 </script>
 
 <template>
-  <PageWrapper
+  <div
     v-if="order"
-    class="
-      flex flex-col gap-6
-      md:gap-8
-    "
+    class="flex flex-col gap-5"
   >
-    <div
-      class="
-        flex flex-col gap-4
-        md:flex-row md:items-center md:justify-between
-      "
-    >
-      <div class="flex items-center gap-4">
-        <UButton
-          :to="localePath('account-orders')"
-          color="neutral"
-          variant="outline"
-          icon="i-heroicons-arrow-left"
-          size="sm"
-        >
-          {{ t('back') }}
-        </UButton>
-
-        <div class="flex flex-col">
-          <h1
-            class="
-              text-2xl font-bold text-gray-900
-              dark:text-gray-100
-            "
-          >
-            {{ t('order') }} #{{ order.id }}
-          </h1>
-          <p
-            class="
-              text-sm text-gray-500
-              dark:text-gray-200
-            "
-          >
-            {{ t('placed_on') }}:
+    <AccountPageHeader :title="t('title', { id: order.id })">
+      <template #lead>
+        <i18n-t keypath="placed">
+          <template #date>
             <NuxtTime
               :datetime="order.createdAt"
               :locale="locale"
-              class="
-                text-sm text-primary-950
-                dark:text-primary-50
-              "
+              day="numeric"
+              month="short"
+              year="numeric"
             />
-          </p>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap gap-3">
-        <UBadge
-          :color="getStatusColor(order.status)"
-          :label="order.statusDisplay"
-          variant="subtle"
-          size="lg"
+          </template>
+          <template #time>
+            <NuxtTime
+              :datetime="order.createdAt"
+              :locale="locale"
+              hour="2-digit"
+              minute="2-digit"
+            />
+          </template>
+        </i18n-t>
+      </template>
+      <template #actions>
+        <UButton
+          v-if="order.hasInvoice"
+          :label="t('invoice.cta')"
+          :loading="fetchingInvoice"
+          icon="i-lucide-download"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          @click="openInvoice"
         />
-
-        <UBadge
-          v-if="order.paymentStatus"
-          :color="getPaymentStatusColor(order.paymentStatus)"
-          :label="order.paymentStatusDisplay || order.paymentStatus"
-          variant="subtle"
-          size="lg"
-          icon="i-heroicons-credit-card"
+        <UButton
+          :label="t('reorder.cta')"
+          :loading="reordering === order.id"
+          icon="i-lucide-refresh-cw"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          @click="() => reorder(order!.id)"
         />
-
-        <UBadge
-          v-if="order.isPaid"
-          color="success"
-          :label="t('paid')"
-          variant="soft"
-          icon="i-heroicons-check-circle"
+        <UButton
+          v-if="order.canBeCanceled"
+          :label="t('cancel.cta')"
+          color="error"
+          variant="ghost"
+          size="sm"
+          @click="() => { cancelOpen = true }"
         />
-      </div>
-    </div>
+      </template>
+    </AccountPageHeader>
 
     <UAlert
-      v-if="orderAlert.show"
-      :color="orderAlert.color"
-      :title="orderAlert.title"
-      :description="orderAlert.description"
-      :icon="orderAlert.icon"
-      variant="soft"
+      v-if="alert"
+      :color="alert.color"
+      :icon="alert.icon"
+      :title="alert.title"
+      :description="alert.description"
+      variant="subtle"
     />
 
-    <div
-      class="
-        flex flex-wrap gap-3
-      "
+    <section
+      :aria-label="t('progress')"
+      class="flex flex-col gap-6"
+      :class="CARD"
     >
-      <UButton
-        v-if="order.canBeCanceled"
-        color="error"
-        variant="outline"
-        icon="i-heroicons-x-circle"
-        :loading="isCanceling"
-        :disabled="isCanceling"
-        @click="handleCancelOrder"
-      >
-        {{ t('cancel_order') }}
-      </UButton>
-
-      <UButton
-        v-if="order.trackingDetails?.hasTracking"
-        color="primary"
-        variant="outline"
-        icon="i-heroicons-arrow-top-right-on-square"
-        @click="handleTrackOrder"
-      >
-        {{ t('track_order') }}
-      </UButton>
-
-      <UButton
-        v-if="order.hasInvoice"
-        color="neutral"
-        variant="outline"
-        icon="i-heroicons-document-arrow-down"
-        :loading="isFetchingInvoice"
-        :disabled="isFetchingInvoice"
-        @click="handleDownloadInvoice"
-      >
-        {{ t('invoice.download') }}
-      </UButton>
-
-      <UButton
-        color="secondary"
-        variant="solid"
-        icon="i-heroicons-arrow-path"
-        :loading="isReordering"
-        :disabled="isReordering"
-        @click="handleReorder"
-      >
-        {{ t('reorder.cta') }}
-      </UButton>
-    </div>
-
-    <UCard v-if="!isOffPathTerminalStatus">
-      <template #header>
-        <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold">
-            {{ t('order_progress') }}
-          </h2>
-          <div class="flex items-center gap-2">
-            <UProgress
-              :model-value="orderProgressPercentage"
-              size="sm"
-              class="w-24"
-              :color="stepperColor"
-              :status="false"
+      <OrderProgress
+        :status="order.status"
+        labels
+      />
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+        <ol
+          v-if="timeline.length"
+          class="flex flex-col gap-5"
+        >
+          <li
+            v-for="entry in timeline"
+            :key="entry.key"
+            class="relative flex gap-3"
+          >
+            <span
+              class="mt-1.5 size-2.5 shrink-0 rounded-full bg-secondary"
+              aria-hidden="true"
             />
-            <span class="text-xs text-gray-500">{{ Math.round(orderProgressPercentage) }}%</span>
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <p class="font-semibold text-highlighted">
+                {{ entry.title }}
+              </p>
+              <p
+                v-if="entry.description"
+                class="text-sm text-toned"
+              >
+                {{ entry.description }}
+              </p>
+            </div>
+            <NuxtTime
+              :datetime="entry.date"
+              :locale="locale"
+              day="numeric"
+              month="short"
+              hour="2-digit"
+              minute="2-digit"
+              class="shrink-0 font-mono text-xs text-toned"
+            />
+          </li>
+        </ol>
+        <div
+          v-if="destination || tracking"
+          class="flex flex-col items-start gap-3"
+        >
+          <div
+            v-if="destination"
+            class="flex w-full flex-col gap-1 rounded-[0.875rem] bg-elevated p-4"
+          >
+            <p class="text-xs font-semibold tracking-[0.08em] text-toned uppercase">
+              {{ t(destination.kind === 'pickup' ? 'pickup_point' : 'delivery_address') }}
+            </p>
+            <p class="font-semibold text-highlighted">
+              {{ destination.name }}
+            </p>
+            <p class="text-sm text-toned">
+              {{ destination.address }}
+            </p>
+          </div>
+          <div
+            v-if="tracking"
+            class="flex flex-wrap gap-2"
+          >
+            <UButton
+              :label="tracking.label"
+              :to="tracking.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              icon="i-lucide-truck"
+              color="neutral"
+              variant="outline"
+              size="sm"
+            />
+            <UButton
+              v-if="tracking.labelUrl"
+              :label="t('shipping_label')"
+              :to="tracking.labelUrl"
+              target="_blank"
+              icon="i-lucide-download"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+            />
           </div>
         </div>
-      </template>
+      </div>
+    </section>
 
-      <UStepper
-        :items="orderSteps"
-        :model-value="currentStepValue"
-        disabled
-        :orientation="isMobileOrTablet ? 'vertical' : 'horizontal'"
-        :color="stepperColor"
-        size="md"
-        class="w-full"
-      />
-    </UCard>
-
-    <div
-      class="
-        flex flex-col gap-6
-        md:flex-row
-      "
+    <section
+      aria-labelledby="order-items-title"
+      class="flex flex-col gap-4"
+      :class="CARD"
     >
-      <UCard
-        :ui="{
-          root: 'md:min-w-2/3',
-        }"
+      <h2
+        id="order-items-title"
+        class="font-semibold text-highlighted"
       >
-        <template #header>
-          <UCollapsible v-model:open="sectionsState.orderItems">
-            <UButton
-              :label="t('order_items')"
-              color="neutral"
-              variant="ghost"
-              :trailing-icon="sectionsState.orderItems ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-              class="w-full justify-between text-lg font-semibold"
+        {{ t('items') }}
+      </h2>
+      <ul class="flex flex-col divide-y divide-default">
+        <li
+          v-for="item in order.items"
+          :key="item.id"
+          class="flex items-center gap-4 py-3 first:pt-0"
+        >
+          <span class="size-14 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated">
+            <ImgWithFallback
+              :src="item.product.mainImagePath"
+              alt=""
+              :width="112"
+              :height="112"
+              fit="cover"
+              loading="lazy"
+              class="size-full object-cover"
             />
-
-            <template #content>
-              <div class="mt-4 max-h-[32rem] space-y-4 overflow-y-auto pr-1">
-                <div
-                  v-for="item in order.items"
-                  :key="`product-${item.product.id}`"
-                  class="
-                    group relative overflow-hidden rounded-xl border
-                    border-gray-200 bg-primary-100 transition-all duration-200
-                    hover:border-gray-300 hover:shadow-lg
-                    dark:border-gray-700 dark:bg-primary-900
-                    dark:hover:border-gray-600
-                  "
-                >
-                  <div class="flex gap-4 p-4">
-                    <div class="relative shrink-0">
-                      <Anchor
-                        :to="{ path: productUrl(item.product.id, item.product.slug) }"
-                        class="block"
-                      >
-                        <div
-                          class="
-                            relative h-28 w-28 overflow-hidden rounded-lg
-                            bg-gray-100
-                            sm:h-32 sm:w-32
-                            dark:bg-gray-700
-                          "
-                        >
-                          <ImgWithFallback
-                            :alt="extractTranslated(item.product, 'name', locale)"
-                            fit="cover"
-                            :height="128"
-                            :src="item.product.mainImagePath"
-                            :width="128"
-                            class="
-                              h-full w-full object-cover transition-transform
-                              duration-200
-                              group-hover:scale-105
-                            "
-                            loading="lazy"
-                          />
-                        </div>
-                      </Anchor>
-
-                      <UBadge
-                        :label="`×${item.quantity}`"
-                        color="primary"
-                        variant="solid"
-                        size="sm"
-                        class="absolute -top-2 -right-2 shadow-md"
-                      />
-                    </div>
-
-                    <div class="flex min-w-0 flex-1 flex-col">
-                      <Anchor
-                        :to="{ path: productUrl(item.product.id, item.product.slug) }"
-                        class="group/link"
-                      >
-                        <h3
-                          class="
-                            line-clamp-2 text-start text-lg font-semibold
-                            text-gray-900 transition-colors
-                            group-hover/link:text-primary-600
-                            dark:text-gray-100
-                            dark:group-hover/link:text-primary-400
-                          "
-                        >
-                          {{ extractTranslated(item.product, 'name', locale) }}
-                        </h3>
-                      </Anchor>
-
-                      <div
-                        class="
-                          mt-2 flex flex-wrap items-center gap-x-3 gap-y-1
-                          text-xs text-gray-500
-                          dark:text-gray-200
-                        "
-                      >
-                        <span class="font-mono">#{{ item.product.id }}</span>
-                        <span
-                          v-if="item.product.weight?.value"
-                          class="flex items-center gap-1"
-                        >
-                          <UIcon name="i-heroicons-scale" class="h-3 w-3" />
-                          {{ item.product.weight.value }}{{ item.product.weight.unit || 'kg' }}
-                        </span>
-                      </div>
-
-                      <div class="mt-3 flex flex-wrap items-center gap-3">
-                        <span
-                          class="
-                            text-sm text-gray-600
-                            dark:text-gray-200
-                          "
-                        >
-                          {{ t('unit_price') }}:
-                        </span>
-                        <div class="flex items-center gap-2">
-                          <!-- The price PAID, snapshotted on the order
-                               line. Never the live catalog price: it
-                               moves after the sale (and a wholesale
-                               order never matched it), which left the
-                               unit price disagreeing with the subtotal
-                               right below. -->
-                          <span
-                            class="
-                              font-semibold text-gray-900
-                              dark:text-gray-100
-                            "
-                          >
-                            {{ $i18n.n(item.price, 'currency') }}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div
-                        class="
-                          mt-auto flex items-end justify-between gap-4 border-t
-                          border-gray-100 pt-3
-                          dark:border-gray-700
-                        "
-                      >
-                        <div
-                          class="
-                            flex items-center gap-2 text-sm text-gray-600
-                            dark:text-gray-200
-                          "
-                        >
-                          <UIcon name="i-heroicons-archive-box" class="h-4 w-4" />
-                          <span>{{ t('quantity') }}: {{ item.quantity }}</span>
-                        </div>
-
-                        <div class="text-right">
-                          <div
-                            class="
-                              text-xs text-gray-500
-                              dark:text-gray-200
-                            "
-                          >
-                            {{ t('subtotal') }}
-                          </div>
-                          <div
-                            v-if="item.quantity"
-                            class="
-                              text-lg font-bold text-gray-900
-                              dark:text-gray-100
-                            "
-                          >
-                            {{ $i18n.n(item.totalPrice || (item.price * item.quantity), 'currency') }}
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- No "you save" line: the order stores only the
-                           price paid, so any saving here could only be
-                           computed from TODAY's catalog — a number
-                           about the shop now, not about this order. -->
-
-                      <div
-                        v-if="item.product.reviewCount > 0"
-                        class="
-                          mt-2 flex items-center gap-2 text-sm text-gray-600
-                          dark:text-gray-200
-                        "
-                      >
-                        <div class="flex items-center">
-                          <UIcon
-                            name="i-heroicons-star" class="
-                              h-4 w-4 text-yellow-400
-                            "
-                          />
-                          <span class="ml-1">{{ item.product.reviewAverage?.toFixed(1) || 0 }}</span>
-                        </div>
-                        <span>({{ item.product.reviewCount }} {{ t('reviews') }})</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </UCollapsible>
-        </template>
-      </UCard>
-
-      <UCard
-        :ui="{
-          root: `
-            max-h-fit
-            md:min-w-1/3
-          `,
-        }"
-      >
-        <template #header>
-          <UCollapsible v-model:open="sectionsState.orderSummary">
-            <UButton
-              :label="t('order_summary')"
-              color="neutral"
-              variant="ghost"
-              :trailing-icon="sectionsState.orderSummary ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-              class="w-full justify-between text-lg font-semibold"
-            />
-
-            <template #content>
-              <div class="mt-4 space-y-4">
-                <div class="space-y-3">
-                  <div
-                    v-for="item in pricingItems"
-                    :key="item.label"
-                    class="flex justify-between text-sm"
-                  >
-                    <span
-                      class="
-                        text-gray-600
-                        dark:text-gray-200
-                      "
-                    >{{ item.label }}</span>
-                    <span class="font-medium">{{ $i18n.n(item.amount, 'currency') }}</span>
-                  </div>
-                </div>
-
-                <USeparator />
-
-                <div class="flex justify-between text-lg font-semibold">
-                  <span>{{ t('total') }}</span>
-                  <span>{{ $i18n.n(order.pricingBreakdown?.grandTotal ?? order.paidAmount, 'currency') }}</span>
-                </div>
-
-                <div
-                  v-if="order.pricingBreakdown?.remainingAmount && order.pricingBreakdown.remainingAmount > 0"
-                  class="
-                    flex justify-between text-sm text-amber-600
-                    dark:text-amber-400
-                  "
-                >
-                  <span>{{ t('remaining_amount') }}</span>
-                  <span>{{ $i18n.n(order.pricingBreakdown.remainingAmount, 'currency') }}</span>
-                </div>
-              </div>
-            </template>
-          </UCollapsible>
-        </template>
-      </UCard>
-    </div>
-
-    <div
-      class="
-        grid gap-6
-        lg:grid-cols-2
-      "
-    >
-      <UCard>
-        <template #header>
-          <UCollapsible v-model:open="sectionsState.shippingInfo">
-            <UButton
-              :label="t('shipping_information')"
-              color="neutral"
-              variant="ghost"
-              :trailing-icon="sectionsState.shippingInfo ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-              class="w-full justify-between text-lg font-semibold"
-            />
-
-            <template #content>
-              <div class="mt-4 space-y-4">
-                <div class="grid gap-4">
-                  <div>
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('customer_name') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 text-gray-900
-                        dark:text-gray-100
-                      "
-                    >
-                      {{ order.customerFullName }}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('email') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 text-gray-900
-                        dark:text-gray-100
-                      "
-                    >
-                      {{ order.email }}
-                    </p>
-                  </div>
-
-                  <div v-if="order.phone">
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('phone') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 text-gray-900
-                        dark:text-gray-100
-                      "
-                    >
-                      {{ order.phone }}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('shipping_address') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 whitespace-pre-line text-gray-900
-                        dark:text-gray-100
-                      "
-                    >
-                      {{ order.fullAddress }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </UCollapsible>
-        </template>
-      </UCard>
-
-      <UCard>
-        <template #header>
-          <UCollapsible v-model:open="sectionsState.orderDetails">
-            <UButton
-              :label="t('order_details')"
-              color="neutral"
-              variant="ghost"
-              :trailing-icon="sectionsState.orderDetails ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-              class="w-full justify-between text-lg font-semibold"
-            />
-
-            <template #content>
-              <div class="mt-4 space-y-4">
-                <div class="grid gap-4">
-                  <div v-if="paymentMethodLabel">
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('payment_method') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 text-gray-900
-                        dark:text-gray-100
-                      "
-                    >
-                      {{ paymentMethodLabel }}
-                    </p>
-                  </div>
-
-                  <div v-if="order.documentType">
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('document_type') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 text-gray-900
-                        dark:text-gray-100
-                      "
-                    >
-                      {{ order.documentType === 'INVOICE'
-                        ? t('document_type_invoice')
-                        : t('document_type_receipt') }}
-                    </p>
-                  </div>
-
-                  <div v-if="order.documentType === 'INVOICE' && order.billingVatId">
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('billing_details') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 text-gray-900
-                        dark:text-gray-100
-                      "
-                    >
-                      <span v-if="order.billingCompanyName" class="block font-medium">
-                        {{ order.billingCompanyName }}
-                      </span>
-                      <span class="block">{{ t('billing_vat', { vat: order.billingVatId }) }}</span>
-                      <span v-if="order.billingTaxOffice" class="block">
-                        {{ t('billing_tax_office', { taxOffice: order.billingTaxOffice }) }}
-                      </span>
-                      <span v-if="order.billingActivity" class="block">
-                        {{ order.billingActivity }}
-                      </span>
-                      <span v-if="order.billingStreet" class="block">
-                        {{ [
-                          [order.billingStreet, order.billingStreetNumber].filter(Boolean).join(' '),
-                          [order.billingZipcode, order.billingCity].filter(Boolean).join(' '),
-                        ].filter(Boolean).join(', ') }}
-                      </span>
-                    </p>
-                  </div>
-
-                  <div v-if="order.customerNotes">
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('customer_notes') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 rounded-md bg-gray-50 p-3 text-gray-900
-                        dark:bg-gray-800 dark:text-gray-100
-                      "
-                    >
-                      {{ order.customerNotes }}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label
-                      class="
-                        text-sm font-medium text-gray-700
-                        dark:text-gray-300
-                      "
-                    >
-                      {{ t('order_uuid') }}
-                    </label>
-                    <p
-                      class="
-                        mt-1 font-mono text-xs text-gray-600
-                        dark:text-gray-200
-                      "
-                    >
-                      {{ order.uuid }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </UCollapsible>
-        </template>
-      </UCard>
-    </div>
-
-    <!-- BoxNow tracking card — rendered for orders attached to the
-         BoxNow carrier via the registry-backed shipping_provider FK.
-         The serializer surfaces the carrier identifier as
-         ``shipmentProviderCode`` ('acs' | 'boxnow' | null). -->
-    <OrderBoxNowTracking
-      v-if="order.shipmentProviderCode === 'boxnow' && order.boxnowShipment"
-      :shipment="order.boxnowShipment"
-      :order-id="order.id"
-    />
-
-    <!-- ACS tracking card — rendered when the order has an ACS shipment. -->
-    <OrderAcsTracking
-      v-if="order.acsShipment"
-      :shipment="order.acsShipment"
-      :order-id="order.id"
-    />
-
-    <!-- Generic carrier tracking — only shown when no provider-specific
-         widget is rendered above (BoxNow / ACS each show their own). -->
-    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking && order.shipmentProviderCode !== 'boxnow' && !order.acsShipment">
-      <template #header>
-        <div class="flex w-full items-center justify-between">
-          <UCollapsible v-model:open="sectionsState.trackingInfo" class="flex-1">
-            <UButton
-              :label="t('tracking_information')"
-              color="neutral"
-              variant="ghost"
-              :trailing-icon="sectionsState.trackingInfo ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-              class="w-full flex-1 justify-between text-lg font-semibold"
-            />
-
-            <template #content>
-              <div
-                class="
-                  mt-4 grid gap-4
-                  md:grid-cols-2
-                "
-              >
-                <div v-if="order.trackingDetails.trackingNumber">
-                  <label
-                    class="
-                      text-sm font-medium text-gray-700
-                      dark:text-gray-300
-                    "
-                  >
-                    {{ t('tracking_number') }}
-                  </label>
-                  <p
-                    class="
-                      mt-1 font-mono text-gray-900
-                      dark:text-gray-100
-                    "
-                  >
-                    {{ order.trackingDetails.trackingNumber }}
-                  </p>
-                </div>
-
-                <div v-if="order.trackingDetails.shippingCarrier">
-                  <label
-                    class="
-                      text-sm font-medium text-gray-700
-                      dark:text-gray-300
-                    "
-                  >
-                    {{ t('shipping_carrier') }}
-                  </label>
-                  <p
-                    class="
-                      mt-1 text-gray-900
-                      dark:text-gray-100
-                    "
-                  >
-                    {{ order.trackingDetails.shippingCarrier }}
-                  </p>
-                </div>
-              </div>
-            </template>
-          </UCollapsible>
-
-          <UBadge
-            v-if="order.trackingDetails.estimatedDelivery"
-            color="info"
-            variant="soft"
-            :label="`ETA: ${$d(new Date(order.trackingDetails.estimatedDelivery), 'short')}`"
-            class="ml-2"
-          />
+          </span>
+          <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+            <p class="font-medium text-highlighted">
+              {{ extractTranslated(item.product, 'name', locale) }}
+            </p>
+            <p class="text-sm text-toned">
+              {{ t('quantity', { quantity: item.quantity ?? 0 }) }}
+            </p>
+          </div>
+          <p class="font-mono font-semibold text-highlighted">
+            {{ n(item.totalPrice, 'currency') }}
+          </p>
+        </li>
+      </ul>
+      <dl class="flex flex-col gap-2 border-t border-default pt-4">
+        <div
+          v-for="row in totals"
+          :key="row.key"
+          class="flex justify-between gap-4"
+        >
+          <dt class="text-toned">
+            {{ row.label }}
+          </dt>
+          <dd class="font-mono text-highlighted">
+            {{ row.value }}
+          </dd>
         </div>
+        <div class="flex justify-between gap-4 pt-1">
+          <dt class="font-semibold text-highlighted">
+            {{ order.isPaid ? t('totals.paid') : t('totals.total') }}
+          </dt>
+          <dd class="font-mono font-bold text-highlighted">
+            {{ n(order.pricingBreakdown?.grandTotal ?? order.paidAmount, 'currency') }}
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <section
+        v-if="order.documentType === 'INVOICE'"
+        class="flex flex-col gap-2"
+        :class="CARD"
+      >
+        <h2 class="text-xs font-semibold tracking-[0.08em] text-toned uppercase">
+          {{ t('invoice.details') }}
+        </h2>
+        <p class="text-highlighted">
+          {{ order.billingCompanyName }}
+        </p>
+        <p class="text-sm text-toned">
+          {{ t('invoice.vat', { vat: order.billingVatId, office: order.billingTaxOffice }) }}
+        </p>
+        <p class="text-sm text-toned">
+          {{ order.billingStreet }} {{ order.billingStreetNumber }}, {{ order.billingZipcode }} {{ order.billingCity }}
+        </p>
+      </section>
+      <section
+        class="flex flex-col items-start gap-2"
+        :class="CARD"
+      >
+        <h2 class="text-xs font-semibold tracking-[0.08em] text-toned uppercase">
+          {{ t('payment') }}
+        </h2>
+        <p
+          v-if="paymentLabel"
+          class="text-highlighted"
+        >
+          {{ paymentLabel }}
+        </p>
+        <UBadge
+          v-if="order.paymentStatusDisplay"
+          :label="order.paymentStatusDisplay"
+          :color="order.isPaid ? 'success' : 'warning'"
+          variant="soft"
+        />
+      </section>
+      <section
+        v-if="order.customerNotes"
+        class="flex flex-col gap-2 sm:col-span-2"
+        :class="CARD"
+      >
+        <h2 class="text-xs font-semibold tracking-[0.08em] text-toned uppercase">
+          {{ t('notes') }}
+        </h2>
+        <p class="whitespace-pre-line text-highlighted">
+          {{ order.customerNotes }}
+        </p>
+      </section>
+    </div>
+
+    <UModal
+      v-model:open="cancelOpen"
+      :title="t('cancel.confirm_title', { id: order.id })"
+      :ui="{ ...DIALOG_UI,
+             content: `
+               ${DIALOG_UI.content}
+               max-w-110
+             ` }"
+    >
+      <template #body>
+        <p class="text-toned">
+          {{ t('cancel.confirm_body') }}
+        </p>
       </template>
-    </UCard>
-
-    <UCard v-if="orderTimeline.length > 0">
-      <template #header>
-        <UCollapsible v-model:open="sectionsState.orderHistory">
-          <UButton
-            :label="t('order_history')"
-            color="neutral"
-            variant="ghost"
-            :trailing-icon="sectionsState.orderHistory ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-            class="w-full justify-between text-lg font-semibold"
-          />
-
-          <template #content>
-            <UTimeline
-              :items="orderTimeline"
-              size="sm"
-              class="mt-4"
-            >
-              <template #date="{ item }">
-                <span
-                  class="
-                    text-xs text-gray-500
-                    dark:text-gray-200
-                  "
-                >
-                  <NuxtTime
-                    :datetime="item.date"
-                    :locale="locale"
-                    date-style="medium"
-                    time-style="short"
-                  />
-                </span>
-              </template>
-
-              <template #description="{ item }">
-                <div>
-                  <p
-                    class="
-                      text-sm text-gray-600
-                      dark:text-gray-200
-                    "
-                  >
-                    {{ item.description }}
-                  </p>
-                  <p
-                    v-if="item.user" class="
-                      mt-1 text-xs text-gray-500
-                      dark:text-gray-500
-                    "
-                  >
-                    {{ t('by') }}: {{ item.user }}
-                  </p>
-                </div>
-              </template>
-            </UTimeline>
-          </template>
-        </UCollapsible>
+      <template #footer>
+        <UButton
+          :label="t('cancel.keep')"
+          color="neutral"
+          variant="outline"
+          @click="() => { cancelOpen = false }"
+        />
+        <UButton
+          :label="t('cancel.confirm')"
+          :loading="canceling"
+          color="error"
+          @click="confirmCancel"
+        />
       </template>
-    </UCard>
-  </PageWrapper>
+    </UModal>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  back: Πίσω
-  order: Παραγγελία
-  number: Παραγγελία
-  placed_on: Δημιουργήθηκε στις
-  order_progress: Πρόοδος Παραγγελίας
-  order_placed: Παραγγελία
-  order_placed_desc: Η παραγγελία σας δημιουργήθηκε
-  processing: Επεξεργασία
-  processing_desc: Η παραγγελία επεξεργάζεται
-  shipped: Απεστάλη
-  shipped_desc: Η παραγγελία απεστάλη
-  delivered: Παραδόθηκε
-  delivered_desc: Η παραγγελία παραδόθηκε
-  completed: Ολοκληρώθηκε
-  completed_desc: Η παραγγελία ολοκληρώθηκε
-  order_items: Προϊόντα Παραγγελίας
-  order_summary: Σύνοψη Παραγγελίας
-  quantity: Ποσότητα
-  unit_price: Τιμή Μονάδας
-  subtotal: Υποσύνολο
-  reviews: κριτικές
-  details: Λεπτομέρειες
-  shipping: Έξοδα αποστολής
-  synopsis: Συνοπτικά
-  products: Προϊόντα
-  total: Σύνολο
-  extras: Πρόσθετα
-  remaining_amount: Υπόλοιπο ποσό
-  shipping_information: Στοιχεία Αποστολής
-  customer_name: Όνομα Πελάτη
-  email: Email
-  phone: Τηλέφωνο
-  shipping_address: Διεύθυνση Αποστολής
-  order_details: Λεπτομέρειες Παραγγελίας
-  payment_method: Τρόπος Πληρωμής
-  address: Διεύθυνση
-  document_type: Τύπος Παραστατικού
-  document_type_receipt: Απόδειξη λιανικής
-  document_type_invoice: Τιμολόγιο πώλησης
-  billing_details: Στοιχεία Τιμολόγησης
-  billing_vat: 'ΑΦΜ: {vat}'
-  billing_tax_office: 'ΔΟΥ: {taxOffice}'
-  pay_way: Τρόπος Πληρωμής
-  payment_status: Κατάσταση Πληρωμής
-  customer_notes: Σημειώσεις Πελάτη
-  order_uuid: UUID Παραγγελίας
-  tracking_information: Στοιχεία Παρακολούθησης
-  tracking_number: Αριθμός Αποστολής
-  shipping_carrier: Εταιρία Μεταφορών
-  order_history: Ιστορικό Παραγγελίας
-  status_change: Αλλαγή Κατάστασης
-  timeline:
-    title:
-      created: Δημιουργία παραγγελίας
-      status: Αλλαγή κατάστασης
-      payment: Πληρωμή
-      shipping: Αποστολή
-      customer: Στοιχεία πελάτη
-      items: Προϊόντα
-      address: Διεύθυνση
-      note: Σημείωση
-      refund: Επιστροφή χρημάτων
-      other: Άλλη ενέργεια
-  by: από
-  cancel_order: Ακύρωση Παραγγελίας
-  track_order: Παρακολούθηση Παραγγελίας
-  order_cancelled: Παραγγελία Ακυρωμένη
-  order_cancelled_desc: Αυτή η παραγγελία έχει ακυρωθεί
-  order_delivered: Παραγγελία Παραδόθηκε
-  order_delivered_desc: Η παραγγελία σας παραδόθηκε επιτυχώς
-  payment_pending: Εκκρεμής Πληρωμή
-  payment_method_fee: Χρέωση μεθόδου πληρωμής
-  payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
+  title: "Παραγγελία #{id}"
+  placed: Καταχωρήθηκε {date} στις {time}
+  progress: Πορεία της παραγγελίας
+  history:
+    created: Η παραγγελία καταχωρήθηκε
+    status: Αλλαγή κατάστασης
+    payment: Πληρωμή
+    shipping: Αποστολή
+    refund: Επιστροφή χρημάτων
+  pickup_point: Σημείο παραλαβής
+  delivery_address: Διεύθυνση αποστολής
+  track: Παρακολούθηση στο {carrier}
+  track_generic: Παρακολούθηση αποστολής
+  shipping_label: Ετικέτα αποστολής
+  items: Προϊόντα
+  quantity: "Ποσ. {quantity}"
+  totals:
+    subtotal: Υποσύνολο
+    discounts: Εκπτώσεις
+    delivery: Μεταφορικά
+    free: Δωρεάν
+    payment_fee: Χρέωση τρόπου πληρωμής
+    total: Σύνολο
+    paid: Πληρώθηκαν
+  payment: Πληρωμή
+  notes: Σημειώσεις
+  alert:
+    canceled: Η παραγγελία ακυρώθηκε
+    canceled_description: Αυτή η παραγγελία δεν θα σταλεί.
+    payment_pending: Η πληρωμή εκκρεμεί
+    payment_pending_description: Απομένουν {amount} για να ολοκληρωθεί η πληρωμή.
   invoice:
-    download: "Λήψη τιμολογίου"
-    error_title: "Αποτυχία λήψης τιμολογίου"
-    error_description: "Δοκίμασε ξανά σε λίγο."
-    error_missing: "Το τιμολόγιο δεν είναι διαθέσιμο ακόμη."
+    cta: Τιμολόγιο
+    details: Στοιχεία τιμολογίου
+    vat: "ΑΦΜ {vat} · {office}"
+    error_title: Το τιμολόγιο δεν άνοιξε
+    error_description: Δοκίμασε ξανά σε λίγο.
+    error_missing: Το τιμολόγιο δεν είναι ακόμα διαθέσιμο.
   cancel:
-    success_title: "Η παραγγελία ακυρώθηκε"
-    success_description: "Η παραγγελία σου ακυρώθηκε με επιτυχία."
-    error_title: "Αποτυχία ακύρωσης"
-    error_description: "Δεν μπορέσαμε να ακυρώσουμε την παραγγελία. Δοκίμασε ξανά."
-    error_conflict: "Η παραγγελία δεν μπορεί πλέον να ακυρωθεί στην τρέχουσα κατάστασή της."
-  paid: Πληρωμένη
-  reorder:
-    cta: "Επανάληψη παραγγελίας"
-    success_title: "Προστέθηκαν στο καλάθι"
-    success_description: "Προστέθηκαν {count} προϊόντα στο καλάθι σου."
-    success_with_skipped: "Προστέθηκαν {added} προϊόντα. {skipped} δεν ήταν διαθέσιμα."
-    empty_title: "Κανένα προϊόν δεν είναι διαθέσιμο"
-    empty_description: "Τα προϊόντα αυτής της παραγγελίας δεν είναι πλέον διαθέσιμα."
-    error_title: "Αποτυχία επανάληψης"
-    error_description: "Δεν μπορέσαμε να προσθέσουμε τα προϊόντα στο καλάθι. Δοκίμασε ξανά."
+    cta: Ακύρωση παραγγελίας
+    confirm_title: "Ακύρωση της παραγγελίας #{id};"
+    confirm_body: Η παραγγελία δεν θα σταλεί. Η ακύρωση δεν αναιρείται.
+    keep: Όχι, κράτησέ τη
+    confirm: Ναι, ακύρωσέ τη
+    success: Η παραγγελία ακυρώθηκε
+    error_title: Η παραγγελία δεν ακυρώθηκε
+    error_description: Κάτι πήγε στραβά. Δοκίμασε ξανά.
+    error_moved: Η παραγγελία προχώρησε και δεν ακυρώνεται πια.
 en:
-  back: Back
-  order: Order
-  number: Order
-  placed_on: Placed on
-  order_progress: Order Progress
-  order_placed: Placed
-  order_placed_desc: Your order was created
-  processing: Processing
-  processing_desc: The order is being processed
-  shipped: Shipped
-  shipped_desc: The order has been shipped
-  delivered: Delivered
-  delivered_desc: The order was delivered
-  completed: Completed
-  completed_desc: The order is complete
-  order_items: Order Items
-  order_summary: Order Summary
-  quantity: Quantity
-  unit_price: Unit Price
-  subtotal: Subtotal
-  reviews: reviews
-  details: Details
-  shipping: Delivery
-  synopsis: At a glance
-  products: Products
-  total: Total
-  extras: Extras
-  remaining_amount: Amount outstanding
-  shipping_information: Delivery Details
-  customer_name: Customer Name
-  email: Email
-  phone: Phone
-  shipping_address: Delivery Address
-  order_details: Order Details
-  payment_method: Payment Method
-  address: Address
-  document_type: Document Type
-  document_type_receipt: Retail receipt
-  document_type_invoice: Sales invoice
-  billing_details: Billing Details
-  billing_vat: "VAT number: {vat}"
-  billing_tax_office: "Tax office: {taxOffice}"
-  pay_way: Payment Method
-  payment_status: Payment Status
-  customer_notes: Customer Notes
-  order_uuid: Order UUID
-  tracking_information: Tracking Details
-  tracking_number: Tracking Number
-  shipping_carrier: Carrier
-  order_history: Order History
-  status_change: Status Change
-  timeline:
-    title:
-      created: Order created
-      status: Status change
-      payment: Payment
-      shipping: Shipping
-      customer: Customer details
-      items: Items
-      address: Address
-      note: Note
-      refund: Refund
-      other: Other activity
-  by: by
-  cancel_order: Cancel Order
-  track_order: Track Order
-  order_cancelled: Order Cancelled
-  order_cancelled_desc: This order has been cancelled
-  order_delivered: Order Delivered
-  order_delivered_desc: Your order was delivered
-  payment_pending: Payment Pending
-  payment_method_fee: Payment method fee
-  payment_pending_desc: There is {amount} still to pay on this order
+  title: "Order #{id}"
+  placed: Placed {date} at {time}
+  progress: Order progress
+  history:
+    created: Order placed
+    status: Status change
+    payment: Payment
+    shipping: Shipping
+    refund: Refund
+  pickup_point: Pickup point
+  delivery_address: Delivery address
+  track: Track on {carrier}
+  track_generic: Track the parcel
+  shipping_label: Shipping label
+  items: Items
+  quantity: "Qty {quantity}"
+  totals:
+    subtotal: Subtotal
+    discounts: Discounts
+    delivery: Delivery
+    free: Free
+    payment_fee: Payment method fee
+    total: Total
+    paid: Paid
+  payment: Payment
+  notes: Notes
+  alert:
+    canceled: This order was canceled
+    canceled_description: This order will not be shipped.
+    payment_pending: Payment pending
+    payment_pending_description: "{amount} is still due to complete the payment."
   invoice:
-    download: "Download invoice"
-    error_title: "Could not download the invoice"
-    error_description: "Please try again in a moment."
-    error_missing: "The invoice is not available yet."
+    cta: Invoice
+    details: Invoice details
+    vat: "VAT {vat} · {office}"
+    error_title: The invoice did not open
+    error_description: Please try again in a moment.
+    error_missing: The invoice is not available yet.
   cancel:
-    success_title: "Order cancelled"
-    success_description: "Your order was cancelled."
-    error_title: "Could not cancel"
-    error_description: "We could not cancel that order. Please try again."
-    error_conflict: "This order can no longer be cancelled in its current state."
-  paid: Paid
-  reorder:
-    cta: "Order again"
-    success_title: "Added to your cart"
-    success_description: "{count} items were added to your cart."
-    success_with_skipped: "{added} items were added. {skipped} were unavailable."
-    empty_title: "Nothing is available"
-    empty_description: "The products on this order are no longer available."
-    error_title: "Could not reorder"
-    error_description: "We could not add those products to your cart. Please try again."
+    cta: Cancel order
+    confirm_title: "Cancel order #{id}?"
+    confirm_body: The order will not be shipped. Canceling cannot be undone.
+    keep: No, keep it
+    confirm: Yes, cancel it
+    success: Order canceled
+    error_title: The order was not canceled
+    error_description: Something went wrong. Please try again.
+    error_moved: The order has moved on and can no longer be canceled.
 </i18n>

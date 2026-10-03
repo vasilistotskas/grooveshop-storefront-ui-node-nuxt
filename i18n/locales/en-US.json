@@ -422,5 +422,31 @@
       "discount_code_combination_disallowed": "The code cannot be combined with the active offers",
       "discount_code_user_ineligible": "The code is not available for your account"
     }
+  },
+  "account_nav": {
+    "overview": "Overview",
+    "orders": "Orders",
+    "addresses": "Addresses",
+    "favourites": "Favourites",
+    "reviews": "Reviews",
+    "notifications": "Notifications",
+    "rewards": "Rewards",
+    "gift_cards": "Gift cards",
+    "business": "Business",
+    "newsletter": "Newsletter",
+    "profile": "Profile",
+    "privacy": "Privacy",
+    "sign_out": "Sign out",
+    "back": "Account"
+  },
+  "reorder": {
+    "cta": "Buy again",
+    "success_title": "Added to your cart",
+    "success_description": "{count} item was added to your cart. | {count} items were added to your cart.",
+    "success_with_skipped": "{added} items were added. {skipped} are no longer available.",
+    "empty_title": "Nothing is available",
+    "empty_description": "The products on this order are no longer sold.",
+    "error_title": "Not added to your cart",
+    "error_description": "We could not put those products in your cart. Please try again."
   }
 }

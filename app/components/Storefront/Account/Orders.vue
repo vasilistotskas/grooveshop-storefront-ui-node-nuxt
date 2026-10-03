@@ -1,171 +1,195 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
+/**
+ * The shopper's orders, newest first, as the boards draw them: one row
+ * per order with its products, number, status, date, item count and
+ * total, and "Buy again" for an order that arrived. The delivery method
+ * is the order page's to show (the list serializer does not carry it).
+ *
+ * Page and sort live in the query string, so a row's "Details" and the
+ * browser's Back return to the same page.
+ */
+const { t, n, locale } = useI18n()
 useHead({ title: () => t('title') })
-const route = useRoute(`account-orders___${locale.value}`)
-const { user } = useUserSession()
+const route = useRoute()
+const router = useRouter()
 const localePath = useLocalePath()
+const { reorder, reordering } = useReorder()
 
-const pageSize = ref(8)
-const pending = ref(true)
-const page = computed(() => route.query.page || 1)
-const ordering = computed(() => route.query.ordering || '-createdAt')
+const PAGE_SIZE = 8
+const SORTS = ['-createdAt', 'createdAt'] as const
+type Sort = typeof SORTS[number]
 
-const entityOrdering = ref<EntityOrdering<any>>([
-  {
-    value: 'status',
-    label: t('ordering.status'),
-    options: ['ascending', 'descending'],
-  },
-  {
-    value: 'createdAt',
-    label: t('ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-  {
-    value: 'updatedAt',
-    label: t('ordering.updated_at'),
-    options: ['ascending', 'descending'],
-  },
+const page = computed(() => Math.max(1, Number(route.query.page) || 1))
+const ordering = computed<Sort>(() =>
+  SORTS.includes(route.query.ordering as Sort) ? route.query.ordering as Sort : '-createdAt',
+)
+
+const { data: orders, status } = await useApi('/api/orders/my-orders', {
+  key: 'account-orders',
+  method: 'GET',
+  query: { page, pageSize: PAGE_SIZE, ordering },
+})
+
+const sortItems = computed(() => [
+  { label: t('sort.newest'), value: '-createdAt' },
+  { label: t('sort.oldest'), value: 'createdAt' },
 ])
 
-const { data: orders, status, error, refresh: refreshOrders } = await useApi(
-  `/api/orders/my-orders`,
-  {
-    key: `userOrders${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      pending.value = false
-    },
-  },
-)
-
-async function onOrderCancelled() {
-  await refreshOrders()
+function sortBy(value: Sort) {
+  router.replace({ query: { ...route.query, ordering: value === '-createdAt' ? undefined : value, page: undefined } })
 }
 
-const pagination = computed(() => {
-  if (!orders.value?.count) return
-  return usePagination<Order>(orders.value)
-})
-
-const orderingOptions = computed(() => {
-  return useOrdering<any>(entityOrdering.value)
-})
-
-watch(
-  () => route.query,
-  async () => {
-    await refreshOrders()
-  },
-)
+const canBuyAgain = (order: Order) => order.status === 'DELIVERED' || order.status === 'COMPLETED'
+const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (item.quantity ?? 0), 0)
+const detailsTo = (order: Order) => localePath({ name: 'account-orders-id', params: { id: order.id } })
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="md:mt-0"
-    />
-
-    <div class="flex flex-row flex-wrap items-center gap-2">
-      <PaginationPageNumber
-        v-if="pagination"
-        :count="pagination.count"
-        :page="pagination.page"
-        :page-size="pagination.pageSize"
-      />
-      <Ordering
-        :ordering="String(ordering)"
-        :ordering-options="orderingOptions.orderingOptionsArray.value"
-      />
-    </div>
-    <LazyOrderList
-      v-if="status !== 'pending' && orders?.count"
-      :orders="orders?.results"
-      :orders-total="orders?.count"
-      @cancelled="onOrderCancelled"
-    />
-    <div
-      v-else-if="status === 'pending'"
-      class="
-        grid gap-2
-        md:gap-4
-      "
-    >
-      <USkeleton
-        v-for="i in (orders?.count || 4)"
-        :key="i"
-        class="h-[202px] w-full"
-      />
-    </div>
-    <Error
-      v-else-if="error"
-      :error="error"
-    />
-    <LazyEmptyState
-      v-else-if="!orders?.count"
-      class="w-full"
-      :title="t('empty.title')"
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader
+      :title="t('title')"
+      :lead="orders?.count ? t('lead', orders.count) : undefined"
     >
       <template
-        #icon
-      >
-        <UIcon
-          name="i-mdi-package-variant-closed"
-          size="xl"
-        />
-      </template>
-      <template
+        v-if="orders?.count"
         #actions
       >
-        <UButton
-          :label="t('empty.description')"
-          :to="localePath('index')"
-          class="font-semibold"
-          color="secondary"
-          size="xl"
-          type="button"
+        <USelect
+          :model-value="ordering"
+          :items="sortItems"
+          :aria-label="t('sort.label')"
+          class="w-44"
+          @update:model-value="sortBy($event as Sort)"
         />
       </template>
-    </LazyEmptyState>
-  </PageWrapper>
+    </AccountPageHeader>
+
+    <div
+      v-if="status === 'pending' && !orders"
+      class="flex flex-col gap-3"
+    >
+      <USkeleton
+        v-for="index in 3"
+        :key="index"
+        class="h-25 w-full rounded-[1.25rem]"
+      />
+    </div>
+
+    <ul
+      v-else-if="orders?.results.length"
+      class="flex flex-col gap-3"
+    >
+      <li
+        v-for="order in orders.results"
+        :key="order.id"
+        class="
+          flex flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring ring-default
+          sm:flex-row sm:items-center
+        "
+      >
+        <OrderThumbs :items="order.items" />
+        <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="font-mono font-semibold text-highlighted">
+              #{{ order.id }}
+            </p>
+            <OrderStatusBadge
+              :status="order.status"
+              :label="order.statusDisplay"
+            />
+          </div>
+          <p class="text-sm text-toned">
+            <NuxtTime
+              :datetime="order.createdAt"
+              :locale="locale"
+              day="numeric"
+              month="short"
+              year="numeric"
+            />
+            · {{ t('items', itemCount(order)) }}
+          </p>
+        </div>
+        <p class="font-mono font-semibold text-highlighted">
+          {{ n(order.paidAmount, 'currency') }}
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <UButton
+            v-if="canBuyAgain(order)"
+            :label="t('reorder.cta')"
+            :loading="reordering === order.id"
+            :disabled="reordering !== null && reordering !== order.id"
+            icon="i-lucide-refresh-cw"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            @click="() => reorder(order.id)"
+          />
+          <UButton
+            :label="t('details')"
+            :to="detailsTo(order)"
+            :aria-label="t('details_of', { id: order.id })"
+            color="neutral"
+            size="sm"
+          />
+        </div>
+      </li>
+    </ul>
+
+    <div
+      v-else
+      class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
+    >
+      <p class="font-semibold text-highlighted">
+        {{ t('empty.title') }}
+      </p>
+      <p class="text-toned">
+        {{ t('empty.description') }}
+      </p>
+      <UButton
+        :label="t('empty.cta')"
+        :to="localePath('products')"
+        color="neutral"
+      />
+    </div>
+
+    <UPagination
+      v-if="orders && orders.count > PAGE_SIZE"
+      :page="page"
+      :total="orders.count"
+      :items-per-page="PAGE_SIZE"
+      :to="(target: number) => ({ query: { ...route.query, page: target > 1 ? target : undefined } })"
+      class="self-center"
+    />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Παραγγελίες
-  ordering:
-    status: Κατάσταση
-    created_at: Δημιουργήθηκε
-    updated_at: Ενημερώθηκε
+  lead: "{n} παραγγελία | {n} παραγγελίες"
+  items: "{n} προϊόν | {n} προϊόντα"
+  details: Λεπτομέρειες
+  details_of: "Λεπτομέρειες της παραγγελίας #{id}"
+  sort:
+    label: Ταξινόμηση
+    newest: Πρώτα οι νεότερες
+    oldest: Πρώτα οι παλαιότερες
   empty:
-    title: Δεν υπάρχουν παραγγελίες
-    description: Ξεκινήστε τις αγορές σας
+    title: Καμία παραγγελία ακόμα
+    description: Ό,τι παραγγείλεις θα εμφανίζεται εδώ, μαζί με την πορεία του.
+    cta: Ξεκίνα τις αγορές
 en:
   title: Orders
-  ordering:
-    status: Status
-    created_at: Created
-    updated_at: Updated
+  lead: "{n} order | {n} orders"
+  items: "{n} item | {n} items"
+  details: Details
+  details_of: "Details of order #{id}"
+  sort:
+    label: Sort
+    newest: Newest first
+    oldest: Oldest first
   empty:
     title: No orders yet
-    description: Start shopping
+    description: Everything you order shows up here, with where it is.
+    cta: Start shopping
 </i18n>

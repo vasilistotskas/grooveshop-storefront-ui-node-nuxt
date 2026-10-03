@@ -222,41 +222,37 @@ async function onSetMain() {
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col gap-4 md:mt-1 md:gap-8 md:p-0!">
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader :title="address?.title || t('title')">
+      <template #actions>
+        <UBadge
+          v-if="address?.isMain"
+          :label="t('main.title')"
+          class="bg-inverted text-inverted ring-0"
+        />
         <UButton
-          :to="localePath('account-addresses')"
+          v-else
+          :label="t('main.button')"
           color="neutral"
           variant="outline"
-          icon="i-heroicons-arrow-left"
           size="sm"
-          trailing
-        >
-          <span class="sr-only">{{ t('back') }}</span>
-        </UButton>
-        <PageTitle class="md:mt-0">
-          {{ t('title') }} {{ address?.id }}
-        </PageTitle>
-      </div>
+          @click="onSetMain"
+        />
+        <UButton
+          :label="t('back')"
+          :to="localePath('account-addresses')"
+          icon="i-lucide-arrow-left"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+        />
+      </template>
+    </AccountPageHeader>
 
-      <div v-if="address?.isMain" class="flex items-center">
-        <UBadge icon="i-heroicons-check-badge" size="lg" color="success" variant="solid">
-          {{ t('main.title') }}
-        </UBadge>
-      </div>
-      <UButton
-        v-else
-        :label="t('main.button')"
-        color="secondary"
-        variant="outline"
-        icon="i-heroicons-check-circle"
-        trailing
-        @click="onSetMain"
-      />
-    </div>
-
-    <UCard v-if="address">
+    <div
+      v-if="address"
+      class="rounded-[1.25rem] bg-default p-6 ring ring-default"
+    >
       <UForm :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
         <!-- Title -->
         <UFormField :label="t('form.title')" name="title" required>
@@ -401,13 +397,13 @@ async function onSetMain() {
 
         <!-- Submit Button -->
         <div class="md:col-span-2">
-          <UButton type="submit" color="secondary" block :loading="isSubmitting" :disabled="isSubmitting">
+          <UButton type="submit" color="neutral" size="lg" :loading="isSubmitting" :disabled="isSubmitting">
             {{ t('form.update') }}
           </UButton>
         </div>
       </UForm>
-    </UCard>
-  </PageWrapper>
+    </div>
+  </div>
 </template>
 
 <i18n lang="yaml">

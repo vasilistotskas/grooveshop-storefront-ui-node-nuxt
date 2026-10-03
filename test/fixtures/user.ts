@@ -1,4 +1,4 @@
-import type { Notification, NotificationUserDetail, UserDetails } from '~~/shared/openapi/types.gen'
+import type { Notification, NotificationUserDetail, UserAddress, UserDetails } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -82,5 +82,38 @@ export function makeNotificationUserDetail(
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(19, id),
     ...rest,
+  }
+}
+
+/**
+ * A `UserAddress` (one saved address) valid against the generated
+ * `zUserAddress` (proved by `test/unit/fixtures/user.spec.ts`).
+ *
+ * Defaults: address 5 of user 7, "Σπίτι" in Athens, not the default.
+ * `uuid` follows `id`.
+ */
+export function makeUserAddress(overrides: Partial<UserAddress> = {}): UserAddress {
+  const id = overrides.id ?? 5
+  return {
+    id,
+    title: 'Σπίτι',
+    firstName: 'Μαρία',
+    lastName: 'Παπαδοπούλου',
+    street: 'Ερμού',
+    streetNumber: '12',
+    city: 'Αθήνα',
+    zipcode: '10563',
+    floor: '',
+    locationType: '',
+    phone: '+306912345678',
+    notes: '',
+    isMain: false,
+    user: 7,
+    country: 'GR',
+    region: 'GR-I',
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
+    uuid: fixtureUuid(11, id),
+    ...overrides,
   }
 }

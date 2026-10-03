@@ -1,5 +1,5 @@
-import type { Order, OrderDetail } from '~~/shared/openapi/types.gen'
-import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
+import type { Order, OrderDetail, OrderItemDetail } from '~~/shared/openapi/types.gen'
+import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from './product'
 
 /**
  * An `OrderDetail` as Django serialises it, valid against the generated
@@ -149,6 +149,39 @@ export function makeOrderListItem(overrides: Partial<Order> = {}): Order {
     canBeCanceled: true,
     isPaid: false,
     attribution: null,
+    ...overrides,
+  }
+}
+
+/**
+ * One line of an order (`OrderItemDetail`), valid against the generated
+ * `zOrderItemDetail` (proved by `test/unit/fixtures/order.spec.ts`).
+ *
+ * Defaults: line 1 of order 1, one unit of `makeProduct({ id })` at
+ * 20 EUR, nothing refunded. `uuid` follows `id`. Like the order's money
+ * fields, the line's are NOT derived from each other.
+ */
+export function makeOrderItem(overrides: Partial<OrderItemDetail> = {}): OrderItemDetail {
+  const id = overrides.id ?? 1
+
+  return {
+    id,
+    uuid: fixtureUuid(27, id),
+    order: 1,
+    product: makeProduct({ id }),
+    price: 20,
+    quantity: 1,
+    isRefunded: false,
+    refundedQuantity: 0,
+    netQuantity: 1,
+    totalPrice: 20,
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
+    originalQuantity: null,
+    refundedAmount: 0,
+    netPrice: 20,
+    sortOrder: null,
+    notes: '',
     ...overrides,
   }
 }

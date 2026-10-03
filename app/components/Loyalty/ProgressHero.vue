@@ -35,18 +35,14 @@ const xpProgress = computed(() => {
   const currentTier = tiers.value[currentTierIndex.value]
   const nextTier = tiers.value[currentTierIndex.value + 1]
   if (!currentTier || !nextTier) return 100
-  const currentTierMinXp = (currentTier.requiredLevel - 1) * xpPerLevel.value
-  const nextTierMinXp = (nextTier.requiredLevel - 1) * xpPerLevel.value
-  const xpInCurrentTier = summary.value.totalXp - currentTierMinXp
-  const xpNeededForNextTier = nextTierMinXp - currentTierMinXp
-  return Math.min(100, Math.max(0, (xpInCurrentTier / xpNeededForNextTier) * 100))
+  return tierProgress(summary.value.totalXp, tierStartXp(currentTier, xpPerLevel.value), tierStartXp(nextTier, xpPerLevel.value))
 })
 
 const nextTierXp = computed(() => {
   if (!tiers.value || currentTierIndex.value === -1) return 0
   const nextTier = tiers.value[currentTierIndex.value + 1]
   if (!nextTier) return summary.value?.totalXp || 0
-  return (nextTier.requiredLevel - 1) * xpPerLevel.value
+  return tierStartXp(nextTier, xpPerLevel.value)
 })
 
 /**

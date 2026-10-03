@@ -1,188 +1,104 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
+/**
+ * The shopper's saved addresses as cards, the default first — the order
+ * checkout offers them in (`useCheckoutForm`). A new address and an edit
+ * open the address form's own pages.
+ */
+const { t } = useI18n()
 useHead({ title: () => t('title') })
-const route = useRoute(`account-addresses___${locale.value}`)
-const { user } = useUserSession()
+const route = useRoute()
 const localePath = useLocalePath()
 
-const pageSize = ref(8)
-const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-createdAt')
+const PAGE_SIZE = 50
+const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
-const entityOrdering = ref<EntityOrdering<any>>([
-  {
-    value: 'createdAt',
-    label: t('ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-  {
-    value: 'updatedAt',
-    label: t('ordering.updated_at'),
-    options: ['ascending', 'descending'],
-  },
-])
-
-const { data: addresses, status, error } = await useApi(
-  `/api/user/account/${user.value?.id}/addresses`,
-  {
-    key: `userAddresses${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-  },
-)
-
-const refreshAddresses = async () => {
-  status.value = 'pending'
-  const addresses = await $api(
-    `/api/user/account/${user.value?.id}/addresses`,
-    {
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        page: page.value,
-        ordering: ordering.value,
-        pageSize: pageSize.value,
-      },
-    },
-  )
-  status.value = 'success'
-  return addresses
-}
-
-const onAddressDelete = async () => {
-  addresses.value = await refreshAddresses()
-}
-
-const pagination = computed(() => {
-  if (!addresses.value?.count) return
-  return usePagination(addresses.value)
+const { data: addresses, status, refresh } = await useApi('/api/user/addresses', {
+  key: 'account-addresses',
+  method: 'GET',
+  query: { page, pageSize: PAGE_SIZE, ordering: '-isMain,-createdAt' },
 })
-
-const orderingOptions = computed(() => {
-  return useOrdering<any>(entityOrdering.value)
-})
-
-watch(
-  () => route.query,
-  async () => {
-    addresses.value = await refreshAddresses()
-  },
-)
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-6
-      md:mt-1 md:gap-8 md:p-0!
-    "
-  >
-    <div class="flex flex-col gap-4">
-      <div class="flex items-center justify-between gap-4">
-        <PageTitle
-          :text="t('title')"
-          class="md:mt-0"
-        />
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader :title="t('title')">
+      <template #actions>
         <UButton
-          v-if="addresses?.count"
-          color="neutral"
-          size="lg"
-          icon="i-heroicons-plus"
-          :label="t('button')"
+          :label="t('add')"
           :to="localePath('account-addresses-new')"
-          class="
-            hidden
-            md:flex
-          "
+          icon="i-lucide-plus"
+          color="neutral"
+          size="sm"
         />
-      </div>
+      </template>
+    </AccountPageHeader>
 
-      <UButton
-        color="neutral"
-        size="lg"
-        icon="i-heroicons-plus"
-        :label="t('button')"
-        :to="localePath('account-addresses-new')"
-        class="md:hidden"
-        block
+    <div
+      v-if="status === 'pending' && !addresses"
+      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+    >
+      <USkeleton
+        v-for="index in 3"
+        :key="index"
+        class="h-48 rounded-[1.25rem]"
       />
     </div>
 
-    <UCard
-      v-if="addresses?.count"
+    <ul
+      v-else-if="addresses?.results.length"
+      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
     >
-      <div
-        class="
-          flex flex-col gap-4
-          sm:flex-row sm:items-center sm:justify-between
-        "
+      <li
+        v-for="address in addresses.results"
+        :key="address.id"
       >
-        <PaginationPageNumber
-          v-if="pagination"
-          :count="pagination.count"
-          :page="pagination.page"
-          :page-size="pagination.pageSize"
+        <AddressCard
+          :address="address"
+          @changed="refresh"
         />
-        <Ordering
-          :ordering="String(ordering)"
-          :ordering-options="orderingOptions.orderingOptionsArray.value"
-        />
-      </div>
-    </UCard>
-
-    <LazyAddressList
-      v-if="status !== 'pending' && addresses?.count"
-      :addresses="addresses?.results"
-      :addresses-count="addresses?.count"
-      @address-delete="onAddressDelete"
-    />
+      </li>
+    </ul>
 
     <div
-      v-else-if="status === 'pending'"
-      class="grid w-full gap-6"
+      v-else
+      class="flex flex-col items-start gap-3 rounded-[1.25rem] bg-default p-6 ring ring-default"
     >
-      <USkeleton class="h-20 w-full rounded-lg" />
-      <div
-        class="
-          grid grid-cols-1 gap-4
-          sm:grid-cols-2
-          lg:grid-cols-3
-          xl:grid-cols-4
-        "
-      >
-        <USkeleton
-          v-for="i in (addresses?.results?.length || 4)"
-          :key="i"
-          class="h-[280px] w-full rounded-xl"
-        />
-      </div>
+      <p class="font-semibold text-highlighted">
+        {{ t('empty.title') }}
+      </p>
+      <p class="text-toned">
+        {{ t('empty.description') }}
+      </p>
+      <UButton
+        :label="t('add')"
+        :to="localePath('account-addresses-new')"
+        icon="i-lucide-plus"
+        color="neutral"
+      />
     </div>
 
-    <UCard
-      v-else-if="error"
-      class="p-6"
-    >
-      <Error :error="error" />
-    </UCard>
-
-    <AddressAddNew v-else-if="!addresses?.count" />
-  </PageWrapper>
+    <UPagination
+      v-if="addresses && addresses.count > PAGE_SIZE"
+      :page="page"
+      :total="addresses.count"
+      :items-per-page="PAGE_SIZE"
+      :to="(target: number) => ({ query: { ...route.query, page: target > 1 ? target : undefined } })"
+      class="self-center"
+    />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Διευθύνσεις
-  button: Προσθήκη
+  add: Νέα διεύθυνση
+  empty:
+    title: Καμία αποθηκευμένη διεύθυνση
+    description: Αποθήκευσε μια διεύθυνση και θα τη βρίσκεις έτοιμη στο ταμείο.
 en:
   title: Addresses
-  button: Add
+  add: Add address
+  empty:
+    title: No saved addresses
+    description: Save an address and it will be ready for you at checkout.
 </i18n>
