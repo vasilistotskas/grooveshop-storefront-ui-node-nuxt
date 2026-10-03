@@ -90,6 +90,19 @@ describe('Cookie/Control', () => {
     await vi.waitFor(() => expect(wrapper.find('[data-test="modal"]').exists()).toBe(true))
   })
 
+  // Three large buttons are wider than a small phone: without wrapping,
+  // the last one — Decline, which must be as easy to reach as Accept —
+  // ran off the screen. Only below `md`: a row that may wrap may also
+  // shrink, and beside the text on a wide screen it stacked its buttons.
+  // jsdom has no layout, so the classes are the contract.
+  it('lets its buttons wrap onto a second line on a phone, and only there', async () => {
+    const wrapper = await mountBanner()
+
+    const row = button(wrapper, COPY.decline)!.element.parentElement!
+    expect(row.classList).toContain('max-md:flex-wrap')
+    expect(row.classList).not.toContain('flex-wrap')
+  })
+
   it('does not ask again once the visitor has decided', async () => {
     state().isConsentGiven.value = true
 

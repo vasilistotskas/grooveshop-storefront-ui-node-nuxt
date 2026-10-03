@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { UButton, UChip } from '#components'
+import { UButton, UChip, UModal } from '#components'
 import designPlugin from '~/plugins/design'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
@@ -71,6 +71,20 @@ describe('design plugin', () => {
     const classes = wrapper.find('[data-slot="base"]').attributes('class')?.split(' ') ?? []
     expect(classes).toContain('min-h-11')
     expect(classes.filter(name => /^h-/.test(name))).toEqual([])
+  })
+
+  it('dims the page behind a modal with the scrim, through the overlay variant', async () => {
+    // The base theme sets a modal's overlay colour in a VARIANT
+    // (`overlay: true`), which lands after the slot classes: an overlay
+    // written as a slot class would lose to the light wash.
+    useState('tenant').value = validTenantConfig('demo.example', { schemaName: 'demo' })
+    run()
+
+    await mountSuspended(UModal, { props: { open: true, title: 'Prefs' } })
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]')?.getAttribute('class')?.split(' ') ?? []
+    expect(overlay).toContain('bg-(--ui-scrim)')
+    expect(overlay).not.toContain('bg-elevated/75')
   })
 
   it('leaves webside on the base app config', () => {

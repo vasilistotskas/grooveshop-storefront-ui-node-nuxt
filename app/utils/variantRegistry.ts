@@ -27,7 +27,7 @@ import { defineAsyncComponent } from 'vue'
  * hop costs nothing on first paint.
  */
 
-export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell'
+export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell' | 'cookie_consent'
 
 export type PageKey
   = | 'home'
@@ -112,6 +112,7 @@ const chromeDefaults: Record<ChromeKey, Component> = {
   mobile_nav: lazy(() => import('~/components/MobileBottomNav.vue')),
   checkout_header: lazy(() => import('~/components/Chrome/CheckoutHeader.vue')),
   account_shell: lazy(() => import('~/components/Chrome/AccountShell.vue')),
+  cookie_consent: lazy(() => import('~/components/Chrome/CookieConsent.vue')),
 }
 
 const pageDefaults: Record<PageKey, Component> = {
@@ -210,6 +211,9 @@ const variants: Record<string, Component> = {
   'chrome:mobile_nav@webside': lazy(() => import('~/components/variants/webside/MobileBottomNav.vue')),
   'chrome:checkout_header@webside': lazy(() => import('~/components/variants/webside/Chrome/CheckoutHeader.vue')),
   'chrome:account_shell@webside': lazy(() => import('~/components/variants/webside/Chrome/AccountShell.vue')),
+  // The consent banner webside has always shown, at its old path: it is
+  // shared chrome that predates the freeze (`Cookie/*`).
+  'chrome:cookie_consent@webside': lazy(() => import('~/components/Cookie/Control.vue')),
   'page:home@webside': lazy(() => import('~/components/variants/webside/Storefront/Home.vue')),
   'page:products@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductsIndex.vue')),
   'page:products-category@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductsCategory.vue')),

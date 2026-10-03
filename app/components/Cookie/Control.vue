@@ -206,9 +206,15 @@ defineExpose({
               />
             </slot>
           </div>
+          <!-- Wrapping below `md` only: three large buttons are wider than a
+               small phone, and the last one — Decline, the answer that must
+               be as easy to give as Accept — ran off the screen. From `md`
+               up the row never wraps, so it cannot shrink beside the text
+               and stack its buttons. -->
           <div
             class="
               mt-4 ml-auto flex items-center gap-2
+              max-md:flex-wrap max-md:justify-end
               md:flex-row-reverse md:space-y-0
               lg:mt-0
             "
