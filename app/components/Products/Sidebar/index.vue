@@ -91,7 +91,7 @@ const accordionUi = {
   content: 'pb-4.5',
 }
 
-const hasFilters = computed(() => activeFilterChips.value.some(chip => chip.type !== 'sort'))
+const hasFilters = computed(() => activeFilterChips.value.some(isFilterChip))
 
 function toggleDrawer() {
   drawerOpen.value = !drawerOpen.value

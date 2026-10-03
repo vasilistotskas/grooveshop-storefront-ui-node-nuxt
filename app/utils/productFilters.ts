@@ -183,3 +183,12 @@ export const CLEARED_FILTERS: Partial<ProductFilters> = {
   categories: [],
   attributeValues: [],
 }
+
+/**
+ * Whether a chip is a filter a shopper set: every chip but the sort,
+ * which has a control of its own beside them and is not cleared with
+ * them.
+ */
+export function isFilterChip(chip: FilterChip): boolean {
+  return chip.type !== 'sort'
+}

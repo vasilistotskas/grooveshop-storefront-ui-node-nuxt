@@ -10,7 +10,7 @@ const { activeFilterChips, filters, updateFilters, removeFilter } = useProductFi
 const { t, n } = useI18n()
 const { getCategoryName, getAttributeValueName } = useProductSearchData(useListingScope())
 
-const chips = computed(() => activeFilterChips.value.filter(chip => chip.type !== 'sort'))
+const chips = computed(() => activeFilterChips.value.filter(isFilterChip))
 
 function chipLabel(chip: FilterChip): string {
   switch (chip.type) {
