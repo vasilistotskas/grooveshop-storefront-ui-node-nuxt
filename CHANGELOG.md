@@ -1,3 +1,10 @@
+# [3.228.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.227.1...v3.228.0) (2026-10-03)
+
+
+### Features
+
+* **listing:** Groove Volt listing, filters and search ([#70](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/70)) ([3e4f414](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3e4f4148dd131016e7823082bdc5c6e20b1f8b02))
+
 ## [3.227.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.227.0...v3.227.1) (2026-10-02)
 
 
