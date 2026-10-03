@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { ref } from 'vue'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import ReauthenticateFlow from '~/components/Account/2Fa/ReauthenticateFlow.vue'
 import { makeSessionResponse } from '~~/test/fixtures/allauth'
@@ -9,7 +10,21 @@ import { makeSessionResponse } from '~~/test/fixtures/allauth'
  * the OTHER ways allauth offers to confirm it is you — the password,
  * then each second factor strongest first — the page on screen being
  * the one left out. Driven by the `auth-state` the auth plugin keeps.
+ *
+ * Re-authentication confirms a shopper who is already signed in, and its
+ * routes are behind sign-in (`auth.global`), so the shopper here is
+ * signed in. The whole session surface: the app's auth plugins call it
+ * while booting.
  */
+mockNuxtImport('useUserSession', () => () => ({
+  loggedIn: ref(true),
+  user: ref(null),
+  session: ref({}),
+  ready: ref(true),
+  fetch: () => Promise.resolve(),
+  clear: () => Promise.resolve(),
+}))
+
 const REAUTH_REQUIRED = {
   status: 401,
   data: {
