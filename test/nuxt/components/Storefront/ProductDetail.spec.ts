@@ -3,7 +3,8 @@ import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/
 import { flushPromises } from '@vue/test-utils'
 import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
-import { makeProduct } from '~~/test/fixtures/product'
+import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
+import { makeCategory } from '~~/test/fixtures/productFilters'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
@@ -17,6 +18,15 @@ mockNuxtImport('useRequestApi', () => () => api)
 
 // UTooltip needs UApp's TooltipProvider, which a bare mount does not have.
 mockComponent('UTooltip', { template: '<div><slot /></div>' })
+
+// The default page mounts the alerts dialog on its first open; its own
+// spec covers it, this one only what the page hands it.
+vi.mock('~/components/Product/NotifyMe.vue', () => ({
+  default: {
+    props: { productId: Number, productName: String, soldOut: Boolean, priceDrop: Boolean, kind: String, open: Boolean },
+    template: '<div data-testid="notify" :data-kind="kind" :data-sold-out="String(soldOut)" />',
+  },
+}))
 
 const { route } = vi.hoisted(() => ({ route: { params: { id: '123', slug: 'bluetooth-speaker' } } }))
 mockNuxtImport('useRoute', () => () => ({
@@ -41,6 +51,7 @@ describe.each([
     api.routes({
       '/api/products/123': makeProduct({ id: 123 }),
       '/api/products/123/images': [],
+      '/api/products/categories/all': [],
       '/api/products/123/*': empty,
       '/api/*': empty,
     })
@@ -70,6 +81,7 @@ describe.each([
     api.routes({
       '/api/products/123': product,
       '/api/products/123/images': [],
+      '/api/products/categories/all': [],
       '/api/products/123/*': empty,
       '/api/*': empty,
     })
@@ -94,5 +106,117 @@ describe.each([
 
     expect(wrapper.findAll('.line-through')).toHaveLength(0)
     wrapper.unmount()
+  })
+})
+
+/**
+ * The Groove Volt product page: the category trail, the buy box's stock
+ * line, the review list and the alerts dialog.
+ */
+describe('default ProductDetail', () => {
+  const empty = { count: 0, next: null, previous: null, results: [] }
+  const CATEGORIES = [
+    makeCategory({ id: 1, name: { el: 'Φόρτιση', en: 'Charging' } }),
+    makeCategory({ id: 2, name: { el: 'Power banks', en: 'Power banks' }, parent: 1, level: 1 }),
+  ]
+
+  function serve(product: ReturnType<typeof makeProduct>, reviews: (page: number) => unknown = () => empty) {
+    clearNuxtData()
+    setTenant()
+    api.routes({
+      '/api/products/123': product,
+      '/api/products/123/images': [],
+      '/api/products/categories/all': CATEGORIES,
+      '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+  }
+
+  const mountPage = async () => {
+    const wrapper = await mountSuspended(ProductDetail, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('places the product under its category trail', async () => {
+    serve(makeProduct({ id: 123, category: 2 }))
+    const wrapper = await mountPage()
+
+    const crumbs = wrapper.get('nav[aria-label="breadcrumb"]').findAll('li').map(li => li.text()).filter(Boolean)
+    expect(crumbs).toEqual(['Αρχική', 'Φόρτιση', 'Power banks', 'Προϊόν 123'])
+  })
+
+  it('places a product outside the catalogue tree under the full listing', async () => {
+    serve(makeProduct({ id: 123, category: 99 }))
+    const wrapper = await mountPage()
+
+    const crumbs = wrapper.get('nav[aria-label="breadcrumb"]').findAll('li').map(li => li.text()).filter(Boolean)
+    expect(crumbs).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
+  })
+
+  it.each([
+    { stock: 40, line: 'Διαθέσιμο' },
+    { stock: 3, line: 'Έμειναν μόνο 3' },
+    { stock: 0, line: 'Εξαντλήθηκε' },
+  ])('says $line for a stock of $stock', async ({ stock, line }) => {
+    serve(makeProduct({ id: 123, stock }))
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain(line)
+  })
+
+  it('names what the discount saves beside the struck price', async () => {
+    // Net 50, 24 % VAT, 10 % off: final 57 against a gross 62.
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 10 }))
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain(`Κερδίζεις ${useNuxtApp().$i18n.n(5, 'currency')}`)
+  })
+
+  it('opens the restock alert from the stock line of a sold-out product', async () => {
+    serve(makeProduct({ id: 123, stock: 0 }))
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="notify"]').exists()).toBe(false)
+
+    await wrapper.findAll('button').find(b => b.text() === 'Ειδοποίησέ με')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('[data-testid="notify"]').exists()).toBe(true))
+
+    const notify = wrapper.get('[data-testid="notify"]')
+    expect(notify.attributes('data-kind')).toBe('restock')
+    expect(notify.attributes('data-sold-out')).toBe('true')
+  })
+
+  it('shows three reviews, then the rest of the page, then a page more per click', async () => {
+    const reviews = (page: number) => ({
+      count: 14,
+      next: page === 1 ? 'next' : null,
+      previous: null,
+      results: Array.from({ length: page === 1 ? 12 : 2 }, (_, i) => makeProductReview({ id: (page - 1) * 12 + i + 1 })),
+    })
+    serve(makeProduct({ id: 123, reviewAverage: 8, reviewCount: 14 }), reviews)
+    const wrapper = await mountPage()
+    const shown = () => wrapper.findAll('#reviews article').length
+    const button = (label: string) => wrapper.findAll('#reviews button').find(b => b.text() === label)!
+
+    expect(shown()).toBe(3)
+
+    await button('Δες και τις 14 αξιολογήσεις').trigger('click')
+    await flushPromises()
+    expect(shown()).toBe(12)
+    expect(api.callsTo('/api/products/123/reviews').filter(call => call.options?.query?.page === 2)).toHaveLength(0)
+
+    await button('Περισσότερες αξιολογήσεις').trigger('click')
+    await flushPromises()
+    expect(api.callsTo('/api/products/123/reviews').filter(call => call.options?.query?.page === 2)).toHaveLength(1)
+    expect(shown()).toBe(14)
+    expect(wrapper.findAll('#reviews button').find(b => b.text() === 'Περισσότερες αξιολογήσεις')).toBeUndefined()
+  })
+
+  it('marks the page for the footer to keep clear of the sticky buy bar', async () => {
+    serve(makeProduct({ id: 123 }))
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('[data-action-bar]').exists()).toBe(true)
   })
 })

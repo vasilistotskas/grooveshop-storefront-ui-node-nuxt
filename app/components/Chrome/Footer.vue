@@ -84,7 +84,16 @@ const storeName = computed(() => tenantStore.storeName || '')
   <UFooter
     :class="[
       'border-t border-default bg-default',
-      mobileBottomNavEnabled ? 'max-lg:pb-[calc(6.5rem+env(safe-area-inset-bottom))]' : '',
+      // A page with a sticky buy bar (`data-action-bar`: the product
+      // page) reserves room for the bar too — above the tab bar on a
+      // phone, at the foot of the screen on a desktop.
+      mobileBottomNavEnabled
+        ? `
+          max-lg:pb-[calc(6.5rem+env(safe-area-inset-bottom))]
+          max-lg:[body:has([data-action-bar])_&]:pb-[calc(11.25rem+env(safe-area-inset-bottom))]
+        `
+        : 'max-lg:[body:has([data-action-bar])_&]:pb-[calc(6.5rem+env(safe-area-inset-bottom))]',
+      'lg:[body:has([data-action-bar])_&]:pb-22',
     ]"
     :ui="{
       top: `

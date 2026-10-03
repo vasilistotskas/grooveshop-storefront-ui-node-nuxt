@@ -1,4 +1,13 @@
 <script lang="ts" setup>
+/**
+ * Products the recommendation engine pairs with this one, as a grid of
+ * product cards: two across on a phone, four on a desktop.
+ *
+ * With `band`, the section is a full-width page band of its own (the
+ * product page); without it, a plain section inside the caller's
+ * container (the cart). The band is drawn only once there are products,
+ * so a product the engine has nothing for leaves no empty band behind.
+ */
 const props = defineProps<{
   /**
    * Which slot the engine answers for. Selects the merchant's chain,
@@ -13,8 +22,7 @@ const props = defineProps<{
   /**
    * Already-computed suggestions — the cart payload carries its own,
    * seeded with the whole basket, so the cart page passes them here
-   * instead of fetching a second time. No reason labels and no
-   * feedback events on this path.
+   * instead of fetching a second time. No feedback events on this path.
    */
   items?: readonly Product[]
   /**
@@ -23,23 +31,14 @@ const props = defineProps<{
   limit?: number
   /**
    * Hide the section heading where the surrounding layout already
-   * gives the strip enough context.
+   * gives the grid enough context.
    */
   hideTitle?: boolean
+  /** Render as a full-width page band. */
+  band?: boolean
 }>()
 
-const { t, locale } = useI18n()
-const { productUrl } = useUrls()
-const { $i18n } = useNuxtApp()
-const { user } = useUserSession()
-const { getFavouriteIdByProductId } = useUserStore()
-
-type Tile = { product: Product, reason: RecommendationReason | null }
-
-// `Product.name` lives under `translations.<locale>`, as on every
-// parler model — the same reader as Product/Card.
-const productName = (product: Product) =>
-  extractTranslated(product, 'name', locale.value) ?? ''
+const { t } = useI18n()
 
 // SSR-rendered: Nitro caches this per (seed, surface) so the page
 // pays a cache hit, not a Django round trip. Not fetched at all when
@@ -57,54 +56,29 @@ const { data } = useApi(`/api/products/${props.seedId}/recommendations`, {
   },
   immediate: fetches,
   default: () => null,
-  // The strip is `hydrate-on-visible`: its setup runs after the app
-  // has finished hydrating, when Nuxt's default no longer reads the
-  // payload — so the server drew a full strip and the client started
-  // from `null` (a hydration node mismatch on every product page).
-  // See app/utils/payloadCachedData.ts.
+  // The grid is `hydrate-on-visible`: its setup runs after the app has
+  // finished hydrating, when Nuxt's default no longer reads the payload
+  // — so the server drew a full grid and the client started from
+  // `null` (a hydration node mismatch on every product page). See
+  // app/utils/payloadCachedData.ts.
   getCachedData: payloadCachedData,
 })
 
-const tiles = computed<Tile[]>(() => {
+const products = computed<readonly Product[]>(() => {
   if (props.items !== undefined) {
-    const own = typeof props.limit === 'number' ? props.items.slice(0, props.limit) : props.items
-    return own.map(product => ({ product, reason: null }))
+    return typeof props.limit === 'number' ? props.items.slice(0, props.limit) : props.items
   }
-  return (data.value?.items ?? []).map(item => ({ product: item.product, reason: item.reason }))
+  return (data.value?.items ?? []).map(item => item.product)
 })
-const hasItems = computed(() => tiles.value.length > 0)
+const hasItems = computed(() => products.value.length > 0)
+const title = computed(() => t(`title.${props.surface}`))
 const titleId = `product-suggestions-${props.surface}`
 
-// The relation type is the more specific label when a merchant set
-// one ("Goes well with"); otherwise the strategy that produced it.
-// Keyed by enum, never free text, so the storefront owns the wording.
-const reasonLabel = (reason: RecommendationReason) =>
-  reason.relationType
-    ? t(`relation.${reason.relationType}`)
-    : t(`strategy.${reason.strategy}`)
-
-// Wholesale price hydration — the same client-only swap as
-// Product/Card; the cached, anonymous HTML never carries a
-// per-customer price.
-const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
-watch(tiles, (items) => {
-  registerB2BPrice(items.map(tile => tile.product.id))
-}, { immediate: true })
-const displayPrice = (product: Product) => {
-  const b2b = b2bPriceFor(product.id)
-  return b2b && Number(b2b.finalPrice) < product.finalPrice
-    ? Number(b2b.finalPrice)
-    : product.finalPrice
-}
-// The struck-through price: the VAT-inclusive pre-discount price, or
-// the retail price under a lower wholesale one (see productWasPrice).
-const wasPrice = (product: Product) => productWasPrice(product, displayPrice(product))
-
 // Feedback loop. The impression is reported from onMounted, which
-// under ``hydrate-on-visible`` fires when the strip scrolls into view
+// under ``hydrate-on-visible`` fires when the grid scrolls into view
 // — "shown", not "served". The cart path has no impressionId and
-// reports nothing. A click is any interaction with the tile — the
-// link, the image or "add to cart" — captured on the wrapper.
+// reports nothing. A click is any interaction with a card — the link,
+// the photograph or "add to cart" — captured on the card.
 const { trackImpression, trackClick } = useRecommendationTracking(props.surface, props.seedId)
 onMounted(() => {
   const response = data.value
@@ -112,235 +86,65 @@ onMounted(() => {
     trackImpression(response.impressionId, response.items)
   }
 })
-const onTileClick = (tile: Tile, position: number) => {
+const onCardClick = (position: number) => {
   const impressionId = data.value?.impressionId
-  if (impressionId && tile.reason) {
-    trackClick(impressionId, { product: tile.product, reason: tile.reason }, position)
-  }
+  const item = data.value?.items[position]
+  if (impressionId && item) trackClick(impressionId, item, position)
 }
 
-// Two tiles per view on a phone (as the catalogue grid), three on a
-// tablet, four on desktop, with a peek of the next; arrows only where
-// there is a pointer, drawn inside the viewport so the page's content
-// frame is never overrun. One mobile-first config — no user-agent
-// branching, so the layout stays right in device emulation where the
-// UA says "desktop" at 375px.
-const carouselUI = {
-  root: 'w-full max-w-full',
-  viewport: 'overflow-hidden w-full',
-  container: 'flex w-full items-stretch',
-  item: `
-    min-w-0 shrink-0 grow-0 basis-1/2 h-full
-    md:basis-1/3
-    lg:basis-1/4
-  `,
-  prev: 'hidden md:inline-flex start-2 sm:start-2',
-  next: 'hidden md:inline-flex end-2 sm:end-2',
-}
-const arrowButton = {
-  color: 'neutral',
-  variant: 'solid',
-  size: 'lg',
-  square: true,
-} as const
+/**
+ * Resolved here rather than named as a string in `:is`: a string that is
+ * not a native tag renders as an unknown element (see PageSection/Band).
+ */
+const root = computed(() => (props.band ? resolveComponent('PageSectionBand') : 'section'))
 </script>
 
 <template>
-  <section
+  <component
+    :is="root"
     v-if="hasItems"
-    :aria-labelledby="hideTitle ? undefined : titleId"
-    :aria-label="hideTitle ? t(`title.${surface}`) : undefined"
-    class="w-full max-w-full space-y-4"
+    :heading="band && !hideTitle ? title : undefined"
+    :aria-labelledby="band || hideTitle ? undefined : titleId"
+    :aria-label="hideTitle ? title : undefined"
+    :class="!band && 'flex flex-col gap-5'"
   >
-    <header v-if="!hideTitle" class="flex items-center justify-between gap-3">
-      <h2
-        :id="titleId"
-        class="
-          text-2xl font-bold text-neutral-950
-          dark:text-neutral-50
-        "
-      >
-        {{ t(`title.${surface}`) }}
-      </h2>
-    </header>
-
-    <LazyUCarousel
-      v-slot="{ item, index }"
-      :items="tiles"
-      :ui="carouselUI"
-      arrows
-      :prev="arrowButton"
-      :next="arrowButton"
-      align="start"
-      contain-scroll="trimSnaps"
-      class="w-full max-w-full"
+    <h2
+      v-if="!band && !hideTitle"
+      :id="titleId"
+      class="font-display text-[1.625rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted"
     >
-      <article
-        class="group flex h-full flex-col gap-2"
-        @click.capture="onTileClick(item, index)"
-      >
-        <div
-          class="
-            relative aspect-square overflow-hidden rounded-xl bg-neutral-100
-            dark:bg-neutral-800
-          "
-        >
-          <NuxtLinkLocale
-            :to="{ path: productUrl(item.product.id, item.product.slug) }"
-            :aria-label="`${t('view_product')}: ${productName(item.product)}`"
-            class="block size-full"
-          >
-            <ImgWithFallback
-              :src="item.product.mainImagePath || undefined"
-              :alt="productName(item.product)"
-              :width="320"
-              :height="320"
-              fit="contain"
-              :background="'transparent'"
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 260px"
-              loading="lazy"
-              class="
-                size-full object-contain transition-transform duration-200
-                group-hover:scale-105
-              "
-            />
-          </NuxtLinkLocale>
-          <div class="absolute top-2 right-2">
-            <LazyButtonProductAddToFavourite
-              :product-id="item.product.id"
-              :user-id="user?.id"
-              :favourite-id="getFavouriteIdByProductId(item.product.id)"
-              size="sm"
-            />
-          </div>
-          <div class="absolute right-0 bottom-0">
-            <LazyButtonProductAddToCart
-              :product="item.product"
-              :quantity="1"
-              :text="t('add_to_cart')"
-              icon-only
-            />
-          </div>
-        </div>
-
-        <p
-          v-if="item.reason"
-          class="
-            text-xs text-neutral-600
-            dark:text-neutral-400
-          "
-        >
-          {{ reasonLabel(item.reason) }}
-        </p>
-
-        <NuxtLinkLocale
-          :to="{ path: productUrl(item.product.id, item.product.slug) }"
-          class="group/link"
-        >
-          <h3
-            class="
-              line-clamp-2 text-sm leading-snug font-semibold text-neutral-950
-              transition-colors
-              group-hover/link:text-primary-600
-              dark:text-neutral-50 dark:group-hover/link:text-primary-400
-            "
-          >
-            {{ productName(item.product) }}
-          </h3>
-        </NuxtLinkLocale>
-
-        <div
-          v-if="item.product.reviewAverage > 0"
-          class="flex items-center gap-1"
-        >
-          <UIcon
-            v-for="star in 5"
-            :key="star"
-            :name="star <= Math.round(item.product.reviewAverage / 2) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
-            class="size-3.5 text-warning"
-          />
-          <span
-            v-if="item.product.reviewCount"
-            class="
-              text-xs text-neutral-600
-              dark:text-neutral-400
-            "
-          >
-            ({{ item.product.reviewCount }})
-          </span>
-        </div>
-
-        <div class="mt-auto flex items-baseline gap-2">
-          <span
-            v-if="wasPrice(item.product)"
-            class="
-              text-xs text-neutral-600 line-through
-              dark:text-neutral-400
-            "
-          >
-            {{ $i18n.n(wasPrice(item.product)!, 'currency') }}
-          </span>
-          <span
-            class="
-              text-base font-bold text-neutral-950
-              dark:text-neutral-50
-            "
-          >
-            {{ $i18n.n(displayPrice(item.product), 'currency') }}
-          </span>
-        </div>
-      </article>
-    </LazyUCarousel>
-  </section>
+      {{ title }}
+    </h2>
+    <UPageGrid
+      as="ul"
+      class="
+        grid-cols-2 gap-3.5
+        lg:grid-cols-4 lg:gap-6
+      "
+    >
+      <ProductCard
+        v-for="(product, index) in products"
+        :key="product.id"
+        :product="product"
+        @click.capture="onCardClick(index)"
+      />
+    </UPageGrid>
+  </component>
 </template>
 
 <i18n lang="yaml">
 el:
-  add_to_cart: "Προσθήκη στο καλάθι"
-  view_product: "Προβολή προϊόντος"
   title:
     pdp: "Μπορεί να σου αρέσουν"
     cart: "Πρόσθεσε στην παραγγελία σου"
     out_of_stock: "Διαθέσιμες εναλλακτικές"
     empty_cart: "Δημοφιλή προϊόντα"
     order_email: "Μπορεί να σε ενδιαφέρουν"
-  relation:
-    similar: "Παρόμοιο"
-    complementary: "Ταιριάζει με"
-    accessory: "Αξεσουάρ"
-    replacement: "Αντικατάσταση"
-    bundle: "Πακέτο"
-  strategy:
-    curated: "Επιλογή του καταστήματος"
-    variant_group: "Άλλη παραλλαγή"
-    category: "Ίδια κατηγορία"
-    attributes: "Παρόμοια χαρακτηριστικά"
-    semantic: "Παρόμοιο"
-    co_purchase: "Αγοράζονται μαζί"
-    co_view: "Είδαν επίσης"
-    popular: "Δημοφιλές"
 en:
-  add_to_cart: "Add to cart"
-  view_product: "View product"
   title:
     pdp: "You may also like"
     cart: "Complete your order"
     out_of_stock: "Available alternatives"
     empty_cart: "Popular products"
     order_email: "You might be interested in"
-  relation:
-    similar: "Similar"
-    complementary: "Goes well with"
-    accessory: "Accessory"
-    replacement: "Replacement"
-    bundle: "Bundle"
-  strategy:
-    curated: "Store pick"
-    variant_group: "Another variant"
-    category: "Same category"
-    attributes: "Similar features"
-    semantic: "Similar"
-    co_purchase: "Bought together"
-    co_view: "Also viewed"
-    popular: "Popular"
 </i18n>

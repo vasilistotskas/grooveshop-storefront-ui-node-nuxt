@@ -156,6 +156,24 @@ export const VOLT_UI = {
     },
   },
 
+  // A choice is the accent, as the boards draw every one: a card choice
+  // is a white card with a 14px radius that turns accent-tinted with an
+  // accent edge when chosen. The base theme tints at 10% behind an edge
+  // at half strength, which read as hovered rather than chosen.
+  radioGroup: {
+    compoundVariants: [
+      { variant: 'card', class: { item: 'rounded-[0.875rem] bg-default' } },
+      {
+        variant: 'card',
+        color: 'secondary',
+        class: { item: 'has-data-[state=checked]:border-secondary has-data-[state=checked]:bg-(--ui-secondary-soft)' },
+      },
+    ],
+    defaultVariants: {
+      color: 'secondary',
+    },
+  },
+
   // Overlays dim the page with the scrim token, as the boards draw them —
   // ink at 45% (black at 60% in the dark scheme) rather than a light
   // wash. A modal sets its overlay through a variant, the others through

@@ -1,6 +1,13 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+/**
+ * One product photograph, cropped to fill its frame on the sunken tile
+ * the gallery, the zoom viewer and the sticky bar draw it on.
+ *
+ * `x1 x2` densities: the frames are fixed sizes, so a 2x screen gets a
+ * photograph twice the frame's width instead of an upscaled one.
+ */
 const props = defineProps({
   image: {
     type: Object as PropType<ProductImage>,
@@ -27,14 +34,14 @@ const props = defineProps({
   },
 })
 
-const { image } = toRefs(props)
 const { t, locale } = useI18n()
 
-const alt = computed(() => {
-  return (
-    extractTranslated(props.image, 'title', locale.value) || t('image.product_fallback')
-  )
-})
+// The merchant's alt text describes the photograph; the title names it.
+const alt = computed(() =>
+  props.image?.altText
+  || extractTranslated(props.image, 'title', locale.value)
+  || t('image.product_fallback'),
+)
 </script>
 
 <template>
@@ -42,12 +49,12 @@ const alt = computed(() => {
     :loading="imgLoading"
     :width="width"
     :height="height"
-    fit="contain"
-    :background="'ffffff'"
+    fit="cover"
     :sizes="sizes"
+    densities="x1 x2"
     :src="image?.mainImagePath"
     :alt="alt"
-    quality="100"
+    quality="75"
   />
 </template>
 

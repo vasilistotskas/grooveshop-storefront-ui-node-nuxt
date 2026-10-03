@@ -7,7 +7,6 @@ import WebsideReview from '~/components/variants/webside/Product/Review.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from '~~/test/fixtures/product'
 import { makeUserDetails } from '~~/test/fixtures/user'
 import { failWith } from '~~/test/helpers/api'
-import { trees } from '~~/test/helpers/trees'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -50,7 +49,9 @@ const UModal = {
   template: '<div v-if="open" data-testid="modal"><slot name="header" /><slot name="body" /><slot name="footer" /></div>',
 }
 
-describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
+/** The frozen copy, pinned as it renders on webside.gr. */
+describe('webside Product/Review', () => {
+  const C = WebsideReview
   const mountReview = async (props: { user?: UserDetails, userHadReviewed?: boolean, userProductReview?: ProductReviewDetail } = {}) => {
     const wrapper = await mountSuspended(C, {
       props: { product: PRODUCT, user: USER, modelValue: true, ...props },
@@ -243,5 +244,145 @@ describe.each(trees(Review, WebsideReview))('$tree Product/Review', ({ C }) => {
     const wrapper = await mountReview()
 
     expect(wrapper.findAll('button').filter(b => b.text() === 'Διαγραφή κριτικής')).toHaveLength(0)
+  })
+})
+
+/**
+ * The Groove Volt review dialog: five stars in half steps — the model's
+ * 1..10 as a reader counts it — and the comment, submitted from the
+ * footer. The stub renders the body and the footer while it is open.
+ */
+describe('default Product/Review', () => {
+  const Dialog = {
+    props: ['open', 'title', 'description', 'ui'],
+    template: '<div v-if="open" data-testid="modal"><slot name="body" /><div data-testid="footer"><slot name="footer" /></div></div>',
+  }
+
+  const mountDialog = async (props: { userHadReviewed?: boolean, userProductReview?: ProductReviewDetail } = {}) => {
+    const wrapper = await mountSuspended(Review, {
+      props: {
+        'product': PRODUCT,
+        'productName': 'Γλάστρα',
+        'user': USER,
+        'open': true,
+        'onUpdate:open': (open: boolean | undefined): void => { void wrapper.setProps({ open }) },
+        ...props,
+      },
+      global: { stubs: { UModal: Dialog } },
+      route: false,
+    })
+    return wrapper
+  }
+  type Wrapper = Awaited<ReturnType<typeof mountDialog>>
+
+  /** Click the star for `stars` (half steps allowed). */
+  const rate = (wrapper: Wrapper, stars: number) =>
+    wrapper.get(`button[role="radio"][value="${stars}"]`).trigger('click')
+  const footerButton = (wrapper: Wrapper, label: string) =>
+    wrapper.get('[data-testid="footer"]').findAll('button').find(b => b.text() === label)!
+  /** Submit as the footer's submit button does (its `form` attribute). */
+  const submit = async (wrapper: Wrapper, label: string) => {
+    const button = footerButton(wrapper, label)
+    const form = wrapper.get('form')
+    expect(button.attributes('type')).toBe('submit')
+    expect(button.attributes('form')).toBe(form.attributes('id'))
+    await form.trigger('submit')
+    await flushPromises()
+  }
+  const COMMENT = 'Πολύ καλή ποιότητα, το συνιστώ.'
+
+  it('rates in half stars on the model\'s 1..10, naming the rating in words', async () => {
+    api.routes({ '/api/products/reviews': { ...REVIEW, rate: 7 } })
+    const wrapper = await mountDialog()
+
+    await rate(wrapper, 3.5)
+    expect(wrapper.text()).toContain('Καλό')
+    await wrapper.get('textarea').setValue(COMMENT)
+    await submit(wrapper, 'Υποβολή κριτικής')
+
+    expect(api.callsTo('/api/products/reviews')).toEqual([{
+      url: '/api/products/reviews',
+      options: expect.objectContaining({
+        method: 'POST',
+        body: { product: 1, translations: { el: { comment: COMMENT } }, rate: 7 },
+      }),
+    }])
+    expect(wrapper.emitted('add-existing-review')).toEqual([[{ ...REVIEW, rate: 7 }]])
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η κριτική σου στάλθηκε και θα εμφανιστεί μόλις εγκριθεί', color: 'success' })
+    expect(wrapper.find('[data-testid="modal"]').exists()).toBe(false)
+  })
+
+  it('says reviews are moderated', async () => {
+    const wrapper = await mountDialog()
+
+    expect(wrapper.text()).toContain('Οι κριτικές ελέγχονται πριν εμφανιστούν.')
+  })
+
+  it('asks for a rating and a 10-character comment before sending anything', async () => {
+    const wrapper = await mountDialog()
+
+    await wrapper.get('textarea').setValue('Καλό')
+    await submit(wrapper, 'Υποβολή κριτικής')
+
+    const { t } = useNuxtApp().$i18n
+    expect(api.callsTo('/api/products/reviews')).toHaveLength(0)
+    expect(wrapper.text()).toContain(t('validation.required'))
+    expect(wrapper.text()).toContain(t('validation.min', { min: 10 }))
+  })
+
+  it.each([
+    ['a proxied list of codes', { data: { product: ['must_have_purchased'] } }],
+    ['a bare DRF list of codes', { product: ['must_have_purchased'] }],
+  ])('tells a shopper who has not bought the product why the review was refused (%s)', async (_shape, body) => {
+    api.routes({ '/api/products/reviews': refused(body) })
+    const wrapper = await mountDialog()
+
+    await rate(wrapper, 4)
+    await wrapper.get('textarea').setValue(COMMENT)
+    await submit(wrapper, 'Υποβολή κριτικής')
+
+    expect(toastAdd).toHaveBeenCalledWith({
+      title: 'Μπορείς να γράψεις κριτική μόνο για προϊόντα που έχεις αγοράσει',
+      color: 'error',
+    })
+    expect(wrapper.emitted('add-existing-review')).toBeUndefined()
+    expect(wrapper.find('[data-testid="modal"]').exists()).toBe(true)
+  })
+
+  it('starts from the existing review and updates it in place', async () => {
+    api.routes({ '/api/products/reviews/9': UPDATED })
+    const wrapper = await mountDialog({ userHadReviewed: true, userProductReview: REVIEW })
+
+    expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('Καλή γλάστρα, γερή.')
+    // The stored 6 is three stars.
+    expect(wrapper.get('button[role="radio"][value="3"]').attributes('aria-checked')).toBe('true')
+
+    await rate(wrapper, 3.5)
+    await submit(wrapper, 'Ενημέρωση κριτικής')
+
+    expect(api.callsTo('/api/products/reviews/9')).toEqual([{
+      url: '/api/products/reviews/9',
+      options: expect.objectContaining({
+        method: 'PUT',
+        body: { product: 1, translations: { el: { comment: 'Καλή γλάστρα, γερή.' } }, rate: 7 },
+      }),
+    }])
+    expect(wrapper.emitted('update-existing-review')).toEqual([[UPDATED]])
+  })
+
+  it('deletes the existing review, and offers no delete before there is one', async () => {
+    const fresh = await mountDialog()
+    expect(footerButton(fresh, 'Διαγραφή')).toBeUndefined()
+
+    api.routes({ '/api/products/reviews/9': () => undefined })
+    const wrapper = await mountDialog({ userHadReviewed: true, userProductReview: REVIEW })
+
+    await footerButton(wrapper, 'Διαγραφή').trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo('/api/products/reviews/9')).toEqual([
+      { url: '/api/products/reviews/9', options: expect.objectContaining({ method: 'DELETE' }) },
+    ])
+    expect(wrapper.emitted('delete-existing-review')).toEqual([[REVIEW]])
   })
 })

@@ -86,12 +86,7 @@ const to = computed(() => localePath(productUrl(productId.value, product.value.s
 
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 
-const lowStockCount = computed(() => {
-  const stock = product.value?.stock ?? 0
-  if (stock <= 0) return null
-  const threshold = product.value?.lowStockThreshold
-  return stock <= (typeof threshold === 'number' && threshold > 0 ? threshold : 10) ? stock : null
-})
+const lowStockCount = computed(() => lowStockLeft(product.value))
 
 const isNew = computed(() => {
   const createdAt = (product.value as { createdAt?: string })?.createdAt
@@ -164,6 +159,10 @@ const wasPrice = computed(() => productWasPrice(product.value, displayFinalPrice
 const addToCartName = computed(() => t('add_named', { name: productName.value ?? '' }))
 
 const favouriteId = computed(() => getFavouriteIdByProductId(productId.value))
+
+// A listing payload carries no price-alert flag, so a card offers the
+// restock alert only; the product page offers both.
+const notify = reactive({ mounted: false, open: false, kind: 'restock' as ProductAlertKindEnum })
 const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 </script>
 
@@ -318,15 +317,29 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       >
         {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
       </p>
-      <!-- Inside the card's link, which goes where the restock alert is
-           offered: not a second link to the same page. -->
-      <p
+      <!-- Opens the restock alert in place, above the card's stretched
+           link. The dialog mounts on the first open. -->
+      <UButton
         v-if="outOfStock && productAlertsEnabled"
-        class="text-[0.8125rem] font-semibold text-accent"
-      >
-        {{ t('notify_back') }}
-      </p>
+        :label="t('notify_back')"
+        color="neutral"
+        variant="link"
+        size="sm"
+        class="relative z-10 self-start p-0 text-[0.8125rem] font-semibold text-accent"
+        @click="() => { notify.mounted = true; notify.open = true }"
+      />
     </div>
+
+    <LazyProductNotifyMe
+      v-if="notify.mounted"
+      v-model:open="notify.open"
+      v-model:kind="notify.kind"
+      :product-id="productId"
+      :product-name="productName ?? ''"
+      :product-image="product.mainImagePath"
+      sold-out
+      :price-drop="false"
+    />
   </component>
 </template>
 

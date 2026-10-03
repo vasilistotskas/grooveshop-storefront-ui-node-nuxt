@@ -10,6 +10,15 @@ import { makeProduct } from '~~/test/fixtures/product'
  * component (447 lines of diff), pinned by its frozen-render snapshot.
  */
 
+// The card mounts the alerts dialog on its first open; its own spec
+// covers it, this one only what the card hands it.
+vi.mock('~/components/Product/NotifyMe.vue', () => ({
+  default: {
+    props: { productId: Number, productName: String, soldOut: Boolean, priceDrop: Boolean, kind: String, open: Boolean },
+    template: '<div data-testid="notify" :data-kind="kind" :data-sold-out="String(soldOut)" :data-price-drop="String(priceDrop)" />',
+  },
+}))
+
 const { b2bPrice, flags } = vi.hoisted(() => ({
   b2bPrice: vi.fn((_id: number): { finalPrice: string } | undefined => undefined),
   flags: {} as Record<string, boolean>,
@@ -100,6 +109,21 @@ describe('Product/Card', () => {
     flags.PRODUCT_ALERTS_ENABLED = true
     expect((await mountCard(makeProduct({ stock: 0 }))).text()).toContain('Ειδοποίησέ με όταν ξαναέρθει')
     expect((await mountCard(makeProduct({ stock: 9 }))).text()).not.toContain('Ειδοποίησέ με')
+  })
+
+  it('opens the restock alert in place from a sold-out card', async () => {
+    flags.PRODUCT_ALERTS_ENABLED = true
+    const wrapper = await mountCard(makeProduct({ id: 4, stock: 0 }))
+    expect(wrapper.find('[data-testid="notify"]').exists()).toBe(false)
+
+    await wrapper.findAll('button').find(b => b.text() === 'Ειδοποίησέ με όταν ξαναέρθει')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('[data-testid="notify"]').exists()).toBe(true))
+
+    // A listing payload carries no price-alert flag: restock only.
+    const notify = wrapper.get('[data-testid="notify"]')
+    expect(notify.attributes('data-kind')).toBe('restock')
+    expect(notify.attributes('data-sold-out')).toBe('true')
+    expect(notify.attributes('data-price-drop')).toBe('false')
   })
 
   it('strikes through the pre-discount VAT-inclusive price, never the net price', async () => {

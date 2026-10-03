@@ -1,20 +1,27 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
+/**
+ * The product page's gallery: one large photograph on the sunken tile
+ * with the product's badges and a zoom button, and the photographs as a
+ * row of thumbnails under it.
+ *
+ * One carousel at every width rather than two galleries switched by
+ * device: on a phone it runs edge to edge and swipes, with dots for its
+ * position; from `lg` the thumbnails take over and the dots go. The
+ * first photograph is the page's LCP element, so it alone loads eagerly
+ * and is preloaded at the exact size the `<img>` asks for.
+ */
+const props = defineProps<{
+  product: ProductDetail
+  /** The name the page shows, which the zoom viewer is titled with. */
+  productName: string
+}>()
 
-const props = defineProps({
-  product: {
-    type: Object as PropType<Product>,
-    required: true,
-  },
-})
-
-const { product } = toRefs(props)
 const { t, locale } = useI18n()
 
 const { data: images } = await useApi(
-  `/api/products/${product.value.id}/images`,
+  `/api/products/${props.product.id}/images`,
   {
-    key: `productImages${product.value.id}`,
+    key: `productImages${props.product.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
     query: {
@@ -23,227 +30,162 @@ const { data: images } = await useApi(
   },
 )
 
-const selectedImage = ref(images.value?.find(image => image.isMain || image.id === images.value?.[0]?.id))
-const selectedImageId = ref(selectedImage.value?.id)
-const isModalOpen = ref(false)
-const modalInitialIndex = ref(0)
+/** The main photograph first, the rest in the order the store set. */
+const slides = computed(() => {
+  const all = images.value ?? []
+  const main = all.find(image => image.isMain)
+  return main ? [main, ...all.filter(image => image !== main)] : all
+})
 
-watch(
-  () => selectedImageId.value,
-  (value) => {
-    const image = images.value?.find(image => image.id === value)
-    if (image) {
-      selectedImage.value = image
-    }
-  },
-  { immediate: true },
-)
+const carousel = useTemplateRef('carousel')
+const selected = ref(0)
+const zoomOpen = ref(false)
 
-function openModal(index?: number) {
-  if (images.value && images.value.length > 0) {
-    if (index !== undefined) {
-      modalInitialIndex.value = index
-    }
-    else {
-      const currentIndex = images.value.findIndex(img => img.id === selectedImageId.value)
-      modalInitialIndex.value = currentIndex >= 0 ? currentIndex : 0
-    }
-    isModalOpen.value = true
-  }
+function show(index: number) {
+  carousel.value?.emblaApi?.scrollTo(index)
 }
 
-const hasMultipleImages = computed(() => images.value && images.value.length > 1)
+function openZoom() {
+  if (slides.value.length) zoomOpen.value = true
+}
+
+const discount = computed(() => Math.round(props.product.discountPercent ?? 0))
+const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
 </script>
 
 <template>
-  <div
-    class="flex flex-col"
-    :class="[hasMultipleImages ? `
-      gap-3
-      sm:gap-4
-    ` : '']"
-  >
-    <UCard
-      variant="soft"
-      :ui="{
-        body: `
-          relative p-0
-          sm:p-0
-        `,
-      }"
+  <div class="flex flex-col gap-3">
+    <div
+      class="
+        relative overflow-hidden bg-elevated
+        max-sm:-mx-4
+        sm:rounded-[1.5rem]
+      "
     >
-      <UTooltip :text="t('viewFullscreen')" :delay-duration="500">
-        <UButton
-          type="button"
-          variant="ghost"
-          color="neutral"
-          :ui="{
-            base: `
-              group relative flex w-full overflow-hidden rounded-md p-0
-              transition-all duration-200
-              hover:opacity-95
-            `,
-          }"
-          :aria-label="t('viewFullSizeImage')"
-          @click="openModal()"
-        >
-          <!--
-            fetchpriority: this is the PDP's LCP element. It's SSR'd
-            into the initial HTML and eager-loaded, but browsers still
-            queue it at default image priority behind render-critical
-            resources — Lighthouse's LCP-discovery audit flags exactly
-            this (the blog hero got the same treatment). The attr falls
-            through ImgWithFallback's useAttrs() onto the <img>.
-          -->
-          <ProductImage
-            :image="selectedImage"
-            img-loading="eager"
-            fetchpriority="high"
-            class="w-full rounded-md transition-transform duration-300"
-          />
-
-          <div
-            class="
-              absolute inset-0 flex items-center justify-center bg-black/0
-              opacity-0 transition-all duration-200
-              group-hover:bg-black/20 group-hover:opacity-100
-            "
-          >
-            <div
-              class="
-                flex items-center gap-2 rounded-full bg-white/90 px-3 py-2
-                text-sm font-medium text-gray-900 backdrop-blur-sm
-              "
-            >
-              <UIcon name="i-heroicons-magnifying-glass-plus" class="h-5 w-5" />
-              <span
-                class="
-                  hidden
-                  sm:inline
-                "
-              >{{ t('viewFullscreen') }}</span>
-            </div>
-          </div>
-
-          <UBadge
-            v-if="hasMultipleImages"
-            :label="t('photosCount', { count: images?.length })"
-            color="neutral"
-            variant="solid"
-            size="md"
-            icon="i-heroicons-photo"
-            class="
-              absolute top-2 right-2 backdrop-blur-sm
-              sm:top-3 sm:right-3
-            "
-          />
-        </UButton>
-      </UTooltip>
-    </UCard>
-
-    <LazyUCarousel
-      v-if="hasMultipleImages"
-      v-slot="{ item, index }"
-      :items="images"
-      :ui="{
-        item: `
-          basis-1/3
-          sm:basis-1/4
-          lg:basis-1/5
-        `,
-      }"
-      class="overflow-hidden rounded-lg"
-      arrows
-      :prev="{ size: 'sm', square: true, color: 'neutral' }"
-      :next="{ size: 'sm', square: true, color: 'neutral' }"
-    >
-      <UButton
-        type="button"
-        variant="ghost"
-        color="neutral"
+      <UCarousel
+        v-if="slides.length"
+        ref="carousel"
+        v-slot="{ item, index }"
+        :items="slides"
+        :dots="slides.length > 1"
+        :aria-label="t('gallery')"
         :ui="{
-          base: `
-            relative rounded-none p-1 ring-0
-            hover:bg-transparent
+          container: 'ms-0',
+          item: 'ps-0',
+          dots: `
+            bottom-4 gap-1.5
+            lg:hidden
+          `,
+          dot: `
+            size-1.5 bg-(--ui-text-highlighted)/25 transition-[width]
+            data-[state=active]:w-5
+            data-[state=active]:bg-(--ui-text-highlighted)
           `,
         }"
-        :aria-label="t('selectImage', { number: index + 1 })"
-        :aria-pressed="selectedImageId === item.id"
-        @click="selectedImageId = item.id"
-        @dblclick="openModal(index)"
+        @select="(index: number) => { selected = index }"
+      >
+        <!-- Clicking the photograph zooms as the button does; it is
+             not a second tab stop, the button is the control. -->
+        <ProductImage
+          :image="item"
+          :width="680"
+          :height="680"
+          :img-loading="index === 0 ? 'eager' : 'lazy'"
+          :preload="index === 0"
+          :fetchpriority="index === 0 ? 'high' : undefined"
+          class="aspect-square w-full cursor-zoom-in object-cover"
+          @click="openZoom"
+        />
+      </UCarousel>
+      <ProductImage
+        v-else
+        :width="680"
+        :height="680"
+        class="aspect-square w-full object-cover"
+      />
+
+      <div class="absolute start-3.5 top-3.5 flex gap-1.5">
+        <UBadge
+          v-if="soldOut"
+          :label="t('sold_out')"
+          color="neutral"
+          variant="soft"
+        />
+        <!-- U+2212, the minus sign the design sets, not a hyphen. -->
+        <UBadge
+          v-else-if="discount > 0"
+          :label="`−${discount}%`"
+          color="neutral"
+          class="bg-volt text-on-volt"
+        />
+      </div>
+
+      <UButton
+        v-if="slides.length"
+        icon="i-lucide-zoom-in"
+        color="neutral"
+        variant="outline"
+        size="sm"
+        square
+        :aria-label="t('zoom')"
+        class="absolute end-3.5 bottom-3.5"
+        @click="openZoom"
+      />
+    </div>
+
+    <div
+      v-if="slides.length > 1"
+      class="
+        hidden grid-cols-5 gap-3
+        lg:grid
+      "
+    >
+      <!-- The chosen thumbnail's ring is ink, marked important: Volt colours
+           every outline with the accent from an unlayered rule (main.css). -->
+      <button
+        v-for="(image, index) in slides"
+        :key="image.id"
+        type="button"
+        :aria-label="t('show_image', { number: index + 1 })"
+        :aria-current="selected === index ? 'true' : undefined"
+        class="
+          aspect-square cursor-pointer overflow-hidden rounded-[0.875rem]
+          bg-elevated outline-offset-2
+          aria-[current=true]:outline-2
+          aria-[current=true]:outline-inverted!
+          focus-visible:outline-2 focus-visible:outline-secondary
+        "
+        @click="show(index)"
       >
         <ProductImage
-          :key="item.id"
-          :image="item"
+          :image="image"
           :width="132"
           :height="132"
           img-loading="lazy"
-          :class="`
-            relative w-full rounded-md object-cover
-            ${selectedImageId === item.id ? `
-              ring-1 ring-neutral-500 ring-offset-1
-              dark:ring-neutral-100
-            ` : ''}
-          `"
+          class="size-full object-cover"
         />
-      </UButton>
-    </LazyUCarousel>
-
-    <div
-      v-if="hasMultipleImages"
-      class="
-        flex items-center justify-center gap-2 text-xs text-gray-500
-        sm:hidden
-        dark:text-gray-200
-      "
-    >
-      <UIcon name="i-heroicons-information-circle" class="h-4 w-4" />
-      <span>{{ t('doubleTapHint') }}</span>
+      </button>
     </div>
 
     <LazyProductImageModal
-      v-if="images && isModalOpen"
-      :key="`modal-${modalInitialIndex}`"
-      v-model="isModalOpen"
-      :images="images"
-      :initial-index="modalInitialIndex"
+      v-if="zoomOpen"
+      v-model="zoomOpen"
+      :images="slides"
+      :initial-index="selected"
+      :product-name="productName"
     />
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  viewFullscreen: Προβολή σε πλήρη οθόνη
-  viewFullSizeImage: Προβολή εικόνας σε πλήρες μέγεθος
-  photosCount: '{count} εικόνες'
-  imageNumber: Εικόνα {number}
-  selectImage: Επιλογή εικόνας {number}
-  doubleTapHint: Διπλό πάτημα στη μικρογραφία για πλήρη οθόνη
+  gallery: Φωτογραφίες προϊόντος
+  zoom: Μεγέθυνση εικόνας
+  show_image: Εικόνα {number}
+  sold_out: Εξαντλήθηκε
 en:
-  viewFullscreen: View full screen
-  viewFullSizeImage: View the image at full size
-  photosCount: '{count} images'
-  imageNumber: Image {number}
-  selectImage: Select image {number}
-  doubleTapHint: Double-tap a thumbnail for full screen
+  gallery: Product photos
+  zoom: Zoom the image
+  show_image: Image {number}
+  sold_out: Sold out
 </i18n>
-
-<style scoped>
-/**
- * Reduced motion support for Product Images
- * Disables animations and transitions for users who prefer reduced motion
- */
-@media (prefers-reduced-motion: reduce) {
-  :deep(.transition-all),
-  :deep(.transition-transform),
-  :deep(.transition-colors),
-  :deep(.transition-opacity) {
-    transition: none;
-  }
-
-  /* Disable hover effects */
-  :deep(.group:hover) {
-    transform: none;
-  }
-}
-</style>

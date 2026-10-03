@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { UButton, UChip, UModal } from '#components'
+import { UButton, UChip, UModal, URadioGroup } from '#components'
 import designPlugin from '~/plugins/design'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
@@ -85,6 +85,25 @@ describe('design plugin', () => {
     const overlay = document.body.querySelector('[data-slot="overlay"]')?.getAttribute('class')?.split(' ') ?? []
     expect(overlay).toContain('bg-(--ui-scrim)')
     expect(overlay).not.toContain('bg-elevated/75')
+  })
+
+  it('marks a chosen card with the accent tint and edge, as the boards draw a choice', async () => {
+    // The base theme tints a chosen card at 10% behind an edge at half
+    // strength, which read as hovered. The class is the contract: happy-dom
+    // computes no colours.
+    useState('tenant').value = validTenantConfig('demo.example', { schemaName: 'demo' })
+    run()
+
+    const wrapper = await mountSuspended(URadioGroup, {
+      props: { items: [{ value: 'a', label: 'A' }], defaultValue: 'a', variant: 'card' },
+    })
+
+    const item = wrapper.find('[data-slot="item"]').attributes('class')?.split(' ') ?? []
+    expect(item).toEqual(expect.arrayContaining([
+      'has-data-[state=checked]:border-secondary',
+      'has-data-[state=checked]:bg-(--ui-secondary-soft)',
+    ]))
+    expect(item).not.toContain('has-data-[state=checked]:bg-secondary/10')
   })
 
   it('leaves webside on the base app config', () => {

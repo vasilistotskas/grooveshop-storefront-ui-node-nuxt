@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zProduct } from '~~/shared/openapi/zod.gen'
-import { makeProduct } from '~~/test/fixtures/product'
+import { zProduct, zProductReview } from '~~/shared/openapi/zod.gen'
+import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -40,5 +40,15 @@ describe('makeProduct', () => {
 
   it('lets an explicit override of a derived field win', () => {
     expect(makeProduct({ price: 100, finalPrice: 1 }).finalPrice).toBe(1)
+  })
+})
+
+describe('makeProductReview', () => {
+  it('builds a default review that parses through zProductReview', () => {
+    expect(problems(zProductReview, makeProductReview())).toEqual([])
+  })
+
+  it('keys uuid off the id so two reviews never collide', () => {
+    expect(makeProductReview({ id: 2 }).uuid).not.toBe(makeProductReview().uuid)
   })
 })

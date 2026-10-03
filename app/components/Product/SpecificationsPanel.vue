@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 /**
- * Product specifications panel — shared between PDP tabs (desktop)
- * and accordion (mobile).
+ * The product's specifications as a two-column table: what is measured
+ * and its value, one ruled row each. Shared by the product page's
+ * description tab (beside the text), its specifications tab and the
+ * phone's accordion.
  */
-
 interface Specification {
   label: string
   value: string | number
@@ -17,32 +18,34 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="py-4">
-    <dl v-if="specifications.length > 0" class="space-y-3">
-      <div
+  <table
+    v-if="specifications.length > 0"
+    class="w-full border-collapse text-sm"
+  >
+    <tbody>
+      <tr
         v-for="spec in specifications"
         :key="spec.label"
-        class="
-          flex items-center justify-between rounded-lg border
-          border-gray-200 p-4
-          dark:border-gray-700
-        "
+        class="border-b border-default"
       >
-        <dt class="flex items-center">
-          <span class="font-medium">{{ spec.label }}</span>
-        </dt>
-        <dd class="text-gray-600 dark:text-gray-200">
+        <th
+          scope="row"
+          class="w-2/5 px-4 py-3.5 text-start font-semibold text-muted"
+        >
+          {{ spec.label }}
+        </th>
+        <td class="px-4 py-3.5 font-semibold text-highlighted">
           {{ spec.value }}
-        </dd>
-      </div>
-    </dl>
-    <p
-      v-else
-      class="text-gray-500 dark:text-gray-200"
-    >
-      {{ t('no_specifications_available') }}
-    </p>
-  </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p
+    v-else
+    class="text-muted"
+  >
+    {{ t('no_specifications_available') }}
+  </p>
 </template>
 
 <i18n lang="yaml">

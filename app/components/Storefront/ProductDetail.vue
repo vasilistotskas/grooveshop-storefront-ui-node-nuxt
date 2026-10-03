@@ -1,14 +1,17 @@
 <script lang="ts" setup>
-import type { AccordionItem, TabsItem, ButtonProps } from '#ui/types'
+import type { AccordionItem, TabsItem } from '#ui/types'
 
 const { t, locale, n } = useI18n()
 const route = useRoute(`products-id-slug___${locale.value}`)
-const { y: scrollY } = useWindowScroll()
 
 const { isMobileOrTablet } = useDevice()
 // Merchant UI toggle — fails OPEN so the purchase CTA never
 // disappears on a settings hiccup.
 const stickyAddToCartEnabled = useSettingFlag('STICKY_ADD_TO_CART_ENABLED', {
+  fallback: true,
+})
+// The sticky bar floats above the phone's tab bar when there is one.
+const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
   fallback: true,
 })
 // Merchant feature toggles (endpoints are also gated server-side).
@@ -40,9 +43,9 @@ const img = useMediaStreamImage()
 
 const userStore = useUserStore()
 const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
+const cartStore = useCartStore()
 
 const isReviewModalOpen = ref(false)
-const isLoginModalOpen = ref(false)
 const selectorQuantity = ref(1)
 
 const productId = 'id' in route.params ? route.params.id : undefined
@@ -94,10 +97,13 @@ if (!product.value) {
   )
 }
 
-// Fetch images and reviews in parallel (both needed for SSR/Schema.org)
+// Images, reviews and the category list in parallel — all three are
+// needed for SSR (the gallery, the review section, Schema.org and the
+// breadcrumb). The category list is the header menu's, already fetched.
 const [
   { data: productImages },
   { data: productReviews, refresh: refreshProductReviews },
+  { data: allCategories },
 ] = await Promise.all([
   useApi(
     `/api/products/${product.value?.id}/images`,
@@ -121,6 +127,7 @@ const [
       },
     },
   ),
+  useAllCategories(),
 ])
 
 const { transformImages } = useHtmlContent()
@@ -259,9 +266,52 @@ const { data: userProductReview, refresh: refreshUserProductReview }
 
 const userHadReviewed = computed(() => !!userProductReview.value)
 
+/**
+ * The review list: three at first, as the design draws it, then every
+ * review of the first page, then a page more per click. The first page
+ * is the server's (it also feeds Schema.org); later pages are fetched
+ * on demand and appended.
+ */
+const REVIEWS_FIRST = 3
+const reviewsExpanded = ref(false)
+const reviewPages = ref<ProductReview[][]>([])
+const loadingReviews = ref(false)
+const loadedReviews = computed(() => [
+  ...(productReviews.value?.results ?? []),
+  ...reviewPages.value.flat(),
+])
+const visibleReviews = computed(() =>
+  reviewsExpanded.value ? loadedReviews.value : loadedReviews.value.slice(0, REVIEWS_FIRST),
+)
+const reviewsTotal = computed(() => productReviews.value?.count ?? 0)
+const moreReviews = computed(() => reviewsTotal.value > visibleReviews.value.length)
+
+async function showMoreReviews() {
+  if (!reviewsExpanded.value) {
+    reviewsExpanded.value = true
+    if (loadedReviews.value.length > REVIEWS_FIRST) return
+  }
+  if (loadingReviews.value) return
+  loadingReviews.value = true
+  try {
+    const page = await $api(`/api/products/${productId}/reviews`, {
+      query: { languageCode: locale.value, page: reviewPages.value.length + 2 },
+    })
+    reviewPages.value = [...reviewPages.value, page.results ?? []]
+  }
+  catch (error) {
+    log.error({ action: 'reviews:loadMore', error })
+    toast.add({ title: t('reviews.load_error'), color: 'error' })
+  }
+  finally {
+    loadingReviews.value = false
+  }
+}
+
 // The review widget used to refetch a list of its own that nothing
 // rendered; the list on THIS page is the one that must move.
 const onReviewChanged = async () => {
+  reviewPages.value = []
   await Promise.all([
     refreshProduct(),
     refreshUserProductReview(),
@@ -324,19 +374,14 @@ const productName = computed(() =>
 
 /** `reviewAverage` is the model's 1..10; stars are the 5 a reader expects. */
 const ratingOutOfFive = computed(() => (product.value?.reviewAverage ?? 0) / 2)
+const ratingText = computed(() =>
+  n(ratingOutOfFive.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+)
 
-const openModal = () => {
-  if (user?.value) {
-    isReviewModalOpen.value = true
-  }
-  else {
-    isLoginModalOpen.value = true
-    toast.add({
-      title: t('must_be_logged_in'),
-      color: 'error',
-    })
-  }
-}
+/** A guest is sent to sign in, and brought back to the reviews. */
+const signInToReview = computed(() =>
+  localePath({ name: RedirectToURLs.LOGIN_URL, query: { next: `${route.fullPath.split('#')[0]}#reviews` } }),
+)
 
 const productTitle = computed(() => {
   return capitalize(
@@ -355,7 +400,13 @@ const productDescription = computed(() => {
 })
 
 const productStock = computed(() => product.value?.stock || 0)
-const showStickyAddToCart = computed(() => scrollY.value > 350)
+
+// The sticky bar takes over once the buy row has scrolled up out of
+// view — not merely off-screen: on a phone the row starts below the
+// fold, under the photograph, and the bar must not cover it there.
+const buyRow = useTemplateRef<HTMLElement>('buyRow')
+const { bottom: buyRowBottom } = useElementBounding(buyRow)
+const showStickyAddToCart = computed(() => buyRowBottom.value < 0)
 
 // Record this PDP visit in the recently-viewed history once we have
 // translated data to cache. `onMounted` guarantees we're on the client
@@ -413,31 +464,22 @@ const favouriteId = computed(() => {
   return favourite
 })
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('products'),
-    label: t('breadcrumb.items.products.label'),
-  },
-  {
-    to: localePath({
-      name: 'products-id-slug',
-      params: { id: productId ?? '', slug: product.value?.slug ?? '' },
-    }),
-    label: productTitle.value,
-  },
-])
-
-const reviewButtonText = computed(() => {
-  if (userHadReviewed.value) {
-    return t('update_review')
-  }
-  return t('write_review')
+/**
+ * Where the product sits in the catalogue: its category's trail from the
+ * root, as the design draws it (Home › Charging › Power banks › the
+ * product). A product without a category sits under the full listing.
+ */
+const categoryPath = computed(() => {
+  const id = product.value?.category
+  if (!id) return []
+  return categoryTrail(buildCategoryForest(allCategories.value ?? [], locale.value, undefined), id)
 })
+const parentCrumbs = computed(() =>
+  categoryPath.value.length
+    ? categoryPath.value.map(node => ({ label: node.label, to: node.to }))
+    : [{ label: t('breadcrumb.items.products.label'), to: '/products' }],
+)
+const breadcrumb = computed(() => [...parentCrumbs.value, { label: productName.value }])
 
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value) || '',
@@ -458,46 +500,49 @@ const startShare = async () => {
   }
 }
 
-const stockStatus = computed(() => {
-  const stock = productStock.value
-  if (stock === 0) {
-    return { label: t('out_of_stock'), color: 'error', icon: 'i-heroicons-x-circle' } as { label: string, color: ButtonProps['color'], icon: string }
-  }
-  else if (stock <= 5) {
-    return { label: t('low_stock', { count: stock }), color: 'warning', icon: 'i-heroicons-exclamation-triangle' } as { label: string, color: ButtonProps['color'], icon: string }
-  }
-  else {
-    return { label: t('in_stock'), color: 'success', icon: 'i-heroicons-check-circle' } as { label: string, color: ButtonProps['color'], icon: string }
-  }
+/**
+ * The stock line under the variants. The dot and the words carry the
+ * status together, in the Volt status colours, which read as text.
+ */
+const stockLine = computed(() => {
+  if (productStock.value <= 0) return { label: t('out_of_stock'), tone: 'text-error', dot: 'bg-error' }
+  const left = product.value ? lowStockLeft(product.value) : null
+  if (left) return { label: t('low_stock', { count: left }, left), tone: 'text-warning', dot: 'bg-warning' }
+  return { label: t('in_stock'), tone: 'text-success', dot: 'bg-success' }
 })
 
-const productTabs = computed<TabsItem[]>(() => [
-  {
-    label: t('description'),
-    icon: 'i-heroicons-document-text',
-    slot: 'description',
-  },
-  {
-    label: t('specifications'),
-    icon: 'i-heroicons-cpu-chip',
-    slot: 'specifications',
-  },
-])
+/** What the discount saves, beside the struck price. */
+const saving = computed(() =>
+  wasPrice.value && displayFinalPrice.value !== undefined
+    ? wasPrice.value - displayFinalPrice.value
+    : 0,
+)
 
-// AccordionItem requires value to be a string (TabsItem allows
-// number too); mirror the tabs list into a dedicated typed array for
-// the mobile accordion path.
+const priceDropOffered = computed(() =>
+  productAlertsEnabled.value
+  && !!product.value?.priceDropAlertsEnabled
+  && (product.value?.finalPrice ?? 0) > 0,
+)
+
+/**
+ * The alerts dialog, mounted on its first open: the shopper's alerts
+ * are looked up only for a shopper who asked.
+ */
+const notify = reactive({ mounted: false, open: false, kind: 'restock' as ProductAlertKindEnum })
+function openNotify(kind: ProductAlertKindEnum) {
+  notify.kind = kind
+  notify.mounted = true
+  notify.open = true
+}
+
+// TabsItem's value may be a number, AccordionItem's may not: two lists.
+const productTabs = computed<TabsItem[]>(() => [
+  { label: t('description'), value: 'description', slot: 'description' },
+  { label: t('specifications'), value: 'specifications', slot: 'specifications' },
+])
 const productAccordionItems = computed<AccordionItem[]>(() => [
-  {
-    label: t('description'),
-    icon: 'i-heroicons-document-text',
-    value: 'description',
-  },
-  {
-    label: t('specifications'),
-    icon: 'i-heroicons-cpu-chip',
-    value: 'specifications',
-  },
+  { label: t('description'), value: 'description' },
+  { label: t('specifications'), value: 'specifications' },
 ])
 
 const productSpecifications = computed(() => {
@@ -548,28 +593,16 @@ useSeoMeta({
 // Set via useHead because @unhead/vue's UseSeoMetaInput union omits 'product'.
 useHead({ meta: [{ property: 'og:type', content: 'product' }] })
 
+// The LCP photograph is preloaded by the gallery itself, at the exact
+// URL and srcset its <img> asks for; preloading the 1200x630 social
+// card here fetched an image no element on the page shows.
 useHead({
-  link: () => {
-    const links = [
-      {
-        rel: 'canonical',
-        href: canonicalUrl.value,
-      },
-    ] as const
-    // Preload the hero image so it's in flight before render — cuts
-    // ~200-400ms off LCP on cold product detail pages.
-    const heroHref = ogImage.value
-    if (!heroHref) return [...links]
-    return [
-      ...links,
-      {
-        rel: 'preload' as const,
-        as: 'image' as const,
-        href: heroHref,
-        fetchpriority: 'high' as const,
-      },
-    ]
-  },
+  link: () => [
+    {
+      rel: 'canonical',
+      href: canonicalUrl.value,
+    },
+  ],
   meta: [
     {
       name: 'keywords',
@@ -675,7 +708,8 @@ useSchemaOrg([
             '@type': 'Review' as const,
             'author': {
               '@type': 'Person' as const,
-              'name': [r.user?.firstName, r.user?.lastName].filter(Boolean).join(' ') || 'Anonymous',
+              // The name the page shows: first name and initial.
+              'name': reviewerName(r.user) ?? t('reviews.anonymous'),
             },
             'reviewRating': {
               '@type': 'Rating' as const,
@@ -690,18 +724,19 @@ useSchemaOrg([
     }
   })),
 
+  // The trail the page shows.
   defineBreadcrumb(computed(() => ({
     itemListElement: [
       {
         name: t('breadcrumb.items.index.label'),
         item: localePath('index'),
       },
+      ...parentCrumbs.value.map(crumb => ({
+        name: crumb.label,
+        item: localePath(crumb.to),
+      })),
       {
-        name: t('breadcrumb.items.products.label'),
-        item: localePath('products'),
-      },
-      {
-        name: productTitle.value,
+        name: productName.value,
         item: canonicalUrl.value,
       },
     ],
@@ -710,131 +745,161 @@ useSchemaOrg([
 </script>
 
 <template>
-  <div v-if="product">
-    <UContainer class="pt-6">
-      <UBreadcrumb :items="items" />
+  <!-- `data-action-bar` tells the footer to keep its last line clear of
+       the sticky buy bar (Chrome/Footer.vue). -->
+  <div
+    v-if="product"
+    :data-action-bar="stickyAddToCartEnabled ? '' : undefined"
+  >
+    <UContainer class="pt-6 max-sm:hidden">
+      <PageBreadcrumb :items="breadcrumb" />
     </UContainer>
 
     <!-- The two columns of a product page: what it looks like, and
          everything needed to decide. -->
-    <UContainer class="pt-6 pb-16">
+    <UContainer
+      class="
+        pb-14
+        sm:pt-6
+        lg:pb-22
+      "
+    >
       <div
         class="
-          grid gap-8
-          lg:grid-cols-12 lg:gap-12
+          grid gap-5
+          lg:grid-cols-[7fr_5fr] lg:gap-16
         "
       >
-        <div class="lg:col-span-7">
-          <ProductImages :product="product" />
-        </div>
+        <ProductImages
+          :product="product"
+          :product-name="productName"
+        />
 
         <!-- min-w-0: below lg this is a grid item in an implicit `auto`
              track, whose min-width:auto otherwise inflates the track to
-             the min-content of the non-wrapping variant carousel and
-             blows the page out sideways on a phone. -->
+             the min-content of its widest row and blows the page out
+             sideways on a phone. -->
         <div
           class="
-            flex min-w-0 flex-col gap-5
-            lg:sticky lg:top-24 lg:col-span-5 lg:self-start
+            flex min-w-0 flex-col gap-5.5
+            lg:sticky lg:top-24 lg:self-start
           "
         >
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2.5">
             <p
               v-if="product.brandName"
-              class="text-xs font-medium tracking-wide text-muted uppercase"
+              class="text-xs font-bold tracking-[0.08em] text-muted uppercase"
             >
               {{ product.brandName }}
             </p>
 
             <h1
               class="
-                font-display text-2xl font-semibold tracking-tight
+                font-display text-[1.875rem]/[1.08] font-bold tracking-[-0.02em]
                 text-highlighted text-balance
-                sm:text-3xl
+                lg:text-[2.5rem]/[1.08]
               "
             >
               {{ productName }}
             </h1>
 
-            <div class="flex flex-wrap items-center gap-3">
-              <a
-                v-if="product.reviewCount"
-                href="#reviews"
-                class="flex items-center gap-1.5"
-              >
-                <UInputRating
-                  :model-value="ratingOutOfFive"
-                  :length="5"
-                  :step="0.5"
-                  size="xs"
-                  color="warning"
-                  readonly
-                />
-                <span
-                  class="
-                    text-sm text-muted underline-offset-2
-                    hover:underline
-                  "
-                >
-                  {{ t('n_reviews', { count: product.reviewCount }) }}
-                </span>
-              </a>
-
-              <!-- The tint and the ICON carry the status; the label
-                   does not. `subtle` paints the text in the status
-                   colour too, and green-500 measured 3.08:1 on
-                   "in stock". -->
-              <UBadge
-                :color="stockStatus.color"
-                :icon="stockStatus.icon"
-                size="sm"
-                variant="subtle"
-                :label="stockStatus.label"
+            <a
+              v-if="productReviewsEnabled && product.reviewCount"
+              href="#reviews"
+              class="flex items-center gap-1.5 self-start"
+            >
+              <UInputRating
+                :model-value="ratingOutOfFive"
+                :step="0.5"
+                size="xs"
+                color="primary"
+                icon="i-heroicons-star-solid"
+                :ui="{ emptyIcon: 'text-(--ui-border-accented)' }"
+                readonly
+                :aria-label="t('rated', { n: ratingText })"
               />
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <div class="flex flex-wrap items-baseline gap-x-3">
               <span
                 class="
-                  font-mono text-3xl font-semibold tabular-nums
-                  text-highlighted
+                  text-[0.8125rem] font-semibold text-muted underline-offset-2
+                  hover:underline
                 "
               >
-                {{ formatProductPrice(displayFinalPrice) }}
+                {{ ratingText }} · {{ t('n_reviews', { count: product.reviewCount }, product.reviewCount) }}
               </span>
-              <span
-                v-if="wasPrice"
-                class="font-mono text-lg tabular-nums text-muted line-through"
-              >
-                {{ formatProductPrice(wasPrice) }}
-              </span>
+            </a>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="flex flex-wrap items-baseline gap-x-2">
+                <span
+                  class="
+                    font-mono text-[1.875rem] font-bold tabular-nums
+                    text-highlighted
+                    lg:text-4xl
+                  "
+                >
+                  {{ formatProductPrice(displayFinalPrice) }}
+                </span>
+                <span
+                  v-if="wasPrice"
+                  class="
+                    font-mono text-[1.4375rem] tabular-nums text-muted line-through
+                    lg:text-[1.6875rem]
+                  "
+                >
+                  {{ formatProductPrice(wasPrice) }}
+                </span>
+              </div>
               <UBadge
-                v-if="product.discountPercent && product.discountPercent > 0"
-                color="error"
-                variant="solid"
-                size="sm"
-                :label="`-${Math.round(product.discountPercent)}%`"
+                v-if="saving > 0"
+                :label="t('save', { amount: formatProductPrice(saving) })"
+                color="neutral"
+                class="bg-volt text-on-volt"
               />
             </div>
-            <span class="text-xs text-muted">{{ t('vat_included') }}</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-[0.8125rem] text-muted">{{ t('vat_included') }}</span>
+              <LoyaltyPointsBadge
+                v-if="displayFinalPrice"
+                :product-id="product.id"
+                :product-price="displayFinalPrice"
+              />
+            </div>
           </div>
 
           <!-- Colour / length / capacity. Renders nothing unless the
                product belongs to a variant group. -->
           <ProductVariantSelector :product="product" />
 
-          <LoyaltyPointsBadge
-            v-if="loggedIn && product.id"
-            :product-id="product.id"
-          />
-          <ProductGuestLoyaltyCTA
-            v-else-if="product.finalPrice"
-            :product-price="product.finalPrice"
-          />
+          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <p
+              class="flex items-center gap-2 text-sm font-bold"
+              :class="stockLine.tone"
+            >
+              <span
+                class="size-2 rounded-full"
+                :class="stockLine.dot"
+              />
+              {{ stockLine.label }}
+            </p>
+            <!-- Out of stock is a dead end; the restock alert is offered
+                 where the shopper learns the news. -->
+            <UButton
+              v-if="productAlertsEnabled && productStock === 0"
+              :label="t('notify_me')"
+              icon="i-lucide-bell"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              @click="openNotify('restock')"
+            />
+          </div>
 
-          <div class="flex items-stretch gap-3">
+          <div
+            ref="buyRow"
+            class="flex items-stretch gap-2.5"
+          >
             <label
               class="sr-only"
               for="quantity"
@@ -843,104 +908,126 @@ useSchemaOrg([
               id="quantity"
               v-model="selectorQuantity"
               :min="1"
-              :max="product.stock"
+              :max="product.stock || 1"
               :disabled="productStock === 0"
-              size="xl"
-              class="w-32 shrink-0"
+              :increment="{ color: 'neutral', variant: 'ghost', size: 'md' }"
+              :decrement="{ color: 'neutral', variant: 'ghost', size: 'md' }"
+              :ui="{
+                root: 'w-32 shrink-0',
+                base: `
+                  h-13 rounded-full bg-default text-center font-mono font-bold
+                `,
+              }"
             />
             <ButtonProductAddToCart
               :product="product"
               :quantity="selectorQuantity || 1"
               :text="t('add_to_cart')"
-              size="xl"
-              class="w-full"
+              size="lg"
+              class="flex-1"
             />
-          </div>
-
-          <div class="flex flex-wrap items-center gap-1">
             <ButtonProductAddToFavourite
               :favourite-id="favouriteId"
               :product-id="product.id"
               :user-id="user?.id"
-              variant="ghost"
+              size="lg"
+              variant="outline"
+              square
             />
+          </div>
+
+          <!-- The cart is per visitor and this page is cached. A visitor
+               without a cart is 0 € into the threshold. -->
+          <ClientOnly>
+            <ShippingFreeShippingNotice
+              v-if="cartStore.loaded"
+              :cart-total="cartStore.cart?.totalPrice ?? 0"
+            />
+          </ClientOnly>
+
+          <!-- Promotions that apply to THIS product, resolved by Django
+               against the same rules the cart engine uses. BELOW the buy
+               controls: nothing in the panel is worth the primary action
+               of the page (test/unit/source-rules/buy-box-order.spec.ts). -->
+          <ProductOffers :product-id="product.id" />
+
+          <div class="flex flex-wrap gap-2">
             <ClientOnly>
               <UButton
                 v-if="isSupported"
                 :label="t('share')"
+                icon="i-lucide-share-2"
                 color="neutral"
                 variant="ghost"
-                icon="i-heroicons-share"
+                size="sm"
                 @click="startShare"
               />
             </ClientOnly>
+            <!-- Price-drop alerts are opt-in per product: the merchant
+                 chooses which products can promise one. -->
+            <UButton
+              v-if="priceDropOffered"
+              :label="t('price_drop_alert')"
+              icon="i-lucide-bell"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="openNotify('price_drop')"
+            />
           </div>
-
-          <!-- Promotions that apply to THIS product, resolved by Django
-               against the same rules the cart engine uses. An automatic
-               offer is otherwise invisible until the cart already
-               qualifies for it.
-
-               BELOW the buy controls, which is where the delivery plan
-               put it. Above them it pushed "Αγορά" off a 1440×900
-               desktop entirely — on the demo store the panel opened its
-               four store-wide offers (`default-open` fires when a
-               product has none of its own) and the button landed at
-               y=975 in a 945px viewport. Nothing in the panel is worth
-               the primary action of the page. -->
-          <ProductOffers
-            v-if="product.id"
-            :product-id="product.id"
-          />
-
-          <ShippingFreeShippingNotice />
-
-          <!-- Out of stock is a dead end. The restock alert is offered
-               where the shopper learns the news. -->
-          <ProductNotifyMe
-            v-if="productAlertsEnabled && productStock === 0 && product.id"
-            :product-id="product.id"
-            kind="restock"
-          />
-
-          <!-- Price-drop alerts are independent of stock, and opt-in per
-               SKU: admins choose which products can promise one. The
-               target price is validated below the current final price so
-               the alert does not fire immediately. -->
-          <ProductNotifyMe
-            v-if="productAlertsEnabled && product.id && product.priceDropAlertsEnabled && (product.finalPrice ?? 0) > 0"
-            :product-id="product.id"
-            kind="price_drop"
-            :current-price="product.finalPrice"
-          />
         </div>
       </div>
     </UContainer>
 
-    <!-- Below the fold the page is bands again, full width, so the
-         description and the reviews are not squeezed into the buy box's
-         column the way they were. -->
-    <PageSectionBand surface="muted">
+    <!-- Desk: tabs on a white band, the description beside the
+         specifications. Phone: the same as an accordion on the ground. -->
+    <PageSectionBand v-if="!isMobileOrTablet">
       <UTabs
-        v-if="!isMobileOrTablet"
         :items="productTabs"
+        default-value="description"
         color="neutral"
         variant="link"
-        class="w-full"
+        :unmount-on-hide="false"
+        class="w-full gap-8"
+        :ui="{
+          list: 'gap-7 p-0',
+          trigger: 'h-10 px-1 py-0 text-[0.9375rem] font-semibold',
+          indicator: 'h-0.5',
+        }"
       >
         <template #description>
-          <ProductDescriptionPanel :html="sanitizedDescription" />
+          <div
+            class="grid gap-16"
+            :class="productSpecifications.length ? 'grid-cols-[1.2fr_1fr]' : undefined"
+          >
+            <ProductDescriptionPanel :html="sanitizedDescription" />
+            <ProductSpecificationsPanel
+              v-if="productSpecifications.length"
+              :specifications="productSpecifications"
+            />
+          </div>
         </template>
         <template #specifications>
-          <ProductSpecificationsPanel :specifications="productSpecifications" />
+          <div class="max-w-3xl">
+            <ProductSpecificationsPanel :specifications="productSpecifications" />
+          </div>
         </template>
       </UTabs>
+    </PageSectionBand>
+    <UContainer
+      v-else
+      class="pt-8"
+    >
       <UAccordion
-        v-else
         :items="productAccordionItems"
         default-value="description"
         type="single"
-        class="w-full"
+        :ui="{
+          root: 'border-t border-default',
+          item: 'border-b border-default',
+          trigger: 'py-4.5 text-base font-bold text-highlighted',
+          body: 'pb-4.5',
+        }"
       >
         <template #body="{ item }">
           <ProductDescriptionPanel
@@ -953,51 +1040,82 @@ useSchemaOrg([
           />
         </template>
       </UAccordion>
-    </PageSectionBand>
-
-    <!-- A product that cannot be bought gets replacements instead of
-         related items; the engine's own slot decides which. -->
-    <PageSectionBand v-if="suggestionsEnabled && product.id">
-      <LazyProductSuggestions
-        :surface="productStock === 0 ? 'out_of_stock' : 'pdp'"
-        :seed-id="product.id"
-        hydrate-on-visible
-      />
-    </PageSectionBand>
+    </UContainer>
 
     <PageSectionBand
       v-if="productReviewsEnabled"
       id="reviews"
       surface="muted"
+      class="scroll-mt-24"
     >
-      <template #header>
-        <div class="flex flex-wrap items-center justify-between gap-4">
+      <div
+        class="
+          grid gap-6
+          lg:grid-cols-[20rem_1fr] lg:gap-16
+        "
+      >
+        <div class="flex flex-col items-start gap-4">
           <h2
             class="
-              font-display text-2xl font-semibold tracking-tight
+              font-display text-[1.625rem] font-bold tracking-[-0.02em]
               text-highlighted
-              md:text-3xl
+              lg:text-[2rem]
             "
           >
             {{ t('reviews.title') }}
           </h2>
+          <ProductReviewsOverview
+            :average="product.reviewAverage"
+            :count="product.reviewCount"
+          />
           <UButton
-            :label="reviewButtonText"
-            color="neutral"
-            variant="outline"
-            icon="i-heroicons-pencil-square"
-            @click="openModal"
+            v-if="user"
+            :label="userHadReviewed ? t('update_review') : t('write_review')"
+            icon="i-lucide-pen-line"
+            class="mt-1.5"
+            @click="() => { isReviewModalOpen = true }"
+          />
+          <UButton
+            v-else
+            :label="t('write_review')"
+            icon="i-lucide-pen-line"
+            :to="signInToReview"
+            class="mt-1.5"
           />
         </div>
-      </template>
 
-      <ProductReviewsList
-        :reviews="productReviews?.results ?? []"
-        :reviews-average="product.reviewAverage"
-        :reviews-count="product.reviewCount"
-        display-image-of="user"
-      />
+        <div
+          v-if="visibleReviews.length"
+          class="flex flex-col items-start"
+        >
+          <ProductReviewsItem
+            v-for="review in visibleReviews"
+            :key="review.id"
+            :review="review"
+            class="self-stretch"
+          />
+          <UButton
+            v-if="moreReviews"
+            :label="reviewsExpanded ? t('reviews.more') : t('reviews.all', { count: reviewsTotal }, reviewsTotal)"
+            color="neutral"
+            variant="outline"
+            :loading="loadingReviews"
+            class="mt-5"
+            @click="showMoreReviews"
+          />
+        </div>
+      </div>
     </PageSectionBand>
+
+    <!-- A product that cannot be bought gets replacements instead of
+         related items; the engine's own slot decides which. -->
+    <LazyProductSuggestions
+      v-if="suggestionsEnabled"
+      band
+      :surface="productStock === 0 ? 'out_of_stock' : 'pdp'"
+      :seed-id="product.id"
+      hydrate-on-visible
+    />
 
     <ProductReview
       v-if="user && productReviewsEnabled"
@@ -1005,58 +1123,79 @@ useSchemaOrg([
       :user-product-review="userProductReview"
       :user-had-reviewed="userHadReviewed"
       :product="product"
+      :product-name="productName"
       :user="user"
       @add-existing-review="onAddExistingReview"
       @update-existing-review="onUpdateExistingReview"
       @delete-existing-review="onDeleteExistingReview"
     />
 
-    <!-- The buy bar that follows the shopper once the real one has
-         scrolled away. Client-only: it depends on the scroll position,
-         which no cached anonymous render can know. -->
+    <LazyProductNotifyMe
+      v-if="notify.mounted"
+      v-model:open="notify.open"
+      v-model:kind="notify.kind"
+      :product-id="product.id"
+      :product-name="productName"
+      :product-image="product.mainImagePath"
+      :sold-out="productStock === 0"
+      :price-drop="priceDropOffered"
+      :current-price="displayFinalPrice ?? null"
+    />
+
+    <!-- The buy bar that follows the shopper once the buy row has
+         scrolled away: a floating card above the phone's tab bar, centred
+         at the foot of a desktop. Client-only: it depends on the scroll
+         position, which no cached anonymous render can know. -->
     <ClientOnly>
       <Transition
         enter-active-class="transition duration-200"
-        enter-from-class="translate-y-full"
+        enter-from-class="translate-y-[calc(100%+1.5rem)] opacity-0"
         leave-active-class="transition duration-150"
-        leave-to-class="translate-y-full"
+        leave-to-class="translate-y-[calc(100%+1.5rem)] opacity-0"
       >
         <div
           v-if="stickyAddToCartEnabled && showStickyAddToCart"
           class="
-            fixed inset-x-0 bottom-18 z-40 border-t border-default
-            bg-default/95 pb-[env(safe-area-inset-bottom)] backdrop-blur
-            md:bottom-0
+            fixed inset-x-3 z-40 flex items-center gap-3 rounded-[1.125rem]
+            border border-default bg-default py-2.5 ps-4 pe-2.5
+            shadow-(--ui-overlay-shadow)
+            lg:inset-x-0 lg:bottom-6 lg:mx-auto lg:w-xl
           "
+          :class="mobileBottomNavEnabled
+            ? 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]'
+            : 'bottom-[calc(0.75rem+env(safe-area-inset-bottom))]'"
         >
-          <UContainer class="flex items-center gap-4 py-3">
+          <span
+            class="
+              hidden size-11 shrink-0 overflow-hidden rounded-[0.625rem]
+              bg-elevated
+              lg:block
+            "
+          >
             <ProductImage
-              v-if="productImages && productImages[0]"
-              :key="product.id"
+              v-if="productImages?.[0]"
               :image="productImages[0]"
-              :width="64"
-              :height="64"
-              class="
-                hidden size-12 shrink-0 rounded-lg bg-elevated object-contain
-                sm:block
-              "
+              :width="44"
+              :height="44"
+              class="size-full object-cover"
             />
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium text-highlighted">
-                {{ productTitle }}
-              </p>
-              <p class="font-mono text-base font-semibold tabular-nums">
-                {{ formatProductPrice(displayFinalPrice) }}
-              </p>
-            </div>
-            <ButtonProductAddToCart
-              :product="product"
-              :quantity="selectorQuantity || 1"
-              :text="t('add_to_cart')"
-              size="lg"
-              class="shrink-0"
-            />
-          </UContainer>
+          </span>
+          <div class="flex min-w-0 flex-1 flex-col">
+            <p class="truncate text-[0.8125rem] font-semibold text-highlighted">
+              {{ productName }}
+            </p>
+            <p class="font-mono text-base font-bold tabular-nums text-highlighted">
+              {{ formatProductPrice(displayFinalPrice) }}
+            </p>
+          </div>
+          <ButtonProductAddToCart
+            :product="product"
+            :quantity="selectorQuantity || 1"
+            :text="t('add_to_cart')"
+            size="md"
+            :block="false"
+            class="shrink-0"
+          />
         </div>
       </Transition>
     </ClientOnly>
@@ -1069,49 +1208,55 @@ el:
     items:
       products:
         label: Προϊόντα
-  product_id: Αναγνωριστικό προϊόντος
   qty: Ποσότητα
-  share: Μοιράσου το
-  max_quantity_reached: Επιτεύχθηκε η μέγιστη ποσότητα
-  must_be_logged_in: Πρέπει να συνδεθείς
+  share: Κοινοποίηση
+  price_drop_alert: Ειδοποίηση πτώσης τιμής
+  notify_me: Ειδοποίησέ με
   update_review: Ενημέρωση κριτικής
   write_review: Γράψε κριτική
+  rated: Βαθμολογία {n} στα 5
   n_reviews: "{count} αξιολόγηση | {count} αξιολογήσεις"
+  save: Κερδίζεις {amount}
   reviews:
     title: Αξιολογήσεις
+    all: "Δες την αξιολόγηση | Δες και τις {count} αξιολογήσεις"
+    more: Περισσότερες αξιολογήσεις
+    load_error: Οι αξιολογήσεις δεν φορτώθηκαν. Δοκίμασε ξανά.
+    anonymous: Ανώνυμος πελάτης
   weight: Βάρος
   description: Περιγραφή
   specifications: Προδιαγραφές
-  no_description_available: Δεν υπάρχει διαθέσιμη περιγραφή
-  no_specifications_available: Δεν υπάρχουν διαθέσιμες προδιαγραφές
-  add_to_cart: Αγορά
-  out_of_stock: Μη διαθέσιμο
-  low_stock: Χαμηλό απόθεμα ({count})
+  add_to_cart: Προσθήκη στο καλάθι
+  out_of_stock: Εξαντλήθηκε
+  low_stock: "Έμεινε μόνο {count} | Έμειναν μόνο {count}"
   in_stock: Διαθέσιμο
-  vat_included: Περιλαμβάνει ΦΠΑ
+  vat_included: Με ΦΠΑ
 en:
   breadcrumb:
     items:
       products:
         label: Products
-  product_id: Product ID
   qty: Quantity
-  share: Share it
-  max_quantity_reached: Maximum quantity reached
-  must_be_logged_in: You have to sign in
-  update_review: Update the review
+  share: Share
+  price_drop_alert: Price-drop alert
+  notify_me: Notify me
+  update_review: Update your review
   write_review: Write a review
+  rated: Rated {n} out of 5
   n_reviews: "{count} review | {count} reviews"
+  save: Save {amount}
   reviews:
     title: Reviews
+    all: "Show the review | Show all {count} reviews"
+    more: More reviews
+    load_error: The reviews could not be loaded. Try again.
+    anonymous: Anonymous shopper
   weight: Weight
   description: Description
   specifications: Specifications
-  no_description_available: No description available
-  no_specifications_available: No specifications available
-  add_to_cart: Buy
-  out_of_stock: Unavailable
-  low_stock: Low stock ({count})
+  add_to_cart: Add to cart
+  out_of_stock: Sold out
+  low_stock: "Only {count} left | Only {count} left"
   in_stock: In stock
   vat_included: VAT included
 </i18n>
