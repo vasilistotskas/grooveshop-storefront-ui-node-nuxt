@@ -1,3 +1,10 @@
+# [3.229.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.228.2...v3.229.0) (2026-10-03)
+
+
+### Features
+
+* **consent:** the Groove Volt cookie banner and preferences ([#73](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/73)) ([1dd4cf0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1dd4cf040a74eca4d892ffa806e15f89c66745ef))
+
 ## [3.228.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.228.1...v3.228.2) (2026-10-03)
 
 
