@@ -12,6 +12,7 @@ export type FlowPathValue = (typeof Flow2path)[keyof typeof Flow2path]
 export type AuthChangeEventType = typeof AuthChangeEvent[keyof typeof AuthChangeEvent] | null
 
 export type Provider = z.infer<typeof ZodProvider>
+export type ProviderAccount = z.infer<typeof ZodProviderAccount>
 export type ProviderToken = z.infer<typeof ZodProviderToken>
 export type Session = z.infer<typeof ZodSession>
 export type Flow = z.infer<typeof ZodFlow>

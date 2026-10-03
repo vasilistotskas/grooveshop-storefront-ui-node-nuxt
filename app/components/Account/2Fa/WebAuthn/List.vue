@@ -1,358 +1,239 @@
 <script lang="ts" setup>
-import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
-
-const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
-const localePath = useLocalePath()
-const toast = useToast()
+/**
+ * The shopper's passkeys and security keys, as the boards draw them: a
+ * section with "Add passkey", one row per key — its name, whether it is
+ * a passkey (signs in on its own) or a security key (a second factor),
+ * when it was added and last used — renamed in place, or removed.
+ *
+ * The rows are the auth store's authenticators, refreshed after every
+ * change, so the Security page's two-step tile counts the same keys.
+ * Allauth may answer a change with a re-authentication flow; the auth
+ * plugin routes that, and the store refresh afterwards shows the result.
+ */
 const { t, locale } = useI18n()
-
+const toast = useToast()
+const localePath = useLocalePath()
+const { deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
 const authStore = useAuthStore()
 const { authenticators } = storeToRefs(authStore)
 
-const editId = ref<number | null>(null)
-const loading = ref(false)
-const keys = ref(authenticators.value?.filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN))
+const keys = computed(() =>
+  (authenticators.value ?? []).filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN),
+)
 
-async function optimisticSetKeys(newKeys: any[], op: () => Promise<boolean>) {
-  loading.value = true
-  const oldKeys = keys.value
-  editId.value = null
-  keys.value = newKeys
+const renaming = ref<number | null>(null)
+const draftName = ref('')
+const busy = ref<number | null>(null)
+
+const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
+
+function startRename(id: number, name: string | undefined) {
+  renaming.value = id
+  draftName.value = name ?? ''
+}
+
+async function change(id: number, request: () => Promise<{ status?: number } | undefined>, done: string) {
+  busy.value = id
   try {
-    const ok = await op()
-    if (!ok) {
-      keys.value = oldKeys
-    }
-    toast.add({
-      title: ok ? t('success.title') : t('error.default'),
-      color: ok ? 'success' : 'error',
-    })
+    const response = await request()
+    if (response?.status !== 200) throw new Error(`status ${response?.status}`)
+    toast.add({ title: done, color: 'success' })
+    renaming.value = null
   }
-  catch {
-    keys.value = oldKeys
+  catch (error) {
+    log.error({ action: 'webauthn:change', error })
+    toast.add({ title: t('error'), color: 'error' })
   }
   finally {
-    loading.value = false
+    busy.value = null
+    await authStore.setupAuthenticators()
   }
 }
 
-async function deleteKey(key: any) {
-  const newKeys = keys.value?.filter(k => k.id !== key.id)
-  if (!newKeys) {
-    return
-  }
-  await optimisticSetKeys(newKeys, async () => {
-    const resp = await deleteWebAuthnCredential({
-      authenticators: [key.id],
-    })
-    return (resp?.status === 200)
-  })
+const rename = (id: number) => {
+  const name = draftName.value.trim()
+  if (!name) return
+  return change(id, () => updateWebAuthnCredential({ id, name }), t('renamed'))
 }
 
-async function onSave(key: any, name: string) {
-  const newKeys = keys.value?.filter(k => k.id !== key.id)
-  newKeys?.push({ ...key, name })
-  if (!newKeys) {
-    return
-  }
-  await optimisticSetKeys(newKeys, async () => {
-    const resp = await updateWebAuthnCredential({
-      id: key.id,
-      name,
-    })
-    return (resp?.status === 200)
-  })
-}
-
-function getTypeColor(type: string) {
-  const colors: Record<string, Partial<BadgeProps['color']>> = {
-    webauthn: 'primary',
-    totp: 'secondary',
-    recovery_codes: 'neutral',
-  }
-  return colors[type] || 'neutral'
-}
-
-function getTypeLabel(type: string) {
-  const labels: Record<string, string> = {
-    webauthn: 'WebAuthn',
-    totp: 'TOTP',
-    recovery_codes: t('recovery_codes'),
-  }
-  return labels[type] || type
-}
-
-const columns: TableColumn<any>[] = [
-  {
-    accessorKey: 'name',
-    header: t('name'),
-  },
-  {
-    accessorKey: 'type',
-    header: t('type'),
-  },
-  {
-    accessorKey: 'created_at',
-    header: t('ordering.created_at'),
-  },
-  {
-    accessorKey: 'last_used_at',
-    header: t('last_used_at'),
-  },
-  {
-    id: 'actions',
-    header: '',
-  },
-]
-
-const rows = computed(() => {
-  return keys.value?.map((key) => {
-    return {
-      id: key.id,
-      name: key.name,
-      type: key.type,
-      created_at: key.created_at,
-      last_used_at: key.last_used_at,
-      is_passwordless: key.is_passwordless ?? false,
-    }
-  }) ?? []
-})
-
-const actionItems = (row: { id: number, name: string, type: string, created_at: number, last_used_at?: number }) => {
-  const items: DropdownMenuItem[] = []
-  const key = keys.value?.find(k => k.id === row.id)
-
-  items.push({
-    label: t('edit.title'),
-    icon: 'i-heroicons-pencil-20-solid',
-    class: 'cursor-pointer',
-    ui: {
-      itemLeadingIcon: 'text-dark dark:text-white',
-    },
-    onSelect: () => (editId.value = row.id),
-  })
-
-  items.push({
-    label: t('delete.title'),
-    icon: 'i-heroicons-trash-20-solid',
-    class: 'cursor-pointer',
-    ui: {
-      itemLeadingIcon: 'text-red-500 dark:text-red-500 hover:text-red-500 hover:dark:text-red-500',
-    },
-    onSelect: async () => await deleteKey(key),
-  })
-
-  return items.length ? [items] : []
-}
-
-watchEffect(async () => {
-  if (!keys.value?.length && !loading.value) {
-    await navigateTo(localePath('account-2fa'))
-  }
-})
-
-onReactivated(async () => {
-  keys.value = (await getAuthenticators())?.data.filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN)
-})
+const remove = (id: number) => change(id, () => deleteWebAuthnCredential({ authenticators: [id] }), t('removed'))
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-      lg:flex
-    "
+  <AccountSection
+    :title="t('title')"
+    :description="t('description')"
   >
-    <slot />
-    <div class="w-full space-y-6">
-      <UCard>
-        <UAlert
-          color="info"
-          variant="soft"
-          icon="i-heroicons-key"
-          :title="t('webauthn.info.title')"
-          :description="t('webauthn.info.description')"
-        />
+    <template #actions>
+      <UButton
+        :label="t('add')"
+        :to="localePath('account-2fa-webauthn-add')"
+        icon="i-lucide-plus"
+        color="neutral"
+        size="sm"
+      />
+    </template>
 
-        <section
+    <p
+      v-if="!keys.length"
+      class="text-sm text-toned"
+    >
+      {{ t('empty') }}
+    </p>
+    <div
+      v-else
+      class="flex flex-col"
+    >
+      <div
+        class="
+          grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 border-b border-default pb-2
+          text-xs font-semibold tracking-[0.06em] text-toned uppercase
+          max-sm:hidden
+        "
+        aria-hidden="true"
+      >
+        <span>{{ t('columns.name') }}</span>
+        <span>{{ t('columns.type') }}</span>
+        <span>{{ t('columns.added') }}</span>
+        <span>{{ t('columns.last_used') }}</span>
+        <span class="w-24" />
+      </div>
+      <ul class="flex flex-col divide-y divide-default">
+        <li
+          v-for="key in keys"
+          :key="key.id"
           class="
-            grid gap-4
-            md:gap-8
+            flex flex-col gap-1 py-3 text-sm
+            sm:grid sm:grid-cols-[2fr_1fr_1fr_1fr_auto] sm:items-center sm:gap-4
           "
         >
-          <UTable
-            :columns="columns"
-            :data="rows"
-            :loading="loading"
+          <form
+            v-if="renaming === key.id"
+            class="flex items-center gap-2 sm:col-span-4"
+            @submit.prevent="() => rename(key.id!)"
           >
-            <template #empty>
-              <UEmpty
-                icon="i-heroicons-key"
-                :title="t('empty.title')"
-                :description="t('empty.description')"
-                variant="naked"
-              />
-            </template>
-            <template #name-cell="{ row }">
-              <div class="flex items-center gap-2">
-                <UInput
-                  v-model="row.original.name"
-                  :name="row.original.name"
-                  size="sm"
-                  color="neutral"
-                  variant="none"
-                  :placeholder="row.original.name || t('unnamed_key')"
-                  :disabled="editId !== row.original.id"
-                  :loading="loading"
-                  :ui="{
-                    base: 'p-0!',
-                  }"
-                >
-                  <template #trailing>
-                    <UTooltip
-                      v-if="row.original.name && editId === row.original.id"
-                      :text="t('save')"
-                    >
-                      <UButton
-                        color="success"
-                        variant="link"
-                        icon="i-heroicons-check-20-solid"
-                        :padded="false"
-                        @click="onSave(row.original, row.original.name)"
-                      />
-                    </UTooltip>
-                  </template>
-                </UInput>
-                <UBadge
-                  v-if="row.original.is_passwordless"
-                  color="secondary"
-                  variant="soft"
-                  :label="t('passwordless')"
-                />
-              </div>
-            </template>
-            <template #type-cell="{ row }">
-              <UBadge
-                :color="getTypeColor(row.original.type)"
-                variant="subtle"
-              >
-                {{ getTypeLabel(row.original.type) }}
-              </UBadge>
-            </template>
-            <template #created_at-cell="{ row }">
-              <span class="text-sm text-muted">
-                <NuxtTime
-                  :datetime="new Date(row.original.created_at * 1000)"
-                  :locale="locale"
-                  date-style="medium"
-                  time-style="short"
-                />
-              </span>
-            </template>
-            <template #last_used_at-cell="{ row }">
-              <span class="text-sm">
-                <UBadge
-                  v-if="!row.original.last_used_at"
-                  color="neutral"
-                  variant="soft"
-                >
-                  {{ t('unused') }}
-                </UBadge>
-                <span v-else class="text-muted">
-                  <NuxtTime
-                    :datetime="new Date(row.original.last_used_at * 1000)"
-                    :locale="locale"
-                    date-style="medium"
-                    time-style="short"
-                  />
-                </span>
-              </span>
-            </template>
-            <template #actions-cell="{ row }">
-              <UTooltip :text="t('actions')">
-                <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
-                   `useForwardExpose` reads `t.value.$el.nodeName` after
-                   checking only that `$el` EXISTS as a key, and a Lazy
-                   component's `$el` is null until it loads — so every
-                   row threw "Cannot read properties of null (reading
-                   'nodeName')" and the page hydrated with mismatches.
-                   The lazy wrapper bought nothing either: the navbar
-                   renders UDropdownMenu eagerly on every page. -->
-                <UDropdownMenu
-                  v-if="actionItems({
-                    id: row.original.id,
-                    name: row.original.name ?? '',
-                    type: row.original.type,
-                    created_at: row.original.created_at,
-                    last_used_at: row.original.last_used_at ?? null,
-                  }).length > 0"
-                  :items="actionItems({
-                    id: row.original.id,
-                    name: row.original.name ?? '',
-                    type: row.original.type,
-                    created_at: row.original.created_at,
-                    last_used_at: row.original.last_used_at ?? null,
-                  })"
-                >
-                  <UButton
-                    color="neutral"
-                    icon="i-heroicons-ellipsis-horizontal-20-solid"
-                    variant="ghost"
-                    size="sm"
-                  />
-                </UDropdownMenu>
-              </UTooltip>
-            </template>
-          </UTable>
-        </section>
-
-        <template #footer>
-          <div class="flex items-center justify-between pt-2">
-            <span class="text-sm text-muted">
-              {{ t('total') }}: {{ t('total_keys', { count: rows.length }) }}
-            </span>
+            <UInput
+              v-model="draftName"
+              :aria-label="t('rename_label')"
+              size="sm"
+              class="min-w-0 flex-1"
+              autofocus
+            />
             <UButton
-              :label="t('add.title')"
-              :to="localePath('account-2fa-webauthn-add')"
-              icon="i-heroicons-plus"
+              :label="t('save')"
+              :loading="busy === key.id"
+              type="submit"
               color="neutral"
-              size="md"
-              type="button"
+              size="sm"
+            />
+            <UButton
+              :label="t('cancel')"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="() => { renaming = null }"
+            />
+          </form>
+          <template v-else>
+            <span class="font-medium text-highlighted">{{ key.name || t('unnamed') }}</span>
+            <span class="text-toned">
+              <span class="sr-only">{{ t('columns.type') }}: </span>{{ key.is_passwordless ? t('passkey') : t('security_key') }}
+            </span>
+            <span class="text-toned">
+              <span class="sr-only">{{ t('columns.added') }}: </span>
+              <NuxtTime
+                :datetime="epoch(key.created_at)"
+                :locale="locale"
+                day="numeric"
+                month="short"
+                year="numeric"
+              />
+            </span>
+            <span class="text-toned">
+              <span class="sr-only">{{ t('columns.last_used') }}: </span>
+              <NuxtTime
+                v-if="key.last_used_at"
+                :datetime="epoch(key.last_used_at)"
+                :locale="locale"
+                relative
+                numeric="auto"
+              />
+              <template v-else>{{ t('never') }}</template>
+            </span>
+          </template>
+          <div
+            v-if="renaming !== key.id"
+            class="flex w-24 items-center justify-end gap-1 max-sm:w-auto max-sm:justify-start"
+          >
+            <UButton
+              :label="t('rename')"
+              :aria-label="t('rename_named', { name: key.name || t('unnamed') })"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="() => startRename(key.id!, key.name)"
+            />
+            <UButton
+              :aria-label="t('remove_named', { name: key.name || t('unnamed') })"
+              :loading="busy === key.id"
+              icon="i-lucide-trash-2"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="() => remove(key.id!)"
             />
           </div>
-        </template>
-      </UCard>
+        </li>
+      </ul>
     </div>
-  </div>
+  </AccountSection>
 </template>
 
 <i18n lang="yaml">
 el:
-  type_unspecified: Μη καθορισμένος τύπος
-  webauthn:
-    info:
-      title: Κλειδιά Ασφαλείας WebAuthn
-      description: Διαχειρίσου τα κλειδιά ασφαλείας WebAuthn που χρησιμοποιείς για έλεγχο ταυτότητας. Μπορείς να χρησιμοποιήσεις υλικά κλειδιά ασφαλείας ή βιομετρικά στοιχεία του συστήματός σου.
-  passwordless: Χωρίς κωδικό
-  recovery_codes: Κωδικοί ανάκτησης
-  unnamed_key: Ανώνυμο κλειδί
-  total: Σύνολο
-  total_keys: Δεν υπάρχουν κλειδιά | 1 κλειδί | {count} κλειδιά
-  empty:
-    title: Δεν υπάρχουν κλειδιά ασφαλείας
-    description: Πρόσθεσε ένα κλειδί ασφαλείας για να ξεκινήσεις
+  title: Passkeys
+  description: Σύνδεση με το πρόσωπο, το δακτυλικό αποτύπωμα ή το PIN της συσκευής σου.
+  add: Νέο passkey
+  empty: Δεν έχεις προσθέσει ακόμα passkey ή κλειδί ασφαλείας.
+  columns:
+    name: Όνομα
+    type: Τύπος
+    added: Προστέθηκε
+    last_used: Τελευταία χρήση
+  passkey: Passkey
+  security_key: Κλειδί ασφαλείας
+  unnamed: Κλειδί χωρίς όνομα
+  never: Ποτέ
+  rename: Μετονομασία
+  rename_named: Μετονομασία του «{name}»
+  rename_label: Νέο όνομα
+  remove_named: Αφαίρεση του «{name}»
+  save: Αποθήκευση
+  cancel: Άκυρο
+  renamed: Το όνομα άλλαξε
+  removed: Αφαιρέθηκε
+  error: Η αλλαγή δεν έγινε. Δοκίμασε ξανά.
 en:
-  type_unspecified: Type not specified
-  webauthn:
-    info:
-      title: WebAuthn Security Keys
-      description: Manage the WebAuthn security keys you sign in with. You can use hardware keys or your system's own biometrics.
-  passwordless: Passwordless
-  recovery_codes: Recovery codes
-  unnamed_key: Unnamed key
-  total: Total
-  total_keys: "No keys | 1 key | {count} keys"
-  empty:
-    title: No security keys
-    description: Add a security key to get started
+  title: Passkeys
+  description: Sign in with your face, fingerprint or device PIN.
+  add: Add passkey
+  empty: You have not added a passkey or security key yet.
+  columns:
+    name: Name
+    type: Type
+    added: Added
+    last_used: Last used
+  passkey: Passkey
+  security_key: Security key
+  unnamed: Unnamed key
+  never: Never
+  rename: Rename
+  rename_named: Rename “{name}”
+  rename_label: New name
+  remove_named: Remove “{name}”
+  save: Save
+  cancel: Cancel
+  renamed: Name changed
+  removed: Removed
+  error: The change did not go through. Please try again.
 </i18n>

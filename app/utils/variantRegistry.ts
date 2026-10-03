@@ -93,6 +93,7 @@ export type PageKey
     | 'account-password-change'
     | 'account-providers'
     | 'account-reviews'
+    | 'account-security'
     | 'account-sessions'
     | 'account-settings'
     | 'account-settings-privacy'
@@ -114,6 +115,11 @@ const chromeDefaults: Record<ChromeKey, Component> = {
   account_shell: lazy(() => import('~/components/Chrome/AccountShell.vue')),
   cookie_consent: lazy(() => import('~/components/Chrome/CookieConsent.vue')),
 }
+
+// The redesign gathers the sign-in and two-step pages into one Security
+// page; their own routes, which the frozen webside tree still draws
+// apart, show it too.
+const securityPage = lazy(() => import('~/components/Storefront/Account/Security.vue'))
 
 const pageDefaults: Record<PageKey, Component> = {
   'home': lazy(() => import('~/components/Storefront/Home.vue')),
@@ -157,18 +163,18 @@ const pageDefaults: Record<PageKey, Component> = {
   '2fa-authenticate-recovery-codes': lazy(() => import('~/components/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
   'newsletter-confirm': lazy(() => import('~/components/Storefront/NewsletterConfirm.vue')),
   'account': lazy(() => import('~/components/Storefront/Account/Overview.vue')),
-  'account-2fa': lazy(() => import('~/components/Storefront/Account/TwoFactor.vue')),
+  'account-2fa': securityPage,
   'account-2fa-recovery-codes-generate': lazy(() => import('~/components/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),
   'account-2fa-recovery-codes': lazy(() => import('~/components/Storefront/Account/TwoFactorRecoveryCodes.vue')),
   'account-2fa-totp-activate': lazy(() => import('~/components/Storefront/Account/TwoFactorTotpActivate.vue')),
   'account-2fa-totp-deactivate': lazy(() => import('~/components/Storefront/Account/TwoFactorTotpDeactivate.vue')),
   'account-2fa-webauthn-add': lazy(() => import('~/components/Storefront/Account/TwoFactorWebauthnAdd.vue')),
-  'account-2fa-webauthn': lazy(() => import('~/components/Storefront/Account/TwoFactorWebauthn.vue')),
+  'account-2fa-webauthn': securityPage,
   'account-addresses-id-edit': lazy(() => import('~/components/Storefront/Account/AddressEdit.vue')),
   'account-addresses': lazy(() => import('~/components/Storefront/Account/Addresses.vue')),
   'account-addresses-new': lazy(() => import('~/components/Storefront/Account/AddressNew.vue')),
   'account-business': lazy(() => import('~/components/Storefront/Account/Business.vue')),
-  'account-email': lazy(() => import('~/components/Storefront/Account/Email.vue')),
+  'account-email': securityPage,
   'account-favourites-posts': lazy(() => import('~/components/Storefront/Account/FavouritePosts.vue')),
   'account-favourites-products': lazy(() => import('~/components/Storefront/Account/FavouriteProducts.vue')),
   'account-gift-cards': lazy(() => import('~/components/Storefront/Account/GiftCards.vue')),
@@ -177,9 +183,11 @@ const pageDefaults: Record<PageKey, Component> = {
   'account-orders-id': lazy(() => import('~/components/Storefront/Account/OrderDetail.vue')),
   'account-orders': lazy(() => import('~/components/Storefront/Account/Orders.vue')),
   'account-password-change': lazy(() => import('~/components/Storefront/Account/PasswordChange.vue')),
-  'account-providers': lazy(() => import('~/components/Storefront/Account/Providers.vue')),
+  'account-providers': securityPage,
   'account-reviews': lazy(() => import('~/components/Storefront/Account/Reviews.vue')),
-  'account-sessions': lazy(() => import('~/components/Storefront/Account/Sessions.vue')),
+  // Redesign-only (`REDESIGN_ONLY_PAGES`): no webside body.
+  'account-security': securityPage,
+  'account-sessions': securityPage,
   'account-settings': lazy(() => import('~/components/Storefront/Account/Settings.vue')),
   'account-settings-privacy': lazy(() => import('~/components/Storefront/Account/Privacy.vue')),
   'account-subscriptions': lazy(() => import('~/components/Storefront/Account/Subscriptions.vue')),
@@ -318,6 +326,14 @@ export function resolveDesign(tenantSchema?: string | null): StorefrontDesign | 
   if (!tenantSchema || FROZEN_DESIGN_SCHEMAS.has(tenantSchema)) return null
   return 'volt'
 }
+
+/**
+ * Pages only the redesign has, by route name. A store drawn without a
+ * design (frozen in the previous one) has no body for them and never
+ * links to them, so `middleware/01.design-only.global.ts` answers 404
+ * there rather than draw the redesigned body inside the frozen frame.
+ */
+export const REDESIGN_ONLY_PAGES: ReadonlySet<PageKey> = new Set<PageKey>(['account-security'])
 
 /**
  * Layouts chosen by the tenant's design rather than by the page.

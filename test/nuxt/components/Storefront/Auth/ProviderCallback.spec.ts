@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { resolve } from 'node:path'
@@ -18,15 +18,22 @@ import { failWith } from '~~/test/helpers/api'
  * chain; this page only shows a failure. A first-time user's 401 with a
  * pending `provider_signup` flow is the "finish signing up" hand-off,
  * not a failure.
+ *
+ * The default tree also finishes linking an account: a signed-in shopper
+ * arrives only from Security's "Connect", and goes back there told
+ * whether the account is now theirs.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const { route, providerToken, navigateToMock } = vi.hoisted(() => ({
+const { route, session, providerToken, navigateToMock, toastAdd, connectedAccounts } = vi.hoisted(() => ({
   route: { query: {} as Record<string, string> },
+  session: { loggedIn: false },
   providerToken: vi.fn((_body: unknown) => Promise.resolve()),
   navigateToMock: vi.fn(),
+  toastAdd: vi.fn(),
+  connectedAccounts: vi.fn(() => Promise.resolve({ status: 200, data: [] as { uid: string, display: string, provider: { id: string } }[] })),
 }))
 mockNuxtImport('useRoute', () => () => ({
   query: route.query,
@@ -39,7 +46,21 @@ mockNuxtImport('useRoute', () => () => ({
   meta: {},
 }))
 mockNuxtImport('useAllAuthAuthentication', () => () => ({ providerToken }))
+mockNuxtImport('useAllAuthAccount', () => () => ({ connectedThirdPartyProviderAccounts: connectedAccounts }))
+mockNuxtImport('useUserSession', () => () => ({
+  loggedIn: ref(session.loggedIn),
+  user: ref(session.loggedIn ? { id: 7 } : null),
+  session: ref({}),
+  ready: ref(true),
+  fetch: () => Promise.resolve(),
+  clear: () => Promise.resolve(),
+}))
+mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 mockNuxtImport('navigateTo', () => navigateToMock)
+
+beforeEach(() => {
+  session.loggedIn = false
+})
 
 const OAUTH_PARAMS = '/api/auth/oauth-params'
 
@@ -91,7 +112,8 @@ describe.each([
       expect(wrapper.find('[role="status"]').exists()).toBe(false)
     })
 
-    it('titles the page with the message the provider flow sent back', async () => {
+    // The frozen copy titles itself with a `?messages=` no route sends.
+    it.runIf(tree === 'webside')('titles the page with the message the provider flow sent back', async () => {
       api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', process: 'connect' } })
 
       const wrapper = await mount({ provider: 'google', process: 'connect', messages: 'Ο λογαριασμός συνδέθηκε' })
@@ -148,6 +170,71 @@ describe.each([
 
       expectFailure(await mount({ provider: 'google', process: 'login' }))
       expect(providerToken).not.toHaveBeenCalled()
+    })
+  })
+
+  describe.runIf(tree === 'default')('linking an account, signed in', () => {
+    const SECURITY = '/account/security'
+
+    beforeEach(() => {
+      session.loggedIn = true
+    })
+
+    async function expectBackOnSecurity(outcome: 'done' | 'taken' | 'cancelled' | 'failed') {
+      await vi.waitFor(() => expect(navigateToMock).toHaveBeenCalledWith(SECURITY, { replace: true }))
+      expect(toastAdd).toHaveBeenCalledExactlyOnceWith({
+        title: messages.connect[outcome],
+        color: outcome === 'done' ? 'success' : 'error',
+      })
+    }
+
+    it('links the account and says so once it is among theirs', async () => {
+      api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', id_token: 'idt', process: 'connect' } })
+      connectedAccounts.mockResolvedValue({ status: 200, data: [{ uid: 'g-1', display: 'demo@gmail.com', provider: { id: 'google' } }] })
+
+      const wrapper = await mount({ provider: 'google', process: 'connect' })
+
+      expect(providerToken).toHaveBeenCalledWith({ provider: 'google', token: { client_id: 'cid', id_token: 'idt' }, process: 'connect' })
+      await expectBackOnSecurity('done')
+      expectNoFailure(wrapper)
+    })
+
+    it('says the account is another customer\'s when allauth answered but did not link it', async () => {
+      api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', process: 'connect' } })
+      connectedAccounts.mockResolvedValue({ status: 200, data: [{ uid: 'f-1', display: 'Demo', provider: { id: 'facebook' } }] })
+
+      await mount({ provider: 'google', process: 'connect' })
+
+      await expectBackOnSecurity('taken')
+    })
+
+    it('says it was cancelled when the provider refused, without asking allauth', async () => {
+      const wrapper = await mount({ provider: 'google', error: 'oauth_error' })
+
+      await expectBackOnSecurity('cancelled')
+      expect(providerToken).not.toHaveBeenCalled()
+      expectNoFailure(wrapper)
+    })
+
+    it('says it failed when allauth rejects the token', async () => {
+      api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', process: 'connect' } })
+      providerToken.mockRejectedValue(Object.assign(new Error('Bad Request'), { statusCode: 400 }))
+
+      const wrapper = await mount({ provider: 'google', process: 'connect' })
+
+      await expectBackOnSecurity('failed')
+      expect(connectedAccounts).not.toHaveBeenCalled()
+      expectNoFailure(wrapper)
+    })
+
+    it('says it is connecting the account while it works', async () => {
+      api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', process: 'connect' } })
+      providerToken.mockReturnValue(new Promise(() => {}))
+
+      const wrapper = await mount({ provider: 'google', process: 'connect' })
+
+      expect(wrapper.find('h1').text()).toBe(messages.title.connecting)
+      expect(wrapper.find('[role="status"]').text()).toBe(messages.title.connecting)
     })
   })
 

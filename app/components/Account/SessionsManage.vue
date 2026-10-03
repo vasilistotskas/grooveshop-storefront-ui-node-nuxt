@@ -1,331 +1,155 @@
 <script lang="ts" setup>
-import type { TableColumn, DropdownMenuItem } from '#ui/types'
-
-const emit = defineEmits(['deleteSession'])
-
+/**
+ * Where the shopper is signed in, as the boards draw it: a section with
+ * "Sign out everywhere else", one row per session — the browser and
+ * system it runs in, this device marked, when it was last active — and
+ * signing out of any other one.
+ *
+ * "Last active" needs allauth's activity tracking; without it the row
+ * says when the session signed in. No location: allauth records none
+ * (PLAN B44). The sessions are the auth store's, refreshed on mount.
+ */
 const { deleteSession } = useAllAuthSessions()
 const toast = useToast()
-const { locale, t } = useI18n()
-const { contentShorten } = useText()
-
-const loading = ref(false)
-
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const { sessions, otherSessions } = storeToRefs(authStore)
-const { setupSessions } = authStore
 
 onMounted(() => {
-  setupSessions()
+  authStore.setupSessions()
 })
 
-const logout = async (fromSessions: Session[]) => {
+const busy = ref<number | 'others' | null>(null)
+
+async function signOut(targets: Session[], key: number | 'others') {
+  busy.value = key
   try {
-    loading.value = true
-    const newSessions = await deleteSession({
-      sessions: fromSessions?.map(session => session.id),
-    })
-    if (newSessions) {
-      sessions.value = newSessions.data
-    }
-    // Worded for what was ended: one session, or every other one.
-    toast.add({
-      title: t('session.logged_out', fromSessions.length),
-      color: 'success',
-    })
-    emit('deleteSession')
+    const remaining = await deleteSession({ sessions: targets.map(session => session.id) })
+    if (remaining) sessions.value = remaining.data
+    toast.add({ title: t('signed_out', targets.length), color: 'success' })
   }
   catch (error) {
     handleAllAuthClientError(error)
   }
   finally {
-    loading.value = false
+    busy.value = null
   }
 }
 
-// One icon per device class, from the same UA rules the SSR render uses.
 const DEVICE_ICON: Readonly<Record<DeviceClass, string>> = {
-  mobile: 'i-heroicons-device-phone-mobile',
-  tablet: 'i-heroicons-device-tablet',
-  desktop: 'i-heroicons-computer-desktop',
+  mobile: 'i-lucide-smartphone',
+  tablet: 'i-lucide-tablet',
+  desktop: 'i-lucide-monitor',
 }
 
-const deviceIcon = (userAgent: string) => DEVICE_ICON[deviceClassFromUserAgent(userAgent)]
-const browserName = (userAgent: string) => browserOf(userAgent) ?? t('unknown')
-const systemName = (userAgent: string) => operatingSystemOf(userAgent) ?? t('unknown')
+/** "Chrome on Windows"; just the one that is known; or "Unknown device". */
+function deviceName(userAgent: string) {
+  const browser = browserOf(userAgent)
+  const system = operatingSystemOf(userAgent)
+  if (browser && system) return t('device', { browser, system })
+  return browser ?? system ?? t('unknown_device')
+}
 
-const columns: TableColumn<Session>[] = [
-  {
-    accessorKey: 'is_current',
-    header: '',
-  },
-  {
-    accessorKey: 'device',
-    header: t('device'),
-  },
-  {
-    accessorKey: 'ip',
-    header: t('ip_address'),
-  },
-  {
-    accessorKey: 'created_at',
-    header: t('ordering.created_at'),
-  },
-  {
-    id: 'actions',
-    header: '',
-  },
-]
-
-const data = computed(() => {
-  return sessions.value?.map(session => ({
-    is_current: session.is_current,
-    ip: session.ip,
-    user_agent: session.user_agent,
-    created_at: session.created_at,
-    id: session.id,
-  })) || []
+const describe = (session: Session) => ({
+  icon: DEVICE_ICON[deviceClassFromUserAgent(session.user_agent)],
+  name: deviceName(session.user_agent),
+  seen: new Date((session.last_seen_at ?? session.created_at) * 1000).toISOString(),
+  tracked: session.last_seen_at !== undefined,
 })
-
-const getActionItems = (session: Session): DropdownMenuItem[][] => {
-  return [[
-    {
-      label: t('logout'),
-      icon: 'i-heroicons-arrow-right-start-on-rectangle',
-      class: session.is_current ? '' : 'cursor-pointer',
-      ui: {
-        itemLeadingIcon: 'text-red-500 dark:text-red-500 hover:text-red-500 hover:dark:text-red-500',
-      },
-      disabled: session.is_current,
-      onSelect: () => {
-        if (!session.is_current) {
-          logout([session])
-        }
-      },
-    },
-  ]]
-}
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-      lg:flex
-    "
-  >
-    <slot />
-    <!-- `min-w-0`, not `overflow-auto`: as a flex item beside the
-         sidebar this column defaults to `min-width: auto` and cannot
-         shrink below its table's min-content, which pushed the page
-         100px past a 1280 viewport. Scrolling the whole column was
-         the wrong lever anyway — UTable's own wrapper already scrolls
-         horizontally, so the table scrolls inside the card instead of
-         dragging the page with it. -->
-    <div class="w-full min-w-0 space-y-6">
-      <UCard>
-        <UAlert
-          color="info"
-          variant="soft"
-          icon="i-heroicons-shield-check"
-          :title="t('sessions.info.title')"
-          :description="t('sessions.info.description')"
-        />
+  <AccountSection :title="t('title')">
+    <template #actions>
+      <UButton
+        v-if="otherSessions?.length"
+        :label="t('sign_out_others')"
+        :loading="busy === 'others'"
+        color="neutral"
+        variant="outline"
+        size="sm"
+        @click="() => signOut(otherSessions ?? [], 'others')"
+      />
+    </template>
 
-        <!-- ClientOnly: this table's rows come from the auth store,
-             which `plugins/setup.ts` fills from a `watch(loggedIn)`
-             that fires when nuxt-auth-utils re-fetches the session on
-             `app:suspense:resolve` — the hydration boundary itself.
-             The server therefore renders the empty state and the
-             client renders the real rows in the same pass, which Vue
-             reports as a hydration mismatch (measured: 1 row server,
-             35 client). ClientOnly renders nothing on the server AND
-             nothing during hydration, so the first client render
-             matches by construction and the rows arrive as an
-             ordinary update. These pages are authenticated and never
-             cached or indexed, so there is no SSR content to lose. -->
-        <ClientOnly>
-          <UTable
-            :data="data"
-            :columns="columns"
-            :loading="loading"
-            :ui="{
-              root: 'max-w-2xl',
-            }"
-          >
-            <template #empty>
-              <UEmpty
-                icon="i-heroicons-signal-slash"
-                :title="t('sessions.empty.title')"
-                :description="t('sessions.empty.description')"
-                variant="naked"
-              />
-            </template>
-            <template #is_current-cell="{ row }">
-              <UTooltip
-                :text="row.original.is_current ? t('sessions.current') : t('sessions.other')"
-              >
-                <UBadge
-                  v-if="row.original.is_current"
-                  color="success"
-                  variant="soft"
-                  size="sm"
-                  icon="i-heroicons-check-circle"
-                >
-                  {{ t('sessions.active') }}
-                </UBadge>
-                <div v-else class="size-2" />
-              </UTooltip>
-            </template>
-            <template #device-cell="{ row }">
-              <div class="flex items-center gap-3">
-                <UIcon
-                  :name="deviceIcon(row.original.user_agent)"
-                  class="size-5 text-muted"
-                />
-                <div class="flex flex-col">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium">
-                      {{ browserName(row.original.user_agent) }}
-                    </span>
-                    <span class="text-xs text-muted">•</span>
-                    <span class="text-xs text-muted">
-                      {{ systemName(row.original.user_agent) }}
-                    </span>
-                  </div>
-                  <UTooltip :text="row.original.user_agent">
-                    <span class="text-xs text-muted">
-                      {{ contentShorten(row.original.user_agent, 0, 20) }}
-                    </span>
-                  </UTooltip>
-                </div>
-              </div>
-            </template>
-            <template #ip-cell="{ row }">
-              <UBadge
-                color="neutral"
-                variant="subtle"
-                size="sm"
-                class="font-mono"
-              >
-                {{ row.original.ip }}
-              </UBadge>
-            </template>
-            <template #created_at-cell="{ row }">
-              <span class="text-sm text-muted">
-                <NuxtTime
-                  date-style="medium"
-                  :datetime="new Date(row.original.created_at * 1000)"
-                  time-style="short"
-                  :locale="locale"
-                />
-              </span>
-            </template>
-            <template #actions-cell="{ row }">
-              <UTooltip :text="row.original.is_current ? t('sessions.cannot_logout_current') : t('logout')">
-                <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
-                     `useForwardExpose` reads `t.value.$el.nodeName` after
-                     checking only that `$el` EXISTS as a key, and a Lazy
-                     component's `$el` is null until it loads — so every
-                     row threw "Cannot read properties of null (reading
-                     'nodeName')" and the page hydrated with mismatches.
-                     The lazy wrapper bought nothing either: the navbar
-                     renders UDropdownMenu eagerly on every page. -->
-                <UDropdownMenu
-                  v-if="getActionItems(row.original).length > 0"
-                  :items="getActionItems(row.original)"
-                >
-                  <UButton
-                    color="neutral"
-                    icon="i-heroicons-ellipsis-horizontal-20-solid"
-                    variant="ghost"
-                    size="sm"
-                    :disabled="row.original.is_current"
-                  />
-                </UDropdownMenu>
-              </UTooltip>
-            </template>
-          </UTable>
-        </ClientOnly>
-
-        <div
-          class="
-            flex flex-col items-center justify-between gap-2 pt-2
-            md:flex-row
-          "
+    <!-- Rows only on the client: the store fills the sessions from a
+         `watch(loggedIn)` that fires at the hydration boundary itself,
+         so the server would render none and the client every one. -->
+    <ClientOnly>
+      <ul class="flex flex-col divide-y divide-default">
+        <li
+          v-for="session in sessions"
+          :key="session.id"
+          class="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:gap-4"
         >
-          <span class="text-sm text-muted">
-            {{ t('sessions.total', { count: data.length, other: otherSessions.length }) }}
+          <span class="flex min-w-0 flex-1 items-center gap-3">
+            <UIcon
+              :name="describe(session).icon"
+              class="size-4 shrink-0 text-toned"
+            />
+            <span class="truncate font-medium text-highlighted">{{ describe(session).name }}</span>
+            <UBadge
+              v-if="session.is_current"
+              :label="t('this_device')"
+              color="secondary"
+              variant="soft"
+              size="sm"
+            />
           </span>
-          <UButton
-            :disabled="otherSessions.length < 1"
-            :loading="loading"
-            icon="i-heroicons-arrow-right-start-on-rectangle"
-            color="error"
-            variant="subtle"
-            size="md"
-            @click="logout(otherSessions)"
-          >
-            {{ t('logout_all_other_sessions') }}
-          </UButton>
-        </div>
-
-        <UAlert
-          v-if="otherSessions.length > 0"
-          color="warning"
-          variant="soft"
-          icon="i-heroicons-exclamation-triangle"
-          class="mt-6"
-          :title="t('sessions.security.title')"
-          :description="t('sessions.security.description')"
-        />
-      </UCard>
-    </div>
-  </div>
+          <span class="text-toned sm:w-56">
+            <i18n-t :keypath="describe(session).tracked ? 'last_active' : 'signed_in'">
+              <template #when>
+                <NuxtTime
+                  :datetime="describe(session).seen"
+                  :locale="locale"
+                  relative
+                  numeric="auto"
+                />
+              </template>
+            </i18n-t>
+          </span>
+          <span class="flex sm:w-24 sm:justify-end">
+            <UButton
+              v-if="!session.is_current"
+              :label="t('sign_out')"
+              :aria-label="t('sign_out_named', { device: describe(session).name })"
+              :loading="busy === session.id"
+              color="error"
+              variant="ghost"
+              size="sm"
+              @click="() => signOut([session], session.id)"
+            />
+          </span>
+        </li>
+      </ul>
+      <template #fallback>
+        <USkeleton class="h-12 w-full rounded-[0.75rem]" />
+      </template>
+    </ClientOnly>
+  </AccountSection>
 </template>
 
 <i18n lang="yaml">
 el:
-  is_current: Τρέχουσα
-  unknown: Άγνωστο
-  device: Συσκευή
-  logout_all_other_sessions: Αποσύνδεση από όλες τις υπόλοιπες συσκευές
-  session:
-    logged_out: Η συνεδρία αποσυνδέθηκε | {count} συνεδρίες αποσυνδέθηκαν
-  sessions:
-    info:
-      title: Ενεργές Συνεδρίες
-      description: Παρακολούθησε και διαχειρίσου όλες τις ενεργές συνεδρίες σου. Μπορείς να αποσυνδεθείς από οποιαδήποτε συσκευή για επιπλέον ασφάλεια.
-    active: Ενεργή
-    current: Αυτή είναι η τρέχουσα συνεδρία σου
-    other: Άλλη συσκευή
-    cannot_logout_current: Δεν μπορείς να αποσυνδεθείς από την τρέχουσα συνεδρία
-    total: 'Συνεδρίες: {count} · Σε άλλες συσκευές: {other}'
-    empty:
-      title: Δεν υπάρχουν ενεργές συνεδρίες
-      description: Θα δείς τις συνδεδεμένες συσκευές σου εδώ
-    security:
-      title: Ασφάλεια Λογαριασμού
-      description: Αν δείς συνεδρίες που δεν αναγνωρίζεις, αποσυνδέσου αμέσως και αλλάξτε τον κωδικό σου.
+  title: Συνδεδεμένες συσκευές
+  sign_out_others: Αποσύνδεση από τις υπόλοιπες
+  device: "{browser} σε {system}"
+  unknown_device: Άγνωστη συσκευή
+  this_device: Αυτή η συσκευή
+  last_active: Ενεργή {when}
+  signed_in: Συνδέθηκε {when}
+  sign_out: Αποσύνδεση
+  sign_out_named: Αποσύνδεση της συσκευής «{device}»
+  signed_out: "Η συσκευή αποσυνδέθηκε | Οι συσκευές αποσυνδέθηκαν"
 en:
-  is_current: Current
-  unknown: Unknown
-  device: Device
-  logout_all_other_sessions: Sign out of every other device
-  session:
-    logged_out: The session was signed out | {count} sessions were signed out
-  sessions:
-    info:
-      title: Active Sessions
-      description: See and manage every session you have open. You can sign out of any device for extra peace of mind.
-    active: Active
-    current: This is the session you are using now
-    other: Another device
-    cannot_logout_current: You cannot sign out of the session you are using
-    total: 'Sessions: {count} · On other devices: {other}'
-    empty:
-      title: No active sessions
-      description: The devices you are signed in on will appear here
-    security:
-      title: Account Security
-      description: If you see a session you do not recognise, sign it out straight away and change your password.
+  title: Signed-in devices
+  sign_out_others: Sign out everywhere else
+  device: "{browser} on {system}"
+  unknown_device: Unknown device
+  this_device: This device
+  last_active: Active {when}
+  signed_in: Signed in {when}
+  sign_out: Sign out
+  sign_out_named: Sign out “{device}”
+  signed_out: "The device was signed out | The devices were signed out"
 </i18n>

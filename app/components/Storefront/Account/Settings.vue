@@ -8,30 +8,16 @@ useHead({ title: () => t('title') })
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:gap-8 md:p-0!
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="hidden"
-    />
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader :title="t('title')" />
 
-    <AccountSettingsForm>
-      <aside
-        class="md:sticky md:top-16"
-      >
-        <AccountAuthSettingsNavigation />
-      </aside>
-    </AccountSettingsForm>
-  </PageWrapper>
+    <AccountSettingsForm />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Ρυθμίσεις
+  title: Προφίλ
 en:
-  title: Settings
+  title: Profile
 </i18n>

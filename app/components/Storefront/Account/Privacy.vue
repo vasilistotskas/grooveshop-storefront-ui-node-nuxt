@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, d, n } = useI18n()
+const { t, n, locale } = useI18n()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply
@@ -28,23 +28,28 @@ const isReady = computed(() => latest.value?.status === 'ready')
 const statusColor = computed(() => {
   switch (latest.value?.status) {
     case 'ready': return 'success'
-    case 'processing':
-    case 'pending': return 'info'
     case 'expired': return 'warning'
     case 'failed': return 'error'
     default: return 'neutral'
   }
 })
 
-const statusIcon = computed(() => {
-  switch (latest.value?.status) {
-    case 'ready': return 'i-heroicons-check-circle'
-    case 'processing':
-    case 'pending': return 'i-heroicons-arrow-path'
-    case 'expired': return 'i-heroicons-clock'
-    case 'failed': return 'i-heroicons-exclamation-triangle'
-    default: return 'i-heroicons-information-circle'
-  }
+// The same key and options as the account shell, so the two share one request.
+const { data: summary } = useLazyApi<AccountSummary>('/api/user/account/summary', {
+  key: 'account-summary',
+  method: 'GET',
+})
+
+// What deleting the account forfeits: only the parts the shopper has.
+const lostPoints = computed(() => summary.value?.loyalty?.pointsBalance || 0)
+const lostBalance = computed(() => summary.value?.giftCardBalance || 0)
+
+const forfeitTitle = computed(() => {
+  const points = lostPoints.value > 0
+  const balance = lostBalance.value > 0
+  if (!points && !balance) return ''
+  const params = { points: n(lostPoints.value), balance: n(lostBalance.value, 'currency') }
+  return t(points && balance ? 'delete.lost_both' : points ? 'delete.lost_points' : 'delete.lost_balance', params)
 })
 
 const fileSizeLabel = computed(() => {
@@ -98,7 +103,7 @@ const requestExport = async () => {
       title: t('export.requested_title'),
       description: t('export.requested_description'),
       color: 'info',
-      icon: 'i-heroicons-envelope',
+      icon: 'i-lucide-mail',
     })
     await loadExports()
     pollExports()
@@ -108,7 +113,7 @@ const requestExport = async () => {
     toast.add({
       title: t('export.error_title'),
       color: 'error',
-      icon: 'i-heroicons-exclamation-triangle',
+      icon: 'i-lucide-triangle-alert',
     })
   }
   finally {
@@ -148,7 +153,7 @@ const onConfirmDelete = async () => {
       title: t('delete.scheduled_title'),
       description: t('delete.scheduled_description'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
     isDeleteModalOpen.value = false
     await clearSession()
@@ -160,7 +165,7 @@ const onConfirmDelete = async () => {
       title: t('delete.error_title'),
       description: t('delete.error_description'),
       color: 'error',
-      icon: 'i-heroicons-exclamation-triangle',
+      icon: 'i-lucide-triangle-alert',
     })
   }
   finally {
@@ -178,162 +183,162 @@ onBeforeUnmount(stopPolling)
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="hidden"
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader
+      :title="t('title')"
+      :lead="t('lead')"
     />
 
-    <div
-      class="
-        flex flex-col gap-6
-        lg:flex-row lg:gap-8
-      "
+    <section
+      aria-labelledby="privacy-export-title"
+      class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
     >
-      <aside class="lg:sticky lg:top-16 lg:w-72">
-        <AccountAuthSettingsNavigation />
-      </aside>
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div class="flex min-w-0 items-center gap-4">
+          <span
+            class="
+              flex size-11 shrink-0 items-center justify-center rounded-xl
+              bg-elevated text-highlighted
+            "
+          >
+            <UIcon
+              name="i-lucide-download"
+              class="size-5"
+              aria-hidden="true"
+            />
+          </span>
+          <div class="flex min-w-0 flex-col gap-1">
+            <h2
+              id="privacy-export-title"
+              class="font-semibold text-highlighted"
+            >
+              {{ t('export.title') }}
+            </h2>
+            <p class="text-sm text-toned">
+              {{ t('export.description') }}
+            </p>
+          </div>
+        </div>
+        <UButton
+          color="neutral"
+          variant="solid"
+          :loading="requesting"
+          :disabled="isProcessing || requesting"
+          class="max-sm:w-full max-sm:justify-center"
+          @click="requestExport"
+        >
+          {{ isReady ? t('export.request_again') : t('export.request') }}
+        </UButton>
+      </div>
 
-      <section class="flex min-w-0 flex-1 flex-col gap-6">
-        <UPageCard
-          :title="t('export.title')"
-          :description="t('export.description')"
-          icon="i-heroicons-document-arrow-down"
+      <div
+        v-if="latest"
+        class="flex flex-col gap-3 rounded-xl bg-elevated p-4"
+      >
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <UBadge
+            :color="statusColor"
+            variant="soft"
+            size="sm"
+          >
+            {{ t(`export.status.${latest.status}`) }}
+          </UBadge>
+          <span
+            v-if="latest.createdAt"
+            class="text-xs text-toned"
+          >
+            {{ t('export.requested_at') }}
+            <NuxtTime
+              :datetime="latest.createdAt"
+              :locale="locale"
+              date-style="medium"
+              time-style="short"
+            />
+          </span>
+          <span
+            v-if="isReady && latest.expiresAt"
+            class="text-xs text-toned"
+          >
+            {{ t('export.expires_at') }}
+            <NuxtTime
+              :datetime="latest.expiresAt"
+              :locale="locale"
+              date-style="medium"
+              time-style="short"
+            />
+          </span>
+          <span
+            v-if="isReady && fileSizeLabel"
+            class="text-xs text-toned"
+          >
+            {{ fileSizeLabel }}
+          </span>
+        </div>
+
+        <UProgress
+          v-if="isProcessing"
+          size="sm"
+          color="neutral"
+          animation="carousel"
+        />
+
+        <p
+          v-if="latest.status === 'failed'"
+          role="alert"
+          class="text-sm text-toned"
+        >
+          {{ t('export.failed_description') }}
+        </p>
+
+        <div v-if="isReady">
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="sm"
+            icon="i-lucide-download"
+            @click="openDownload"
+          >
+            {{ t('export.download') }}
+          </UButton>
+        </div>
+      </div>
+    </section>
+
+    <section
+      aria-labelledby="privacy-delete-title"
+      class="flex flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+    >
+      <div class="flex flex-col gap-1">
+        <h2
+          id="privacy-delete-title"
+          class="font-semibold text-highlighted"
+        >
+          {{ t('delete.title') }}
+        </h2>
+        <p class="text-sm text-toned">
+          {{ t('delete.description') }}
+        </p>
+      </div>
+
+      <UAlert
+        v-if="forfeitTitle"
+        color="warning"
+        variant="soft"
+        icon="i-lucide-triangle-alert"
+        :title="forfeitTitle"
+      />
+
+      <div>
+        <UButton
+          color="error"
           variant="outline"
+          icon="i-lucide-trash-2"
+          @click="onOpenModal"
         >
-          <div class="flex flex-col gap-4">
-            <div
-              v-if="latest"
-              class="flex flex-wrap items-center gap-3"
-            >
-              <UBadge
-                :color="statusColor"
-                :icon="statusIcon"
-                variant="subtle"
-                size="sm"
-              >
-                {{ t(`export.status.${latest.status}`) }}
-              </UBadge>
-              <span
-                v-if="latest.createdAt"
-                class="
-                  text-xs text-neutral-700
-                  dark:text-neutral-200
-                "
-              >
-                {{ t('export.requested_at', { at: d(new Date(latest.createdAt), 'short') }) }}
-              </span>
-              <span
-                v-if="isReady && latest.expiresAt"
-                class="
-                  text-xs text-warning
-                  dark:text-warning
-                "
-              >
-                {{ t('export.expires_at', { at: d(new Date(latest.expiresAt), 'short') }) }}
-              </span>
-              <span
-                v-if="isReady && fileSizeLabel"
-                class="
-                  text-xs text-neutral-700
-                  dark:text-neutral-200
-                "
-              >
-                · {{ fileSizeLabel }}
-              </span>
-            </div>
-
-            <UProgress
-              v-if="isProcessing"
-              size="sm"
-              color="info"
-              animation="carousel"
-            />
-
-            <UAlert
-              v-if="latest?.status === 'failed'"
-              :title="t('export.failed_title')"
-              :description="t('export.failed_description')"
-              color="error"
-              variant="subtle"
-              icon="i-heroicons-exclamation-triangle"
-            />
-          </div>
-
-          <template #footer>
-            <div class="flex flex-wrap gap-3">
-              <UButton
-                v-if="isReady"
-                color="success"
-                variant="solid"
-                icon="i-heroicons-arrow-down-tray"
-                @click="openDownload"
-              >
-                {{ t('export.download') }}
-              </UButton>
-              <UButton
-                color="primary"
-                :variant="isReady ? 'outline' : 'solid'"
-                icon="i-heroicons-document-plus"
-                :loading="requesting"
-                :disabled="isProcessing || requesting"
-                @click="requestExport"
-              >
-                {{ isReady ? t('export.request_again') : t('export.request') }}
-              </UButton>
-            </div>
-          </template>
-        </UPageCard>
-
-        <UPageCard
-          :title="t('delete.title')"
-          :description="t('delete.description')"
-          icon="i-heroicons-trash"
-          variant="soft"
-          highlight
-          highlight-color="error"
-        >
-          <div class="flex flex-col gap-3">
-            <UAlert
-              color="error"
-              variant="subtle"
-              icon="i-heroicons-shield-exclamation"
-              :title="t('delete.warning_title')"
-            >
-              <template #description>
-                <ul
-                  class="
-                    mt-2 list-inside list-disc space-y-1 text-sm
-                    [&>li]:leading-relaxed
-                  "
-                >
-                  <li>{{ t('delete.bullet_profile') }}</li>
-                  <li>{{ t('delete.bullet_orders') }}</li>
-                  <li>{{ t('delete.bullet_irreversible') }}</li>
-                  <li>{{ t('delete.bullet_logout') }}</li>
-                </ul>
-              </template>
-            </UAlert>
-          </div>
-
-          <template #footer>
-            <UButton
-              color="error"
-              variant="solid"
-              icon="i-heroicons-trash"
-              @click="onOpenModal"
-            >
-              {{ t('delete.open_modal') }}
-            </UButton>
-          </template>
-        </UPageCard>
-      </section>
-    </div>
+          {{ t('delete.open_modal') }}
+        </UButton>
+      </div>
+    </section>
 
     <UModal
       v-model:open="isDeleteModalOpen"
@@ -346,7 +351,7 @@ onBeforeUnmount(stopPolling)
           <UAlert
             color="error"
             variant="soft"
-            icon="i-heroicons-exclamation-triangle"
+            icon="i-lucide-triangle-alert"
             :title="t('delete.modal_alert_title')"
             :description="t('delete.modal_alert_description')"
           />
@@ -379,7 +384,7 @@ onBeforeUnmount(stopPolling)
           <UButton
             color="error"
             variant="solid"
-            icon="i-heroicons-trash"
+            icon="i-lucide-trash-2"
             :loading="deleting"
             :disabled="!canConfirmDelete"
             @click="onConfirmDelete"
@@ -389,24 +394,24 @@ onBeforeUnmount(stopPolling)
         </div>
       </template>
     </UModal>
-  </PageWrapper>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Απόρρητο & Δεδομένα
+  title: Τα δεδομένα σου
+  lead: Κατέβασε ό,τι κρατάμε για εσένα ή κλείσε τον λογαριασμό σου.
   export:
-    title: Λήψη των δεδομένων μου
-    description: Ζήτα ένα αντίγραφο σε JSON με όλα όσα έχουμε συνδεδεμένα με τον λογαριασμό σου — προφίλ, παραγγελίες, αγαπημένα, κριτικές, σχόλια, αγορές πόντων, ειδοποιήσεις και εγγραφές. Ο σύνδεσμος λήξης ισχύει για 7 ημέρες.
+    title: Εξαγωγή των δεδομένων σου
+    description: Ζήτα ένα αντίγραφο σε JSON με όλα όσα έχουμε συνδεδεμένα με τον λογαριασμό σου — προφίλ, παραγγελίες, αγαπημένα, κριτικές, σχόλια, αγορές πόντων, ειδοποιήσεις και εγγραφές. Ο σύνδεσμος λήψης ισχύει 7 ημέρες.
     request: Ζήτα εξαγωγή
     request_again: Ζήτα νέα εξαγωγή
     download: Λήψη αρχείου
     requested_title: Η εξαγωγή προστέθηκε στην ουρά
     requested_description: Θα σου στείλουμε email όταν είναι έτοιμη.
-    requested_at: "Αίτημα: {at}"
-    expires_at: "Λήγει: {at}"
+    requested_at: "Αίτημα:"
+    expires_at: "Λήγει:"
     error_title: Δεν ήταν δυνατή η αίτηση εξαγωγής.
-    failed_title: Η εξαγωγή απέτυχε
     failed_description: Κάτι πήγε στραβά κατά τη δημιουργία του αρχείου. Μπορείς να το ξαναδοκιμάσεις.
     status:
       pending: Σε αναμονή
@@ -416,13 +421,11 @@ el:
       expired: Έληξε
   delete:
     title: Διαγραφή λογαριασμού
-    description: Οριστική διαγραφή του λογαριασμού σου και όλων των σχετικών δεδομένων. Οι παραγγελίες διατηρούνται ανώνυμες για λόγους φορολογικής τεκμηρίωσης.
-    warning_title: Αυτή η ενέργεια δεν αναιρείται
-    bullet_profile: Τα δεδομένα προφίλ, διευθύνσεις, κριτικές, αγαπημένα, σχόλια, πόντοι πιστότητας και εγγραφές διαγράφονται οριστικά.
-    bullet_orders: Οι παραγγελίες σου διατηρούνται σε ανώνυμη μορφή (απαιτείται από τη φορολογική νομοθεσία).
-    bullet_irreversible: Η ενέργεια δεν αναιρείται μετά την επιβεβαίωση.
-    bullet_logout: Θα αποσυνδεθείς άμεσα από όλες τις συσκευές.
-    open_modal: Διαγραφή λογαριασμού
+    description: Διαγράφονται οριστικά το προφίλ, οι διευθύνσεις, οι κριτικές, τα αγαπημένα, τα σχόλια, οι πόντοι πιστότητας και οι εγγραφές σου. Οι παραγγελίες διατηρούνται ανώνυμες για λόγους φορολογικής τεκμηρίωσης. Η ενέργεια δεν αναιρείται και θα αποσυνδεθείς άμεσα από όλες τις συσκευές.
+    lost_points: Έχεις {points} πόντους, οι οποίοι χάνονται όταν διαγραφεί ο λογαριασμός
+    lost_balance: Έχεις υπόλοιπο {balance} σε δωροκάρτες, το οποίο χάνεται όταν διαγραφεί ο λογαριασμός
+    lost_both: Έχεις {points} πόντους και υπόλοιπο {balance} σε δωροκάρτες, που χάνονται και τα δύο όταν διαγραφεί ο λογαριασμός
+    open_modal: Διαγραφή του λογαριασμού μου
     modal_title: Επιβεβαίωση οριστικής διαγραφής
     modal_description: Για την προστασία του λογαριασμού σου, πληκτρολόγησε DELETE παρακάτω για να επιβεβαιώσεις.
     modal_alert_title: Οριστική ενέργεια
@@ -435,19 +438,19 @@ el:
     error_title: Δεν ήταν δυνατή η διαγραφή
     error_description: Δοκίμασε ξανά ή επικοινώνησε με την υποστήριξη.
 en:
-  title: Privacy & Data
+  title: Your data
+  lead: Download everything we hold about you, or close your account.
   export:
-    title: Download my data
+    title: Export your data
     description: Ask for a JSON copy of everything we hold against your account — profile, orders, favourites, reviews, comments, points purchases, notifications and subscriptions. The download link is valid for 7 days.
     request: Request an export
     request_again: Request a new export
     download: Download file
     requested_title: Your export is queued
     requested_description: We will email you when it is ready.
-    requested_at: "Requested: {at}"
-    expires_at: "Expires: {at}"
+    requested_at: "Requested:"
+    expires_at: "Expires:"
     error_title: The export could not be requested.
-    failed_title: The export failed
     failed_description: Something went wrong while building the file. You can try again.
     status:
       pending: Pending
@@ -457,13 +460,11 @@ en:
       expired: Expired
   delete:
     title: Delete account
-    description: Permanently delete your account and everything attached to it. Orders are kept in anonymised form for tax records.
-    warning_title: This cannot be undone
-    bullet_profile: Your profile, addresses, reviews, favourites, comments, loyalty points and subscriptions are deleted for good.
-    bullet_orders: Your orders are kept in anonymised form, as tax law requires.
-    bullet_irreversible: There is no way back once you confirm.
-    bullet_logout: You will be signed out of every device immediately.
-    open_modal: Delete account
+    description: Your profile, addresses, reviews, favourites, comments, loyalty points and subscriptions are deleted for good. Orders are kept in anonymised form for tax records. This cannot be undone, and you are signed out of every device immediately.
+    lost_points: You have {points} points, which are lost when the account is deleted
+    lost_balance: You have a {balance} gift card balance, which is lost when the account is deleted
+    lost_both: You have {points} points and a {balance} gift card balance, both lost when the account is deleted
+    open_modal: Delete my account
     modal_title: Confirm permanent deletion
     modal_description: To protect your account, type DELETE below to confirm.
     modal_alert_title: This is permanent

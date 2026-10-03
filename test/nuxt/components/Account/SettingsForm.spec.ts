@@ -7,7 +7,9 @@ import { failWith } from '~~/test/helpers/api'
  * country until then) and is sent as E.164. The country list is the full,
  * unpaginated one (the default page holds only 12 rows), with autofill
  * tokens on the selects. A save goes out as one PUT; its response refreshes
- * the session and, when the language changed, the UI locale.
+ * the session and, when the language changed, the UI locale. A new username
+ * goes through its own request first, and the photo is uploaded or removed
+ * by its own PATCH, never by the profile save.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -15,6 +17,8 @@ import { ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
+import type { UserDetails } from '~~/shared/openapi/types.gen'
+import { makeUserDetails } from '~~/test/fixtures/user'
 import SettingsForm from '~/components/Account/SettingsForm.vue'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -22,8 +26,8 @@ mockNuxtImport('$api', () => api)
 // `usePhoneCountries` is a `useApi`, which transports through `$fetch`.
 mockNuxtImport('$fetch', () => api)
 
-const { mockUser, fetchSession, setLanguage, toastAdd } = vi.hoisted(() => ({
-  mockUser: { value: {} as Record<string, unknown> },
+const mockUser = await vi.hoisted(async () => (await import('vue')).ref({} as UserDetails))
+const { fetchSession, setLanguage, toastAdd } = vi.hoisted(() => ({
   fetchSession: vi.fn(() => Promise.resolve()),
   setLanguage: vi.fn((_code: string) => Promise.resolve(true)),
   toastAdd: vi.fn(),
@@ -38,6 +42,8 @@ mockNuxtImport('useUserSession', () => () => ({
 }))
 mockNuxtImport('useUserLanguage', () => () => ({ setLanguage }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+// The media origin is tenant config the test environment does not carry.
+mockNuxtImport('useMediaStreamImage', () => () => (src: string) => `https://media.test/${src}`)
 
 function country(alpha2: string, phoneCode: number, el: string, exampleMobile: string, pattern: string, lengths: number[]) {
   return {
@@ -52,37 +58,31 @@ const GR = country('GR', 30, 'Ελλάδα', '6912345678', '(?:[269]\\d|70)\\d{8
 const CY = country('CY', 357, 'Κύπρος', '96123456', '(?:[279]\\d|[58]0)\\d{6}', [8])
 
 const ACCOUNT = '/api/user/account/1'
+const CHANGE_USERNAME = `${ACCOUNT}/change-username`
 
-/** Answers the PUT like ofetch does for a 2xx: `onResponse` runs before the promise settles. */
-async function savedOk(_url: string, options: any) {
-  await options.onResponse?.({ response: { ok: true } })
-  return {}
-}
-
-/** Answers the PUT like ofetch does for a 4xx: both hooks run, then it throws. */
-async function savedRejected(_url: string, options: any) {
-  const response = { ok: false, status: 400 }
-  await options.onResponse?.({ response })
-  await options.onResponseError?.({ response })
-  throw Object.assign(new Error('Bad Request'), { statusCode: 400 })
-}
-
-beforeEach(() => {
-  clearNuxtData()
-  mockUser.value = {
+function profile(overrides: Partial<UserDetails> = {}) {
+  return makeUserDetails({
     id: 1,
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',
+    username: 'tester',
     phone: '+35796123456',
     country: 'GR',
     region: 'ATTIKI',
     languageCode: 'el',
-  }
+    ...overrides,
+  })
+}
+
+beforeEach(() => {
+  clearNuxtData()
+  mockUser.value = profile()
   api.routes({
     '/api/countries': { count: 2, results: [GR, CY] },
     '/api/regions': { count: 1, results: [{ alpha: 'ATTIKI', translations: { el: { name: 'Αττική' } } }] },
-    [ACCOUNT]: savedOk,
+    [ACCOUNT]: {},
+    [CHANGE_USERNAME]: { detail: 'Username updated successfully.' },
   })
 })
 
@@ -97,7 +97,28 @@ async function submit(wrapper: VueWrapper) {
   await flushPromises()
 }
 
-const putBody = () => api.callsTo(ACCOUNT).at(-1)?.options.body
+/** The control a visible label points at (UFormField wires `for` to the control's id). */
+function controlOf(wrapper: VueWrapper, label: string) {
+  const labelEl = wrapper.findAll('label').find(el => el.text().startsWith(label))!
+  return wrapper.find(`#${labelEl.attributes('for')}`)
+}
+
+/** The USelect holding a form field's value. */
+const selectNamed = (wrapper: VueWrapper, name: string) =>
+  wrapper.findAllComponents({ name: 'USelect' }).find(select => select.props('name') === name)!
+
+const buttonLabelled = (wrapper: VueWrapper, label: string) =>
+  wrapper.findAll('button').find(button => button.text() === label)
+
+async function chooseFile(wrapper: VueWrapper, file: File) {
+  const input = wrapper.find('input[type="file"]')
+  Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+  await input.trigger('change')
+  await flushPromises()
+}
+
+const putBody = () => api.callsTo(ACCOUNT).filter(call => call.options.method === 'PUT').at(-1)?.options.body
+const avatarCalls = () => api.callsTo(ACCOUNT).filter(call => call.options.method === 'PATCH')
 
 describe('Account/SettingsForm phone flag picker', () => {
   it('parses the saved E.164 into the picker country and the national digits', async () => {
@@ -108,7 +129,7 @@ describe('Account/SettingsForm phone flag picker', () => {
   })
 
   it('follows the profile country while the saved number is that country\'s', async () => {
-    mockUser.value.phone = '+306912345678'
+    mockUser.value = profile({ phone: '+306912345678' })
     const wrapper = await mountForm()
 
     expect(wrapper.find<HTMLInputElement>('input[type="tel"]').element.value).toBe('6912345678')
@@ -139,7 +160,7 @@ describe('Account/SettingsForm phone flag picker', () => {
   })
 
   it('saves an empty phone: it is optional', async () => {
-    mockUser.value.phone = ''
+    mockUser.value = profile({ phone: '' })
     const wrapper = await mountForm()
 
     await submit(wrapper)
@@ -174,7 +195,7 @@ describe('Account/SettingsForm countries and regions', () => {
   it('reloads the regions and clears the region when the country changes', async () => {
     const wrapper = await mountForm()
 
-    await wrapper.findAllComponents({ name: 'USelect' })[0]!.setValue('CY')
+    await selectNamed(wrapper, 'country').setValue('CY')
     await flushPromises()
 
     expect(api.callsTo('/api/regions').at(-1)?.options.query).toEqual({ country: 'CY', languageCode: 'el' })
@@ -196,8 +217,7 @@ describe('Account/SettingsForm countries and regions', () => {
   })
 
   it('sends no country or region while either is still the placeholder', async () => {
-    mockUser.value.country = null
-    mockUser.value.region = null
+    mockUser.value = profile({ country: null, region: null })
     const wrapper = await mountForm()
 
     await submit(wrapper)
@@ -209,7 +229,7 @@ describe('Account/SettingsForm countries and regions', () => {
 
 describe('Account/SettingsForm saving', () => {
   it('PUTs the profile to the signed-in account', async () => {
-    mockUser.value.birthDate = '1990-05-15'
+    mockUser.value = profile({ birthDate: '1990-05-15' })
     const wrapper = await mountForm()
 
     await submit(wrapper)
@@ -232,18 +252,27 @@ describe('Account/SettingsForm saving', () => {
     }])
   })
 
+  it('sends every address field the profile keeps', async () => {
+    mockUser.value = profile({ city: 'Θεσσαλονίκη', zipcode: '54622', address: 'Τσιμισκή 100', place: 'Κέντρο' })
+    const wrapper = await mountForm()
+
+    await controlOf(wrapper, 'Πόλη').setValue('Αθήνα')
+    await submit(wrapper)
+
+    expect(putBody()).toMatchObject({ city: 'Αθήνα', zipcode: '54622', address: 'Τσιμισκή 100', place: 'Κέντρο' })
+  })
+
   // `new Date('1990-05-15')` is UTC midnight, the evening of the 14th
   // west of Greenwich: a visitor there saw, and re-saved, the day before.
   // Node re-reads `TZ` when it is assigned, so these run in each zone
   // whatever the machine's own.
   it.each(['America/New_York', 'Pacific/Kiritimati'])('shows and saves the saved birth day unchanged in %s', async (zone) => {
     vi.stubEnv('TZ', zone)
-    mockUser.value.birthDate = '1990-05-15'
+    mockUser.value = profile({ birthDate: '1990-05-15' })
     const wrapper = await mountForm()
 
-    const day = new Intl.DateTimeFormat('el', { dateStyle: 'medium' }).format(new Date(1990, 4, 15))
-    const field = wrapper.findAllComponents({ name: 'UFormField' }).find(f => f.props('name') === 'birthDate')!
-    expect(field.find('button').text()).toBe(day)
+    const segment = (name: string) => wrapper.find(`[data-segment="${name}"]`).text()
+    expect([segment('day'), segment('month'), segment('year')]).toEqual(['15', '5', '1990'])
 
     await submit(wrapper)
 
@@ -251,7 +280,7 @@ describe('Account/SettingsForm saving', () => {
   })
 
   it('reports a rejected save once and settles, leaving the form usable', async () => {
-    api.routes({ [ACCOUNT]: savedRejected })
+    api.routes({ [ACCOUNT]: failWith(400) })
     const wrapper = await mountForm()
     const onSubmit = wrapper.findComponent({ name: 'UForm' }).props('onSubmit')
 
@@ -263,7 +292,7 @@ describe('Account/SettingsForm saving', () => {
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Σφάλμα', color: 'error' })
     expect(fetchSession).not.toHaveBeenCalled()
     await flushPromises()
-    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined()
+    expect(buttonLabelled(wrapper, 'Αποθήκευση αλλαγών')!.attributes('disabled')).toBeUndefined()
   })
 
   it('sends a null birth date when none is set', async () => {
@@ -287,7 +316,7 @@ describe('Account/SettingsForm saving', () => {
   it('switches the UI to the language just saved', async () => {
     const wrapper = await mountForm()
 
-    await wrapper.findAllComponents({ name: 'USelect' })[2]!.setValue('en')
+    await selectNamed(wrapper, 'languageCode').setValue('en')
     await submit(wrapper)
 
     expect(putBody()?.languageCode).toBe('en')
@@ -296,9 +325,119 @@ describe('Account/SettingsForm saving', () => {
 
   it('offers every platform language', async () => {
     const wrapper = await mountForm()
-    const language = wrapper.findAllComponents({ name: 'USelect' })[2]!
+    const language = selectNamed(wrapper, 'languageCode')
 
     expect(language.props('items').map((item: { value: string }) => item.value)).toEqual(['el', 'en'])
     expect(language.props('disabled')).toBe(false)
+  })
+})
+
+describe('Account/SettingsForm username', () => {
+  it('shows the current username', async () => {
+    const wrapper = await mountForm()
+
+    expect(controlOf(wrapper, 'Όνομα χρήστη').element).toHaveProperty('value', 'tester')
+  })
+
+  it('changes a new username first, then saves the rest of the profile', async () => {
+    const wrapper = await mountForm()
+
+    await controlOf(wrapper, 'Όνομα χρήστη').setValue('tester.new')
+    await submit(wrapper)
+
+    expect(api.callsTo(CHANGE_USERNAME).map(call => call.options)).toEqual([
+      expect.objectContaining({ method: 'POST', body: { username: 'tester.new' } }),
+    ])
+    expect(putBody()).toMatchObject({ firstName: 'Test', lastName: 'User' })
+    expect(api.mock.calls.map(([url]) => url).filter(url => [CHANGE_USERNAME, ACCOUNT].includes(url)))
+      .toEqual([CHANGE_USERNAME, ACCOUNT])
+  })
+
+  it('leaves the username alone when it was not edited', async () => {
+    const wrapper = await mountForm()
+
+    await submit(wrapper)
+
+    expect(api.callsTo(CHANGE_USERNAME)).toEqual([])
+    expect(putBody()).not.toHaveProperty('username')
+  })
+
+  it('shows the reason a username is refused and saves nothing', async () => {
+    api.routes({ [CHANGE_USERNAME]: failWith(409, { detail: 'Username already taken.' }) })
+    const wrapper = await mountForm()
+
+    await controlOf(wrapper, 'Όνομα χρήστη').setValue('taken')
+    await submit(wrapper)
+
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Username already taken.', color: 'error' })
+    expect(api.callsTo(ACCOUNT)).toEqual([])
+    expect(fetchSession).not.toHaveBeenCalled()
+  })
+
+  it('refuses a username with spaces before any request', async () => {
+    const wrapper = await mountForm()
+
+    await controlOf(wrapper, 'Όνομα χρήστη').setValue('not valid')
+    await submit(wrapper)
+
+    expect(wrapper.text()).toContain('Χωρίς κενά· μόνο γράμματα, αριθμοί και σύμβολα.')
+    expect(api.callsTo(CHANGE_USERNAME)).toEqual([])
+    expect(api.callsTo(ACCOUNT)).toEqual([])
+  })
+})
+
+describe('Account/SettingsForm photo', () => {
+  it('uploads a chosen image as multipart and refreshes the session', async () => {
+    const wrapper = await mountForm()
+    await chooseFile(wrapper, new File(['x'], 'me.png', { type: 'image/png' }))
+
+    const [call] = avatarCalls()
+    expect(avatarCalls()).toHaveLength(1)
+    expect(call?.options.body).toBeInstanceOf(FormData)
+    expect(call?.options.body.get('image')).toMatchObject({ name: 'me.png', size: 1, type: 'image/png' })
+    expect(fetchSession).toHaveBeenCalledTimes(1)
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η φωτογραφία ενημερώθηκε', color: 'success' })
+    // The profile itself is not saved by a photo change.
+    expect(putBody()).toBeUndefined()
+  })
+
+  it('refuses a file that is not a JPG or PNG without sending it', async () => {
+    const wrapper = await mountForm()
+
+    await chooseFile(wrapper, new File(['x'], 'me.gif', { type: 'image/gif' }))
+
+    expect(avatarCalls()).toEqual([])
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Επιτρέπονται μόνο αρχεία JPG και PNG', color: 'error' })
+  })
+
+  it('says so when the upload fails, and does not refresh the session', async () => {
+    api.routes({ [ACCOUNT]: failWith(413) })
+    const wrapper = await mountForm()
+
+    await chooseFile(wrapper, new File(['x'], 'me.jpg', { type: 'image/jpeg' }))
+
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η φωτογραφία δεν ενημερώθηκε', color: 'error' })
+    expect(fetchSession).not.toHaveBeenCalled()
+  })
+
+  it('removes the photo with an empty image, only when there is one', async () => {
+    mockUser.value = profile({ mainImagePath: 'media/uploads/users/me.png' })
+    const wrapper = await mountForm()
+
+    await buttonLabelled(wrapper, 'Αφαίρεση')!.trigger('click')
+    await flushPromises()
+
+    const [call] = avatarCalls()
+    expect(avatarCalls()).toHaveLength(1)
+    expect(call?.options.body.get('image')).toBe('')
+    expect(fetchSession).toHaveBeenCalledTimes(1)
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η φωτογραφία αφαιρέθηκε', color: 'success' })
+  })
+
+  it('offers no remove button while there is no photo', async () => {
+    const wrapper = await mountForm()
+
+    expect(buttonLabelled(wrapper, 'Αφαίρεση')).toBeUndefined()
+    expect(buttonLabelled(wrapper, 'Ανέβασμα φωτογραφίας')).toBeDefined()
   })
 })

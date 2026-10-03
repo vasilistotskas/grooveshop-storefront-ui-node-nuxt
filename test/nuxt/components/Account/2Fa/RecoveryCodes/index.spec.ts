@@ -5,9 +5,10 @@ import type { VueWrapper } from '@vue/test-utils'
 import RecoveryCodes from '~/components/Account/2Fa/RecoveryCodes/index.vue'
 
 /**
- * The shopper's unused recovery codes, with copy, download and print.
- * The print window is written with `textContent`, never as HTML, so a
- * code can never inject markup there. Mocked at `useAllAuthAccount`.
+ * The shopper's unused recovery codes, with copy, download and print,
+ * and a warning when they run low. The print window is written with
+ * `textContent`, never as HTML, so a code can never inject markup
+ * there. Mocked at `useAllAuthAccount`.
  */
 const { getRecoveryCodes, navigateToMock, toastAdd, copy } = vi.hoisted(() => ({
   getRecoveryCodes: vi.fn(),
@@ -45,24 +46,25 @@ async function mountCodes() {
 }
 
 const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button').find(b => b.text() === label)!
-/** The codes are plain `<button>`s (click to copy), set in monospace unlike every UButton here. */
-const codeButtons = (wrapper: VueWrapper) => wrapper.findAll('button.font-mono')
+/** The codes are the list's buttons, each copying its own code. */
+const codeButtons = (wrapper: VueWrapper) => wrapper.findAll('ol button')
 
 describe('Account/2Fa/RecoveryCodes', () => {
   it('lists the unused codes in order', async () => {
     const wrapper = await mountCodes()
 
-    expect(codeButtons(wrapper).map(code => code.findAll('span span').map(part => part.text()))).toEqual([
+    expect(codeButtons(wrapper).map(code => code.findAll('span').map(part => part.text()))).toEqual([
       ['1', '12345678'],
       ['2', '23456789'],
       ['3', '34567890'],
     ])
+    expect(codeButtons(wrapper)[0]!.attributes('aria-label')).toBe('Αντιγραφή του κωδικού 12345678')
   })
 
   it('copies every code, one per line', async () => {
     const wrapper = await mountCodes()
 
-    await button(wrapper, 'Αντιγραφή Όλων').trigger('click')
+    await button(wrapper, 'Αντιγραφή όλων').trigger('click')
     await flushPromises()
 
     expect(copy).toHaveBeenCalledWith('12345678\n23456789\n34567890')
@@ -107,10 +109,25 @@ describe('Account/2Fa/RecoveryCodes', () => {
     expect(print).toHaveBeenCalledTimes(1)
   })
 
-  it('says how many codes have been used', async () => {
+  it('says how many of the set are left, and that none was used yet', async () => {
     const wrapper = await mountCodes()
 
-    expect(wrapper.text()).toContain('Έχουν χρησιμοποιηθεί 7 κωδικοί')
+    expect(wrapper.text()).toContain('3 από 10 αχρησιμοποίητοι')
+    expect(wrapper.text()).toContain('Δεν έχει χρησιμοποιηθεί κανένας')
+  })
+
+  it('warns once three codes or fewer are left', async () => {
+    const wrapper = await mountCodes()
+
+    expect(wrapper.findComponent({ name: 'UAlert' }).text()).toContain('Απομένουν μόνο 3 κωδικοί')
+  })
+
+  it('does not warn while plenty are left', async () => {
+    getRecoveryCodes.mockResolvedValue(recovery([...CODES, '45678901']))
+
+    const wrapper = await mountCodes()
+
+    expect(wrapper.findComponent({ name: 'UAlert' }).exists()).toBe(false)
   })
 
   it('links to generating a new set', async () => {
@@ -119,12 +136,12 @@ describe('Account/2Fa/RecoveryCodes', () => {
     expect(wrapper.find(`a[href="${useLocalePath()('account-2fa-recovery-codes-generate')}"]`).exists()).toBe(true)
   })
 
-  it('sends a shopper without two-factor set up back to the settings', async () => {
+  it('sends a shopper without two-factor set up back to Security', async () => {
     getRecoveryCodes.mockRejectedValue(new Error('Not Found'))
 
     await mountCodes()
 
     expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('auth.mfa.required'), color: 'error' })
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-settings'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
   })
 })

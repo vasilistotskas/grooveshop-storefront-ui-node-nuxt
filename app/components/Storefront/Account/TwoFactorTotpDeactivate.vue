@@ -14,6 +14,12 @@ const localePath = useLocalePath()
 const loading = ref(false)
 const showConfirmation = ref(false)
 
+const consequences = computed(() => [
+  t('info.consequence1'),
+  t('info.consequence2'),
+  t('info.consequence3'),
+])
+
 const { error, refresh } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
@@ -21,7 +27,7 @@ const { error, refresh } = await useAsyncData(
 
 watchEffect(async () => {
   if (error.value) {
-    await navigateTo(localePath('account-settings'))
+    await navigateTo(localePath('account-security'))
   }
 })
 
@@ -34,11 +40,11 @@ async function onConfirm() {
       title: t('success.title'),
       description: t('success.description'),
       color: 'success',
-      icon: 'i-heroicons-shield-check',
+      icon: 'i-lucide-shield-check',
     })
 
     emit('deactivateTotp')
-    await navigateTo(localePath('account-settings'))
+    await navigateTo(localePath('account-security'))
   }
   catch (error) {
     handleAllAuthClientError(error)
@@ -48,190 +54,72 @@ async function onConfirm() {
   }
 }
 
-function onCancel() {
-  navigateTo(localePath('account-settings'))
-}
-
 onReactivated(async () => {
   await refresh()
 })
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="sr-only"
-    />
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader :title="t('title')" />
 
-    <div
-      class="
-        grid gap-4
-        lg:flex
-      "
+    <AccountSection
+      :title="t('info.paragraph1')"
+      :description="t('warning.description')"
     >
-      <aside
-        class="md:sticky md:top-16"
-      >
-        <AccountAuthSettingsNavigation />
-      </aside>
-      <UCard
-        :ui="{
-          body: 'space-y-6',
-        }"
-      >
-        <template #header>
-          <div class="flex items-center gap-3">
-            <div
-              class="
-                flex size-10 min-w-10 items-center justify-center rounded-full
-                bg-error/10
-              "
-            >
-              <UIcon
-                name="i-heroicons-shield-exclamation"
-                class="size-5 text-error"
-              />
-            </div>
-            <div>
-              <h2
-                class="
-                  text-lg font-semibold text-gray-900
-                  md:text-xl
-                  dark:text-white
-                "
-              >
-                {{ t('title') }}
-              </h2>
-              <p
-                class="
-                  mt-1 text-sm text-gray-500
-                  dark:text-gray-200
-                "
-              >
-                {{ t('subtitle') }}
-              </p>
-            </div>
-          </div>
-        </template>
+      <div class="flex flex-col gap-3">
+        <h3 class="text-sm font-medium text-highlighted">
+          {{ t('info.consequences_title') }}
+        </h3>
+        <ul class="flex flex-col gap-2 text-sm text-toned">
+          <li
+            v-for="consequence in consequences"
+            :key="consequence"
+            class="flex items-start gap-2"
+          >
+            <UIcon
+              name="i-lucide-x"
+              class="mt-0.5 size-4 shrink-0"
+            />
+            <span>{{ consequence }}</span>
+          </li>
+        </ul>
+      </div>
 
-        <UAlert
-          color="warning"
-          variant="soft"
-          icon="i-heroicons-exclamation-triangle"
-          :title="t('warning.title')"
-          :description="t('warning.description')"
+      <UCheckbox
+        v-model="showConfirmation"
+        color="neutral"
+        :label="t('confirmation.checkbox')"
+        :ui="{ label: 'text-sm font-medium' }"
+      />
+
+      <div class="flex flex-wrap items-center gap-3">
+        <UButton
+          :label="t('deactivate')"
+          color="error"
+          size="lg"
+          :loading="loading"
+          :disabled="!showConfirmation"
+          @click="onConfirm"
         />
-
-        <div class="space-y-4">
-          <div
-            class="
-              text-sm text-gray-700
-              dark:text-gray-300
-            "
-          >
-            {{ t('info.paragraph1') }}
-          </div>
-
-          <div
-            class="
-              rounded-lg bg-gray-50 p-4
-              dark:bg-gray-800/50
-            "
-          >
-            <h3
-              class="
-                mb-2 text-sm font-medium text-gray-900
-                dark:text-white
-              "
-            >
-              {{ t('info.consequences_title') }}
-            </h3>
-            <ul
-              class="
-                space-y-2 text-sm text-gray-600
-                dark:text-gray-200
-              "
-            >
-              <li class="flex items-start gap-2">
-                <UIcon
-                  name="i-heroicons-x-mark" class="
-                    mt-0.5 size-4 shrink-0 text-error
-                  "
-                />
-                <span>{{ t('info.consequence1') }}</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <UIcon
-                  name="i-heroicons-x-mark" class="
-                    mt-0.5 size-4 shrink-0 text-error
-                  "
-                />
-                <span>{{ t('info.consequence2') }}</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <UIcon
-                  name="i-heroicons-x-mark" class="
-                    mt-0.5 size-4 shrink-0 text-error
-                  "
-                />
-                <span>{{ t('info.consequence3') }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <UCheckbox
-          v-model="showConfirmation"
+        <UButton
+          :label="t('cancel')"
           color="neutral"
-          :label="t('confirmation.checkbox')"
-          :ui="{
-            label: 'text-sm font-medium',
-          }"
+          variant="ghost"
+          size="lg"
+          :disabled="loading"
+          :to="localePath('account-security')"
         />
-
-        <template #footer>
-          <div
-            class="
-              flex flex-col-reverse gap-3
-              sm:flex-row sm:justify-end
-            "
-          >
-            <UButton
-              :label="t('cancel')"
-              color="neutral"
-              variant="outline"
-              size="lg"
-              :disabled="loading"
-              @click="onCancel"
-            />
-            <UButton
-              :label="t('deactivate')"
-              color="error"
-              size="lg"
-              icon="i-heroicons-shield-exclamation"
-              :loading="loading"
-              :disabled="!showConfirmation"
-              @click="onConfirm"
-            />
-          </div>
-        </template>
-      </UCard>
-    </div>
-  </PageWrapper>
+      </div>
+    </AccountSection>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Απενεργοποίηση εφαρμογής ελέγχου ταυτότητας (TOTP)
-  subtitle: Διαχείριση ρυθμίσεων ασφάλειας λογαριασμού
+  title: Απενεργοποίηση επαλήθευσης δύο βημάτων
+  deactivate: Απενεργοποίηση
   warning:
-    title: Προειδοποίηση Ασφαλείας
     description: Η απενεργοποίηση του TOTP θα μειώσει την ασφάλεια του λογαριασμού σου. Σιγουρέψου ότι έχεις εναλλακτικά μέτρα ασφαλείας.
   info:
     paragraph1: Είσαι σίγουρος ότι θέλεις να απενεργοποιήσεις την εφαρμογή ελέγχου ταυτότητας;
@@ -244,10 +132,9 @@ el:
   success:
     description: Η εφαρμογή ελέγχου ταυτότητας απενεργοποιήθηκε επιτυχώς
 en:
-  title: Turn off your authenticator app (TOTP)
-  subtitle: Manage your account security settings
+  title: Turn off two-step verification
+  deactivate: Turn off
   warning:
-    title: Security Warning
     description: Turning TOTP off makes your account less secure. Make sure you have another safeguard in place.
   info:
     paragraph1: Are you sure you want to turn off your authenticator app?
