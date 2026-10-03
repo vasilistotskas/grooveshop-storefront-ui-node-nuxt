@@ -126,7 +126,7 @@ describe('Storefront/Account/OrderDetail', () => {
       id: 3,
       items: [makeOrderItem({ id: 1, quantity: 2, totalPrice: 43.16 })],
       isPaid: true,
-      pricingBreakdown: { itemsSubtotal: 112.56, discount: 10, loyaltyDiscount: 4.9, shippingCost: 0, grandTotal: 97.66 },
+      pricingBreakdown: { itemsSubtotal: 112.56, discount: 10, loyaltyDiscount: 4.9, giftCardAmount: 20, shippingCost: 0, grandTotal: 77.66 },
     })
     const { n } = useNuxtApp().$i18n
 
@@ -137,8 +137,10 @@ describe('Storefront/Account/OrderDetail', () => {
     expect(totals).toEqual([
       ['Υποσύνολο', n(112.56, 'currency')],
       ['Εκπτώσεις', `−${n(14.9, 'currency')}`],
+      // A gift card pays part of the order: its own line, not a discount.
+      ['Δωροκάρτα', `−${n(20, 'currency')}`],
       ['Μεταφορικά', 'Δωρεάν'],
-      ['Πληρώθηκαν', n(97.66, 'currency')],
+      ['Πληρώθηκαν', n(77.66, 'currency')],
     ])
   })
 
@@ -172,16 +174,39 @@ describe('Storefront/Account/OrderDetail', () => {
     expect(wrapper.text()).toContain('Εκτός αποθέματος')
   })
 
-  it('opens the invoice from its signed link, when there is one', async () => {
+  /** A tab as `window.open` hands it back, with what the page does to it recorded. */
+  function fakeTab() {
+    return { opener: {} as unknown, location: { href: '' }, close: vi.fn() }
+  }
+
+  it('opens the invoice tab on the click itself, then points it at the signed link', async () => {
     state.order = makeOrder({ id: 3, hasInvoice: true })
     api.routes({ '/api/orders/3/invoice': { downloadUrl: 'https://cdn.example/invoice.pdf' } })
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const tab = fakeTab()
+    const open = vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window)
+
+    const wrapper = await mountPage()
+    await button(wrapper, 'Τιμολόγιο')!.trigger('click')
+    // Opened before the request answers: Safari blocks a tab opened later.
+    expect(open).toHaveBeenCalledWith('', '_blank')
+    await flushPromises()
+
+    expect(tab.opener).toBeNull()
+    expect(tab.location.href).toBe('https://cdn.example/invoice.pdf')
+  })
+
+  it('closes the invoice tab again when there is no invoice to show', async () => {
+    state.order = makeOrder({ id: 3, hasInvoice: true })
+    api.routes({ '/api/orders/3/invoice': {} })
+    const tab = fakeTab()
+    vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window)
 
     const wrapper = await mountPage()
     await button(wrapper, 'Τιμολόγιο')!.trigger('click')
     await flushPromises()
 
-    expect(open).toHaveBeenCalledWith('https://cdn.example/invoice.pdf', '_blank', 'noopener,noreferrer')
+    expect(tab.close).toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 
   it('offers no invoice before one exists', async () => {

@@ -32,6 +32,7 @@ const favourite = (id: number, productId: number) => ({
 })
 
 let fetches = 0
+let countFetches = 0
 
 /** The card is the shop's own, covered by its spec; here it only names the product and reports a removal. */
 const CardStub = defineComponent({
@@ -44,10 +45,12 @@ const CardStub = defineComponent({
 
 beforeEach(() => {
   fetches = 0
+  countFetches = 0
   state.favourites = [favourite(11, 101), favourite(12, 102)]
   clearNuxtData(['favourite-products-7', 'favourite-products-count-7', 'favourite-posts-count-7'])
-  registerEndpoint('/api/user/account/7/favourite-products', () => {
-    fetches++
+  registerEndpoint('/api/user/account/7/favourite-products', (event) => {
+    if (new URL(event.node.req.url!, 'http://x').searchParams.get('pageSize') === '1') countFetches++
+    else fetches++
     return { count: state.favourites.length, results: state.favourites }
   })
   registerEndpoint('/api/user/account/7/liked-blog-posts', () => ({ count: 0, results: [] }))
@@ -73,14 +76,14 @@ describe('Storefront/Account/FavouriteProducts', () => {
     expect([getFavouriteIdByProductId(101), getFavouriteIdByProductId(102)]).toEqual([11, 12])
   })
 
-  it('reloads the list when a product is removed', async () => {
+  it('reloads the list and the tab\'s count when a product is removed', async () => {
     const wrapper = await mountPage()
-    const before = fetches
+    const [listBefore, countBefore] = [fetches, countFetches]
 
     await wrapper.get('[data-card]').trigger('click')
     await flushPromises()
 
-    expect(fetches).toBe(before + 1)
+    expect([fetches, countFetches]).toEqual([listBefore + 1, countBefore + 1])
   })
 
   it('invites a shopper without favourites to browse', async () => {

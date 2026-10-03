@@ -9,7 +9,7 @@ const { user } = useUserSession()
 const PAGE_SIZE = 12
 const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
-const { data: posts, status } = await useApi(`/api/user/account/${user.value?.id}/liked-blog-posts`, {
+const { data: posts, status, refresh } = await useApi(`/api/user/account/${user.value?.id}/liked-blog-posts`, {
   key: `favourite-posts-${user.value?.id}`,
   method: 'GET',
   query: { page, pageSize: PAGE_SIZE, ordering: '-createdAt' },
@@ -34,6 +34,12 @@ const { data: posts, status } = await useApi(`/api/user/account/${user.value?.id
         class="h-72 rounded-[1.25rem]"
       />
     </div>
+
+    <AccountLoadError
+      v-else-if="status === 'error'"
+      :message="t('load_error')"
+      @retry="() => refresh()"
+    />
 
     <ul
       v-else-if="posts?.results.length"
@@ -79,6 +85,7 @@ const { data: posts, status } = await useApi(`/api/user/account/${user.value?.id
 el:
   title: Αγαπημένα
   lead: Τα προϊόντα και τα άρθρα που αποθήκευσες.
+  load_error: Τα αγαπημένα δεν φορτώθηκαν.
   empty:
     title: Κανένα αγαπημένο άρθρο ακόμα
     description: Πάτα την καρδιά σε ένα άρθρο για να το βρίσκεις εδώ.
@@ -86,6 +93,7 @@ el:
 en:
   title: Favourites
   lead: The products and posts you saved.
+  load_error: Your favourites did not load.
   empty:
     title: No favourite posts yet
     description: Tap the heart on a post to keep it here.

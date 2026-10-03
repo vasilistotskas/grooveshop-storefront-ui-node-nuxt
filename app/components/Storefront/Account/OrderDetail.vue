@@ -127,10 +127,13 @@ const tracking = computed(() => {
 const totals = computed(() => {
   const breakdown = order.value?.pricingBreakdown
   if (!breakdown) return []
-  const discounts = (breakdown.discount ?? 0) + (breakdown.loyaltyDiscount ?? 0) + (breakdown.giftCardAmount ?? 0)
+  const discounts = (breakdown.discount ?? 0) + (breakdown.loyaltyDiscount ?? 0)
+  // A gift card pays part of the order: its own line, not a discount.
+  const giftCard = breakdown.giftCardAmount ?? 0
   return [
     { key: 'subtotal', label: t('totals.subtotal'), value: n(breakdown.itemsSubtotal ?? 0, 'currency') },
     ...(discounts > 0 ? [{ key: 'discounts', label: t('totals.discounts'), value: `−${n(discounts, 'currency')}` }] : []),
+    ...(giftCard > 0 ? [{ key: 'gift_card', label: t('totals.gift_card'), value: `−${n(giftCard, 'currency')}` }] : []),
     {
       key: 'delivery',
       label: t('totals.delivery'),
@@ -208,16 +211,25 @@ const fetchingInvoice = ref(false)
 async function openInvoice() {
   if (!order.value?.id || fetchingInvoice.value) return
   fetchingInvoice.value = true
+  // The invoice is a short-lived signed link, so it is asked for on the
+  // click. The tab opens NOW, while the click still counts as the
+  // shopper's: opened after the request, Safari blocks it as a pop-up.
+  // It cannot be `noopener` (that hands back no window to point at the
+  // link), so the opener is cut by hand.
+  const tab = window.open('', '_blank')
+  if (tab) tab.opener = null
   try {
     const data = await $api(`/api/orders/${order.value.id}/invoice`, { method: 'GET' })
     if (!data?.downloadUrl) {
+      tab?.close()
       toast.add({ title: t('invoice.error_title'), description: t('invoice.error_missing'), color: 'error' })
       return
     }
-    // A short-lived signed link: opened, not linked to.
-    window.open(data.downloadUrl, '_blank', 'noopener,noreferrer')
+    if (tab) tab.location.href = data.downloadUrl
+    else window.location.assign(data.downloadUrl)
   }
   catch (error) {
+    tab?.close()
     log.error({ action: 'order:invoice:download', error })
     toast.add({ title: t('invoice.error_title'), description: t('invoice.error_description'), color: 'error' })
   }
@@ -559,6 +571,7 @@ el:
   totals:
     subtotal: Υποσύνολο
     discounts: Εκπτώσεις
+    gift_card: Δωροκάρτα
     delivery: Μεταφορικά
     free: Δωρεάν
     payment_fee: Χρέωση τρόπου πληρωμής
@@ -608,6 +621,7 @@ en:
   totals:
     subtotal: Subtotal
     discounts: Discounts
+    gift_card: Gift card
     delivery: Delivery
     free: Free
     payment_fee: Payment method fee

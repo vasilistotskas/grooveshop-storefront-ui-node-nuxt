@@ -84,6 +84,25 @@ describe('Loyalty/RewardsCard', () => {
     expect(wrapper.text()).not.toContain('Αξίζουν')
   })
 
+  it('quotes no value at checkout from settings that say the programme is off', async () => {
+    data.settings = makeLoyaltySettings({ enabled: false, redemptionRatioEur: 100 })
+
+    expect((await mountSuspended(LoyaltyRewardsCard)).text()).not.toContain('Αξίζουν')
+  })
+
+  it.each([
+    ['no tiers at all', () => { data.tiers = [] }],
+    ['a ladder without the shopper\'s tier', () => { data.tiers = [BRONZE, GOLD] }],
+  ])('claims no position, top tier included, with %s', async (_case, arrange) => {
+    arrange()
+
+    const wrapper = await mountSuspended(LoyaltyRewardsCard)
+
+    expect(wrapper.find('[role="progressbar"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('κορυφαία')
+    expect(wrapper.text()).toContain('2.340 πόντοι')
+  })
+
   it('links the whole card to the rewards page', async () => {
     const wrapper = await mountSuspended(LoyaltyRewardsCard)
 

@@ -9,14 +9,16 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
  * LOGGED_OUT cascade — no cart refresh of its own, which raced the
  * server's cleanup into a phantom anonymous cart.
  */
-const { deleteSession, navigateToMock, route } = vi.hoisted(() => ({
+const { deleteSession, navigateToMock, toastAdd, route } = vi.hoisted(() => ({
   deleteSession: vi.fn((_opts: unknown) => Promise.resolve({ status: 401 })),
   navigateToMock: vi.fn(),
+  toastAdd: vi.fn(),
   route: { name: 'index___el' as string | undefined, path: '/', fullPath: '/', params: {}, query: {}, hash: '', meta: {}, matched: [] },
 }))
 mockNuxtImport('useAllAuthAuthentication', () => () => ({ deleteSession }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useRoute', () => () => route)
+mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
 beforeEach(() => {
   route.name = 'index___el'
@@ -59,6 +61,24 @@ describe('useSignOut', () => {
 
     expect(deleteSession).toHaveBeenCalledWith({ explicit: true })
     expect(navigateToMock).not.toHaveBeenCalled()
+  })
+
+  it.each([401, 410])('takes allauth\'s %i as the sign-out succeeding', async (statusCode) => {
+    deleteSession.mockRejectedValue(Object.assign(new Error('Unauthorized'), { statusCode }))
+
+    await useSignOut().signOut()
+
+    expect(toastAdd).not.toHaveBeenCalled()
+  })
+
+  it('puts the explicit flag back and says so when the sign-out failed', async () => {
+    deleteSession.mockRejectedValue(Object.assign(new Error('Bad Gateway'), { statusCode: 502 }))
+
+    await useSignOut().signOut()
+
+    // Left set, it would silence a later real "session expired".
+    expect(useState('auth:userInitiatedLogout').value).toBe(false)
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 
   it('reports busy while the request runs', async () => {

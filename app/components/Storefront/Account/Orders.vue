@@ -24,7 +24,7 @@ const ordering = computed<Sort>(() =>
   SORTS.includes(route.query.ordering as Sort) ? route.query.ordering as Sort : '-createdAt',
 )
 
-const { data: orders, status } = await useApi('/api/orders/my-orders', {
+const { data: orders, status, refresh } = await useApi('/api/orders/my-orders', {
   key: 'account-orders',
   method: 'GET',
   query: { page, pageSize: PAGE_SIZE, ordering },
@@ -74,6 +74,12 @@ const detailsTo = (order: Order) => localePath({ name: 'account-orders-id', para
         class="h-25 w-full rounded-[1.25rem]"
       />
     </div>
+
+    <AccountLoadError
+      v-else-if="status === 'error'"
+      :message="t('load_error')"
+      @retry="() => refresh()"
+    />
 
     <ul
       v-else-if="orders?.results.length"
@@ -166,6 +172,7 @@ const detailsTo = (order: Order) => localePath({ name: 'account-orders-id', para
 <i18n lang="yaml">
 el:
   title: Παραγγελίες
+  load_error: Οι παραγγελίες δεν φορτώθηκαν.
   lead: "{n} παραγγελία | {n} παραγγελίες"
   items: "{n} προϊόν | {n} προϊόντα"
   details: Λεπτομέρειες
@@ -180,6 +187,7 @@ el:
     cta: Ξεκίνα τις αγορές
 en:
   title: Orders
+  load_error: Your orders did not load.
   lead: "{n} order | {n} orders"
   items: "{n} item | {n} items"
   details: Details

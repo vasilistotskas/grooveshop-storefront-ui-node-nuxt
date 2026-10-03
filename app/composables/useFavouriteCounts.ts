@@ -1,3 +1,8 @@
+/** The data key of one favourites count — for a page that changes the list to refresh it. */
+export function favouriteCountKey(kind: 'products' | 'posts', userId: number | undefined) {
+  return `favourite-${kind}-count-${userId}`
+}
+
 /**
  * How many products and posts the shopper has saved — the counts on the
  * favourites tabs. One row of each list is enough: the paginated
@@ -9,12 +14,12 @@ export async function useFavouriteCounts() {
 
   const [{ data: products }, { data: posts }] = await Promise.all([
     useApi(`/api/user/account/${userId}/favourite-products`, {
-      key: `favourite-products-count-${userId}`,
+      key: favouriteCountKey('products', userId),
       method: 'GET',
       query: { pageSize: 1 },
     }),
     useApi(`/api/user/account/${userId}/liked-blog-posts`, {
-      key: `favourite-posts-count-${userId}`,
+      key: favouriteCountKey('posts', userId),
       method: 'GET',
       query: { pageSize: 1 },
     }),

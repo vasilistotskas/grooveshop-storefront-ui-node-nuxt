@@ -44,6 +44,12 @@ const { data: addresses, status, refresh } = await useApi('/api/user/addresses',
       />
     </div>
 
+    <AccountLoadError
+      v-else-if="status === 'error'"
+      :message="t('load_error')"
+      @retry="() => refresh()"
+    />
+
     <ul
       v-else-if="addresses?.results.length"
       class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
@@ -91,12 +97,14 @@ const { data: addresses, status, refresh } = await useApi('/api/user/addresses',
 <i18n lang="yaml">
 el:
   title: Διευθύνσεις
+  load_error: Οι διευθύνσεις δεν φορτώθηκαν.
   add: Νέα διεύθυνση
   empty:
     title: Καμία αποθηκευμένη διεύθυνση
     description: Αποθήκευσε μια διεύθυνση και θα τη βρίσκεις έτοιμη στο ταμείο.
 en:
   title: Addresses
+  load_error: Your addresses did not load.
   add: Add address
   empty:
     title: No saved addresses

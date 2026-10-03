@@ -5,7 +5,7 @@
  * from this list itself — on the server as well as in the browser, so
  * the first client render matches the server's (the shop's lists prime
  * theirs after mount for the opposite reason: there, most products are
- * not favourites). Removing one reloads the list.
+ * not favourites). Removing one reloads the list and the tab's count.
  */
 const { t } = useI18n()
 useHead({ title: () => t('title') })
@@ -22,6 +22,10 @@ const { data: favourites, status, refresh } = await useApi(`/api/user/account/${
   method: 'GET',
   query: { page, pageSize: PAGE_SIZE, ordering: '-createdAt' },
 })
+
+async function onRemoved() {
+  await Promise.all([refresh(), refreshNuxtData(favouriteCountKey('products', user.value?.id))])
+}
 
 watch(favourites, (value) => {
   updateFavouriteProducts((value?.results ?? []).map(favourite => ({
@@ -52,6 +56,12 @@ watch(favourites, (value) => {
       />
     </div>
 
+    <AccountLoadError
+      v-else-if="status === 'error'"
+      :message="t('load_error')"
+      @retry="() => refresh()"
+    />
+
     <ul
       v-else-if="favourites?.results.length"
       class="grid grid-cols-2 gap-4 lg:grid-cols-3"
@@ -62,7 +72,7 @@ watch(favourites, (value) => {
       >
         <ProductCard
           :product="favourite.product"
-          @favourite-delete="() => refresh()"
+          @favourite-delete="onRemoved"
         />
       </li>
     </ul>
@@ -99,6 +109,7 @@ watch(favourites, (value) => {
 el:
   title: Αγαπημένα
   lead: Τα προϊόντα και τα άρθρα που αποθήκευσες.
+  load_error: Τα αγαπημένα δεν φορτώθηκαν.
   empty:
     title: Κανένα αγαπημένο προϊόν ακόμα
     description: Πάτα την καρδιά σε ένα προϊόν για να το βρίσκεις εδώ.
@@ -106,6 +117,7 @@ el:
 en:
   title: Favourites
   lead: The products and posts you saved.
+  load_error: Your favourites did not load.
   empty:
     title: No favourite products yet
     description: Tap the heart on a product to keep it here.

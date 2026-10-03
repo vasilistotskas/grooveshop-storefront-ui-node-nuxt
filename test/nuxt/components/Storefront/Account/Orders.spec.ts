@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { getQuery } from 'h3'
+import { createError, getQuery } from 'h3'
 import { ref } from 'vue'
 import OrdersPage from '~/components/Storefront/Account/Orders.vue'
 import { makeOrderListItem } from '~~/test/fixtures/order'
@@ -11,7 +11,7 @@ import { makeOrderListItem } from '~~/test/fixtures/order'
  * otherwise, "Buy again" for an order that arrived, and pages beyond the
  * first eight.
  */
-const state = vi.hoisted(() => ({ query: {} as Record<string, string>, count: 0, orders: [] as unknown[] }))
+const state = vi.hoisted(() => ({ query: {} as Record<string, string>, count: 0, orders: [] as unknown[], fail: false }))
 const { reorder } = vi.hoisted(() => ({ reorder: vi.fn((_id: number) => Promise.resolve()) }))
 
 mockNuxtImport('useRoute', () => () => ({ name: 'account-orders___el', params: {}, query: state.query, path: '/account/orders', fullPath: '/account/orders', hash: '', meta: {}, matched: [] }))
@@ -22,6 +22,7 @@ const asked: Record<string, unknown>[] = []
 beforeEach(() => {
   asked.length = 0
   state.query = {}
+  state.fail = false
   state.orders = [
     makeOrderListItem({ id: 3, status: 'SHIPPED', statusDisplay: 'Απεστάλη' }),
     makeOrderListItem({ id: 2, status: 'DELIVERED', statusDisplay: 'Παραδόθηκε' }),
@@ -30,6 +31,7 @@ beforeEach(() => {
   clearNuxtData('account-orders')
   registerEndpoint('/api/orders/my-orders', (event) => {
     asked.push(getQuery(event))
+    if (state.fail) throw createError({ statusCode: 502 })
     return { count: state.count, results: state.orders }
   })
 })
@@ -90,6 +92,19 @@ describe('Storefront/Account/Orders', () => {
     state.count = 20
 
     expect((await mountPage()).findComponent({ name: 'UPagination' }).props('total')).toBe(20)
+  })
+
+  it('says the orders did not load, not that there are none, and tries again', async () => {
+    state.fail = true
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.get('[role="alert"]').text()).toContain('Οι παραγγελίες δεν φορτώθηκαν.')
+    expect(wrapper.text()).not.toContain('Καμία παραγγελία ακόμα')
+
+    state.fail = false
+    await wrapper.get('[role="alert"] button').trigger('click')
+    await vi.waitFor(() => expect(wrapper.findAll('ul > li')).toHaveLength(2))
   })
 
   it('invites a shopper without orders to start shopping', async () => {

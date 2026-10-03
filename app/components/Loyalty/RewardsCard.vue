@@ -5,7 +5,12 @@
  * are from the next tier.
  *
  * Tiers are XP levels (`tierStartXp`): progress and the distance left
- * are in XP, which is what earns a tier, not in spendable points.
+ * are in XP, which is what earns a tier, not in spendable points. Where
+ * the shopper stands is said only when the ladder establishes it: an
+ * empty ladder, or one without their tier, shows no progress rather than
+ * a "top tier" it cannot know. The value at checkout is quoted only while
+ * the programme is on — a settings read that failed falls back to
+ * defaults whose ratio the store never set.
  */
 const { t, n, locale } = useI18n()
 const localePath = useLocalePath()
@@ -21,11 +26,14 @@ const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.required
 
 const currentTier = computed(() => summary.value?.tier ?? null)
 
-const nextTier = computed(() => {
+/** The tier after the shopper's; `null` at the top; `undefined` when the ladder cannot say. */
+const nextTier = computed<LoyaltyTier | null | undefined>(() => {
+  if (!ladder.value.length) return undefined
   const current = currentTier.value
   if (!current) return ladder.value[0]
   const index = ladder.value.findIndex(tier => tier.id === current.id)
-  return index === -1 ? undefined : ladder.value[index + 1]
+  if (index === -1) return undefined
+  return ladder.value[index + 1] ?? null
 })
 
 const progress = computed(() => {
@@ -44,7 +52,7 @@ const xpToNext = computed(() => {
 })
 
 const worth = computed(() => {
-  const ratio = settings.value?.redemptionRatioEur
+  const ratio = settings.value?.enabled ? settings.value.redemptionRatioEur : undefined
   const value = summary.value
   return value && ratio && ratio > 0 ? n(value.pointsBalance / ratio, 'currency') : null
 })
@@ -83,6 +91,7 @@ const tierName = (tier: LoyaltyTier) => extractTranslated(tier, 'name', locale.v
       {{ t('worth', { amount: worth }) }}
     </p>
     <div
+      v-if="nextTier !== undefined"
       class="h-2 overflow-hidden rounded-full bg-on-volt/15"
       role="progressbar"
       :aria-label="t('progress_label')"
@@ -95,7 +104,10 @@ const tierName = (tier: LoyaltyTier) => extractTranslated(tier, 'name', locale.v
         :style="{ width: `${progress}%` }"
       />
     </div>
-    <p class="text-sm font-medium">
+    <p
+      v-if="nextTier !== undefined"
+      class="text-sm font-medium"
+    >
       <template v-if="nextTier">
         {{ t('to_next', { xp: n(xpToNext), tier: tierName(nextTier) }) }}
       </template>

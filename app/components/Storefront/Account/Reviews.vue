@@ -95,6 +95,12 @@ async function onEdited() {
       />
     </div>
 
+    <AccountLoadError
+      v-else-if="status === 'error'"
+      :message="t('list_error')"
+      @retry="() => refresh()"
+    />
+
     <ul
       v-else-if="reviews?.results.length"
       class="flex flex-col gap-3"
@@ -217,6 +223,7 @@ async function onEdited() {
 <i18n lang="yaml">
 el:
   title: Οι κριτικές μου
+  list_error: Οι κριτικές σου δεν φορτώθηκαν.
   rated: Βαθμολογία {n} στα 5
   status:
     published: Δημοσιευμένη
@@ -233,6 +240,7 @@ el:
     description: Όταν γράψεις κριτική για ένα προϊόν, θα τη βρίσκεις εδώ.
 en:
   title: My reviews
+  list_error: Your reviews did not load.
   rated: Rated {n} out of 5
   status:
     published: Published

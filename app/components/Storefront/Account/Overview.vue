@@ -13,7 +13,7 @@ const { user } = useUserSession()
 const { items } = useAccountNavigation()
 const { signOut, signingOut } = useSignOut()
 
-const { data: latest, status: latestStatus } = await useApi('/api/orders/my-orders', {
+const { data: latest, status: latestStatus, refresh: refreshLatest } = await useApi('/api/orders/my-orders', {
   key: 'account-latest-order',
   method: 'GET',
   query: { pageSize: 1, ordering: '-createdAt' },
@@ -76,6 +76,23 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
           v-if="latestStatus === 'pending'"
           class="h-20 w-full rounded-[0.875rem]"
         />
+        <div
+          v-else-if="latestStatus === 'error'"
+          role="alert"
+          class="flex flex-col items-start gap-3"
+        >
+          <p class="text-toned">
+            {{ t('latest_error') }}
+          </p>
+          <UButton
+            :label="t('retry')"
+            icon="i-lucide-refresh-cw"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            @click="() => refreshLatest()"
+          />
+        </div>
         <ULink
           v-else-if="latestOrder"
           :to="localePath({ name: 'account-orders-id', params: { id: latestOrder.id } })"
@@ -223,6 +240,8 @@ el:
   all_orders: Όλες οι παραγγελίες
   items: "{n} προϊόν | {n} προϊόντα"
   no_orders: Δεν έχεις κάνει ακόμα καμία παραγγελία.
+  latest_error: Η τελευταία σου παραγγελία δεν φορτώθηκε.
+  retry: Δοκίμασε ξανά
   start_shopping: Ξεκίνα τις αγορές
   pages: Σελίδες λογαριασμού
   profile: Προφίλ
@@ -240,6 +259,8 @@ en:
   all_orders: All orders
   items: "{n} item | {n} items"
   no_orders: You have not placed an order yet.
+  latest_error: Your latest order did not load.
+  retry: Try again
   start_shopping: Start shopping
   pages: Account pages
   profile: Profile
