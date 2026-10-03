@@ -140,12 +140,6 @@ function onGuideClick(post: BlogPostMeiliSearchResult, index: number) {
   })
 }
 
-// `/` from anywhere on the page puts the cursor in the field.
-const field = useTemplateRef<{ inputRef: HTMLInputElement | null }>('field')
-defineShortcuts({
-  '/': () => field.value?.inputRef?.focus(),
-})
-
 useHead({
   title: () => query.value ? t('title_query', { query: query.value }) : t('title'),
 })
@@ -160,7 +154,6 @@ useHead({
 
     <div class="mx-auto mt-5 w-full max-w-205 lg:mt-7">
       <UInput
-        ref="field"
         v-model="draft"
         icon="i-heroicons-magnifying-glass"
         :placeholder="t('placeholder')"
@@ -193,10 +186,6 @@ useHead({
             size="sm"
             :aria-label="t('clear')"
             @click="() => search('')"
-          />
-          <UKbd
-            value="/"
-            class="hidden lg:inline-flex"
           />
         </template>
       </UInput>
