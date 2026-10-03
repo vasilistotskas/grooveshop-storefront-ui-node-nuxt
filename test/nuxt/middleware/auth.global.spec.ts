@@ -53,6 +53,11 @@ describe('auth.global middleware', () => {
     ['/account', '/account/login'],
     ['/account/orders', '/account/login'],
     ['/cart/recover/0b7c5c6e-1c1a-4c1f-9d4a-6f0f3c7a2b10', '/account/login'],
+    // Re-authentication confirms a signed-in shopper; allauth refuses a guest.
+    ['/account/reauthenticate', '/account/login'],
+    ['/account/2fa/reauthenticate/totp', '/account/login'],
+    ['/account/2fa/reauthenticate/webauthn', '/account/login'],
+    ['/account/2fa/reauthenticate/recovery-codes', '/account/login'],
   ])('sends a guest from %s to %s with the page as `next`', async (path, login) => {
     await run(`${path}?tab=2`)
 

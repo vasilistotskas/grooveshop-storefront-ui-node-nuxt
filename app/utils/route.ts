@@ -3,6 +3,20 @@ import type { RouteMapI18n } from 'vue-router'
 // Route NAMES, so they live with the app's typed routes: `RouteMapI18n`
 // exists only in the app context, and `satisfies` checks every entry
 // against it.
+
+// The pages that confirm a signed-in shopper before a security change:
+// the password one and the three second-factor ones. allauth answers every
+// one of their requests with 401 unless the shopper is signed in
+// (`AuthenticatedAPIView`), so they sit behind sign-in — a guest who lands
+// on one goes to the sign-in page instead of a form that cannot work. They
+// are drawn like the sign-in pages: one question, nothing else on screen.
+export const ReauthenticateRoutes = [
+  'account-reauthenticate',
+  'account-2fa-reauthenticate-totp',
+  'account-2fa-reauthenticate-webauthn',
+  'account-2fa-reauthenticate-recovery-codes',
+] as const satisfies readonly (keyof RouteMapI18n)[]
+
 export const AuthenticatedRoutes = [
   'account',
   'account-2fa',
@@ -29,9 +43,9 @@ export const AuthenticatedRoutes = [
   'account-reviews',
   'account-sessions',
   'account-settings',
-  'account-reauthenticate',
   'account-settings-privacy',
   'account-subscriptions',
+  ...ReauthenticateRoutes,
   // Cart recovery from the abandoned-cart email only makes sense for
   // authenticated shoppers (the email task filters ``user__isnull=False``),
   // so we gate the route behind auth — a logged-out click routes
@@ -75,15 +89,6 @@ export const isRouteProtected = (route: string) => {
 export const isAuthFlowRoute = (route: string) => {
   return AuthFlowRoutesSet.has(route as keyof RouteMapI18n)
 }
-
-// The pages that confirm a signed-in shopper before a security change,
-// drawn like the sign-in pages: one question, nothing else on the screen.
-export const ReauthenticateRoutes = [
-  'account-reauthenticate',
-  'account-2fa-reauthenticate-totp',
-  'account-2fa-reauthenticate-webauthn',
-  'account-2fa-reauthenticate-recovery-codes',
-] as const satisfies readonly (keyof RouteMapI18n)[]
 
 const AuthPageRoutesSet = new Set<keyof RouteMapI18n>([...AuthFlowRoutes, ...ReauthenticateRoutes])
 
