@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { FormSubmitEvent, AuthFormField } from '#ui/types'
+import type { FormSubmitEvent } from '#ui/types'
 
 const emit = defineEmits(['signUpByPasskey'])
 
 const { signUpByPasskey } = useAllAuthAuthentication()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const toast = useToast()
 
 const loading = ref(false)
 const hasError = ref(false)
@@ -22,15 +21,10 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
-const fields: AuthFormField[] = [
-  {
-    name: 'email',
-    type: 'email',
-    label: t('email.title'),
-    placeholder: 'example@email.com',
-    required: true,
-  },
-]
+const state = reactive<Partial<Schema>>({ email: undefined })
+
+// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
+const formPath = useRoute().path
 
 async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   try {
@@ -39,16 +33,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
 
     await signUpByPasskey(event.data)
 
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-
     emit('signUpByPasskey')
   }
   catch (error) {
+    // allauth answers with the next step pending — creating the passkey,
+    // or confirming the email first. That is progress, not a failure.
+    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
     hasError.value = true
     handleAllAuthClientError(error)
   }
@@ -59,96 +49,75 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <UAuthForm
-      :schema="schema"
-      :fields="fields"
-      :loading="loading"
-      :submit="{
-        label: t('submit'),
-        icon: 'i-heroicons-finger-print',
-        block: true,
-        size: 'lg',
-        color: 'neutral',
-        variant: 'subtle',
-      }"
-      @submit="onSubmit"
+  <UForm
+    :schema="schema"
+    :state="state"
+    class="flex flex-col gap-4"
+    @error="scrollToFirstFormError"
+    @submit="onSubmit"
+  >
+    <UFormField
+      :label="t('email.title')"
+      name="email"
+      required
     >
-      <template #validation>
-        <UAlert
-          v-if="hasError"
-          color="error"
-          variant="soft"
-          icon="i-heroicons-exclamation-circle"
-          :title="t('error.title')"
-          :description="t('error.description')"
-        />
-      </template>
+      <UInput
+        v-model="state.email"
+        type="email"
+        autocomplete="email webauthn"
+        inputmode="email"
+        icon="i-lucide-mail"
+        class="w-full"
+      />
+    </UFormField>
 
-      <template #footer>
-        <div class="space-y-3">
-          <USeparator :label="t('or')" />
+    <UAlert
+      v-if="hasError"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      :title="t('error.title')"
+      :description="t('error.description')"
+    />
 
-          <div class="flex flex-col items-center gap-2 text-sm">
-            <div class="text-muted">
-              {{ t('already_have_account') }}
-              <ULink
-                :to="localePath('account-login')"
-                class="
-                  font-medium text-primary
-                  hover:underline
-                "
-              >
-                {{ t('login_here') }}
-              </ULink>
-            </div>
+    <UButton
+      :label="t('submit')"
+      :loading="loading"
+      icon="i-lucide-key-round"
+      size="lg"
+      block
+      type="submit"
+    />
 
-            <div class="text-muted">
-              {{ t('prefer_password') }}
-              <ULink
-                :to="localePath('account-signup')"
-                class="
-                  font-medium text-primary
-                  hover:underline
-                "
-              >
-                {{ t('using_password') }}
-              </ULink>
-            </div>
-          </div>
-        </div>
-      </template>
-    </UAuthForm>
-  </div>
+    <p class="text-center text-sm text-muted">
+      {{ t('prefer_password') }}
+      <ULink
+        :to="localePath('account-signup')"
+        class="font-semibold text-accent"
+      >
+        {{ t('using_password') }}
+      </ULink>
+    </p>
+  </UForm>
 </template>
 
 <i18n lang="yaml">
 el:
   email:
     title: Email
-  success:
-    title: Επιτυχία
-    description: Το κλειδί πρόσβασης δημιουργήθηκε επιτυχώς.
+  submit: Δημιουργία passkey
   error:
-    title: Σφάλμα εγγραφής
-    description: Δεν ήταν δυνατή η εγγραφή με κλειδί πρόσβασης.
-  or: ή
-  already_have_account: Έχεις ήδη λογαριασμό;
-  login_here: Συνδέσου εδώ
-  prefer_password: Προτιμάς κωδικό πρόσβασης;
-  using_password: Εγγραφή με κωδικό
+    title: Η εγγραφή δεν ολοκληρώθηκε
+    description: Δεν μπορέσαμε να ξεκινήσουμε την εγγραφή με passkey. Δοκίμασε ξανά.
+  prefer_password: Προτιμάς κωδικό;
+  using_password: Εγγραφή με email
 en:
   email:
     title: Email
-  success:
-    title: Done
-    description: Your passkey was created.
+  submit: Create passkey
   error:
-    title: Sign-up failed
-    description: We could not sign you up with a passkey.
-  or: or
-  already_have_account: Already have an account?
-  login_here: Sign in here
+    title: Sign-up did not go through
+    description: We could not start the passkey sign-up. Try again.
   prefer_password: Prefer a password?
-  using_password: Sign up with a password
+  using_password: Sign up with email
 </i18n>

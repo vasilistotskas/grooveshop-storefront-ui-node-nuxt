@@ -29,9 +29,9 @@ const labels = {
 }
 
 const icons = {
-  [AuthenticatorType.TOTP]: 'i-heroicons-device-phone-mobile',
-  [AuthenticatorType.RECOVERY_CODES]: 'i-heroicons-key',
-  [AuthenticatorType.WEBAUTHN]: 'i-heroicons-finger-print',
+  [AuthenticatorType.TOTP]: 'i-lucide-smartphone',
+  [AuthenticatorType.RECOVERY_CODES]: 'i-lucide-life-buoy',
+  [AuthenticatorType.WEBAUTHN]: 'i-lucide-key-round',
 }
 
 const isCurrentPath = (path: FlowPathValue) => {
@@ -60,61 +60,42 @@ const filteredFlows = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="space-y-2 text-center">
-      <h3 class="text-2xl font-bold text-highlighted">
-        {{ t('2fa.title') }}
-      </h3>
-      <p class="text-sm text-muted">
-        {{ t('2fa.subtitle') }}
-      </p>
-    </div>
-
+  <div class="flex flex-col gap-6">
     <slot />
-
+    <!-- The factors this account has other than the one on screen. -->
     <div
-      v-if="flow && flow.types && flow?.types?.length > 1"
-      class="space-y-4"
+      v-if="filteredFlows.length"
+      class="flex flex-col gap-2.5"
     >
       <USeparator :label="t('alternative_options')" />
-
-      <div class="grid gap-3">
-        <UButton
-          v-for="f in filteredFlows"
-          :key="f.id"
-          :label="f.label"
-          :icon="f.icon"
-          :to="localePath({
-            name: f.path,
-            query: { next },
-          })"
-          variant="outline"
-          color="neutral"
-          size="lg"
-          block
-        />
-      </div>
+      <UButton
+        v-for="f in filteredFlows"
+        :key="f.id"
+        :label="f.label"
+        :icon="f.icon"
+        :to="localePath({
+          name: f.path,
+          query: { next },
+        })"
+        :variant="f.id === AuthenticatorType.WEBAUTHN ? 'outline' : 'ghost'"
+        color="neutral"
+        block
+      />
     </div>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  alternative_options: Εναλλακτικές επιλογές
-  2fa:
-    title: Διπλή επαλήθευση
-    subtitle: Ο λογαριασμός σου προστατεύεται από έλεγχο ταυτότητας δύο παραγόντων
+  alternative_options: άλλοι τρόποι
   mfa_reauthenticate:
-    totp: Χρησιμοποίησε την εφαρμογή πολλαπλών παραγόντων
+    totp: Χρησιμοποίησε την εφαρμογή επαλήθευσης
     recovery_codes: Χρησιμοποίησε κωδικούς ανάκτησης
-    webauthn: Χρησιμοποίησε το κλειδί ασφαλείας
+    webauthn: Χρησιμοποίησε κλειδί ασφαλείας ή passkey
 en:
-  alternative_options: Other options
-  2fa:
-    title: Two-factor verification
-    subtitle: Your account is protected by two-factor authentication
+  alternative_options: other ways
   mfa_reauthenticate:
-    totp: Use your authenticator app
+    totp: Use your authenticator app instead
     recovery_codes: Use a recovery code
-    webauthn: Use your security key
+    webauthn: Use a security key or passkey
 </i18n>

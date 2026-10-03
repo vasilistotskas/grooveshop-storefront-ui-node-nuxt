@@ -2,171 +2,91 @@
 const { twoFaReauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
+
 useHead({ title: () => t('title') })
+
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 
 const recoveryCode = ref('')
+const submitting = ref(false)
 
 if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
   await navigateTo(localePath('index'))
 }
 
+// Recovery codes are 8 digits (allauth MFA_RECOVERY_CODE_DIGITS default).
 async function onSubmit() {
-  if (!recoveryCode.value || recoveryCode.value.length < 8) {
-    toast.add({
-      title: t('error.invalid_code'),
-      color: 'error',
-      icon: 'i-heroicons-exclamation-circle',
-    })
-    return
-  }
-
+  const code = recoveryCode.value.trim()
+  if (code.length < 8 || submitting.value) return
+  submitting.value = true
   try {
-    await twoFaReauthenticate({ code: recoveryCode.value })
+    await twoFaReauthenticate({ code })
     toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
+      title: t('success'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
   }
   catch (error) {
     handleAllAuthClientError(error)
     recoveryCode.value = ''
   }
+  finally {
+    submitting.value = false
+  }
 }
 </script>
 
 <template>
-  <div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
-    <UCard
-      class="w-full max-w-lg"
-      :ui="{
-        body: 'space-y-6',
-      }"
-    >
-      <template #header>
-        <div class="space-y-2 text-center">
-          <div
-            class="
-              mx-auto flex size-12 items-center justify-center rounded-full
-              bg-warning/10
-            "
-          >
-            <UIcon
-              name="i-heroicons-key"
-              class="size-6 text-warning"
-            />
-          </div>
-          <h2 class="text-2xl font-bold tracking-tight">
-            {{ t('title') }}
-          </h2>
-          <p class="text-sm text-muted">
-            {{ t('description') }}
-          </p>
-        </div>
-      </template>
-
-      <Account2FaReauthenticateFlow :flow="Flows.MFA_REAUTHENTICATE">
-        <form
-          class="space-y-4"
-          @submit.prevent="onSubmit"
+  <AuthPanel
+    icon="i-lucide-shield-check"
+    :title="t('title')"
+    :lead="t('lead')"
+  >
+    <Account2FaReauthenticateFlow>
+      <form
+        class="flex flex-col gap-4"
+        @submit.prevent="onSubmit"
+      >
+        <UFormField
+          :label="t('code')"
+          name="code"
+          required
         >
-          <UFormField
-            :label="t('code.label')"
-            :help="t('code.help')"
-            name="recoveryCode"
-            required
-          >
-            <UInput
-              v-model="recoveryCode"
-              type="text"
-              :placeholder="t('code.placeholder')"
-              size="xl"
-              icon="i-heroicons-key"
-              autocomplete="off"
-              class="font-mono"
-              :ui="{
-                root: 'w-full',
-                trailing: 'pe-1',
-              }"
-            />
-          </UFormField>
-
-          <UButton
-            type="submit"
-            color="neutral"
-            size="lg"
-            block
-            :disabled="!recoveryCode"
-            icon="i-heroicons-arrow-right"
-            trailing
-          >
-            {{ t('submit') }}
-          </UButton>
-        </form>
-      </Account2FaReauthenticateFlow>
-
-      <template #footer>
-        <div class="space-y-3">
-          <UAlert
-            color="warning"
-            variant="soft"
-            icon="i-heroicons-exclamation-triangle"
-            :title="t('warning.title')"
-            :description="t('warning.description')"
+          <UInput
+            v-model="recoveryCode"
+            icon="i-lucide-life-buoy"
+            autocomplete="one-time-code"
+            inputmode="numeric"
+            maxlength="8"
+            class="w-full"
           />
-
-          <UAlert
-            color="info"
-            variant="soft"
-            icon="i-heroicons-information-circle"
-            :description="t('info.description')"
-          />
-        </div>
-      </template>
-    </UCard>
-  </div>
+        </UFormField>
+        <UButton
+          :label="t('submit')"
+          :loading="submitting"
+          :disabled="recoveryCode.trim().length < 8"
+          size="lg"
+          block
+          type="submit"
+        />
+      </form>
+    </Account2FaReauthenticateFlow>
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Κωδικός Ανάκτησης
-  description: Εισάγετε έναν από τους κωδικούς ανάκτησης που σας δόθηκαν
-  code:
-    label: Κωδικός Ανάκτησης
-    placeholder: xxxx-xxxx-xxxx
-    help: Κάθε κωδικός μπορεί να χρησιμοποιηθεί μόνο μία φορά
-  submit: Επαλήθευση
-  success:
-    description: Επιτυχής επαλήθευση με κωδικό ανάκτησης
-  error:
-    invalid_code: Μη έγκυρος κωδικός ανάκτησης
-  warning:
-    title: Σημαντικό
-    description: Αυτός ο κωδικός θα καταναλωθεί μετά τη χρήση και δεν θα μπορεί να χρησιμοποιηθεί ξανά
-  info:
-    description: Οι κωδικοί ανάκτησης είναι για χρήση έκτακτης ανάγκης όταν δεν έχετε πρόσβαση στην κύρια μέθοδο επαλήθευσης
+  title: Επιβεβαίωσε ότι είσαι εσύ
+  lead: Πας να αλλάξεις μια ρύθμιση ασφαλείας. Γράψε έναν από τους κωδικούς ανάκτησης — κάθε κωδικός δουλεύει μία φορά.
+  code: Κωδικός ανάκτησης
+  submit: Επιβεβαίωση
+  success: Επιβεβαιώθηκε
 en:
-  title: Recovery Code
-  description: Enter one of the recovery codes you were given
-  code:
-    label: Recovery Code
-    placeholder: xxxx-xxxx-xxxx
-    help: Each code can be used only once
-  submit: Verify
-  success:
-    description: Verified with your recovery code
-  error:
-    invalid_code: That recovery code is not valid
-  warning:
-    title: Worth knowing
-    description: This code is used up once you submit it, and cannot be used again
-  info:
-    description: Recovery codes are for when you cannot get at your usual verification method
+  title: Confirm it is you
+  lead: You are about to change a security setting. Enter one of your recovery codes — each works once.
+  code: Recovery code
+  submit: Confirm
+  success: Confirmed
 </i18n>

@@ -1,30 +1,9 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const { t } = useI18n()
-// The page's document title — see the sibling auth bodies. This one
-// had no `title` string of its own, so one is authored here rather
-// than reusing a description that reads as a sentence in a tab.
-useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('account-login'),
-    label: t('breadcrumb.items.account-login.label'),
-    icon: t('breadcrumb.items.account-login.icon'),
-  },
-  {
-    to: localePath('account-2fa-authenticate-recovery-codes'),
-    label: t('breadcrumb.items.account-2fa-authenticate-recovery-codes.label'),
-    icon: t('breadcrumb.items.account-2fa-authenticate-recovery-codes.icon'),
-    current: true,
-  },
-])
+useHead({ title: () => t('title') })
 
 if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
   log.info({ tag: 'auth', message: 'Redirecting to index', event: authEvent.value })
@@ -33,84 +12,32 @@ if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UP
 </script>
 
 <template>
-  <div class="flex min-h-[calc(100dvh-4rem)] items-start justify-center p-4">
-    <UContainer class="max-w-2xl">
-      <UBreadcrumb
-        :items="items"
-        :ui="{
-          item: `
-            text-primary-950
-            dark:text-primary-50
-          `,
-          root: `
-            text-xs
-            md:text-base
-          `,
-        }"
-        class="mb-6"
-      />
-
-      <UPageCard variant="outline">
-        <div class="space-y-6">
-          <div class="text-center">
-            <div class="mb-4 inline-flex items-center justify-center">
-              <UIcon name="i-heroicons-key" class="size-12 text-warning" />
-            </div>
-            <h1 class="text-2xl font-bold text-highlighted">
-              {{ t('authenticate.recovery_code') }}
-            </h1>
-            <p class="mt-2 text-sm text-muted">
-              {{ t('description') }}
-            </p>
-          </div>
-
-          <UAlert
-            color="warning"
-            variant="soft"
-            icon="i-heroicons-exclamation-triangle"
-          >
-            <template #title>
-              {{ t('warning.title') }}
-            </template>
-            <template #description>
-              {{ t('warning.description') }}
-            </template>
-          </UAlert>
-
-          <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.RECOVERY_CODES" />
-        </div>
-      </UPageCard>
-    </UContainer>
-  </div>
+  <AuthPanel
+    :title="t('title')"
+    :lead="t('lead')"
+  >
+    <Account2FaAuthenticateCode :authenticator-type="AuthenticatorType.RECOVERY_CODES" />
+    <UAlert
+      color="warning"
+      variant="soft"
+      icon="i-lucide-life-buoy"
+      :title="t('low.title')"
+      :description="t('low.description')"
+    />
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Κωδικός ανάκτησης
-  description: Χρησιμοποίησε έναν από τους κωδικούς ανάκτησης που αποθήκευσες
-  warning:
-    title: Προσοχή
-    description: Κάθε κωδικός ανάκτησης μπορεί να χρησιμοποιηθεί μόνο μία φορά. Φρόντισε να αποθηκεύσεις τους υπόλοιπους κωδικούς σε ασφαλές μέρος.
-  breadcrumb:
-    items:
-      account-login:
-        label: Σύνδεση
-        icon: i-heroicons-arrow-right-on-rectangle
-      account-2fa-authenticate-recovery-codes:
-        label: Κωδικοί
-        icon: i-heroicons-lock-closed
+  lead: Κάθε κωδικός ανάκτησης δουλεύει μία φορά. Θα τους βρεις εκεί που τους φύλαξες όταν ενεργοποίησες την επαλήθευση σε δύο βήματα.
+  low:
+    title: Σου τελειώνουν;
+    description: Μόλις συνδεθείς, φτιάξε καινούργιους από τις ρυθμίσεις ασφαλείας του λογαριασμού σου.
 en:
-  title: Recovery code
-  description: Use one of the recovery codes you saved
-  warning:
-    title: Careful
-    description: Each recovery code works only once. Keep the rest somewhere safe.
-  breadcrumb:
-    items:
-      account-login:
-        label: Sign in
-        icon: i-heroicons-arrow-right-on-rectangle
-      account-2fa-authenticate-recovery-codes:
-        label: Codes
-        icon: i-heroicons-lock-closed
+  title: Use a recovery code
+  lead: Each of your recovery codes works once. Find them where you saved them when you turned on two-step verification.
+  low:
+    title: Running low?
+    description: After signing in, generate a new set in your account's security settings.
 </i18n>

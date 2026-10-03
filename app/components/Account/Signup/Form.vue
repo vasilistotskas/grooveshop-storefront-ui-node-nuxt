@@ -2,51 +2,53 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-const config = useRuntimeConfig()
+/**
+ * Making an account, in the board's order: a passkey, then email and
+ * one password (the meter under it says how strong), the terms, the
+ * newsletter opt-in, then the store's social providers.
+ *
+ * One password field, not two: the field reveals what was typed, and a
+ * second box only doubled the chance of a typo the first one would have
+ * shown. The newsletter box is offered when the store can honour it
+ * (`useNewsletterAvailability`); its label is the store's consent sentence,
+ * which is what Django stores as the proof, and the subscription is
+ * requested once the account exists — a failure there never undoes the
+ * account.
+ */
 const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
-const { hasSocialAccountProviders, status } = storeToRefs(authStore)
+const { config, status } = storeToRefs(authStore)
+const { hasProviders } = useSocialProviders()
 
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
-const { isMobileOrTablet } = useDevice()
-const img = useImage()
-const tenantStore = useTenantStore()
-const isPlatform = useIsPlatformTenant()
 
-// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
+const newsletter = await useNewsletterAvailability()
+
 const formPath = useRoute().path
 
-const selected = ref(false)
+const acceptedTerms = ref(false)
+const wantsNewsletter = ref(false)
 const isSubmitting = ref(false)
 
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
       ? t('validation.required')
-      : t('email.validation.email'),
+      : t('validation.email.valid'),
   }),
+  // Django's MinimumLength (8) and NumericPassword; the common-password
+  // and similarity checks answer from the server.
   password: z.string({
     error: issue => issue.input === undefined
       ? t('validation.required')
       : undefined,
   }).min(8, {
-    error: issue => t('password1.validation.min', { min: issue.minimum }),
-  })
-    // Mirrors Django's NumericPasswordValidator; CommonPassword and
-    // UserAttributeSimilarity stay server-side (allauth error codes).
-    .refine(value => !/^\d+$/.test(value), {
-      error: t('validation.password.entirely_numeric'),
-    }),
-  password2: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : undefined,
+    error: issue => t('validation.min', { min: issue.minimum }),
+  }).refine(value => !/^\d+$/.test(value), {
+    error: t('validation.password.entirely_numeric'),
   }),
-}).refine(data => data.password === data.password2, {
-  error: t('password2.validation.match'),
-  path: ['password2'],
 })
 
 type Schema = z.output<typeof schema>
@@ -54,22 +56,34 @@ type Schema = z.output<typeof schema>
 const state = reactive<Partial<Schema>>({
   email: undefined,
   password: undefined,
-  password2: undefined,
 })
+
+async function subscribeIfAsked(email: string) {
+  if (!wantsNewsletter.value || !newsletter.available.value) return
+  try {
+    await requestNewsletterSubscription({ email, consent: true })
+  }
+  catch {
+    toast.add({ title: t('newsletter_failed'), color: 'warning' })
+  }
+}
 
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   isSubmitting.value = true
   try {
     await signup({ email: event.data.email, password: event.data.password })
+    await subscribeIfAsked(event.data.email)
     toast.add({
       title: t('auth.signup.success'),
       color: 'success',
     })
   }
   catch (error) {
-    // Signup with mandatory email verification replies 401 with a pending
-    // verify_email flow — the account was created; route to the verification
-    // step instead of surfacing an error.
+    // A signup that needs the email confirmed answers with a pending
+    // flow: the account exists, the next step is the code.
+    if (pendingFlowRouteNameFromError(error)) {
+      await subscribeIfAsked(event.data.email)
+    }
     if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
     handleAllAuthClientError(error)
   }
@@ -77,300 +91,155 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     isSubmitting.value = false
   }
 }
-
-const backgroundImage = computed(() => {
-  return img(
-    '/img/login-background.png',
-    {
-      width: 400,
-      height: 256,
-      fit: 'contain',
-    },
-  )
-})
 </script>
 
 <template>
-  <section class="relative grid">
-    <div
-      v-if="isMobileOrTablet"
-      class="absolute top-[-1px] z-0 h-64 w-full bg-center"
-      :style="isMobileOrTablet ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover' } : ''"
+  <div class="flex flex-col gap-6">
+    <!-- allauth signs up by passkey only where passkeys are a supported second factor. -->
+    <template v-if="config?.mfa?.supported_types.includes('webauthn')">
+      <UButton
+        :label="t('passkey')"
+        :to="localePath('account-signup-passkey')"
+        icon="i-lucide-key-round"
+        color="neutral"
+        variant="outline"
+        size="lg"
+        block
+      />
+      <USeparator :label="t('or_email')" />
+    </template>
+    <USkeleton
+      v-else-if="status.config === 'pending'"
+      class="h-13 w-full rounded-full"
     />
+
     <UForm
       id="SignupForm"
       :schema="schema"
       :state="state"
-      class="
-        z-10 container mx-auto px-4 !pt-12 !pb-6
-        md:!p-0
-      "
+      class="flex flex-col gap-4"
       @error="scrollToFirstFormError"
       @submit="onSubmit"
     >
-      <div
-        class="h-full flex-wrap items-center justify-center rounded-lg p-0"
+      <UFormField
+        :label="t('email')"
+        name="email"
+        required
       >
-        <div class="relative grid w-full gap-4">
-          <div
-            class="
-              grid gap-6 rounded-lg bg-primary-100 px-4 py-8 shadow-lg
-              md:bg-transparent md:!p-0 md:shadow-none
-              dark:bg-primary-900 dark:md:bg-transparent
-            "
-          >
-            <div class="grid content-evenly items-center justify-center gap-1">
-              <!-- The platform's auth mark is SQUARE (1000x1000).
-                   Feeding it through TenantLogo, whose default asset is
-                   the 580x120 wordmark, letterboxed a wide image inside
-                   a square box (objectFit: contain) — so keep the square
-                   asset for the platform and give tenants their own
-                   logo at its natural wordmark aspect. -->
-              <NuxtImg
-                v-if="isPlatform"
-                :src="'/img/logo-border.png'"
-                :width="isMobileOrTablet ? 100 : 140"
-                :height="isMobileOrTablet ? 100 : 140"
-                :alt="''"
-                quality="90"
-              />
-              <TenantLogo
-                v-else
-                :width="isMobileOrTablet ? 160 : 220"
-                :height="isMobileOrTablet ? 88 : 110"
-                img-class="object-center"
-              />
-              <span class="sr-only">
-                {{ t('logo_alt', { appTitle: tenantStore.storeName || config.public.appTitle }) }}
-              </span>
-            </div>
-            <UFormField
-              :label="t('email.label')"
-              name="email"
-              :required="true"
-              size="xl"
-            >
-              <UInput
-                v-model="state.email"
-                type="email"
-                autocomplete="email"
-                icon="i-heroicons-envelope"
-                size="xl"
-                class="w-full"
-              />
-            </UFormField>
+        <UInput
+          v-model="state.email"
+          type="email"
+          autocomplete="email"
+          inputmode="email"
+          icon="i-lucide-mail"
+          class="w-full"
+        />
+      </UFormField>
 
-            <UFormField
-              :label="t('password1.label')"
-              name="password"
-              :required="true"
-              size="xl"
-            >
-              <FormPasswordInput
-                v-model="state.password"
-                autocomplete="new-password"
-                icon="i-heroicons-key"
-                size="xl"
-              />
-              <FormPasswordStrengthMeter :password="state.password ?? ''" />
-            </UFormField>
+      <UFormField
+        :label="t('password')"
+        name="password"
+        required
+      >
+        <FormPasswordInput
+          v-model="state.password"
+          autocomplete="new-password"
+        />
+        <FormPasswordStrengthMeter :password="state.password ?? ''" />
+      </UFormField>
 
-            <UFormField
-              :label="t('password2.label')"
-              name="password2"
-              :required="true"
-              size="xl"
-            >
-              <FormPasswordInput
-                v-model="state.password2"
-                autocomplete="new-password"
-                icon="i-heroicons-check-badge"
-                size="xl"
-              />
-            </UFormField>
+      <UCheckbox
+        v-model="acceptedTerms"
+        name="terms"
+      >
+        <template #label>
+          {{ t('terms.before') }}<ULink
+            :to="localePath('terms-of-use')"
+            target="_blank"
+            class="font-semibold text-accent"
+          >{{ t('terms.terms') }}</ULink>{{ t('terms.middle') }}<ULink
+            :to="localePath('privacy-policy')"
+            target="_blank"
+            class="font-semibold text-accent"
+          >{{ t('terms.privacy') }}</ULink>{{ t('terms.after') }}
+        </template>
+      </UCheckbox>
 
-            <div class="flex items-center gap-2">
-              <UCheckbox
-                v-model="selected"
-                name="consent"
-                icon="i-heroicons-check"
-                :color="'info'"
-                :ui="{
-                  label: 'text-sm font-medium',
-                }"
-              >
-                <template #label>
-                  <div class="flex gap-1">
-                    <span>{{ t('i_approve') }}</span>
-                    <UButton
-                      :label="t('terms')"
-                      :to="localePath('terms-of-use')"
-                      color="secondary"
-                      type="button"
-                      variant="link"
-                      target="_blank"
-                      :ui="{
-                        base: 'p-0',
-                      }"
-                    />
-                  </div>
-                </template>
-              </UCheckbox>
-            </div>
+      <UCheckbox
+        v-if="newsletter.available.value"
+        v-model="wantsNewsletter"
+        name="newsletter"
+      >
+        <template #label>
+          {{ newsletter.consent.value.before }}<ULink
+            :to="localePath('privacy-policy')"
+            target="_blank"
+            class="font-semibold text-accent"
+          >{{ newsletter.consent.value.privacy }}</ULink>{{ newsletter.consent.value.after }}
+          <span class="text-muted">{{ t('optional') }}</span>
+        </template>
+      </UCheckbox>
 
-            <UButton
-              :disabled="!selected"
-              :loading="isSubmitting"
-              :label="t('submit')"
-              block
-              size="xl"
-              type="submit"
-              variant="solid"
-              color="secondary"
-            />
-
-            <div
-              class="
-                flex flex-col items-center gap-2
-                sm:flex-row sm:items-center
-                md:justify-between
-              "
-            >
-              <UButton
-                :label="t('passkey_login')"
-                :to="localePath('account-signup-passkey')"
-                class="p-0 font-semibold"
-                color="secondary"
-                size="md"
-                type="button"
-                variant="link"
-              />
-              <div class="flex items-center gap-2">
-                <span
-                  class="text-sm font-semibold"
-                >{{
-                  t('already_have_account')
-                }}</span>
-                <UButton
-                  class="p-0 font-semibold underline"
-                  :label="t('login')"
-                  :to="localePath('account-login')"
-                  size="lg"
-                  color="secondary"
-                  type="button"
-                  variant="link"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="grid gap-4">
-            <div
-              v-if="hasSocialAccountProviders && status.config === 'success'"
-              class="grid gap-4"
-            >
-              <div
-                class="
-                  my-2 flex items-center
-                  before:mt-0.5 before:flex-1 before:border-t
-                  before:border-neutral-300
-                  after:mt-0.5 after:flex-1 after:border-t
-                  after:border-neutral-300
-                "
-              >
-                <p
-                  class="mx-4 text-center font-semibold"
-                >
-                  {{ t('or') }}
-                </p>
-              </div>
-              <div
-                class="grid items-center justify-center gap-4"
-              >
-                <p
-                  class="
-                    text-sm font-semibold text-primary-950
-                    dark:text-primary-50
-                  "
-                >
-                  {{ t('social.title') }}
-                </p>
-                <div class="flex items-center justify-center gap-4">
-                  <AccountProviderList />
-                </div>
-              </div>
-            </div>
-            <div
-              v-else-if="status.config === 'pending'"
-              class="grid gap-4"
-            >
-              <USkeleton
-                class="my-2 h-6 w-full"
-              />
-              <USkeleton
-                class="h-20 w-full"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <UButton
+        :label="t('submit')"
+        :disabled="!acceptedTerms"
+        :loading="isSubmitting"
+        size="lg"
+        block
+        type="submit"
+      />
     </UForm>
-  </section>
+
+    <template v-if="hasProviders">
+      <USeparator :label="t('or')" />
+      <AccountProviderList />
+    </template>
+
+    <p class="text-center text-sm text-muted">
+      {{ t('have_account') }}
+      <ULink
+        :to="localePath('account-login')"
+        class="font-semibold text-accent"
+      >
+        {{ t('login') }}
+      </ULink>
+    </p>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  logo_alt: "Λογότυπο {appTitle}"
-  login: Σύνδεση
+  passkey: Εγγραφή με passkey
+  or_email: ή με email
   or: ή
-  passkey_login: Εγγραφή με κωδικό μιας χρήσης
-  i_approve: Αποδέχομαι τους
-  terms: όρους χρήσης
-  email:
-    label: Email
-    validation:
-      email: Το email πρέπει να είναι έγκυρη διεύθυνση email
-  password1:
-    label: Κωδικός πρόσβασης
-    show: Δείξε τον κωδικό
-    validation:
-      min: Ο κωδικός πρόσβασης πρέπει να αποτελείται από τουλάχιστον {min}
-        χαρακτήρες
-  password2:
-    label: Επιβεβαίωση κωδικού πρόσβασης
-    show: Δείξε τον κωδικό
-    validation:
-      min: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να αποτελείται από τουλάχιστον
-        {min} χαρακτήρες
-      match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον κωδικό
-        πρόσβασης
-  submit: Εγγραφή
-  already_have_account: Έχεις ήδη λογαριασμό?
-  social:
-    title: Ή εγγράψου μέσω ενός τρίτου παρόχου
+  email: Email
+  password: Κωδικός
+  terms:
+    before: "Αποδέχομαι τους "
+    terms: όρους χρήσης
+    middle: " και την "
+    privacy: πολιτική απορρήτου
+    after: .
+  optional: Προαιρετικό.
+  submit: Δημιουργία λογαριασμού
+  have_account: Έχεις ήδη λογαριασμό;
+  login: Σύνδεση
+  newsletter_failed: Ο λογαριασμός σου είναι έτοιμος, αλλά η εγγραφή στο email δεν ολοκληρώθηκε. Μπορείς να εγγραφείς από τον λογαριασμό σου.
 en:
-  logo_alt: "{appTitle} logo"
-  login: Sign in
+  passkey: Sign up with a passkey
+  or_email: or with email
   or: or
-  passkey_login: Sign up with a one-time code
-  i_approve: I accept the
-  terms: terms of use
-  email:
-    label: Email
-    validation:
-      email: That is not a valid email address
-  password1:
-    label: Password
-    show: Show password
-    validation:
-      min: The password must be at least {min} characters long
-  password2:
-    label: Confirm password
-    show: Show password
-    validation:
-      min: The confirmation must be at least {min} characters long
-      match: The confirmation must match the password
-  submit: Sign up
-  already_have_account: Already have an account?
-  social:
-    title: Or sign up with another provider
+  email: Email
+  password: Password
+  terms:
+    before: "I accept the "
+    terms: terms of use
+    middle: " and the "
+    privacy: privacy policy
+    after: .
+  optional: Optional.
+  submit: Create account
+  have_account: Already have an account?
+  login: Sign in
+  newsletter_failed: Your account is ready, but the email sign-up did not go through. You can subscribe from your account.
 </i18n>

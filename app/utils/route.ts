@@ -75,3 +75,19 @@ export const isRouteProtected = (route: string) => {
 export const isAuthFlowRoute = (route: string) => {
   return AuthFlowRoutesSet.has(route as keyof RouteMapI18n)
 }
+
+// The pages that confirm a signed-in shopper before a security change,
+// drawn like the sign-in pages: one question, nothing else on the screen.
+export const ReauthenticateRoutes = [
+  'account-reauthenticate',
+  'account-2fa-reauthenticate-totp',
+  'account-2fa-reauthenticate-webauthn',
+  'account-2fa-reauthenticate-recovery-codes',
+] as const satisfies readonly (keyof RouteMapI18n)[]
+
+const AuthPageRoutesSet = new Set<keyof RouteMapI18n>([...AuthFlowRoutes, ...ReauthenticateRoutes])
+
+/** A sign-in, sign-up or re-authentication page: the `auth` kind of layout. */
+export const isAuthPageRoute = (route: string) => {
+  return AuthPageRoutesSet.has(route as keyof RouteMapI18n)
+}

@@ -71,72 +71,57 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <UForm
+    :schema="schema"
+    :state="{ name: deviceName }"
+    class="flex flex-col gap-4"
+    @error="scrollToFirstFormError"
+    @submit="onSubmit"
+  >
     <UAlert
       v-if="hasError"
       color="error"
       variant="soft"
-      icon="i-heroicons-exclamation-circle"
+      icon="i-lucide-circle-alert"
       :title="t('error.title')"
       :description="t('error.description')"
       close
       @update:open="hasError = false"
     />
 
-    <UForm
-      :schema="schema"
-      :state="{ name: deviceName }"
-      class="space-y-5"
-      @error="scrollToFirstFormError"
-      @submit="onSubmit"
+    <UFormField
+      name="name"
+      :label="t('name_label')"
+      :help="t('name_hint')"
+      required
     >
-      <UFormField
-        name="name"
-        :label="t('name_label')"
-        :help="t('name_hint')"
-        required
-      >
-        <UInput
-          v-model="deviceName"
-          :placeholder="t('name_placeholder')"
-          icon="i-heroicons-device-phone-mobile"
-          class="w-full"
-        />
-      </UFormField>
+      <UInput
+        v-model="deviceName"
+        :placeholder="t('name_placeholder')"
+        icon="i-lucide-smartphone"
+        class="w-full"
+      />
+    </UFormField>
 
-      <UButton
-        type="submit"
-        color="neutral"
-        variant="subtle"
-        :loading="isSubmitting"
-        block
-        size="lg"
-        icon="i-heroicons-finger-print"
-      >
-        {{ t('submit') }}
-      </UButton>
-    </UForm>
-
-    <UAlert
-      color="info"
-      variant="subtle"
-      icon="i-heroicons-light-bulb"
-      :description="t('device_hint')"
+    <UButton
+      :label="t('submit')"
+      :loading="isSubmitting"
+      icon="i-lucide-key-round"
+      size="lg"
+      block
+      type="submit"
     />
 
-    <div class="text-center">
-      <USeparator :label="t('or')" />
-
-      <div class="mt-4">
-        <UButton
-          :label="t('using_password')"
-          :to="localePath('account-signup')"
-          color="neutral"
-          variant="link"
-        />
-      </div>
-    </div>
-  </div>
+    <p class="text-center text-sm text-muted">
+      {{ t('prefer_password') }}
+      <ULink
+        :to="localePath('account-signup')"
+        class="font-semibold text-accent"
+      >
+        {{ t('using_password') }}
+      </ULink>
+    </p>
+  </UForm>
 </template>
 
 <i18n lang="yaml">
@@ -144,9 +129,9 @@ el:
   name_label: Όνομα κλειδιού
   name_hint: Χρησιμοποίησε ένα περιγραφικό όνομα για να αναγνωρίζεις αυτή τη συσκευή
   name_placeholder: π.χ. iPhone μου, Laptop εργασίας
-  device_hint: Το όνομα βοηθά στην αναγνώριση αυτής της συσκευής όταν διαχειρίζεσαι τα κλειδιά σου.
-  or: ή
-  using_password: Εγγραφή με κωδικό
+  submit: Δημιουργία passkey
+  prefer_password: Προτιμάς κωδικό;
+  using_password: Εγγραφή με email
   success:
     title: Επιτυχία
     description: Το κλειδί πρόσβασης δημιουργήθηκε επιτυχώς.
@@ -160,9 +145,9 @@ en:
   name_label: Key name
   name_hint: Use a name that tells you which device this is
   name_placeholder: e.g. My iPhone, Work laptop
-  device_hint: The name helps you recognise this device when you manage your keys.
-  or: or
-  using_password: Sign up with a password
+  submit: Create passkey
+  prefer_password: Prefer a password?
+  using_password: Sign up with email
   success:
     title: Done
     description: Your passkey was created.

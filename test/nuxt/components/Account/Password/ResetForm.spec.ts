@@ -10,7 +10,9 @@ import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 /**
  * Asking allauth to email a password-reset link. Mocked at
  * `useAllAuthAuthentication`; the error toasts are the app's real
- * `handleAllAuthClientError`. The two trees share their `<script>`.
+ * `handleAllAuthClientError`. The two trees share the request; the
+ * default says "check your inbox" in place where the frozen copy toasts,
+ * and words its failure differently.
  */
 const { passwordRequest, toastAdd } = vi.hoisted(() => ({
   passwordRequest: vi.fn((_body: { email: string }) => Promise.resolve({ status: 200 })),
@@ -23,10 +25,10 @@ const REFUSED = asProxiedError(makeBadResponse({ code: 'invalid', param: 'email'
 
 const RATE_LIMITED = { statusCode: 429, data: { statusCode: 429, data: { status: 429 } } }
 
-/** The component's own `<i18n>` copy (el) — the strings this form owns. */
+/** Each tree's own `<i18n>` copy (el) — the strings the form owns. */
 const COPY = {
-  successDescription: 'Ελέγξτε το email σας για οδηγίες επαναφοράς.',
-  errorTitle: 'Σφάλμα αποστολής',
+  webside: { successDescription: 'Ελέγξτε το email σας για οδηγίες επαναφοράς.', errorTitle: 'Σφάλμα αποστολής' },
+  default: { sentTitle: 'Δες το email σου', errorTitle: 'Ο σύνδεσμος δεν στάλθηκε' },
 }
 
 beforeEach(() => {
@@ -40,22 +42,39 @@ async function submitEmail(wrapper: VueWrapper, email: string | null = 'shopper@
   await flushPromises()
 }
 
-describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account/Password/ResetForm', ({ C }) => {
+describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account/Password/ResetForm', ({ tree, C }) => {
   const mountForm = () => mountSuspended(C, { route: false })
+  const errorTitle = COPY[tree].errorTitle
 
-  it('asks allauth to email a reset link to the address typed, then says so', async () => {
+  it('asks allauth to email a reset link to the address typed', async () => {
     const wrapper = await mountForm()
 
     await submitEmail(wrapper)
 
     expect(passwordRequest).toHaveBeenCalledWith({ email: 'shopper@example.com' })
+    expect(wrapper.emitted('passwordRequest')).toHaveLength(1)
+    expect(wrapper.text()).not.toContain(errorTitle)
+  })
+
+  it.runIf(tree === 'default')('says to check the inbox in place, the same for every address', async () => {
+    const wrapper = await mountForm()
+
+    await submitEmail(wrapper)
+
+    expect(wrapper.get('[role="status"]').text()).toContain(COPY.default.sentTitle)
+    expect(toastAdd).not.toHaveBeenCalled()
+  })
+
+  it.runIf(tree === 'webside')('says to check the inbox in a toast', async () => {
+    const wrapper = await mountForm()
+
+    await submitEmail(wrapper)
+
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
       title: useNuxtApp().$i18n.t('password.reset.request.success'),
-      description: COPY.successDescription,
+      description: COPY.webside.successDescription,
       color: 'success',
     }))
-    expect(wrapper.emitted('passwordRequest')).toHaveLength(1)
-    expect(wrapper.text()).not.toContain(COPY.errorTitle)
   })
 
   it('shows the error and allauth\'s own message when it refuses the request', async () => {
@@ -64,7 +83,7 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
 
     await submitEmail(wrapper)
 
-    expect(wrapper.text()).toContain(COPY.errorTitle)
+    expect(wrapper.text()).toContain(errorTitle)
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Εισαγάγετε μια έγκυρη διεύθυνση email.', color: 'error' })
     expect(wrapper.emitted('passwordRequest')).toBeUndefined()
   })
@@ -76,7 +95,7 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
     await submitEmail(wrapper)
 
     expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('error.rate_limited'), color: 'warning' })
-    expect(wrapper.text()).toContain(COPY.errorTitle)
+    expect(wrapper.text()).toContain(errorTitle)
   })
 
   it('clears an earlier failure when the next request succeeds', async () => {
@@ -84,10 +103,10 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
     const wrapper = await mountForm()
 
     await submitEmail(wrapper)
-    expect(wrapper.text()).toContain(COPY.errorTitle)
+    expect(wrapper.text()).toContain(errorTitle)
 
     await submitEmail(wrapper)
-    expect(wrapper.text()).not.toContain(COPY.errorTitle)
+    expect(wrapper.text()).not.toContain(errorTitle)
     expect(wrapper.emitted('passwordRequest')).toHaveLength(1)
   })
 

@@ -4,11 +4,9 @@ const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reaut
 const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
+
 useHead({ title: () => t('title') })
+
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 const authStore = useAuthStore()
@@ -19,44 +17,34 @@ if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHE
 }
 
 const loading = ref(false)
-const error = ref<string | null>(null)
+const failed = ref(false)
 
+/** Started by the shopper's click: Safari refuses WebAuthn without a user gesture. */
 async function onSubmit() {
-  error.value = null
-
+  failed.value = false
   try {
     loading.value = true
     const optResp = await getWebAuthnRequestOptionsForReauthentication()
     const jsonOptions = optResp?.data.request_options.publicKey
-
     if (!jsonOptions) {
       throw new Error('No creation options')
     }
-
     const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
     const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
     const response = await reauthenticateUsingWebAuthn({
       credential: credential.toJSON(),
     })
-
     session.value = response?.data
     toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
+      title: t('success'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
     emit('getWebAuthnRequestOptionsForReauthentication')
     emit('reauthenticateUsingWebAuthn')
   }
   catch {
-    error.value = t('error.failed')
-    toast.add({
-      title: t('error.default'),
-      description: t('error.description'),
-      color: 'error',
-      icon: 'i-heroicons-exclamation-circle',
-    })
+    failed.value = true
   }
   finally {
     loading.value = false
@@ -65,131 +53,62 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
-    <UCard
-      class="w-full max-w-lg"
-      :ui="{
-        body: 'space-y-6',
-      }"
-    >
-      <template #header>
-        <div class="space-y-2 text-center">
-          <div
-            class="
-              mx-auto flex size-12 items-center justify-center rounded-full
-              bg-secondary/10
-            "
-          >
-            <UIcon
-              name="i-heroicons-finger-print"
-              class="size-6 text-secondary"
-            />
-          </div>
-          <h2 class="text-2xl font-bold tracking-tight">
-            {{ t('title') }}
-          </h2>
-          <p class="text-sm text-muted">
-            {{ t('description') }}
-          </p>
-        </div>
-      </template>
-
-      <Account2FaReauthenticateFlow :flow="Flows.MFA_REAUTHENTICATE">
-        <div class="space-y-6">
-          <div class="flex flex-col items-center space-y-4">
-            <div
-              class="
-                cursor-pointer rounded-lg border border-dashed border-default
-                p-4
-              " @click="onSubmit"
-            >
-              <UIcon
-                name="i-heroicons-cpu-chip"
-                class="size-8 text-info"
-              />
-            </div>
-
-            <div class="space-y-2 text-center">
-              <p class="text-sm font-medium">
-                {{ t('instructions.title') }}
-              </p>
-              <ul class="space-y-1 text-xs text-muted">
-                <li>{{ t('instructions.step1') }}</li>
-                <li>{{ t('instructions.step2') }}</li>
-                <li>{{ t('instructions.step3') }}</li>
-              </ul>
-            </div>
-          </div>
-
-          <UAlert
-            v-if="error"
-            color="error"
-            variant="soft"
-            icon="i-heroicons-exclamation-circle"
-            :description="error"
-          />
-
-          <UButton
-            size="lg"
-            color="neutral"
-            block
-            :loading="loading"
-            icon="i-heroicons-finger-print"
-            @click="onSubmit"
-          >
-            {{ t('button.label') }}
-          </UButton>
-        </div>
-      </Account2FaReauthenticateFlow>
-
-      <template #footer>
-        <UAlert
-          color="info"
-          variant="soft"
-          icon="i-heroicons-information-circle"
-          :title="t('info.title')"
-          :description="t('info.description')"
+  <AuthPanel
+    icon="i-lucide-shield-check"
+    :title="t('title')"
+    :lead="t('lead')"
+  >
+    <Account2FaReauthenticateFlow>
+      <div
+        v-if="loading"
+        class="flex items-center gap-3 rounded-[1.125rem] border border-default bg-default p-4"
+        role="status"
+      >
+        <UIcon
+          name="i-lucide-loader-circle"
+          class="size-5 animate-spin text-muted"
         />
-      </template>
-    </UCard>
-  </div>
+        <strong class="text-sm text-highlighted">{{ t('waiting') }}</strong>
+      </div>
+      <UAlert
+        v-else-if="failed"
+        color="error"
+        variant="soft"
+        icon="i-lucide-circle-alert"
+        :title="t('error.title')"
+        :description="t('error.description')"
+      />
+      <UButton
+        :label="failed ? t('retry') : t('start')"
+        :loading="loading"
+        icon="i-lucide-key-round"
+        size="lg"
+        block
+        @click="onSubmit"
+      />
+    </Account2FaReauthenticateFlow>
+  </AuthPanel>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Επαλήθευση με Κλειδί Ασφαλείας
-  description: Χρησιμοποιήστε το κλειδί ασφαλείας σας για επαλήθευση
-  instructions:
-    title: Ακολουθήστε αυτά τα βήματα
-    step1: 1. Συνδέστε το κλειδί ασφαλείας σας
-    step2: 2. Πατήστε το κουμπί παρακάτω
-    step3: 3. Ακολουθήστε τις οδηγίες στο κλειδί σας
-  button:
-    label: Χρήση Κλειδιού Ασφαλείας
-  success:
-    description: Επιτυχής επαλήθευση με κλειδί ασφαλείας
+  title: Επιβεβαίωσε ότι είσαι εσύ
+  lead: Πας να αλλάξεις μια ρύθμιση ασφαλείας. Επιβεβαίωσε με το passkey ή το κλειδί ασφαλείας σου.
+  start: Επιβεβαίωση με passkey
+  retry: Δοκίμασε ξανά
+  waiting: Περιμένουμε τη συσκευή σου…
+  success: Επιβεβαιώθηκε
   error:
-    failed: Η επαλήθευση απέτυχε
-    description: Παρακαλούμε δοκιμάστε ξανά ή χρησιμοποιήστε άλλη μέθοδο
-  info:
-    title: Τι είναι το κλειδί ασφαλείας;
-    description: Ένα κλειδί ασφαλείας είναι μια φυσική συσκευή που παρέχει ισχυρή επαλήθευση δύο παραγόντων
+    title: Η επιβεβαίωση δεν ολοκληρώθηκε
+    description: Η συσκευή σου δεν επιβεβαίωσε. Δοκίμασε ξανά ή διάλεξε άλλο τρόπο.
 en:
-  title: Verify With Your Security Key
-  description: Use your security key to verify it is you
-  instructions:
-    title: Follow these steps
-    step1: 1. Plug in your security key
-    step2: 2. Press the button below
-    step3: 3. Follow the prompts on your key
-  button:
-    label: Use Security Key
-  success:
-    description: Verified with your security key
+  title: Confirm it is you
+  lead: You are about to change a security setting. Confirm with your passkey or security key.
+  start: Confirm with a passkey
+  retry: Try again
+  waiting: Waiting for your device…
+  success: Confirmed
   error:
-    failed: Verification failed
-    description: Please try again, or use another method
-  info:
-    title: What is a security key?
-    description: A security key is a physical device that gives you strong two-factor verification
+    title: Confirmation did not finish
+    description: Your device did not confirm. Try again or pick another way.
 </i18n>

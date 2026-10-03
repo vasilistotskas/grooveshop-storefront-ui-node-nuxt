@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { AuthFlowRoutes, AuthenticatedRoutes, isAuthFlowRoute, isRouteProtected } from '~/utils/route'
+import { AuthFlowRoutes, AuthenticatedRoutes, ReauthenticateRoutes, isAuthFlowRoute, isAuthPageRoute, isRouteProtected } from '~/utils/route'
 import { RedirectToURLs } from '~~/shared/constants'
 
 /**
@@ -53,5 +53,20 @@ describe('isAuthFlowRoute', () => {
 
   it('does not treat an account page as a flow step', () => {
     expect(AuthenticatedRoutes.filter(name => isAuthFlowRoute(name))).toEqual([])
+  })
+})
+
+describe('isAuthPageRoute', () => {
+  it('covers every sign-in flow step and every re-authentication page', () => {
+    expect([...AuthFlowRoutes, ...ReauthenticateRoutes].filter(name => !isAuthPageRoute(name))).toEqual([])
+  })
+
+  it.each([
+    ['account'],
+    ['account-orders'],
+    ['account-password-change'],
+    ['index'],
+  ])('leaves %s in its own layout', (name) => {
+    expect(isAuthPageRoute(name)).toBe(false)
   })
 })

@@ -36,9 +36,12 @@ const INCORRECT_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', 
 
 /** The component's own `<i18n>` copy (el) — the strings this form owns. */
 const COPY = {
-  loggedIn: 'Συνδεθήκατε επιτυχώς',
-  welcomeBack: 'Καλώς ήρθατε πίσω!',
   errorTitle: 'Μη έγκυρος κωδικός',
+  // The default speaks to the shopper in the second person singular.
+  signedIn: {
+    webside: { loggedIn: 'Συνδεθήκατε επιτυχώς', welcomeBack: 'Καλώς ήρθατε πίσω!' },
+    default: { loggedIn: 'Συνδέθηκες', welcomeBack: 'Καλώς ήρθες ξανά' },
+  },
 }
 
 const CONFIRM_PAGE = () => useLocalePath()('account-login-code-confirm')
@@ -55,7 +58,7 @@ async function typeCode(wrapper: VueWrapper, code: string) {
 
 const submitButton = (wrapper: VueWrapper) => wrapper.find('button[type="submit"]')
 
-describe.each(trees(LoginCodeConfirmForm, WebsideLoginCodeConfirmForm))('$tree Account/Login/Code/ConfirmForm', ({ C }) => {
+describe.each(trees(LoginCodeConfirmForm, WebsideLoginCodeConfirmForm))('$tree Account/Login/Code/ConfirmForm', ({ tree, C }) => {
   const mountForm = (route = CONFIRM_PAGE()) => mountSuspended(C, { route })
 
   it('signs in as soon as the sixth digit is typed, then goes home', async () => {
@@ -67,8 +70,8 @@ describe.each(trees(LoginCodeConfirmForm, WebsideLoginCodeConfirmForm))('$tree A
     expect(confirmLoginCode).toHaveBeenCalledTimes(1)
     expect(confirmLoginCode).toHaveBeenCalledWith({ code: '482913' })
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
-      title: COPY.loggedIn,
-      description: COPY.welcomeBack,
+      title: COPY.signedIn[tree].loggedIn,
+      description: COPY.signedIn[tree].welcomeBack,
       color: 'success',
     }))
     expect(wrapper.emitted('confirmLoginCode')).toHaveLength(1)

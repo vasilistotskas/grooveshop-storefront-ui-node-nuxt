@@ -319,6 +319,27 @@ export function resolveDesign(tenantSchema?: string | null): StorefrontDesign | 
   return 'volt'
 }
 
+/**
+ * Layouts chosen by the tenant's design rather than by the page.
+ *
+ * A page file fixes its layout at build time (`definePageMeta`), so a
+ * page cannot ask for a different one per store. Instead the page names
+ * a KIND of page and `middleware/design-layout.global.ts` resolves it
+ * per request: the sign-in pages are drawn in the `auth-split` layout in
+ * the Volt design, and keep the layout their page file names on a store
+ * frozen in the previous design.
+ */
+export type LayoutKind = 'auth'
+
+const designLayouts = {
+  auth: 'auth-split',
+} as const satisfies Record<LayoutKind, string>
+
+/** The layout for `kind` in the tenant's design, or `null` to keep the page's own. */
+export function resolveLayout(kind: LayoutKind, tenantSchema?: string | null): (typeof designLayouts)[LayoutKind] | null {
+  return resolveDesign(tenantSchema) ? designLayouts[kind] : null
+}
+
 /** The tenant's chrome for `key`, or the platform's. Always a component. */
 export function resolveChrome(key: ChromeKey, tenantSchema?: string | null): Component {
   return (tenantSchema && variants[`chrome:${key}@${tenantSchema}`]) || chromeDefaults[key]

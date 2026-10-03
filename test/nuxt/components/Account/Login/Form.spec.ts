@@ -6,7 +6,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoginForm from '~/components/Account/Login/Form.vue'
 import WebsideLoginForm from '~/components/variants/webside/Account/Login/Form.vue'
 import { trees } from '~~/test/helpers/trees'
-import { asProxiedError, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
+import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The email + password sign-in. Mocked at `useAllAuthAuthentication`
@@ -150,5 +150,36 @@ describe('default Account/Login/Form performLogin', () => {
 
     expect(login).toHaveBeenCalledWith({ email: 'demo@grooveshop.space', password: 'GrooveDemo-2026' })
     expect(navigateToMock).toHaveBeenCalledWith(expect.objectContaining({ path: useLocalePath()('account-2fa-authenticate-totp') }))
+  })
+})
+
+describe('default Account/Login/Form passkey', () => {
+  /** The passkey button's own `<i18n>` copy (el). */
+  const PASSKEY_LABEL = 'Σύνδεση με passkey'
+
+  const mountWithConfig = (config: ReturnType<typeof makeAllAuthConfig>['data'] | undefined, status: 'pending' | 'success') => {
+    const auth = useAuthStore()
+    auth.config = config
+    auth.status.config = status
+    return mountSuspended(LoginForm, { route: false })
+  }
+
+  it('offers a passkey first where allauth signs in by passkey', async () => {
+    const wrapper = await mountWithConfig(makeAllAuthConfig().data, 'success')
+
+    expect(wrapper.text()).toContain(PASSKEY_LABEL)
+  })
+
+  it('offers no passkey where allauth does not sign in by one', async () => {
+    const wrapper = await mountWithConfig(makeAllAuthConfig({ mfa: { supported_types: ['totp'], passkey_login_enabled: false } }).data, 'success')
+
+    expect(wrapper.text()).not.toContain(PASSKEY_LABEL)
+  })
+
+  it('holds the passkey row as a placeholder while the allauth config is still loading', async () => {
+    const wrapper = await mountWithConfig(undefined, 'pending')
+
+    expect(wrapper.text()).not.toContain(PASSKEY_LABEL)
+    expect(wrapper.findAllComponents({ name: 'USkeleton' })).toHaveLength(1)
   })
 })

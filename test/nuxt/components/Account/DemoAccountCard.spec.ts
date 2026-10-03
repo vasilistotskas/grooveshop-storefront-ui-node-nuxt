@@ -5,11 +5,12 @@ import type { VueWrapper } from '@vue/test-utils'
 import DemoAccountCard from '~/components/Account/DemoAccountCard.vue'
 
 /**
- * The card publishes a working password to every visitor of the store
+ * The strip publishes a working password to every visitor of the store
  * that turns it on, so the first thing to pin is when it refuses to
  * render: it fails CLOSED — the flag must be on AND both of an
- * account's credentials must be present. Then that the button signs in
- * with the pair it stands for.
+ * account's credentials must be present. Then that each row's "Sign in"
+ * hands up the pair it stands for, and that the password is masked and
+ * copyable, never printed.
  */
 const settings = ref<Record<string, string>>({})
 mockNuxtImport('useStoreSettings', () => () => ({ settings }))
@@ -37,10 +38,9 @@ beforeEach(() => {
   })
 })
 
-const mountCard = (props: { loading?: boolean } = {}) => mountSuspended(DemoAccountCard, { props, route: false })
-/** The sign-in buttons: the copy buttons are the ones with an aria-label. */
-const signInButtons = (wrapper: VueWrapper) => wrapper.findAll('button').filter(button => !button.attributes('aria-label'))
-const copyButtons = (wrapper: VueWrapper) => wrapper.findAll('button[aria-label="Αντιγραφή"]')
+const mountStrip = (props: { loading?: boolean } = {}) => mountSuspended(DemoAccountCard, { props, route: false })
+const signInButtons = (wrapper: VueWrapper) => wrapper.findAll('button').filter(button => button.text() === 'Σύνδεση')
+const rowNames = (wrapper: VueWrapper) => wrapper.findAll('strong').map(name => name.text())
 
 describe('Account/DemoAccountCard', () => {
   it.each([
@@ -52,91 +52,73 @@ describe('Account/DemoAccountCard', () => {
   ])('renders nothing when %s', async (_case, override) => {
     settings.value = { ...ARMED, ...override }
 
-    const wrapper = await mountCard()
+    const wrapper = await mountStrip()
 
     expect(wrapper.text()).toBe('')
   })
 
-  it('offers one unlabelled retail account with its credentials in clear', async () => {
-    const wrapper = await mountCard()
-
-    // Credentials are a copyable line, not form fields: two labelled
-    // email+password pairs above the real login form read as three forms.
-    expect(wrapper.findAll('dd').map(cell => cell.text())).toEqual(['demo@grooveshop.space', 'GrooveDemo-2026'])
-    expect(signInButtons(wrapper).map(button => button.text())).toEqual(['Σύνδεση ως επισκέπτης δοκιμής'])
-    // One account needs no heading over it.
-    expect(wrapper.text()).not.toContain('Λιανική')
-  })
-
-  it('labels both accounts, each with its own sign-in button, when a wholesale one is set', async () => {
+  it('offers each configured account as a row with its email, its password masked', async () => {
     settings.value = { ...ARMED, ...WHOLESALE }
 
-    const wrapper = await mountCard()
+    const wrapper = await mountStrip()
 
-    expect(wrapper.findAll('p.uppercase').map(label => label.text())).toEqual(['Λιανική', 'Χονδρική'])
-    expect(signInButtons(wrapper).map(button => button.text())).toEqual([
-      'Σύνδεση ως πελάτης λιανικής',
-      'Σύνδεση ως πελάτης χονδρικής',
-    ])
-    expect(wrapper.findAll('dd').map(cell => cell.text())).toEqual([
-      'demo@grooveshop.space',
-      'GrooveDemo-2026',
-      'demo-wholesale@grooveshop.space',
-      'GrooveWholesale-2026',
-    ])
+    expect(rowNames(wrapper)).toEqual(['Πελάτης', 'Χονδρική'])
+    expect(wrapper.text()).toContain('demo@grooveshop.space')
+    expect(wrapper.text()).toContain('demo-wholesale@grooveshop.space')
+    // Masked on screen: a second pair of credentials in clear above the
+    // real form read as another login form.
+    expect(wrapper.text()).not.toContain('GrooveDemo-2026')
+    expect(wrapper.text()).not.toContain('GrooveWholesale-2026')
+    expect(signInButtons(wrapper).map(button => button.attributes('aria-label')))
+      .toEqual(['Σύνδεση ως πελάτης', 'Σύνδεση ως πελάτης χονδρικής'])
   })
 
   it('ignores a half-configured wholesale account', async () => {
-    // Same fail-closed rule: a button that signs in with an empty
-    // password is worse than no second account.
     settings.value = { ...ARMED, ...WHOLESALE, DEMO_ACCOUNT_B2B_PASSWORD: '' }
 
-    const wrapper = await mountCard()
+    const wrapper = await mountStrip()
 
+    expect(rowNames(wrapper)).toEqual(['Πελάτης'])
     expect(wrapper.text()).not.toContain('demo-wholesale@grooveshop.space')
-    expect(signInButtons(wrapper)).toHaveLength(1)
   })
 
-  it('offers a wholesale-only store its one account, unlabelled', async () => {
+  it('offers a wholesale-only store its wholesale row', async () => {
     settings.value = { DEMO_ACCOUNT_ENABLED: 'true', ...WHOLESALE }
 
-    const wrapper = await mountCard()
-    await signInButtons(wrapper)[0]!.trigger('click')
+    const wrapper = await mountStrip()
 
-    expect(signInButtons(wrapper).map(button => button.text())).toEqual(['Σύνδεση ως επισκέπτης δοκιμής'])
-    expect(wrapper.emitted('login')).toEqual([[{
-      email: 'demo-wholesale@grooveshop.space',
-      password: 'GrooveWholesale-2026',
-    }]])
+    expect(rowNames(wrapper)).toEqual(['Χονδρική'])
   })
 
   it.each([
     [0, { email: 'demo@grooveshop.space', password: 'GrooveDemo-2026' }],
     [1, { email: 'demo-wholesale@grooveshop.space', password: 'GrooveWholesale-2026' }],
-  ])('hands up the pair of sign-in button %i rather than signing in itself', async (index, credentials) => {
+  ])('hands up the pair of row %i rather than signing in itself', async (index, credentials) => {
     // One login path: the form owns the pending two-factor flow, the
     // cart refresh and the `next` bookkeeping.
     settings.value = { ...ARMED, ...WHOLESALE }
-    const wrapper = await mountCard()
+    const wrapper = await mountStrip()
 
     await signInButtons(wrapper)[index]!.trigger('click')
 
     expect(wrapper.emitted('login')).toEqual([[credentials]])
   })
 
-  it('copies the field asked for and marks only that one as copied', async () => {
-    const wrapper = await mountCard()
-    const [emailCopy, passwordCopy] = copyButtons(wrapper)
+  it('copies the row\'s password and marks only that row as copied', async () => {
+    settings.value = { ...ARMED, ...WHOLESALE }
+    const wrapper = await mountStrip()
+    const shopperCopy = wrapper.get('button[aria-label="Αντιγραφή του κωδικού πελάτη"]')
+    const wholesaleCopy = wrapper.get('button[aria-label="Αντιγραφή του κωδικού χονδρικής"]')
 
-    await passwordCopy!.trigger('click')
+    await wholesaleCopy.trigger('click')
 
-    expect(copy).toHaveBeenCalledWith('GrooveDemo-2026')
-    expect(passwordCopy!.html()).toContain('i-heroicons:check')
-    expect(emailCopy!.html()).toContain('i-heroicons:clipboard-document')
+    expect(copy).toHaveBeenCalledWith('GrooveWholesale-2026')
+    expect(wholesaleCopy.html()).toContain('i-lucide:check')
+    expect(shopperCopy.html()).toContain('i-lucide:copy')
   })
 
   it('shows the sign-in buttons busy while the form signs in', async () => {
-    const wrapper = await mountCard({ loading: true })
+    const wrapper = await mountStrip({ loading: true })
 
     expect(signInButtons(wrapper)[0]!.attributes('disabled')).toBeDefined()
   })

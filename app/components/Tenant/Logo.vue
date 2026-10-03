@@ -22,12 +22,19 @@ const props = withDefaults(
      *  header rows `object-left`; responsive contexts combine them
      *  (e.g. `object-center lg:object-left`). */
     imgClass?: string
+    /**
+     * Drawn on the inverted surface (the ink panel in the light scheme,
+     * the light one in the dark): the logo meant for the opposite
+     * ground, and the wordmark in the inverted text colour.
+     */
+    inverted?: boolean
   }>(),
   {
     width: 145,
     height: 30,
     priority: false,
     imgClass: 'object-left',
+    inverted: false,
   },
 )
 
@@ -81,7 +88,7 @@ const priorityAttrs = computed(() =>
        parent must also be shrinkable — see `Chrome/Navbar.vue`. -->
   <span
     v-if="!logoLightUrl"
-    class="min-w-0 truncate text-xl font-bold text-highlighted"
+    :class="['min-w-0 truncate text-xl font-bold', inverted ? 'text-inverted' : 'text-highlighted']"
     :style="{ lineHeight: `${height}px` }"
   >{{ tenantStore.storeName }}</span>
   <NuxtImg
@@ -91,7 +98,7 @@ const priorityAttrs = computed(() =>
     :width="width"
     :height="height"
     fit="inside"
-    :class="[imgClass, hasDistinctDark ? 'dark:hidden' : '']"
+    :class="[imgClass, hasDistinctDark ? (inverted ? 'hidden dark:block' : 'dark:hidden') : '']"
     alt=""
     quality="90"
     v-bind="priorityAttrs"
@@ -103,7 +110,7 @@ const priorityAttrs = computed(() =>
     :width="width"
     :height="height"
     fit="inside"
-    :class="[imgClass, 'hidden dark:block']"
+    :class="[imgClass, inverted ? 'dark:hidden' : 'hidden dark:block']"
     alt=""
     quality="90"
     v-bind="priorityAttrs"

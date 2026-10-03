@@ -43,7 +43,24 @@ async function submit(wrapper: VueWrapper) {
   await flushPromises()
 }
 
-describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/Password/ResetConfirmForm', ({ C }) => {
+/** Each tree's own copy (el) where the two word things differently. */
+const COPY = {
+  webside: {
+    mismatch: 'Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον κωδικό πρόσβασης',
+    expired: 'Ο σύνδεσμος επαναφοράς μπορεί να έχει λήξει ή να είναι άκυρος.',
+    rating: (label: string) => `${label}. Πρέπει να περιέχει`,
+    labels: { strong: 'Ισχυρός κωδικός', medium: 'Μέτριος κωδικός', weak: 'Αδύναμος κωδικός' },
+  },
+  default: {
+    mismatch: 'Οι δύο κωδικοί πρέπει να είναι ίδιοι',
+    expired: 'Ο σύνδεσμος μπορεί να έχει λήξει. Ζήτα έναν νέο.',
+    // The shared strength meter: "<verdict> · <rubric>".
+    rating: (label: string) => `${label} · 8+ χαρακτήρες`,
+    labels: { strong: 'Ισχυρός', medium: 'Μέτριος', weak: 'Αδύναμος' },
+  },
+}
+
+describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/Password/ResetConfirmForm', ({ tree, C }) => {
   const mountForm = (route = RESET_ROUTE) => mountSuspended(C, { route })
 
   it('checks the key from the link before offering the form', async () => {
@@ -71,21 +88,17 @@ describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/P
     await vi.waitFor(() => expect(useRouter().currentRoute.value.path).toBe(useLocalePath()('account-login')))
   })
 
-  it.each([
-    ['a confirmation that does not match', 'Καλημέρα2024', 'Καλημέρα2025', 'Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον κωδικό πρόσβασης'],
-    ['an all-digit password', '12345678', '12345678', null],
-    ['a password under 8 characters', 'Ab1', 'Ab1', null],
+  it.each<[string, string, string, () => string]>([
+    ['a confirmation that does not match', 'Καλημέρα2024', 'Καλημέρα2025', () => COPY[tree].mismatch],
+    ['an all-digit password', '12345678', '12345678', () => useNuxtApp().$i18n.t('validation.password.entirely_numeric')],
+    ['a password under 8 characters', 'Ab1', 'Ab1', () => useNuxtApp().$i18n.t('validation.min', { min: 8 })],
   ])('refuses %s without asking allauth', async (_case, password, confirmation, message) => {
     const wrapper = await mountForm()
-    const { t } = useNuxtApp().$i18n
-    const expected = message ?? (password === '12345678'
-      ? t('validation.password.entirely_numeric')
-      : t('validation.min', { min: 8 }))
 
     await type(wrapper, password, confirmation)
     await submit(wrapper)
 
-    expect(wrapper.text()).toContain(expected)
+    expect(wrapper.text()).toContain(message())
     expect(passwordReset).not.toHaveBeenCalled()
   })
 
@@ -119,20 +132,20 @@ describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/P
     await type(wrapper, 'Καλημέρα2024')
     await submit(wrapper)
 
-    expect(wrapper.findComponent({ name: 'UAlert' }).text()).toContain('Ο σύνδεσμος επαναφοράς μπορεί να έχει λήξει ή να είναι άκυρος.')
+    expect(wrapper.findComponent({ name: 'UAlert' }).text()).toContain(COPY[tree].expired)
     expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('error.default'), color: 'error' })
   })
 
   it.each([
     // Unicode classes: «Καλημέρα2024» has an upper-case Greek letter.
-    ['Καλημέρα2024', 'Ισχυρός κωδικός'],
-    ['καλημέρα2024', 'Μέτριος κωδικός'],
-    ['abcdefgh', 'Αδύναμος κωδικός'],
-  ])('rates %s as "%s"', async (password, rating) => {
+    ['Καλημέρα2024', 'strong'],
+    ['καλημέρα2024', 'medium'],
+    ['abcdefgh', 'weak'],
+  ] as const)('rates %s as %s', async (password, rating) => {
     const wrapper = await mountForm()
 
     await wrapper.findAll('input[autocomplete="new-password"]')[0]!.setValue(password)
 
-    expect(wrapper.text()).toContain(`${rating}. Πρέπει να περιέχει`)
+    expect(wrapper.text()).toContain(COPY[tree].rating(COPY[tree].labels[rating]))
   })
 })
