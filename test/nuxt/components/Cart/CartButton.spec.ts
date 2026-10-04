@@ -57,14 +57,19 @@ describe('default Cart/CartButton', () => {
     { totalItems: 1, name: COPY.one },
     { totalItems: 3, name: COPY.many },
     { totalItems: 0, name: COPY.empty },
-  ])('links to the cart named "$name" for $totalItems items', async ({ totalItems, name }) => {
+  ])('opens the cart drawer, named "$name" for $totalItems items', async ({ totalItems, name }) => {
     useCartStore().cart = makeCart({ totalItems })
+    useCartDrawer().close()
 
     const wrapper = await mountSuspended(CartButton, { route: false })
-    const link = wrapper.find('a')
+    const button = wrapper.get('button')
 
-    expect(link.attributes('href')).toBe('/cart')
-    expect(link.attributes('aria-label')).toBe(name)
+    expect(button.attributes('aria-label')).toBe(name)
+    expect(button.attributes('aria-haspopup')).toBe('dialog')
+    await button.trigger('click')
+    expect(useCartDrawer().open.value).toBe(true)
+    // Opened from the header, not by an add: no "Added: …" banner.
+    expect(useCartDrawer().added.value).toBeNull()
   })
 
   /**

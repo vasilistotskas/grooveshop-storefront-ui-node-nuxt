@@ -1,190 +1,163 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
-
-const props = defineProps({
-  cartItem: { type: Object as PropType<CartItem>, required: true },
-})
+/**
+ * One cart line, as the boards draw it: the photograph on a sunken tile,
+ * the brand and the name, the quantity stepper and "Remove", and the
+ * line's price on the right — struck through at what it was when an
+ * offer lowers it, with "2 × unit" under it for more than one.
+ *
+ * `compact` is the cart drawer's row: no brand, and an icon-only remove
+ * beside the stepper. The quantity control is the shared
+ * `QuantitySelector` (optimistic mirror, debounce, serialised writes,
+ * revert on a refusal). Removing a line offers "Undo" in a toast, which
+ * adds the same product and quantity back.
+ *
+ * The cart payload carries no variant axes (the product page fetches
+ * them per product), so the board's "Black · 20,000mAh" line is left
+ * out rather than guessed from every attribute.
+ */
+const props = defineProps<{
+  cartItem: CartItem
+  compact?: boolean
+}>()
 
 const { productUrl } = useUrls()
-const { t, locale } = useI18n()
-const { $i18n } = useNuxtApp()
+const { t, n, locale } = useI18n()
 const toast = useToast()
-const cartStore = useCartStore()
-const { deleteCartItem, createCartItem } = cartStore
+const { deleteCartItem, createCartItem } = useCartStore()
 
-const { contentShorten } = useText()
+const name = computed(() => extractTranslated(props.cartItem.product, 'name', locale.value) ?? '')
+const link = computed(() => ({ path: productUrl(props.cartItem.product.id, props.cartItem.product.slug) }))
+const quantity = computed(() => props.cartItem.quantity ?? 1)
 
-const { cartItem } = toRefs(props)
+/** What the line cost before its offer: the unit's final price plus its discount, per unit. */
+const wasTotal = computed(() => props.cartItem.discountValue > 0
+  ? (props.cartItem.finalPrice + props.cartItem.discountValue) * quantity.value
+  : null)
 
-const alt = computed(() => {
-  return extractTranslated(cartItem?.value?.product, 'name', locale.value)
-})
+const removing = ref(false)
 
-const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
-  // Snapshot the product + quantity before deletion so the toast's
-  // Undo action can re-create the same line. Once the backend deletes
-  // the row, cartItem.id is gone forever — we can only add a fresh
-  // line via createCartItem.
-  const snapshot = {
-    productId: cartItem.value?.product?.id,
-    quantity: cartItem.value?.quantity ?? 1,
-    name: alt.value,
-  }
-
+async function remove() {
+  // The line is gone once Django deletes it, so "Undo" can only add the
+  // same product and quantity back as a new line.
+  const snapshot = { productId: props.cartItem.product.id, quantity: quantity.value, name: name.value }
+  removing.value = true
   try {
-    await deleteCartItem(cartItemId)
+    await deleteCartItem(props.cartItem.id)
   }
-  catch (err) {
-    log.error({ action: 'cart:deleteItem', error: err })
-    toast.add({
-      title: t('toast.delete_failed'),
-      color: 'error',
-      icon: 'i-heroicons-exclamation-circle',
-    })
+  catch (error) {
+    log.error({ action: 'cart:deleteItem', error })
+    toast.add({ title: t('toast.delete_failed'), color: 'error' })
     return
   }
-
-  if (!snapshot.productId) return
+  finally {
+    removing.value = false
+  }
 
   toast.add({
     title: t('toast.removed_title'),
     description: t('toast.removed_description', { name: snapshot.name }),
     color: 'neutral',
-    icon: 'i-heroicons-trash',
+    icon: 'i-lucide-trash-2',
     duration: 8000,
-    actions: [
-      {
-        label: t('toast.undo'),
-        color: 'primary',
-        variant: 'subtle',
-        onClick: async (event?: Event) => {
-          event?.stopPropagation?.()
-          try {
-            await createCartItem({
-              product: snapshot.productId!,
-              quantity: snapshot.quantity,
-            })
-          }
-          catch (err) {
-            log.error({ action: 'cart:undoRemove', error: err })
-            toast.add({
-              title: t('toast.undo_failed'),
-              color: 'error',
-            })
-          }
-        },
+    actions: [{
+      label: t('toast.undo'),
+      color: 'neutral',
+      variant: 'outline',
+      onClick: async (event?: Event) => {
+        event?.stopPropagation?.()
+        try {
+          await createCartItem({ product: snapshot.productId, quantity: snapshot.quantity })
+        }
+        catch (error) {
+          log.error({ action: 'cart:undoRemove', error })
+          toast.add({ title: t('toast.undo_failed'), color: 'error' })
+        }
       },
-    ],
+    }],
   })
 }
-
-const formattedPrice = computed(() => {
-  return cartItem.value?.finalPrice ? $i18n.n(cartItem.value.finalPrice, 'currency') : '-'
-})
-
-const formattedTotal = computed(() => {
-  return cartItem.value?.totalPrice ? $i18n.n(cartItem.value.totalPrice, 'currency') : '-'
-})
 </script>
 
 <template>
-  <!-- Layout, per the site owner: the product title sits to the RIGHT
-       of the thumbnail, and the remove button at the BOTTOM-right of
-       the block.
-
-       Previously this was `flex-col sm:flex-row`, so on a phone the
-       image stacked full-width ABOVE the title, and the bin was
-       absolutely positioned top-right behind an `isMobileOrTablet`
-       check. Both are now plain CSS at every breakpoint, which also
-       removes a JS device branch from a component rendered on a page
-       whose SSR output is cached per `x-device-class` — one fewer
-       thing that can disagree with the cache. -->
-  <div
-    v-if="cartItem"
-    class="flex gap-4 sm:gap-6"
-  >
+  <div :class="['flex', compact ? 'gap-3' : 'gap-4 sm:gap-5']">
+    <!-- A sized box around the link: Anchor is `w-full`, and as the row's
+         flex item it would stretch over the name and price. -->
     <div
-      class="
-        relative size-20 flex-shrink-0 overflow-hidden rounded-lg
-        sm:size-24
-      "
+      :class="[
+        'shrink-0 overflow-hidden rounded-[0.75rem] bg-elevated',
+        compact ? 'size-19' : 'size-20 sm:size-24',
+      ]"
     >
       <Anchor
-        :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
-        :title="alt"
+        :to="link"
+        :title="name"
+        class="block size-full"
       >
         <ImgWithFallback
-          loading="lazy"
-          class="h-full w-full bg-transparent object-contain"
+          :src="cartItem.product.mainImagePath"
+          :alt="name"
           :width="96"
           :height="96"
-          fit="contain"
-          :background="'transparent'"
-          :src="cartItem.product.mainImagePath"
-          :alt="alt"
+          fit="cover"
+          loading="lazy"
           densities="x1"
+          class="size-full object-cover"
         />
       </Anchor>
     </div>
 
-    <div class="flex min-w-0 flex-1 flex-col">
-      <div class="min-w-0">
-        <h3 class="text-base font-medium">
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex min-w-0 flex-col gap-0.5">
+          <p
+            v-if="!compact && cartItem.product.brandName"
+            class="text-[0.6875rem] font-bold tracking-[0.08em] text-toned uppercase"
+          >
+            {{ cartItem.product.brandName }}
+          </p>
           <Anchor
-            :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
-            :title="alt"
+            :to="link"
+            class="line-clamp-2 text-sm font-semibold text-highlighted sm:text-base"
           >
-            {{ contentShorten(alt, 0, 50) }}
+            {{ name }}
           </Anchor>
-        </h3>
-        <div
-          class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500"
-        >
-          <span>{{ t('price') }}: {{ formattedPrice }}</span>
-          <span
-            v-if="cartItem.discountValue"
-            class="text-green-600"
+        </div>
+        <div class="flex shrink-0 flex-col items-end">
+          <p class="flex items-baseline gap-1.5 font-mono font-bold text-highlighted">
+            <span>{{ n(cartItem.totalPrice, 'currency') }}</span>
+            <s
+              v-if="wasTotal !== null"
+              class="text-xs font-medium text-toned"
+            >
+              <span class="sr-only">{{ t('was') }}</span>{{ n(wasTotal, 'currency') }}
+            </s>
+          </p>
+          <p
+            v-if="quantity > 1"
+            class="font-mono text-xs text-toned"
           >
-            ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }} / {{ t('per_item') }})
-          </span>
+            {{ t('each', { quantity, price: n(cartItem.finalPrice, 'currency') }) }}
+          </p>
         </div>
       </div>
 
-      <!-- `mt-auto` pins this row to the bottom of the text column so
-           the remove button lands at the block's bottom-right however
-           tall the title wraps. -->
-      <div class="mt-auto flex items-end justify-between gap-3 pt-4">
-        <!-- Width is the whole of T13: this control is the SAME
-             `UInputNumber` the product page uses, and it only looked
-             like a full-width bar because its container was
-             `w-full sm:w-32`. A compact box matches the product
-             page's inline stepper.
-
-             The component itself is deliberately NOT swapped for the
-             product page's markup — this one carries the cart's
-             optimistic mirror, 400ms debounce, serialised writes and
-             revert-on-4xx, none of which the product page has (it
-             only feeds a number to add-to-cart). -->
+      <div class="mt-auto flex items-center justify-between gap-3 pt-2">
         <div class="w-28 shrink-0">
           <QuantitySelector
             :max="cartItem.product.stock"
             :cart-item-id="cartItem.id"
           />
         </div>
-
-        <div class="flex items-center gap-2">
-          <p class="text-sm font-medium">
-            {{ t('total') }}: {{ formattedTotal }}
-          </p>
-          <UButton
-            color="error"
-            variant="link"
-            icon="i-fa6-solid-trash"
-            size="sm"
-            :title="t('remove_from_cart', { name: alt })"
-            @click="deleteCartItemEvent({ cartItemId: cartItem.id })"
-          />
-        </div>
+        <UButton
+          :label="compact ? undefined : t('remove')"
+          :aria-label="t('remove_named', { name })"
+          :loading="removing"
+          icon="i-lucide-trash-2"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="remove"
+        />
       </div>
     </div>
   </div>
@@ -192,27 +165,25 @@ const formattedTotal = computed(() => {
 
 <i18n lang="yaml">
 el:
-  remove_from_cart: Αφαίρεση από το καλάθι {name}
-  per_item: Ανά τεμάχιο
-  price: Τιμή
-  save: Έκπτωση
-  total: Σύνολο
+  was: "Αρχική τιμή: "
+  each: "{quantity} × {price}"
+  remove: Αφαίρεση
+  remove_named: Αφαίρεση του «{name}» από το καλάθι
   toast:
     removed_title: Αφαιρέθηκε από το καλάθι
-    removed_description: Το προϊόν "{name}" αφαιρέθηκε.
+    removed_description: Το «{name}» αφαιρέθηκε.
     undo: Αναίρεση
-    undo_failed: Η αναίρεση απέτυχε
-    delete_failed: Αποτυχία αφαίρεσης από το καλάθι
+    undo_failed: Η αναίρεση δεν έγινε
+    delete_failed: Δεν αφαιρέθηκε από το καλάθι. Δοκίμασε ξανά.
 en:
-  remove_from_cart: Remove {name} from the cart
-  per_item: Each
-  price: Price
-  save: You save
-  total: Total
+  was: "Was "
+  each: "{quantity} × {price}"
+  remove: Remove
+  remove_named: Remove “{name}” from the cart
   toast:
     removed_title: Removed from your cart
-    removed_description: '"{name}" was removed.'
+    removed_description: “{name}” was removed.
     undo: Undo
     undo_failed: That could not be undone
-    delete_failed: It could not be removed from the cart
+    delete_failed: It was not removed from the cart. Please try again.
 </i18n>

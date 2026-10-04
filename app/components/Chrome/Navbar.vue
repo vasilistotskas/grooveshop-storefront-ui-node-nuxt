@@ -42,6 +42,13 @@ const { categories, hasCategories } = useCategoryMenu()
 // Chrome fails OPEN, commercial features fail CLOSED — see
 // `.claude/rules/ui-and-pages.md`.
 const cartEnabled = useSettingFlag('CART_ENABLED', { fallback: true })
+
+// The cart drawer is loaded the first time it is opened, then kept.
+const { open: cartDrawerOpen } = useCartDrawer()
+const cartDrawerRequested = ref(cartDrawerOpen.value)
+watch(cartDrawerOpen, (isOpen) => {
+  if (isOpen) cartDrawerRequested.value = true
+})
 const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', {
   fallback: true,
 })
@@ -306,6 +313,9 @@ const appTitle = computed(() => tenantStore.storeName || '')
           </ClientOnly>
 
           <CartButton v-if="cartEnabled" />
+          <!-- The drawer loads the first time something opens it (the
+               cart button, an add to cart) and stays mounted after. -->
+          <LazyCartDrawer v-if="cartEnabled && cartDrawerRequested" />
 
           <ChromeAccountMenu
             class="

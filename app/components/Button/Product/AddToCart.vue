@@ -60,6 +60,8 @@ const { error } = storeToRefs(cartStore)
 const { product, quantity, text } = toRefs(props)
 const { t, locale } = useI18n()
 const toast = useToast()
+const drawer = useCartDrawer()
+const img = useMediaStreamImage()
 
 const productName = computed(() => {
   if ('name' in product.value && typeof product.value.name === 'string') {
@@ -147,16 +149,40 @@ const addToCartEvent = async () => {
       title: t('toast.failed_title'),
       description: t('toast.failed_description'),
       color: 'error',
-      icon: 'i-heroicons-exclamation-triangle',
+      icon: 'i-lucide-triangle-alert',
     })
     return
   }
 
+  announceAdded()
+}
+
+/**
+ * How an added line is announced, as the boards draw it: on a desktop
+ * the cart drawer opens with it; on a phone a toast shows the product's
+ * photograph and "View", which opens the drawer.
+ */
+function announceAdded() {
+  const name = productName.value ?? ''
+  if (drawer.desktop.value) {
+    drawer.show(name)
+    return
+  }
+  const imagePath = 'mainImagePath' in product.value ? product.value.mainImagePath : undefined
   toast.add({
     title: t('toast.added_title'),
-    description: t('toast.added_description', { name: productName.value }),
+    description: name,
+    icon: imagePath ? undefined : 'i-lucide-circle-check',
+    avatar: imagePath
+      ? { src: img(imagePath, { width: 96, height: 96, fit: 'cover' }, { provider: 'mediaStream' }), alt: name }
+      : undefined,
     color: 'success',
-    icon: 'i-heroicons-shopping-cart',
+    actions: [{
+      label: t('toast.view'),
+      color: 'neutral',
+      variant: 'solid',
+      onClick: () => drawer.show(name),
+    }],
   })
 }
 </script>
@@ -200,14 +226,14 @@ el:
   unavailable: Μή Διαθέσιμο
   toast:
     added_title: Προστέθηκε στο καλάθι
-    added_description: Το προϊόν "{name}" προστέθηκε στο καλάθι.
+    view: Προβολή
     failed_title: Δεν προστέθηκε στο καλάθι
     failed_description: Κάτι πήγε στραβά. Δοκίμασε ξανά σε λίγο.
 en:
   unavailable: Unavailable
   toast:
-    added_title: Added to your basket
-    added_description: '"{name}" was added to your basket.'
+    added_title: Added to cart
+    view: View
     failed_title: Not added to your basket
     failed_description: Something went wrong. Try again in a moment.
 </i18n>

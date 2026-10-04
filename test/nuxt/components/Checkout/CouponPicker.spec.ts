@@ -23,6 +23,9 @@ import { failWith } from '~~/test/helpers/api'
  * webside and default copies are byte-identical.
  */
 
+const device = vi.hoisted(() => ({ mobile: false }))
+mockNuxtImport('useDevice', () => () => ({ isMobileOrTablet: device.mobile }))
+
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
@@ -77,9 +80,10 @@ const bodyText = () => (document.body.textContent ?? '').replace(/\u00A0/g, ' ')
 const modalButtons = (label: string) =>
   [...document.querySelectorAll('button')].filter(node => node.textContent?.trim() === label)
 
-describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPicker', ({ C }) => {
+describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPicker', ({ tree, C }) => {
   beforeEach(() => {
     coupons = []
+    device.mobile = false
     // `useApi` caches by key on the one app the whole file shares.
     clearNuxtData('cart-coupons')
     useToast().clear()
@@ -118,7 +122,16 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
       ]
       const wrapper = await mount()
 
-      expect(wrapper.find('button').text()).toBe('Διαθέσιμα κουπόνια (1)')
+      expect(wrapper.find('button').text()).toBe(tree === 'webside'
+        ? 'Διαθέσιμα κουπόνια (1)'
+        : 'Δες 1 κουπόνι που μπορείς να χρησιμοποιήσεις')
+    })
+
+    it.runIf(tree === 'default')('pluralises the trigger for several claimable coupons', async () => {
+      coupons = [coupon({ code: 'SAVE5' }), coupon({ code: 'GAN20' })]
+      const wrapper = await mount()
+
+      expect(wrapper.find('button').text()).toBe('Δες 2 κουπόνια που μπορείς να χρησιμοποιήσεις')
     })
 
     it('drops the number rather than advertising zero claimable coupons', async () => {
@@ -237,6 +250,30 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
       expect(couponListCalls()).toBeGreaterThan(listedBefore)
       expect(api.callsTo('/api/cart')).toEqual([])
     })
+  })
+
+  it.runIf(tree === 'default')('shows the code and what the coupon does in the list', async () => {
+    coupons = [coupon({ code: 'GAN20', promotion: { name: '-20% στους φορτιστές GaN', description: 'Μόνο για φορτιστές' } })]
+    const wrapper = await mount()
+
+    await open(wrapper)
+
+    expect(document.body.querySelector('code')!.textContent).toBe('GAN20')
+    expect(bodyText()).toContain('-20% στους φορτιστές GaN')
+    expect(bodyText()).toContain('Μόνο για φορτιστές')
+  })
+
+  it.runIf(tree === 'default')('opens the list as a bottom sheet on a phone, and applies from it', async () => {
+    device.mobile = true
+    coupons = [coupon({ code: 'SAVE5' })]
+    const wrapper = await mount()
+
+    await open(wrapper)
+
+    expect(document.body.querySelector('[data-vaul-drawer]')).not.toBeNull()
+    modalButtons('Εφαρμογή')[0]!.click()
+    await flushPromises()
+    expect(wrapper.emitted('applied')).toEqual([['SAVE5']])
   })
 
   it('re-judges the coupons when the basket\'s value changes', async () => {

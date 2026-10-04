@@ -81,7 +81,7 @@ const applyCoupon = async () => {
           })
         : t('applied_no_discount'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
   }
   catch (error: any) {
@@ -116,51 +116,43 @@ const removeCoupon = async () => {
 </script>
 
 <template>
-  <div v-if="promotionsEnabled" class="space-y-3">
-    <span
+  <div v-if="promotionsEnabled" class="flex flex-col gap-3">
+    <div
+      v-if="appliedCodes.length"
       class="
-        text-sm font-medium text-primary-900
-        dark:text-primary-100
+        flex items-center gap-3 rounded-xl bg-(--ui-success-soft) px-3 py-2.5
+        text-sm text-highlighted
       "
     >
-      {{ t('title') }}
-    </span>
-
-    <UAlert
-      v-if="appliedCodes.length"
-      color="success"
-      variant="soft"
-      :title="t('applied_title')"
-      icon="i-heroicons-ticket"
-      :close="{ variant: 'link' }"
-      @update:open="(value: boolean) => { if (!value) removeCoupon() }"
-    >
-      <template #description>
-        <div class="space-y-1 text-sm">
-          <p
-            v-for="row in couponRows"
-            :key="`coupon-${row.code}`"
-            class="flex items-center justify-between gap-3"
-          >
-            <span class="font-mono font-semibold tracking-wide">
-              {{ row.code }}
-            </span>
-            <strong
-              v-if="row.amount > 0"
-              class="shrink-0 text-success-700 dark:text-success-300"
-            >
-              -{{ $i18n.n(row.amount, 'currency') }}
-            </strong>
-            <span
-              v-else
-              class="shrink-0 text-xs opacity-80"
-            >
-              {{ t('no_discount_better_offer') }}
-            </span>
-          </p>
-        </div>
-      </template>
-    </UAlert>
+      <UIcon name="i-lucide-tag" class="size-4 shrink-0" />
+      <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+        <p
+          v-for="row in couponRows"
+          :key="`coupon-${row.code}`"
+          class="flex flex-wrap items-baseline gap-x-2"
+        >
+          <span class="font-mono font-semibold">
+            {{ row.code }}
+          </span>
+          <span>{{ t('applied') }}</span>
+          <strong v-if="row.amount > 0">
+            -{{ $i18n.n(row.amount, 'currency') }}
+          </strong>
+          <span v-else class="text-xs">
+            {{ t('no_discount_better_offer') }}
+          </span>
+        </p>
+      </div>
+      <UButton
+        :label="t('remove')"
+        color="neutral"
+        variant="link"
+        size="sm"
+        :loading="submitting"
+        class="shrink-0 p-0"
+        @click="removeCoupon"
+      />
+    </div>
 
     <UForm
       v-else
@@ -173,12 +165,12 @@ const removeCoupon = async () => {
         <UFormField
           name="code"
           :label="t('label')"
+          :error="couponError ?? undefined"
           :ui="{ root: 'flex-1', label: 'sr-only' }"
         >
           <UInput
             v-model="formState.code"
-            icon="i-heroicons-ticket"
-            :placeholder="t('placeholder')"
+            :placeholder="t('label')"
             :disabled="submitting"
             :aria-label="t('label')"
             autocomplete="off"
@@ -188,7 +180,8 @@ const removeCoupon = async () => {
         </UFormField>
         <UButton
           type="submit"
-          color="secondary"
+          color="neutral"
+          variant="outline"
           :loading="submitting"
           :disabled="!formState.code.trim()"
         >
@@ -196,16 +189,6 @@ const removeCoupon = async () => {
         </UButton>
       </div>
     </UForm>
-
-    <p
-      v-if="couponError"
-      class="
-        text-sm text-error-600
-        dark:text-error-400
-      "
-    >
-      {{ couponError }}
-    </p>
 
     <!-- The coupons this cart can actually use, pre-judged by Django.
          Renders nothing when the store publishes none, so a store
@@ -216,9 +199,9 @@ const removeCoupon = async () => {
 
 <i18n lang="yaml">
 el:
-  title: "Κουπόνι έκπτωσης"
   label: "Κωδικός κουπονιού"
-  placeholder: "π.χ. WELCOME10"
+  applied: "εφαρμόστηκε"
+  remove: "Αφαίρεση"
   apply: "Εφαρμογή"
   applied_title: "Το κουπόνι εφαρμόστηκε"
   applied_description: "Έκπτωση {amount}"
@@ -229,9 +212,9 @@ el:
     too_short: "Ο κωδικός είναι πολύ σύντομος"
     too_long: "Ο κωδικός είναι πολύ μεγάλος"
 en:
-  title: "Discount coupon"
   label: "Coupon code"
-  placeholder: "e.g. WELCOME10"
+  applied: "applied"
+  remove: "Remove"
   apply: "Apply"
   applied_title: "Coupon applied"
   applied_description: "Discount {amount}"

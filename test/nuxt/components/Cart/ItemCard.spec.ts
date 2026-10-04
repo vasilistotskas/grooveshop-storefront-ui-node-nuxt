@@ -6,14 +6,16 @@ import WebsideCartItemCard from '~/components/variants/webside/Cart/ItemCard.vue
 import { useCartStore } from '~/stores/cart'
 import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
-import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
 
 /**
  * A cart line: its prices, a stepper capped at the stock, and removal
  * with an Undo that re-creates the line — the row id dies with the
- * DELETE, so Undo can only add the same product and quantity back. The
- * trees differ only in the `Webside` stepper prefix and the `en:` block.
+ * DELETE, so Undo can only add the same product and quantity back.
+ *
+ * The default card is the redesign's (brand, struck "was" price,
+ * "2 × unit", a compact drawer row); the frozen webside card keeps its
+ * own suite below, unchanged.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const toast = vi.hoisted(() => ({ add: vi.fn(), remove: vi.fn(), update: vi.fn(), clear: vi.fn() }))
@@ -37,7 +39,91 @@ async function clickUndo() {
   await flushPromises()
 }
 
-describe.each(trees(CartItemCard, WebsideCartItemCard))('$tree Cart/ItemCard', ({ C }) => {
+describe('Cart/ItemCard (default)', () => {
+  beforeEach(async () => {
+    await useCartStore().cleanCartState()
+    useCartStore().cart = makeCart({ items: [LINE] })
+    api.routes({ '/api/cart': makeCart({ items: [] }) })
+  })
+
+  const mount = (overrides: CartItemOverrides = LINE, compact = false) =>
+    mountSuspended(CartItemCard, { route: false, props: { cartItem: makeCartItem(overrides), compact } })
+  const removeButton = (wrapper: Awaited<ReturnType<typeof mount>>) =>
+    wrapper.get('button[aria-label="Αφαίρεση του «Προϊόν 3» από το καλάθι"]')
+
+  it('links the name to the product and prices the line, struck at what it was, with the unit for more than one', async () => {
+    const item = makeCartItem(LINE)
+    const wrapper = await mount()
+
+    expect(wrapper.findAll('a').map(link => link.attributes('href'))).toEqual(['/products/3/kafetiera', '/products/3/kafetiera'])
+    expect(wrapper.text()).toContain('Προϊόν 3')
+    expect(wrapper.text()).toContain(money(item.totalPrice))
+    expect(wrapper.get('s').text()).toBe(`Αρχική τιμή: ${money((item.finalPrice + item.discountValue) * 2)}`)
+    expect(wrapper.text()).toContain(`2 × ${money(item.finalPrice)}`)
+  })
+
+  it('strikes nothing without an offer, and shows no unit price for a single item', async () => {
+    const wrapper = await mount({ ...LINE, quantity: 1, product: { ...LINE.product, discountPercent: 0 } })
+
+    expect(wrapper.find('s').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('1 ×')
+  })
+
+  it('shows the brand on the page row and leaves it out of the compact drawer row', async () => {
+    const withBrand = { ...LINE, product: { ...LINE.product, brandName: 'VOLTRA' } }
+
+    expect((await mount(withBrand)).text()).toContain('VOLTRA')
+    expect((await mount(withBrand, true)).text()).not.toContain('VOLTRA')
+  })
+
+  it('labels remove on the page row and keeps it an icon in the compact row', async () => {
+    expect(removeButton(await mount()).text()).toBe('Αφαίρεση')
+    expect(removeButton(await mount(LINE, true)).text()).toBe('')
+  })
+
+  it('caps the quantity stepper at the product stock', async () => {
+    const wrapper = await mount()
+
+    expect(wrapper.find('[role="spinbutton"]').attributes('aria-valuemax')).toBe('4')
+  })
+
+  it('removes the line and offers to undo it, putting the same product and quantity back', async () => {
+    const wrapper = await mount()
+
+    await removeButton(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo('/api/cart/items/7')).toEqual([
+      { url: '/api/cart/items/7', options: expect.objectContaining({ method: 'DELETE' }) },
+    ])
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      title: 'Αφαιρέθηκε από το καλάθι',
+      description: 'Το «Προϊόν 3» αφαιρέθηκε.',
+      duration: 8000,
+      actions: [expect.objectContaining({ label: 'Αναίρεση' })],
+    }))
+
+    await clickUndo()
+
+    expect(api.callsTo('/api/cart/items')).toEqual([
+      { url: '/api/cart/items', options: expect.objectContaining({ method: 'POST', body: { product: 3, quantity: 2 } }) },
+    ])
+  })
+
+  it('reports a failed removal and offers no Undo', async () => {
+    api.routes({ '/api/cart': makeCart({ items: [LINE] }), '/api/cart/items/7': serverError })
+    const wrapper = await mount()
+
+    await removeButton(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({ title: 'Δεν αφαιρέθηκε από το καλάθι. Δοκίμασε ξανά.', color: 'error' })
+  })
+})
+
+describe('Cart/ItemCard (frozen webside)', () => {
+  const C = WebsideCartItemCard
+
   beforeEach(async () => {
     await useCartStore().cleanCartState()
     useCartStore().cart = makeCart({ items: [LINE] })

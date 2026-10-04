@@ -13,11 +13,15 @@ import type { ButtonProps } from '@nuxt/ui'
  * cached anonymous render, so the server cannot know it — and a server
  * label that differs from the client's stays stale, because Vue does
  * not patch a mismatched attribute while hydrating.
+ *
+ * Once the page is running it opens the cart drawer; until then (the
+ * server render, a page still hydrating) it is a plain link to the cart.
  */
 const cartStore = useCartStore()
 const { getCartTotalItems, hasStockIssues, pending } = storeToRefs(cartStore)
 const { t } = useI18n()
 const localePath = useLocalePath()
+const drawer = useCartDrawer()
 
 const count = computed(() => Number(getCartTotalItems.value) || 0)
 
@@ -32,13 +36,12 @@ const label = computed(() =>
   count.value ? t('cart_with_items', { count: count.value }, count.value) : t('cart'),
 )
 
-const button = computed<ButtonProps>(() => ({
-  icon: 'i-heroicons-shopping-bag',
+const button: ButtonProps = {
+  icon: 'i-lucide-shopping-bag',
   color: 'neutral',
   variant: 'ghost',
   square: true,
-  to: localePath('cart'),
-}))
+}
 </script>
 
 <template>
@@ -54,12 +57,15 @@ const button = computed<ButtonProps>(() => ({
       <UButton
         v-bind="button"
         :aria-label="label"
+        aria-haspopup="dialog"
+        @click="() => drawer.show()"
       />
     </UChip>
 
     <template #fallback>
       <UButton
         v-bind="button"
+        :to="localePath('cart')"
         :aria-label="t('cart')"
       />
     </template>

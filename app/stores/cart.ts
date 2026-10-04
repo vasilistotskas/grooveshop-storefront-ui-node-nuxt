@@ -323,6 +323,41 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  /**
+   * Empty the cart ("Empty cart"): Django deletes the cart and the session
+   * forgets it, so there is no cart until the next item starts one. Each
+   * line leaves the analytics the way a single removal does.
+   */
+  async function clearCart() {
+    const opId = crypto.randomUUID()
+    inFlight.add(opId)
+    const removedItems = cart.value?.items ?? []
+    try {
+      await $api('/api/cart', {
+        method: 'DELETE',
+        headers: useRequestHeaders(),
+      })
+      cart.value = null
+      error.value = null
+      for (const item of removedItems) {
+        if (!item.product?.id) continue
+        trackCartQuantityChange(
+          item.product.id,
+          -Number(item.quantity ?? 1),
+          Number(item.product.finalPrice ?? item.product.price ?? 0),
+        )
+      }
+    }
+    catch (err) {
+      log.error({ action: 'cart:clear', error: err })
+      error.value = serializeError(err)
+      throw err
+    }
+    finally {
+      inFlight.delete(opId)
+    }
+  }
+
   async function setupCart() {
     const headers = useRequestHeaders()
     const opId = crypto.randomUUID()
@@ -398,6 +433,7 @@ export const useCartStore = defineStore('cart', () => {
     createCartItem,
     updateCartItem,
     deleteCartItem,
+    clearCart,
     cleanCartState,
     trackCartQuantityChange,
   }
