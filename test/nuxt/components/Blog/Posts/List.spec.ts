@@ -19,8 +19,23 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const state = vi.hoisted(() => ({ query: {} as Record<string, string> }))
-mockNuxtImport('useRoute', () => () => ({ name: 'blog___el', params: {}, query: state.query, path: '/blog', fullPath: '/blog', hash: '', meta: {}, matched: [] }))
+// Reactive, so a test can change the filter on a list that is already mounted.
+const state = await vi.hoisted(async () => {
+  const { reactive } = await import('vue')
+  return reactive({ query: {} as Record<string, string> })
+})
+mockNuxtImport('useRoute', () => () => ({
+  name: 'blog___el',
+  params: {},
+  get query() {
+    return state.query
+  },
+  path: '/blog',
+  fullPath: '/blog',
+  hash: '',
+  meta: {},
+  matched: [],
+}))
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(false),
   user: ref(null),
@@ -173,6 +188,18 @@ describe('Blog/Posts/List', () => {
 
     expect(wrapper.text()).toContain(messages.empty.title)
     expect(wrapper.find('[data-stub="pagination"]').exists()).toBe(false)
+  })
+
+  it('replaces the posts with the empty state when a filter changes on a list already showing posts', async () => {
+    const wrapper = await mountList()
+    expect(ids(wrapper, 'card')).not.toEqual([])
+
+    given([])
+    state.query = { search: 'zzz' }
+
+    await vi.waitFor(() => expect(wrapper.text()).toContain(messages.empty_filtered.title))
+    expect(ids(wrapper, 'card')).toEqual([])
+    expect(ids(wrapper, 'featured')).toEqual([])
   })
 
   it('says nothing matches, with a way back to all articles, for a search with no results', async () => {

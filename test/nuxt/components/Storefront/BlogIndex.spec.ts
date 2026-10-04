@@ -75,23 +75,23 @@ describe('Storefront/BlogIndex', () => {
     it('puts the trimmed term in the URL, back on the first page, keeping the filters', async () => {
       state.query = { category: '2', page: '3' }
       const wrapper = await mountPage()
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
 
       await wrapper.get('form[role="search"] input').setValue('  gan  ')
       await wrapper.get('form[role="search"]').trigger('submit')
 
-      expect(replace).toHaveBeenCalledWith('/blog?category=2&search=gan')
+      expect(push).toHaveBeenCalledWith('/blog?category=2&search=gan')
     })
 
     it('takes the term out of the URL when it is cleared', async () => {
       state.query = { search: 'gan' }
       const wrapper = await mountPage()
-      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined)
 
       await wrapper.get('form[role="search"] input').setValue('   ')
       await wrapper.get('form[role="search"]').trigger('submit')
 
-      expect(replace).toHaveBeenCalledWith('/blog')
+      expect(push).toHaveBeenCalledWith('/blog')
     })
   })
 })

@@ -30,7 +30,7 @@ watch(() => route.query.search, (value) => {
 
 const onSearch = async () => {
   const value = term.value.trim()
-  await router.replace(localePath({
+  await router.push(localePath({
     path: route.path,
     query: { ...route.query, search: value || undefined, page: undefined },
   }))

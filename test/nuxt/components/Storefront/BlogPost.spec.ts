@@ -96,11 +96,11 @@ const RICH_POST = {
 }
 
 describe('BlogPost page (default tree)', () => {
-  function serve(post: Record<string, unknown> = RICH_POST, related: unknown[] = []) {
+  function serve(post: Record<string, unknown> = RICH_POST, related: unknown[] = [], category: unknown = POST.category) {
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
       '/api/blog/posts/7': post,
-      '/api/blog/categories/2': POST.category,
+      '/api/blog/categories/2': category,
       '/api/blog/authors/3': post.author,
       '/api/blog/posts/7/related-posts': related,
       '/api/*': empty,
@@ -141,12 +141,24 @@ describe('BlogPost page (default tree)', () => {
     expect(wrapper.find('aside').exists()).toBe(false)
   })
 
-  it('trails Blog, then the category of the post', async () => {
+  it('trails Blog, the category linked to its page, then the post as the current page', async () => {
     const wrapper = await mount()
 
     expect(wrapper.findComponent({ name: 'PageBreadcrumb' }).props('items')).toEqual([
       { label: 'Blog', to: '/blog' },
-      { label: 'Οδηγοί' },
+      { label: 'Οδηγοί', to: '/blog/category/2/guides' },
+      { label: 'Οδηγός άνοιξης' },
+    ])
+  })
+
+  it('leaves out a category with no name in this language rather than an empty link', async () => {
+    serve(RICH_POST, [], { ...POST.category, translations: { en: { name: 'Guides' } } })
+
+    const wrapper = await mount()
+
+    expect(wrapper.findComponent({ name: 'PageBreadcrumb' }).props('items')).toEqual([
+      { label: 'Blog', to: '/blog' },
+      { label: 'Οδηγός άνοιξης' },
     ])
   })
 

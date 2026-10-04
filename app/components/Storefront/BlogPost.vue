@@ -6,7 +6,7 @@ const userStore = useUserStore()
 const siteConfig = useSiteConfig()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
-const { blogAuthorUrl } = useUrls()
+const { blogAuthorUrl, blogCategoryUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 const img = useMediaStreamImage()
 const siteUrl = siteConfig.url
@@ -210,12 +210,21 @@ const ogImage = computed(() => {
   })
 })
 
-// Home is the crumb's own; the category is the page's section, and the
-// title is the heading just below.
-const breadcrumb = computed(() => [
-  { label: t('breadcrumb.blog'), to: '/blog' },
-  { label: blogPostCategoryName.value },
-])
+// Home is the crumb's own. The category links to its page, and the post
+// is the current page — the last crumb always is (PageBreadcrumb), so
+// ending the trail on the category announced the category as this page.
+// A category with no name in this language is left out rather than
+// shown as an empty link.
+const breadcrumb = computed(() => {
+  const category = blogPost.value?.category
+  return [
+    { label: t('breadcrumb.blog'), to: '/blog' },
+    ...(category && blogPostCategoryName.value
+      ? [{ label: blogPostCategoryName.value, to: blogCategoryUrl(category) }]
+      : []),
+    { label: blogPostTitle.value },
+  ]
+})
 
 const shareOptions = computed(() => ({
   title: blogPostTitle.value,

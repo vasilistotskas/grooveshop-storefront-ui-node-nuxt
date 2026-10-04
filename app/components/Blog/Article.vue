@@ -51,6 +51,8 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
   margin-block-end: 1.25rem;
 }
 
+/* An editor's h1 is a section heading here: the page has its own. */
+.blog-article :deep(h1),
 .blog-article :deep(h2),
 .blog-article :deep(h3) {
   color: var(--ui-text-highlighted);
@@ -62,9 +64,92 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
   scroll-margin-top: 7rem;
 }
 
+.blog-article :deep(h1),
 .blog-article :deep(h2) {
   font-size: 1.625rem;
   margin-top: 2.5rem;
+}
+
+/* Tailwind's preflight leaves h4–h6 at body size and weight; give them
+   the steps below h3 so an editor's sub-headings still read as such. */
+.blog-article :deep(h4),
+.blog-article :deep(h5),
+.blog-article :deep(h6) {
+  color: var(--ui-text-highlighted);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.75rem;
+  scroll-margin-top: 7rem;
+}
+
+.blog-article :deep(h4) {
+  font-size: 1.1875rem;
+}
+
+.blog-article :deep(h5) {
+  font-size: 1.0625rem;
+}
+
+.blog-article :deep(h6) {
+  font-size: 1rem;
+}
+
+/* FAQ items from the editor's accordion plugin: <details
+   class="mce-accordion"> with a <summary> question and the answer as its
+   other children (the editing wrapper is dropped on save). Native
+   <details>, so it opens with no JavaScript in a body that is never
+   hydrated. Drawn like the redesign's FAQ rows (Storefront/
+   LoyaltyProgram): a rule between items, the question bold, a chevron
+   that turns. `.article` keeps its own look for the CMS pages and
+   webside. */
+.blog-article :deep(details.mce-accordion) {
+  border-top: 1px solid var(--ui-border);
+  margin-block-end: 0;
+}
+
+.blog-article :deep(details.mce-accordion:last-of-type) {
+  border-bottom: 1px solid var(--ui-border);
+  margin-block-end: 1.25rem;
+}
+
+.blog-article :deep(details.mce-accordion > summary) {
+  align-items: center;
+  color: var(--ui-text-highlighted);
+  cursor: pointer;
+  display: flex;
+  font-weight: 700;
+  gap: 0.75rem;
+  list-style: none;
+  padding-block: 1.125rem;
+}
+
+.blog-article :deep(details.mce-accordion > summary::-webkit-details-marker) {
+  display: none;
+}
+
+.blog-article :deep(details.mce-accordion > summary::after) {
+  background-color: currentcolor;
+  block-size: 1rem;
+  content: "";
+  flex-shrink: 0;
+  inline-size: 1rem;
+  margin-inline-start: auto;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: rotate 200ms ease-out;
+}
+
+.blog-article :deep(details.mce-accordion[open] > summary::after) {
+  rotate: 180deg;
+}
+
+.blog-article :deep(details.mce-accordion[open]) {
+  padding-block-end: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-article :deep(details.mce-accordion > summary::after) {
+    transition: none;
+  }
 }
 
 @media (min-width: 64rem) {
@@ -76,6 +161,7 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
     font-size: 1.375rem;
   }
 
+  .blog-article :deep(h1),
   .blog-article :deep(h2) {
     font-size: 2rem;
   }
