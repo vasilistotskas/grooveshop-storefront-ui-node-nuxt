@@ -2,7 +2,7 @@
 import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js'
 import * as z from 'zod'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const toast = useToast()
 const tenantStore = useTenantStore()
@@ -12,6 +12,8 @@ useSeoMeta({
   title: () => t('title'),
   description: () => t('description'),
 })
+
+const breadcrumb = computed(() => [{ label: t('title') }])
 
 // Purchase bounds are merchant-tunable (extra_settings); an unset
 // bound keeps the platform default.
@@ -56,35 +58,70 @@ const providerOptions = computed(() =>
     value: code,
   })))
 
-// Desktop value-prop aside. Every claim here is a real property of
-// the feature: email delivery (with optional scheduling), ledger-based
-// partial redemption across orders, and merchant-tunable bounds.
+// Value props beside the card. Every claim is a real property of the
+// feature: email delivery (instantly or on a chosen date — the
+// purchase's `deliverAt`) and ledger-based partial redemption across
+// orders. No validity claim: the card's expiry is the store's to set.
 const benefits = computed(() => [
   {
-    icon: 'i-heroicons-envelope',
+    icon: 'i-lucide-gift',
     title: t('benefits.delivery.title'),
     description: t('benefits.delivery.description'),
   },
   {
-    icon: 'i-heroicons-banknotes',
+    icon: 'i-lucide-refresh-cw',
     title: t('benefits.balance.title'),
     description: t('benefits.balance.description'),
   },
-  {
-    icon: 'i-heroicons-adjustments-horizontal',
-    title: t('benefits.amount.title'),
-    description: t('benefits.amount.description', {
-      min: $i18n.n(minAmount.value, 'currency'),
-      max: $i18n.n(maxAmount.value, 'currency'),
-    }),
-  },
 ])
+
+// ── The wizard: Amount → Recipient → Payment ────────────────────────
+type WizardStep = 'amount' | 'recipient' | 'payment'
+const wizard = ref<WizardStep>('amount')
+const steps = computed(() => [
+  { title: t('steps.amount'), value: 'amount' },
+  { title: t('steps.recipient'), value: 'recipient' },
+  { title: t('steps.payment'), value: 'payment' },
+])
+
+// The fields each step asks for, so Continue validates only those.
+const STEP_FIELDS: Record<WizardStep, string[]> = {
+  amount: ['amount'],
+  recipient: ['buyerEmail', 'recipientEmail', 'recipientName', 'senderName', 'message', 'deliverDate'],
+  payment: [],
+}
 
 const SUGGESTED_AMOUNTS = [25, 50, 100]
 const suggestedAmounts = computed(() =>
   SUGGESTED_AMOUNTS.filter(
     amount => amount >= minAmount.value && amount <= maxAmount.value,
   ))
+
+// One radio card per suggested amount, then "Other" for a typed one.
+const OTHER = 'other'
+const amountChoice = ref<string>(suggestedAmounts.value.includes(50) ? '50' : OTHER)
+const amountItems = computed(() => [
+  ...suggestedAmounts.value.map(amount => ({
+    label: $i18n.n(amount, 'currency'),
+    value: String(amount),
+  })),
+  { label: t('fields.amount_other'), value: OTHER },
+])
+
+// "Send on a date" is the purchase's `deliverAt`; "Now" leaves it out
+// and Django delivers right after payment.
+const sendMode = ref<'now' | 'date'>('now')
+const sendItems = computed(() => [
+  { label: t('fields.send_now'), value: 'now', icon: 'i-lucide-send' },
+  { label: t('fields.send_date'), value: 'date', icon: 'i-lucide-calendar' },
+])
+const pad = (value: number) => String(value).padStart(2, '0')
+// A scheduled card goes out from tomorrow; "Now" covers today.
+const minDeliverDate = computed(() => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`
+})
 
 const purchaseSchema = computed(() => z.object({
   amount: z
@@ -104,7 +141,11 @@ const purchaseSchema = computed(() => z.object({
   recipientName: z.string().max(255).optional(),
   senderName: z.string().max(255).optional(),
   message: z.string().max(2000, { error: t('validation.message_max') }).optional(),
-}))
+  deliverDate: z.string().optional(),
+}).refine(
+  state => sendMode.value !== 'date' || (state.deliverDate !== undefined && state.deliverDate >= minDeliverDate.value),
+  { error: t('validation.date_required'), path: ['deliverDate'] },
+))
 
 const formState = reactive({
   amount: 50 as number | undefined,
@@ -113,7 +154,24 @@ const formState = reactive({
   recipientName: '',
   senderName: '',
   message: '',
+  deliverDate: '',
 })
+
+// The amount cards write the amount; "Other" leaves the typed one.
+watch(amountChoice, (choice) => {
+  if (choice !== OTHER) formState.amount = Number(choice)
+})
+
+// Midnight of the chosen day, local time: the scheduled sweep delivers
+// it on that day without the form promising an hour.
+const deliverAt = computed(() =>
+  sendMode.value === 'date' && formState.deliverDate
+    ? new Date(`${formState.deliverDate}T00:00:00`).toISOString()
+    : undefined)
+
+const formRef = useTemplateRef<{
+  validate: (opts?: { name?: string | string[] }) => Promise<unknown>
+}>('formRef')
 
 const step = ref<'form' | 'payment' | 'success'>('form')
 const submitting = ref(false)
@@ -121,6 +179,21 @@ const purchaseError = ref<string | null>(null)
 const clientSecret = ref<string | null>(null)
 const purchasedAmount = ref(0)
 const recipientEmailDisplay = ref('')
+
+async function goTo(target: WizardStep) {
+  const order: WizardStep[] = ['amount', 'recipient', 'payment']
+  // Going forward asks for what the steps it passes need.
+  if (order.indexOf(target) > order.indexOf(wizard.value)) {
+    try {
+      await formRef.value?.validate({ name: STEP_FIELDS[wizard.value] })
+    }
+    catch {
+      // UForm has put the messages on the fields.
+      return
+    }
+  }
+  wizard.value = target
+}
 
 const startPurchase = async () => {
   if (!selectedProvider.value) {
@@ -147,6 +220,7 @@ const startPurchase = async () => {
         recipientName: formState.recipientName || undefined,
         senderName: formState.senderName || undefined,
         message: formState.message || undefined,
+        deliverAt: deliverAt.value,
         paymentProvider: selectedProvider.value,
       },
     })
@@ -239,7 +313,7 @@ const confirmPayment = async () => {
     toast.add({
       title: t('success.title'),
       color: 'success',
-      icon: 'i-heroicons-gift',
+      icon: 'i-lucide-gift',
     })
   }
   catch (error) {
@@ -253,374 +327,462 @@ const confirmPayment = async () => {
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col gap-6">
-    <PageTitle :text="t('title')" />
+  <UContainer class="flex flex-col gap-8 pt-6 pb-14 lg:gap-10 lg:pb-22">
+    <div class="flex flex-col gap-6">
+      <PageBreadcrumb :items="breadcrumb" />
 
-    <!--
-      Desktop gets a two-column composition: the value-prop aside on
-      the left, the form on the right. Below ``lg`` it collapses to a
-      single centred column with the FORM FIRST (order-1) so mobile
-      shoppers are not made to scroll past marketing copy to buy —
-      the aside becomes supporting content underneath.
-    -->
-    <div
-      class="
-        mx-auto grid w-full max-w-xl gap-8
-        lg:max-w-(--container-6xl) lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]
-        lg:items-start
-      "
-    >
-      <aside
-        v-if="step === 'form'"
-        class="
-          order-2 space-y-6
-          lg:order-1 lg:sticky lg:top-24
-        "
-      >
-        <div
+      <header class="flex flex-col gap-2">
+        <h1
           class="
-            relative overflow-hidden rounded-2xl border border-primary-200 p-6
-            dark:border-primary-800
+            font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+            text-highlighted
+            lg:text-[2.25rem]/[1.1]
           "
         >
-          <div
-            class="
-              absolute inset-0 bg-linear-to-br from-(--ui-secondary)/15
-              via-transparent to-success/15
-            "
-            aria-hidden="true"
-          />
-          <div class="relative flex items-start gap-4">
-            <div
-              class="
-                flex size-14 shrink-0 items-center justify-center rounded-xl
-                bg-(--ui-secondary)/15
-              "
-            >
-              <UIcon
-                name="i-heroicons-gift"
-                class="size-8 text-(--ui-secondary)"
-              />
-            </div>
-            <div class="min-w-0 space-y-1">
-              <h2
-                class="
-                  text-xl font-bold text-primary-950
-                  dark:text-primary-50
-                "
-              >
-                {{ t('hero.title') }}
-              </h2>
-              <p class="text-sm text-muted">
-                {{ t('hero.subtitle') }}
-              </p>
-            </div>
-          </div>
-        </div>
+          {{ t('title') }}
+        </h1>
+        <p class="max-w-2xl text-toned">
+          {{ t('description') }}
+        </p>
+      </header>
+    </div>
 
-        <ul class="grid gap-3">
+    <div
+      class="
+        grid items-start gap-8
+        lg:grid-cols-2
+      "
+    >
+      <div
+        v-if="step !== 'success'"
+        class="flex flex-col gap-6"
+      >
+        <GiftCardPreview
+          :amount="formState.amount"
+          :recipient-name="formState.recipientName"
+          :sender-name="formState.senderName"
+          :message="formState.message"
+        />
+
+        <ul
+          class="
+            grid gap-4
+            sm:grid-cols-2
+          "
+        >
           <li
             v-for="benefit in benefits"
             :key="benefit.title"
-            class="
-              flex items-start gap-3 rounded-xl border border-primary-200 p-4
-              dark:border-primary-800
-            "
+            class="flex flex-col gap-1"
           >
             <UIcon
               :name="benefit.icon"
-              class="mt-0.5 size-5 shrink-0 text-success"
+              class="size-5 text-highlighted"
             />
-            <div class="min-w-0">
-              <p
-                class="
-                  text-sm font-semibold text-primary-950
-                  dark:text-primary-50
-                "
-              >
-                {{ benefit.title }}
-              </p>
-              <p class="text-sm text-muted">
-                {{ benefit.description }}
-              </p>
-            </div>
+            <p class="font-semibold text-highlighted">
+              {{ benefit.title }}
+            </p>
+            <p class="text-sm text-toned">
+              {{ benefit.description }}
+            </p>
           </li>
         </ul>
-      </aside>
+      </div>
 
-      <!-- Step 1: details -->
-      <UCard
-        v-if="step === 'form'"
+      <section
         class="
-          order-1
-          lg:order-2
+          flex flex-col gap-6 rounded-[1.25rem] bg-default p-5 ring ring-default
+          sm:p-6
         "
+        :class="step === 'success' ? 'lg:col-span-2' : ''"
       >
-        <template #header>
-          <div class="space-y-1">
-            <h2 class="text-lg font-semibold">
-              {{ t('form_title') }}
-            </h2>
-            <p class="text-sm text-muted">
-              {{ t('description') }}
-            </p>
-          </div>
-        </template>
-
-        <UForm
-          :state="formState"
-          :schema="purchaseSchema"
-          class="space-y-4"
-          @error="scrollToFirstFormError"
-          @submit="startPurchase"
+        <!-- Step 3 of 3: the purchase went through -->
+        <div
+          v-if="step === 'success'"
+          class="flex flex-col items-center gap-3 py-6 text-center"
         >
-          <UFormField :label="t('fields.amount')" name="amount" required>
-            <div class="space-y-2">
-              <div
-                class="
-                  grid grid-cols-3 gap-2
-                "
-              >
-                <UButton
-                  v-for="amount in suggestedAmounts"
-                  :key="amount"
-                  :variant="formState.amount === amount ? 'solid' : 'outline'"
-                  color="secondary"
-                  size="lg"
-                  block
-                  :aria-pressed="formState.amount === amount"
-                  @click="formState.amount = amount"
-                >
-                  {{ $i18n.n(amount, 'currency') }}
-                </UButton>
-              </div>
-              <UInputNumber
-                v-model="formState.amount"
-                :min="minAmount"
-                :max="maxAmount"
-                :step="5"
-                :aria-label="t('fields.amount')"
-              />
-              <p class="text-xs text-muted">
-                {{ t('fields.amount_hint', { min: $i18n.n(minAmount, 'currency'), max: $i18n.n(maxAmount, 'currency') }) }}
-              </p>
-            </div>
-          </UFormField>
-
-          <UFormField :label="t('fields.buyer_email')" name="buyerEmail" required>
-            <UInput
-              v-model="formState.buyerEmail"
-              icon="i-heroicons-envelope"
-              type="email"
-              autocomplete="email"
-            />
-          </UFormField>
-
-          <UFormField :label="t('fields.recipient_email')" name="recipientEmail" required>
-            <UInput
-              v-model="formState.recipientEmail"
-              icon="i-heroicons-envelope"
-              type="email"
-            />
-          </UFormField>
-
-          <UFormField :label="t('fields.recipient_name')" name="recipientName">
-            <UInput v-model="formState.recipientName" icon="i-heroicons-user" />
-          </UFormField>
-
-          <UFormField :label="t('fields.sender_name')" name="senderName">
-            <UInput v-model="formState.senderName" icon="i-heroicons-user" />
-          </UFormField>
-
-          <UFormField :label="t('fields.message')" name="message">
-            <UTextarea
-              v-model="formState.message"
-              :rows="3"
-              :placeholder="t('fields.message_placeholder')"
-            />
-          </UFormField>
-
-          <UFormField
-            v-if="providerOptions.length > 1"
-            :label="t('fields.payment_method')"
-            name="paymentProvider"
-          >
-            <URadioGroup
-              v-model="selectedProvider"
-              :items="providerOptions"
-              variant="card"
-              indicator="end"
-              color="secondary"
-            />
-          </UFormField>
-
-          <p
-            v-if="purchaseError"
-            class="
-              text-sm text-error-600
-              dark:text-error-400
-            "
-          >
-            {{ purchaseError }}
-          </p>
-
-          <UButton
-            type="submit"
-            size="lg"
-            color="secondary"
-            block
-            :loading="submitting"
-          >
-            {{ t('continue_to_payment') }}
-          </UButton>
-        </UForm>
-      </UCard>
-
-      <!-- Step 2: card payment -->
-      <UCard v-else-if="step === 'payment'">
-        <template #header>
-          <h2 class="text-lg font-semibold">
-            {{ t('payment_title', { amount: $i18n.n(purchasedAmount, 'currency') }) }}
-          </h2>
-        </template>
-
-        <div class="space-y-4">
-          <div
-            ref="cardElementRef"
-            class="
-              rounded-lg border border-primary-200 p-4
-              dark:border-primary-800
-            "
-          />
-
-          <p
-            v-if="cardError"
-            class="
-              text-sm text-error-600
-              dark:text-error-400
-            "
-          >
-            {{ cardError }}
-          </p>
-
-          <UButton
-            size="lg"
-            color="secondary"
-            block
-            :loading="paying"
-            :disabled="!isCardComplete"
-            @click="confirmPayment"
-          >
-            {{ t('pay_now', { amount: $i18n.n(purchasedAmount, 'currency') }) }}
-          </UButton>
-        </div>
-      </UCard>
-
-      <!-- Step 3: success -->
-      <UCard v-else>
-        <div class="space-y-4 py-6 text-center">
           <UIcon
-            name="i-heroicons-check-circle"
-            class="mx-auto size-12 text-success"
+            name="i-lucide-circle-check"
+            class="size-12 text-highlighted"
           />
-          <h2 class="text-xl font-semibold">
+          <h2 class="font-display text-xl font-bold text-highlighted">
             {{ t('success.title') }}
           </h2>
-          <p class="text-muted">
+          <p class="text-toned">
             {{ t('success.description', { email: recipientEmailDisplay }) }}
           </p>
         </div>
-      </UCard>
+
+        <template v-else>
+          <UStepper
+            :model-value="wizard"
+            :items="steps"
+            color="secondary"
+            size="sm"
+            :linear="false"
+            @update:model-value="(value) => goTo(value as WizardStep)"
+          />
+
+          <UForm
+            ref="formRef"
+            :state="formState"
+            :schema="purchaseSchema"
+            class="flex flex-col gap-5"
+            @error="scrollToFirstFormError"
+          >
+            <!-- Step 1: amount -->
+            <template v-if="wizard === 'amount'">
+              <UFormField
+                :label="t('fields.amount')"
+                name="amount"
+                required
+              >
+                <div class="flex flex-col gap-3">
+                  <URadioGroup
+                    v-model="amountChoice"
+                    :items="amountItems"
+                    variant="card"
+                    indicator="hidden"
+                    orientation="horizontal"
+                    :legend="t('fields.amount')"
+                    :ui="{
+                      fieldset: `
+                        grid grid-cols-2 gap-2
+                        sm:grid-cols-4
+                      `,
+                      item: 'justify-center font-mono font-semibold',
+                    }"
+                  />
+                  <UInputNumber
+                    v-if="amountChoice === OTHER"
+                    v-model="formState.amount"
+                    :min="minAmount"
+                    :max="maxAmount"
+                    :step="5"
+                    :aria-label="t('fields.amount_other')"
+                  />
+                  <p class="text-xs text-toned">
+                    {{ t('fields.amount_hint', { min: $i18n.n(minAmount, 'currency'), max: $i18n.n(maxAmount, 'currency') }) }}
+                  </p>
+                </div>
+              </UFormField>
+            </template>
+
+            <!-- Step 2: recipient -->
+            <template v-else-if="wizard === 'recipient'">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <UFormField
+                  :label="t('fields.recipient_name')"
+                  name="recipientName"
+                >
+                  <UInput v-model="formState.recipientName" class="w-full" />
+                </UFormField>
+                <UFormField
+                  :label="t('fields.recipient_email')"
+                  name="recipientEmail"
+                  required
+                >
+                  <UInput
+                    v-model="formState.recipientEmail"
+                    type="email"
+                    class="w-full"
+                  />
+                </UFormField>
+                <UFormField
+                  :label="t('fields.sender_name')"
+                  name="senderName"
+                >
+                  <UInput v-model="formState.senderName" class="w-full" />
+                </UFormField>
+                <UFormField
+                  :label="t('fields.buyer_email')"
+                  name="buyerEmail"
+                  :hint="t('fields.buyer_email_hint')"
+                  required
+                >
+                  <UInput
+                    v-model="formState.buyerEmail"
+                    type="email"
+                    autocomplete="email"
+                    class="w-full"
+                  />
+                </UFormField>
+              </div>
+
+              <UFormField
+                :label="t('fields.message')"
+                name="message"
+              >
+                <UTextarea
+                  v-model="formState.message"
+                  :rows="3"
+                  :placeholder="t('fields.message_placeholder')"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <UFormField
+                :label="t('fields.send')"
+                name="deliverDate"
+              >
+                <div class="flex flex-col gap-3">
+                  <URadioGroup
+                    v-model="sendMode"
+                    :items="sendItems"
+                    variant="card"
+                    indicator="hidden"
+                    orientation="horizontal"
+                    :legend="t('fields.send')"
+                    :ui="{
+                      fieldset: 'grid grid-cols-2 gap-2',
+                      item: 'justify-center',
+                    }"
+                  />
+                  <UInput
+                    v-if="sendMode === 'date'"
+                    v-model="formState.deliverDate"
+                    type="date"
+                    :min="minDeliverDate"
+                    :aria-label="t('fields.send_date')"
+                    class="w-full"
+                  />
+                </div>
+              </UFormField>
+            </template>
+
+            <!-- Step 3: payment -->
+            <template v-else>
+              <dl class="flex flex-col gap-1 text-sm">
+                <div class="flex justify-between gap-4">
+                  <dt class="text-toned">
+                    {{ t('summary.amount') }}
+                  </dt>
+                  <dd class="font-mono font-semibold text-highlighted">
+                    {{ $i18n.n(formState.amount ?? 0, 'currency') }}
+                  </dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <dt class="text-toned">
+                    {{ t('summary.to') }}
+                  </dt>
+                  <dd class="text-highlighted">
+                    {{ formState.recipientEmail }}
+                  </dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <dt class="text-toned">
+                    {{ t('summary.delivery') }}
+                  </dt>
+                  <dd class="text-highlighted">
+                    <NuxtTime
+                      v-if="deliverAt"
+                      :datetime="deliverAt"
+                      :locale="locale"
+                      date-style="long"
+                    />
+                    <template v-else>
+                      {{ t('summary.right_away') }}
+                    </template>
+                  </dd>
+                </div>
+              </dl>
+
+              <!-- Card payment (Stripe) -->
+              <div
+                v-if="step === 'payment'"
+                class="flex flex-col gap-4"
+              >
+                <h2 class="font-semibold text-highlighted">
+                  {{ t('payment_title', { amount: $i18n.n(purchasedAmount, 'currency') }) }}
+                </h2>
+                <div
+                  ref="cardElementRef"
+                  class="rounded-lg p-4 ring ring-default"
+                />
+                <p
+                  v-if="cardError"
+                  class="text-sm text-error"
+                >
+                  {{ cardError }}
+                </p>
+                <UButton
+                  size="lg"
+                  color="neutral"
+                  block
+                  :loading="paying"
+                  :disabled="!isCardComplete"
+                  @click="confirmPayment"
+                >
+                  {{ t('pay_now', { amount: $i18n.n(purchasedAmount, 'currency') }) }}
+                </UButton>
+              </div>
+
+              <template v-else>
+                <UFormField
+                  v-if="providerOptions.length > 1"
+                  :label="t('fields.payment_method')"
+                  name="paymentProvider"
+                >
+                  <URadioGroup
+                    v-model="selectedProvider"
+                    :items="providerOptions"
+                    variant="card"
+                    indicator="end"
+                  />
+                </UFormField>
+
+                <p
+                  v-if="purchaseError"
+                  class="text-sm text-error"
+                >
+                  {{ purchaseError }}
+                </p>
+              </template>
+            </template>
+
+            <div
+              v-if="step !== 'payment'"
+              class="flex items-center justify-between gap-3"
+            >
+              <UButton
+                v-if="wizard !== 'amount'"
+                color="neutral"
+                variant="ghost"
+                size="lg"
+                :label="t('back')"
+                @click="() => goTo(wizard === 'payment' ? 'recipient' : 'amount')"
+              />
+              <span v-else />
+              <UButton
+                v-if="wizard !== 'payment'"
+                color="neutral"
+                size="lg"
+                :label="wizard === 'amount' ? t('continue') : t('continue_to_payment', { amount: $i18n.n(formState.amount ?? 0, 'currency') })"
+                @click="() => goTo(wizard === 'amount' ? 'recipient' : 'payment')"
+              />
+              <UButton
+                v-else
+                color="neutral"
+                size="lg"
+                :loading="submitting"
+                :label="t('pay_now', { amount: $i18n.n(formState.amount ?? 0, 'currency') })"
+                @click="startPurchase"
+              />
+            </div>
+          </UForm>
+        </template>
+      </section>
     </div>
-  </PageWrapper>
+
+    <GiftCardBalanceCheck />
+  </UContainer>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Δωροκάρτες
-  description: Χαρίστε μια δωροκάρτα — παραδίδεται με email και εξαργυρώνεται στο ταμείο
-  form_title: Στοιχεία δωροκάρτας
-  continue_to_payment: Συνέχεια στην πληρωμή
+  description: Το πιο εύκολο δώρο για οποιονδήποτε έχει κινητό. Εξαργυρώνεται online σε ό,τι πουλάει το κατάστημα.
+  continue: Συνέχεια
+  continue_to_payment: Συνέχεια στην πληρωμή · {amount}
+  back: Πίσω
   payment_title: Πληρωμή {amount}
   pay_now: Πληρωμή {amount}
+  steps:
+    amount: Ποσό
+    recipient: Παραλήπτης
+    payment: Πληρωμή
   fields:
     amount: Ποσό
-    amount_hint: Από {min} έως {max}
-    buyer_email: Το email σας
+    amount_other: Άλλο
+    amount_hint: Οποιοδήποτε ποσό από {min} έως {max}
+    buyer_email: Το email σου
+    buyer_email_hint: Εκεί στέλνουμε την απόδειξη
     recipient_email: Email παραλήπτη
     recipient_name: Όνομα παραλήπτη
-    sender_name: Το όνομά σας
+    sender_name: Από
     message: Μήνυμα
-    message_placeholder: Προσωπικό μήνυμα για τον παραλήπτη (προαιρετικό)
+    message_placeholder: Ένα προσωπικό μήνυμα για τον παραλήπτη (προαιρετικό)
+    send: Αποστολή
+    send_now: Τώρα
+    send_date: Σε συγκεκριμένη ημερομηνία
     payment_method: Τρόπος πληρωμής
+  summary:
+    amount: Ποσό
+    to: Παραλήπτης
+    delivery: Παράδοση
+    right_away: Αμέσως μετά την πληρωμή
   providers:
     viva_wallet: Viva Wallet
     viva_wallet_hint: Κάρτα, Google Pay ή IRIS μέσω Viva
     stripe: Κάρτα (Stripe)
     stripe_hint: Πληρωμή με κάρτα στη σελίδα μας
-  hero:
-    title: Δώρο που ταιριάζει πάντα
-    subtitle: Ο παραλήπτης διαλέγει ό,τι θέλει από το κατάστημα — εσύ διαλέγεις μόνο το ποσό.
   benefits:
     delivery:
       title: Παράδοση με email
-      description: Η δωροκάρτα φτάνει στον παραλήπτη με email μόλις ολοκληρωθεί η πληρωμή.
+      description: Αμέσως ή την ημέρα που θα διαλέξεις.
     balance:
       title: Χρήση σε πολλές παραγγελίες
-      description: Το υπόλοιπο μένει στην κάρτα — μπορεί να χρησιμοποιηθεί ξανά μέχρι να εξαντληθεί.
-    amount:
-      title: Εσύ επιλέγεις το ποσό
-      description: Από {min} έως {max}, με προτεινόμενες τιμές ή δικό σου ποσό.
+      description: Το υπόλοιπο περνάει στην επόμενη παραγγελία.
   success:
     title: Η αγορά ολοκληρώθηκε!
     description: Η δωροκάρτα θα σταλεί στο {email} μόλις επιβεβαιωθεί η πληρωμή
   errors:
     purchase_failed: Η αγορά δεν μπόρεσε να ξεκινήσει
-    payment_failed: Η πληρωμή απέτυχε — δοκιμάστε ξανά
+    payment_failed: Η πληρωμή απέτυχε — δοκίμασε ξανά
     stripe_init: Αδυναμία φόρτωσης του συστήματος πληρωμών
     no_provider: Δεν υπάρχει διαθέσιμος τρόπος online πληρωμής
   validation:
     required: Υποχρεωτικό πεδίο
     email: Μη έγκυρο email
-    amount_required: Συμπληρώστε ποσό
+    amount_required: Συμπλήρωσε ποσό
     amount_min: Ελάχιστο ποσό {min} €
     amount_max: Μέγιστο ποσό {max} €
     message_max: Το μήνυμα είναι πολύ μεγάλο
+    date_required: Διάλεξε ημερομηνία από αύριο και μετά
 en:
-  title: Gift Cards
-  description: Give a gift card — delivered by email and redeemed at checkout
-  form_title: Gift card details
-  continue_to_payment: Continue to payment
+  title: Gift cards
+  description: The easy present for anyone with a phone. Spend online on anything in the shop.
+  continue: Continue
+  continue_to_payment: Continue to payment · {amount}
+  back: Back
   payment_title: Pay {amount}
   pay_now: Pay {amount}
+  steps:
+    amount: Amount
+    recipient: Recipient
+    payment: Payment
   fields:
     amount: Amount
-    amount_hint: From {min} to {max}
+    amount_other: Other
+    amount_hint: Any amount from {min} to {max}
     buyer_email: Your email
+    buyer_email_hint: We send the receipt here
     recipient_email: Recipient's email
     recipient_name: Recipient's name
-    sender_name: Your name
+    sender_name: From
     message: Message
     message_placeholder: A personal message for the recipient (optional)
+    send: Send
+    send_now: Now
+    send_date: On a date
     payment_method: Payment method
+  summary:
+    amount: Amount
+    to: To
+    delivery: Delivery
+    right_away: Right after payment
   providers:
     viva_wallet: Viva Wallet
     viva_wallet_hint: Card, Google Pay or IRIS through Viva
     stripe: Card (Stripe)
     stripe_hint: Pay by card on our own page
-  hero:
-    title: A gift that always fits
-    subtitle: They pick whatever they want from the shop — you only pick the amount.
   benefits:
     delivery:
       title: Delivered by email
-      description: The gift card reaches the recipient by email as soon as the payment goes through.
+      description: Instantly, or on the date you choose.
     balance:
-      title: Use it across several orders
-      description: Whatever is left stays on the card and can be used again until it runs out.
-    amount:
-      title: You choose the amount
-      description: From {min} to {max}, either a suggested amount or one of your own.
+      title: Spend it in parts
+      description: The balance carries over to the next order.
   success:
     title: Purchase complete
     description: The gift card will be sent to {email} as soon as the payment is confirmed
@@ -636,4 +798,5 @@ en:
     amount_min: The minimum amount is {min} €
     amount_max: The maximum amount is {max} €
     message_max: That message is too long
+    date_required: Pick a date from tomorrow on
 </i18n>

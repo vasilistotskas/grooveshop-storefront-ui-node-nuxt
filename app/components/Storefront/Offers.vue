@@ -65,14 +65,12 @@ const showFilter = computed(
 )
 
 const filters = computed(() => ([
-  { value: 'all' as const, label: t('filter.all'), count: counts.value.all },
-  { value: 'code' as const, label: t('filter.code'), count: counts.value.code },
-  {
-    value: 'automatic' as const,
-    label: t('filter.automatic'),
-    count: counts.value.automatic,
-  },
+  { value: 'all' as const, label: t('filter.all'), badge: counts.value.all },
+  { value: 'code' as const, label: t('filter.code'), badge: counts.value.code },
+  { value: 'automatic' as const, label: t('filter.automatic'), badge: counts.value.automatic },
 ]))
+
+const breadcrumb = computed(() => [{ label: t('title') }])
 
 const rows = computed(() => {
   if (!showFilter.value || filter.value === 'all') return all.value
@@ -86,28 +84,38 @@ async function copyCode(code: string) {
     title: t('promotion.code_copied'),
     description: code,
     color: 'success',
-    icon: 'i-heroicons-clipboard-document-check',
+    icon: 'i-lucide-clipboard-check',
   })
 }
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col gap-6">
-    <div class="flex flex-col gap-2">
-      <PageTitle :text="t('title')" />
-      <p class="max-w-prose text-muted">
+  <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+    <PageBreadcrumb :items="breadcrumb" />
+
+    <header class="flex flex-col gap-2">
+      <h1
+        class="
+          font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+          text-highlighted
+          lg:text-[2.25rem]/[1.1]
+        "
+      >
+        {{ t('title') }}
+      </h1>
+      <p class="max-w-prose text-toned">
         {{ t('description') }}
       </p>
-    </div>
+    </header>
 
     <UEmpty
       v-if="!all.length"
-      icon="i-heroicons-tag"
+      icon="i-lucide-tag"
       :title="t('empty.title')"
       :description="t('empty.description')"
       :actions="[{
         label: t('empty.cta'),
-        color: 'primary',
+        color: 'neutral',
         to: localePath('products'),
       }]"
     />
@@ -115,37 +123,35 @@ async function copyCode(code: string) {
     <template v-else>
       <!-- A segmented control rather than a select: three options that
            each carry a count are worth showing all at once. -->
-      <UFieldGroup v-if="showFilter" size="sm" class="self-start">
-        <UButton
-          v-for="option in filters"
-          :key="option.value"
-          :color="filter === option.value ? 'primary' : 'neutral'"
-          :variant="filter === option.value ? 'solid' : 'outline'"
-          :aria-pressed="filter === option.value"
-          @click="() => { filter = option.value }"
-        >
-          {{ option.label }}
-          <UBadge
-            :color="filter === option.value ? 'neutral' : 'primary'"
-            variant="subtle"
-            size="sm"
-          >
-            {{ option.count }}
-          </UBadge>
-        </UButton>
-      </UFieldGroup>
+      <UTabs
+        v-if="showFilter"
+        :model-value="filter"
+        :items="filters"
+        :content="false"
+        color="neutral"
+        variant="pill"
+        size="sm"
+        class="self-start"
+        :ui="{ root: 'w-auto' }"
+        @update:model-value="(value: string | number) => { filter = value as Filter }"
+      />
 
-      <UPageGrid class="sm:grid-cols-2 lg:grid-cols-3">
-        <OffersCard
+      <ul class="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+        <li
           v-for="offer in rows"
           :key="offer.id"
-          :offer="offer"
-          :clipboard-supported="clipboardSupported"
-          @copy="copyCode"
-        />
-      </UPageGrid>
+          class="flex"
+        >
+          <OffersCard
+            :offer="offer"
+            :clipboard-supported="clipboardSupported"
+            class="w-full"
+            @copy="copyCode"
+          />
+        </li>
+      </ul>
     </template>
-  </PageWrapper>
+  </UContainer>
 </template>
 
 <i18n lang="yaml">
