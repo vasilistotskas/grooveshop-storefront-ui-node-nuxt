@@ -9,6 +9,9 @@
  * cart as it stands, so a disabled row here and a refusal on apply can
  * never disagree.
  *
+ * Phones and tablets open it as a bottom sheet, wider screens as a
+ * dialog.
+ *
  * The count on the trigger is the ELIGIBLE coupons only — a number
  * counting codes the shopper cannot use would be a broken promise
  * before the modal even opens.
@@ -20,7 +23,11 @@ const { $i18n } = useNuxtApp()
 const toast = useToast()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
-const { headline, conditions, icon, color, rejectionMessage } = usePromotionOffer()
+const { conditions, rejectionMessage } = usePromotionOffer()
+const { isMobileOrTablet } = useDevice()
+
+// One definition of the list, rendered in both frames.
+const [DefineList, ReuseList] = createReusableTemplate()
 
 const open = ref(false)
 const submitting = ref<string | null>(null)
@@ -85,7 +92,7 @@ async function applyCoupon(row: CartCoupon) {
       title: t('applied_title'),
       description: row.promotion.name,
       color: 'success',
-      icon: 'i-heroicons-check-circle',
+      icon: 'i-lucide-circle-check',
     })
   }
   catch (error: any) {
@@ -96,7 +103,7 @@ async function applyCoupon(row: CartCoupon) {
       title: t('apply_failed'),
       description: rejectionMessage(error?.data?.reason),
       color: 'error',
-      icon: 'i-heroicons-exclamation-triangle',
+      icon: 'i-lucide-triangle-alert',
     })
     await refreshCoupons()
   }
@@ -107,121 +114,129 @@ async function applyCoupon(row: CartCoupon) {
 </script>
 
 <template>
+  <DefineList>
+    <ul class="flex list-none flex-col gap-3 p-0">
+      <li
+        v-for="row in rows"
+        :key="row.code"
+        class="
+          flex items-center gap-3 rounded-2xl p-3 ring ring-default
+          sm:gap-4
+        "
+        :class="row.eligible || row.applied ? 'bg-default' : 'bg-muted/50'"
+      >
+        <code
+          class="
+            shrink-0 rounded-lg border border-dashed border-default px-2.5 py-1.5
+            font-mono text-xs font-bold text-highlighted
+          "
+        >{{ row.code }}</code>
+
+        <div class="flex min-w-0 flex-1 flex-col gap-1">
+          <p class="text-sm font-semibold text-highlighted">
+            {{ row.promotion.name }}
+          </p>
+          <p
+            v-if="row.promotion.description"
+            class="text-xs text-toned"
+          >
+            {{ row.promotion.description }}
+          </p>
+          <p
+            v-if="conditions(row.promotion).length"
+            class="text-xs text-toned"
+          >
+            {{ conditions(row.promotion).join(' · ') }}
+          </p>
+
+          <!-- The verdict. An eligible coupon worth nothing right now
+               still applies — the shopper is told so rather than
+               finding out from a total that did not move. -->
+          <p
+            v-if="!row.eligible"
+            class="text-xs text-toned"
+          >
+            {{ t('not_eligible') }} · {{ rejectionMessage(row.reason) }}
+          </p>
+          <UBadge
+            v-else-if="row.applied"
+            color="success"
+            variant="soft"
+            size="sm"
+            icon="i-lucide-check"
+            :label="t('applied')"
+            class="w-fit"
+          />
+          <UBadge
+            v-else-if="savingLabel(row)"
+            color="success"
+            variant="soft"
+            size="sm"
+            :label="savingLabel(row)!"
+            class="w-fit"
+          />
+          <p
+            v-else
+            class="text-xs text-toned"
+          >
+            {{ t('no_saving') }}
+          </p>
+        </div>
+
+        <UButton
+          v-if="!row.applied"
+          size="sm"
+          color="neutral"
+          variant="outline"
+          :disabled="!row.eligible"
+          :loading="submitting === row.code"
+          :label="t('apply')"
+          class="shrink-0"
+          @click="() => applyCoupon(row)"
+        />
+      </li>
+    </ul>
+  </DefineList>
+
   <div v-if="rows.length">
     <UButton
       color="secondary"
-      variant="soft"
+      variant="link"
       size="sm"
-      block
-      icon="i-heroicons-ticket"
+      class="p-0"
       :label="triggerLabel"
       @click="() => { open = true }"
     />
 
+    <UDrawer
+      v-if="isMobileOrTablet"
+      v-model:open="open"
+      :title="t('title')"
+      :description="t('description')"
+      :handle="false"
+      close
+      :ui="{
+        content: 'max-h-[92dvh]',
+        container: 'min-h-0 gap-0 overflow-y-hidden p-0',
+        header: 'border-b border-default py-3 ps-4 pe-2',
+        title: 'font-display text-[1.375rem] font-bold',
+        body: 'min-h-0 overflow-y-auto p-4',
+      }"
+    >
+      <template #body>
+        <ReuseList />
+      </template>
+    </UDrawer>
+
     <UModal
+      v-else
       v-model:open="open"
       :title="t('title')"
       :description="t('description')"
       :ui="{ content: 'max-w-lg' }"
     >
       <template #body>
-        <ul class="list-none space-y-3 p-0">
-          <li
-            v-for="row in rows"
-            :key="row.code"
-            class="rounded-lg border p-3"
-            :class="row.applied
-              ? 'border-success bg-success/5'
-              : row.eligible
-                ? 'border-default'
-                : 'border-default bg-elevated/40 opacity-70'"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <UBadge
-                :color="row.eligible ? color(row.promotion) : 'neutral'"
-                :icon="icon(row.promotion)"
-                variant="subtle"
-                class="shrink-0 font-semibold"
-              >
-                {{ headline(row.promotion) }}
-              </UBadge>
-              <code
-                class="
-                  rounded-md border border-dashed border-default px-2 py-0.5
-                  font-mono text-xs font-bold
-                "
-              >{{ row.code }}</code>
-            </div>
-
-            <p class="mt-2 text-sm font-medium">
-              {{ row.promotion.name }}
-            </p>
-            <p
-              v-if="row.promotion.description"
-              class="mt-0.5 text-xs text-muted"
-            >
-              {{ row.promotion.description }}
-            </p>
-            <p
-              v-if="conditions(row.promotion).length"
-              class="mt-1 text-xs text-muted"
-            >
-              {{ conditions(row.promotion).join(' · ') }}
-            </p>
-
-            <!-- The verdict. An eligible coupon worth nothing right now
-                 still applies — the shopper is told so rather than
-                 finding out from a total that did not move. -->
-            <p
-              v-if="!row.eligible"
-              class="mt-2 flex items-start gap-1.5 text-xs text-error"
-            >
-              <UIcon
-                name="i-heroicons-exclamation-circle"
-                class="mt-px size-3.5 shrink-0"
-              />
-              {{ rejectionMessage(row.reason) }}
-            </p>
-
-            <div
-              class="
-                mt-3 flex flex-wrap items-center justify-between gap-2
-              "
-            >
-              <span
-                v-if="row.applied"
-                class="flex items-center gap-1 text-sm font-medium text-success"
-              >
-                <UIcon name="i-heroicons-check-circle" class="size-4" />
-                {{ t('applied') }}
-              </span>
-              <span
-                v-else-if="savingLabel(row)"
-                class="text-sm font-bold text-success"
-              >
-                {{ savingLabel(row) }}
-              </span>
-              <span
-                v-else-if="row.eligible"
-                class="text-xs text-muted"
-              >
-                {{ t('no_saving') }}
-              </span>
-
-              <UButton
-                v-if="!row.applied"
-                size="sm"
-                color="secondary"
-                :variant="row.eligible ? 'solid' : 'ghost'"
-                :disabled="!row.eligible"
-                :loading="submitting === row.code"
-                :label="t('apply')"
-                class="ms-auto"
-                @click="() => applyCoupon(row)"
-              />
-            </div>
-          </li>
-        </ul>
+        <ReuseList />
       </template>
     </UModal>
   </div>
@@ -229,7 +244,7 @@ async function applyCoupon(row: CartCoupon) {
 
 <i18n lang="yaml">
 el:
-  trigger: 'Διαθέσιμα κουπόνια ({count})'
+  trigger: 'Δες {count} κουπόνι που μπορείς να χρησιμοποιήσεις | Δες {count} κουπόνια που μπορείς να χρησιμοποιήσεις'
   trigger_none: Δες τα κουπόνια του καταστήματος
   title: Διαθέσιμα κουπόνια
   description: Τα κουπόνια που μπορείς να χρησιμοποιήσεις σε αυτή την παραγγελία.
@@ -237,10 +252,11 @@ el:
   applied: Εφαρμοσμένο
   applied_title: Το κουπόνι εφαρμόστηκε
   apply_failed: Το κουπόνι δεν εφαρμόστηκε
+  not_eligible: Δεν ισχύει
   no_saving: Δεν μειώνει το σύνολο αυτή τη στιγμή
   free_shipping: Δωρεάν αποστολή
 en:
-  trigger: 'Available coupons ({count})'
+  trigger: 'See {count} coupon you can use | See {count} coupons you can use'
   trigger_none: See the store's coupons
   title: Available coupons
   description: The coupons you can use on this order.
@@ -248,6 +264,7 @@ en:
   applied: Applied
   applied_title: Coupon applied
   apply_failed: The coupon was not applied
+  not_eligible: Not eligible
   no_saving: Does not reduce your total right now
   free_shipping: Free shipping
 </i18n>

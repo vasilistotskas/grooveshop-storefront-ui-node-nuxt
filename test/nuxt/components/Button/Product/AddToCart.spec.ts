@@ -24,12 +24,21 @@ import { failWith } from '~~/test/helpers/api'
  * copy predates that fix (`if (failed) return`), so that case and the
  * default's `loading-auto` busy state are default-only. Everything else
  * is one body over both trees.
+ *
+ * A successful add is announced differently: the default tree opens the
+ * cart drawer with the line on a desktop and, on a phone, toasts the
+ * product with "View" (which opens the drawer); webside keeps its
+ * "added" toast.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const toast = vi.hoisted(() => ({ add: vi.fn(), remove: vi.fn(), update: vi.fn(), clear: vi.fn() }))
 
+const viewport = vi.hoisted(() => ({ desktop: true }))
+
 mockNuxtImport('$api', () => api)
 mockNuxtImport('useToast', () => () => toast)
+mockNuxtImport('useMediaQuery', () => () => ref(viewport.desktop))
+mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://media.test/${path}`)
 
 const UNAVAILABLE = 'Μή Διαθέσιμο'
 const BUY = 'Αγορά'
@@ -45,6 +54,8 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
   beforeEach(async () => {
     await useCartStore().cleanCartState()
     cartHolds()
+    viewport.desktop = true
+    useCartDrawer().close()
   })
 
   const mount = (props: { product: Product, quantity?: number, iconOnly?: boolean }) =>
@@ -94,7 +105,7 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     })
   })
 
-  it('adds a new line with the chosen quantity and confirms it', async () => {
+  it('adds a new line with the chosen quantity', async () => {
     const wrapper = await mount({ product: makeProduct({ id: 4 }), quantity: 2 })
 
     await click(wrapper)
@@ -102,11 +113,60 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     expect(api.callsTo('/api/cart/items')).toEqual([
       { url: '/api/cart/items', options: expect.objectContaining({ method: 'POST', body: { product: 4, quantity: 2 } }) },
     ])
+  })
+
+  it.runIf(tree === 'webside')('confirms the add in a toast', async () => {
+    const wrapper = await mount({ product: makeProduct({ id: 4 }), quantity: 2 })
+
+    await click(wrapper)
+
     expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
       color: 'success',
       title: 'Προστέθηκε στο καλάθι',
       description: 'Το προϊόν "Προϊόν 4" προστέθηκε στο καλάθι.',
     }))
+  })
+
+  it.runIf(tree === 'default')('opens the cart drawer with the added line on a desktop, without a toast', async () => {
+    const wrapper = await mount({ product: makeProduct({ id: 4 }) })
+
+    await click(wrapper)
+
+    const drawer = useCartDrawer()
+    expect(drawer.open.value).toBe(true)
+    expect(drawer.added.value).toBe('Προϊόν 4')
+    expect(toast.add).not.toHaveBeenCalled()
+  })
+
+  it.runIf(tree === 'default')('toasts the added product with its photograph on a phone, and "View" opens the drawer', async () => {
+    viewport.desktop = false
+    const wrapper = await mount({ product: makeProduct({ id: 4, mainImagePath: 'media/uploads/products/cable.jpg' }) })
+
+    await click(wrapper)
+
+    const drawer = useCartDrawer()
+    expect(drawer.open.value).toBe(false)
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      title: 'Προστέθηκε στο καλάθι',
+      description: 'Προϊόν 4',
+      avatar: { alt: 'Προϊόν 4', src: 'https://media.test/media/uploads/products/cable.jpg' },
+      icon: undefined,
+      actions: [expect.objectContaining({ label: 'Προβολή' })],
+    }))
+
+    toast.add.mock.calls[0]![0].actions[0].onClick()
+
+    expect(drawer.open.value).toBe(true)
+    expect(drawer.added.value).toBe('Προϊόν 4')
+  })
+
+  it.runIf(tree === 'default')('toasts a product without a photograph with a check instead', async () => {
+    viewport.desktop = false
+    const wrapper = await mount({ product: makeProduct({ id: 4, mainImagePath: '' }) })
+
+    await click(wrapper)
+
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ avatar: undefined, icon: 'i-lucide-circle-check' }))
   })
 
   it('tops up the line already in the cart instead of adding a second one', async () => {
@@ -129,9 +189,6 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     await click(wrapper)
 
     expect(api.callsTo('/api/cart/items')[0]!.options.body).toEqual({ product: 4, quantity: 1 })
-    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
-      description: 'Το προϊόν "Καφετιέρα" προστέθηκε στο καλάθι.',
-    }))
   })
 
   it.each([

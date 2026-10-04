@@ -63,7 +63,12 @@ function withCoupon(code: string, amount: number | null, overrides: CartOverride
   }
 }
 
-describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInput', ({ C, own }) => {
+/**
+ * The webside copy is the frozen alert; the default is the redesign's
+ * soft-success row. They share the request contract, so one body runs
+ * over both and the markup differences are named in `removeButton`.
+ */
+describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInput', ({ tree, C, own }) => {
   beforeEach(() => {
     clearNuxtData()
     useToast().clear()
@@ -88,6 +93,12 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
   }
 
   const toasts = () => useToast().toasts.value
+
+  // The frozen alert removes a code from its close button; the redesign
+  // has a text button of its own.
+  const removeButton = (wrapper: VueWrapper) => tree === 'webside'
+    ? wrapper.find('[data-slot="close"]')
+    : wrapper.findAll('button').find(button => button.text() === 'Αφαίρεση')
 
   describe('applying a code', () => {
     it('sends the trimmed code, re-reads the cart and shows the code as applied', async () => {
@@ -144,6 +155,23 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
 
       expect(api.callsTo('/api/cart/coupon')).toEqual([])
       await vi.waitFor(() => expect(text(wrapper)).toContain('Ο κωδικός είναι πολύ σύντομος'))
+    })
+  })
+
+  describe.runIf(tree === 'default')('the redesigned row', () => {
+    it('names the applied code and says it is applied', async () => {
+      useCartStore().cart = makeCart(withCoupon('SAVE5', 5))
+      const wrapper = await mount()
+
+      expect(wrapper.find('.font-mono').text()).toBe('SAVE5')
+      expect(text(wrapper)).toContain('εφαρμόστηκε')
+    })
+
+    it('asks for the code in a field labelled "Κωδικός κουπονιού"', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.find('input').attributes('placeholder')).toBe('Κωδικός κουπονιού')
+      expect(wrapper.find('input').attributes('aria-label')).toBe('Κωδικός κουπονιού')
     })
   })
 
@@ -211,12 +239,12 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       expect(text(wrapper)).not.toContain('30,00')
     })
 
-    it('removes the code from the alert\'s close button and offers the field again', async () => {
+    it('removes the code from its remove control and offers the field again', async () => {
       useCartStore().cart = makeCart(withCoupon('SAVE5', 5))
       cartAfter = makeCart()
       const wrapper = await mount()
 
-      await wrapper.find('[data-slot="close"]').trigger('click')
+      await removeButton(wrapper)!.trigger('click')
       await flushPromises()
 
       expect(api.callsTo('/api/cart/coupon')).toEqual([
@@ -232,7 +260,6 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       setTenant({ promotionsEnabled: false })
       const wrapper = await mount()
 
-      expect(wrapper.html()).not.toContain('Κουπόνι έκπτωσης')
       expect(wrapper.find('form').exists()).toBe(false)
     })
 
@@ -272,7 +299,8 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       const wrapper = await mount()
 
       expect(text(wrapper)).toContain('WELCOME10')
-      expect(wrapper.find('[data-slot="close"]').exists()).toBe(true)
+      expect(removeButton(wrapper)).toBeDefined()
+      expect(removeButton(wrapper)!.exists()).toBe(true)
     })
 
     it('shows the field when the merchant lets promotions stack', async () => {

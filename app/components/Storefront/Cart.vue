@@ -8,8 +8,8 @@ const {
   hasStockIssues,
 } = storeToRefs(cartStore)
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
-const { hasStockIssue, getStockStatusMessage } = cartStore
+const { getStockStatusMessage, clearCart } = cartStore
+const toast = useToast()
 // Cross-sell strip: plan flag AND merchant setting, fails CLOSED. The
 // cart payload already carries ``recommendations`` seeded with every
 // basket line, so the strip renders from the store — no extra fetch.
@@ -94,7 +94,6 @@ watch(showRecoveredBanner, (isShown) => {
 // renders.
 onMounted(() => {
   if (!route.query.paymentError) return
-  const toast = useToast()
   toast.add({
     title: t('payment_lookup_failed_title'),
     description: t('payment_lookup_failed_description'),
@@ -104,31 +103,42 @@ onMounted(() => {
     .catch(() => {})
 })
 
-const breadcrumb = computed(() => [
-  {
-    label: t('home'),
-    to: localePath('index'),
-    icon: 'i-heroicons-home',
-  },
-  {
-    label: t('shopping_cart'),
-    to: localePath('cart'),
-    icon: 'i-heroicons-shopping-cart',
-  },
-])
+const breadcrumb = computed(() => [{ label: t('shopping_cart') }])
 
-const cardConfig = {
-  color: 'primary' as const,
-  variant: 'outline' as const,
-}
+// Free delivery: the store's cheapest free-carrier threshold. Not awaited
+// — the cart renders without it and the banner joins when it lands.
+const { data: freeShipping } = useFreeShippingInfo()
+const freeDeliveryThreshold = computed(() => freeShipping.value?.minThreshold ?? 0)
+const freeDeliveryUnlocked = computed(() =>
+  freeDeliveryThreshold.value > 0
+  && (cart.value?.totalPrice ?? 0) >= freeDeliveryThreshold.value,
+)
 
-const mainCardUI = (cartItem?: CartItem) => ({
-  root: `w-full p-4 ${cartItem && hasStockIssue(cartItem) ? 'bg-primary-50 dark:bg-primary-900' : ''}`,
-  body: 'p-0 sm:p-0',
-})
+const total = computed(() =>
+  Math.max(0, (cart.value?.totalPrice ?? 0) - (cart.value?.promotionDiscount ?? 0)),
+)
 
-const summaryCardUI = {
-  root: 'p-2',
+const isConfirmingClear = ref(false)
+const clearing = ref(false)
+
+const onClearCart = async () => {
+  clearing.value = true
+  try {
+    await clearCart()
+    isConfirmingClear.value = false
+  }
+  catch (error) {
+    log.error({ action: 'cart:clearPage', error })
+    toast.add({
+      title: t('clear.error_title'),
+      description: t('clear.error_description'),
+      color: 'error',
+      icon: 'i-lucide-circle-x',
+    })
+  }
+  finally {
+    clearing.value = false
+  }
 }
 
 // Without a page-level title, setupPageHeader() falls back to the
@@ -142,382 +152,253 @@ useSeoMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-(--container-6xl)">
-    <UBreadcrumb
-      :items="breadcrumb"
-      divider="chevron"
-      class="mb-8"
-    />
+  <!-- `data-action-bar` tells the footer to keep its last line clear of
+       the floating checkout bar (Chrome/Footer.vue). -->
+  <div :data-action-bar="!initialLoading && cart?.items?.length ? '' : undefined">
+    <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+      <PageBreadcrumb :items="breadcrumb" />
 
-    <UAlert
-      v-if="showRecoveredBanner"
-      color="info"
-      variant="soft"
-      icon="i-heroicons-shopping-cart"
-      :title="t('recovered.title')"
-      :description="t('recovered.description')"
-      :close="true"
-      class="mb-6"
-      @update:open="(open: boolean) => !open && (wasRecovered = false)"
-    />
-
-    <UAlert
-      v-if="!initialLoading && hasStockIssues"
-      color="warning"
-      variant="soft"
-      icon="i-heroicons-exclamation-triangle"
-      class="mb-6"
-    >
-      <template #title>
-        {{ t('stock_alert.title') }}
-      </template>
-    </UAlert>
-
-    <div
-      class="
-        relative flex w-full flex-col gap-4
-        lg:flex-row lg:gap-8
-      "
-    >
-      <div class="grid w-full content-start gap-6">
-        <div
+      <header class="flex flex-col gap-2">
+        <h1
           class="
-            flex flex-col gap-2
-            sm:flex-row sm:items-center sm:justify-between
+            font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+            text-highlighted
+            lg:text-[2.25rem]/[1.1]
           "
         >
-          <h1 class="text-2xl font-bold">
-            {{ t('shopping_cart') }}
-          </h1>
-          <p
-            v-if="!initialLoading && cart?.totalItems"
-            class="text-gray-500"
-          >
-            {{ t('items_in_cart', { count: cart.totalItems }) }}
-          </p>
-          <USkeleton
-            v-else
-            class="h-6 w-24"
-          />
-        </div>
-
-        <div
-          v-if="!initialLoading && cart?.items?.length"
-          class="flex w-full flex-col gap-4"
+          {{ t('title') }}
+        </h1>
+        <p
+          v-if="!initialLoading && cart?.totalItems"
+          class="text-toned"
         >
-          <UCard
-            v-for="cartItem in cart.items"
-            :key="cartItem.id"
-            v-bind="cardConfig"
-            :ui="mainCardUI(cartItem)"
-          >
-            <UAlert
-              v-if="getStockStatusMessage(cartItem)"
-              :color="getStockStatusMessage(cartItem)?.severity === 'error' ? 'error' : 'warning'"
-              variant="soft"
-              :icon="getStockStatusMessage(cartItem)?.severity === 'error' ? 'i-heroicons-x-circle' : 'i-heroicons-exclamation-triangle'"
-              class="mb-4"
-            >
-              <template #title>
-                {{ getStockStatusMessage(cartItem)?.severity === 'error' ? t('stock_status.unavailable_title') : t('stock_status.limited_title') }}
-              </template>
-              <template #description>
-                <div v-if="getStockStatusMessage(cartItem)?.type === 'limited_stock'">
-                  {{ t('stock_status.limited_stock', {
-                    available: getStockStatusMessage(cartItem)?.available,
-                    requested: getStockStatusMessage(cartItem)?.requested,
-                  }) }}
-                </div>
-                <div v-else>
-                  {{ t('stock_status.out_of_stock') }}
-                </div>
-              </template>
-            </UAlert>
-
-            <CartItemCard :cart-item="cartItem" />
-          </UCard>
-        </div>
-
-        <LazyEmptyState
-          v-else-if="!initialLoading && !cart?.items?.length"
-          class="w-full"
-          :title="t('empty.title')"
-          :description="t('empty.description_long')"
-        >
-          <template #icon>
-            <UIcon
-              name="i-heroicons-shopping-cart"
-              size="xl"
-            />
-          </template>
-          <template #actions>
-            <UButton
-              :to="localePath('index')"
-              color="secondary"
-              variant="solid"
-              size="lg"
-              icon="i-heroicons-arrow-right"
-              trailing
-            >
-              {{ t('empty.description') }}
-            </UButton>
-          </template>
-        </LazyEmptyState>
-
-        <div
+          {{ t('items_in_cart', { count: cart.totalItems }, cart.totalItems) }}
+          <span
+            v-if="freeDeliveryUnlocked"
+            class="lg:hidden"
+          >· {{ t('free_delivery_unlocked') }}</span>
+        </p>
+        <USkeleton
           v-else
-          class="flex w-full flex-col gap-4"
-        >
-          <UCard
-            v-for="index in (cart?.items?.length || 2)"
-            :key="index"
-            v-bind="cardConfig"
-            :ui="mainCardUI()"
-          >
-            <div
-              class="
-                flex flex-col gap-4
-                sm:flex-row sm:gap-6
-              "
-            >
-              <USkeleton
-                class="
-                  h-24 w-full flex-shrink-0 rounded-lg
-                  sm:w-24
-                "
-              />
+          class="h-6 w-24"
+        />
+      </header>
 
-              <div class="flex-1">
-                <div
-                  class="
-                    flex flex-col gap-4
-                    sm:flex-row sm:justify-between sm:gap-0
-                  "
-                >
-                  <div class="space-y-2">
-                    <USkeleton class="h-5 w-48" />
-                    <USkeleton class="h-4 w-32" />
-                  </div>
-                  <USkeleton class="h-8 w-8" />
-                </div>
-                <div
-                  class="
-                    mt-4 flex flex-col gap-4
-                    sm:flex-row sm:justify-between sm:gap-0
-                  "
-                >
-                  <USkeleton class="h-8 w-32" />
-                  <USkeleton class="h-5 w-24" />
-                </div>
-              </div>
-            </div>
-          </UCard>
-        </div>
-      </div>
+      <UAlert
+        v-if="showRecoveredBanner"
+        color="info"
+        variant="soft"
+        icon="i-lucide-shopping-cart"
+        :title="t('recovered.title')"
+        :description="t('recovered.description')"
+        :close="true"
+        @update:open="(open: boolean) => !open && (wasRecovered = false)"
+      />
 
-      <div
-        v-if="!initialLoading && cart?.items?.length"
-        class="
-          w-full
-          lg:max-w-md
-        "
+      <UAlert
+        v-if="!initialLoading && hasStockIssues"
+        color="warning"
+        variant="soft"
+        icon="i-lucide-triangle-alert"
+        :title="t('stock_alert.title')"
+      />
+
+      <LazyEmptyState
+        v-if="!initialLoading && !cart?.items?.length"
+        class="w-full"
+        :title="t('empty.title')"
+        :description="t('empty.description_long')"
       >
-        <UCard
-          v-bind="cardConfig"
-          :ui="summaryCardUI"
-        >
-          <template #header>
-            <h2 class="text-xl font-semibold">
-              {{ t('order_summary') }}
-            </h2>
-          </template>
-
-          <div
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-            class="grid gap-4"
+        <template #icon>
+          <UIcon
+            name="i-lucide-shopping-cart"
+            size="xl"
+          />
+        </template>
+        <template #actions>
+          <UButton
+            :to="localePath('index')"
+            color="secondary"
+            variant="solid"
+            size="lg"
+            icon="i-lucide-arrow-right"
+            trailing
           >
-            <!-- Wholesale badge — line prices/totals below are already
-                 server-computed with the group pricing. -->
-            <UBadge
-              v-if="cart.b2bPricing?.applied"
-              color="info"
-              variant="subtle"
-              icon="i-heroicons-briefcase"
-              class="w-full justify-center"
-            >
-              {{ cart.b2bPricing.groupName
-                ? t('b2b_pricing_applied', { group: cart.b2bPricing.groupName })
-                : t('b2b_pricing_applied_generic') }}
-            </UBadge>
-            <UAlert
-              v-if="cart.b2bPricing?.belowMinimum"
-              color="warning"
-              variant="subtle"
-              icon="i-heroicons-exclamation-triangle"
-              :description="t('b2b_below_minimum', {
-                minimum: $i18n.n(Number(cart.b2bPricing.minOrderValue ?? 0), 'currency'),
-              })"
-            />
-            <div class="flex justify-between">
-              <span>{{ t('subtotal', cart.totalItems) }}</span>
-              <span>{{ $i18n.n(cart.totalPrice - cart.totalVatValue, 'currency') }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span>{{ t('vat') }}</span>
-              <span>{{ $i18n.n(cart.totalVatValue, 'currency') }}</span>
-            </div>
-            <!-- Catalogue markdown. It is ALREADY inside the line
-                 prices above and is never subtracted again, so it is
-                 styled as information, not as money coming off here. -->
-            <div
-              v-if="cart.totalDiscountValue > 0"
-              class="flex justify-between text-sm opacity-75"
-            >
-              <span>{{ t('discount') }}</span>
-              <span>-{{ $i18n.n(cart.totalDiscountValue, 'currency') }}</span>
-            </div>
-            <!-- One line per offer that actually took money off, so the
-                 shopper can see WHICH offers applied instead of a
-                 single lump sum. The amounts always sum to
-                 promotionDiscount (the engine clamps each entry). -->
-            <div
-              v-for="promo in cart.appliedPromotions || []"
-              :key="`promo-${promo.promotionId}-${promo.code ?? 'auto'}`"
-              class="flex items-start justify-between gap-3 text-green-600"
-            >
-              <span class="flex flex-wrap items-center gap-1.5">
-                {{ promo.name || t('promotion_discount') }}
-                <UBadge
-                  v-if="promo.code"
-                  color="success"
-                  variant="soft"
-                  size="sm"
-                  class="font-mono"
-                >
-                  {{ promo.code }}
-                </UBadge>
-              </span>
-              <span class="shrink-0">-{{ $i18n.n(Number(promo.amount ?? 0), 'currency') }}</span>
-            </div>
-            <CheckoutGiftItem
-              v-for="gift in cart.promotionGiftItems || []"
-              :key="`gift-${gift.promotionId}-${gift.productId}`"
-              :gift="gift"
-            />
-            <USeparator />
-            <div class="flex justify-between text-lg font-semibold">
-              <span>{{ t('total') }}</span>
-              <span>{{ $i18n.n(Math.max(0, cart.totalPrice - (cart.promotionDiscount || 0)), 'currency') }}</span>
-            </div>
+            {{ t('empty.description') }}
+          </UButton>
+        </template>
+      </LazyEmptyState>
 
-            <CheckoutCouponInput />
-
-            <UAlert
-              v-for="miss in cart.promotionNearMiss || []"
-              :key="`miss-${miss.promotionId}`"
-              icon="i-heroicons-sparkles"
-              color="info"
-              variant="subtle"
-              :description="t('near_miss', {
-                amount: $i18n.n(miss.remainingAmount || 0, 'currency'),
-                name: miss.name,
-              })"
-            />
-
-            <ShippingFreeShippingNotice :cart-total="cart.totalPrice" />
-          </div>
-
-          <template #footer>
-            <!-- The tenant accent, solid, like every other primary CTA.
-                 A `subtle` success button measured 3.08:1 on the single
-                 most important control on the page. The stock-issue
-                 state keeps `warning`, which is paired with a dark
-                 foreground in app.config. -->
-            <UButton
-              :to="localePath('checkout')"
-              :disabled="hasStockIssues"
-              :color="hasStockIssues ? 'warning' : 'secondary'"
-              size="xl"
-              block
-            >
-              {{ hasStockIssues ? t('fix_stock_issues_first') : t('proceed_to_checkout') }}
-            </UButton>
-          </template>
-        </UCard>
-      </div>
       <div
         v-else
         class="
-          w-full
-          lg:max-w-md
+          grid gap-6
+          lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10
         "
       >
-        <UCard
-          v-bind="cardConfig"
-          :ui="summaryCardUI"
-        >
-          <template #header>
-            <USkeleton class="h-7 w-40" />
+        <div class="flex min-w-0 flex-col gap-4">
+          <template v-if="!initialLoading && cart?.items?.length">
+            <CartBanners
+              :cart-total="cart.totalPrice"
+              :threshold="freeDeliveryThreshold"
+              :near-misses="cart.promotionNearMiss || []"
+            />
+
+            <ul class="flex flex-col divide-y divide-default">
+              <li
+                v-for="cartItem in cart.items"
+                :key="cartItem.id"
+                class="flex flex-col gap-3 py-5"
+              >
+                <UAlert
+                  v-if="getStockStatusMessage(cartItem)"
+                  :color="getStockStatusMessage(cartItem)?.severity === 'error' ? 'error' : 'warning'"
+                  variant="soft"
+                  :icon="getStockStatusMessage(cartItem)?.severity === 'error' ? 'i-lucide-circle-x' : 'i-lucide-triangle-alert'"
+                >
+                  <template #title>
+                    {{ getStockStatusMessage(cartItem)?.severity === 'error' ? t('stock_status.unavailable_title') : t('stock_status.limited_title') }}
+                  </template>
+                  <template #description>
+                    <div v-if="getStockStatusMessage(cartItem)?.type === 'limited_stock'">
+                      {{ t('stock_status.limited_stock', {
+                        available: getStockStatusMessage(cartItem)?.available,
+                        requested: getStockStatusMessage(cartItem)?.requested,
+                      }) }}
+                    </div>
+                    <div v-else>
+                      {{ t('stock_status.out_of_stock') }}
+                    </div>
+                  </template>
+                </UAlert>
+
+                <CartItemCard :cart-item="cartItem" />
+              </li>
+            </ul>
+
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <UButton
+                :to="localePath('products')"
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-chevron-left"
+              >
+                {{ t('continue_shopping') }}
+              </UButton>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                @click="() => { isConfirmingClear = true }"
+              >
+                {{ t('clear.cta') }}
+              </UButton>
+            </div>
           </template>
 
-          <div class="grid gap-4">
-            <div class="flex justify-between">
-              <USkeleton class="h-5 w-20" />
-              <USkeleton class="h-5 w-24" />
-            </div>
-            <div class="flex justify-between">
-              <USkeleton class="h-5 w-16" />
-              <USkeleton class="h-5 w-24" />
-            </div>
-            <USeparator />
-            <div class="flex justify-between">
-              <USkeleton class="h-6 w-16" />
-              <USkeleton class="h-6 w-28" />
+          <div
+            v-else
+            class="flex flex-col divide-y divide-default"
+          >
+            <div
+              v-for="index in (cart?.items?.length || 2)"
+              :key="index"
+              class="flex gap-4 py-5"
+            >
+              <USkeleton class="size-24 shrink-0 rounded-xl" />
+              <div class="flex flex-1 flex-col gap-3">
+                <USkeleton class="h-5 w-48" />
+                <USkeleton class="h-4 w-32" />
+                <USkeleton class="h-8 w-32" />
+              </div>
             </div>
           </div>
+        </div>
 
-          <template #footer>
+        <div class="lg:sticky lg:top-24 lg:self-start">
+          <CartSummary v-if="!initialLoading && cart?.items?.length" />
+          <div
+            v-else
+            class="
+              flex flex-col gap-4 rounded-[1.25rem] bg-default p-5 ring
+              ring-default
+            "
+          >
+            <USkeleton class="h-7 w-40" />
+            <USkeleton class="h-5 w-full" />
+            <USkeleton class="h-5 w-full" />
             <USkeleton class="h-11 w-full" />
-          </template>
-        </UCard>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <LazyProductSuggestions
-      v-if="suggestionsEnabled && cart?.recommendations?.length"
-      surface="cart"
-      :items="cart.recommendations"
-      hydrate-on-visible
-      class="mt-10"
-    />
-  </PageWrapper>
+      <LazyProductSuggestions
+        v-if="suggestionsEnabled && cart?.recommendations?.length"
+        surface="cart"
+        :items="cart.recommendations"
+        hydrate-on-visible
+      />
+    </UContainer>
+
+    <ClientOnly>
+      <CartActionBar
+        v-if="!initialLoading && cart?.items?.length"
+        :total="total"
+        :blocked="hasStockIssues"
+      />
+    </ClientOnly>
+
+    <UModal
+      v-model:open="isConfirmingClear"
+      :title="t('clear.title')"
+      :description="t('clear.description')"
+      :dismissible="!clearing"
+    >
+      <template #footer>
+        <div class="flex w-full justify-end gap-3">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            :disabled="clearing"
+            @click="() => { isConfirmingClear = false }"
+          >
+            {{ t('clear.cancel') }}
+          </UButton>
+          <UButton
+            color="error"
+            variant="outline"
+            icon="i-lucide-trash-2"
+            :loading="clearing"
+            @click="onClearCart"
+          >
+            {{ t('clear.confirm') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  home: Αρχική
   payment_lookup_failed_title: Σφάλμα επαλήθευσης πληρωμής
   payment_lookup_failed_description: Δεν μπορέσαμε να εντοπίσουμε την παραγγελία σου. Αν χρεώθηκες, θα λάβεις email επιβεβαίωσης — αλλιώς επικοινώνησε με την υποστήριξη.
   shopping_cart: Καλάθι Αγορών
-  items_in_cart: "{count} προϊόντα"
+  title: Το καλάθι σου
+  items_in_cart: "{count} προϊόν | {count} προϊόντα"
+  free_delivery_unlocked: δωρεάν μεταφορικά
+  continue_shopping: Συνέχεια αγορών
   empty:
     title: Το καλάθι σου είναι άδειο
     description: Συνέχεια
     description_long: Δεν έχεις προσθέσει ακόμα προϊόντα στο καλάθι σου
-  order_summary: Σύνοψη Παραγγελίας
-  b2b_pricing_applied: 'Τιμές χονδρικής: {group}'
-  b2b_pricing_applied_generic: Τιμές χονδρικής
-  b2b_below_minimum: Η ελάχιστη αξία παραγγελίας χονδρικής είναι {minimum}. Πρόσθεσε προϊόντα για να ολοκληρώσεις την παραγγελία.
-  subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
-  vat: ΦΠΑ
-  discount: Έκπτωση προϊόντων (ήδη στις τιμές)
-  promotion_discount: Έκπτωση προσφοράς
-  near_miss: Προσθέστε {amount} ακόμη για να ξεκλειδώσετε «{name}»
-  total: Σύνολο
-  proceed_to_checkout: Ολοκλήρωση Παραγγελίας
-  fix_stock_issues_first: Διόρθωσε τα προβλήματα
+  clear:
+    cta: Άδειασμα καλαθιού
+    title: Να αδειάσει το καλάθι;
+    description: Θα αφαιρεθούν όλα τα προϊόντα από το καλάθι σου.
+    cancel: Άκυρο
+    confirm: Άδειασμα καλαθιού
+    error_title: Το καλάθι δεν άδειασε
+    error_description: Δοκίμασε ξανά σε λίγο.
   stock_status:
     out_of_stock: Το προϊόν δεν είναι διαθέσιμο
     limited_stock: "Διαθέσιμα μόνο {available} τεμάχια (έχετε {requested} στο καλάθι)"
@@ -525,36 +406,29 @@ el:
     limited_title: Περιορισμένη Διαθεσιμότητα
   stock_alert:
     title: Προβλήματα Διαθεσιμότητας
-    description: Κάποια προϊόντα στο καλάθι σου δεν είναι διαθέσιμα στην επιθυμητή ποσότητα.
-    fix_button: Αυτόματη Διόρθωση
-  stock_fix:
-    success_title: Το καλάθι ενημερώθηκε
-    success_description: Οι ποσότητες προσαρμόστηκαν στη διαθέσιμη προϊόντα.
   recovered:
     title: Καλωσόρισες πίσω!
     description: Κρατήσαμε το καλάθι σου. Έλεγξε τα προϊόντα πριν κάποια εξαντληθούν.
 en:
-  home: Home
   payment_lookup_failed_title: Could not verify the payment
   payment_lookup_failed_description: We could not find your order. If you were charged you will get a confirmation email — otherwise please contact support.
   shopping_cart: Shopping Cart
-  items_in_cart: "{count} items"
+  title: Your cart
+  items_in_cart: "{count} item | {count} items"
+  free_delivery_unlocked: free delivery unlocked
+  continue_shopping: Continue shopping
   empty:
     title: Your cart is empty
     description: Keep shopping
     description_long: You have not added anything to your cart yet
-  order_summary: Order Summary
-  b2b_pricing_applied: 'Wholesale prices: {group}'
-  b2b_pricing_applied_generic: Wholesale prices
-  b2b_below_minimum: The minimum wholesale order value is {minimum}. Add more items to place the order.
-  subtotal: "Item cost | Items cost"
-  vat: VAT
-  discount: Product discount (already in the prices)
-  promotion_discount: Offer discount
-  near_miss: Add {amount} more to unlock "{name}"
-  total: Total
-  proceed_to_checkout: Checkout
-  fix_stock_issues_first: Fix the problems first
+  clear:
+    cta: Empty cart
+    title: Empty your cart?
+    description: Every item will be removed from your cart.
+    cancel: Cancel
+    confirm: Empty cart
+    error_title: The cart could not be emptied
+    error_description: Try again in a moment.
   stock_status:
     out_of_stock: This product is unavailable
     limited_stock: "Only {available} in stock (you have {requested} in your cart)"
@@ -562,11 +436,6 @@ en:
     limited_title: Limited Stock
   stock_alert:
     title: Stock Problems
-    description: Some items in your cart are not available in the quantity you wanted.
-    fix_button: Fix Automatically
-  stock_fix:
-    success_title: Cart updated
-    success_description: The quantities were adjusted to what is in stock.
   recovered:
     title: Welcome back
     description: We kept your cart. Check the items before any of them sell out.

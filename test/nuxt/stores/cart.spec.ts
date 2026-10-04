@@ -413,6 +413,39 @@ describe('Cart Store', () => {
     })
   })
 
+  describe('clearCart', () => {
+    it('deletes the cart, forgets it, and reports each line as removed', async () => {
+      store.cart = twoLineCart()
+      api.routes({ '/api/cart': null })
+
+      await store.clearCart()
+
+      expect(api.callsTo('/api/cart')).toEqual([
+        { url: '/api/cart', options: { method: 'DELETE', headers: {} } },
+      ])
+      expect(store.cart).toBeNull()
+      expect(store.error).toBeNull()
+      expect(pixels.ga4.trackRemoveFromCart.mock.calls.map(([event]) => event.items)).toEqual([
+        [{ item_id: '1', quantity: 2, price: 50 }],
+        [{ item_id: '2', quantity: 1, price: 30 }],
+      ])
+    })
+
+    it('keeps the cart, records the failure and rethrows it', async () => {
+      store.cart = twoLineCart()
+      api.routes({
+        '/api/cart': () => {
+          throw new Error('Failed to empty')
+        },
+      })
+
+      await expect(store.clearCart()).rejects.toThrow('Failed to empty')
+      expect(store.getCartItems).toHaveLength(2)
+      expect(store.error).toEqual(expect.objectContaining({ message: 'Failed to empty' }))
+      expect(pixels.ga4.trackRemoveFromCart).not.toHaveBeenCalled()
+    })
+  })
+
   describe('cleanCartState', () => {
     it.each([
       ['the server cleared the session', () => ({})],
