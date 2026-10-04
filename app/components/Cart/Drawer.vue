@@ -15,7 +15,7 @@ const { t, n, locale } = useI18n()
 const localePath = useLocalePath()
 const { open, added, desktop, close } = useCartDrawer()
 const cartStore = useCartStore()
-const { cart, loaded } = storeToRefs(cartStore)
+const { cart, loaded, hasStockIssues } = storeToRefs(cartStore)
 const tenantStore = useTenantStore()
 const suggestionsSetting = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', { fallback: false })
 
@@ -129,7 +129,9 @@ const UDrawer = resolveComponent('UDrawer')
       </div>
 
       <template v-else>
-        <ShippingFreeShippingNotice :cart-total="subtotal" />
+        <!-- The gross total, as checkout quotes delivery on it
+             (`orderValueAmount`) and every other meter reads it. -->
+        <ShippingFreeShippingNotice :cart-total="cart?.totalPrice ?? 0" />
 
         <ul class="flex flex-col divide-y divide-default">
           <li
@@ -208,11 +210,14 @@ const UDrawer = resolveComponent('UDrawer')
           size="lg"
           block
         />
+        <!-- Blocked like the cart summary's: checkout sends a cart with a
+             stock problem straight back to the cart. -->
         <UButton
-          :label="t('checkout')"
+          :label="hasStockIssues ? t('fix_stock_issues_first') : t('checkout')"
           :to="localePath('checkout')"
+          :disabled="hasStockIssues"
+          :color="hasStockIssues ? 'warning' : 'secondary'"
           icon="i-lucide-lock"
-          color="secondary"
           size="lg"
           block
         />
@@ -235,6 +240,7 @@ el:
   subtotal: Υποσύνολο
   view_cart: Καλάθι
   checkout: Ολοκλήρωση
+  fix_stock_issues_first: Διόρθωσε τα προβλήματα
   applied:
     code_and_gift: Εφαρμόστηκαν το κουπόνι {codes} και το δώρο
     code: Εφαρμόστηκε το κουπόνι {codes}
@@ -253,6 +259,7 @@ en:
   subtotal: Subtotal
   view_cart: View cart
   checkout: Checkout
+  fix_stock_issues_first: Fix the problems first
   applied:
     code_and_gift: Coupon {codes} and free gift applied
     code: Coupon {codes} applied
