@@ -35,6 +35,7 @@ const emit = defineEmits<{
 const { t, n } = useI18n()
 const localePath = useLocalePath()
 const { getPaymentMethodName } = usePaymentMethod()
+const { cart } = storeToRefs(useCartStore())
 
 // True when the BoxNow widget is unconfigured (tenantStore.boxNowPartnerId
 // empty — tenant hasn't set one, no platform fallback). We disable the
@@ -101,6 +102,12 @@ type ShippingOptionItemBase = {
 
 type ShippingOptionItem = ShippingOptionItemBase & {
   logo: string
+  /**
+   * What this row costs, from the API option the checkout prices the
+   * method with (``useCheckoutForm``'s ``matchedShippingOption``). 0 is
+   * a real answer: it is "Free".
+   */
+  price: number
   /** Payment methods reachable ONLY by choosing this delivery row. */
   exclusivePayWays: string[]
   /** Why the row is disabled, shown inline next to the description. */
@@ -207,6 +214,24 @@ const exclusivePayWaysByMethod = computed(() => {
   return result
 })
 
+// A promotion's free shipping zeroes every method's cost (the sidebar
+// does the same), so the cards say Free too rather than the carrier's
+// own rate.
+const promotionFreeShipping = computed(() => Boolean(cart.value?.promotionFreeShipping))
+
+/**
+ * The API option a row is priced by — the same pick ``useCheckoutForm``
+ * makes for the selected method, so a card never states a price the
+ * sidebar then contradicts. Home delivery collapses several carriers;
+ * the server routes the cart to the first one it fits.
+ */
+function pricedOption(key: ShippingMethodKey, sameMethod: ShippingOption[], first: ShippingOption): ShippingOption {
+  if (key === 'home_delivery') {
+    return sameMethod.find(o => !o.exceedsMaxWeight) ?? first
+  }
+  return first
+}
+
 const shippingOptions = computed(() => {
   const seen = new Set<ShippingMethodKey>()
   const ordered: ShippingOptionItem[] = []
@@ -233,6 +258,9 @@ const shippingOptions = computed(() => {
     ordered.push({
       ...baseItem,
       logo: resolveShippingLogo(option.logoUrl),
+      price: promotionFreeShipping.value
+        ? 0
+        : pricedOption(key, sameMethod, option).price,
       // Resolved through the same label map the payment step uses, so
       // the two never disagree on what a method is called.
       exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
@@ -273,6 +301,15 @@ function buildBrandMeta(method: ShippingMethodKey) {
 const activeCarrier = computed(() =>
   carrierForMethod(formState.value.shippingMethod),
 )
+
+const selectedOption = computed(() =>
+  shippingOptions.value.find(item => item.value === formState.value.shippingMethod),
+)
+
+// Free for the method the shopper has chosen — Django answers 0 only
+// when a rate's free-shipping threshold is met, and a promotion says so
+// on the cart.
+const freeDeliveryApplied = computed(() => selectedOption.value?.price === 0)
 
 const isBoxNow = computed(
   () => formState.value.shippingMethod === 'box_now_locker',
@@ -355,9 +392,7 @@ function onSubmit() {
   // A method that is no longer offered, or whose row is disabled (over
   // every carrier's weight cap, a country BoxNow does not serve), must
   // not advance to payment on a stale selection.
-  const selected = shippingOptions.value.find(
-    item => item.value === formState.value.shippingMethod,
-  )
+  const selected = selectedOption.value
   if (!selected || selected.disabled) return
   // Continue clicked without picking a locker → pop the picker
   // instead of silently failing. The previous UX disabled the button
@@ -377,24 +412,24 @@ defineExpose({ submit: onSubmit })
 </script>
 
 <template>
-  <UCard class="overflow-hidden">
+  <UCard
+    class="overflow-hidden"
+    :ui="{ root: 'rounded-[1.25rem]' }"
+  >
     <template #header>
-      <h2 class="text-xl font-semibold">
+      <h2 class="font-display text-xl font-bold text-highlighted">
         {{ t('shipping.method.title') }}
       </h2>
-      <p class="mt-1 text-sm text-neutral-700 dark:text-neutral-200">
-        {{ t('subtitle') }}
-      </p>
     </template>
 
     <!-- Live options failed to load — there is no local price to fall
-         back to, so retry is the only path forward; the sidebar CTA
+         back to, so retry is the only path forward; the page's CTA
          (which proxies through ``submit()``) is blocked the same way. -->
     <UAlert
       v-if="optionsError"
       color="error"
       variant="subtle"
-      icon="i-heroicons-exclamation-triangle"
+      icon="i-lucide-triangle-alert"
       :title="t('shipping.method.options_error_title')"
       :description="t('shipping.method.options_error_description')"
       :actions="[
@@ -403,13 +438,12 @@ defineExpose({ submit: onSubmit })
       ]"
     />
 
-    <!-- ``@submit`` is intentionally absent: the Continue button uses
-         ``type="button"`` + ``@click`` because the Zod
-         ``superRefine`` would otherwise abort submit on a missing
-         locker before our handler could pop the picker. The schema
-         still drives inline error rendering for the locker field via
-         the watcher below. -->
-    <UForm v-else ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError">
+    <!-- ``@submit`` is intentionally absent: the page's CTA calls the
+         exposed ``submit()`` because the Zod ``superRefine`` would
+         otherwise abort submit on a missing locker before our handler
+         could pop the picker. The schema still drives inline error
+         rendering for the locker field via the watcher above. -->
+    <UForm v-else ref="formRef" :state="formState" :schema="schema" class="flex flex-col gap-4" @error="scrollToFirstFormError">
       <!-- No method can carry the cart (Django would refuse the order):
            each card names its own limit, this says what to do about it.
            Advancing is already blocked — every card is disabled. -->
@@ -418,7 +452,7 @@ defineExpose({ submit: onSubmit })
         data-testid="step-shipping-over-weight"
         color="error"
         variant="subtle"
-        icon="i-heroicons-scale"
+        icon="i-lucide-scale"
         :title="t('shipping.method.over_weight_title')"
         :description="t('shipping.method.over_weight_description', overWeight)"
         :actions="[
@@ -434,29 +468,37 @@ defineExpose({ submit: onSubmit })
         size="xl"
         class="w-full"
         :ui="{
-          item: 'flex cursor-pointer items-start gap-3 p-4',
-          wrapper: 'ms-3',
+          item: 'flex cursor-pointer items-center gap-3 p-4',
+          wrapper: 'ms-3 w-full',
         }"
       >
         <template #label="{ item }">
-          <div class="flex flex-1 items-start gap-2 sm:gap-3">
-            <ImgWithFallback
-              :src="item.logo"
-              :alt="item.altText"
-              width="96"
-              height="66"
-              fit="contain"
-              format="webp"
-              :modifiers="{ background: 'transparent' }"
-              class="h-8 w-16 shrink-0 object-contain sm:h-10 sm:w-24"
-            />
+          <div class="flex flex-1 items-center gap-3">
+            <div
+              class="
+                flex h-11 w-16 shrink-0 items-center justify-center rounded-lg
+                bg-white p-1 ring ring-default
+                sm:w-20
+              "
+            >
+              <ImgWithFallback
+                :src="item.logo"
+                :alt="item.altText"
+                width="96"
+                height="66"
+                fit="contain"
+                format="webp"
+                :modifiers="{ background: 'transparent' }"
+                class="size-full object-contain"
+              />
+            </div>
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">
               <!-- ``flex-wrap`` lets the tagline badge break to a second
                    line on narrow viewports instead of overflowing.
                    ``min-w-0 + break-words`` lets the label itself wrap
                    when the brand name + tagline don't fit one row. -->
               <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span class="break-words font-semibold">{{ item.label }}</span>
+                <span class="font-semibold break-words text-highlighted">{{ item.label }}</span>
                 <UBadge
                   v-if="item.taglineKey"
                   size="sm"
@@ -467,7 +509,7 @@ defineExpose({ submit: onSubmit })
                   {{ t(item.taglineKey) }}
                 </UBadge>
               </div>
-              <span class="text-sm text-neutral-700 dark:text-neutral-200">
+              <span class="text-sm text-toned">
                 {{ item.descriptionText }}
               </span>
               <!-- A payment method this delivery choice is the only way
@@ -478,7 +520,7 @@ defineExpose({ submit: onSubmit })
                 v-if="item.exclusivePayWays.length"
                 class="mt-1 flex flex-wrap items-center gap-1 text-sm"
               >
-                <span class="text-neutral-600 dark:text-neutral-300">
+                <span class="text-toned">
                   {{ t('delivery_unlocks_payment') }}
                 </span>
                 <UBadge
@@ -498,11 +540,25 @@ defineExpose({ submit: onSubmit })
                    missing partner id. -->
               <span
                 v-if="item.disabledReason"
-                class="mt-1 text-sm text-error"
+                class="mt-1 text-sm text-toned"
               >
                 {{ item.disabledReason }}
               </span>
             </div>
+            <!-- The price is the API's: "Free" only when it is 0. -->
+            <UBadge
+              v-if="item.price === 0"
+              color="success"
+              variant="soft"
+              class="shrink-0"
+              :label="t('free')"
+            />
+            <span
+              v-else
+              class="shrink-0 font-mono font-semibold text-highlighted"
+            >
+              {{ n(item.price, 'currency') }}
+            </span>
           </div>
         </template>
       </URadioGroup>
@@ -513,7 +569,7 @@ defineExpose({ submit: onSubmit })
         v-if="!isBoxNowConfigured && boxnowAvailable"
         color="info"
         variant="subtle"
-        icon="i-heroicons-information-circle"
+        icon="i-lucide-info"
         :title="t('shipping.method.boxnow.unconfigured_title')"
         :description="t('shipping.method.boxnow.unconfigured_description')"
       />
@@ -546,18 +602,25 @@ defineExpose({ submit: onSubmit })
         </UFormField>
       </template>
 
-      <!-- Footer navigation. Continue lives in the checkout sidebar
-           so the primary CTA sits next to the order total. -->
-      <div class="flex items-center pt-4">
-        <UButton
-          variant="ghost"
-          icon="i-heroicons-arrow-left"
-          type="button"
-          data-testid="step-shipping-back"
-          @click="emit('back')"
-        >
-          {{ t('back') }}
-        </UButton>
+      <!-- Free delivery for the chosen method. The page draws Back and
+           Continue under this card. -->
+      <div
+        v-if="freeDeliveryApplied"
+        data-testid="step-shipping-free-delivery"
+        class="
+          flex items-start gap-3 rounded-xl bg-(--ui-volt-soft) p-4
+          text-highlighted ring ring-(--ui-volt-edge)
+        "
+      >
+        <UIcon name="i-lucide-truck" class="mt-0.5 size-5 shrink-0" />
+        <div class="flex flex-col gap-0.5">
+          <p class="font-semibold">
+            {{ t('free_delivery_title') }}
+          </p>
+          <p class="text-sm">
+            {{ t('free_delivery_description') }}
+          </p>
+        </div>
       </div>
     </UForm>
   </UCard>
@@ -565,11 +628,15 @@ defineExpose({ submit: onSubmit })
 
 <i18n lang="yaml">
 el:
-  subtitle: Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας
   back: Πίσω
   retry: Δοκιμάστε ξανά
+  free: Δωρεάν
+  free_delivery_title: Εφαρμόστηκε δωρεάν αποστολή
+  free_delivery_description: Η παραγγελία σου δικαιούται δωρεάν αποστολή με αυτή τη μέθοδο.
 en:
-  subtitle: Choose how you would like your order delivered
   back: Back
   retry: Try again
+  free: Free
+  free_delivery_title: Free delivery applied
+  free_delivery_description: Your order qualifies for free delivery with this method.
 </i18n>

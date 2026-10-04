@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import type { DOMWrapper, VueWrapper } from '@vue/test-utils'
 import { nextTick, reactive } from 'vue'
@@ -6,6 +6,7 @@ import StepShipping from '~/components/Checkout/StepShipping.vue'
 import WebsideStepShipping from '~/components/variants/webside/Checkout/StepShipping.vue'
 import type { ShippingOption } from '~~/shared/openapi/types.gen'
 import { makeBoxNowSelectedLocker } from '~~/test/fixtures/boxnow'
+import { makeCart } from '~~/test/fixtures/cart'
 import {
   acsHomeDeliveryOption,
   acsSmartpointOption,
@@ -72,7 +73,7 @@ function submitStep(wrapper: VueWrapper): void {
 
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
 
-describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShipping', ({ C, own }) => {
+describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShipping', ({ tree, C, own }) => {
   const mount = (overrides: Record<string, unknown> = {}) =>
     mountSuspended(C, { route: false, props: makeProps(overrides) })
 
@@ -244,12 +245,68 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     })
   })
 
-  it('emits back from the back button', async () => {
+  // The frozen step has its own Back button; in the redesign the page
+  // draws Back and Continue under the card and drives `submit()`.
+  it.runIf(tree === 'webside')('emits back from the back button', async () => {
     const wrapper = await mount()
 
     await wrapper.find('[data-testid="step-shipping-back"]').trigger('click')
 
     expect(wrapper.emitted('back')).toHaveLength(1)
+  })
+
+  it.runIf(tree === 'default')('leaves Back and Continue to the page', async () => {
+    const wrapper = await mount()
+
+    expect(wrapper.find('[data-testid="step-shipping-back"]').exists()).toBe(false)
+    expect(wrapper.findAll('button').filter(button => button.text() === 'Πίσω')).toHaveLength(0)
+  })
+
+  describe.runIf(tree === 'default')('what each card costs', () => {
+    // The cart store outlives a test.
+    beforeEach(() => {
+      useCartStore().cart = makeCart()
+    })
+
+    const price = (wrapper: VueWrapper, value: string) => card(wrapper, value).text().replace(/\u00A0/g, ' ')
+
+    it('states the API price on each card, and "Free" only when it is 0', async () => {
+      const wrapper = await mount({ apiOptions: [boxNowLockerOption({ price: 0 }), acsHomeDeliveryOption({ price: 2.99 })] })
+
+      expect(price(wrapper, 'box_now_locker')).toContain('Δωρεάν')
+      expect(price(wrapper, 'home_delivery')).toContain('2,99 €')
+      expect(price(wrapper, 'home_delivery')).not.toContain('Δωρεάν')
+    })
+
+    it('prices a card standing for several home-delivery carriers by the one that fits the cart', async () => {
+      const wrapper = await mount({
+        apiOptions: [
+          acsHomeDeliveryOption({ price: 2.99, exceedsMaxWeight: true, maxWeightGrams: 1000 }),
+          makeShippingOption({ providerCode: 'elta', providerName: 'ELTA', priority: 20, price: 4.2 }),
+        ],
+      })
+
+      expect(price(wrapper, 'home_delivery')).toContain('4,20 €')
+    })
+
+    it('says Free on every card when a promotion gives free shipping', async () => {
+      useCartStore().cart = makeCart({ promotionFreeShipping: true })
+      const wrapper = await mount()
+
+      expect(price(wrapper, 'box_now_locker')).toContain('Δωρεάν')
+      expect(price(wrapper, 'home_delivery')).toContain('Δωρεάν')
+    })
+
+    it('shows the free-delivery banner only when the chosen method costs nothing', async () => {
+      const apiOptions = [boxNowLockerOption({ price: 0 }), acsHomeDeliveryOption({ price: 2.99 })]
+      const formState = makeFormState({ shippingMethod: 'home_delivery' })
+      const wrapper = await mount({ formState, apiOptions })
+      expect(wrapper.find('[data-testid="step-shipping-free-delivery"]').exists()).toBe(false)
+
+      await radio(wrapper, 'box_now_locker').trigger('click')
+
+      expect(wrapper.find('[data-testid="step-shipping-free-delivery"]').exists()).toBe(true)
+    })
   })
 
   describe('pay ways only one delivery choice can reach', () => {

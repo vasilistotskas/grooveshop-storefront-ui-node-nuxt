@@ -139,18 +139,21 @@ watch(open, (val) => {
       // it is taller than the visible area and its body — the map
       // iframe — is pushed under the toolbar. Same unit the chat
       // widget and the product image modal already use.
-      content: 'h-dvh max-w-4xl',
+      content: `
+        h-dvh max-w-4xl
+        sm:h-168 sm:max-h-[90dvh]
+      `,
       body: 'min-h-0 flex-1 overflow-hidden p-0',
     }"
   >
     <template #header>
       <div class="flex w-full items-center justify-between">
-        <h2 class="text-lg font-semibold">
+        <h2 class="font-display text-lg font-bold text-highlighted">
           {{ t('shipping.boxnow.modal_title') }}
         </h2>
         <UButton
           variant="ghost"
-          icon="i-heroicons-x-mark"
+          icon="i-lucide-x"
           size="sm"
           :aria-label="t('close')"
           @click="onClose"
@@ -163,10 +166,10 @@ watch(open, (val) => {
         <!-- Loading skeleton while iframe is loading -->
         <div
           v-if="loading"
-          class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-white dark:bg-neutral-900"
+          class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-default"
         >
           <USkeleton class="h-full w-full" />
-          <p class="absolute text-sm text-neutral-700 dark:text-neutral-200">
+          <p class="absolute text-sm text-toned">
             {{ t('shipping.boxnow.iframe_loading') }}
           </p>
         </div>
@@ -182,13 +185,14 @@ watch(open, (val) => {
           v-if="timedOut"
           class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-default p-6 text-center"
         >
-          <UIcon name="i-heroicons-exclamation-triangle" class="size-8 text-warning" />
-          <p class="text-sm text-muted">
+          <UIcon name="i-lucide-triangle-alert" class="size-8 text-toned" />
+          <p class="text-sm text-toned">
             {{ t('load_failed') }}
           </p>
           <UButton
-            color="secondary"
-            icon="i-heroicons-arrow-path"
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-refresh-cw"
             @click="retry"
           >
             {{ t('retry') }}

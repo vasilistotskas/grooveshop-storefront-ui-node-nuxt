@@ -1,5 +1,8 @@
 {
   "continue": "Continue",
+  "continue_to_delivery": "Continue to delivery",
+  "continue_to_payment": "Continue to payment",
+  "pay": "Pay {total}",
   "title": "Checkout",
   "payOnDelivery": "Cash on delivery",
   "cardPayment": "Card payment",

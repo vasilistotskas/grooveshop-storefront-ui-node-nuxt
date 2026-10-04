@@ -282,7 +282,120 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
     })
   })
 
-  describe('invoice (Τιμολόγιο) instead of a receipt', () => {
+  describe('receipt or invoice cards (default tree)', () => {
+    /** The radio card whose label starts with `label`; the component's own copy, which the app-level `t` cannot see. */
+    const card = (wrapper: VueWrapper, label: string) => {
+      const group = wrapper.get('[role="radiogroup"]')
+      const index = group.findAll('[data-slot="label"]').findIndex(l => l.text() === label)
+      return group.findAll('[role="radio"]')[index]!
+    }
+    const cards = (wrapper: VueWrapper) => wrapper.findAll('[role="radio"]').map(radio => radio.attributes('aria-checked'))
+
+    it.runIf(tree === 'default')('offers a receipt, which is picked, and an invoice, with what each is for', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.text()).toContain('Για προσωπικές αγορές')
+      expect(wrapper.text()).toContain('Για επιχειρήσεις')
+      expect(card(wrapper, 'Απόδειξη').attributes('aria-checked')).toBe('true')
+      expect(card(wrapper, 'Τιμολόγιο').attributes('aria-checked')).toBe('false')
+      expect(cards(wrapper)).toHaveLength(2)
+    })
+
+    it.runIf(tree === 'default')('asks for the company details once the shopper picks the invoice', async () => {
+      const formState = makeFormState()
+      const wrapper = await mount({ formState })
+      expect(hasField(wrapper, 'billingVatId')).toBe(false)
+
+      await card(wrapper, 'Τιμολόγιο').trigger('click')
+
+      expect(formState.documentType).toBe('INVOICE')
+      for (const name of ['billingCompanyName', 'billingVatId', 'billingTaxOffice', 'billingActivity']) {
+        expect(hasField(wrapper, name)).toBe(true)
+      }
+    })
+
+    it.runIf(tree === 'default')('asks for a billing address only when it differs from the delivery one', async () => {
+      const formState = makeFormState({ documentType: 'INVOICE', billingSameAsShipping: true })
+      const wrapper = await mount({ formState })
+      expect(hasField(wrapper, 'billingStreet')).toBe(false)
+
+      await checkbox(wrapper, t('form.invoice.billing_same_label')).trigger('click')
+
+      expect(formState.billingSameAsShipping).toBe(false)
+      expect(hasField(wrapper, 'billingStreet')).toBe(true)
+    })
+
+    it.runIf(tree === 'default')('wipes every billing field when the shopper goes back to a receipt', async () => {
+      const formState = makeFormState({ documentType: 'INVOICE', ...BILLING })
+      const wrapper = await mount({ formState })
+
+      await card(wrapper, 'Απόδειξη').trigger('click')
+
+      expect(formState).toMatchObject({
+        documentType: 'RECEIPT',
+        billingVatId: '',
+        billingCountry: '',
+        billingCompanyName: '',
+        billingTaxOffice: '',
+        billingActivity: '',
+        billingSameAsShipping: true,
+        billingStreet: '',
+        billingStreetNumber: '',
+        billingCity: '',
+        billingZipcode: '',
+      })
+    })
+
+    it.runIf(tree === 'default')('offers no receipt-or-invoice choice when the store turned B2B invoicing off', async () => {
+      const wrapper = await mount({ b2bInvoicingEnabled: false })
+
+      expect(wrapper.text()).not.toContain('Τιμολόγιο')
+      expect(cards(wrapper)).toHaveLength(0)
+    })
+  })
+
+  describe('the cards (default tree)', () => {
+    it.runIf(tree === 'default')('puts contact, delivery address and receipt or invoice in their own titled sections, with the notes last', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.findAll('h2').map(heading => heading.text())).toEqual(['Στοιχεία επικοινωνίας', 'Διεύθυνση παράδοσης', 'Απόδειξη ή τιμολόγιο'])
+      const names = wrapper.findAll('[name]').map(el => el.attributes('name'))
+      expect(names.indexOf('email')).toBeLessThan(names.indexOf('firstName'))
+      expect(names.indexOf('billingVatId')).toBe(-1)
+      expect(names.at(-1)).toBe('customerNotes')
+    })
+
+    it.runIf(tree === 'default')('says what the phone number is for', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.text()).toContain('Για ενημερώσεις παράδοσης με SMS.')
+    })
+
+    it.runIf(tree === 'default')('drops the contact card while a saved address is picked', async () => {
+      const wrapper = await mount({ savedAddresses: [makeAddress(1)], selectedSavedAddressId: 1, mode: 'saved' })
+
+      expect(hasField(wrapper, 'email')).toBe(false)
+      expect(wrapper.text()).not.toContain('Στοιχεία επικοινωνίας')
+    })
+
+    it.runIf(tree === 'default')('keeps the postcode, city and region on one row, and the postcode and city alone for a country without regions', async () => {
+      const withRegions = await mount({ selectedCountry: GREECE, regionOptions: [{ label: 'Αττική', value: 'ATTIKI' }] })
+      const zip = (w: VueWrapper) => w.find('input[autocomplete="postal-code"]').element.closest('[class*="md:grid-cols"]')!.className
+      expect(zip(withRegions)).toContain('md:grid-cols-3')
+
+      const without = await mount({ selectedCountry: CYPRUS })
+      expect(zip(without)).toContain('md:grid-cols-2')
+    })
+
+    it.runIf(tree === 'default')('puts the ACS suggestion between the street and the postcode', async () => {
+      const wrapper = await mount({ formState: makeFormState({ country: 'GR' }) }, { CheckoutAcsAddressSuggestion: true })
+      const order = wrapper.findAll('[name="street"], checkout-acs-address-suggestion-stub, [name="zipcode"]').map(el => el.attributes('name') ?? 'acs')
+
+      expect(order).toEqual(['street', 'acs', 'zipcode'])
+    })
+  })
+
+  describe.runIf(tree === 'webside')('invoice (Τιμολόγιο) instead of a receipt', () => {
     const invoiceLabel = () => t('form.invoice.toggle_label')
 
     it('asks for the company details once the shopper ticks the invoice box', async () => {
@@ -350,10 +463,18 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
       expect(wrapper.emitted('select-saved-address')).toEqual([[2]])
     })
 
-    it('reports the "new address" card', async () => {
+    it.runIf(tree === 'webside')('reports the "new address" card', async () => {
       const wrapper = await mount({ ...saved, mode: 'saved' })
 
       await wrapper.find('[role="radio"][value="__new__"]').trigger('click')
+
+      expect(wrapper.emitted('use-new-address')).toHaveLength(1)
+    })
+
+    it.runIf(tree === 'default')('reports the "new address" button', async () => {
+      const wrapper = await mount({ ...saved, mode: 'saved' })
+
+      await wrapper.findAll('button').find(button => button.text() === 'Νέα διεύθυνση')!.trigger('click')
 
       expect(wrapper.emitted('use-new-address')).toHaveLength(1)
     })

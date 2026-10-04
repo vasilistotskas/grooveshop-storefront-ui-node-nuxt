@@ -502,6 +502,25 @@ describe('useCheckoutForm', () => {
         $i18n.t('pay_way_free_above', { amount: $i18n.n(THRESHOLD, 'currency') }),
       )
     })
+
+    it('carries the name apart from the surcharge, and the surcharge as a number', async () => {
+      const { option } = await optionFor(10)
+
+      expect(option.name).toBe('Αντικαταβολή')
+      expect(option.cost).toBe(FEE)
+    })
+
+    it('carries a cost of 0 once the fee is waived', async () => {
+      const { option } = await optionFor(48)
+
+      expect(option.cost).toBe(0)
+    })
+
+    it('carries the provider and how it settles, for the payment step to draw', async () => {
+      const { option } = await optionFor(10)
+
+      expect(option).toMatchObject({ providerCode: 'cash_on_delivery', settlement: 'courier_cash' })
+    })
   })
 
   describe('step1Schema — region required only when the country hasRegions', () => {

@@ -1,5 +1,8 @@
 {
   "continue": "Συνέχεια",
+  "continue_to_delivery": "Συνέχεια στην αποστολή",
+  "continue_to_payment": "Συνέχεια στην πληρωμή",
+  "pay": "Πληρωμή {total}",
   "title": "Ολοκλήρωση αγοράς",
   "payOnDelivery": "Αντικαταβολή",
   "cardPayment": "Πληρωμή με κάρτα",

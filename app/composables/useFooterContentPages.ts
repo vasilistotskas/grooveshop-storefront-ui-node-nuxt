@@ -10,7 +10,10 @@
  *
  * The one reader of the `footer-content-pages` key — both footers
  * (`useFooterLinks` for the frozen tree, `useFooterNavigation` for the
- * default) go through here, which keeps their request options identical.
+ * default) and the checkout's legal strip go through here, which keeps
+ * their request options identical. `published` is the set of slugs the
+ * store has, for a link to a page not every store is seeded (the return
+ * policy).
  */
 export function useFooterContentPages() {
   const { $i18n } = useNuxtApp()
@@ -35,5 +38,7 @@ export function useFooterContentPages() {
     }),
   )
 
-  return { links }
+  const published = computed(() => new Set((data.value?.results ?? []).map(page => page.slug)))
+
+  return { links, published }
 }

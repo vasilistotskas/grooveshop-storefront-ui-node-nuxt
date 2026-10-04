@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { loggedIn } = useUserSession()
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t, n } = useI18n()
 const route = useRoute()
 const toast = useToast()
 const tenantStore = useTenantStore()
@@ -100,79 +100,36 @@ onMounted(() => {
   fireInitiateCheckout()
 })
 
-// Summary of the selected shipping method, surfaced on the payment
-// step in the right sidebar so the shopper can verify their pick
-// without scrolling back. ``null`` on earlier steps so the alert
-// stays hidden until shipping has actually been chosen.
-//
-// ``logoUrl`` is sourced from the matching ``/api/v1/shipping/options``
-// row (the same source the picker uses) so the sidebar mirrors what
-// the shopper saw at step 2 — and the operator gets a single edit
-// surface in Django admin that propagates everywhere.
-const shippingLogoUrl = computed(() => {
-  const method = formState.shippingMethod
-  if (!method) return null
-  const match = shippingOptions.value.find(
-    o => methodKeyForOption(o) === method,
-  )
-  return match?.logoUrl ?? null
-})
-
-const shippingSummary = computed(() => {
-  if (currentStep.value !== 2) return null
-  const method = formState.shippingMethod
-  const logoUrl = shippingLogoUrl.value
-  if (method === 'box_now_locker') {
-    const locker = formState.boxnowLocker
-    return {
-      method,
-      logoUrl,
-      lockerName: locker?.boxnowLockerName ?? null,
-      lockerId: formState.boxnowLockerId || locker?.boxnowLockerId || null,
-      lockerAddress: locker?.boxnowLockerAddressLine1 ?? null,
-    }
-  }
-  if (method === 'acs_smartpoint') {
-    const station = formState.acsStation
-    return {
-      method,
-      logoUrl,
-      lockerName: station?.name ?? null,
-      lockerId: formState.acsStationExternalId || null,
-      lockerAddress: [station?.addressLine1, station?.city]
-        .filter(Boolean)
-        .join(', ') || null,
-    }
-  }
-  return { method, logoUrl }
-})
-
 const handleStockRetry = () => {
   stockError.value = null
   onSubmit()
 }
 
-// Active step component exposes `submit()` (see StepPersonalInfo /
-// StepShipping / StepPayment). The sidebar CTA proxies through this
-// ref so the primary action lives next to the order total without
-// losing the per-step Zod validation that used to gate the in-card
-// button.
+// The active step exposes `submit()` (StepPersonalInfo / StepShipping /
+// StepPayment): it validates the step and moves on. The page's primary
+// button calls it, so the per-step Zod schema gates every forward move.
 const stepRef = ref<{ submit: () => void | Promise<void> } | null>(null)
 
-const sidebarCtaLabel = computed(() =>
-  currentStep.value === 2 ? t('place_order') : t('continue'),
-)
-const sidebarCtaIcon = computed(() =>
-  currentStep.value === 2 ? undefined : 'i-heroicons-arrow-right',
-)
-const sidebarCtaDisabled = computed(() =>
-  currentStep.value === 2 && !formState.payWay,
-)
-// Hide the sidebar CTA while the online-payment view owns the main
-// column — that view ships its own Pay / Back controls.
-const showSidebarCta = computed(() => !(createdOrder.value && isOnlinePayment.value))
+// What the order costs — the summary's own figures, named on "Pay …".
+const { total } = useCheckoutTotals({
+  shippingPrice: () => shippingPrice.value,
+  includeShipping: () => currentStep.value >= 1 && Boolean(formState.shippingMethod),
+  includePaymentFee: () => currentStep.value === 2,
+  loyaltyDiscount: () => loyaltyDiscount.value?.amount ?? 0,
+  giftCardBalance: () => giftCardBalanceTotal.value,
+})
 
-const onSidebarCta = async () => {
+const ctaLabel = computed(() => {
+  if (currentStep.value === 0) return t('continue_to_delivery')
+  if (currentStep.value === 1) return t('continue_to_payment')
+  return isOnlinePayment.value ? t('pay', { total: n(total.value, 'currency') }) : t('place_order')
+})
+
+// The online-payment view owns the main column once the order exists:
+// it has its own Pay / Back controls.
+const showNavigation = computed(() => !(createdOrder.value && isOnlinePayment.value))
+
+const onCta = async () => {
   await stepRef.value?.submit()
 }
 
@@ -233,147 +190,162 @@ useSeoMeta({
 </script>
 
 <template>
-  <PageWrapper class="max-w-6xl">
-    <!-- The page had no heading at all — the stepper's first step
-         title was the highest-ranked text on it. Visually quiet
-         because the stepper carries the wayfinding, but a page that
-         takes someone's address and money should say what it is. -->
-    <PageTitle
-      :text="t('title')"
-      class="sr-only"
-    />
-    <div class="flex flex-col gap-8 pt-2 md:pt-4 lg:flex-row">
-      <!-- Main Content -->
-      <div class="flex-1">
-        <!-- Stock Error Alert -->
-        <CheckoutStockErrorAlert
-          v-if="stockError?.show"
-          :stock-error="stockError"
-          @dismiss="stockError = null"
-          @retry="handleStockRetry"
-        />
+  <div class="flex flex-1 flex-col">
+    <UContainer class="flex w-full flex-1 flex-col gap-6 py-6 lg:gap-8 lg:py-8">
+      <!-- The page's heading for assistive tech; the progress strip carries
+           the wayfinding on screen. -->
+      <PageTitle
+        :text="t('title')"
+        class="sr-only"
+      />
 
-        <!-- Stepper. Header clicks go through ``onStepperUpdate`` so
-             the per-step Zod schema gates forward jumps the same way
-             the sidebar "Συνέχεια" / "Ολοκλήρωση Παραγγελίας" CTA
-             does, while backward jumps are free. ``:linear="false"``
-             is required: Reka's linear mode silently swallows clicks
-             on future steps in ``mousedown.left`` before our handler
-             runs, so we keep all the gating server-side. -->
-        <UStepper
-          :model-value="currentStep"
-          :linear="false"
-          :items="[
-            { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
-            { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
-            { title: t('steps.payment'), icon: 'i-heroicons-credit-card' },
-          ]"
-          class="mb-6"
-          @update:model-value="onStepperUpdate"
-        />
+      <!-- Clicks go through `onStepperUpdate`: backward jumps are free, a
+           forward one runs the active step's validation first. -->
+      <CheckoutProgressSteps
+        :current="currentStep"
+        :payment-chosen="Boolean(formState.payWay)"
+        @select="onStepperUpdate"
+      />
 
-        <NuxtErrorBoundary @error="onBoundaryError">
-          <!-- Online Payment View (Stripe or Viva Wallet) -->
-          <CheckoutOnlinePaymentView
-            v-if="createdOrder && isOnlinePayment"
-            :created-order="createdOrder"
-            :selected-pay-way="selectedPayWay!"
-            :is-stripe-payment="isStripePayment"
-            :is-viva-wallet-payment="isVivaWalletPayment"
-            :use-hosted-checkout="useHostedCheckout"
-            @payment-success="onPaymentSuccess"
-            @payment-error="onPaymentError"
-            @back-to-form="backToForm"
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_25rem] lg:items-start lg:gap-14">
+        <div class="flex min-w-0 flex-col gap-6">
+          <CheckoutStockErrorAlert
+            v-if="stockError?.show"
+            :stock-error="stockError"
+            @dismiss="stockError = null"
+            @retry="handleStockRetry"
           />
 
-          <!-- Step 0: Personal Info & Address -->
-          <CheckoutStepPersonalInfo
-            v-else-if="currentStep === 0"
-            ref="stepRef"
-            v-model:form-state="formState"
-            :schema="step1Schema"
-            :country-options="countryOptions"
-            :postcode-example="postcodeExample"
-            :selected-country="selectedCountry"
-            :server-errors="addressStepErrors"
-            :region-options="regionOptions"
-            :saved-addresses="savedAddresses"
-            :selected-saved-address-id="selectedSavedAddressId"
-            :mode="addressEntryMode"
-            :b2b-invoicing-enabled="b2bInvoicingEnabled"
-            :acs-enabled="acsEnabled"
-            @next="nextStep"
-            @select-saved-address="selectSavedAddress"
-            @use-new-address="useNewAddress"
-          />
+          <NuxtErrorBoundary @error="onBoundaryError">
+            <!-- Stripe or Viva Wallet, once the order exists. -->
+            <CheckoutOnlinePaymentView
+              v-if="createdOrder && isOnlinePayment"
+              :created-order="createdOrder"
+              :selected-pay-way="selectedPayWay!"
+              :is-stripe-payment="isStripePayment"
+              :is-viva-wallet-payment="isVivaWalletPayment"
+              :use-hosted-checkout="useHostedCheckout"
+              @payment-success="onPaymentSuccess"
+              @payment-error="onPaymentError"
+              @back-to-form="backToForm"
+            />
 
-          <!-- Step 1: Shipping Method -->
-          <CheckoutStepShipping
-            v-else-if="currentStep === 1"
-            ref="stepRef"
-            v-model:form-state="formState"
-            :schema="step2Schema"
-            :partner-id="boxnowPartnerId"
-            :api-options="shippingOptions"
-            :options-error="shippingOptionsError"
-            :over-weight="shippingOverWeight"
-            @next="nextStep"
-            @back="prevStep"
-            @retry-options="retryShippingOptions"
-          />
+            <CheckoutStepPersonalInfo
+              v-else-if="currentStep === 0"
+              ref="stepRef"
+              v-model:form-state="formState"
+              :schema="step1Schema"
+              :country-options="countryOptions"
+              :postcode-example="postcodeExample"
+              :selected-country="selectedCountry"
+              :server-errors="addressStepErrors"
+              :region-options="regionOptions"
+              :saved-addresses="savedAddresses"
+              :selected-saved-address-id="selectedSavedAddressId"
+              :mode="addressEntryMode"
+              :b2b-invoicing-enabled="b2bInvoicingEnabled"
+              :acs-enabled="acsEnabled"
+              @next="nextStep"
+              @select-saved-address="selectSavedAddress"
+              @use-new-address="useNewAddress"
+            />
 
-          <!-- Step 2: Payment -->
-          <CheckoutStepPayment
-            v-else-if="currentStep === 2"
-            ref="stepRef"
-            v-model:form-state="formState"
-            :schema="step3Schema"
-            :pay-way-options="payWayOptions"
-            :is-submitting="isSubmitting"
-            @submit="onSubmit"
-            @back="prevStep"
-          />
+            <CheckoutStepShipping
+              v-else-if="currentStep === 1"
+              ref="stepRef"
+              v-model:form-state="formState"
+              :schema="step2Schema"
+              :partner-id="boxnowPartnerId"
+              :api-options="shippingOptions"
+              :options-error="shippingOptionsError"
+              :over-weight="shippingOverWeight"
+              @next="nextStep"
+              @back="prevStep"
+              @retry-options="retryShippingOptions"
+            />
 
-          <template #error="{ error, clearError }">
-            <UAlert
-              :title="t('payment_error_title')"
-              :description="t('payment_error_description')"
-              color="error"
-              variant="subtle"
-              icon="i-heroicons-exclamation-triangle"
-              class="mb-4"
-              :actions="[
-                {
+            <CheckoutStepPayment
+              v-else-if="currentStep === 2"
+              ref="stepRef"
+              v-model:form-state="formState"
+              :schema="step3Schema"
+              :pay-way-options="payWayOptions"
+              :is-submitting="isSubmitting"
+              :use-hosted-checkout="useHostedCheckout"
+              @submit="onSubmit"
+            />
+
+            <template #error="{ error, clearError }">
+              <UAlert
+                :title="t('payment_error_title')"
+                :description="t('payment_error_description')"
+                :actions="[{
                   label: t('retry'),
                   color: 'neutral',
                   variant: 'outline',
                   onClick: () => handleBoundaryRetry(error, clearError),
-                },
-              ]"
-            />
-          </template>
-        </NuxtErrorBoundary>
-      </div>
+                }]"
+                icon="i-lucide-triangle-alert"
+                color="error"
+                variant="soft"
+              />
+            </template>
+          </NuxtErrorBoundary>
 
-      <!-- Sidebar -->
-      <div class="w-full lg:w-[400px]">
-        <div class="lg:sticky lg:top-4">
+          <div
+            v-if="showNavigation"
+            class="flex items-center justify-between gap-3"
+          >
+            <UButton
+              v-if="currentStep > 0"
+              :label="t('back')"
+              icon="i-lucide-chevron-left"
+              color="neutral"
+              variant="ghost"
+              size="lg"
+              @click="prevStep"
+            />
+            <span v-else />
+            <UButton
+              :label="ctaLabel"
+              :icon="currentStep === 2 ? 'i-lucide-lock' : undefined"
+              :trailing-icon="currentStep === 2 ? undefined : 'i-lucide-arrow-right'"
+              :color="currentStep === 2 ? 'secondary' : 'neutral'"
+              :loading="isSubmitting"
+              :disabled="currentStep === 2 && !formState.payWay"
+              size="xl"
+              data-testid="checkout-cta"
+              class="max-sm:flex-1 max-sm:justify-center"
+              @click="onCta"
+            />
+          </div>
+        </div>
+
+        <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+1.5rem)]">
           <CheckoutSidebar
             :shipping-price="shippingPrice"
+            :include-shipping="currentStep >= 1 && Boolean(formState.shippingMethod)"
             :show-payment-fee="currentStep === 2"
-            :loyalty-discount="loyaltyDiscount?.amount ?? 0"
+            :loyalty="loyaltyDiscount"
             :gift-card-balance="giftCardBalanceTotal"
-            :shipping-summary="shippingSummary"
           >
             <template #items>
               <CheckoutItems />
             </template>
 
-            <template #coupon>
+            <!-- As the boards draw it: codes and gift cards while the shopper
+                 fills in the order, points on the payment page. -->
+            <template
+              v-if="currentStep < 2"
+              #coupon
+            >
               <CheckoutCouponInput />
             </template>
 
-            <template #gift-card>
+            <template
+              v-if="currentStep < 2"
+              #gift-card
+            >
               <CheckoutGiftCardInput
                 :applied-cards="giftCards"
                 @applied="onGiftCardApplied"
@@ -381,47 +353,29 @@ useSeoMeta({
               />
             </template>
 
-            <template #loyalty>
-              <!-- Loyalty Points Redemption (logged in) -->
-              <LoyaltyRedemption
+            <template
+              v-if="currentStep === 2"
+              #loyalty
+            >
+              <CheckoutPointsPanel
                 v-if="loggedIn"
                 :currency="cart?.currency ?? 'EUR'"
                 :max-discount-amount="cart?.totalPrice ?? 0"
+                :redemption="loyaltyDiscount"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"
               />
-              <!-- Guest CTA to sign up and earn points -->
               <CheckoutGuestLoyaltyCTA v-else />
             </template>
 
             <template #points-earned>
-              <!-- Loyalty Points Earned Preview -->
               <CheckoutPointsEarned />
-            </template>
-
-            <template #button>
-              <!-- The tenant accent, like every other primary CTA:
-                   solid `success` is white on green-500, which measured
-                   3.22:1 on the button that places the order. -->
-              <UButton
-                v-if="showSidebarCta"
-                size="lg"
-                color="secondary"
-                block
-                trailing
-                :icon="sidebarCtaIcon"
-                :loading="isSubmitting"
-                :disabled="sidebarCtaDisabled"
-                data-testid="checkout-sidebar-cta"
-                :ui="{ trailingIcon: 'ms-0' }"
-                @click="onSidebarCta"
-              >
-                {{ sidebarCtaLabel }}
-              </UButton>
             </template>
           </CheckoutSidebar>
         </div>
       </div>
-    </div>
-  </PageWrapper>
+    </UContainer>
+
+    <CheckoutLegalFooter />
+  </div>
 </template>

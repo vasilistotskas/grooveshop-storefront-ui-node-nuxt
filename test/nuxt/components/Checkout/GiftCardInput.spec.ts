@@ -15,8 +15,9 @@ import { failWith } from '~~/test/helpers/api'
  * feature behind the plan flag and a runtime setting, failing CLOSED.
  *
  * One `createApiMock` answers `$api` (the check) and `$fetch` (the
- * `useApi` settings payload). The webside copy differs only in its
- * Greek-only i18n block, whose strings the assertions below quote.
+ * `useApi` settings payload). The trees share the logic; the default
+ * lists a card as a pill with a "Remove" link, the frozen webside copy
+ * as a closable alert (its Greek-only strings are quoted below).
  */
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -46,7 +47,7 @@ function routes(check: unknown = REDEEMABLE) {
 const NOT_REDEEMABLE = 'Η δωροκάρτα δεν είναι διαθέσιμη (ανενεργή, ληγμένη ή χωρίς υπόλοιπο)'
 const text = (wrapper: VueWrapper) => wrapper.text().replace(/\u00A0/g, ' ')
 
-describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCardInput', ({ C }) => {
+describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCardInput', ({ tree, C }) => {
   beforeEach(() => {
     clearNuxtData()
     flags.giftCardsSetting = 'true'
@@ -136,10 +137,21 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
       ])
 
       expect(text(wrapper)).toContain('GC-0001-0001-0001')
-      expect(text(wrapper)).toContain('Υπόλοιπο: 12,50 €')
+      expect(text(wrapper)).toContain(tree === 'default' ? 'υπόλοιπο 12,50 €' : 'Υπόλοιπο: 12,50 €')
     })
 
-    it('asks the page to remove a card from its close button', async () => {
+    it.runIf(tree === 'default')('asks the page to remove the card whose link is named after it', async () => {
+      const wrapper = await mount([
+        { code: 'GC-0001-0001-0001', balance: 10 },
+        { code: 'GC-0002-0002-0002', balance: 10 },
+      ])
+
+      await wrapper.get('button[aria-label="Αφαίρεση δωροκάρτας GC-0002-0002-0002"]').trigger('click')
+
+      expect(wrapper.emitted('removed')).toEqual([['GC-0002-0002-0002']])
+    })
+
+    it.runIf(tree === 'webside')('asks the page to remove a card from its close button', async () => {
       const wrapper = await mount([
         { code: 'GC-0001-0001-0001', balance: 10 },
         { code: 'GC-0002-0002-0002', balance: 10 },

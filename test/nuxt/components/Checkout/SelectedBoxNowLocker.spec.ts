@@ -30,7 +30,7 @@ const picked = (overrides = {}) => makeFormState({ boxnowLockerId: '4', boxnowLo
 
 const t = (key: string): string => useNuxtApp().$i18n.t(key)
 
-describe.each(trees(SelectedBoxNowLocker, WebsideSelectedBoxNowLocker))('$tree Checkout/SelectedBoxNowLocker', ({ C }) => {
+describe.each(trees(SelectedBoxNowLocker, WebsideSelectedBoxNowLocker))('$tree Checkout/SelectedBoxNowLocker', ({ tree, C }) => {
   async function mount(formState = makeFormState()) {
     return mountSuspended(C, { route: false, props: { formState, partnerId: '10391' } })
   }
@@ -80,8 +80,12 @@ describe.each(trees(SelectedBoxNowLocker, WebsideSelectedBoxNowLocker))('$tree C
         boxnowLocker: makeBoxNowSelectedLocker({ boxnowLockerName: undefined }),
       }))
 
-      const header = wrapper.find('[data-slot="header"]').text()
-      expect(header.replace(t('shipping.boxnow.selected_locker.title'), '').trim()).toBe('4')
+      // The frozen card names the locker in its header; the redesign in a
+      // named line of its own.
+      const name = tree === 'webside'
+        ? wrapper.find('[data-slot="header"]').text().replace(t('shipping.boxnow.selected_locker.title'), '').trim()
+        : wrapper.find('[data-testid="selected-locker-name"]').text()
+      expect(name).toBe('4')
     })
 
     it('reopens the widget from "change locker"', async () => {

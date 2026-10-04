@@ -144,7 +144,7 @@ function applySuggestion() {
   <UAlert
     v-if="hasSuggestion"
     color="info"
-    variant="subtle"
+    variant="soft"
     icon="i-lucide-map-pin-check"
     :title="t('shipping.acs.address_suggestion.title')"
     :description="suggestionLine"
@@ -153,7 +153,7 @@ function applySuggestion() {
     <template #actions>
       <UButton
         size="sm"
-        variant="solid"
+        variant="soft"
         color="info"
         icon="i-lucide-check"
         @click="applySuggestion"
@@ -168,7 +168,7 @@ function applySuggestion() {
        distract from the form. -->
   <p
     v-else-if="isLoading && isAllFilled"
-    class="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400"
+    class="flex items-center gap-2 text-xs text-toned"
   >
     <UIcon name="i-lucide-loader-2" class="size-3 animate-spin" />
     {{ t('shipping.acs.address_suggestion.checking') }}
