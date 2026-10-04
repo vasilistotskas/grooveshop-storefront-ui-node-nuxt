@@ -73216,7 +73216,8 @@
                     },
                     "region": {
                         "type": "string",
-                        "title": "Κωδικός περιφέρειας"
+                        "title": "Κωδικός περιφέρειας",
+                        "nullable": true
                     },
                     "createdAt": {
                         "type": "string",
@@ -73341,7 +73342,8 @@
                     },
                     "region": {
                         "type": "string",
-                        "title": "Κωδικός περιφέρειας"
+                        "title": "Κωδικός περιφέρειας",
+                        "nullable": true
                     },
                     "createdAt": {
                         "type": "string",

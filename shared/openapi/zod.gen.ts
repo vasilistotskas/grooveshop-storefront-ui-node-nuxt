@@ -5577,7 +5577,7 @@ export const zUserAddress = z.object({
   isMain: z.boolean().optional().default(false),
   user: z.int().readonly(),
   country: z.string(),
-  region: z.string(),
+  region: z.string().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -5618,7 +5618,7 @@ export const zUserAddressDetail = z.object({
   isMain: z.boolean().optional().default(false),
   user: z.int().readonly(),
   country: z.string(),
-  region: z.string(),
+  region: z.string().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -8433,7 +8433,7 @@ export const zUserAddressWritable = z.object({
   notes: z.string().max(255).optional(),
   isMain: z.boolean().optional().default(false),
   country: z.string(),
-  region: z.string(),
+  region: z.string().nullable(),
 })
 
 export const zPaginatedUserAddressListWritable = z.object({
@@ -8469,7 +8469,7 @@ export const zUserAddressDetailWritable = z.object({
   notes: z.string().max(255).optional(),
   isMain: z.boolean().optional().default(false),
   country: z.string(),
-  region: z.string(),
+  region: z.string().nullable(),
 })
 
 export const zUserDetailsWritable = z.object({
