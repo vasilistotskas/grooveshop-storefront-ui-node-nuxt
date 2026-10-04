@@ -1,3 +1,15 @@
+# [3.235.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.234.0...v3.235.0) (2026-10-04)
+
+
+### Bug Fixes
+
+* **account:** accept a saved address without a region ([#82](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/82)) ([ef7ea1f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ef7ea1f52a7efec8710060d69dfd62bad1165c5b)), closes [grooveshop-django-api#113](https://github.com/grooveshop-django-api/issues/113)
+
+
+### Features
+
+* **cart:** Groove Volt cart page, cart drawer and add-to-cart toast ([#81](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/81)) ([15a4ce5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/15a4ce5c9f5d7168b53eef1ec8db15840ea68b2f))
+
 # [3.234.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.233.0...v3.234.0) (2026-10-04)
 
 
