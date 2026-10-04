@@ -48,12 +48,13 @@ describe('Account/Notifications/Item', () => {
     expect(read.find('.sr-only').exists()).toBe(false)
   })
 
-  it('offers to mark an unread row read and a read row unread', async () => {
-    const unread = await mountRow(makeNotificationUserDetail({ seen: false }))
-    const read = await mountRow(makeNotificationUserDetail({ seen: true }))
+  it('offers to mark an unread row read and a read row unread, naming the notification', async () => {
+    const titled = (title: string) => ({ translations: { el: { title, message: 'Μήνυμα' } } })
+    const unread = await mountRow(makeNotificationUserDetail({ seen: false, notification: titled('Η παραγγελία στάλθηκε') }))
+    const read = await mountRow(makeNotificationUserDetail({ seen: true, notification: titled('Ξανά σε απόθεμα') }))
 
-    expect(unread.find(`button[aria-label="${messages.mark_seen}"]`).exists()).toBe(true)
-    expect(read.find(`button[aria-label="${messages.mark_unseen}"]`).exists()).toBe(true)
+    expect(unread.get('button[aria-label]').attributes('aria-label')).toBe('Σήμανση ως αναγνωσμένη: Η παραγγελία στάλθηκε')
+    expect(read.get('button[aria-label]').attributes('aria-label')).toBe('Σήμανση ως μη αναγνωσμένη: Ξανά σε απόθεμα')
   })
 
   it('emits open from the text and toggle from the button, each alone', async () => {

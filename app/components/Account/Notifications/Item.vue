@@ -40,6 +40,11 @@ const icon = computed(() => {
 })
 
 const toggleLabel = computed(() => props.row.seen ? t('mark_unseen') : t('mark_seen'))
+// The button's accessible name says which notification it changes: two
+// rows in the same state would otherwise both read "Mark as read".
+const toggleName = computed(() => t(props.row.seen ? 'mark_unseen_named' : 'mark_seen_named', {
+  title: extractTranslated(props.row.notification, 'title', locale.value) ?? '',
+}))
 </script>
 
 <template>
@@ -105,7 +110,7 @@ const toggleLabel = computed(() => props.row.seen ? t('mark_unseen') : t('mark_s
           color="neutral"
           variant="ghost"
           size="sm"
-          :aria-label="toggleLabel"
+          :aria-label="toggleName"
           @click="() => emit('toggle')"
         />
       </UTooltip>
@@ -119,9 +124,13 @@ el:
   unread: Μη αναγνωσμένη
   mark_seen: Σήμανση ως αναγνωσμένη
   mark_unseen: Σήμανση ως μη αναγνωσμένη
+  mark_seen_named: "Σήμανση ως αναγνωσμένη: {title}"
+  mark_unseen_named: "Σήμανση ως μη αναγνωσμένη: {title}"
 en:
   open: Open
   unread: Unread
   mark_seen: Mark as read
   mark_unseen: Mark as unread
+  mark_seen_named: "Mark as read: {title}"
+  mark_unseen_named: "Mark as unread: {title}"
 </i18n>

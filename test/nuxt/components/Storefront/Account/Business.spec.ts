@@ -145,6 +145,16 @@ describe('Storefront/Account/Business', () => {
     expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('validation.billing_vat.checksum'))
   })
 
+  it('locks cancel while a save is in flight, so it cannot undo the edits being saved', async () => {
+    registerEndpoint('/api/b2b/profile', { method: 'PUT', handler: () => new Promise(() => {}) })
+    const wrapper = await mountPage()
+
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.findAll('button').find(button => button.text() === messages.form.cancel)!.attributes('disabled')).toBeDefined()
+  })
+
   it('puts the saved details back on cancel', async () => {
     const wrapper = await mountPage()
 

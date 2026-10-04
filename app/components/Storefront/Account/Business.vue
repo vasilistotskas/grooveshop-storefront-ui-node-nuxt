@@ -270,6 +270,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <UButton
             v-if="profile"
             :label="t('form.cancel')"
+            :disabled="isSubmitting"
             color="neutral"
             variant="ghost"
             @click="fillFromProfile"

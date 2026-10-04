@@ -160,9 +160,9 @@ describe('Storefront/Account/Notifications', () => {
   it('flips an unread row to read, and a read row to unread, without opening it', async () => {
     const wrapper = await mountPage()
 
-    await rowOf(wrapper, 'Η παραγγελία στάλθηκε').get(`button[aria-label="${itemMessages.mark_seen}"]`).trigger('click')
+    await rowOf(wrapper, 'Η παραγγελία στάλθηκε').get(`button[aria-label^="${itemMessages.mark_seen}:"]`).trigger('click')
     await flushPromises()
-    await rowOf(wrapper, 'Ξανά σε απόθεμα').get(`button[aria-label="${itemMessages.mark_unseen}"]`).trigger('click')
+    await rowOf(wrapper, 'Ξανά σε απόθεμα').get(`button[aria-label^="${itemMessages.mark_unseen}:"]`).trigger('click')
     await flushPromises()
 
     expect(posted['mark-as-seen']).toEqual([{ notificationUserIds: [1] }])
@@ -192,7 +192,7 @@ describe('Storefront/Account/Notifications', () => {
     const wrapper = await mountPage()
     state.failMark = true
 
-    await rowOf(wrapper, 'Η παραγγελία στάλθηκε').get(`button[aria-label="${itemMessages.mark_seen}"]`).trigger('click')
+    await rowOf(wrapper, 'Η παραγγελία στάλθηκε').get(`button[aria-label^="${itemMessages.mark_seen}:"]`).trigger('click')
     await flushPromises()
 
     expect(asked).toHaveLength(1)
