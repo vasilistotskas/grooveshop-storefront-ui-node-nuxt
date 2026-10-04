@@ -47165,6 +47165,7 @@ components:
         region:
           type: string
           title: Κωδικός περιφέρειας
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -47258,6 +47259,7 @@ components:
         region:
           type: string
           title: Κωδικός περιφέρειας
+          nullable: true
         createdAt:
           type: string
           format: date-time

@@ -9349,7 +9349,7 @@ export type UserAddress = {
   /**
      * Κωδικός περιφέρειας
      */
-  region: string
+  region: string | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -9416,7 +9416,7 @@ export type UserAddressDetail = {
   /**
      * Κωδικός περιφέρειας
      */
-  region: string
+  region: string | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -12842,7 +12842,7 @@ export type UserAddressWritable = {
   /**
      * Κωδικός περιφέρειας
      */
-  region: string
+  region: string | null
 }
 
 export type UserAddressDetailWritable = {
@@ -12898,7 +12898,7 @@ export type UserAddressDetailWritable = {
   /**
      * Κωδικός περιφέρειας
      */
-  region: string
+  region: string | null
 }
 
 export type UserDetailsWritable = {
