@@ -1,3 +1,12 @@
+# [3.236.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.235.0...v3.236.0) (2026-10-04)
+
+
+### Features
+
+* **blog:** Groove Volt blog index, post, category and author pages ([#85](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/85)) ([17b6f55](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/17b6f5580d4834ed8dc77d650604b36766324d15))
+* **checkout:** Groove Volt checkout and order confirmation ([#83](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/83)) ([62209ef](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/62209efd4e1e6e3c3773e8ebb35722784a714a63))
+* **offers:** Groove Volt offers, gift cards and rewards pages ([#84](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/84)) ([e194b2f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e194b2f801a17fc3a6506103fb82e2d5561f8c30))
+
 # [3.235.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.234.0...v3.235.0) (2026-10-04)
 
 
