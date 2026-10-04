@@ -82,7 +82,9 @@ const INSTRUCTIONS_TRIGGER_UI = {
 
 const items = computed(() => props.payWayOptions.map(option => ({
   ...option,
-  title: option.name ?? option.label,
+  // A pay way may have no name in this language (parler allows a blank
+  // one per locale): fall back to the label rather than an empty title.
+  title: option.name || option.label,
   icon: SETTLEMENT_ICONS[option.settlement ?? 'online'],
   isCard: CARD_PROVIDERS.includes(option.providerCode ?? ''),
   hasCost: (option.cost ?? 0) > 0,

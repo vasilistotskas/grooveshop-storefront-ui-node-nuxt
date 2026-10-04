@@ -48,10 +48,12 @@ export function useCheckoutTotals(inputs: CheckoutTotalsInputs) {
 
   const payWayCost = computed(() => {
     if (!payWay.value) return 0
-    const subtotal = Math.max(0, (cart.value?.totalPrice || 0) - promotionDiscount.value + shippingCharged.value)
-    const threshold = payWay.value.freeThreshold || 0
-    if (threshold > 0 && subtotal >= threshold) return 0
-    return payWay.value.cost || 0
+    const feeBase = payWayFeeBase({
+      totalPrice: cart.value?.totalPrice || 0,
+      promotionDiscount: promotionDiscount.value,
+      shipping: shippingCharged.value,
+    })
+    return payWayDisplayCost(payWay.value, feeBase).cost
   })
 
   const paymentFee = computed(() => toValue(inputs.includePaymentFee) ? payWayCost.value : 0)

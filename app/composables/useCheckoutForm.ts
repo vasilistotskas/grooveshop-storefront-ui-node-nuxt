@@ -724,9 +724,13 @@ export async function useCheckoutForm() {
         name = getPaymentMethodName(name)
       }
 
-      // Items + shipping: the base Django waives the fee on (see
-      // ``payWayDisplayCost``). Same base, same answer.
-      const feeBase = (cart.value?.totalPrice || 0) + (shippingPrice.value ?? 0)
+      // The base Django waives the fee on (``payWayFeeBase``): the
+      // items after promotions plus the delivery as charged.
+      const feeBase = payWayFeeBase({
+        totalPrice: cart.value?.totalPrice || 0,
+        promotionDiscount: Number(cart.value?.promotionDiscount ?? 0),
+        shipping: cart.value?.promotionFreeShipping ? 0 : (shippingPrice.value ?? 0),
+      })
       const { cost: displayCost, freeAbove } = payWayDisplayCost(payWay, feeBase)
       // Only show the surcharge suffix when it's a real charge — a
       // zero-cost pay-way (e.g. CREDIT_CARD) rendered as

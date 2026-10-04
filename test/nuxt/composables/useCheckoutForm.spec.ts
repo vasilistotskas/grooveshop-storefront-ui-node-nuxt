@@ -521,6 +521,32 @@ describe('useCheckoutForm', () => {
 
       expect(option).toMatchObject({ providerCode: 'cash_on_delivery', settlement: 'courier_cash' })
     })
+
+    /**
+     * Django waives the fee on the items AFTER promotions plus the
+     * delivery as charged (`order/services.py`): the card must not show
+     * a fee the total then leaves out, or the other way round.
+     */
+    async function optionWithPromotion(promotion: { promotionDiscount?: number, promotionFreeShipping?: boolean }) {
+      setCart(makeCart({ items: [{ product: { price: 60, vatPercent: 0 } }], ...promotion }))
+      api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
+      const { payWayOptions } = await setup()
+      return payWayOptions.value[0]!
+    }
+
+    it('charges the fee when a promotion takes the items below the threshold', async () => {
+      // 60,00 € − 15,00 € + 2,99 € delivery = 47,99 € < 50 €.
+      const option = await optionWithPromotion({ promotionDiscount: 15 })
+
+      expect(option.cost).toBe(FEE)
+    })
+
+    it('leaves the delivery out of the base when a promotion makes it free', async () => {
+      // 60,00 € − 12,00 € = 48,00 €; the 2,99 € delivery is not charged.
+      const option = await optionWithPromotion({ promotionDiscount: 12, promotionFreeShipping: true })
+
+      expect(option.cost).toBe(FEE)
+    })
   })
 
   describe('step1Schema — region required only when the country hasRegions', () => {

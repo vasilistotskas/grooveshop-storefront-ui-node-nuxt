@@ -255,6 +255,15 @@ describe('Checkout/StepPayment (redesign)', () => {
       expect(legend.classes()).toContain('sr-only')
     })
 
+    // parler allows a blank name per locale: the card then reads its
+    // label rather than an empty title.
+    it('titles a pay way with no name in this language by its label', async () => {
+      const nameless = payWayOption({ label: 'Τραπεζική κατάθεση', name: '', value: 9 }, { providerCode: 'bank_transfer', settlement: 'offline_transfer' })
+      const { wrapper } = await mountStep({ payWayOptions: [nameless] })
+
+      expect(wrapper.get('[data-slot="item"]').text()).toContain('Τραπεζική κατάθεση')
+    })
+
     it('picking a card sets the pay way', async () => {
       const { wrapper, formState } = await mountStep()
 

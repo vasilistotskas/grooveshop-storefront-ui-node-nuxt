@@ -8,6 +8,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
 import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { CartDetail, LoyaltySummary } from '~~/shared/openapi/types.gen'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Points redemption on the checkout's payment page. Nothing is spent
@@ -25,6 +26,7 @@ mockNuxtImport('useLoyalty', () => () => ({
 }))
 
 beforeEach(() => {
+  setTenant({ loyaltyEnabled: true })
   settings.reset()
   summary.reset()
   settings.data.value = makeLoyaltySettings()
@@ -115,6 +117,7 @@ describe('Checkout/PointsPanel', () => {
 
   describe('self-gating', () => {
     it.each([
+      ['the plan has no loyalty', () => { setTenant({ loyaltyEnabled: false }) }],
       ['loyalty is off', () => { settings.data.value = makeLoyaltySettings({ enabled: false }) }],
       ['the settings have not arrived', () => { settings.data.value = undefined }],
       // A ratio of 0 redeems nothing; dividing by it offered unbounded
