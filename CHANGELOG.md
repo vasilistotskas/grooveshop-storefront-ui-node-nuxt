@@ -1,3 +1,10 @@
+# [3.233.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.232.1...v3.233.0) (2026-10-04)
+
+
+### Features
+
+* **account:** Groove Volt security, profile, two-step and privacy pages ([#79](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/79)) ([46cb879](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/46cb879ada7b96c68a6df86e1c078f236d7bfda4))
+
 ## [3.232.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.232.0...v3.232.1) (2026-10-03)
 
 
