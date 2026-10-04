@@ -133,4 +133,35 @@ describe('useBottomNavItems', () => {
     expect(list.find(item => item.label === t('saved'))!.to).toBe('/account/favourites/products')
     expect(list.find(item => item.label === t('account'))!.to).toBe('/account')
   })
+
+  describe('the Account tab and the account sheet', () => {
+    const accountTab = (list: NavigationMenuItem[]) => list.find(item => item.label === t('account'))!
+
+    it('opens the sheet, instead of a page, for a signed-in shopper given one', () => {
+      loggedIn.value = true
+      const onAccount = vi.fn()
+
+      const tab = accountTab(items({ onAccount }))
+      tab.onSelect?.(new Event('click'))
+
+      expect(onAccount).toHaveBeenCalledTimes(1)
+      expect(tab.to).toBeUndefined()
+    })
+
+    it('still lights Account on the account pages when it opens the sheet', () => {
+      loggedIn.value = true
+      Object.assign(route, { name: 'account-orders___el', path: '/account/orders', fullPath: '/account/orders' })
+
+      expect(active(items({ onAccount: vi.fn() }))).toEqual([t('account')])
+    })
+
+    it('leads a signed-out visitor to sign-in, whatever it was given', () => {
+      const onAccount = vi.fn()
+
+      const tab = accountTab(items({ onAccount }))
+
+      expect(String(tab.to)).toContain('/account/login')
+      expect(tab.onSelect).toBeUndefined()
+    })
+  })
 })

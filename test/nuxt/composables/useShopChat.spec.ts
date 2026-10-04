@@ -248,6 +248,14 @@ describe('useShopChat', () => {
     expect(chat.messages.value[1]!.text).toBe('Μισή απάντ')
   })
 
+  it('shares whether the assistant is open between every caller', () => {
+    useShopChat().open.value = true
+
+    expect(useShopChat().open.value).toBe(true)
+
+    useShopChat().open.value = false
+  })
+
   it('reset clears the conversation state', async () => {
     stubStream('event: delta\ndata: {"text":"x"}\n\nevent: done\ndata: {"conversationId":"c9","cartMutated":false}\n\n')
 

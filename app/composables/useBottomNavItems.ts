@@ -4,6 +4,11 @@ import { parsePath } from 'ufo'
 interface BottomNavOptions {
   /** The layout drops the cart on account pages. */
   includeCart?: boolean
+  /**
+   * What a signed-in shopper's Account tab does: open the account sheet.
+   * Without it, the tab links to the account page.
+   */
+  onAccount?: () => void
 }
 
 /**
@@ -12,7 +17,8 @@ interface BottomNavOptions {
  * Saved is the shopper's favourite PRODUCTS, the same place the
  * header's heart leads, and it follows the favourites switch. The cart
  * carries its item count. Signed out, Saved and Account lead to the
- * sign-in page with a way back to this one.
+ * sign-in page with a way back to this one; signed in, Account opens the
+ * account sheet when the bar is given one (`onAccount`).
  *
  * Each entry's `active` is decided here from the route name, rather
  * than left to the links: `/` is a prefix of every path, so a prefix
@@ -23,7 +29,7 @@ interface BottomNavOptions {
  * default tree's own.
  */
 export function useBottomNavItems(options: BottomNavOptions = {}) {
-  const { includeCart = true } = options
+  const { includeCart = true, onAccount } = options
 
   const { $i18n, $routeBaseName } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
@@ -98,13 +104,21 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
       })
     }
 
-    result.push({
-      label: t('account'),
-      icon: 'i-heroicons-user',
-      to: loggedIn.value ? localePath('account') : signInLink.value,
-      exact: true,
-      active: loggedIn.value && isActive('account') && !isActive('account-favourites'),
-    })
+    const accountActive = loggedIn.value && isActive('account') && !isActive('account-favourites')
+    result.push(loggedIn.value && onAccount
+      ? {
+          label: t('account'),
+          icon: 'i-heroicons-user',
+          active: accountActive,
+          onSelect: () => onAccount(),
+        }
+      : {
+          label: t('account'),
+          icon: 'i-heroicons-user',
+          to: loggedIn.value ? localePath('account') : signInLink.value,
+          exact: true,
+          active: accountActive,
+        })
 
     return result
   })

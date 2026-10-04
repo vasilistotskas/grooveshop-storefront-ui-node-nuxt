@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getDisplayTitle, getDisplaySubtitle } from '~/utils/search'
+import { getDisplayTitle, getDisplaySubtitle, highlightSegments } from '~/utils/search'
 
 describe('Search Utils', () => {
   describe('getDisplayTitle', () => {
@@ -171,6 +171,63 @@ describe('Search Utils', () => {
 
       expect(getDisplaySubtitle(result, 10)).toBe(`${'d'.repeat(10)}...`)
       expect(getDisplaySubtitle(result, 20)).toBe('d'.repeat(20))
+    })
+  })
+
+  describe('highlightSegments', () => {
+    it('flags the runs that match a typed word, in any case', () => {
+      expect(highlightSegments('Power bank 20,000mAh', 'POWER b')).toEqual([
+        { text: 'Power', match: true },
+        { text: ' bank 20,000mAh', match: false },
+      ])
+    })
+
+    it('flags every word of the query, longest first', () => {
+      expect(highlightSegments('Power bank slim', 'bank power')).toEqual([
+        { text: 'Power', match: true },
+        { text: ' ', match: false },
+        { text: 'bank', match: true },
+        { text: ' slim', match: false },
+      ])
+    })
+
+    it('prefers the longer word where one starts another', () => {
+      expect(highlightSegments('Power bank', 'pow power')).toEqual([
+        { text: 'Power', match: true },
+        { text: ' bank', match: false },
+      ])
+    })
+
+    it('ignores a one-character word, which would flag half the title', () => {
+      expect(highlightSegments('Power bank', 'p')).toEqual([{ text: 'Power bank', match: false }])
+    })
+
+    it('flags a match in the middle of a word', () => {
+      expect(highlightSegments('Powerbank', 'bank')).toEqual([
+        { text: 'Power', match: false },
+        { text: 'bank', match: true },
+      ])
+    })
+
+    it('matches characters that mean something to a pattern literally', () => {
+      expect(highlightSegments('USB-C (fast) cable', '(fast)')).toEqual([
+        { text: 'USB-C ', match: false },
+        { text: '(fast)', match: true },
+        { text: ' cable', match: false },
+      ])
+    })
+
+    it('flags Greek text', () => {
+      expect(highlightSegments('Θήκη κινητού', 'κινητ')).toEqual([
+        { text: 'Θήκη ', match: false },
+        { text: 'κινητ', match: true },
+        { text: 'ού', match: false },
+      ])
+    })
+
+    it('leaves text alone for an empty query, and returns no runs for no text', () => {
+      expect(highlightSegments('Power bank', '  ')).toEqual([{ text: 'Power bank', match: false }])
+      expect(highlightSegments('', 'bank')).toEqual([{ text: '', match: false }])
     })
   })
 })

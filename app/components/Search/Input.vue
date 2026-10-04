@@ -57,7 +57,7 @@ defineShortcuts({
   >
     <UButton
       v-if="compact"
-      icon="i-heroicons-magnifying-glass"
+      icon="i-lucide-search"
       color="neutral"
       variant="ghost"
       square
@@ -78,7 +78,7 @@ defineShortcuts({
       @click="openSearchModal"
     >
       <UIcon
-        name="i-heroicons-magnifying-glass"
+        name="i-lucide-search"
         class="size-4 shrink-0"
       />
       <span class="flex-1 truncate text-start">

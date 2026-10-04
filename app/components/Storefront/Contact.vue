@@ -32,6 +32,11 @@ const surface = computed<'default' | 'muted'>(() =>
 const showBreadcrumb = computed(
   () => !sectionsProvideHeading(brandSections.value),
 )
+
+// A layout that already carries the opening hours would show them twice.
+const layoutHasHours = computed(() =>
+  brandSections.value.some(section => section.componentType === 'business_hours'),
+)
 </script>
 
 <template>
@@ -49,11 +54,7 @@ const showBreadcrumb = computed(
       </UContainer>
     </template>
     <template #after>
-      <!-- The FORM is what wants a narrow measure — not the page. The
-           constraint used to sit on PageWrapper, which also squeezed
-           the breadcrumb and the branded band and left this page
-           visibly narrower than every other one.
-           Skipped entirely when the tenant's layout carries its own
+      <!-- Skipped entirely when the tenant's layout carries its own
            enquiry form (`contact_panel`): the visitor would otherwise
            be offered the same form twice, the second time without the
            subject and the offices the design asks for. -->
@@ -61,14 +62,36 @@ const showBreadcrumb = computed(
         v-if="!sectionsProvideForm(brandSections)"
         :surface="surface"
       >
-        <div class="mx-auto w-full max-w-2xl">
-          <PageTitle
-            v-if="!sectionsProvideHeading(brandSections)"
-            :text="t('title')"
-            class="mb-4 text-center capitalize"
-          />
+        <header
+          v-if="!sectionsProvideHeading(brandSections)"
+          class="mb-8 flex flex-col gap-2"
+        >
+          <h1
+            class="
+              font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+              text-highlighted
+              lg:text-[2.25rem]/[1.1]
+            "
+          >
+            {{ t('heading') }}
+          </h1>
+          <p class="max-w-2xl text-toned">
+            {{ t('lead') }}
+          </p>
+        </header>
 
+        <div
+          class="
+            grid gap-6
+            lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-start
+          "
+        >
           <ContactForm />
+
+          <div class="flex flex-col gap-6">
+            <ContactMethodsCard />
+            <ContactHoursCard v-if="!layoutHasHours" />
+          </div>
         </div>
       </PageSectionBand>
     </template>
@@ -78,6 +101,10 @@ const showBreadcrumb = computed(
 <i18n lang="yaml">
 el:
   title: Επικοινωνήστε μαζί μας
+  heading: Μίλα με έναν άνθρωπο
+  lead: Πες μας τι χρειάζεσαι και θα σου απαντήσουμε με email.
 en:
   title: Contact us
+  heading: Talk to a human
+  lead: Tell us what you need and we will reply by email.
 </i18n>

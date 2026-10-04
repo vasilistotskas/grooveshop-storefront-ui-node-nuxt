@@ -27,7 +27,7 @@ import { defineAsyncComponent } from 'vue'
  * hop costs nothing on first paint.
  */
 
-export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell' | 'cookie_consent'
+export type ChromeKey = 'navbar' | 'footer' | 'mobile_nav' | 'checkout_header' | 'account_shell' | 'cookie_consent' | 'assistant'
 
 export type PageKey
   = | 'home'
@@ -114,6 +114,7 @@ const chromeDefaults: Record<ChromeKey, Component> = {
   checkout_header: lazy(() => import('~/components/Chrome/CheckoutHeader.vue')),
   account_shell: lazy(() => import('~/components/Chrome/AccountShell.vue')),
   cookie_consent: lazy(() => import('~/components/Chrome/CookieConsent.vue')),
+  assistant: lazy(() => import('~/components/Chrome/Assistant.vue')),
 }
 
 // The redesign gathers the sign-in and two-step pages into one Security
@@ -222,6 +223,8 @@ const variants: Record<string, Component> = {
   // The consent banner webside has always shown, at its old path: it is
   // shared chrome that predates the freeze (`Cookie/*`).
   'chrome:cookie_consent@webside': lazy(() => import('~/components/Cookie/Control.vue')),
+  // Likewise the shopping assistant: the shared `Chat/*` widget.
+  'chrome:assistant@webside': lazy(() => import('~/components/Chat/Widget.vue')),
   'page:home@webside': lazy(() => import('~/components/variants/webside/Storefront/Home.vue')),
   'page:products@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductsIndex.vue')),
   'page:products-category@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductsCategory.vue')),

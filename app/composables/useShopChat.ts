@@ -42,6 +42,9 @@ export const useShopChat = () => {
   const status = useState<ShopChatStatus>('shop-chat-status', () => 'ready')
   const errorMessage = useState<string>('shop-chat-error', () => '')
   const cartMutated = useState<boolean>('shop-chat-cart-mutated', () => false)
+  // Whether the assistant is on screen, for the launcher and anything
+  // else that opens it (the footer's chat button).
+  const open = useState<boolean>('shop-chat-open', () => false)
 
   let controller: AbortController | null = null
 
@@ -208,6 +211,7 @@ export const useShopChat = () => {
     status,
     errorMessage,
     cartMutated,
+    open,
     send,
     stop,
     reset,

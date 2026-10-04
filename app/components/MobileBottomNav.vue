@@ -20,7 +20,19 @@ const props = withDefaults(defineProps<{
 })
 
 const { t } = useI18n()
-const { items } = useBottomNavItems({ includeCart: props.includeCart })
+const { loggedIn } = useUserSession()
+
+// A signed-in shopper's Account tab opens the account sheet, which loads
+// the first time it is asked for and stays mounted after.
+const accountOpen = ref(false)
+const accountSheetRequested = ref(false)
+const { items } = useBottomNavItems({
+  includeCart: props.includeCart,
+  onAccount: () => {
+    accountSheetRequested.value = true
+    accountOpen.value = true
+  },
+})
 
 /** Per-item classes, last in Nuxt UI's merge, so they win over the variants. */
 const dockItems = computed<NavigationMenuItem[]>(() =>
@@ -78,6 +90,10 @@ onMounted(() => {
         link: 'before:hidden',
         linkLeadingIcon: 'size-5 text-current',
       }"
+    />
+    <LazyChromeAccountSheet
+      v-if="loggedIn && accountSheetRequested"
+      v-model:open="accountOpen"
     />
   </MobileOrTabletOnly>
 </template>

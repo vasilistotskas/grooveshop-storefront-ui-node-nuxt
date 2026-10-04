@@ -93,14 +93,15 @@ mockNuxtImport('useUserSession', () => () => {
 })
 
 /**
- * The default layout renders the shared (not frozen) chat widget as
- * `<LazyChatWidget>`. The snapshot pins its not-yet-loaded wrapper
- * (`<!---->`); left real, the widget's chunk — `UDrawer` with it —
- * loaded after the test and failed on a torn-down environment under
- * coverage. The module is mocked (no stub key matches a lazy
- * component), to a stub that renders the same `<!---->`.
+ * The default layout renders the shared (not frozen) chat widget as the
+ * `assistant` chrome, which webside maps to it. The snapshot pins its
+ * not-yet-loaded wrapper (`<!---->`); left real, the widget's chunk —
+ * `UDrawer` with it — loaded after the test and failed on a torn-down
+ * environment under coverage. The module is mocked to a stub that renders
+ * the same `<!---->`; `__esModule` lets the async chrome wrapper unwrap
+ * `default` the way it does a real module.
  */
-vi.mock('~/components/Chat/Widget.vue', () => ({ default: { render: () => null } }))
+vi.mock('~/components/Chat/Widget.vue', () => ({ __esModule: true, default: { render: () => null } }))
 
 /**
  * `UTooltip` needs `UApp`'s TooltipProvider, which a bare mount does not
