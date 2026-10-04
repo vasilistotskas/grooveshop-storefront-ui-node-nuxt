@@ -31,7 +31,7 @@ const totpSecret = computed(() => {
   if (!('meta' in data.value)) {
     return ''
   }
-  return data.value?.meta.secret
+  return data.value?.meta.secret ?? ''
 })
 
 const totpSvg = computed(() => {
@@ -44,9 +44,13 @@ const totpSvg = computed(() => {
   return DOMPurify.sanitize(data.value?.meta.totp_svg ?? '', { USE_PROFILES: { svg: true } })
 })
 
+// Four characters a group reads and compares against the app far more
+// easily than sixteen in a row; the copy button still copies the raw key.
+const groupedSecret = computed(() => totpSecret.value.replace(/(.{4})(?=.)/g, '$1 '))
+
 watchEffect(async () => {
   if (error.value) {
-    await navigateTo(localePath('account-settings'))
+    await navigateTo(localePath('account-security'))
   }
 })
 
@@ -99,7 +103,7 @@ async function onSubmit() {
     })
 
     emit('activateTotp')
-    await navigateTo(localePath('account-settings'))
+    await navigateTo(localePath('account-security'))
   }
   catch (error) {
     handleAllAuthClientError(error)
@@ -111,168 +115,120 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-      lg:flex
-    "
+  <section
+    v-if="status === 'pending'"
+    class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
   >
-    <slot />
-
-    <div
-      v-if="status === 'pending'"
-      class="
-        grid items-center justify-center justify-items-center gap-4
-        md:gap-8
-        lg:flex-1
-      "
-    >
-      <UCard class="w-full max-w-2xl">
-        <div class="grid items-center justify-center justify-items-center gap-6">
-          <USkeleton class="size-48 rounded-md" />
-          <div class="grid w-full gap-2">
-            <USkeleton class="h-4 w-32" />
-            <USkeleton class="h-10 w-full" />
-            <USkeleton class="h-4 w-64" />
-          </div>
-          <USkeleton class="h-10 w-32" />
-        </div>
-      </UCard>
+    <div class="flex flex-col gap-6">
+      <USkeleton class="h-5 w-64" />
+      <USkeleton class="size-48 rounded-2xl" />
+      <USkeleton class="h-5 w-48" />
+      <USkeleton class="h-12 w-80 max-w-full" />
     </div>
+  </section>
 
-    <div
-      v-else-if="totpSecret && totpSvg"
-      class="
-        grid items-center justify-center justify-items-center gap-4
-        md:gap-8
-        lg:flex-1
-      "
-    >
-      <UCard class="w-full">
-        <div class="grid items-center justify-center justify-items-center gap-6">
-          <UAlert
-            color="info"
-            variant="soft"
-            icon="i-heroicons-information-circle"
-            :title="t('setup_instructions')"
-            :description="t('setup_instructions_description')"
-            class="w-full"
+  <section
+    v-else-if="totpSecret && totpSvg"
+    class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+  >
+    <ol class="flex flex-col gap-8">
+      <li class="flex flex-col gap-4">
+        <h2 class="flex items-baseline gap-2 font-semibold text-highlighted">
+          <span class="text-accent">1</span>
+          {{ t('scan_title') }}
+        </h2>
+
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div
+            role="img"
+            :aria-label="t('qr_code_alt')"
+            class="
+              w-fit rounded-2xl bg-white p-4 ring ring-default
+              [&_svg]:size-44
+            "
+            v-html="totpSvg"
           />
 
-          <div
-            class="grid items-center justify-center justify-items-center gap-4"
-          >
-            <h3 class="text-lg font-semibold">
-              {{ t('scan_qr_code') }}
-            </h3>
-
-            <div
-              role="img"
-              :aria-label="t('qr_code_alt')"
-              class="
-                rounded-lg bg-primary-200 p-4
-                dark:bg-primary-800
-              "
-              v-html="totpSvg"
-            />
-          </div>
-
-          <div class="grid w-full gap-3">
-            <label
-              class="
-                text-sm font-medium text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('authenticator_secret') }}:
-            </label>
-
-            <UInput
-              v-model="totpSecret"
-              :ui="{
-                root: 'w-full',
-                base: 'cursor-pointer text-center font-mono tracking-wider',
-              }"
-              readonly
-              type="text"
-              @click="onSecretClick"
-            />
-
-            <p class="text-center text-xs text-muted">
-              {{ t('authenticator_secret_description') }}
+          <div class="flex flex-col gap-2">
+            <p class="text-sm text-toned">
+              {{ t('cant_scan') }}
             </p>
-          </div>
-
-          <div class="grid w-full gap-4 border-t border-default pt-4">
-            <label
-              class="
-                text-center text-sm font-medium text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('enter_verification_code') }}
-            </label>
-
-            <div class="flex justify-center">
-              <UPinInput
-                v-model="code"
-                :length="6"
-                type="number"
-                otp
-                :placeholder="'0'"
-                size="xl"
-                @complete="onSubmit"
-              />
+            <div class="flex w-fit max-w-full items-center gap-2 rounded-xl bg-elevated py-2 ps-4 pe-2 ring ring-default">
+              <code class="font-mono text-sm tracking-wider break-all text-highlighted">{{ groupedSecret }}</code>
+              <!-- ClientOnly: the clipboard is unknown while rendering on the
+                   server, so the button would appear between the server's
+                   DOM and the hydrated one. -->
+              <ClientOnly>
+                <UButton
+                  v-if="isSupported"
+                  icon="i-lucide-copy"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  :aria-label="t('copy_secret')"
+                  @click="onSecretClick"
+                />
+              </ClientOnly>
             </div>
-
-            <p class="text-center text-xs text-muted">
-              {{ t('verification_code_help') }}
-            </p>
           </div>
-
-          <UButton
-            size="lg"
-            color="neutral"
-            variant="outline"
-            :loading="loading"
-            :disabled="!isCodeComplete"
-            class="
-              w-full
-              sm:w-auto
-            "
-            @click="onSubmit"
-          >
-            {{ t('entry') }}
-          </UButton>
         </div>
-      </UCard>
-    </div>
+      </li>
 
-    <div
-      v-else class="grid items-center justify-center justify-items-center gap-4"
-    >
-      <UAlert
-        color="error"
-        variant="soft"
-        icon="i-heroicons-exclamation-triangle"
-        :title="t('error.failed_to_load')"
-        :description="t('error.failed_to_load_description')"
+      <li class="flex flex-col gap-4">
+        <h2 class="flex items-baseline gap-2 font-semibold text-highlighted">
+          <span class="text-accent">2</span>
+          {{ t('code_title') }}
+        </h2>
+
+        <UPinInput
+          v-model="code"
+          :length="6"
+          type="number"
+          otp
+          size="xl"
+          class="w-fit"
+          @complete="onSubmit"
+        />
+      </li>
+    </ol>
+
+    <div class="mt-8 flex flex-wrap items-center gap-3">
+      <UButton
+        size="lg"
+        color="neutral"
+        :loading="loading"
+        :disabled="!isCodeComplete"
+        :label="t('activate')"
+        @click="onSubmit"
+      />
+      <UButton
+        size="lg"
+        color="neutral"
+        variant="ghost"
+        :label="t('cancel')"
+        :to="localePath('account-security')"
       />
     </div>
-  </div>
+  </section>
+
+  <UAlert
+    v-else
+    color="error"
+    variant="soft"
+    icon="i-lucide-triangle-alert"
+    :title="t('error.failed_to_load')"
+    :description="t('error.failed_to_load_description')"
+  />
 </template>
 
 <i18n lang="yaml">
 el:
   qr_code_alt: Κωδικός QR για ρύθμιση ελέγχου ταυτότητας δύο παραγόντων
-  authenticator_code: Κωδικός
-  authenticator_secret: Μυστικό κλειδί
-  authenticator_secret_description: Μπορείς να αποθηκεύσεις αυτό το μυστικό κλειδί και να το χρησιμοποιήσεις για να επανεγκαταστήσεις την εφαρμογή ελέγχου ταυτότητας σε μεταγενέστερο χρόνο.
-  setup_instructions: Οδηγίες ενεργοποίησης
-  setup_instructions_description: Σάρωσε τον κωδικό QR με την εφαρμογή ελέγχου ταυτότητας (Google Authenticator, Authy, κλπ.) ή εισάγαγε το μυστικό κλειδί χειροκίνητα.
-  scan_qr_code: Σάρωσε τον κωδικό QR
-  enter_verification_code: Εισάγαγε τον κωδικό επαλήθευσης
-  verification_code_help: Εισάγαγε τον κωδικό 6 ψηφίων από την εφαρμογή σου
+  scan_title: Σάρωσε με την εφαρμογή επαλήθευσης
+  cant_scan: Δεν μπορείς να σαρώσεις; Εισήγαγε αυτό το κλειδί.
+  copy_secret: Αντιγραφή κλειδιού
+  code_title: Εισήγαγε τον κωδικό 6 ψηφίων
+  activate: Ενεργοποίηση
   copied: Αντιγράφηκε στο πρόχειρο
   success:
     totp_activated: Ο έλεγχος ταυτότητας δύο παραγόντων ενεργοποιήθηκε επιτυχώς
@@ -284,14 +240,11 @@ el:
     failed_to_load_description: Δεν ήταν δυνατή η φόρτωση των δεδομένων TOTP. Παρακαλώ δοκίμασε ξανά.
 en:
   qr_code_alt: QR code for setting up two-factor authentication
-  authenticator_code: Code
-  authenticator_secret: Secret key
-  authenticator_secret_description: You can save this secret key and use it to set your authenticator app up again later.
-  setup_instructions: How to turn it on
-  setup_instructions_description: Scan the QR code with your authenticator app (Google Authenticator, Authy and so on), or enter the secret key by hand.
-  scan_qr_code: Scan the QR code
-  enter_verification_code: Enter the verification code
-  verification_code_help: Enter the 6-digit code from your app
+  scan_title: Scan with your authenticator app
+  cant_scan: Can't scan? Enter this key instead.
+  copy_secret: Copy the key
+  code_title: Enter the 6-digit code
+  activate: Activate
   copied: Copied to the clipboard
   success:
     totp_activated: Two-factor authentication is on

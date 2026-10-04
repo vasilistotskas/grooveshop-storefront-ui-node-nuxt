@@ -1285,6 +1285,7 @@ export default defineNuxtConfig({
       '/account/provider/**',
       '/account/providers',
       '/account/reviews',
+      '/account/security',
       '/account/sessions',
       '/account/settings',
       '/account/reauthenticate',

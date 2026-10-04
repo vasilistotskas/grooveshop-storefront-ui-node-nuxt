@@ -13,6 +13,7 @@ describe('isRouteProtected', () => {
     ['account'],
     ['account-orders-id'],
     ['account-addresses-id-edit'],
+    ['account-security'],
     // Reached from the abandoned-cart email, outside /account.
     ['cart-recover-uuid'],
   ])('protects %s', (name) => {

@@ -1,47 +1,41 @@
 <script lang="ts" setup>
+/**
+ * Change the password — or, on an account that signs in without one,
+ * set it. The page names which (`hasCurrentPassword`), in its heading
+ * and its browser tab alike.
+ */
 const { t } = useI18n()
-const authStore = useAuthStore()
-const { hasCurrentPassword } = storeToRefs(authStore)
+const { hasCurrentPassword } = storeToRefs(useAuthStore())
 
-// This page's title is CONDITIONAL — change it, or set one for the
-// first time — so it has no flat `title` key and the sweep that gave
-// every other account route its document title skipped it.
-useHead({
-  title: () => (hasCurrentPassword.value ? t('change.title') : t('set.title')),
-})
+const title = computed(() => hasCurrentPassword.value ? t('change.title') : t('set.title'))
+useHead({ title })
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="hasCurrentPassword ? t('change.title') : t('set.title')"
-      class="hidden"
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader
+      :title="title"
+      :lead="hasCurrentPassword ? t('change.lead') : t('set.lead')"
     />
-
-    <AccountPasswordChangeForm>
-      <aside
-        class="md:sticky md:top-16"
-      >
-        <AccountAuthSettingsNavigation />
-      </aside>
-    </AccountPasswordChangeForm>
-  </PageWrapper>
+    <div class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6">
+      <AccountPasswordChangeForm />
+    </div>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
   change:
     title: Αλλαγή κωδικού πρόσβασης
+    lead: Για να τον αλλάξεις, θα χρειαστείς τον τρέχοντα κωδικό σου.
   set:
-    title: Όρισε έναν κωδικό πρόσβασης
+    title: Ορισμός κωδικού πρόσβασης
+    lead: Συνδέεσαι χωρίς κωδικό. Όρισε έναν για να συνδέεσαι και με το email σου.
 en:
   change:
     title: Change password
+    lead: You will need your current password to change it.
   set:
     title: Set a password
+    lead: You sign in without a password. Set one to sign in with your email too.
 </i18n>

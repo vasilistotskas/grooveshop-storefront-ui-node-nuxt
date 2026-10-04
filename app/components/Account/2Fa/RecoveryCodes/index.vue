@@ -1,492 +1,232 @@
 <script lang="ts" setup>
+/**
+ * The shopper's unused recovery codes: how many are left of the set and
+ * when it was made, a warning when they run low, each code copied with
+ * a click, and the whole set copied, downloaded or printed — or replaced
+ * with a new one.
+ *
+ * The print window is written with `textContent`, never as HTML, so a
+ * code cannot inject markup there. A shopper without two-step
+ * verification has no codes (allauth answers 404) and goes back to the
+ * Security page, where it is set up.
+ */
 const { getRecoveryCodes } = useAllAuthAccount()
 const toast = useToast()
 const localePath = useLocalePath()
 const { t, locale } = useI18n()
 const { copy } = useClipboard()
 
-const { data, refresh, error } = await useAsyncData(
-  'recoveryCodes',
-  () => getRecoveryCodes(),
-)
+const { data, error } = await useAsyncData('recoveryCodes', () => getRecoveryCodes())
 
 if (error.value) {
-  toast.add({
-    title: t('auth.mfa.required'),
-    color: 'error',
-  })
-  navigateTo(localePath('account-settings'))
+  toast.add({ title: t('auth.mfa.required'), color: 'error' })
+  await navigateTo(localePath('account-security'))
 }
 
-const unused_codes = computed(() => data.value?.data.unused_codes ?? [])
-const created_at = computed(() => data.value?.data.created_at ?? null)
-const last_used_at = computed(() => data.value?.data.last_used_at ?? null)
-const total_code_count = computed(() => data.value?.data.total_code_count ?? 0)
-const unused_code_count = computed(() => data.value?.data.unused_code_count ?? 0)
+const codes = computed(() => data.value?.data.unused_codes ?? [])
+const unused = computed(() => data.value?.data.unused_code_count ?? 0)
+const total = computed(() => data.value?.data.total_code_count ?? 0)
+const createdAt = computed(() => data.value?.data.created_at)
+const lastUsedAt = computed(() => data.value?.data.last_used_at)
 
-const usedCount = computed(() => total_code_count.value - unused_code_count.value)
-const usagePercentage = computed(() => ((unused_code_count.value / total_code_count.value) * 100) || 0)
+const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
 
-const statusColor = computed(() => {
-  if (unused_code_count.value <= 2) return 'error'
-  if (unused_code_count.value <= 5) return 'warning'
-  return 'success'
-})
+/** The date the set was made, as the downloaded and printed copies state it. */
+const madeOn = computed(() => createdAt.value ? new Date(createdAt.value * 1000).toLocaleDateString(locale.value) : '')
 
-const createdDateMs = computed(() => (created_at.value ? created_at.value * 1000 : null))
-const lastUsedDateMs = computed(() => (last_used_at.value ? last_used_at.value * 1000 : null))
-
-// String form is only used for the print/download Blob payloads —
-// the in-DOM display uses <NuxtTime> below.
-const createdDate = computed(() => {
-  if (!created_at.value) return ''
-  return new Date(created_at.value * 1000).toLocaleDateString(locale.value)
-})
-
-async function copyAllCodes() {
-  const allCodes = unused_codes.value.join('\n')
-  await copy(allCodes)
-  toast.add({
-    title: t('toast.copy_all.title'),
-    description: t('toast.copy_all.description'),
-    color: 'success',
-    icon: 'i-heroicons-clipboard-document-check',
-  })
+async function copyAll() {
+  await copy(codes.value.join('\n'))
+  toast.add({ title: t('copied_all'), color: 'success' })
 }
 
 async function copyCode(code: string) {
   await copy(code)
-  toast.add({
-    title: t('toast.copy_single.title'),
-    description: code,
-    color: 'success',
-    icon: 'i-heroicons-clipboard-document-check',
-  })
+  toast.add({ title: t('copied_one'), description: code, color: 'success' })
 }
 
-function downloadCodes() {
-  if (!unused_codes.value) return
-  const allCodes = unused_codes.value.join('\n')
-  const blob = new Blob([`${t('print.title')} - ${t('print.generated')}: ${createdDate.value}\n\n${allCodes}\n\n${t('print.keep_safe')}`], { type: 'text/plain' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `recovery-codes-${Date.now()}.txt`
-  a.click()
+function download() {
+  const text = `${t('print.title')} — ${t('print.made', { date: madeOn.value })}\n\n${codes.value.join('\n')}\n\n${t('keep_safe')}`
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `recovery-codes-${Date.now()}.txt`
+  link.click()
   URL.revokeObjectURL(url)
-
-  toast.add({
-    title: t('toast.download.title'),
-    color: 'success',
-    icon: 'i-heroicons-arrow-down-tray',
-  })
 }
 
-function printCodes() {
+function print() {
   const printWindow = window.open('', '_blank')
-  if (printWindow) {
-    const doc = printWindow.document
-    doc.write(`
-      <html>
-        <head>
-          <title>${t('print.title')}</title>
-          <style>
-            body { font-family: monospace; padding: 40px; }
-            h1 { font-size: 24px; margin-bottom: 20px; }
-            .codes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; }
-            .code { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-            .warning { margin-top: 30px; padding: 20px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; }
-          </style>
-        </head>
-        <body>
-          <h1></h1>
-          <p></p>
-          <div class="codes"></div>
-          <div class="warning">
-            <strong></strong> <span></span>
-          </div>
-        </body>
-      </html>
-    `)
-    doc.close()
-
-    // Use textContent to safely insert user-facing strings (no HTML injection)
-    doc.querySelector('h1')!.textContent = t('print.title')
-    doc.querySelector('p')!.textContent = `${t('print.generated')}: ${createdDate.value}`
-
-    const codesContainer = doc.querySelector('.codes')!
-    for (const code of unused_codes.value) {
-      const div = doc.createElement('div')
-      div.className = 'code'
-      div.textContent = code
-      codesContainer.appendChild(div)
-    }
-
-    doc.querySelector('.warning strong')!.textContent = t('print.important')
-    doc.querySelector('.warning span')!.textContent = t('print.keep_safe')
-
-    printWindow.print()
+  if (!printWindow) return
+  const doc = printWindow.document
+  doc.write(`<html><head><title></title><style>
+    body { font-family: monospace; padding: 40px; }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .codes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 24px 0; }
+    .code { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+  </style></head><body><h1></h1><p class="made"></p><div class="codes"></div><p class="keep"></p></body></html>`)
+  doc.close()
+  doc.title = t('print.title')
+  doc.querySelector('h1')!.textContent = t('print.title')
+  doc.querySelector('.made')!.textContent = t('print.made', { date: madeOn.value })
+  const list = doc.querySelector('.codes')!
+  for (const code of codes.value) {
+    const item = doc.createElement('div')
+    item.className = 'code'
+    item.textContent = code
+    list.appendChild(item)
   }
+  doc.querySelector('.keep')!.textContent = t('keep_safe')
+  printWindow.print()
 }
-
-onReactivated(async () => {
-  await refresh()
-})
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-      lg:flex
-    "
-  >
-    <slot />
-
-    <div class="w-full space-y-6">
-      <UCard>
-        <template #header>
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <div
-                class="
-                  flex size-10 min-w-10 items-center justify-center rounded-full
-                  bg-primary/10
-                "
-              >
-                <UIcon
-                  name="i-heroicons-shield-check" class="size-5 text-primary"
-                />
-              </div>
-              <div>
-                <h1
-                  class="
-                    text-lg font-semibold text-gray-900
-                    md:text-xl
-                    dark:text-white
-                  "
-                >
-                  {{ t('title') }}
-                </h1>
-                <p
-                  class="
-                    mt-1 text-sm text-gray-500
-                    dark:text-gray-200
-                  "
-                >
-                  {{ t('subtitle') }}
-                </p>
-              </div>
-            </div>
-
-            <UBadge
-              :color="statusColor"
-              variant="soft"
-              size="lg"
-              class="shrink-0"
-            >
-              {{ unused_code_count }}/{{ total_code_count }}
-            </UBadge>
-          </div>
+  <div class="flex flex-col gap-5">
+    <p class="text-sm text-toned">
+      <i18n-t keypath="summary">
+        <template #unused>
+          <span class="font-semibold text-highlighted">{{ t('unused', { unused, total }) }}</span>
         </template>
-
-        <div class="space-y-6">
-          <div>
-            <div class="mb-2 flex items-center justify-between text-sm">
-              <span
-                class="
-                  font-medium text-gray-700
-                  dark:text-gray-300
-                "
-              >
-                {{ t('progress.label') }}
-              </span>
-              <span
-                class="
-                  text-gray-500
-                  dark:text-gray-200
-                "
-              >
-                {{ t('progress.remaining', unused_code_count) }}
-              </span>
-            </div>
-            <UProgress
-              :model-value="usagePercentage"
-              :color="statusColor"
-              size="lg"
-            />
-            <p
-              v-if="usedCount > 0"
-              class="
-                mt-2 text-xs text-gray-500
-                dark:text-gray-200
-              "
-            >
-              {{ t('progress.used', usedCount) }}
-            </p>
-          </div>
-
-          <div
-            class="
-              grid gap-4
-              sm:grid-cols-2
-            "
-          >
-            <div
-              class="
-                rounded-lg border border-gray-200 bg-gray-50 p-4
-                dark:border-gray-700 dark:bg-gray-800/50
-              "
-            >
-              <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-calendar" class="size-4 text-gray-400" />
-                <span
-                  class="
-                    text-xs font-medium tracking-wide text-gray-500 uppercase
-                    dark:text-gray-200
-                  "
-                >
-                  {{ t('stats.created') }}
-                </span>
-              </div>
-              <p
-                class="
-                  mt-2 text-lg font-semibold text-gray-900
-                  dark:text-white
-                "
-              >
-                <NuxtTime
-                  v-if="createdDateMs"
-                  :datetime="createdDateMs"
-                  :locale="locale"
-                  date-style="medium"
-                />
-                <template v-else>
-                  {{ t('unused') }}
-                </template>
-              </p>
-            </div>
-
-            <div
-              class="
-                rounded-lg border border-gray-200 bg-gray-50 p-4
-                dark:border-gray-700 dark:bg-gray-800/50
-              "
-            >
-              <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-clock" class="size-4 text-gray-400" />
-                <span
-                  class="
-                    text-xs font-medium tracking-wide text-gray-500 uppercase
-                    dark:text-gray-200
-                  "
-                >
-                  {{ t('stats.last_used') }}
-                </span>
-              </div>
-              <p
-                class="mt-2 text-lg font-semibold"
-                :class="lastUsedDateMs ? 'text-warning' : 'text-success'"
-              >
-                <NuxtTime
-                  v-if="lastUsedDateMs"
-                  :datetime="lastUsedDateMs"
-                  :locale="locale"
-                  date-style="medium"
-                  time-style="short"
-                />
-                <template v-else>
-                  {{ t('unused') }}
-                </template>
-              </p>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <UButton
-              color="neutral"
-              variant="outline"
-              icon="i-heroicons-clipboard"
-              @click="copyAllCodes"
-            >
-              {{ t('actions.copy_all') }}
-            </UButton>
-            <UButton
-              color="neutral"
-              variant="outline"
-              icon="i-heroicons-arrow-down-tray"
-              @click="downloadCodes"
-            >
-              {{ t('actions.download') }}
-            </UButton>
-            <UButton
-              color="neutral"
-              variant="outline"
-              icon="i-heroicons-printer"
-              @click="printCodes"
-            >
-              {{ t('actions.print') }}
-            </UButton>
-          </div>
-
-          <UAlert
-            color="warning"
-            variant="soft"
-            icon="i-heroicons-exclamation-triangle"
-            :title="t('warning.title')"
-            :description="t('warning.description')"
+        <template #made>
+          <NuxtTime
+            v-if="createdAt"
+            :datetime="epoch(createdAt)"
+            :locale="locale"
+            day="numeric"
+            month="short"
+            year="numeric"
           />
-
-          <div>
-            <h3
-              class="
-                mb-3 text-sm font-medium text-gray-900
-                dark:text-white
-              "
-            >
-              {{ t('codes.title') }}
-            </h3>
-
-            <div
-              class="
-                grid gap-3
-                sm:grid-cols-2
-              "
-            >
-              <button
-                v-for="(code, index) in unused_codes"
-                :key="code"
-                class="
-                  group relative flex cursor-pointer items-center
-                  justify-between rounded-lg border border-gray-200 bg-gray-50
-                  px-4 py-3 font-mono text-lg transition-all
-                  hover:border-primary hover:bg-primary/5
-                  focus:ring-2 focus:ring-primary focus:outline-none
-                  dark:border-gray-700 dark:bg-gray-800/50
-                  dark:hover:border-primary dark:hover:bg-primary/10
-                "
-                @click="copyCode(code)"
-              >
-                <span class="flex items-center gap-3">
-                  <span class="text-xs text-gray-400">{{ index + 1 }}</span>
-                  <span
-                    class="
-                      font-semibold text-gray-900
-                      dark:text-white
-                    "
-                  >{{ code }}</span>
-                </span>
-                <UIcon
-                  name="i-heroicons-clipboard"
-                  class="
-                    size-4 text-gray-400 opacity-0 transition-opacity
-                    group-hover:opacity-100
-                  "
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <template #footer>
-          <div
-            class="
-              flex flex-col gap-3
-              sm:flex-row sm:items-center sm:justify-between
-            "
-          >
-            <div
-              class="
-                text-xs text-gray-500
-                dark:text-gray-200
-              "
-            >
-              {{ t('footer.reminder') }}
-            </div>
-            <UButton
-              :to="localePath('account-2fa-recovery-codes-generate')"
-              color="neutral"
-              variant="outline"
-              trailing-icon="i-heroicons-arrow-path"
-            >
-              {{ t('footer.regenerate') }}
-            </UButton>
-          </div>
         </template>
-      </UCard>
+      </i18n-t>
+      ·
+      <template v-if="lastUsedAt">
+        <i18n-t keypath="last_used">
+          <template #when>
+            <NuxtTime
+              :datetime="epoch(lastUsedAt)"
+              :locale="locale"
+              relative
+              numeric="auto"
+            />
+          </template>
+        </i18n-t>
+      </template>
+      <template v-else>
+        {{ t('never_used') }}
+      </template>
+    </p>
+
+    <UAlert
+      v-if="recoveryCodesRunningLow(unused)"
+      :title="t('low.title', unused)"
+      :description="t('low.description')"
+      icon="i-lucide-triangle-alert"
+      color="warning"
+      variant="soft"
+    />
+
+    <ol class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <li
+        v-for="(code, index) in codes"
+        :key="code"
+      >
+        <button
+          :aria-label="t('copy_code', { code })"
+          type="button"
+          class="
+            flex w-full cursor-pointer items-center gap-2 rounded-[0.75rem] bg-elevated px-3 py-2.5
+            font-mono text-sm text-highlighted transition-colors
+            hover:bg-accented
+            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
+          "
+          @click="() => copyCode(code)"
+        >
+          <span class="text-xs text-toned">{{ index + 1 }}</span>
+          <span>{{ code }}</span>
+        </button>
+      </li>
+    </ol>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <UButton
+        :label="t('actions.copy_all')"
+        icon="i-lucide-copy"
+        color="neutral"
+        variant="outline"
+        size="sm"
+        @click="copyAll"
+      />
+      <UButton
+        :label="t('actions.download')"
+        icon="i-lucide-download"
+        color="neutral"
+        variant="outline"
+        size="sm"
+        @click="download"
+      />
+      <UButton
+        :label="t('actions.print')"
+        icon="i-lucide-printer"
+        color="neutral"
+        variant="outline"
+        size="sm"
+        @click="print"
+      />
+      <UButton
+        :label="t('actions.generate')"
+        :to="localePath('account-2fa-recovery-codes-generate')"
+        icon="i-lucide-refresh-cw"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+      />
     </div>
+
+    <p class="text-xs text-toned">
+      {{ t('keep_safe') }}
+    </p>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Κωδικοί Ανάκτησης
-  subtitle: Χρησιμοποίησε αυτούς τους κωδικούς σαν backup
-  progress:
-    label: Διαθέσιμοι Κωδικοί
-    remaining: Δεν υπάρχει διαθέσιμος κωδικός | {n} διαθέσιμος κωδικός | {n} διαθέσιμοι κωδικοί
-    used: Δεν έχει χρησιμοποιηθεί κωδικός | Έχει χρησιμοποιηθεί {n} κωδικός | Έχουν χρησιμοποιηθεί {n} κωδικοί
-  stats:
-    created: Δημιουργήθηκε
-    last_used: Τελευταία Χρήση
+  summary: "{unused} · δημιουργήθηκαν {made}"
+  unused: "{unused} από {total} αχρησιμοποίητοι"
+  last_used: Τελευταία χρήση {when}
+  never_used: Δεν έχει χρησιμοποιηθεί κανένας
+  low:
+    title: "Δεν απομένει κανένας κωδικός | Απομένει μόνο {n} κωδικός | Απομένουν μόνο {n} κωδικοί"
+    description: Δημιούργησε νέους πριν τελειώσουν, για να μη χάσεις την πρόσβαση στον λογαριασμό σου.
+  copy_code: Αντιγραφή του κωδικού {code}
+  copied_all: Οι κωδικοί αντιγράφηκαν
+  copied_one: Ο κωδικός αντιγράφηκε
   actions:
-    copy_all: Αντιγραφή Όλων
+    copy_all: Αντιγραφή όλων
     download: Λήψη
     print: Εκτύπωση
-  warning:
-    title: Σημαντική Υπενθύμιση
-    description: Κάθε κωδικός μπορεί να χρησιμοποιηθεί μόνο μία φορά. Φύλαξε τους σε ασφαλές μέρος.
-  codes:
-    title: Οι Κωδικοί σου
-  footer:
-    reminder: Μην μοιραστείς αυτούς τους κωδικούς με κανέναν
-    regenerate: Δημιουργία Νέων
+    generate: Νέοι κωδικοί
+  keep_safe: Φύλαξέ τους κάπου ασφαλές και μην τους μοιραστείς. Ο καθένας ισχύει μία φορά.
   print:
-    title: Κωδικοί Ανάκτησης
-    generated: Δημιουργήθηκαν
-    important: "⚠️ Σημαντικό:"
-    keep_safe: Αποθήκευσε αυτούς τους κωδικούς σε ασφαλές μέρος. Κάθε κωδικός μπορεί να χρησιμοποιηθεί μόνο μία φορά.
-  toast:
-    copy_all:
-      title: Όλοι οι κωδικοί αντιγράφηκαν
-      description: Αποθήκευσε τους σε ασφαλές μέρος
-    copy_single:
-      title: Ο κωδικός αντιγράφηκε
-    download:
-      title: Οι κωδικοί έχουν ληφθεί
+    title: Κωδικοί ανάκτησης
+    made: Δημιουργήθηκαν {date}
 en:
-  title: Recovery Codes
-  subtitle: Use these codes as a backup
-  progress:
-    label: Codes Available
-    remaining: "No codes left | {n} code left | {n} codes left"
-    used: "No code used yet | {n} code used | {n} codes used"
-  stats:
-    created: Created
-    last_used: Last Used
+  summary: "{unused} · made {made}"
+  unused: "{unused} of {total} unused"
+  last_used: Last used {when}
+  never_used: None used yet
+  low:
+    title: "No codes left | Only {n} code left | Only {n} codes left"
+    description: Make new ones before they run out, so you never lose access to your account.
+  copy_code: Copy the code {code}
+  copied_all: Codes copied
+  copied_one: Code copied
   actions:
-    copy_all: Copy All
+    copy_all: Copy all
     download: Download
     print: Print
-  warning:
-    title: Worth Remembering
-    description: Each code works only once. Keep them somewhere safe.
-  codes:
-    title: Your Codes
-  footer:
-    reminder: Do not share these codes with anyone
-    regenerate: Generate New Ones
+    generate: New codes
+  keep_safe: Keep them somewhere safe and never share them. Each one works once.
   print:
-    title: Recovery Codes
-    generated: Generated
-    important: "⚠️ Important:"
-    keep_safe: Keep these codes somewhere safe. Each one can be used only once.
-  toast:
-    copy_all:
-      title: All codes copied
-      description: Keep them somewhere safe
-    copy_single:
-      title: Code copied
-    download:
-      title: Codes downloaded
+    title: Recovery codes
+    made: Made {date}
 </i18n>

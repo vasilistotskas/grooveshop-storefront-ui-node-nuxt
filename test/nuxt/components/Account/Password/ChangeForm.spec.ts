@@ -9,7 +9,8 @@ import type { SessionResponse } from '~~/shared/types/response/all-auth/auth/ses
  * Changing — or, for an account created through a social provider,
  * first setting — the password. Whether the account has a usable
  * password is the session's `has_usable_password`, read through the auth
- * store; mocked at `useAllAuthAccount`.
+ * store; mocked at `useAllAuthAccount`. Done or cancelled, the shopper
+ * goes back to the Security page.
  */
 const { changePassword, navigateToMock, toastAdd } = vi.hoisted(() => ({
   changePassword: vi.fn((_body: unknown) => Promise.resolve({ status: 200 })),
@@ -44,7 +45,7 @@ async function fill(wrapper: VueWrapper, fields: { current?: string, next: strin
 }
 
 describe('Account/Password/ChangeForm', () => {
-  it('changes the password with the current one, then returns to the account', async () => {
+  it('changes the password with the current one, then returns to Security', async () => {
     const wrapper = await mountForm()
 
     await fill(wrapper, { current: 'Παλιός2023', next: 'Καλημέρα2024' })
@@ -54,17 +55,15 @@ describe('Account/Password/ChangeForm', () => {
       title: useNuxtApp().$i18n.t('auth.password.change.success'),
       color: 'success',
     }))
-    expect(wrapper.emitted('changePassword')).toHaveLength(1)
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account'))
+    expect(navigateToMock).toHaveBeenCalledExactlyOnceWith(useLocalePath()('account-security'))
   })
 
   it.each([
     ['the current password is missing', { current: '', next: 'Καλημέρα2024' }, () => useNuxtApp().$i18n.t('validation.required')],
     ['the new password is the current one', { current: 'Καλημέρα2024', next: 'Καλημέρα2024' }, () => useNuxtApp().$i18n.t('validation.password.must_not_be_same')],
-    ['the confirmation differs', { current: 'Παλιός2023', next: 'Καλημέρα2024', confirm: 'Καλημέρα2025' }, () => {
-      const { t } = useNuxtApp().$i18n
-      return t('validation.must_match', { field: t('password.new'), other: t('password.confirm') })
-    }],
+    // The field names are the form's own (its <i18n> block).
+    ['the confirmation differs', { current: 'Παλιός2023', next: 'Καλημέρα2024', confirm: 'Καλημέρα2025' }, () =>
+      useNuxtApp().$i18n.t('validation.must_match', { field: 'Νέος κωδικός', other: 'Επιβεβαίωση νέου κωδικού' })],
     ['the new password is all digits', { current: 'Παλιός2023', next: '12345678' }, () => useNuxtApp().$i18n.t('validation.password.entirely_numeric')],
   ])('refuses when %s', async (_case, fields, message) => {
     const wrapper = await mountForm()
@@ -80,7 +79,7 @@ describe('Account/Password/ChangeForm', () => {
     const wrapper = await mountForm()
 
     expect(wrapper.find('input[autocomplete="current-password"]').exists()).toBe(false)
-    expect(wrapper.findComponent({ name: 'UAlert' }).exists()).toBe(true)
+    expect(wrapper.get('button[type="submit"]').text()).toBe('Ορισμός κωδικού')
 
     await fill(wrapper, { next: 'Καλημέρα2024' })
 
@@ -104,13 +103,20 @@ describe('Account/Password/ChangeForm', () => {
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined()
   })
 
-  it('cancels back to the account', async () => {
+  it('rates the new password as it is typed', async () => {
     const wrapper = await mountForm()
 
-    const cancel = wrapper.findAll('button').find(button => button.text() === 'Ακύρωση')
-    await cancel!.trigger('click')
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    await wrapper.findAll('input[autocomplete="new-password"]')[0]!.setValue('Καλημέρα2024')
 
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account'))
-    expect(changePassword).not.toHaveBeenCalled()
+    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+  })
+
+  it('cancels back to Security', async () => {
+    const wrapper = await mountForm()
+
+    const cancel = wrapper.findAll('a').find(link => link.text() === 'Άκυρο')!
+
+    expect(cancel.attributes('href')).toBe('/account/security')
   })
 })

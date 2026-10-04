@@ -44,7 +44,7 @@ const storeName = computed(
 // `RouteMapGeneric`, whose key became `string | symbol` in vue-router
 // 5.3. A base name is always a string at runtime, so narrow it here
 // rather than let the symbol leak into the message-key interpolation
-// below (same cast as AuthSettingsNavigation.vue).
+// below.
 const name = computed(
   () => props.routeName ?? ($routeBaseName(route) as string | undefined) ?? '',
 )

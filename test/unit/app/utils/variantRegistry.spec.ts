@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  REDESIGN_ONLY_PAGES,
   resolveChrome,
   resolveDesign,
   resolveLayout,
@@ -56,6 +57,20 @@ describe('variantRegistry', () => {
     expect(platform).toBeDefined()
     expect(webside).toBeDefined()
     expect(webside).not.toBe(platform)
+  })
+
+  // A page only the redesign has gets no frozen body; the store frozen
+  // in the previous design answers 404 for it (`01.design-only.global`).
+  it.each([...REDESIGN_ONLY_PAGES])('has no webside body for the redesign-only page %s', (key) => {
+    expect(resolvePage(key, 'webside')).toBe(resolvePage(key, null))
+  })
+
+  // The redesign gathers these into its Security page; webside, above,
+  // keeps each its own body.
+  it.each([
+    'account-email', 'account-sessions', 'account-providers', 'account-2fa', 'account-2fa-webauthn',
+  ] as const)('shows the Security page on %s in the redesign', (key) => {
+    expect(resolvePage(key, 'demo')).toBe(resolvePage('account-security', 'demo'))
   })
 
   it.each(CHROME_KEYS)('resolves webside chrome for %s', (key) => {

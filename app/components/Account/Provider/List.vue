@@ -17,13 +17,6 @@ const {
   browserProviderRedirect,
 } = useAllAuthAuthentication()
 
-const PROVIDER_ICONS: Record<string, string> = {
-  google: 'i-mdi-google',
-  facebook: 'i-mdi-facebook',
-  github: 'i-mdi-github',
-  discord: 'i-mdi-discord',
-}
-
 const loginWithProvider = async (provider: Provider) => {
   // A provider that can hand the browser a token signs in in place;
   // one that only redirects sends the browser through its own page.
@@ -49,7 +42,7 @@ const loginWithProvider = async (provider: Provider) => {
     >
       <UButton
         :label="provider.name"
-        :icon="PROVIDER_ICONS[provider.id] ?? 'i-lucide-log-in'"
+        :icon="socialProviderIcon(provider.id)"
         :disabled="loading"
         :loading="loading"
         color="neutral"

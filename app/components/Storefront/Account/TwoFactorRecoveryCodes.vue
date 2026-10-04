@@ -1,32 +1,29 @@
 <script lang="ts" setup>
+/**
+ * The shopper's recovery codes (`Account/2Fa/RecoveryCodes`): one each
+ * for the times the authenticator app or passkey is not to hand.
+ */
 const { t } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
 useHead({ title: () => t('title') })
 </script>
 
 <template>
-  <PageWrapper class="md:!p-0">
-    <PageTitle
-      :text="t('title')"
-      class="sr-only"
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader
+      :title="t('title')"
+      :lead="t('lead')"
     />
-
-    <Account2FaRecoveryCodes>
-      <aside
-        class="md:sticky md:top-16"
-      >
-        <AccountAuthSettingsNavigation />
-      </aside>
-    </Account2FaRecoveryCodes>
-  </PageWrapper>
+    <div class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6">
+      <Account2FaRecoveryCodes />
+    </div>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Κωδικοί Ανάκτησης
+  title: Κωδικοί ανάκτησης
+  lead: Χρησιμοποίησε έναν όταν δεν έχεις μαζί τη συσκευή σου.
 en:
-  title: Recovery Codes
+  title: Recovery codes
+  lead: Use one when you do not have your device with you.
 </i18n>

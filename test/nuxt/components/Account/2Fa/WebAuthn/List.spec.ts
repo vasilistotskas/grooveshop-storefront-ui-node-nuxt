@@ -1,116 +1,160 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
+import { resolve } from 'node:path'
+import YAML from 'yaml'
 import List from '~/components/Account/2Fa/WebAuthn/List.vue'
 import type { Authenticator } from '~~/shared/types/model/all-auth/account/authenticators/authenticators'
+import { FIXTURE_EPOCH, makeAuthenticator } from '~~/test/fixtures/allauth'
+import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
- * The account's security keys, renamed and removed optimistically: the
- * table changes at once and goes back if allauth refuses. Mocked at
- * `useAllAuthAccount`; the keys come from the auth store.
+ * The shopper's passkeys and security keys: one row per WebAuthn key —
+ * name, passkey or security key, when added and last used — renamed in
+ * place or removed once confirmed, one change at a time, then the auth
+ * store read again so every reader of it counts the same keys. Mocked at `useAllAuthAccount`; the keys come
+ * from the real auth store.
  */
-// UTooltip needs UApp's TooltipProvider, which a bare mount does not have.
-mockComponent('UTooltip', { template: '<div><slot /></div>' })
-
-const { deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators, navigateToMock, toastAdd } = vi.hoisted(() => ({
-  deleteWebAuthnCredential: vi.fn((_body: unknown) => Promise.resolve({ status: 200 })),
-  updateWebAuthnCredential: vi.fn((_body: unknown) => Promise.resolve({ status: 200 })),
-  getAuthenticators: vi.fn(),
-  navigateToMock: vi.fn(),
+const { deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators, toastAdd } = vi.hoisted(() => ({
+  deleteWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),
+  updateWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),
+  getAuthenticators: vi.fn((): Promise<{ status: 200, data: Authenticator[] } | undefined> => Promise.resolve(undefined)),
   toastAdd: vi.fn(),
 }))
 mockNuxtImport('useAllAuthAccount', () => () => ({ deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators }))
-mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+mockNuxtImport('useUserSession', () => () => ({
+  loggedIn: ref(true),
+  user: ref({ id: 7 }),
+  session: ref({}),
+  ready: ref(true),
+  fetch: () => Promise.resolve(),
+  clear: () => Promise.resolve(),
+}))
 
-const key = (id: number, name: string, extra: Partial<Authenticator> = {}): Authenticator => ({
-  id, type: 'webauthn', name, created_at: 1767225600, last_used_at: null, is_passwordless: false, ...extra,
-})
-const TOTP: Authenticator = { type: 'totp', created_at: 1767225600, last_used_at: null }
+const messages = YAML.parse(
+  parseSfc(resolve(REPO, 'app/components/Account/2Fa/WebAuthn/List.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
+).el
+
+const DAY = 24 * 60 * 60
+const PASSKEY = makeAuthenticator('webauthn', { id: 1, name: 'iPhone 16', is_passwordless: true, last_used_at: FIXTURE_EPOCH })
+const SECURITY_KEY = makeAuthenticator('webauthn', { id: 2, name: 'YubiKey 5C', created_at: FIXTURE_EPOCH - 30 * DAY })
+const KEYS = [PASSKEY, SECURITY_KEY, makeAuthenticator('totp'), makeAuthenticator('recovery_codes')]
 
 beforeEach(() => {
-  useAuthStore().authenticators = [
-    key(1, 'YubiKey', { is_passwordless: true }),
-    key(2, 'Laptop', { last_used_at: 1767312000 }),
-    TOTP,
-  ]
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(FIXTURE_EPOCH * 1000)
+  useAuthStore().authenticators = KEYS
+  getAuthenticators.mockResolvedValue({ status: 200, data: KEYS })
+})
+
+afterEach(() => {
+  vi.useRealTimers()
 })
 
 const mountList = () => mountSuspended(List, { route: false })
-const names = (wrapper: VueWrapper) =>
-  wrapper.findAll('tbody tr').map(row => row.find<HTMLInputElement>('input').element.value)
-/** The row's menu items, as `List.vue` hands them to its UDropdownMenu (Reka teleports the open menu). */
-const menu = (wrapper: VueWrapper, row: number) =>
-  wrapper.findAllComponents({ name: 'UDropdownMenu' })[row]!.props('items')[0] as Array<{ onSelect: () => unknown }>
+const rows = (wrapper: VueWrapper) => wrapper.findAll('li')
+const row = (wrapper: VueWrapper, name: string) => rows(wrapper).find(item => item.text().includes(name))!
+const button = (wrapper: VueWrapper, label: string) =>
+  wrapper.findAll('button').find(candidate => candidate.attributes('aria-label') === label || candidate.text() === label)!
+
+async function rename(wrapper: VueWrapper, from: string, to: string) {
+  await button(wrapper, `Μετονομασία του «${from}»`).trigger('click')
+  await wrapper.find('input').setValue(to)
+  await wrapper.find('form').trigger('submit')
+  await flushPromises()
+}
 
 describe('Account/2Fa/WebAuthn/List', () => {
-  it('says there is no key yet, and how to add one', async () => {
-    useAuthStore().authenticators = [TOTP]
-
+  it('lists the WebAuthn keys only, each with its kind and dates', async () => {
     const wrapper = await mountList()
 
-    // Nuxt UI v4's table takes its empty state through the `#empty` slot;
-    // an `empty-state` object fell through as an attribute and the shopper
-    // read the generic "no data" instead.
-    expect(wrapper.text()).toContain('Δεν υπάρχουν κλειδιά ασφαλείας')
-    expect(wrapper.text()).toContain('Πρόσθεσε ένα κλειδί ασφαλείας για να ξεκινήσεις')
-    expect(wrapper.text()).not.toContain('empty.title')
+    expect(rows(wrapper)).toHaveLength(2)
+    expect(row(wrapper, 'iPhone 16').text()).toContain(messages.passkey)
+    expect(row(wrapper, 'iPhone 16').text()).toContain('1 Ιαν 2026')
+    expect(row(wrapper, 'iPhone 16').text()).toContain('τώρα')
+    expect(row(wrapper, 'YubiKey 5C').text()).toContain(messages.security_key)
+    expect(row(wrapper, 'YubiKey 5C').text()).toContain('2 Δεκ 2025')
+    expect(row(wrapper, 'YubiKey 5C').text()).toContain(messages.never)
   })
 
-  it('lists only the security keys, marking the passwordless one and the unused one', async () => {
-    const wrapper = await mountList()
-    const rows = wrapper.findAll('tbody tr')
+  it('says there is no key yet, and still offers to add one', async () => {
+    useAuthStore().authenticators = [makeAuthenticator('totp')]
 
-    expect(names(wrapper)).toEqual(['YubiKey', 'Laptop'])
-    expect(rows[0]!.text()).toContain('Χωρίς κωδικό')
-    expect(rows[1]!.text()).not.toContain('Χωρίς κωδικό')
-    expect(rows[0]!.text()).toContain('Αχρησιμοποίητο')
-    expect(rows[1]!.text()).not.toContain('Αχρησιμοποίητο')
+    const wrapper = await mountList()
+
+    expect(rows(wrapper)).toHaveLength(0)
+    expect(wrapper.text()).toContain(messages.empty)
+    expect(wrapper.find('a').attributes('href')).toBe('/account/2fa/webauthn/add')
   })
 
-  it('removes a key at once and asks allauth to delete it', async () => {
+  it('renames a key, says so, and reads the keys again', async () => {
     const wrapper = await mountList()
 
-    await menu(wrapper, 0)[1]!.onSelect()
+    await rename(wrapper, 'YubiKey 5C', '  Work key  ')
+
+    expect(updateWebAuthnCredential).toHaveBeenCalledExactlyOnceWith({ id: 2, name: 'Work key' })
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.renamed, color: 'success' })
+    expect(getAuthenticators).toHaveBeenCalledOnce()
+    expect(wrapper.find('form').exists()).toBe(false)
+  })
+
+  it('does not send a blank name', async () => {
+    const wrapper = await mountList()
+
+    await rename(wrapper, 'YubiKey 5C', '   ')
+
+    expect(updateWebAuthnCredential).not.toHaveBeenCalled()
+    expect(wrapper.find('form').exists()).toBe(true)
+  })
+
+  it('asks before removing a key, and keeps it on cancel', async () => {
+    const wrapper = await mountList()
+
+    await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+
+    expect(row(wrapper, 'iPhone 16').text()).toContain(messages.confirm_remove)
+    expect(deleteWebAuthnCredential).not.toHaveBeenCalled()
+
+    await button(wrapper, messages.cancel).trigger('click')
+
+    expect(row(wrapper, 'iPhone 16').text()).not.toContain(messages.confirm_remove)
+    expect(deleteWebAuthnCredential).not.toHaveBeenCalled()
+  })
+
+  it('removes a key once confirmed, and reads the keys again', async () => {
+    const wrapper = await mountList()
+
+    await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+    await button(wrapper, 'Επιβεβαίωση αφαίρεσης του «iPhone 16»').trigger('click')
     await flushPromises()
 
-    expect(deleteWebAuthnCredential).toHaveBeenCalledWith({ authenticators: [1] })
-    expect(names(wrapper)).toEqual(['Laptop'])
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+    expect(deleteWebAuthnCredential).toHaveBeenCalledExactlyOnceWith({ authenticators: [1] })
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.removed, color: 'success' })
+    expect(getAuthenticators).toHaveBeenCalledOnce()
   })
 
-  it('puts the key back when allauth refuses to delete it', async () => {
-    deleteWebAuthnCredential.mockResolvedValue({ status: 400 })
+  it('takes one change at a time', async () => {
+    deleteWebAuthnCredential.mockReturnValue(new Promise(() => {}))
     const wrapper = await mountList()
 
-    await menu(wrapper, 0)[1]!.onSelect()
-    await flushPromises()
+    await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+    await button(wrapper, 'Επιβεβαίωση αφαίρεσης του «iPhone 16»').trigger('click')
 
-    expect(names(wrapper)).toEqual(['YubiKey', 'Laptop'])
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+    expect(button(wrapper, 'Μετονομασία του «YubiKey 5C»').attributes('disabled')).toBeDefined()
+    expect(button(wrapper, 'Αφαίρεση του «YubiKey 5C»').attributes('disabled')).toBeDefined()
   })
 
-  it('renames a key once edited and saved', async () => {
+  it('says the change failed when allauth answers anything but 200, and reads the keys again', async () => {
+    deleteWebAuthnCredential.mockResolvedValue({ status: 401 })
     const wrapper = await mountList()
-    const nameInput = () => wrapper.findAll('tbody tr')[1]!.find('input')
-    expect(nameInput().attributes('disabled')).toBeDefined()
 
-    await menu(wrapper, 1)[0]!.onSelect()
-    await flushPromises()
-    await nameInput().setValue('Γραφείο')
-    await wrapper.findAll('tbody tr')[1]!.find('button').trigger('click')
+    await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+    await button(wrapper, 'Επιβεβαίωση αφαίρεσης του «iPhone 16»').trigger('click')
     await flushPromises()
 
-    expect(updateWebAuthnCredential).toHaveBeenCalledWith({ id: 2, name: 'Γραφείο' })
-    expect(names(wrapper)).toContain('Γραφείο')
-  })
-
-  it('goes back to the two-factor overview when no key is left', async () => {
-    useAuthStore().authenticators = [TOTP]
-
-    await mountList()
-
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-2fa'))
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.error, color: 'error' })
+    expect(getAuthenticators).toHaveBeenCalledOnce()
   })
 })

@@ -41,6 +41,7 @@ export const AuthenticatedRoutes = [
   'account-password-change',
   'account-providers',
   'account-reviews',
+  'account-security',
   'account-sessions',
   'account-settings',
   'account-settings-privacy',

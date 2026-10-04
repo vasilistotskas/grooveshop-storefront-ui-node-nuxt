@@ -1,7 +1,7 @@
 export type AccountNavKey
   = | 'overview' | 'orders' | 'addresses' | 'favourites' | 'reviews'
     | 'notifications' | 'rewards' | 'gift_cards' | 'business' | 'newsletter'
-    | 'profile' | 'privacy'
+    | 'profile' | 'security' | 'privacy'
 
 export interface AccountNavItem {
   key: AccountNavKey
@@ -32,8 +32,8 @@ interface AccountNavEntry {
  * the navigation never advertises a dead page.
  *
  * An entry stays active on the pages under it — an order on Orders, an
- * address form on Addresses, the sign-in and security pages on Profile
- * (they move to a Security page of their own with the next account PR).
+ * address form on Addresses, the email, password, connected-account,
+ * session and two-step pages on Security.
  */
 export function useAccountNavigation() {
   const { $i18n, $routeBaseName } = useNuxtApp()
@@ -76,10 +76,11 @@ export function useAccountNavigation() {
     ...(newsletterEnabled.value
       ? [{ key: 'newsletter', icon: 'i-lucide-mail', route: 'account-subscriptions' } as const]
       : []),
+    { key: 'profile', icon: 'i-lucide-user', route: 'account-settings' },
     {
-      key: 'profile',
-      icon: 'i-lucide-user',
-      route: 'account-settings',
+      key: 'security',
+      icon: 'i-lucide-shield-check',
+      route: 'account-security',
       owns: name => SIGN_IN_PAGES.has(name) || under('account-2fa')(name),
     },
     { key: 'privacy', icon: 'i-lucide-lock', route: 'account-settings-privacy' },

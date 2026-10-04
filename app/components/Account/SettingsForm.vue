@@ -1,18 +1,19 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
-import { DateFormatter, getLocalTimeZone, parseDate } from '@internationalized/date'
+import { getLocalTimeZone, parseDate } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '~~/i18n/locales'
 
-defineSlots<{
-  default(props: object): any
-}>()
+// What the API accepts as a handle (`UsernameUpdateRequest`).
+const USERNAME_PATTERN = /^[\w.@+#-]+$/
+const AVATAR_EXTENSIONS = ['jpg', 'jpeg', 'png']
 
 const { user, fetch } = useUserSession()
 const { t, locale } = useI18n()
 const { setLanguage } = useUserLanguage()
 const toast = useToast()
+const img = useMediaStreamImage()
 
 const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
@@ -34,6 +35,15 @@ const schema = z.object({
     ? t('validation.required')
     : t('validation.string.invalid') }).max(255, {
     error: t('validation.max', { max: 255 }),
+  }),
+  // Empty keeps the current handle; a new one goes through the
+  // dedicated change-username request, which rejects a taken one.
+  username: z.string({ error: issue => issue.input === undefined
+    ? t('validation.required')
+    : t('validation.string.invalid') }).max(30, {
+    error: t('validation.max', { max: 30 }),
+  }).refine(value => !value || USERNAME_PATTERN.test(value), {
+    error: t('form.username_invalid'),
   }),
   // Optional in Django (UserAccount.phone is blank=True) but when
   // present it must pass the same plausibility check the checkout
@@ -115,6 +125,7 @@ const state = reactive<Partial<Schema>>({
   email: user.value?.email || '',
   firstName: user.value?.firstName || '',
   lastName: user.value?.lastName || '',
+  username: user.value?.username || '',
   // Stored as E.164 (e.g. "+306912345678"); the phone field parses it back
   // into its country picker and the national digits.
   phone: user.value?.phone || '',
@@ -170,12 +181,6 @@ const isSubmitting = ref(false)
 const calendarDate = shallowRef<DateValue | null>(
   user.value?.birthDate ? parseDate(user.value.birthDate) : null,
 )
-
-const label = computed(() => {
-  return calendarDate.value
-    ? new DateFormatter(locale.value, { dateStyle: 'medium' }).format(calendarDate.value.toDate(getLocalTimeZone()))
-    : t('form.birth_date')
-})
 
 const countryOptions = computed(() => {
   const options = countries.value?.results?.map((country) => {
@@ -249,6 +254,49 @@ const onCountryChange = async (payload: string | undefined) => {
   await fetchRegions()
 }
 
+const avatarSrc = computed(() => {
+  const path = user.value?.mainImagePath
+  return path ? img(path, { width: 144, height: 144, fit: 'cover' }, { provider: 'mediaStream' }) : undefined
+})
+const avatarName = computed(() => displayUserName(user.value))
+const avatarFile = ref<File | null>(null)
+const isAvatarBusy = ref(false)
+
+// The photo is its own request, never part of the profile save: the file
+// goes up as multipart, and an empty `image` clears it.
+const patchAvatar = async (image: File | '', successTitle: string) => {
+  const body = new FormData()
+  body.append('image', image)
+  isAvatarBusy.value = true
+  try {
+    await $api(`/api/user/account/${userId}`, { method: 'PATCH', body })
+    await fetch()
+    toast.add({ title: successTitle, color: 'success' })
+  }
+  catch (error) {
+    log.error({ action: 'account:avatarUpdate', error })
+    toast.add({ title: t('avatar.error'), color: 'error' })
+  }
+  finally {
+    isAvatarBusy.value = false
+  }
+}
+
+const uploadAvatar = async (file: File) => {
+  const extension = file.name.split('.').pop()?.toLowerCase() ?? ''
+  if (!AVATAR_EXTENSIONS.includes(extension)) {
+    toast.add({ title: t('avatar.invalid_type'), color: 'error' })
+    return
+  }
+  await patchAvatar(file, t('avatar.updated'))
+}
+
+watch(avatarFile, async (file) => {
+  if (!file) return
+  await uploadAvatar(file)
+  avatarFile.value = null
+})
+
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   isSubmitting.value = true
 
@@ -269,6 +317,25 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
 
   const previousLanguage = locale.value
   const nextLanguage = values.languageCode || DEFAULT_LOCALE
+
+  if (values.username && values.username !== user.value?.username) {
+    try {
+      await $api(`/api/user/account/${userId}/change-username`, {
+        method: 'POST',
+        body: { username: values.username },
+      })
+      // The username is saved now, whatever the profile save below does:
+      // read the session again, or a failed save would leave the old name
+      // and the next submit would ask for the same change (409, taken).
+      await fetch()
+    }
+    catch (error) {
+      // The reason (409 "Username already taken.") is Django's own text.
+      toast.add({ title: getErrorDetail(error) || t('form.error'), color: 'error' })
+      isSubmitting.value = false
+      return
+    }
+  }
 
   try {
     await $api(`/api/user/account/${userId}`, {
@@ -328,24 +395,56 @@ watch(calendarDate, (newVal) => {
 </script>
 
 <template>
-  <div
+  <UForm
+    id="accountSettingsForm"
+    :aria-label="t('form.label')"
+    :schema="schema"
+    :state="state"
     class="
-      grid gap-4
-      lg:flex
+      flex flex-col gap-6 rounded-[1.25rem] bg-default p-5 ring ring-default
+      sm:p-6
     "
+    @error="scrollToFirstFormError"
+    @submit="onSubmit"
   >
-    <slot />
-    <UForm
-      id="accountSettingsForm"
-      :schema="schema"
-      :state="state"
+    <div class="flex flex-wrap items-center gap-4">
+      <UAvatar
+        :src="avatarSrc"
+        :alt="avatarName"
+        class="size-18 shrink-0 text-2xl"
+        :ui="{ root: 'bg-volt', fallback: 'font-display font-bold text-on-volt' }"
+      />
+      <div class="flex flex-wrap items-center gap-2">
+        <UFileUpload
+          v-slot="{ open }"
+          v-model="avatarFile"
+          accept="image/jpeg,image/png"
+          :interactive="false"
+        >
+          <UButton
+            :label="t('avatar.upload')"
+            :loading="isAvatarBusy"
+            color="neutral"
+            variant="outline"
+            @click="() => { open() }"
+          />
+        </UFileUpload>
+        <UButton
+          v-if="user?.mainImagePath"
+          :label="t('avatar.remove')"
+          :disabled="isAvatarBusy"
+          color="neutral"
+          variant="ghost"
+          @click="() => { patchAvatar('', t('avatar.removed')) }"
+        />
+      </div>
+    </div>
+
+    <div
       class="
-        flex w-full flex-col gap-4 rounded bg-primary-100 p-4
-        md:grid md:grid-cols-2
-        dark:bg-primary-900
+        grid gap-x-4 gap-y-5
+        sm:grid-cols-2
       "
-      @error="scrollToFirstFormError"
-      @submit="onSubmit"
     >
       <UFormField
         :label="t('form.first_name')"
@@ -354,11 +453,9 @@ watch(calendarDate, (newVal) => {
       >
         <UInput
           v-model="state.firstName"
-          :placeholder="t('form.first_name')"
           autocomplete="given-name"
           class="w-full"
           type="text"
-          icon="i-heroicons-user"
           size="xl"
         />
       </UFormField>
@@ -370,11 +467,22 @@ watch(calendarDate, (newVal) => {
       >
         <UInput
           v-model="state.lastName"
-          :placeholder="t('form.last_name')"
           autocomplete="family-name"
           class="w-full"
           type="text"
-          icon="i-heroicons-user"
+          size="xl"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('form.username')"
+        name="username"
+      >
+        <UInput
+          v-model="state.username"
+          autocomplete="username"
+          class="w-full"
+          type="text"
           size="xl"
         />
       </UFormField>
@@ -389,112 +497,14 @@ watch(calendarDate, (newVal) => {
       />
 
       <UFormField
-        :label="t('form.city')"
-        name="city"
-      >
-        <UInput
-          v-model="state.city"
-          :placeholder="t('form.city')"
-          autocomplete="address-level2"
-          class="w-full"
-          type="text"
-          icon="i-heroicons-building-office-2"
-          size="xl"
-        />
-      </UFormField>
-
-      <UFormField
-        :label="t('form.zipcode')"
-        name="zipcode"
-      >
-        <UInput
-          v-model="state.zipcode"
-          :placeholder="t('form.zipcode')"
-          autocomplete="postal-code"
-          class="w-full"
-          type="text"
-          size="xl"
-        />
-      </UFormField>
-
-      <UFormField
-        :label="t('form.address')"
-        name="address"
-      >
-        <UInput
-          v-model="state.address"
-          :placeholder="t('form.address')"
-          autocomplete="address-line1"
-          class="w-full"
-          type="text"
-          icon="i-heroicons-map-pin"
-          size="xl"
-        />
-      </UFormField>
-
-      <UFormField
-        :label="t('form.place')"
-        name="place"
-      >
-        <UInput
-          v-model="state.place"
-          :placeholder="t('form.place')"
-          autocomplete="address-level3"
-          class="w-full"
-          type="text"
-          icon="i-heroicons-map"
-          size="xl"
-        />
-      </UFormField>
-
-      <UFormField
         :label="t('form.birth_date')"
         name="birthDate"
       >
-        <UPopover :popper="{ placement: 'bottom-start' }">
-          <UButton
-            :label="label"
-            color="neutral"
-            icon="i-heroicons-calendar-days-20-solid"
-          />
-          <template #content>
-            <UCalendar
-              v-model="calendarDate"
-              color="secondary"
-              class="p-2"
-            />
-          </template>
-        </UPopover>
-      </UFormField>
-
-      <UFormField
-        :label="t('form.country')"
-        name="country"
-      >
-        <USelect
-          v-model="state.country"
-          name="country"
-          autocomplete="country"
-          value-key="value"
-          :items="countryOptions"
-          color="neutral"
+        <UInputDate
+          v-model="calendarDate"
+          icon="i-lucide-calendar"
           class="w-full"
-          @update:model-value="onCountryChange"
-        />
-      </UFormField>
-
-      <UFormField
-        :label="t('form.region')"
-        name="region"
-      >
-        <USelect
-          v-model="state.region"
-          name="region"
-          autocomplete="address-level1"
-          :items="regionOptions"
-          color="neutral"
-          class="w-full"
-          value-key="value"
+          size="xl"
         />
       </UFormField>
 
@@ -510,31 +520,129 @@ watch(calendarDate, (newVal) => {
           :disabled="languageOptions.length < 2"
           color="neutral"
           class="w-full"
+          size="xl"
           value-key="value"
         />
       </UFormField>
 
-      <div class="col-span-2 grid items-end justify-end">
-        <UButton
-          :loading="isSubmitting"
-          :disabled="isSubmitting"
-          :label="t('form.submit')"
-          type="submit"
-          color="secondary"
-          size="lg"
+      <UFormField
+        :label="t('form.country')"
+        name="country"
+      >
+        <USelect
+          v-model="state.country"
+          name="country"
+          autocomplete="country"
+          value-key="value"
+          :items="countryOptions"
+          color="neutral"
+          class="w-full"
+          size="xl"
+          @update:model-value="onCountryChange"
         />
-      </div>
-    </UForm>
-  </div>
+      </UFormField>
+
+      <UFormField
+        :label="t('form.city')"
+        name="city"
+      >
+        <UInput
+          v-model="state.city"
+          autocomplete="address-level2"
+          class="w-full"
+          type="text"
+          size="xl"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('form.region')"
+        name="region"
+      >
+        <USelect
+          v-model="state.region"
+          name="region"
+          autocomplete="address-level1"
+          :items="regionOptions"
+          color="neutral"
+          class="w-full"
+          size="xl"
+          value-key="value"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('form.zipcode')"
+        name="zipcode"
+      >
+        <UInput
+          v-model="state.zipcode"
+          autocomplete="postal-code"
+          class="w-full"
+          type="text"
+          size="xl"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('form.address')"
+        name="address"
+      >
+        <UInput
+          v-model="state.address"
+          autocomplete="address-line1"
+          class="w-full"
+          type="text"
+          size="xl"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('form.place')"
+        name="place"
+      >
+        <UInput
+          v-model="state.place"
+          autocomplete="address-level3"
+          class="w-full"
+          type="text"
+          size="xl"
+        />
+      </UFormField>
+    </div>
+
+    <UButton
+      :loading="isSubmitting"
+      :disabled="isSubmitting"
+      :label="t('form.submit')"
+      type="submit"
+      color="neutral"
+      size="lg"
+      class="
+        max-sm:w-full max-sm:justify-center
+        sm:self-start
+      "
+    />
+  </UForm>
 </template>
 
 <i18n lang="yaml">
 el:
+  avatar:
+    upload: Ανέβασμα φωτογραφίας
+    remove: Αφαίρεση
+    updated: Η φωτογραφία ενημερώθηκε
+    removed: Η φωτογραφία αφαιρέθηκε
+    invalid_type: Επιτρέπονται μόνο αρχεία JPG και PNG
+    error: Η φωτογραφία δεν ενημερώθηκε
   form:
+    label: Στοιχεία προφίλ
     select_placeholder: Επέλεξε
     first_name: Όνομα
     last_name: Επώνυμο
-    phone: Τηλέφωνο
+    username: Όνομα χρήστη
+    username_invalid: Χωρίς κενά· μόνο γράμματα, αριθμοί και σύμβολα.
+    phone: Κινητό τηλέφωνο
     city: Πόλη
     zipcode: Ταχυδρομικός κώδικας
     address: Διεύθυνση
@@ -544,15 +652,25 @@ el:
     region: Περιοχή
     language: Γλώσσα
     language_help: Χρησιμοποιείται για email και μηνύματα διεπαφής.
-    submit: Υποβολή
+    submit: Αποθήκευση αλλαγών
     success: Τα στοιχεία αποθηκεύτηκαν επιτυχώς
     error: Σφάλμα
 en:
+  avatar:
+    upload: Upload photo
+    remove: Remove
+    updated: Your photo was updated
+    removed: Your photo was removed
+    invalid_type: Only JPG and PNG files are allowed
+    error: Your photo was not updated
   form:
+    label: Profile details
     select_placeholder: Choose
     first_name: First name
     last_name: Last name
-    phone: Phone
+    username: Username
+    username_invalid: No spaces; letters, numbers and symbols only.
+    phone: Mobile phone
     city: City
     zipcode: Postcode
     address: Address
@@ -562,7 +680,7 @@ en:
     region: Region
     language: Language
     language_help: Used for emails and for the interface.
-    submit: Save
+    submit: Save changes
     success: Your details were saved
     error: That did not work
 </i18n>

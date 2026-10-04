@@ -3,11 +3,13 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import Generate from '~/components/Account/2Fa/RecoveryCodes/Generate.vue'
+import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 /**
  * Generating a new set of recovery codes cancels every code the shopper
  * still has, so with codes left the button waits for an explicit
- * confirmation. Mocked at `useAllAuthAccount`.
+ * confirmation. A shopper without two-step verification goes back to
+ * Security. Mocked at `useAllAuthAccount`.
  */
 const { getRecoveryCodes, generateRecoveryCodes, navigateToMock, toastAdd } = vi.hoisted(() => ({
   getRecoveryCodes: vi.fn(),
@@ -32,7 +34,8 @@ async function mountGenerate() {
   return wrapper
 }
 
-const generateButton = (wrapper: VueWrapper) => wrapper.findAll('button').find(button => button.text() === 'Δημιουργία Κωδικών')!
+const generateButton = (wrapper: VueWrapper) => wrapper.findAll('button').find(button => button.text() === 'Δημιουργία κωδικών')!
+const cancelLink = (wrapper: VueWrapper) => wrapper.findAll('a').find(link => link.text() === 'Άκυρο')!
 
 describe('Account/2Fa/RecoveryCodes/Generate', () => {
   it('waits for the shopper to confirm cancelling the codes left', async () => {
@@ -52,14 +55,21 @@ describe('Account/2Fa/RecoveryCodes/Generate', () => {
     await flushPromises()
 
     expect(generateRecoveryCodes).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Επιτυχής δημιουργία κωδικών', color: 'success' }))
-    expect(wrapper.emitted('generateRecoveryCodes')).toHaveLength(1)
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-2fa-recovery-codes'))
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: 'Οι νέοι κωδικοί δημιουργήθηκαν. Φύλαξέ τους τώρα.', color: 'success' })
+    expect(navigateToMock).toHaveBeenCalledExactlyOnceWith(useLocalePath()('account-2fa-recovery-codes'))
+  })
+
+  it('warns how many codes the new set cancels', async () => {
+    const wrapper = await mountGenerate()
+
+    expect(wrapper.findComponent({ name: 'UAlert' }).text()).toContain('Σου απομένουν 5 κωδικοί')
   })
 
   it('needs no confirmation when no codes are left', async () => {
     getRecoveryCodes.mockResolvedValue(codesLeft(0))
     const wrapper = await mountGenerate()
+
+    expect(wrapper.findComponent({ name: 'UAlert' }).exists()).toBe(false)
 
     expect(wrapper.find('button[role="checkbox"]').exists()).toBe(false)
     await generateButton(wrapper).trigger('click')
@@ -69,7 +79,7 @@ describe('Account/2Fa/RecoveryCodes/Generate', () => {
   })
 
   it('stays put when generating fails', async () => {
-    generateRecoveryCodes.mockRejectedValue(new Error('Bad Gateway'))
+    generateRecoveryCodes.mockRejectedValue(asProxiedError(makeBadResponse({ code: 'reauthentication_required', message: 'Please reauthenticate.' })))
     getRecoveryCodes.mockResolvedValue(codesLeft(0))
     const wrapper = await mountGenerate()
 
@@ -77,24 +87,28 @@ describe('Account/2Fa/RecoveryCodes/Generate', () => {
     await flushPromises()
 
     expect(navigateToMock).not.toHaveBeenCalled()
-    expect(wrapper.emitted('generateRecoveryCodes')).toBeUndefined()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 
-  it('cancels back to the codes', async () => {
+  it('cancels back to the codes left', async () => {
     const wrapper = await mountGenerate()
 
-    await wrapper.findAll('button').find(button => button.text() === useNuxtApp().$i18n.t('cancel'))!.trigger('click')
-
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-2fa-recovery-codes'))
-    expect(generateRecoveryCodes).not.toHaveBeenCalled()
+    expect(cancelLink(wrapper).attributes('href')).toBe('/account/2fa/recovery-codes')
   })
 
-  it('sends a shopper without two-factor set up back to the settings', async () => {
+  it('cancels back to Security when there are no codes to go back to', async () => {
+    getRecoveryCodes.mockResolvedValue(codesLeft(0))
+    const wrapper = await mountGenerate()
+
+    expect(cancelLink(wrapper).attributes('href')).toBe('/account/security')
+  })
+
+  it('sends a shopper without two-factor set up back to Security', async () => {
     getRecoveryCodes.mockRejectedValue(new Error('Not Found'))
 
     await mountGenerate()
 
     expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('auth.mfa.required'), color: 'error' })
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-settings'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
   })
 })

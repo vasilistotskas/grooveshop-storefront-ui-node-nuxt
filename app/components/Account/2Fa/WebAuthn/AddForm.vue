@@ -1,183 +1,143 @@
 <script lang="ts" setup>
 import * as z from 'zod'
+import type { FormSubmitEvent } from '#ui/types'
 
-const emit = defineEmits(['getWebAuthnCreateOptions', 'addWebAuthnCredential'])
-
+/**
+ * Add a passkey or a security key: allauth's creation options go to the
+ * browser, the credential comes back under the name given. A key made to
+ * sign in on its own (a passkey, allauth's `passwordless`) is offered
+ * only where the store lets passkeys sign in.
+ *
+ * When the key is the account's first second factor allauth also makes
+ * recovery codes, and the shopper is sent to see them; otherwise back to
+ * the passkeys on the Security page. A failure says which it was in the
+ * shopper's language — allauth's refusals by their codes, the browser's
+ * by the two it names (cancelled or timed out; a key already here) —
+ * never the browser's English message.
+ */
 const { getWebAuthnCreateOptions, addWebAuthnCredential } = useAllAuthAccount()
+const { config } = storeToRefs(useAuthStore())
 
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 
-const loading = ref(false)
+const passkeyLogin = computed(() => config.value?.mfa?.passkey_login_enabled ?? false)
 
-const webAuthnFormZodSchema = z.object({
-  name: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  }),
+function failureOf(error: unknown): 'cancelled' | 'registered' | 'other' {
+  if (error instanceof DOMException && error.name === 'NotAllowedError') return 'cancelled'
+  if (error instanceof DOMException && error.name === 'InvalidStateError') return 'registered'
+  return 'other'
+}
+
+const schema = z.object({
+  name: z.string().trim().min(1, t('validation.required')).max(255, t('validation.max', { max: 255 })),
   passwordless: z.boolean(),
 })
+type Schema = z.output<typeof schema>
 
-async function onSubmit(values: z.infer<typeof webAuthnFormZodSchema>) {
+const state = reactive<Schema>({ name: '', passwordless: false })
+const loading = ref(false)
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  loading.value = true
   try {
-    loading.value = true
-    const optResp = await getWebAuthnCreateOptions(values.passwordless)
-    const jsonOptions = optResp?.data.creation_options.publicKey
-    if (!jsonOptions) {
-      throw new Error('No creation options')
-    }
-    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(jsonOptions)
+    const options = await getWebAuthnCreateOptions(event.data.passwordless)
+    const json = options?.data.creation_options.publicKey
+    if (!json) throw new Error('allauth sent no creation options')
+    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(json)
     const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
-    const response = await addWebAuthnCredential({
-      name: values.name,
-      credential: credential.toJSON(),
-    })
-    toast.add({
-      title: t('success.title'),
-      color: 'success',
-    })
-    emit('getWebAuthnCreateOptions')
-    emit('addWebAuthnCredential')
-    const to = response?.meta.recovery_codes_generated ? 'account-2fa-recovery-codes' : 'account-2fa-webauthn'
-    await navigateTo(localePath(to))
+    const response = await addWebAuthnCredential({ name: event.data.name, credential: credential.toJSON() })
+    toast.add({ title: t('added'), color: 'success' })
+    await navigateTo(response?.meta.recovery_codes_generated
+      ? localePath('account-2fa-recovery-codes')
+      : localePath({ name: 'account-security', hash: '#passkeys' }))
   }
   catch (error) {
-    toast.add({
-      title: t('error.default'),
-      description: error instanceof Error ? error.message : t('error.webauthn_failed'),
-      color: 'error',
-    })
+    if (isAllAuthClientError(error)) return handleAllAuthClientError(error)
+    log.error({ action: 'webauthn:add', error })
+    toast.add({ title: t(`failed.${failureOf(error)}`), color: 'error' })
   }
   finally {
     loading.value = false
   }
 }
-
-const formSchema = computed(() => ({
-  fields: [
-    {
-      label: t('name'),
-      name: 'name',
-      as: 'input',
-      rules: webAuthnFormZodSchema.shape.name,
-      ui: {
-        root: 'w-full',
-      },
-      autocomplete: 'name',
-      readonly: false,
-      required: true,
-      placeholder: t('name_placeholder'),
-      type: 'text',
-      condition: () => true,
-      disabledCondition: () => false,
-    },
-    {
-      label: t('passwordless'),
-      name: 'passwordless',
-      as: 'checkbox',
-      rules: webAuthnFormZodSchema.shape.passwordless,
-      autocomplete: 'passwordless',
-      readonly: false,
-      required: false,
-      placeholder: t('passwordless'),
-      type: 'checkbox',
-      initialValue: false,
-      condition: () => true,
-      disabledCondition: () => false,
-    },
-  ],
-} as const satisfies DynamicFormSchema))
 </script>
 
 <template>
-  <section
-    class="
-      grid gap-4
-      lg:flex
-    "
+  <UForm
+    :schema="schema"
+    :state="state"
+    class="flex max-w-md flex-col gap-4"
+    @submit="onSubmit"
   >
-    <slot />
-    <div class="w-full space-y-6">
-      <UCard>
-        <UAlert
-          color="info"
-          variant="soft"
-          icon="i-heroicons-information-circle"
-          :title="t('alert.title')"
-          :description="t('alert.description')"
-        />
+    <UFormField
+      :label="t('name')"
+      :description="t('name_help')"
+      name="name"
+      required
+    >
+      <UInput
+        v-model="state.name"
+        :placeholder="t('name_placeholder')"
+        autocomplete="off"
+        class="w-full"
+      />
+    </UFormField>
 
-        <div class="space-y-4 pt-4 pb-4">
-          <div>
-            <h3 class="mb-2 text-lg font-semibold">
-              {{ t('add_key_title') }}
-            </h3>
-            <p class="text-sm text-muted">
-              {{ t('add_key_description') }}
-            </p>
-          </div>
+    <UFormField
+      v-if="passkeyLogin"
+      name="passwordless"
+    >
+      <USwitch
+        v-model="state.passwordless"
+        :label="t('passwordless')"
+        :description="t('passwordless_help')"
+      />
+    </UFormField>
 
-          <UAlert
-            color="info"
-            variant="soft"
-            icon="i-heroicons-light-bulb"
-          >
-            <template #title>
-              {{ t('tip.title') }}
-            </template>
-            <template #description>
-              <ul class="mt-2 list-inside list-disc space-y-1 text-sm">
-                <li>{{ t('tip.browser') }}</li>
-                <li>{{ t('tip.device') }}</li>
-                <li>{{ t('tip.passwordless') }}</li>
-              </ul>
-            </template>
-          </UAlert>
-        </div>
-
-        <DynamicForm
-          class="!flex flex-col"
-          :button-label="t('submit')"
-          :schema="formSchema"
-          :loading="loading"
-          @submit="onSubmit"
-        />
-      </UCard>
+    <div class="flex flex-wrap items-center gap-2 pt-2">
+      <UButton
+        :label="t('submit')"
+        :loading="loading"
+        type="submit"
+        color="neutral"
+      />
+      <UButton
+        :label="t('cancel')"
+        :to="localePath({ name: 'account-security', hash: '#passkeys' })"
+        color="neutral"
+        variant="ghost"
+      />
     </div>
-  </section>
+  </UForm>
 </template>
 
 <i18n lang="yaml">
 el:
-  name_placeholder: π.χ. "YubiKey μου" ή "Τηλέφωνο εργασίας"
-  add_key_title: Προσθήκη νέου κλειδιού ασφαλείας
-  add_key_description: Δώσε ένα περιγραφικό όνομα στο κλειδί σου για να το αναγνωρίζεις εύκολα.
-  passwordless: Χωρίς κωδικό
-  alert:
-    title: Τι είναι το WebAuthn;
-    description: Το WebAuthn σου επιτρέπει να χρησιμοποιήσεις κλειδιά ασφαλείας (όπως YubiKey) ή βιομετρικά στοιχεία (όπως αναγνώριση προσώπου ή δακτυλικών αποτυπωμάτων) για ασφαλή σύνδεση στον λογαριασμό σου.
-  tip:
-    title: Συμβουλές
-    browser: Βεβαιώσου ότι το πρόγραμμα περιήγησής σου υποστηρίζει WebAuthn
-    device: Έχεις έτοιμο το κλειδί ασφαλείας ή τη συσκευή σου
-    passwordless: Η επιλογή "Χωρίς κωδικό" σου επιτρέπει να συνδεθείς χωρίς κωδικό πρόσβασης
-  error:
-    webauthn_failed: Η διαδικασία WebAuthn απέτυχε. Δοκίμασε ξανά.
+  name: Όνομα
+  name_help: Για να το ξεχωρίζεις από τα υπόλοιπα κλειδιά σου.
+  name_placeholder: π.χ. iPhone ή YubiKey
+  passwordless: Σύνδεση χωρίς κωδικό
+  passwordless_help: Συνδέσου μόνο με αυτό το κλειδί, με το πρόσωπο, το δακτυλικό αποτύπωμα ή το PIN της συσκευής σου.
+  submit: Προσθήκη κλειδιού
+  cancel: Άκυρο
+  added: Το κλειδί προστέθηκε
+  failed:
+    cancelled: Η προσθήκη ακυρώθηκε ή έληξε ο χρόνος. Δοκίμασε ξανά.
+    registered: Αυτό το κλειδί είναι ήδη καταχωρημένο στον λογαριασμό σου.
+    other: Το κλειδί δεν προστέθηκε. Δοκίμασε ξανά.
 en:
-  name_placeholder: e.g. "My YubiKey" or "Work phone"
-  add_key_title: Add a new security key
-  add_key_description: Give your key a name that tells you which one it is.
-  passwordless: Passwordless
-  alert:
-    title: What is WebAuthn?
-    description: WebAuthn lets you sign in with a security key (a YubiKey, say) or with biometrics such as your face or fingerprint.
-  tip:
-    title: Tips
-    browser: Check that your browser supports WebAuthn
-    device: Have your security key or device to hand
-    passwordless: Choosing passwordless lets you sign in without a password at all
-  error:
-    webauthn_failed: The WebAuthn step failed. Please try again.
+  name: Name
+  name_help: So you can tell it from your other keys.
+  name_placeholder: e.g. iPhone or YubiKey
+  passwordless: Sign in without a password
+  passwordless_help: Sign in with this key alone, using your face, fingerprint or device PIN.
+  submit: Add key
+  cancel: Cancel
+  added: Key added
+  failed:
+    cancelled: Adding the key was cancelled or timed out. Please try again.
+    registered: That key is already registered on your account.
+    other: The key was not added. Please try again.
 </i18n>

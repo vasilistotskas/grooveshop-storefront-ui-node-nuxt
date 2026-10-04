@@ -1,133 +1,132 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import type * as z from 'zod'
 import ProvidersManage from '~/components/Account/ProvidersManage.vue'
-import type { ZodProviderAccount } from '~~/shared/schemas/model/all-auth'
-import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
+import type { Provider, ProviderAccount } from '~~/shared/types/model/all-auth'
+import { asProxiedError, makeAllAuthConfig, makeBadResponse, makeProviderAccount, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 /**
- * The third-party accounts linked to this one, through allauth's
- * `/account/providers`: listed, and disconnected one at a time (the
- * request names the provider's ID and the account's uid, not the
- * display name). Mocked at `useAllAuthAccount`; the list is its
- * `useAsyncData` (`providerAccounts`), re-read after a disconnect.
- *
- * The count comes from the component's own `<i18n>` block, which
- * `$i18n.t` cannot see, so that Greek is asserted as written there.
+ * The social accounts linked to the shopper's: a card per linked account
+ * with "Disconnect", one per provider the store offers that is not
+ * linked yet with "Connect" — only for a provider the storefront can
+ * link (the token flow) — and the linked accounts of a provider the
+ * store no longer offers, so they can still be unlinked. Nothing at all
+ * when there is neither. Mocked at `useAllAuthAccount` /
+ * `useAllAuthAuthentication`; the store's providers are the real auth
+ * store's `/config`.
  */
-type ProviderAccount = z.infer<typeof ZodProviderAccount>
-
-// UTooltip needs UApp's TooltipProvider, which a bare mount does not have.
-mockComponent('UTooltip', { template: '<div><slot /></div>' })
-
-const { connectedThirdPartyProviderAccounts, disconnectThirdPartyProviderAccount, toastAdd } = vi.hoisted(() => ({
-  connectedThirdPartyProviderAccounts: vi.fn((): Promise<{ status: number, data: ProviderAccount[] }> => Promise.resolve({ status: 200, data: [] })),
-  disconnectThirdPartyProviderAccount: vi.fn((_body: { provider: string, account: string }) => Promise.resolve({ status: 200 })),
+const { connectedThirdPartyProviderAccounts, disconnectThirdPartyProviderAccount, providerRedirect, toastAdd } = vi.hoisted(() => ({
+  connectedThirdPartyProviderAccounts: vi.fn((): Promise<{ status: 200, data: ProviderAccount[] }> => Promise.resolve({ status: 200, data: [] })),
+  disconnectThirdPartyProviderAccount: vi.fn((_body: { provider: string, account: string }): Promise<{ status: 200, data: ProviderAccount[] }> => Promise.resolve({ status: 200, data: [] })),
+  providerRedirect: vi.fn((_provider: unknown, _process: unknown) => {}),
   toastAdd: vi.fn(),
 }))
 mockNuxtImport('useAllAuthAccount', () => () => ({ connectedThirdPartyProviderAccounts, disconnectThirdPartyProviderAccount }))
+mockNuxtImport('useAllAuthAuthentication', () => () => ({ providerRedirect }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-const account = (providerId: string, name: string, uid: string, display: string): ProviderAccount => ({
-  uid,
-  display,
-  provider: { id: providerId, name, flows: ['provider_redirect'] },
-})
+const GOOGLE = makeSocialProvider()
+const FACEBOOK = makeSocialProvider({ id: 'facebook', name: 'Facebook', client_id: 'facebook-client-id' })
+const GITHUB = makeSocialProvider({ id: 'github', name: 'GitHub', client_id: 'github-client-id', flows: ['provider_redirect'] })
 
-const GOOGLE = account('google', 'Google', '108234567890123456789012', 'shopper@gmail.com')
-const GITHUB = account('github', 'GitHub', '4242', 'shopper-gh')
+const GOOGLE_ACCOUNT = makeProviderAccount()
+const DISCORD_ACCOUNT = makeProviderAccount({ uid: '42', display: 'demo#4242', provider: { id: 'discord', name: 'Discord', flows: ['provider_redirect'] } })
 
-const accounts = (data: ProviderAccount[]) => ({ status: 200, data })
+function offer(...providers: Provider[]) {
+  useAuthStore().config = makeAllAuthConfig({ socialaccount: { providers } }).data
+}
+
+function link(...accounts: ProviderAccount[]) {
+  connectedThirdPartyProviderAccounts.mockResolvedValue({ status: 200, data: accounts })
+}
 
 beforeEach(() => {
   clearNuxtData('providerAccounts')
-  connectedThirdPartyProviderAccounts.mockResolvedValue(accounts([GOOGLE, GITHUB]))
+  offer(GOOGLE, FACEBOOK, GITHUB)
+  link(GOOGLE_ACCOUNT)
 })
 
 async function mountProviders() {
   const wrapper = await mountSuspended(ProvidersManage, { route: false })
-  // The table sits in `<ClientOnly>`.
   await flushPromises()
   return wrapper
 }
 
-const rows = (wrapper: VueWrapper) => wrapper.findAll('tbody tr')
-/** The row's menu items, as the component hands them to its UDropdownMenu (Reka teleports the open menu). */
-const disconnectItem = (wrapper: VueWrapper, row: number) =>
-  (wrapper.findAllComponents({ name: 'UDropdownMenu' })[row]!.props('items')[0] as Array<{ label: string, onSelect: () => unknown }>)[0]!
+const cards = (wrapper: VueWrapper) => wrapper.findAll('li').map(card => card.text())
+const button = (wrapper: VueWrapper, label: string) =>
+  wrapper.findAll('button').find(candidate => candidate.attributes('aria-label') === label)!
 
 describe('Account/ProvidersManage', () => {
-  it('says no provider is linked yet, and how to link one', async () => {
-    connectedThirdPartyProviderAccounts.mockResolvedValue(accounts([]))
-
+  it('shows each linked account, and a connect card for an offered provider it can link', async () => {
     const wrapper = await mountProviders()
 
-    // Nuxt UI v4's table takes its empty state through the `#empty` slot;
-    // an `empty-state` object fell through as an attribute and the shopper
-    // read the generic "no data" instead.
-    expect(wrapper.text()).toContain('Δεν έχεις συνδεθεί με κάποιον πάροχο')
-    expect(wrapper.text()).toContain('Σύνδεσε λογαριασμούς τρίτων για ευκολότερη σύνδεση')
-  })
-
-  it('lists each linked account with its provider and the account it signs in as', async () => {
-    const wrapper = await mountProviders()
-
-    const cells = rows(wrapper).map(row => row.findAll('td').map(cell => cell.text()))
-    expect(cells.map(([provider, display]) => [provider, display])).toEqual([
-      ['Google', 'shopper@gmail.com'],
-      ['GitHub', 'shopper-gh'],
+    expect(cards(wrapper)).toEqual([
+      'Googleshopper@example.comΑποσύνδεση',
+      'FacebookΔεν έχει συνδεθείΣύνδεση',
     ])
   })
 
-  it('shortens a long provider uid and keeps a short one whole', async () => {
+  it('keeps the accounts of a provider the store stopped offering, so they can be unlinked', async () => {
+    link(GOOGLE_ACCOUNT, DISCORD_ACCOUNT)
+
     const wrapper = await mountProviders()
 
-    const uids = rows(wrapper).map(row => row.findAll('td')[2]!.text())
-    expect(uids).toEqual(['10823456789012345678...', '4242'])
+    expect(cards(wrapper)).toContain('Discorddemo#4242Αποσύνδεση')
   })
 
-  it('disconnects by the provider ID and the account uid, then reads the list again', async () => {
-    const wrapper = await mountProviders()
-    connectedThirdPartyProviderAccounts.mockResolvedValue(accounts([GITHUB]))
+  it('renders nothing when the store offers no provider and nothing is linked', async () => {
+    offer()
+    link()
 
-    const item = disconnectItem(wrapper, 0)
-    expect(item.label).toBe(useNuxtApp().$i18n.t('disconnect'))
-    await item.onSelect()
+    const wrapper = await mountProviders()
+
+    expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  it('connects through the storefront\'s own OAuth route, as a link and not a sign-in', async () => {
+    const wrapper = await mountProviders()
+
+    await button(wrapper, 'Σύνδεση λογαριασμού Facebook').trigger('click')
+
+    expect(providerRedirect).toHaveBeenCalledExactlyOnceWith(FACEBOOK, 'connect')
+  })
+
+  it('takes one change at a time', async () => {
+    disconnectThirdPartyProviderAccount.mockReturnValue(new Promise(() => {}))
+    const wrapper = await mountProviders()
+
+    await button(wrapper, 'Αποσύνδεση του λογαριασμού Google shopper@example.com').trigger('click')
+    await button(wrapper, 'Σύνδεση λογαριασμού Facebook').trigger('click')
+
+    expect(providerRedirect).not.toHaveBeenCalled()
+    expect(button(wrapper, 'Σύνδεση λογαριασμού Facebook').attributes('disabled')).toBeDefined()
+  })
+
+  it('disconnects an account and shows the accounts allauth has left', async () => {
+    disconnectThirdPartyProviderAccount.mockResolvedValue({ status: 200, data: [] })
+    const wrapper = await mountProviders()
+
+    await button(wrapper, 'Αποσύνδεση του λογαριασμού Google shopper@example.com').trigger('click')
     await flushPromises()
 
-    expect(disconnectThirdPartyProviderAccount).toHaveBeenCalledWith({ provider: 'google', account: GOOGLE.uid })
-    expect(rows(wrapper).map(row => row.find('td').text())).toEqual(['GitHub'])
-    expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('success.title'), color: 'success' })
-    expect(wrapper.emitted('disconnectThirdPartyProviderAccount')).toHaveLength(1)
+    expect(disconnectThirdPartyProviderAccount).toHaveBeenCalledExactlyOnceWith({ provider: 'google', account: '104857600123' })
+    expect(cards(wrapper)).toEqual([
+      'GoogleΔεν έχει συνδεθείΣύνδεση',
+      'FacebookΔεν έχει συνδεθείΣύνδεση',
+    ])
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: 'Ο λογαριασμός Google αποσυνδέθηκε', color: 'success' })
   })
 
-  it('shows what allauth refused and keeps the account listed', async () => {
-    disconnectThirdPartyProviderAccount.mockRejectedValue(asProxiedError(
-      makeBadResponse({ code: 'no_password', param: 'account', message: 'Your account has no password set up.' }),
-    ))
+  it('keeps the account and says why when allauth refuses to unlink it', async () => {
+    disconnectThirdPartyProviderAccount.mockRejectedValue(asProxiedError(makeBadResponse({ code: 'no_password', message: 'Your account has no password set up.' })))
     const wrapper = await mountProviders()
 
-    await disconnectItem(wrapper, 1).onSelect()
+    await button(wrapper, 'Αποσύνδεση του λογαριασμού Google shopper@example.com').trigger('click')
     await flushPromises()
 
-    const { t, te } = useNuxtApp().$i18n
-    const key = 'validation.api.no_password'
-    expect(toastAdd).toHaveBeenCalledWith({ title: te(key) ? t(key) : 'Your account has no password set up.', color: 'error' })
-    expect(rows(wrapper)).toHaveLength(2)
-    expect(wrapper.emitted('disconnectThirdPartyProviderAccount')).toBeUndefined()
-  })
-
-  it.each([
-    [[GOOGLE, GITHUB], '2 συνδεδεμένοι πάροχοι'],
-    [[GITHUB], '1 Συνδεδεμένος πάροχος'],
-    [[], 'Κανένας συνδεδεμένος πάροχος'],
-  ] as const)('counts the linked accounts (%#)', async (data, total) => {
-    connectedThirdPartyProviderAccounts.mockResolvedValue(accounts([...data]))
-
-    const wrapper = await mountProviders()
-
-    expect(wrapper.text()).toContain(total)
+    expect(cards(wrapper)[0]).toBe('Googleshopper@example.comΑποσύνδεση')
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+    expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
   })
 })

@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
 import ActivateForm from '~/components/Account/2Fa/Totp/ActivateForm.vue'
+import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 /**
  * Turning on TOTP: allauth hands back a secret and a QR code SVG (as a
@@ -37,9 +38,14 @@ async function mountForm() {
   return wrapper
 }
 
+const WRONG_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }))
+
+const activateButton = (wrapper: VueWrapper) =>
+  wrapper.findAll('button').find(button => button.text() === 'Ενεργοποίηση')!
+
 async function enterCode(wrapper: VueWrapper, digits: number[]) {
   await wrapper.findComponent({ name: 'UPinInput' }).setValue(digits)
-  await wrapper.findAll('button').find(button => button.text() === useNuxtApp().$i18n.t('entry'))!.trigger('click')
+  await activateButton(wrapper).trigger('click')
   await flushPromises()
 }
 
@@ -48,7 +54,7 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     const wrapper = await mountForm()
 
     expect(wrapper.find('[role="img"] svg rect').exists()).toBe(true)
-    expect(wrapper.find<HTMLInputElement>('input[readonly]').element.value).toBe(SECRET)
+    expect(wrapper.text()).toContain('JBSW Y3DP EHPK 3PXP')
   })
 
   it('strips script and event handlers out of the QR code SVG', async () => {
@@ -64,10 +70,10 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     expect(qr).not.toContain('onload')
   })
 
-  it('copies the secret when it is clicked', async () => {
+  it('copies the raw secret, without the grouping spaces, from the copy button', async () => {
     const wrapper = await mountForm()
 
-    await wrapper.find('input[readonly]').trigger('click')
+    await wrapper.find('button[aria-label="Αντιγραφή κλειδιού"]').trigger('click')
 
     expect(copy).toHaveBeenCalledWith(SECRET)
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Αντιγράφηκε στο πρόχειρο', color: 'success' })
@@ -81,7 +87,7 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     expect(activateTotp).toHaveBeenCalledWith({ code: '123456' })
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success', description: 'Ο έλεγχος ταυτότητας δύο παραγόντων ενεργοποιήθηκε επιτυχώς' }))
     expect(wrapper.emitted('activateTotp')).toHaveLength(1)
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-settings'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
   })
 
   it('lets the shopper retry a code containing a zero', async () => {
@@ -90,14 +96,12 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     // input holds 0 for the digit zero, which a "falsy means empty" test
     // read as a missing digit: for about half of all codes the button
     // stayed disabled and the shopper had to retype.
-    activateTotp.mockRejectedValueOnce({
-      data: { statusCode: 400, data: { status: 400, errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }] } },
-    })
+    activateTotp.mockRejectedValueOnce(WRONG_CODE)
     const wrapper = await mountForm()
     await wrapper.findComponent({ name: 'UPinInput' }).setValue([1, 0, 3, 4, 5, 0])
     await flushPromises()
 
-    const retry = wrapper.findAll('button').find(button => button.text() === useNuxtApp().$i18n.t('entry'))!
+    const retry = activateButton(wrapper)
     expect(retry.attributes('disabled')).toBeUndefined()
     await retry.trigger('click')
     await flushPromises()
@@ -106,10 +110,29 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     expect(activateTotp).toHaveBeenCalledTimes(2)
   })
 
+  it('keeps Activate disabled until all six digits are in', async () => {
+    const wrapper = await mountForm()
+    expect(activateButton(wrapper).attributes('disabled')).toBeDefined()
+
+    await wrapper.findComponent({ name: 'UPinInput' }).setValue([1, 2, 3, 4, 5])
+    await flushPromises()
+    expect(activateButton(wrapper).attributes('disabled')).toBeDefined()
+    expect(activateTotp).not.toHaveBeenCalled()
+
+    await wrapper.findComponent({ name: 'UPinInput' }).setValue([1, 2, 3, 4, 5, 6])
+    await flushPromises()
+    expect(activateButton(wrapper).attributes('disabled')).toBeUndefined()
+  })
+
+  it('offers Cancel as a link back to the security page', async () => {
+    const wrapper = await mountForm()
+
+    const cancel = wrapper.findAll('a').find(link => link.text() === 'Ακύρωση')!
+    expect(cancel.attributes('href')).toBe(useLocalePath()('account-security'))
+  })
+
   it('keeps the shopper on the form when allauth rejects the code', async () => {
-    activateTotp.mockRejectedValue({
-      data: { statusCode: 400, data: { status: 400, errors: [{ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }] } },
-    })
+    activateTotp.mockRejectedValue(WRONG_CODE)
     const wrapper = await mountForm()
 
     await enterCode(wrapper, [9, 8, 7, 6, 5, 4])
@@ -124,6 +147,6 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
 
     await mountForm()
 
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-settings'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
   })
 })

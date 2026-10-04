@@ -52,7 +52,7 @@ describe('useAccountNavigation', () => {
 
     expect(await keys()).toEqual([
       'overview', 'orders', 'addresses', 'favourites', 'reviews', 'notifications',
-      'rewards', 'gift_cards', 'business', 'newsletter', 'profile', 'privacy',
+      'rewards', 'gift_cards', 'business', 'newsletter', 'profile', 'security', 'privacy',
     ])
   })
 
@@ -88,8 +88,11 @@ describe('useAccountNavigation', () => {
     ['account-orders-id___el', 'orders'],
     ['account-addresses-new___el', 'addresses'],
     ['account-favourites-posts___el', 'favourites'],
-    ['account-password-change___el', 'profile'],
-    ['account-2fa-totp-activate___el', 'profile'],
+    ['account-settings___el', 'profile'],
+    ['account-security___el', 'security'],
+    ['account-password-change___el', 'security'],
+    ['account-sessions___el', 'security'],
+    ['account-2fa-totp-activate___el', 'security'],
     ['account-settings-privacy___el', 'privacy'],
   ])('keeps the right entry active on %s', async (route, key) => {
     state.route = route
