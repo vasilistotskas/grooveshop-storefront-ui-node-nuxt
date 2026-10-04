@@ -130,9 +130,14 @@ async function copyCode(code: string) {
         :content="false"
         color="neutral"
         variant="pill"
-        size="sm"
         class="self-start"
-        :ui="{ root: 'w-auto' }"
+        :ui="{
+          root: 'w-auto',
+          list: 'rounded-full bg-default p-1 ring ring-default',
+          indicator: 'rounded-full',
+          trigger: 'rounded-full px-4',
+          trailingBadge: 'bg-transparent p-0 text-inherit ring-0',
+        }"
         @update:model-value="(value: string | number) => { filter = value as Filter }"
       />
 

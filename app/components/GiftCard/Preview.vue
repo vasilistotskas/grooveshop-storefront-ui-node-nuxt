@@ -46,12 +46,15 @@ const addressLine = computed(() => {
       aria-hidden="true"
     />
 
-    <TenantLogo
-      inverted
-      :width="132"
-      :height="34"
-      class="relative"
-    />
+    <!-- Positioned so it paints over the decorative circles: TenantLogo
+         does not take a class on its root. -->
+    <div class="relative">
+      <TenantLogo
+        inverted
+        :width="132"
+        :height="34"
+      />
+    </div>
 
     <figcaption class="relative flex flex-col gap-1">
       <p
@@ -61,7 +64,7 @@ const addressLine = computed(() => {
         {{ addressLine }}
       </p>
       <p class="font-mono text-5xl font-bold tracking-tight">
-        {{ $i18n.n(amount ?? 0, 'currency') }}
+        {{ $i18n.n(amount ?? 0, { key: 'currency', minimumFractionDigits: 0 }) }}
       </p>
       <p
         v-if="message?.trim()"

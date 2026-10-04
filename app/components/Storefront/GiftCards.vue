@@ -102,7 +102,8 @@ const OTHER = 'other'
 const amountChoice = ref<string>(suggestedAmounts.value.includes(50) ? '50' : OTHER)
 const amountItems = computed(() => [
   ...suggestedAmounts.value.map(amount => ({
-    label: $i18n.n(amount, 'currency'),
+    // Whole denominations, as the card itself prints them ("50 €").
+    label: $i18n.n(amount, { key: 'currency', minimumFractionDigits: 0 }),
     value: String(amount),
   })),
   { label: t('fields.amount_other'), value: OTHER },
@@ -414,12 +415,26 @@ const confirmPayment = async () => {
         </div>
 
         <template v-else>
+          <!-- The board's compact strip: each step's number beside its
+               title, a short rule between steps, the current one in ink. -->
           <UStepper
             :model-value="wizard"
             :items="steps"
-            color="secondary"
-            size="sm"
+            color="neutral"
+            size="xs"
             :linear="false"
+            :ui="{
+              header: 'flex-wrap items-center gap-x-3 gap-y-2',
+              item: `
+                flex w-auto flex-row items-center gap-2 text-start
+                after:h-px after:w-6 after:bg-accented after:content-['']
+                last:after:hidden
+              `,
+              container: 'flex-none',
+              separator: 'hidden',
+              wrapper: 'mt-0',
+              title: 'text-sm',
+            }"
             @update:model-value="(value) => goTo(value as WizardStep)"
           />
 
@@ -446,10 +461,8 @@ const confirmPayment = async () => {
                     orientation="horizontal"
                     :legend="t('fields.amount')"
                     :ui="{
-                      fieldset: `
-                        grid grid-cols-2 gap-2
-                        sm:grid-cols-4
-                      `,
+                      legend: 'sr-only',
+                      fieldset: 'grid grid-cols-4 gap-2',
                       item: 'justify-center font-mono font-semibold',
                     }"
                   />
@@ -534,6 +547,7 @@ const confirmPayment = async () => {
                     orientation="horizontal"
                     :legend="t('fields.send')"
                     :ui="{
+                      legend: 'sr-only',
                       fieldset: 'grid grid-cols-2 gap-2',
                       item: 'justify-center',
                     }"

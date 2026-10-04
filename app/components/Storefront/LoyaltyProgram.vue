@@ -323,13 +323,26 @@ useHead({
           lg:grid-cols-[1fr_2fr]
         "
       >
-        <h2 class="font-display text-3xl font-bold text-highlighted">
+        <h2
+          class="
+            font-display text-3xl/tight font-bold text-highlighted
+            lg:text-[2.5rem]/tight
+          "
+        >
           {{ t('faq.title') }}
         </h2>
         <UAccordion
           :items="faq"
           type="single"
           collapsible
+          :ui="{
+            item: `
+              border-t border-b-0 border-default
+              last:border-b
+            `,
+            trigger: 'py-5 text-[1.0625rem] font-bold text-highlighted',
+            body: 'pb-5 text-sm text-toned',
+          }"
         />
       </div>
     </PageSectionBand>

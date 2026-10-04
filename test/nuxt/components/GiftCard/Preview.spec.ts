@@ -13,7 +13,7 @@ async function mount(props: Record<string, unknown>) {
 
 describe('GiftCard/Preview', () => {
   it('shows the amount in the store currency', async () => {
-    expect(await mount({ amount: 50 })).toContain('50,00 €')
+    expect(await mount({ amount: 50 })).toContain('50 €')
   })
 
   it.each([

@@ -90,16 +90,27 @@ describe('Storefront/GiftCards', () => {
     it('offers the suggested amounts and a typed one, 50 € chosen', async () => {
       const wrapper = await mount()
 
-      expect(['25,00 €', '50,00 €', '100,00 €', 'Άλλο'].map(label => radio(wrapper, label).exists())).toEqual([true, true, true, true])
-      expect(radio(wrapper, '50,00 €').attributes('aria-checked')).toBe('true')
+      expect(['25 €', '50 €', '100 €', 'Άλλο'].map(label => radio(wrapper, label).exists())).toEqual([true, true, true, true])
+      expect(radio(wrapper, '50 €').attributes('aria-checked')).toBe('true')
+    })
+
+    // The field's label already names the group on screen; a visible
+    // legend said "Ποσό" a second time under it. The class is the
+    // contract: the legend must stay in the accessibility tree.
+    it('names the amount group for assistive tech without repeating its label', async () => {
+      const wrapper = await mount()
+
+      const legend = wrapper.get('legend')
+      expect(legend.text()).toBe('Ποσό')
+      expect(legend.classes()).toContain('sr-only')
     })
 
     it('draws the chosen amount on the card preview', async () => {
       const wrapper = await mount()
 
-      await radio(wrapper, '100,00 €').trigger('click')
+      await radio(wrapper, '100 €').trigger('click')
 
-      expect(wrapper.find('figure').text().replace(/\u00A0/g, ' ')).toContain('100,00 €')
+      expect(wrapper.find('figure').text().replace(/\u00A0/g, ' ')).toContain('100 €')
     })
 
     it('leaves out a suggested amount the store does not allow', async () => {
