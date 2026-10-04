@@ -19,7 +19,8 @@ import { trees } from '~~/test/helpers/trees'
  *
  * `$api` (the per-product points), `useRequestApi` (the loyalty
  * settings) and `$fetch` share one `createApiMock`; the cart is the real
- * Pinia store. The webside copy differs only in its Greek-only i18n.
+ * Pinia store. The two trees share the logic; the default prints a line
+ * ("Θα κερδίσεις 24 πόντους"), the frozen webside copy a "+24" badge.
  */
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -45,7 +46,7 @@ function lines(...items: CartItemOverrides[]) {
   useCartStore().cart = makeCart({ items })
 }
 
-describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEarned', ({ C }) => {
+describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEarned', ({ tree, C }) => {
   beforeEach(async () => {
     clearNuxtData()
     loyalty.setting = 'true'
@@ -75,14 +76,18 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
   }
 
   const pointRequests = () => api.callsTo('/api/loyalty/product/*').map(call => call.url)
-  const badge = (wrapper: VueWrapper) => wrapper.find('[data-slot="base"]')
+  /** The points promised, read off the line (default) or the badge (webside). */
+  const promised = (wrapper: VueWrapper) => {
+    const text = tree === 'default' ? wrapper.get('p').text() : wrapper.get('[data-slot="base"]').text()
+    return Number(text.replace(/\D/g, ''))
+  }
 
   it('promises the points of every line, times its quantity', async () => {
     const wrapper = await mount()
 
     expect(pointRequests()).toEqual(['/api/loyalty/product/3/points'])
     expect(wrapper.text()).toContain('Θα κερδίσεις 24 πόντους')
-    expect(badge(wrapper).text()).toBe('+24')
+    expect(promised(wrapper)).toBe(24)
   })
 
   it('asks once per product however many lines carry it', async () => {
@@ -90,7 +95,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     const wrapper = await mount()
 
     expect(pointRequests()).toEqual(['/api/loyalty/product/3/points'])
-    expect(badge(wrapper).text()).toBe('+36')
+    expect(promised(wrapper)).toBe(36)
   })
 
   it('counts a product whose points failed to load as zero and still shows the rest', async () => {
@@ -99,7 +104,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     const wrapper = await mount()
 
     expect(pointRequests()).toHaveLength(2)
-    expect(badge(wrapper).text()).toBe('+5')
+    expect(promised(wrapper)).toBe(5)
   })
 
   it('promises nothing when the cart earns no points', async () => {
@@ -121,7 +126,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
       '/api/loyalty/product/3/points',
       '/api/loyalty/product/4/points',
     ])
-    expect(badge(wrapper).text()).toBe('+29')
+    expect(promised(wrapper)).toBe(29)
   })
 
   it('asks again when the cart holds a different product in the same quantity', async () => {
@@ -131,7 +136,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     await flushPromises()
 
     expect(pointRequests().at(-1)).toBe('/api/loyalty/product/4/points')
-    expect(badge(wrapper).text()).toBe('+10')
+    expect(promised(wrapper)).toBe(10)
   })
 
   it('re-counts when a line\'s quantity changes', async () => {
@@ -140,7 +145,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     lines({ id: 1, quantity: 3, product: { id: 3 } })
     await flushPromises()
 
-    expect(badge(wrapper).text()).toBe('+36')
+    expect(promised(wrapper)).toBe(36)
   })
 
   describe('never promises, or fetches, a reward the backend will not grant', () => {
@@ -179,6 +184,6 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     useCartStore().cart = makeCart({ items: [{ quantity: 2, product: { id: 3 } }], b2bPricing })
     const wrapper = await mount()
 
-    expect(badge(wrapper).text()).toBe('+24')
+    expect(promised(wrapper)).toBe(24)
   })
 })

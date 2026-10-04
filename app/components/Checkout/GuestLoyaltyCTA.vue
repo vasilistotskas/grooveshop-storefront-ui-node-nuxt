@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+/**
+ * A guest's invitation to the store's points on the payment page: what
+ * this order would earn (the items' total by the earning factor) and a
+ * link to sign up. Self-gated on the store's program.
+ */
+const { t, n } = useI18n()
 const localePath = useLocalePath()
 
 const cartStore = useCartStore()
@@ -24,78 +29,36 @@ const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
 <template>
   <div
     v-if="shouldShow"
-    class="
-      relative overflow-hidden rounded-lg
-      bg-gradient-to-br from-primary-50 to-secondary-50
-      dark:from-primary-950 dark:to-secondary-950
-      ring-1 ring-primary-200 dark:ring-primary-800
-      p-4
-    "
+    class="flex items-start gap-3 rounded-xl bg-(--ui-secondary-soft) p-4 text-sm"
   >
-    <!-- Decorative background circles -->
-    <div
-      class="
-        pointer-events-none absolute -right-4 -top-4
-        size-20 rounded-full
-        bg-secondary-200/40 dark:bg-secondary-700/20
-      "
+    <UIcon
+      name="i-lucide-sparkles"
+      class="mt-0.5 size-4 shrink-0 text-highlighted"
     />
-    <div
-      class="
-        pointer-events-none absolute -bottom-2 -left-2
-        size-12 rounded-full
-        bg-primary-200/30 dark:bg-primary-700/15
-      "
-    />
-
-    <div class="relative flex items-start gap-3">
-      <!-- Points badge -->
-      <div class="flex shrink-0 items-center justify-center">
-        <div class="relative flex size-12 items-center justify-center">
-          <svg viewBox="0 0 100 100" class="absolute inset-0 size-full">
-            <polygon
-              points="50 1 95 25 95 75 50 99 5 75 5 25"
-              class="fill-secondary-100 stroke-secondary-400 dark:fill-secondary-900 dark:stroke-secondary-500"
-              stroke-width="2"
-            />
-          </svg>
-          <span class="relative z-10 text-sm font-bold text-secondary-900 dark:text-secondary-100">
-            +{{ estimatedPoints }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Content -->
-      <div class="min-w-0 flex-1 space-y-2">
-        <p class="text-sm font-semibold text-primary-900 dark:text-primary-100">
-          {{ t('title', { points: estimatedPoints }) }}
-        </p>
-        <p class="text-xs leading-relaxed text-primary-700 dark:text-primary-300">
-          {{ t('description') }}
-        </p>
-
-        <UButton
-          size="sm"
-          color="primary"
-          variant="soft"
-          :to="localePath('account-signup')"
-          icon="i-heroicons-arrow-right-20-solid"
-          trailing
-        >
-          {{ t('cta') }}
-        </UButton>
-      </div>
+    <div class="flex min-w-0 flex-col gap-1">
+      <p class="font-semibold text-highlighted">
+        {{ t('title', { points: n(estimatedPoints) }, estimatedPoints) }}
+      </p>
+      <p class="text-toned">
+        {{ t('description') }}
+      </p>
+      <ULink
+        :to="localePath('account-signup')"
+        class="font-semibold text-accent"
+      >
+        {{ t('cta') }}
+      </ULink>
     </div>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: "Κέρδισε {points} πόντους με αυτήν την παραγγελία!"
-  description: "Δημιούργησε δωρεάν λογαριασμό και κέρδισε πόντους που μετατρέπονται σε εκπτώσεις."
-  cta: "Εγγραφή"
+  title: "Κέρδισε {points} πόντο με αυτή την παραγγελία | Κέρδισε {points} πόντους με αυτή την παραγγελία"
+  description: Δημιούργησε δωρεάν λογαριασμό και κάνε τους πόντους εκπτώσεις.
+  cta: Δημιουργία λογαριασμού
 en:
-  title: "Earn {points} points on this order"
-  description: "Create a free account and turn points into discounts."
-  cta: "Sign up"
+  title: "Earn {points} point on this order | Earn {points} points on this order"
+  description: Create a free account and turn points into discounts.
+  cta: Create an account
 </i18n>

@@ -9,7 +9,8 @@ import CheckoutSuccess from '~/components/Storefront/CheckoutSuccess.vue'
 import WebsideCheckoutSuccess from '~/components/variants/webside/Storefront/CheckoutSuccess.vue'
 import { useCartStore } from '~/stores/cart'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
-import { makeOrder } from '~~/test/fixtures/order'
+import { makeOrder, makeOrderItem } from '~~/test/fixtures/order'
+import { makeBoxNowLocker, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
 import { fixtureUuid } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
 
@@ -21,8 +22,9 @@ import { failWith } from '~~/test/helpers/api'
  * COD) is final on arrival and never polls. The local cart is cleared
  * once per order, whatever the URL is reopened with.
  *
- * Both trees run the same script (the webside copy differs only in its
- * chrome), so the suite runs over both.
+ * Both trees run the same verification script, so that suite runs over
+ * both; the default tree's own layout (heading, what happens next, the
+ * summary and the ways on) has its own suite below.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -52,6 +54,16 @@ mockNuxtImport('useTikTokPixel', () => pixel)
 mockNuxtImport('useOpenAIPixel', () => pixel)
 mockNuxtImport('useGA4', () => pixel)
 mockNuxtImport('useGoogleAds', () => pixel)
+
+const { session } = vi.hoisted(() => ({ session: { loggedIn: false } }))
+mockNuxtImport('useUserSession', () => () => ({
+  loggedIn: ref(session.loggedIn),
+  user: ref(session.loggedIn ? { id: 7 } : null),
+  session: ref({}),
+  ready: ref(true),
+  fetch: () => Promise.resolve(),
+  clear: () => Promise.resolve(),
+}))
 
 const UUID = fixtureUuid(7, 1)
 const ORDER_URL = `/api/orders/uuid/${UUID}`
@@ -312,5 +324,151 @@ describe.each([
       expect(await setupError()).toMatchObject({ statusCode: 404 })
       expect(api.callsTo('/api/orders/uuid/*')).toEqual([])
     })
+  })
+})
+
+describe('CheckoutSuccess (default layout)', () => {
+  const block = parseSfc(resolve(REPO, 'app/components/Storefront/CheckoutSuccess.vue')).customBlocks.find(b => b.type === 'i18n')!
+  const messages = YAML.parse(block.content).el
+  const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+
+  const mount = () => mountSuspended(CheckoutSuccess, { route: false })
+
+  /** Each step of "what happens next": its title and UTimeline's state for it. */
+  const steps = (wrapper: Awaited<ReturnType<typeof mount>>) =>
+    wrapper.findAll('[data-slot="item"]').map(item => ({
+      title: item.get('[data-slot="title"]').text(),
+      state: item.attributes('data-state') ?? '',
+    }))
+
+  /** The amount beside the summary row named `label`. */
+  const total = (wrapper: Awaited<ReturnType<typeof mount>>, label: string) =>
+    wrapper.findAll('dt').find(dt => dt.text() === label)?.element.nextElementSibling?.textContent?.trim()
+
+  beforeEach(() => {
+    clearNuxtData()
+    localStorage.clear()
+    session.loggedIn = false
+    route.params = { uuid: UUID }
+    route.query = {}
+  })
+
+  it('thanks the shopper by name, with the order number and where the receipt went', async () => {
+    serveOrders(order())
+
+    const wrapper = await mount()
+
+    expect(wrapper.get('h1').text()).toBe('Ευχαριστούμε, Maria. Η παραγγελία σου καταχωρήθηκε.')
+    expect(wrapper.text()).toContain('Παραγγελία #1001 · στείλαμε την απόδειξη στο maria@example.com.')
+  })
+
+  it('says a failed payment charged nothing, once the provider answered', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    route.query = { session_id: 'cs_test_1' }
+    serveOrders(order(), order({ paymentStatus: 'FAILED' }))
+    const wrapper = await mount()
+
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL * 2)
+    vi.useRealTimers()
+
+    expect(wrapper.get('[role="status"]').text()).toContain(messages.payment.failed.title)
+  })
+
+  it('walks a paid order from received through payment to delivery', async () => {
+    serveOrders(order({ isPaid: true, paymentStatus: 'COMPLETED', status: 'PROCESSING' }))
+
+    const wrapper = await mount()
+
+    expect(steps(wrapper)).toEqual([
+      { title: messages.steps.received, state: 'completed' },
+      { title: messages.steps.payment, state: 'active' },
+      { title: messages.steps.preparing, state: '' },
+      { title: messages.steps.shipped, state: '' },
+      { title: messages.steps.delivered, state: '' },
+    ])
+  })
+
+  it('collects a cash-on-delivery order\'s payment on its last step, at the locker it goes to', async () => {
+    serveOrders(order({
+      payWayKey: 'PAY_ON_DELIVERY',
+      isCollectedOnDelivery: true,
+      status: 'SHIPPED',
+      shipmentProviderCode: 'boxnow',
+      boxnowShipment: makeBoxNowShipment({ locker: makeBoxNowLocker() }),
+    }))
+
+    const wrapper = await mount()
+
+    expect(steps(wrapper).map(step => step.title)).toEqual([
+      messages.steps.received,
+      messages.steps.preparing,
+      messages.steps.shipped,
+      messages.steps.ready_for_pickup,
+    ])
+    expect(steps(wrapper).map(step => step.state)).toEqual(['completed', 'completed', 'active', ''])
+    expect(wrapper.text()).toContain('BOX NOW')
+    expect(wrapper.text()).toContain(`Πληρωμή ${money(42)} κατά την παραλαβή`)
+  })
+
+  it('lists the lines and what the order came to', async () => {
+    serveOrders(order({
+      isPaid: true,
+      paymentStatus: 'COMPLETED',
+      items: [makeOrderItem({ id: 1, quantity: 2, totalPrice: 40 })],
+      pricingBreakdown: { discount: 4, loyaltyDiscount: 1, giftCardAmount: 10, shippingCost: 0, paymentMethodFee: 2 },
+    }))
+
+    const wrapper = await mount()
+
+    expect(wrapper.text()).toContain(money(40))
+    expect(total(wrapper, messages.totals.discounts)).toBe(`−${money(5)}`)
+    expect(total(wrapper, messages.totals.gift_card)).toBe(`−${money(10)}`)
+    expect(total(wrapper, messages.totals.delivery)).toBe(messages.totals.free)
+    expect(total(wrapper, messages.totals.payment_fee)).toBe(money(2))
+    expect(total(wrapper, messages.totals.paid)).toBe(money(42))
+  })
+
+  it('totals an unpaid order without calling it paid', async () => {
+    serveOrders(order({ isPaid: false }))
+
+    const wrapper = await mount()
+
+    expect(total(wrapper, messages.totals.paid)).toBeUndefined()
+    expect(total(wrapper, messages.totals.total)).toBe(money(42))
+  })
+
+  it.each([
+    [true, true],
+    [false, false],
+  ])('links a signed-in shopper to the order page (signed in: %s)', async (signedIn, linked) => {
+    session.loggedIn = signedIn
+    serveOrders(order())
+
+    const wrapper = await mount()
+
+    const track = wrapper.findAll('a').find(a => a.text() === messages.actions.track)
+    expect(track?.attributes('href')).toBe(linked ? '/account/orders/1001' : undefined)
+  })
+
+  it('opens the invoice by the order\'s uuid, so a guest can have it too', async () => {
+    serveOrders(order({ hasInvoice: true }))
+    const tab = { opener: {} as unknown, location: { href: '' }, close: vi.fn() }
+    vi.stubGlobal('open', vi.fn(() => tab))
+    const wrapper = await mount()
+    api.routes({ '/api/orders/1001/invoice': { downloadUrl: 'https://cdn.example/invoice.pdf' } })
+
+    await wrapper.findAll('button').find(button => button.text() === messages.actions.invoice)!.trigger('click')
+    await flushPromises()
+
+    expect(api.callsTo('/api/orders/1001/invoice')[0]!.options?.query).toEqual({ uuid: UUID })
+    expect(tab.location.href).toBe('https://cdn.example/invoice.pdf')
+  })
+
+  it('offers no invoice before one exists', async () => {
+    serveOrders(order({ hasInvoice: false }))
+
+    const wrapper = await mount()
+
+    expect(wrapper.findAll('button').some(button => button.text() === messages.actions.invoice)).toBe(false)
   })
 })

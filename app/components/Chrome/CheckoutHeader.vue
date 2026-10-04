@@ -26,7 +26,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
       <UButton
         :to="localePath('cart')"
         :aria-label="t('back_to_cart')"
-        icon="i-heroicons-chevron-left"
+        icon="i-lucide-chevron-left"
         color="neutral"
         variant="ghost"
         size="sm"
@@ -62,7 +62,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
         "
       >
         <UIcon
-          name="i-heroicons-lock-closed"
+          name="i-lucide-lock"
           class="size-4"
         />
         <span

@@ -1,92 +1,70 @@
 <script lang="ts" setup>
-const cartStore = useCartStore()
-const { getCartItems } = storeToRefs(cartStore)
-
-const { t, locale } = useI18n()
-const { $i18n } = useNuxtApp()
+/**
+ * The order summary's lines, as the boards draw them: the photograph on
+ * a sunken tile with the quantity on a badge, the name, and the line's
+ * price. A long cart scrolls inside the summary rather than pushing the
+ * total out of view.
+ */
 const { productUrl } = useUrls()
+const { t, n, locale } = useI18n()
+const { getCartItems } = storeToRefs(useCartStore())
+
+const nameOf = (item: CartItem) => extractTranslated(item.product, 'name', locale.value) ?? ''
 </script>
 
 <template>
-  <div
-    v-if="getCartItems?.length"
-    class="max-h-48 space-y-2 overflow-auto pr-1"
+  <ul
+    v-if="getCartItems.length"
+    :aria-label="t('items')"
+    class="-me-1 flex max-h-72 flex-col gap-3 overflow-y-auto pe-1"
   >
-    <div class="sr-only items-center justify-center">
-      <h3
-        class="
-          text-base font-bold text-primary-950
-          dark:text-primary-50
-        "
-      >
-        {{ t('items') }}
-      </h3>
-    </div>
-    <div
+    <li
       v-for="item in getCartItems"
       :key="item.id"
       class="flex items-center gap-3"
     >
-      <Anchor
-        :to="{ path: productUrl(item.product.id, item.product.slug) }"
-        :title="extractTranslated(item.product, 'name', locale)"
-        class="shrink-0 basis-12"
-      >
-        <div
-          class="
-            relative size-12 overflow-hidden rounded-md bg-white
-            dark:bg-primary-900
-          "
+      <!-- A sized box around the link: Anchor is `w-full`. -->
+      <div class="relative shrink-0 pt-1.5 pe-1.5">
+        <Anchor
+          :to="{ path: productUrl(item.product.id, item.product.slug) }"
+          :title="nameOf(item)"
+          class="block size-14 overflow-hidden rounded-[0.75rem] bg-elevated"
         >
           <ImgWithFallback
-            loading="lazy"
-            class="size-full bg-transparent object-contain"
-            :width="48"
-            :height="48"
-            fit="contain"
-            :background="'transparent'"
             :src="item.product.mainImagePath"
-            :alt="extractTranslated(item.product, 'name', locale)"
+            :alt="nameOf(item)"
+            :width="56"
+            :height="56"
+            fit="cover"
+            loading="lazy"
             densities="x1"
+            class="size-full object-cover"
           />
-          <span
-            class="
-              absolute right-0 bottom-0 rounded-tl-md bg-primary-950/80
-              px-1 text-[10px] font-semibold text-white
-            "
-          >×{{ item.quantity }}</span>
-        </div>
-      </Anchor>
-      <div class="min-w-0 flex-1">
-        <Anchor
-          :title="extractTranslated(item.product, 'name', locale)"
-          :to="{ path: productUrl(item.product.id, item.product.slug) }"
-        >
-          <span
-            class="
-              line-clamp-2 text-sm font-semibold text-primary-950
-              dark:text-primary-50
-            "
-          >
-            {{ extractTranslated(item.product, 'name', locale) }}
-          </span>
         </Anchor>
-        <p
-          v-if="item.finalPrice"
-          class="text-xs text-muted"
+        <span
+          class="absolute end-0 top-0 grid size-5 place-items-center rounded-full bg-inverted font-mono text-[0.6875rem] font-bold text-inverted"
         >
-          {{ item.quantity }} × {{ $i18n.n(item.finalPrice, 'currency') }}
-        </p>
+          <span class="sr-only">{{ t('quantity') }}</span>{{ item.quantity }}
+        </span>
       </div>
-      <span
-        v-if="item.finalPrice"
-        class="
-          shrink-0 text-sm font-semibold text-primary-950
-          dark:text-primary-50
-        "
+      <Anchor
+        :to="{ path: productUrl(item.product.id, item.product.slug) }"
+        class="line-clamp-2 min-w-0 flex-1 text-sm font-medium text-highlighted"
       >
-        {{ $i18n.n(item.finalPrice * (item.quantity || 1), 'currency') }}
+        {{ nameOf(item) }}
+      </Anchor>
+      <span class="shrink-0 font-mono text-sm font-bold text-highlighted">
+        {{ n(item.totalPrice, 'currency') }}
       </span>
-    </div>
-  </div>
+    </li>
+  </ul>
 </template>
+
+<i18n lang="yaml">
+el:
+  items: Προϊόντα της παραγγελίας
+  quantity: "Ποσότητα: "
+en:
+  items: Items in the order
+  quantity: "Quantity: "
+</i18n>

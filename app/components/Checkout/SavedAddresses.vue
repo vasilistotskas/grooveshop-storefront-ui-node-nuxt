@@ -1,19 +1,17 @@
 <script lang="ts" setup>
 /**
- * Visual picker for the user's saved delivery addresses.
+ * The shopper's saved delivery addresses on checkout step 1, as the
+ * board draws them: one radio card each (its name, who it is for, street
+ * and postcode with city), the picked one in the accent tint, and a
+ * "New address" button that switches to typing one by hand.
  *
- * Renders each address as a radio "card" via Nuxt UI's RadioGroup
- * (variant="card"), plus a sentinel card "use a new address" that lets
- * the shopper opt out of their address book and fill the form manually.
- *
- * The component is fully controlled — state lives in ``useCheckoutForm``
- * so the parent Step 1 component can toggle its downstream form
- * sections based on the same selection.
+ * Fully controlled — state lives in ``useCheckoutForm`` so the parent
+ * step can show or hide its address fields from the same selection.
  */
 const props = defineProps<{
   addresses: UserAddressDetail[]
   selectedId: number | null
-  /** ``saved``: card selected; ``new``: user chose the blank-form card. */
+  /** ``saved``: a card is selected; ``new``: the shopper chose to type one. */
   mode: 'saved' | 'new'
 }>()
 
@@ -24,92 +22,92 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const NEW_ADDRESS_VALUE = '__new__'
-
 type Item = {
-  value: number | typeof NEW_ADDRESS_VALUE
+  value: number
   label: string
-  description: string
-  isMain?: boolean
+  isMain: boolean
+  recipient: string
+  street: string
+  city: string
 }
 
-const items = computed<Item[]>(() => {
-  const saved: Item[] = props.addresses.map(address => ({
-    value: address.id,
-    // Keep ``label`` to just the user-given title — the "Κύρια" marker
-    // renders separately through the ``#label`` slot so we can theme it
-    // in the secondary colour instead of it inheriting the card copy.
-    label: address.title,
-    description: [
-      `${address.firstName} ${address.lastName}`.trim(),
-      [address.street, address.streetNumber].filter(Boolean).join(' '),
-      [address.zipcode, address.city].filter(Boolean).join(' '),
-    ]
-      .filter(Boolean)
-      .join(' · '),
-    isMain: address.isMain ?? false,
-  }))
-  saved.push({
-    value: NEW_ADDRESS_VALUE,
-    label: t('new_address.label'),
-    description: t('new_address.description'),
-  })
-  return saved
-})
+const items = computed<Item[]>(() => props.addresses.map(address => ({
+  value: address.id,
+  label: address.title,
+  isMain: address.isMain ?? false,
+  recipient: `${address.firstName} ${address.lastName}`.trim(),
+  street: [address.street, address.streetNumber].filter(Boolean).join(' '),
+  city: [address.zipcode, address.city].filter(Boolean).join(' '),
+})))
 
-/**
- * RadioGroup v-model: the currently-selected address id, or the
- * NEW_ADDRESS_VALUE sentinel when the shopper chose to type fresh info.
- */
-const modelValue = computed<number | typeof NEW_ADDRESS_VALUE>({
-  get: () => (props.mode === 'new' ? NEW_ADDRESS_VALUE : (props.selectedId ?? NEW_ADDRESS_VALUE)),
+/** The picked address id; nothing is picked while the shopper types a new one. */
+const modelValue = computed<number | undefined>({
+  get: () => (props.mode === 'new' ? undefined : (props.selectedId ?? undefined)),
   set: (next) => {
-    if (next === NEW_ADDRESS_VALUE) {
-      emit('new')
-    }
-    else if (typeof next === 'number') {
-      emit('select', next)
-    }
+    if (typeof next === 'number') emit('select', next)
   },
 })
 </script>
 
 <template>
-  <URadioGroup
-    v-model="modelValue"
-    :items="items"
-    variant="card"
-    color="primary"
-    size="md"
-    orientation="vertical"
-    :ui="{
-      fieldset: 'space-y-3',
-      item: 'w-full',
-    }"
-  >
-    <template #label="{ item }">
-      <span class="flex items-center gap-2">
-        <span>{{ (item as Item).label }}</span>
-        <span
-          v-if="(item as Item).isMain"
-          class="text-xs font-medium text-(--ui-secondary)"
-        >
-          · {{ t('main') }}
+  <div class="flex flex-col gap-3">
+    <URadioGroup
+      v-model="modelValue"
+      :items="items"
+      :legend="t('legend')"
+      variant="card"
+      color="secondary"
+      size="md"
+      :ui="{
+        legend: 'sr-only',
+        fieldset: `
+          grid grid-cols-1 gap-3
+          sm:grid-cols-2
+        `,
+        item: 'w-full',
+      }"
+    >
+      <template #label="{ item }">
+        <span class="flex items-center gap-2">
+          <span>{{ (item as Item).label }}</span>
+          <span
+            v-if="(item as Item).isMain"
+            class="text-xs font-medium text-toned"
+          >
+            · {{ t('main') }}
+          </span>
         </span>
-      </span>
-    </template>
-  </URadioGroup>
+      </template>
+      <template #description="{ item }">
+        <span class="flex flex-col">
+          <span>{{ (item as Item).recipient }}</span>
+          <span>{{ (item as Item).street }}</span>
+          <span>{{ (item as Item).city }}</span>
+        </span>
+      </template>
+    </URadioGroup>
+
+    <div>
+      <UButton
+        color="neutral"
+        :variant="mode === 'new' ? 'soft' : 'outline'"
+        icon="i-lucide-plus"
+        :aria-pressed="mode === 'new'"
+        @click="() => emit('new')"
+      >
+        {{ t('new_address') }}
+      </UButton>
+    </div>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
+  legend: Αποθηκευμένες διευθύνσεις
   main: "Κύρια"
-  new_address:
-    label: "Νέα διεύθυνση"
-    description: "Συμπλήρωσε τα στοιχεία παράδοσης χειροκίνητα για αυτή την παραγγελία."
+  new_address: Νέα διεύθυνση
 en:
+  legend: Saved addresses
   main: "Main"
-  new_address:
-    label: "New address"
-    description: "Enter the delivery details by hand for this order."
+  new_address: New address
 </i18n>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { payWayDisplayCost } from '~/utils/payWayCost'
+import { payWayDisplayCost, payWayFeeBase } from '~/utils/payWayCost'
 import { makePayWay } from '~~/test/fixtures/payWay'
 
 /**
@@ -18,5 +18,17 @@ describe('payWayDisplayCost', () => {
     ['a free pay way with a threshold', 0, 50, 10, { cost: 0, freeAbove: null }],
   ])('%s', (_case, cost, freeThreshold, feeBase, expected) => {
     expect(payWayDisplayCost(makePayWay({ cost, freeThreshold }), feeBase)).toEqual(expected)
+  })
+})
+
+describe('payWayFeeBase', () => {
+  it.each([
+    // [case, totalPrice, promotionDiscount, shipping, expected]
+    ['the items plus the delivery', 40, 0, 3, 43],
+    ['the items after promotions plus the delivery', 60, 15, 3, 48],
+    ['no delivery under a free-shipping promotion', 60, 12, 0, 48],
+    ['never below zero', 10, 20, 0, 0],
+  ])('%s', (_case, totalPrice, promotionDiscount, shipping, expected) => {
+    expect(payWayFeeBase({ totalPrice, promotionDiscount, shipping })).toBe(expected)
   })
 })

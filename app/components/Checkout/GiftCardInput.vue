@@ -21,9 +21,8 @@ const emit = defineEmits<Emits>()
 
 const MAX_CARDS = 3
 
-const { t } = useI18n()
+const { t, n } = useI18n()
 const tenantStore = useTenantStore()
-const { $i18n } = useNuxtApp()
 
 // Two-tier gate: tenant plan flag + merchant runtime setting.
 // Fails CLOSED — a disabled commercial feature must not leak.
@@ -87,35 +86,33 @@ const applyCard = async () => {
 </script>
 
 <template>
-  <div v-if="giftCardsEnabled" class="space-y-3">
-    <span
-      class="
-        text-sm font-medium text-primary-900
-        dark:text-primary-100
-      "
-    >
-      {{ t('title') }}
-    </span>
-
-    <UAlert
+  <div
+    v-if="giftCardsEnabled"
+    class="flex flex-col gap-3"
+  >
+    <div
       v-for="card in appliedCards"
       :key="card.code"
-      color="success"
-      variant="soft"
-      icon="i-heroicons-gift"
-      :title="card.code"
-      :close="{ variant: 'link' }"
-      @update:open="(value: boolean) => { if (!value) emit('removed', card.code) }"
+      class="flex items-center gap-3 rounded-xl bg-(--ui-success-soft) px-3 py-2.5 text-sm text-highlighted"
     >
-      <template #description>
-        <p class="text-sm">
-          {{ t('balance') }}:
-          <strong class="text-success-700 dark:text-success-300">
-            {{ $i18n.n(card.balance, 'currency') }}
-          </strong>
-        </p>
-      </template>
-    </UAlert>
+      <UIcon
+        name="i-lucide-gift"
+        class="size-4 shrink-0"
+      />
+      <p class="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2">
+        <span class="font-mono font-semibold">{{ card.code }}</span>
+        <span>{{ t('balance', { amount: n(card.balance, 'currency') }) }}</span>
+      </p>
+      <UButton
+        :label="t('remove')"
+        :aria-label="t('remove_card', { code: card.code })"
+        color="neutral"
+        variant="link"
+        size="sm"
+        class="shrink-0 p-0"
+        @click="() => emit('removed', card.code)"
+      />
+    </div>
 
     <UForm
       v-if="appliedCards.length < MAX_CARDS"
@@ -128,14 +125,13 @@ const applyCard = async () => {
         <UFormField
           name="code"
           :label="t('label')"
+          :error="cardError ?? undefined"
           :ui="{ root: 'flex-1', label: 'sr-only' }"
         >
           <UInput
             v-model="formState.code"
-            icon="i-heroicons-gift"
-            :placeholder="t('placeholder')"
+            :placeholder="t('label')"
             :disabled="submitting"
-            :aria-label="t('label')"
             autocomplete="off"
             autocapitalize="characters"
             spellcheck="false"
@@ -143,7 +139,8 @@ const applyCard = async () => {
         </UFormField>
         <UButton
           type="submit"
-          color="secondary"
+          color="neutral"
+          variant="outline"
           :loading="submitting"
           :disabled="!formState.code.trim()"
         >
@@ -151,59 +148,38 @@ const applyCard = async () => {
         </UButton>
       </div>
     </UForm>
-
-    <p
-      v-if="cardError"
-      class="
-        text-sm text-error-600
-        dark:text-error-400
-      "
-    >
-      {{ cardError }}
-    </p>
-
-    <p
-      class="
-        text-xs text-primary-600
-        dark:text-primary-400
-      "
-    >
-      {{ t('info') }}
-    </p>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: "Δωροκάρτα"
-  label: "Κωδικός δωροκάρτας"
-  placeholder: "GC-XXXX-XXXX-XXXX"
-  apply: "Προσθήκη"
-  balance: "Υπόλοιπο"
-  info: "Το υπόλοιπο της δωροκάρτας αφαιρείται από το πληρωτέο ποσό — ό,τι περισσέψει μένει στην κάρτα"
+  label: Κωδικός δωροκάρτας
+  apply: Εφαρμογή
+  balance: "υπόλοιπο {amount}"
+  remove: Αφαίρεση
+  remove_card: Αφαίρεση δωροκάρτας {code}
   errors:
-    invalid: "Ο κωδικός δωροκάρτας δεν είναι έγκυρος"
-    not_redeemable: "Η δωροκάρτα δεν είναι διαθέσιμη (ανενεργή, ληγμένη ή χωρίς υπόλοιπο)"
-    already_applied: "Η δωροκάρτα έχει ήδη προστεθεί"
-    too_many: "Έως {max} δωροκάρτες ανά παραγγελία"
+    invalid: Ο κωδικός δωροκάρτας δεν είναι έγκυρος
+    not_redeemable: Η δωροκάρτα δεν είναι διαθέσιμη (ανενεργή, ληγμένη ή χωρίς υπόλοιπο)
+    already_applied: Η δωροκάρτα έχει ήδη προστεθεί
+    too_many: Έως {max} δωροκάρτες ανά παραγγελία
   validation:
-    required: "Συμπληρώστε τον κωδικό"
-    too_short: "Ο κωδικός είναι πολύ σύντομος"
-    too_long: "Ο κωδικός είναι πολύ μεγάλος"
+    required: Συμπληρώστε τον κωδικό
+    too_short: Ο κωδικός είναι πολύ σύντομος
+    too_long: Ο κωδικός είναι πολύ μεγάλος
 en:
-  title: "Gift card"
-  label: "Gift card code"
-  placeholder: "GC-XXXX-XXXX-XXXX"
-  apply: "Add"
-  balance: "Balance"
-  info: "The gift card balance comes off the amount due — whatever is left stays on the card"
+  label: Gift card code
+  apply: Apply
+  balance: "balance {amount}"
+  remove: Remove
+  remove_card: Remove gift card {code}
   errors:
-    invalid: "That gift card code is not valid"
-    not_redeemable: "This gift card cannot be used (inactive, expired, or empty)"
-    already_applied: "That gift card is already added"
-    too_many: "Up to {max} gift cards per order"
+    invalid: That gift card code is not valid
+    not_redeemable: This gift card cannot be used (inactive, expired, or empty)
+    already_applied: That gift card is already added
+    too_many: Up to {max} gift cards per order
   validation:
-    required: "Enter the code"
-    too_short: "That code is too short"
-    too_long: "That code is too long"
+    required: Enter the code
+    too_short: That code is too short
+    too_long: That code is too long
 </i18n>

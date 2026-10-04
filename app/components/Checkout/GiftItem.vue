@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 /**
- * One earned free-gift entitlement, rendered as a real mini product
- * row — thumbnail, product name and a "Δωρεάν" badge — instead of
- * the promotion's internal name, so the shopper understands a
- * PRODUCT is being added to their order at no cost. The promotion
- * name is the caption (the "why").
+ * One earned free gift as a row of the order summary's charges, as the
+ * boards draw it: "Free {product}" with a gift icon and "Free" on the
+ * right. The product, not the promotion's internal name, so the shopper
+ * knows a product is coming at no cost; the offer it comes from is the
+ * row's title.
+ *
+ * A `<div>` holding a `<dt>` and a `<dd>`: it sits in the summary's
+ * description list.
  */
 const props = defineProps<{
   gift: {
@@ -19,86 +22,37 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const productLabel = computed(() =>
-  props.gift.productName || props.gift.name || '')
+const product = computed(() => props.gift.productName || props.gift.name || '')
+const quantity = computed(() => props.gift.quantity ?? 1)
 </script>
 
 <template>
-  <!--
-    ``min-w-0`` is load-bearing, not cosmetic: this row renders inside
-    grid/flex parents (the cart summary is ``grid gap-4``), whose items
-    default to ``min-width: auto`` and therefore refuse to shrink below
-    their content's min-content width. The captions below use
-    ``truncate`` (``white-space: nowrap``), so that min-content is the
-    FULL untruncated string — the row measured 431px inside a 352px
-    track and pushed the whole summary column into overflow, clipping
-    the badge and every price (staging, 2026-08-26). ``min-w-0`` lets
-    the row shrink to its track so the inner truncation can engage.
-  -->
   <div
-    class="
-      flex w-full min-w-0 items-center gap-3 rounded-lg border
-      border-success/25 bg-success/5 p-2
-    "
+    :title="gift.name ? t('reason', { name: gift.name }) : undefined"
+    class="flex min-w-0 justify-between gap-3"
   >
-    <div
-      class="
-        relative size-12 shrink-0 overflow-hidden rounded-md bg-white
-        dark:bg-primary-900
-      "
-    >
-      <ImgWithFallback
-        v-if="gift.productImagePath"
-        loading="lazy"
-        class="size-full bg-transparent object-contain"
-        :width="48"
-        :height="48"
-        fit="contain"
-        :background="'transparent'"
-        :src="gift.productImagePath"
-        :alt="productLabel"
-        densities="x1"
-      />
+    <dt class="flex min-w-0 items-center gap-1.5 text-toned">
       <UIcon
-        v-else
-        name="i-heroicons-gift"
-        class="absolute inset-0 m-auto size-6 text-success"
+        name="i-lucide-gift"
+        class="size-4 shrink-0"
       />
-    </div>
-    <div class="min-w-0 flex-1">
-      <p
-        class="
-          truncate text-sm font-semibold text-primary-950
-          dark:text-primary-50
-        "
-      >
-        {{ productLabel }}
-        <span
-          v-if="(gift.quantity ?? 1) > 1"
-          class="font-normal text-muted"
-        >×{{ gift.quantity }}</span>
-      </p>
-      <p class="truncate text-xs text-muted">
-        {{ t('gift_reason', { name: gift.name }) }}
-      </p>
-    </div>
-    <UBadge
-      color="success"
-      variant="subtle"
-      size="sm"
-      icon="i-heroicons-gift"
-      class="shrink-0"
-    >
+      <span class="truncate">{{ quantity > 1 ? t('gift_many', { product, quantity }) : t('gift', { product }) }}</span>
+    </dt>
+    <dd class="shrink-0 font-mono text-success">
       {{ t('free') }}
-    </UBadge>
+    </dd>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
+  gift: Δώρο {product}
+  gift_many: Δώρο {product} ×{quantity}
   free: Δωρεάν
-  gift_reason: Δώρο από την προσφορά «{name}»
+  reason: Από την προσφορά «{name}»
 en:
+  gift: Free {product}
+  gift_many: Free {product} ×{quantity}
   free: Free
-  gift_reason: A gift from the "{name}" offer
+  reason: From the “{name}” offer
 </i18n>

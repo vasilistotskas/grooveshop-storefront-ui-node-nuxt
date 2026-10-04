@@ -206,35 +206,16 @@ async function confirmCancel() {
   }
 }
 
-const fetchingInvoice = ref(false)
+const { fetching: fetchingInvoice, open: openOrderInvoice } = useOrderInvoice()
 
 async function openInvoice() {
-  if (!order.value?.id || fetchingInvoice.value) return
-  fetchingInvoice.value = true
-  // The invoice is a short-lived signed link, so it is asked for on the
-  // click. The tab opens NOW, while the click still counts as the
-  // shopper's: opened after the request, Safari blocks it as a pop-up.
-  // It cannot be `noopener` (that hands back no window to point at the
-  // link), so the opener is cut by hand.
-  const tab = window.open('', '_blank')
-  if (tab) tab.opener = null
-  try {
-    const data = await $api(`/api/orders/${order.value.id}/invoice`, { method: 'GET' })
-    if (!data?.downloadUrl) {
-      tab?.close()
-      toast.add({ title: t('invoice.error_title'), description: t('invoice.error_missing'), color: 'error' })
-      return
-    }
-    if (tab) tab.location.href = data.downloadUrl
-    else window.location.assign(data.downloadUrl)
+  if (!order.value?.id) return
+  const outcome = await openOrderInvoice(order.value.id)
+  if (outcome === 'missing') {
+    toast.add({ title: t('invoice.error_title'), description: t('invoice.error_missing'), color: 'error' })
   }
-  catch (error) {
-    tab?.close()
-    log.error({ action: 'order:invoice:download', error })
+  else if (outcome === 'failed') {
     toast.add({ title: t('invoice.error_title'), description: t('invoice.error_description'), color: 'error' })
-  }
-  finally {
-    fetchingInvoice.value = false
   }
 }
 

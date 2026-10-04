@@ -41,36 +41,36 @@ function onSelected(selected: BoxNowSelectedLocker) {
 </script>
 
 <template>
-  <div class="space-y-3">
+  <div class="flex flex-col gap-3">
     <!-- Empty state — no locker chosen yet -->
-    <template v-if="!hasLocker">
-      <UButton
-        block
-        size="lg"
-        icon="i-lucide-map-pin"
-        color="primary"
-        @click="() => { pickerOpen = true }"
-      >
-        {{ t('shipping.boxnow.select_locker') }}
-      </UButton>
-    </template>
+    <UButton
+      v-if="!hasLocker"
+      block
+      size="lg"
+      icon="i-lucide-map-pin"
+      color="neutral"
+      @click="() => { pickerOpen = true }"
+    >
+      {{ t('shipping.boxnow.select_locker') }}
+    </UButton>
 
     <!-- Locker selected — show a summary card -->
-    <template v-else>
-      <UCard variant="soft">
-        <template #header>
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2 font-semibold">
-              <UIcon name="i-lucide-map-pin" class="size-5 shrink-0 text-primary" />
-              <span>{{ lockerDisplayName }}</span>
-            </div>
-            <UBadge color="success" variant="soft">
-              {{ t('shipping.boxnow.selected_locker.title') }}
-            </UBadge>
-          </div>
-        </template>
-
-        <div class="space-y-1 text-sm text-neutral-600 dark:text-neutral-200">
+    <div
+      v-else
+      class="
+        flex flex-col gap-3 rounded-2xl bg-default p-4 ring ring-default
+      "
+    >
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <UBadge color="secondary" variant="soft">
+          {{ t('shipping.boxnow.selected_locker.title') }}
+        </UBadge>
+      </div>
+      <div class="flex flex-col gap-1">
+        <p data-testid="selected-locker-name" class="font-semibold text-highlighted">
+          {{ lockerDisplayName }}
+        </p>
+        <div class="flex flex-col gap-0.5 text-sm text-toned">
           <p>{{ locker?.boxnowLockerAddressLine1 }}</p>
           <p v-if="locker?.boxnowLockerAddressLine2">
             {{ locker.boxnowLockerAddressLine2 }}
@@ -79,24 +79,22 @@ function onSelected(selected: BoxNowSelectedLocker) {
           <p v-if="locker?.boxnowLockerNote" class="italic">
             {{ locker.boxnowLockerNote }}
           </p>
-          <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-200">
-            <span class="font-medium">{{ t('shipping.boxnow.selected_locker.id_label') }}:</span>
-            {{ formState.boxnowLockerId }}
-          </p>
         </div>
-
-        <template #footer>
-          <UButton
-            variant="outline"
-            icon="i-lucide-map-pin"
-            size="sm"
-            @click="() => { pickerOpen = true }"
-          >
-            {{ t('shipping.boxnow.change_locker') }}
-          </UButton>
-        </template>
-      </UCard>
-    </template>
+        <p class="mt-1 font-mono text-xs text-toned">
+          {{ t('shipping.boxnow.selected_locker.id_label') }}: {{ formState.boxnowLockerId }}
+        </p>
+      </div>
+      <UButton
+        variant="outline"
+        color="neutral"
+        icon="i-lucide-map"
+        size="sm"
+        class="w-fit"
+        @click="() => { pickerOpen = true }"
+      >
+        {{ t('shipping.boxnow.change_locker') }}
+      </UButton>
+    </div>
 
     <!-- Picker modal — always mounted so VueUse's postMessage listener
          is active and the modal can open instantly without a mounting

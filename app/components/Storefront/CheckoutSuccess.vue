@@ -1,15 +1,23 @@
 <script lang="ts" setup>
-import type { TableColumn } from '#ui/types'
-
-const UAvatar = resolveComponent('UAvatar')
-
-const { t, locale } = useI18n()
+/**
+ * The order confirmation, as the boards draw it: a thank-you with the
+ * order number and where the receipt went, the payment's state while the
+ * provider confirms it, what happens next, the order's summary and the
+ * ways on — the order page, more shopping, the invoice — then a few of
+ * the store's guides while the parcel is on its way.
+ *
+ * No delivery dates in "what happens next": Django has none to give
+ * (PLAN B5). The frozen webside tree keeps its own copy of this page.
+ */
+const { t, n, locale } = useI18n()
 
 // The order-confirmation page shipped with the document title left at
 // the store name, twice — on the one page a customer is most likely to
 // keep open in a tab, or come back to from history.
 useHead({ title: () => t('title') })
 const tenantStore = useTenantStore()
+const { loggedIn } = useUserSession()
+const toast = useToast()
 const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
@@ -34,18 +42,10 @@ const verifyingSession = ref(false)
 const pollAttempt = ref(0)
 const isActive = ref(true)
 
-const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
-const img = useMediaStreamImage()
 
 const cartStore = useCartStore()
 const { cleanCartState } = cartStore
-
-const getImage = (mainImagePath: string) => {
-  return img(mainImagePath, { width: 96, height: 96, fit: 'cover' }, {
-    provider: 'mediaStream',
-  })
-}
 
 const { data: order, error } = await useApi(
   `/api/orders/uuid/${orderUUID}`,
@@ -66,13 +66,6 @@ if (!order.value || error.value) {
   })
 }
 
-const customerName = computed(() => {
-  const firstName = order.value?.firstName
-  const lastName = order.value?.lastName
-  return `${firstName} ${lastName}`
-})
-
-const customerEmail = computed(() => order.value?.email)
 const orderNumber = computed(() => order.value?.id)
 const orderItems = computed(() => order.value?.items || [])
 
@@ -104,30 +97,13 @@ const paymentMethodLabel = computed(() =>
 
 const paidAmount = computed(() => order.value?.paidAmount || 0)
 const shippingPrice = computed(() => order.value?.shippingPrice || 0)
-const totalPriceItems = computed(() => order.value?.totalPriceItems || 0)
-const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
-const discountAmount = computed(() => order.value?.discountAmount || 0)
-const loyaltyDiscountAmount = computed(() => order.value?.loyaltyDiscount || 0)
-const giftCardAmount = computed(() => order.value?.giftCardAmount || 0)
 
-const trackingNumber = computed(() => order.value?.trackingNumber)
-const shippingCarrier = computed(() => order.value?.shippingCarrier)
-
-const openTracking = () => {
-  if (!trackingNumber.value) return
-  const query = shippingCarrier.value
-    ? `${shippingCarrier.value} ${trackingNumber.value} tracking`
-    : `${trackingNumber.value} tracking`
-  window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer')
-}
-
-// Only fetch + show recommended blog posts when the tenant has the
-// blog feature enabled — a blog-disabled store must not fire the blog
-// API or render the carousel on its success page.
+// Only fetch + show the store's guides when the tenant has the blog
+// feature enabled — a blog-disabled store must not fire the blog API or
+// render the band on its success page.
 // useLazyAsyncData still executes during SSR (`lazy` only defers on
 // client navigation), so this needs the request-bound fetch: a bare
-// $fetch loses the tenant host and 404s, silently emptying the
-// carousel.
+// $fetch loses the tenant host and 404s, silently emptying the band.
 const requestFetch = useRequestApi()
 const { data: recommendedPosts } = useLazyAsyncData(
   `success-recommended-posts:${locale.value}`,
@@ -136,7 +112,7 @@ const { data: recommendedPosts } = useLazyAsyncData(
         query: {
           languageCode: locale.value,
           paginationType: 'pageNumber',
-          pageSize: 8,
+          pageSize: 3,
           ordering: '-featured,-publishedAt',
         },
       })
@@ -372,521 +348,418 @@ onMounted(async () => {
   verifyingSession.value = false
 })
 
-const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {
-  const colors: Record<string, 'success' | 'warning' | 'error' | 'neutral' | 'info'> = {
-    pending: 'warning',
-    processing: 'warning',
-    completed: 'success',
-    failed: 'error',
-    refunded: 'info',
-    partially_refunded: 'info',
-    canceled: 'error',
-  }
-  if (!status) return 'neutral'
-  return colors[status.toLowerCase()] || 'neutral'
-}
+/**
+ * What the payment did, said only to a shopper arriving from checkout,
+ * and only once the provider's answer is in: a direct revisit claims no
+ * state it has not just checked.
+ */
+type PaymentState = 'verifying' | 'completed' | 'failed' | 'on_delivery' | 'processing'
 
-const getPaymentStatusLabel = (status: OrderDetail['paymentStatus']) => {
-  const labels: Record<string, string> = {
-    pending: t('payment.status_label.pending'),
-    processing: t('payment.status_label.processing'),
-    completed: t('payment.status_label.completed'),
-    failed: t('payment.status_label.failed'),
-    refunded: t('payment.status_label.refunded'),
-    partially_refunded: t('payment.status_label.partially_refunded'),
-    canceled: t('payment.status_label.canceled'),
-  }
-  if (!status) return t('payment.pending')
-  return labels[status.toLowerCase()] || status
-}
+const FAILED_PAYMENT_STATUSES = ['failed', 'canceled']
 
-const orderItemColumns: TableColumn<OrderItemDetail>[] = [
-  {
-    accessorKey: 'product.mainImagePath',
-    header: t('image'),
-    cell: ({ row }) => {
-      const item = row.original
-      return h(UAvatar, {
-        src: getImage(item.product?.mainImagePath),
-        alt: `${extractTranslated(item.product, 'name', locale.value)} ${t('image')}`,
-        size: '3xl',
-        class: 'rounded-md',
-      })
+const paymentState = computed<PaymentState | null>(() => {
+  if (!fromCheckout.value) return null
+  if (verifyingSession.value) return 'verifying'
+  if (!sessionVerified.value) return null
+  if (isPaid.value) return 'completed'
+  if (FAILED_PAYMENT_STATUSES.includes(paymentStatus.value.toLowerCase())) return 'failed'
+  // Checked BEFORE "processing": a collect-on-delivery order is not
+  // awaiting a confirmation at all. It stays PENDING by design until the
+  // carrier remits (measured ACS lag ~4 days), so the amber "payment is
+  // processing" would sit there for days about an order nobody has been
+  // asked to pay for yet.
+  if (isCollectedOnDelivery.value) return 'on_delivery'
+  return 'processing'
+})
+
+const PAYMENT_ALERT = {
+  verifying: { color: 'info', icon: 'i-lucide-refresh-cw', class: undefined },
+  completed: { color: 'success', icon: 'i-lucide-check', class: undefined },
+  failed: { color: 'error', icon: 'i-lucide-triangle-alert', class: undefined },
+  // The board's lime: the order is in, nothing is wrong, money comes later.
+  on_delivery: { color: 'neutral', icon: 'i-lucide-banknote', class: 'bg-(--ui-volt-soft) text-highlighted' },
+  processing: { color: 'warning', icon: 'i-lucide-clock', class: undefined },
+} as const
+
+const paymentAlert = computed(() => {
+  const state = paymentState.value
+  if (!state) return null
+  return {
+    ...PAYMENT_ALERT[state],
+    title: t(state === 'verifying' ? 'verifying.payment' : `payment.${state}.title`),
+    description: state === 'verifying'
+      ? t('verifying.description')
+      : state === 'on_delivery'
+        ? t('payment.on_delivery.description', { amount: n(paidAmount.value, 'currency') })
+        : t(`payment.${state}.description`),
+  }
+})
+
+/** Where the parcel goes: a locker or a station is collected, an address delivered to. */
+const pickup = computed(() => Boolean(order.value?.boxnowShipment?.locker || order.value?.acsShipment?.station))
+
+const CARRIERS: Record<string, string> = { acs: 'ACS', boxnow: 'BOX NOW' }
+const carrier = computed(() => {
+  const code = order.value?.shipmentProviderCode
+  return (code && CARRIERS[code]) || order.value?.trackingDetails?.shippingCarrier || ''
+})
+
+/**
+ * What happens next, from the order's status (`ORDER_FLOW`). A
+ * collect-on-delivery order is paid on its last step, so it has no
+ * payment step of its own; every other order's payment comes before it
+ * is prepared. Each step is done once the order has passed it.
+ */
+const steps = computed(() => {
+  const reached = orderStepsReached(order.value?.status)
+  const collected = isCollectedOnDelivery.value
+  return [
+    { value: 'received', done: true, description: '' },
+    ...(collected ? [] : [{ value: 'payment', done: isPaid.value, description: paymentMethodLabel.value }]),
+    { value: 'preparing', done: reached >= 3, description: '' },
+    { value: 'shipped', done: reached >= 3, description: carrier.value },
+    {
+      value: pickup.value ? 'ready_for_pickup' : 'delivered',
+      done: reached >= 4,
+      description: collected ? t('steps.pay_there', { amount: n(paidAmount.value, 'currency') }) : '',
     },
-  },
-  {
-    accessorKey: 'product.name',
-    header: t('product'),
-    cell: ({ row }) => {
-      const item = row.original
-      return h('div', { class: 'space-y-1' }, [
-        h('p', { class: 'font-medium text-highlighted' },
-          extractTranslated(item.product, 'name', locale.value),
-        ),
-        item.notes && h('p', { class: 'text-sm text-muted' }, item.notes),
-      ])
+  ]
+})
+
+const timeline = computed(() => steps.value.map(step => ({
+  value: step.value,
+  title: t(`steps.${step.value}`),
+  description: step.description,
+  icon: step.done ? 'i-lucide-check' : undefined,
+})))
+
+/** The last step done: UTimeline marks it and every step before it. */
+const lastDone = computed(() => steps.value.findLastIndex(step => step.done))
+
+const totals = computed(() => {
+  const breakdown = order.value?.pricingBreakdown
+  if (!breakdown) return []
+  const discounts = (breakdown.discount ?? 0) + (breakdown.loyaltyDiscount ?? 0)
+  // A gift card pays part of the order: its own line, not a discount.
+  const giftCard = breakdown.giftCardAmount ?? 0
+  return [
+    ...(discounts > 0 ? [{ key: 'discounts', label: t('totals.discounts'), value: `−${n(discounts, 'currency')}`, saving: true }] : []),
+    ...(giftCard > 0 ? [{ key: 'gift_card', label: t('totals.gift_card'), value: `−${n(giftCard, 'currency')}`, saving: true }] : []),
+    {
+      key: 'delivery',
+      label: t('totals.delivery'),
+      value: breakdown.shippingCost ? n(breakdown.shippingCost, 'currency') : t('totals.free'),
+      saving: false,
     },
-  },
-  {
-    accessorKey: 'quantity',
-    header: t('quantity'),
-    cell: ({ row }) => {
-      const item = row.original
-      return h('div', { class: 'text-center' }, [
-        h('span', { class: 'font-medium' }, item.quantity),
-        (item.refundedQuantity || 0) > 0 && h('div', { class: 'text-xs text-error' },
-          `(${item.refundedQuantity} ${t('refunded')})`,
-        ),
-      ])
-    },
-  },
-  {
-    accessorKey: 'price',
-    header: t('price.unit'),
-    cell: ({ row }) => {
-      const item = row.original
-      return h('div', { class: 'text-right space-y-1' }, [
-        h('span', { class: 'font-medium' }, $i18n.n(item.price || 0, 'currency')),
-        (item.refundedAmount || 0) > 0 && h('div', { class: 'text-xs text-error' },
-          `- ${$i18n.n(item.refundedAmount || 0, 'currency')}`,
-        ),
-      ])
-    },
-  },
-  {
-    accessorKey: 'totalPrice',
-    header: t('price.total'),
-    cell: ({ row }) => {
-      const item = row.original
-      return h('div', { class: 'text-right' }, [
-        h('span', { class: 'font-semibold text-highlighted' },
-          $i18n.n(item.totalPrice || 0, 'currency'),
-        ),
-      ])
-    },
-  },
-]
+    ...(breakdown.paymentMethodFee
+      ? [{ key: 'fee', label: t('totals.payment_fee'), value: n(breakdown.paymentMethodFee, 'currency'), saving: false }]
+      : []),
+  ]
+})
+
+const nameOf = (item: OrderItemDetail) => extractTranslated(item.product, 'name', locale.value) ?? ''
+
+const { fetching: fetchingInvoice, open: openOrderInvoice } = useOrderInvoice()
+
+async function openInvoice() {
+  if (!order.value?.id) return
+  const outcome = await openOrderInvoice(order.value.id, orderUUID)
+  if (outcome === 'missing') {
+    toast.add({ title: t('invoice.error_title'), description: t('invoice.error_missing'), color: 'error' })
+  }
+  else if (outcome === 'failed') {
+    toast.add({ title: t('invoice.error_title'), description: t('invoice.error_description'), color: 'error' })
+  }
+}
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-6
-      md:gap-8
-    "
+  <div
+    v-if="order"
+    class="flex flex-col"
   >
-    <PageTitle
-      :text="t('title')"
-      class="text-center"
-    />
+    <UContainer class="py-8 lg:py-12">
+      <div class="mx-auto flex max-w-3xl flex-col gap-8 rounded-[1.25rem] bg-default p-6 ring ring-default sm:p-8">
+        <div class="flex flex-col gap-4">
+          <span class="grid size-14 place-items-center rounded-2xl bg-volt text-on-volt">
+            <UIcon
+              name="i-lucide-check"
+              class="size-7"
+            />
+          </span>
+          <h1 class="font-display text-3xl font-bold text-balance text-highlighted sm:text-4xl">
+            {{ order.firstName ? t('heading', { name: order.firstName }) : t('heading_anonymous') }}
+          </h1>
+          <i18n-t
+            keypath="lead"
+            tag="p"
+            class="text-toned"
+          >
+            <template #number>
+              <strong class="font-mono text-highlighted">#{{ order.id }}</strong>
+            </template>
+            <template #email>
+              <span class="break-all">{{ order.email }}</span>
+            </template>
+          </i18n-t>
+        </div>
 
-    <UAlert
-      v-if="fromCheckout && verifyingSession"
-      color="info"
-      variant="subtle"
-      icon="i-heroicons-arrow-path"
-      class="mx-auto max-w-2xl animate-pulse"
-    >
-      <template #title>
-        {{ t('verifying.payment') }}
-      </template>
-      <template #description>
-        {{ t('verifying.description') }}
-      </template>
-    </UAlert>
+        <UAlert
+          v-if="paymentAlert"
+          :title="paymentAlert.title"
+          :description="paymentAlert.description"
+          :icon="paymentAlert.icon"
+          :color="paymentAlert.color"
+          :class="paymentAlert.class"
+          :ui="paymentState === 'verifying' ? { icon: 'motion-safe:animate-spin' } : undefined"
+          variant="soft"
+          role="status"
+        />
 
-    <UAlert
-      v-else-if="fromCheckout && sessionVerified && isPaid"
-      color="success"
-      variant="subtle"
-      icon="i-heroicons-check-circle"
-      class="mx-auto max-w-2xl"
-    >
-      <template #title>
-        {{ t('payment.completed.title') }}
-      </template>
-      <template #description>
-        {{ t('payment.completed.description') }}
-      </template>
-    </UAlert>
-
-    <!-- Collect-on-delivery is checked BEFORE the generic "not paid
-         yet" branch below, because such an order is not awaiting a
-         payment confirmation at all — nothing is processing. It stays
-         PENDING by design until the carrier remits (measured ACS lag
-         ~4 days), so the amber warning below would sit on the page for
-         days telling the shopper their payment might be delayed, for
-         an order they have not been asked to pay for yet. -->
-    <UAlert
-      v-else-if="fromCheckout && sessionVerified && !isPaid && isCollectedOnDelivery"
-      color="success"
-      variant="subtle"
-      icon="i-heroicons-banknotes"
-      class="mx-auto max-w-2xl"
-    >
-      <template #title>
-        {{ t('payment.on_delivery.title') }}
-      </template>
-      <template #description>
-        {{ t('payment.on_delivery.description', { amount: $i18n.n(paidAmount, 'currency') }) }}
-      </template>
-    </UAlert>
-
-    <UAlert
-      v-else-if="fromCheckout && sessionVerified && !isPaid"
-      color="warning"
-      variant="subtle"
-      icon="i-heroicons-clock"
-      class="mx-auto max-w-2xl"
-    >
-      <template #title>
-        {{ t('payment.processing.title') }}
-      </template>
-      <template #description>
-        {{ t('payment.processing.description') }}
-      </template>
-    </UAlert>
-
-    <UAlert
-      v-else
-      color="success"
-      variant="subtle"
-      :title="t('main.title', { customerName })"
-      :description="t('main.subtitle')"
-      icon="i-heroicons-check-circle"
-      class="mx-auto max-w-2xl"
-    />
-
-    <div
-      class="
-        flex flex-col gap-6
-        md:grid
-        lg:grid-cols-3
-      "
-    >
-      <div
-        class="
-          space-y-6
-          lg:col-span-2
-        "
-      >
-        <UCard>
-          <template #header>
-            <div class="flex items-center">
-              <h2 class="text-xl font-semibold text-highlighted">
-                {{ t('order.items') }}
-              </h2>
-            </div>
-          </template>
-
-          <UTable
-            :data="orderItems"
-            :columns="orderItemColumns"
-            :ui="{
-              root: 'overflow-auto',
-              base: 'min-w-full overflow-auto',
-              thead: 'bg-elevated/50',
-            }"
-          />
-        </UCard>
-      </div>
-
-      <div class="space-y-6">
-        <UCard>
-          <template #header>
-            <h2 class="text-lg font-semibold text-highlighted">
-              {{ t('order.summary') }}
+        <div class="grid gap-8 md:grid-cols-2">
+          <section aria-labelledby="success-next">
+            <h2
+              id="success-next"
+              class="mb-4 font-display text-xl font-bold text-highlighted"
+            >
+              {{ t('next') }}
             </h2>
-          </template>
+            <UTimeline
+              :items="timeline"
+              :model-value="timeline[lastDone]?.value"
+              color="secondary"
+              size="xs"
+            >
+              <template #description="{ item }">
+                <NuxtTime
+                  v-if="item.value === 'received'"
+                  :datetime="order.createdAt"
+                  :locale="locale"
+                  day="numeric"
+                  month="short"
+                  hour="2-digit"
+                  minute="2-digit"
+                />
+                <template v-else>
+                  {{ item.description }}
+                </template>
+              </template>
+            </UTimeline>
+          </section>
 
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-muted">{{ t('order.number') }}</span>
-              <span class="font-mono font-medium">#{{ orderNumber }}</span>
-            </div>
-
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-muted">{{ t('customer.name') }}</span>
-                <span class="font-medium">{{ customerName }}</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-muted">{{ t('customer.email') }}</span>
-                <span class="text-sm">{{ customerEmail }}</span>
-              </div>
-            </div>
-
-            <USeparator />
-
-            <div class="flex items-center justify-between">
-              <span class="text-muted">{{ t('payment.status') }}</span>
-              <UBadge
-                :color="getPaymentStatusColor(paymentStatus)"
-                variant="subtle"
+          <section aria-labelledby="success-summary">
+            <h2
+              id="success-summary"
+              class="mb-4 font-display text-xl font-bold text-highlighted"
+            >
+              {{ t('summary') }}
+            </h2>
+            <ul class="flex flex-col gap-3">
+              <li
+                v-for="item in orderItems"
+                :key="item.id"
+                class="flex items-center gap-3 text-sm"
               >
-                {{ getPaymentStatusLabel(paymentStatus) }}
-              </UBadge>
-            </div>
-
-            <div v-if="trackingNumber" class="space-y-2">
-              <USeparator />
-              <div class="flex items-center justify-between">
-                <span class="text-muted">{{ t('tracking.number') }}</span>
-                <span class="font-mono text-sm">{{ trackingNumber }}</span>
-              </div>
+                <ImgWithFallback
+                  :src="item.product?.mainImagePath"
+                  :alt="nameOf(item)"
+                  :width="48"
+                  :height="48"
+                  fit="cover"
+                  loading="lazy"
+                  densities="x1"
+                  class="size-12 shrink-0 rounded-[0.625rem] bg-elevated object-cover"
+                />
+                <span class="min-w-0 flex-1 text-highlighted">{{ t('line', { quantity: item.quantity, name: nameOf(item) }) }}</span>
+                <span class="shrink-0 font-mono font-bold text-highlighted">{{ n(item.totalPrice || 0, 'currency') }}</span>
+              </li>
+            </ul>
+            <dl class="mt-4 flex flex-col gap-2.5 border-t border-default pt-4 text-sm">
               <div
-                v-if="shippingCarrier" class="flex items-center justify-between"
+                v-for="row in totals"
+                :key="row.key"
+                :class="['flex justify-between gap-3', row.saving && 'text-success']"
               >
-                <span class="text-muted">{{ t('shipping.carrier') }}</span>
-                <span class="text-sm">{{ shippingCarrier }}</span>
+                <dt :class="!row.saving && 'text-toned'">
+                  {{ row.label }}
+                </dt>
+                <dd :class="['font-mono', !row.saving && 'text-highlighted']">
+                  {{ row.value }}
+                </dd>
               </div>
-            </div>
-          </div>
-        </UCard>
-
-        <UCard>
-          <template #header>
-            <h2 class="text-lg font-semibold text-highlighted">
-              {{ t('pricing.breakdown') }}
-            </h2>
-          </template>
-
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-muted">{{ t('pricing.subtotal', orderItems.length) }}</span>
-              <span>{{ $i18n.n(totalPriceItems, 'currency') }}</span>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-muted">{{ t('pricing.shipping') }}</span>
-              <span>{{ $i18n.n(shippingPrice, 'currency') }}</span>
-            </div>
-
-            <div
-              v-if="(totalPriceExtra - shippingPrice || 0) > 0" class="
-                flex items-center justify-between
-              "
-            >
-              <span class="text-muted">{{ t('pricing.extras') }}</span>
-              <span>{{ $i18n.n(totalPriceExtra - shippingPrice, 'currency') }}</span>
-            </div>
-
-            <div
-              v-if="discountAmount > 0"
-              class="flex items-center justify-between text-success"
-            >
-              <span>{{ t('pricing.discount') }}</span>
-              <span>-{{ $i18n.n(discountAmount, 'currency') }}</span>
-            </div>
-
-            <div
-              v-if="loyaltyDiscountAmount > 0"
-              class="flex items-center justify-between text-success"
-            >
-              <span>{{ t('pricing.loyalty_discount') }}</span>
-              <span>-{{ $i18n.n(loyaltyDiscountAmount, 'currency') }}</span>
-            </div>
-
-            <div
-              v-if="giftCardAmount > 0"
-              class="flex items-center justify-between text-success"
-            >
-              <span>{{ t('pricing.gift_card') }}</span>
-              <span>-{{ $i18n.n(giftCardAmount, 'currency') }}</span>
-            </div>
-
-            <USeparator />
-
-            <div class="flex items-center justify-between text-lg font-semibold">
-              <span class="text-highlighted">{{ t('pricing.total') }}</span>
-              <span class="text-highlighted">{{ $i18n.n(paidAmount, 'currency') }}</span>
-            </div>
-
-            <div v-if="paymentMethodLabel" class="pt-2">
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-muted">{{ t('payment.method') }}</span>
-                <span>{{ paymentMethodLabel }}</span>
+              <div class="flex items-baseline justify-between gap-3 pt-1">
+                <dt class="font-semibold text-highlighted">
+                  {{ isPaid ? t('totals.paid') : t('totals.total') }}
+                </dt>
+                <dd class="font-mono text-lg font-bold text-highlighted">
+                  {{ n(paidAmount, 'currency') }}
+                </dd>
               </div>
-            </div>
-          </div>
-        </UCard>
+            </dl>
+          </section>
+        </div>
 
-        <UCard>
-          <div class="space-y-3">
-            <UButton
-              :to="localePath('index')"
-              color="info"
-              variant="subtle"
-              size="lg"
-              block
-              icon="i-heroicons-home"
-              :label="t('actions.home')"
-            />
-
-            <UButton
-              v-if="trackingNumber"
-              color="info"
-              variant="outline"
-              size="lg"
-              block
-              icon="i-heroicons-truck"
-              :label="t('actions.track')"
-              @click="openTracking"
-            />
-          </div>
-        </UCard>
+        <div class="flex flex-wrap items-center gap-3">
+          <UButton
+            v-if="loggedIn"
+            :label="t('actions.track')"
+            :to="localePath({ name: 'account-orders-id', params: { id: order.id } })"
+            color="neutral"
+            size="lg"
+          />
+          <UButton
+            :label="t('actions.continue')"
+            :to="localePath('products')"
+            color="neutral"
+            variant="outline"
+            size="lg"
+          />
+          <UButton
+            v-if="order.hasInvoice"
+            :label="t('actions.invoice')"
+            :loading="fetchingInvoice"
+            icon="i-lucide-download"
+            color="neutral"
+            variant="ghost"
+            size="lg"
+            @click="openInvoice"
+          />
+        </div>
       </div>
-    </div>
+    </UContainer>
 
     <section
       v-if="recommendedPostsList.length"
-      class="
-        mt-12
-        md:mt-16
-      "
-      :aria-label="t('recommended.title')"
+      aria-labelledby="success-guides"
+      class="border-t border-default bg-default py-12 lg:py-16"
     >
-      <h2
-        class="
-          mb-6 text-center text-balance text-2xl font-bold text-primary-950
-          md:text-3xl
-          dark:text-primary-50
-        "
-      >
-        {{ t('recommended.title') }}
-      </h2>
-      <LazyBlogPostsCarousel :posts="recommendedPostsList" />
+      <UContainer class="flex flex-col gap-6">
+        <div class="flex flex-col gap-1">
+          <h2
+            id="success-guides"
+            class="font-display text-3xl font-bold text-highlighted"
+          >
+            {{ t('guides.title') }}
+          </h2>
+          <p class="text-toned">
+            {{ t('guides.lead') }}
+          </p>
+        </div>
+        <ul class="grid gap-6 sm:grid-cols-3">
+          <BlogPostCard
+            v-for="post in recommendedPostsList"
+            :key="post.id"
+            :post="post"
+            heading-level="h3"
+            :show-share-button="false"
+          />
+        </ul>
+      </UContainer>
     </section>
-  </PageWrapper>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Η παραγγελία δημιουργήθηκε με επιτυχία
-  main:
-    title: Σε ευχαριστούμε, {customerName}!
-    subtitle: Η παραγγελία σου δημιουργήθηκε επιτυχώς και θα λάβεις email επιβεβαίωσης σύντομα.
-  order:
-    number: Αριθμός Παραγγελίας
-    items: Προϊόντα Παραγγελίας
-    summary: Σύνοψη Παραγγελίας
-    timeline: Ιστορικό Παραγγελίας
-  customer:
-    name: Όνομα Πελάτη
-    email: Email
+  title: Η παραγγελία καταχωρήθηκε
+  heading: Ευχαριστούμε, {name}. Η παραγγελία σου καταχωρήθηκε.
+  heading_anonymous: Ευχαριστούμε. Η παραγγελία σου καταχωρήθηκε.
+  lead: "Παραγγελία {number} · στείλαμε την απόδειξη στο {email}."
   verifying:
     payment: Επαλήθευση πληρωμής...
     description: Παρακαλώ περίμενε ενώ επιβεβαιώνουμε την πληρωμή σου.
   payment:
-    status: Κατάσταση Πληρωμής
-    paid: Πληρωμένη
-    pending: Εκκρεμεί
-    method: Τρόπος Πληρωμής
-    status_label:
-      pending: Εκκρεμεί
-      processing: Σε επεξεργασία
-      completed: Ολοκληρώθηκε
-      failed: Απέτυχε
-      refunded: Επεστράφη
-      partially_refunded: Μερική επιστροφή
-      canceled: Ακυρώθηκε
     completed:
       title: Η πληρωμή ολοκληρώθηκε
       description: Η πληρωμή σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.
+    failed:
+      title: Η πληρωμή απέτυχε
+      description: Δεν έγινε καμία χρέωση. Η παραγγελία καταχωρήθηκε απλήρωτη — επικοινώνησε μαζί μας για να την ολοκληρώσεις.
     processing:
       title: Η πληρωμή επεξεργάζεται
       description: Η παραγγελία σου καταχωρήθηκε. Η επιβεβαίωση πληρωμής μπορεί να καθυστερήσει λίγα λεπτά.
     on_delivery:
       title: Η παραγγελία σου καταχωρήθηκε
       description: "Θα πληρώσεις κατά την παραλαβή. Ποσό προς πληρωμή: {amount}."
-  tracking:
-    number: Αριθμός Παρακολούθησης
-  shipping:
-    carrier: Εταιρεία Αποστολής
-  pricing:
-    breakdown: Ανάλυση Κόστους
-    subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
-    shipping: Έξοδα Αποστολής
-    extras: Επιπλέον Κόστη
-    discount: Έκπτωση προσφοράς
-    loyalty_discount: Έκπτωση πόντων
+  next: Τι ακολουθεί
+  steps:
+    received: Η παραγγελία καταχωρήθηκε
+    payment: Επιβεβαίωση πληρωμής
+    preparing: Προετοιμασία
+    shipped: Αποστολή
+    delivered: Παράδοση
+    ready_for_pickup: Έτοιμη για παραλαβή
+    pay_there: "Πληρωμή {amount} κατά την παραλαβή"
+  summary: Σύνοψη
+  line: "{quantity} × {name}"
+  totals:
+    discounts: Εκπτώσεις
     gift_card: Δωροκάρτα
+    delivery: Αποστολή
+    free: Δωρεάν
+    payment_fee: Χρέωση τρόπου πληρωμής
+    paid: Πληρώθηκε
     total: Σύνολο
   actions:
-    cancel: Ακύρωση Παραγγελίας
-    home: Πίσω στην Αρχική
-    track: Παρακολούθηση Παραγγελίας
-  recommended:
-    title: Μέχρι να έρθει η παραγγελία σου, ρίξε μια ματιά στα άρθρα μας
-  image: Εικόνα
-  product: Προϊόν
-  quantity: Ποσότητα
-  price:
-    unit: Τιμή Μονάδας
-    total: Συνολική Τιμή
-  refunded: επιστράφηκε
+    track: Παρακολούθηση παραγγελίας
+    continue: Συνέχεια αγορών
+    invoice: Τιμολόγιο (PDF)
+  invoice:
+    error_title: Το τιμολόγιο δεν άνοιξε
+    error_missing: Το τιμολόγιο δεν είναι ακόμη έτοιμο. Δοκίμασε ξανά σε λίγο.
+    error_description: Κάτι πήγε στραβά. Δοκίμασε ξανά.
+  guides:
+    title: Μέχρι να φτάσει
+    lead: Άρθρα από το blog μας.
 en:
-  title: Your order was placed
-  main:
-    title: Thank you, {customerName}
-    subtitle: Your order was placed successfully and a confirmation email is on its way.
-  order:
-    number: Order Number
-    items: Order Items
-    summary: Order Summary
-    timeline: Order History
-  customer:
-    name: Customer Name
-    email: Email
+  title: Your order is in
+  heading: Thank you, {name}. Your order is in.
+  heading_anonymous: Thank you. Your order is in.
+  lead: "Order {number} · we emailed the receipt to {email}."
   verifying:
     payment: Verifying payment…
     description: Please wait while we confirm your payment.
   payment:
-    status: Payment Status
-    paid: Paid
-    pending: Pending
-    method: Payment Method
-    status_label:
-      pending: Pending
-      processing: Processing
-      completed: Completed
-      failed: Failed
-      refunded: Refunded
-      partially_refunded: Partially refunded
-      canceled: Cancelled
     completed:
       title: Payment complete
       description: Your payment is confirmed and a confirmation email is on its way.
+    failed:
+      title: Payment failed
+      description: Nothing was charged. The order is registered unpaid — contact us to complete it.
     processing:
       title: Payment is processing
       description: Your order is registered. Confirming the payment can take a few minutes.
     on_delivery:
       title: Your order is registered
       description: "You will pay on delivery. Amount due: {amount}."
-  tracking:
-    number: Tracking Number
-  shipping:
-    carrier: Carrier
-  pricing:
-    breakdown: Cost Breakdown
-    subtotal: "Item cost | Items cost"
-    shipping: Delivery
-    extras: Extra Costs
-    discount: Offer discount
-    loyalty_discount: Points discount
+  next: What happens next
+  steps:
+    received: Order received
+    payment: Payment confirmed
+    preparing: Preparing
+    shipped: Shipped
+    delivered: Delivered
+    ready_for_pickup: Ready for pickup
+    pay_there: "Pay {amount} on delivery"
+  summary: Summary
+  line: "{quantity} × {name}"
+  totals:
+    discounts: Discounts
     gift_card: Gift card
+    delivery: Delivery
+    free: Free
+    payment_fee: Payment method fee
+    paid: Paid
     total: Total
   actions:
-    cancel: Cancel Order
-    home: Back to Home
-    track: Track Order
-  recommended:
-    title: While you wait for your order, have a look at our articles
-  image: Image
-  product: Product
-  quantity: Quantity
-  price:
-    unit: Unit Price
-    total: Total Price
-  refunded: refunded
+    track: Track order
+    continue: Continue shopping
+    invoice: Invoice (PDF)
+  invoice:
+    error_title: The invoice did not open
+    error_missing: The invoice is not ready yet. Try again shortly.
+    error_description: Something went wrong. Try again.
+  guides:
+    title: While you wait
+    lead: Reads from our blog.
 </i18n>

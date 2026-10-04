@@ -14,13 +14,14 @@ import { trees } from '~~/test/helpers/trees'
  * A guest's nudge to sign up: "earn N points on this order", with
  * N = floor(cart total × points factor). Shown only when the tenant's
  * plan includes loyalty AND the merchant has it switched on, and only
- * for a positive estimate. The trees differ only in the `en:` block.
+ * for a positive estimate. The trees share the logic; the default reads
+ * as a line of copy, the frozen webside copy carries a "+N" badge.
  */
 const settings = createAsyncDataMock<LoyaltySettings>(makeLoyaltySettings({ pointsFactor: 0.5 }))
 
 mockNuxtImport('useLoyalty', () => () => ({ fetchSettings: () => settings }))
 
-describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$tree Checkout/GuestLoyaltyCTA', ({ C }) => {
+describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$tree Checkout/GuestLoyaltyCTA', ({ tree, C }) => {
   beforeEach(() => {
     settings.reset()
     setTenant({ loyaltyEnabled: true })
@@ -33,8 +34,9 @@ describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$
     const wrapper = await mount()
 
     // floor(49.9 × 0.5)
-    expect(wrapper.text()).toContain('+24')
-    expect(wrapper.text()).toContain('Κέρδισε 24 πόντους με αυτήν την παραγγελία!')
+    expect(wrapper.text()).toContain(tree === 'default'
+      ? 'Κέρδισε 24 πόντους με αυτή την παραγγελία'
+      : '+24Κέρδισε 24 πόντους με αυτήν την παραγγελία!')
     expect(wrapper.find('a').attributes('href')).toBe('/account/signup')
   })
 

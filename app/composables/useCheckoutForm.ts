@@ -724,9 +724,13 @@ export async function useCheckoutForm() {
         name = getPaymentMethodName(name)
       }
 
-      // Items + shipping: the base Django waives the fee on (see
-      // ``payWayDisplayCost``). Same base, same answer.
-      const feeBase = (cart.value?.totalPrice || 0) + (shippingPrice.value ?? 0)
+      // The base Django waives the fee on (``payWayFeeBase``): the
+      // items after promotions plus the delivery as charged.
+      const feeBase = payWayFeeBase({
+        totalPrice: cart.value?.totalPrice || 0,
+        promotionDiscount: Number(cart.value?.promotionDiscount ?? 0),
+        shipping: cart.value?.promotionFreeShipping ? 0 : (shippingPrice.value ?? 0),
+      })
       const { cost: displayCost, freeAbove } = payWayDisplayCost(payWay, feeBase)
       // Only show the surcharge suffix when it's a real charge — a
       // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
@@ -746,6 +750,12 @@ export async function useCheckoutForm() {
 
       return {
         label: `${name ?? ''}${costSuffix}`,
+        // The redesigned payment step draws the name and the surcharge
+        // apart; the frozen webside step reads only `label`.
+        name: name ?? '',
+        cost: displayCost,
+        providerCode: payWay.providerCode,
+        settlement: payWay.settlement,
         value: payWay.id,
         mainImagePath: payWay.mainImagePath,
         freeThresholdHint,
@@ -1100,6 +1110,19 @@ export async function useCheckoutForm() {
     applyAddressToFormState(mainAddress)
     selectedSavedAddressId.value = mainAddress.id ?? null
     addressEntryMode.value = 'saved'
+  }
+  else if (user.value) {
+    // A signed-in shopper with no saved address starts from their
+    // account: the email they sign in with, and the name and phone on
+    // their profile. A blank form asked them to type all of it again.
+    formState.email ||= user.value.email
+    formState.firstName ||= user.value.firstName ?? ''
+    formState.lastName ||= user.value.lastName ?? ''
+    if (user.value.phone && !formState.phone) {
+      // E.164; the phone field reads its country back out of it.
+      formState.phone = user.value.phone
+      formState.phoneCountry = ''
+    }
   }
 
   // Payment method is initialised AFTER the shipping method is settled
