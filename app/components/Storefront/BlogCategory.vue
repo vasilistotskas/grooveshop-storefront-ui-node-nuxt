@@ -98,21 +98,10 @@ const ogImage = computed(() => {
   })
 })
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('blog-categories'),
-    label: t('breadcrumb.items.blog.categories.label'),
-  },
-  {
-    to: localePath({ path: route.fullPath }),
-    label: categoryTitle.value || '',
-    current: true,
-  },
+const breadcrumb = computed(() => [
+  { label: t('breadcrumb.items.blog.label'), to: '/blog' },
+  { label: t('breadcrumb.items.blog.categories.label'), to: '/blog/categories' },
+  { label: categoryTitle.value || '' },
 ])
 
 const siteConfig = useSiteConfig()
@@ -169,122 +158,115 @@ useHead({
 </script>
 
 <template>
-  <!-- Same frame as /blog: this is the same post list, and the 6xl cap
-       shifted its crumb 144px right of the one users just came from. -->
-  <PageWrapper class="flex flex-col">
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          text-xs
-          md:text-base
-        `,
-      }"
-      class="relative mb-5 min-w-0"
-    />
-    <!-- h1: this IS the page heading. It was an h2 only because the
-         navbar logo used to claim the h1. -->
-    <h1
-      class="mb-5 flex w-full items-center justify-center gap-2"
+  <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+    <PageBreadcrumb :items="breadcrumb" />
+
+    <header class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+      <!-- h1: this IS the page heading. -->
+      <h1
+        class="
+          flex items-baseline gap-3 font-display text-[1.875rem]/[1.1] font-bold
+          tracking-[-0.02em] text-highlighted
+          lg:text-[2.25rem]/[1.1]
+        "
+      >
+        <span>{{ categoryTitle }}</span>
+        <span
+          v-if="totalPosts"
+          class="font-mono text-base font-semibold text-toned"
+        >({{ totalPosts }})</span>
+      </h1>
+      <Ordering
+        :ordering="String(ordering)"
+        :ordering-options="orderingOptions.orderingOptionsArray.value"
+      />
+    </header>
+
+    <ol
+      v-if="categoryStatus === 'success' && postStatus === 'success' && posts?.results.length"
+      class="
+        grid grid-cols-1 gap-x-6 gap-y-10
+        sm:grid-cols-2
+        lg:grid-cols-3 lg:gap-x-8
+      "
     >
-      <span
-        class="
-          text-2xl font-bold text-primary-950 capitalize
-          md:text-3xl
-          dark:text-primary-50
-        "
-      >
-        {{ categoryTitle }}
-      </span>
-      <span
-        v-if="totalPosts"
-        class="
-          text-sm text-primary-950
-          md:text-base
-          dark:text-primary-50
-        "
-      >
-        ({{ totalPosts }})
-      </span>
-    </h1>
-    <div class="flex w-full flex-col gap-4">
-      <div class="flex flex-row flex-wrap items-center gap-2">
-        <Pagination
-          v-if="pagination"
-          :count="pagination.count"
-          :links="pagination.links"
-          :loading="postStatus === 'pending'"
-          :page="pagination.page"
-          :page-size="pagination.pageSize"
-          :page-total-results="pagination.pageTotalResults"
-          :pagination-type="paginationType"
-          :total-pages="pagination.totalPages"
-        />
-        <Ordering
-          :ordering="String(ordering)"
-          :ordering-options="orderingOptions.orderingOptionsArray.value"
-        />
-      </div>
-      <ol
-        v-if="categoryStatus === 'success'"
-        class="
-          grid grid-cols-1 items-center justify-center gap-4
-          sm:grid-cols-2
-          md:grid-cols-3
-          lg:grid-cols-3
-          xl:grid-cols-3
-        "
-      >
-        <template v-if="postStatus === 'success'">
-          <BlogPostCard
-            v-for="(post, index) in posts?.results"
-            :key="post.id"
-            :post="post"
-            :img-loading="index < 3 ? 'eager' : 'lazy'"
-            :img-fetch-priority="index === 0 ? 'high' : 'auto'"
-            :preload="index === 0"
-          />
-        </template>
-      </ol>
-      <div
-        v-if="postStatus === 'pending'"
-        class="
-          grid grid-cols-1 items-center justify-center gap-4
-          sm:grid-cols-2
-          md:grid-cols-3
-          lg:grid-cols-3
-          xl:grid-cols-3
-        "
-      >
-        <USkeleton
-          v-for="i in (posts?.count || 4)"
-          :key="i"
-          class="h-[400px] w-full"
-        />
-      </div>
+      <BlogPostCard
+        v-for="(post, index) in posts.results"
+        :key="post.id"
+        :post="post"
+        :category-name="categoryTitle"
+        :img-loading="index < 3 ? 'eager' : 'lazy'"
+        :img-fetch-priority="index === 0 ? 'high' : 'auto'"
+        :preload="index === 0"
+      />
+    </ol>
+    <div
+      v-else-if="postStatus === 'pending'"
+      class="
+        grid grid-cols-1 gap-x-6 gap-y-10
+        sm:grid-cols-2
+        lg:grid-cols-3 lg:gap-x-8
+      "
+    >
+      <USkeleton
+        v-for="i in 3"
+        :key="i"
+        class="aspect-4/3 w-full rounded-[1.25rem]"
+      />
     </div>
-  </PageWrapper>
+    <!-- A category with no published posts used to render a blank area. -->
+    <UEmpty
+      v-else-if="postStatus === 'success'"
+      icon="i-lucide-file-text"
+      :title="t('empty.title')"
+      :description="t('empty.description')"
+      :actions="[{ label: t('empty.cta'), color: 'neutral', to: localePath('blog') }]"
+      class="rounded-[1.25rem] bg-default py-12 ring ring-default"
+    />
+
+    <div
+      v-if="pagination"
+      class="flex justify-center"
+    >
+      <Pagination
+        :count="pagination.count"
+        :links="pagination.links"
+        :loading="postStatus === 'pending'"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
+        :page-total-results="pagination.pageTotalResults"
+        :pagination-type="paginationType"
+        :total-pages="pagination.totalPages"
+      />
+    </div>
+  </UContainer>
 </template>
 
 <i18n lang="yaml">
 el:
   page:
     title: "{name}: Άρθρα και οδηγοί"
+  empty:
+    title: Δεν υπάρχουν άρθρα εδώ ακόμη
+    description: Νέα άρθρα έρχονται σύντομα.
+    cta: Όλα τα άρθρα
   breadcrumb:
     items:
       blog:
+        label: Blog
         categories:
           label: Κατηγορίες
 en:
   page:
     title: "{name}: articles and guides"
+  empty:
+    title: No articles here yet
+    description: New articles are on their way.
+    cta: All articles
   breadcrumb:
     items:
       blog:
+        label: Blog
         categories:
           label: Categories
 </i18n>

@@ -62,11 +62,8 @@ const sortedComments = computed(() => {
         :key="comment.id"
         :comment="comment"
         :display-image-of="displayImageOf"
-        :class="userHasCommented(comment) ? 'border-1 border-secondary-500' : ''"
-        class="
-          rounded border bg-primary-100 p-4
-          dark:bg-primary-900
-        "
+        :class="userHasCommented(comment) ? 'ring-secondary' : 'ring-default'"
+        class="rounded-[1.25rem] bg-default p-4 ring"
         @reply-add="onReplyAdd"
       />
     </div>

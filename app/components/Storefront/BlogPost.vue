@@ -4,28 +4,12 @@ const route = useRoute(`blog-post-id-slug___${locale.value}`)
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const siteConfig = useSiteConfig()
-const config = useRuntimeConfig()
-const tenantStore = useTenantStore()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
-const { blogAuthorUrl } = useUrls()
+const { blogAuthorUrl, blogCategoryUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 const img = useMediaStreamImage()
 const siteUrl = siteConfig.url
-
-const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
-
-// The promo banner is PLATFORM marketing content (hardcoded asset +
-// product link into the platform catalogue) — it must never render on
-// another tenant's blog, where the linked product id means something
-// else entirely.
-const isPlatformTenant = useIsPlatformTenant()
-const bannerItems = computed(() => [
-  isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
-])
-const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
-const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
-const bannerLink = '/products/2/mini-powerbank-5000mah'
 
 const blogPostId = computed(() => Number(route.params.id) || null)
 
@@ -137,6 +121,9 @@ const blogPostBody = computed(() => {
   return transformImages(rawBody)
 })
 
+// The headings get anchors, and the table of contents links to them.
+const article = computed(() => anchorHeadings(blogPostBody.value))
+
 const blogPostTitle = computed(() =>
   extractTranslated(blogPost.value, 'title', locale.value) ?? '',
 )
@@ -223,27 +210,21 @@ const ogImage = computed(() => {
   })
 })
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('blog'),
-    label: t('breadcrumb.items.blog.label'),
-  },
-  {
-    to: localePath({
-      name: 'blog-post-id-slug',
-      params: {
-        id: blogPostId.value ?? '',
-        slug: blogPost.value?.slug ?? '',
-      },
-    }),
-    label: blogPostTitle.value,
-  },
-])
+// Home is the crumb's own. The category links to its page, and the post
+// is the current page — the last crumb always is (PageBreadcrumb), so
+// ending the trail on the category announced the category as this page.
+// A category with no name in this language is left out rather than
+// shown as an empty link.
+const breadcrumb = computed(() => {
+  const category = blogPost.value?.category
+  return [
+    { label: t('breadcrumb.blog'), to: '/blog' },
+    ...(category && blogPostCategoryName.value
+      ? [{ label: blogPostCategoryName.value, to: blogCategoryUrl(category) }]
+      : []),
+    { label: blogPostTitle.value },
+  ]
+})
 
 const shareOptions = computed(() => ({
   title: blogPostTitle.value,
@@ -363,319 +344,265 @@ useSchemaOrg([
 </script>
 
 <template>
-  <PageWrapper>
-    <div
-      v-if="blogPost"
-      class="
-        mx-auto max-w-7xl pb-6
-        sm:px-6
-        md:px-4
-        lg:px-8
-      "
-    >
-      <UBreadcrumb
-        :items="items"
-        class="mx-auto mb-5 max-w-2xl"
-      />
+  <UContainer
+    v-if="blogPost"
+    class="flex flex-col gap-8 pt-6 pb-14 lg:gap-10 lg:pb-22"
+  >
+    <PageBreadcrumb :items="breadcrumb" />
 
-      <article
+    <header class="flex flex-col gap-5">
+      <h1
         class="
-          mx-auto flex max-w-2xl flex-col items-start justify-center
-          border-primary-500 pb-6
-          dark:border-primary-500
+          max-w-4xl font-display text-[2rem]/[1.08] font-bold
+          tracking-[-0.02em] text-balance text-highlighted
+          lg:text-[3rem]/[1.05]
         "
       >
-        <div
-          class="
-            mx-auto flex max-w-2xl flex-col items-start justify-center gap-4
-          "
-        >
-          <h1
-            class="
-              text-3xl font-bold tracking-tight text-primary-950
-              md:text-4xl
-              dark:text-primary-50
-            "
-          >
-            {{ blogPostTitle }}
-          </h1>
+        {{ blogPostTitle }}
+      </h1>
 
-          <div
-            v-if="blogAuthorFullName"
-            class="flex items-center gap-2 text-sm text-muted"
-          >
-            <UIcon
-              name="i-heroicons-user-circle"
-              class="size-5"
-              aria-hidden="true"
-            />
-            <!-- The label was sr-only, so sighted readers saw a bare
-                 name with no indication it was the author, and nothing
-                 linked anywhere. Both are visible now and the name
-                 leads to that author's page. -->
-            <span>{{ t('author') }}:</span>
+      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+        <div
+          v-if="blogAuthorFullName"
+          class="flex items-center gap-3"
+        >
+          <UserAvatar
+            v-if="blogPostAuthor?.user"
+            :user-account="blogPostAuthor.user"
+            :show-name="false"
+            size="lg"
+          />
+          <div class="flex flex-col text-sm">
             <Anchor
               v-if="blogPostAuthor?.id"
               :to="{ path: blogAuthorUrl(blogPostAuthor.id) }"
               :title="blogAuthorFullName"
               class="
-                font-medium text-primary-950 underline-offset-4
+                font-semibold text-highlighted underline-offset-4
                 hover:underline
-                dark:text-primary-50
               "
             >
               {{ blogAuthorFullName }}
             </Anchor>
             <span
               v-else
-              class="font-medium"
+              class="font-semibold text-highlighted"
             >{{ blogAuthorFullName }}</span>
-          </div>
 
-          <div
-            class="
-              flex h-[3rem] flex-row flex-nowrap items-center justify-start
-              gap-3
-            "
-          >
-            <ButtonBlogPostLike
-              :blog-post-id="blogPost.id"
-              :likes-count="blogPost.likesCount"
-              size="xl"
-              color="neutral"
-              variant="soft"
-              :ui="{ base: 'flex-row p-2' }"
-              @update="likeClicked"
-            />
-
-            <UButton
-              v-if="blogCommentsEnabled"
-              :label="String(blogPost.commentsCount)"
-              :title="t('comments.count', { count: blogPost.commentsCount })"
-              size="xl"
-              icon="i-heroicons-chat-bubble-oval-left"
-              square
-              color="neutral"
-              variant="soft"
-              :ui="{
-                base: 'gap-1',
-              }"
-              @click="scrollToComments"
-            />
-
-            <ClientOnly>
-              <UButton
-                v-if="isSupported"
-                :title="t('share')"
-                size="xl"
-                icon="i-heroicons-share"
-                square
-                color="neutral"
-                variant="soft"
-                @click="startShare"
-              />
-
-              <template #fallback>
-                <USkeleton class="h-10 w-10" />
-              </template>
-            </ClientOnly>
-          </div>
-
-          <div
-            class="
-              flex w-full flex-col gap-2
-              sm:mx-0
-            "
-          >
-            <div class="sm:mx-0">
-              <ImgWithFallback
-                id="blog-post-image"
-                :alt="blogPostTitle"
-                :background="'transparent'"
-                fit="cover"
-                :height="isMobileOrTablet ? 200 : 340"
-                :src="blogPost.mainImagePath"
-                :width="isMobileOrTablet ? 400 : 672"
-                :modifiers="{ position: 'attention' }"
-                :sizes="'(max-width: 640px) 400px, 672px'"
-                class="rounded-lg bg-primary-100"
-                densities="x1"
-                loading="eager"
-                fetchpriority="high"
-                preload
-                style="object-fit: contain"
-              />
-            </div>
-
-            <!-- These dates were `sr-only`, so a reader saw NO date on
-                 a post at all — only screen readers and the JSON-LD
-                 carried one. The site owner asked for a visible
-                 "updated on" line; showing it next to an invisible
-                 published date would have been odd, so both are now
-                 visible.
-
-                 `updatedAt` is the post's own last-modified stamp, not
-                 today's date. It is trustworthy here: `updated_at` is
-                 `auto_now`, which fires only on `Model.save()`, and
-                 the two things that touch a post most often do not
-                 use it — view counts go through a queryset `.update()`
-                 and likes are an m2m, neither of which saves the
-                 master row. -->
-            <div
+            <!-- `updatedAt` is the post's own last-modified stamp: it is
+                 set by `Model.save()` only, which view counts (a queryset
+                 update) and likes (an m2m) never call. Shown only when the
+                 post really changed after going live. -->
+            <span
               v-if="blogPost.isPublished && blogPost.publishedAt"
-              class="
-                flex flex-wrap items-center gap-x-4 gap-y-1 text-sm
-                text-primary-600
-                dark:text-primary-300
-              "
+              class="flex flex-wrap items-center gap-x-2 text-toned"
             >
-              <span class="flex gap-1.5">
-                <span class="font-semibold">{{ t('published') }}:</span>
-                <NuxtTime
-                  :locale="locale"
-                  :date-style="'long'"
-                  :datetime="blogPost.publishedAt"
-                />
-              </span>
-              <!-- Only when the content actually changed after
-                   publication. Rendering it unconditionally would put
-                   "updated" on every brand-new post, where the two
-                   stamps are the same instant. -->
-              <span
-                v-if="hasBeenUpdatedSincePublish"
-                class="flex gap-1.5"
-              >
-                <span class="font-semibold">{{ t('updated') }}:</span>
-                <NuxtTime
-                  :locale="locale"
-                  :date-style="'long'"
-                  :datetime="blogPost.updatedAt!"
-                />
-              </span>
-            </div>
-          </div>
-
-          <div
-            class="
-              mx-auto max-w-2xl text-primary-950
-              dark:text-primary-50
-            "
-          >
-            <!-- `article-lg` is applied HERE, not inside BlogContent:
-                 that component also renders CMS info pages
-                 (`/info/[slug]`), and the larger long-form size was
-                 asked for on blog posts specifically. Vue merges this
-                 onto the component's root, which already carries
-                 `.article`. -->
-            <LazyBlogContent
-              class="article-lg"
-              hydrate-never
-              :html="blogPostBody"
-            />
+              <NuxtTime
+                :locale="locale"
+                date-style="medium"
+                :datetime="blogPost.publishedAt"
+              />
+              <template v-if="blogPost.readingTime">
+                <span aria-hidden="true">·</span>
+                <span>{{ t('reading_time', { minutes: blogPost.readingTime }, blogPost.readingTime) }}</span>
+              </template>
+              <template v-if="hasBeenUpdatedSincePublish">
+                <span aria-hidden="true">·</span>
+                <span>
+                  {{ t('updated') }}
+                  <NuxtTime
+                    :locale="locale"
+                    date-style="medium"
+                    :datetime="blogPost.updatedAt!"
+                  />
+                </span>
+              </template>
+            </span>
           </div>
         </div>
-      </article>
 
-      <LazyBlogPostComments
-        :id="`blog-post-${blogPost.id}-comments`"
-        hydrate-on-visible
-        :blog-post-id="String(blogPost.id)"
-        :comments-count="blogPost.commentsCount"
-        display-image-of="user"
-      />
+        <div class="flex items-center gap-2">
+          <ButtonBlogPostLike
+            :blog-post-id="blogPost.id"
+            :likes-count="blogPost.likesCount"
+            size="md"
+            color="neutral"
+            variant="outline"
+            :ui="{ base: 'flex-row gap-1.5 px-3' }"
+            @update="likeClicked"
+          />
 
-      <LazyBlogPostsCarousel
-        v-if="relatedPostsStatus !== 'pending' && relatedPosts?.length"
-        hydrate-on-visible
-        :posts="relatedPosts"
-        :title="t('related.sections')"
+          <UButton
+            v-if="blogCommentsEnabled"
+            :label="String(blogPost.commentsCount)"
+            :aria-label="t('comments.count', { count: blogPost.commentsCount })"
+            :title="t('comments.count', { count: blogPost.commentsCount })"
+            size="md"
+            icon="i-lucide-message-circle"
+            color="neutral"
+            variant="outline"
+            @click="scrollToComments"
+          />
+
+          <ClientOnly>
+            <UButton
+              v-if="isSupported"
+              :title="t('share')"
+              :aria-label="t('share')"
+              size="md"
+              icon="i-lucide-share-2"
+              square
+              color="neutral"
+              variant="outline"
+              @click="startShare"
+            />
+
+            <template #fallback>
+              <USkeleton class="size-9 rounded-md" />
+            </template>
+          </ClientOnly>
+        </div>
+      </div>
+    </header>
+
+    <div class="aspect-4/3 overflow-hidden rounded-[1.25rem] bg-elevated sm:aspect-21/9">
+      <ImgWithFallback
+        id="blog-post-image"
+        :alt="blogPostTitle"
+        background="transparent"
+        fit="cover"
+        :height="isMobileOrTablet ? 585 : 549"
+        :src="blogPost.mainImagePath"
+        :width="isMobileOrTablet ? 780 : 1280"
+        :modifiers="{ position: 'attention' }"
+        sizes="(max-width: 640px) 780px, 1280px"
+        class="size-full object-cover"
+        densities="x1"
+        loading="eager"
+        fetchpriority="high"
+        preload
       />
+    </div>
+
+    <div
+      class="
+        grid gap-x-14 gap-y-10
+        lg:items-start
+      "
+      :class="article.links.length ? 'lg:grid-cols-[13rem_minmax(0,44rem)]' : 'lg:grid-cols-[minmax(0,44rem)]'"
+    >
+      <aside
+        v-if="article.links.length"
+        class="
+          hidden
+          lg:sticky lg:top-28 lg:block
+        "
+      >
+        <UContentToc
+          :links="article.links"
+          :title="t('toc')"
+          color="neutral"
+          highlight
+          highlight-color="secondary"
+        />
+      </aside>
+
+      <div class="flex min-w-0 flex-col gap-10">
+        <article>
+          <!-- Static HTML: hydrated never. -->
+          <LazyBlogArticle
+            hydrate-never
+            :html="article.html"
+          />
+        </article>
+
+        <LazyBlogPostComments
+          :id="`blog-post-${blogPost.id}-comments`"
+          hydrate-on-visible
+          :blog-post-id="String(blogPost.id)"
+          :comments-count="blogPost.commentsCount"
+          display-image-of="user"
+        />
+      </div>
+    </div>
+
+    <section
+      v-if="relatedPostsStatus === 'pending' || relatedPosts?.length"
+      class="flex flex-col gap-6"
+      :aria-label="t('related.title')"
+    >
+      <div class="flex items-end justify-between gap-4">
+        <h2
+          class="
+            font-display text-[1.5rem]/[1.15] font-bold tracking-[-0.02em]
+            text-highlighted
+            sm:text-[2rem]/[1.15]
+          "
+        >
+          {{ t('related.title') }}
+        </h2>
+        <UButton
+          :to="localePath('blog')"
+          :label="t('related.all')"
+          trailing-icon="i-lucide-arrow-right"
+          color="neutral"
+          variant="outline"
+          size="sm"
+        />
+      </div>
 
       <div
         v-if="relatedPostsStatus === 'pending'"
-        :class="{
-          'relative flex w-full rounded-lg': true,
-          'px-8': !isMobileOrTablet,
-        }"
+        class="
+          grid gap-6
+          sm:grid-cols-2
+          lg:grid-cols-3
+        "
       >
-        <div
+        <USkeleton
           v-for="index in 3"
           :key="index"
-          class="
-            flex flex-none basis-full snap-center px-4
-            md:basis-1/2
-            lg:basis-1/2
-            xl:basis-1/3
-          "
-        >
-          <USkeleton
-            :class="isMobileOrTablet ? 'h-[670px] w-full' : 'h-[442px] w-full'"
-          />
-        </div>
+          class="h-72 rounded-[1.25rem]"
+        />
       </div>
 
-      <UCarousel
-        v-if="isPlatformTenant"
-        v-slot="{ item }"
-        :items="bannerItems"
-        :ui="{ item: `basis-full place-items-center justify-center` }"
-        :aria-label="t('carousel.banner')"
+      <ul
+        v-else
         class="
-          mx-auto mt-8 max-w-main
-          md:p-0!
+          grid list-none gap-6 p-0
+          sm:grid-cols-2
+          lg:grid-cols-3
         "
-        indicators
       >
-        <NuxtLink
-          v-if="item"
-          :to="bannerLink"
-          :aria-label="t('carousel.bannerLink')"
-          class="block"
-        >
-          <NuxtImg
-            :alt="appTitle"
-            :src="item"
-            :height="bannerHeight"
-            :width="bannerWidth"
-            densities="x1"
-            fit="cover"
-            quality="80"
-            class="rounded-lg"
-            style="object-fit: contain; content-visibility: auto;"
-            loading="lazy"
-            decoding="async"
-          />
-        </NuxtLink>
-      </UCarousel>
-    </div>
-  </PageWrapper>
+        <BlogPostCard
+          v-for="post in relatedPosts?.slice(0, 3)"
+          :key="post.id"
+          :post="post"
+          heading-level="h3"
+          :show-share-button="false"
+        />
+      </ul>
+    </section>
+  </UContainer>
 </template>
 
 <i18n lang="yaml">
 el:
-  author: Συντάκτης
-  published: Δημοσιεύθηκε
+  reading_time: '{minutes} λεπτό ανάγνωσης | {minutes} λεπτά ανάγνωσης'
   updated: Ενημερώθηκε στις
+  toc: Σε αυτή τη σελίδα
   related:
-    sections: Σχετικές ενότητες
+    title: Συνέχισε το διάβασμα
+    all: Όλα τα άρθρα
   breadcrumb:
-    items:
-      blog:
-        label: Blog
-  carousel:
-    banner: Κύριο banner
-    bannerLink: Δείτε το Mini Powerbank 5000mAh
+    blog: Blog
 en:
-  author: Author
-  published: Published
+  reading_time: '{minutes} min read'
   updated: Updated on
+  toc: On this page
   related:
-    sections: Related sections
+    title: Keep reading
+    all: All posts
   breadcrumb:
-    items:
-      blog:
-        label: Blog
-  carousel:
-    banner: Main banner
-    bannerLink: See the Mini Powerbank 5000mAh
+    blog: Blog
 </i18n>

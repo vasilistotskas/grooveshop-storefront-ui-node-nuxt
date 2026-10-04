@@ -160,6 +160,8 @@ export default defineNuxtConfig({
     storage: 'cookie',
   },
   ui: {
+    // UContentToc on the blog post; the content set only registers with @nuxt/content otherwise.
+    content: true,
     experimental: {
       componentDetection: true,
     },

@@ -264,17 +264,13 @@ onMounted(() => {
   <div
     v-if="blogCommentsEnabled"
     id="blog-post-comments"
-    class="
-      mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t
-      border-primary-500 py-6
-      dark:border-primary-500
-    "
+    class="flex flex-col items-start justify-center gap-4"
   >
     <div class="grid w-full">
       <h2
         class="
-          mx-auto flex max-w-2xl text-2xl font-semibold text-primary-950
-          dark:text-primary-50
+          flex items-baseline gap-2 font-display text-2xl font-bold
+          text-highlighted
         "
       >
         <BlogPostCommentsSummary
@@ -284,7 +280,7 @@ onMounted(() => {
     </div>
 
     <div v-if="isLoading" class="flex w-full justify-center py-8">
-      <UIcon name="i-heroicons-arrow-path" class="h-6 w-6 animate-spin" />
+      <UIcon name="i-lucide-refresh-cw" class="size-6 animate-spin" />
     </div>
 
     <LazyBlogPostCommentsList
@@ -300,9 +296,9 @@ onMounted(() => {
         :label="t('load.more')"
         :loading="isLoadingMore"
         size="md"
-        color="secondary"
+        color="neutral"
         variant="outline"
-        trailing-icon="i-heroicons-chevron-down"
+        trailing-icon="i-lucide-chevron-down"
         @click="loadMoreComments"
       />
     </div>
@@ -328,7 +324,7 @@ onMounted(() => {
             block
             size="xl"
             type="button"
-            color="secondary"
+            color="neutral"
             variant="solid"
             :ui="{
               base: 'w-auto',
@@ -350,7 +346,7 @@ onMounted(() => {
         :schema="addCommentFormSchema"
         class="container mx-auto"
         :submit-button-ui="{
-          color: 'secondary',
+          color: 'neutral',
           size: 'md',
           type: 'submit',
           variant: 'solid',
@@ -366,7 +362,7 @@ onMounted(() => {
       <UButton
         :label="t('reply.login')"
         size="md"
-        color="secondary"
+        color="neutral"
         variant="outline"
         @click="() => { isOpen = true }"
       />

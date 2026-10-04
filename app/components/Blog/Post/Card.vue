@@ -29,6 +29,12 @@ const props = withDefaults(defineProps<{
   imgFetchPriority?: 'high' | 'low' | 'auto'
   preload?: boolean
   showShareButton?: boolean
+  /**
+   * The post's category, named. The post carries only the category's id,
+   * so a list that knows its categories passes the name; without it the
+   * card shows no category.
+   */
+  categoryName?: string
 }>(), {
   as: 'li',
   headingLevel: 'h2',
@@ -83,19 +89,14 @@ const startShare = async () => {
 <template>
   <component
     :is="as"
-    class="
-      group relative flex h-full w-full flex-col overflow-hidden rounded-xl
-      bg-default ring ring-default transition
-      hover:ring-accented
-      focus-within:ring-2 focus-within:ring-secondary
-    "
+    class="group relative flex h-full w-full flex-col gap-4"
   >
-    <div class="aspect-3/2 overflow-hidden bg-elevated">
+    <div class="aspect-4/3 overflow-hidden rounded-[1.25rem] bg-elevated">
       <ImgWithFallback
         :src="post.mainImagePath"
         :alt="title"
         :width="640"
-        :height="427"
+        :height="480"
         fit="cover"
         :modifiers="{ position: 'attention' }"
         quality="80"
@@ -111,48 +112,51 @@ const startShare = async () => {
       />
     </div>
 
-    <div class="flex flex-1 flex-col gap-2 p-5">
-      <p
-        v-if="post.publishedAt || post.readingTime"
-        class="flex flex-wrap items-center gap-x-3 text-sm text-toned"
-      >
+    <div class="flex flex-1 flex-col gap-2.5">
+      <p class="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-toned">
+        <UBadge
+          v-if="categoryName"
+          :label="categoryName"
+          color="neutral"
+          variant="soft"
+          size="sm"
+        />
         <NuxtTime
           v-if="post.publishedAt"
           :datetime="post.publishedAt"
           :locale="locale"
-          date-style="medium"
+          day="numeric"
+          month="short"
+          year="numeric"
         />
-        <span v-if="post.readingTime">{{ t('reading_time', { minutes: post.readingTime }, post.readingTime) }}</span>
+        <template v-if="post.readingTime">
+          <span aria-hidden="true">·</span>
+          <span>{{ t('reading_time', { minutes: post.readingTime }, post.readingTime) }}</span>
+        </template>
       </p>
 
       <component
         :is="headingLevel"
         class="
-          font-display text-lg font-semibold tracking-tight text-pretty
+          font-display text-xl/tight font-bold tracking-tight text-pretty
           text-highlighted
         "
       >
         <NuxtLink
           :to="url"
           class="
-            line-clamp-2
-            after:absolute after:inset-0
+            line-clamp-3
+            after:absolute after:inset-0 after:rounded-[1.25rem]
             focus-visible:outline-none
+            focus-visible:after:ring-2 focus-visible:after:ring-secondary
           "
         >
           {{ title }}
         </NuxtLink>
       </component>
 
-      <p
-        v-if="subtitle"
-        class="line-clamp-2 text-sm text-pretty text-muted"
-      >
-        {{ subtitle }}
-      </p>
-
       <!-- Above the stretched link, so each control is its own target. -->
-      <div class="relative z-10 mt-auto flex items-center gap-4 pt-3">
+      <div class="relative z-10 mt-auto flex items-center gap-4 pt-1">
         <!-- In a row, like the comment count beside it: the button's
              default stacks its count under the icon, which suits the
              post page's toolbar, not a card's footer. -->
@@ -168,7 +172,7 @@ const startShare = async () => {
           :to="`${url}#blog-post-comments`"
           :label="String(post.commentsCount)"
           :aria-label="t('comments', { count: post.commentsCount }, post.commentsCount)"
-          icon="i-heroicons-chat-bubble-oval-left"
+          icon="i-lucide-message-circle"
           size="sm"
           color="neutral"
           variant="link"
@@ -178,7 +182,7 @@ const startShare = async () => {
           <UButton
             v-if="showShareButton && isSupported"
             :aria-label="t('share')"
-            icon="i-heroicons-share"
+            icon="i-lucide-share-2"
             size="sm"
             color="neutral"
             variant="link"

@@ -4,6 +4,9 @@ const route = useRoute()
 const img = useMediaStreamImage()
 const localePath = useLocalePath()
 
+// Initials on the accent's soft tint, as the board draws the author.
+const AVATAR_UI = { root: 'bg-(--ui-secondary-soft)', fallback: 'font-display font-bold text-accent' }
+
 const paginationType = PaginationTypeEnum.PAGE_NUMBER
 const authorId = 'id' in route.params ? route.params.id : undefined
 
@@ -63,12 +66,6 @@ const authorName = computed(() => {
   return `${user.firstName || ''} ${user.lastName || ''}`.trim()
 })
 
-const authorInitials = computed(() => {
-  const user = author.value?.user
-  if (!user) return ''
-  return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase()
-})
-
 // The bio is rich text (a Django `RichTextField`, like a post body):
 // sanitised for the page, reduced to plain text for meta and schema.org.
 const authorBioHtml = computed(() =>
@@ -83,6 +80,10 @@ const authorBioText = computed(() => htmlToPlainText(authorBioHtml.value))
 const metaDescription = computed(
   () => authorBioText.value || undefined,
 )
+
+// The heading names the author by first name, as the board does; an
+// author without one falls back to the full name.
+const firstName = computed(() => author.value?.user?.firstName || authorName.value)
 
 const totalPosts = computed(() => author.value?.numberOfPosts || 0)
 const totalLikes = computed(() => author.value?.totalLikesReceived || 0)
@@ -119,7 +120,6 @@ const items = computed(() => [
   {
     to: localePath('index'),
     label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('blog'),
@@ -183,124 +183,80 @@ useHead({
 </script>
 
 <template>
-  <!-- Same frame as /blog and the category page: this is the same post
-       list, and a different cap would shift the crumb sideways from the
-       page users just came from. -->
-  <PageWrapper class="flex flex-col">
+  <UContainer class="flex flex-col gap-8 py-6 lg:py-10">
     <UBreadcrumb
       :items="items"
-      :ui="{
-        item: `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          text-xs
-          md:text-base
-        `,
-      }"
-      class="relative mb-5 min-w-0"
+      class="min-w-0"
     />
 
-    <!-- Author identity. Stacks centred on a phone and goes side-by-side
-         from `sm` up, so the portrait never eats the fold on mobile
-         while desktop still reads as a proper profile header.
-
-         Built from UAvatar + a native h1 rather than UUser: the author's
-         name IS this page's heading, and UUser renders its name in a
-         non-heading element. -->
+    <!-- Author identity, on one card. The author's name IS this page's
+         heading, so it is a native h1 rather than UUser's name. -->
     <header
       class="
-        mb-8 flex flex-col items-center gap-5 text-center
-        sm:flex-row sm:items-start sm:gap-6 sm:text-left
+        flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default
+        sm:flex-row sm:items-center sm:gap-8 sm:p-8
       "
     >
       <UAvatar
         :src="avatarSrc"
         :alt="authorName"
-        :text="authorInitials"
-        size="3xl"
-        class="
-          size-20 shrink-0 ring-2 ring-(--ui-border-accented)
-          sm:size-24
-        "
+        class="size-24 shrink-0 text-3xl sm:size-28"
+        :ui="AVATAR_UI"
       />
 
-      <div class="flex min-w-0 flex-col items-center gap-3 sm:items-start">
-        <h1
-          class="
-            text-2xl font-bold text-primary-950
-            md:text-3xl
-            dark:text-primary-50
-          "
-        >
-          {{ authorName }}
-        </h1>
-
-        <div class="flex flex-wrap items-center justify-center gap-2">
+      <div class="flex min-w-0 flex-1 flex-col items-start gap-3">
+        <div class="flex flex-wrap items-center gap-2">
           <UBadge
             color="neutral"
             variant="subtle"
-            icon="i-heroicons-document-text"
-          >
-            {{ t('stats.posts', { count: totalPosts }) }}
-          </UBadge>
+            :label="t('stats.posts', { count: totalPosts }, totalPosts)"
+          />
           <UBadge
             v-if="totalLikes"
             color="neutral"
             variant="subtle"
-            icon="i-heroicons-heart"
-          >
-            {{ t('stats.likes', { count: totalLikes }) }}
-          </UBadge>
+            :label="t('stats.likes', { count: totalLikes }, totalLikes)"
+          />
         </div>
+
+        <h1 class="font-display text-4xl/none font-bold tracking-tight text-highlighted lg:text-5xl/none">
+          {{ authorName }}
+        </h1>
 
         <div
           v-if="authorBioText"
-          class="
-            article max-w-2xl text-sm text-pretty text-muted
-            md:text-base
-          "
+          class="author-bio max-w-2xl text-pretty text-toned"
           v-html="authorBioHtml"
         />
-
-        <UButton
-          v-if="author?.website"
-          :to="author.website"
-          :external="true"
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          color="neutral"
-          variant="link"
-          size="sm"
-          icon="i-heroicons-globe-alt"
-          class="px-0"
-        >
-          {{ t('website') }}
-        </UButton>
       </div>
+
+      <UButton
+        v-if="author?.website"
+        :to="author.website"
+        :external="true"
+        target="_blank"
+        rel="noopener noreferrer nofollow"
+        :aria-label="t('website')"
+        icon="i-lucide-globe"
+        color="neutral"
+        variant="outline"
+        class="rounded-full sm:self-start"
+      />
     </header>
 
-    <div class="flex w-full flex-col gap-4">
-      <h2 class="sr-only">
-        {{ t('articles') }}
-      </h2>
-
-      <div
-        v-if="pagination"
-        class="flex flex-row flex-wrap items-center gap-2"
-      >
-        <Pagination
-          :count="pagination.count"
-          :links="pagination.links"
-          :loading="postStatus === 'pending'"
-          :page="pagination.page"
-          :page-size="pagination.pageSize"
-          :page-total-results="pagination.pageTotalResults"
-          :pagination-type="paginationType"
-          :total-pages="pagination.totalPages"
-        />
+    <section
+      aria-labelledby="author-posts-heading"
+      class="flex w-full flex-col gap-6"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2
+          id="author-posts-heading"
+          class="font-display text-2xl font-bold text-highlighted"
+        >
+          {{ t('articles', { name: firstName }) }}
+        </h2>
         <Ordering
+          v-if="pagination"
           :ordering="String(ordering)"
           :ordering-options="orderingOptions.orderingOptionsArray.value"
         />
@@ -309,15 +265,16 @@ useHead({
       <ol
         v-if="postStatus === 'success' && posts?.results?.length"
         class="
-          grid grid-cols-1 items-center justify-center gap-4
+          grid grid-cols-1 gap-6
           sm:grid-cols-2
-          md:grid-cols-3
+          lg:grid-cols-3
         "
       >
         <BlogPostCard
           v-for="(post, index) in posts?.results"
           :key="post.id"
           :post="post"
+          heading-level="h3"
           :img-loading="index < 3 ? 'eager' : 'lazy'"
           :img-fetch-priority="index === 0 ? 'high' : 'auto'"
           :preload="index === 0"
@@ -327,15 +284,15 @@ useHead({
       <div
         v-else-if="postStatus === 'pending'"
         class="
-          grid grid-cols-1 items-center justify-center gap-4
+          grid grid-cols-1 gap-6
           sm:grid-cols-2
-          md:grid-cols-3
+          lg:grid-cols-3
         "
       >
         <USkeleton
           v-for="i in 6"
           :key="i"
-          class="h-[400px] w-full"
+          class="h-[400px] w-full rounded-[1.25rem]"
         />
       </div>
 
@@ -347,23 +304,61 @@ useHead({
       >
         <template #icon>
           <UIcon
-            name="i-heroicons-document-text"
+            name="i-lucide-file-text"
             size="xl"
           />
         </template>
       </LazyEmptyState>
-    </div>
-  </PageWrapper>
+
+      <div
+        v-if="pagination"
+        class="flex justify-center"
+      >
+        <Pagination
+          :count="pagination.count"
+          :links="pagination.links"
+          :loading="postStatus === 'pending'"
+          :page="pagination.page"
+          :page-size="pagination.pageSize"
+          :page-total-results="pagination.pageTotalResults"
+          :pagination-type="paginationType"
+          :total-pages="pagination.totalPages"
+        />
+      </div>
+    </section>
+  </UContainer>
 </template>
+
+<style scoped>
+/* The bio is operator-authored rich text. Only what a bio holds is
+   styled: paragraph rhythm and links. The shared `.article` prose class
+   belongs to the frozen tree and is not reused here. */
+.author-bio :deep(p) {
+  margin-block: 0.5rem;
+}
+
+.author-bio :deep(p:first-child) {
+  margin-top: 0;
+}
+
+.author-bio :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.author-bio :deep(a) {
+  color: var(--ui-secondary-text, var(--ui-secondary));
+  text-decoration: underline;
+}
+</style>
 
 <i18n lang="yaml">
 el:
   page:
     title: "{name}: Άρθρα"
-  articles: Άρθρα
+  articles: "Άρθρα από {name}"
   website: Ιστοσελίδα
   stats:
-    posts: "{count} άρθρα"
+    posts: "{count} άρθρο | {count} άρθρα"
     likes: "{count} μου αρέσει"
   empty:
     title: Κανένα άρθρο ακόμα
@@ -371,11 +366,11 @@ el:
 en:
   page:
     title: "{name}: Articles"
-  articles: Articles
+  articles: "Posts by {name}"
   website: Website
   stats:
-    posts: "{count} articles"
-    likes: "{count} likes"
+    posts: "{count} post | {count} posts"
+    likes: "{count} like | {count} likes"
   empty:
     title: No articles yet
     description: This author has not published any articles.
