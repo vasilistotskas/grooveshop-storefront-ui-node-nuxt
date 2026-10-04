@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * One topic as a row of its category's card: its name and description,
+ * and the switch that subscribes or unsubscribes at once.
+ */
 const { t, locale } = useI18n()
 
 const props = defineProps<{
@@ -16,6 +20,8 @@ const localLoading = ref(false)
 const timeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const isToggling = computed(() => props.loading || localLoading.value)
+const name = computed(() => props.topic.translations[locale.value]?.name || props.topic.slug)
+const description = computed(() => props.topic.translations[locale.value]?.description)
 
 const handleToggle = (checked: boolean) => {
   if (isToggling.value) return
@@ -39,97 +45,41 @@ const handleToggle = (checked: boolean) => {
 onBeforeUnmount(() => {
   if (timeoutId.value) clearTimeout(timeoutId.value)
 })
-
-const categoryColor = computed(() => {
-  const colorMap: Record<TopicCategory, 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {
-    MARKETING: 'primary',
-    PRODUCT: 'info',
-    ACCOUNT: 'secondary',
-    SYSTEM: 'warning',
-    NEWSLETTER: 'success',
-    PROMOTIONAL: 'error',
-    OTHER: 'neutral',
-  }
-  return props.topic.category ? colorMap[props.topic.category] : 'neutral'
-})
-
-const categoryLabel = computed(() => {
-  return props.topic.category ? t(`categories.${props.topic.category}`) : t('categories.OTHER')
-})
 </script>
 
 <template>
-  <UCard variant="subtle" class="h-full">
-    <template #header>
-      <div class="flex items-start justify-between gap-4">
-        <div class="min-w-0 flex-1">
-          <h3 class="truncate text-base font-semibold text-default">
-            {{ topic.translations[locale]?.name || topic.slug }}
-          </h3>
-          <div class="mt-1 flex items-center gap-2">
-            <UBadge
-              v-if="topic.category"
-              :color="categoryColor"
-              variant="soft"
-              size="sm"
-            >
-              {{ categoryLabel }}
-            </UBadge>
-            <UBadge
-              variant="subtle"
-              color="neutral"
-              size="sm"
-              :icon="'i-heroicons-users'"
-            >
-              {{ topic.subscriberCount }}
-            </UBadge>
-          </div>
-        </div>
-        <USwitch
-          :model-value="isSubscribed"
-          :loading="isToggling"
-          :disabled="isToggling"
-          color="success"
-          size="md"
-          @update:model-value="handleToggle"
-        />
-      </div>
-    </template>
-
-    <div class="text-sm text-muted">
-      {{ topic.translations[locale]?.description || t('noDescription') }}
+  <div class="flex items-center justify-between gap-4 py-4">
+    <div class="flex min-w-0 flex-col gap-0.5">
+      <h3 class="font-semibold text-highlighted">
+        {{ name }}
+      </h3>
+      <p
+        v-if="description"
+        class="text-sm text-toned"
+      >
+        {{ description }}
+      </p>
+      <p
+        v-if="topic.requiresConfirmation"
+        class="text-xs text-toned"
+      >
+        {{ t('requiresConfirmation') }}
+      </p>
     </div>
-
-    <template v-if="topic.requiresConfirmation" #footer>
-      <div class="flex items-center gap-2 text-xs text-muted">
-        <UIcon name="i-heroicons-information-circle" class="size-4" />
-        <span>{{ t('requiresConfirmation') }}</span>
-      </div>
-    </template>
-  </UCard>
+    <USwitch
+      :model-value="isSubscribed"
+      :loading="isToggling"
+      :disabled="isToggling"
+      :aria-label="name"
+      color="secondary"
+      @update:model-value="handleToggle"
+    />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  noDescription: Χωρίς περιγραφή
   requiresConfirmation: Απαιτείται επιβεβαίωση email
-  categories:
-    MARKETING: Μάρκετινγκ
-    PRODUCT: Προϊόντα
-    ACCOUNT: Λογαριασμός
-    SYSTEM: Σύστημα
-    NEWSLETTER: Ενημερωτικό Δελτίο
-    PROMOTIONAL: Προωθητικά
-    OTHER: Άλλο
 en:
-  noDescription: No description
   requiresConfirmation: Email confirmation required
-  categories:
-    MARKETING: Marketing
-    PRODUCT: Products
-    ACCOUNT: Account
-    SYSTEM: System
-    NEWSLETTER: Newsletter
-    PROMOTIONAL: Promotions
-    OTHER: Other
 </i18n>

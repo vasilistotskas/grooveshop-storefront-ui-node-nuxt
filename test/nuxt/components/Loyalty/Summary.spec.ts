@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
-import type { VueWrapper } from '@vue/test-utils'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import type { DOMWrapper, VueWrapper } from '@vue/test-utils'
 import LoyaltySummary from '~/components/Loyalty/Summary.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
 import { makeLoyaltySettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
@@ -8,15 +8,9 @@ import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { LoyaltySummary as Summary, LoyaltyTier } from '~~/shared/openapi/types.gen'
 
 /**
- * The account's loyalty overview: balance and its euro value, level and
- * XP progress, the current tier and what the next one unlocks.
+ * The account's rewards overview: the balance and what it is worth at
+ * checkout, and the tier ladder with the shopper's place on it.
  */
-
-// UTooltip needs UApp's TooltipProvider, which a bare mount does not have.
-mockComponent('UTooltip', { template: '<div><slot /></div>' })
-
-const { navigateToMock } = vi.hoisted(() => ({ navigateToMock: vi.fn() }))
-mockNuxtImport('navigateTo', () => navigateToMock)
 
 const summary = createAsyncDataMock<Summary>()
 const tiers = createAsyncDataMock<LoyaltyTier[]>()
@@ -27,165 +21,182 @@ mockNuxtImport('useLoyalty', () => () => ({
   fetchSettings: () => settings,
 }))
 
-const BRONZE = makeTier({ id: 1, requiredLevel: 1, pointsMultiplier: 1 })
-const SILVER = makeTier({
-  id: 2,
-  requiredLevel: 5,
-  pointsMultiplier: 1.5,
-  translations: {
-    el: { name: 'Ασημένιο', description: 'Ασημένια βαθμίδα με πολλαπλασιαστή 1.5x' },
-    en: { name: 'Silver', description: 'Silver tier with a 1.5x multiplier' },
-  },
+const tier = (id: number, requiredLevel: number, el: string, pointsMultiplier = 1) => makeTier({
+  id,
+  requiredLevel,
+  pointsMultiplier,
+  translations: { el: { name: el, description: '' }, en: { name: el, description: '' } },
 })
-const GOLD = makeTier({
-  id: 3,
-  requiredLevel: 10,
-  pointsMultiplier: 2,
-  translations: { el: { name: 'Χρυσό', description: '' }, en: { name: 'Gold', description: '' } },
-})
+const BRONZE = tier(1, 1, 'Χάλκινο')
+const SILVER = tier(2, 5, 'Ασημένιο', 1.5)
+const GOLD = tier(3, 10, 'Χρυσό', 2)
 
 beforeEach(() => {
   summary.reset()
   tiers.reset()
   settings.reset()
-  settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 100 })
-  summary.data.value = makeSummary({ pointsBalance: 1500, totalXp: 5000, level: 5, tier: SILVER, pointsToNextTier: 500 })
+  settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 100, xpPerLevel: 1000 })
+  summary.data.value = makeSummary({ pointsBalance: 2340, totalXp: 5000, level: 5, tier: SILVER })
   summary.status.value = 'success'
   // Out of order on purpose: the component sorts by requiredLevel.
   tiers.data.value = [GOLD, BRONZE, SILVER]
 })
 
 const mountSummary = () => mountSuspended(LoyaltySummary, { route: false })
-const cards = (wrapper: VueWrapper) => wrapper.findAllComponents({ name: 'UCard' })
+const n = (value: number, format?: 'currency') => useNuxtApp().$i18n.n(value, format as 'currency')
+const steps = (wrapper: VueWrapper) => wrapper.findAll('ol li')
 
-describe('Loyalty/Summary', () => {
-  it('shows the balance, what it is worth, the level and the XP', async () => {
+describe('Loyalty/Summary balance', () => {
+  it('shows the points balance and what it is worth at the store\'s own ratio', async () => {
+    settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 100 })
+
     const wrapper = await mountSummary()
-    const [points, level] = cards(wrapper)
+    const card = wrapper.get('section[aria-label="Υπόλοιπο"]')
 
-    expect(points!.find('.text-5xl').text()).toBe('1500')
-    expect(points!.text()).toContain(useNuxtApp().$i18n.n(15, 'currency'))
-    expect(level!.find('.text-5xl').text()).toBe('5')
-    expect(level!.text()).toContain('Επίπεδο 5')
-    expect(level!.text()).toContain(`${(5000).toLocaleString()} XP συνολικά`)
+    expect(card.text()).toContain(n(2340))
+    expect(card.text()).toContain(`= ${n(23.4, 'currency')} για να ξοδέψεις στο ταμείο`)
   })
 
-  // The ratio is the store's own (`LOYALTY_REDEMPTION_RATIO_EUR`); it used
-  // to be a hardcoded 100 points per euro whatever the store set.
-  it('values the balance at the store\'s own redemption ratio', async () => {
+  it('values the balance at the ratio the store set, not a fixed one', async () => {
     settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 50 })
 
     const wrapper = await mountSummary()
 
-    expect(cards(wrapper)[0]!.text()).toContain(useNuxtApp().$i18n.n(30, 'currency'))
-    // The explanation states the same ratio, not a fixed 100.
-    expect(cards(wrapper)[0]!.text()).toContain('(50 πόντοι = 1€)')
+    expect(wrapper.get('section[aria-label="Υπόλοιπο"]').text()).toContain(n(46.8, 'currency'))
   })
 
   it.each([
     ['before the settings arrive', undefined],
     ['for a ratio that redeems nothing', makeLoyaltySettings({ redemptionRatioEur: 0 })],
-  ])('shows no euro value %s', async (_case, value) => {
+    ['while the programme is off', makeLoyaltySettings({ enabled: false, redemptionRatioEur: 100 })],
+  ])('quotes no value %s', async (_case, value) => {
     settings.data.value = value
 
     const wrapper = await mountSummary()
 
-    expect(cards(wrapper)[0]!.text()).not.toContain('€')
+    expect(wrapper.get('section[aria-label="Υπόλοιπο"]').text()).not.toContain('€')
   })
+})
 
-  it('shows the XP still to go and the share of the way already covered', async () => {
+describe('Loyalty/Summary tier ladder', () => {
+  it('draws one step per tier the API returns, in level order, from the store\'s XP per level', async () => {
     const wrapper = await mountSummary()
 
-    expect(wrapper.text()).toContain('500 XP')
-    // 5000 of 5000 + 500.
-    expect(wrapper.findComponent({ name: 'UProgress' }).props('modelValue')).toBe(91)
+    const spans = (step: DOMWrapper<Element>) => step.findAll('span').map(span => span.text())
+    expect(steps(wrapper).map(step => [spans(step)[1], spans(step).at(-1)])).toEqual([
+      ['Χάλκινο', n(0)],
+      [expect.stringContaining('Ασημένιο'), n(4000)],
+      ['Χρυσό', n(9000)],
+    ])
   })
 
-  it('shows a full bar and "top level" once there is no next tier', async () => {
-    summary.data.value = makeSummary({ tier: GOLD, pointsToNextTier: null })
+  it('does not assume four tiers', async () => {
+    tiers.data.value = [BRONZE, SILVER, GOLD, tier(4, 20, 'Πλατινένιο'), tier(5, 30, 'Διαμάντι')]
 
     const wrapper = await mountSummary()
 
-    expect(wrapper.text()).toContain('Μέγιστο επίπεδο')
-    expect(wrapper.findComponent({ name: 'UProgress' }).props('modelValue')).toBe(100)
+    expect(steps(wrapper)).toHaveLength(5)
+    expect(steps(wrapper)[4]!.text()).toContain(n(29000))
   })
 
-  describe('tier', () => {
-    it('names the current tier in the page language, with its description', async () => {
-      const wrapper = await mountSummary()
-
-      expect(wrapper.findComponent({ name: 'UBadge' }).text()).toBe('Ασημένιο')
-      expect(wrapper.text()).toContain('Ασημένια βαθμίδα με πολλαπλασιαστή 1.5x')
-      expect(wrapper.text()).not.toContain('Silver')
-    })
-
-    it('shows no name or description rather than another language\'s', async () => {
-      summary.data.value = makeSummary({
-        tier: makeTier({ id: 2, translations: { en: { name: 'Silver', description: 'Silver tier' } } }),
-      })
-
-      const wrapper = await mountSummary()
-
-      expect(wrapper.findComponent({ name: 'UBadge' }).text()).toBe('')
-      expect(wrapper.text()).not.toContain('Silver')
-    })
-
-    it('says so when no tier is assigned yet', async () => {
-      summary.data.value = makeSummary({ tier: null })
-
-      const wrapper = await mountSummary()
-
-      expect(wrapper.findComponent({ name: 'UBadge' }).text()).toBe('Δεν έχει ανατεθεί βαθμίδα')
-    })
-  })
-
-  describe('next tier preview', () => {
-    it('names the tier after the current one and the multiplier it unlocks', async () => {
-      const wrapper = await mountSummary()
-
-      expect(wrapper.text()).toContain('Ξεκλειδώστε τη βαθμίδα Χρυσό')
-      expect(wrapper.text()).toContain('Ξεκλειδώνεται πολλαπλασιαστής πόντων +100%')
-    })
-
-    // A tier the list does not hold (removed since, say) is no position
-    // on the ladder: there is no "next" to name, least of all the first.
-    it('names no next tier when the current one is not on the ladder', async () => {
-      summary.data.value = makeSummary({ tier: makeTier({ id: 99, requiredLevel: 7 }) })
-
-      const wrapper = await mountSummary()
-
-      expect(wrapper.text()).not.toContain('Ξεκλειδώστε τη βαθμίδα')
-    })
-
-    it('points a shopper with no tier at the first one, with no multiplier line for 1x', async () => {
-      summary.data.value = makeSummary({ tier: null })
-
-      const wrapper = await mountSummary()
-
-      expect(wrapper.text()).toContain('Ξεκλειδώστε τη βαθμίδα Χάλκινο')
-      expect(wrapper.text()).not.toContain('Ξεκλειδώνεται πολλαπλασιαστής')
-    })
-
-    it('shows nothing past the top tier', async () => {
-      summary.data.value = makeSummary({ tier: GOLD, pointsToNextTier: null })
-
-      const wrapper = await mountSummary()
-
-      expect(wrapper.text()).not.toContain('Ξεκλειδώστε')
-    })
-  })
-
-  it.each([
-    [2, '/products'],
-    [3, '/loyalty-program'],
-  ])('quick action card %i navigates to %s', async (index, path) => {
+  it('fills the steps up to the shopper\'s tier and marks it as the current one', async () => {
     const wrapper = await mountSummary()
 
-    await cards(wrapper)[index]!.trigger('click')
-
-    expect(navigateToMock).toHaveBeenCalledWith(path)
+    expect(steps(wrapper).map(step => step.attributes('aria-current'))).toEqual([undefined, 'step', undefined])
+    // The fill IS the contract: steps up to and including the current one.
+    expect(steps(wrapper).map(step => step.find('span').classes().includes('bg-secondary'))).toEqual([true, true, false])
   })
 
+  it('fills no step for a shopper without a tier', async () => {
+    summary.data.value = makeSummary({ tier: null, totalXp: 0 })
+
+    const wrapper = await mountSummary()
+
+    expect(steps(wrapper).map(step => step.find('span').classes().includes('bg-secondary'))).toEqual([false, false, false])
+  })
+
+  it('shows no ladder at all while the tiers are unknown, leaving the balance alone', async () => {
+    tiers.data.value = []
+
+    const wrapper = await mountSummary()
+
+    expect(wrapper.find('ol').exists()).toBe(false)
+    expect(wrapper.get('section[aria-label="Υπόλοιπο"]').text()).toContain(n(2340))
+  })
+})
+
+describe('Loyalty/Summary what is left to the next tier', () => {
+  const line = (wrapper: VueWrapper) => wrapper.get('section[aria-labelledby] p').text()
+
+  it('says how many more points reach the next tier, from lifetime points', async () => {
+    const wrapper = await mountSummary()
+
+    // Gold starts at (10 - 1) x 1000; the shopper has 5000.
+    expect(line(wrapper)).toBe(`Κέρδισε άλλους ${n(4000)} πόντους για τη βαθμίδα Χρυσό.`)
+  })
+
+  it('quotes the multiplier only while the store has tier multipliers on', async () => {
+    settings.data.value = makeLoyaltySettings({ tierMultiplierEnabled: true, xpPerLevel: 1000 })
+
+    const wrapper = await mountSummary()
+
+    expect(line(wrapper)).toBe(`Κέρδισε άλλους ${n(4000)} πόντους για τη βαθμίδα Χρυσό (×${n(2)}).`)
+  })
+
+  it('quotes no multiplier when the store has them off', async () => {
+    settings.data.value = makeLoyaltySettings({ tierMultiplierEnabled: false, xpPerLevel: 1000 })
+
+    const wrapper = await mountSummary()
+
+    expect(line(wrapper)).not.toContain('×')
+  })
+
+  it('quotes no multiplier for a tier that adds none', async () => {
+    settings.data.value = makeLoyaltySettings({ tierMultiplierEnabled: true, xpPerLevel: 1000 })
+    summary.data.value = makeSummary({ tier: null, totalXp: 0 })
+
+    const wrapper = await mountSummary()
+
+    expect(line(wrapper)).toBe(`Κέρδισε άλλους ${n(0)} πόντους για τη βαθμίδα Χάλκινο.`)
+  })
+
+  it('points a shopper with no tier at the first one', async () => {
+    summary.data.value = makeSummary({ tier: null, totalXp: 0 })
+    tiers.data.value = [SILVER, GOLD]
+
+    const wrapper = await mountSummary()
+
+    expect(line(wrapper)).toBe(`Κέρδισε άλλους ${n(4000)} πόντους για τη βαθμίδα Ασημένιο.`)
+  })
+
+  it('says the shopper is on the top tier', async () => {
+    summary.data.value = makeSummary({ tier: GOLD, totalXp: 12000 })
+
+    const wrapper = await mountSummary()
+
+    expect(line(wrapper)).toBe('Είσαι στην κορυφαία βαθμίδα.')
+  })
+
+  // A tier the list does not hold (removed since, say) is no position on
+  // the ladder: there is no "next" to name, and no "top tier" to claim.
+  it('says nothing when the shopper\'s tier is not on the ladder', async () => {
+    summary.data.value = makeSummary({ tier: tier(99, 7, 'Άγνωστο') })
+
+    const wrapper = await mountSummary()
+
+    expect(wrapper.find('section[aria-labelledby] > p').exists()).toBe(false)
+  })
+
+  it('never reads below zero points to go', async () => {
+    summary.data.value = makeSummary({ tier: SILVER, totalXp: 20000 })
+
+    const wrapper = await mountSummary()
+
+    expect(line(wrapper)).toBe(`Κέρδισε άλλους ${n(0)} πόντους για τη βαθμίδα Χρυσό.`)
+  })
+})
+
+describe('Loyalty/Summary states', () => {
   it('shows skeletons, not the cards, while loading', async () => {
     summary.data.value = undefined
     summary.status.value = 'pending'
@@ -193,47 +204,18 @@ describe('Loyalty/Summary', () => {
     const wrapper = await mountSummary()
 
     expect(wrapper.findAllComponents({ name: 'USkeleton' })).toHaveLength(2)
-    expect(cards(wrapper)).toHaveLength(0)
+    expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it('shows the error with a retry that refetches', async () => {
+  it('says so, with a retry that refetches, when the summary fails', async () => {
     summary.data.value = undefined
     summary.status.value = 'error'
     summary.error.value = new Error('Network error')
 
     const wrapper = await mountSummary()
 
-    expect(wrapper.text()).toContain('Αποτυχία φόρτωσης δεδομένων')
-    expect(wrapper.text()).toContain('Network error')
-    await wrapper.findAll('button').find(button => button.text() === 'Δοκιμάστε ξανά')!.trigger('click')
+    expect(wrapper.get('[role="alert"]').text()).toContain('Δεν μπορέσαμε να φορτώσουμε τους πόντους σου.')
+    await wrapper.get('[role="alert"] button').trigger('click')
     expect(summary.refresh).toHaveBeenCalledTimes(1)
-  })
-
-  // By rank, never by name: the seeded "Ασημένιο" and "Πλατινένιο" never
-  // matched the names the colours were keyed on, and merchants rename.
-  describe('the tier badge colour', () => {
-    const PLATINUM = makeTier({ id: 4, requiredLevel: 20, translations: { el: { name: 'Πλατινένιο', description: '' }, en: { name: 'Platinum', description: '' } } })
-    const badgeColor = (wrapper: VueWrapper) =>
-      wrapper.findAllComponents({ name: 'UBadge' }).find(badge => badge.props('size') === 'lg')!.props('color')
-
-    it.each([
-      ['bronze', BRONZE, 'warning'],
-      ['silver', SILVER, 'neutral'],
-      ['gold', GOLD, 'warning'],
-      ['platinum', PLATINUM, 'info'],
-    ])('colours the %s rung of the ladder', async (_rung, tier, color) => {
-      tiers.data.value = [GOLD, PLATINUM, BRONZE, SILVER]
-      summary.data.value = makeSummary({ tier })
-
-      expect(badgeColor(await mountSummary())).toBe(color)
-    })
-
-    it('keeps a renamed tier\'s colour', async () => {
-      const renamed = { ...SILVER, translations: { el: { name: 'VIP', description: '' }, en: { name: 'VIP', description: '' } } }
-      tiers.data.value = [BRONZE, renamed, GOLD]
-      summary.data.value = makeSummary({ tier: renamed })
-
-      expect(badgeColor(await mountSummary())).toBe('neutral')
-    })
   })
 })

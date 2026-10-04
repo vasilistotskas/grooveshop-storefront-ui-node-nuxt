@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
+import { CalendarDate } from '@internationalized/date'
 import LoyaltyTransactions from '~/components/Loyalty/Transactions.vue'
 import { makeTransactionPage } from '~~/test/fixtures/loyalty'
 import { failWith } from '~~/test/helpers/api'
@@ -49,41 +50,71 @@ const lastQuery = () => api.callsTo(LEDGER).at(-1)?.options.query
 const expectLastQuery = (query: Record<string, unknown>) =>
   vi.waitFor(() => expect(lastQuery()).toEqual(query))
 
-describe('Loyalty/Transactions', () => {
-  it('lists each transaction: signed points, type, description and its timestamp', async () => {
-    const wrapper = await mountLedger()
+const cells = (wrapper: VueWrapper, index: number) => rows(wrapper)[index]!.findAll('td')
+const badgeColours = (wrapper: VueWrapper) =>
+  wrapper.findAllComponents({ name: 'UBadge' }).map(badge => badge.props('color'))
 
-    expect(rows(wrapper).map(row => row.findAll('td').map(cell => cell.text()).slice(0, 3))).toEqual([
-      ['+100', 'Κέρδος', 'Πόντοι από την παραγγελία #12345'],
-      ['-50', 'Εξαργύρωση', 'Εξαργύρωση για έκπτωση'],
-      ['+25', 'Μπόνους', 'Μπόνους γενεθλίων'],
+describe('Loyalty/Transactions', () => {
+  it('lists each transaction: date, description, type and signed points', async () => {
+    const wrapper = await mountLedger()
+    const { n } = useNuxtApp().$i18n
+
+    expect(rows(wrapper)).toHaveLength(3)
+    expect(rows(wrapper).map(row => row.findAll('td').map(cell => cell.text()).filter((_, index) => index > 0))).toEqual([
+      [expect.stringContaining('Πόντοι από την παραγγελία #12345'), 'Κέρδος', n(100, { signDisplay: 'always' })],
+      [expect.stringContaining('Εξαργύρωση για έκπτωση'), 'Εξαργύρωση', n(-50, { signDisplay: 'always' })],
+      [expect.stringContaining('Μπόνους γενεθλίων'), 'Μπόνους', n(25, { signDisplay: 'always' })],
     ])
-    expect(rows(wrapper).map(row => row.find('time').attributes('datetime'))).toEqual([
+    expect([0, 1, 2].map(index => cells(wrapper, index)[0]!.find('time').attributes('datetime'))).toEqual([
       '2026-01-15T10:30:00.000Z',
       '2026-01-14T15:45:00.000Z',
       '2026-01-13T09:00:00.000Z',
     ])
   })
 
-  it('colours the points by sign, a shade darker than the fill token', async () => {
-    // The class IS the contract: `text-success-700` rather than
-    // `text-success` because the 500 fill measured 3.22:1 on the figure
-    // (see the comment on the points column in Transactions.vue).
+  it('repeats the date under the description for the phone layout, where the date column is hidden', async () => {
     const wrapper = await mountLedger()
-    const pointsCell = (index: number) => rows(wrapper)[index]!.find('td span')
 
-    expect(pointsCell(0).classes()).toContain('text-success-700')
-    expect(pointsCell(1).classes()).toContain('text-error-700')
-    expect(pointsCell(1).classes()).not.toContain('text-success-700')
+    expect(cells(wrapper, 0)[1]!.find('time').attributes('datetime')).toBe('2026-01-15T10:30:00.000Z')
   })
 
-  it('labels a type it does not know by its raw code', async () => {
+  it('draws gains in the success colour and everything else in ink', async () => {
+    // The class IS the contract: a semantic colour as TEXT is only legal
+    // where Volt's token passes 4.5:1 on white, and a loss stays ink.
+    const wrapper = await mountLedger()
+    const pointsCell = (index: number) => cells(wrapper, index)[3]!.find('span')
+
+    expect(pointsCell(0).classes()).toContain('text-success')
+    expect(pointsCell(1).classes()).not.toContain('text-success')
+    expect(pointsCell(1).classes()).toContain('text-highlighted')
+  })
+
+  it('tints the type badge by what the type is, not by the sign of the points', async () => {
+    api.routes({
+      [LEDGER]: makeTransactionPage([
+        { transactionType: 'EARN' },
+        { transactionType: 'REDEEM', points: -50 },
+        { transactionType: 'BONUS' },
+        { transactionType: 'EXPIRE', points: -10 },
+        { transactionType: 'ADJUST', points: 5 },
+      ]),
+    })
+
+    const wrapper = await mountLedger()
+
+    expect(badgeColours(wrapper).filter(color => color !== undefined)).toEqual([
+      'success', 'neutral', 'info', 'warning', 'neutral',
+    ])
+  })
+
+  it('labels a type it does not know by its raw code, in a neutral badge', async () => {
     // A transaction type Django adds before the storefront knows it.
     api.routes({ [LEDGER]: makeTransactionPage([{ transactionType: 'LEGACY' as 'EARN' }]) })
 
     const wrapper = await mountLedger()
 
-    expect(rows(wrapper)[0]!.findAll('td')[1]!.text()).toBe('LEGACY')
+    expect(cells(wrapper, 0)[2]!.text()).toBe('LEGACY')
+    expect(wrapper.findComponent({ name: 'UBadge' }).props('color')).toBe('neutral')
   })
 
   describe('filters', () => {
@@ -93,13 +124,21 @@ describe('Loyalty/Transactions', () => {
       expect(lastQuery()).toEqual({ page: 1 })
     })
 
+    it('offers "all types" and every type of the API enum', async () => {
+      const wrapper = await mountLedger()
+
+      const values = wrapper.findComponent({ name: 'USelect' }).props('items').map((item: { value: string }) => item.value)
+      expect(values).toEqual(['all', ...zTransactionTypeEnum.options])
+    })
+
     it('sends the chosen type and date range to Django', async () => {
       const wrapper = await mountLedger()
 
       await wrapper.findComponent({ name: 'USelect' }).setValue('REDEEM')
-      const [from, to] = wrapper.findAll('input[type="date"]')
-      await from!.setValue('2026-01-01')
-      await to!.setValue('2026-01-31')
+      // A pick in each date field, as the shopper makes it.
+      const [from, to] = wrapper.findAllComponents({ name: 'UInputDate' })
+      await from!.setValue(new CalendarDate(2026, 1, 1))
+      await to!.setValue(new CalendarDate(2026, 1, 31))
 
       await expectLastQuery({
         page: 1,
@@ -138,7 +177,7 @@ describe('Loyalty/Transactions', () => {
 
     it.each([
       ['type', (wrapper: VueWrapper) => wrapper.findComponent({ name: 'USelect' }).setValue('EARN')],
-      ['start date', (wrapper: VueWrapper) => wrapper.findAll('input[type="date"]')[0]!.setValue('2026-01-01')],
+      ['start date', (wrapper: VueWrapper) => wrapper.findAllComponents({ name: 'UInputDate' })[0]!.setValue(new CalendarDate(2026, 1, 1))],
     ])('goes back to page 1 when the %s filter changes', async (_filter, change) => {
       const wrapper = await mountLedger()
       await pageButton(wrapper, 3).trigger('click')
@@ -189,10 +228,10 @@ describe('Loyalty/Transactions', () => {
   it('offers a retry that asks again when the ledger fails', async () => {
     api.routes({ [LEDGER]: failWith(502) })
     const wrapper = await mountLedger()
-    expect(wrapper.text()).toContain('Αποτυχία φόρτωσης συναλλαγών')
+    expect(wrapper.get('[role="alert"]').text()).toContain('Δεν μπορέσαμε να φορτώσουμε τις συναλλαγές σου.')
 
     api.routes({ [LEDGER]: makeTransactionPage([{ description: 'Ξανά εδώ' }]) })
-    await wrapper.findAll('button').find(button => button.text() === 'Δοκιμάστε ξανά')!.trigger('click')
+    await wrapper.findAll('button').find(button => button.text() === 'Δοκίμασε ξανά')!.trigger('click')
     await flushPromises()
 
     expect(api.callsTo(LEDGER)).toHaveLength(2)
