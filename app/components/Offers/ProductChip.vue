@@ -1,15 +1,18 @@
 <script lang="ts" setup>
 /**
  * A product an offer points at — the gift it hands over, or one of the
- * items it discounts.
+ * items it discounts — as a thumbnail tile that opens the product.
  *
- * Always carries the NAME beside the thumbnail. An image-only chip
- * looks deliberate right up until a product has no image, at which
- * point `ImgWithFallback` substitutes a transparent placeholder and the
- * shopper is left with an unexplained empty square.
+ * The tile alone names itself to a screen reader and on hover; `named`
+ * writes the name beside it, for the gift an offer hands over, where
+ * the shopper should read what they get. An image-only tile looks
+ * deliberate right up until a product has no image, which is why the
+ * name is always in the link.
  */
 defineProps<{
   product: PromotionProductRef
+  /** Show the product's name beside its thumbnail. */
+  named?: boolean
 }>()
 
 const localePath = useLocalePath()
@@ -21,21 +24,28 @@ const localePath = useLocalePath()
       name: 'products-id-slug',
       params: { id: product.id, slug: product.slug },
     })"
+    :title="product.name"
     class="
-      flex min-w-0 items-center gap-2 rounded-md bg-default p-1.5 pe-2.5 text-sm
-      ring-1 ring-default
-      hover:ring-primary
+      flex min-w-0 items-center gap-2 rounded-xl text-sm
+      hover:text-highlighted
+      focus-visible:outline-2 focus-visible:outline-offset-2
+      focus-visible:outline-secondary
     "
   >
-    <ImgWithFallback
-      :src="product.mainImagePath"
-      :alt="product.name"
-      :width="32"
-      :height="32"
-      fit="contain"
-      background="transparent"
-      class="size-8 shrink-0 rounded object-contain"
-    />
-    <span class="line-clamp-2 min-w-0">{{ product.name }}</span>
+    <span class="size-10 shrink-0 overflow-hidden rounded-xl bg-elevated">
+      <ImgWithFallback
+        :src="product.mainImagePath"
+        alt=""
+        :width="40"
+        :height="40"
+        fit="contain"
+        background="transparent"
+        class="size-10 object-contain"
+      />
+    </span>
+    <span
+      class="min-w-0"
+      :class="named ? 'line-clamp-2 pe-1' : 'sr-only'"
+    >{{ product.name }}</span>
   </NuxtLink>
 </template>
