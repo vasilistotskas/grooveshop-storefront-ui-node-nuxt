@@ -27,10 +27,19 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
 </template>
 
 <style scoped>
+/* The boards' sizes: 17px body and a 19px lead on a phone, 19px and 22px
+   from the desktop breakpoint, section headings 26px then 32px. */
 .blog-article {
   color: var(--ui-text-toned);
   font-size: 1.0625rem;
-  line-height: 1.75;
+  line-height: 1.7;
+}
+
+/* The opening paragraph is the post's lead. */
+.blog-article > :deep(p:first-child) {
+  color: var(--ui-text-highlighted);
+  font-size: 1.1875rem;
+  line-height: 1.55;
 }
 
 .blog-article :deep(p),
@@ -54,8 +63,22 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
 }
 
 .blog-article :deep(h2) {
-  font-size: 1.75rem;
+  font-size: 1.625rem;
   margin-top: 2.5rem;
+}
+
+@media (min-width: 64rem) {
+  .blog-article {
+    font-size: 1.1875rem;
+  }
+
+  .blog-article > :deep(p:first-child) {
+    font-size: 1.375rem;
+  }
+
+  .blog-article :deep(h2) {
+    font-size: 2rem;
+  }
 }
 
 .blog-article :deep(h3) {
