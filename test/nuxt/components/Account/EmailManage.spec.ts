@@ -107,6 +107,17 @@ describe('Account/EmailManage', () => {
     expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.made_primary, color: 'success' })
   })
 
+  it('takes one change at a time', async () => {
+    changePrimaryEmailAddress.mockReturnValue(new Promise(() => {}))
+    const wrapper = await mountEmails()
+
+    await button(wrapper, 'Ορισμός του work@example.com ως κύριου').trigger('click')
+    await button(wrapper, 'Αφαίρεση του new@example.com').trigger('click')
+
+    expect(removeEmailAddress).not.toHaveBeenCalled()
+    expect(button(wrapper, 'Αφαίρεση του new@example.com').attributes('disabled')).toBeDefined()
+  })
+
   it('removes an address and shows the list allauth has left', async () => {
     const wrapper = await mountEmails()
     getEmailAddresses.mockResolvedValue({ status: 200, data: [PRIMARY, NEW] })

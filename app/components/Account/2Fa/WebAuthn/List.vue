@@ -3,7 +3,9 @@
  * The shopper's passkeys and security keys, as the boards draw them: a
  * section with "Add passkey", one row per key — its name, whether it is
  * a passkey (signs in on its own) or a security key (a second factor),
- * when it was added and last used — renamed in place, or removed.
+ * when it was added and last used — renamed in place, or removed once
+ * the shopper confirms (a key can be their only way to sign in, or the
+ * factor that keeps two-step verification on). One change at a time.
  *
  * The rows are the auth store's authenticators, refreshed after every
  * change, so the Security page's two-step tile counts the same keys.
@@ -24,6 +26,7 @@ const keys = computed(() =>
 const renaming = ref<number | null>(null)
 const draftName = ref('')
 const busy = ref<number | null>(null)
+const confirming = ref<number | null>(null)
 
 const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
 
@@ -46,6 +49,7 @@ async function change(id: number, request: () => Promise<{ status?: number } | u
   }
   finally {
     busy.value = null
+    confirming.value = null
     await authStore.setupAuthenticators()
   }
 }
@@ -163,25 +167,49 @@ const remove = (id: number) => change(id, () => deleteWebAuthnCredential({ authe
           </template>
           <div
             v-if="renaming !== key.id"
-            class="flex w-24 items-center justify-end gap-1 max-sm:w-auto max-sm:justify-start"
+            class="flex min-w-24 flex-wrap items-center justify-end gap-1 max-sm:justify-start"
           >
-            <UButton
-              :label="t('rename')"
-              :aria-label="t('rename_named', { name: key.name || t('unnamed') })"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              @click="() => startRename(key.id!, key.name)"
-            />
-            <UButton
-              :aria-label="t('remove_named', { name: key.name || t('unnamed') })"
-              :loading="busy === key.id"
-              icon="i-lucide-trash-2"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              @click="() => remove(key.id!)"
-            />
+            <template v-if="confirming === key.id">
+              <span class="text-sm text-toned">{{ t('confirm_remove') }}</span>
+              <UButton
+                :label="t('remove')"
+                :aria-label="t('confirm_remove_named', { name: key.name || t('unnamed') })"
+                :loading="busy === key.id"
+                :disabled="busy !== null"
+                color="error"
+                variant="soft"
+                size="sm"
+                @click="() => remove(key.id!)"
+              />
+              <UButton
+                :label="t('cancel')"
+                :disabled="busy !== null"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                @click="() => { confirming = null }"
+              />
+            </template>
+            <template v-else>
+              <UButton
+                :label="t('rename')"
+                :aria-label="t('rename_named', { name: key.name || t('unnamed') })"
+                :disabled="busy !== null"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                @click="() => startRename(key.id!, key.name)"
+              />
+              <UButton
+                :aria-label="t('remove_named', { name: key.name || t('unnamed') })"
+                :disabled="busy !== null"
+                icon="i-lucide-trash-2"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                @click="() => { confirming = key.id! }"
+              />
+            </template>
           </div>
         </li>
       </ul>
@@ -208,6 +236,9 @@ el:
   rename_named: Μετονομασία του «{name}»
   rename_label: Νέο όνομα
   remove_named: Αφαίρεση του «{name}»
+  remove: Αφαίρεση
+  confirm_remove: Να αφαιρεθεί;
+  confirm_remove_named: Επιβεβαίωση αφαίρεσης του «{name}»
   save: Αποθήκευση
   cancel: Άκυρο
   renamed: Το όνομα άλλαξε
@@ -231,6 +262,9 @@ en:
   rename_named: Rename “{name}”
   rename_label: New name
   remove_named: Remove “{name}”
+  remove: Remove
+  confirm_remove: Remove it?
+  confirm_remove_named: Confirm removing “{name}”
   save: Save
   cancel: Cancel
   renamed: Name changed

@@ -12,8 +12,8 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 /**
  * The shopper's passkeys and security keys: one row per WebAuthn key —
  * name, passkey or security key, when added and last used — renamed in
- * place or removed, then the auth store read again so every reader of
- * it counts the same keys. Mocked at `useAllAuthAccount`; the keys come
+ * place or removed once confirmed, one change at a time, then the auth
+ * store read again so every reader of it counts the same keys. Mocked at `useAllAuthAccount`; the keys come
  * from the real auth store.
  */
 const { deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators, toastAdd } = vi.hoisted(() => ({
@@ -109,10 +109,25 @@ describe('Account/2Fa/WebAuthn/List', () => {
     expect(wrapper.find('form').exists()).toBe(true)
   })
 
-  it('removes a key and reads the keys again', async () => {
+  it('asks before removing a key, and keeps it on cancel', async () => {
     const wrapper = await mountList()
 
     await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+
+    expect(row(wrapper, 'iPhone 16').text()).toContain(messages.confirm_remove)
+    expect(deleteWebAuthnCredential).not.toHaveBeenCalled()
+
+    await button(wrapper, messages.cancel).trigger('click')
+
+    expect(row(wrapper, 'iPhone 16').text()).not.toContain(messages.confirm_remove)
+    expect(deleteWebAuthnCredential).not.toHaveBeenCalled()
+  })
+
+  it('removes a key once confirmed, and reads the keys again', async () => {
+    const wrapper = await mountList()
+
+    await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+    await button(wrapper, 'Επιβεβαίωση αφαίρεσης του «iPhone 16»').trigger('click')
     await flushPromises()
 
     expect(deleteWebAuthnCredential).toHaveBeenCalledExactlyOnceWith({ authenticators: [1] })
@@ -120,11 +135,23 @@ describe('Account/2Fa/WebAuthn/List', () => {
     expect(getAuthenticators).toHaveBeenCalledOnce()
   })
 
+  it('takes one change at a time', async () => {
+    deleteWebAuthnCredential.mockReturnValue(new Promise(() => {}))
+    const wrapper = await mountList()
+
+    await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+    await button(wrapper, 'Επιβεβαίωση αφαίρεσης του «iPhone 16»').trigger('click')
+
+    expect(button(wrapper, 'Μετονομασία του «YubiKey 5C»').attributes('disabled')).toBeDefined()
+    expect(button(wrapper, 'Αφαίρεση του «YubiKey 5C»').attributes('disabled')).toBeDefined()
+  })
+
   it('says the change failed when allauth answers anything but 200, and reads the keys again', async () => {
     deleteWebAuthnCredential.mockResolvedValue({ status: 401 })
     const wrapper = await mountList()
 
     await button(wrapper, 'Αφαίρεση του «iPhone 16»').trigger('click')
+    await button(wrapper, 'Επιβεβαίωση αφαίρεσης του «iPhone 16»').trigger('click')
     await flushPromises()
 
     expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.error, color: 'error' })

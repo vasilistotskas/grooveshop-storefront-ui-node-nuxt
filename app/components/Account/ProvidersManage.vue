@@ -49,6 +49,7 @@ const cards = computed<Card[]>(() => {
 
 const busy = ref<string | null>(null)
 
+/** One change at a time: every card's button is disabled while one is in flight. */
 async function disconnect(account: ProviderAccount) {
   busy.value = `${account.provider.id}:${account.uid}`
   try {
@@ -100,6 +101,7 @@ function connect(provider: Provider) {
           :label="t('disconnect')"
           :aria-label="t('disconnect_named', { provider: card.name, account: card.account.display })"
           :loading="busy === card.key"
+          :disabled="busy !== null"
           color="neutral"
           variant="ghost"
           size="sm"
@@ -110,6 +112,7 @@ function connect(provider: Provider) {
           :label="t('connect')"
           :aria-label="t('connect_named', { provider: card.name })"
           :loading="busy === card.key"
+          :disabled="busy !== null"
           color="neutral"
           variant="outline"
           size="sm"

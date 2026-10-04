@@ -35,6 +35,7 @@ const schema = z.object({
 })
 const state = reactive<{ email?: string }>({ email: undefined })
 
+/** One change at a time: every action is disabled while one is in flight. */
 async function run(key: string, request: () => Promise<unknown>, done: string, reload = true) {
   busy.value = key
   try {
@@ -103,6 +104,7 @@ const remove = (email: string) => run(`remove:${email}`, () => removeEmailAddres
         <UButton
           :label="t('add_submit')"
           :loading="busy === 'add'"
+          :disabled="busy !== null"
           type="submit"
           color="neutral"
         />
@@ -166,6 +168,7 @@ const remove = (email: string) => run(`remove:${email}`, () => removeEmailAddres
                 :label="t('resend')"
                 :aria-label="t('resend_to', { email: row.email })"
                 :loading="busy === `resend:${row.email}`"
+                :disabled="busy !== null"
                 color="neutral"
                 variant="ghost"
                 size="sm"
@@ -176,6 +179,7 @@ const remove = (email: string) => run(`remove:${email}`, () => removeEmailAddres
                 :label="t('make_primary')"
                 :aria-label="t('make_primary_named', { email: row.email })"
                 :loading="busy === `primary:${row.email}`"
+                :disabled="busy !== null"
                 color="neutral"
                 variant="ghost"
                 size="sm"
@@ -185,6 +189,7 @@ const remove = (email: string) => run(`remove:${email}`, () => removeEmailAddres
                 v-if="!row.primary"
                 :aria-label="t('remove_named', { email: row.email })"
                 :loading="busy === `remove:${row.email}`"
+                :disabled="busy !== null"
                 icon="i-lucide-trash-2"
                 color="neutral"
                 variant="ghost"

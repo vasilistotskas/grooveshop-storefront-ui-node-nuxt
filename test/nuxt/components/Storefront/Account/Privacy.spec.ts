@@ -38,12 +38,17 @@ const messages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Storefront/Account/Privacy.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
-/** The page's Greek copy at `key`, with `{name}` placeholders filled. */
-const text = (key: string, params: Record<string, string> = {}): string =>
-  Object.entries(params).reduce(
-    (copy, [name, value]) => copy.replace(`{${name}}`, value),
-    key.split('.').reduce((node, part) => node[part], messages) as string,
-  )
+/**
+ * The page's Greek copy at `key`, with `{name}` placeholders filled; for
+ * a plural ("one | many"), the form `count` picks (vue-i18n's two-form
+ * rule: 1 is the first, anything else the second).
+ */
+const text = (key: string, params: Record<string, string> = {}, count?: number): string => {
+  const copy = key.split('.').reduce((node, part) => node[part], messages) as string
+  const forms = copy.split(' | ')
+  const chosen = count === undefined || forms.length === 1 ? copy : forms[count === 1 ? 0 : 1]!
+  return Object.entries(params).reduce((filled, [name, value]) => filled.replace(`{${name}}`, value), chosen)
+}
 
 function makeExport(overrides: Partial<UserDataExport> = {}): UserDataExport {
   return {
@@ -194,7 +199,7 @@ describe('Storefront/Account/Privacy', () => {
 
       const wrapper = await mountPage()
 
-      expect(words(deleteSection(wrapper).text())).toContain(words(text('delete.lost_both', { points: $i18n.n(2340), balance: $i18n.n(42, 'currency') })))
+      expect(words(deleteSection(wrapper).text())).toContain(words(text('delete.lost_both', { points: $i18n.n(2340), balance: $i18n.n(42, 'currency') }, 2340)))
     })
 
     it('names only the points when there is no balance', async () => {
@@ -203,7 +208,15 @@ describe('Storefront/Account/Privacy', () => {
 
       const wrapper = await mountPage()
 
-      expect(words(deleteSection(wrapper).text())).toContain(words(text('delete.lost_points', { points: $i18n.n(2340) })))
+      expect(words(deleteSection(wrapper).text())).toContain(words(text('delete.lost_points', { points: $i18n.n(2340) }, 2340)))
+    })
+
+    it('says one point in the singular', async () => {
+      given({ summary: makeSummary({ loyalty: { pointsBalance: 1, tier: null }, giftCardBalance: 0 }) })
+
+      const wrapper = await mountPage()
+
+      expect(words(deleteSection(wrapper).text())).toContain('Έχεις 1 πόντο, που χάνεται όταν διαγραφεί ο λογαριασμός')
     })
 
     it('names only the balance when there are no points', async () => {

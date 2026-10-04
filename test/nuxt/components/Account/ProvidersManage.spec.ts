@@ -92,6 +92,17 @@ describe('Account/ProvidersManage', () => {
     expect(providerRedirect).toHaveBeenCalledExactlyOnceWith(FACEBOOK, 'connect')
   })
 
+  it('takes one change at a time', async () => {
+    disconnectThirdPartyProviderAccount.mockReturnValue(new Promise(() => {}))
+    const wrapper = await mountProviders()
+
+    await button(wrapper, 'Αποσύνδεση του λογαριασμού Google shopper@example.com').trigger('click')
+    await button(wrapper, 'Σύνδεση λογαριασμού Facebook').trigger('click')
+
+    expect(providerRedirect).not.toHaveBeenCalled()
+    expect(button(wrapper, 'Σύνδεση λογαριασμού Facebook').attributes('disabled')).toBeDefined()
+  })
+
   it('disconnects an account and shows the accounts allauth has left', async () => {
     disconnectThirdPartyProviderAccount.mockResolvedValue({ status: 200, data: [] })
     const wrapper = await mountProviders()

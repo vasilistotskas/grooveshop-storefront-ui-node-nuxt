@@ -126,6 +126,17 @@ describe('Account/SessionsManage', () => {
     expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: 'Η συσκευή αποσυνδέθηκε', color: 'success' })
   })
 
+  it('takes one sign-out at a time', async () => {
+    deleteSession.mockReturnValue(new Promise(() => {}))
+    const wrapper = await mountSessions()
+
+    await button(wrapper, 'Αποσύνδεση της συσκευής «Safari σε iOS»')!.trigger('click')
+    await button(wrapper, messages.sign_out_others)!.trigger('click')
+
+    expect(deleteSession).toHaveBeenCalledExactlyOnceWith({ sessions: [2] })
+    expect(button(wrapper, messages.sign_out_others)!.attributes('disabled')).toBeDefined()
+  })
+
   it('signs out everywhere else at once', async () => {
     deleteSession.mockResolvedValue(answer([CURRENT]))
     const wrapper = await mountSessions()

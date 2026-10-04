@@ -353,6 +353,17 @@ describe('Account/SettingsForm username', () => {
       .toEqual([CHANGE_USERNAME, ACCOUNT])
   })
 
+  it('reads the session again once the username is saved, even when the profile save then fails', async () => {
+    api.routes({ [ACCOUNT]: failWith(500) })
+    const wrapper = await mountForm()
+
+    await controlOf(wrapper, 'Όνομα χρήστη').setValue('tester.new')
+    await submit(wrapper)
+
+    expect(api.callsTo(CHANGE_USERNAME)).toHaveLength(1)
+    expect(fetchSession).toHaveBeenCalledOnce()
+  })
+
   it('leaves the username alone when it was not edited', async () => {
     const wrapper = await mountForm()
 

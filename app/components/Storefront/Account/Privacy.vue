@@ -49,7 +49,8 @@ const forfeitTitle = computed(() => {
   const balance = lostBalance.value > 0
   if (!points && !balance) return ''
   const params = { points: n(lostPoints.value), balance: n(lostBalance.value, 'currency') }
-  return t(points && balance ? 'delete.lost_both' : points ? 'delete.lost_points' : 'delete.lost_balance', params)
+  // The points are the plural's count: "1 πόντο" / "2 πόντους".
+  return t(points && balance ? 'delete.lost_both' : points ? 'delete.lost_points' : 'delete.lost_balance', params, lostPoints.value)
 })
 
 const fileSizeLabel = computed(() => {
@@ -422,9 +423,9 @@ el:
   delete:
     title: Διαγραφή λογαριασμού
     description: Διαγράφονται οριστικά το προφίλ, οι διευθύνσεις, οι κριτικές, τα αγαπημένα, τα σχόλια, οι πόντοι πιστότητας και οι εγγραφές σου. Οι παραγγελίες διατηρούνται ανώνυμες για λόγους φορολογικής τεκμηρίωσης. Η ενέργεια δεν αναιρείται και θα αποσυνδεθείς άμεσα από όλες τις συσκευές.
-    lost_points: Έχεις {points} πόντους, οι οποίοι χάνονται όταν διαγραφεί ο λογαριασμός
+    lost_points: "Έχεις {points} πόντο, που χάνεται όταν διαγραφεί ο λογαριασμός | Έχεις {points} πόντους, που χάνονται όταν διαγραφεί ο λογαριασμός"
     lost_balance: Έχεις υπόλοιπο {balance} σε δωροκάρτες, το οποίο χάνεται όταν διαγραφεί ο λογαριασμός
-    lost_both: Έχεις {points} πόντους και υπόλοιπο {balance} σε δωροκάρτες, που χάνονται και τα δύο όταν διαγραφεί ο λογαριασμός
+    lost_both: "Έχεις {points} πόντο και υπόλοιπο {balance} σε δωροκάρτες, που χάνονται και τα δύο όταν διαγραφεί ο λογαριασμός | Έχεις {points} πόντους και υπόλοιπο {balance} σε δωροκάρτες, που χάνονται και τα δύο όταν διαγραφεί ο λογαριασμός"
     open_modal: Διαγραφή του λογαριασμού μου
     modal_title: Επιβεβαίωση οριστικής διαγραφής
     modal_description: Για την προστασία του λογαριασμού σου, πληκτρολόγησε DELETE παρακάτω για να επιβεβαιώσεις.
@@ -461,9 +462,9 @@ en:
   delete:
     title: Delete account
     description: Your profile, addresses, reviews, favourites, comments, loyalty points and subscriptions are deleted for good. Orders are kept in anonymised form for tax records. This cannot be undone, and you are signed out of every device immediately.
-    lost_points: You have {points} points, which are lost when the account is deleted
+    lost_points: "You have {points} point, which is lost when the account is deleted | You have {points} points, which are lost when the account is deleted"
     lost_balance: You have a {balance} gift card balance, which is lost when the account is deleted
-    lost_both: You have {points} points and a {balance} gift card balance, both lost when the account is deleted
+    lost_both: "You have {points} point and a {balance} gift card balance, both lost when the account is deleted | You have {points} points and a {balance} gift card balance, both lost when the account is deleted"
     open_modal: Delete my account
     modal_title: Confirm permanent deletion
     modal_description: To protect your account, type DELETE below to confirm.

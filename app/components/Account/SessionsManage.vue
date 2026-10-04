@@ -21,6 +21,7 @@ onMounted(() => {
 
 const busy = ref<number | 'others' | null>(null)
 
+/** One sign-out at a time: every button is disabled while one is in flight. */
 async function signOut(targets: Session[], key: number | 'others') {
   busy.value = key
   try {
@@ -65,6 +66,7 @@ const describe = (session: Session) => ({
         v-if="otherSessions?.length"
         :label="t('sign_out_others')"
         :loading="busy === 'others'"
+        :disabled="busy !== null"
         color="neutral"
         variant="outline"
         size="sm"
@@ -114,6 +116,7 @@ const describe = (session: Session) => ({
               :label="t('sign_out')"
               :aria-label="t('sign_out_named', { device: describe(session).name })"
               :loading="busy === session.id"
+              :disabled="busy !== null"
               color="error"
               variant="ghost"
               size="sm"

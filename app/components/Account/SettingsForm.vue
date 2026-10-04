@@ -324,6 +324,10 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
         method: 'POST',
         body: { username: values.username },
       })
+      // The username is saved now, whatever the profile save below does:
+      // read the session again, or a failed save would leave the old name
+      // and the next submit would ask for the same change (409, taken).
+      await fetch()
     }
     catch (error) {
       // The reason (409 "Username already taken.") is Django's own text.
