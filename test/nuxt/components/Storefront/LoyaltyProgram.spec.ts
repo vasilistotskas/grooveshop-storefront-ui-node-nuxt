@@ -236,6 +236,8 @@ describe('Storefront/LoyaltyProgram', () => {
       await open(wrapper, 'Λήγουν οι πόντοι μου;')
 
       expect(wrapper.text()).toContain('Οι πόντοι δεν λήγουν')
+      // Django has no inactivity rule: nothing but the expiry setting ends points.
+      expect(wrapper.text()).not.toContain('ενεργός')
     })
 
     it('says how long points last when the store sets an expiry', async () => {
@@ -245,6 +247,16 @@ describe('Storefront/LoyaltyProgram', () => {
       await open(wrapper, 'Λήγουν οι πόντοι μου;')
 
       expect(wrapper.text()).toContain('365 ημέρες μετά την παραγγελία')
+    })
+
+    it('says points come back off on a cancelled or refunded order, not on any return', async () => {
+      const wrapper = await mountPage()
+
+      await open(wrapper, 'Τι γίνεται αν ακυρωθεί ή επιστραφούν τα χρήματα μιας παραγγελίας;')
+
+      expect(wrapper.text()).toContain('ακυρωθεί ή επιστραφούν τα χρήματά της')
+      expect(wrapper.text()).toContain('όσους είχες ξοδέψει σε αυτήν σου επιστρέφονται')
+      expect(wrapper.text()).not.toContain('επιστρέψω')
     })
   })
 })

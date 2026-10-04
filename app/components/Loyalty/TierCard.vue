@@ -55,7 +55,10 @@ const multiplier = computed(() => {
     </div>
 
     <div class="flex flex-col gap-1">
-      <h3 class="font-display text-2xl font-bold">
+      <h3
+        v-if="name"
+        class="font-display text-2xl font-bold"
+      >
         {{ name }}
       </h3>
       <p

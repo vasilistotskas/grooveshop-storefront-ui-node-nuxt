@@ -78,7 +78,8 @@ describe('Loyalty/TierCard', () => {
       tier: makeTier({ translations: { en: { name: 'Silver', description: 'Free shipping' } } }),
     })
 
-    expect(wrapper.get('h3').text()).toBe('')
+    // An empty heading is an accessibility error: it is left out.
+    expect(wrapper.find('h3').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('Free shipping')
   })
 

@@ -35,7 +35,7 @@ const localePath = useLocalePath()
     <span class="size-10 shrink-0 overflow-hidden rounded-xl bg-elevated">
       <ImgWithFallback
         :src="product.mainImagePath"
-        :alt="named ? '' : product.name"
+        alt=""
         :width="40"
         :height="40"
         fit="contain"

@@ -396,7 +396,7 @@ el:
     title: Ερωτήσεις
     expire:
       question: Λήγουν οι πόντοι μου;
-      answer_never: Όχι. Οι πόντοι δεν λήγουν όσο ο λογαριασμός σου παραμένει ενεργός.
+      answer_never: Όχι. Οι πόντοι δεν λήγουν.
       answer_days: "Οι πόντοι λήγουν {days} ημέρες μετά την παραγγελία που τους κέρδισε. Το υπόλοιπο και το ιστορικό σου φαίνονται στον λογαριασμό σου."
     combine:
       question: Μπορώ να χρησιμοποιήσω πόντους μαζί με κουπόνι;
@@ -405,8 +405,8 @@ el:
       question: Πού βλέπω το υπόλοιπο των πόντων μου;
       answer: Στη σελίδα Επιβράβευση του λογαριασμού σου, μαζί με το ιστορικό των συναλλαγών σου.
     return:
-      question: Τι γίνεται αν επιστρέψω μια παραγγελία;
-      answer: Οι πόντοι που κέρδισες από την αγορά αφαιρούνται από τον λογαριασμό σου. Όσους είχες ξοδέψει σε έκπτωση σου επιστρέφονται.
+      question: Τι γίνεται αν ακυρωθεί ή επιστραφούν τα χρήματα μιας παραγγελίας;
+      answer: Αν μια παραγγελία ακυρωθεί ή επιστραφούν τα χρήματά της, οι πόντοι που κέρδισε αφαιρούνται από τον λογαριασμό σου και όσους είχες ξοδέψει σε αυτήν σου επιστρέφονται.
     signup:
       question: Χρειάζεται να κάνω κάτι για να συμμετέχω;
       answer: Όχι. Κάθε εγγεγραμμένος πελάτης συμμετέχει αυτόματα και οι πόντοι προστίθενται μόνοι τους.
@@ -456,7 +456,7 @@ en:
     title: Questions
     expire:
       question: Do points expire?
-      answer_never: No. Points do not expire as long as your account stays active.
+      answer_never: No. Points do not expire.
       answer_days: "Points expire {days} days after the order that earned them. Your balance and history are in your account."
     combine:
       question: Can I use points with a coupon?
@@ -465,8 +465,8 @@ en:
       question: Where do I see my points balance?
       answer: On the Rewards page of your account, along with your transaction history.
     return:
-      question: What if I return an order?
-      answer: The points you earned on that purchase come off your account. Any points you spent on a discount are returned to you.
+      question: What if an order is cancelled or refunded?
+      answer: If an order is cancelled or refunded, the points it earned come off your account and any points you spent on it are returned to you.
     signup:
       question: Do I need to do anything to take part?
       answer: No. Every registered customer is in the programme automatically, and points are added for you.

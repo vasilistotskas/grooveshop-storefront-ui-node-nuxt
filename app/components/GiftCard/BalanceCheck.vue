@@ -136,7 +136,7 @@ el:
   title: Έχεις δωροκάρτα;
   lead: Δες πόσα χρήματα έχουν απομείνει.
   label: Κωδικός δωροκάρτας
-  placeholder: GIFT-XXXX-XXXX
+  placeholder: GC-XXXX-XXXX-XXXX
   check: Έλεγχος υπολοίπου
   balance: Διαθέσιμο υπόλοιπο
   not_redeemable: Η κάρτα δεν μπορεί να χρησιμοποιηθεί
@@ -149,7 +149,7 @@ en:
   title: Got a gift card?
   lead: Check what is left on it.
   label: Gift card code
-  placeholder: GIFT-XXXX-XXXX
+  placeholder: GC-XXXX-XXXX-XXXX
   check: Check balance
   balance: Balance available
   not_redeemable: This card cannot be used

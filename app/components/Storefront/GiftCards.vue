@@ -181,15 +181,45 @@ const clientSecret = ref<string | null>(null)
 const purchasedAmount = ref(0)
 const recipientEmailDisplay = ref('')
 
+const STEP_ORDER: WizardStep[] = ['amount', 'recipient', 'payment']
+
+function stepHasIssues(target: WizardStep) {
+  const fields = STEP_FIELDS[target]
+  const issues = purchaseSchema.value.safeParse(formState).error?.issues ?? []
+  return issues.some(issue => fields.includes(String(issue.path[0])))
+}
+
+// The first step before `end` that is not fit to leave, so a jump past it
+// (the stepper's, or Pay's) lands on it instead.
+const firstUnfitStep = (end: number) =>
+  STEP_ORDER.slice(0, end).find(stepHasIssues)
+
+// Show a step and let its fields say what is wrong.
+async function showStep(target: WizardStep) {
+  wizard.value = target
+  await nextTick()
+  try {
+    await formRef.value?.validate({ name: STEP_FIELDS[target] })
+  }
+  catch {
+    // UForm has put the messages on the fields.
+  }
+}
+
 async function goTo(target: WizardStep) {
-  const order: WizardStep[] = ['amount', 'recipient', 'payment']
-  // Going forward asks for what the steps it passes need.
-  if (order.indexOf(target) > order.indexOf(wizard.value)) {
+  if (STEP_ORDER.indexOf(target) > STEP_ORDER.indexOf(wizard.value)) {
+    // Going forward asks for what every step it passes needs, the one on
+    // screen first so its own fields show their messages. The payment step
+    // is only reachable through here, so what it sends has been checked.
     try {
       await formRef.value?.validate({ name: STEP_FIELDS[wizard.value] })
     }
     catch {
-      // UForm has put the messages on the fields.
+      return
+    }
+    const unfit = firstUnfitStep(STEP_ORDER.indexOf(target))
+    if (unfit) {
+      await showStep(unfit)
       return
     }
   }
@@ -415,6 +445,9 @@ const confirmPayment = async () => {
         </div>
 
         <template v-else>
+          <!-- Once the payment is under way the strip is locked: the intent
+               already holds the amount and the recipient, and going back
+               would unmount the card field Stripe mounted. -->
           <!-- The board's compact strip: each step's number beside its
                title, a short rule between steps, the current one in ink. -->
           <UStepper
@@ -423,6 +456,7 @@ const confirmPayment = async () => {
             color="neutral"
             size="xs"
             :linear="false"
+            :disabled="step === 'payment'"
             :ui="{
               header: 'flex-wrap items-center gap-x-3 gap-y-2',
               item: `
@@ -447,11 +481,9 @@ const confirmPayment = async () => {
           >
             <!-- Step 1: amount -->
             <template v-if="wizard === 'amount'">
-              <UFormField
-                :label="t('fields.amount')"
-                name="amount"
-                required
-              >
+              <!-- The group is named by its own legend: a field label would
+                   point at a div, not a control. -->
+              <UFormField name="amount">
                 <div class="flex flex-col gap-3">
                   <URadioGroup
                     v-model="amountChoice"
@@ -461,7 +493,7 @@ const confirmPayment = async () => {
                     orientation="horizontal"
                     :legend="t('fields.amount')"
                     :ui="{
-                      legend: 'sr-only',
+                      legend: 'mb-2 text-sm font-medium text-default',
                       fieldset: 'grid grid-cols-4 gap-2',
                       item: 'justify-center font-mono font-semibold',
                     }"
@@ -534,10 +566,7 @@ const confirmPayment = async () => {
                 />
               </UFormField>
 
-              <UFormField
-                :label="t('fields.send')"
-                name="deliverDate"
-              >
+              <UFormField name="deliverDate">
                 <div class="flex flex-col gap-3">
                   <URadioGroup
                     v-model="sendMode"
@@ -547,7 +576,7 @@ const confirmPayment = async () => {
                     orientation="horizontal"
                     :legend="t('fields.send')"
                     :ui="{
-                      legend: 'sr-only',
+                      legend: 'mb-2 text-sm font-medium text-default',
                       fieldset: 'grid grid-cols-2 gap-2',
                       item: 'justify-center',
                     }"

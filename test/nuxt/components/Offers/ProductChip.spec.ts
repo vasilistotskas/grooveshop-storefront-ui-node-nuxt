@@ -12,6 +12,10 @@ const PRODUCT: PromotionProductRef = { id: 4, name: 'Καλώδιο USB-C', slug
 const mountChip = (named = false) =>
   mountSuspended(OffersProductChip, { route: false, props: { product: PRODUCT, named } })
 
+/** What a screen reader reads for the link: its text plus the alt of any image in it. */
+const readAloud = (link: { text: () => string, findAll: (selector: string) => Array<{ attributes: (name: string) => string | undefined }> }) =>
+  [link.text(), ...link.findAll('img').map(img => img.attributes('alt') ?? '')].join(' ')
+
 describe('Offers/ProductChip', () => {
   it('opens the product and names itself on hover', async () => {
     const wrapper = await mountChip()
@@ -31,5 +35,11 @@ describe('Offers/ProductChip', () => {
 
     expect(wrapper.find('.sr-only').exists()).toBe(false)
     expect(wrapper.get('a').text()).toBe('Καλώδιο USB-C')
+  })
+
+  it.each([false, true])('reads the product name once, whether named is %s', async (named) => {
+    const wrapper = await mountChip(named)
+
+    expect(readAloud(wrapper.get('a')).split('Καλώδιο USB-C')).toHaveLength(2)
   })
 })

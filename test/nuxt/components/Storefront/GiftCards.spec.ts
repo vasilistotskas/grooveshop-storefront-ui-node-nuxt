@@ -42,7 +42,7 @@ function routes(extra: Record<string, unknown> = {}) {
   })
 }
 
-const text = (wrapper: VueWrapper) => wrapper.text().replace(/\u00A0/g, ' ')
+const text = (wrapper: Pick<VueWrapper, 'text'>) => wrapper.text().replace(/\u00A0/g, ' ')
 
 beforeEach(() => {
   clearNuxtData()
@@ -82,6 +82,10 @@ async function fillRecipient(wrapper: VueWrapper, fields: { recipientEmail?: str
   await inputs[1]!.setValue(fields.buyerEmail ?? 'buyer@example.com')
 }
 
+/** The card step's heading, "Πληρωμή 50,00 €" — only there once the intent exists. */
+const cardTitle = (wrapper: VueWrapper) =>
+  wrapper.findAll('h2').find(heading => text(heading) === 'Πληρωμή 50,00 €')
+
 const purchases = () => api.callsTo('/api/giftcard/purchase')
 const lastBody = () => purchases().at(-1)!.options.body as Record<string, unknown>
 
@@ -94,15 +98,11 @@ describe('Storefront/GiftCards', () => {
       expect(radio(wrapper, '50 €').attributes('aria-checked')).toBe('true')
     })
 
-    // The field's label already names the group on screen; a visible
-    // legend said "Ποσό" a second time under it. The class is the
-    // contract: the legend must stay in the accessibility tree.
-    it('names the amount group for assistive tech without repeating its label', async () => {
+    it('names the amount group once, by its legend', async () => {
       const wrapper = await mount()
 
-      const legend = wrapper.get('legend')
-      expect(legend.text()).toBe('Ποσό')
-      expect(legend.classes()).toContain('sr-only')
+      expect(wrapper.get('fieldset legend').text()).toBe('Ποσό')
+      expect(wrapper.findAll('label').filter(label => label.text() === 'Ποσό')).toHaveLength(0)
     })
 
     it('draws the chosen amount on the card preview', async () => {
@@ -117,7 +117,7 @@ describe('Storefront/GiftCards', () => {
       settings.values = { GIFT_CARD_MIN_AMOUNT: '30' }
       const wrapper = await mount()
 
-      expect(wrapper.findAll('[data-slot="item"]').some(item => item.text().includes('25,00'))).toBe(false)
+      expect(wrapper.get('fieldset').findAll('[data-slot="item"]').map(item => item.text().replace(/\u00A0/g, ' '))).toEqual(['50 €', '100 €', 'Άλλο'])
     })
 
     it('stays on the step when the amount is over the store\'s maximum', async () => {
@@ -200,6 +200,79 @@ describe('Storefront/GiftCards', () => {
     })
   })
 
+  describe('jumping ahead with the step strip', () => {
+    // The strip's own component picks a step on mousedown, not click.
+    const pick = async (wrapper: VueWrapper, index: number) => {
+      await wrapper.findAll('[data-slot="trigger"]')[index]!.trigger('mousedown', { button: 0 })
+      await flushPromises()
+    }
+
+    it('lands on the recipient step, with its messages, when Payment is picked from the amount step', async () => {
+      const wrapper = await mount()
+
+      await pick(wrapper, 2)
+
+      expect(wrapper.findAll('input[type="email"]')).toHaveLength(2)
+      expect(text(wrapper)).toContain('Μη έγκυρο email')
+      expect(purchases()).toEqual([])
+    })
+
+    it('lets the buyer on to payment once every step before it is fit', async () => {
+      const wrapper = await mount()
+      await toRecipient(wrapper)
+      await fillRecipient(wrapper)
+
+      await pick(wrapper, 2)
+
+      expect(button(wrapper, 'Πληρωμή 50,00 €')).toBeDefined()
+    })
+
+    it('stops on the recipient step when "on a date" has no date, instead of sending it right away', async () => {
+      const wrapper = await mount()
+      await toRecipient(wrapper)
+      await fillRecipient(wrapper)
+      await radio(wrapper, 'Σε συγκεκριμένη ημερομηνία').trigger('click')
+
+      await pick(wrapper, 2)
+
+      expect(text(wrapper)).toContain('Διάλεξε ημερομηνία από αύριο και μετά')
+      expect(button(wrapper, 'Πληρωμή 50,00 €')).toBeUndefined()
+    })
+  })
+
+  describe('labelling', () => {
+    /** What each `<label for>` points at: the tag of its target, `null` when nothing has that id. */
+    const labelTargets = (wrapper: VueWrapper) => wrapper.findAll('label[for]').map((label) => {
+      const target = wrapper.element.querySelector(`[id="${label.attributes('for')}"]`)
+      return target?.tagName.toLowerCase() ?? null
+    })
+
+    it('points every label of the amount step at a form control, the typed amount included', async () => {
+      const wrapper = await mount()
+      await radio(wrapper, 'Άλλο').trigger('click')
+
+      expect(wrapper.find('input[aria-label="Άλλο"]').exists()).toBe(true)
+      expect(labelTargets(wrapper).filter(target => target !== 'input')).toEqual([])
+    })
+
+    it('points every label of the recipient step at a form control, the date field included', async () => {
+      const wrapper = await mount()
+      await toRecipient(wrapper)
+      await radio(wrapper, 'Σε συγκεκριμένη ημερομηνία').trigger('click')
+
+      expect(wrapper.find('input[type="date"]').attributes('aria-label')).toBe('Σε συγκεκριμένη ημερομηνία')
+      expect(labelTargets(wrapper).filter(target => target !== 'input' && target !== 'textarea')).toEqual([])
+    })
+
+    it('names the send choice once, by its legend', async () => {
+      const wrapper = await mount()
+      await toRecipient(wrapper)
+
+      expect(wrapper.findAll('legend').map(legend => legend.text())).toEqual(['Αποστολή'])
+      expect(wrapper.findAll('label').filter(label => label.text() === 'Αποστολή')).toHaveLength(0)
+    })
+  })
+
   describe('step 3: the payment', () => {
     async function toPayment(wrapper: VueWrapper) {
       await toRecipient(wrapper)
@@ -261,12 +334,27 @@ describe('Storefront/GiftCards', () => {
     it('asks for the card in place when the provider answers with a client secret', async () => {
       const wrapper = await mount()
       await toPayment(wrapper)
+      expect(cardTitle(wrapper)).toBeUndefined()
 
       await press(wrapper, 'Πληρωμή 50,00 €')
 
-      expect(text(wrapper)).toContain('Πληρωμή 50,00 €')
+      expect(cardTitle(wrapper)).toBeDefined()
       // The card is not complete yet, so paying is not offered.
       expect(button(wrapper, 'Πληρωμή 50,00 €')!.attributes('disabled')).toBeDefined()
+    })
+
+    it('locks the steps once the card payment is under way, so the intent keeps its amount and recipient', async () => {
+      const wrapper = await mount()
+      await toPayment(wrapper)
+      await press(wrapper, 'Πληρωμή 50,00 €')
+
+      const triggers = wrapper.findAll('[data-slot="trigger"]')
+      expect(triggers.map(trigger => trigger.attributes('disabled') !== undefined)).toEqual([true, true, true])
+      await triggers[0]!.trigger('mousedown', { button: 0 })
+      await flushPromises()
+
+      expect(cardTitle(wrapper)).toBeDefined()
+      expect(wrapper.find('input[type="email"]').exists()).toBe(false)
     })
   })
 })

@@ -71,6 +71,12 @@ describe('GiftCard/BalanceCheck', () => {
     expect(wrapper.find('[role="status"]').exists()).toBe(false)
   })
 
+  it('shows the shape of a code Django issues', async () => {
+    const wrapper = await mountSuspended(BalanceCheck, { route: false })
+
+    expect(wrapper.find('input').attributes('placeholder')).toBe('GC-XXXX-XXXX-XXXX')
+  })
+
   it('does not ask Django for an empty code', async () => {
     const wrapper = await check('   ')
 
