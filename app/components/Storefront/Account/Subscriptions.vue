@@ -1,37 +1,31 @@
 <script lang="ts" setup>
+/**
+ * The account's email topics: what the store may send beyond the order
+ * and security emails, one switch per topic the merchant defines.
+ *
+ * "Always sent" is true by construction: no order, shipping or
+ * authentication email consults a subscription topic.
+ */
 const { t } = useI18n()
-// Every account route rendered with the document title left at the
-// store name, twice — 46 pages whose browser tab and history entry were
-// indistinguishable. The `title` string was already here and simply
-// never applied.
 useHead({ title: () => t('title') })
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="md:mt-0"
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader
+      :title="t('title')"
+      :lead="t('lead')"
     />
 
-    <div class="mb-2 text-sm text-muted">
-      {{ t('description') }}
-    </div>
-
     <AccountSubscriptionsSubscriptionTopicsList />
-  </PageWrapper>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Ειδοποιήσεις & Συνδρομές
-  description: Διαχειριστείτε τις προτιμήσεις ειδοποιήσεών σας. Επιλέξτε τα θέματα για τα οποία θέλετε να λαμβάνετε ειδοποιήσεις.
+  title: Θέματα email
+  lead: Διάλεξε ποια email φτάνουν στα εισερχόμενά σου. Τα email παραγγελιών και ασφάλειας στέλνονται πάντα.
 en:
-  title: Notifications & Subscriptions
-  description: Manage your notification preferences. Choose the topics you want to hear about.
+  title: Email topics
+  lead: Choose what lands in your inbox. Order and security emails are always sent.
 </i18n>

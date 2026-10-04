@@ -8,33 +8,17 @@ useHead({ title: () => t('title') })
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="md:mt-0"
-    />
+  <div class="flex flex-col gap-6">
+    <AccountPageHeader :title="t('title')" />
 
-    <div class="grid gap-6">
-      <!-- Loyalty Summary Card -->
-      <LoyaltySummary />
-
-      <!-- Tier System Information -->
-      <LoyaltyTierSystem />
-
-      <!-- Transaction History -->
-      <LoyaltyTransactions />
-    </div>
-  </PageWrapper>
+    <LoyaltySummary />
+    <LoyaltyTransactions />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Πρόγραμμα Επιβράβευσης
+  title: Επιβράβευση
 en:
-  title: Rewards Programme
+  title: Rewards
 </i18n>

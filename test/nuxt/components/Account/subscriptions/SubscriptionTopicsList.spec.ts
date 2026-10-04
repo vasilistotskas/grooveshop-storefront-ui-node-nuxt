@@ -52,10 +52,9 @@ async function mountList() {
 }
 
 const groups = (wrapper: VueWrapper) => wrapper.findAllComponents(SubscriptionCategoryGroup)
-/** The switch on the card titled `name`. */
+/** The switch of the topic named `name`, found by its accessible name. */
 function switchFor(wrapper: VueWrapper, name: string) {
-  const card = wrapper.findAll('h3').find(heading => heading.text() === name)!
-  return card.element.closest('[data-slot="header"]')!.querySelector<HTMLButtonElement>('button[role="switch"]')!
+  return wrapper.find<HTMLButtonElement>(`button[role="switch"][aria-label="${name}"]`).element
 }
 
 describe('Account/subscriptions/SubscriptionTopicsList', () => {
@@ -63,8 +62,8 @@ describe('Account/subscriptions/SubscriptionTopicsList', () => {
     const wrapper = await mountList()
 
     expect(groups(wrapper).map(group => [
-      group.find('h3').text(),
-      group.findAll('[data-slot="header"] h3').map(heading => heading.text()),
+      group.find('h2').text(),
+      group.findAll('h3').map(heading => heading.text()),
     ])).toEqual([
       ['Μάρκετινγκ', ['Προσφορές', 'Εκπτώσεις']],
       ['Ενημερωτικό Δελτίο', ['Εβδομαδιαίο δελτίο']],
@@ -151,15 +150,32 @@ describe('Account/subscriptions/SubscriptionTopicsList', () => {
     expect(groups(wrapper)).toHaveLength(0)
   })
 
-  it('shows the error when the topics cannot be loaded', async () => {
+  it('says the topics could not load, and loads them on retry', async () => {
     api.routes({ [TOPICS]: () => {
       throw new Error('Bad Gateway')
     }, [MINE]: page([]) })
 
     const wrapper = await mountList()
 
-    expect(wrapper.text()).toContain('Σφάλμα φόρτωσης')
+    expect(wrapper.find('[role="alert"]').text()).toContain('Δεν μπορέσαμε να φορτώσουμε τα θέματα email.')
     expect(groups(wrapper)).toHaveLength(0)
+
+    api.routes({ [TOPICS]: page([OFFERS]), [MINE]: page([]) })
+    await wrapper.find('[role="alert"] button').trigger('click')
+    await flushPromises()
+
+    expect(groups(wrapper)).toHaveLength(1)
+  })
+
+  it('notes a topic that asks for email confirmation', async () => {
+    api.routes({
+      [TOPICS]: page([makeSubscriptionTopic({ id: 5, requiresConfirmation: true, translations: { el: { name: 'Δελτίο', description: 'Μηνιαίο' } } }), OFFERS]),
+      [MINE]: page([]),
+    })
+
+    const wrapper = await mountList()
+
+    expect(wrapper.text().match(/Απαιτείται επιβεβαίωση email/g)).toHaveLength(1)
   })
 
   it('shows skeletons while the topics load', async () => {

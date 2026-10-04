@@ -12,21 +12,10 @@ const emit = defineEmits<{
   unsubscribe: [subscriptionId: number]
 }>()
 
+const headingId = useId()
+
 const categoryLabel = computed(() => {
   return t(`categories.${props.category}`)
-})
-
-const categoryIcon = computed(() => {
-  const iconMap: Record<TopicCategory, string> = {
-    MARKETING: 'i-heroicons-megaphone',
-    PRODUCT: 'i-heroicons-cube',
-    ACCOUNT: 'i-heroicons-user-circle',
-    SYSTEM: 'i-heroicons-cog-6-tooth',
-    NEWSLETTER: 'i-heroicons-newspaper',
-    PROMOTIONAL: 'i-heroicons-gift',
-    OTHER: 'i-heroicons-ellipsis-horizontal-circle',
-  }
-  return iconMap[props.category] || 'i-heroicons-ellipsis-horizontal-circle'
 })
 
 // The composable's rule: a row Django keeps after an unsubscribe link or
@@ -48,24 +37,18 @@ const handleUnsubscribe = (topicId: number) => {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div class="flex items-center gap-3">
-      <UIcon :name="categoryIcon" class="size-6 text-primary" />
-      <h3 class="text-lg font-semibold text-default">
-        {{ categoryLabel }}
-      </h3>
-      <UBadge variant="soft" color="neutral" size="sm">
-        {{ topics.length }}
-      </UBadge>
-    </div>
-
-    <div
-      class="
-        grid grid-cols-1 gap-4
-        md:grid-cols-2
-        lg:grid-cols-3
-      "
+  <section
+    :aria-labelledby="headingId"
+    class="rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
+  >
+    <h2
+      :id="headingId"
+      class="text-xs font-semibold tracking-wider text-toned uppercase"
     >
+      {{ categoryLabel }}
+    </h2>
+
+    <div class="mt-1 divide-y divide-default">
       <AccountSubscriptionsSubscriptionTopicCard
         v-for="topic in topics"
         :key="topic.id"
@@ -75,7 +58,7 @@ const handleUnsubscribe = (topicId: number) => {
         @unsubscribe="handleUnsubscribe(topic.id)"
       />
     </div>
-  </div>
+  </section>
 </template>
 
 <i18n lang="yaml">
