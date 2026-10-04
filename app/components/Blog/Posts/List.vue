@@ -36,13 +36,10 @@ const props = defineProps({
   },
 })
 
-defineSlots<{
-  sidebar(props: object): any
-}>()
-
 const { paginationType, pageSize, paginationStrategy } = toRefs(props)
 
 const route = useRoute()
+const localePath = useLocalePath()
 const { t, locale } = useI18n()
 const { loggedIn, user } = useUserSession()
 const cursorState = useState<CursorState>('cursor-state')
@@ -56,6 +53,8 @@ const id = computed(() => route.query.id)
 const author = computed(() => route.query.author)
 const slug = computed(() => route.query.slug)
 const tags = computed(() => route.query.tags)
+const category = computed(() => route.query.category)
+const search = computed(() => route.query.search)
 const cursor = computed(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POSTS],
 )
@@ -77,6 +76,8 @@ const {
       author: author,
       slug: slug,
       tags: tags,
+      category: category,
+      search: search,
       cursor: cursor,
       pageSize: pageSize,
       paginationType: paginationType,
@@ -85,6 +86,44 @@ const {
 
   },
 )
+
+// The posts carry their category as an id; the names, and the filter
+// pills, come from the store's categories.
+const { data: categories } = await useApi('/api/blog/categories', {
+  key: 'blogCategoryFilter',
+  method: 'GET',
+  headers: useRequestHeaders(),
+  query: { pageSize: 50, paginationType: 'pageNumber', languageCode: locale },
+})
+
+const categoryNames = computed(() => new Map(
+  (categories.value?.results ?? []).map(entry => [entry.id, extractTranslated(entry, 'name', locale.value) ?? '']),
+))
+
+const pills = computed(() => (categories.value?.results ?? [])
+  .filter(entry => entry.postCount > 0)
+  .map(entry => ({
+    id: entry.id,
+    label: extractTranslated(entry, 'name', locale.value) ?? '',
+    to: localePath({
+      path: route.path,
+      query: { ...route.query, category: String(entry.id), page: undefined },
+    }),
+    active: String(category.value) === String(entry.id),
+  })))
+
+const allPill = computed(() => ({
+  to: localePath({
+    path: route.path,
+    query: { ...route.query, category: undefined, page: undefined },
+  }),
+  active: !category.value,
+}))
+
+// Every filter and the search cleared: the way out of an empty result.
+const unfilteredTo = computed(() => localePath({ path: route.path }))
+
+const isFiltered = computed(() => Boolean(category.value || search.value || tags.value || author.value))
 
 const pagination = computed(() => {
   if (posts.value) {
@@ -139,6 +178,18 @@ const showResults = computed(() => {
   return status.value !== 'pending' && allPosts.value.length
 })
 
+// The featured post opens the unfiltered first page, as the board does;
+// it is one of the page's own posts, so it costs no request.
+const isFirstPage = computed(() => !page.value || String(page.value) === '1')
+const featuredPost = computed(() =>
+  isFirstPage.value && !isFiltered.value && paginationType.value !== PaginationTypeEnum.CURSOR
+    ? allPosts.value.find(post => post.featured)
+    : undefined,
+)
+const gridPosts = computed(() =>
+  featuredPost.value ? allPosts.value.filter(post => post.id !== featuredPost.value!.id) : allPosts.value,
+)
+
 const imgLoading = (index: number) => {
   if (props.eagerFirstImages && index < 3) {
     return 'eager'
@@ -190,79 +241,86 @@ watch(
 </script>
 
 <template>
-  <div class="grid gap-4">
-    <Pagination
-      v-if="pagination && pagination.count > 0 && ['pageNumber', 'limitOffset'].includes(paginationType)"
-      :count="pagination.count"
-      :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
-      :links="pagination.links"
-      :loading="status === 'pending'"
-      :page="pagination.page"
-      :page-size="pagination.pageSize"
-      :page-total-results="pagination.pageTotalResults"
-      :pagination-type="paginationType"
-      :strategy="paginationStrategy"
-      :total-pages="pagination.totalPages"
+  <div class="flex flex-col gap-8">
+    <!-- The category filter: pills that link to the same page filtered,
+         so the filter is a URL like every other. -->
+    <nav
+      v-if="pills.length"
+      :aria-label="t('filter_label')"
+      class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
+    >
+      <UButton
+        :to="allPill.to"
+        :label="t('all')"
+        :aria-current="allPill.active ? 'page' : undefined"
+        color="neutral"
+        :variant="allPill.active ? 'solid' : 'outline'"
+        size="sm"
+        class="shrink-0 rounded-full"
+      />
+      <UButton
+        v-for="pill in pills"
+        :key="pill.id"
+        :to="pill.to"
+        :label="pill.label"
+        :aria-current="pill.active ? 'page' : undefined"
+        color="neutral"
+        :variant="pill.active ? 'solid' : 'outline'"
+        size="sm"
+        class="shrink-0 rounded-full"
+      />
+    </nav>
+
+    <BlogFeaturedPost
+      v-if="featuredPost && showResults"
+      :post="featuredPost"
+      :category-name="categoryNames.get(featuredPost.category)"
     />
-    <section
+
+    <ol
+      v-if="showResults && gridPosts.length"
       class="
-        flex gap-4
-        md:gap-8
+        grid w-full grid-cols-1 gap-x-6 gap-y-10
+        sm:grid-cols-2
+        lg:grid-cols-3 lg:gap-x-8
       "
     >
-      <div
-        class="
-          row-start-2 grid w-full
-          md:row-start-1
-        "
-      >
-        <ol
-          v-if="showResults"
-          class="
-            grid w-full grid-cols-1 items-center justify-center gap-8
-            sm:grid-cols-1
-            md:grid-cols-2
-            lg:grid-cols-2
-            xl:grid-cols-3
-          "
-        >
-          <BlogPostCard
-            v-for="(post, index) in allPosts"
-            :key="post.id"
-            :img-loading="imgLoading(index)"
-            :img-fetch-priority="imgFetchPriority(index)"
-            :preload="shouldPreload(index)"
-            :post="post"
-          />
-        </ol>
-        <div
-          v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
-          class="
-            grid w-full grid-cols-1 items-center justify-center gap-8
-            sm:grid-cols-1
-            md:grid-cols-2
-            lg:grid-cols-2
-            xl:grid-cols-3
-          "
-        >
-          <USkeleton
-            v-for="i in 3"
-            :key="i"
-            class="h-[461px] w-full"
-          />
-        </div>
-        <!-- A blog with no published posts previously rendered a blank
-             page with orphaned pagination arrows. -->
-        <UEmpty
-          v-else-if="status === 'success' && !allPosts.length"
-          icon="i-heroicons-newspaper"
-          :title="t('empty.title')"
-          :description="t('empty.description')"
-          class="py-12"
-        />
-      </div>
-      <slot name="sidebar" />
-    </section>
+      <BlogPostCard
+        v-for="(post, index) in gridPosts"
+        :key="post.id"
+        :img-loading="imgLoading(index + (featuredPost ? 1 : 0))"
+        :img-fetch-priority="imgFetchPriority(index + (featuredPost ? 1 : 0))"
+        :preload="shouldPreload(index + (featuredPost ? 1 : 0))"
+        :post="post"
+        :category-name="categoryNames.get(post.category)"
+      />
+    </ol>
+    <div
+      v-if="status === 'pending' && paginationType !== PaginationTypeEnum.CURSOR"
+      class="
+        grid w-full grid-cols-1 gap-x-6 gap-y-10
+        sm:grid-cols-2
+        lg:grid-cols-3 lg:gap-x-8
+      "
+    >
+      <USkeleton
+        v-for="i in 3"
+        :key="i"
+        class="aspect-4/3 w-full rounded-[1.25rem]"
+      />
+    </div>
+    <!-- A blog with no published posts previously rendered a blank
+         page with orphaned pagination arrows; a search or filter with
+         no match says so, not "no articles yet". -->
+    <UEmpty
+      v-else-if="status === 'success' && !allPosts.length"
+      icon="i-lucide-newspaper"
+      :title="isFiltered ? t('empty_filtered.title') : t('empty.title')"
+      :description="isFiltered ? t('empty_filtered.description') : t('empty.description')"
+      :actions="isFiltered ? [{ label: t('all'), color: 'neutral', to: unfilteredTo }] : []"
+      class="py-12"
+    />
+
     <Transition>
       <div
         v-if="status === 'pending' && paginationType === PaginationTypeEnum.CURSOR"
@@ -272,29 +330,46 @@ watch(
         <span class="sr-only">{{ t('loading') }}</span>
       </div>
     </Transition>
-    <Pagination
-      v-if="pagination && pagination.count > 0 && paginationType === 'cursor'"
-      :count="pagination.count"
-      :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
-      :links="pagination.links"
-      :loading="status === 'pending'"
-      :page="pagination.page"
-      :page-size="pagination.pageSize"
-      :page-total-results="pagination.pageTotalResults"
-      :pagination-type="paginationType"
-      :strategy="paginationStrategy"
-      :total-pages="pagination.totalPages"
-    />
+
+    <div
+      v-if="pagination && pagination.count > 0"
+      class="flex justify-center"
+    >
+      <Pagination
+        :count="pagination.count"
+        :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
+        :links="pagination.links"
+        :loading="status === 'pending'"
+        :page="pagination.page"
+        :page-size="pagination.pageSize"
+        :page-total-results="pagination.pageTotalResults"
+        :pagination-type="paginationType"
+        :strategy="paginationStrategy"
+        :total-pages="pagination.totalPages"
+      />
+    </div>
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
+  all: Όλα
+  filter_label: Κατηγορίες άρθρων
+  loading: Φόρτωση
   empty:
     title: Δεν υπάρχουν άρθρα ακόμη
     description: Σύντομα θα βρείτε εδώ τα νέα και τις ιστορίες μας.
+  empty_filtered:
+    title: Κανένα άρθρο δεν ταιριάζει
+    description: Δοκίμασε άλλη αναζήτηση ή δες όλα τα άρθρα.
 en:
+  all: All
+  filter_label: Article categories
+  loading: Loading
   empty:
     title: No articles yet
     description: Our news and stories will appear here soon.
+  empty_filtered:
+    title: No articles match
+    description: Try another search, or see every article.
 </i18n>
