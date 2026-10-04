@@ -62,6 +62,9 @@ const SETTLEMENT_ICONS = {
 // The selected card takes the accent: a ring and the soft accent tint.
 const PAY_WAY_UI = {
   fieldset: 'flex flex-col gap-3',
+  // The card's heading already says it on screen; the legend still names
+  // the group for assistive tech.
+  legend: 'sr-only',
   item: [
     'items-start',
     'has-data-[state=checked]:border-secondary',
@@ -156,7 +159,7 @@ defineExpose({
     >
       <h2
         :id="paymentHeadingId"
-        class="font-display text-2xl font-bold text-highlighted"
+        class="font-display text-[1.375rem] font-bold text-highlighted"
       >
         {{ t('form.payment_method') }}
       </h2>
@@ -299,7 +302,7 @@ defineExpose({
     >
       <h2
         :id="reviewHeadingId"
-        class="font-display text-2xl font-bold text-highlighted"
+        class="font-display text-[1.375rem] font-bold text-highlighted"
       >
         {{ t('review') }}
       </h2>

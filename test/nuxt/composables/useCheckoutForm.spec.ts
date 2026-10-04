@@ -44,7 +44,7 @@ mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
 // whole plugin chain (including $i18n).
 const mockUserSession = {
   loggedIn: ref(false),
-  user: ref<{ id: number, email: string } | null>(null),
+  user: ref<{ id: number, email: string, firstName?: string, lastName?: string, phone?: string } | null>(null),
   fetch: vi.fn(() => Promise.resolve()),
 }
 mockNuxtImport('useUserSession', () => () => mockUserSession)
@@ -897,6 +897,32 @@ describe('useCheckoutForm', () => {
       // Reset to the first shippable country rather than left on 'DE'.
       expect(formState.country).toBe('GR')
       expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'warning' }))
+    })
+  })
+
+  describe('a signed-in shopper with no saved address', () => {
+    it('starts from the account: email, name and phone', async () => {
+      await setLoggedIn(true)
+      mockUserSession.user.value = { id: 1, email: 'shopper@example.com', firstName: 'Maria', lastName: 'Papadopoulou', phone: '+306912345678' }
+
+      const { formState, addressEntryMode } = await setup()
+
+      expect(addressEntryMode.value).toBe('new')
+      expect(formState).toMatchObject({
+        email: 'shopper@example.com',
+        firstName: 'Maria',
+        lastName: 'Papadopoulou',
+        phone: '+306912345678',
+        phoneCountry: '',
+      })
+    })
+
+    it('leaves a guest\'s form blank', async () => {
+      await setLoggedIn(false)
+
+      const { formState } = await setup()
+
+      expect(formState).toMatchObject({ email: '', firstName: '', lastName: '', phone: '' })
     })
   })
 

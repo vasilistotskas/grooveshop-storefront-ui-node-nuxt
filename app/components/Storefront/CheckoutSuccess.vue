@@ -520,7 +520,7 @@ async function openInvoice() {
           <section aria-labelledby="success-next">
             <h2
               id="success-next"
-              class="mb-4 font-display text-lg font-bold text-highlighted"
+              class="mb-4 font-display text-xl font-bold text-highlighted"
             >
               {{ t('next') }}
             </h2>
@@ -550,7 +550,7 @@ async function openInvoice() {
           <section aria-labelledby="success-summary">
             <h2
               id="success-summary"
-              class="mb-4 font-display text-lg font-bold text-highlighted"
+              class="mb-4 font-display text-xl font-bold text-highlighted"
             >
               {{ t('summary') }}
             </h2>

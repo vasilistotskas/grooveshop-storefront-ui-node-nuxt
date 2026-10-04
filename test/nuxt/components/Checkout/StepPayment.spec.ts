@@ -244,6 +244,17 @@ describe('Checkout/StepPayment (redesign)', () => {
       expect(wrapper.text()).not.toContain('(+2,00 €)')
     })
 
+    // The card's heading names the group on screen; a visible legend said
+    // "payment method" a second time right under it. The class is the
+    // contract: the legend must stay in the accessibility tree.
+    it('names the group for assistive tech without repeating the heading on screen', async () => {
+      const { wrapper } = await mountStep()
+
+      const legend = wrapper.get('legend')
+      expect(legend.text()).toBe(wrapper.get('h2').text())
+      expect(legend.classes()).toContain('sr-only')
+    })
+
     it('picking a card sets the pay way', async () => {
       const { wrapper, formState } = await mountStep()
 

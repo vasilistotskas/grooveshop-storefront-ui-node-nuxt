@@ -96,7 +96,7 @@ function setDocumentType(type: string) {
 }
 
 const CARD = 'flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6'
-const HEADING = 'font-display text-xl font-bold text-highlighted'
+const HEADING = 'font-display text-[1.375rem] font-bold text-highlighted'
 
 // Expose the form's submit() so the primary CTA (it lives under the step,
 // in the checkout page) can trigger Zod validation + emit `next`.

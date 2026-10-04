@@ -33,6 +33,7 @@ const emit = defineEmits<{
 }>()
 
 const { t, n } = useI18n()
+const headingId = useId()
 const localePath = useLocalePath()
 const { getPaymentMethodName } = usePaymentMethod()
 const { cart } = storeToRefs(useCartStore())
@@ -412,15 +413,16 @@ defineExpose({ submit: onSubmit })
 </script>
 
 <template>
-  <UCard
-    class="overflow-hidden"
-    :ui="{ root: 'rounded-[1.25rem]' }"
+  <section
+    :aria-labelledby="headingId"
+    class="flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6"
   >
-    <template #header>
-      <h2 class="font-display text-xl font-bold text-highlighted">
-        {{ t('shipping.method.title') }}
-      </h2>
-    </template>
+    <h2
+      :id="headingId"
+      class="font-display text-[1.375rem] font-bold text-highlighted"
+    >
+      {{ t('shipping.method.title') }}
+    </h2>
 
     <!-- Live options failed to load — there is no local price to fall
          back to, so retry is the only path forward; the page's CTA
@@ -623,7 +625,7 @@ defineExpose({ submit: onSubmit })
         </div>
       </div>
     </UForm>
-  </UCard>
+  </section>
 </template>
 
 <i18n lang="yaml">
