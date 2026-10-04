@@ -1,3 +1,10 @@
+# [3.234.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.233.0...v3.234.0) (2026-10-04)
+
+
+### Features
+
+* **account:** Groove Volt notifications, email topics, rewards, gift cards and business ([#80](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/80)) ([f2fb2c0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f2fb2c0ea3ec81ef692ff05c6e703cd02fb154cd))
+
 # [3.233.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.232.1...v3.233.0) (2026-10-04)
 
 
