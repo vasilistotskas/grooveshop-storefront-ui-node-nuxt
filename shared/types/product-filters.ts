@@ -15,6 +15,12 @@ export interface ProductFilters {
   sort: string
   /** Selected attribute value IDs */
   attributeValues: string[]
+  /** Selected brand IDs */
+  brands: string[]
+  /** Only products with stock above zero */
+  inStock: boolean
+  /** Only products carrying a markdown (not promotions) */
+  onOffer: boolean
 }
 
 /** Chip-value shape for the price-range chip. */
@@ -36,5 +42,16 @@ export type FilterChip
   = | (FilterChipBase & { type: 'search' | 'sort' | 'category' | 'attribute', value: string })
     | (FilterChipBase & { type: 'likes' | 'views', value: number })
     | (FilterChipBase & { type: 'price', value: PriceRangeFilterValue })
+
+/**
+ * The chips the redesigned listing draws: `FilterChip` plus the brand and
+ * availability filters. Kept apart from `FilterChip` because the frozen
+ * webside listing switches over `FilterChip` exhaustively and can neither
+ * show these chips nor be edited to; it never sets those filters.
+ */
+export type ListingFilterChip
+  = | FilterChip
+    | (FilterChipBase & { type: 'brand', value: string })
+    | (FilterChipBase & { type: 'in_stock' | 'on_offer', value: true })
 
 export type FilterChipValue = FilterChip['value']

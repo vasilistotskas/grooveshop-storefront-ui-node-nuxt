@@ -10,7 +10,7 @@ const categoryId = 'id' in route.params
   : undefined
 
 // The filters, chips and tree on this page are about this category.
-const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : undefined }
+const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : undefined, listingFilters: true }
 provideListingScope(scope)
 const { trail } = useCategoryForest(scope)
 

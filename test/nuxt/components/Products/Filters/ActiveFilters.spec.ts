@@ -3,7 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import ActiveFilters from '~/components/Products/Filters/ActiveFilters.vue'
 import WebsideActiveFilters from '~/components/variants/webside/Products/Filters/ActiveFilters.vue'
-import type { FilterChip } from '~~/shared/types/product-filters'
+import type { FilterChip, ListingFilterChip } from '~~/shared/types/product-filters'
 
 /**
  * The chip list's output is the filter it removes. The chips themselves
@@ -19,13 +19,19 @@ mockNuxtImport('useProductFilters', () => () => pf)
 
 const CATEGORY_NAMES: Record<string, string> = { 1: 'Ηλεκτρονικά', 2: 'Βιβλία' }
 const VALUE_NAMES: Record<string, string> = { 7: 'Κόκκινο', 8: 'Μπλε' }
+const BRAND_NAMES: Record<string, string> = { 3: 'Voltra', 4: 'Kabelo' }
 mockNuxtImport('useProductSearchData', () => () => ({
   getCategoryName: (id: string) => CATEGORY_NAMES[id] ?? id,
   getAttributeValueName: (id: string) => VALUE_NAMES[id] ?? id,
 }))
+mockNuxtImport('useProductBrands', () => () => ({
+  getBrandName: (id: string) => BRAND_NAMES[id] ?? id,
+}))
 
+/** The listing's chips and the frozen webside listing's, which agree on every chip they share. */
 function showChips(...chips: FilterChip[]) {
   pf.activeFilterChips.value = chips
+  pf.activeListingChips.value = chips
   pf.activeFilterCount.value = chips.length
 }
 
@@ -234,5 +240,39 @@ describe('default Products/Filters/ActiveFilters', () => {
 
     expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith(CLEARED_FILTERS)
     expect(pf.clearFilters).not.toHaveBeenCalled()
+  })
+
+  it('shows a brand by its name, in stock and on offer by their chip labels', async () => {
+    const chips: ListingFilterChip[] = [
+      { key: 'brands', type: 'brand', label: 'b', value: '3' },
+      { key: 'inStock', type: 'in_stock', label: 'In stock', value: true },
+      { key: 'onOffer', type: 'on_offer', label: 'On offer', value: true },
+    ]
+    pf.activeListingChips.value = chips
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    expect(wrapper.findAll('li').slice(0, 3).map(item => item.text())).toEqual(['Voltra', 'In stock', 'On offer'])
+  })
+
+  it('takes one brand out of the selection, keeping the others', async () => {
+    pf.filters.value.brands = ['3', '4']
+    pf.activeListingChips.value = [{ key: 'brands', type: 'brand', label: 'b', value: '4' }]
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    await wrapper.find('li button').trigger('click')
+
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ brands: ['3'] })
+  })
+
+  it.each<[string, ListingFilterChip, 'inStock' | 'onOffer']>([
+    ['in stock', { key: 'inStock', type: 'in_stock', label: 'In stock', value: true }, 'inStock'],
+    ['on offer', { key: 'onOffer', type: 'on_offer', label: 'On offer', value: true }, 'onOffer'],
+  ])('turns %s off from its chip', async (_case, chip, key) => {
+    pf.activeListingChips.value = [chip]
+    const wrapper = await mountSuspended(ActiveFilters, { route: false })
+
+    await wrapper.find('li button').trigger('click')
+
+    expect(pf.removeFilter).toHaveBeenCalledExactlyOnceWith(key)
   })
 })

@@ -101,16 +101,20 @@ function goBack() {
         lg:flex
       "
     >
+      <!-- `sizes` names a breakpoint (`lg:50vw`): a bare `50vw` is read as a
+           size of 50 in a screen that does not exist, and the srcset comes out
+           as 1w and 2w. Lazy, so a phone, where this panel is hidden, never
+           fetches it. -->
       <ImgWithFallback
         v-if="photo"
         :src="photo"
         alt=""
         :width="960"
         :height="1080"
-        sizes="50vw"
+        sizes="lg:50vw"
         fit="cover"
         quality="80"
-
+        loading="lazy"
         class="absolute inset-0 size-full object-cover"
       />
       <div

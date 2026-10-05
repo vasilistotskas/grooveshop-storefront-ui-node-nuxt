@@ -5,6 +5,7 @@ import {
   zAttributeValue,
   zBlogPostMeiliSearchResponse,
   zBlogPostMeiliSearchResult,
+  zBrand,
   zProductCategory,
   zProductMeiliSearchResponse,
   zProductMeiliSearchResult,
@@ -15,6 +16,7 @@ import {
   makeAttributeValue,
   makeBlogPostSearchHit,
   makeBlogPostSearchResponse,
+  makeBrand,
   makeCategory,
   makeProductSearchHit,
   makeProductSearchResponse,
@@ -31,6 +33,7 @@ import { problems } from '~~/test/unit/fixtures/strictSchema'
 describe('the catalogue fixtures', () => {
   it.each([
     ['makeCategory', zProductCategory, () => makeCategory()],
+    ['makeBrand', zBrand, () => makeBrand()],
     ['makeAttribute', zAttribute, () => makeAttribute()],
     ['makeAttributeValue', zAttributeValue, () => makeAttributeValue()],
     ['makeProductSearchHit', zProductMeiliSearchResult, () => makeProductSearchHit()],

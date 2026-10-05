@@ -4,7 +4,7 @@ const siteConfig = useSiteConfig()
 const { ogImageUrl } = useTenantBranding()
 
 // The whole store: no category narrows the filters, chips or tree.
-provideListingScope({ categoryId: undefined })
+provideListingScope({ categoryId: undefined, listingFilters: true })
 
 // A small page-1 fetch for the Schema.org ItemList. It does NOT
 // duplicate the listing's own fetch — different limit, different key —

@@ -77,6 +77,15 @@ export function useProductFilters() {
       case 'attributeValues':
         await updateFilters({ attributeValues: [] })
         break
+      case 'brands':
+        await updateFilters({ brands: [] })
+        break
+      case 'inStock':
+        await updateFilters({ inStock: false })
+        break
+      case 'onOffer':
+        await updateFilters({ onOffer: false })
+        break
     }
   }
 
@@ -91,9 +100,23 @@ export function useProductFilters() {
   const activeFilterChips = computed<FilterChip[]>(() => buildFilterChips(filters.value, t))
 
   /**
+   * The same chips plus the brand and availability ones, for the
+   * redesigned listing (`activeFilterChips` is what the frozen webside
+   * listing reads).
+   */
+  const activeListingChips = computed<ListingFilterChip[]>(() => buildListingFilterChips(filters.value, t))
+
+  /**
    * Check if any filters are active
    */
   const hasActiveFilters = computed(() => activeFilterCount.value > 0)
+
+  /**
+   * Whether any filter of the redesigned listing is on, brands and
+   * availability included (`hasActiveFilters` is what the frozen webside
+   * listing reads).
+   */
+  const hasActiveListingFilters = computed(() => countListingFilters(filters.value) > 0)
 
   /**
    * Count of active filters per section
@@ -108,7 +131,9 @@ export function useProductFilters() {
     removeFilter,
     activeFilterCount,
     activeFilterChips,
+    activeListingChips,
     hasActiveFilters,
+    hasActiveListingFilters,
     filterCountBySection,
   }
 }

@@ -79,4 +79,16 @@ describe('the frozen webside tree', () => {
     // would pass the rule above forever.
     expect(prefixedReferences).toBeGreaterThan(100)
   })
+
+  // The brand filter's data costs two requests (the `brand` facet and the
+  // brand list), and webside has no brand filter: it must make exactly the
+  // requests it made before. `useProductSearchData`, which it does read,
+  // never asks for either (its own spec).
+  it('never loads the data of the brand filter', () => {
+    const readers = frozenFiles.filter(file => callsIn(file, /^useProductSearchData$/).length > 0)
+    const brandReaders = frozenFiles.filter(file => callsIn(file, /^(useProductBrands|useAllBrands)$/).length > 0)
+
+    expect(readers.length, 'the rule would pass with nothing to guard').toBeGreaterThanOrEqual(4)
+    expect(brandReaders.map(appLabel)).toEqual([])
+  })
 })

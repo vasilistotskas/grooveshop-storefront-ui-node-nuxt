@@ -4,6 +4,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { Product } from '~~/shared/openapi/types.gen'
 import ProductCard from '~/components/Product/Card.vue'
 import { makeProduct } from '~~/test/fixtures/product'
+import { makeProductSearchHit } from '~~/test/fixtures/productFilters'
 
 /**
  * The default tree's card only: the frozen webside card is a different
@@ -184,5 +185,26 @@ describe('Product/Card', () => {
     expect(reviewed.text()).toContain('3,5 · 12')
     expect(reviewed.find('[aria-label="Βαθμολογία 3,5 στα 5"]').exists()).toBe(true)
     expect(unreviewed.find('[aria-label^="Βαθμολογία"]').exists()).toBe(false)
+  })
+
+  // A search hit is handed to the card as it came, with no mapping step:
+  // the hit's field names ARE the card's, so these four lines only appear
+  // while the engine's payload keeps them.
+  it('shows the brand, reviews, new badge and low stock of a search hit as the home card does', async () => {
+    const hit = makeProductSearchHit({
+      brandName: 'Voltra',
+      reviewAverage: 8,
+      reviewCount: 14,
+      createdAt: '2026-01-05T00:00:00Z',
+      stock: 3,
+      lowStockThreshold: 5,
+    })
+
+    const wrapper = await mountCard(hit as unknown as Product)
+
+    expect(wrapper.text()).toContain('Voltra')
+    expect(wrapper.text()).toContain('4,0 · 14')
+    expect(wrapper.text()).toContain('Νέο')
+    expect(wrapper.text()).toContain('Μόνο 3 απέμειναν')
   })
 })

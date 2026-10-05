@@ -16,7 +16,7 @@ const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 const {
   filters,
-  hasActiveFilters,
+  hasActiveListingFilters,
   updateFilters,
 } = useProductFilters()
 
@@ -56,7 +56,7 @@ const shouldPreserveScroll = ref(false)
  */
 const emptyStateDescription = computed(() => {
   // No filters active - generic message
-  if (!hasActiveFilters.value) {
+  if (!hasActiveListingFilters.value) {
     return t('products.no_results.no_filters')
   }
 
@@ -85,6 +85,14 @@ const emptyStateDescription = computed(() => {
 
   if (filters.value.attributeValues.length > 0) {
     suggestions.push(t('products.no_results.try_different_attributes'))
+  }
+
+  if (filters.value.brands.length > 0) {
+    suggestions.push(t('products.no_results.try_different_brands'))
+  }
+
+  if (filters.value.inStock || filters.value.onOffer) {
+    suggestions.push(t('products.no_results.try_any_availability'))
   }
 
   // Return first suggestion or generic message
@@ -172,6 +180,9 @@ const {
       viewsMin: computed(() => filters.value.viewsMin),
       categories: effectiveCategories,
       attributeValues: computed(() => filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined),
+      brands: computed(() => filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined),
+      inStock: computed(() => filters.value.inStock || undefined),
+      onOffer: computed(() => filters.value.onOffer || undefined),
       sort: computed(() => filters.value.sort),
       languageCode: locale,
       limit,
@@ -277,6 +288,9 @@ watch(
     viewsMin: filters.value.viewsMin,
     categories: filters.value.categories.join(','), // Convert to string for proper comparison
     attributeValues: filters.value.attributeValues.join(','), // Convert to string for proper comparison
+    brands: filters.value.brands.join(','),
+    inStock: filters.value.inStock,
+    onOffer: filters.value.onOffer,
     // Note: sort is intentionally excluded - sort changes preserve scroll position
   }),
   (newFilters) => {
@@ -391,7 +405,7 @@ onMounted(() => {
       icon="i-heroicons-magnifying-glass-minus"
       :title="t('products.no_results.title')"
       :description="emptyStateDescription"
-      :actions="hasActiveFilters ? [
+      :actions="hasActiveListingFilters ? [
         {
           label: t('products.no_results.clear_filters'),
           size: 'lg',

@@ -104,6 +104,23 @@ describe('Products/List', () => {
       expect(searchQuery()).toMatchObject({ query: undefined, categories: undefined, attributeValues: undefined })
     })
 
+    it('carries the brands as ids and the two switches as flags', async () => {
+      setFilters({ brands: ['3', '7'], inStock: true, onOffer: true })
+
+      await mountList()
+
+      expect(searchQuery()).toMatchObject({ brands: '3,7', inStock: true, onOffer: true })
+    })
+
+    it('sends no brand and no flag when none is set', async () => {
+      await mountList()
+
+      const query = searchQuery()
+      expect(query.brands).toBeUndefined()
+      expect(query.inStock).toBeUndefined()
+      expect(query.onOffer).toBeUndefined()
+    })
+
     it.each([
       ['alone', [], '5'],
       ['ahead of the URL\'s categories', ['2'], '5,2'],
@@ -163,6 +180,9 @@ describe('Products/List', () => {
       ['the likes minimum', { likesMin: 2, attributeValues: ['7'] }, 'try_lower_popularity'],
       ['the views minimum', { viewsMin: 5 }, 'try_lower_views'],
       ['the attributes', { attributeValues: ['7'] }, 'try_different_attributes'],
+      ['the brands', { brands: ['3'] }, 'try_different_brands'],
+      ['the in-stock switch', { inStock: true }, 'try_any_availability'],
+      ['the on-offer switch', { onOffer: true }, 'try_any_availability'],
       ['in general for a sort alone', { sort: '-createdAt' }, 'description'],
     ])('suggests loosening %s', async (_case, filters, key) => {
       setFilters(filters)

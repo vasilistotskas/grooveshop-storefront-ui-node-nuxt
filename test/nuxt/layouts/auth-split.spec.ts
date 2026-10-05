@@ -88,3 +88,26 @@ describe('layouts/auth-split', () => {
     })
   })
 })
+
+describe('layouts/auth-split photo sizes', () => {
+  it('asks the media service for real widths, never a 1px image stretched across the panel', async () => {
+    setting.value = panel()
+
+    const wrapper = await mountLayout()
+    const img = wrapper.get('aside img')
+    const urls = img.attributes('srcset')!.split(',').map(candidate => candidate.trim().split(' ')[0]!)
+    const requested = urls.map((url) => {
+      const [, width, height] = url.match(/hero-audio\.jpg\/(\d+)\/(\d+)\/cover\//)!
+      return { width: Number(width), height: Number(height) }
+    })
+
+    expect(requested.length).toBeGreaterThan(0)
+    for (const { width, height } of requested) {
+      expect(width).toBeGreaterThanOrEqual(320)
+      expect(height).toBeGreaterThanOrEqual(320)
+      // the panel's 960 x 1080 frame
+      expect(height / width).toBeCloseTo(1080 / 960, 1)
+    }
+    expect(img.attributes('loading')).toBe('lazy')
+  })
+})

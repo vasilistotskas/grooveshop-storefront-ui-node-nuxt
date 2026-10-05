@@ -5,11 +5,12 @@ import type {
   AttributeValue,
   BlogPostMeiliSearchResponse,
   BlogPostMeiliSearchResult,
+  Brand,
   ProductCategory,
   ProductMeiliSearchResponse,
   ProductMeiliSearchResult,
 } from '~~/shared/openapi/types.gen'
-import type { FilterChip, ProductFilters } from '~~/shared/types/product-filters'
+import type { FilterChip, ListingFilterChip, ProductFilters } from '~~/shared/types/product-filters'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -27,6 +28,9 @@ export function makeProductFilters(overrides: Partial<ProductFilters> = {}): Pro
     categories: [],
     sort: '',
     attributeValues: [],
+    brands: [],
+    inStock: false,
+    onOffer: false,
     ...overrides,
   }
 }
@@ -55,14 +59,18 @@ export function makeProductFilters(overrides: Partial<ProductFilters> = {}): Pro
 export function createProductFiltersMock() {
   const filters = ref<ProductFilters>(makeProductFilters())
   const activeFilterChips = ref<FilterChip[]>([])
+  const activeListingChips = ref<ListingFilterChip[]>([])
   const activeFilterCount = ref(0)
   const hasActiveFilters = computed(() => activeFilterCount.value > 0)
+  const hasActiveListingFilters = hasActiveFilters
 
   return {
     filters,
     activeFilterChips,
+    activeListingChips,
     activeFilterCount,
     hasActiveFilters,
+    hasActiveListingFilters,
     updateFilters: vi.fn((_updates: Partial<ProductFilters>) => Promise.resolve()),
     removeFilter: vi.fn((_key: keyof ProductFilters) => Promise.resolve()),
     clearFilters: vi.fn(() => Promise.resolve()),
@@ -78,6 +86,7 @@ export function createProductFiltersMock() {
     reset() {
       filters.value = makeProductFilters()
       activeFilterChips.value = []
+      activeListingChips.value = []
       activeFilterCount.value = 0
     },
   }
@@ -116,6 +125,12 @@ export function makeCategory(
     uuid: fixtureUuid(5, id),
     ...rest,
   }
+}
+
+/** A `Brand` as `/api/products/brands/all` lists it, valid against `zBrand`. */
+export function makeBrand(overrides: Partial<Brand> = {}): Brand {
+  const id = overrides.id ?? 1
+  return { id, name: `Μάρκα ${id}`, ...overrides }
 }
 
 /** An `Attribute` (e.g. Colour), valid against `zAttribute`. `name` sets both locales. */
@@ -192,6 +207,10 @@ export function makeProductSearchHit(overrides: Partial<ProductMeiliSearchResult
     reviewAverage: null,
     vatPercent: 24,
     categoryName: null,
+    brandName: null,
+    reviewCount: 0,
+    createdAt: null,
+    lowStockThreshold: null,
     ...overrides,
   }
 }

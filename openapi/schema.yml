@@ -20952,6 +20952,227 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/product/brand:
+    get:
+      operationId: listBrand
+      description: 'Ανάκτηση λίστας Μάρκες με δυνατότητες φιλτραρίσματος και αναζήτησης. Υποστηρίζει πολλαπλές στρατηγικές σελιδοποίησης: pageNumber (προεπιλογή), cursor και limitOffset.'
+      summary: Λίστα Μάρκες
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+          description: Δείκτης (cursor) για σελιδοποίηση
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+        - name: ordering
+          in: query
+          required: false
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, name, -name'
+          schema:
+            type: string
+            pattern: ^(?:id|\-id|name|\-name)(?:,(?:id|\-id|name|\-name))*$
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - in: query
+          name: pageSize
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Αριθμός αποτελεσμάτων ανά σελίδα
+        - in: query
+          name: pagination
+          schema:
+            type: string
+            enum:
+              - 'false'
+              - 'true'
+            default: 'true'
+          description: Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+        - in: query
+          name: paginationType
+          schema:
+            type: string
+            enum:
+              - cursor
+              - limitOffset
+              - pageNumber
+            default: pageNumber
+          description: Τύπος στρατηγικής σελιδοποίησης
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+      tags:
+        - Brands
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBrandList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/product/brand/{id}:
+    get:
+      operationId: retrieveBrand
+      description: Λήψη λεπτομερών πληροφοριών για συγκεκριμένο Μάρκα.
+      summary: Ανάκτηση Μάρκα
+      parameters:
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+      tags:
+        - Brands
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/product/brand/all:
+    get:
+      operationId: listAllBrand
+      description: Retrieve every brand that has an active product, without pagination. Used by the storefront to map the brand filter's ids to names.
+      summary: List all brands (unpaginated)
+      tags:
+        - Brands
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/product/category:
     get:
       operationId: listProductCategory
@@ -25612,6 +25833,11 @@ paths:
             type: string
           description: ID τιμών χαρακτηριστικών διαχωρισμένα με κόμμα (attribute_values IN [ids])
         - in: query
+          name: brands
+          schema:
+            type: string
+          description: Comma-separated brand IDs (brand IN [ids])
+        - in: query
           name: categories
           schema:
             type: string
@@ -25621,6 +25847,18 @@ paths:
           schema:
             type: string
           description: Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά
+        - in: query
+          name: inStock
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: When true, only products with stock above zero
         - in: query
           name: languageCode
           schema:
@@ -25650,6 +25888,18 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
           description: Αριθμός αποτελεσμάτων προς παράλειψη
+        - in: query
+          name: onOffer
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: When true, only products carrying a markdown (discount_percent > 0). Promotions are cart-level (coupons, scoped and windowed) and are not part of this filter.
         - in: query
           name: priceMax
           schema:
@@ -34696,6 +34946,19 @@ components:
         - subject
         - time
         - type
+    Brand:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          title: Όνομα
+      required:
+        - id
+        - name
     BulkSubscriptionFailure:
       type: object
       properties:
@@ -36839,6 +37102,21 @@ components:
         vatPercent:
           type: number
           format: double
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+        brandName:
+          type: string
+          nullable: true
+        reviewCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        lowStockThreshold:
+          type: integer
           nullable: true
         title:
           type: string
@@ -40168,6 +40446,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BoxNowLocker'
+    PaginatedBrandList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=4
+            previous:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=2
+        count:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 123
+        pageSize:
+          type: integer
+          example: 123
+        pageTotalResults:
+          type: integer
+          example: 123
+        page:
+          type: integer
+          example: 123
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Brand'
     PaginatedCartItemList:
       type: object
       required:
@@ -44566,9 +44882,23 @@ components:
         categoryName:
           type: string
           nullable: true
+        brandName:
+          type: string
+          nullable: true
+        reviewCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        lowStockThreshold:
+          type: integer
+          nullable: true
       required:
+        - brandName
         - categoryName
         - contentType
+        - createdAt
         - description
         - discountPercent
         - finalPrice
@@ -44576,6 +44906,7 @@ components:
         - id
         - languageCode
         - likesCount
+        - lowStockThreshold
         - mainImagePath
         - master
         - matchesPosition
@@ -44583,6 +44914,7 @@ components:
         - price
         - rankingScore
         - reviewAverage
+        - reviewCount
         - slug
         - stock
         - vatPercent
