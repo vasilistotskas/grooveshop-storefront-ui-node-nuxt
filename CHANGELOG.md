@@ -1,3 +1,10 @@
+# [3.240.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.239.0...v3.240.0) (2026-10-05)
+
+
+### Features
+
+* **storefront:** search card fields, brand / in-stock / on-offer filters ([#89](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/89)) ([425fdf8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/425fdf83fbc1d24a20624ba21ef4556f81c81390)), closes [#117](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/117) [#118](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/118)
+
 # [3.239.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.238.0...v3.239.0) (2026-10-05)
 
 
