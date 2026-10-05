@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
@@ -22,6 +22,11 @@ mockNuxtImport('useTikTokPixel', () => () => pixels.tiktok)
 mockNuxtImport('useOpenAIPixel', () => () => pixels.openai)
 mockNuxtImport('useGoogleAds', () => () => pixels.googleAds)
 mockNuxtImport('useGA4', () => () => pixels.ga4)
+
+const { mockLog } = vi.hoisted(() => ({
+  mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+}))
+mockNuxtImport('log', () => mockLog)
 
 const IMPRESSION = '3f9c2b6e-1d5a-4c8b-9e7f-2a1b3c4d5e6f'
 
@@ -248,6 +253,57 @@ describe('Cart Store', () => {
       await store.setupCart()
 
       expect(store.cart).toBeNull()
+    })
+
+    describe('a signed-in shopper', () => {
+      // nuxt-auth-utils keeps the session in this state; a user in it is `loggedIn`.
+      beforeEach(() => {
+        useState('nuxt-session').value = { user: { id: 6 } }
+      })
+      afterEach(() => {
+        useState('nuxt-session').value = null
+      })
+
+      it('reports a load that answered with no cart, since Django always has one for them', async () => {
+        api.routes({ '/api/cart': null })
+
+        await store.setupCart()
+
+        expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({
+          action: 'cart:setup:signed-in-without-cart',
+          signedIn: true,
+          page: window.location.pathname,
+          cachedPage: false,
+        }))
+      })
+
+      it('reports nothing when their cart loads', async () => {
+        api.routes({ '/api/cart': twoLineCart() })
+
+        await store.setupCart()
+
+        expect(mockLog.error).not.toHaveBeenCalled()
+      })
+
+      it('says who and where on a failed load', async () => {
+        api.routes({
+          '/api/cart': () => {
+            throw new Error('502')
+          },
+        })
+
+        await store.setupCart()
+
+        expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'cart:setup', signedIn: true }))
+      })
+    })
+
+    it('reports nothing when a guest has no cart', async () => {
+      api.routes({ '/api/cart': null })
+
+      await store.setupCart()
+
+      expect(mockLog.error).not.toHaveBeenCalled()
     })
 
     it('swallows a failed load, keeping what it had', async () => {

@@ -1,5 +1,7 @@
 export const useCartStore = defineStore('cart', () => {
-  const { $i18n } = useNuxtApp()
+  const nuxtApp = useNuxtApp()
+  const { $i18n } = nuxtApp
+  const { loggedIn } = useUserSession()
   const t = $i18n.t.bind($i18n)
   // Capture the pixel + GA4 proxies at store-setup time so the
   // action body doesn't call ``useScriptMetaPixel`` /
@@ -358,6 +360,15 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  /** Where a cart load ran, for the logs: the page, and whether it hydrated cached markup. */
+  function cartLoadContext() {
+    return {
+      signedIn: loggedIn.value,
+      page: import.meta.client ? window.location.pathname : undefined,
+      cachedPage: Boolean(nuxtApp.payload.isCached),
+    }
+  }
+
   async function setupCart() {
     const headers = useRequestHeaders()
     const opId = crypto.randomUUID()
@@ -370,9 +381,16 @@ export const useCartStore = defineStore('cart', () => {
 
       cart.value = data ?? null
       error.value = null
+      // A signed-in shopper always has a cart in Django (the API creates
+      // one on read), so no cart here means the load went wrong upstream
+      // and the shopper now sees an empty cart over their real one. Kept
+      // at error level: production samples warnings.
+      if (loggedIn.value && !data) {
+        log.error({ action: 'cart:setup:signed-in-without-cart', ...cartLoadContext() })
+      }
     }
     catch (err) {
-      log.error({ action: 'cart:setup', error: err })
+      log.error({ action: 'cart:setup', error: err, ...cartLoadContext() })
     }
     finally {
       inFlight.delete(opId)

@@ -90,8 +90,13 @@ export default defineNuxtConfig({
         keep: [
           { status: 400 },
           { duration: 1000 },
+          // evlog turns `**` into `.*` after the slash, so `/api/cart/**`
+          // never matched `/api/cart` itself: the cart load and the orders
+          // list were head-sampled at 10% while their sub-routes were kept.
+          { path: '/api/cart' },
           { path: '/api/cart/**' },
           { path: '/api/_allauth/**' },
+          { path: '/api/orders' },
           { path: '/api/orders/**' },
           { path: '/api/analytics/**' },
         ],
