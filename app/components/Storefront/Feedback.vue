@@ -16,14 +16,14 @@ const { sections: brandSections } = await usePageConfig('feedback')
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col">
+  <PageWrapper class="flex flex-col gap-6">
     <!-- Breadcrumb ABOVE the branded band (crumb landed mid-page for
          tenants with published sections). -->
-    <PageBreadcrumb class="mb-5" />
+    <PageBreadcrumb />
     <div
       v-if="brandSections.length"
       class="
-        mb-8 grid gap-6
+        grid gap-6
         md:gap-10
       "
     >
@@ -33,15 +33,26 @@ const { sections: brandSections } = await usePageConfig('feedback')
         :section="section"
       />
     </div>
-    <!-- Narrow measure belongs to the FORM, not the page frame (see
-         contact.vue) — on PageWrapper it also squeezed the breadcrumb
-         and the branded band. -->
-    <div class="mx-auto w-full max-w-(--container-4xl)">
-      <PageTitle
+
+    <!-- The narrow measure belongs to the form, not the page frame. -->
+    <div class="flex w-full max-w-3xl flex-col gap-6">
+      <header
         v-if="!sectionsProvideHeading(brandSections)"
-        :text="t('title')"
-        class="mb-4 text-center capitalize"
-      />
+        class="flex flex-col gap-2"
+      >
+        <h1
+          class="
+            font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+            text-highlighted
+            lg:text-[2.25rem]/[1.1]
+          "
+        >
+          {{ t('heading') }}
+        </h1>
+        <p class="text-toned">
+          {{ t('lead') }}
+        </p>
+      </header>
 
       <FeedbackForm />
     </div>
@@ -51,6 +62,10 @@ const { sections: brandSections } = await usePageConfig('feedback')
 <i18n lang="yaml">
 el:
   title: Σχόλια & Παρατηρήσεις
+  heading: Πώς τα πήγαμε;
+  lead: Πέντε σύντομες ερωτήσεις.
 en:
   title: Feedback & Comments
+  heading: How did we do?
+  lead: Five short questions.
 </i18n>

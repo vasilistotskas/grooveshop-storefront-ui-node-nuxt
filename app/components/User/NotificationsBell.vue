@@ -1,8 +1,15 @@
 <script lang="ts" setup>
+/**
+ * The header's notification bell: a dot while something is unread, and a
+ * popover with the latest notifications, a "Mark all read" and a way to
+ * the full list.
+ *
+ * Opening a notification marks it read and goes to its link; one without
+ * a link is only marked read.
+ */
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { markAsSeen } = useUserNotification()
-const { presentationFor } = useNotificationPresentation()
+const { markAsSeen, markAllSeen } = useUserNotification()
 const userNotificationStore = useUserNotificationStore()
 const { notifications } = storeToRefs(userNotificationStore)
 const { setupNotifications } = userNotificationStore
@@ -19,24 +26,18 @@ onMounted(() => {
   setupNotifications().catch(err => log.warn({ tag: 'notifications:bell', message: 'self-bootstrap failed', error: err }))
 })
 
-const isDropdownVisible = ref(false)
-const dropdown = ref<HTMLDivElement>()
-const toggleButton = ref<HTMLButtonElement>()
+const open = ref(false)
+
+const POPOVER_UI = { content: 'w-[min(24rem,calc(100vw-1.5rem))] overflow-hidden rounded-[1.25rem] p-0' }
 
 const { count: unseenCount, pending } = useUnseenNotificationsCount()
 
 const show = computed(() => unseenCount.value > 0)
 
-// Drop directly into the store's detail-serialised rows instead of
-// fetching Notification objects by ID (that path returned plain
-// ``Notification`` rows keyed by Notification.id, which broke the
-// ``markAsSeen`` call below — that endpoint expects
-// ``NotificationUser`` ids). Using the store rows gives us both the
-// nested Notification content to render AND the correct
-// ``NotificationUser.id`` for mark-as-seen.
-const userNotifications = computed(() => {
-  return notifications.value?.results ?? []
-})
+// The store's detail-serialised rows, not Notification objects fetched by
+// id: ``markAsSeen`` takes ``NotificationUser`` ids, which these rows
+// carry beside the nested Notification content to render.
+const userNotifications = computed(() => notifications.value?.results ?? [])
 
 // ``link`` is a locale-neutral storefront path (``/account/orders/42``):
 // the API stores no host and no locale prefix, so the viewer's current
@@ -45,7 +46,7 @@ const onNotificationClick = async (
   notificationUserId: number,
   link?: string | null,
 ) => {
-  isDropdownVisible.value = false
+  open.value = false
   if (link) {
     markAsSeen([notificationUserId]).catch(() => {})
     setupNotifications().catch(() => {})
@@ -56,175 +57,148 @@ const onNotificationClick = async (
   await setupNotifications()
 }
 
-const toggleDropdown = () => {
-  isDropdownVisible.value = !isDropdownVisible.value
+const onMarkAllRead = async () => {
+  await markAllSeen()
+  await setupNotifications()
 }
-
-onClickOutside(dropdown, () => {
-  isDropdownVisible.value = false
-}, {
-  ignore: [toggleButton],
-})
 </script>
 
 <template>
-  <div
-    ref="toggleButton"
-    class="relative grid items-center"
+  <!-- The unread dot is the accent, ringed in the header's ground so it
+       reads as cut out of the bell. -->
+  <UChip
+    size="lg"
+    color="secondary"
+    :show="show"
+    inset
+    :ui="{ base: 'top-2.5 right-2.5 ring-2 ring-(--ui-bg-muted)' }"
   >
-    <!-- The unread dot is the accent, ringed in the header's ground so
-         it reads as cut out of the bell. -->
-    <UChip
-      :key="'notifications'"
-      size="lg"
-      color="secondary"
-      :show="show"
-      inset
-      :ui="{ base: 'top-2.5 right-2.5 ring-2 ring-(--ui-bg-muted)' }"
+    <UPopover
+      v-model:open="open"
+      :content="{ align: 'end', sideOffset: 8 }"
+      :ui="POPOVER_UI"
     >
       <UButton
         color="neutral"
         type="button"
         variant="ghost"
         square
-        :aria-label="t('notifications.title')"
-        :aria-expanded="isDropdownVisible"
-        :title="t('notifications.title')"
-        @click="toggleDropdown"
-      >
-        <Transition name="bell-fade" mode="out-in">
-          <UIcon
-            :key="isDropdownVisible ? 'solid' : 'outline'"
-            :name="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
-            class="size-5"
-          />
-        </Transition>
-      </UButton>
-    </UChip>
-    <Transition>
-      <div
-        v-show="isDropdownVisible"
-        ref="dropdown"
-        class="
-          absolute top-12 right-0 max-h-[min(70vh,32rem)] w-80 overflow-y-auto
-          overscroll-contain rounded-lg border border-gray-200 bg-neutral-50
-          shadow-md
-          md:top-14
-          dark:border-gray-800 dark:bg-neutral-900
-        "
-      >
-        <div class="relative grid gap-1 p-2">
-          <template v-if="!pending && userNotifications.length">
-            <UButton
-              v-for="row in userNotifications"
-              :id="String(row.id)"
-              :key="row.id"
-              color="neutral"
-              variant="link"
-              class="justify-start"
-              @click="onNotificationClick(row.id, row.notification?.link)"
-            >
-              <UCard
-                variant="subtle"
-                :ui="{
-                  root: 'size-full',
-                  body: `
-                    p-2
-                    sm:p-3
-                  `,
-                }"
-              >
-                <div class="flex items-start gap-3 text-left">
-                  <UIcon
-                    :name="presentationFor(row.notification?.kind, row.notification?.category).categoryIcon"
-                    :class="['mt-0.5 size-5 shrink-0', presentationFor(row.notification?.kind, row.notification?.category).textClass]"
-                  />
-                  <div class="grid min-w-0 gap-0.5">
-                    <span class="truncate text-sm font-medium">
-                      {{ extractTranslated(row.notification, 'title', locale) }}
-                    </span>
-                    <span
-                      class="
-                        line-clamp-2 text-xs text-neutral-600
-                        dark:text-neutral-300
-                      "
-                    >
-                      {{ extractTranslated(row.notification, 'message', locale) }}
-                    </span>
-                  </div>
-                </div>
-              </UCard>
-            </UButton>
+        icon="i-lucide-bell"
+        :aria-label="t('title')"
+        :title="t('title')"
+      />
 
+      <template #content>
+        <div class="flex flex-col">
+          <div class="flex items-center justify-between gap-3 border-b border-default px-4 py-3">
+            <h2 class="font-semibold text-highlighted">
+              {{ t('title') }}
+            </h2>
             <UButton
-              :to="localePath('account-notifications')"
+              v-if="show"
+              :label="t('mark_all_read')"
               color="neutral"
-              variant="soft"
+              variant="ghost"
               size="sm"
-              icon="i-heroicons-arrow-right"
-              trailing
-              block
-              class="mt-1"
-              @click="() => { isDropdownVisible = false }"
+              @click="onMarkAllRead"
+            />
+          </div>
+
+          <ul
+            v-if="!pending && userNotifications.length"
+            class="max-h-[min(60vh,26rem)] overflow-y-auto overscroll-contain"
+          >
+            <li
+              v-for="row in userNotifications"
+              :key="row.id"
+              class="border-b border-default last:border-b-0"
             >
-              {{ t('notifications.view_all') }}
-            </UButton>
-          </template>
-          <template v-else-if="!pending && !userNotifications.length">
-            <div
-              class="
-                grid items-center justify-center justify-items-center gap-2 p-2
+              <button
+                :id="String(row.id)"
+                type="button"
+                class="
+                flex w-full cursor-pointer items-center gap-3 px-4 py-3
+                text-left transition-colors
+                hover:bg-elevated
               "
-            >
-              <UIcon
-                name="i-heroicons-bell-alert"
-                class="size-12"
-              />
-              <p class="text-center text-sm">
-                {{ t('notifications.no_notifications') }}
-              </p>
-            </div>
-          </template>
+                :class="row.seen ? '' : 'bg-(--ui-secondary-soft)'"
+                @click="onNotificationClick(row.id, row.notification?.link)"
+              >
+                <span
+                  class="
+                  flex size-10 shrink-0 items-center justify-center rounded-xl
+                  bg-elevated text-highlighted
+                "
+                >
+                  <UIcon
+                    :name="notificationCategoryIcon(row.notification?.category)"
+                    class="size-5"
+                    aria-hidden="true"
+                  />
+                </span>
+                <span class="grid min-w-0 flex-1 gap-0.5">
+                  <span class="truncate text-sm font-semibold text-highlighted">
+                    {{ extractTranslated(row.notification, 'title', locale) }}
+                  </span>
+                  <NuxtTime
+                    :datetime="row.createdAt"
+                    :locale="locale"
+                    relative
+                    numeric="auto"
+                    class="text-xs text-toned"
+                  />
+                </span>
+                <span
+                  v-if="!row.seen"
+                  class="size-2 shrink-0 rounded-full bg-secondary"
+                >
+                  <span class="sr-only">{{ t('unread') }}</span>
+                </span>
+              </button>
+            </li>
+          </ul>
+
+          <div
+            v-else-if="!pending"
+            class="grid justify-items-center gap-2 px-4 py-8"
+          >
+            <UIcon
+              name="i-lucide-bell-off"
+              class="size-8 text-muted"
+            />
+            <p class="text-center text-sm text-toned">
+              {{ t('no_notifications') }}
+            </p>
+          </div>
+
+          <NuxtLink
+            :to="localePath('account-notifications')"
+            class="
+            block border-t border-default px-4 py-3 text-center text-sm
+            font-medium text-accent
+            hover:bg-elevated
+          "
+            @click="() => { open = false }"
+          >
+            {{ t('view_all') }}
+          </NuxtLink>
         </div>
-      </div>
-    </Transition>
-  </div>
+      </template>
+    </UPopover>
+  </UChip>
 </template>
 
 <i18n lang="yaml">
 el:
-  notifications:
-    title: Ειδοποιήσεις
-    no_notifications: Δεν έχεις ειδοποιήσεις
-    view_all: "Δες όλες τις ειδοποιήσεις"
+  title: Ειδοποιήσεις
+  mark_all_read: Όλες ως αναγνωσμένες
+  unread: Μη αναγνωσμένη
+  no_notifications: Δεν έχεις ειδοποιήσεις
+  view_all: Δες όλες τις ειδοποιήσεις
 en:
-  notifications:
-    title: Notifications
-    no_notifications: You have no notifications
-    view_all: "See all notifications"
+  title: Notifications
+  mark_all_read: Mark all read
+  unread: Unread
+  no_notifications: You have no notifications
+  view_all: See all notifications
 </i18n>
-
-<style scoped>
-.bell-fade-enter-active,
-.bell-fade-leave-active {
-  transition: opacity 150ms ease-out, transform 150ms ease-out;
-}
-
-.bell-fade-enter-from,
-.bell-fade-leave-to {
-  opacity: 0;
-  transform: scale(0.85);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bell-fade-enter-active,
-  .bell-fade-leave-active {
-    transition: none;
-  }
-
-  .bell-fade-enter-from,
-  .bell-fade-leave-to {
-    transform: none;
-  }
-}
-</style>

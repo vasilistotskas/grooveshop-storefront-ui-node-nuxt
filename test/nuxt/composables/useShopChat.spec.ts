@@ -248,6 +248,27 @@ describe('useShopChat', () => {
     expect(chat.messages.value[1]!.text).toBe('Μισή απάντ')
   })
 
+  it('shares whether the assistant is open between every caller', () => {
+    useShopChat().open.value = true
+
+    expect(useShopChat().open.value).toBe(true)
+
+    useShopChat().open.value = false
+  })
+
+  it('reset forgets that the last turn changed the cart', async () => {
+    useCartStore().refreshCart = vi.fn(() => Promise.resolve())
+    stubStream('event: done\ndata: {"conversationId":"c1","cartId":"abc","cartMutated":true}\n\n')
+
+    const chat = useShopChat()
+    await chat.send('βάλε το στο καλάθι')
+    expect(chat.cartMutated.value).toBe(true)
+
+    chat.reset()
+
+    expect(chat.cartMutated.value).toBe(false)
+  })
+
   it('reset clears the conversation state', async () => {
     stubStream('event: delta\ndata: {"text":"x"}\n\nevent: done\ndata: {"conversationId":"c9","cartMutated":false}\n\n')
 

@@ -48,6 +48,7 @@ const CHROME_KEYS = Object.keys({
   checkout_header: true,
   account_shell: true,
   cookie_consent: true,
+  assistant: true,
 } satisfies Record<ChromeKey, true>) as ChromeKey[]
 
 describe('variantRegistry', () => {

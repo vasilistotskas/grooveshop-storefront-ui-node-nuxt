@@ -23,6 +23,16 @@ mockNuxtImport('useRoute', () => () => ({
   hash: '',
 }))
 
+const session = await vi.hoisted(async () => {
+  const { ref } = await import('vue')
+  return { loggedIn: ref(false), user: ref<unknown>(null), session: ref({}), ready: ref(true) }
+})
+mockNuxtImport('useUserSession', () => () => ({
+  ...session,
+  fetch: () => Promise.resolve(),
+  clear: () => Promise.resolve(),
+}))
+
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 
@@ -35,6 +45,11 @@ const COPY = {
   invalidTitle: 'Μη έγκυρος σύνδεσμος',
   failed: 'Η επιβεβαίωση δεν ολοκληρώθηκε. Δοκίμασε ξανά σε λίγο.',
   confirm: 'Επιβεβαίωση εγγραφής',
+  title: 'Επιβεβαίωση εγγραφής',
+  prompt: 'Πάτησε το κουμπί για να ολοκληρώσεις την εγγραφή σου στο ενημερωτικό δελτίο.',
+  shop: 'Ξεκίνα τις αγορές',
+  topics: 'Διαχείριση θεμάτων',
+  home: 'Στην αρχική',
 }
 
 const mountPage = () => mountSuspended(NewsletterConfirm, { route: false })
@@ -49,6 +64,7 @@ async function pressConfirm(wrapper: Awaited<ReturnType<typeof mountPage>>) {
 
 describe('NewsletterConfirm', () => {
   beforeEach(() => {
+    session.loggedIn.value = false
     api.routes({ [CONFIRM_URL]: { status: 'confirmed', topic: 'Weekly News' } })
   })
 
@@ -60,6 +76,36 @@ describe('NewsletterConfirm', () => {
     expect(confirmButton(wrapper)).toBeTruthy()
   })
 
+  it('asks for the confirmation under the one h1 of the page', async () => {
+    const wrapper = await mountPage()
+
+    expect(wrapper.findAll('h1').map(h => h.text())).toEqual([COPY.title])
+    expect(wrapper.text()).toContain(COPY.prompt)
+  })
+
+  it('offers the shop once confirmed, and the topics only to a signed-in shopper', async () => {
+    const guest = await mountPage()
+    await pressConfirm(guest)
+    expect(guest.findAll('a').map(link => [link.text(), link.attributes('href')])).toEqual([[COPY.shop, '/products']])
+
+    session.loggedIn.value = true
+    const member = await mountPage()
+    await pressConfirm(member)
+    expect(member.findAll('a').map(link => [link.text(), link.attributes('href')])).toEqual([
+      [COPY.shop, '/products'],
+      [COPY.topics, '/account/subscriptions'],
+    ])
+  })
+
+  it('sends an expired or invalid link home, not to the shop', async () => {
+    api.routes({ [CONFIRM_URL]: failWith(410, { detail: 'x' }) })
+    const wrapper = await mountPage()
+
+    await pressConfirm(wrapper)
+
+    expect(wrapper.findAll('a').map(link => [link.text(), link.attributes('href')])).toEqual([[COPY.home, '/']])
+  })
+
   it('POSTs the token and names the confirmed topic', async () => {
     const wrapper = await mountPage()
 
@@ -67,7 +113,7 @@ describe('NewsletterConfirm', () => {
 
     expect(api.callsTo(CONFIRM_URL)).toEqual([{ url: CONFIRM_URL, options: { method: 'POST' } }])
     const status = wrapper.find('[role="status"]')
-    expect(status.find('h2').text()).toBe(COPY.confirmedTitle)
+    expect(status.find('h1').text()).toBe(COPY.confirmedTitle)
     expect(status.find('p').text()).toBe(COPY.confirmedTopic)
     expect(confirmButton(wrapper)).toBeUndefined()
   })
@@ -90,7 +136,7 @@ describe('NewsletterConfirm', () => {
 
     await pressConfirm(wrapper)
 
-    expect(wrapper.find('[role="alert"] h2').text()).toBe(title)
+    expect(wrapper.find('[role="alert"] h1').text()).toBe(title)
     expect(confirmButton(wrapper)).toBeUndefined()
   })
 
@@ -120,5 +166,41 @@ describe('NewsletterConfirm', () => {
     await flushPromises()
 
     expect(api.callsTo(CONFIRM_URL)).toHaveLength(1)
+  })
+
+  describe('focus after the button is pressed', () => {
+    const mountAttached = async () => {
+      const wrapper = await mountSuspended(NewsletterConfirm, { route: false, attachTo: document.body })
+      await flushPromises()
+      return wrapper
+    }
+
+    it('moves to the heading of the confirmed state, so it is read out', async () => {
+      const wrapper = await mountAttached()
+
+      await pressConfirm(wrapper)
+
+      expect(document.activeElement).toBe(wrapper.get('h1').element)
+      expect(wrapper.get('h1').attributes('tabindex')).toBe('-1')
+    })
+
+    it.each([410, 400])('moves to the heading of the %i state', async (status) => {
+      api.routes({ [CONFIRM_URL]: failWith(status, { detail: 'x' }) })
+      const wrapper = await mountAttached()
+
+      await pressConfirm(wrapper)
+
+      expect(document.activeElement).toBe(wrapper.get('h1').element)
+    })
+
+    it('moves to the failure message when the confirmation did not go through', async () => {
+      api.routes({ [CONFIRM_URL]: failWith(503, { detail: 'x' }) })
+      const wrapper = await mountAttached()
+
+      await pressConfirm(wrapper)
+
+      expect(document.activeElement).toBe(wrapper.get('[role="alert"]').element)
+      expect(wrapper.get('[role="alert"]').attributes('tabindex')).toBe('-1')
+    })
   })
 })

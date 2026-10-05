@@ -1,4 +1,18 @@
 <script lang="ts" setup>
+/**
+ * The search palette: products and guides as the shopper types, their
+ * recent searches beside them, and "see all" for the full results page.
+ *
+ * A `UCommandPalette` in a modal. The palette's own filter is off
+ * (`ignoreFilter`): the matches are the search engine's, asked for 200 ms
+ * after the last keystroke and only from two characters. Before that the
+ * palette offers the shopper's recent searches and what the shop is
+ * searching for.
+ *
+ * A result opens its page (the item is a link) and reports its rank among
+ * its own list. A product's category and "was" price are not shown: a
+ * search hit carries neither.
+ */
 const props = defineProps<{
   open: boolean
   query: string
@@ -11,8 +25,15 @@ const emit = defineEmits<{
 
 const { isMobileOrTablet } = useDevice()
 const router = useRouter()
-const { t, locale } = useI18n()
+const { t, n, locale } = useI18n()
+const localePath = useLocalePath()
+const { productUrl, blogPostUrl } = useUrls()
 const history = useSearchHistory()
+const { trackResultClick } = useSearchClickTracking()
+
+const MIN_QUERY_LENGTH = 2
+
+const MODAL_UI = { content: 'max-w-2xl rounded-[1.25rem] max-md:rounded-none' }
 
 const trending = useLazyApi<{
   windowHours: number
@@ -31,489 +52,401 @@ const localQuery = computed({
   set: value => emit('update:query', value),
 })
 
-function applyQuery(query: string) {
-  emit('update:query', query)
-}
-
 const localOpen = computed({
   get: () => props.open,
   set: value => emit('update:open', value),
 })
 
 const debouncedQuery = refDebounced(localQuery, 200)
-const activeResultIndex = ref(-1)
 
-const allLoadedResults = ref<{
-  products: ProductMeiliSearchResult[]
-  blogPosts: BlogPostMeiliSearchResult[]
-}>({
-  products: [],
-  blogPosts: [],
-})
-
-const limit = ref(3)
-const offset = ref(0)
-const activeTab = ref<'all' | 'products' | 'blogPosts'>('all')
-
-const {
-  data: searchResults,
-  status,
-  execute,
-} = useLazyApi<SearchResponse>('/api/search', {
+const { data: searchResults, status, execute, clear } = useLazyApi<SearchResponse>('/api/search', {
   query: {
     query: debouncedQuery,
     languageCode: locale,
-    limit,
-    offset,
+    limit: 3,
+    offset: 0,
   },
   immediate: false,
   watch: false,
 })
 
-const filteredResults = computed(() => {
-  if (!allLoadedResults.value) return []
+const searching = computed(() => localQuery.value.length >= MIN_QUERY_LENGTH)
 
-  const products = allLoadedResults.value.products
-  const blogPosts = allLoadedResults.value.blogPosts
+// The lists are read off the answer; `groups` shows them only while
+// there is a query to answer.
+const products = computed<ProductMeiliSearchResult[]>(() => searchResults.value?.products?.results ?? [])
+const guides = computed<BlogPostMeiliSearchResult[]>(() => searchResults.value?.blogPosts?.results ?? [])
 
-  if (activeTab.value === 'products') {
-    return products
-  }
-  else if (activeTab.value === 'blogPosts') {
-    return blogPosts
-  }
+// What is on screen answers the query in the field, or nothing: the
+// moment the field changes, the request in flight is aborted and its
+// results (rows, count, the "showing results for" notice, the ranks and
+// query id a click reports) are dropped. The request itself waits for the
+// shopper to pause, so typing never lists the previous query's rows.
+watch(localQuery, () => clear())
 
-  return [...products, ...blogPosts]
+watch(debouncedQuery, (next) => {
+  if (next && next.length >= MIN_QUERY_LENGTH) execute()
 })
 
-const totalResults = computed(() => {
-  if (!searchResults.value) return 0
+// Open on a query the parent already holds (the search page's own field).
+if (searching.value) execute()
 
-  const productsTotal
-    = searchResults.value.products?.estimatedTotalHits || 0
-  const blogPostsTotal
-    = searchResults.value.blogPosts?.estimatedTotalHits || 0
+const totalResults = computed(() =>
+  (searchResults.value?.products?.estimatedTotalHits ?? 0)
+  + (searchResults.value?.blogPosts?.estimatedTotalHits ?? 0),
+)
 
-  if (activeTab.value === 'products') return productsTotal
-  if (activeTab.value === 'blogPosts') return blogPostsTotal
+// The engine relaxes a query that found nothing; say what it searched for.
+const relaxedQuery = computed(() =>
+  searchResults.value?.products?.relaxedQuery ?? searchResults.value?.blogPosts?.relaxedQuery ?? null,
+)
 
-  return productsTotal + blogPostsTotal
-})
+function close() {
+  localOpen.value = false
+}
 
-const relaxedQuery = computed(() => {
-  const products = searchResults.value?.products?.relaxedQuery ?? null
-  const blogPosts = searchResults.value?.blogPosts?.relaxedQuery ?? null
-  if (activeTab.value === 'products') return products
-  if (activeTab.value === 'blogPosts') return blogPosts
-  return products ?? blogPosts
-})
+function applyQuery(query: string) {
+  emit('update:query', query)
+}
 
-const { trackResultClick } = useSearchClickTracking()
-
-function onResultClick(result: SearchResult, displayIndex: number) {
+function onResultClick(result: SearchResult, rank: number) {
   const isProduct = result.contentType === 'product'
-  // On the "all" tab products render first, so a blog post's rank
-  // within its own list is the display index minus the product count.
-  const position
-    = activeTab.value === 'all' && !isProduct
-      ? displayIndex - allLoadedResults.value.products.length
-      : displayIndex
+  history.add(localQuery.value)
   trackResultClick({
     queryId: isProduct
       ? searchResults.value?.products?.queryId
       : searchResults.value?.blogPosts?.queryId,
     resultId: result.master,
     resultType: isProduct ? 'product' : 'blog_post',
-    position,
+    position: rank,
   })
   close()
 }
 
-function close() {
-  localOpen.value = false
-  activeResultIndex.value = -1
-}
-
-function selectNextResult() {
-  const max = filteredResults.value.length - 1
-  activeResultIndex.value = activeResultIndex.value < max ? activeResultIndex.value + 1 : 0
-}
-
-function selectPrevResult() {
-  const max = filteredResults.value.length - 1
-  activeResultIndex.value = activeResultIndex.value > 0 ? activeResultIndex.value - 1 : max
-}
-
 function goToSearchPage() {
-  if (localQuery.value) {
-    history.add(localQuery.value)
-    router.replace({ path: '/search', query: { query: localQuery.value } })
-    localOpen.value = false
-  }
+  if (!localQuery.value) return
+  history.add(localQuery.value)
+  router.replace({ path: '/search', query: { query: localQuery.value } })
+  close()
 }
 
-function loadMore() {
-  offset.value += limit.value
-  execute()
-}
+const groups = computed(() => {
+  const result = []
 
-defineShortcuts({
-  enter: {
-    usingInput: 'queryInput',
-    handler: () => goToSearchPage(),
-  },
-  arrowdown: {
-    usingInput: 'queryInput',
-    handler: () => selectNextResult(),
-  },
-  arrowup: {
-    usingInput: 'queryInput',
-    handler: () => selectPrevResult(),
-  },
-  escape: {
-    handler: () => close(),
-  },
+  if (searching.value) {
+    if (products.value.length) {
+      result.push({
+        id: 'products',
+        label: t('groups.products'),
+        ignoreFilter: true,
+        items: products.value.map((product, rank) => ({
+          id: `product-${product.id}`,
+          label: getDisplayTitle(product),
+          slot: 'product' as const,
+          product,
+          to: localePath(productUrl(product.master, product.slug)),
+          onSelect: () => onResultClick(product, rank),
+        })),
+      })
+    }
+    if (guides.value.length) {
+      result.push({
+        id: 'guides',
+        label: t('groups.guides'),
+        ignoreFilter: true,
+        items: guides.value.map((post, rank) => ({
+          id: `guide-${post.id}`,
+          label: getDisplayTitle(post),
+          slot: 'guide' as const,
+          to: localePath(blogPostUrl(post.master, post.slug)),
+          onSelect: () => onResultClick(post, rank),
+        })),
+      })
+    }
+  }
+
+  if (history.entries.value.length) {
+    result.push({
+      id: 'recent',
+      label: t('groups.recent'),
+      ignoreFilter: true,
+      items: history.entries.value.map(entry => ({
+        id: `recent-${entry}`,
+        label: entry,
+        icon: 'i-lucide-clock',
+        onSelect: () => applyQuery(entry),
+      })),
+    })
+  }
+
+  if (!searching.value && trending.data.value?.results.length) {
+    result.push({
+      id: 'trending',
+      label: t('groups.trending'),
+      ignoreFilter: true,
+      items: trending.data.value.results.map(entry => ({
+        id: `trending-${entry.query}`,
+        label: entry.query,
+        icon: 'i-lucide-flame',
+        onSelect: () => applyQuery(entry.query),
+      })),
+    })
+  }
+
+  return result
 })
 
-watch(debouncedQuery, (newQuery) => {
-  activeResultIndex.value = -1
-  if (newQuery && newQuery.length >= 2) {
-    offset.value = 0
-    allLoadedResults.value = { products: [], blogPosts: [] }
-    execute()
-  }
-  else {
-    allLoadedResults.value = { products: [], blogPosts: [] }
-  }
-})
+const failed = computed(() => searching.value && status.value === 'error')
 
-watch(
-  searchResults,
-  (newResults) => {
-    if (!newResults) return
-
-    if (offset.value === 0) {
-      allLoadedResults.value = {
-        products: newResults.products?.results || [],
-        blogPosts: newResults.blogPosts?.results || [],
-      }
-    }
-    else {
-      allLoadedResults.value = {
-        products: [
-          ...allLoadedResults.value.products,
-          ...(newResults.products?.results || []),
-        ],
-        blogPosts: [
-          ...allLoadedResults.value.blogPosts,
-          ...(newResults.blogPosts?.results || []),
-        ],
-      }
-    }
-  },
-  { deep: true },
+const noResults = computed(() =>
+  searching.value && !!searchResults.value && status.value === 'success'
+  && !products.value.length && !guides.value.length,
 )
 
-// Execute initial search if query is provided (e.g., from URL or parent component)
-if (localQuery.value && localQuery.value.length >= 2) {
-  allLoadedResults.value = { products: [], blogPosts: [] }
-  execute()
+// What the palette says about the search itself, when it has something to say.
+const statusLine = computed(() => failed.value ? t('error') : noResults.value ? t('no_results') : null)
+
+// Enter goes to the results page — unless the shopper has chosen a row
+// themselves, with the arrow keys or the pointer. The palette highlights
+// its first row on its own, so a bare Enter would open whatever happens to
+// be first (or a recent search, while the results are still on their way)
+// instead of searching for what was typed.
+const rowChosen = ref(false)
+watch(localQuery, () => {
+  rowChosen.value = false
+})
+
+function onPaletteKeydown(event: KeyboardEvent) {
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    rowChosen.value = true
+    return
+  }
+  if (event.key !== 'Enter' || event.isComposing || rowChosen.value || !localQuery.value.trim()) return
+  event.preventDefault()
+  event.stopPropagation()
+  goToSearchPage()
+}
+
+function onPalettePointerMove(event: PointerEvent) {
+  if ((event.target as HTMLElement | null)?.closest('[role="option"]')) rowChosen.value = true
 }
 </script>
 
 <template>
   <UModal
     v-model:open="localOpen"
-    :title="t('search.title')"
+    :title="t('title')"
+    :description="t('description')"
     :fullscreen="isMobileOrTablet"
-    :description="t('search.description')"
-    :ui="{
-      content: 'max-h-[85vh] max-w-3xl',
-      body: 'p-0',
-      footer: 'md:h-16',
-    }"
+    :ui="MODAL_UI"
   >
-    <template #header>
-      <div class="flex w-full items-center gap-3">
-        <UIcon name="i-heroicons-magnifying-glass" class="size-5 text-gray-400" />
-        <UInput
-          v-model="localQuery"
-          name="queryInput"
-          type="text"
-          :placeholder="t('search.modal_placeholder')"
-          class="
-            flex-1 gap-2 border-0 bg-transparent text-base
-            focus:outline-none
-            md:gap-4
-          "
-          role="combobox"
-          :aria-expanded="filteredResults.length > 0"
-          aria-haspopup="listbox"
-          aria-autocomplete="list"
-          aria-controls="search-results-listbox"
-          :aria-activedescendant="activeResultIndex >= 0 ? `search-result-${activeResultIndex}` : undefined"
-          autofocus
-        >
-          <UKbd v-if="!isMobileOrTablet" value="ESC" />
-          <UButton
-            v-if="isMobileOrTablet"
-            icon="i-heroicons-x-mark"
-            color="error"
-            variant="ghost"
-            size="sm"
-            @click="close"
-          />
-        </UInput>
-      </div>
-    </template>
-
-    <template #body>
-      <div
-        v-if="searchResults"
-        class="
-          flex gap-1 border-b border-gray-200 px-4 pt-2 pb-4
-          md:pt-0
-          dark:border-gray-700
-        "
-      >
-        <UButton
-          :label="t('search.tabs.all')"
-          :variant="activeTab === 'all' ? 'soft' : 'ghost'"
-          size="sm"
-          @click="() => { activeTab = 'all' }"
-        />
-        <UButton
-          :label="
-            t('search.tabs.products', {
-              count: searchResults.products?.estimatedTotalHits || 0,
-            })
-          "
-          :variant="activeTab === 'products' ? 'soft' : 'ghost'"
-          size="sm"
-          @click="() => { activeTab = 'products' }"
-        />
-        <UButton
-          :label="
-            t('search.tabs.blog_posts', {
-              count: searchResults.blogPosts?.estimatedTotalHits || 0,
-            })
-          "
-          :variant="activeTab === 'blogPosts' ? 'soft' : 'ghost'"
-          size="sm"
-          @click="() => { activeTab = 'blogPosts' }"
-        />
-      </div>
-
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        class="
-          h-full overflow-y-auto
-          md:h-[60vh]
-        "
-      >
-        <div
-          v-if="status === 'pending' && !searchResults"
-          class="space-y-3 p-6"
-        >
-          <USkeleton v-for="i in 3" :key="i" class="h-20 w-full" />
-        </div>
-
-        <div
-          v-else-if="!localQuery || localQuery.length < 2"
-          class="space-y-6 p-6"
-        >
-          <div v-if="history.entries.value.length > 0">
-            <div class="mb-3 flex items-center justify-between">
-              <span class="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                {{ t('search.recent') }}
-              </span>
-              <UButton
-                :label="t('search.clear')"
-                size="xs"
-                variant="ghost"
-                color="neutral"
-                @click="history.clear()"
-              />
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <UButton
-                v-for="entry in history.entries.value"
-                :key="`recent-${entry}`"
-                :label="entry"
-                size="sm"
-                variant="soft"
-                color="neutral"
-                icon="i-heroicons-clock"
-                @click="applyQuery(entry)"
-              />
-            </div>
-          </div>
-
-          <div v-if="trending.data.value && trending.data.value.results.length > 0">
-            <div class="mb-3">
-              <span class="text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                {{ t('search.trending') }}
-              </span>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <UButton
-                v-for="entry in trending.data.value.results"
-                :key="`trend-${entry.query}`"
-                :label="entry.query"
-                size="sm"
-                variant="soft"
-                color="primary"
-                icon="i-heroicons-fire"
-                @click="applyQuery(entry.query)"
-              />
-            </div>
-          </div>
-
-          <div
-            v-if="history.entries.value.length === 0 && (!trending.data.value || trending.data.value.results.length === 0)"
-            class="py-8 text-center"
-          >
-            <UIcon
-              name="i-heroicons-magnifying-glass"
-              class="
-                mx-auto mb-4 size-12 text-gray-300
-                dark:text-gray-600
-              "
-            />
-            <p class="text-sm text-gray-500">
-              {{ t('search.start_typing') }}
-            </p>
-          </div>
-        </div>
-
-        <div
-          v-else-if="
-            searchResults
-              && filteredResults.length === 0
-              && status !== 'pending'
-          "
-          class="p-12 text-center"
-        >
-          <UIcon
-            name="i-heroicons-magnifying-glass-minus"
-            class="
-              mx-auto mb-4 size-12 text-gray-300
-              dark:text-gray-600
-            "
-          />
-          <p
-            class="
-              mb-2 font-medium text-gray-600
-              dark:text-gray-200
-            "
-          >
-            {{ t('search.no_results') }}
-          </p>
-          <p class="text-sm text-gray-500">
-            {{ t('search.try_different') }}
-          </p>
-        </div>
-
-        <div v-else>
-          <p
-            v-if="relaxedQuery"
-            class="flex items-center gap-1.5 px-4 pt-2 text-xs text-gray-500"
-            role="status"
-          >
-            <UIcon
-              name="i-heroicons-information-circle"
-              class="size-3.5 shrink-0"
-            />
-            {{ t('search.relaxed_notice', { query: relaxedQuery }) }}
-          </p>
-          <div
-            id="search-results-listbox"
-            role="listbox"
-            :aria-label="t('search.title')"
-            class="
-              grid gap-2 divide-y divide-gray-100 px-1 pt-2
-              dark:divide-gray-800
-            "
-          >
-            <SearchResult
-              v-for="(result, index) in filteredResults"
-              :id="`search-result-${index}`"
-              :key="`${result.contentType}-${result.id}`"
-              role="option"
-              :aria-selected="index === activeResultIndex"
-              :result="result"
-              @click="onResultClick(result, index)"
-            />
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <template #footer>
-      <UButton
-        v-if="
-          filteredResults.length > 0
-            && filteredResults.length < totalResults
-        "
-        :label="t('search.load_more')"
-        variant="ghost"
-        color="neutral"
-        block
+    <template #content>
+      <UCommandPalette
+        v-model:search-term="localQuery"
+        :groups="groups"
         :loading="status === 'pending'"
-        @click="loadMore"
-      />
+        :placeholder="t('placeholder')"
+        :close="isMobileOrTablet"
+        :ui="{ input: '[&>input]:h-14 [&>input]:text-base' }"
+        class="max-md:h-dvh md:h-auto md:max-h-[80vh]"
+        @keydown.capture="onPaletteKeydown"
+        @pointermove="onPalettePointerMove"
+        @update:open="(value: boolean) => { localOpen = value }"
+      >
+        <template #product-leading="{ item }">
+          <span class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-elevated">
+            <ImgWithFallback
+              v-if="item.product.mainImagePath"
+              :src="item.product.mainImagePath"
+              alt=""
+              :width="96"
+              :height="96"
+              fit="contain"
+              loading="lazy"
+              class="size-full object-contain"
+            />
+            <UIcon
+              v-else
+              name="i-lucide-package"
+              class="size-5 text-muted"
+            />
+          </span>
+        </template>
 
-      <div class="flex w-full items-center justify-end">
-        <UButton
-          v-if="localQuery && filteredResults.length > 0"
-          :label="t('search.view_all_results')"
-          size="sm"
-          color="neutral"
-          variant="subtle"
-          @click="goToSearchPage"
-        />
-      </div>
+        <template #product-label="{ item }">
+          <span class="line-clamp-2 font-medium text-highlighted">
+            <template
+              v-for="(part, index) in highlightSegments(item.label ?? '', localQuery)"
+              :key="index"
+            >
+              <mark
+                v-if="part.match"
+                class="rounded-xs bg-(--ui-volt-soft) text-highlighted"
+              >{{ part.text }}</mark>
+              <template v-else>{{ part.text }}</template>
+            </template>
+          </span>
+        </template>
+
+        <template #product-trailing="{ item }">
+          <span class="flex shrink-0 flex-col items-end gap-0.5">
+            <span
+              v-if="item.product.finalPrice !== null"
+              class="font-mono text-sm font-semibold text-highlighted"
+            >
+              {{ n(item.product.finalPrice, 'currency') }}
+            </span>
+            <span
+              v-if="(item.product.discountPercent ?? 0) > 0"
+              class="rounded-full bg-volt px-1.5 py-0.5 font-mono text-[0.6875rem] font-semibold text-on-volt"
+            >
+              −{{ Math.round(item.product.discountPercent ?? 0) }}%
+            </span>
+          </span>
+        </template>
+
+        <template #guide-leading>
+          <UIcon
+            name="i-lucide-file-text"
+            class="size-5 shrink-0 text-muted"
+          />
+        </template>
+
+        <template #guide-label="{ item }">
+          <span class="line-clamp-2 font-medium text-highlighted">
+            <template
+              v-for="(part, index) in highlightSegments(item.label ?? '', localQuery)"
+              :key="index"
+            >
+              <mark
+                v-if="part.match"
+                class="rounded-xs bg-(--ui-volt-soft) text-highlighted"
+              >{{ part.text }}</mark>
+              <template v-else>{{ part.text }}</template>
+            </template>
+          </span>
+        </template>
+
+        <template #empty>
+          <div class="flex flex-col items-center gap-2 px-6 py-10 text-center">
+            <UIcon
+              :name="failed ? 'i-lucide-triangle-alert' : 'i-lucide-search-x'"
+              class="size-8 text-muted"
+            />
+            <p
+              role="status"
+              class="font-medium text-highlighted"
+            >
+              {{ statusLine ?? t('start_typing') }}
+            </p>
+            <p
+              v-if="noResults"
+              class="text-sm text-toned"
+            >
+              {{ t('try_different') }}
+            </p>
+            <UButton
+              v-if="failed"
+              :label="t('retry')"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              @click="() => { execute() }"
+            />
+          </div>
+        </template>
+
+        <template #footer>
+          <div class="flex w-full flex-col gap-2">
+            <div
+              v-if="statusLine && groups.length"
+              role="status"
+              class="flex items-center justify-between gap-3 text-sm font-medium text-highlighted"
+            >
+              {{ statusLine }}
+              <UButton
+                v-if="failed"
+                :label="t('retry')"
+                color="neutral"
+                variant="outline"
+                size="xs"
+                @click="() => { execute() }"
+              />
+            </div>
+            <p
+              v-if="relaxedQuery"
+              role="status"
+              class="flex items-center gap-1.5 text-xs text-toned"
+            >
+              <UIcon
+                name="i-lucide-info"
+                class="size-3.5 shrink-0"
+              />
+              {{ t('relaxed_notice', { query: relaxedQuery }) }}
+            </p>
+            <div class="flex w-full items-center justify-between gap-3">
+              <UButton
+                v-if="localQuery.trim()"
+                :label="totalResults > 0
+                  ? t('see_all', { count: n(totalResults) }, totalResults)
+                  : t('see_all_query', { query: localQuery.trim() })"
+                color="neutral"
+                variant="link"
+                class="px-0"
+                @click="goToSearchPage"
+              />
+              <span v-else />
+              <span
+                v-if="!isMobileOrTablet"
+                class="flex items-center gap-1.5 text-xs text-muted"
+              >
+                <UKbd value="arrowup" />
+                <UKbd value="arrowdown" />
+                {{ t('to_navigate') }}
+              </span>
+            </div>
+          </div>
+        </template>
+      </UCommandPalette>
     </template>
   </UModal>
 </template>
 
 <i18n lang="yaml">
 el:
-  search:
-    title: Αναζήτηση
-    description: Αναζήτηση
-    modal_placeholder: Αναζήτηση...
-    tabs:
-      all: Όλα
-      products: Προϊόντα ({count})
-      blog_posts: Άρθρα ({count})
-    start_typing: Ξεκίνα να πληκτρολογείς για αναζήτηση
+  title: Αναζήτηση
+  description: Αναζήτηση στο κατάστημα
+  placeholder: Αναζήτηση στο κατάστημα
+  groups:
+    products: Προϊόντα
+    guides: Οδηγοί
     recent: Πρόσφατες αναζητήσεις
     trending: Δημοφιλείς αναζητήσεις
-    clear: Εκκαθάριση
-    no_results: Δεν βρέθηκαν αποτελέσματα
-    relaxed_notice: Εμφανίζονται αποτελέσματα για "{query}"
-    try_different: Δοκίμασς διαφορετικούς όρους αναζήτησης
-    load_more: Φόρτωση περισσότερων
-    view_all_results: Προβολή όλων
+  start_typing: Ξεκίνα να πληκτρολογείς για αναζήτηση
+  no_results: Δεν βρέθηκαν αποτελέσματα
+  try_different: Δοκίμασε διαφορετικούς όρους αναζήτησης
+  error: Η αναζήτηση δεν ολοκληρώθηκε. Δοκίμασε ξανά.
+  retry: Δοκίμασε ξανά
+  see_all_query: Αναζήτηση για «{query}»
+  relaxed_notice: Εμφανίζονται αποτελέσματα για "{query}"
+  see_all: "Δες το αποτέλεσμα | Δες και τα {count} αποτελέσματα"
+  to_navigate: για πλοήγηση
 en:
-  search:
-    title: Search
-    description: Search
-    modal_placeholder: Search...
-    tabs:
-      all: All
-      products: Products ({count})
-      blog_posts: Articles ({count})
-    start_typing: Start typing to search
+  title: Search
+  description: Search the shop
+  placeholder: Search the shop
+  groups:
+    products: Products
+    guides: Guides
     recent: Recent searches
     trending: Trending searches
-    clear: Clear
-    no_results: No results found
-    relaxed_notice: Showing results for "{query}"
-    try_different: Try different search terms
-    load_more: Load more
-    view_all_results: View all
+  start_typing: Start typing to search
+  no_results: No results found
+  try_different: Try different search terms
+  error: The search did not finish. Please try again.
+  retry: Try again
+  see_all_query: Search for “{query}”
+  relaxed_notice: Showing results for "{query}"
+  see_all: "See the result | See all {count} results"
+  to_navigate: to navigate
 </i18n>

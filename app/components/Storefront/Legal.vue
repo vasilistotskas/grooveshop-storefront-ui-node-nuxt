@@ -12,7 +12,6 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
-const localePath = useLocalePath()
 const runtimeConfig = useRuntimeConfig()
 const tenantStore = useTenantStore()
 
@@ -62,18 +61,8 @@ const lastUpdated = computed(() =>
     : '',
 )
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath(props.route),
-    label: t(`breadcrumb.items.${props.route}.label`),
-    icon: t(`breadcrumb.items.${props.route}.icon`),
-    current: true,
-  },
+const breadcrumb = computed(() => [
+  { label: t(`breadcrumb.items.${props.route}.label`) },
 ])
 
 const description = computed(() =>
@@ -89,74 +78,160 @@ useHead({
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col">
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          px-4 text-xs
-          sm:px-6
-          md:text-base
-          lg:px-8
-        `,
-      }"
-      class="relative mb-3 min-w-0"
-    />
-    <UPageHeader
-      :title="title"
-      :description="description"
-    >
-      <template
-        v-if="lastUpdated"
-        #headline
-      >
-        <UBadge
-          color="neutral"
-          variant="subtle"
-          icon="i-heroicons-clock"
+  <UContainer class="flex flex-col gap-6 pt-6 pb-14 lg:gap-8 lg:pb-22">
+    <PageBreadcrumb :items="breadcrumb" />
+
+    <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+      <div class="flex min-w-0 flex-col gap-2">
+        <h1
+          class="
+            font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em]
+            text-highlighted
+            lg:text-[2.25rem]/[1.1]
+          "
         >
-          {{ t('legal.lastUpdated', { date: lastUpdated }) }}
-        </UBadge>
-      </template>
-    </UPageHeader>
+          {{ title }}
+        </h1>
+        <p class="max-w-prose text-toned">
+          {{ description }}
+        </p>
+      </div>
+      <UBadge
+        v-if="lastUpdated"
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-clock"
+        size="lg"
+      >
+        {{ t('legal.lastUpdated', { date: lastUpdated }) }}
+      </UBadge>
+    </header>
 
     <UAlert
       v-if="isFallback"
       color="neutral"
-      variant="subtle"
-      icon="i-heroicons-language"
+      variant="soft"
+      icon="i-lucide-languages"
       :title="t('legal.fallbackNotice', { language: fallbackLanguageName })"
-      class="mt-4"
     />
 
     <div
       class="
-        mt-6 flex flex-col gap-6
-        lg:grid lg:grid-cols-[1fr_15rem] lg:items-start lg:gap-10
+        flex flex-col gap-6
+        lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start lg:gap-12
       "
     >
-      <article
-        :lang="documentLocale"
-        class="
-          article text-primary-950
-          dark:text-primary-50
-        "
-      >
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div v-html="body" />
-      </article>
-
       <LegalToc
         :title="t('legal.toc.title')"
         :links="tocLinks"
       />
+
+      <!-- The document is the tenant's own HTML, notices and all: a demo
+           store says so in its text, not in code. -->
+      <article
+        :lang="documentLocale"
+        class="legal-prose max-w-3xl"
+      >
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-html="body" />
+      </article>
     </div>
-  </PageWrapper>
+  </UContainer>
 </template>
+
+<style scoped>
+/* The document's own prose, not `.article`: that class is the CMS pages'
+   and the frozen webside store's, and a change there reaches both. */
+.legal-prose {
+  color: var(--ui-text-toned);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.legal-prose :deep(p),
+.legal-prose :deep(ul),
+.legal-prose :deep(ol),
+.legal-prose :deep(blockquote),
+.legal-prose :deep(table) {
+  margin-block-end: 1.25rem;
+}
+
+.legal-prose :deep(h1),
+.legal-prose :deep(h2),
+.legal-prose :deep(h3) {
+  color: var(--ui-text-highlighted);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  /* The sticky header must not cover a heading the contents list jumped to. */
+  scroll-margin-top: 7rem;
+}
+
+/* The contents list can also land on a <section id> (`buildLegalToc` uses
+   the id a document already carries), so that needs the same offset. */
+.legal-prose :deep(section[id]) {
+  scroll-margin-top: 7rem;
+}
+
+/* An editor's h1 is a section heading: the page has its own. */
+.legal-prose :deep(h1),
+.legal-prose :deep(h2) {
+  font-size: 1.75rem;
+  margin-block: 2rem 1rem;
+}
+
+.legal-prose :deep(h2:first-child),
+.legal-prose :deep(div > h2:first-child) {
+  margin-block-start: 0;
+}
+
+.legal-prose :deep(h3) {
+  font-size: 1.25rem;
+  margin-block: 1.75rem 0.75rem;
+}
+
+.legal-prose :deep(ul),
+.legal-prose :deep(ol) {
+  padding-inline-start: 1.5rem;
+}
+
+.legal-prose :deep(ul) {
+  list-style: disc;
+}
+
+.legal-prose :deep(ol) {
+  list-style: decimal;
+}
+
+.legal-prose :deep(li) {
+  margin-block-end: 0.375rem;
+}
+
+.legal-prose :deep(a) {
+  color: var(--ui-text-highlighted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-prose :deep(strong) {
+  color: var(--ui-text-highlighted);
+}
+
+.legal-prose :deep(table) {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.legal-prose :deep(th),
+.legal-prose :deep(td) {
+  border: 1px solid var(--ui-border);
+  padding: 0.5rem 0.75rem;
+  text-align: start;
+}
+</style>
 
 <i18n lang="yaml">
 el:
@@ -177,16 +252,12 @@ el:
     items:
       terms-of-use:
         label: Όροι Χρήσης
-        icon: i-heroicons-user-group
       privacy-policy:
         label: Πολιτική Απορρήτου
-        icon: i-heroicons-clipboard-document-list
       cookies-policy:
         label: Πολιτική Cookies
-        icon: i-heroicons-shield-check
       return-policy:
         label: Πολιτική Επιστροφών
-        icon: i-heroicons-arrow-uturn-left
 en:
   legal:
     lastUpdated: 'Last updated: {date}'
@@ -205,14 +276,10 @@ en:
     items:
       terms-of-use:
         label: Terms of Use
-        icon: i-heroicons-user-group
       privacy-policy:
         label: Privacy Policy
-        icon: i-heroicons-clipboard-document-list
       cookies-policy:
         label: Cookie Policy
-        icon: i-heroicons-shield-check
       return-policy:
         label: Returns Policy
-        icon: i-heroicons-arrow-uturn-left
 </i18n>

@@ -38,3 +38,30 @@ export function getDisplaySubtitle(result: SearchResult, maxLength = 150): strin
     return ''
   }
 }
+
+/** A run of text, flagged when it is one of the words the shopper typed. */
+export interface HighlightSegment {
+  text: string
+  match: boolean
+}
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * `text` split into runs, the ones matching a word of `query` (two
+ * characters or more, any case) flagged, so a result's title can show why
+ * it matched. No markup is built here: the caller renders the runs, so
+ * nothing in `text` is ever read as HTML.
+ */
+export function highlightSegments(text: string, query: string): HighlightSegment[] {
+  const words = [...new Set(query.trim().split(/\s+/).filter(word => word.length >= 2))]
+    .sort((a, b) => b.length - a.length)
+  if (!text || !words.length) return [{ text, match: false }]
+
+  const pattern = new RegExp(`(${words.map(escapeRegExp).join('|')})`, 'gi')
+  // With one capture group, `split` alternates: text, match, text, match…
+  return text
+    .split(pattern)
+    .map((part, index) => ({ text: part, match: index % 2 === 1 }))
+    .filter(segment => segment.text)
+}

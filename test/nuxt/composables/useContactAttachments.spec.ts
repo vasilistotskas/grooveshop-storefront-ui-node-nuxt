@@ -326,6 +326,32 @@ describe('useContactAttachments', () => {
     expect(attachments.uploads.value).toHaveLength(0)
   })
 
+  it('never offers more files than one enquiry can carry, whatever the store sets', async () => {
+    settings.CONTACT_ATTACHMENTS_MAX_COUNT = '500'
+    const attachments = await policy()
+    const body = (count: number) => ({
+      name: 'A',
+      email: 'a@example.com',
+      message: 'm',
+      attachmentIds: Array.from({ length: count }, (_, i) => `0a0a0a0a-0000-4000-8000-${String(i).padStart(12, '0')}`),
+    })
+
+    expect(zCreateContactBody.safeParse(body(attachments.maxCount.value)).success).toBe(true)
+    expect(zCreateContactBody.safeParse(body(attachments.maxCount.value + 1)).success).toBe(false)
+  })
+
+  it('refuses the file past that limit', async () => {
+    settings.CONTACT_ATTACHMENTS_MAX_COUNT = '500'
+    const attachments = await policy()
+    const limit = attachments.maxCount.value
+
+    const refused = attachments.add(Array.from({ length: limit + 1 }, (_, i) => file(`f${i}.pdf`, 10)))
+
+    expect(refused).toEqual([{ code: 'too-many' }])
+    expect(attachments.uploads.value).toHaveLength(limit)
+    expect(attachments.canAddMore.value).toBe(false)
+  })
+
   it('falls back to the platform defaults when a setting is unusable', async () => {
     settings.CONTACT_ATTACHMENTS_MAX_COUNT = 'not a number'
     settings.CONTACT_ATTACHMENTS_MAX_MB = '0'

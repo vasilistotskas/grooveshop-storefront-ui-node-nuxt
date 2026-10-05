@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { defineComponent, h, onErrorCaptured } from 'vue'
+import { resolve } from 'node:path'
+import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 import StorefrontLegal from '~/components/Storefront/Legal.vue'
 
 /**
@@ -112,5 +114,54 @@ describe('StorefrontLegal', () => {
     legalPage.mockResolvedValue(document({ hasDocument: !('hasDocument' in overrides), ...overrides }))
 
     expect(await thrownBy()).toMatchObject({ statusCode })
+  })
+
+  it('dates the document, and describes it, under its one heading', async () => {
+    legalPage.mockResolvedValue(document())
+
+    const wrapper = await mountLegal()
+
+    const date = new Date('2026-09-01T10:00:00Z').toLocaleDateString('el', { day: 'numeric', month: 'long', year: 'numeric' })
+    expect(wrapper.get('header').text()).toContain(`Τελευταία ενημέρωση: ${date}`)
+    expect(wrapper.get('header p').text()).toBe('Πώς συλλέγουμε, χρησιμοποιούμε και προστατεύουμε τα προσωπικά σας δεδομένα.')
+  })
+
+  it('shows no date for a document that has none', async () => {
+    legalPage.mockResolvedValue(document({ updatedAt: null }))
+
+    const wrapper = await mountLegal()
+
+    expect(wrapper.text()).not.toContain('Τελευταία ενημέρωση')
+  })
+
+  it('sets the document in its own prose, not the shared article class', async () => {
+    legalPage.mockResolvedValue(document())
+
+    const wrapper = await mountLegal()
+
+    expect(wrapper.find('article.legal-prose').exists()).toBe(true)
+    expect(wrapper.find('.article').exists()).toBe(false)
+  })
+
+  it('puts the contents list ahead of the text, and none for a document without headings', async () => {
+    legalPage.mockResolvedValue(document())
+    const withHeadings = await mountLegal()
+    const html = withHeadings.html()
+    expect(html.indexOf('<nav')).toBeGreaterThan(-1)
+    expect(html.indexOf('legal-prose')).toBeGreaterThan(html.indexOf('aria-label="Σε αυτή τη σελίδα"'))
+
+    legalPage.mockResolvedValue(document({ tocLinks: [] }))
+    const flat = await mountLegal()
+    expect(flat.find('nav[aria-label="Σε αυτή τη σελίδα"]').exists()).toBe(false)
+  })
+
+  it('keeps every anchor the contents list can land on clear of the sticky header', () => {
+    // CSS is not rendered in happy-dom, so the rule itself is the contract.
+    const css = parseSfc(resolve(REPO, 'app/components/Storefront/Legal.vue')).styles.map(style => style.content).join('\n')
+
+    for (const target of [':deep(h2)', ':deep(h3)', ':deep(section[id])']) {
+      const rule = css.split('}').find(block => block.includes(`.legal-prose ${target}`))
+      expect(rule, target).toMatch(/scroll-margin-top:\s*7rem/)
+    }
   })
 })

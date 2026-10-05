@@ -1,3 +1,5 @@
+import * as z from 'zod'
+
 /**
  * The contact form's attachment control: the store's policy, and one
  * upload's life from picked to claimable.
@@ -70,6 +72,16 @@ interface PendingUpload extends AttachmentUpload {
 
 const UPLOAD_URL = '/api/contact/attachment'
 
+/**
+ * How many ids one enquiry may claim, as the contact API's schema states
+ * it: the `maxItems` of the generated `attachmentIds` array, read through
+ * Zod's documented JSON Schema conversion rather than copied here.
+ */
+const CONTACT_ATTACHMENT_IDS_MAX = z.toJSONSchema(
+  zCreateContactBody.shape.attachmentIds,
+  { io: 'input' },
+).maxItems ?? Number.POSITIVE_INFINITY
+
 /** A DRF error body, or `null` when the reply was not JSON at all. */
 function parseBody(text: string): unknown {
   try {
@@ -114,7 +126,12 @@ export function useContactAttachments() {
   const sizeSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_MB')
   const typesSetting = useSettingValue('CONTACT_ATTACHMENTS_TYPES')
 
-  const maxCount = computed(() => settingNumber(countSetting.value, 3))
+  // The enquiry can carry only as many ids as the contact API takes
+  // (Django's own ceiling, in the generated schema). A store that sets
+  // more would have its visitors upload files the enquiry then cannot
+  // claim, and the whole message refused for it.
+  const maxCount = computed(() =>
+    Math.min(settingNumber(countSetting.value, 3), CONTACT_ATTACHMENT_IDS_MAX))
   const maxMegabytes = computed(() => settingNumber(sizeSetting.value, 10))
   const maxBytes = computed(() => maxMegabytes.value * 1024 * 1024)
   const allowedTypes = computed(() =>

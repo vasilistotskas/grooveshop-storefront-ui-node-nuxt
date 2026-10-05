@@ -1,4 +1,14 @@
 <script lang="ts" setup>
+/**
+ * The "On this page" list of a legal document, as the board draws it:
+ * a sticky card beside the text from `lg` up, and below that one button
+ * that opens the same list in a bottom sheet.
+ *
+ * The links come from the document's own headings (`buildLegalToc`), so
+ * every one has an anchor to jump to. A document with no headings gets
+ * no list: rendering the title over nothing would be chrome advertising
+ * nothing.
+ */
 interface TocLink {
   id: string
   text: string
@@ -9,26 +19,19 @@ const props = defineProps<{
   links: TocLink[]
 }>()
 
-const accordionItems = computed(() => [
-  {
-    value: 'toc',
-    label: props.title,
-    icon: 'i-heroicons-list-bullet',
-  },
-])
-
+const isOpen = ref(false)
 const activeId = ref<string | null>(null)
 
 onMounted(() => {
   const sections = props.links
-    .map(l => document.getElementById(l.id))
+    .map(link => document.getElementById(link.id))
     .filter((el): el is HTMLElement => el !== null)
   if (!sections.length) return
 
   const observer = new IntersectionObserver(
     (entries) => {
       const visible = entries
-        .filter(e => e.isIntersecting)
+        .filter(entry => entry.isIntersecting)
         .sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0))[0]
       if (visible) activeId.value = visible.target.id
     },
@@ -41,76 +44,65 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- A document with no headings gets no jump list. The links are
-       derived from the document itself (``buildLegalToc``), so "empty"
-       means the merchant wrote flat prose — rendering the heading and an
-       empty list would be chrome advertising nothing. -->
+  <!-- The sticky box is the grid item itself: inside a wrapper only as
+       tall as the card there is nothing to stick across, and the card
+       would scroll away on a long document. -->
   <div
     v-if="links.length"
-    class="
-      order-first
-      lg:sticky lg:top-24 lg:order-last
-    "
+    class="lg:sticky lg:top-24"
   >
-    <!-- Mobile accordion: collapsed jump list -->
-    <UAccordion
-      :items="accordionItems"
-      class="lg:hidden"
+    <!-- Phone and tablet: one button, the list in a sheet. -->
+    <UDrawer
+      v-model:open="isOpen"
+      :title="title"
     >
+      <UButton
+        :label="title"
+        icon="i-lucide-list"
+        trailing-icon="i-lucide-chevron-down"
+        color="neutral"
+        variant="outline"
+        block
+        class="justify-between lg:hidden"
+      />
       <template #body>
-        <ul class="space-y-2 px-2 py-3 text-sm">
+        <ul class="flex flex-col gap-1 pb-4 text-sm">
           <li
             v-for="link in links"
             :key="link.id"
           >
             <a
               :href="`#${link.id}`"
-              class="
-                text-primary-700 underline-offset-2
-                hover:underline
-                dark:text-primary-300
-              "
+              class="block rounded-xl px-3 py-2.5 text-toned hover:bg-elevated"
+              @click="() => { isOpen = false }"
             >
               {{ link.text }}
             </a>
           </li>
         </ul>
       </template>
-    </UAccordion>
+    </UDrawer>
 
-    <!-- Desktop sticky TOC -->
+    <!-- Desktop: the sticky card. -->
     <nav
       :aria-label="title"
       class="
-        hidden
+        hidden rounded-[1.25rem] bg-default p-3 ring ring-default
         lg:block
       "
     >
-      <p
-        class="
-          mb-3 text-xs font-semibold tracking-wide text-muted uppercase
-        "
-      >
-        {{ title }}
-      </p>
-      <ul class="space-y-1 text-sm">
+      <ul class="flex flex-col gap-1 text-sm">
         <li
           v-for="link in links"
           :key="link.id"
         >
           <a
             :href="`#${link.id}`"
-            :class="[
-              'block rounded-md border-l-2 px-3 py-1.5 transition-colors',
-              activeId === link.id
-                ? `
-                  border-primary font-medium text-primary
-                `
-                : `
-                  border-transparent text-muted
-                  hover:text-default
-                `,
-            ]"
+            :aria-current="activeId === link.id ? 'location' : undefined"
+            class="block rounded-xl px-3 py-2.5 transition-colors"
+            :class="activeId === link.id
+              ? 'bg-elevated font-medium text-highlighted ring ring-default'
+              : 'text-toned hover:bg-elevated hover:text-highlighted'"
           >
             {{ link.text }}
           </a>

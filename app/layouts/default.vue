@@ -20,6 +20,10 @@ const footer = computed(() =>
 const mobileNav = computed(() =>
   resolveChrome('mobile_nav', tenantStore.schemaName),
 )
+// The shopping assistant, per tenant like the rest of the chrome.
+const assistant = computed(() =>
+  resolveChrome('assistant', tenantStore.schemaName),
+)
 // The signed-in account area's frame (banner + sidebar), per tenant
 // like the rest of the chrome.
 const accountShell = computed(() =>
@@ -123,7 +127,7 @@ const footerClass = computed(() =>
       :include-cart="!isAccountRoute"
     />
     <ClientOnly>
-      <LazyChatWidget />
+      <component :is="assistant" />
     </ClientOnly>
   </div>
 </template>

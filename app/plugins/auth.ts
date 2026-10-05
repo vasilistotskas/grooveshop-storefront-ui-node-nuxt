@@ -100,6 +100,9 @@ export default defineNuxtPlugin({
         clearAuthState()
         clearAccountState()
         clearNotificationsState()
+        // The account menus' standing (tier, points, business account) is
+        // the signed-out shopper's: the next one must not read it.
+        clearNuxtData('account-quick-menu-summary')
         // No `loggedIn.value` guard — when this fires from a server-driven
         // 410, the session.delete.ts finally block has already cleared
         // the server cookie, but the client `loggedIn` ref may not have

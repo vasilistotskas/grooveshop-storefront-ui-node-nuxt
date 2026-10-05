@@ -1,292 +1,236 @@
 <script lang="ts" setup>
 import type { NuxtError } from '#app'
 
+/**
+ * The storefront's error page — the 404 as the board draws it, and the
+ * same frame for a server error or anything else.
+ *
+ * `error.vue` is a shell that renders outside every layout, so this body
+ * draws the store's own chrome itself, resolved per tenant like the
+ * layout does: the header above, the footer and the phone's tab bar
+ * below. Between them the status code large, a line saying what
+ * happened, a search, and the two ways out.
+ */
 const props = defineProps({
   error: Object as () => NuxtError,
 })
 
 const config = useRuntimeConfig()
 const { t } = useI18n()
+const localePath = useLocalePath()
+const tenantStore = useTenantStore()
 const { ogImageUrl } = useTenantBranding()
+
+const navbar = computed(() => resolveChrome('navbar', tenantStore.schemaName))
+const footer = computed(() => resolveChrome('footer', tenantStore.schemaName))
+const mobileNav = computed(() => resolveChrome('mobile_nav', tenantStore.schemaName))
+// Merchant UI toggle — fails OPEN, like the layout's.
+const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
+  fallback: true,
+})
 
 const showDebug = import.meta.dev || Boolean((config.public as Record<string, unknown>).debug)
 
+const statusCode = computed(() => props.error?.statusCode ?? 0)
+const kind = computed(() =>
+  statusCode.value === 404 ? 'not_found' : statusCode.value >= 500 ? 'server' : 'generic',
+)
+
+// Localized per kind — the raw statusMessage is an English internal
+// string ("Server Error", "Page not found") that has no place on a
+// Greek storefront; debug mode still surfaces it in the card below.
+const heading = computed(() => t(`${kind.value}.title`))
+const lead = computed(() => t(`${kind.value}.lead`))
+const pageTitle = computed(() => t('page_title', { code: statusCode.value }))
+
 useSeoMeta({
-  title: t('error.page.title'),
+  title: () => pageTitle.value,
   ogImage: () => ogImageUrl.value,
-  ogImageAlt: 'Page not found',
+  ogImageAlt: () => heading.value,
   ogImageWidth: 1200,
   ogImageHeight: 630,
 })
-
 useHead({
-  title: t('error.page.title'),
+  title: () => pageTitle.value,
 })
 
-const helpfulTips = computed(() => {
-  if (props.error?.statusCode === 404) {
-    return [
-      t('tip.check.url'),
-      t('tip.use.search'),
-      t('tip.go.home'),
-    ]
-  }
-  else if (props.error?.statusCode === 500) {
-    return [
-      t('tip.server.error'),
-      t('tip.try.again'),
-      t('tip.contact.support'),
-    ]
-  }
-  return [t('tip.general')]
-})
+/** "404" as three glyphs, so the middle one can take the accent. */
+const digits = computed(() => String(statusCode.value).split(''))
 
-const statusHeading = computed(() => {
-  const statusCode = props.error?.statusCode ?? 0
-  if (statusCode === 404) return t('status.not.found')
-  if (statusCode >= 500) return t('status.server')
-  return t('status.generic')
-})
+const term = ref('')
+const search = async () => {
+  const query = term.value.trim()
+  if (!query) return
+  await clearError({ redirect: localePath({ name: 'search', query: { query } }) })
+}
+
+const goTo = (name: 'products' | 'contact') =>
+  clearError({ redirect: localePath(name) })
 </script>
 
 <template>
   <div
     v-if="error"
-    class="
-      relative min-h-screen overflow-hidden bg-gradient-to-br from-primary-50
-      via-white to-primary-100
-      dark:from-gray-950 dark:via-gray-900 dark:to-primary-950
-    "
+    class="relative"
   >
-    <!-- Theme-token visual (was a Lottie with baked-in platform-blue
-         paths — every non-blue tenant got an off-brand error page, and
-         the 50KB animation runtime shipped for it). -->
-    <div
-      v-if="error.statusCode === 404"
-      class="
-        pointer-events-none mx-auto flex max-w-md items-center
-        justify-center px-6 pt-10
-        sm:pt-16
-      "
+    <component :is="navbar" />
+
+    <UMain
+      id="main-content"
+      as="main"
     >
-      <div
+      <section
         class="
-          relative flex size-48 items-center justify-center rounded-full
-          bg-(--ui-color-primary-100)
-          dark:bg-(--ui-color-primary-900)
+          flex flex-col items-center gap-6 px-4 py-16 text-center
+          sm:py-24
         "
       >
-        <div
-          aria-hidden="true"
+        <p
+          :aria-label="String(statusCode)"
           class="
-            absolute -top-4 -right-4 size-24 rounded-full
-            bg-(--ui-color-secondary-300)/30 blur-2xl
+            flex font-display text-[7rem]/none font-bold text-highlighted
+            sm:text-[11rem]/none
           "
-        />
-        <UIcon
-          name="i-heroicons-map"
-          class="
-            size-24 text-primary-500
-            dark:text-primary-400
-          "
-          aria-hidden="true"
-        />
-      </div>
-    </div>
-    <div
-      v-else
-      class="pointer-events-none absolute inset-0 overflow-hidden opacity-20"
-    >
-      <div
-        v-for="(_blob, index) in 3"
-        :key="index"
-        class="
-          absolute size-72 animate-pulse rounded-full mix-blend-multiply
-          blur-3xl
-          motion-reduce:animate-none
-          dark:mix-blend-lighten
-        "
-        :class="[
-          index === 0 && `
-            top-20 left-10 bg-primary-300
-            dark:bg-primary-700
-          `,
-          index === 1 && `
-            top-40 right-10 bg-warning-300
-            [animation-delay:2s]
-            dark:bg-warning-700
-          `,
-          index === 2 && `
-            bottom-20 left-1/2 bg-error-300
-            [animation-delay:4s]
-            dark:bg-error-700
-          `,
-        ]"
-      />
-    </div>
+        >
+          <span
+            v-for="(digit, index) in digits"
+            :key="index"
+            aria-hidden="true"
+            :class="digits.length === 3 && index === 1 ? 'text-accent' : ''"
+          >{{ digit }}</span>
+        </p>
 
-    <main
-      class="
-        relative z-10 flex min-h-screen flex-col items-center justify-center
-        gap-6 py-8 text-center
-        sm:py-12
-      "
-    >
-      <h1
-        class="
-          font-display text-6xl font-bold text-primary-700
-          sm:text-7xl
-          dark:text-primary-300
-        "
-      >
-        {{ error.statusCode }}
-      </h1>
-      <!-- Localized per status — the raw statusMessage is an English
-           internal string ("Server Error", "Page not found") that has
-           no place on a Greek storefront; debug mode still surfaces it
-           in the card below. -->
-      <p class="mt-4 max-w-2xl text-lg text-balance text-muted">
-        {{ statusHeading }}
-      </p>
-
-      <UAlert
-        v-if="helpfulTips.length > 0"
-        color="neutral"
-        variant="soft"
-        :title="t('helpful.tips')"
-        class="mt-6 max-w-2xl text-left"
-      >
-        <template #description>
-          <ul class="mt-2 space-y-1 text-sm">
-            <li
-              v-for="(tip, tipIndex) in helpfulTips"
-              :key="tipIndex"
-              class="flex items-start gap-2"
-            >
-              <UIcon
-                name="i-heroicons-check-circle"
-                class="mt-0.5 size-4 shrink-0"
-              />
-              <span>{{ tip }}</span>
-            </li>
-          </ul>
-        </template>
-      </UAlert>
-
-      <UCard
-        v-if="showDebug && error.message"
-        variant="outline"
-        class="mt-4 max-w-2xl text-left"
-      >
-        <template #header>
-          <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-code-bracket" class="size-5" />
-            <span class="font-semibold">{{ t('debug.info') }}</span>
-          </div>
-        </template>
-
-        <div class="space-y-2 text-sm">
-          <div v-if="error.message">
-            <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.message') }}:</span>
-            <code class="ml-2 text-error-600 dark:text-error-400">{{ error.message }}</code>
-          </div>
-          <div v-if="error.data">
-            <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.data') }}:</span>
-            <pre class="mt-1 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-800">{{ error.data }}</pre>
-          </div>
+        <div class="flex max-w-xl flex-col gap-3">
+          <h1
+            class="
+              font-display text-[1.75rem]/[1.15] font-bold tracking-[-0.02em]
+              text-balance text-highlighted
+              sm:text-[2.5rem]/[1.1]
+            "
+          >
+            {{ heading }}
+          </h1>
+          <p class="text-toned">
+            {{ lead }}
+          </p>
         </div>
-      </UCard>
 
-      <div class="mt-8 flex items-center justify-center gap-6">
-        <UButton
-          size="xl"
-          color="neutral"
-          variant="solid"
-          icon="i-heroicons-home-20-solid"
-          class="rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-          @click="clearError({ redirect: '/' })"
+        <form
+          v-if="kind === 'not_found'"
+          role="search"
+          class="w-full max-w-xl"
+          @submit.prevent="search"
         >
-          {{ t('home') }}
-        </UButton>
+          <UInput
+            v-model="term"
+            type="search"
+            icon="i-lucide-search"
+            :placeholder="t('search.placeholder')"
+            :aria-label="t('search.label')"
+            size="xl"
+            class="w-full"
+            :ui="{ base: 'rounded-full' }"
+          />
+        </form>
 
-        <UButton
-          size="xl"
-          color="neutral"
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <UButton
+            color="neutral"
+            variant="solid"
+            size="lg"
+            class="rounded-full"
+            @click="() => goTo('products')"
+          >
+            {{ t('shop') }}
+          </UButton>
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="rounded-full"
+            @click="() => goTo('contact')"
+          >
+            {{ t('contact') }}
+          </UButton>
+        </div>
+
+        <UCard
+          v-if="showDebug && error.message"
           variant="outline"
-          icon="i-heroicons-arrow-left-20-solid"
-          class="rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-          @click="$router.back()"
+          class="mt-4 w-full max-w-2xl text-left"
         >
-          {{ t('go.back') }}
-        </UButton>
-      </div>
-    </main>
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon
+                name="i-lucide-code-xml"
+                class="size-5"
+              />
+              <span class="font-semibold">{{ t('debug.info') }}</span>
+            </div>
+          </template>
+
+          <div class="space-y-2 text-sm">
+            <div>
+              <span class="font-medium">{{ t('debug.message') }}:</span>
+              <code class="ms-2">{{ error.message }}</code>
+            </div>
+            <div v-if="error.data">
+              <span class="font-medium">{{ t('debug.data') }}:</span>
+              <pre class="mt-1 overflow-auto rounded bg-elevated p-2 text-xs">{{ error.data }}</pre>
+            </div>
+          </div>
+        </UCard>
+      </section>
+    </UMain>
+
+    <component :is="footer" />
+    <component
+      :is="mobileNav"
+      v-if="mobileBottomNavEnabled"
+      :include-cart="true"
+    />
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  go:
-    back: Επιστροφή Πίσω
-  home: Αρχική
-  error:
-    page:
-      title: Σφάλμα 404
-    message: Μήνυμα σφάλματος
-    data: Δεδομένα σφάλματος
-  helpful:
-    tips: Χρήσιμες συμβουλές
-  status:
-    not:
-      found: Η σελίδα που ψάχνετε δεν βρέθηκε.
-    server: Κάτι πήγε στραβά, δοκιμάστε ξανά σε λίγο.
-    generic: Παρουσιάστηκε σφάλμα.
-  tip:
-    check:
-      url: Ελέγξτε αν η διεύθυνση URL είναι σωστή
-    use:
-      search: Χρησιμοποιήστε την αναζήτηση για να βρείτε αυτό που ψάχνετε
-    go:
-      home: Επιστρέψτε στην αρχική σελίδα
-    server:
-      error: Παρουσιάστηκε σφάλμα διακομιστή
-    try:
-      again: Δοκιμάστε ξανά σε λίγα λεπτά
-    contact:
-      support: Επικοινωνήστε με την υποστήριξη αν το πρόβλημα παραμένει
-    general: Κάτι πήγε στραβά, δοκιμάστε ξανά
+  page_title: 'Σφάλμα {code}'
+  not_found:
+    title: Δεν βρήκαμε αυτή τη σελίδα.
+    lead: Ο σύνδεσμος μπορεί να είναι παλιός ή να έχει λάθος. Δοκίμασε μια αναζήτηση ή γύρνα στο κατάστημα.
+  server:
+    title: Κάτι πήγε στραβά από τη δική μας πλευρά.
+    lead: Δοκίμασε ξανά σε λίγο. Αν το πρόβλημα συνεχίζεται, επικοινώνησε μαζί μας.
+  generic:
+    title: Παρουσιάστηκε σφάλμα.
+    lead: Δοκίμασε ξανά ή γύρνα στο κατάστημα.
+  search:
+    label: Αναζήτηση στο κατάστημα
+    placeholder: Αναζήτηση προϊόντων και άρθρων
+  shop: Πήγαινε στο κατάστημα
+  contact: Επικοινωνία
   debug:
     info: Πληροφορίες αποσφαλμάτωσης
+    message: Μήνυμα σφάλματος
+    data: Δεδομένα σφάλματος
 en:
-  go:
-    back: Go back
-  home: Home
-  error:
-    page:
-      title: Error 404
-    message: Error message
-    data: Error data
-  helpful:
-    tips: Helpful tips
-  status:
-    not:
-      found: The page you are looking for was not found.
-    server: Something went wrong — please try again shortly.
-    generic: An error occurred.
-  tip:
-    check:
-      url: Check that the URL is correct
-    use:
-      search: Use the search to find what you are looking for
-    go:
-      home: Go back to the home page
-    server:
-      error: A server error occurred
-    try:
-      again: Try again in a few minutes
-    contact:
-      support: Contact support if the problem persists
-    general: Something went wrong — please try again
+  page_title: 'Error {code}'
+  not_found:
+    title: We could not find that page.
+    lead: The link may be old or mistyped. Try a search, or head back to the shop.
+  server:
+    title: Something went wrong on our side.
+    lead: Please try again shortly. If it keeps happening, get in touch.
+  generic:
+    title: An error occurred.
+    lead: Try again, or head back to the shop.
+  search:
+    label: Search the shop
+    placeholder: Search products and articles
+  shop: Go to the shop
+  contact: Contact us
   debug:
     info: Debug information
+    message: Error message
+    data: Error data
 </i18n>

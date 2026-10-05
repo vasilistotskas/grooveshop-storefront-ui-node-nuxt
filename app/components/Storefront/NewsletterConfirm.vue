@@ -12,6 +12,7 @@
 const { t, locale } = useI18n()
 const route = useRoute(`newsletter-confirm-token___${locale.value}`)
 const localePath = useLocalePath()
+const { loggedIn } = useUserSession()
 
 useSeoMeta({
   title: () => t('title'),
@@ -51,91 +52,132 @@ async function confirm() {
   finally {
     confirming.value = false
   }
+  await settleFocus()
+}
+
+// Pressing the button unmounts it (or disables it while it loads), so the
+// focus would fall to the page, and a live region inserted already filled
+// is not announced by many screen readers. Moving focus to the new
+// state's own heading — or to the failure message — reads it out and keeps
+// the keyboard where the news is.
+const heading = useTemplateRef<HTMLElement>('heading')
+const failure = useTemplateRef<HTMLElement>('failure')
+
+async function settleFocus() {
+  await nextTick()
+  const target = phase.value === 'failed' ? failure.value : heading.value
+  target?.focus()
 }
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col gap-6">
-    <PageTitle :text="t('title')" />
+  <UContainer class="flex justify-center py-12 lg:py-20">
+    <section
+      class="
+        flex w-full max-w-xl flex-col items-start gap-5 rounded-[1.5rem]
+        bg-default p-6 ring ring-default
+        sm:p-10
+      "
+    >
+      <!-- The tile is lime while the news is good and neutral while it is
+           not, so the state reads before the words do. -->
+      <span
+        class="flex size-16 items-center justify-center rounded-2xl"
+        :class="phase === 'expired' || phase === 'invalid' ? 'bg-elevated text-highlighted' : 'bg-volt text-on-volt'"
+      >
+        <UIcon
+          :name="phase === 'expired' || phase === 'invalid' ? 'i-lucide-mail-x' : phase === 'confirmed' ? 'i-lucide-mail-check' : 'i-lucide-mail'"
+          class="size-7"
+          aria-hidden="true"
+        />
+      </span>
 
-    <div class="mx-auto w-full max-w-xl">
-      <UCard>
+      <template v-if="phase === 'confirmed'">
         <div
-          v-if="phase === 'confirmed'"
           role="status"
-          class="space-y-4 py-6 text-center"
+          class="flex flex-col gap-3"
         >
-          <UIcon
-            name="i-heroicons-check-circle"
-            class="mx-auto size-12 text-success"
-          />
-          <h2 class="text-xl font-semibold">
+          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
             {{ t('confirmed.title') }}
-          </h2>
-          <p class="text-muted">
+          </h1>
+          <p class="text-toned">
             {{ topic ? t('confirmed.topic', { topic }) : t('confirmed.description') }}
           </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
           <UButton
-            :to="localePath('index')"
-            color="secondary"
+            :to="localePath('products')"
+            color="neutral"
+            size="lg"
+            class="rounded-full"
           >
-            {{ t('home') }}
+            {{ t('shop') }}
+          </UButton>
+          <UButton
+            v-if="loggedIn"
+            :to="localePath('account-subscriptions')"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="rounded-full"
+          >
+            {{ t('topics') }}
           </UButton>
         </div>
+      </template>
 
+      <template v-else-if="phase === 'expired' || phase === 'invalid'">
         <div
-          v-else-if="phase === 'expired' || phase === 'invalid'"
           role="alert"
-          class="space-y-4 py-6 text-center"
+          class="flex flex-col gap-3"
         >
-          <UIcon
-            name="i-heroicons-x-circle"
-            class="mx-auto size-12 text-error"
-          />
-          <h2 class="text-xl font-semibold">
+          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
             {{ t(`${phase}.title`) }}
-          </h2>
-          <p class="text-muted">
+          </h1>
+          <p class="text-toned">
             {{ t(`${phase}.description`) }}
           </p>
-          <UButton
-            :to="localePath('index')"
-            color="secondary"
-          >
-            {{ t('home') }}
-          </UButton>
         </div>
-
-        <div
-          v-else
-          class="space-y-4 py-6 text-center"
+        <UButton
+          :to="localePath('index')"
+          color="neutral"
+          size="lg"
+          class="rounded-full"
         >
-          <UIcon
-            name="i-heroicons-envelope-open"
-            class="mx-auto size-12 text-muted"
-          />
-          <p class="text-muted">
+          {{ t('home') }}
+        </UButton>
+      </template>
+
+      <template v-else>
+        <div class="flex flex-col gap-3">
+          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
+            {{ t('title') }}
+          </h1>
+          <p class="text-toned">
             {{ t('prompt') }}
           </p>
           <p
             v-if="phase === 'failed'"
+            ref="failure"
+            tabindex="-1"
             role="alert"
-            class="text-sm text-error"
+            class="rounded-xl bg-(--ui-error-soft) px-4 py-3 text-sm text-highlighted"
           >
             {{ t('failed') }}
           </p>
-          <UButton
-            color="secondary"
-            size="lg"
-            :loading="confirming"
-            @click="confirm"
-          >
-            {{ t('confirm') }}
-          </UButton>
         </div>
-      </UCard>
-    </div>
-  </PageWrapper>
+        <UButton
+          color="neutral"
+          size="lg"
+          class="rounded-full"
+          :loading="confirming"
+          @click="confirm"
+        >
+          {{ t('confirm') }}
+        </UButton>
+      </template>
+    </section>
+  </UContainer>
 </template>
 
 <i18n lang="yaml">
@@ -145,6 +187,8 @@ el:
   confirm: Επιβεβαίωση εγγραφής
   failed: Η επιβεβαίωση δεν ολοκληρώθηκε. Δοκίμασε ξανά σε λίγο.
   home: Στην αρχική
+  shop: Ξεκίνα τις αγορές
+  topics: Διαχείριση θεμάτων
   confirmed:
     title: Η εγγραφή σου επιβεβαιώθηκε
     description: Από εδώ και πέρα θα λαμβάνεις το ενημερωτικό μας δελτίο.
@@ -161,6 +205,8 @@ en:
   confirm: Confirm subscription
   failed: The confirmation did not go through. Please try again shortly.
   home: Back to the homepage
+  shop: Start shopping
+  topics: Manage topics
   confirmed:
     title: Your subscription is confirmed
     description: From now on you will receive our newsletter.
