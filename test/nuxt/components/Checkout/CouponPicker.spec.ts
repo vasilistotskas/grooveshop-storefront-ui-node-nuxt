@@ -68,6 +68,7 @@ function coupon(overrides: Partial<Omit<CartCoupon, 'promotion'>> & { promotion?
     discountAmount: 5,
     freeShipping: false,
     applied: false,
+    personal: false,
     ...rest,
   }
 }
@@ -261,6 +262,24 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
     expect(document.body.querySelector('code')!.textContent).toBe('GAN20')
     expect(bodyText()).toContain('-20% στους φορτιστές GaN')
     expect(bodyText()).toContain('Μόνο για φορτιστές')
+  })
+
+  it.runIf(tree === 'default')('marks a coupon assigned to the shopper as personal, and no other', async () => {
+    coupons = [
+      coupon({ code: 'BDAY15', personal: true, promotion: { name: '15% δώρο γενεθλίων' } }),
+      coupon({ code: 'GAN20', promotion: { name: '-20% στους φορτιστές GaN' } }),
+    ]
+    const wrapper = await mount()
+
+    await open(wrapper)
+
+    const rows = [...document.body.querySelectorAll('li')]
+    const personal = rows.find(row => row.querySelector('code')?.textContent === 'BDAY15')!
+    const other = rows.find(row => row.querySelector('code')?.textContent === 'GAN20')!
+    expect(personal.textContent).toContain('Προσωπικό')
+    expect(personal.textContent).toContain('Δικό σου')
+    expect(other.textContent).not.toContain('Προσωπικό')
+    expect(other.textContent).not.toContain('Δικό σου')
   })
 
   it.runIf(tree === 'default')('opens the list as a bottom sheet on a phone, and applies from it', async () => {

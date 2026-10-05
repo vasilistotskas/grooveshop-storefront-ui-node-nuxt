@@ -50,7 +50,8 @@ const CHARGING: CategoryMenuEntry = {
   label: 'Φόρτιση',
   to: '/products/category/1/charging',
   imagePath: '',
-  children: [{ id: 2, slug: 'cables', label: 'Καλώδια', to: '/products/category/2/cables', imagePath: '', children: [] }],
+  productCount: 0,
+  children: [{ id: 2, slug: 'cables', label: 'Καλώδια', to: '/products/category/2/cables', imagePath: '', productCount: 0, children: [] }],
 }
 
 /** The header's items as the navbar hands them over: Shop carries the catalogue. */

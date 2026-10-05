@@ -31,7 +31,7 @@ defineSlots<{
   'points-earned'(props: object): any
 }>()
 
-const { t, n, locale } = useI18n()
+const { t, n } = useI18n()
 const localePath = useLocalePath()
 const { cart } = storeToRefs(useCartStore())
 const payWay = useState<PayWay | null>('selectedPayWay')
@@ -45,11 +45,11 @@ const { appliedPromotions, shipping, paymentFee, giftCardApplied, total } = useC
   giftCardBalance: () => props.giftCardBalance,
 })
 
-// A pay way may have no name in this language (parler allows a blank one
-// per locale): the row then says what it is, generically.
+// A pay way may carry no key (the field is optional in the schema):
+// the row then says what it is, generically.
 const payWayName = computed(() => {
-  const name = extractTranslated(payWay.value, 'name', locale.value)
-  return name ? getPaymentMethodName(name) : t('pay_way_fee')
+  const key = payWay.value?.key
+  return key ? getPaymentMethodName(key) : t('pay_way_fee')
 })
 
 const minus = (amount: number) => `−${n(amount, 'currency')}`

@@ -2,7 +2,7 @@
 import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js'
 import * as z from 'zod'
 
-const { t, locale } = useI18n()
+const { t, n, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const toast = useToast()
 const tenantStore = useTenantStore()
@@ -21,6 +21,8 @@ const minSetting = useSettingValue('GIFT_CARD_MIN_AMOUNT')
 const maxSetting = useSettingValue('GIFT_CARD_MAX_AMOUNT')
 const minAmount = computed(() => Number(minSetting.value || 10))
 const maxAmount = computed(() => Number(maxSetting.value || 500))
+const validitySetting = useSettingValue('GIFT_CARD_VALIDITY_DAYS')
+const validityDays = computed(() => giftCardValidityDays(validitySetting.value))
 
 // Online providers the merchant has configured — Viva Wallet is the
 // primary provider, Stripe secondary. Derived from the pay-way list
@@ -61,8 +63,8 @@ const providerOptions = computed(() =>
 // Value props beside the card. Every claim is a real property of the
 // feature: email delivery (instantly or on a chosen date — the
 // purchase's `deliverAt`) and ledger-based partial redemption across
-// orders. No validity claim: the card's expiry is the store's to set.
-const benefits = computed(() => [
+// orders, and — only when the store sets one — how long a card lasts.
+const benefits = computed<{ icon: string, title: string, description?: string }[]>(() => [
   {
     icon: 'i-lucide-gift',
     title: t('benefits.delivery.title'),
@@ -73,6 +75,12 @@ const benefits = computed(() => [
     title: t('benefits.balance.title'),
     description: t('benefits.balance.description'),
   },
+  ...(validityDays.value
+    ? [{
+        icon: 'i-lucide-clock',
+        title: t('benefits.validity', { days: n(validityDays.value) }, validityDays.value),
+      }]
+    : []),
 ])
 
 // ── The wizard: Amount → Recipient → Payment ────────────────────────
@@ -413,7 +421,10 @@ const confirmPayment = async () => {
             <p class="font-semibold text-highlighted">
               {{ benefit.title }}
             </p>
-            <p class="text-sm text-toned">
+            <p
+              v-if="benefit.description"
+              class="text-sm text-toned"
+            >
               {{ benefit.description }}
             </p>
           </li>
@@ -766,6 +777,7 @@ el:
     balance:
       title: Χρήση σε πολλές παραγγελίες
       description: Το υπόλοιπο περνάει στην επόμενη παραγγελία.
+    validity: "Ισχύει για {days} ημέρα | Ισχύει για {days} ημέρες"
   success:
     title: Η αγορά ολοκληρώθηκε!
     description: Η δωροκάρτα θα σταλεί στο {email} μόλις επιβεβαιωθεί η πληρωμή
@@ -826,6 +838,7 @@ en:
     balance:
       title: Spend it in parts
       description: The balance carries over to the next order.
+    validity: "Valid for {days} day | Valid for {days} days"
   success:
     title: Purchase complete
     description: The gift card will be sent to {email} as soon as the payment is confirmed

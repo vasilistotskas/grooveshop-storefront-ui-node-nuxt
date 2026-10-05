@@ -30,7 +30,7 @@ describe('shipping option fixtures', () => {
     const option = boxNowLockerOption({
       maxWeightGrams: 4000,
       exceedsMaxWeight: true,
-      payWays: [{ id: 1, name: 'CREDIT_CARD' }],
+      payWays: [{ id: 1, key: 'CREDIT_CARD' }],
     })
 
     expect(problems(zShippingOption, option)).toEqual([])

@@ -2081,6 +2081,9 @@ export type Cart = {
   readonly items: Array<CartItem>
   readonly totalPrice: number
   readonly totalDiscountValue: number
+  /**
+     * VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
+     */
   readonly totalVatValue: number
   /**
      * Return the total quantity of all items in the cart.
@@ -2190,6 +2193,10 @@ export type CartCoupon = {
      */
   readonly code: string
   /**
+     * Whether the code is reserved for this customer (assigned to their account or email) rather than offered to everyone.
+     */
+  readonly personal: boolean
+  /**
      * Αν η εφαρμογή αυτού του κωδικού στο καλάθι, όπως είναι τώρα, θα ήταν επιτυχής. Οι γραμμές με False φέρουν μηχανικά αναγνώσιμη αιτιολογία.
      */
   readonly eligible: boolean
@@ -2279,6 +2286,9 @@ export type CartDetail = {
   readonly items: Array<CartItem>
   readonly totalPrice: number
   readonly totalDiscountValue: number
+  /**
+     * VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
+     */
   readonly totalVatValue: number
   /**
      * Return the total quantity of all items in the cart.
@@ -4147,6 +4157,10 @@ export type Order = {
      * True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
      */
   readonly isCollectedOnDelivery: boolean
+  /**
+     * How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.
+     */
+  deliveryMethod: OrderDeliveryMethod
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -4456,6 +4470,12 @@ export type OrderCreateFromCartRequest = {
   acsItemQuantity?: number
 }
 
+export type OrderDeliveryMethod = {
+  providerCode: string | null
+  providerName: string | null
+  kind: ShippingKind
+}
+
 export type OrderDetail = {
   readonly id: number
   /**
@@ -4642,6 +4662,10 @@ export type OrderDetail = {
      * True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
      */
   readonly isCollectedOnDelivery: boolean
+  /**
+     * How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.
+     */
+  deliveryMethod: OrderDeliveryMethod
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -4705,6 +4729,10 @@ export type OrderDetail = {
      * Identifier of the carrier handling this order — 'acs', 'boxnow', or null when no provider is attached.  Lets frontends switch on a stable code instead of inspecting the shipment shape.
      */
   readonly shipmentProviderCode: string | null
+  /**
+     * Loyalty points this order earns its customer: the points actually awarded once the order has been credited, the projection before that. 0 when the program is off, the order has no account, or it was canceled or refunded.
+     */
+  readonly loyaltyPointsToEarn: number
   /**
      * Cancellation context for CANCELED orders — exposes the operator-supplied reason, timestamp, and shipment-cancel outcome from ``order.metadata['cancellation']``. Returns null when the order was not canceled. Internal flags from the metadata bag (webhook idempotency markers, mint tickets) are intentionally not surfaced.
      */
@@ -6017,21 +6045,35 @@ export type PatchedPageLayoutAdminDetailRequest = {
 export type PatchedPayWayWriteRequest = {
   translations?: {
     el?: {
-      name?: string
       description?: string
       instructions?: string
     }
     en?: {
-      name?: string
       description?: string
       instructions?: string
     }
     de?: {
-      name?: string
       description?: string
       instructions?: string
     }
   }
+  /**
+     * Κλειδί
+     *
+     * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+     *
+     * * `CREDIT_CARD` - Πιστωτική κάρτα
+     * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+     * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+     * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+     * * `PAY_PAL` - PayPal
+     * * `STRIPE` - Stripe
+     * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+     * * `APPLE_PAY` - Apple Pay
+     * * `GOOGLE_PAY` - Google Pay
+     * * `VIVA_WALLET` - Viva Wallet
+     */
+  key?: PayWayKeyEnum
   /**
      * Ενεργή
      */
@@ -6513,22 +6555,36 @@ export type PatchedUserWriteRequest = {
 export type PayWay = {
   translations: {
     el?: {
-      name?: string
       description?: string
       instructions?: string
     }
     en?: {
-      name?: string
       description?: string
       instructions?: string
     }
     de?: {
-      name?: string
       description?: string
       instructions?: string
     }
   }
   readonly id: number
+  /**
+     * Κλειδί
+     *
+     * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+     *
+     * * `CREDIT_CARD` - Πιστωτική κάρτα
+     * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+     * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+     * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+     * * `PAY_PAL` - PayPal
+     * * `STRIPE` - Stripe
+     * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+     * * `APPLE_PAY` - Apple Pay
+     * * `GOOGLE_PAY` - Google Pay
+     * * `VIVA_WALLET` - Viva Wallet
+     */
+  key: PayWayKeyEnum
   /**
      * Ενεργή
      */
@@ -6605,21 +6661,35 @@ export type PayWayKeyEnum = 'CREDIT_CARD' | 'PAY_ON_DELIVERY' | 'BOX_NOW_PAY_ON_
 export type PayWayWriteRequest = {
   translations: {
     el?: {
-      name?: string
       description?: string
       instructions?: string
     }
     en?: {
-      name?: string
       description?: string
       instructions?: string
     }
     de?: {
-      name?: string
       description?: string
       instructions?: string
     }
   }
+  /**
+     * Κλειδί
+     *
+     * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+     *
+     * * `CREDIT_CARD` - Πιστωτική κάρτα
+     * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+     * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+     * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+     * * `PAY_PAL` - PayPal
+     * * `STRIPE` - Stripe
+     * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+     * * `APPLE_PAY` - Apple Pay
+     * * `GOOGLE_PAY` - Google Pay
+     * * `VIVA_WALLET` - Viva Wallet
+     */
+  key: PayWayKeyEnum
   /**
      * Ενεργή
      */
@@ -6843,7 +6913,7 @@ export type Product = {
      */
   readonly reviewAverage: number
   /**
-     * Return the number of reviews for this product.
+     * Return the number of approved reviews for this product.
      */
   readonly reviewCount: number
   /**
@@ -6987,6 +7057,7 @@ export type ProductCategory = {
   readonly level: number
   readonly treeId: number
   readonly mainImagePath: string
+  readonly recursiveProductCount: number
   /**
      * Δημιουργήθηκε στις
      */
@@ -7038,6 +7109,7 @@ export type ProductCategoryDetail = {
   readonly level: number
   readonly treeId: number
   readonly mainImagePath: string
+  readonly recursiveProductCount: number
   /**
      * Δημιουργήθηκε στις
      */
@@ -7048,7 +7120,6 @@ export type ProductCategoryDetail = {
   readonly updatedAt: string
   readonly uuid: string
   readonly children: Array<ProductCategory>
-  readonly recursiveProductCount: number
 }
 
 /**
@@ -7308,7 +7379,7 @@ export type ProductDetail = {
      */
   readonly reviewAverage: number
   /**
-     * Return the number of reviews for this product.
+     * Return the number of approved reviews for this product.
      */
   readonly reviewCount: number
   /**
@@ -7413,7 +7484,7 @@ export type ProductDetailResponse = {
      */
   readonly reviewAverage: number
   /**
-     * Return the number of reviews for this product.
+     * Return the number of approved reviews for this product.
      */
   readonly reviewCount: number
   /**
@@ -7667,6 +7738,7 @@ export type ProductMeiliSearchResult = {
   viewCount: number
   reviewAverage: number | null
   vatPercent: number | null
+  categoryName: string | null
 }
 
 /**
@@ -7797,6 +7869,116 @@ export type ProductPromotion = {
 }
 
 /**
+ * The product page's own payload.
+ *
+ * ``ProductDetailSerializer`` is also nested in list payloads
+ * (favourites), where the distribution query would run once per row,
+ * so the extra field lives on this single-object subclass.
+ */
+export type ProductRetrieve = {
+  readonly id: number
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+    }
+    de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+    }
+  }
+  slug: string
+  category: number
+  /**
+     * Ομάδα παραλλαγών
+     *
+     * Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
+     */
+  readonly variantGroup: number | null
+  /**
+     * Μάρκα
+     */
+  readonly brand: number | null
+  readonly brandName: string | null
+  price: number
+  vat?: number | null
+  /**
+     * Προβολές
+     */
+  readonly viewCount: number
+  /**
+     * Απόθεμα
+     */
+  stock?: number
+  /**
+     * Όριο χαμηλού αποθέματος
+     *
+     * Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
+     */
+  readonly lowStockThreshold: number
+  /**
+     * Ενεργή
+     */
+  active?: boolean
+  weight?: {
+    unit?: string
+    value?: number
+  } | null
+  /**
+     * Ποσοστό Έκπτωσης
+     */
+  discountPercent?: number
+  readonly discountValue: number
+  readonly priceSavePercent: number
+  readonly vatPercent: number
+  readonly vatValue: number
+  readonly finalPrice: number
+  readonly mainImagePath: string
+  /**
+     * Return the average review rating for this product.
+     */
+  readonly reviewAverage: number
+  /**
+     * Return the number of approved reviews for this product.
+     */
+  readonly reviewCount: number
+  /**
+     * Return the number of likes/favourites for this product.
+     */
+  readonly likesCount: number
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  readonly uuid: string
+  readonly attributes: Array<ProductAttribute>
+  /**
+     * Ειδοποιήσεις πτώσης τιμής
+     *
+     * Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
+     */
+  readonly priceDropAlertsEnabled: boolean
+  readonly ratingDistribution: Array<RatingDistribution>
+}
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductReview = {
@@ -7807,6 +7989,7 @@ export type ProductReview = {
      * Βαθμολογία
      */
   rate: RateEnum
+  readonly isVerifiedPurchase: boolean
   /**
      * Κατάσταση
      */
@@ -7852,6 +8035,7 @@ export type ProductReviewDetail = {
      * Βαθμολογία
      */
   rate: RateEnum
+  readonly isVerifiedPurchase: boolean
   /**
      * Κατάσταση
      */
@@ -8158,6 +8342,11 @@ export type PublicSettings = {
  * * `10` - Δέκα
  */
 export type RateEnum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
+
+export type RatingDistribution = {
+  rate: number
+  count: number
+}
 
 export type RecommendationEventItemRequest = {
   productId: number
@@ -8610,14 +8799,14 @@ export type ShippingOption = {
 /**
  * A payment method this shipping option can settle.
  *
- * ``name`` is the ``PayWayEnum`` KEY, not a display string — the same
+ * ``key`` is the ``PayWayEnum`` KEY, not a display string — the same
  * contract the pay-way endpoint uses, so the storefront resolves it
  * through the label map it already owns rather than rendering
  * whatever language the API happened to answer in.
  */
 export type ShippingOptionPayWay = {
   id: number
-  name: string
+  key: string
 }
 
 export type ShippingProvider = {
@@ -9149,6 +9338,7 @@ export type TenantConfig = {
   readonly defaultLocale: string
   availableLocales?: Array<string>
   readonly defaultCurrency: string
+  shippingCarriers?: Array<TenantShippingCarrier>
   readonly primaryDomain: string
   readonly apiDomain: string
   readonly assetsDomain: string
@@ -9186,6 +9376,14 @@ export type TenantConfig = {
   readonly socialsTwitter: string
   readonly socialsYoutube: string
   readonly boxNowPartnerId: string
+}
+
+/**
+ * What a footer "Delivered by" badge needs, and nothing more.
+ */
+export type TenantShippingCarrier = {
+  readonly code: string
+  readonly name: string
 }
 
 /**
@@ -11987,17 +12185,14 @@ export type PatchedTaggedItemWriteRequestWritable = {
 export type PayWayWritable = {
   translations: {
     el?: {
-      name?: string
       description?: string
       instructions?: string
     }
     en?: {
-      name?: string
       description?: string
       instructions?: string
     }
     de?: {
-      name?: string
       description?: string
       instructions?: string
     }
@@ -12422,6 +12617,59 @@ export type ProductImageDetailWritable = {
 }
 
 /**
+ * The product page's own payload.
+ *
+ * ``ProductDetailSerializer`` is also nested in list payloads
+ * (favourites), where the distribution query would run once per row,
+ * so the extra field lives on this single-object subclass.
+ */
+export type ProductRetrieveWritable = {
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+    }
+    de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+      name?: string
+      description?: string
+    }
+  }
+  slug: string
+  category: number
+  price: number
+  vat?: number | null
+  /**
+     * Απόθεμα
+     */
+  stock?: number
+  /**
+     * Ενεργή
+     */
+  active?: boolean
+  weight?: {
+    unit?: string
+    value?: number
+  } | null
+  /**
+     * Ποσοστό Έκπτωσης
+     */
+  discountPercent?: number
+}
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductReviewWritable = {
@@ -12785,6 +13033,7 @@ export type TenantConfigWritable = {
   googleSiteVerification?: string
   pinterestDomainVerify?: string
   availableLocales?: Array<string>
+  shippingCarriers?: Array<unknown>
   recommendationsEnabled?: boolean
   openaiPixelId?: string
 }
@@ -19212,9 +19461,9 @@ export type ListOrderData = {
          */
     payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)
+         * Filter by payment method key (case-insensitive)
          */
-    payWay_Name?: string
+    payWay_Key?: string
     /**
          * Φίλτρο ανά ID πληρωμής
          */
@@ -20578,9 +20827,9 @@ export type ListMyOrdersData = {
          */
     payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)
+         * Filter by payment method key (case-insensitive)
          */
-    payWay_Name?: string
+    payWay_Key?: string
     /**
          * Φίλτρο ανά ID πληρωμής
          */
@@ -21218,13 +21467,26 @@ export type ListPayWayData = {
          */
     isOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
+         * Κλειδί
+         *
+         * Filter by payment method key
+         *
+         * * `CREDIT_CARD` - Πιστωτική κάρτα
+         * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+         * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+         * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+         * * `PAY_PAL` - PayPal
+         * * `STRIPE` - Stripe
+         * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+         * * `APPLE_PAY` - Apple Pay
+         * * `GOOGLE_PAY` - Google Pay
+         * * `VIVA_WALLET` - Viva Wallet
+         */
+    key?: 'APPLE_PAY' | 'BANK_TRANSFER' | 'BOX_NOW_PAY_ON_THE_GO' | 'CREDIT_CARD' | 'GOOGLE_PAY' | 'PAY_ON_DELIVERY' | 'PAY_ON_STORE' | 'PAY_PAL' | 'STRIPE' | 'VIVA_WALLET'
+    /**
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
-    /**
-         * Φίλτρο ανά όνομα (μερική αντιστοίχιση)
-         */
-    name?: string
     /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, isOnlinePayment, -isOnlinePayment, requiresConfirmation, -requiresConfirmation, sortOrder, -sortOrder
          */
@@ -21718,7 +21980,7 @@ export type CreateProductErrors = {
 export type CreateProductError = CreateProductErrors[keyof CreateProductErrors]
 
 export type CreateProductResponses = {
-  201: ProductDetail
+  201: ProductRetrieve
 }
 
 export type CreateProductResponse = CreateProductResponses[keyof CreateProductResponses]
@@ -21773,7 +22035,7 @@ export type RetrieveProductErrors = {
 export type RetrieveProductError = RetrieveProductErrors[keyof RetrieveProductErrors]
 
 export type RetrieveProductResponses = {
-  200: ProductDetail
+  200: ProductRetrieve
 }
 
 export type RetrieveProductResponse = RetrieveProductResponses[keyof RetrieveProductResponses]
@@ -21803,7 +22065,7 @@ export type PartialUpdateProductErrors = {
 export type PartialUpdateProductError = PartialUpdateProductErrors[keyof PartialUpdateProductErrors]
 
 export type PartialUpdateProductResponses = {
-  200: ProductDetail
+  200: ProductRetrieve
 }
 
 export type PartialUpdateProductResponse = PartialUpdateProductResponses[keyof PartialUpdateProductResponses]
@@ -21833,7 +22095,7 @@ export type UpdateProductErrors = {
 export type UpdateProductError = UpdateProductErrors[keyof UpdateProductErrors]
 
 export type UpdateProductResponses = {
-  200: ProductDetail
+  200: ProductRetrieve
 }
 
 export type UpdateProductResponse = UpdateProductResponses[keyof UpdateProductResponses]

@@ -93,10 +93,10 @@ describe('Chrome/Footer', () => {
   })
 
   it('lists the store\'s active pay ways in the shopper\'s words', async () => {
-    // A pay way's name is its `PayWayEnum` key, as checkout reads it.
+    // A pay way's `key` is its `PayWayEnum` key, as checkout reads it.
     state.payWays = [
-      makePayWay({ translations: { el: { name: 'CREDIT_CARD' } } }),
-      makePayWay({ translations: { el: { name: 'PAY_ON_DELIVERY' } } }),
+      makePayWay({ key: 'CREDIT_CARD' }),
+      makePayWay({ key: 'PAY_ON_DELIVERY' }),
     ]
 
     const wrapper = await mountFooter()
@@ -110,8 +110,8 @@ describe('Chrome/Footer', () => {
   it('lists a way to pay once when two pay ways share it', async () => {
     // Card payments through two processors are one way to pay.
     state.payWays = [
-      makePayWay({ translations: { el: { name: 'CREDIT_CARD' } } }),
-      makePayWay({ translations: { el: { name: 'CREDIT_CARD' } } }),
+      makePayWay({ key: 'CREDIT_CARD' }),
+      makePayWay({ key: 'CREDIT_CARD' }),
     ]
 
     const wrapper = await mountFooter()
@@ -121,6 +121,27 @@ describe('Chrome/Footer', () => {
     expect(wrapper.text().split(card).length - 1).toBe(2)
   })
 
+  it('names the carriers under "Delivered by", on the desk and the phone', async () => {
+    setTenant({ agentCommerceEnabled: false, availableLocales: ['el'], shippingCarriers: [{ code: 'acs', name: 'ACS' }, { code: 'boxnow', name: 'BOX NOW' }] })
+
+    const wrapper = await mountFooter()
+
+    const text = wrapper.text()
+    expect(text).toContain('Αποστολή με')
+    for (const name of ['ACS', 'BOX NOW']) {
+      // Once in the desk column and once in the phone row.
+      expect(text.split(name).length - 1).toBe(2)
+    }
+  })
+
+  it('draws no "Delivered by" row for a store with no carriers', async () => {
+    setTenant({ agentCommerceEnabled: false, availableLocales: ['el'], shippingCarriers: [] })
+
+    const wrapper = await mountFooter()
+
+    expect(wrapper.text()).not.toContain('Αποστολή')
+  })
+
   it.each<{ name: string, tenant: Partial<TenantConfig>, flags: Record<string, boolean>, shown: boolean }>([
     { name: 'the plan flag only', tenant: { giftCardsEnabled: true }, flags: {}, shown: false },
     { name: 'the setting only', tenant: { giftCardsEnabled: false }, flags: { GIFT_CARDS_ENABLED: true }, shown: false },
@@ -128,7 +149,7 @@ describe('Chrome/Footer', () => {
   ])('offers gift cards as a way to pay with $name: $shown', async ({ tenant, flags, shown }) => {
     setTenant({ agentCommerceEnabled: false, availableLocales: ['el'], ...tenant })
     state.flags = flags
-    state.payWays = [makePayWay({ translations: { el: { name: 'Viva Wallet' } } })]
+    state.payWays = [makePayWay({ key: 'VIVA_WALLET' })]
 
     const wrapper = await mountFooter()
 

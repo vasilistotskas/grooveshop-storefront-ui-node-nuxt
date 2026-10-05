@@ -78,6 +78,19 @@ describe('Storefront/Account/Orders', () => {
     expect(wrapper.get('h1 + p').text()).toBe('2 παραγγελίες')
   })
 
+  it('names the carrier on a row, and nothing for an order handled outside any carrier', async () => {
+    state.orders = [
+      makeOrderListItem({ id: 3, deliveryMethod: { providerCode: 'boxnow', providerName: 'BOX NOW', kind: 'pickup_point' } }),
+      makeOrderListItem({ id: 2, deliveryMethod: { providerCode: null, providerName: null, kind: 'home_delivery' } }),
+    ]
+
+    const wrapper = await mountPage()
+    const rows = wrapper.findAll('ul > li')
+
+    expect(rows[0]!.text()).toMatch(/προϊόντα\s*·\s*BOX NOW/)
+    expect(rows[1]!.text()).not.toMatch(/προϊόντα\s*·/)
+  })
+
   it('offers "Buy again" for an order that arrived only', async () => {
     const wrapper = await mountPage()
     const rows = wrapper.findAll('ul > li')

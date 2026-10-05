@@ -105,6 +105,19 @@ describe('Storefront/GiftCards', () => {
       expect(wrapper.findAll('label').filter(label => label.text() === 'Ποσό')).toHaveLength(0)
     })
 
+    it('says how many days a card is valid, as the store sets it (never rounded to years)', async () => {
+      settings.values = { GIFT_CARD_VALIDITY_DAYS: '1825' }
+      const wrapper = await mount()
+
+      expect(wrapper.get('ul').text()).toContain('Ισχύει για 1.825 ημέρες')
+    })
+
+    it('makes no validity claim when the store sets none', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.text()).not.toContain('Ισχύει για')
+    })
+
     it('draws the chosen amount on the card preview', async () => {
       const wrapper = await mount()
 

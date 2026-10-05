@@ -38,7 +38,7 @@ const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
 const localePath = useLocalePath()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { getPaymentMethodName } = usePaymentMethod()
 
 const shippingSummaryView = computed(() => {
@@ -96,8 +96,8 @@ const payWayCost = computed(() => {
 // A pay way may have no name in this language (parler allows a blank
 // one per locale): the row then says what it is, generically.
 const payWayName = computed(() => {
-  const name = extractTranslated(payWay.value, 'name', locale.value)
-  return name ? getPaymentMethodName(name) : t('pay_way_fee')
+  const key = payWay.value?.key
+  return key ? getPaymentMethodName(key) : t('pay_way_fee')
 })
 
 // What is due BEFORE gift cards (they are payment, applied last).

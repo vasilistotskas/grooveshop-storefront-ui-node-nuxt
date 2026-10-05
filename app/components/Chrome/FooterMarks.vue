@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 /**
- * A labelled row of marks in the footer — the ways to pay. The label
+ * A labelled row of marks in the footer — the ways to pay, the carriers. The label
  * sits above the marks in the desk footer's column and beside them,
  * at a fixed width, in the phone footer's rows (`inline`).
  */

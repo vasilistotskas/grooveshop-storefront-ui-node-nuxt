@@ -718,11 +718,7 @@ export async function useCheckoutForm() {
 
   const payWayOptions = computed(() => {
     return payWays.value?.results?.map((payWay) => {
-      let name = extractTranslated(payWay, 'name', locale.value)
-
-      if (name) {
-        name = getPaymentMethodName(name)
-      }
+      const name = payWay.key ? getPaymentMethodName(payWay.key) : undefined
 
       // The base Django waives the fee on (``payWayFeeBase``): the
       // items after promotions plus the delivery as charged.

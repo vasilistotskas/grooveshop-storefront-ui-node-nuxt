@@ -30,6 +30,8 @@ export const useTenantStore = defineStore('tenant', () => {
   const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
   const promotionsEnabled = computed(() => config.value?.promotionsEnabled ?? false)
   const giftCardsEnabled = computed(() => config.value?.giftCardsEnabled ?? false)
+  // The carriers the store ships with, as the footer's "Delivered by" marks
+  const shippingCarriers = computed(() => config.value?.shippingCarriers ?? [])
   const b2bEnabled = computed(() => config.value?.b2bEnabled ?? false)
   // Plan tier of the two-tier gate; the runtime half is the
   // PRODUCT_SUGGESTIONS_ENABLED setting read where a strip is mounted.
@@ -131,6 +133,7 @@ export const useTenantStore = defineStore('tenant', () => {
     blogEnabled,
     promotionsEnabled,
     giftCardsEnabled,
+    shippingCarriers,
     b2bEnabled,
     recommendationsEnabled,
     agentCommerceEnabled,

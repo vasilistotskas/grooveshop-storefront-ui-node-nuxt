@@ -6,7 +6,8 @@ import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from './product'
  * `zOrderDetail` (proved by `test/unit/fixtures/order.spec.ts`).
  *
  * Defaults: order 1 for Maria Papadopoulou in Athens, retail, no items,
- * PENDING, unpaid, a free cash-on-delivery pay way (id 1, like
+ * PENDING, unpaid, delivered outside any carrier (the legacy shape), earning
+ * no points, a free cash-on-delivery pay way (id 1, like
  * `makePayWay()`), nothing discounted, no shipment, EUR. `uuid` follows
  * `id`. The money fields are all 0 and are NOT derived from each other —
  * a spec that shows totals sets the ones it reads.
@@ -58,6 +59,7 @@ export function makeOrder(overrides: Partial<OrderDetail> = {}): OrderDetail {
     payWayKey: 'PAY_ON_DELIVERY',
     isOnlinePayment: false,
     isCollectedOnDelivery: true,
+    deliveryMethod: { providerCode: null, providerName: null, kind: 'home_delivery' },
     canBeCanceled: true,
     isPaid: false,
     attribution: null,
@@ -69,6 +71,7 @@ export function makeOrder(overrides: Partial<OrderDetail> = {}): OrderDetail {
     acsShipment: null,
     shipment: null,
     shipmentProviderCode: null,
+    loyaltyPointsToEarn: 0,
     cancellation: null,
     appliedCouponCodes: [],
     customerFullName: 'Maria Papadopoulou',
@@ -146,6 +149,7 @@ export function makeOrderListItem(overrides: Partial<Order> = {}): Order {
     payWayKey: 'PAY_ON_DELIVERY',
     isOnlinePayment: false,
     isCollectedOnDelivery: true,
+    deliveryMethod: { providerCode: null, providerName: null, kind: 'home_delivery' },
     canBeCanceled: true,
     isPaid: false,
     attribution: null,

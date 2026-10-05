@@ -365,6 +365,20 @@ describe('Search/Modal (palette)', () => {
       expect(optionTexts()[1]).not.toContain('%')
     })
 
+    it('names the category under a product that has one', async () => {
+      api.routes({
+        '/api/search': answering(() => searchResponse([
+          makeProductSearchHit({ id: 1, name: 'Προϊόν 1', categoryName: 'Φορτιστές' }),
+          makeProductSearchHit({ id: 2, name: 'Προϊόν 2', categoryName: null }),
+        ], [])),
+      })
+
+      await openModal(SearchModal, 'lap')
+
+      expect(optionTexts()[0]).toContain('Φορτιστές')
+      expect(optionTexts()[1]).not.toContain('Φορτιστές')
+    })
+
     it('marks the words the shopper typed in a title, without reading the title as markup', async () => {
       api.routes({
         '/api/search': answering(() => searchResponse([

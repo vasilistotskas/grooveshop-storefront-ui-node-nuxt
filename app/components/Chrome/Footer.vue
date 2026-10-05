@@ -21,7 +21,7 @@ import type { FooterColumn } from '@nuxt/ui'
  * the cached anonymous page; the per-visitor controls — colour mode and
  * cookie settings — render on the client only.
  */
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const tenantStore = useTenantStore()
 const { primary, secondary } = useFooterNavigation()
 const { identity } = useMerchantIdentity()
@@ -43,7 +43,7 @@ const giftCardsEnabled = computed(
  * only promise what checkout offers. The list is a cached, per-tenant
  * handler (`server/api/pay-way`), read once per server render.
  *
- * Named the way checkout names them: a pay way's `name` holds its
+ * Named the way checkout names them: a pay way's `key` is its
  * `PayWayEnum` key (`PAY_ON_DELIVERY`), which `getPaymentMethodName`
  * turns into the shopper's words. Each way is listed once: two pay ways
  * can share a key (card payments through two processors), and the
@@ -56,11 +56,11 @@ const { data: payWays } = await useApi('/api/pay-way', {
 
 const paymentMarks = computed(() => [...new Set([
   ...(payWays.value?.results ?? [])
-    .map(payWay => extractTranslated(payWay, 'name', locale.value))
-    .filter((name): name is string => Boolean(name))
-    .map(name => getPaymentMethodName(name)),
+    .flatMap(payWay => payWay.key ? [getPaymentMethodName(payWay.key)] : []),
   ...(giftCardsEnabled.value ? [t('gift_card')] : []),
 ])])
+
+const carrierMarks = computed(() => tenantStore.shippingCarriers.map(carrier => carrier.name))
 
 const primaryColumns = computed<FooterColumn[]>(() =>
   primary.value.map(column => ({
@@ -215,6 +215,10 @@ const storeName = computed(() => tenantStore.storeName || '')
               :label="t('pay_with')"
             />
             <div class="flex flex-col items-start gap-3.5">
+              <ChromeFooterMarks
+                :marks="carrierMarks"
+                :label="t('delivered_by')"
+              />
               <UBadge
                 v-if="tenantStore.agentCommerceEnabled"
                 :label="t('agent_ready')"
@@ -313,6 +317,12 @@ const storeName = computed(() => tenantStore.storeName || '')
             inline
           />
 
+          <ChromeFooterMarks
+            :marks="carrierMarks"
+            :label="t('delivered')"
+            inline
+          />
+
           <UBadge
             v-if="tenantStore.agentCommerceEnabled"
             :label="t('agent_ready')"
@@ -408,6 +418,8 @@ const storeName = computed(() => tenantStore.storeName || '')
 el:
   pay_with: Πληρωμή με
   pay: Πληρωμή
+  delivered_by: Αποστολή με
+  delivered: Αποστολή
   gift_card: Δωροκάρτα
   agent_ready: Έτοιμο για AI agents
   cookie_settings: Ρυθμίσεις cookies
@@ -416,6 +428,8 @@ el:
 en:
   pay_with: Pay with
   pay: Pay
+  delivered_by: Delivered by
+  delivered: Delivery
   gift_card: Gift card
   agent_ready: AI-agent ready
   cookie_settings: Cookie settings

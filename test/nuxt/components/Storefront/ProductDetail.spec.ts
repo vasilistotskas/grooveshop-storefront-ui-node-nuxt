@@ -120,11 +120,16 @@ describe('default ProductDetail', () => {
     makeCategory({ id: 2, name: { el: 'Power banks', en: 'Power banks' }, parent: 1, level: 1 }),
   ]
 
-  function serve(product: ReturnType<typeof makeProduct>, reviews: (page: number) => unknown = () => empty) {
+  /** The detail endpoint answers a product plus the review breakdown the list shape lacks. */
+  function serve(
+    product: ReturnType<typeof makeProduct>,
+    reviews: (page: number) => unknown = () => empty,
+    ratingDistribution: RatingDistribution[] = [],
+  ) {
     clearNuxtData()
     setTenant()
     api.routes({
-      '/api/products/123': product,
+      '/api/products/123': { ...product, ratingDistribution },
       '/api/products/123/images': [],
       '/api/products/categories/all': CATEGORIES,
       '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
@@ -194,12 +199,14 @@ describe('default ProductDetail', () => {
       previous: null,
       results: Array.from({ length: page === 1 ? 12 : 2 }, (_, i) => makeProductReview({ id: (page - 1) * 12 + i + 1 })),
     })
-    serve(makeProduct({ id: 123, reviewAverage: 8, reviewCount: 14 }), reviews)
+    serve(makeProduct({ id: 123, reviewAverage: 8, reviewCount: 14 }), reviews, [{ rate: 10, count: 14 }])
     const wrapper = await mountPage()
     const shown = () => wrapper.findAll('#reviews article').length
     const button = (label: string) => wrapper.findAll('#reviews button').find(b => b.text() === label)!
 
     expect(shown()).toBe(3)
+    // The summary's bars come from the product's own distribution, not the loaded reviews.
+    expect(wrapper.get('#reviews ul').findAll('li')[0]!.text()).toContain('100%')
 
     await button('Δες και τις 14 αξιολογήσεις').trigger('click')
     await flushPromises()

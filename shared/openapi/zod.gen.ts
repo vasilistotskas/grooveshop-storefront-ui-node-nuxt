@@ -2994,7 +2994,7 @@ export const zCart = z.object({
   items: z.array(zCartItem).readonly(),
   totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalVatValue: z.number().readonly(),
   totalItems: z.union([
     z.int(),
     z.literal(0),
@@ -3044,7 +3044,7 @@ export const zCartDetail = z.object({
   items: z.array(zCartItem).readonly(),
   totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalVatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalVatValue: z.number().readonly(),
   totalItems: z.union([
     z.int(),
     z.literal(0),
@@ -3133,74 +3133,6 @@ export const zOrderItemDetail = z.object({
   notes: z.string().optional(),
 })
 
-export const zOrder = z.object({
-  id: z.int().readonly(),
-  user: z.int().nullish(),
-  country: z.string().nullable(),
-  region: z.string().nullable(),
-  floor: z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ]).optional(),
-  locationType: z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ]).optional(),
-  street: z.string().max(255),
-  streetNumber: z.string().max(255),
-  payWay: z.int().nullable(),
-  status: zOrderStatus.optional(),
-  statusDisplay: z.string().readonly(),
-  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  firstName: z.string().max(255),
-  lastName: z.string().max(255),
-  email: z.email().max(255),
-  zipcode: z.string().max(255),
-  place: z.string().max(255).optional(),
-  city: z.string().max(255),
-  phone: z.string(),
-  customerNotes: z.string().optional(),
-  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  items: z.array(zOrderItemDetail),
-  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  documentType: zOrderDocumentType.optional(),
-  billingVatId: z.string().readonly(),
-  billingCountry: z.string().readonly(),
-  billingCompanyName: z.string().readonly(),
-  billingTaxOffice: z.string().readonly(),
-  billingActivity: z.string().readonly(),
-  billingStreet: z.string().readonly(),
-  billingStreetNumber: z.string().readonly(),
-  billingCity: z.string().readonly(),
-  billingZipcode: z.string().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  discountAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  fullAddress: z.string().readonly(),
-  paymentId: z.string().max(255).nullish(),
-  paymentStatus: z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ]).optional(),
-  paymentStatusDisplay: z.string().readonly(),
-  paymentMethod: z.string().max(50).optional(),
-  payWayKey: z.union([
-    zPayWayKeyEnum,
-    zBlankEnum,
-  ]),
-  isOnlinePayment: z.boolean().readonly(),
-  isCollectedOnDelivery: z.boolean().readonly(),
-  canBeCanceled: z.boolean().readonly(),
-  isPaid: z.boolean().readonly(),
-  attribution: zOrderAttribution.nullable(),
-})
-
 export const zPaginatedCartItemList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -3225,19 +3157,6 @@ export const zPaginatedCartList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zCart),
-})
-
-export const zPaginatedOrderList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zOrder),
 })
 
 export const zPaginatedProductList = z.object({
@@ -3297,6 +3216,7 @@ export const zProductCategory = z.object({
   level: z.int().readonly(),
   treeId: z.int().readonly(),
   mainImagePath: z.string().readonly(),
+  recursiveProductCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -3349,11 +3269,11 @@ export const zProductCategoryDetail = z.object({
   level: z.int().readonly(),
   treeId: z.int().readonly(),
   mainImagePath: z.string().readonly(),
+  recursiveProductCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   children: z.array(zProductCategory).readonly(),
-  recursiveProductCount: z.int().readonly(),
 })
 
 /**
@@ -3790,6 +3710,7 @@ export const zProductMeiliSearchResult = z.object({
   viewCount: z.int(),
   reviewAverage: z.number().nullable(),
   vatPercent: z.number().nullable(),
+  categoryName: z.string().nullable(),
 })
 
 /**
@@ -3992,6 +3913,76 @@ export const zProductReviewWriteRequest = z.object({
       comment: z.string().optional(),
     }).optional(),
   }),
+})
+
+export const zRatingDistribution = z.object({
+  rate: z.int(),
+  count: z.int(),
+})
+
+/**
+ * The product page's own payload.
+ *
+ * ``ProductDetailSerializer`` is also nested in list payloads
+ * (favourites), where the distribution query would run once per row,
+ * so the extra field lives on this single-object subclass.
+ */
+export const zProductRetrieve = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  viewCount: z.int().readonly(),
+  stock: z.int().gte(0).lte(2147483647).optional(),
+  lowStockThreshold: z.int().readonly(),
+  active: z.boolean().optional(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
+  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  priceSavePercent: z.number().readonly(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  mainImagePath: z.string().readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  likesCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  attributes: z.array(zProductAttribute).readonly(),
+  priceDropAlertsEnabled: z.boolean().readonly(),
+  ratingDistribution: z.array(zRatingDistribution).readonly(),
 })
 
 /**
@@ -4263,21 +4254,19 @@ export const zSettlementEnum = z.enum([
 export const zPatchedPayWayWriteRequest = z.object({
   translations: z.object({
     el: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     de: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
   }).optional(),
+  key: zPayWayKeyEnum.optional(),
   active: z.boolean().optional(),
   cost: z.number().gt(-1000000000).lt(1000000000).optional(),
   freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
@@ -4292,22 +4281,20 @@ export const zPatchedPayWayWriteRequest = z.object({
 export const zPayWay = z.object({
   translations: z.object({
     el: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     de: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
   }),
   id: z.int().readonly(),
+  key: zPayWayKeyEnum,
   active: z.boolean().optional(),
   cost: z.number().gt(-1000000000).lt(1000000000),
   freeThreshold: z.number().gt(-1000000000).lt(1000000000),
@@ -4343,21 +4330,19 @@ export const zPaginatedPayWayList = z.object({
 export const zPayWayWriteRequest = z.object({
   translations: z.object({
     el: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     de: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
   }),
+  key: zPayWayKeyEnum,
   active: z.boolean().optional(),
   cost: z.number().gt(-1000000000).lt(1000000000),
   freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
@@ -4476,17 +4461,105 @@ export const zOrderCreateFromCartRequest = z.object({
   acsItemQuantity: z.int().gte(1).lte(20).optional(),
 })
 
+export const zOrderDeliveryMethod = z.object({
+  providerCode: z.string().nullable(),
+  providerName: z.string().nullable(),
+  kind: zShippingKind,
+})
+
+export const zOrder = z.object({
+  id: z.int().readonly(),
+  user: z.int().nullish(),
+  country: z.string().nullable(),
+  region: z.string().nullable(),
+  floor: z.union([
+    zFloorEnum,
+    zBlankEnum,
+  ]).optional(),
+  locationType: z.union([
+    zLocationTypeEnum,
+    zBlankEnum,
+  ]).optional(),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  payWay: z.int().nullable(),
+  status: zOrderStatus.optional(),
+  statusDisplay: z.string().readonly(),
+  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  email: z.email().max(255),
+  zipcode: z.string().max(255),
+  place: z.string().max(255).optional(),
+  city: z.string().max(255),
+  phone: z.string(),
+  customerNotes: z.string().optional(),
+  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  items: z.array(zOrderItemDetail),
+  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  documentType: zOrderDocumentType.optional(),
+  billingVatId: z.string().readonly(),
+  billingCountry: z.string().readonly(),
+  billingCompanyName: z.string().readonly(),
+  billingTaxOffice: z.string().readonly(),
+  billingActivity: z.string().readonly(),
+  billingStreet: z.string().readonly(),
+  billingStreetNumber: z.string().readonly(),
+  billingCity: z.string().readonly(),
+  billingZipcode: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  fullAddress: z.string().readonly(),
+  paymentId: z.string().max(255).nullish(),
+  paymentStatus: z.union([
+    zPaymentStatusEnum,
+    zBlankEnum,
+  ]).optional(),
+  paymentStatusDisplay: z.string().readonly(),
+  paymentMethod: z.string().max(50).optional(),
+  payWayKey: z.union([
+    zPayWayKeyEnum,
+    zBlankEnum,
+  ]),
+  isOnlinePayment: z.boolean().readonly(),
+  isCollectedOnDelivery: z.boolean().readonly(),
+  deliveryMethod: zOrderDeliveryMethod,
+  canBeCanceled: z.boolean().readonly(),
+  isPaid: z.boolean().readonly(),
+  attribution: zOrderAttribution.nullable(),
+})
+
+export const zPaginatedOrderList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zOrder),
+})
+
 /**
  * A payment method this shipping option can settle.
  *
- * ``name`` is the ``PayWayEnum`` KEY, not a display string — the same
+ * ``key`` is the ``PayWayEnum`` KEY, not a display string — the same
  * contract the pay-way endpoint uses, so the storefront resolves it
  * through the label map it already owns rather than rendering
  * whatever language the API happened to answer in.
  */
 export const zShippingOptionPayWay = z.object({
   id: z.int(),
-  name: z.string(),
+  key: z.string(),
 })
 
 /**
@@ -4934,6 +5007,14 @@ export const zTargetScopeEnum = z.enum([
 ])
 
 /**
+ * What a footer "Delivered by" badge needs, and nothing more.
+ */
+export const zTenantShippingCarrier = z.object({
+  code: z.string().readonly(),
+  name: z.string().readonly(),
+})
+
+/**
  * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
  *
  * Only fields that are safe to expose to unauthenticated callers should
@@ -4964,6 +5045,7 @@ export const zTenantConfig = z.object({
   defaultLocale: z.string().readonly(),
   availableLocales: z.array(z.string()).optional(),
   defaultCurrency: z.string().readonly(),
+  shippingCarriers: z.array(zTenantShippingCarrier).optional(),
   primaryDomain: z.string().readonly(),
   apiDomain: z.string().readonly(),
   assetsDomain: z.string().readonly(),
@@ -5301,6 +5383,7 @@ export const zPublicPromotion = z.object({
 export const zCartCoupon = z.object({
   promotion: zPublicPromotion,
   code: z.string().readonly(),
+  personal: z.boolean().readonly(),
   eligible: z.boolean().readonly(),
   reason: z.string().readonly().nullable(),
   discountAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -5474,6 +5557,7 @@ export const zOrderDetail = z.object({
   ]),
   isOnlinePayment: z.boolean().readonly(),
   isCollectedOnDelivery: z.boolean().readonly(),
+  deliveryMethod: zOrderDeliveryMethod,
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
   attribution: zOrderAttribution.nullable(),
@@ -5508,6 +5592,7 @@ export const zOrderDetail = z.object({
   acsShipment: zAcsShipmentDetail.nullable(),
   shipment: z.record(z.string(), z.unknown()).readonly().nullable(),
   shipmentProviderCode: z.string().readonly().nullable(),
+  loyaltyPointsToEarn: z.int().readonly(),
   cancellation: z.object({
     reason: z.string().optional(),
     canceledAt: z.iso.datetime({ offset: true }).optional(),
@@ -5938,6 +6023,7 @@ export const zProductReview = z.object({
   product: zProductBrief,
   user: zUserPublic,
   rate: zRateEnum,
+  isVerifiedPurchase: z.boolean().readonly(),
   status: zReviewStatus.optional(),
   isPublished: z.boolean().optional(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -5978,6 +6064,7 @@ export const zProductReviewDetail = z.object({
   product: zProduct,
   user: zUserPublic,
   rate: zRateEnum,
+  isVerifiedPurchase: z.boolean().readonly(),
   status: zReviewStatus.optional(),
   isPublished: z.boolean().optional(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -7689,17 +7776,14 @@ export const zPatchedTaggedItemWriteRequestWritable = z.object({
 export const zPayWayWritable = z.object({
   translations: z.object({
     el: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
     de: z.object({
-      name: z.string().optional(),
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
@@ -8105,6 +8189,50 @@ export const zProductImageDetailWritable = z.object({
 })
 
 /**
+ * The product page's own payload.
+ *
+ * ``ProductDetailSerializer`` is also nested in list payloads
+ * (favourites), where the distribution query would run once per row,
+ * so the extra field lives on this single-object subclass.
+ */
+export const zProductRetrieveWritable = z.object({
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  category: z.int(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  vat: z.int().nullish(),
+  stock: z.int().gte(0).lte(2147483647).optional(),
+  active: z.boolean().optional(),
+  weight: z.object({
+    unit: z.string().optional(),
+    value: z.number().optional(),
+  }).nullish(),
+  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
+})
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductReviewWritable = z.object({
@@ -8409,6 +8537,7 @@ export const zTenantConfigWritable = z.object({
   googleSiteVerification: z.string().optional(),
   pinterestDomainVerify: z.string().optional(),
   availableLocales: z.array(z.string()).optional(),
+  shippingCarriers: z.array(z.unknown()).optional(),
   recommendationsEnabled: z.boolean().optional(),
   openaiPixelId: z.string().optional(),
 })
@@ -12582,7 +12711,7 @@ export const zListOrderQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  payWay_Name: z.string().optional(),
+  payWay_Key: z.string().optional(),
   paymentId: z.string().optional(),
   paymentId_Icontains: z.string().optional(),
   paymentMethod: z.string().optional(),
@@ -13447,7 +13576,7 @@ export const zListMyOrdersQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  payWay_Name: z.string().optional(),
+  payWay_Key: z.string().optional(),
   paymentId: z.string().optional(),
   paymentId_Icontains: z.string().optional(),
   paymentMethod: z.string().optional(),
@@ -13864,12 +13993,23 @@ export const zListPayWayQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  key: z.enum([
+    'APPLE_PAY',
+    'BANK_TRANSFER',
+    'BOX_NOW_PAY_ON_THE_GO',
+    'CREDIT_CARD',
+    'GOOGLE_PAY',
+    'PAY_ON_DELIVERY',
+    'PAY_ON_STORE',
+    'PAY_PAL',
+    'STRIPE',
+    'VIVA_WALLET',
+  ]).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).optional().default('el'),
-  name: z.string().optional(),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14240,7 +14380,7 @@ export const zCreateProductQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zCreateProductResponse = zProductDetail
+export const zCreateProductResponse = zProductRetrieve
 
 export const zDestroyProductPath = z.object({
   id: z.union([
@@ -14269,7 +14409,7 @@ export const zRetrieveProductQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zRetrieveProductResponse = zProductDetail
+export const zRetrieveProductResponse = zProductRetrieve
 
 export const zPartialUpdateProductBody = zPatchedProductWriteRequest
 
@@ -14288,7 +14428,7 @@ export const zPartialUpdateProductQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zPartialUpdateProductResponse = zProductDetail
+export const zPartialUpdateProductResponse = zProductRetrieve
 
 export const zUpdateProductBody = zProductWriteRequest
 
@@ -14307,7 +14447,7 @@ export const zUpdateProductQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zUpdateProductResponse = zProductDetail
+export const zUpdateProductResponse = zProductRetrieve
 
 export const zListProductImagesPath = z.object({
   id: z.union([

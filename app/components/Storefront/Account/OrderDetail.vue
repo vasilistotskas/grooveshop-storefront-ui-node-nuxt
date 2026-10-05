@@ -147,6 +147,14 @@ const paymentLabel = computed(() =>
   order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
 )
 
+// Django answers 0 when the program is off, but the plan flag and the
+// runtime toggle gate the line here too, like every other loyalty surface.
+const tenantStore = useTenantStore()
+const loyaltyRuntimeEnabled = useSettingFlag('LOYALTY_ENABLED', { fallback: false })
+const pointsToEarn = computed(() =>
+  tenantStore.loyaltyEnabled && loyaltyRuntimeEnabled.value ? (order.value?.loyaltyPointsToEarn ?? 0) : 0,
+)
+
 const alert = computed(() => {
   const value = order.value
   if (!value) return null
@@ -444,6 +452,16 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
           </dd>
         </div>
       </dl>
+      <p
+        v-if="pointsToEarn > 0"
+        class="flex items-center gap-2 text-sm text-toned"
+      >
+        <UIcon
+          name="i-lucide-star"
+          class="size-4"
+        />
+        {{ t('points_to_earn', { points: n(pointsToEarn) }, pointsToEarn) }}
+      </p>
     </section>
 
     <div class="grid gap-5 sm:grid-cols-2">
@@ -549,6 +567,7 @@ el:
   shipping_label: Ετικέτα αποστολής
   items: Προϊόντα
   quantity: "Ποσ. {quantity}"
+  points_to_earn: "Θα κερδίσεις {points} πόντο | Θα κερδίσεις {points} πόντους"
   totals:
     subtotal: Υποσύνολο
     discounts: Εκπτώσεις
@@ -599,6 +618,7 @@ en:
   shipping_label: Shipping label
   items: Items
   quantity: "Qty {quantity}"
+  points_to_earn: "You'll earn {points} point | You'll earn {points} points"
   totals:
     subtotal: Subtotal
     discounts: Discounts

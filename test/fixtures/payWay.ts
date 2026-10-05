@@ -5,7 +5,7 @@ import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
  * A `PayWay` as Django serialises it, valid against the generated
  * `zPayWay` (proved by `test/unit/fixtures/payWay.spec.ts`).
  *
- * Defaults: id 1, active, free cash on delivery — the pay way Django
+ * Defaults: id 1, active, free cash on delivery (key `PAY_ON_DELIVERY`) — the pay way Django
  * seeds first (`pay_way/migrations/0019_seed_default_pay_ways.py`:
  * provider `cash_on_delivery`, settled with the courier). `uuid` follows
  * `id`.
@@ -22,10 +22,11 @@ export function makePayWay(overrides: Partial<PayWay> = {}): PayWay {
 
   return {
     translations: {
-      el: { name: 'Αντικαταβολή', description: '', instructions: '' },
-      en: { name: 'Cash on delivery', description: '', instructions: '' },
+      el: { description: '', instructions: '' },
+      en: { description: '', instructions: '' },
     },
     id,
+    key: 'PAY_ON_DELIVERY',
     active: true,
     cost: 0,
     freeThreshold: 0,

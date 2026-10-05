@@ -110,6 +110,7 @@ export function makeCategory(
     level: 0,
     treeId: id,
     mainImagePath: '',
+    recursiveProductCount: 0,
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(5, id),
@@ -190,6 +191,7 @@ export function makeProductSearchHit(overrides: Partial<ProductMeiliSearchResult
     viewCount: 0,
     reviewAverage: null,
     vatPercent: 24,
+    categoryName: null,
     ...overrides,
   }
 }
