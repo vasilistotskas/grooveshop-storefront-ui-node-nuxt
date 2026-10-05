@@ -112,19 +112,32 @@ async function showStep(target: number) {
   questionHeading.value?.focus()
 }
 
+// One Next at a time. Validation is async, so a second activation (a
+// double click, Enter held down) would otherwise get past it too and
+// advance from the step the first one had already left, skipping a
+// question — or send the feedback twice.
+const advancing = ref(false)
+
 async function next() {
+  if (advancing.value) return
+  advancing.value = true
   try {
-    await formRef.value?.validate({ name: step.value })
+    try {
+      await formRef.value?.validate({ name: step.value })
+    }
+    catch {
+      // UForm has put the message on the field.
+      return
+    }
+    if (isLast.value) {
+      await submit()
+      return
+    }
+    await showStep(index.value + 1)
   }
-  catch {
-    // UForm has put the message on the field.
-    return
+  finally {
+    advancing.value = false
   }
-  if (isLast.value) {
-    await submit()
-    return
-  }
-  await showStep(index.value + 1)
 }
 
 // Enter in a one-line field is "Next". The form's own submit would ask
@@ -133,6 +146,10 @@ async function next() {
 // radio card chooses.
 function onEnter(event: KeyboardEvent) {
   if (!(event.target instanceof HTMLInputElement)) return
+  // Enter that confirms an IME candidate (a Greek or CJK keyboard
+  // composing a name) belongs to the composition: 229 is what browsers
+  // that do not set `isComposing` report for it.
+  if (event.isComposing || event.keyCode === 229) return
   event.preventDefault()
   void next()
 }

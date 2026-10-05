@@ -166,6 +166,64 @@ describe('FeedbackForm', () => {
     })
   })
 
+  describe('Enter while composing', () => {
+    async function toName(wrapper: VueWrapper) {
+      await toMessage(wrapper)
+      await wrapper.find('textarea').setValue(MESSAGE)
+      await press(wrapper, 'Επόμενο')
+    }
+
+    it('leaves the Enter that confirms an IME candidate to the composition', async () => {
+      const wrapper = await mount()
+      await toName(wrapper)
+
+      await wrapper.find('input').trigger('keydown', { key: 'Enter', isComposing: true })
+      await flushPromises()
+
+      expect(heading(wrapper)).toBe('Πώς να σε λέμε; (προαιρετικό)')
+    })
+
+    it('leaves it too when the browser only reports keyCode 229', async () => {
+      const wrapper = await mount()
+      await toName(wrapper)
+
+      await wrapper.find('input').trigger('keydown', { key: 'Enter', keyCode: 229 })
+      await flushPromises()
+
+      expect(heading(wrapper)).toBe('Πώς να σε λέμε; (προαιρετικό)')
+    })
+  })
+
+  describe('a second Next before the first has settled', () => {
+    const nextButton = (wrapper: VueWrapper) => wrapper.findAll('button').find(button => button.text() === 'Επόμενο')!
+
+    it('advances one question, not two', async () => {
+      const wrapper = await mount()
+      const button = nextButton(wrapper)
+
+      void button.trigger('click')
+      void button.trigger('click')
+      await flushPromises()
+
+      expect(progress(wrapper)).toContain('Ερώτηση 2 από 5')
+    })
+
+    it('sends the feedback once', async () => {
+      const wrapper = await mount()
+      await toMessage(wrapper)
+      await wrapper.find('textarea').setValue(MESSAGE)
+      await press(wrapper, 'Επόμενο')
+      await press(wrapper, 'Επόμενο')
+      const send = wrapper.findAll('button').find(button => button.text() === 'Αποστολή σχολίων')!
+
+      void send.trigger('click')
+      void send.trigger('click')
+      await flushPromises()
+
+      expect(posted()).toHaveLength(1)
+    })
+  })
+
   describe('focus', () => {
     it('moves to the new question when the visitor goes on', async () => {
       const wrapper = await mount()
