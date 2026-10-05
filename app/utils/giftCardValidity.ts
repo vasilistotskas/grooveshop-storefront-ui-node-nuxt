@@ -1,16 +1,13 @@
-export type ValidityUnit = 'year' | 'month' | 'day'
-
 /**
- * How long a gift card stays valid, in the largest unit that divides the
- * store's `GIFT_CARD_VALIDITY_DAYS` evenly (365 days a year, 30 a month):
- * 1825 -> 5 years, 90 -> 3 months, 45 -> 45 days. `null` when the setting is
- * unset or not a positive whole number of days, for the caller to say
- * nothing about validity.
+ * How many days a gift card stays valid, from the store's
+ * `GIFT_CARD_VALIDITY_DAYS`. Django sets `expires_at` to exactly that many
+ * days after issue (`giftcard/services.py`), so the claim stays in days:
+ * 1825 days is not five calendar years when a 29 February falls inside.
+ * `null` when the setting is unset or not a positive whole number of days,
+ * for the caller to say nothing about validity.
  */
-export function giftCardValidity(days: string): { count: number, unit: ValidityUnit } | null {
+export function giftCardValidityDays(days: string): number | null {
   const value = Number(days)
   if (!days.trim() || !Number.isInteger(value) || value <= 0) return null
-  if (value % 365 === 0) return { count: value / 365, unit: 'year' }
-  if (value % 30 === 0) return { count: value / 30, unit: 'month' }
-  return { count: value, unit: 'day' }
+  return value
 }

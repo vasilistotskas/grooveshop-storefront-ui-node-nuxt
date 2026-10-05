@@ -17,6 +17,9 @@ const { t, n } = useI18n()
 
 const outOfFive = computed(() => props.average / 2)
 const buckets = computed(() => starBuckets(props.distribution))
+// No counted review in any bucket: no bars, rather than five 0% rows
+// beside a positive review count.
+const hasDistribution = computed(() => buckets.value.some(bucket => bucket.count > 0))
 const figure = computed(() => n(outOfFive.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }))
 </script>
 
@@ -42,6 +45,7 @@ const figure = computed(() => n(outOfFive.value, { minimumFractionDigits: 1, max
       </div>
     </div>
     <ul
+      v-if="hasDistribution"
       class="flex flex-col gap-1.5"
       :aria-label="t('distribution')"
     >

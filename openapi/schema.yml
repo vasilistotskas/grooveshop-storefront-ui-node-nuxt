@@ -42475,6 +42475,7 @@ components:
         key:
           allOf:
             - $ref: '#/components/schemas/PayWayKeyEnum'
+          readOnly: true
           title: Κλειδί
           description: |-
             Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
@@ -42566,6 +42567,7 @@ components:
         - freeThreshold
         - iconFilename
         - id
+        - key
         - mainImagePath
         - sortOrder
         - translations

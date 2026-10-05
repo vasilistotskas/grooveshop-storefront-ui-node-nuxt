@@ -1,18 +1,17 @@
 import { describe, it, expect } from 'vitest'
-import { giftCardValidity } from '~/utils/giftCardValidity'
+import { giftCardValidityDays } from '~/utils/giftCardValidity'
 
-describe('giftCardValidity', () => {
+describe('giftCardValidityDays', () => {
   it.each([
-    ['1825', { count: 5, unit: 'year' }],
-    ['365', { count: 1, unit: 'year' }],
-    ['90', { count: 3, unit: 'month' }],
-    ['45', { count: 45, unit: 'day' }],
-    ['400', { count: 400, unit: 'day' }],
-  ])('reads %s days as %j', (days, expected) => {
-    expect(giftCardValidity(days)).toEqual(expected)
+    ['1825', 1825],
+    ['365', 365],
+    ['30', 30],
+    ['1', 1],
+  ])('keeps %s days as %d days, never rounding to years or months', (days, expected) => {
+    expect(giftCardValidityDays(days)).toBe(expected)
   })
 
   it.each(['', '  ', '0', '-30', '1.5', 'abc'])('says nothing for %j', (days) => {
-    expect(giftCardValidity(days)).toBeNull()
+    expect(giftCardValidityDays(days)).toBeNull()
   })
 })

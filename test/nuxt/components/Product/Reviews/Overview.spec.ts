@@ -17,6 +17,16 @@ describe('Product/Reviews/Overview', () => {
     expect(rows[4]).toContain('25%')
   })
 
+  it('draws no bars when the reviews come with no counted distribution', async () => {
+    const wrapper = await mountSuspended(Overview, {
+      route: false,
+      props: { average: 8, count: 3, distribution: [{ rate: 10, count: 0 }] },
+    })
+
+    expect(wrapper.text()).toContain('4,0')
+    expect(wrapper.find('ul').exists()).toBe(false)
+  })
+
   it('invites the first review when there are none', async () => {
     const wrapper = await mountSuspended(Overview, {
       route: false,

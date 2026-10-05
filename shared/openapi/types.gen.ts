@@ -6584,7 +6584,7 @@ export type PayWay = {
      * * `GOOGLE_PAY` - Google Pay
      * * `VIVA_WALLET` - Viva Wallet
      */
-  key?: PayWayKeyEnum
+  key: PayWayKeyEnum
   /**
      * Ενεργή
      */
@@ -12197,23 +12197,6 @@ export type PayWayWritable = {
       instructions?: string
     }
   }
-  /**
-     * Κλειδί
-     *
-     * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
-     *
-     * * `CREDIT_CARD` - Πιστωτική κάρτα
-     * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
-     * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
-     * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
-     * * `PAY_PAL` - PayPal
-     * * `STRIPE` - Stripe
-     * * `BANK_TRANSFER` - Τραπεζική μεταφορά
-     * * `APPLE_PAY` - Apple Pay
-     * * `GOOGLE_PAY` - Google Pay
-     * * `VIVA_WALLET` - Viva Wallet
-     */
-  key?: PayWayKeyEnum
   /**
      * Ενεργή
      */

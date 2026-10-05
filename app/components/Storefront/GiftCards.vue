@@ -2,7 +2,7 @@
 import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js'
 import * as z from 'zod'
 
-const { t, locale } = useI18n()
+const { t, n, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const toast = useToast()
 const tenantStore = useTenantStore()
@@ -22,7 +22,7 @@ const maxSetting = useSettingValue('GIFT_CARD_MAX_AMOUNT')
 const minAmount = computed(() => Number(minSetting.value || 10))
 const maxAmount = computed(() => Number(maxSetting.value || 500))
 const validitySetting = useSettingValue('GIFT_CARD_VALIDITY_DAYS')
-const validity = computed(() => giftCardValidity(validitySetting.value))
+const validityDays = computed(() => giftCardValidityDays(validitySetting.value))
 
 // Online providers the merchant has configured — Viva Wallet is the
 // primary provider, Stripe secondary. Derived from the pay-way list
@@ -75,10 +75,10 @@ const benefits = computed<{ icon: string, title: string, description?: string }[
     title: t('benefits.balance.title'),
     description: t('benefits.balance.description'),
   },
-  ...(validity.value
+  ...(validityDays.value
     ? [{
         icon: 'i-lucide-clock',
-        title: t(`benefits.validity.${validity.value.unit}`, { count: validity.value.count }, validity.value.count),
+        title: t('benefits.validity', { days: n(validityDays.value) }, validityDays.value),
       }]
     : []),
 ])
@@ -777,10 +777,7 @@ el:
     balance:
       title: Χρήση σε πολλές παραγγελίες
       description: Το υπόλοιπο περνάει στην επόμενη παραγγελία.
-    validity:
-      year: "Ισχύει για {count} έτος | Ισχύει για {count} έτη"
-      month: "Ισχύει για {count} μήνα | Ισχύει για {count} μήνες"
-      day: "Ισχύει για {count} ημέρα | Ισχύει για {count} ημέρες"
+    validity: "Ισχύει για {days} ημέρα | Ισχύει για {days} ημέρες"
   success:
     title: Η αγορά ολοκληρώθηκε!
     description: Η δωροκάρτα θα σταλεί στο {email} μόλις επιβεβαιωθεί η πληρωμή
@@ -841,10 +838,7 @@ en:
     balance:
       title: Spend it in parts
       description: The balance carries over to the next order.
-    validity:
-      year: "Valid for {count} year | Valid for {count} years"
-      month: "Valid for {count} month | Valid for {count} months"
-      day: "Valid for {count} day | Valid for {count} days"
+    validity: "Valid for {days} day | Valid for {days} days"
   success:
     title: Purchase complete
     description: The gift card will be sent to {email} as soon as the payment is confirmed

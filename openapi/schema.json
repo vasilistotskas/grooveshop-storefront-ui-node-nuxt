@@ -67199,6 +67199,7 @@
                                 "$ref": "#/components/schemas/PayWayKeyEnum"
                             }
                         ],
+                        "readOnly": true,
                         "title": "Κλειδί",
                         "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
@@ -67291,6 +67292,7 @@
                     "freeThreshold",
                     "iconFilename",
                     "id",
+                    "key",
                     "mainImagePath",
                     "sortOrder",
                     "translations",
