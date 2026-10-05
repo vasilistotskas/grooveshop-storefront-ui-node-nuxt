@@ -95,6 +95,36 @@ describe('useAllAuthAuthentication', () => {
     expect(hooks.onResponseError.mock.calls.map(([response]) => response)).toEqual([MFA_PENDING])
   })
 
+  describe.each([
+    ['resendLoginCode', '/code/resend', (a: Authentication) => a.resendLoginCode()],
+    ['resendEmailVerificationCode', '/email/verify/resend', (a: Authentication) => a.resendEmailVerificationCode()],
+  ])('%s', (_name, path, call) => {
+    it('posts without a body and keeps its acknowledgement out of auth-change detection', async () => {
+      // allauth never sets is_authenticated on a bare StatusOK, but were one
+      // to, a 200 without a user would be read as a logout mid-verification.
+      const ack = { ok: true, status: 200, _data: { status: 200, meta: { is_authenticated: false } } }
+      respondWith(ack)
+
+      const result = await call(useAllAuthAuthentication())
+
+      const [request] = api.callsTo(`${AUTH}${path}`)
+      expect(request?.options.method).toBe('POST')
+      expect(request?.options.body).toBeUndefined()
+      expect(result).toEqual(ack._data)
+      expect(hooks.onResponse).not.toHaveBeenCalled()
+      expect(hooks.onResponseError).not.toHaveBeenCalled()
+    })
+
+    it('still routes an expired session through the auth pipeline', async () => {
+      const gone = { ok: false, status: 410, _data: { data: { status: 410 } } }
+      respondWith(gone)
+
+      await call(useAllAuthAuthentication())
+
+      expect(hooks.onResponseError.mock.calls.map(([response]) => response)).toEqual([gone])
+    })
+  })
+
   describe('request headers', () => {
     it.each<[string, (a: Authentication) => Promise<unknown>, string, Record<string, string>]>([
       ['getEmailVerify', a => a.getEmailVerify('verify-key'), '/email/verify', { 'X-Email-Verification-Key': 'verify-key' }],

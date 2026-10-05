@@ -328,26 +328,26 @@ export default function () {
     })
   }
 
+  // A resend 200 is a bare acknowledgement mid-flow: it carries no auth state, so
+  // it stays out of `onAllAuthResponse` (which would read a 200 without a user
+  // as a logout). Only a 401/410 matters, and that is `onAllAuthResponseError`.
   async function resendLoginCode() {
     return $api(`${API_BASE_URL}/code/resend`, {
       method: 'POST',
       headers: useRequestHeaders(),
-      async onResponse({ response }) {
-        await onAllAuthResponse(response)
-      },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
       },
     })
   }
 
+  // A resend 200 is a bare acknowledgement mid-flow: it carries no auth state, so
+  // it stays out of `onAllAuthResponse` (which would read a 200 without a user
+  // as a logout). Only a 401/410 matters, and that is `onAllAuthResponseError`.
   async function resendEmailVerificationCode() {
     return $api(`${API_BASE_URL}/email/verify/resend`, {
       method: 'POST',
       headers: useRequestHeaders(),
-      async onResponse({ response }) {
-        await onAllAuthResponse(response)
-      },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
       },

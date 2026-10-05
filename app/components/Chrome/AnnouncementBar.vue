@@ -63,10 +63,7 @@ const bannerId = computed(() =>
       container: 'h-9.5 justify-center',
       center: 'justify-center',
       icon: 'size-4',
-      title: `
-        text-[0.8125rem] font-semibold
-        sm:truncate
-      `,
+      title: 'min-w-0 truncate text-[0.8125rem] font-semibold',
     }"
   >
     <!-- `title` stays the plain sentence: it is the link's accessible

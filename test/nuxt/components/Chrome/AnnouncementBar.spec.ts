@@ -92,6 +92,16 @@ describe('Chrome/AnnouncementBar', () => {
       expect(chip.classes()).toEqual(expect.arrayContaining(['bg-volt', 'text-on-volt']))
     })
 
+    it('keeps a long sentence on the one fixed-height line at every width', async () => {
+      setting.value = bar({})
+
+      // The class is the contract: the bar is one line tall, so text
+      // that wraps would spill out of it on a phone.
+      const title = (await mountBar()).get('[data-slot="title"]')
+
+      expect(title.classes()).toEqual(expect.arrayContaining(['truncate', 'min-w-0']))
+    })
+
     it('draws no chip without a code', async () => {
       setting.value = bar({})
 

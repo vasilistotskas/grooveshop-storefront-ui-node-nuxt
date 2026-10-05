@@ -9,9 +9,12 @@
  * (`ProductDetailViewSet`), and the key carries the ids and the locale,
  * so a changed layout or language is a new answer.
  *
- * A product that cannot be read (deleted, hidden, a stale id in the
+ * A product that is gone (404: deleted, hidden, a stale id in the
  * layout) is simply absent from the map: its slide renders without a
- * chip, and one bad id never costs the others theirs.
+ * chip, and one bad id never costs the others theirs. Any other failure
+ * (a 5xx, the network) is logged and fails the fetch, so the hero still
+ * renders without chips but a transient fault is never stored as the
+ * answer in the page payload or the page cache.
  */
 export async function useHeroProductChips(ids: MaybeRefOrGetter<number[]>) {
   const { $i18n } = useNuxtApp()
@@ -26,9 +29,23 @@ export async function useHeroProductChips(ids: MaybeRefOrGetter<number[]>) {
         wanted.value.map(id => requestFetch<ProductRetrieve>(`/api/products/${id}`)),
       )
       const products: Record<number, ProductRetrieve> = {}
-      for (const result of settled) {
-        if (result.status === 'fulfilled') products[result.value.id] = result.value
+      let failure: unknown
+      for (const [index, result] of settled.entries()) {
+        if (result.status === 'fulfilled') {
+          products[result.value.id] = result.value
+          continue
+        }
+        const status = (result.reason as { statusCode?: number })?.statusCode
+        if (status === 404) continue
+        log.warn({
+          tag: 'hero-product-chips',
+          message: 'product fetch failed',
+          productId: wanted.value[index],
+          status,
+        })
+        failure ??= result.reason
       }
+      if (failure) throw failure
       return products
     },
     {

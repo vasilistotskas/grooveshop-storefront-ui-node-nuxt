@@ -331,7 +331,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                     <span
                       v-if="chips[index]!.was"
                       class="font-mono text-xs text-muted tabular-nums line-through"
-                    >{{ chips[index]!.was }}</span>
+                    ><span class="sr-only">{{ `${t('chip.was')} ` }}</span>{{ chips[index]!.was }}</span>
                   </span>
                 </span>
               </NuxtLink>
@@ -530,6 +530,8 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
 
 <i18n lang="yaml">
 el:
+  chip:
+    was: Πριν
   carousel:
     banner: Κύριο banner
     bannerLink: Άνοιγμα συνδέσμου banner
@@ -538,6 +540,8 @@ el:
     prev: Προηγούμενη διαφάνεια
     next: Επόμενη διαφάνεια
 en:
+  chip:
+    was: Was
   carousel:
     banner: Main banner
     bannerLink: Open banner link

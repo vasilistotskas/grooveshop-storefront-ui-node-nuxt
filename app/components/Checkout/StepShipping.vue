@@ -282,6 +282,19 @@ const shippingOptions = computed(() => {
   return ordered
 })
 
+/**
+ * A business-day estimate as copy. Django allows 0 (dispatch the same
+ * day), so the ends are not always a plain "N–M": 0–0 is "same business
+ * day", and a range starting at 0 is "up to M" (a "0–2 days" reads as
+ * a typo).
+ */
+function estimateText({ min, max }: { min: number, max: number }): string {
+  if (max === 0) return t('estimate_same_day')
+  if (min === 0) return t('estimate_up_to', { count: max }, max)
+  if (min === max) return t('estimate_days', { count: max }, max)
+  return t('estimate_range', { min, max })
+}
+
 function buildBrandMeta(method: ShippingMethodKey) {
   const meta = getShippingMethodMeta(method)
   // ``logo`` is filled in by the caller from the matching
@@ -520,9 +533,7 @@ defineExpose({ submit: onSubmit })
                 v-if="item.estimate"
                 class="text-sm text-toned"
               >
-                {{ item.estimate.min === item.estimate.max
-                  ? t('estimate_days', { count: item.estimate.max }, item.estimate.max)
-                  : t('estimate_range', item.estimate) }}
+                {{ estimateText(item.estimate) }}
               </span>
               <!-- A payment method this delivery choice is the only way
                    to reach. Named here because the payment step comes
@@ -645,6 +656,8 @@ el:
   free: Δωρεάν
   estimate_days: "{count} εργάσιμη ημέρα | {count} εργάσιμες ημέρες"
   estimate_range: "{min}–{max} εργάσιμες ημέρες"
+  estimate_same_day: Την ίδια εργάσιμη
+  estimate_up_to: "Έως {count} εργάσιμη ημέρα | Έως {count} εργάσιμες ημέρες"
   free_delivery_title: Εφαρμόστηκε δωρεάν αποστολή
   free_delivery_description: Η παραγγελία σου δικαιούται δωρεάν αποστολή με αυτή τη μέθοδο.
 en:
@@ -653,6 +666,8 @@ en:
   free: Free
   estimate_days: "{count} business day | {count} business days"
   estimate_range: "{min}–{max} business days"
+  estimate_same_day: Same business day
+  estimate_up_to: "Up to {count} business day | Up to {count} business days"
   free_delivery_title: Free delivery applied
   free_delivery_description: Your order qualifies for free delivery with this method.
 </i18n>

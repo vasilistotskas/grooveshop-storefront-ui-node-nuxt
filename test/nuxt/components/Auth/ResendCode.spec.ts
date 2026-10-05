@@ -24,6 +24,7 @@ const COPY = {
   wait: 'Περίμενε λίγο πριν ζητήσεις νέο κωδικό.',
   startOver: 'Δεν μπορούμε να στείλουμε άλλον κωδικό. Ξεκίνα από την αρχή.',
   resend: 'Στείλε τον ξανά',
+  ready: 'Μπορείς να ζητήσεις νέο κωδικό.',
   resendIn: (time: string) => `Νέα αποστολή σε ${time}`,
 }
 
@@ -56,7 +57,70 @@ describe('Auth/ResendCode', () => {
       const wrapper = await mountResend()
 
       expect(button(wrapper).text()).toBe(COPY.resendIn('0:30'))
-      expect(button(wrapper).attributes('disabled')).toBeDefined()
+      expect(button(wrapper).attributes('aria-disabled')).toBe('true')
+    })
+
+    it('ignores a press while the wait runs, without disabling the button', async () => {
+      const wrapper = await mountResend()
+
+      await button(wrapper).trigger('click')
+      await flushPromises()
+
+      expect(send).not.toHaveBeenCalled()
+      expect(button(wrapper).attributes('disabled')).toBeUndefined()
+    })
+
+    it('keeps keyboard focus on the button through a send and the wait that follows', async () => {
+      const wrapper = await mountSuspended(AuthResendCode, {
+        props: { send, startOver: 'account-login-code' },
+        attachTo: document.body,
+      })
+      await tick(30)
+      const resendButton = button(wrapper).element as HTMLButtonElement
+      resendButton.focus()
+
+      await button(wrapper).trigger('click')
+      await flushPromises()
+
+      expect(send).toHaveBeenCalledTimes(1)
+      expect(document.activeElement).toBe(resendButton)
+      wrapper.unmount()
+    })
+
+    it('stays enabled for focus, marked busy, while the send is in flight', async () => {
+      let finish: (value: { status: number }) => void = () => {}
+      send.mockReturnValue(new Promise((resolve) => {
+        finish = resolve
+      }))
+      const wrapper = await mountResend()
+      await tick(30)
+
+      await button(wrapper).trigger('click')
+
+      expect(button(wrapper).attributes('disabled')).toBeUndefined()
+      expect(button(wrapper).attributes('aria-busy')).toBe('true')
+      await button(wrapper).trigger('click')
+      expect(send).toHaveBeenCalledTimes(1)
+
+      finish({ status: 200 })
+      await flushPromises()
+      expect(button(wrapper).attributes('aria-busy')).toBe('false')
+    })
+
+    it('announces once, politely, when the wait is over, and not on the ticks before', async () => {
+      const wrapper = await mountResend()
+      const status = () => wrapper.get('[role="status"]').text()
+
+      expect(status()).toBe('')
+      await tick(29)
+      expect(status()).toBe('')
+
+      await tick(1)
+      expect(status()).toBe(COPY.ready)
+
+      await button(wrapper).trigger('click')
+      await flushPromises()
+      expect(status()).toBe('')
     })
 
     it('counts down in whole seconds and unlocks the action at zero', async () => {
@@ -67,7 +131,7 @@ describe('Auth/ResendCode', () => {
 
       await tick(18)
       expect(button(wrapper).text()).toBe(COPY.resend)
-      expect(button(wrapper).attributes('disabled')).toBeUndefined()
+      expect(button(wrapper).attributes('aria-disabled')).toBe('false')
     })
 
     it('uses the tenant\'s number, not a fixed one', async () => {
@@ -110,7 +174,7 @@ describe('Auth/ResendCode', () => {
       const wrapper = await mountResend()
 
       expect(button(wrapper).text()).toBe(COPY.resend)
-      expect(button(wrapper).attributes('disabled')).toBeUndefined()
+      expect(button(wrapper).attributes('aria-disabled')).toBe('false')
     })
 
     it('still sends', async () => {

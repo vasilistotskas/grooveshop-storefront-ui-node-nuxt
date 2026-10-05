@@ -151,7 +151,7 @@ describe('default ProductDetail', () => {
 
     const wrapper = await mountPage()
 
-    expect(wrapper.text()).toContain('Παράγγειλε πριν τις 15:00 και αποστέλλεται την ίδια εργάσιμη')
+    expect(wrapper.text()).toContain('Παράγγειλε πριν τις 15:00 (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη')
   })
 
   it.each([

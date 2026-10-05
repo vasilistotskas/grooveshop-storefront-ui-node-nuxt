@@ -1243,7 +1243,7 @@ el:
   out_of_stock: Εξαντλήθηκε
   low_stock: "Έμεινε μόνο {count} | Έμειναν μόνο {count}"
   in_stock: Διαθέσιμο
-  dispatch_before: "Παράγγειλε πριν τις {time} και αποστέλλεται την ίδια εργάσιμη"
+  dispatch_before: "Παράγγειλε πριν τις {time} (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη"
   vat_included: Με ΦΠΑ
 en:
   breadcrumb:
@@ -1272,6 +1272,6 @@ en:
   out_of_stock: Sold out
   low_stock: "Only {count} left | Only {count} left"
   in_stock: In stock
-  dispatch_before: "Order before {time} and it ships the same business day"
+  dispatch_before: "Order before {time} Greek time and it ships the same business day"
   vat_included: VAT included
 </i18n>

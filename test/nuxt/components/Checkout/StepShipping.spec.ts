@@ -95,6 +95,16 @@ describe('Checkout/StepShipping delivery estimates', () => {
     expect(card(wrapper, 'box_now_locker').text()).not.toContain('εργάσιμες')
   })
 
+  it.each([
+    [0, 0, 'Την ίδια εργάσιμη'],
+    [0, 2, 'Έως 2 εργάσιμες ημέρες'],
+    [0, 1, 'Έως 1 εργάσιμη ημέρα'],
+  ])('reads a %i–%i estimate as "%s", never "0 days"', async (min, max, copy) => {
+    const wrapper = await mount([acsHomeDeliveryOption({ deliveryDaysMin: min, deliveryDaysMax: max })])
+
+    expect(card(wrapper, 'home_delivery').text()).toContain(copy)
+  })
+
   it('says nothing when the rate advertises no estimate', async () => {
     const wrapper = await mount([makeShippingOption()])
 

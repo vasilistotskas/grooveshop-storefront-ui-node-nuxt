@@ -97,7 +97,9 @@ describe('PageSectionHeroCarousel', () => {
       const wrapper = await mountHero({ slides: withChip(7) })
 
       const was = useNuxtApp().$i18n.n(powerBank.finalPrice + powerBank.discountValue, 'currency')
-      expect(wrapper.get('a[href="/products/7/power-bank"] .line-through').text()).toBe(was)
+      const struck = wrapper.get('a[href="/products/7/power-bank"] .line-through')
+      expect(struck.text()).toBe(`Πριν ${was}`)
+      expect(struck.get('.sr-only').text()).toBe('Πριν')
     })
 
     it('fetches the product of every chip once, together', async () => {

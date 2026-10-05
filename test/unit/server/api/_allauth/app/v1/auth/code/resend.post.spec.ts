@@ -31,7 +31,7 @@ describe('POST /api/_allauth/app/v1/auth/code/resend', () => {
 
   it('stores a rotated session token', async () => {
     testSession.set({ secure: { sessionToken: 'sess-1' } })
-    backend.reply({ status: 200, meta: { is_authenticated: false, session_token: 'sess-2' } })
+    backend.reply({ status: 200, meta: { session_token: 'sess-2' } })
 
     await resend()
 
