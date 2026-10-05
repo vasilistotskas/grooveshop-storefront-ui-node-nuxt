@@ -3,6 +3,7 @@ import {
   formatDrfFieldErrors,
   isAllAuthClientError,
   isDrfFieldErrorMap,
+  isConflictClientError,
   isErrorWithDetail,
   isRateLimitedClientError,
 } from '~/utils/error'
@@ -79,6 +80,21 @@ describe('isRateLimitedClientError', () => {
     ['a number', 429],
   ])('rejects %s', (_case, error) => {
     expect(isRateLimitedClientError(error)).toBe(false)
+  })
+})
+
+describe('isConflictClientError', () => {
+  it('recognises allauth\'s 409, forwarded under the proxy\'s wrapper', () => {
+    expect(isConflictClientError({ data: { statusCode: 409, data: { status: 409 } } })).toBe(true)
+  })
+
+  it.each([
+    ['another allauth status', { data: { statusCode: 400, data: { status: 400 } } }],
+    ['a bare 409 without allauth\'s body', { statusCode: 409 }],
+    ['an error without data', new Error('boom')],
+    ['null', null],
+  ])('rejects %s', (_case, error) => {
+    expect(isConflictClientError(error)).toBe(false)
   })
 })
 

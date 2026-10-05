@@ -27,6 +27,12 @@ const productAlertsEnabled = useSettingFlag('PRODUCT_ALERTS_ENABLED', {
 const productSuggestionsEnabled = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', {
   fallback: false,
 })
+// "Order before 15:00, ships the same business day": the store's cutoff
+// is one cached public setting, so it renders on the server like the
+// rest of the page. No "today"/"tomorrow": that needs the visitor's
+// clock and Django's holiday calendar, and this page is cached.
+const dispatchCutoffSetting = useSettingValue('DISPATCH_CUTOFF')
+const dispatchCutoff = computed(() => parseDispatchCutoff(dispatchCutoffSetting.value))
 const tenantStore = useTenantStore()
 const suggestionsEnabled = computed(
   () => tenantStore.recommendationsEnabled && productSuggestionsEnabled.value,
@@ -883,6 +889,12 @@ useSchemaOrg([
               />
               {{ stockLine.label }}
             </p>
+            <p
+              v-if="dispatchCutoff && productStock > 0"
+              class="text-sm text-toned"
+            >
+              {{ t('dispatch_before', { time: dispatchCutoff }) }}
+            </p>
             <!-- Out of stock is a dead end; the restock alert is offered
                  where the shopper learns the news. -->
             <UButton
@@ -1231,6 +1243,7 @@ el:
   out_of_stock: Εξαντλήθηκε
   low_stock: "Έμεινε μόνο {count} | Έμειναν μόνο {count}"
   in_stock: Διαθέσιμο
+  dispatch_before: "Παράγγειλε πριν τις {time} (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη"
   vat_included: Με ΦΠΑ
 en:
   breadcrumb:
@@ -1259,5 +1272,6 @@ en:
   out_of_stock: Sold out
   low_stock: "Only {count} left | Only {count} left"
   in_stock: In stock
+  dispatch_before: "Order before {time} Greek time and it ships the same business day"
   vat_included: VAT included
 </i18n>

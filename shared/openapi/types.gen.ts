@@ -8784,6 +8784,14 @@ export type ShippingOption = {
      */
   exceedsMaxWeight: boolean
   /**
+     * Fastest delivery in business days after dispatch, or null when the rate advertises no estimate. Pair with the public ``DISPATCH_CUTOFF`` setting for the 'order before HH:MM' line. Day counts only, never dates, so the response stays cacheable.
+     */
+  deliveryDaysMin: number | null
+  /**
+     * Slowest delivery in business days after dispatch; null exactly when ``delivery_days_min`` is.
+     */
+  deliveryDaysMax: number | null
+  /**
      * Απόλυτο URL για το λογότυπο μάρκας που ανέβασε ο χειριστής, υπολογισμένο ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το κατάστημα τότε επιστρέφει στην ενσωματωμένη προεπιλογή του. Το ``settings.MEDIA_URL`` είναι απόλυτο σε κάθε περιβάλλον, οπότε αυτό είναι πάντα πλήρες URL όταν υπάρχει.
      */
   logoUrl?: string | null
@@ -9349,6 +9357,7 @@ export type TenantConfig = {
   readonly giftCardsEnabled: boolean
   readonly b2bEnabled: boolean
   recommendationsEnabled?: boolean
+  codeResendCooldownSeconds?: number
   readonly agentStripeDelegatedEnabled: boolean
   readonly agentCommerceEnabled: boolean
   readonly productFeedsEnabled: boolean
@@ -10127,6 +10136,7 @@ export type PageSectionHeroCarouselProps = {
     ctaLink?: string
     secondaryCtaText?: string
     secondaryCtaLink?: string
+    productId?: number
   }>
   autoplayMs?: 0 | number
   aspect?: 'wide' | 'banner' | 'square'
@@ -10260,7 +10270,12 @@ export type PageSectionDividerProps = {
 }
 
 export type PageSectionLoyaltyHeroProps = {
-  [key: string]: never
+  surface?: 'default' | 'muted'
+  eyebrow?: string
+  ctaText?: string
+  ctaLink?: string
+  secondaryCtaText?: string
+  secondaryCtaLink?: string
 }
 
 export type PageSectionSearchBarProps = {
@@ -10539,7 +10554,8 @@ export type PageSectionTrustBadgesProps = {
 }
 
 export type PageSectionOffersPreviewProps = {
-  surface?: 'default' | 'muted'
+  surface?: 'default' | 'muted' | 'ink'
+  eyebrow?: string
   heading?: string
   subheading?: string
   limit?: number
@@ -13035,6 +13051,7 @@ export type TenantConfigWritable = {
   availableLocales?: Array<string>
   shippingCarriers?: Array<unknown>
   recommendationsEnabled?: boolean
+  codeResendCooldownSeconds?: number
   openaiPixelId?: string
 }
 
@@ -13239,10 +13256,6 @@ export type UserSubscriptionDetailWritable = {
 }
 
 export type PageSectionBlogCategoriesPropsWritable = {
-  [key: string]: never
-}
-
-export type PageSectionLoyaltyHeroPropsWritable = {
   [key: string]: never
 }
 

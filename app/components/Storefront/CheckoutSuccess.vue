@@ -6,8 +6,9 @@
  * ways on — the order page, more shopping, the invoice — then a few of
  * the store's guides while the parcel is on its way.
  *
- * No delivery dates in "what happens next": Django has none to give
- * (PLAN B5). The frozen webside tree keeps its own copy of this page.
+ * The last step carries the order's `estimatedDelivery` (a date Django
+ * fixed at placement) while the order is still on its way. The frozen
+ * webside tree keeps its own copy of this page.
  */
 const { t, n, locale } = useI18n()
 
@@ -422,6 +423,7 @@ const steps = computed(() => {
       value: pickup.value ? 'ready_for_pickup' : 'delivered',
       done: reached >= 4,
       description: collected ? t('steps.pay_there', { amount: n(paidAmount.value, 'currency') }) : '',
+      estimate: awaitsDelivery(order.value?.status) ? order.value?.trackingDetails?.estimatedDelivery : null,
     },
   ]
 })
@@ -430,6 +432,7 @@ const timeline = computed(() => steps.value.map(step => ({
   value: step.value,
   title: t(`steps.${step.value}`),
   description: step.description,
+  estimate: 'estimate' in step ? step.estimate : null,
   icon: step.done ? 'i-lucide-check' : undefined,
 })))
 
@@ -542,6 +545,23 @@ async function openInvoice() {
                 />
                 <template v-else>
                   {{ item.description }}
+                  <i18n-t
+                    v-if="item.estimate"
+                    keypath="steps.estimated"
+                    tag="span"
+                    class="block"
+                  >
+                    <template #date>
+                      <NuxtTime
+                        :datetime="item.estimate"
+                        :locale="locale"
+                        time-zone="UTC"
+                        weekday="short"
+                        day="numeric"
+                        month="short"
+                      />
+                    </template>
+                  </i18n-t>
                 </template>
               </template>
             </UTimeline>
@@ -690,6 +710,7 @@ el:
     delivered: Παράδοση
     ready_for_pickup: Έτοιμη για παραλαβή
     pay_there: "Πληρωμή {amount} κατά την παραλαβή"
+    estimated: "Εκτιμώμενη: {date}"
   summary: Σύνοψη
   line: "{quantity} × {name}"
   totals:
@@ -741,6 +762,7 @@ en:
     delivered: Delivered
     ready_for_pickup: Ready for pickup
     pay_there: "Pay {amount} on delivery"
+    estimated: "Estimated {date}"
   summary: Summary
   line: "{quantity} × {name}"
   totals:

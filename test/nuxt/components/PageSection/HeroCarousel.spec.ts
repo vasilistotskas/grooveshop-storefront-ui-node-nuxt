@@ -2,7 +2,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ref } from 'vue'
 import type { DOMWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { clearNuxtData } from '#app'
 import HeroCarousel from '~/components/PageSection/HeroCarousel.vue'
+import { failWith } from '~~/test/helpers/api'
+import { makeProduct } from '~~/test/fixtures/product'
+
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('useRequestApi', () => () => api)
 
 /** The browser's media-query answers, per query; a missing one is `false`. */
 const media = vi.hoisted(() => ({ matches: {} as Record<string, boolean> }))
@@ -67,6 +73,58 @@ const emblaOf = (wrapper: Awaited<ReturnType<typeof mountHero>>) =>
 describe('PageSectionHeroCarousel', () => {
   beforeEach(() => {
     media.matches = {}
+    clearNuxtData()
+  })
+
+  describe('a slide that names a product', () => {
+    const powerBank = makeProduct({ id: 7, price: 40, discountPercent: 10, vatPercent: 24, slug: 'power-bank' })
+
+    const withChip = (productId: number) => [{ ...SLIDES[0]!, productId }, SLIDES[1]!]
+
+    it('draws a chip with its name and price, linking to the product', async () => {
+      api.routes({ '/api/products/7': powerBank })
+
+      const wrapper = await mountHero({ slides: withChip(7) })
+
+      const chip = wrapper.get('a[href="/products/7/power-bank"]')
+      expect(chip.text()).toContain('Προϊόν 7')
+      expect(chip.text()).toContain(useNuxtApp().$i18n.n(powerBank.finalPrice, 'currency'))
+    })
+
+    it('strikes through what the product cost before its discount', async () => {
+      api.routes({ '/api/products/7': powerBank })
+
+      const wrapper = await mountHero({ slides: withChip(7) })
+
+      const was = useNuxtApp().$i18n.n(powerBank.finalPrice + powerBank.discountValue, 'currency')
+      const struck = wrapper.get('a[href="/products/7/power-bank"] .line-through')
+      expect(struck.text()).toBe(`Πριν ${was}`)
+      expect(struck.get('.sr-only').text()).toBe('Πριν')
+    })
+
+    it('fetches the product of every chip once, together', async () => {
+      api.routes({ '/api/products/*': (url: string) => makeProduct({ id: Number(url.split('/').pop()) }) })
+
+      await mountHero({ slides: [{ ...SLIDES[0]!, productId: 7 }, { ...SLIDES[1]!, productId: 9 }, { ...SLIDES[1]!, productId: 7 }] })
+
+      expect(api.callsTo('/api/products/*').map(call => call.url).sort())
+        .toEqual(['/api/products/7', '/api/products/9'])
+    })
+
+    it('renders the slide without a chip when its product cannot be read', async () => {
+      api.routes({ '/api/products/*': failWith(404) })
+
+      const wrapper = await mountHero({ slides: withChip(7) })
+
+      expect(wrapper.find('a[href^="/products/"]').exists()).toBe(false)
+      expect(wrapper.find('h1').text()).toBe('Charge fast, once a day')
+    })
+
+    it('asks for no product where no slide names one', async () => {
+      await mountHero({ slides: SLIDES })
+
+      expect(api.callsTo('/api/products/*')).toEqual([])
+    })
   })
 
   it('renders the copy a slide carries', async () => {

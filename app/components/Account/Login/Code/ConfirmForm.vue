@@ -4,7 +4,7 @@ import type { FormSubmitEvent } from '#ui/types'
 
 const emit = defineEmits(['confirmLoginCode'])
 
-const { confirmLoginCode } = useAllAuthAuthentication()
+const { confirmLoginCode, resendLoginCode } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -102,15 +102,10 @@ watch(codeString, (newCode) => {
       type="submit"
     />
 
-    <p class="text-center text-sm text-muted">
-      {{ t('no_code') }}
-      <ULink
-        :to="localePath('account-login-code')"
-        class="font-semibold text-accent"
-      >
-        {{ t('resend') }}
-      </ULink>
-    </p>
+    <AuthResendCode
+      :send="resendLoginCode"
+      start-over="account-login-code"
+    />
   </UForm>
 </template>
 
@@ -123,8 +118,6 @@ el:
   error:
     title: Μη έγκυρος κωδικός
     description: Ο κωδικός δεν είναι σωστός ή έχει λήξει.
-  no_code: Δεν τον έλαβες;
-  resend: Ζήτα νέο κωδικό
   validation:
     required: Απαιτείται κωδικός
     code:
@@ -137,8 +130,6 @@ en:
   error:
     title: That code is not valid
     description: The code you entered is not valid, or it has expired.
-  no_code: Didn't get it?
-  resend: Request a new code
   validation:
     required: A code is required
     code:

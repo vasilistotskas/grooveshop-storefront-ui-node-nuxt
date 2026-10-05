@@ -125,6 +125,7 @@ describe('default ProductDetail', () => {
     product: ReturnType<typeof makeProduct>,
     reviews: (page: number) => unknown = () => empty,
     ratingDistribution: RatingDistribution[] = [],
+    settings: Record<string, string> = {},
   ) {
     clearNuxtData()
     setTenant()
@@ -132,6 +133,7 @@ describe('default ProductDetail', () => {
       '/api/products/123': { ...product, ratingDistribution },
       '/api/products/123/images': [],
       '/api/products/categories/all': CATEGORIES,
+      '/api/settings/public': { settings },
       '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
       '/api/products/123/*': empty,
       '/api/*': empty,
@@ -143,6 +145,26 @@ describe('default ProductDetail', () => {
     await flushPromises()
     return wrapper
   }
+
+  it('promises same-business-day dispatch before the store\'s cutoff', async () => {
+    serve(makeProduct({ id: 123, stock: 20 }), () => empty, [], { DISPATCH_CUTOFF: '15:00' })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Παράγγειλε πριν τις 15:00 (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη')
+  })
+
+  it.each([
+    ['sets no cutoff', { DISPATCH_CUTOFF: '' }, 20],
+    ['writes a cutoff that is no clock time', { DISPATCH_CUTOFF: 'before lunch' }, 20],
+    ['has the product sold out', { DISPATCH_CUTOFF: '15:00' }, 0],
+  ])('promises no dispatch when the store %s', async (_name, settings, stock) => {
+    serve(makeProduct({ id: 123, stock }), () => empty, [], settings)
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).not.toContain('αποστέλλεται την ίδια εργάσιμη')
+  })
 
   it('places the product under its category trail', async () => {
     serve(makeProduct({ id: 123, category: 2 }))

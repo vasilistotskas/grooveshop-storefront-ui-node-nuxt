@@ -49,10 +49,10 @@ const settings = (overrides: Record<string, string> = {}) => ({
  * resolves, so the test waits for that import.
  */
 const HeroStub = { template: '<div data-test="hero" />' }
-async function mountBand() {
+async function mountBand(props: Record<string, unknown> = {}) {
   const wrapper = await mountSuspended(LoyaltyHero, {
     route: false,
-    props: { title: 'Οι πόντοι σου' },
+    props: { title: 'Οι πόντοι σου', ...props },
     global: { stubs: { LoyaltyProgressHero: HeroStub } },
   })
   await flushPromises()
@@ -87,6 +87,37 @@ describe('PageSection/LoyaltyHero', () => {
     expect(wrapper.text()).toContain('Ανέβαινε βαθμίδες για να κερδίζεις πιο γρήγορα.')
     const links = wrapper.findAll('a').map(a => [a.text(), a.attributes('href')])
     expect(links).toEqual([['Γίνε μέλος δωρεάν', '/account/signup'], ['Πώς λειτουργεί', '/loyalty-program']])
+  })
+
+  it('uses the eyebrow, wording and routes of the operator where they are set', async () => {
+    const wrapper = await mountBand({
+      eyebrow: 'Λέσχη',
+      ctaText: 'Μπες στη λέσχη',
+      ctaLink: '/account/signup?ref=home',
+      secondaryCtaText: 'Οι όροι',
+      secondaryCtaLink: '/legal/rewards',
+    })
+
+    expect(wrapper.text()).toContain('Λέσχη')
+    expect(wrapper.text()).not.toContain('Επιβράβευση Demo')
+    const links = wrapper.findAll('a').map(a => [a.text(), a.attributes('href')])
+    expect(links).toEqual([['Μπες στη λέσχη', '/account/signup?ref=home'], ['Οι όροι', '/legal/rewards']])
+  })
+
+  it('keeps each default it was not given a replacement for', async () => {
+    const wrapper = await mountBand({ ctaText: 'Μπες στη λέσχη' })
+
+    const links = wrapper.findAll('a').map(a => [a.text(), a.attributes('href')])
+    expect(links).toEqual([['Μπες στη λέσχη', '/account/signup'], ['Πώς λειτουργεί', '/loyalty-program']])
+  })
+
+  it.each([
+    { surface: 'muted', classes: ['bg-muted'] },
+    { surface: 'default', classes: ['bg-default', 'border-y'] },
+  ])('lays the guest band on the $surface ground', async ({ surface, classes }) => {
+    const wrapper = await mountBand({ surface })
+
+    expect(wrapper.find('section').classes()).toEqual(expect.arrayContaining(classes))
   })
 
   it('lists the ladder with each tier\'s multiplier, the top tier last in ink', async () => {

@@ -85,6 +85,12 @@ export function isRateLimitedClientError(error: unknown): boolean {
   return false
 }
 
+/** allauth's 409: the thing asked for is not pending, or its quota is spent. */
+export function isConflictClientError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'data' in error
+    && isConflictResponseError(error.data)
+}
+
 export const handleAllAuthClientError = (error: unknown): void => {
   const { t, te } = useNuxtApp().$i18n
 

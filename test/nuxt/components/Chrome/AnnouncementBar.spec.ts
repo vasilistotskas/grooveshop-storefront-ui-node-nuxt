@@ -45,6 +45,70 @@ describe('Chrome/AnnouncementBar', () => {
     expect(wrapper.findComponent({ name: 'UBanner' }).props('color')).toBe('secondary')
   })
 
+  describe('the short copy for a phone and the promo code', () => {
+    const visible = (wrapper: Awaited<ReturnType<typeof mountBar>>) =>
+      wrapper.findAll('[data-slot="title"] > span')
+
+    it('sets the full sentence off from the short copy, which only a phone shows', async () => {
+      setting.value = bar({ shortText: 'Δωρεάν αποστολή 50 €' })
+
+      const spans = visible(await mountBar())
+
+      expect(spans.map(span => span.text())).toEqual([
+        'Δωρεάν αποστολή από 50 €',
+        'Δωρεάν αποστολή 50 €',
+      ])
+      expect(spans[0]!.classes()).toContain('max-sm:hidden')
+      expect(spans[1]!.classes()).toContain('sm:hidden')
+    })
+
+    it('shows the one sentence at every width when there is no short copy', async () => {
+      setting.value = bar({})
+
+      const spans = visible(await mountBar())
+
+      expect(spans).toHaveLength(1)
+      expect(spans[0]!.classes()).not.toContain('max-sm:hidden')
+    })
+
+    it('answers in the locale own short copy, never the default one', async () => {
+      setting.value = bar({
+        shortText: 'Δωρεάν αποστολή 50 €',
+        i18n: { el: { text: 'Δωρεάν αποστολή από 50 €' } },
+      })
+
+      const spans = visible(await mountBar())
+
+      expect(spans).toHaveLength(1)
+    })
+
+    it('prints the code as a mono chip on the volt fill', async () => {
+      setting.value = bar({ code: 'WELCOME10' })
+
+      const chip = (await mountBar()).find('[data-slot="title"] .font-mono')
+
+      expect(chip.text()).toBe('WELCOME10')
+      // The fill pairing is the contract: volt text would fail contrast.
+      expect(chip.classes()).toEqual(expect.arrayContaining(['bg-volt', 'text-on-volt']))
+    })
+
+    it('keeps a long sentence on the one fixed-height line at every width', async () => {
+      setting.value = bar({})
+
+      // The class is the contract: the bar is one line tall, so text
+      // that wraps would spill out of it on a phone.
+      const title = (await mountBar()).get('[data-slot="title"]')
+
+      expect(title.classes()).toEqual(expect.arrayContaining(['truncate', 'min-w-0']))
+    })
+
+    it('draws no chip without a code', async () => {
+      setting.value = bar({})
+
+      expect((await mountBar()).find('.font-mono').exists()).toBe(false)
+    })
+  })
+
   it.each([
     { name: 'missing', value: '' },
     { name: 'switched off', value: bar({ enabled: false }) },

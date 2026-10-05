@@ -4581,6 +4581,8 @@ export const zShippingOption = z.object({
   countryCode: z.string().max(2),
   maxWeightGrams: z.int().nullable(),
   exceedsMaxWeight: z.boolean(),
+  deliveryDaysMin: z.int().nullable(),
+  deliveryDaysMax: z.int().nullable(),
   logoUrl: z.url().nullish(),
   metadata: z.record(z.string(), z.unknown()),
   payWays: z.array(zShippingOptionPayWay),
@@ -5056,6 +5058,7 @@ export const zTenantConfig = z.object({
   giftCardsEnabled: z.boolean().readonly(),
   b2bEnabled: z.boolean().readonly(),
   recommendationsEnabled: z.boolean().optional(),
+  codeResendCooldownSeconds: z.int().optional(),
   agentStripeDelegatedEnabled: z.boolean().readonly(),
   agentCommerceEnabled: z.boolean().readonly(),
   productFeedsEnabled: z.boolean().readonly(),
@@ -5584,7 +5587,7 @@ export const zOrderDetail = z.object({
     trackingNumber: z.string().nullish(),
     shippingCarrier: z.string().nullish(),
     hasTracking: z.boolean().optional(),
-    estimatedDelivery: z.string().nullish(),
+    estimatedDelivery: z.iso.date().nullish(),
     trackingUrl: z.string().nullish(),
   }).readonly().nullable(),
   hasInvoice: z.boolean().readonly(),
@@ -6335,6 +6338,7 @@ export const zPageSectionHeroCarouselProps = z.object({
     ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
     secondaryCtaText: z.string().max(100).optional(),
     secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+    productId: z.int().gte(1).lte(2147483647).optional(),
   })).max(8).optional(),
   autoplayMs: z.union([
     z.literal(0),
@@ -6499,7 +6503,14 @@ export const zPageSectionDividerProps = z.object({
   variant: z.enum(['line', 'thread']).optional(),
 })
 
-export const zPageSectionLoyaltyHeroProps = z.record(z.string(), z.never())
+export const zPageSectionLoyaltyHeroProps = z.object({
+  surface: z.enum(['default', 'muted']).optional(),
+  eyebrow: z.string().max(100).optional(),
+  ctaText: z.string().max(100).optional(),
+  ctaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+  secondaryCtaText: z.string().max(100).optional(),
+  secondaryCtaLink: z.string().max(1000).regex(/^(\/|https:\/\/)/).optional(),
+})
 
 export const zPageSectionSearchBarProps = z.record(z.string(), z.never())
 
@@ -6788,7 +6799,12 @@ export const zPageSectionTrustBadgesProps = z.object({
 })
 
 export const zPageSectionOffersPreviewProps = z.object({
-  surface: z.enum(['default', 'muted']).optional(),
+  surface: z.enum([
+    'default',
+    'muted',
+    'ink',
+  ]).optional(),
+  eyebrow: z.string().max(100).optional(),
   heading: z.string().max(200).optional(),
   subheading: z.string().max(500).optional(),
   limit: z.int().gte(1).lte(6).optional(),
@@ -8539,6 +8555,7 @@ export const zTenantConfigWritable = z.object({
   availableLocales: z.array(z.string()).optional(),
   shippingCarriers: z.array(z.unknown()).optional(),
   recommendationsEnabled: z.boolean().optional(),
+  codeResendCooldownSeconds: z.int().optional(),
   openaiPixelId: z.string().optional(),
 })
 
@@ -8660,8 +8677,6 @@ export const zUserSubscriptionDetailWritable = z.object({
 })
 
 export const zPageSectionBlogCategoriesPropsWritable = z.record(z.string(), z.never())
-
-export const zPageSectionLoyaltyHeroPropsWritable = z.record(z.string(), z.never())
 
 export const zPageSectionSearchBarPropsWritable = z.record(z.string(), z.never())
 

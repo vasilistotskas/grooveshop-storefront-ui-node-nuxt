@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/shipping/options.get'
 import { zListShippingOptionsResponse } from '~~/shared/openapi/zod.gen'
+import { makeShippingOption } from '~~/test/fixtures/shippingOptions'
 import { backend, cacheOptionsOf, callRoute, createTestEvent, log } from '~~/test/helpers/nitro'
 
 /**
@@ -11,20 +12,7 @@ import { backend, cacheOptionsOf, callRoute, createTestEvent, log } from '~~/tes
 
 const route = '/api/shipping/options'
 
-const option = {
-  providerCode: 'acs',
-  providerName: 'ACS',
-  kind: 'home_delivery',
-  price: 3.5,
-  currency: 'EUR',
-  liveMode: true,
-  priority: 1,
-  countryCode: 'GR',
-  maxWeightGrams: null,
-  exceedsMaxWeight: false,
-  metadata: {},
-  payWays: [],
-}
+const option = makeShippingOption({ providerName: 'ACS', price: 3.5, priority: 1 })
 
 describe('GET /api/shipping/options', () => {
   it('uses a response fixture the generated schema accepts', () => {

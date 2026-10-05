@@ -9,20 +9,19 @@
  * campaigns and a store that switched promotions off does not keep
  * advertising them. The request itself is gated, not just the render.
  */
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   title?: string
+  eyebrow?: string
   heading?: string
   subheading?: string
   limit?: number
   ctaText?: string
   ctaLink?: string
-  /**
-   * Accepted from the layout, not drawn: the design sets the offers on
-   * the ink surface, and the page-config schema cannot ask for it yet
-   * (PLAN F11 adds `inverted` to the band's choices).
-   */
-  surface?: 'default' | 'muted'
-}>()
+  /** The design sets the offers on ink; a layout may ask for a lighter ground. */
+  surface?: 'default' | 'muted' | 'ink'
+}>(), {
+  surface: 'ink',
+})
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
@@ -66,12 +65,12 @@ function onCopy(code: string) {
 <template>
   <PageSectionBand
     v-if="offers.length"
-    :eyebrow="t('eyebrow')"
+    :eyebrow="eyebrow || t('eyebrow')"
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_offers', { count: live.length }, live.length)"
     :cta-link="ctaLink ? localePath(ctaLink) : localePath('/offers')"
-    surface="inverted"
+    :surface="props.surface === 'ink' ? 'inverted' : props.surface"
     heading-size="lg"
   >
     <ul

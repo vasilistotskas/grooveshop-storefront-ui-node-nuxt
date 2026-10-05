@@ -73,6 +73,54 @@ function submitStep(wrapper: VueWrapper): void {
 
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
 
+/**
+ * The default tree's delivery estimate, in business days after dispatch
+ * (the frozen webside card has no such line). One row stands for every
+ * home-delivery carrier, so it quotes the one the cart is priced by.
+ */
+describe('Checkout/StepShipping delivery estimates', () => {
+  const mount = (apiOptions: ShippingOption[]) =>
+    mountSuspended(StepShipping, { route: false, props: makeProps({ apiOptions }) })
+
+  it('quotes a range in business days', async () => {
+    const wrapper = await mount([acsHomeDeliveryOption({ deliveryDaysMin: 2, deliveryDaysMax: 4 })])
+
+    expect(card(wrapper, 'home_delivery').text()).toContain('2–4 εργάσιμες ημέρες')
+  })
+
+  it('says one business day, in the singular, when both ends agree', async () => {
+    const wrapper = await mount([boxNowLockerOption({ deliveryDaysMin: 1, deliveryDaysMax: 1 })])
+
+    expect(card(wrapper, 'box_now_locker').text()).toContain('1 εργάσιμη ημέρα')
+    expect(card(wrapper, 'box_now_locker').text()).not.toContain('εργάσιμες')
+  })
+
+  it.each([
+    [0, 0, 'Την ίδια εργάσιμη'],
+    [0, 2, 'Έως 2 εργάσιμες ημέρες'],
+    [0, 1, 'Έως 1 εργάσιμη ημέρα'],
+  ])('reads a %i–%i estimate as "%s", never "0 days"', async (min, max, copy) => {
+    const wrapper = await mount([acsHomeDeliveryOption({ deliveryDaysMin: min, deliveryDaysMax: max })])
+
+    expect(card(wrapper, 'home_delivery').text()).toContain(copy)
+  })
+
+  it('says nothing when the rate advertises no estimate', async () => {
+    const wrapper = await mount([makeShippingOption()])
+
+    expect(card(wrapper, 'home_delivery').text()).not.toContain('εργάσιμ')
+  })
+
+  it('quotes the carrier the cart is priced by when one card stands for several', async () => {
+    const wrapper = await mount([
+      makeShippingOption({ providerCode: 'heavy', exceedsMaxWeight: true, deliveryDaysMin: 5, deliveryDaysMax: 7 }),
+      makeShippingOption({ providerCode: 'acs', deliveryDaysMin: 2, deliveryDaysMax: 3 }),
+    ])
+
+    expect(card(wrapper, 'home_delivery').text()).toContain('2–3 εργάσιμες ημέρες')
+  })
+})
+
 describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShipping', ({ tree, C, own }) => {
   const mount = (overrides: Record<string, unknown> = {}) =>
     mountSuspended(C, { route: false, props: makeProps(overrides) })
