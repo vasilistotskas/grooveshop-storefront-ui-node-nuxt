@@ -59,7 +59,7 @@ const localOpen = computed({
 
 const debouncedQuery = refDebounced(localQuery, 200)
 
-const { data: searchResults, status, execute } = useLazyApi<SearchResponse>('/api/search', {
+const { data: searchResults, status, execute, clear } = useLazyApi<SearchResponse>('/api/search', {
   query: {
     query: debouncedQuery,
     languageCode: locale,
@@ -70,22 +70,23 @@ const { data: searchResults, status, execute } = useLazyApi<SearchResponse>('/ap
   watch: false,
 })
 
-const products = ref<ProductMeiliSearchResult[]>([])
-const guides = ref<BlogPostMeiliSearchResult[]>([])
-
 const searching = computed(() => localQuery.value.length >= MIN_QUERY_LENGTH)
 
+// The lists are read off the answer; `groups` shows them only while
+// there is a query to answer.
+const products = computed<ProductMeiliSearchResult[]>(() => searchResults.value?.products?.results ?? [])
+const guides = computed<BlogPostMeiliSearchResult[]>(() => searchResults.value?.blogPosts?.results ?? [])
+
+// What is on screen answers the query in the field, or nothing: the
+// moment the field changes, the request in flight is aborted and its
+// results (rows, count, the "showing results for" notice, the ranks and
+// query id a click reports) are dropped. The request itself waits for the
+// shopper to pause, so typing never lists the previous query's rows.
+watch(localQuery, () => clear())
+
 watch(debouncedQuery, (next) => {
-  products.value = []
-  guides.value = []
   if (next && next.length >= MIN_QUERY_LENGTH) execute()
 })
-
-watch(searchResults, (next) => {
-  if (!next) return
-  products.value = next.products?.results ?? []
-  guides.value = next.blogPosts?.results ?? []
-}, { deep: true })
 
 // Open on a query the parent already holds (the search page's own field).
 if (searching.value) execute()
@@ -195,10 +196,40 @@ const groups = computed(() => {
   return result
 })
 
+const failed = computed(() => searching.value && status.value === 'error')
+
 const noResults = computed(() =>
-  searching.value && !!searchResults.value && status.value !== 'pending'
+  searching.value && !!searchResults.value && status.value === 'success'
   && !products.value.length && !guides.value.length,
 )
+
+// What the palette says about the search itself, when it has something to say.
+const statusLine = computed(() => failed.value ? t('error') : noResults.value ? t('no_results') : null)
+
+// Enter goes to the results page — unless the shopper has chosen a row
+// themselves, with the arrow keys or the pointer. The palette highlights
+// its first row on its own, so a bare Enter would open whatever happens to
+// be first (or a recent search, while the results are still on their way)
+// instead of searching for what was typed.
+const rowChosen = ref(false)
+watch(localQuery, () => {
+  rowChosen.value = false
+})
+
+function onPaletteKeydown(event: KeyboardEvent) {
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    rowChosen.value = true
+    return
+  }
+  if (event.key !== 'Enter' || event.isComposing || rowChosen.value || !localQuery.value.trim()) return
+  event.preventDefault()
+  event.stopPropagation()
+  goToSearchPage()
+}
+
+function onPalettePointerMove(event: PointerEvent) {
+  if ((event.target as HTMLElement | null)?.closest('[role="option"]')) rowChosen.value = true
+}
 </script>
 
 <template>
@@ -218,6 +249,8 @@ const noResults = computed(() =>
         :close="isMobileOrTablet"
         :ui="{ input: '[&>input]:h-14 [&>input]:text-base' }"
         class="max-md:h-dvh md:h-auto md:max-h-[80vh]"
+        @keydown.capture="onPaletteKeydown"
+        @pointermove="onPalettePointerMove"
         @update:open="(value: boolean) => { localOpen = value }"
       >
         <template #product-leading="{ item }">
@@ -297,11 +330,14 @@ const noResults = computed(() =>
         <template #empty>
           <div class="flex flex-col items-center gap-2 px-6 py-10 text-center">
             <UIcon
-              name="i-lucide-search-x"
+              :name="failed ? 'i-lucide-triangle-alert' : 'i-lucide-search-x'"
               class="size-8 text-muted"
             />
-            <p class="font-medium text-highlighted">
-              {{ noResults ? t('no_results') : t('start_typing') }}
+            <p
+              role="status"
+              class="font-medium text-highlighted"
+            >
+              {{ statusLine ?? t('start_typing') }}
             </p>
             <p
               v-if="noResults"
@@ -309,18 +345,34 @@ const noResults = computed(() =>
             >
               {{ t('try_different') }}
             </p>
+            <UButton
+              v-if="failed"
+              :label="t('retry')"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              @click="() => { execute() }"
+            />
           </div>
         </template>
 
         <template #footer>
           <div class="flex w-full flex-col gap-2">
-            <p
-              v-if="noResults && groups.length"
+            <div
+              v-if="statusLine && groups.length"
               role="status"
-              class="text-sm font-medium text-highlighted"
+              class="flex items-center justify-between gap-3 text-sm font-medium text-highlighted"
             >
-              {{ t('no_results') }}
-            </p>
+              {{ statusLine }}
+              <UButton
+                v-if="failed"
+                :label="t('retry')"
+                color="neutral"
+                variant="outline"
+                size="xs"
+                @click="() => { execute() }"
+              />
+            </div>
             <p
               v-if="relaxedQuery"
               role="status"
@@ -334,8 +386,10 @@ const noResults = computed(() =>
             </p>
             <div class="flex w-full items-center justify-between gap-3">
               <UButton
-                v-if="localQuery && totalResults > 0"
-                :label="t('see_all', { count: n(totalResults) }, totalResults)"
+                v-if="localQuery.trim()"
+                :label="totalResults > 0
+                  ? t('see_all', { count: n(totalResults) }, totalResults)
+                  : t('see_all_query', { query: localQuery.trim() })"
                 color="neutral"
                 variant="link"
                 class="px-0"
@@ -371,6 +425,9 @@ el:
   start_typing: Ξεκίνα να πληκτρολογείς για αναζήτηση
   no_results: Δεν βρέθηκαν αποτελέσματα
   try_different: Δοκίμασε διαφορετικούς όρους αναζήτησης
+  error: Η αναζήτηση δεν ολοκληρώθηκε. Δοκίμασε ξανά.
+  retry: Δοκίμασε ξανά
+  see_all_query: Αναζήτηση για «{query}»
   relaxed_notice: Εμφανίζονται αποτελέσματα για "{query}"
   see_all: "Δες το αποτέλεσμα | Δες και τα {count} αποτελέσματα"
   to_navigate: για πλοήγηση
@@ -386,6 +443,9 @@ en:
   start_typing: Start typing to search
   no_results: No results found
   try_different: Try different search terms
+  error: The search did not finish. Please try again.
+  retry: Try again
+  see_all_query: Search for “{query}”
   relaxed_notice: Showing results for "{query}"
   see_all: "See the result | See all {count} results"
   to_navigate: to navigate

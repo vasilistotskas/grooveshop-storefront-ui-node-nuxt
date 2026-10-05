@@ -26,7 +26,8 @@ beforeEach(() => {
 })
 
 async function mount() {
-  const wrapper = await mountSuspended(FeedbackForm, { route: false })
+  // In the document, so focus is real.
+  const wrapper = await mountSuspended(FeedbackForm, { route: false, attachTo: document.body })
   await flushPromises()
   return wrapper
 }
@@ -138,6 +139,54 @@ describe('FeedbackForm', () => {
       await flushPromises()
 
       expect(heading(wrapper)).toBe('Πού μπορούμε να σε βρούμε; (προαιρετικό)')
+    })
+  })
+
+  describe('Enter', () => {
+    it('leaves Enter on the Back button to the button, instead of going on', async () => {
+      const wrapper = await mount()
+      await toRating(wrapper)
+      await choose(wrapper, '4')
+
+      await wrapper.findAll('button').find(button => button.text() === 'Πίσω')!.trigger('keydown.enter')
+      await flushPromises()
+
+      expect(heading(wrapper)).toBe('Πώς ήταν η εμπειρία σου συνολικά;')
+    })
+
+    it('leaves Enter on a rating card to the card, instead of going on', async () => {
+      const wrapper = await mount()
+      await toRating(wrapper)
+      await choose(wrapper, '4')
+
+      await wrapper.find('[data-slot="item"] [role="radio"]').trigger('keydown.enter')
+      await flushPromises()
+
+      expect(heading(wrapper)).toBe('Πώς ήταν η εμπειρία σου συνολικά;')
+    })
+  })
+
+  describe('focus', () => {
+    it('moves to the new question when the visitor goes on', async () => {
+      const wrapper = await mount()
+
+      await toRating(wrapper)
+
+      expect(document.activeElement).toBe(wrapper.find('h2').element)
+      expect(document.activeElement!.textContent).toBe('Πώς ήταν η εμπειρία σου συνολικά;')
+    })
+
+    it('moves to the question when the visitor goes back', async () => {
+      const wrapper = await mount()
+      await toRating(wrapper)
+      // The question's heading is the same element on every step; focus
+      // has to be put back on it, not just left there.
+      ;(document.activeElement as HTMLElement).blur()
+
+      await press(wrapper, 'Πίσω')
+
+      expect(document.activeElement).toBe(wrapper.find('h2').element)
+      expect(document.activeElement!.textContent).toBe('Για τι αφορούν τα σχόλιά σου;')
     })
   })
 

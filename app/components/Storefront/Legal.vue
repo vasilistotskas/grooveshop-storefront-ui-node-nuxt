@@ -168,6 +168,12 @@ useHead({
   scroll-margin-top: 7rem;
 }
 
+/* The contents list can also land on a <section id> (`buildLegalToc` uses
+   the id a document already carries), so that needs the same offset. */
+.legal-prose :deep(section[id]) {
+  scroll-margin-top: 7rem;
+}
+
 /* An editor's h1 is a section heading: the page has its own. */
 .legal-prose :deep(h1),
 .legal-prose :deep(h2) {

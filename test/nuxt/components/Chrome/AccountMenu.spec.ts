@@ -81,8 +81,7 @@ async function openMenu(wrapper: Awaited<ReturnType<typeof mountMenu>>) {
   await flushPromises()
 }
 
-// The first row is the shopper's own card, which is not an action.
-const menuItems = () => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]:not([data-disabled])')]
+const menuItems = () => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')]
 // The standing chips (UBadge roots), in order.
 const badges = () => [...document.querySelectorAll('[role="menu"] [data-slot="base"]')]
 const menuText = () => document.querySelector('[role="menu"]')?.textContent?.replace(/\s+/g, ' ') ?? ''
@@ -104,6 +103,14 @@ describe('Chrome/AccountMenu', () => {
 
       expect(menuText()).toContain('Δήμος Δοκιμής')
       expect(menuText()).toContain('demo@grooveshop.space')
+    })
+
+    it('keeps the card of the shopper out of the actions, so a screen reader does not read it as a dimmed item', async () => {
+      await openMenu(await mountMenu())
+
+      const card = [...document.querySelectorAll('[role="menu"] *')].find(node => node.textContent?.trim().startsWith('Δήμος Δοκιμής') && node.children.length > 0)!
+      expect(card.closest('[role="menuitem"]')).toBeNull()
+      expect(menuItems().some(item => item.textContent?.includes('demo@grooveshop.space'))).toBe(false)
     })
 
     it('offers the account, orders, favourites, rewards and security, in that order', async () => {

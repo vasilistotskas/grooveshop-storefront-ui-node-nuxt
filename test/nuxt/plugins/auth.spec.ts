@@ -173,6 +173,16 @@ describe('auth plugin', () => {
       expect(toastAdd).not.toHaveBeenCalled()
     })
 
+    it('forgets the account menus\' standing, which was the signed-out shopper\'s', async () => {
+      useNuxtData('account-quick-menu-summary').data.value = { ordersCount: 1, loyalty: null, giftCardBalance: null, businessStatus: null }
+      const change = await install()
+      await change(SIGNED_IN)
+
+      await change(SESSION_GONE, true)
+
+      expect(useNuxtData('account-quick-menu-summary').data.value).toBeUndefined()
+    })
+
     it('tells the visitor when the server ended the session', async () => {
       const change = await install()
       await change(SIGNED_IN)

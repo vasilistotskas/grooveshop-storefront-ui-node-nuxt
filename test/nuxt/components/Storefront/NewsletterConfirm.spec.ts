@@ -167,4 +167,40 @@ describe('NewsletterConfirm', () => {
 
     expect(api.callsTo(CONFIRM_URL)).toHaveLength(1)
   })
+
+  describe('focus after the button is pressed', () => {
+    const mountAttached = async () => {
+      const wrapper = await mountSuspended(NewsletterConfirm, { route: false, attachTo: document.body })
+      await flushPromises()
+      return wrapper
+    }
+
+    it('moves to the heading of the confirmed state, so it is read out', async () => {
+      const wrapper = await mountAttached()
+
+      await pressConfirm(wrapper)
+
+      expect(document.activeElement).toBe(wrapper.get('h1').element)
+      expect(wrapper.get('h1').attributes('tabindex')).toBe('-1')
+    })
+
+    it.each([410, 400])('moves to the heading of the %i state', async (status) => {
+      api.routes({ [CONFIRM_URL]: failWith(status, { detail: 'x' }) })
+      const wrapper = await mountAttached()
+
+      await pressConfirm(wrapper)
+
+      expect(document.activeElement).toBe(wrapper.get('h1').element)
+    })
+
+    it('moves to the failure message when the confirmation did not go through', async () => {
+      api.routes({ [CONFIRM_URL]: failWith(503, { detail: 'x' }) })
+      const wrapper = await mountAttached()
+
+      await pressConfirm(wrapper)
+
+      expect(document.activeElement).toBe(wrapper.get('[role="alert"]').element)
+      expect(wrapper.get('[role="alert"]').attributes('tabindex')).toBe('-1')
+    })
+  })
 })

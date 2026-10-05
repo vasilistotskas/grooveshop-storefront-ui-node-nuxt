@@ -44,7 +44,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="links.length">
+  <!-- The sticky box is the grid item itself: inside a wrapper only as
+       tall as the card there is nothing to stick across, and the card
+       would scroll away on a long document. -->
+  <div
+    v-if="links.length"
+    class="lg:sticky lg:top-24"
+  >
     <!-- Phone and tablet: one button, the list in a sheet. -->
     <UDrawer
       v-model:open="isOpen"
@@ -82,7 +88,7 @@ onMounted(() => {
       :aria-label="title"
       class="
         hidden rounded-[1.25rem] bg-default p-3 ring ring-default
-        lg:sticky lg:top-24 lg:block
+        lg:block
       "
     >
       <ul class="flex flex-col gap-1 text-sm">

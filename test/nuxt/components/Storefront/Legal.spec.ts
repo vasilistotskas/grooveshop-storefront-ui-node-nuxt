@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { defineComponent, h, onErrorCaptured } from 'vue'
+import { resolve } from 'node:path'
+import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 import StorefrontLegal from '~/components/Storefront/Legal.vue'
 
 /**
@@ -151,5 +153,15 @@ describe('StorefrontLegal', () => {
     legalPage.mockResolvedValue(document({ tocLinks: [] }))
     const flat = await mountLegal()
     expect(flat.find('nav[aria-label="Σε αυτή τη σελίδα"]').exists()).toBe(false)
+  })
+
+  it('keeps every anchor the contents list can land on clear of the sticky header', () => {
+    // CSS is not rendered in happy-dom, so the rule itself is the contract.
+    const css = parseSfc(resolve(REPO, 'app/components/Storefront/Legal.vue')).styles.map(style => style.content).join('\n')
+
+    for (const target of [':deep(h2)', ':deep(h3)', ':deep(section[id])']) {
+      const rule = css.split('}').find(block => block.includes(`.legal-prose ${target}`))
+      expect(rule, target).toMatch(/scroll-margin-top:\s*7rem/)
+    }
   })
 })

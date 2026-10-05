@@ -15,12 +15,14 @@ watch(open, (isOpen) => {
   if (isOpen) menu.load()
 }, { immediate: true })
 
+// The sheet's description is always something: a dialog without one is
+// an accessibility error, and an account may have neither standing nor email.
 const standing = computed(() => [
   menu.pointsBalance.value !== null
     ? [menu.tierName.value, t('points', { count: n(menu.pointsBalance.value) }, menu.pointsBalance.value)].filter(Boolean).join(' · ')
     : '',
   menu.isBusiness.value ? t('business') : '',
-].filter(Boolean).join(' · ') || menu.email.value)
+].filter(Boolean).join(' · ') || menu.email.value || t('menu'))
 
 // Any navigation closes the sheet, whichever row started it.
 const route = useRoute()
@@ -115,12 +117,14 @@ const UI = {
 <i18n lang="yaml">
 el:
   account: Λογαριασμός
+  menu: Μενού λογαριασμού
   sign_out: Αποσύνδεση
   business: B2B
   unread: μη αναγνωσμένες
   points: '{count} πόντος | {count} πόντοι'
 en:
   account: Account
+  menu: Account menu
   sign_out: Sign out
   business: B2B
   unread: unread

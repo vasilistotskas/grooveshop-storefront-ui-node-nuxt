@@ -11,6 +11,7 @@ import { makeTier } from '~~/test/fixtures/loyalty'
  * It asks for the summary when it opens, and closes on any navigation.
  */
 const state = vi.hoisted(() => ({
+  user: undefined as any,
   keys: [] as string[],
   summary: {} as Record<string, unknown>,
   summaryCalls: 0,
@@ -41,19 +42,24 @@ mockNuxtImport('useAccountNavigation', () => () => ({
   onOverview: computed(() => false),
 }))
 mockNuxtImport('useSignOut', () => () => ({ signOut, signingOut: ref(false) }))
-mockNuxtImport('useUserSession', () => () => ({
-  loggedIn: ref(true),
-  user: ref({ id: 7, email: 'demo@grooveshop.space', firstName: 'Δήμος', lastName: 'Δοκιμής', mainImagePath: '' }),
-  session: ref({}),
-  ready: ref(true),
-  fetch: () => Promise.resolve(),
-  clear: () => Promise.resolve(),
-}))
+mockNuxtImport('useUserSession', () => () => {
+  state.user ??= ref(null)
+  return {
+    loggedIn: ref(true),
+    user: state.user,
+    session: ref({}),
+    ready: ref(true),
+    fetch: () => Promise.resolve(),
+    clear: () => Promise.resolve(),
+  }
+})
 mockNuxtImport('useRoute', () => () => state.route)
 
 const SILVER = makeTier({ id: 2 })
 
 beforeEach(() => {
+  state.user ??= ref(null)
+  state.user.value = { id: 7, email: 'demo@grooveshop.space', firstName: 'Δήμος', lastName: 'Δοκιμής', mainImagePath: '' }
   state.keys = ['overview', 'orders', 'notifications', 'favourites', 'rewards', 'business', 'security']
   state.summary = { ordersCount: 14, loyalty: { pointsBalance: 2340, tier: SILVER }, giftCardBalance: null, businessStatus: 'APPROVED' }
   state.summaryCalls = 0
@@ -137,6 +143,18 @@ describe('Chrome/AccountSheet', () => {
       expect(sheetText()).toContain('demo@grooveshop.space')
       expect(sheetText()).not.toContain('B2B')
     })
+  })
+
+  it('always has a description, even for an account with no standing and no email', async () => {
+    state.user.value = { id: 9, email: '', firstName: 'Δήμος', lastName: 'Δοκιμής', mainImagePath: '' }
+    state.summary = { ordersCount: 0, loyalty: null, giftCardBalance: null, businessStatus: null }
+
+    await mountSheet()
+    await vi.waitFor(() => expect(state.summaryCalls).toBe(1))
+    await flushPromises()
+
+    const dialog = document.querySelector('[role="dialog"]')!
+    expect(document.getElementById(dialog.getAttribute('aria-describedby') ?? '')?.textContent?.trim()).toBe('Μενού λογαριασμού')
   })
 
   it('closes on any navigation', async () => {

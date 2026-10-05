@@ -48,6 +48,14 @@ describe('LegalToc', () => {
     ])
   })
 
+  it('sticks as the grid item itself, not inside a box only as tall as the card', async () => {
+    const wrapper = await mountToc()
+
+    // The classes are the contract: a sticky element only sticks within its parent.
+    expect(wrapper.element.classList.contains('lg:sticky')).toBe(true)
+    expect(wrapper.get('nav').classes()).not.toContain('lg:sticky')
+  })
+
   it('renders nothing for a document without headings', async () => {
     const wrapper = await mountToc([])
 

@@ -56,6 +56,18 @@ describe('Chrome/Assistant', () => {
     await vi.waitFor(() => expect(launcher(wrapper).attributes('aria-expanded')).toBe('false'))
   })
 
+  it.each([false, true])('names the dialog for assistive technology (phone: %s)', async (mobile) => {
+    state.mobile = mobile
+    const wrapper = await mountSuspended(Assistant, { route: false })
+
+    await launcher(wrapper).trigger('click')
+    await vi.waitFor(() => expect(panel()).not.toBeNull())
+
+    const dialog = document.body.querySelector('[role="dialog"]')!
+    const title = document.getElementById(dialog.getAttribute('aria-labelledby')!)
+    expect(title?.textContent).toBe(own(wrapper, 'title'))
+  })
+
   it('opens when something else asks the shared chat state to open', async () => {
     const wrapper = await mountSuspended(Assistant, { route: false })
 

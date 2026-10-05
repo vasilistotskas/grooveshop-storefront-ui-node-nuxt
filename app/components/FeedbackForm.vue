@@ -101,6 +101,17 @@ const formRef = useTemplateRef<{
   validate: (opts?: { name?: string | string[] }) => Promise<unknown>
 }>('formRef')
 
+const questionHeading = useTemplateRef<HTMLElement>('questionHeading')
+
+// The question is the new step: put focus on it so a screen reader reads
+// it, and a keyboard user is where the form now is rather than on a
+// button that has just gone.
+async function showStep(target: number) {
+  index.value = target
+  await nextTick()
+  questionHeading.value?.focus()
+}
+
 async function next() {
   try {
     await formRef.value?.validate({ name: step.value })
@@ -113,19 +124,21 @@ async function next() {
     await submit()
     return
   }
-  index.value += 1
+  await showStep(index.value + 1)
 }
 
 // Enter in a one-line field is "Next". The form's own submit would ask
 // for every field of the schema at once, which is not this step's job.
+// Enter on anything else is that control's own: a button presses, a
+// radio card chooses.
 function onEnter(event: KeyboardEvent) {
-  if ((event.target as HTMLElement).tagName === 'TEXTAREA') return
+  if (!(event.target instanceof HTMLInputElement)) return
   event.preventDefault()
   void next()
 }
 
-function back() {
-  if (index.value > 0) index.value -= 1
+async function back() {
+  if (index.value > 0) await showStep(index.value - 1)
 }
 
 async function submit() {
@@ -230,7 +243,14 @@ function again() {
         @keydown.enter="onEnter"
         @submit.prevent
       >
-        <h2 class="font-display text-2xl font-bold text-highlighted">
+        <h2
+          ref="questionHeading"
+          tabindex="-1"
+          class="
+            font-display text-2xl font-bold text-highlighted
+            focus:outline-none
+          "
+        >
           {{ t(`questions.${step}`) }}
         </h2>
 

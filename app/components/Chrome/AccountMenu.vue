@@ -22,7 +22,8 @@ const items = computed(() => [
     {
       label: menu.name.value,
       slot: 'account' as const,
-      disabled: true,
+      // A label, not a disabled row: the shopper's card is not an action.
+      type: 'label' as const,
     },
   ],
   menu.pages.value.map(page => ({

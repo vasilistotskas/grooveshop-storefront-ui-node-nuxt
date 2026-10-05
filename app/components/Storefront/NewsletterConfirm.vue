@@ -52,6 +52,21 @@ async function confirm() {
   finally {
     confirming.value = false
   }
+  await settleFocus()
+}
+
+// Pressing the button unmounts it (or disables it while it loads), so the
+// focus would fall to the page, and a live region inserted already filled
+// is not announced by many screen readers. Moving focus to the new
+// state's own heading — or to the failure message — reads it out and keeps
+// the keyboard where the news is.
+const heading = useTemplateRef<HTMLElement>('heading')
+const failure = useTemplateRef<HTMLElement>('failure')
+
+async function settleFocus() {
+  await nextTick()
+  const target = phase.value === 'failed' ? failure.value : heading.value
+  target?.focus()
 }
 </script>
 
@@ -82,7 +97,7 @@ async function confirm() {
           role="status"
           class="flex flex-col gap-3"
         >
-          <h1 class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
+          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
             {{ t('confirmed.title') }}
           </h1>
           <p class="text-toned">
@@ -116,7 +131,7 @@ async function confirm() {
           role="alert"
           class="flex flex-col gap-3"
         >
-          <h1 class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
+          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
             {{ t(`${phase}.title`) }}
           </h1>
           <p class="text-toned">
@@ -135,7 +150,7 @@ async function confirm() {
 
       <template v-else>
         <div class="flex flex-col gap-3">
-          <h1 class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
+          <h1 ref="heading" tabindex="-1" class="font-display text-[1.875rem]/[1.1] font-bold tracking-[-0.02em] text-highlighted sm:text-[2.25rem]/[1.1]">
             {{ t('title') }}
           </h1>
           <p class="text-toned">
@@ -143,6 +158,8 @@ async function confirm() {
           </p>
           <p
             v-if="phase === 'failed'"
+            ref="failure"
+            tabindex="-1"
             role="alert"
             class="rounded-xl bg-(--ui-error-soft) px-4 py-3 text-sm text-highlighted"
           >

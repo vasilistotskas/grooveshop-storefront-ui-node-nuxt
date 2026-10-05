@@ -6,6 +6,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import type { Component } from 'vue'
 import SearchModal from '~/components/Search/Modal.vue'
+import { failWith } from '~~/test/helpers/api'
 import WebsideSearchModal from '~/components/variants/webside/Search/Modal.vue'
 import {
   makeBlogPostSearchHit,
@@ -286,6 +287,17 @@ describe('Search/Modal (palette)', () => {
   // The currency format uses a no-break space; the option text is whitespace-normalised.
   const eur = (value: number) => useNuxtApp().$i18n.n(value, 'currency').replace(/\s+/g, ' ')
 
+  describe('as a dialog', () => {
+    it('has an accessible name and description', async () => {
+      await openModal(SearchModal)
+
+      const dialog = document.querySelector('[role="dialog"]')!
+      const named = (attribute: string) => document.getElementById(dialog.getAttribute(attribute) ?? '')?.textContent?.trim()
+      expect(named('aria-labelledby')).toBe('Αναζήτηση')
+      expect(named('aria-describedby')).toBe('Αναζήτηση στο κατάστημα')
+    })
+  })
+
   describe('searching', () => {
     it('searches at once for a query it opens with', async () => {
       await openModal(SearchModal, 'lap')
@@ -434,12 +446,258 @@ describe('Search/Modal (palette)', () => {
       expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
     })
 
-    it('is not offered when the search found nothing', async () => {
+    it('is offered whenever there is a query, even for a search that found nothing', async () => {
       api.routes({ '/api/search': answering(() => searchResponse([], [])) })
-
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
       await openModal(SearchModal, 'zzz')
 
-      expect([...document.querySelectorAll('button')].some(button => button.textContent?.includes('αποτελέσματα'))).toBe(false)
+      modalButton('Αναζήτηση για «zzz»').click()
+      await nextTick()
+
+      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'zzz' } })
+    })
+
+    it('is not offered before there is a query', async () => {
+      await openModal(SearchModal)
+
+      expect([...document.querySelectorAll('button')].some(button => button.textContent?.includes('Αναζήτηση για'))).toBe(false)
+    })
+  })
+
+  describe('Enter', () => {
+    const paletteInput = () => document.querySelector<HTMLInputElement>('[role="dialog"] input')!
+    const pressKey = (key: string, init: KeyboardEventInit = {}) => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init })
+      paletteInput().dispatchEvent(event)
+      return event
+    }
+
+    it('searches for what was typed, rather than opening the row the palette highlighted on its own', async () => {
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const wrapper = await openModal(SearchModal, 'laptop')
+
+      const event = pressKey('Enter')
+      await nextTick()
+
+      expect(event.defaultPrevented).toBe(true)
+      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptop' } })
+      expect(trackResultClick).not.toHaveBeenCalled()
+      expect(wrapper.emitted('update:open')).toEqual([[false]])
+      expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
+    })
+
+    it('searches for what was typed while the results are still on their way, not for a recent search', async () => {
+      localStorage.setItem('search:recent:el', JSON.stringify(['κινητό']))
+      api.routes({ '/api/search': () => new Promise(() => {}) })
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const wrapper = await openModal(SearchModal, 'laptop')
+
+      pressKey('Enter')
+      await nextTick()
+
+      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptop' } })
+      expect(wrapper.emitted('update:query')).toBeUndefined()
+    })
+
+    it('searches for a query that found nothing', async () => {
+      api.routes({ '/api/search': answering(() => searchResponse([], [])) })
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      await openModal(SearchModal, 'zzz')
+
+      pressKey('Enter')
+      await nextTick()
+
+      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'zzz' } })
+    })
+
+    it('leaves Enter to the palette once the shopper has moved to a row with the arrow keys', async () => {
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      await openModal(SearchModal, 'laptop')
+
+      pressKey('ArrowDown')
+      pressKey('Enter')
+      await nextTick()
+
+      expect(replace).not.toHaveBeenCalled()
+    })
+
+    it('leaves Enter to the palette once the pointer is on a row', async () => {
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      await openModal(SearchModal, 'laptop')
+
+      document.querySelector('[role="option"]')!.dispatchEvent(new Event('pointermove', { bubbles: true }))
+      pressKey('Enter')
+      await nextTick()
+
+      expect(replace).not.toHaveBeenCalled()
+    })
+
+    it('goes back to searching for the query after the shopper types again', async () => {
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const wrapper = await openModal(SearchModal, 'laptop')
+      pressKey('ArrowDown')
+
+      await wrapper.setProps({ query: 'laptops' })
+      pressKey('Enter')
+      await nextTick()
+
+      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptops' } })
+    })
+
+    it('does nothing for an empty query, where Enter picks the highlighted recent search', async () => {
+      localStorage.setItem('search:recent:el', JSON.stringify(['κινητό']))
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      const wrapper = await openModal(SearchModal)
+
+      pressKey('Enter')
+      await nextTick()
+
+      expect(replace).not.toHaveBeenCalled()
+      expect(wrapper.emitted('update:query')).toEqual([['κινητό']])
+    })
+
+    it('does not take the Enter that confirms an input-method composition', async () => {
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      await openModal(SearchModal, 'laptop')
+
+      pressKey('Enter', { isComposing: true })
+      await nextTick()
+
+      expect(replace).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('when the search goes wrong', () => {
+    it('says the search failed, not that nothing matched, and offers another try', async () => {
+      api.routes({ '/api/search': failWith(502) })
+
+      await openModal(SearchModal, 'laptop')
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Η αναζήτηση δεν ολοκληρώθηκε'))
+
+      expect(document.body.textContent).not.toContain('Δεν βρέθηκαν αποτελέσματα')
+      expect(document.body.textContent).not.toContain('Ξεκίνα να πληκτρολογείς')
+    })
+
+    it('searches again from the retry button', async () => {
+      api.routes({ '/api/search': failWith(502) })
+      await openModal(SearchModal, 'laptop')
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Η αναζήτηση δεν ολοκληρώθηκε'))
+      api.routes({ '/api/search': answering(() => searchResponse()) })
+
+      modalButton('Δοκίμασε ξανά').click()
+
+      await vi.waitFor(() => expect(optionTexts().some(text => text.includes('Προϊόν 1'))).toBe(true))
+    })
+
+    it('still says so beside the recent searches', async () => {
+      localStorage.setItem('search:recent:el', JSON.stringify(['κινητό']))
+      api.routes({ '/api/search': failWith(502) })
+
+      await openModal(SearchModal, 'laptop')
+
+      await vi.waitFor(() => expect(document.body.textContent).toContain('Η αναζήτηση δεν ολοκληρώθηκε'))
+      expect(optionTexts()).toEqual([expect.stringContaining('κινητό')])
+      api.routes({ '/api/search': answering(() => searchResponse()) })
+
+      modalButton('Δοκίμασε ξανά').click()
+
+      await vi.waitFor(() => expect(optionTexts().some(text => text.includes('Προϊόν 1'))).toBe(true))
+    })
+  })
+
+  describe('answers to a query that is no longer there', () => {
+    it('hides the results at once when the query is cut below two characters', async () => {
+      const wrapper = await openModal(SearchModal, 'lap')
+      expect(optionTexts().some(text => text.includes('Προϊόν'))).toBe(true)
+
+      await wrapper.setProps({ query: 'l' })
+
+      expect(optionTexts().some(text => text.includes('Προϊόν'))).toBe(false)
+    })
+
+    it('does not show the old answer while the next one is asked for', async () => {
+      const wrapper = await openModal(SearchModal, 'lap')
+      api.routes({
+        '/api/search': () => new Promise(() => {}),
+        '/api/search/trending': { windowHours: 24, contentType: 'product', languageCode: 'el', results: [] },
+      })
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+
+      await wrapper.setProps({ query: 'l' })
+      await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+      await wrapper.setProps({ query: 'la' })
+      await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+      vi.useRealTimers()
+      await flushPromises()
+
+      expect(optionTexts().some(text => text.includes('Προϊόν'))).toBe(false)
+    })
+
+    it('hides the rows of the previous query the moment the query changes, before it is searched', async () => {
+      const wrapper = await openModal(SearchModal, 'lap')
+      expect(optionTexts().some(text => text.includes('Προϊόν'))).toBe(true)
+
+      await wrapper.setProps({ query: 'lapt' })
+
+      expect(optionTexts().some(text => text.includes('Προϊόν'))).toBe(false)
+      expect(sent).toHaveLength(1)
+    })
+
+    it('drops the "showing results for" notice with the results it belonged to', async () => {
+      api.routes({
+        '/api/search': answering(() => ({
+          products: makeProductSearchResponse({ results: PRODUCTS, estimatedTotalHits: 3, relaxedQuery: 'power' }),
+          blogPosts: makeBlogPostSearchResponse({ results: [], estimatedTotalHits: 0 }),
+        })),
+      })
+      const wrapper = await openModal(SearchModal, 'powr')
+      expect(document.body.textContent).toContain('Εμφανίζονται αποτελέσματα για "power"')
+
+      await wrapper.setProps({ query: 'powe' })
+
+      expect(document.body.textContent).not.toContain('Εμφανίζονται αποτελέσματα για')
+    })
+
+    it('drops an answer that lands while the shopper is still typing, after deleting and retyping', async () => {
+      let answer!: () => void
+      const late = new Promise((resolve) => {
+        answer = () => resolve(searchResponse())
+      })
+      api.routes({
+        '/api/search': () => late,
+        '/api/search/trending': { windowHours: 24, contentType: 'product', languageCode: 'el', results: [] },
+      })
+      const wrapper = await openModal(SearchModal, 'abc')
+
+      await wrapper.setProps({ query: 'a' })
+      await wrapper.setProps({ query: 'ab' })
+      answer()
+      await flushPromises()
+
+      // No pause yet, so nothing has been asked for 'ab': the old answer must not stand in for it.
+      expect(optionTexts().some(text => text.includes('Προϊόν'))).toBe(false)
+    })
+
+    it('drops an answer that arrives after the query was cut too short to search', async () => {
+      let answer!: () => void
+      const late = new Promise((resolve) => {
+        answer = () => resolve(searchResponse())
+      })
+      api.routes({
+        '/api/search': () => late,
+        '/api/search/trending': { windowHours: 24, contentType: 'product', languageCode: 'el', results: [] },
+      })
+      const wrapper = await openModal(SearchModal, 'lap')
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+
+      await wrapper.setProps({ query: 'l' })
+      await vi.advanceTimersByTimeAsync(DEBOUNCE_MS)
+      vi.useRealTimers()
+      answer()
+      await flushPromises()
+      await wrapper.setProps({ query: 'la' })
+
+      expect(optionTexts().some(text => text.includes('Προϊόν'))).toBe(false)
     })
   })
 

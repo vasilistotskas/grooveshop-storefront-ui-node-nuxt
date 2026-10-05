@@ -6,7 +6,7 @@
  *
  * The pages are the account navigation's own entries (`useAccountNavigation`),
  * so a page the store has switched off is never offered. The standing
- * comes from the account summary, asked for only when a menu opens —
+ * comes from the account summary, asked for each time a menu opens —
  * these menus live in the header of every page, and most visits never
  * open one — and shown only where the navigation offers the programme
  * (a store without rewards never has its points quoted).
@@ -17,7 +17,7 @@ export function useAccountQuickMenu(keys: AccountNavKey[]) {
   const img = useMediaStreamImage()
   const { items } = useAccountNavigation()
 
-  const { data: summary, status, execute } = useLazyApi<AccountSummary>('/api/user/account/summary', {
+  const { data: summary, execute } = useLazyApi<AccountSummary>('/api/user/account/summary', {
     key: 'account-quick-menu-summary',
     method: 'GET',
     immediate: false,
@@ -50,9 +50,15 @@ export function useAccountQuickMenu(keys: AccountNavKey[]) {
 
   const isBusiness = computed(() => offers('business') && summary.value?.businessStatus === 'APPROVED')
 
-  /** Asks for the summary once, the first time a menu opens. */
+  /**
+   * Asks for the summary, every time a menu opens: points and the tier
+   * change as the shopper buys, and a failed request deserves another
+   * try. What was fetched before stays on screen until the answer lands;
+   * signing out drops it (`clearNuxtData` in the auth plugin), so the next
+   * shopper never sees it.
+   */
   function load() {
-    if (status.value === 'idle') execute()
+    execute()
   }
 
   return {
