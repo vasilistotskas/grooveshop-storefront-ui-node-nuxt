@@ -138,15 +138,12 @@ describe('Checkout/Sidebar (default)', () => {
       expect(charge(wrapper, 'Αντικαταβολή')).toBeNull()
     })
 
-    // parler allows a blank name per locale; the row then says what it
+    // the schema leaves the key optional; the row then says what it
     // is generically, in the page's language.
-    it('labels the fee generically for a pay way with no name in this language', async () => {
+    it('labels the fee generically for a pay way with no key', async () => {
       setPayWay(makePayWay({
         cost: 2.5,
-        translations: {
-          el: { name: '', description: '', instructions: '' },
-          en: { name: 'Cash on delivery', description: '', instructions: '' },
-        },
+        key: undefined,
       }))
 
       const wrapper = await mount({ showPaymentFee: true })
@@ -287,13 +284,10 @@ describe('Checkout/Sidebar (frozen webside)', () => {
       expect(amountBeside(wrapper, 'Σύνολο')).toBe(money(62.5))
     })
 
-    it('labels the fee generically for a pay way with no name in this language', async () => {
+    it('labels the fee generically for a pay way with no key', async () => {
       setPayWay(makePayWay({
         cost: 2.5,
-        translations: {
-          el: { name: '', description: '', instructions: '' },
-          en: { name: 'Cash on delivery', description: '', instructions: '' },
-        },
+        key: undefined,
       }))
 
       const wrapper = await mount({ showPaymentFee: true })

@@ -103,6 +103,7 @@ export function makeProductReview(overrides: Partial<ProductReview> = {}): Produ
     product: { id: 1, name: 'Προϊόν 1', slug: 'product-1', mainImagePath: '' },
     user: { id: 7, username: null, firstName: 'Μαρία', lastName: 'Παπαδοπούλου', mainImagePath: '' },
     rate: 8,
+    isVerifiedPurchase: false,
     status: 'TRUE',
     isPublished: true,
     createdAt: FIXTURE_TIMESTAMP,

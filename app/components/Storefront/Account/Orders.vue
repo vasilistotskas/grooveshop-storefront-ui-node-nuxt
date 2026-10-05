@@ -2,8 +2,8 @@
 /**
  * The shopper's orders, newest first, as the boards draw them: one row
  * per order with its products, number, status, date, item count and
- * total, and "Buy again" for an order that arrived. The delivery method
- * is the order page's to show (the list serializer does not carry it).
+ * total, and "Buy again" for an order that arrived. The carrier's name
+ * follows the item count; an order handled outside any carrier has none.
  *
  * Page and sort live in the query string, so a row's "Details" and the
  * browser's Back return to the same page.
@@ -113,6 +113,9 @@ const detailsTo = (order: Order) => localePath({ name: 'account-orders-id', para
               year="numeric"
             />
             · {{ t('items', itemCount(order)) }}
+            <template v-if="order.deliveryMethod.providerName">
+              · {{ order.deliveryMethod.providerName }}
+            </template>
           </p>
         </div>
         <p class="font-mono font-semibold text-highlighted">

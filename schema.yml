@@ -13547,10 +13547,10 @@ paths:
               - type: boolean
           description: Φίλτρο ανά online μεθόδους πληρωμής
         - in: query
-          name: payWay_Name
+          name: payWay_Key
           schema:
             type: string
-          description: Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)
+          description: Filter by payment method key (case-insensitive)
         - in: query
           name: paymentId
           schema:
@@ -16637,10 +16637,10 @@ paths:
               - type: boolean
           description: Φίλτρο ανά online μεθόδους πληρωμής
         - in: query
-          name: payWay_Name
+          name: payWay_Key
           schema:
             type: string
-          description: Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)
+          description: Filter by payment method key (case-insensitive)
         - in: query
           name: paymentId
           schema:
@@ -17796,6 +17796,35 @@ paths:
               - type: boolean
           description: Παρωχημένο — χρησιμοποιήστε ``settlement=online``. Αφαιρείται μαζί με τη στήλη στην έκδοση μετά την εισαγωγή του settlement.
         - in: query
+          name: key
+          schema:
+            type: string
+            title: Κλειδί
+            enum:
+              - APPLE_PAY
+              - BANK_TRANSFER
+              - BOX_NOW_PAY_ON_THE_GO
+              - CREDIT_CARD
+              - GOOGLE_PAY
+              - PAY_ON_DELIVERY
+              - PAY_ON_STORE
+              - PAY_PAL
+              - STRIPE
+              - VIVA_WALLET
+          description: |-
+            Filter by payment method key
+
+            * `CREDIT_CARD` - Πιστωτική κάρτα
+            * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+            * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+            * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+            * `PAY_PAL` - PayPal
+            * `STRIPE` - Stripe
+            * `BANK_TRANSFER` - Τραπεζική μεταφορά
+            * `APPLE_PAY` - Apple Pay
+            * `GOOGLE_PAY` - Google Pay
+            * `VIVA_WALLET` - Viva Wallet
+        - in: query
           name: languageCode
           schema:
             type: string
@@ -17805,11 +17834,6 @@ paths:
               - en
             default: el
           description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
-        - in: query
-          name: name
-          schema:
-            type: string
-          description: Φίλτρο ανά όνομα (μερική αντιστοίχιση)
         - name: ordering
           in: query
           required: false
@@ -18923,7 +18947,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductDetail'
+                $ref: '#/components/schemas/ProductRetrieve'
           description: ''
         '400':
           content:
@@ -18989,7 +19013,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductDetail'
+                $ref: '#/components/schemas/ProductRetrieve'
           description: ''
         '401':
           content:
@@ -19059,7 +19083,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductDetail'
+                $ref: '#/components/schemas/ProductRetrieve'
           description: ''
         '400':
           content:
@@ -19134,7 +19158,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductDetail'
+                $ref: '#/components/schemas/ProductRetrieve'
           description: ''
         '400':
           content:
@@ -34923,11 +34947,8 @@ components:
         totalVatValue:
           type: number
           format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
           readOnly: true
+          description: VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
         totalItems:
           oneOf:
             - type: integer
@@ -35097,6 +35118,10 @@ components:
           type: string
           readOnly: true
           description: Ο κωδικός κουπονιού προς εφαρμογή.
+        personal:
+          type: boolean
+          readOnly: true
+          description: Whether the code is reserved for this customer (assigned to their account or email) rather than offered to everyone.
         eligible:
           type: boolean
           readOnly: true
@@ -35129,6 +35154,7 @@ components:
         - discountAmount
         - eligible
         - freeShipping
+        - personal
         - promotion
         - reason
     CartCreatePaymentIntentRequestRequest:
@@ -35242,11 +35268,8 @@ components:
         totalVatValue:
           type: number
           format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
           readOnly: true
+          description: VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
         totalItems:
           oneOf:
             - type: integer
@@ -38251,6 +38274,11 @@ components:
           type: boolean
           readOnly: true
           description: 'True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green ''your order is placed, pay on delivery'' panel instead of the amber ''payment is processing'' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).'
+        deliveryMethod:
+          allOf:
+            - $ref: '#/components/schemas/OrderDeliveryMethod'
+          readOnly: true
+          description: 'How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.'
         canBeCanceled:
           type: boolean
           readOnly: true
@@ -38278,6 +38306,7 @@ components:
         - city
         - country
         - createdAt
+        - deliveryMethod
         - discountAmount
         - email
         - firstName
@@ -38680,6 +38709,21 @@ components:
         - street
         - streetNumber
         - zipcode
+    OrderDeliveryMethod:
+      type: object
+      properties:
+        providerCode:
+          type: string
+          nullable: true
+        providerName:
+          type: string
+          nullable: true
+        kind:
+          $ref: '#/components/schemas/ShippingKind'
+      required:
+        - kind
+        - providerCode
+        - providerName
     OrderDetail:
       type: object
       properties:
@@ -38940,6 +38984,11 @@ components:
           type: boolean
           readOnly: true
           description: 'True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green ''your order is placed, pay on delivery'' panel instead of the amber ''payment is processing'' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).'
+        deliveryMethod:
+          allOf:
+            - $ref: '#/components/schemas/OrderDeliveryMethod'
+          readOnly: true
+          description: 'How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.'
         canBeCanceled:
           type: boolean
           readOnly: true
@@ -39048,6 +39097,10 @@ components:
           nullable: true
           readOnly: true
           description: Identifier of the carrier handling this order — 'acs', 'boxnow', or null when no provider is attached.  Lets frontends switch on a stable code instead of inspecting the shipment shape.
+        loyaltyPointsToEarn:
+          type: integer
+          readOnly: true
+          description: 'Loyalty points this order earns its customer: the points actually awarded once the order has been credited, the projection before that. 0 when the program is off, the order has no account, or it was canceled or refunded.'
         cancellation:
           type: object
           nullable: true
@@ -39131,6 +39184,7 @@ components:
         - createdAt
         - currency
         - customerFullName
+        - deliveryMethod
         - discountAmount
         - email
         - firstName
@@ -39147,6 +39201,7 @@ components:
         - items
         - lastName
         - loyaltyDiscount
+        - loyaltyPointsToEarn
         - metaEventIds
         - orderTimeline
         - paidAmount
@@ -41712,8 +41767,6 @@ components:
             el:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
@@ -41721,8 +41774,6 @@ components:
             en:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
@@ -41730,12 +41781,27 @@ components:
             de:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
                   type: string
+        key:
+          allOf:
+            - $ref: '#/components/schemas/PayWayKeyEnum'
+          title: Κλειδί
+          description: |-
+            Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+
+            * `CREDIT_CARD` - Πιστωτική κάρτα
+            * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+            * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+            * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+            * `PAY_PAL` - PayPal
+            * `STRIPE` - Stripe
+            * `BANK_TRANSFER` - Τραπεζική μεταφορά
+            * `APPLE_PAY` - Apple Pay
+            * `GOOGLE_PAY` - Google Pay
+            * `VIVA_WALLET` - Viva Wallet
         active:
           type: boolean
           title: Ενεργή
@@ -42385,8 +42451,6 @@ components:
             el:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
@@ -42394,8 +42458,6 @@ components:
             en:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
@@ -42403,8 +42465,6 @@ components:
             de:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
@@ -42412,6 +42472,23 @@ components:
         id:
           type: integer
           readOnly: true
+        key:
+          allOf:
+            - $ref: '#/components/schemas/PayWayKeyEnum'
+          title: Κλειδί
+          description: |-
+            Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+
+            * `CREDIT_CARD` - Πιστωτική κάρτα
+            * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+            * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+            * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+            * `PAY_PAL` - PayPal
+            * `STRIPE` - Stripe
+            * `BANK_TRANSFER` - Τραπεζική μεταφορά
+            * `APPLE_PAY` - Apple Pay
+            * `GOOGLE_PAY` - Google Pay
+            * `VIVA_WALLET` - Viva Wallet
         active:
           type: boolean
           title: Ενεργή
@@ -42528,8 +42605,6 @@ components:
             el:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
@@ -42537,8 +42612,6 @@ components:
             en:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
@@ -42546,12 +42619,27 @@ components:
             de:
               type: object
               properties:
-                name:
-                  type: string
                 description:
                   type: string
                 instructions:
                   type: string
+        key:
+          allOf:
+            - $ref: '#/components/schemas/PayWayKeyEnum'
+          title: Κλειδί
+          description: |-
+            Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+
+            * `CREDIT_CARD` - Πιστωτική κάρτα
+            * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+            * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+            * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+            * `PAY_PAL` - PayPal
+            * `STRIPE` - Stripe
+            * `BANK_TRANSFER` - Τραπεζική μεταφορά
+            * `APPLE_PAY` - Apple Pay
+            * `GOOGLE_PAY` - Google Pay
+            * `VIVA_WALLET` - Viva Wallet
         active:
           type: boolean
           title: Ενεργή
@@ -42592,6 +42680,7 @@ components:
             * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
       required:
         - cost
+        - key
         - translations
     PaymentModeEnum:
       enum:
@@ -42915,7 +43004,7 @@ components:
           readOnly: true
         reviewCount:
           type: integer
-          description: Return the number of reviews for this product.
+          description: Return the number of approved reviews for this product.
           readOnly: true
         likesCount:
           type: integer
@@ -43188,6 +43277,9 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        recursiveProductCount:
+          type: integer
+          readOnly: true
         createdAt:
           type: string
           format: date-time
@@ -43207,6 +43299,7 @@ components:
         - id
         - level
         - mainImagePath
+        - recursiveProductCount
         - slug
         - translations
         - treeId
@@ -43281,6 +43374,9 @@ components:
         mainImagePath:
           type: string
           readOnly: true
+        recursiveProductCount:
+          type: integer
+          readOnly: true
         createdAt:
           type: string
           format: date-time
@@ -43299,9 +43395,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductCategory'
-          readOnly: true
-        recursiveProductCount:
-          type: integer
           readOnly: true
       required:
         - children
@@ -43763,7 +43856,7 @@ components:
           readOnly: true
         reviewCount:
           type: integer
-          description: Return the number of reviews for this product.
+          description: Return the number of approved reviews for this product.
           readOnly: true
         likesCount:
           type: integer
@@ -43976,7 +44069,7 @@ components:
           readOnly: true
         reviewCount:
           type: integer
-          description: Return the number of reviews for this product.
+          description: Return the number of approved reviews for this product.
           readOnly: true
         likesCount:
           type: integer
@@ -44467,7 +44560,11 @@ components:
           type: number
           format: double
           nullable: true
+        categoryName:
+          type: string
+          nullable: true
       required:
+        - categoryName
         - contentType
         - description
         - discountPercent
@@ -44684,6 +44781,230 @@ components:
         - stackable
         - targetScope
         - trigger
+    ProductRetrieve:
+      type: object
+      description: |-
+        The product page's own payload.
+
+        ``ProductDetailSerializer`` is also nested in list payloads
+        (favourites), where the distribution query would run once per row,
+        so the extra field lives on this single-object subclass.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        translations:
+          type: object
+          properties:
+            el:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+            en:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+            de:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        category:
+          type: integer
+        variantGroup:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Ομάδα παραλλαγών
+          description: Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
+        brand:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Μάρκα
+        brandName:
+          type: string
+          readOnly: true
+          nullable: true
+        price:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        vat:
+          type: integer
+          nullable: true
+        viewCount:
+          type: integer
+          readOnly: true
+          title: Προβολές
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Απόθεμα
+        lowStockThreshold:
+          type: integer
+          readOnly: true
+          title: Όριο χαμηλού αποθέματος
+          description: Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
+        active:
+          type: boolean
+          title: Ενεργή
+        weight:
+          type: object
+          properties:
+            unit:
+              type: string
+            value:
+              type: number
+          example:
+            unit: kg
+            value: 1
+          nullable: true
+        discountPercent:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          title: Ποσοστό Έκπτωσης
+        discountValue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        priceSavePercent:
+          type: number
+          format: double
+          readOnly: true
+        vatPercent:
+          type: number
+          format: double
+          readOnly: true
+        vatValue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        finalPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        mainImagePath:
+          type: string
+          readOnly: true
+        reviewAverage:
+          type: number
+          format: double
+          description: Return the average review rating for this product.
+          readOnly: true
+        reviewCount:
+          type: integer
+          description: Return the number of approved reviews for this product.
+          readOnly: true
+        likesCount:
+          type: integer
+          description: Return the number of likes/favourites for this product.
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Δημιουργήθηκε στις
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Ενημερώθηκε στις
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttribute'
+          readOnly: true
+        priceDropAlertsEnabled:
+          type: boolean
+          readOnly: true
+          title: Ειδοποιήσεις πτώσης τιμής
+          description: Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
+        ratingDistribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/RatingDistribution'
+          readOnly: true
+      required:
+        - attributes
+        - brand
+        - brandName
+        - category
+        - createdAt
+        - discountValue
+        - finalPrice
+        - id
+        - likesCount
+        - lowStockThreshold
+        - mainImagePath
+        - price
+        - priceDropAlertsEnabled
+        - priceSavePercent
+        - ratingDistribution
+        - reviewAverage
+        - reviewCount
+        - slug
+        - translations
+        - updatedAt
+        - uuid
+        - variantGroup
+        - vatPercent
+        - vatValue
+        - viewCount
     ProductReview:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -44705,6 +45026,9 @@ components:
           title: Βαθμολογία
           minimum: 0
           maximum: 32767
+        isVerifiedPurchase:
+          type: boolean
+          readOnly: true
         status:
           allOf:
             - $ref: '#/components/schemas/ReviewStatus'
@@ -44753,6 +45077,7 @@ components:
       required:
         - createdAt
         - id
+        - isVerifiedPurchase
         - product
         - publishedAt
         - rate
@@ -44781,6 +45106,9 @@ components:
           title: Βαθμολογία
           minimum: 0
           maximum: 32767
+        isVerifiedPurchase:
+          type: boolean
+          readOnly: true
         status:
           allOf:
             - $ref: '#/components/schemas/ReviewStatus'
@@ -44829,6 +45157,7 @@ components:
       required:
         - createdAt
         - id
+        - isVerifiedPurchase
         - product
         - publishedAt
         - rate
@@ -45329,6 +45658,16 @@ components:
         * `8` - Οκτώ
         * `9` - Εννέα
         * `10` - Δέκα
+    RatingDistribution:
+      type: object
+      properties:
+        rate:
+          type: integer
+        count:
+          type: integer
+      required:
+        - count
+        - rate
     RecommendationEventItemRequest:
       type: object
       properties:
@@ -46003,18 +46342,18 @@ components:
       description: |-
         A payment method this shipping option can settle.
 
-        ``name`` is the ``PayWayEnum`` KEY, not a display string — the same
+        ``key`` is the ``PayWayEnum`` KEY, not a display string — the same
         contract the pay-way endpoint uses, so the storefront resolves it
         through the label map it already owns rather than rendering
         whatever language the API happened to answer in.
       properties:
         id:
           type: integer
-        name:
+        key:
           type: string
       required:
         - id
-        - name
+        - key
     ShippingProvider:
       type: object
       properties:
@@ -46795,6 +47134,10 @@ components:
         defaultCurrency:
           type: string
           readOnly: true
+        shippingCarriers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantShippingCarrier'
         primaryDomain:
           type: string
           readOnly: true
@@ -46962,6 +47305,19 @@ components:
         - tiktokPixelId
         - totpIssuer
         - warningHex
+    TenantShippingCarrier:
+      type: object
+      description: What a footer "Delivered by" badge needs, and nothing more.
+      properties:
+        code:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      required:
+        - code
+        - name
     TopQuery:
       type: object
       description: Serializer for top query analytics.

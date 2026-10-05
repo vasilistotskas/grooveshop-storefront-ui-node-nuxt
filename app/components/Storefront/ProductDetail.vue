@@ -71,7 +71,7 @@ const viewContentFired = ref(false)
 // without re-fetching on homepage/PDP rails.
 const recentlyViewed = useRecentlyViewed()
 
-const { data: product, error: productError, refresh: refreshProduct } = await useApi<ProductDetail>(
+const { data: product, error: productError, refresh: refreshProduct } = await useApi<ProductRetrieve>(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
@@ -1067,6 +1067,7 @@ useSchemaOrg([
           <ProductReviewsOverview
             :average="product.reviewAverage"
             :count="product.reviewCount"
+            :distribution="product.ratingDistribution"
           />
           <UButton
             v-if="user"

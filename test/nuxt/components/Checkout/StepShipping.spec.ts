@@ -315,7 +315,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
      * comes AFTER this one — so the card is the only place a shopper can
      * learn that picking a locker unlocks it.
      */
-    const payWays = (...names: string[]) => names.map((name, i) => ({ id: i + 1, name }))
+    const payWays = (...names: string[]) => names.map((key, i) => ({ id: i + 1, key }))
 
     it('names on each card the method only it can reach', async () => {
       const wrapper = await mount({

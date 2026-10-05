@@ -37,6 +37,14 @@ const comment = computed(() =>
           :aria-label="t('rated', { n: n(outOfFive, { maximumFractionDigits: 1 }) })"
         />
         <strong class="text-sm text-highlighted">{{ author }}</strong>
+        <UBadge
+          v-if="review.isVerifiedPurchase"
+          :label="t('verified')"
+          icon="i-lucide-check"
+          color="success"
+          variant="subtle"
+          size="sm"
+        />
       </div>
       <NuxtTime
         :datetime="review.publishedAt ?? review.createdAt"
@@ -60,7 +68,9 @@ const comment = computed(() =>
 el:
   anonymous: Ανώνυμος πελάτης
   rated: Βαθμολογία {n} στα 5
+  verified: Επαληθευμένη αγορά
 en:
   anonymous: Anonymous shopper
   rated: Rated {n} out of 5
+  verified: Verified purchase
 </i18n>

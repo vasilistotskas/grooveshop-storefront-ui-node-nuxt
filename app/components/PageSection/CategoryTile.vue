@@ -4,13 +4,13 @@
  *
  * The category's photograph on a square sunken tile, its name under
  * it. A single link, so the whole card is the target rather than the
- * words inside it. (The design also prints the category's product
- * count; the category list carries none yet — PLAN F8.)
+ * words inside it, and the category's product count beside the name.
  */
 defineProps<{
   category: CategoryMenuEntry
 }>()
 
+const { t } = useI18n()
 const localePath = useLocalePath()
 </script>
 
@@ -40,8 +40,19 @@ const localePath = useLocalePath()
          what kind of thing. No arrow: the zoom already says the tile is
          a link, and on a two-line name an arrow wraps onto a line of
          its own. -->
-    <p class="px-0.5 font-bold text-highlighted">
-      {{ category.label }}
+    <p class="flex items-baseline justify-between gap-2 px-0.5">
+      <span class="font-bold text-highlighted">{{ category.label }}</span>
+      <span class="shrink-0 font-mono text-xs text-muted">
+        {{ category.productCount }}
+        <span class="sr-only">{{ t('products', {}, category.productCount) }}</span>
+      </span>
     </p>
   </ULink>
 </template>
+
+<i18n lang="yaml">
+el:
+  products: "προϊόν | προϊόντα"
+en:
+  products: "product | products"
+</i18n>

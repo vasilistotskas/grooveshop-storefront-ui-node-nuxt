@@ -28,6 +28,7 @@ const REVIEW: ProductReviewDetail = {
   product: PRODUCT,
   user: { id: 7, username: null, firstName: 'Μαρία', lastName: 'Παπαδοπούλου', mainImagePath: '' },
   rate: 6,
+  isVerifiedPurchase: false,
   status: 'NEW',
   isPublished: false,
   createdAt: FIXTURE_TIMESTAMP,

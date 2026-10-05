@@ -123,7 +123,7 @@ async function applyCoupon(row: CartCoupon) {
           flex items-center gap-3 rounded-2xl p-3 ring ring-default
           sm:gap-4
         "
-        :class="row.eligible || row.applied ? 'bg-default' : 'bg-muted/50'"
+        :class="row.eligible || row.applied ? (row.personal ? 'bg-secondary/10' : 'bg-default') : 'bg-muted/50'"
       >
         <code
           class="
@@ -134,6 +134,9 @@ async function applyCoupon(row: CartCoupon) {
 
         <div class="flex min-w-0 flex-1 flex-col gap-1">
           <p class="text-sm font-semibold text-highlighted">
+            <template v-if="row.personal">
+              {{ t('personal') }} ·
+            </template>
             {{ row.promotion.name }}
           </p>
           <p
@@ -182,6 +185,15 @@ async function applyCoupon(row: CartCoupon) {
             {{ t('no_saving') }}
           </p>
         </div>
+
+        <UBadge
+          v-if="row.personal"
+          color="secondary"
+          variant="soft"
+          size="sm"
+          :label="t('yours')"
+          class="shrink-0"
+        />
 
         <UButton
           v-if="!row.applied"
@@ -255,6 +267,8 @@ el:
   not_eligible: Δεν ισχύει
   no_saving: Δεν μειώνει το σύνολο αυτή τη στιγμή
   free_shipping: Δωρεάν αποστολή
+  personal: Προσωπικό
+  yours: Δικό σου
 en:
   trigger: 'See {count} coupon you can use | See {count} coupons you can use'
   trigger_none: See the store's coupons
@@ -267,4 +281,6 @@ en:
   not_eligible: Not eligible
   no_saving: Does not reduce your total right now
   free_shipping: Free shipping
+  personal: Personal
+  yours: Yours
 </i18n>

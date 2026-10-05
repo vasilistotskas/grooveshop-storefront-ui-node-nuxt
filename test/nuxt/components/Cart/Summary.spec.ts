@@ -40,7 +40,7 @@ beforeEach(() => {
   clearNuxtData('footer-pay-ways')
   api.routes({
     '/api/pay-way': () => ({
-      results: [makePayWay({ translations: { el: { name: 'PAY_ON_DELIVERY', description: '', instructions: '' } } })],
+      results: [makePayWay({ key: 'PAY_ON_DELIVERY' })],
     }),
   })
   useCartStore().cart = makeCart({

@@ -176,7 +176,7 @@ const payWayNamesByMethod = computed(() => {
   for (const option of props.apiOptions) {
     const key = methodKeyForOption(option) as ShippingMethodKey | null
     if (!key) continue
-    const names = new Set((option.payWays ?? []).map(p => p.name))
+    const names = new Set((option.payWays ?? []).map(p => p.key))
     const existing = byMethod.get(key)
     if (!existing) {
       byMethod.set(key, names)

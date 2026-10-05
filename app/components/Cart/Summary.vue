@@ -11,7 +11,7 @@
  * recomputes a price. Delivery is not quoted — the shopper picks the
  * carrier in checkout.
  */
-const { t, n, locale } = useI18n()
+const { t, n } = useI18n()
 const localePath = useLocalePath()
 const cartStore = useCartStore()
 const { cart, hasStockIssues } = storeToRefs(cartStore)
@@ -31,9 +31,7 @@ const { data: payWays } = useApi('/api/pay-way', {
 
 const paymentMarks = computed(() => [...new Set([
   ...(payWays.value?.results ?? [])
-    .map(payWay => extractTranslated(payWay, 'name', locale.value))
-    .filter((name): name is string => Boolean(name))
-    .map(name => getPaymentMethodName(name)),
+    .flatMap(payWay => payWay.key ? [getPaymentMethodName(payWay.key)] : []),
   ...(tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value ? [t('gift_card')] : []),
 ])])
 

@@ -23,6 +23,8 @@ export interface CategoryMenuEntry {
   label: string
   to: string
   imagePath: string
+  /** Products in this category and every descendant. */
+  productCount: number
   children: CategoryMenuEntry[]
 }
 
@@ -54,6 +56,7 @@ export function useCategoryMenu() {
       label: extractTranslated(category, 'name', locale.value) ?? category.slug,
       to: categoryUrl(category.id, category.slug),
       imagePath: category.mainImagePath,
+      productCount: category.recursiveProductCount,
       children:
         depth === 0
           ? (byParent.get(category.id) ?? [])

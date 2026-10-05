@@ -274,17 +274,23 @@ function onPalettePointerMove(event: PointerEvent) {
         </template>
 
         <template #product-label="{ item }">
-          <span class="line-clamp-2 font-medium text-highlighted">
-            <template
-              v-for="(part, index) in highlightSegments(item.label ?? '', localQuery)"
-              :key="index"
-            >
-              <mark
-                v-if="part.match"
-                class="rounded-xs bg-(--ui-volt-soft) text-highlighted"
-              >{{ part.text }}</mark>
-              <template v-else>{{ part.text }}</template>
-            </template>
+          <span class="flex min-w-0 flex-col">
+            <span class="line-clamp-2 font-medium text-highlighted">
+              <template
+                v-for="(part, index) in highlightSegments(item.label ?? '', localQuery)"
+                :key="index"
+              >
+                <mark
+                  v-if="part.match"
+                  class="rounded-xs bg-(--ui-volt-soft) text-highlighted"
+                >{{ part.text }}</mark>
+                <template v-else>{{ part.text }}</template>
+              </template>
+            </span>
+            <span
+              v-if="item.product.categoryName"
+              class="truncate text-xs text-muted"
+            >{{ item.product.categoryName }}</span>
           </span>
         </template>
 

@@ -23170,11 +23170,11 @@
                     },
                     {
                         "in": "query",
-                        "name": "payWay_Name",
+                        "name": "payWay_Key",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)"
+                        "description": "Filter by payment method key (case-insensitive)"
                     },
                     {
                         "in": "query",
@@ -28394,11 +28394,11 @@
                     },
                     {
                         "in": "query",
-                        "name": "payWay_Name",
+                        "name": "payWay_Key",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)"
+                        "description": "Filter by payment method key (case-insensitive)"
                     },
                     {
                         "in": "query",
@@ -30296,6 +30296,27 @@
                     },
                     {
                         "in": "query",
+                        "name": "key",
+                        "schema": {
+                            "type": "string",
+                            "title": "Κλειδί",
+                            "enum": [
+                                "APPLE_PAY",
+                                "BANK_TRANSFER",
+                                "BOX_NOW_PAY_ON_THE_GO",
+                                "CREDIT_CARD",
+                                "GOOGLE_PAY",
+                                "PAY_ON_DELIVERY",
+                                "PAY_ON_STORE",
+                                "PAY_PAL",
+                                "STRIPE",
+                                "VIVA_WALLET"
+                            ]
+                        },
+                        "description": "Filter by payment method key\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
+                    },
+                    {
+                        "in": "query",
                         "name": "languageCode",
                         "schema": {
                             "type": "string",
@@ -30307,14 +30328,6 @@
                             "default": "el"
                         },
                         "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά όνομα (μερική αντιστοίχιση)"
                     },
                     {
                         "name": "ordering",
@@ -32303,7 +32316,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductDetail"
+                                    "$ref": "#/components/schemas/ProductRetrieve"
                                 }
                             }
                         },
@@ -32403,7 +32416,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductDetail"
+                                    "$ref": "#/components/schemas/ProductRetrieve"
                                 }
                             }
                         },
@@ -32530,7 +32543,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductDetail"
+                                    "$ref": "#/components/schemas/ProductRetrieve"
                                 }
                             }
                         },
@@ -32656,7 +32669,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductDetail"
+                                    "$ref": "#/components/schemas/ProductRetrieve"
                                 }
                             }
                         },
@@ -57539,11 +57552,8 @@
                     "totalVatValue": {
                         "type": "number",
                         "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true
+                        "readOnly": true,
+                        "description": "VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here."
                     },
                     "totalItems": {
                         "oneOf": [
@@ -57749,6 +57759,11 @@
                         "readOnly": true,
                         "description": "Ο κωδικός κουπονιού προς εφαρμογή."
                     },
+                    "personal": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "Whether the code is reserved for this customer (assigned to their account or email) rather than offered to everyone."
+                    },
                     "eligible": {
                         "type": "boolean",
                         "readOnly": true,
@@ -57787,6 +57802,7 @@
                     "discountAmount",
                     "eligible",
                     "freeShipping",
+                    "personal",
                     "promotion",
                     "reason"
                 ]
@@ -57913,11 +57929,8 @@
                     "totalVatValue": {
                         "type": "number",
                         "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true
+                        "readOnly": true,
+                        "description": "VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here."
                     },
                     "totalItems": {
                         "oneOf": [
@@ -61593,6 +61606,15 @@
                         "readOnly": true,
                         "description": "True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days)."
                     },
+                    "deliveryMethod": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderDeliveryMethod"
+                            }
+                        ],
+                        "readOnly": true,
+                        "description": "How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it."
+                    },
                     "canBeCanceled": {
                         "type": "boolean",
                         "readOnly": true
@@ -61627,6 +61649,7 @@
                     "city",
                     "country",
                     "createdAt",
+                    "deliveryMethod",
                     "discountAmount",
                     "email",
                     "firstName",
@@ -62072,6 +62095,27 @@
                     "zipcode"
                 ]
             },
+            "OrderDeliveryMethod": {
+                "type": "object",
+                "properties": {
+                    "providerCode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "providerName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/ShippingKind"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "providerCode",
+                    "providerName"
+                ]
+            },
             "OrderDetail": {
                 "type": "object",
                 "properties": {
@@ -62397,6 +62441,15 @@
                         "readOnly": true,
                         "description": "True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days)."
                     },
+                    "deliveryMethod": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderDeliveryMethod"
+                            }
+                        ],
+                        "readOnly": true,
+                        "description": "How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it."
+                    },
                     "canBeCanceled": {
                         "type": "boolean",
                         "readOnly": true
@@ -62551,6 +62604,11 @@
                         "readOnly": true,
                         "description": "Identifier of the carrier handling this order — 'acs', 'boxnow', or null when no provider is attached.  Lets frontends switch on a stable code instead of inspecting the shipment shape."
                     },
+                    "loyaltyPointsToEarn": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Loyalty points this order earns its customer: the points actually awarded once the order has been credited, the projection before that. 0 when the program is off, the order has no account, or it was canceled or refunded."
+                    },
                     "cancellation": {
                         "type": "object",
                         "nullable": true,
@@ -62656,6 +62714,7 @@
                     "createdAt",
                     "currency",
                     "customerFullName",
+                    "deliveryMethod",
                     "discountAmount",
                     "email",
                     "firstName",
@@ -62672,6 +62731,7 @@
                     "items",
                     "lastName",
                     "loyaltyDiscount",
+                    "loyaltyPointsToEarn",
                     "metaEventIds",
                     "orderTimeline",
                     "paidAmount",
@@ -66128,9 +66188,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -66142,9 +66199,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -66156,9 +66210,6 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -66168,6 +66219,15 @@
                                 }
                             }
                         }
+                    },
+                    "key": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PayWayKeyEnum"
+                            }
+                        ],
+                        "title": "Κλειδί",
+                        "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
                         "type": "boolean",
@@ -67097,9 +67157,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -67111,9 +67168,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -67125,9 +67179,6 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -67141,6 +67192,15 @@
                     "id": {
                         "type": "integer",
                         "readOnly": true
+                    },
+                    "key": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PayWayKeyEnum"
+                            }
+                        ],
+                        "title": "Κλειδί",
+                        "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
                         "type": "boolean",
@@ -67264,9 +67324,6 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -67278,9 +67335,6 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -67292,9 +67346,6 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
                                     "description": {
                                         "type": "string"
                                     },
@@ -67304,6 +67355,15 @@
                                 }
                             }
                         }
+                    },
+                    "key": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PayWayKeyEnum"
+                            }
+                        ],
+                        "title": "Κλειδί",
+                        "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
                         "type": "boolean",
@@ -67349,6 +67409,7 @@
                 },
                 "required": [
                     "cost",
+                    "key",
                     "translations"
                 ]
             },
@@ -67745,7 +67806,7 @@
                     },
                     "reviewCount": {
                         "type": "integer",
-                        "description": "Return the number of reviews for this product.",
+                        "description": "Return the number of approved reviews for this product.",
                         "readOnly": true
                     },
                     "likesCount": {
@@ -68101,6 +68162,10 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "recursiveProductCount": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -68124,6 +68189,7 @@
                     "id",
                     "level",
                     "mainImagePath",
+                    "recursiveProductCount",
                     "slug",
                     "translations",
                     "treeId",
@@ -68230,6 +68296,10 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "recursiveProductCount": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -68252,10 +68322,6 @@
                         "items": {
                             "$ref": "#/components/schemas/ProductCategory"
                         },
-                        "readOnly": true
-                    },
-                    "recursiveProductCount": {
-                        "type": "integer",
                         "readOnly": true
                     }
                 },
@@ -68892,7 +68958,7 @@
                     },
                     "reviewCount": {
                         "type": "integer",
-                        "description": "Return the number of reviews for this product.",
+                        "description": "Return the number of approved reviews for this product.",
                         "readOnly": true
                     },
                     "likesCount": {
@@ -69164,7 +69230,7 @@
                     },
                     "reviewCount": {
                         "type": "integer",
-                        "description": "Return the number of reviews for this product.",
+                        "description": "Return the number of approved reviews for this product.",
                         "readOnly": true
                     },
                     "likesCount": {
@@ -69823,9 +69889,14 @@
                         "type": "number",
                         "format": "double",
                         "nullable": true
+                    },
+                    "categoryName": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "required": [
+                    "categoryName",
                     "contentType",
                     "description",
                     "discountPercent",
@@ -70074,6 +70145,286 @@
                     "trigger"
                 ]
             },
+            "ProductRetrieve": {
+                "type": "object",
+                "description": "The product page's own payload.\n\n``ProductDetailSerializer`` is also nested in list payloads\n(favourites), where the distribution query would run once per row,\nso the extra field lives on this single-object subclass.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "de": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "slug": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "category": {
+                        "type": "integer"
+                    },
+                    "variantGroup": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Ομάδα παραλλαγών",
+                        "description": "Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα."
+                    },
+                    "brand": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Μάρκα"
+                    },
+                    "brandName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "vat": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "viewCount": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "title": "Προβολές"
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0,
+                        "title": "Απόθεμα"
+                    },
+                    "lowStockThreshold": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "title": "Όριο χαμηλού αποθέματος",
+                        "description": "Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν."
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Ενεργή"
+                    },
+                    "weight": {
+                        "type": "object",
+                        "properties": {
+                            "unit": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        },
+                        "example": {
+                            "unit": "kg",
+                            "value": 1.0
+                        },
+                        "nullable": true
+                    },
+                    "discountPercent": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "title": "Ποσοστό Έκπτωσης"
+                    },
+                    "discountValue": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    },
+                    "priceSavePercent": {
+                        "type": "number",
+                        "format": "double",
+                        "readOnly": true
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "format": "double",
+                        "readOnly": true
+                    },
+                    "vatValue": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    },
+                    "finalPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "reviewAverage": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Return the average review rating for this product.",
+                        "readOnly": true
+                    },
+                    "reviewCount": {
+                        "type": "integer",
+                        "description": "Return the number of approved reviews for this product.",
+                        "readOnly": true
+                    },
+                    "likesCount": {
+                        "type": "integer",
+                        "description": "Return the number of likes/favourites for this product.",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Δημιουργήθηκε στις"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Ενημερώθηκε στις"
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "attributes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductAttribute"
+                        },
+                        "readOnly": true
+                    },
+                    "priceDropAlertsEnabled": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "title": "Ειδοποιήσεις πτώσης τιμής",
+                        "description": "Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU."
+                    },
+                    "ratingDistribution": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RatingDistribution"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "attributes",
+                    "brand",
+                    "brandName",
+                    "category",
+                    "createdAt",
+                    "discountValue",
+                    "finalPrice",
+                    "id",
+                    "likesCount",
+                    "lowStockThreshold",
+                    "mainImagePath",
+                    "price",
+                    "priceDropAlertsEnabled",
+                    "priceSavePercent",
+                    "ratingDistribution",
+                    "reviewAverage",
+                    "reviewCount",
+                    "slug",
+                    "translations",
+                    "updatedAt",
+                    "uuid",
+                    "variantGroup",
+                    "vatPercent",
+                    "vatValue",
+                    "viewCount"
+                ]
+            },
             "ProductReview": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -70107,6 +70458,10 @@
                         "title": "Βαθμολογία",
                         "minimum": 0,
                         "maximum": 32767
+                    },
+                    "isVerifiedPurchase": {
+                        "type": "boolean",
+                        "readOnly": true
                     },
                     "status": {
                         "allOf": [
@@ -70177,6 +70532,7 @@
                 "required": [
                     "createdAt",
                     "id",
+                    "isVerifiedPurchase",
                     "product",
                     "publishedAt",
                     "rate",
@@ -70220,6 +70576,10 @@
                         "minimum": 0,
                         "maximum": 32767
                     },
+                    "isVerifiedPurchase": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
                     "status": {
                         "allOf": [
                             {
@@ -70289,6 +70649,7 @@
                 "required": [
                     "createdAt",
                     "id",
+                    "isVerifiedPurchase",
                     "product",
                     "publishedAt",
                     "rate",
@@ -70924,6 +71285,21 @@
                 ],
                 "type": "integer",
                 "description": "* `1` - Ένα\n* `2` - Δύο\n* `3` - Τρία\n* `4` - Τέσσερα\n* `5` - Πέντε\n* `6` - Έξι\n* `7` - Επτά\n* `8` - Οκτώ\n* `9` - Εννέα\n* `10` - Δέκα"
+            },
+            "RatingDistribution": {
+                "type": "object",
+                "properties": {
+                    "rate": {
+                        "type": "integer"
+                    },
+                    "count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "count",
+                    "rate"
+                ]
             },
             "RecommendationEventItemRequest": {
                 "type": "object",
@@ -71786,18 +72162,18 @@
             },
             "ShippingOptionPayWay": {
                 "type": "object",
-                "description": "A payment method this shipping option can settle.\n\n``name`` is the ``PayWayEnum`` KEY, not a display string — the same\ncontract the pay-way endpoint uses, so the storefront resolves it\nthrough the label map it already owns rather than rendering\nwhatever language the API happened to answer in.",
+                "description": "A payment method this shipping option can settle.\n\n``key`` is the ``PayWayEnum`` KEY, not a display string — the same\ncontract the pay-way endpoint uses, so the storefront resolves it\nthrough the label map it already owns rather than rendering\nwhatever language the API happened to answer in.",
                 "properties": {
                     "id": {
                         "type": "integer"
                     },
-                    "name": {
+                    "key": {
                         "type": "string"
                     }
                 },
                 "required": [
                     "id",
-                    "name"
+                    "key"
                 ]
             },
             "ShippingProvider": {
@@ -72762,6 +73138,12 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "shippingCarriers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TenantShippingCarrier"
+                        }
+                    },
                     "primaryDomain": {
                         "type": "string",
                         "readOnly": true
@@ -72969,6 +73351,24 @@
                     "tiktokPixelId",
                     "totpIssuer",
                     "warningHex"
+                ]
+            },
+            "TenantShippingCarrier": {
+                "type": "object",
+                "description": "What a footer \"Delivered by\" badge needs, and nothing more.",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
                 ]
             },
             "TopQuery": {
