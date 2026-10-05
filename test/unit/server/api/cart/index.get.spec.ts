@@ -68,6 +68,59 @@ describe('GET /api/cart', () => {
     expect(log.info).toHaveBeenCalled()
   })
 
+  describe('the cart load on the wide event', () => {
+    const SIGNED_IN = { user: { id: 6 }, secure: { accessToken: 'knox-1' } }
+
+    it('records a signed-in shopper\'s own cart at the normal level', async () => {
+      testSession.set(SIGNED_IN)
+      backend.reply(makeCart({ uuid: CART_UUID, user: 6 }))
+
+      const response = await getCart()
+
+      expect(response.logger.fields).toMatchObject({
+        cart: { id: CART_UUID, signedIn: true, accessToken: true, cartId: false, outcome: 'loaded', owner: 'user', lines: 1 },
+      })
+      expect(response.logger.level).toBeUndefined()
+    })
+
+    it('warns when a signed-in shopper is handed a guest cart', async () => {
+      testSession.set(SIGNED_IN)
+      backend.reply(makeCart({ uuid: CART_UUID, user: null }))
+
+      const response = await getCart()
+
+      expect(response.logger.fields).toMatchObject({ cart: { signedIn: true, outcome: 'loaded', owner: 'guest' } })
+      expect(response.logger.level).toBe('warn')
+    })
+
+    it('warns when Django rejects a signed-in shopper\'s token', async () => {
+      testSession.set(SIGNED_IN)
+      backend.reply(jsonResponse({ detail: 'Invalid token.' }, 401))
+
+      const response = await getCart()
+
+      expect(response.logger.fields).toMatchObject({ cart: { signedIn: true, accessToken: true, outcome: 'auth-rejected' } })
+      expect(response.logger.level).toBe('warn')
+    })
+
+    it('warns when a signed-in session carries neither a token nor a cart', async () => {
+      testSession.set({ user: { id: 6 } })
+
+      const response = await getCart()
+
+      expect(response.logger.fields).toMatchObject({ cart: { signedIn: true, accessToken: false, cartId: false, outcome: 'no-identity' } })
+      expect(response.logger.level).toBe('warn')
+      expect(backend.requests).toEqual([])
+    })
+
+    it('records a guest with no cart without raising the level', async () => {
+      const response = await getCart()
+
+      expect(response.logger.fields).toMatchObject({ cart: { signedIn: false, outcome: 'no-identity' } })
+      expect(response.logger.level).toBeUndefined()
+    })
+  })
+
   it('answers 422 when the cart payload drifts from the contract', async () => {
     backend.reply({ ...makeCart({ uuid: CART_UUID }), items: 'none' })
 
