@@ -1,3 +1,10 @@
+# [3.238.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.237.0...v3.238.0) (2026-10-05)
+
+
+### Features
+
+* **storefront:** consume Groove Volt API batch 1 ([#87](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/87)) ([76b14fd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/76b14fdf77cff5b8d26c420574be7c68e1645612)), closes [#115](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/115) [#115](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/115)
+
 # [3.237.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.236.0...v3.237.0) (2026-10-05)
 
 
