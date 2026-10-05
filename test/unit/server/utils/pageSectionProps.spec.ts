@@ -126,6 +126,52 @@ describe('a hero slide carries its own copy and destination', () => {
   })
 })
 
+describe('a hero slide can name a product for its chip', () => {
+  it('keeps the productId', () => {
+    const { props, error } = parseSectionProps('hero_carousel', {
+      slides: [{ imageUrl: '/img/sale.avif', productId: 42 }],
+    })
+
+    expect(error).toBeUndefined()
+    expect((props.slides as Record<string, unknown>[])[0]).toMatchObject({ productId: 42 })
+  })
+
+  it.each([0, -3, 1.5, '42'])('refuses a productId of %s', (productId) => {
+    const { error } = parseSectionProps('hero_carousel', {
+      slides: [{ imageUrl: '/img/sale.avif', productId }],
+    })
+
+    expect(error).toContain('productId')
+  })
+})
+
+describe('the home bands carry the props the design draws them with', () => {
+  it('keeps the eyebrow and ink surface of the offers band', () => {
+    const { props, error } = parseSectionProps('offers_preview', { eyebrow: 'Προσφορές', surface: 'ink' })
+
+    expect(error).toBeUndefined()
+    expect(props).toEqual({ eyebrow: 'Προσφορές', surface: 'ink' })
+  })
+
+  it('keeps the wording, routes and surface of the rewards band', () => {
+    const value = {
+      surface: 'muted',
+      eyebrow: 'Λέσχη',
+      ctaText: 'Μπες',
+      ctaLink: '/account/signup',
+      secondaryCtaText: 'Όροι',
+      secondaryCtaLink: '/legal/rewards',
+    }
+
+    expect(parseSectionProps('loyalty_hero', value)).toEqual({ props: value })
+  })
+
+  it('refuses a rewards route that leaves the store', () => {
+    expect(parseSectionProps('loyalty_hero', { ctaLink: 'http://evil.test' }).error)
+      .toContain('ctaLink')
+  })
+})
+
 describe('a trust badge needs a mark', () => {
   it('parses logos and icons', () => {
     const { props, error } = parseSectionProps('trust_badges', {

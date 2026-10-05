@@ -6,9 +6,10 @@ import type { ShippingOption } from '~~/shared/openapi/types.gen'
  * `test/unit/fixtures/shippingOptions.spec.ts`).
  *
  * Defaults: ACS home delivery in GR at 2,99 €, live, priority 10, no
- * weight cap, no pay ways. The named builders below are the rows a real
- * Greek store serves, in the priority order Django sorts them by
- * (`ShippingProvider.priority` ascending: BoxNow 5 first, ACS 10).
+ * weight cap, no pay ways, no delivery estimate. The named builders below
+ * are the rows a real Greek store serves, in the priority order Django sorts
+ * them by (`ShippingProvider.priority` ascending: BoxNow 5 first, ACS 10),
+ * with the business-day estimate such a rate advertises.
  */
 export function makeShippingOption(overrides: Partial<ShippingOption> = {}): ShippingOption {
   return {
@@ -22,6 +23,8 @@ export function makeShippingOption(overrides: Partial<ShippingOption> = {}): Shi
     countryCode: 'GR',
     maxWeightGrams: null,
     exceedsMaxWeight: false,
+    deliveryDaysMin: null,
+    deliveryDaysMax: null,
     metadata: {},
     payWays: [],
     ...overrides,
@@ -35,13 +38,15 @@ export function boxNowLockerOption(overrides: Partial<ShippingOption> = {}): Shi
     providerName: 'BOX NOW',
     kind: 'pickup_point',
     priority: 5,
+    deliveryDaysMin: 1,
+    deliveryDaysMax: 2,
     ...overrides,
   })
 }
 
 /** The ACS home-delivery row (UI method `home_delivery`). */
 export function acsHomeDeliveryOption(overrides: Partial<ShippingOption> = {}): ShippingOption {
-  return makeShippingOption(overrides)
+  return makeShippingOption({ deliveryDaysMin: 2, deliveryDaysMax: 4, ...overrides })
 }
 
 /** The ACS Smartpoint row (`kind: 'pickup_point'`, UI method `acs_smartpoint`). */

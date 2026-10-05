@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ORDER_FLOW, orderStatusColor, orderStepsReached } from '~/utils/orderStatus'
+import { ORDER_FLOW, awaitsDelivery, orderStatusColor, orderStepsReached } from '~/utils/orderStatus'
 
 describe('orderStepsReached', () => {
   it.each(ORDER_FLOW.map((status, index) => [status, index + 1] as const))(
@@ -15,6 +15,23 @@ describe('orderStepsReached', () => {
 
   it('knows nothing of an order without a status', () => {
     expect(orderStepsReached(undefined)).toBe(0)
+  })
+})
+
+describe('awaitsDelivery', () => {
+  it.each(['PENDING', 'PROCESSING', 'SHIPPED'] as const)('is true while %s: the parcel is still coming', (status) => {
+    expect(awaitsDelivery(status)).toBe(true)
+  })
+
+  it.each(['DELIVERED', 'COMPLETED', 'CANCELED', 'RETURNED', 'REFUNDED'] as const)(
+    'is false at %s: arrived, or never coming',
+    (status) => {
+      expect(awaitsDelivery(status)).toBe(false)
+    },
+  )
+
+  it('is false without a status', () => {
+    expect(awaitsDelivery(undefined)).toBe(false)
   })
 })
 

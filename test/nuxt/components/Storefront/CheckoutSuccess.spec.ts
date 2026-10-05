@@ -410,6 +410,36 @@ describe('CheckoutSuccess (default layout)', () => {
     expect(wrapper.text()).toContain(`Πληρωμή ${money(42)} κατά την παραλαβή`)
   })
 
+  it('closes the timeline with the date Django promised while the order is on its way', async () => {
+    serveOrders(order({
+      isPaid: true,
+      status: 'SHIPPED',
+      trackingDetails: { estimatedDelivery: '2026-10-08' },
+    }))
+
+    const wrapper = await mount()
+
+    const last = wrapper.findAll('[data-slot="item"]').at(-1)!
+    expect(last.get('time').attributes('datetime')).toBe('2026-10-08T00:00:00.000Z')
+    expect(last.text()).toContain('Εκτιμώμενη:')
+  })
+
+  it.each(['DELIVERED', 'CANCELED'] as const)('promises no date once the order is %s', async (status) => {
+    serveOrders(order({ status, trackingDetails: { estimatedDelivery: '2026-10-08' } }))
+
+    const wrapper = await mount()
+
+    expect(wrapper.text()).not.toContain('Εκτιμώμενη:')
+  })
+
+  it('promises no date for an order Django gave none', async () => {
+    serveOrders(order({ status: 'PROCESSING', trackingDetails: { estimatedDelivery: null } }))
+
+    const wrapper = await mount()
+
+    expect(wrapper.text()).not.toContain('Εκτιμώμενη:')
+  })
+
   it('lists the lines and what the order came to', async () => {
     serveOrders(order({
       isPaid: true,

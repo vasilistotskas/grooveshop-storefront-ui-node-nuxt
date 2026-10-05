@@ -10,12 +10,33 @@
  * Chosen per request by `middleware/design-layout.global.ts`, never by
  * a page file: a store frozen in the previous design keeps its layout.
  */
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const tenantStore = useTenantStore()
 const localePath = useLocalePath()
 const router = useRouter()
 
 const storeName = computed(() => tenantStore.storeName || '')
+
+// The panel's photo and line come from the AUTH_PANEL setting. Without one,
+// or with one that fails the shape guard, the panel keeps its plain ink look
+// and the store's own description.
+const rawPanel = useSettingValue('AUTH_PANEL')
+const panel = computed(() => {
+  const value = rawPanel.value
+  if (!value || value === '{}') return null
+  const parsed = parseAuthPanelValue(value)
+  if (!parsed) {
+    log.warn({
+      tag: 'auth-panel',
+      message: 'AUTH_PANEL setting failed shape validation',
+    })
+  }
+  return parsed
+})
+const photo = computed(() => panel.value?.imageUrl || '')
+const tagline = computed(() =>
+  (panel.value && authPanelTagline(panel.value, locale.value)) || tenantStore.storeDescription,
+)
 
 /** Back to where the shopper came from, or to the shop when they came from outside it. */
 function goBack() {
@@ -80,10 +101,27 @@ function goBack() {
         lg:flex
       "
     >
+      <ImgWithFallback
+        v-if="photo"
+        :src="photo"
+        alt=""
+        :width="960"
+        :height="1080"
+        sizes="50vw"
+        fit="cover"
+        quality="80"
+
+        class="absolute inset-0 size-full object-cover"
+      />
+      <div
+        v-if="photo"
+        aria-hidden="true"
+        class="absolute inset-0 bg-linear-to-t from-inverted/90 via-inverted/0 via-45% to-inverted/15"
+      />
       <Anchor
         :to="'index'"
         :aria-label="storeName"
-        class="flex items-center self-start"
+        class="relative flex items-center self-start"
       >
         <TenantLogo
           :width="150"
@@ -91,7 +129,7 @@ function goBack() {
           inverted
         />
       </Anchor>
-      <div class="flex flex-col gap-3">
+      <div class="relative flex flex-col gap-3">
         <UBadge
           v-if="storeName"
           :label="storeName"
@@ -99,10 +137,10 @@ function goBack() {
           class="self-start bg-volt text-on-volt"
         />
         <p
-          v-if="tenantStore.storeDescription"
+          v-if="tagline"
           class="max-w-130 font-display text-[3.5rem]/none font-bold tracking-[-0.02em] text-balance"
         >
-          {{ tenantStore.storeDescription }}
+          {{ tagline }}
         </p>
       </div>
     </aside>

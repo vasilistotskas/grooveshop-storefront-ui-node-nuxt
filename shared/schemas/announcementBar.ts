@@ -13,7 +13,9 @@
  * ``text`` carries the DEFAULT locale's wording and ``i18n`` overrides
  * it per locale — the same partial-override convention as
  * ``PageSection.i18n`` and ``STORE_OFFICES``, which is why the default
- * locale is not a valid key there.
+ * locale is not a valid key there. ``shortText`` is the phone's copy and
+ * ``code`` a promo code set apart from the sentence; the code is the same
+ * string in every language, so it is not a per-locale key.
  */
 
 export const ANNOUNCEMENT_COLORS = [
@@ -31,7 +33,9 @@ export type AnnouncementColor = (typeof ANNOUNCEMENT_COLORS)[number]
 export interface AnnouncementBar {
   enabled: boolean
   text: string
-  i18n?: Record<string, { text: string }>
+  shortText?: string
+  code?: string
+  i18n?: Record<string, { text?: string, shortText?: string }>
   link?: string
   icon?: string
   color?: AnnouncementColor
@@ -41,9 +45,14 @@ export interface AnnouncementBar {
 
 const ICON_RE = /^i-[a-z0-9:-]+$/
 const LINK_RE = /^(\/|https:\/\/)/
+// One token: a promo code is typed or copied, never read as a sentence.
+const CODE_RE = /^\S{1,40}$/
+const TEXT_LIMITS = { text: 200, shortText: 80 } as const
 const ALLOWED_KEYS = new Set([
   'enabled',
   'text',
+  'shortText',
+  'code',
   'i18n',
   'link',
   'icon',
@@ -62,7 +71,19 @@ export function isAnnouncementBar(value: unknown): value is AnnouncementBar {
   if (Object.keys(data).some(key => !ALLOWED_KEYS.has(key))) return false
 
   if (typeof data.enabled !== 'boolean') return false
-  if (!isBoundedString(data.text, 200)) return false
+  if (!isBoundedString(data.text, TEXT_LIMITS.text)) return false
+  if (
+    data.shortText !== undefined
+    && !isBoundedString(data.shortText, TEXT_LIMITS.shortText)
+  ) {
+    return false
+  }
+  if (
+    data.code !== undefined
+    && (typeof data.code !== 'string' || !CODE_RE.test(data.code))
+  ) {
+    return false
+  }
   // A bar with nothing to say is a blank strip above the header.
   if (data.enabled && !data.text.trim()) return false
 
@@ -94,8 +115,14 @@ export function isAnnouncementBar(value: unknown): value is AnnouncementBar {
         return false
       }
       const entry = override as Record<string, unknown>
-      if (Object.keys(entry).length !== 1) return false
-      if (!isBoundedString(entry.text, 200)) return false
+      const keys = Object.keys(entry)
+      if (!keys.length) return false
+      for (const key of keys) {
+        if (!(key in TEXT_LIMITS)) return false
+        if (!isBoundedString(entry[key], TEXT_LIMITS[key as keyof typeof TEXT_LIMITS])) {
+          return false
+        }
+      }
     }
   }
 
@@ -125,4 +152,18 @@ export function announcementText(
   locale: string,
 ): string {
   return bar.i18n?.[locale]?.text || bar.text
+}
+
+/**
+ * The phone's wording for ``locale``, or ``''`` when the bar has none.
+ * A locale that has an override never borrows the default locale's
+ * ``shortText``: that is another language, so the phone shows the
+ * locale's full ``text`` instead.
+ */
+export function announcementShortText(
+  bar: AnnouncementBar,
+  locale: string,
+): string {
+  const override = bar.i18n?.[locale]
+  return (override ? override.shortText : bar.shortText) || ''
 }

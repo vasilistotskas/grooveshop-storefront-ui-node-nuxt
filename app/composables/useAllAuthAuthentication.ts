@@ -328,6 +328,32 @@ export default function () {
     })
   }
 
+  async function resendLoginCode() {
+    return $api(`${API_BASE_URL}/code/resend`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      async onResponse({ response }) {
+        await onAllAuthResponse(response)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response)
+      },
+    })
+  }
+
+  async function resendEmailVerificationCode() {
+    return $api(`${API_BASE_URL}/email/verify/resend`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      async onResponse({ response }) {
+        await onAllAuthResponse(response)
+      },
+      async onResponseError({ response }) {
+        await onAllAuthResponseError(response)
+      },
+    })
+  }
+
   async function getWebAuthnRequestOptionsForReauthentication() {
     return $api(`${API_BASE_URL}/webauthn/reauthenticate`, {
       method: 'GET',
@@ -469,6 +495,8 @@ export default function () {
     twoFaReauthenticate,
     requestLoginCode,
     confirmLoginCode,
+    resendLoginCode,
+    resendEmailVerificationCode,
     getWebAuthnRequestOptionsForReauthentication,
     reauthenticateUsingWebAuthn,
     authenticateUsingWebAuthn,

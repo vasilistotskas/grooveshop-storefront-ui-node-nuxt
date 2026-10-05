@@ -87,13 +87,24 @@ describe('PageSection/OffersPreview', () => {
     expect([link.text(), link.attributes('href')]).toEqual(['Δες τα κουπόνια', '/info/coupons'])
   })
 
-  it('draws the ink band whatever surface the layout names', async () => {
+  it.each([
+    { surface: undefined, expected: 'bg-inverted' },
+    { surface: 'ink', expected: 'bg-inverted' },
+    { surface: 'muted', expected: 'bg-muted' },
+    { surface: 'default', expected: 'bg-default' },
+  ])('sets the band on $expected for surface $surface', async ({ surface, expected }) => {
     // The class IS the contract: the design sets the offers on ink, and
-    // the layout's surface choice cannot reach it yet (PLAN F11).
-    const wrapper = await mountBand({ surface: 'muted' })
+    // a layout may ask for a lighter ground instead.
+    const wrapper = await mountBand({ surface })
 
-    expect(wrapper.find('section').classes()).toContain('bg-inverted')
-    expect(wrapper.find('section').attributes('surface')).toBeUndefined()
+    expect(wrapper.find('section').classes()).toContain(expected)
+  })
+
+  it('prints the eyebrow of the operator over the default one', async () => {
+    const wrapper = await mountBand({ eyebrow: 'Μόνο αυτή την εβδομάδα' })
+
+    expect(wrapper.text()).toContain('Μόνο αυτή την εβδομάδα')
+    expect(wrapper.text()).not.toContain(COPY.eyebrow)
   })
 
   it.each<{ name: string, tenant: boolean, flags: Record<string, boolean> }>([

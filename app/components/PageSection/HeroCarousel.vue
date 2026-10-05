@@ -27,6 +27,11 @@
  * artwork, one link for the whole thing — and draws the photograph
  * alone at the chosen `aspect`.
  *
+ * A slide that names a `productId` carries a chip on its photograph —
+ * the product's picture, name and price, linking to it — as the design
+ * draws the home hero. A product that cannot be read leaves that slide
+ * without one.
+ *
  * This is the page's LCP, so the FIRST slide's artwork loads eagerly at
  * high priority and the rest do not.
  */
@@ -41,6 +46,7 @@ interface HeroSlide {
   ctaLink?: string
   secondaryCtaText?: string
   secondaryCtaLink?: string
+  productId?: number
 }
 
 const props = withDefaults(defineProps<{
@@ -61,8 +67,10 @@ const props = withDefaults(defineProps<{
 })
 
 const { isMobileOrTablet } = useDevice()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const { productUrl } = useUrls()
+const { formatPrice } = usePriceFormat()
 
 const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
@@ -86,6 +94,24 @@ const items = computed<HeroSlide[]>(() => {
 })
 
 const several = computed(() => items.value.length > 1)
+
+const chipProducts = await useHeroProductChips(
+  () => items.value.flatMap(slide => (slide.productId ? [slide.productId] : [])),
+)
+
+/** Each slide's chip, or `undefined` where it names no readable product. */
+const chips = computed(() => items.value.map((slide) => {
+  const product = slide.productId ? chipProducts.value[slide.productId] : undefined
+  if (!product) return undefined
+  const was = productWasPrice(product, product.finalPrice)
+  return {
+    to: localePath(productUrl(product.id, product.slug)),
+    image: product.mainImagePath,
+    name: extractTranslated(product, 'name', locale.value) ?? '',
+    price: formatPrice(product.finalPrice),
+    was: was ? formatPrice(was) : undefined,
+  }
+}))
 
 const artwork = (slide: HeroSlide) =>
   (isMobileOrTablet.value && slide.mobileImageUrl) || slide.imageUrl
@@ -280,6 +306,35 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                 :aria-label="t('carousel.bannerLink')"
                 class="absolute inset-0"
               />
+
+              <NuxtLink
+                v-if="chips[index]"
+                :to="chips[index]!.to"
+                class="
+                  absolute start-3 bottom-3 flex items-center gap-3.5 rounded-[1.125rem]
+                  bg-default p-2.5 pe-4.5 shadow-lg
+                  lg:start-7 lg:bottom-7
+                "
+              >
+                <ImgWithFallback
+                  :src="chips[index]!.image"
+                  alt=""
+                  :width="128"
+                  :height="128"
+                  fit="cover"
+                  class="size-16 shrink-0 rounded-[0.875rem] bg-elevated object-cover"
+                />
+                <span class="flex min-w-0 flex-col gap-0.5">
+                  <span class="text-sm font-bold text-highlighted">{{ chips[index]!.name }}</span>
+                  <span class="flex flex-wrap items-baseline gap-2">
+                    <span class="font-mono text-base font-bold text-highlighted tabular-nums">{{ chips[index]!.price }}</span>
+                    <span
+                      v-if="chips[index]!.was"
+                      class="font-mono text-xs text-muted tabular-nums line-through"
+                    >{{ chips[index]!.was }}</span>
+                  </span>
+                </span>
+              </NuxtLink>
             </div>
 
             <div

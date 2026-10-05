@@ -18,10 +18,21 @@
  * bonus from its loyalty settings, the ladder from its tiers; the tier
  * multipliers print only where the store turns them on. Nothing renders
  * where the programme is off, and nothing is requested there either.
+ *
+ * The guest card's wording and its two routes are the programme's own
+ * unless the operator sets them: `eyebrow`, `ctaText`/`ctaLink` (the way
+ * in) and `secondaryCtaText`/`secondaryCtaLink` (how it works) each
+ * replace their default only where set.
  */
 defineProps<{
   /** The operator's section title, from the section row itself. */
   title?: string
+  surface?: 'default' | 'muted'
+  eyebrow?: string
+  ctaText?: string
+  ctaLink?: string
+  secondaryCtaText?: string
+  secondaryCtaLink?: string
 }>()
 
 const { t, locale } = useI18n()
@@ -92,6 +103,10 @@ const tierTerms = (tier: LoyaltyTier) =>
         py-6
         lg:py-10
       "
+      :class="[
+        surface === 'muted' && 'bg-muted',
+        surface === 'default' && 'border-y border-default bg-default',
+      ]"
     >
       <UContainer>
         <div
@@ -103,7 +118,7 @@ const tierTerms = (tier: LoyaltyTier) =>
         >
           <div class="flex flex-col items-start gap-4">
             <p class="text-xs font-bold tracking-[0.08em] uppercase">
-              {{ t('eyebrow', { store: tenantStore.storeName }) }}
+              {{ eyebrow || t('eyebrow', { store: tenantStore.storeName }) }}
             </p>
             <h2
               class="
@@ -122,8 +137,8 @@ const tierTerms = (tier: LoyaltyTier) =>
                    change with the mode, so the theme's primary (which
                    turns light in dark mode) would vanish into it. -->
               <UButton
-                :to="localePath('account-signup')"
-                :label="t('cta_join')"
+                :to="ctaLink ? localePath(ctaLink) : localePath('account-signup')"
+                :label="ctaText || t('cta_join')"
                 color="neutral"
                 class="
                   bg-on-volt text-white
@@ -132,8 +147,8 @@ const tierTerms = (tier: LoyaltyTier) =>
                 "
               />
               <UButton
-                :to="localePath('loyalty-program')"
-                :label="t('cta_how')"
+                :to="secondaryCtaLink ? localePath(secondaryCtaLink) : localePath('loyalty-program')"
+                :label="secondaryCtaText || t('cta_how')"
                 color="neutral"
                 variant="outline"
                 class="

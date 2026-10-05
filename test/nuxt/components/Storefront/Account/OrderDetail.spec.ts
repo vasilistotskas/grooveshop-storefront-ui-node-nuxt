@@ -132,6 +132,42 @@ describe('Storefront/Account/OrderDetail', () => {
     expect(button(wrapper, 'Παρακολούθηση στο ACS')?.attributes('href')).toBe('https://webapp.acscourier.net/track-shipment/7200123456')
   })
 
+  it('opens the timeline with the estimated delivery while the order is on its way', async () => {
+    state.order = makeOrder({
+      id: 3,
+      status: 'SHIPPED',
+      trackingDetails: { estimatedDelivery: '2026-10-08' },
+      orderTimeline: [{ changeType: 'CREATED', timestamp: '2026-10-01T10:00:00Z', description: '' }],
+    })
+
+    const wrapper = await mountPage()
+
+    const first = wrapper.findAll('section ol').at(-1)!.findAll('li')[0]!
+    expect(first.get('p').text()).toBe('Εκτιμώμενη παράδοση')
+    expect(first.get('time').attributes('datetime')).toBe('2026-10-08T00:00:00.000Z')
+  })
+
+  it('names the pickup, not the delivery, when the parcel goes to a locker', async () => {
+    state.order = makeOrder({
+      id: 3,
+      status: 'SHIPPED',
+      trackingDetails: { estimatedDelivery: '2026-10-08' },
+      boxnowShipment: makeBoxNowShipment({ locker: makeBoxNowLocker() }),
+    })
+
+    const wrapper = await mountPage()
+
+    expect(timelineTitles(wrapper)[0]).toBe('Εκτιμώμενη ετοιμότητα για παραλαβή')
+  })
+
+  it.each(['DELIVERED', 'CANCELED'] as const)('shows no estimate once the order is %s', async (status) => {
+    state.order = makeOrder({ id: 3, status, trackingDetails: { estimatedDelivery: '2026-10-08' } })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).not.toContain('Εκτιμώμενη')
+  })
+
   it('shows the delivery address, and no tracking, before anything has shipped', async () => {
     const wrapper = await mountPage()
 

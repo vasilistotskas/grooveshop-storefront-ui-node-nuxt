@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoginCodeConfirmForm from '~/components/Account/Login/Code/ConfirmForm.vue'
 import WebsideLoginCodeConfirmForm from '~/components/variants/webside/Account/Login/Code/ConfirmForm.vue'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 import { asProxiedError, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
 /**
@@ -17,12 +18,13 @@ import { asProxiedError, makeBadResponse, makePendingFlowResponse } from '~~/tes
  * sign-in: allauth answers 401 with `mfa_authenticate` pending, which is
  * the next step, not a wrong code.
  */
-const { confirmLoginCode, navigateToMock, toastAdd } = vi.hoisted(() => ({
+const { confirmLoginCode, resendLoginCode, navigateToMock, toastAdd } = vi.hoisted(() => ({
   confirmLoginCode: vi.fn((_body: { code: string }) => Promise.resolve({ status: 200 })),
+  resendLoginCode: vi.fn(() => Promise.resolve({ status: 200 })),
   navigateToMock: vi.fn(),
   toastAdd: vi.fn(),
 }))
-mockNuxtImport('useAllAuthAuthentication', () => () => ({ confirmLoginCode }))
+mockNuxtImport('useAllAuthAuthentication', () => () => ({ confirmLoginCode, resendLoginCode }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
@@ -143,9 +145,22 @@ describe.each(trees(LoginCodeConfirmForm, WebsideLoginCodeConfirmForm))('$tree A
     expect(wrapper.text()).toContain(COPY.errorTitle)
   })
 
-  it('links back to request a new code', async () => {
+  // The frozen tree keeps its link back to the request step; the default
+  // sends the code again in place.
+  it.runIf(tree === 'webside')('links back to request a new code', async () => {
     const wrapper = await mountForm()
 
     expect(wrapper.find(`a[href="${useLocalePath()('account-login-code')}"]`).exists()).toBe(true)
+  })
+
+  it.runIf(tree === 'default')('sends the code again in place instead of linking back', async () => {
+    setTenant({ codeResendCooldownSeconds: undefined })
+    const wrapper = await mountForm()
+
+    expect(wrapper.find(`a[href="${useLocalePath()('account-login-code')}"]`).exists()).toBe(false)
+    await wrapper.find('button:not([type="submit"])').trigger('click')
+    await flushPromises()
+
+    expect(resendLoginCode).toHaveBeenCalledTimes(1)
   })
 })

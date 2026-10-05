@@ -5,7 +5,8 @@
  * scans, newest first — beside where it is going, then its items and
  * totals, the invoice details and the payment.
  *
- * No delivery estimate: Django has none to give (PLAN B5).
+ * While the order is on its way the timeline opens with its estimated
+ * delivery, the date Django fixed at placement.
  */
 const { t, n, locale } = useI18n()
 const toast = useToast()
@@ -74,6 +75,11 @@ const timeline = computed<TimelineEntry[]>(() => {
   return [...history, ...boxNow, ...acs]
     .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
 })
+
+/** The date Django promised at placement, while the order is still coming. */
+const estimatedDelivery = computed(() =>
+  awaitsDelivery(order.value?.status) ? order.value?.trackingDetails?.estimatedDelivery : null,
+)
 
 /** Where the parcel is going: a locker, a station, or the address. */
 const destination = computed(() => {
@@ -308,9 +314,32 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
       />
       <div class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <ol
-          v-if="timeline.length"
+          v-if="timeline.length || estimatedDelivery"
           class="flex flex-col gap-5"
         >
+          <!-- Not happened yet: a hollow dot, the way the board draws the
+               step to come. A calendar date, so UTC keeps it on its day. -->
+          <li
+            v-if="estimatedDelivery"
+            class="relative flex gap-3"
+          >
+            <span
+              class="mt-1.5 size-2.5 shrink-0 rounded-full ring-1 ring-accented"
+              aria-hidden="true"
+            />
+            <p class="min-w-0 flex-1 font-semibold text-highlighted">
+              {{ t(destination?.kind === 'pickup' ? 'estimated_pickup' : 'estimated_delivery') }}
+            </p>
+            <NuxtTime
+              :datetime="estimatedDelivery"
+              :locale="locale"
+              time-zone="UTC"
+              weekday="short"
+              day="numeric"
+              month="short"
+              class="shrink-0 font-mono text-xs text-toned"
+            />
+          </li>
           <li
             v-for="entry in timeline"
             :key="entry.key"
@@ -561,6 +590,8 @@ el:
     shipping: Αποστολή
     refund: Επιστροφή χρημάτων
   pickup_point: Σημείο παραλαβής
+  estimated_delivery: Εκτιμώμενη παράδοση
+  estimated_pickup: Εκτιμώμενη ετοιμότητα για παραλαβή
   delivery_address: Διεύθυνση αποστολής
   track: Παρακολούθηση στο {carrier}
   track_generic: Παρακολούθηση αποστολής
@@ -612,6 +643,8 @@ en:
     shipping: Shipping
     refund: Refund
   pickup_point: Pickup point
+  estimated_delivery: Estimated delivery
+  estimated_pickup: Estimated ready for pickup
   delivery_address: Delivery address
   track: Track on {carrier}
   track_generic: Track the parcel

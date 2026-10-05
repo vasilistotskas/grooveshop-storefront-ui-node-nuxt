@@ -109,6 +109,8 @@ type ShippingOptionItem = ShippingOptionItemBase & {
    * a real answer: it is "Free".
    */
   price: number
+  /** Business days after dispatch, from the same option; null = none advertised. */
+  estimate: { min: number, max: number } | null
   /** Payment methods reachable ONLY by choosing this delivery row. */
   exclusivePayWays: string[]
   /** Why the row is disabled, shown inline next to the description. */
@@ -252,6 +254,7 @@ const shippingOptions = computed(() => {
     const sameMethod = props.apiOptions.filter(
       o => methodKeyForOption(o) === key,
     )
+    const priced = pricedOption(key, sameMethod, option)
     const overCap = sameMethod.every(o => o.exceedsMaxWeight)
     const boxNowCountryUnsupported = key === 'box_now_locker'
       && isBoxNowConfigured.value
@@ -259,9 +262,8 @@ const shippingOptions = computed(() => {
     ordered.push({
       ...baseItem,
       logo: resolveShippingLogo(option.logoUrl),
-      price: promotionFreeShipping.value
-        ? 0
-        : pricedOption(key, sameMethod, option).price,
+      price: promotionFreeShipping.value ? 0 : priced.price,
+      estimate: deliveryEstimate(priced),
       // Resolved through the same label map the payment step uses, so
       // the two never disagree on what a method is called.
       exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
@@ -514,6 +516,14 @@ defineExpose({ submit: onSubmit })
               <span class="text-sm text-toned">
                 {{ item.descriptionText }}
               </span>
+              <span
+                v-if="item.estimate"
+                class="text-sm text-toned"
+              >
+                {{ item.estimate.min === item.estimate.max
+                  ? t('estimate_days', { count: item.estimate.max }, item.estimate.max)
+                  : t('estimate_range', item.estimate) }}
+              </span>
               <!-- A payment method this delivery choice is the only way
                    to reach. Named here because the payment step comes
                    next: a shopper who wants BOX NOW Αντικαταβολή would
@@ -633,12 +643,16 @@ el:
   back: Πίσω
   retry: Δοκιμάστε ξανά
   free: Δωρεάν
+  estimate_days: "{count} εργάσιμη ημέρα | {count} εργάσιμες ημέρες"
+  estimate_range: "{min}–{max} εργάσιμες ημέρες"
   free_delivery_title: Εφαρμόστηκε δωρεάν αποστολή
   free_delivery_description: Η παραγγελία σου δικαιούται δωρεάν αποστολή με αυτή τη μέθοδο.
 en:
   back: Back
   retry: Try again
   free: Free
+  estimate_days: "{count} business day | {count} business days"
+  estimate_range: "{min}–{max} business days"
   free_delivery_title: Free delivery applied
   free_delivery_description: Your order qualifies for free delivery with this method.
 </i18n>

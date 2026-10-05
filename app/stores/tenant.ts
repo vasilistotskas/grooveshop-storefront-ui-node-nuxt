@@ -42,6 +42,9 @@ export const useTenantStore = defineStore('tenant', () => {
   const agentCommerceEnabled = computed(() => config.value?.agentCommerceEnabled ?? false)
   const themePreset = computed(() => config.value?.themePreset ?? 'default')
   const stripePublishableKey = computed(() => config.value?.stripePublishableKey ?? '')
+  // Minimum gap between two emailed codes. Undefined when the API does not
+  // publish one: the resend timer then stays hidden, the action does not.
+  const codeResendCooldownSeconds = computed(() => config.value?.codeResendCooldownSeconds)
 
   // Analytics & tracking — empty string means "use platform fallback"
   const metaPixelId = computed(() => config.value?.metaPixelId ?? '')
@@ -139,6 +142,7 @@ export const useTenantStore = defineStore('tenant', () => {
     agentCommerceEnabled,
     themePreset,
     stripePublishableKey,
+    codeResendCooldownSeconds,
     metaPixelId,
     tiktokPixelId,
     openaiPixelId,

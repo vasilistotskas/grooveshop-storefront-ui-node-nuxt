@@ -39064,6 +39064,7 @@ components:
               type: boolean
             estimatedDelivery:
               type: string
+              format: date
               nullable: true
             trackingUrl:
               type: string
@@ -46313,6 +46314,14 @@ components:
         exceedsMaxWeight:
           type: boolean
           description: True όταν το ``weight_grams`` του αιτήματος ξεπερνά το ``max_weight_grams``. Η επιλογή επιστρέφεται κανονικά αντί να κρύβεται — το κατάστημα τη δείχνει απενεργοποιημένη με την αιτία, ώστε ένα βαρύ καλάθι να μη βλέπει ποτέ μια επιλογή λιγότερη χωρίς εξήγηση.
+        deliveryDaysMin:
+          type: integer
+          nullable: true
+          description: Fastest delivery in business days after dispatch, or null when the rate advertises no estimate. Pair with the public ``DISPATCH_CUTOFF`` setting for the 'order before HH:MM' line. Day counts only, never dates, so the response stays cacheable.
+        deliveryDaysMax:
+          type: integer
+          nullable: true
+          description: Slowest delivery in business days after dispatch; null exactly when ``delivery_days_min`` is.
         logoUrl:
           type: string
           format: uri
@@ -46329,6 +46338,8 @@ components:
       required:
         - countryCode
         - currency
+        - deliveryDaysMax
+        - deliveryDaysMin
         - exceedsMaxWeight
         - kind
         - liveMode
@@ -47169,6 +47180,8 @@ components:
           readOnly: true
         recommendationsEnabled:
           type: boolean
+        codeResendCooldownSeconds:
+          type: integer
         agentStripeDelegatedEnabled:
           type: boolean
           readOnly: true
@@ -48435,6 +48448,10 @@ components:
                 type: string
                 maxLength: 1000
                 pattern: ^(/|https://)
+              productId:
+                type: integer
+                minimum: 1
+                maximum: 2147483647
             additionalProperties: false
             required:
               - imageUrl
@@ -48813,7 +48830,28 @@ components:
       additionalProperties: false
     PageSectionLoyaltyHeroProps:
       type: object
-      properties: {}
+      properties:
+        surface:
+          enum:
+            - default
+            - muted
+        eyebrow:
+          type: string
+          maxLength: 100
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
+        secondaryCtaText:
+          type: string
+          maxLength: 100
+        secondaryCtaLink:
+          type: string
+          maxLength: 1000
+          pattern: ^(/|https://)
       additionalProperties: false
     PageSectionSearchBarProps:
       type: object
@@ -49681,6 +49719,10 @@ components:
           enum:
             - default
             - muted
+            - ink
+        eyebrow:
+          type: string
+          maxLength: 100
         heading:
           type: string
           maxLength: 200
