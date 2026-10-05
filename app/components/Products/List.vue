@@ -16,7 +16,7 @@ const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 const {
   filters,
-  hasActiveFilters,
+  hasActiveListingFilters,
   updateFilters,
 } = useProductFilters()
 
@@ -56,7 +56,7 @@ const shouldPreserveScroll = ref(false)
  */
 const emptyStateDescription = computed(() => {
   // No filters active - generic message
-  if (!hasActiveFilters.value) {
+  if (!hasActiveListingFilters.value) {
     return t('products.no_results.no_filters')
   }
 
@@ -405,7 +405,7 @@ onMounted(() => {
       icon="i-heroicons-magnifying-glass-minus"
       :title="t('products.no_results.title')"
       :description="emptyStateDescription"
-      :actions="hasActiveFilters ? [
+      :actions="hasActiveListingFilters ? [
         {
           label: t('products.no_results.clear_filters'),
           size: 'lg',

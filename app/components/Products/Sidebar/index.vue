@@ -41,11 +41,10 @@ const {
 const { allBrands, brandFacets } = useProductBrands(useListingScope())
 const { forest } = useCategoryForest()
 
-const brandOptions = computed(() => buildBrandOptions(
-  allBrands.value ?? [],
-  brandFacets.value,
-  filters.value.brands,
-))
+// Not before the list is here: until then a selected brand has no name to show.
+const brandOptions = computed(() => allBrands.value
+  ? buildBrandOptions(allBrands.value, brandFacets.value, filters.value.brands)
+  : [])
 
 const drawerOpen = ref(false)
 

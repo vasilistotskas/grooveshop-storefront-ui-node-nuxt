@@ -91,7 +91,7 @@ describe('useProductSearchData', () => {
         onOffer: true,
       }
 
-      setup()
+      setup({ listingFilters: true })
       await flushPromises()
 
       const shared = { languageCode: 'el', query: 'shoe', priceMin: 10, priceMax: 90, likesMin: 2, viewsMin: 50, sort: '-finalPrice', limit: 1, inStock: true, onOffer: true }
@@ -100,7 +100,7 @@ describe('useProductSearchData', () => {
     })
 
     it('sends no brand or availability filter when none is set', async () => {
-      setup()
+      setup({ listingFilters: true })
       await flushPromises()
 
       for (const facet of ['category', 'attribute_values']) {

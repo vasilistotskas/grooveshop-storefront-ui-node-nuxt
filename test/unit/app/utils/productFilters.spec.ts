@@ -10,6 +10,7 @@ import {
   isFilterChip,
   countActiveFilters,
   countFiltersBySection,
+  countListingFilters,
   parseProductFilters,
 } from '~/utils/productFilters'
 import type { FilterChip, ListingFilterChip, ProductFilters } from '~~/shared/types/product-filters'
@@ -58,6 +59,19 @@ describe('parseProductFilters', () => {
     ['onOffer', 'true', { onOffer: true }],
   ])('reads ?%s=%j', (param, value, expected) => {
     expect(parseProductFilters({ [param]: value })).toEqual(filters(expected))
+  })
+
+  // A mangled or stale link: the search API reads these as integer lists
+  // and answers 400 to anything else, so a value that is no id is dropped
+  // and the ids beside it kept.
+  it.each([
+    ['category', 'categories'],
+    ['attributeValue', 'attributeValues'],
+    ['brand', 'brands'],
+  ] as const)('keeps only whole-number ids of ?%s=', (param, filter) => {
+    expect(parseProductFilters({ [param]: 'abc' })).toEqual(NONE)
+    expect(parseProductFilters({ [param]: '3,7' })).toEqual(NONE)
+    expect(parseProductFilters({ [param]: ['3', 'x', '-1', '1.5', ' 7', '7'] })).toEqual(filters({ [filter]: ['3', '7'] }))
   })
 
   it.each(['q', 'priceMin', 'priceMax', 'likesMin', 'viewsMin', 'sort', 'category', 'attributeValue', 'brand', 'inStock', 'onOffer'])(
@@ -228,9 +242,6 @@ describe('countActiveFilters', () => {
     ['viewsMin', { viewsMin: 100 }, 1],
     ['several categories, once', { categories: ['1', '2'] }, 1],
     ['several attribute values, once', { attributeValues: ['10', '20'] }, 1],
-    ['several brands, once', { brands: ['3', '7'] }, 1],
-    ['in stock', { inStock: true }, 1],
-    ['on offer', { onOffer: true }, 1],
     ['a sort', { sort: '-finalPrice' }, 1],
     ['every filter', {
       search: 'x',
@@ -241,12 +252,34 @@ describe('countActiveFilters', () => {
       categories: ['1'],
       sort: 'name',
       attributeValues: ['9'],
-      brands: ['3'],
-      inStock: true,
-      onOffer: true,
-    }, 11],
+    }, 8],
   ])('counts %s', (_label, overrides, expected) => {
     expect(countActiveFilters(filters(overrides))).toBe(expected)
+  })
+})
+
+// The frozen webside listing reads `countActiveFilters` and
+// `countFiltersBySection`: a link carrying the redesigned listing's filters
+// must not change what they say.
+describe('the counts the frozen listing reads', () => {
+  const REDESIGNED = { brands: ['3', '7'], inStock: true, onOffer: true }
+
+  it('ignore the brand and availability filters', () => {
+    expect(countActiveFilters(filters(REDESIGNED))).toBe(0)
+    expect(countFiltersBySection(filters(REDESIGNED))).toEqual(countFiltersBySection(NONE))
+  })
+})
+
+describe('countListingFilters', () => {
+  it.each<[string, Partial<ProductFilters>, number]>([
+    ['nothing', {}, 0],
+    ['the other filters as countActiveFilters does', { search: 'x', categories: ['1'], sort: 'name' }, 3],
+    ['several brands, once', { brands: ['3', '7'] }, 1],
+    ['in stock', { inStock: true }, 1],
+    ['on offer', { onOffer: true }, 1],
+    ['all of them', { search: 'x', brands: ['3'], inStock: true, onOffer: true }, 4],
+  ])('counts %s', (_label, overrides, expected) => {
+    expect(countListingFilters(filters(overrides))).toBe(expected)
   })
 })
 
@@ -259,8 +292,6 @@ describe('countFiltersBySection', () => {
       viewCount: 0,
       categories: 0,
       attributes: 0,
-      brands: 0,
-      availability: 0,
     })
   })
 
@@ -270,9 +301,6 @@ describe('countFiltersBySection', () => {
     ['both price bounds as one badge', { priceMin: 100, priceMax: 500 }, { price: 1 }],
     ['one per selected category', { categories: ['1', '2', '3'] }, { categories: 3 }],
     ['one per selected attribute value', { attributeValues: ['10', '20'] }, { attributes: 2 }],
-    ['one per selected brand', { brands: ['3', '7'] }, { brands: 2 }],
-    ['in stock as one availability', { inStock: true }, { availability: 1 }],
-    ['both switches as two availability', { inStock: true, onOffer: true }, { availability: 2 }],
   ])('counts %s', (_label, overrides, expected) => {
     expect(countFiltersBySection(filters(overrides))).toMatchObject(expected)
   })
@@ -285,10 +313,8 @@ describe('countFiltersBySection', () => {
       viewsMin: 100,
       categories: ['1', '2'],
       attributeValues: ['10'],
-      brands: ['3'],
-      onOffer: true,
       sort: 'name',
-    }))).toEqual({ search: 1, price: 1, popularity: 1, viewCount: 1, categories: 2, attributes: 1, brands: 1, availability: 1 })
+    }))).toEqual({ search: 1, price: 1, popularity: 1, viewCount: 1, categories: 2, attributes: 1 })
   })
 })
 

@@ -112,6 +112,13 @@ export function useProductFilters() {
   const hasActiveFilters = computed(() => activeFilterCount.value > 0)
 
   /**
+   * Whether any filter of the redesigned listing is on, brands and
+   * availability included (`hasActiveFilters` is what the frozen webside
+   * listing reads).
+   */
+  const hasActiveListingFilters = computed(() => countListingFilters(filters.value) > 0)
+
+  /**
    * Count of active filters per section
    * Used to display badges on filter section headers
    */
@@ -126,6 +133,7 @@ export function useProductFilters() {
     activeFilterChips,
     activeListingChips,
     hasActiveFilters,
+    hasActiveListingFilters,
     filterCountBySection,
   }
 }

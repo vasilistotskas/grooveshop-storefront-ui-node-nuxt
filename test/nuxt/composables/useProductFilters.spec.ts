@@ -46,6 +46,17 @@ describe('useProductFilters', () => {
     mockRoute.value = { query: {} }
   })
 
+  it('reports the brand and availability filters to the redesigned listing alone', () => {
+    mockRoute.value.query = { brand: '3', inStock: 'true' }
+
+    const { hasActiveFilters, hasActiveListingFilters, activeFilterChips, activeListingChips } = useProductFilters()
+
+    expect(hasActiveListingFilters.value).toBe(true)
+    expect(activeListingChips.value.map(chip => chip.type)).toEqual(['brand', 'in_stock'])
+    expect(hasActiveFilters.value).toBe(false)
+    expect(activeFilterChips.value).toEqual([])
+  })
+
   it('derives the filters, count and chips from the route query', () => {
     mockRoute.value.query = { q: 'laptop', priceMin: '100', category: ['1', '2'] }
     const { filters, activeFilterCount, hasActiveFilters, activeFilterChips, filterCountBySection } = useProductFilters()

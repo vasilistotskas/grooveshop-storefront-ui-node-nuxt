@@ -62,6 +62,7 @@ export function createProductFiltersMock() {
   const activeListingChips = ref<ListingFilterChip[]>([])
   const activeFilterCount = ref(0)
   const hasActiveFilters = computed(() => activeFilterCount.value > 0)
+  const hasActiveListingFilters = hasActiveFilters
 
   return {
     filters,
@@ -69,6 +70,7 @@ export function createProductFiltersMock() {
     activeListingChips,
     activeFilterCount,
     hasActiveFilters,
+    hasActiveListingFilters,
     updateFilters: vi.fn((_updates: Partial<ProductFilters>) => Promise.resolve()),
     removeFilter: vi.fn((_key: keyof ProductFilters) => Promise.resolve()),
     clearFilters: vi.fn(() => Promise.resolve()),
@@ -79,8 +81,6 @@ export function createProductFiltersMock() {
       viewCount: filters.value.viewsMin !== undefined ? 1 : 0,
       categories: filters.value.categories.length,
       attributes: filters.value.attributeValues.length,
-      brands: filters.value.brands.length,
-      availability: Number(filters.value.inStock) + Number(filters.value.onOffer),
     })),
     /** Back to no filters, no chips — call it in `beforeEach`. */
     reset() {

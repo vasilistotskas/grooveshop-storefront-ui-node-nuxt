@@ -21,6 +21,13 @@ describe('buildBrandOptions', () => {
     expect(rows(buildBrandOptions([KABELO, VOLTRA, GROOVE], { 3: 10 }, []))).toEqual([['3', 'Kabelo', 10, false]])
   })
 
+  it('lists a selected id the brand list does not know under its id, after the known brands', () => {
+    expect(rows(buildBrandOptions([KABELO], { 3: 10, 42: 2 }, ['42']))).toEqual([
+      ['3', 'Kabelo', 10, false],
+      ['42', '42', 2, true],
+    ])
+  })
+
   it('keeps a selected brand with no products, so it can be cleared', () => {
     expect(rows(buildBrandOptions([KABELO, GROOVE], { 3: 10 }, ['9']))).toEqual([
       ['3', 'Kabelo', 10, false],

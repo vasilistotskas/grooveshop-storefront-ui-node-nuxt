@@ -94,6 +94,15 @@ describe('Products/Sidebar', () => {
     expect(wrapper.get('[data-test="brands"]').text()).toBe('Kabelo,Voltra')
   })
 
+  it('leaves out the brands until the brand list is here, even with one selected', async () => {
+    pf.filters.value = { ...pf.filters.value, brands: ['3'] }
+    brands.brandFacets.value = { 3: 10 }
+
+    const wrapper = await mountSidebar()
+
+    expect(sections(wrapper)).not.toContain(own(wrapper, 'brand'))
+  })
+
   it('leaves out the brands when none is counted', async () => {
     brands.allBrands.value = [makeBrand({ id: 3 })]
 

@@ -6,10 +6,16 @@ import type { LocationQuery } from 'vue-router'
  * two. The composable wires them to the route, the router and `t()`.
  */
 
-/** A query value that may be repeated (`?category=1&category=2`), as a list. */
-function queryList(value: LocationQuery[string] | undefined): string[] {
+/**
+ * A list of ids as the URL carries them (`?category=1&category=2`). Only
+ * whole numbers are ids: the search API reads these as integer lists and
+ * answers 400 to anything else, which emptied the listing and every facet
+ * for a mangled or stale link. A value that is no id is no filter.
+ */
+const ID = /^\d+$/
+function queryIdList(value: LocationQuery[string] | undefined): string[] {
   if (!value) return []
-  return Array.isArray(value) ? (value as string[]) : [value]
+  return (Array.isArray(value) ? (value as string[]) : [value]).filter(id => typeof id === 'string' && ID.test(id))
 }
 
 /**
@@ -42,10 +48,10 @@ export function parseProductFilters(query: LocationQuery): ProductFilters {
     priceMax: queryNumber(query.priceMax, DECIMAL),
     likesMin: queryNumber(query.likesMin, INTEGER),
     viewsMin: queryNumber(query.viewsMin, INTEGER),
-    categories: queryList(query.category),
+    categories: queryIdList(query.category),
     sort: (query.sort as string) || '',
-    attributeValues: queryList(query.attributeValue),
-    brands: queryList(query.brand),
+    attributeValues: queryIdList(query.attributeValue),
+    brands: queryIdList(query.brand),
     inStock: queryFlag(query.inStock),
     onOffer: queryFlag(query.onOffer),
   }
@@ -133,6 +139,17 @@ export function countActiveFilters(filters: ProductFilters): number {
     filters.categories.length > 0,
     filters.sort,
     filters.attributeValues.length > 0,
+  ].filter(Boolean).length
+}
+
+/**
+ * `countActiveFilters` plus the brand and availability filters, each
+ * once: the count for the redesigned listing. The frozen webside listing
+ * reads `countActiveFilters`, which a link carrying those filters must
+ * not change.
+ */
+export function countListingFilters(filters: ProductFilters): number {
+  return countActiveFilters(filters) + [
     filters.brands.length > 0,
     filters.inStock,
     filters.onOffer,
@@ -148,8 +165,6 @@ export function countFiltersBySection(filters: ProductFilters) {
     viewCount: filters.viewsMin !== undefined ? 1 : 0,
     categories: filters.categories.length,
     attributes: filters.attributeValues.length,
-    brands: filters.brands.length,
-    availability: Number(filters.inStock) + Number(filters.onOffer),
   }
 }
 
