@@ -29,6 +29,11 @@ function listQueryValue(values: string[]): string | string[] {
   return values.length === 1 ? values[0]! : values
 }
 
+/** A flag filter as the URL stores it: `?inStock=true`; anything else is off. */
+function queryFlag(value: LocationQuery[string] | undefined): boolean {
+  return value === 'true'
+}
+
 /** The filter state a listing URL's query describes. */
 export function parseProductFilters(query: LocationQuery): ProductFilters {
   return {
@@ -40,6 +45,9 @@ export function parseProductFilters(query: LocationQuery): ProductFilters {
     categories: queryList(query.category),
     sort: (query.sort as string) || '',
     attributeValues: queryList(query.attributeValue),
+    brands: queryList(query.brand),
+    inStock: queryFlag(query.inStock),
+    onOffer: queryFlag(query.onOffer),
   }
 }
 
@@ -96,6 +104,21 @@ export function applyFilterUpdates(
     else delete next.attributeValue
   }
 
+  if (updates.brands !== undefined) {
+    if (updates.brands.length > 0) next.brand = listQueryValue(updates.brands)
+    else delete next.brand
+  }
+
+  if (updates.inStock !== undefined) {
+    if (updates.inStock) next.inStock = 'true'
+    else delete next.inStock
+  }
+
+  if (updates.onOffer !== undefined) {
+    if (updates.onOffer) next.onOffer = 'true'
+    else delete next.onOffer
+  }
+
   return next
 }
 
@@ -110,6 +133,9 @@ export function countActiveFilters(filters: ProductFilters): number {
     filters.categories.length > 0,
     filters.sort,
     filters.attributeValues.length > 0,
+    filters.brands.length > 0,
+    filters.inStock,
+    filters.onOffer,
   ].filter(Boolean).length
 }
 
@@ -122,6 +148,8 @@ export function countFiltersBySection(filters: ProductFilters) {
     viewCount: filters.viewsMin !== undefined ? 1 : 0,
     categories: filters.categories.length,
     attributes: filters.attributeValues.length,
+    brands: filters.brands.length,
+    availability: Number(filters.inStock) + Number(filters.onOffer),
   }
 }
 
@@ -170,6 +198,50 @@ export function buildFilterChips(filters: ProductFilters, t: (key: string) => st
 }
 
 /**
+ * The redesigned listing's chips: those of `buildFilterChips`, then one per
+ * brand, then in stock and on offer (`ListingFilterChip` says why they
+ * are kept apart).
+ */
+export function buildListingFilterChips(filters: ProductFilters, t: (key: string) => string): ListingFilterChip[] {
+  const chips: ListingFilterChip[] = buildFilterChips(filters, t)
+
+  for (const brandId of filters.brands) {
+    chips.push({ key: 'brands', type: 'brand', label: t('filters.brands'), value: brandId })
+  }
+
+  if (filters.inStock) {
+    chips.push({ key: 'inStock', type: 'in_stock', label: t('filters.in_stock'), value: true })
+  }
+
+  if (filters.onOffer) {
+    chips.push({ key: 'onOffer', type: 'on_offer', label: t('filters.on_offer'), value: true })
+  }
+
+  return chips
+}
+
+/** The URL's category filter with a listing's own category ahead of it, once. */
+export function scopedCategories(categories: readonly string[], scopeCategory: number | undefined): string[] {
+  const result = [...categories]
+  const own = scopeCategory === undefined ? undefined : String(scopeCategory)
+  if (own !== undefined && !result.includes(own)) result.unshift(own)
+  return result
+}
+
+/** The in-stock and on-offer filters as a search query: a flag only when it is on. */
+export function availabilityFacetQuery(filters: ProductFilters): { inStock?: true, onOffer?: true } {
+  return {
+    inStock: filters.inStock || undefined,
+    onOffer: filters.onOffer || undefined,
+  }
+}
+
+/** The same two flags as a cache-key part, empty when neither is on. */
+export function availabilityFacetKey(filters: ProductFilters): string {
+  return [filters.inStock ? 'inStock' : '', filters.onOffer ? 'onOffer' : ''].filter(Boolean).join(',')
+}
+
+/**
  * The update that clears every filter and keeps the sort: a listing's
  * "Clear all" sits beside the chips it removes, and the order a shopper
  * chose is not one of them.
@@ -182,6 +254,9 @@ export const CLEARED_FILTERS: Partial<ProductFilters> = {
   viewsMin: undefined,
   categories: [],
   attributeValues: [],
+  brands: [],
+  inStock: false,
+  onOffer: false,
 }
 
 /**
@@ -189,6 +264,6 @@ export const CLEARED_FILTERS: Partial<ProductFilters> = {
  * which has a control of its own beside them and is not cleared with
  * them.
  */
-export function isFilterChip(chip: FilterChip): boolean {
+export function isFilterChip(chip: ListingFilterChip): boolean {
   return chip.type !== 'sort'
 }

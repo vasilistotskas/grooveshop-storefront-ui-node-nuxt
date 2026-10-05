@@ -3,12 +3,16 @@ import {
   applyFilterUpdates,
   buildFilterChips,
   CLEARED_FILTERS,
+  availabilityFacetKey,
+  availabilityFacetQuery,
+  buildListingFilterChips,
+  scopedCategories,
   isFilterChip,
   countActiveFilters,
   countFiltersBySection,
   parseProductFilters,
 } from '~/utils/productFilters'
-import type { FilterChip, ProductFilters } from '~~/shared/types/product-filters'
+import type { FilterChip, ListingFilterChip, ProductFilters } from '~~/shared/types/product-filters'
 
 /** No filter set — what an empty listing URL parses to. */
 const NONE: ProductFilters = {
@@ -20,6 +24,9 @@ const NONE: ProductFilters = {
   categories: [],
   sort: '',
   attributeValues: [],
+  brands: [],
+  inStock: false,
+  onOffer: false,
 }
 
 const filters = (overrides: Partial<ProductFilters> = {}): ProductFilters => ({ ...NONE, ...overrides })
@@ -45,11 +52,15 @@ describe('parseProductFilters', () => {
     ['category', ['1', '2', '3'], { categories: ['1', '2', '3'] }],
     ['attributeValue', '10', { attributeValues: ['10'] }],
     ['attributeValue', ['10', '20'], { attributeValues: ['10', '20'] }],
+    ['brand', '3', { brands: ['3'] }],
+    ['brand', ['3', '7'], { brands: ['3', '7'] }],
+    ['inStock', 'true', { inStock: true }],
+    ['onOffer', 'true', { onOffer: true }],
   ])('reads ?%s=%j', (param, value, expected) => {
     expect(parseProductFilters({ [param]: value })).toEqual(filters(expected))
   })
 
-  it.each(['q', 'priceMin', 'priceMax', 'likesMin', 'viewsMin', 'sort', 'category', 'attributeValue'])(
+  it.each(['q', 'priceMin', 'priceMax', 'likesMin', 'viewsMin', 'sort', 'category', 'attributeValue', 'brand', 'inStock', 'onOffer'])(
     'treats an empty ?%s= as not set',
     (param) => {
       expect(parseProductFilters({ [param]: '' })).toEqual(NONE)
@@ -90,7 +101,16 @@ describe('parseProductFilters', () => {
       categories: ['1', '2'],
       sort: '-likesCount',
       attributeValues: ['7'],
+      brands: [],
+      inStock: false,
+      onOffer: false,
     })
+  })
+
+  // The flags are `true` or nothing, as the search API's own flag is: a
+  // typed `?inStock=1` or `?inStock=yes` is no filter rather than a guess.
+  it.each(['1', 'yes', 'false', 'TRUE'])('treats ?inStock=%s as not set', (value) => {
+    expect(parseProductFilters({ inStock: value, onOffer: value })).toEqual(NONE)
   })
 })
 
@@ -107,6 +127,10 @@ describe('applyFilterUpdates', () => {
     ['sort', { sort: '-finalPrice' }, { sort: '-finalPrice' }],
     ['one attribute value, bare', { attributeValues: ['10'] }, { attributeValue: '10' }],
     ['several attribute values, as a list', { attributeValues: ['10', '20'] }, { attributeValue: ['10', '20'] }],
+    ['one brand, bare', { brands: ['3'] }, { brand: '3' }],
+    ['several brands, as a list', { brands: ['3', '7'] }, { brand: ['3', '7'] }],
+    ['in stock', { inStock: true }, { inStock: 'true' }],
+    ['on offer', { onOffer: true }, { onOffer: 'true' }],
   ])('writes %s to the query', (_label, updates, expected) => {
     expect(applyFilterUpdates({}, updates)).toEqual(expected)
   })
@@ -120,6 +144,9 @@ describe('applyFilterUpdates', () => {
     category: ['1', '2'],
     sort: '-finalPrice',
     attributeValue: '10',
+    brand: ['3', '7'],
+    inStock: 'true',
+    onOffer: 'true',
   }
 
   it.each<[string, Partial<ProductFilters>, string]>([
@@ -132,6 +159,9 @@ describe('applyFilterUpdates', () => {
     ['no categories', { categories: [] }, 'category'],
     ['an empty sort', { sort: '' }, 'sort'],
     ['no attribute values', { attributeValues: [] }, 'attributeValue'],
+    ['no brands', { brands: [] }, 'brand'],
+    ['inStock: false', { inStock: false }, 'inStock'],
+    ['onOffer: false', { onOffer: false }, 'onOffer'],
   ])('removes only the parameter %s clears', (_label, updates, removed) => {
     const { [removed as keyof typeof FULL]: _gone, ...rest } = FULL
     expect(applyFilterUpdates(FULL, updates)).toEqual(rest)
@@ -167,6 +197,9 @@ describe('CLEARED_FILTERS', () => {
       viewsMin: '50',
       category: ['1', '2'],
       attributeValue: '7',
+      brand: ['3', '7'],
+      inStock: 'true',
+      onOffer: 'true',
       sort: '-finalPrice',
       utm_source: 'mail',
     }
@@ -195,6 +228,9 @@ describe('countActiveFilters', () => {
     ['viewsMin', { viewsMin: 100 }, 1],
     ['several categories, once', { categories: ['1', '2'] }, 1],
     ['several attribute values, once', { attributeValues: ['10', '20'] }, 1],
+    ['several brands, once', { brands: ['3', '7'] }, 1],
+    ['in stock', { inStock: true }, 1],
+    ['on offer', { onOffer: true }, 1],
     ['a sort', { sort: '-finalPrice' }, 1],
     ['every filter', {
       search: 'x',
@@ -205,7 +241,10 @@ describe('countActiveFilters', () => {
       categories: ['1'],
       sort: 'name',
       attributeValues: ['9'],
-    }, 8],
+      brands: ['3'],
+      inStock: true,
+      onOffer: true,
+    }, 11],
   ])('counts %s', (_label, overrides, expected) => {
     expect(countActiveFilters(filters(overrides))).toBe(expected)
   })
@@ -220,6 +259,8 @@ describe('countFiltersBySection', () => {
       viewCount: 0,
       categories: 0,
       attributes: 0,
+      brands: 0,
+      availability: 0,
     })
   })
 
@@ -229,6 +270,9 @@ describe('countFiltersBySection', () => {
     ['both price bounds as one badge', { priceMin: 100, priceMax: 500 }, { price: 1 }],
     ['one per selected category', { categories: ['1', '2', '3'] }, { categories: 3 }],
     ['one per selected attribute value', { attributeValues: ['10', '20'] }, { attributes: 2 }],
+    ['one per selected brand', { brands: ['3', '7'] }, { brands: 2 }],
+    ['in stock as one availability', { inStock: true }, { availability: 1 }],
+    ['both switches as two availability', { inStock: true, onOffer: true }, { availability: 2 }],
   ])('counts %s', (_label, overrides, expected) => {
     expect(countFiltersBySection(filters(overrides))).toMatchObject(expected)
   })
@@ -241,8 +285,10 @@ describe('countFiltersBySection', () => {
       viewsMin: 100,
       categories: ['1', '2'],
       attributeValues: ['10'],
+      brands: ['3'],
+      onOffer: true,
       sort: 'name',
-    }))).toEqual({ search: 1, price: 1, popularity: 1, viewCount: 1, categories: 2, attributes: 1 })
+    }))).toEqual({ search: 1, price: 1, popularity: 1, viewCount: 1, categories: 2, attributes: 1, brands: 1, availability: 1 })
   })
 })
 
@@ -293,6 +339,7 @@ describe('buildFilterChips', () => {
 
   it('orders the chips search, price, likes, views, categories, attributes, sort', () => {
     const chips = buildFilterChips({
+      ...NONE,
       search: 'laptop',
       priceMin: 1,
       priceMax: 2,
@@ -305,5 +352,66 @@ describe('buildFilterChips', () => {
     expect(chips.map(chip => chip.type)).toEqual(
       ['search', 'price', 'likes', 'views', 'category', 'category', 'attribute', 'sort'],
     )
+  })
+
+  // The frozen webside listing reads these chips and cannot show a brand
+  // or an availability chip: they come from `buildListingFilterChips`.
+  it('builds no chip for a brand or an availability filter', () => {
+    expect(buildFilterChips(filters({ brands: ['3'], inStock: true, onOffer: true }), t)).toEqual([])
+  })
+})
+
+describe('buildListingFilterChips', () => {
+  it.each<[string, Partial<ProductFilters>, ListingFilterChip[]]>([
+    ['nothing with no filters', {}, []],
+    ['one chip per brand', { brands: ['3', '7'] }, [
+      { key: 'brands', type: 'brand', label: 't:filters.brands', value: '3' },
+      { key: 'brands', type: 'brand', label: 't:filters.brands', value: '7' },
+    ]],
+    ['in stock', { inStock: true }, [
+      { key: 'inStock', type: 'in_stock', label: 't:filters.in_stock', value: true },
+    ]],
+    ['on offer', { onOffer: true }, [
+      { key: 'onOffer', type: 'on_offer', label: 't:filters.on_offer', value: true },
+    ]],
+  ])('builds %s', (_label, overrides, expected) => {
+    expect(buildListingFilterChips(filters(overrides), t)).toEqual(expected)
+  })
+
+  it('keeps the other chips and puts brands, in stock and on offer after them', () => {
+    const chips = buildListingFilterChips(filters({
+      search: 'laptop',
+      categories: ['c1'],
+      attributeValues: ['a1'],
+      brands: ['b1'],
+      inStock: true,
+      onOffer: true,
+      sort: 'name',
+    }), t)
+
+    expect(chips.map(chip => chip.type)).toEqual(
+      ['search', 'category', 'attribute', 'sort', 'brand', 'in_stock', 'on_offer'],
+    )
+  })
+})
+
+describe('scopedCategories', () => {
+  it.each<[string, string[], number | undefined, string[]]>([
+    ['the URL\'s categories alone with no scope', ['2', '3'], undefined, ['2', '3']],
+    ['the scope ahead of the URL\'s categories', ['2'], 5, ['5', '2']],
+    ['the scope once when the URL names it too', ['2', '5'], 5, ['2', '5']],
+  ])('gives %s', (_label, categories, scope, expected) => {
+    expect(scopedCategories(categories, scope)).toEqual(expected)
+  })
+})
+
+describe('availabilityFacetQuery and availabilityFacetKey', () => {
+  it.each<[string, Partial<ProductFilters>, Record<string, unknown>, string]>([
+    ['neither switch', {}, {}, ''],
+    ['in stock', { inStock: true }, { inStock: true }, 'inStock'],
+    ['both', { inStock: true, onOffer: true }, { inStock: true, onOffer: true }, 'inStock,onOffer'],
+  ])('describe %s', (_label, overrides, query, key) => {
+    expect(availabilityFacetQuery(filters(overrides))).toEqual(query)
+    expect(availabilityFacetKey(filters(overrides))).toBe(key)
   })
 })

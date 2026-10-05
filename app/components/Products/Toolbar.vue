@@ -32,10 +32,10 @@ const props = withDefaults(defineProps<ToolbarProps>(), {
 const emit = defineEmits<ToolbarEmits>()
 
 const { t, locale } = useI18n()
-const { activeFilterChips, updateFilters } = useProductFilters()
+const { activeListingChips, updateFilters } = useProductFilters()
 
 /** Filters a shopper set; the sort is a choice of its own, not one of them. */
-const filterCount = computed(() => activeFilterChips.value.filter(isFilterChip).length)
+const filterCount = computed(() => activeListingChips.value.filter(isFilterChip).length)
 
 const formattedCount = computed(
   () => new Intl.NumberFormat(locale.value).format(props.totalResults),

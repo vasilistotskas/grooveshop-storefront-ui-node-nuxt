@@ -3,7 +3,7 @@
  *
  * This route proxies requests to the Django backend's Meilisearch product search endpoint
  * with support for full-text search, price range, popularity, view count, category filters,
- * and attribute value filtering.
+ * attribute value filtering, brands, in-stock and on-offer.
  *
  * Features:
  * - Query parameter validation with Zod
@@ -44,6 +44,10 @@ export default defineCachedEventHandler(async (event) => {
     if (query.likesMin !== undefined) backendQuery.likes_min = query.likesMin
     if (query.viewsMin !== undefined) backendQuery.views_min = query.viewsMin
     if (query.categories) backendQuery.categories = query.categories
+    if (query.brands) backendQuery.brands = query.brands
+    // The flags go on as the schema parsed them ('true' / '1' / true); Django refuses anything else with a 400.
+    if (query.inStock !== undefined) backendQuery.in_stock = query.inStock
+    if (query.onOffer !== undefined) backendQuery.on_offer = query.onOffer
     if (query.sort) backendQuery.sort = query.sort
 
     // Pass attribute value filter (comma-separated IDs) to backend.
@@ -80,12 +84,15 @@ export default defineCachedEventHandler(async (event) => {
     const query = getQuery(event)
     const keyParts = [
       query.attributeValues || '',
+      query.brands || '',
       query.categories || '',
       query.facets || '',
+      query.inStock || '',
       query.languageCode || '',
       query.likesMin || '',
       query.limit || '20',
       query.offset || '0',
+      query.onOffer || '',
       query.priceMax || '',
       query.priceMin || '',
       query.query || '',

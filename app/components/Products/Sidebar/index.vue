@@ -13,8 +13,8 @@
  * footer closes it on the results it has already changed, and says how
  * many there are.
  *
- * Sections: the category tree, the price, then one per attribute — each
- * open until a shopper folds it.
+ * Sections: the category tree, the price, the brands, then one per
+ * attribute, then the availability switches — each open until a shopper folds it.
  */
 import type { AccordionItem } from '@nuxt/ui'
 import type { AttributeGroup } from '~/utils/attributeGroups'
@@ -30,7 +30,7 @@ defineProps<{
 
 const attrs = useAttrs()
 const { t, locale } = useI18n()
-const { filters, activeFilterChips, updateFilters } = useProductFilters()
+const { filters, activeListingChips, updateFilters } = useProductFilters()
 const {
   allAttributes,
   allAttributeValues,
@@ -38,7 +38,14 @@ const {
   priceStats,
   isPriceStatsLoaded,
 } = useProductSearchData(useListingScope())
+const { allBrands, brandFacets } = useProductBrands(useListingScope())
 const { forest } = useCategoryForest()
+
+const brandOptions = computed(() => buildBrandOptions(
+  allBrands.value ?? [],
+  brandFacets.value,
+  filters.value.brands,
+))
 
 const drawerOpen = ref(false)
 
@@ -57,6 +64,8 @@ const attributeGroups = computed(() => buildAttributeGroups(
 type SectionItem
   = | (AccordionItem & { value: string, slot: 'category' })
     | (AccordionItem & { value: string, slot: 'price' })
+    | (AccordionItem & { value: string, slot: 'brand' })
+    | (AccordionItem & { value: string, slot: 'availability' })
     | (AccordionItem & { value: string, slot: 'attribute', group: AttributeGroup })
 
 const sections = computed<SectionItem[]>(() => [
@@ -66,12 +75,16 @@ const sections = computed<SectionItem[]>(() => [
   ...(isPriceStatsLoaded.value && priceStats.value.min !== priceStats.value.max
     ? [{ label: t('price'), value: 'price', slot: 'price' as const }]
     : []),
+  ...(brandOptions.value.length
+    ? [{ label: t('brand'), value: 'brand', slot: 'brand' as const }]
+    : []),
   ...attributeGroups.value.map(group => ({
     label: group.label,
     value: `attribute-${group.id}`,
     slot: 'attribute' as const,
     group,
   })),
+  { label: t('availability'), value: 'availability', slot: 'availability' as const },
 ])
 
 // Every section starts open, a section that appears later (attributes
@@ -91,7 +104,7 @@ const accordionUi = {
   content: 'pb-4.5',
 }
 
-const hasFilters = computed(() => activeFilterChips.value.some(isFilterChip))
+const hasFilters = computed(() => activeListingChips.value.some(isFilterChip))
 
 function toggleDrawer() {
   drawerOpen.value = !drawerOpen.value
@@ -116,8 +129,14 @@ defineExpose({
       <template #price>
         <ProductsFiltersPriceRange />
       </template>
+      <template #brand>
+        <ProductsFiltersBrandValues :options="brandOptions" />
+      </template>
       <template #attribute="{ item }">
         <ProductsFiltersAttributeValues :group="item.group" />
+      </template>
+      <template #availability>
+        <ProductsFiltersAvailability />
       </template>
     </UAccordion>
   </DefineFiltersTemplate>
@@ -179,16 +198,20 @@ defineExpose({
 <i18n lang="yaml">
 el:
   title: Φίλτρα
-  description: Περιορίστε τα προϊόντα κατά κατηγορία, τιμή και χαρακτηριστικά
+  description: Περιορίστε τα προϊόντα κατά κατηγορία, τιμή, μάρκα, χαρακτηριστικά και διαθεσιμότητα
   category: Κατηγορία
   price: Τιμή
+  brand: Μάρκα
+  availability: Διαθεσιμότητα
   clear: Καθαρισμός
   show_results: 'Δείτε {count} προϊόν | Δείτε {count} προϊόντα'
 en:
   title: Filters
-  description: Narrow the products by category, price and attributes
+  description: Narrow the products by category, price, brand, attributes and availability
   category: Category
   price: Price
+  brand: Brand
+  availability: Availability
   clear: Clear
   show_results: 'Show {count} product | Show {count} products'
 </i18n>

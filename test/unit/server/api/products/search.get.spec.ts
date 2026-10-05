@@ -41,6 +41,8 @@ describe('GET /api/products/search', () => {
     ['a non-numeric priceMin', 'priceMin=cheap'],
     ['a non-integer limit', 'limit=ten'],
     ['a non-integer viewsMin', 'viewsMin=1.5'],
+    ['an inStock that is not a flag', 'inStock=ture'],
+    ['an onOffer that is not a flag', 'onOffer=maybe'],
   ])('answers 400 for %s without calling the backend', async (_label, query) => {
     const response = await search(query)
 
@@ -86,6 +88,25 @@ describe('GET /api/products/search', () => {
       // Pinned: Django's search view reads this one in camelCase.
       attributeValues: '10,20',
     })
+  })
+
+  it('forwards the brands, and the in-stock and on-offer flags as snake_case', async () => {
+    backend.reply(emptyPage)
+
+    await search('brands=3,7&inStock=true&onOffer=1')
+
+    expect(backend.lastRequest.query).toMatchObject({ brands: '3,7', in_stock: 'true', on_offer: '1' })
+  })
+
+  it('sends none of them when the shopper set none', async () => {
+    backend.reply(emptyPage)
+
+    await search('query=laptop')
+
+    const sent = backend.lastRequest.query
+    expect(sent).not.toHaveProperty('brands')
+    expect(sent).not.toHaveProperty('in_stock')
+    expect(sent).not.toHaveProperty('on_offer')
   })
 
   it('keeps a zero price floor and drops empty categories and sort', async () => {
@@ -154,12 +175,15 @@ describe('GET /api/products/search', () => {
 
     it.each([
       'attributeValues=10',
+      'brands=3',
       'categories=1',
       'facets=category',
+      'inStock=true',
       'languageCode=en',
       'likesMin=3',
       'limit=5',
       'offset=40',
+      'onOffer=true',
       'priceMax=100',
       'priceMin=10',
       'query=phone',

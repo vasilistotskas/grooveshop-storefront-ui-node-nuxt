@@ -51,6 +51,13 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // (measured 2026-09-25: 12-13 duplicate requests per /products render).
   const shared = { dedupe: 'defer', ...serverRenderCachedData() } as const
 
+  // The filters every facet shares. A facet's counts are what the OTHER
+  // filters leave, so each facet query adds these to its own set, minus
+  // the dimension it counts.
+  const brandsParam = computed(() => filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined)
+  const availabilityQuery = computed(() => availabilityFacetQuery(filters.value))
+  const availabilityKey = computed(() => availabilityFacetKey(filters.value))
+
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)
   // ============================================
@@ -100,6 +107,8 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
     likesMin: filters.value.likesMin,
     viewsMin: filters.value.viewsMin,
     attributeValues: filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined,
+    brands: brandsParam.value,
+    ...availabilityQuery.value,
     sort: filters.value.sort,
     facets: 'category',
     limit: 1,
@@ -114,6 +123,8 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
     if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
     if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
     if (filters.value.attributeValues.length > 0) params.set('attributeValues', filters.value.attributeValues.join(','))
+    if (brandsParam.value) params.set('brands', brandsParam.value)
+    if (availabilityKey.value) params.set('availability', availabilityKey.value)
     if (filters.value.sort) params.set('sort', filters.value.sort)
     return `category-facets-${$i18n.locale.value}-${params.toString()}`
   })
@@ -177,12 +188,7 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // This shows how many products match each attribute value given other filters.
   // The scoped category joins the URL's category filter, as it does in
   // the listing's own query (Products/List.vue).
-  const attributeFacetCategories = computed(() => {
-    const categories = [...filters.value.categories]
-    const own = scopeCategory.value === undefined ? undefined : String(scopeCategory.value)
-    if (own !== undefined && !categories.includes(own)) categories.unshift(own)
-    return categories
-  })
+  const attributeFacetCategories = computed(() => scopedCategories(filters.value.categories, scopeCategory.value))
   const attributeFacetQuery = computed(() => ({
     languageCode: $i18n.locale.value,
     query: filters.value.search || undefined,
@@ -191,6 +197,8 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
     likesMin: filters.value.likesMin,
     viewsMin: filters.value.viewsMin,
     categories: attributeFacetCategories.value.length > 0 ? attributeFacetCategories.value.join(',') : undefined,
+    brands: brandsParam.value,
+    ...availabilityQuery.value,
     sort: filters.value.sort,
     facets: 'attribute_values',
     limit: 1,
@@ -205,6 +213,8 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
     if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
     if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
     if (attributeFacetCategories.value.length > 0) params.set('categories', attributeFacetCategories.value.join(','))
+    if (brandsParam.value) params.set('brands', brandsParam.value)
+    if (availabilityKey.value) params.set('availability', availabilityKey.value)
     if (filters.value.sort) params.set('sort', filters.value.sort)
     return `attribute-facets-${$i18n.locale.value}-${params.toString()}`
   })

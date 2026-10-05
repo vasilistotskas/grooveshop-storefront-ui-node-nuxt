@@ -698,6 +698,11 @@ export const zBoxNowWebhookEnvelopeRequest = z.object({
   data: zBoxNowWebhookDataRequest,
 })
 
+export const zBrand = z.object({
+  id: z.int().readonly(),
+  name: z.string().readonly(),
+})
+
 export const zBulkSubscriptionFailure = z.object({
   topic: z.string().readonly(),
   error: z.string().readonly(),
@@ -1251,6 +1256,11 @@ export const zFederatedSearchResult = z.object({
   viewCount: z.int().optional(),
   reviewAverage: z.number().nullish(),
   vatPercent: z.number().nullish(),
+  categoryName: z.string().nullish(),
+  brandName: z.string().nullish(),
+  reviewCount: z.int().optional(),
+  createdAt: z.iso.datetime({ offset: true }).nullish(),
+  lowStockThreshold: z.int().nullish(),
   title: z.string().optional(),
   subtitle: z.string().optional(),
   body: z.string().optional(),
@@ -2049,6 +2059,19 @@ export const zPaginatedBlogTagList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zBlogTag),
+})
+
+export const zPaginatedBrandList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zBrand),
 })
 
 export const zPaginatedContentPageList = z.object({
@@ -3711,6 +3734,10 @@ export const zProductMeiliSearchResult = z.object({
   reviewAverage: z.number().nullable(),
   vatPercent: z.number().nullable(),
   categoryName: z.string().nullable(),
+  brandName: z.string().nullable(),
+  reviewCount: z.int(),
+  createdAt: z.iso.datetime({ offset: true }).nullable(),
+  lowStockThreshold: z.int().nullable(),
 })
 
 /**
@@ -7599,6 +7626,19 @@ export const zPaginatedBlogTagListWritable = z.object({
 })
 
 export const zPaginatedBoxNowLockerListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(z.unknown()),
+})
+
+export const zPaginatedBrandListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
     previous: z.url().nullish(),
@@ -14917,6 +14957,52 @@ export const zUpdateAttributeValueQuery = z.object({
 
 export const zUpdateAttributeValueResponse = zAttributeValue
 
+export const zListBrandQuery = z.object({
+  cursor: z.string().optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).optional().default('el'),
+  ordering: z.string().regex(/^(?:id|\-id|name|\-name)(?:,(?:id|\-id|name|\-name))*$/).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pagination: z.enum(['false', 'true']).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).optional().default('pageNumber'),
+  search: z.string().optional(),
+})
+
+export const zListBrandResponse = zPaginatedBrandList
+
+export const zRetrieveBrandPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zRetrieveBrandQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).optional().default('el'),
+})
+
+export const zRetrieveBrandResponse = zBrand
+
+export const zListAllBrandResponse = z.array(zBrand)
+
 export const zListProductCategoryQuery = z.object({
   active: z.union([
     z.literal('true'),
@@ -16187,8 +16273,16 @@ export const zApiV1SearchFederatedRetrieveResponse = zFederatedSearchResponse
 
 export const zApiV1SearchProductRetrieveQuery = z.object({
   attributeValues: z.string().optional(),
+  brands: z.string().optional(),
   categories: z.string().optional(),
   facets: z.string().optional(),
+  inStock: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   languageCode: z.string().optional(),
   likesMin: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16201,6 +16295,13 @@ export const zApiV1SearchProductRetrieveQuery = z.object({
   offset: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
+  ]).optional(),
+  onOffer: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
   ]).optional(),
   priceMax: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),

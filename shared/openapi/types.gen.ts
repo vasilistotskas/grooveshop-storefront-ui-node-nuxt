@@ -1946,6 +1946,14 @@ export type BoxNowWebhookEnvelopeRequest = {
   data: BoxNowWebhookDataRequest
 }
 
+export type Brand = {
+  readonly id: number
+  /**
+     * Όνομα
+     */
+  readonly name: string
+}
+
 export type BulkSubscriptionFailure = {
   readonly topic: string
   readonly error: string
@@ -3245,6 +3253,11 @@ export type FederatedSearchResult = {
   viewCount?: number
   reviewAverage?: number | null
   vatPercent?: number | null
+  categoryName?: string | null
+  brandName?: string | null
+  reviewCount?: number
+  createdAt?: string | null
+  lowStockThreshold?: number | null
   title?: string
   subtitle?: string
   body?: string
@@ -5285,6 +5298,19 @@ export type PaginatedBoxNowLockerList = {
   pageTotalResults?: number
   page?: number
   results: Array<BoxNowLocker>
+}
+
+export type PaginatedBrandList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<Brand>
 }
 
 export type PaginatedCartItemList = {
@@ -7739,6 +7765,10 @@ export type ProductMeiliSearchResult = {
   reviewAverage: number | null
   vatPercent: number | null
   categoryName: string | null
+  brandName: string | null
+  reviewCount: number
+  createdAt: string | null
+  lowStockThreshold: number | null
 }
 
 /**
@@ -11804,6 +11834,19 @@ export type PaginatedBlogTagListWritable = {
 }
 
 export type PaginatedBoxNowLockerListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<unknown>
+}
+
+export type PaginatedBrandListWritable = {
   links?: {
     next?: string | null
     previous?: string | null
@@ -22927,6 +22970,114 @@ export type UpdateAttributeValueResponses = {
 
 export type UpdateAttributeValueResponse = UpdateAttributeValueResponses[keyof UpdateAttributeValueResponses]
 
+export type ListBrandData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Δείκτης (cursor) για σελιδοποίηση
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, name, -name
+         */
+    ordering?: string
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Αριθμός αποτελεσμάτων ανά σελίδα
+         */
+    pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/product/brand'
+}
+
+export type ListBrandErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListBrandError = ListBrandErrors[keyof ListBrandErrors]
+
+export type ListBrandResponses = {
+  200: PaginatedBrandList
+}
+
+export type ListBrandResponse = ListBrandResponses[keyof ListBrandResponses]
+
+export type RetrieveBrandData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/product/brand/{id}'
+}
+
+export type RetrieveBrandErrors = {
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type RetrieveBrandError = RetrieveBrandErrors[keyof RetrieveBrandErrors]
+
+export type RetrieveBrandResponses = {
+  200: Brand
+}
+
+export type RetrieveBrandResponse = RetrieveBrandResponses[keyof RetrieveBrandResponses]
+
+export type ListAllBrandData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/product/brand/all'
+}
+
+export type ListAllBrandErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListAllBrandError = ListAllBrandErrors[keyof ListAllBrandErrors]
+
+export type ListAllBrandResponses = {
+  200: Array<Brand>
+}
+
+export type ListAllBrandResponse = ListAllBrandResponses[keyof ListAllBrandResponses]
+
 export type ListProductCategoryData = {
   body?: never
   path?: never
@@ -25156,6 +25307,10 @@ export type ApiV1SearchProductRetrieveData = {
          */
     attributeValues?: string
     /**
+         * Comma-separated brand IDs (brand IN [ids])
+         */
+    brands?: string
+    /**
          * ID κατηγοριών χωρισμένα με κόμμα· το καθένα περιλαμβάνει και όλες τις υποκατηγορίες του
          */
     categories?: string
@@ -25163,6 +25318,10 @@ export type ApiV1SearchProductRetrieveData = {
          * Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά
          */
     facets?: string
+    /**
+         * When true, only products with stock above zero
+         */
+    inStock?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el', 'de'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
          */
@@ -25179,6 +25338,10 @@ export type ApiV1SearchProductRetrieveData = {
          * Αριθμός αποτελεσμάτων προς παράλειψη
          */
     offset?: string | number
+    /**
+         * When true, only products carrying a markdown (discount_percent > 0). Promotions are cart-level (coupons, scoped and windowed) and are not part of this filter.
+         */
+    onOffer?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Φίλτρο μέγιστης τιμής (final_price <= value)
          */

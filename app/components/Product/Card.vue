@@ -16,9 +16,10 @@ import type { PropType } from 'vue'
  * on the photograph from `sm` up, an icon button beside the price on a
  * phone, as the design draws them.
  *
- * Renders only the fields the payload has: listing and search payloads
- * carry no brand or review count (PLAN F1), so those lines simply do not
- * appear there.
+ * Renders only the fields the payload has: a product without a brand or
+ * reviews shows no brand line or stars. Search hits carry the same
+ * `brandName`, `reviewCount`, `createdAt` and `lowStockThreshold` as a
+ * product, so a listing card is the home card.
  */
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },

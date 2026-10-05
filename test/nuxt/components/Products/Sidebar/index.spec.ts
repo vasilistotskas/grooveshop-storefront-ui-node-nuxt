@@ -3,8 +3,8 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import Sidebar from '~/components/Products/Sidebar/index.vue'
-import type { PaginatedAttributeList, PaginatedAttributeValueList } from '~~/shared/openapi/types.gen'
-import { makeAttribute, makeAttributeValue, makeCategory } from '~~/test/fixtures/productFilters'
+import type { Brand, PaginatedAttributeList, PaginatedAttributeValueList } from '~~/shared/openapi/types.gen'
+import { makeAttribute, makeAttributeValue, makeBrand, makeCategory } from '~~/test/fixtures/productFilters'
 import { buildCategoryForest } from '~/utils/categoryTree'
 
 /**
@@ -30,6 +30,15 @@ const data = await vi.hoisted(async () => {
 })
 mockNuxtImport('useProductSearchData', () => () => data)
 
+const brands = await vi.hoisted(async () => {
+  const { ref } = await import('vue')
+  return {
+    allBrands: ref<Brand[] | undefined>(undefined),
+    brandFacets: ref<Record<string, number>>({}),
+  }
+})
+mockNuxtImport('useProductBrands', () => () => brands)
+
 const tree = await vi.hoisted(async () => {
   const { ref } = await import('vue')
   return { forest: ref<import('~/utils/categoryTree').CategoryNode[]>([]), trail: ref([]) }
@@ -41,6 +50,8 @@ const page = <T>(results: T[]) => ({ links: { next: null, previous: null }, coun
 const STUBS = {
   ProductsFiltersCategoryTree: { template: '<div data-test="tree" />' },
   ProductsFiltersPriceRange: { template: '<div data-test="price" />' },
+  ProductsFiltersBrandValues: { props: ['options'], template: '<div data-test="brands">{{ options.map(o => o.label).join() }}</div>' },
+  ProductsFiltersAvailability: { template: '<div data-test="availability" />' },
   ProductsFiltersAttributeValues: { props: ['group'], template: '<div data-test="values">{{ group.label }}</div>' },
 }
 
@@ -69,13 +80,33 @@ describe('Products/Sidebar', () => {
       makeAttributeValue({ id: 20, attribute: 2 }),
     ])
     data.attributeValueFacets.value = { 10: 3, 20: 4 }
+    brands.allBrands.value = undefined
+    brands.brandFacets.value = {}
+  })
+
+  it('puts the brands after the price, listing only brands the listing carries', async () => {
+    brands.allBrands.value = [makeBrand({ id: 3, name: 'Kabelo' }), makeBrand({ id: 7, name: 'Voltra' }), makeBrand({ id: 9, name: 'Groove' })]
+    brands.brandFacets.value = { 3: 10, 7: 14 }
+
+    const wrapper = await mountSidebar()
+
+    expect(sections(wrapper).slice(0, 3)).toEqual([own(wrapper, 'category'), own(wrapper, 'price'), own(wrapper, 'brand')])
+    expect(wrapper.get('[data-test="brands"]').text()).toBe('Kabelo,Voltra')
+  })
+
+  it('leaves out the brands when none is counted', async () => {
+    brands.allBrands.value = [makeBrand({ id: 3 })]
+
+    const wrapper = await mountSidebar()
+
+    expect(sections(wrapper)).not.toContain(own(wrapper, 'brand'))
   })
 
   it('opens with the categories, the price, then one section per attribute', async () => {
     const wrapper = await mountSidebar()
 
-    expect(sections(wrapper)).toEqual([own(wrapper, 'category'), own(wrapper, 'price'), 'Ισχύς', 'Χρώμα'])
-    expect(wrapper.find('aside').findAll('button[aria-expanded="true"]')).toHaveLength(4)
+    expect(sections(wrapper)).toEqual([own(wrapper, 'category'), own(wrapper, 'price'), 'Ισχύς', 'Χρώμα', own(wrapper, 'availability')])
+    expect(wrapper.find('aside').findAll('button[aria-expanded="true"]')).toHaveLength(5)
     expect(wrapper.find('aside').findAll('[data-test="values"]').map(values => values.text())).toEqual(['Ισχύς', 'Χρώμα'])
   })
 
@@ -86,7 +117,7 @@ describe('Products/Sidebar', () => {
 
     const wrapper = await mountSidebar()
 
-    expect(sections(wrapper)).toEqual(['Χρώμα'])
+    expect(sections(wrapper)).toEqual(['Χρώμα', own(wrapper, 'availability')])
   })
 
   describe('the drawer', () => {
@@ -120,7 +151,7 @@ describe('Products/Sidebar', () => {
       expect(footerButton(dialog, own(wrapper, 'clear'))!.disabled).toBe(true)
       wrapper.unmount()
 
-      pf.activeFilterChips.value = [{ key: 'attributeValues', type: 'attribute', label: 'a', value: '10' }]
+      pf.activeListingChips.value = [{ key: 'attributeValues', type: 'attribute', label: 'a', value: '10' }]
       const filtered = await mountSidebar()
       dialog = await openDrawer(filtered)
       footerButton(dialog, own(filtered, 'clear'))!.click()

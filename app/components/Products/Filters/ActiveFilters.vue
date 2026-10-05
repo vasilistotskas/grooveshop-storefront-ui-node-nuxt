@@ -6,13 +6,14 @@
  * The sort is not among them: it has its own control right there, and
  * clearing the filters keeps it (`CLEARED_FILTERS`).
  */
-const { activeFilterChips, filters, updateFilters, removeFilter } = useProductFilters()
+const { activeListingChips, filters, updateFilters, removeFilter } = useProductFilters()
 const { t, n } = useI18n()
 const { getCategoryName, getAttributeValueName } = useProductSearchData(useListingScope())
+const { getBrandName } = useProductBrands(useListingScope())
 
-const chips = computed(() => activeFilterChips.value.filter(isFilterChip))
+const chips = computed(() => activeListingChips.value.filter(isFilterChip))
 
-function chipLabel(chip: FilterChip): string {
+function chipLabel(chip: ListingFilterChip): string {
   switch (chip.type) {
     case 'price': {
       const { min, max } = chip.value
@@ -28,6 +29,8 @@ function chipLabel(chip: FilterChip): string {
       return getCategoryName(chip.value)
     case 'attribute':
       return getAttributeValueName(chip.value)
+    case 'brand':
+      return getBrandName(chip.value)
     case 'search':
       return `“${chip.value}”`
     default:
@@ -35,12 +38,14 @@ function chipLabel(chip: FilterChip): string {
   }
 }
 
-function remove(chip: FilterChip) {
+function remove(chip: ListingFilterChip) {
   switch (chip.type) {
     case 'category':
       return updateFilters({ categories: filters.value.categories.filter(id => id !== chip.value) })
     case 'attribute':
       return updateFilters({ attributeValues: filters.value.attributeValues.filter(id => id !== chip.value) })
+    case 'brand':
+      return updateFilters({ brands: filters.value.brands.filter(id => id !== chip.value) })
     case 'price':
       return updateFilters({ priceMin: undefined, priceMax: undefined })
     default:

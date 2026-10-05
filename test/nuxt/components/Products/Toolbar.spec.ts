@@ -141,7 +141,7 @@ describe('default Products/Toolbar', () => {
     })
 
     it('counts the filters a shopper set on the drawer button, never the sort', async () => {
-      pf.activeFilterChips.value = [
+      pf.activeListingChips.value = [
         { key: 'attributeValues', type: 'attribute', label: 'a', value: '7' },
         { key: 'priceMin', type: 'price', label: 'p', value: { min: 10, max: 60 } },
         { key: 'sort', type: 'sort', label: 's', value: '-finalPrice' },
@@ -154,7 +154,7 @@ describe('default Products/Toolbar', () => {
     })
 
     it('clears the filters and keeps the sort from the narrow screen\'s "Clear filters"', async () => {
-      pf.activeFilterChips.value = [{ key: 'attributeValues', type: 'attribute', label: 'a', value: '7' }]
+      pf.activeListingChips.value = [{ key: 'attributeValues', type: 'attribute', label: 'a', value: '7' }]
       const wrapper = await mountToolbar()
 
       const clear = wrapper.findAll('button').find(button => button.text() === own(wrapper, 'clear_filters'))
@@ -164,7 +164,7 @@ describe('default Products/Toolbar', () => {
     })
 
     it('offers no count and nothing to clear with only a sort set', async () => {
-      pf.activeFilterChips.value = [{ key: 'sort', type: 'sort', label: 's', value: '-finalPrice' }]
+      pf.activeListingChips.value = [{ key: 'sort', type: 'sort', label: 's', value: '-finalPrice' }]
 
       const wrapper = await mountToolbar()
 

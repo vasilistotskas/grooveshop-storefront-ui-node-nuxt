@@ -31,6 +31,9 @@ const NO_FILTERS: ProductFilters = {
   categories: [],
   sort: '',
   attributeValues: [],
+  brands: [],
+  inStock: false,
+  onOffer: false,
 }
 const filters = ref<ProductFilters>({ ...NO_FILTERS })
 mockNuxtImport('useProductFilters', () => () => ({ filters }))
@@ -83,14 +86,28 @@ describe('useProductSearchData', () => {
         categories: ['1', '2'],
         sort: '-finalPrice',
         attributeValues: ['3', '4'],
+        brands: ['5', '6'],
+        inStock: true,
+        onOffer: true,
       }
 
       setup()
       await flushPromises()
 
-      const shared = { languageCode: 'el', query: 'shoe', priceMin: 10, priceMax: 90, likesMin: 2, viewsMin: 50, sort: '-finalPrice', limit: 1 }
-      expect(facetRequests('category')).toEqual([{ ...shared, attributeValues: '3,4', facets: 'category' }])
-      expect(facetRequests('attribute_values')).toEqual([{ ...shared, categories: '1,2', facets: 'attribute_values' }])
+      const shared = { languageCode: 'el', query: 'shoe', priceMin: 10, priceMax: 90, likesMin: 2, viewsMin: 50, sort: '-finalPrice', limit: 1, inStock: true, onOffer: true }
+      expect(facetRequests('category')).toEqual([{ ...shared, attributeValues: '3,4', brands: '5,6', facets: 'category' }])
+      expect(facetRequests('attribute_values')).toEqual([{ ...shared, categories: '1,2', brands: '5,6', facets: 'attribute_values' }])
+    })
+
+    it('sends no brand or availability filter when none is set', async () => {
+      setup()
+      await flushPromises()
+
+      for (const facet of ['category', 'attribute_values']) {
+        expect(facetRequests(facet)).toHaveLength(1)
+        expect(facetRequests(facet)[0]).toMatchObject({ inStock: undefined, onOffer: undefined })
+        expect(facetRequests(facet)[0]!.brands).toBeUndefined()
+      }
     })
 
     it('sends no search, category or attribute filter when none is set', async () => {
@@ -127,7 +144,9 @@ describe('useProductSearchData', () => {
 
     it('exposes each facet\'s distribution, or none', async () => {
       api.routes({
-        [SEARCH]: byFacet({ category: { facetDistribution: { category: { 1: 4 } } } }),
+        [SEARCH]: byFacet({
+          category: { facetDistribution: { category: { 1: 4 } } },
+        }),
       })
 
       const { categoryFacets, attributeValueFacets } = setup()
@@ -136,6 +155,16 @@ describe('useProductSearchData', () => {
       expect(categoryFacets.value).toEqual({ 1: 4 })
       expect(attributeValueFacets.value).toEqual({})
     })
+  })
+
+  // The frozen webside listing reads this composable and has no brand
+  // filter: it must make exactly the requests it made before the brand one.
+  it('asks for no brand facet and no brand list', async () => {
+    setup()
+    await flushPromises()
+
+    expect(facetRequests('brand')).toEqual([])
+    expect(api.callsTo('/api/products/brands/all')).toEqual([])
   })
 
   describe('price bounds', () => {
