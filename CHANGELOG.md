@@ -1,3 +1,10 @@
+## [3.240.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.240.0...v3.240.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* **observability:** keep every cart load in the logs and flag a signed-in shopper left without a cart ([#90](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/90)) ([5b2c874](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5b2c874da036d90df0ae9c175e1c704da56cc24e))
+
 # [3.240.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.239.0...v3.240.0) (2026-10-05)
 
 
