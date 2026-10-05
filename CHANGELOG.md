@@ -1,3 +1,10 @@
+# [3.237.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.236.0...v3.237.0) (2026-10-05)
+
+
+### Features
+
+* **storefront:** Groove Volt legal, contact, feedback, newsletter, error pages and global overlays ([#86](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/86)) ([5fac8b4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5fac8b42fcaba8d7fe8baad933e5bb7c2ea66014))
+
 # [3.236.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.235.0...v3.236.0) (2026-10-04)
 
 
