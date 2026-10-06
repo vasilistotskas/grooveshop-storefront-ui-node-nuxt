@@ -1,3 +1,10 @@
+## [3.241.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.0...v3.241.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* **tenant:** resolve the store description locale in the component ([#93](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/93)) ([d746928](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d746928409546a37a6de28a6305ca931b6c911af))
+
 # [3.241.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.240.2...v3.241.0) (2026-10-06)
 
 
