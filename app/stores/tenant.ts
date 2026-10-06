@@ -1,9 +1,14 @@
 export const useTenantStore = defineStore('tenant', () => {
+  const { $i18n } = useNuxtApp()
   const config = ref<TenantConfig | null>(null)
 
   const schemaName = computed(() => config.value?.schemaName ?? '')
   const storeName = computed(() => config.value?.storeName ?? '')
-  const storeDescription = computed(() => config.value?.storeDescription ?? '')
+  // The description in the page's locale, the default locale's when that
+  // locale has none (see `localizedStoreDescription`).
+  const storeDescription = computed(() =>
+    config.value ? localizedStoreDescription(config.value, $i18n.locale.value) : '',
+  )
   const primaryDomain = computed(() => config.value?.primaryDomain ?? '')
   const apiDomain = computed(() => config.value?.apiDomain ?? '')
   const assetsDomain = computed(() => config.value?.assetsDomain ?? '')

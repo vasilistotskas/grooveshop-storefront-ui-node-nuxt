@@ -57,6 +57,30 @@ describe('server/middleware/4.tenant-site-config', () => {
     expect(resolved.description).toBe('Acme tenant description')
   })
 
+  it.each([
+    ['en', 'English description'],
+    ['el', 'Ελληνική περιγραφή'],
+    ['de', 'Ελληνική περιγραφή'],
+  ])('resolves the description for the request locale %s', async (locale, expected) => {
+    const siteConfig = createSiteConfigStack()
+    siteConfig.push(PLATFORM_LAYER)
+    const event = createTestEvent({
+      context: {
+        locale,
+        siteConfig,
+        tenant: {
+          primaryDomain: 'acme.example',
+          storeName: 'Acme',
+          storeDescription: 'Ελληνική περιγραφή',
+          storeDescriptionI18n: { en: 'English description' },
+        },
+      },
+    })
+    await callHandler(middleware, event)
+
+    expect((event.context.siteConfig as SiteConfigStack).get().description).toBe(expected)
+  })
+
   it('keeps the platform description when the tenant has none', async () => {
     expect((await resolveAfterInit({ primaryDomain: 'acme.example', storeName: 'Acme' })).description).toBe('Platform-wide description')
   })

@@ -39,12 +39,14 @@ export default defineEventHandler((event) => {
   if (!tenant) return
   if (!tenant.primaryDomain) return
 
+  // Per page locale: this layer is pushed on every request and the page
+  // caches key on the locale, so each locale's HTML carries its own text.
+  const description = localizedStoreDescription(tenant, requestLocale(event))
+
   updateSiteConfig(event, {
     _priority: TENANT_SITE_CONFIG_PRIORITY,
     url: `https://${tenant.primaryDomain}`,
     name: tenant.storeName || tenant.name,
-    ...(tenant.storeDescription
-      ? { description: tenant.storeDescription }
-      : {}),
+    ...(description ? { description } : {}),
   })
 })

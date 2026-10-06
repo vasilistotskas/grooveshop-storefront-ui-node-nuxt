@@ -9357,6 +9357,9 @@ export type TenantConfig = {
   readonly name: string
   readonly storeName: string
   readonly storeDescription: string
+  storeDescriptionI18n?: {
+    [key: string]: string
+  }
   readonly logoLightUrl: string
   readonly logoDarkUrl: string
   readonly faviconUrl: string
@@ -13087,6 +13090,9 @@ export type TaggedItemWriteRequestWritable = {
  * TenantAdminSerializer.
  */
 export type TenantConfigWritable = {
+  storeDescriptionI18n?: {
+    [key: string]: string
+  }
   isPlatformStorefront?: boolean
   seoAuthor?: string
   googleSiteVerification?: string

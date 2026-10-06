@@ -67,6 +67,23 @@ describe('Chrome/Footer', () => {
     setTenant({ giftCardsEnabled: false, agentCommerceEnabled: false, availableLocales: ['el'] })
   })
 
+  it('prints the store\'s description in the shopper\'s locale', async () => {
+    setTenant({ storeDescription: 'Ελληνική περιγραφή', storeDescriptionI18n: { en: 'English description' }, availableLocales: ['el', 'en'] })
+    const i18n = useNuxtApp().$i18n
+
+    expect((await mountFooter()).text()).toContain('Ελληνική περιγραφή')
+
+    await i18n.setLocale('en')
+    try {
+      const wrapper = await mountFooter()
+      expect(wrapper.text()).toContain('English description')
+      expect(wrapper.text()).not.toContain('Ελληνική περιγραφή')
+    }
+    finally {
+      await i18n.setLocale('el')
+    }
+  })
+
   it('makes the seller reachable by phone and email', async () => {
     state.identity = { phone: '+302310000000', email: 'hello@shop.test' }
 
