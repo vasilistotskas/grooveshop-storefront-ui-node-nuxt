@@ -5055,6 +5055,7 @@ export const zTenantConfig = z.object({
   name: z.string().readonly(),
   storeName: z.string().readonly(),
   storeDescription: z.string().readonly(),
+  storeDescriptionI18n: z.record(z.string(), z.string()).optional(),
   logoLightUrl: z.string().readonly(),
   logoDarkUrl: z.string().readonly(),
   faviconUrl: z.string().readonly(),
@@ -8588,6 +8589,7 @@ export const zTaggedItemWriteRequestWritable = z.object({
  * TenantAdminSerializer.
  */
 export const zTenantConfigWritable = z.object({
+  storeDescriptionI18n: z.record(z.string(), z.string()).optional(),
   isPlatformStorefront: z.boolean().optional(),
   seoAuthor: z.string().optional(),
   googleSiteVerification: z.string().optional(),

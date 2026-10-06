@@ -40,6 +40,15 @@ describe('layouts/auth-split', () => {
       expect(aside(wrapper).find('img').exists()).toBe(false)
     })
 
+    it('shows the store\'s description in the page\'s locale', async () => {
+      setTenant({ storeDescription: DESCRIPTION, storeDescriptionI18n: { en: 'The store\'s description' }, availableLocales: ['el', 'en'] })
+
+      const wrapper = await mountLayout('/en/account/login')
+
+      expect(aside(wrapper).text()).toContain('The store\'s description')
+      expect(aside(wrapper).text()).not.toContain(DESCRIPTION)
+    })
+
     it('ignores a setting that fails its shape guard', async () => {
       setting.value = panel({ nope: true })
 
