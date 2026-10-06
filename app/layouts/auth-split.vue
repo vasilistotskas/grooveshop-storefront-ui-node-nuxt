@@ -35,7 +35,8 @@ const panel = computed(() => {
 })
 const photo = computed(() => panel.value?.imageUrl || '')
 const tagline = computed(() =>
-  (panel.value && authPanelTagline(panel.value, locale.value)) || tenantStore.storeDescription,
+  (panel.value && authPanelTagline(panel.value, locale.value))
+  || (tenantStore.config ? localizedStoreDescription(tenantStore.config, locale.value) : ''),
 )
 
 /** Back to where the shopper came from, or to the shop when they came from outside it. */

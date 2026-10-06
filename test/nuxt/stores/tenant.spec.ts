@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useTenantStore } from '~/stores/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
@@ -36,7 +36,6 @@ const OPTIONAL_KEYS: OptionalKey[] = ['seoAuthor', 'googleSiteVerification', 'pi
 const GETTERS: GetterRow[] = [
   ['schemaName', 'schemaName', '', 'acme'],
   ['storeName', 'storeName', '', 'Acme'],
-  ['storeDescription', 'storeDescription', '', 'Fine goods'],
   ['primaryDomain', 'primaryDomain', '', 'acme.example'],
   ['apiDomain', 'apiDomain', '', 'api.acme.example'],
   ['assetsDomain', 'assetsDomain', '', 'assets.acme.example'],
@@ -102,34 +101,6 @@ describe('useTenantStore', () => {
       expect(store[getter]).toEqual(fallback)
     },
   )
-
-  describe('storeDescription per locale', () => {
-    const withMap = () => config({ storeDescription: 'Ελληνική περιγραφή', storeDescriptionI18n: { en: 'English description' } })
-
-    afterEach(async () => {
-      await useNuxtApp().$i18n.setLocale('el')
-    })
-
-    it('reads the default text on the default locale', () => {
-      const store = useTenantStore()
-      store.setConfig(withMap())
-      expect(store.storeDescription).toBe('Ελληνική περιγραφή')
-    })
-
-    it('reads the locale\'s text once the page switches to it', async () => {
-      const store = useTenantStore()
-      store.setConfig(withMap())
-      await useNuxtApp().$i18n.setLocale('en')
-      expect(store.storeDescription).toBe('English description')
-    })
-
-    it('falls back to the default text when the locale has no entry', async () => {
-      const store = useTenantStore()
-      store.setConfig(config({ storeDescription: 'Ελληνική περιγραφή' }))
-      await useNuxtApp().$i18n.setLocale('en')
-      expect(store.storeDescription).toBe('Ελληνική περιγραφή')
-    })
-  })
 
   describe('socials', () => {
     const NONE = {
