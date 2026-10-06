@@ -1,3 +1,10 @@
+# [3.241.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.240.2...v3.241.0) (2026-10-06)
+
+
+### Features
+
+* **tenant:** print the store description in the visitor's locale ([#92](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/92)) ([f36967e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f36967e68ce49330e353319bdba7671cdc8f86c8))
+
 ## [3.240.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.240.1...v3.240.2) (2026-10-06)
 
 
