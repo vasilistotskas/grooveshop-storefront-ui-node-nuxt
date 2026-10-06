@@ -1,3 +1,10 @@
+## [3.240.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.240.1...v3.240.2) (2026-10-06)
+
+
+### Bug Fixes
+
+* **logging:** ship browser log events to stdout and rate-limit ingest ([#91](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/91)) ([d56a13b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d56a13b1b0da46075f4f1aaa93ddaf120c934da3))
+
 ## [3.240.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.240.0...v3.240.1) (2026-10-05)
 
 
