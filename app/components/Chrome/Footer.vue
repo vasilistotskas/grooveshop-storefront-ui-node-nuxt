@@ -21,8 +21,15 @@ import type { FooterColumn } from '@nuxt/ui'
  * the cached anonymous page; the per-visitor controls — colour mode and
  * cookie settings — render on the client only.
  */
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const tenantStore = useTenantStore()
+// Resolved here, not in the tenant store: that store is created by the
+// `enforce: 'pre'` tenant plugin, before @nuxtjs/i18n has applied the
+// route's locale, so a locale read there renders the default locale's
+// line on every page.
+const storeDescription = computed(() =>
+  tenantStore.config ? localizedStoreDescription(tenantStore.config, locale.value) : '',
+)
 const { primary, secondary } = useFooterNavigation()
 const { identity } = useMerchantIdentity()
 const { isModalActive } = useCookieControl()
@@ -137,13 +144,13 @@ const storeName = computed(() => tenantStore.storeName || '')
               <span class="sr-only">{{ storeName }}</span>
             </Anchor>
             <p
-              v-if="tenantStore.storeDescription"
+              v-if="storeDescription"
               class="
                 max-w-110 font-display text-3xl/[1.15] font-bold tracking-tight
                 text-highlighted text-balance
               "
             >
-              {{ tenantStore.storeDescription }}
+              {{ storeDescription }}
             </p>
             <FooterHoursBadge />
             <div class="flex flex-wrap gap-5 text-sm">
