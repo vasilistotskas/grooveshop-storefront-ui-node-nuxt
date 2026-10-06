@@ -2,35 +2,11 @@
 // one click per tile followed, so 60/min per host is far above any
 // legitimate browsing pace and low enough to blunt a script hammering
 // the endpoint from a single host.
-const RATE_LIMIT_WINDOW_SECONDS = 60
-const RATE_LIMIT_MAX_REQUESTS = 60
+const RATE_LIMIT = { name: 'recommendation-event', windowSeconds: 60, maxRequests: 60 }
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const clientIp
-    = getRequestHeader(event, 'cf-connecting-ip')
-      || getRequestHeader(event, 'true-client-ip')
-      || getRequestIP(event, { xForwardedFor: true })
-      || 'unknown'
-
-  // Prefix with the tenant host so tenants don't share the same
-  // rate-limit budget.
-  const host = requestTenantHost(event)
-  const storage = useStorage('cache')
-  const rateLimitKey = `rate:recommendation-event:${host}:${clientIp}`
-  const current = await storage.getItem<number>(rateLimitKey)
-  const count = (current ?? 0) + 1
-
-  if (count > RATE_LIMIT_MAX_REQUESTS) {
-    throw createError({
-      statusCode: 429,
-      statusMessage: 'Too Many Requests',
-    })
-  }
-
-  // Explicit TTL on every hit (sliding window); the driver default is
-  // the hour-long cache TTL and would silently widen the window.
-  await storage.setItem(rateLimitKey, count, { ttl: RATE_LIMIT_WINDOW_SECONDS })
+  await enforceRateLimit(event, RATE_LIMIT)
 
   try {
     const body = await readValidatedBody(event, zApiV1RecommendationsEventsCreateBody.parse)

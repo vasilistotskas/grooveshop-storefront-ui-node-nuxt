@@ -287,6 +287,15 @@ export default withNuxt(
     },
   },
   {
+    // The one server file whose product IS a console line: stdout is the
+    // log transport, and evlog's own `log` would send the event back into
+    // the drain it came from.
+    files: ['server/plugins/evlog-client-drain.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     settings: {
       'better-tailwindcss': {
         entryPoint: 'app/assets/css/main.css',
