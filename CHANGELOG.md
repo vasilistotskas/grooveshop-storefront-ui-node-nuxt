@@ -1,3 +1,10 @@
+## [3.241.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.1...v3.241.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* **deps:** upgrade to Nuxt 4.6 and adopt its Nuxt 5 type contexts ([b58a1c2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b58a1c2c0512edffbf1b561a6aab87ef6acee2d6)), closes [nuxt/nuxt#36467](https://github.com/nuxt/nuxt/issues/36467)
+
 ## [3.241.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.0...v3.241.1) (2026-10-06)
 
 
