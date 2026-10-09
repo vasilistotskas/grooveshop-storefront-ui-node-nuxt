@@ -1,3 +1,10 @@
+## [3.241.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.2...v3.241.3) (2026-10-09)
+
+
+### Bug Fixes
+
+* **server:** ship the request fixes of the nuxt/server migration ([8f2efe6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8f2efe6fcaa6f6755784c3b249d3d0c752f113fb))
+
 ## [3.241.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.1...v3.241.2) (2026-10-09)
 
 
