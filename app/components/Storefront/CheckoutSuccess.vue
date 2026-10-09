@@ -587,7 +587,7 @@ async function openInvoice() {
                   :height="48"
                   fit="cover"
                   loading="lazy"
-                  densities="x1"
+                  densities="x1 x2"
                   class="size-12 shrink-0 rounded-[0.625rem] bg-elevated object-cover"
                 />
                 <span class="min-w-0 flex-1 text-highlighted">{{ t('line', { quantity: item.quantity, name: nameOf(item) }) }}</span>

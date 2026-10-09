@@ -81,15 +81,12 @@ export interface HtmlImageOptimizationConfig {
   /** Allowed source domains that should be transformed */
   allowedDomains: string[]
   /**
-   * Default width when not specified or invalid (e.g., percentage).
-   * Use 0 to preserve original image dimensions (no resizing).
+   * Widest CSS width, in px, the images are ever shown at. The 1x
+   * candidate is requested at this width (or the author's smaller
+   * `width`) and the 2x candidate at twice it. Media stream never
+   * upscales, so a smaller source simply comes back at its own size.
    */
-  defaultWidth?: number
-  /**
-   * Default height when not specified or invalid (e.g., percentage).
-   * Use 0 to preserve original image dimensions (no resizing).
-   */
-  defaultHeight?: number
+  maxWidth?: number
   /** Default image format (avif, webp, etc.) */
   format?: string
   /** Default image quality (1-100) */
@@ -109,16 +106,35 @@ export interface HtmlImageOptimizationConfig {
 }
 
 /**
- * Default configuration for image optimization
- * Note: defaultWidth/defaultHeight of 0 means "use original image dimensions"
- * The media stream service will skip resizing when dimensions are 0.
+ * Widest frame the storefront lays rich text out in: `--container-8xl`
+ * (`--ui-container`) in `app/assets/css/main.css`. The default bound for
+ * every body that has no narrower column of its own.
+ */
+export const PAGE_CONTENT_MAX_WIDTH = 1440
+
+/**
+ * The blog article column: `minmax(0, 44rem)` in `Storefront/BlogPost.vue`.
+ */
+export const ARTICLE_COLUMN_MAX_WIDTH = 704
+
+/**
+ * Pixel-density candidates emitted per image. 3x is deliberately absent:
+ * the media service is CPU-bound and a third candidate buys little.
+ */
+const IMAGE_DENSITIES = [1, 2] as const
+
+/**
+ * Default configuration for image optimization.
+ *
+ * Media stream reads a `0` width or height as "unconstrained on that axis":
+ * width only keeps the source aspect, both `0` encodes the full-size
+ * original. Rich-text images always carry a width, never both `0`.
  */
 export const defaultHtmlImageConfig: Required<HtmlImageOptimizationConfig> = {
   mediaStreamOrigin: '',
   mediaStreamPath: '/media_stream-image',
   allowedDomains: [],
-  defaultWidth: 0,
-  defaultHeight: 0,
+  maxWidth: PAGE_CONTENT_MAX_WIDTH,
   format: 'avif',
   quality: 80,
   fit: 'contain',
@@ -285,9 +301,9 @@ export function buildMediaStreamUrl(
     trimThreshold: number
   }>,
 ): string {
-  // Use provided dimensions or fall back to config defaults
-  const width = overrides?.width || config.defaultWidth
-  const height = overrides?.height || config.defaultHeight
+  // 0 leaves that axis unconstrained (see defaultHtmlImageConfig)
+  const width = overrides?.width || 0
+  const height = overrides?.height || 0
   const format = overrides?.format || config.format
   const quality = overrides?.quality || config.quality
   const fit = overrides?.fit || config.fit
@@ -427,60 +443,42 @@ export function transformImgTag(
     return imgTag
   }
 
-  // Determine actual dimensions to use (parsed value or default)
-  // 0 means "use original image dimensions" (media stream will skip resizing)
-  const actualWidth = attrs.width || config.defaultWidth
-  const actualHeight = attrs.height || config.defaultHeight
-
-  // Build optimized URL with actual dimensions
-  const optimizedSrc = buildMediaStreamUrl(attrs.src, config, {
-    width: actualWidth,
-    height: actualHeight,
+  // Request no wider than the column the image is shown in: the author's
+  // width when it is smaller, the bound otherwise. Height is only sent
+  // together with an authored width, scaled to the same ratio, so the
+  // requested box keeps the author's aspect; otherwise it stays 0 and
+  // media stream keeps the source aspect.
+  const width = Math.min(attrs.width || config.maxWidth, config.maxWidth)
+  const heightPerWidth = attrs.width && attrs.height ? attrs.height / attrs.width : 0
+  const candidates = IMAGE_DENSITIES.map((density) => {
+    const candidateWidth = width * density
+    return {
+      width: candidateWidth,
+      url: buildMediaStreamUrl(attrs.src, config, {
+        width: candidateWidth,
+        height: Math.round(candidateWidth * heightPerWidth),
+      }),
+    }
   })
 
-  // Start building the new img tag
-  let newTag = imgTag
+  // Any srcset/sizes the editor wrote would compete with ours
+  let newTag = imgTag.replace(/\s+(?:srcset|sizes)=(?:"[^"]*"|'[^']*'|\S+)/gi, '')
 
-  // Replace src
-  newTag = newTag.replace(
-    /src=["'][^"']*["']/i,
-    `src="${optimizedSrc}"`,
-  )
+  // The 2x candidate only with an authored width: that attribute fixes the
+  // rendered size. Without it, a source narrower than the bound comes back
+  // at its own pixels for both candidates (media stream never upscales), and
+  // a retina screen picking "2x" would draw it at half its natural size.
+  const srcset = attrs.width
+    ? ` srcset="${candidates.map(({ url, width: w }) => `${url} ${w}w`).join(', ')}" sizes="(max-width: ${width}px) 100vw, ${width}px"`
+    : ''
+  newTag = newTag.replace(/src=["'][^"']*["']/i, `src="${candidates[0]?.url}"${srcset}`)
 
-  // Handle width/height attributes based on whether we have valid dimensions
-  if (attrs.width) {
-    // Width was valid pixel value, keep it
-  }
-  else if (actualWidth > 0) {
-    // We have a non-zero default width, update the attribute
-    if (/width=["'][^"']*["']/i.test(newTag)) {
-      newTag = newTag.replace(/width=["'][^"']*["']/i, `width="${actualWidth}"`)
-    }
-    else {
-      newTag = newTag.replace(/<img/i, `<img width="${actualWidth}"`)
-    }
-  }
-  else {
-    // Width is 0 (use original) - remove invalid width attribute (like "100%")
-    // Let the browser use the image's natural dimensions
+  // Drop a width/height that is not a pixel value (like "100%"); a valid
+  // one is the author's and stays.
+  if (!attrs.width) {
     newTag = newTag.replace(/\s*width=["'][^"']*["']/i, '')
   }
-
-  if (attrs.height) {
-    // Height was valid pixel value, keep it
-  }
-  else if (actualHeight > 0) {
-    // We have a non-zero default height, update the attribute
-    if (/height=["'][^"']*["']/i.test(newTag)) {
-      newTag = newTag.replace(/height=["'][^"']*["']/i, `height="${actualHeight}"`)
-    }
-    else {
-      newTag = newTag.replace(/<img/i, `<img height="${actualHeight}"`)
-    }
-  }
-  else {
-    // Height is 0 (use original) - remove invalid height attribute (like "100%")
-    // Let the browser use the image's natural dimensions
+  if (!attrs.height) {
     newTag = newTag.replace(/\s*height=["'][^"']*["']/i, '')
   }
 

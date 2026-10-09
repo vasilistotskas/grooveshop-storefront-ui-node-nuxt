@@ -139,12 +139,14 @@ export function useHtmlContent() {
     const sources = getImageSources(html).slice(0, limit)
     const config = getDefaultConfig()
 
+    const mergedConfig = { ...defaultHtmlImageConfig, ...config }
+
     const links = sources
-      .filter(src => shouldTransformImage(src, { ...defaultHtmlImageConfig, ...config }))
+      .filter(src => shouldTransformImage(src, mergedConfig))
       .map(src => ({
         rel: 'preload' as const,
         as: 'image' as const,
-        href: buildMediaStreamUrl(src, { ...defaultHtmlImageConfig, ...config }),
+        href: buildMediaStreamUrl(src, mergedConfig, { width: mergedConfig.maxWidth }),
       }))
 
     if (links.length) {

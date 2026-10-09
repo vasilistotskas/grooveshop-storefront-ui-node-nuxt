@@ -166,7 +166,7 @@ const UDrawer = resolveComponent('UDrawer')
                 :height="52"
                 fit="cover"
                 loading="lazy"
-                densities="x1"
+                densities="x1 x2"
                 class="size-13 shrink-0 rounded-[0.625rem] bg-elevated object-cover"
               />
               <div class="flex min-w-0 flex-1 flex-col">

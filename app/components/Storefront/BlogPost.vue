@@ -118,7 +118,7 @@ const { transformImages } = useHtmlContent()
 
 const blogPostBody = computed(() => {
   const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
-  return transformImages(rawBody)
+  return transformImages(rawBody, { maxWidth: ARTICLE_COLUMN_MAX_WIDTH })
 })
 
 // The headings get anchors, and the table of contents links to them.

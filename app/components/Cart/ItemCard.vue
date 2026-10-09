@@ -100,7 +100,7 @@ async function remove() {
           :height="96"
           fit="cover"
           loading="lazy"
-          densities="x1"
+          densities="x1 x2"
           class="size-full object-cover"
         />
       </Anchor>
