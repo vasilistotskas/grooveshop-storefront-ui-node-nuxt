@@ -10,14 +10,21 @@ mockNuxtImport('useUserLanguage', () => () => ({ setLanguage }))
 
 const mountSwitcher = () => mountSuspended(LanguageSwitcher, { route: false, attachTo: document.body })
 
-/** Open the select and pick the option whose text is `label`. */
+/**
+ * Open the select and pick the option whose text is `label`. The listbox
+ * is teleported and mounts on its own schedule after the trigger opens
+ * it, so the option is waited for rather than expected after one flush
+ * (that raced under a loaded CI runner).
+ */
 async function choose(wrapper: VueWrapper, label: string) {
   await wrapper.find('button').trigger('click')
-  await flushPromises()
-  const option = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')]
-    .find(el => el.textContent?.includes(label))
-  expect(option?.textContent).toContain(label)
-  option!.click()
+  const option = await vi.waitFor(() => {
+    const found = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')]
+      .find(el => el.textContent?.includes(label))
+    if (!found) throw new Error(`no "${label}" option rendered yet`)
+    return found
+  })
+  option.click()
   await flushPromises()
 }
 
