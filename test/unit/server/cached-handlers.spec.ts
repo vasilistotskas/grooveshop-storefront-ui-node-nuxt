@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 /**
- * The cache-key contract, over EVERY `defineCachedEventHandler` route.
+ * The cache-key contract, over EVERY `defineCachedRoute` route.
  *
  * Nitro serves a cached handler's entry to any request whose key
  * matches. A key without the tenant host serves one store's data to
@@ -21,7 +21,7 @@ import { cacheOptionsOf, createTestEvent } from '~~/test/helpers/nitro'
 const sources = import.meta.glob<string>('/server/{api,routes}/**/*.ts', { query: '?raw', import: 'default', eager: true })
 const modules = import.meta.glob<{ default: EventHandler }>('/server/{api,routes}/**/*.ts')
 
-const CACHED = /\bdefineCachedEventHandler\s*\(/
+const CACHED = /\bdefineCachedRoute\s*\(/
 
 const cachedFiles = Object.keys(sources)
   .filter(file => CACHED.test(sources[file]!))

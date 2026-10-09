@@ -15,7 +15,7 @@
  * middleware (``markdown.ts`` from nuxt-ai-ready). We only intercept when
  * the client asks for markdown explicitly, so HTML browsers are unaffected.
  */
-import { defineEventHandler, getHeader, getRequestHost, setHeader } from 'h3'
+import { defineEventHandler, getRequestHeader, getRequestHost, serverFetch } from 'nuxt/server'
 
 const SKIP_PREFIXES = [
   '/_',
@@ -27,15 +27,15 @@ const SKIP_PREFIXES = [
 ]
 
 export default defineEventHandler(async (event) => {
-  const accept = getHeader(event, 'accept') || ''
+  const accept = getRequestHeader(event, 'accept') || ''
   if (!accept.includes('text/markdown'))
     return
 
-  // Skip internal recursion (set on the proxied event.fetch call below)
-  if (getHeader(event, 'x-md-negotiation-internal'))
+  // Skip internal recursion (set on the in-process fetch below)
+  if (getRequestHeader(event, 'x-md-negotiation-internal'))
     return
 
-  const path = event.path
+  const path = event.url.pathname
   if (path.includes('.'))
     return
   if (SKIP_PREFIXES.some(p => path.startsWith(p)))
@@ -44,14 +44,12 @@ export default defineEventHandler(async (event) => {
   const stripped = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path
   const mdPath = stripped === '/' || stripped === '' ? '/index.md' : `${stripped}.md`
 
-  // h3's event.fetch() already forwards the original request's Host header
-  // automatically for relative-path (same-origin) internal fetches, but the
-  // downstream tenant/schema resolution this enables is important enough to
-  // pin explicitly rather than rely on that implicit behavior surviving
-  // future h3 upgrades.
+  // The original request's Host is pinned on the in-process fetch: the
+  // downstream tenant/schema resolution depends on it, and `serverFetch`
+  // forwards only the cookie and authorization headers on its own.
   const host = getRequestHost(event, { xForwardedHost: false })
 
-  const upstream = await event.fetch(mdPath, {
+  const upstream = await serverFetch(event, mdPath, {
     headers: {
       'x-md-negotiation-internal': '1',
       ...(host ? { host } : {}),
@@ -65,8 +63,8 @@ export default defineEventHandler(async (event) => {
   if (!body)
     return
 
-  setHeader(event, 'content-type', 'text/markdown; charset=utf-8')
-  setHeader(event, 'vary', 'Accept')
-  setHeader(event, 'cache-control', 'public, max-age=300, stale-while-revalidate=3600')
+  event.res.headers.set('content-type', 'text/markdown; charset=utf-8')
+  event.res.headers.set('vary', 'Accept')
+  event.res.headers.set('cache-control', 'public, max-age=300, stale-while-revalidate=3600')
   return body
 })

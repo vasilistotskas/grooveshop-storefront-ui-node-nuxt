@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { defineEventHandler, getValidatedQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
 
 // Agent-built carts (grooveshop-agent-gateway) hand the shopper a link of
 // the form `/cart/claim?uuid=<cart-uuid>` once they're ready to check out.
@@ -14,22 +15,22 @@ const zCartClaimQuery = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const cartSession = useCartSession(event)
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
 
   try {
-    const { uuid } = await getValidatedQuery(event, zCartClaimQuery.parse)
+    const { uuid } = await getValidatedQuery(event, zCartClaimQuery)
 
     const headers = await cartSession.getCartHeaders(uuid)
-    const response = await $fetch(`${config.apiBaseUrl}/cart`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart`, {
       method: 'GET',
       headers,
     })
     const parsedData = await parseDataAs(response, zRetrieveCartResponse)
 
     await cartSession.handleCartResponse(parsedData)
-    wideLog.set({ cart: { claimed: parsedData.uuid } })
+    wideLog?.set({ cart: { claimed: parsedData.uuid } })
 
     return sendRedirect(event, '/cart')
   }

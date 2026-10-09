@@ -1,18 +1,20 @@
+import { defineEventHandler, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zListBlogCommentRepliesPath.parse,
+      zListBlogCommentRepliesPath,
     )
-    const query = await getValidatedQuery(event, zListBlogCommentRepliesQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/blog/comment/${params.id}/replies`, {
+    const query = await getValidatedQuery(event, zListBlogCommentRepliesQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/blog/comment/${params.id}/replies`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListBlogCommentRepliesResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

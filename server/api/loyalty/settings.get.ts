@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
 
 const zLoyaltySettingsQuery = z.object({
   keys: z.string().min(1),
@@ -6,11 +8,11 @@ const zLoyaltySettingsQuery = z.object({
 
 const zLoyaltySettingsResponse = z.record(z.string(), z.string())
 
-export default defineCachedEventHandler(
+export default defineCachedRoute(
   async (event) => {
     const config = useRuntimeConfig()
     try {
-      const { keys } = await getValidatedQuery(event, zLoyaltySettingsQuery.parse)
+      const { keys } = await getValidatedQuery(event, zLoyaltySettingsQuery)
       const keyList = keys.split(',').map(k => k.trim()).filter(Boolean)
 
       // One bulk read of the store's public settings, not one Django
@@ -21,7 +23,7 @@ export default defineCachedEventHandler(
       // TenantMainMiddleware resolve the caller's schema — without it
       // the lookup falls back to the public schema and every tenant
       // caches the platform-default loyalty values.
-      const { settings } = await useBackendFetch()<PublicSettings>(
+      const { settings } = await useBackendFetch(event)<PublicSettings>(
         `${config.apiBaseUrl}/settings/public`,
         { method: 'GET' },
       )
@@ -36,7 +38,7 @@ export default defineCachedEventHandler(
       return await parseDataAs(record, zLoyaltySettingsResponse)
     }
     catch (error) {
-      handleError(error)
+      handleError(event, error)
     }
   },
   {

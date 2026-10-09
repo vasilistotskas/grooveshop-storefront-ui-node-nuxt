@@ -1,4 +1,4 @@
-import { defineEventHandler, getRequestHost, setHeader } from 'h3'
+import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/server'
 
 // RFC 9728 path-insertion form for the /mcp resource — MCP clients
 // derive this URL from the server endpoint (https://<host>/mcp →
@@ -6,7 +6,7 @@ import { defineEventHandler, getRequestHost, setHeader } from 'h3'
 // authorization server for account linking. The agent gateway's 401
 // challenge also points here via WWW-Authenticate resource_metadata.
 export default defineEventHandler((event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const tenant = event.context.tenant
   const host = getRequestHost(event, { xForwardedHost: false })
   const tenantDomain = tenant?.primaryDomain || host
@@ -17,8 +17,8 @@ export default defineEventHandler((event) => {
     ? `https://${tenant.apiDomain}`
     : (config.public.djangoUrl as string)
 
-  setHeader(event, 'content-type', 'application/json')
-  setHeader(event, 'cache-control', 'public, max-age=3600')
+  event.res.headers.set('content-type', 'application/json')
+  event.res.headers.set('cache-control', 'public, max-age=3600')
 
   return {
     resource: `${siteUrl}/mcp`,

@@ -1,22 +1,25 @@
-export default defineCachedEventHandler(async (event) => {
+import { getRouterParam, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(event, zListProductImagesPath.parse)
-    const query = await getValidatedQuery(event, zListProductImagesQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/product/${params.id}/images`, {
+    const params = await parseRouterParams(event, zListProductImagesPath)
+    const query = await getValidatedQuery(event, zListProductImagesQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/${params.id}/images`, {
       method: 'GET',
       query,
-      headers: createHeaders(null, null),
+      headers: createHeaders(event, null, null),
     })
     return await parseDataAs(response, zListProductImagesResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ProductImagesViewSet',
   maxAge: 60 * 10,
   staleMaxAge: 60 * 60,
   swr: true,
-  getKey: event => tenantCacheKey(event, `product-images:${getRouterParam(event, 'id')}:${JSON.stringify(getQuery(event))}`),
+  getKey: event => tenantCacheKey(event, `product-images:${getRouterParam(event, 'id', { decode: true })}:${JSON.stringify(getQuery(event))}`),
 })

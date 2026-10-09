@@ -1,19 +1,22 @@
-export default defineCachedEventHandler(async (event) => {
+import { getRouterParam, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(event, zListProductReviewsPath.parse)
+    const params = await parseRouterParams(event, zListProductReviewsPath)
     // Forwarded, not dropped: the product page's page/ordering choice
     // used to end here and every caller got page 1, newest first.
-    const query = await getValidatedQuery(event, zListProductReviewsQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/product/${params.id}/reviews`, {
+    const query = await getValidatedQuery(event, zListProductReviewsQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/${params.id}/reviews`, {
       method: 'GET',
       query,
-      headers: createHeaders(null, null),
+      headers: createHeaders(event, null, null),
     })
     return await parseDataAs(response, zListProductReviewsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ProductReviewsViewSet',
@@ -24,6 +27,6 @@ export default defineCachedEventHandler(async (event) => {
   // product are different responses.
   getKey: event => tenantCacheKey(
     event,
-    `product-reviews:${getRouterParam(event, 'id')}:${JSON.stringify(getQuery(event))}`,
+    `product-reviews:${getRouterParam(event, 'id', { decode: true })}:${JSON.stringify(getQuery(event))}`,
   ),
 })

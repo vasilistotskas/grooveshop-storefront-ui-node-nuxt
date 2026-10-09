@@ -1,3 +1,5 @@
+import { defineNitroPlugin } from 'nitropack/runtime'
+
 /**
  * Mark the pages Nitro served from its page cache as cacheable at the
  * Cloudflare edge, and tag them for purging. The rules and the reasons

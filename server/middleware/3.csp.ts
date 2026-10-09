@@ -1,3 +1,5 @@
+import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Content Security Policy middleware.
  *
@@ -22,7 +24,7 @@
  * Skipped for API routes (JSON responses) and static assets.
  */
 export default defineEventHandler((event) => {
-  const path = event.path
+  const path = event.url.pathname
 
   // Skip CSP for API routes, static assets, and internal Nuxt routes
   if (path.startsWith('/api/') || path.startsWith('/_nuxt/') || path.startsWith('/_ipx/')) {
@@ -89,5 +91,5 @@ export default defineEventHandler((event) => {
     nonce,
   })
 
-  setResponseHeader(event, 'Content-Security-Policy', directives.join('; '))
+  event.res.headers.set('Content-Security-Policy', directives.join('; '))
 })

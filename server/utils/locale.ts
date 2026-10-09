@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
 import type { SupportedLocale } from '~~/i18n/locales'
 
@@ -11,12 +11,11 @@ import type { SupportedLocale } from '~~/i18n/locales'
  * rather than re-deriving it, so a route, its cache key and the header
  * sent upstream cannot disagree.
  */
-export function requestLocale(event: H3Event): SupportedLocale {
-  // Optional chaining, as in `server/utils/auth.ts`: the middleware is
-  // skipped for `/_nuxt`, `/_ipx` and `/assets`, and a cache `getKey`
-  // can run before it on a warm lookup — neither is a reason to fail,
-  // both mean "the store's default language".
+export function requestLocale(event: Pick<RequestEvent, 'context'>): SupportedLocale {
+  // The middleware skips `/_nuxt`, `/_ipx` and `/assets`, which is no
+  // reason to fail: no locale means "the store's default language".
   // Only `1.locale` writes it, through `servedLocale`, which yields a
-  // supported locale.
-  return event?.context?.locale || DEFAULT_LOCALE
+  // supported locale. Read from the context, so it serves every event
+  // the server hands out, the cache keys' h3 event included.
+  return event.context.locale || DEFAULT_LOCALE
 }

@@ -1,19 +1,21 @@
+import { defineEventHandler, readValidatedBody, setResponseStatus, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const body = await readValidatedBody(
       event,
-      zApiV1SearchClickCreateBody.parse,
+      zApiV1SearchClickCreateBody,
     )
-    await $fetch(`${config.apiBaseUrl}/search/click`, {
+    await useBackendFetch(event)(`${config.apiBaseUrl}/search/click`, {
       method: 'POST',
       body,
-      headers: createHeaders(null, null),
+      headers: createHeaders(event, null, null),
     })
     setResponseStatus(event, 202)
     return null
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

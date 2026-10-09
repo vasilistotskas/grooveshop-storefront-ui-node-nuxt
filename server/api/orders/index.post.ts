@@ -1,3 +1,5 @@
+import { defineEventHandler, getCookie, getRequestHeader, getRequestIP, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   // Django's OrderViewSet.create has permission_classes=[] (public) so
@@ -6,11 +8,11 @@ export default defineEventHandler(async (event) => {
   // cookie. useCartSession.getCartHeaders() already attaches the
   // Authorization Bearer token for logged-in shoppers.
   const cartSession = useCartSession(event)
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
 
   try {
-    wideLog.set({ order: { created: false } })
-    const body = await readValidatedBody(event, zCreateOrderBody.parse)
+    wideLog?.set({ order: { created: false } })
+    const body = await readValidatedBody(event, zCreateOrderBody)
     const cartHeaders = await cartSession.getCartHeaders()
 
     // Inject Meta Pixel context server-side. We DO NOT trust the
@@ -56,7 +58,7 @@ export default defineEventHandler(async (event) => {
         ? { ...body, meta: enrichedMeta }
         : body
 
-    const response = await $fetch(`${config.apiBaseUrl}/order`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/order`, {
       method: 'POST',
       body: enrichedBody,
       // The shopper's identity (User-Agent, X-Real-IP, proof of edge),
@@ -67,13 +69,13 @@ export default defineEventHandler(async (event) => {
 
     const parsedData = await parseDataAs(response, zCreateOrderResponse)
 
-    wideLog.set({ order: { created: true } })
+    wideLog?.set({ order: { created: true } })
     return parsedData
   }
   catch (error) {
     // Django 4xx bodies (DRF field errors) are returned, not thrown —
     // Nitro strips `createError({ data })` in production and the
     // checkout toast needs the field detail. See forwardUpstreamClientError.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

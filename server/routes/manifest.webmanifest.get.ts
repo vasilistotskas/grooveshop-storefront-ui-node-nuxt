@@ -1,3 +1,6 @@
+import { defineEventHandler, setHeader } from 'h3'
+import { useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const siteConfig = getSiteConfig(event)

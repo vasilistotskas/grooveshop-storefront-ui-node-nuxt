@@ -1,18 +1,17 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { getResponseHeader } from 'h3'
 import middleware from '~~/server/middleware/0.markdown-negotiation'
-import { callHandler, createTestEvent } from '~~/test/helpers/nitro'
+import { callHandler, createTestEvent, localFetch } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
 /**
- * `event.fetch` is Nitro's in-process local fetch — the one boundary
- * here, so each event gets a spy for it.
+ * Nitro's in-process fetch (`localFetch`, which `nuxt/server`'s
+ * `serverFetch` calls) is the one boundary here.
  */
 function markdownRequest(req: TestRequest = {}, upstream: () => Promise<Response> = async () => new Response('# Markdown body')) {
   const event = createTestEvent({ url: '/products', ...req, headers: { accept: 'text/markdown', ...req.headers } })
-  const fetch = vi.fn(upstream)
-  event.fetch = fetch as unknown as typeof event.fetch
-  return { event, fetch, result: callHandler(middleware, event) }
+  localFetch.mockImplementation(upstream)
+  return { event, fetch: localFetch, result: callHandler(middleware, event) }
 }
 
 describe('server/middleware/0.markdown-negotiation', () => {
@@ -40,9 +39,10 @@ describe('server/middleware/0.markdown-negotiation', () => {
 
     await result
 
-    expect(fetch).toHaveBeenCalledWith('/products.md', {
-      headers: { 'x-md-negotiation-internal': '1', 'host': 'shop.test' },
-    })
+    expect(fetch).toHaveBeenCalledWith('/products.md', expect.anything())
+    const headers = new Headers(fetch.mock.calls[0]![1]?.headers)
+    expect(headers.get('x-md-negotiation-internal')).toBe('1')
+    expect(headers.get('host')).toBe('shop.test')
   })
 
   it.each([

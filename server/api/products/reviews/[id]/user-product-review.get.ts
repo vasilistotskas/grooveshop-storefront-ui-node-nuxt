@@ -1,14 +1,15 @@
 import { FetchError } from 'ofetch'
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zGetUserProductReviewPath.parse,
+      zGetUserProductReviewPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/product/review/${params.id}/user_product_review`,
       {
         method: 'GET',
@@ -26,6 +27,6 @@ export default defineEventHandler(async (event) => {
     if (error instanceof FetchError && error.statusCode === 404) {
       return null
     }
-    handleError(error)
+    handleError(event, error)
   }
 })

@@ -1,3 +1,5 @@
+import { defineNitroPlugin } from 'nitropack/runtime'
+
 /**
  * Downgrade client (4xx) errors from evlog's default `error` level to `warn`.
  *

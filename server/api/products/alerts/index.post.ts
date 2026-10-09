@@ -1,3 +1,5 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Creates a product alert subscription (restock or price-drop) for the
  * signed-in user OR a guest email. The backend enforces the "one active
@@ -8,8 +10,8 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
   try {
-    const body = await readValidatedBody(event, zCreateProductAlertBody.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/product/alert`, {
+    const body = await readValidatedBody(event, zCreateProductAlertBody)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/alert`, {
       method: 'POST',
       body,
       ...(accessToken && {
@@ -21,6 +23,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateProductAlertResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

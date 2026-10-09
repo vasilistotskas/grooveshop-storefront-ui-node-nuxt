@@ -1,47 +1,36 @@
 /**
- * Named $fetch instance pre-configured for internal backend calls.
+ * The fetcher for every call to Django.
  *
- * Automatically adds forwarded headers so Django resolves the correct tenant,
- * builds correct absolute URLs, and does not 301-redirect inside the cluster:
+ * It adds the forwarded headers Django needs to answer as the right
+ * store, without redirecting inside the cluster:
  *
  * - `X-Forwarded-Proto: https` — prevents `SECURE_SSL_REDIRECT=True` from
- *   issuing a 301 to the public HTTPS URL.
- * - `X-Forwarded-Host` — tenant-aware. Preferred source is the actual
- *   request host (so Django's `TenantMainMiddleware` picks the tenant
- *   the caller is on). Falls back to `NUXT_PUBLIC_DJANGO_HOST_NAME` only
- *   when there's no active request context (prerender, startup hooks).
- * - `X-Language` — tenant/request locale so Django renders emails and
- *   responses in the right language.
+ *   issuing a 301 to the public HTTPS URL, which exits the cluster and
+ *   meets Cloudflare's challenge.
+ * - `X-Forwarded-Host` — the store the call is for, so Django's
+ *   `TenantMainMiddleware` picks its schema and absolute URLs (paginated
+ *   `next` links) name the public host.
+ * - `X-Language` — the language Django renders the response and any
+ *   email in.
  * - the visitor's identity (`X-Real-IP`, `X-Origin-Verify`, `User-Agent`,
- *   `X-Forwarded-For`) from `clientIdentityHeaders()`, so Django's
- *   per-caller throttles see the caller rather than this pod.
+ *   `X-Forwarded-For`) from `clientIdentityHeaders()` and the request's
+ *   `X-Correlation-ID`, so Django's per-caller throttles see the caller
+ *   rather than this pod.
  *
- * Multi-tenant note: previously this instance baked `publicHost` in at
- * module init, which sent every request to Django as if it originated
- * from the single configured Django hostname. In a multi-tenant setup
- * that caused tenant B's writes to land in tenant A's schema. Headers
- * are now resolved per-request via `useEvent()`.
+ * A header the call sets itself (the allauth routes pass `createHeaders`)
+ * wins over these. They go to Django only: `isInternalBackendUrl` keeps
+ * the edge secret off any other host.
  *
- * The same logic lives in the `forwarded-proto` Nitro plugin as a global
- * safety net, but using this named instance is the preferred approach for
- * new server routes because it avoids patching globalThis.$fetch.
- *
- * Usage:
- *   const data = await useBackendFetch()(`${config.apiBaseUrl}/some/endpoint`)
+ * Nitro's global `$fetch` is not used on the server: Nitro v3 drops it,
+ * and patching it is what made a store's identity depend on whether a
+ * request context happened to be bound. Every call names its request, or
+ * the store and language a cached function was keyed by.
  */
-
-import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { $fetch } from 'ofetch'
+import type { $Fetch } from 'ofetch'
+import { getRequestHeader, useRuntimeConfig } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
 import { clientIdentityHeaders } from './clientIdentity'
-
-/**
- * The `$fetch.create` instance is cached at module level, but the
- * configuration values it depends on (the backend origins, `fallbackPublicHost`)
- * are resolved on every onRequest call. Previously these were baked
- * at first call, so a runtime-config swap (dev hot-reload, test
- * isolation) silently kept the stale origin list. See H16 in
- * MULTI_TENANT_AUDIT.md.
- */
-let _backendFetch: typeof $fetch | undefined
 
 /** The origin of `url`, or undefined for one that is not absolute. */
 function originOf(url: string): string | undefined {
@@ -77,74 +66,49 @@ export function isInternalBackendUrl(
   )
 }
 
-export function useBackendFetch(): typeof $fetch {
-  if (_backendFetch) return _backendFetch
+export interface BackendCall {
+  /** The store the call is for, as `tenantHostOf` names it: `X-Forwarded-Host`. */
+  tenantHost: string
+  /** The language Django answers in: `X-Language`. */
+  locale?: string
+  /** Further headers every call carries: the visitor's identity, the correlation id. */
+  headers?: Record<string, string>
+}
 
-  _backendFetch = $fetch.create({
+/**
+ * A fetcher for Django calls made on behalf of `call`'s store: what a
+ * cached function uses, since it has no request, only the store and
+ * language it is keyed by.
+ */
+export function backendFetchFor({ tenantHost, locale, headers = {} }: BackendCall): $Fetch {
+  const forwarded: Record<string, string> = {
+    'X-Forwarded-Proto': 'https',
+    'X-Forwarded-Host': tenantHost,
+    ...(locale ? { 'X-Language': locale } : {}),
+    ...headers,
+  }
+  return $fetch.create({
     onRequest({ request, options }) {
-      const config = useRuntimeConfig()
-      const fallbackPublicHost = typeof config.public.djangoHostName === 'string'
-        ? config.public.djangoHostName
-        : undefined
-
-      const url = typeof request === 'string'
-        ? request
-        : request instanceof URL
-          ? request.href
-          : request.url
-
-      if (!isInternalBackendUrl(url, config)) return
-
-      options.headers = new Headers(options.headers as HeadersInit)
-      if (!options.headers.has('X-Forwarded-Proto')) {
-        options.headers.set('X-Forwarded-Proto', 'https')
+      const url = typeof request === 'string' ? request : request.url
+      if (!isInternalBackendUrl(url)) return
+      const merged = new Headers(options.headers)
+      for (const [name, value] of Object.entries(forwarded)) {
+        if (!merged.has(name)) merged.set(name, value)
       }
-
-      // Resolve tenant host + locale per request — useEvent() is only
-      // available inside an active Nitro request. Cached/SSR-prerender
-      // calls may not have one; fall back to build-time config.
-      let requestHost: string | undefined
-      let locale: string | undefined
-      try {
-        const event = useEvent()
-        requestHost = event ? requestTenantHost(event) : undefined
-        locale = event?.context?.locale
-      }
-      catch {
-        requestHost = undefined
-        locale = undefined
-      }
-
-      if (!options.headers.has('X-Forwarded-Host')) {
-        const forwardedHost = requestHost || fallbackPublicHost
-        if (forwardedHost) {
-          options.headers.set('X-Forwarded-Host', forwardedHost)
-        }
-      }
-
-      if (!options.headers.has('X-Language')) {
-        options.headers.set('X-Language', locale || DEFAULT_LOCALE)
-      }
-      try {
-        const event = useEvent()
-        const correlationId = event ? getRequestHeader(event, 'x-correlation-id') : undefined
-        if (correlationId && !options.headers.has('X-Correlation-ID')) {
-          options.headers.set('X-Correlation-ID', correlationId)
-        }
-        // The visitor's IP and proof of edge, the same as `createHeaders()`
-        // sends: without them Django keyed every anonymous throttle on
-        // these routes to the Nuxt pod (see server/utils/clientIdentity.ts).
-        if (event) {
-          for (const [name, value] of Object.entries(clientIdentityHeaders(event))) {
-            if (!options.headers.has(name)) options.headers.set(name, value)
-          }
-        }
-      }
-      catch {
-        // useEvent() unavailable outside active Nitro request — skip
-      }
+      options.headers = merged
     },
-  }) as typeof $fetch
+  })
+}
 
-  return _backendFetch
+/** A fetcher for Django calls made while answering `event`. */
+export function useBackendFetch(event: RequestEvent): $Fetch {
+  const correlationId = getRequestHeader(event, 'x-correlation-id')
+  return backendFetchFor({
+    tenantHost: requestTenantHost(event),
+    locale: requestLocale(event),
+    headers: {
+      ...clientIdentityHeaders(event),
+      ...(correlationId ? { 'X-Correlation-ID': correlationId } : {}),
+    },
+  })
 }

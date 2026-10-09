@@ -1,15 +1,17 @@
+import { defineEventHandler, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListProductReviewQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/product/review`, {
+    const query = await getValidatedQuery(event, zListProductReviewQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/review`, {
       method: 'GET',
       query,
-      headers: createHeaders(null, null),
+      headers: createHeaders(event, null, null),
     })
     return await parseDataAs(response, zListProductReviewResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

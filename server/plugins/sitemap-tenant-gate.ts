@@ -8,6 +8,8 @@ import {
   type FeatureGatedRoute,
   type PlanFlags,
 } from '~~/shared/utils/gatedRoutes'
+import { defineNitroPlugin } from 'nitropack/runtime'
+import { useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Drop what a tenant's sitemap must not advertise: feature-gated routes

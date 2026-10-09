@@ -1,14 +1,16 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const cartSession = useCartSession(event)
 
   try {
     const headers = await cartSession.getCartHeaders()
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zDestroyCartItemPath.parse,
+      zDestroyCartItemPath,
     )
-    await $fetch(
+    await useBackendFetch(event)(
       `${config.apiBaseUrl}/cart/item/${params.id}`,
       {
         method: 'DELETE',
@@ -18,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return { success: true }
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

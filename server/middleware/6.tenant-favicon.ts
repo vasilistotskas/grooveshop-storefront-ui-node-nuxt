@@ -1,3 +1,5 @@
+import { defineEventHandler, sendRedirect, setResponseStatus } from 'nuxt/server'
+
 /**
  * Tenant-gate the legacy favicon paths.
  *
@@ -30,7 +32,7 @@ const FAVICON_EXACT: Record<string, string> = {
 const FAVICON_PREFIX = '/favicon/'
 
 export default defineEventHandler(async (event) => {
-  const path = event.path.split('?')[0] ?? ''
+  const path = event.url.pathname
   const isPrefixed = path.startsWith(FAVICON_PREFIX)
   const platformTarget
     = FAVICON_EXACT[path]
@@ -44,12 +46,11 @@ export default defineEventHandler(async (event) => {
   // Redirects/404s are short-cached (vs the year-long immutable rules
   // on the real static assets) so a favicon change or a later branding
   // upload propagates without waiting out CDN caches.
-  setResponseHeader(event, 'Cache-Control', 'public, max-age=3600')
+  event.res.headers.set('Cache-Control', 'public, max-age=3600')
 
-  const host = requestTenantHost(event)
-  const result = host ? await getTenantConfig(host) : null
+  const result = await getTenantConfig(requestTenantHost(event))
 
-  if (!result || result.type !== 'ok' || isPlatformTenantConfig(result.config)) {
+  if (result.type !== 'ok' || isPlatformTenantConfig(result.config)) {
     return sendRedirect(event, platformTarget, 302)
   }
 

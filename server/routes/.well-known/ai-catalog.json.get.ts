@@ -1,4 +1,4 @@
-import { defineEventHandler, getRequestHost, setHeader } from 'h3'
+import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * AI Catalog (https://github.com/Agent-Card/ai-catalog) — the site-wide
@@ -11,7 +11,7 @@ import { defineEventHandler, getRequestHost, setHeader } from 'h3'
  * lists no entries.
  */
 export default defineEventHandler((event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const tenant = event.context.tenant
   const host = getRequestHost(event, { xForwardedHost: false })
   const tenantDomain = tenant?.primaryDomain || host
@@ -19,8 +19,8 @@ export default defineEventHandler((event) => {
   const publisher = new URL(siteUrl).hostname
   const storeName = tenant?.storeName || (config.public.appTitle as string)
 
-  setHeader(event, 'content-type', 'application/ai-catalog+json')
-  setHeader(event, 'cache-control', 'public, max-age=3600')
+  event.res.headers.set('content-type', 'application/ai-catalog+json')
+  event.res.headers.set('cache-control', 'public, max-age=3600')
 
   return {
     specVersion: '1.0',

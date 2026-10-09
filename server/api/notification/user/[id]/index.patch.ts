@@ -1,16 +1,18 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zPartialUpdateNotificationUserPath.parse,
+      zPartialUpdateNotificationUserPath,
     )
     const validatedBody = await readValidatedBody(
       event,
-      zPartialUpdateNotificationUserBody.parse,
+      zPartialUpdateNotificationUserBody,
     )
-    const response = await $fetch(`${config.apiBaseUrl}/notification/user/${params.id}`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/notification/user/${params.id}`, {
       body: validatedBody,
       method: 'PATCH',
       headers: {
@@ -20,6 +22,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zPartialUpdateNotificationUserResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

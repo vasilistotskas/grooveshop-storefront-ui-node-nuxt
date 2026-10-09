@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from 'nuxt/server'
+
 const SITEMAP_CACHE_AGE = 60 * 60
 
 // Hoisted to module scope so ``defineCachedFunction`` registers each

@@ -1,15 +1,18 @@
-export default defineCachedEventHandler(async (event) => {
+import { getRouterParam, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(
       event,
-      zGetBlogAuthorPostsQuery.parse,
+      zGetBlogAuthorPostsQuery,
     )
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zGetBlogAuthorPostsPath.parse,
+      zGetBlogAuthorPostsPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/blog/author/${params.id}/posts`,
       {
         method: 'GET',
@@ -19,7 +22,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zGetBlogAuthorPostsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'BlogAuthorPostsViewSet',
@@ -32,6 +35,6 @@ export default defineCachedEventHandler(async (event) => {
   swr: true,
   getKey: event => tenantCacheKey(
     event,
-    `blog-author-posts:${getRouterParam(event, 'id')}:${JSON.stringify(getQuery(event))}`,
+    `blog-author-posts:${getRouterParam(event, 'id', { decode: true })}:${JSON.stringify(getQuery(event))}`,
   ),
 })

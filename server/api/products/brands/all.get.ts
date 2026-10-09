@@ -1,14 +1,16 @@
-export default defineCachedEventHandler(async () => {
+import { useRuntimeConfig } from 'nuxt/server'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const response = await $fetch(`${config.apiBaseUrl}/product/brand/all`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/brand/all`, {
       method: 'GET',
     })
     return await parseDataAs(response, zListAllBrandResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ProductBrandAll',

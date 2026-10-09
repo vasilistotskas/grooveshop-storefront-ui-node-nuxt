@@ -171,6 +171,12 @@ shim in `test/helpers/nitro/runtime.ts`; `test/helpers/nitro/imports.ts` is
 the one list of names it provides. Test files are never transformed — they
 import what they use.
 
+- A `nuxt/server` util gets the portable event a route would: `createRequestEvent(req)`.
+  `createTestEvent(req)` is h3's event, for plugin hooks and cache keys.
+  Both carry `context.tenantHost` and evlog's `context.log`, as the
+  middleware and the evlog plugin leave them. `localFetch` is the spy behind
+  `nuxt/server`'s `serverFetch`. `asH3Handler` is the harness's one typing
+  bridge, mirroring Nitro 2's (`server/utils/cachedRoute.ts`).
 - Drive a route with `callRoute(handler, { url, method, headers, body, route })`:
   real h3 app and router, real params, status, headers and error mapping.
 - Mock only boundaries: the backend (`backend.reply(...)`, the spy behind the
@@ -181,7 +187,7 @@ import what they use.
 - A cached handler runs on Nitro's varies-only event, as in production:
   reading a header that is not in `varies` fails in the test too.
 - `test/unit/server/cached-handlers.spec.ts` holds the cache-key contract for
-  every `defineCachedEventHandler` route (two hosts, two locales, a spoofed
+  every `defineCachedRoute` route (two hosts, two locales, a spoofed
   `X-Forwarded-Host`). A new cached route is covered automatically; do not add
   per-route "two tenants differ" copies.
 - A `ReferenceError` in a server spec means a module added an auto-import the

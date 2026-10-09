@@ -1,4 +1,6 @@
-import { fileURLToPath, URL } from 'node:url'
+import { realpathSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { fileURLToPath, pathToFileURL, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { defineVitestProject } from '@nuxt/test-utils/config'
 // Extension is load-bearing, not style. Vite's `configLoader: 'native'`
@@ -34,6 +36,23 @@ const alias = {
   '@@': path('.'),
   '#shared': path('./shared'),
 }
+
+/**
+ * `nuxt/server` as a Nitro 2 build provides it. A build replaces the
+ * package's portable module with `@nuxt/nitro-server`'s implementation,
+ * which runs on h3 v1 events, so the unit project points the import at
+ * that same file. It and `nuxt/dist/server` are inlined so these aliases
+ * reach their imports too, and the Nitro runtime they import (virtual
+ * modules that exist only inside a build) resolves to the test shim.
+ */
+const nuxtRequire = createRequire(realpathSync(path('./node_modules/nuxt/package.json')))
+const nitroServerRuntime = fileURLToPath(new URL('./dist/runtime/server.mjs', pathToFileURL(nuxtRequire.resolve('@nuxt/nitro-server/package.json'))))
+const nitroShim = path('./test/helpers/nitro/runtime.ts')
+const serverAlias = [
+  ...Object.entries(alias).map(([find, replacement]) => ({ find, replacement })),
+  { find: /^nuxt\/server$/, replacement: nitroServerRuntime },
+  { find: /^nitropack\/runtime(?:\/internal\/route-rules)?$/, replacement: nitroShim },
+]
 
 /**
  * Every test starts from a clean slate: call history AND implementations
@@ -156,13 +175,14 @@ export default defineConfig({
     },
     projects: [
       {
-        resolve: { alias },
+        resolve: { alias: serverAlias },
         plugins: [nitroAutoImports, appUtilsAutoImports],
         test: {
           name: 'unit',
           include: ['test/unit/**/*.spec.ts'],
           environment: 'node',
           setupFiles: ['./test/fixtures/setup/nitro.ts'],
+          server: { deps: { inline: ['@nuxt/nitro-server', /[\\/]nuxt[\\/]dist[\\/]server[\\/]/] } },
           ...isolation,
         },
       },

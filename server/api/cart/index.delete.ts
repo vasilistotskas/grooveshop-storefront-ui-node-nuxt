@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Empty the visitor's cart ("Empty cart" on the cart page).
  *
@@ -7,7 +9,7 @@
  * neither a cart nor an account has nothing to empty.
  */
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const cartSession = useCartSession(event)
 
   try {
@@ -15,7 +17,7 @@ export default defineEventHandler(async (event) => {
     const accessToken = await getAllAuthAccessToken(event)
     if (!cartId && !accessToken) return null
 
-    await $fetch(`${config.apiBaseUrl}/cart`, {
+    await useBackendFetch(event)(`${config.apiBaseUrl}/cart`, {
       method: 'DELETE',
       headers: await cartSession.getCartHeaders(),
     })
@@ -23,6 +25,6 @@ export default defineEventHandler(async (event) => {
     return null
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

@@ -1,4 +1,6 @@
-import type { H3Event } from 'h3'
+import { useStorage } from 'nitropack/runtime'
+import { createError, getRequestHeader, getRequestIP } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
 
 export interface RateLimit {
   /** Names the counter, so two limited endpoints never share a budget. */
@@ -21,7 +23,7 @@ export interface RateLimit {
  * would silently widen the window. Refreshing it on every hit makes the
  * window sliding, which is acceptable for a counter.
  */
-export async function enforceRateLimit(event: H3Event, { name, windowSeconds, maxRequests }: RateLimit): Promise<void> {
+export async function enforceRateLimit(event: RequestEvent, { name, windowSeconds, maxRequests }: RateLimit): Promise<void> {
   const clientIp
     = getRequestHeader(event, 'cf-connecting-ip')
       || getRequestHeader(event, 'true-client-ip')
@@ -34,8 +36,8 @@ export async function enforceRateLimit(event: H3Event, { name, windowSeconds, ma
 
   if (count > maxRequests) {
     throw createError({
-      statusCode: 429,
-      statusMessage: 'Too Many Requests',
+      status: 429,
+      statusText: 'Too Many Requests',
     })
   }
 

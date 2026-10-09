@@ -1,16 +1,19 @@
-export default defineCachedEventHandler(async (event) => {
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListProductQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/product`, {
+    const query = await getValidatedQuery(event, zListProductQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product`, {
       method: 'GET',
       query,
-      headers: createHeaders(null, null),
+      headers: createHeaders(event, null, null),
     })
     return await parseDataAs(response, zListProductResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ProductViewSet',

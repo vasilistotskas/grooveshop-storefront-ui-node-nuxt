@@ -1,15 +1,18 @@
-export default defineCachedEventHandler(async (event) => {
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListPayWayQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/pay_way`, {
+    const query = await getValidatedQuery(event, zListPayWayQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/pay_way`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListPayWayResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'PayWayViewSet',

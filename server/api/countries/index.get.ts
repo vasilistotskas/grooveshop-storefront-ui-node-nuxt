@@ -1,10 +1,12 @@
 import { z } from 'zod'
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
 
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListCountryQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/country`, {
+    const query = await getValidatedQuery(event, zListCountryQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/country`, {
       method: 'GET',
       query,
     })
@@ -19,7 +21,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListCountryResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'CountryViewSet',

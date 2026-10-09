@@ -1,13 +1,15 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
     const body = await readValidatedBody(
       event,
-      zCheckBlogCommentLikesBody.parse,
+      zCheckBlogCommentLikesBody,
     )
 
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/blog/comment/liked_comments`,
       {
         method: 'POST',
@@ -20,6 +22,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCheckBlogCommentLikesResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

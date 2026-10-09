@@ -1,6 +1,8 @@
 import RSS from 'rss'
-import { H3Error } from 'h3'
+import { H3Error, createError, defineEventHandler, setHeaders } from 'h3'
 import type { SupportedLocale } from '~~/i18n/locales'
+import { defineCachedFunction } from 'nitropack/runtime'
+import { useRuntimeConfig } from 'nuxt/server'
 
 const RSS_CACHE_AGE = 60 * 60
 
@@ -12,10 +14,9 @@ const RSS_CACHE_AGE = 60 * 60
 // is identical at runtime, so the cast is safe.
 const cachedBlogCategory = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string): Promise<BlogCategoryDetail> => {
-    // Forward the tenant host and locale explicitly — relying on the
-    // global $fetch patch breaks under SWR revalidation where useEvent()
-    // is absent and the patch falls back to the platform host.
-    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey, 'X-Language': locale } })
+    // The store and language the entry is keyed by: a cached function
+    // revalidates with no request of its own.
+    const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
     return await parseDataAs(raw, zBlogCategoryDetail) as BlogCategoryDetail
   },
   {
@@ -27,7 +28,7 @@ const cachedBlogCategory = defineCachedFunction(
 
 const cachedProductCategoryDetail = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string): Promise<ProductCategoryDetail> => {
-    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey, 'X-Language': locale } })
+    const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
     return await parseDataAs(raw, zProductCategoryDetail) as ProductCategoryDetail
   },
   {

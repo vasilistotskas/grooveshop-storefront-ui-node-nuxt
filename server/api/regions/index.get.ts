@@ -1,15 +1,18 @@
-export default defineCachedEventHandler(async (event) => {
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListRegionQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/region`, {
+    const query = await getValidatedQuery(event, zListRegionQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/region`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListRegionResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'RegionViewSet',

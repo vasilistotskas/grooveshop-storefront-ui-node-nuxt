@@ -1,16 +1,18 @@
+import { defineEventHandler, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const query = await getValidatedQuery(event, zListOrderQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/order`, {
+    const query = await getValidatedQuery(event, zListOrderQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/order`, {
       method: 'GET',
       query,
-      headers: createHeaders(null, accessToken),
+      headers: createHeaders(event, null, accessToken),
     })
     return await parseDataAs(response, zListOrderResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

@@ -1,3 +1,5 @@
+import { defineEventHandler, getQuery } from 'h3'
+
 const facebookHandler = defineOAuthFacebookEventHandler({
   config: {
     clientId: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID,

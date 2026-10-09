@@ -1,3 +1,5 @@
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Free-shipping info proxy.
  *
@@ -20,14 +22,14 @@
 const zQuery = zGetFreeShippingInfoQuery
 const zResponse = zGetFreeShippingInfoResponse
 
-export default defineCachedEventHandler(
+export default defineCachedRoute(
   async (event) => {
     const config = useRuntimeConfig()
-    const headers = createHeaders()
+    const headers = createHeaders(event)
     try {
-      const query = await getValidatedQuery(event, zQuery.parse)
+      const query = await getValidatedQuery(event, zQuery)
 
-      const raw = await $fetch(
+      const raw = await useBackendFetch(event)(
         `${config.apiBaseUrl}/shipping/free-shipping-info`,
         {
           method: 'GET',
@@ -42,7 +44,7 @@ export default defineCachedEventHandler(
       return await parseDataAs(raw, zResponse)
     }
     catch (error) {
-      handleError(error)
+      handleError(event, error)
     }
   },
   {

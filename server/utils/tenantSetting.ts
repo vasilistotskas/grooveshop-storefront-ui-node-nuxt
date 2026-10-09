@@ -6,7 +6,7 @@
  * `server/middleware/0.tenant.ts` (@nuxtjs/sitemap hits them at
  * build/SWR time with no real Host), so they resolve the tenant
  * themselves and cannot use the request-scoped readers — hence the
- * explicit `host`, forwarded as `X-Forwarded-Host` so Django resolves
+ * explicit `host`, forwarded as `X-Forwarded-Host` (`backendFetchFor`) so Django resolves
  * the right schema instead of answering from the public one.
  *
  * One bulk read (`settings/public`) rather than one round trip per
@@ -24,11 +24,10 @@ export async function publicSettingsForHost(
   apiBaseUrl: string,
 ): Promise<Readonly<Record<string, string>> | null> {
   try {
-    const { settings } = await $fetch<PublicSettings>(
+    const { settings } = await backendFetchFor({ tenantHost: host })<PublicSettings>(
       `${apiBaseUrl}/settings/public`,
       {
         method: 'GET',
-        headers: host ? { 'X-Forwarded-Host': host } : undefined,
       },
     )
     return settings
@@ -76,11 +75,10 @@ export async function pageTypePublishedForHost(
   pageType: string,
 ): Promise<boolean> {
   try {
-    const layout = await $fetch<{ isPublished?: boolean } | null>(
+    const layout = await backendFetchFor({ tenantHost: host })<{ isPublished?: boolean } | null>(
       `${apiBaseUrl}/page-config/${pageType}`,
       {
         method: 'GET',
-        headers: host ? { 'X-Forwarded-Host': host } : undefined,
       },
     )
     return layout?.isPublished === true
@@ -122,14 +120,13 @@ export async function publishedContentLocalesForHost(
   apiBaseUrl: string,
 ): Promise<ReadonlyMap<string, ReadonlySet<string>> | null> {
   try {
-    const { results } = await $fetch<{
+    const { results } = await backendFetchFor({ tenantHost: host })<{
       results: { slug: string, translations?: Record<string, Record<string, unknown> | null> | null }[]
     }>(
       `${apiBaseUrl}/content-page`,
       {
         method: 'GET',
         query: { pageSize: 100 },
-        headers: host ? { 'X-Forwarded-Host': host } : undefined,
       },
     )
     // Written locales only (a key with an empty body is no document),

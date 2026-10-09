@@ -1,3 +1,5 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Attach a coupon code to the cart.
  *
@@ -14,10 +16,10 @@ export default defineEventHandler(async (event) => {
   const cartSession = useCartSession(event)
 
   try {
-    const body = await readValidatedBody(event, zApplyCartCouponBody.parse)
+    const body = await readValidatedBody(event, zApplyCartCouponBody)
     const cartHeaders = await cartSession.getCartHeaders()
 
-    const response = await $fetch(`${config.apiBaseUrl}/cart/coupon`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/coupon`, {
       method: 'POST',
       headers: {
         ...cartHeaders,
@@ -31,6 +33,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zApplyCartCouponResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

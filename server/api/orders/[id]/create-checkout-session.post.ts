@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { defineEventHandler, getValidatedQuery, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
 
 const zGuestQuery = z.object({
   uuid: z.string().uuid().optional(),
@@ -6,19 +7,19 @@ const zGuestQuery = z.object({
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const headers = await getAllAuthHeaders()
+  const headers = await getAllAuthHeaders(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zCreateOrderCheckoutSessionPath.parse,
+      zCreateOrderCheckoutSessionPath,
     )
-    const query = await getValidatedQuery(event, zGuestQuery.parse)
-    const body = await readValidatedBody(event, zCreateOrderCheckoutSessionBody.parse)
+    const query = await getValidatedQuery(event, zGuestQuery)
+    const body = await readValidatedBody(event, zCreateOrderCheckoutSessionBody)
     const url = new URL(`${config.apiBaseUrl}/order/${params.id}/create_checkout_session`)
     if (query.uuid) {
       url.searchParams.set('uuid', query.uuid)
     }
-    const response = await $fetch(url.toString(), {
+    const response = await useBackendFetch(event)(url.toString(), {
       method: 'POST',
       body,
       headers,
@@ -29,6 +30,6 @@ export default defineEventHandler(async (event) => {
     // Return Django 4xx bodies (DRF detail / field errors) so clients
     // can show the reason — thrown createError({data}) is stripped in
     // production. See forwardUpstreamClientError.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

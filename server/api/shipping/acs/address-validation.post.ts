@@ -7,6 +7,7 @@
  * "did you mean ..." suggestion under the street + zipcode inputs.
  */
 import * as z from 'zod'
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
 
 const zAddressValidationBody = z.object({
   address: z.string().min(3).max(500),
@@ -22,12 +23,12 @@ export default defineEventHandler(async (event) => {
   // validation endpoint is public on the Django side), so we pass no
   // session/access token.  ``useRequestHeaders`` is a Nuxt app-side
   // composable and crashes here.
-  const headers = createHeaders()
+  const headers = createHeaders(event)
 
   try {
-    const body = await readValidatedBody(event, zAddressValidationBody.parse)
+    const body = await readValidatedBody(event, zAddressValidationBody)
 
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/shipping/acs/address-validation`,
       {
         method: 'POST',
@@ -42,6 +43,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zValidateAcsAddressResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

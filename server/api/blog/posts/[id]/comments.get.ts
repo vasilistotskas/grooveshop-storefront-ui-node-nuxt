@@ -1,19 +1,22 @@
-export default defineCachedEventHandler(async (event) => {
+import { getRouterParams, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zListBlogPostCommentsPath.parse,
+      zListBlogPostCommentsPath,
     )
-    const query = await getValidatedQuery(event, zListBlogPostCommentsQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/blog/post/${params.id}/comments`, {
+    const query = await getValidatedQuery(event, zListBlogPostCommentsQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/blog/post/${params.id}/comments`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListBlogPostCommentsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'BlogPostComments',
@@ -23,7 +26,7 @@ export default defineCachedEventHandler(async (event) => {
   getKey: (event) => {
     const query = getQuery(event)
     const keyParts = [
-      getRouterParams(event).id || '',
+      getRouterParams(event, { decode: true }).id || '',
       query.pageSize || '10',
       query.paginationType || 'cursor',
       query.cursor || '',

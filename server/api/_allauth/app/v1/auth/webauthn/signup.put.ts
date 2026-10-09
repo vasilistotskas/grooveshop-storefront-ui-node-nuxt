@@ -1,18 +1,20 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const headers = await getAllAuthHeaders()
-    const validatedBody = await readValidatedBody(event, ZodWebAuthnSignupPutBody.parse)
-    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/webauthn/signup`, {
+    const headers = await getAllAuthHeaders(event)
+    const validatedBody = await readValidatedBody(event, ZodWebAuthnSignupPutBody)
+    const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/webauthn/signup`, {
       body: validatedBody,
       method: 'PUT',
       headers,
     })
     const providerResponse = await parseDataAs(response, ZodWebAuthnSignupPutResponse)
-    await processAllAuthSession(providerResponse)
+    await processAllAuthSession(event, providerResponse)
     return providerResponse
   }
   catch (error) {
-    return await forwardAllAuthFlow(error)
+    return await forwardAllAuthFlow(event, error)
   }
 })

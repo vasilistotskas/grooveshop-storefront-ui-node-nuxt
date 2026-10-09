@@ -1,13 +1,15 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 // Subscribing goes through Django's topic action, not by creating a
 // subscription row: the action applies the topic's confirmation rule
 // (PENDING with an email, or ACTIVE), records the language, and re-arms
 // an UNSUBSCRIBED or BOUNCED row that a fresh row would collide with.
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(event, zSubscribeToTopicPath.parse)
-    const response = await $fetch(
+    const params = await parseRouterParams(event, zSubscribeToTopicPath)
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/subscription/topic/${params.id}/subscribe`,
       {
         method: 'POST',
@@ -19,6 +21,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zSubscribeToTopicResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

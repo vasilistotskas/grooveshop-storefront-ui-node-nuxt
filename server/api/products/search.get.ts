@@ -1,3 +1,6 @@
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
 /**
  * Product search API route with advanced filtering
  *
@@ -17,15 +20,15 @@
 
 const zSearchProductQuery = zApiV1SearchProductRetrieveQuery
 
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
 
   try {
     // Validate query parameters — includes both attributeValue (OpenAPI) and attributeValues (client alias)
     const query = await getValidatedQuery(
       event,
-      zSearchProductQuery.parse,
+      zSearchProductQuery,
     )
 
     // Transform camelCase to snake_case for Django backend
@@ -56,7 +59,7 @@ export default defineCachedEventHandler(async (event) => {
     }
 
     // Fetch from Django backend
-    const response = await $fetch(`${config.apiBaseUrl}/search/product`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/search/product`, {
       method: 'GET',
       query: backendQuery,
     })
@@ -64,13 +67,13 @@ export default defineCachedEventHandler(async (event) => {
     // Validate and parse response with auto-imported Zod schema
     const validatedResponse = await parseDataAs(response, zProductMeiliSearchResponse)
 
-    wideLog.set({ search: { query: query.query, resultCount: validatedResponse.results?.length ?? 0 } })
+    wideLog?.set({ search: { query: query.query, resultCount: validatedResponse.results?.length ?? 0 } })
 
     // Return with proper typing from auto-generated OpenAPI types
     return validatedResponse as ProductMeiliSearchResponse
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'SearchProductViewSet',

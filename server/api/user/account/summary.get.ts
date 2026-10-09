@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { FetchError } from 'ofetch'
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * The signed-in shopper's figures for the account band — orders placed,
@@ -18,7 +19,7 @@ import { FetchError } from 'ofetch'
 export default defineEventHandler(async (event): Promise<AccountSummary> => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken(event)
-  const backendFetch = useBackendFetch()
+  const backendFetch = useBackendFetch(event)
   const get = (path: string, query?: Record<string, string | number>) =>
     backendFetch(`${config.apiBaseUrl}${path}`, {
       method: 'GET',
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event): Promise<AccountSummary> => {
     }
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })
 

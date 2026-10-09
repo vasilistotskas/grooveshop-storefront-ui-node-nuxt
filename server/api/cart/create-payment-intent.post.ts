@@ -1,3 +1,5 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Create a Stripe payment intent from cart for online payment checkout.
  *
@@ -14,15 +16,15 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
   const cartSession = useCartSession(event)
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
 
   try {
-    wideLog.set({ payment: { method: 'stripe' } })
-    const body = await readValidatedBody(event, bodySchema.parse)
+    wideLog?.set({ payment: { method: 'stripe' } })
+    const body = await readValidatedBody(event, bodySchema)
 
     const cartHeaders = await cartSession.getCartHeaders()
 
-    const response = await $fetch(`${config.apiBaseUrl}/cart/create-payment-intent`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/create-payment-intent`, {
       method: 'POST',
       headers: {
         ...cartHeaders,
@@ -39,6 +41,6 @@ export default defineEventHandler(async (event) => {
     // Return Django 4xx bodies (DRF detail / field errors) so clients
     // can show the reason — thrown createError({data}) is stripped in
     // production. See forwardUpstreamClientError.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

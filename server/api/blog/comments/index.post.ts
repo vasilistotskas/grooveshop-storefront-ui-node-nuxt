@@ -1,10 +1,12 @@
+import { defineEventHandler, getValidatedQuery, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const body = await readValidatedBody(event, zCreateBlogCommentBody.parse)
-    const query = await getValidatedQuery(event, zCreateBlogCommentQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/blog/comment`, {
+    const body = await readValidatedBody(event, zCreateBlogCommentBody)
+    const query = await getValidatedQuery(event, zCreateBlogCommentQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/blog/comment`, {
       method: 'POST',
       body,
       query,
@@ -15,6 +17,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateBlogCommentResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

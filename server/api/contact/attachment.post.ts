@@ -1,4 +1,5 @@
-import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { createError, defineEventHandler, getRequestHeader, proxyRequest } from 'h3'
+import { useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Stream one contact-form attachment through to Django.
@@ -26,10 +27,12 @@ import { DEFAULT_LOCALE } from '~~/i18n/locales'
  *   routes by hand.
  * * The tenant headers are set explicitly. `useBackendFetch` cannot
  *   be used — `sendProxy` needs a real `fetch`, not an ofetch
- *   instance — and the global `$fetch` patch does not cover
- *   `globalThis.fetch`, so without these three Django would resolve
- *   the PUBLIC schema and file the upload in the wrong store (the N1
- *   pattern in MULTI_TENANT_AUDIT.md).
+ *   instance — so without these three Django would resolve the PUBLIC
+ *   schema and file the upload in the wrong store (the N1 pattern in
+ *   MULTI_TENANT_AUDIT.md).
+ * * It is an h3 handler, not a `nuxt/server` one: `proxyRequest` is
+ *   h3's, and under Nitro 2 the portable `event.req.body` is buffered,
+ *   which is exactly what this route exists to avoid.
  *
  * The size check here bounds THIS hop, nothing more. It reads the
  * declared `Content-Length` — a claim, not a fact — and refuses
@@ -61,7 +64,7 @@ export default defineEventHandler(async (event) => {
         // public HTTPS URL, and a 301 loses the body.
         'X-Forwarded-Proto': 'https',
         'X-Forwarded-Host': requestTenantHost(event),
-        'X-Language': (event.context.locale as string) || DEFAULT_LOCALE,
+        'X-Language': requestLocale(event),
       },
     },
   )

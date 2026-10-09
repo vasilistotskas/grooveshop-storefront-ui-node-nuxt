@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { defineEventHandler, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Poll a gift-card purchase while the provider webhook races the
@@ -11,10 +12,10 @@ export default defineEventHandler(async (event) => {
   try {
     const query = await getValidatedQuery(
       event,
-      z.object({ uuid: z.uuid() }).parse,
+      z.object({ uuid: z.uuid() }),
     )
 
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/giftcard/purchase-status`,
       { query },
     )
@@ -22,6 +23,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zGiftCardPurchaseStatusResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

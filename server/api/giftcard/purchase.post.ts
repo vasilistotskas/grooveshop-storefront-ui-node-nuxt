@@ -1,3 +1,5 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Buy a gift card: Django creates the purchase row + a Stripe
  * PaymentIntent and answers with the client secret. The card itself
@@ -8,9 +10,9 @@ export default defineEventHandler(async (event) => {
   const accessToken = await getAllAuthAccessToken(event)
 
   try {
-    const body = await readValidatedBody(event, zPurchaseGiftCardBody.parse)
+    const body = await readValidatedBody(event, zPurchaseGiftCardBody)
 
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/giftcard/purchase`,
       {
         method: 'POST',
@@ -26,6 +28,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zPurchaseGiftCardResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

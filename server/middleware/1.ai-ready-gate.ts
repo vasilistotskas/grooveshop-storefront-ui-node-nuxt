@@ -1,3 +1,5 @@
+import { createError, defineEventHandler, getRequestHeader } from 'nuxt/server'
+
 /**
  * Interim multi-tenant gate for nuxt-ai-ready's discovery surfaces.
  *
@@ -26,9 +28,9 @@
  * index; this gate only prevents their cross-tenant EXPOSURE.
  */
 export default defineEventHandler(async (event) => {
-  if (event.method !== 'GET') return
+  if (event.req.method !== 'GET') return
 
-  const path = event.path
+  const path = event.url.pathname
   const isAiSurface
     = path === '/llms.txt'
       || path === '/llms-full.txt'
@@ -39,6 +41,6 @@ export default defineEventHandler(async (event) => {
   const host = requestTenantHost(event)
   const result = host ? await getTenantConfig(host) : null
   if (result?.type !== 'ok' || result.config.isPlatformStorefront !== true) {
-    throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+    throw createError({ status: 404, statusText: 'Not Found' })
   }
 })

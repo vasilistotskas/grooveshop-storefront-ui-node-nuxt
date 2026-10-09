@@ -1,12 +1,13 @@
+import { defineCachedFunction } from 'nitropack/runtime'
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 const fetchLoyaltySummary = defineCachedFunction(
   async (tenantKey: string, locale: string) => {
     const config = useRuntimeConfig()
-    // Forward the tenant host and locale explicitly — relying on the
-    // global $fetch patch breaks under SWR revalidation where useEvent()
-    // is absent and the patch falls back to the platform host.
-    const response = await $fetch(`${config.apiBaseUrl}/loyalty/summary`, {
+    // The store and language the entry is keyed by: a cached function
+    // revalidates with no request of its own.
+    const response = await backendFetchFor({ tenantHost: tenantKey, locale })(`${config.apiBaseUrl}/loyalty/summary`, {
       method: 'GET',
-      headers: { 'X-Forwarded-Host': tenantKey, 'X-Language': locale },
     })
     return parseDataAs(response, zGetLoyaltySummaryResponse)
   },
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
     if (accessToken) {
       // Authenticated request — always fetch live, never cache user-specific data
       const config = useRuntimeConfig()
-      const response = await $fetch(`${config.apiBaseUrl}/loyalty/summary`, {
+      const response = await useBackendFetch(event)(`${config.apiBaseUrl}/loyalty/summary`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -44,6 +45,6 @@ export default defineEventHandler(async (event) => {
     return await fetchLoyaltySummary(host, requestLocale(event))
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

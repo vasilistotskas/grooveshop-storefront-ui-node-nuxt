@@ -1,3 +1,5 @@
+import { defineEventHandler } from 'h3'
+
 /**
  * Apply per-tenant overrides to the @nuxtjs/seo siteConfig.
  *

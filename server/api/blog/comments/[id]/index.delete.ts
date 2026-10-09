@@ -1,12 +1,14 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zDestroyBlogCommentPath.parse,
+      zDestroyBlogCommentPath,
     )
-    await $fetch(
+    await useBackendFetch(event)(
       `${config.apiBaseUrl}/blog/comment/${params.id}`,
       {
         method: 'DELETE',
@@ -18,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return { success: true }
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

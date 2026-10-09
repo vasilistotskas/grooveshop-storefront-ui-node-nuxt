@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Mints a single-use WebSocket ticket from Django.
  *
@@ -22,16 +24,16 @@ export default defineEventHandler(async (event) => {
     // the property is camelCase) was failing the Zod parse with
     // "expected number, received undefined". Type as camelCase and
     // hand the response straight to ``parseDataAs``.
-    const response = await $fetch<{ ticket: string, expiresIn: number }>(
+    const response = await useBackendFetch(event)<{ ticket: string, expiresIn: number }>(
       `${config.apiBaseUrl}/websocket/ticket`,
       {
         method: 'POST',
-        headers: createHeaders(null, accessToken),
+        headers: createHeaders(event, null, accessToken),
       },
     )
     return await parseDataAs(response, zCreateWebSocketTicketResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

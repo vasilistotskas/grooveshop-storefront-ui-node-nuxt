@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Whether the newsletter band can offer its form: true when the store
  * has a default newsletter topic for a submission to land in.
@@ -8,19 +10,19 @@
  * while NEWSLETTER_ENABLED is off; the band checks that flag first and
  * does not ask.
  */
-export default defineCachedEventHandler(async () => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
     // useBackendFetch: the answer is per tenant, so Django must see
     // X-Forwarded-Host — including on an SWR revalidation.
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/subscription/newsletter`,
       { method: 'GET' },
     )
     return await parseDataAs(response, zGetNewsletterAvailabilityResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'NewsletterAvailability',

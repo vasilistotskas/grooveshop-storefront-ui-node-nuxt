@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Loyalty tiers — the store's tier ladder: names, the level each starts
@@ -11,13 +12,13 @@ import { z } from 'zod'
  * who have not joined it. So no auth is read here, and the answer is
  * cached per store like any other public read.
  */
-export default defineCachedEventHandler(
-  async () => {
+export default defineCachedRoute(
+  async (event) => {
     const config = useRuntimeConfig()
 
     try {
       // useBackendFetch: X-Forwarded-Host resolves the caller's schema.
-      const data = await useBackendFetch()(`${config.apiBaseUrl}/loyalty/tiers`, {
+      const data = await useBackendFetch(event)(`${config.apiBaseUrl}/loyalty/tiers`, {
         method: 'GET',
       })
 
@@ -25,7 +26,7 @@ export default defineCachedEventHandler(
       return await parseDataAs(data, z.array(zLoyaltyTier))
     }
     catch (error) {
-      handleError(error)
+      handleError(event, error)
     }
   },
   {

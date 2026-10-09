@@ -1,12 +1,14 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
 
   try {
-    const params = await getValidatedRouterParams(event, zGetProductLoyaltyPointsPath.parse)
+    const params = await parseRouterParams(event, zGetProductLoyaltyPointsPath)
     const productId = params.id
 
-    const response = await $fetch(`${config.apiBaseUrl}/loyalty/product/${productId}/points`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/loyalty/product/${productId}/points`, {
       method: 'GET',
       headers: {
         ...(accessToken && {
@@ -18,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zGetProductLoyaltyPointsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

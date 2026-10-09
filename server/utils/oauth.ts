@@ -1,4 +1,8 @@
 import { withQuery } from 'ufo'
+// The OAuth callbacks run inside nuxt-auth-utils' handler factories
+// (`defineOAuth*EventHandler`), which hand them h3's event, so these use
+// h3's own helpers.
+import { deleteCookie, getCookie, sendRedirect, setCookie } from 'h3'
 import type { H3Event } from 'h3'
 
 export const OAUTH_PROCESS_COOKIE = 'oauth_process'

@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { defineEventHandler, getValidatedQuery, sendRedirect, useRuntimeConfig } from 'nuxt/server'
 
 // Viva Smart Checkout redirects the customer to the portal-configured
 // success/failure URL and appends (per developer.viva.com → Smart
@@ -41,11 +42,11 @@ const zResolvedReturn = z.discriminatedUnion('kind', [
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const backendFetch = useBackendFetch()
+  const backendFetch = useBackendFetch(event)
   const query = await getValidatedQuery(event, z.object({
     t: z.string().max(64).optional(),
     s: z.string().max(64).optional(),
-  }).loose().parse)
+  }).loose())
 
   const transactionId = query.t
   const orderCode = query.s

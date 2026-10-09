@@ -1,4 +1,5 @@
 import { FetchError } from 'ofetch'
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * What a cart load did, on the request's wide event. A signed-in shopper
@@ -17,13 +18,13 @@ interface CartLoadLog {
 }
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const cartSession = useCartSession(event)
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
   const report = (load: CartLoadLog) => {
-    wideLog.set({ cart: load })
+    wideLog?.set({ cart: load })
     const anomalous = load.signedIn && (load.outcome !== 'loaded' || load.owner === 'guest')
-    if (anomalous) wideLog.setLevel('warn')
+    if (anomalous) wideLog?.setLevel('warn')
   }
 
   let identity: Omit<CartLoadLog, 'outcome'> = { signedIn: false, accessToken: false, cartId: false }
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
     const headers = await cartSession.getCartHeaders()
 
-    const response = await $fetch(`${config.apiBaseUrl}/cart`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart`, {
       method: 'GET',
       headers,
     })
@@ -75,6 +76,6 @@ export default defineEventHandler(async (event) => {
       report({ ...identity, outcome: 'auth-rejected' })
       return null
     }
-    handleError(error)
+    handleError(event, error)
   }
 })

@@ -1,12 +1,15 @@
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
 // The query parameters the route accepts and forwards, in the schema's own
 // order: the key does not depend on the order a caller wrote them in.
 const QUERY_PARAMS = Object.keys(zListBlogPostQuery.shape)
 
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListBlogPostQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/blog/post`, {
+    const query = await getValidatedQuery(event, zListBlogPostQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/blog/post`, {
       method: 'GET',
       query,
     })
@@ -34,7 +37,7 @@ export default defineCachedEventHandler(async (event) => {
     }
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'BlogPostViewSet',

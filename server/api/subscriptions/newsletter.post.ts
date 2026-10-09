@@ -1,4 +1,5 @@
 import { newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * The newsletter band's form: subscribe an address to the store's
@@ -27,10 +28,10 @@ const zNewsletterFormBody = zSubscribeToNewsletterBody.omit({ consentText: true 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const body = await readValidatedBody(event, zNewsletterFormBody.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/user/subscription/newsletter`, {
+    const body = await readValidatedBody(event, zNewsletterFormBody)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/user/subscription/newsletter`, {
       method: 'POST',
-      headers: createHeaders(),
+      headers: createHeaders(event),
       body: {
         ...body,
         consentText: newsletterConsentText(requestLocale(event)),
@@ -39,6 +40,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zSubscribeToNewsletterResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

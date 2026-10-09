@@ -2,6 +2,8 @@ import { createClient } from 'redis'
 import redisDriver from 'unstorage/drivers/redis'
 import memoryDriver from 'unstorage/drivers/memory'
 import type { Driver } from 'unstorage'
+import { defineNitroPlugin, useStorage } from 'nitropack/runtime'
+import { useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Nitro Cache Storage Plugin

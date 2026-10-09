@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/products/search.get'
-import forwardedProto from '~~/server/plugins/forwarded-proto'
 import { zProductMeiliSearchResponse } from '~~/shared/openapi/zod.gen'
 import {
   backend,
@@ -9,7 +8,6 @@ import {
   createTestEvent,
   jsonResponse,
   log,
-  runNitroPlugin,
 } from '~~/test/helpers/nitro'
 
 /**
@@ -146,10 +144,7 @@ describe('GET /api/products/search', () => {
     expect(JSON.stringify(response.body)).not.toContain('meilisearch')
   })
 
-  it('reaches Django as the caller\'s store once the forwarded-headers plugin is active', async () => {
-    // The route sends no tenant headers itself: its raw `$fetch` relies on
-    // the `forwarded-proto` plugin's global patch for them.
-    await runNitroPlugin(forwardedProto)
+  it('reaches Django as the caller\'s store, never a spoofed one, in the page language', async () => {
     backend.reply(emptyPage)
 
     await search('query=laptop', { headers: { 'x-forwarded-host': 'evil.example' }, context: { locale: 'en' } })

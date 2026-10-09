@@ -1,9 +1,5 @@
-import type { H3Event } from 'h3'
-// Import h3 cookie helpers explicitly: Nitro injects them as auto-imports at
-// runtime, but vitest's `unit` project (node env) doesn't, so tests fail
-// without the explicit import.
-import { deleteCookie, getCookie, setCookie } from 'h3'
-import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { deleteCookie, getCookie, getRequestProtocol, setCookie } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
 
 interface CartSessionData {
   // Cart UUID — the public identifier on the X-Cart-Id header. Switched
@@ -29,26 +25,24 @@ function isValidCartUuid(value: unknown): value is string {
   return typeof value === 'string' && UUID_RE.test(value)
 }
 
-async function getSession(event: H3Event) {
-  const config = useRuntimeConfig(event)
-  return await useSession<CartSessionData>(event, {
-    name: 'nuxt-session',
-    password: config.session.password,
-    cookie: {
-      httpOnly: true,
-      secure: !import.meta.dev,
-      sameSite: 'lax',
-      maxAge: CART_ID_MAX_AGE,
-    },
-  })
-}
+// The cart lives in nuxt-auth-utils' `nuxt-session`, beside the signed-in
+// user: one sealed cookie, one password (`runtimeConfig.session`). A cart
+// write seals it with the cart's own cookie lifetime.
+const CART_SESSION_CONFIG = {
+  cookie: {
+    httpOnly: true,
+    secure: !import.meta.dev,
+    sameSite: 'lax',
+    maxAge: CART_ID_MAX_AGE,
+  },
+} as const
 
-function readFallbackCartId(event: H3Event): string | undefined {
+function readFallbackCartId(event: RequestEvent): string | undefined {
   const raw = getCookie(event, CART_ID_FALLBACK_COOKIE)
   return isValidCartUuid(raw) ? raw : undefined
 }
 
-function writeFallbackCartId(event: H3Event, cartId: string | undefined): void {
+function writeFallbackCartId(event: RequestEvent, cartId: string | undefined): void {
   if (cartId === undefined) {
     deleteCookie(event, CART_ID_FALLBACK_COOKIE, { path: '/' })
     return
@@ -62,57 +56,52 @@ function writeFallbackCartId(event: H3Event, cartId: string | undefined): void {
   })
 }
 
-export async function getCartSession(event: H3Event): Promise<CartSessionData> {
-  const session = await getSession(event)
-  if (session.data.cartId) return session.data
+export async function getCartSession(event: RequestEvent): Promise<CartSessionData> {
+  const { cartId } = await getUserSession(event)
+  if (cartId) return { cartId }
   const fallbackId = readFallbackCartId(event)
   if (fallbackId) {
     // Reconciliation: re-attach the fallback id to the session so subsequent
     // requests read the primary cookie and the fallback stays a pure spare.
-    await session.update({ ...session.data, cartId: fallbackId })
-    return { ...session.data, cartId: fallbackId }
+    await setUserSession(event, { cartId: fallbackId }, CART_SESSION_CONFIG)
+    return { cartId: fallbackId }
   }
-  return session.data
+  return {}
 }
 
-export async function updateCartSession(event: H3Event, updates: Partial<CartSessionData>): Promise<void> {
-  const session = await getSession(event)
-
+export async function updateCartSession(event: RequestEvent, updates: Partial<CartSessionData>): Promise<void> {
   if ('cartId' in updates && updates.cartId === undefined) {
-    // h3 merges an update into the session (`Object.assign`), so leaving
-    // the key out keeps the old id; it has to be overwritten, and the
-    // sealed JSON then drops it. The session itself must stay:
-    // `nuxt-session` also holds nuxt-auth-utils' signed-in user.
-    await session.update({ cartId: undefined })
+    // `setUserSession` merges with defu, which skips an undefined value
+    // and so keeps the old id; the session is rewritten without it. It
+    // must stay otherwise intact: `nuxt-session` also holds the
+    // signed-in user.
+    const current = await getUserSession(event)
+    await replaceUserSession(event, { ...current, cartId: undefined }, CART_SESSION_CONFIG)
     writeFallbackCartId(event, undefined)
     return
   }
 
-  await session.update({
-    ...session.data,
-    ...updates,
-  })
+  await setUserSession(event, updates, CART_SESSION_CONFIG)
 
   if ('cartId' in updates && isValidCartUuid(updates.cartId)) {
     writeFallbackCartId(event, updates.cartId)
   }
 }
 
-export async function getCartHeaders(event: H3Event, cartIdOverride?: string): Promise<Record<string, string>> {
+export async function getCartHeaders(event: RequestEvent, cartIdOverride?: string): Promise<Record<string, string>> {
   const { cartId } = await getCartSession(event)
   // Callers that need to address a cart other than the current session's
   // (e.g. the /cart/claim handoff, which must probe an agent-issued UUID
   // before ever writing it to the session) pass an explicit override.
   const effectiveCartId = cartIdOverride ?? cartId
   const accessToken = await getAllAuthAccessToken(event)
-  const locale = event?.context?.locale || DEFAULT_LOCALE
   const headers: Record<string, string> = {
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
     // Tenant resolution — prefer the actual request host so cart
     // operations hit the caller's tenant schema. Falls back to the
     // configured Django hostname outside request context.
     'X-Forwarded-Host': requestTenantHost(event),
-    'X-Language': locale,
+    'X-Language': requestLocale(event),
   }
 
   if (effectiveCartId) {
@@ -126,7 +115,7 @@ export async function getCartHeaders(event: H3Event, cartIdOverride?: string): P
   return headers
 }
 
-export async function handleCartResponse(event: H3Event, response: unknown): Promise<void> {
+export async function handleCartResponse(event: RequestEvent, response: unknown): Promise<void> {
   if (
     response
     && typeof response === 'object'
@@ -137,11 +126,11 @@ export async function handleCartResponse(event: H3Event, response: unknown): Pro
   }
 }
 
-export async function clearCartSession(event: H3Event): Promise<void> {
+export async function clearCartSession(event: RequestEvent): Promise<void> {
   await updateCartSession(event, { cartId: undefined })
 }
 
-export const useCartSession = (event: H3Event) => {
+export const useCartSession = (event: RequestEvent) => {
   return {
     getSession: () => getCartSession(event),
     updateSession: (updates: Partial<CartSessionData>) => updateCartSession(event, updates),

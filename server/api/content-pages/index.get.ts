@@ -1,17 +1,20 @@
-export default defineCachedEventHandler(async (event) => {
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListContentPageQuery.parse)
+    const query = await getValidatedQuery(event, zListContentPageQuery)
     // useBackendFetch: ContentPage rows are per-tenant — see
     // content-pages/[slug].get.ts for why a raw $fetch is unsafe here.
-    const response = await useBackendFetch()(`${config.apiBaseUrl}/content-page`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/content-page`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListContentPageResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ContentPageViewSet',

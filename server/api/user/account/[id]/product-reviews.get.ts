@@ -1,13 +1,15 @@
+import { defineEventHandler, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zGetUserAccountProductReviewsPath.parse,
+      zGetUserAccountProductReviewsPath,
     )
-    const query = await getValidatedQuery(event, zGetUserAccountProductReviewsQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/product_reviews`, {
+    const query = await getValidatedQuery(event, zGetUserAccountProductReviewsQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/user/account/${params.id}/product_reviews`, {
       method: 'GET',
       query,
       headers: {
@@ -17,6 +19,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zGetUserAccountProductReviewsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

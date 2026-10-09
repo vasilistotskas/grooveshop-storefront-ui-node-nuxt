@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from 'nuxt/server'
+
 /**
  * The seller identity the storefront is legally required to publish.
  *
@@ -12,14 +14,14 @@
  * PUBLIC schema, while this data lives in the tenant schema's
  * extra_settings — see the Django view for the full reasoning.
  */
-export default defineCachedEventHandler(async () => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
 
   try {
     // useBackendFetch: the identity is per-tenant extra_settings, so the
     // fetch must carry X-Forwarded-Host or Django resolves the public
     // schema and every store gets the same (empty) answer.
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/tenant/legal-identity`,
       { method: 'GET' },
     )
@@ -29,7 +31,7 @@ export default defineCachedEventHandler(async () => {
     )
   }
   catch (error) {
-    await handleError(error)
+    await handleError(event, error)
   }
 }, {
   name: 'tenantLegalIdentity',

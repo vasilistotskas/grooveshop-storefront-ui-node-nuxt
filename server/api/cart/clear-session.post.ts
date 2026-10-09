@@ -1,3 +1,5 @@
+import { defineEventHandler } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   // No auth requirement — both authenticated users and guests have a
   // cart session cookie that needs clearing (after order creation and
@@ -12,6 +14,6 @@ export default defineEventHandler(async (event) => {
     return { success: true }
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

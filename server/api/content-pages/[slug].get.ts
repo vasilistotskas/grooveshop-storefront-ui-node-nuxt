@@ -1,17 +1,18 @@
 import { FetchError } from 'ofetch'
+import { getRouterParams, useRuntimeConfig } from 'nuxt/server'
 
-export default defineCachedEventHandler(async (event): Promise<ContentPageResponse> => {
+export default defineCachedRoute(async (event): Promise<ContentPageResponse> => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zRetrieveContentPagePath.parse,
+      zRetrieveContentPagePath,
     )
     // useBackendFetch: ContentPage rows are per-tenant — a raw $fetch
     // carries no X-Forwarded-Host, Django would resolve the public
     // schema and every tenant would get a 404 (same reasoning as
     // page-config/[pageType].get.ts).
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/content-page/${params.slug}`,
       { method: 'GET' },
     )
@@ -31,7 +32,7 @@ export default defineCachedEventHandler(async (event): Promise<ContentPageRespon
     if (error instanceof FetchError && error.statusCode === 404) {
       return { page: null }
     }
-    return handleError(error)
+    return handleError(event, error)
   }
 }, {
   name: 'ContentPageDetailViewSet',
@@ -39,7 +40,7 @@ export default defineCachedEventHandler(async (event): Promise<ContentPageRespon
   staleMaxAge: 60 * 60 * 2,
   swr: true,
   getKey: (event) => {
-    const params = getRouterParams(event)
+    const params = getRouterParams(event, { decode: true })
     return tenantCacheKey(event, `content-page:${params.slug}`)
   },
 })

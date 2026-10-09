@@ -1,15 +1,13 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const body = await readValidatedBody(event, zCreateContactBody.parse)
-    // Use the named backend fetch so Django resolves the tenant from
-    // X-Forwarded-Host — contact emails need to go to the right tenant's
-    // support inbox, and the contact row must be stored in that tenant's
-    // schema. The global $fetch interceptor in forwarded-proto.ts covers
-    // bare $fetch too, but calling useBackendFetch() explicitly
-    // documents the intent and pins the behaviour even if the global
-    // patch is later removed.
-    const response = await useBackendFetch()(`${config.apiBaseUrl}/contact`, {
+    const body = await readValidatedBody(event, zCreateContactBody)
+    // The backend fetch names this request's store in X-Forwarded-Host:
+    // contact emails go to that tenant's support inbox, and the contact
+    // row is stored in its schema.
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/contact`, {
       method: 'POST',
       body,
     })
@@ -19,6 +17,6 @@ export default defineEventHandler(async (event) => {
     // Return Django 4xx bodies (DRF validation detail) so the client
     // can show WHAT was rejected — thrown createError({data}) is
     // stripped in production. See forwardUpstreamClientError.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

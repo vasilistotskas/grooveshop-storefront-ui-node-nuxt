@@ -1,12 +1,12 @@
 import type { ZodType } from 'zod'
-import { createError } from 'h3'
+import { createError } from 'nuxt/server'
 
 /**
  * Brand for "the payload we RECEIVED failed its schema".
  *
  * A malformed request and a drifted response both surface as a 4xx
- * `H3Error` carrying a `ZodError`, so `isClientError` cannot tell them
- * apart — yet they are opposites. A malformed request is the caller's
+ * HTTP error carrying validation issues, so `isClientError` cannot tell
+ * them apart — yet they are opposites. A malformed request is the caller's
  * problem: every one in the 2026-09-08 production audit came from a bot
  * probing `?page=gravitysmtp-settings`. A response that fails its schema
  * means Django and the generated client have drifted, which is our
@@ -35,16 +35,16 @@ export function isResponseContractError(error: unknown): boolean {
 const apiValidateWithSchema = <ZodSchema extends ZodType>(
   data: unknown,
   schema: ZodSchema,
-  statusCode: number,
-  statusMessage: string,
+  status: number,
+  statusText: string,
 ) => {
   try {
     return schema.parse(data)
   }
   catch (error) {
     const failure = createError({
-      statusCode,
-      statusMessage,
+      status,
+      statusText,
       data: error,
     })
     Object.defineProperty(failure, RESPONSE_CONTRACT, { value: true })

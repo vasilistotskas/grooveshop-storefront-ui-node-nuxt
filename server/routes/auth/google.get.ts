@@ -1,3 +1,5 @@
+import { defineEventHandler, getQuery } from 'h3'
+
 const googleHandler = defineOAuthGoogleEventHandler({
   config: {
     clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID,

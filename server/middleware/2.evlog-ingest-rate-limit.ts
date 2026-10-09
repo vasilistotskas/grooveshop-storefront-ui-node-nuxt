@@ -1,3 +1,5 @@
+import { defineEventHandler, getRequestURL } from 'nuxt/server'
+
 /**
  * Per-IP rate limit on evlog's client-log ingest route.
  *
@@ -17,6 +19,6 @@ const INGEST_PATH = '/api/_evlog/ingest'
 const RATE_LIMIT = { name: 'evlog-ingest', windowSeconds: 60, maxRequests: 60 }
 
 export default defineEventHandler(async (event) => {
-  if (event.method !== 'POST' || getRequestURL(event).pathname !== INGEST_PATH) return
+  if (event.req.method !== 'POST' || getRequestURL(event).pathname !== INGEST_PATH) return
   await enforceRateLimit(event, RATE_LIMIT)
 })

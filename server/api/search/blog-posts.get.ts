@@ -1,3 +1,6 @@
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
 /**
  * Blog post search: the search page's guides, paged on their own.
  *
@@ -9,14 +12,14 @@
  * @example
  * GET /api/search/blog-posts?query=power%20bank&languageCode=el&limit=3
  */
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
 
   try {
-    const query = await getValidatedQuery(event, zApiV1SearchBlogPostRetrieveQuery.parse)
+    const query = await getValidatedQuery(event, zApiV1SearchBlogPostRetrieveQuery)
 
-    const response = await $fetch(`${config.apiBaseUrl}/search/blog/post`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/search/blog/post`, {
       method: 'GET',
       query: {
         query: query.query,
@@ -27,11 +30,11 @@ export default defineCachedEventHandler(async (event) => {
     })
 
     const validatedResponse = await parseDataAs(response, zBlogPostMeiliSearchResponse)
-    wideLog.set({ search: { query: query.query, resultCount: validatedResponse.results.length } })
+    wideLog?.set({ search: { query: query.query, resultCount: validatedResponse.results.length } })
     return validatedResponse
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'SearchBlogPostViewSet',

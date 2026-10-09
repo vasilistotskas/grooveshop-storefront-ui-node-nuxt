@@ -1,3 +1,5 @@
+import { defineNitroPlugin, useRuntimeConfig } from 'nitropack/runtime'
+
 /**
  * Seeds every request's runtime config from the copy Nitro resolved at boot.
  *

@@ -1,3 +1,4 @@
+import { defineCachedFunction } from 'nitropack/runtime'
 import { hashedCacheKey } from './cacheKey'
 
 export function getMimeType(filePath: string): string {
@@ -68,10 +69,7 @@ export function createCachedFetcher<T>(
       // sitemap/RSS would be built from public-schema data (then cached
       // under the tenant key, so the wrong data sticks). The tenantKey
       // IS the store's host (callers pass requestTenantHost(event)).
-      const headers = {
-        ...(tenantKey ? { 'X-Forwarded-Host': tenantKey } : {}),
-        'X-Language': locale,
-      }
+      const backendFetch = backendFetchFor({ tenantHost: tenantKey, locale })
 
       const fetchAll = async (
         currentUrl: string,
@@ -80,9 +78,8 @@ export function createCachedFetcher<T>(
       ): Promise<T[]> => {
         if (pageCount >= MAX_PAGES) return accumulatedItems
 
-        const response = await $fetch<Pagination<T>>(currentUrl, {
+        const response = await backendFetch<Pagination<T>>(currentUrl, {
           method: 'GET',
-          headers,
         })
 
         const { results, links } = response

@@ -1,3 +1,5 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Check a gift card's balance and redeemability.
  *
@@ -8,9 +10,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const body = await readValidatedBody(event, zCheckGiftCardBody.parse)
+    const body = await readValidatedBody(event, zCheckGiftCardBody)
 
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/giftcard/check`,
       {
         method: 'POST',
@@ -21,6 +23,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCheckGiftCardResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

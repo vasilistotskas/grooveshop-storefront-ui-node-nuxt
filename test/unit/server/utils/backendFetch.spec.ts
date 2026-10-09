@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { isInternalBackendUrl, useBackendFetch } from '~~/server/utils/backendFetch'
-import { backend, createTestEvent, setRuntimeConfig, withEvent } from '~~/test/helpers/nitro'
+import { backendFetchFor, isInternalBackendUrl, useBackendFetch } from '~~/server/utils/backendFetch'
+import { backend, createRequestEvent, setRuntimeConfig } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
 const API = 'http://backend.test/api/v1'
 
-/** Call the backend through the named instance, inside a request (or none), and return what reached the wire. */
-async function send(input: string | URL | Request = `${API}/contact`, options: Record<string, unknown> = {}, req?: TestRequest) {
+/** Call the backend for a request to `req`, and return what reached the wire. */
+async function send(input: string | Request = `${API}/contact`, options: Record<string, unknown> = {}, req: TestRequest = {}) {
   backend.reply({ ok: true })
-  const call = () => useBackendFetch()(input as string, options)
-  await (req ? withEvent(createTestEvent(req), call) : call())
+  await useBackendFetch(createRequestEvent(req))(input, options)
   return backend.lastRequest.headers
 }
 
@@ -68,19 +67,8 @@ describe('useBackendFetch', () => {
     })
   })
 
-  it('outside a request, names the platform Django host and sends no visitor identity', async () => {
-    const headers = await send()
-
-    expect(headers.get('x-forwarded-host')).toBe('platform.test')
-    expect(headers.get('x-language')).toBe('el')
-    expect(headers.has('x-real-ip')).toBe(false)
-  })
-
-  it.each([
-    ['a URL object', () => new URL(`${API}/contact`)],
-    ['a Request', () => new Request(`${API}/contact`)],
-  ])('recognises an internal origin given as %s', async (_label, input) => {
-    expect((await send(input(), {}, { host: 'webside.gr' })).get('x-forwarded-host')).toBe('webside.gr')
+  it('recognises an internal origin given as a Request', async () => {
+    expect((await send(new Request(`${API}/contact`), {}, { host: 'webside.gr' })).get('x-forwarded-host')).toBe('webside.gr')
   })
 
   it('leaves a request to any other origin untouched', async () => {
@@ -112,10 +100,33 @@ describe('useBackendFetch', () => {
   })
 
   it('reads the internal origins per request, not once at first use', async () => {
-    await send()
+    await send(undefined, {}, { host: 'webside.gr' })
     setRuntimeConfig({ apiBaseUrl: 'http://moved.test/api/v1', djangoUrl: 'http://moved.test' })
 
     expect((await send('http://moved.test/api/v1/contact', {}, { host: 'webside.gr' })).get('x-forwarded-host')).toBe('webside.gr')
+  })
+})
+
+/** What a cached function uses: no request, only the store and language it is keyed by. */
+describe('backendFetchFor', () => {
+  it('names the store and language it is given, and no visitor', async () => {
+    backend.reply({ ok: true })
+
+    await backendFetchFor({ tenantHost: 'webside.gr', locale: 'en' })(`${API}/blog/post`)
+
+    const headers = backend.lastRequest.headers
+    expect(headers.get('x-forwarded-host')).toBe('webside.gr')
+    expect(headers.get('x-forwarded-proto')).toBe('https')
+    expect(headers.get('x-language')).toBe('en')
+    expect(headers.has('x-real-ip')).toBe(false)
+  })
+
+  it('sends no language when none is given (tenant resolution, settings reads)', async () => {
+    backend.reply({ ok: true })
+
+    await backendFetchFor({ tenantHost: 'webside.gr' })(`${API}/tenant/resolve`)
+
+    expect(backend.lastRequest.headers.has('x-language')).toBe(false)
   })
 })
 

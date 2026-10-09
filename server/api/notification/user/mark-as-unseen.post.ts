@@ -1,9 +1,11 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const body = await readValidatedBody(event, zMarkNotificationUsersAsUnseenBody.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/notification/user/mark_as_unseen`, {
+    const body = await readValidatedBody(event, zMarkNotificationUsersAsUnseenBody)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/notification/user/mark_as_unseen`, {
       method: 'POST',
       body,
       headers: {
@@ -13,6 +15,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zMarkNotificationUsersAsUnseenResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

@@ -1,3 +1,6 @@
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
 /**
  * Public offers listing.
  *
@@ -20,18 +23,18 @@
  * the cache key for the same reason: one entry per tenant would serve
  * whichever locale asked first to everybody.
  */
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zLocalizedQuery.parse)
-    const response = await useBackendFetch()(`${config.apiBaseUrl}/promotion`, {
+    const query = await getValidatedQuery(event, zLocalizedQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/promotion`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListPublicPromotionsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'PublicPromotionList',

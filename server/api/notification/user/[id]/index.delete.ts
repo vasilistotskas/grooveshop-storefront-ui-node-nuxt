@@ -1,12 +1,14 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zDestroyNotificationUserPath.parse,
+      zDestroyNotificationUserPath,
     )
-    await $fetch(
+    await useBackendFetch(event)(
       `${config.apiBaseUrl}/notification/user/${params.id}`,
       {
         method: 'DELETE',
@@ -18,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return { success: true }
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

@@ -1,13 +1,14 @@
 import { z } from 'zod'
+import { defineEventHandler, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const headers = await getAllAuthHeaders()
+    const headers = await getAllAuthHeaders(event)
     const query = await getValidatedQuery(event, z.object({
       passwordless: z.string().optional(),
-    }).parse)
-    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/account/authenticators/webauthn`, {
+    }))
+    const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/account/authenticators/webauthn`, {
       method: 'GET',
       headers,
       query: {
@@ -17,6 +18,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, ZodWebAuthnGetResponse)
   }
   catch (error) {
-    await handleAllAuthError(error)
+    await handleAllAuthError(event, error)
   }
 })

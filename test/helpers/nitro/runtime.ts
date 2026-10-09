@@ -21,6 +21,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { defu } from 'defu'
 import { createError, createEvent, defineEventHandler, isEvent } from 'h3'
+import { createHooks } from 'hookable'
 import type { EventHandler, EventHandlerRequest, H3Event } from 'h3'
 import { createSiteConfigStack } from 'site-config-stack'
 import type { SiteConfigInput, SiteConfigResolved, SiteConfigStack } from 'site-config-stack'
@@ -49,6 +50,14 @@ export function defaultRuntimeConfig() {
     },
     cachePurgeToken: '',
     contactAttachmentMaxBytes: 25 * 1024 * 1024,
+    // Nuxt's own `runtimeConfig.app` defaults, which `nuxt/server`'s
+    // Nitro implementation reads (`serverFetch` resolves paths against
+    // `app.baseURL`).
+    app: {
+      baseURL: '/',
+      buildAssetsDir: '/_nuxt/',
+      cdnURL: '',
+    },
     redis: {
       host: '',
       port: 6379,
@@ -198,6 +207,38 @@ export function defineNitroPlugin(plugin: NitroTestPlugin): NitroTestPlugin {
   return plugin
 }
 
+// ── getRouteRules, useNitroApp (nitropack/runtime) ────────────────────
+//
+// What `nuxt/server`'s Nitro 2 implementation (@nuxt/nitro-server
+// `runtime/server.mjs`) imports from the Nitro runtime. No route rules
+// are configured in a unit test, and no server answers `localFetch`.
+
+/** nitropack's `getRouteRules`: the rules matched for the request. */
+export function getRouteRules(event: H3Event): Record<string, unknown> {
+  return event.context._nitro?.routeRules ?? {}
+}
+
+/** nitropack's `getRouteRulesForPath` (runtime/internal/route-rules). */
+export function getRouteRulesForPath(_path: string): Record<string, unknown> {
+  return {}
+}
+
+/**
+ * Nitro's in-process fetch (`nitroApp.localFetch`), which `nuxt/server`'s
+ * `serverFetch` calls: a spy, unanswered until a spec answers it.
+ */
+export const localFetch = vi.fn(async (_path: string, _init?: RequestInit): Promise<Response> => {
+  throw new Error('No Nitro server in a unit test: answer localFetch')
+})
+
+/** nitropack's `useNitroApp`: the runtime hooks and the in-process fetch. */
+export function useNitroApp() {
+  return {
+    hooks: createHooks(),
+    localFetch,
+  }
+}
+
 // ── useStorage (nitropack/runtime/internal/storage) ───────────────────
 
 /** The real unstorage, memory-backed; a fresh one per test. */
@@ -264,12 +305,18 @@ export function useLogger(event: H3Event, service?: string): TestRequestLogger {
  * so the store is simply the session data the next call will read.
  */
 let sessionData: Record<string, unknown> = {}
+/** The session config the last write passed (nuxt-auth-utils' third argument). */
+let sessionWriteConfig: Record<string, unknown> | undefined
 
 const TEST_SESSION_ID = 'unit-test-session'
 
 export const testSession = {
   get data(): Record<string, any> {
     return sessionData
+  },
+  /** The config the last `setUserSession`/`replaceUserSession` was given, if any. */
+  get writeConfig(): Record<string, unknown> | undefined {
+    return sessionWriteConfig
   },
   set(data: Record<string, unknown>) {
     sessionData = structuredClone(data)
@@ -280,12 +327,14 @@ export async function getUserSession(_event: H3Event): Promise<Record<string, an
   return { ...structuredClone(sessionData), id: TEST_SESSION_ID }
 }
 
-export async function setUserSession(_event: H3Event, data: Record<string, unknown>) {
+export async function setUserSession(_event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
+  sessionWriteConfig = config
   sessionData = defu(structuredClone(data), sessionData)
   return sessionData
 }
 
-export async function replaceUserSession(_event: H3Event, data: Record<string, unknown>) {
+export async function replaceUserSession(_event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
+  sessionWriteConfig = config
   const { id: _id, ...rest } = data
   sessionData = structuredClone(rest)
   return sessionData
@@ -353,4 +402,5 @@ export function resetNitroRuntime(): void {
   runtimeConfig = defaultRuntimeConfig()
   storage = createStorage()
   sessionData = {}
+  sessionWriteConfig = undefined
 }

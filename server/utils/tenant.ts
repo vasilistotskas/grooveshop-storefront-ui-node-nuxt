@@ -1,4 +1,5 @@
-import type { H3Event } from 'h3'
+import { useRuntimeConfig } from 'nuxt/server'
+
 // In-memory cache with 5-minute TTL.
 //
 // Negative results (404 / 5xx) are explicitly NOT cached, so adversarial
@@ -8,29 +9,6 @@ import type { H3Event } from 'h3'
 // adds runtime weight for no real-world payoff. Sweep on every set
 // keeps stale entries out without a setInterval (which leaks under
 // Nitro HMR / test isolation). See H17 in MULTI_TENANT_AUDIT.md.
-/**
- * A Host as the store it names: lower case — hostnames are
- * case-insensitive, and Django matches `TenantDomain` exactly — and
- * without a port, since `TenantDomain` stores bare hostnames. Idempotent.
- */
-export function tenantHostOf(host: string): string {
-  return host.toLowerCase().replace(/:\d+$/, '')
-}
-
-/**
- * The store a request is for: its Host header — never X-Forwarded-Host,
- * which the client controls — as {@link tenantHostOf} names it.
- *
- * Everything keyed on the store uses this one value: tenant resolution,
- * `tenantCacheKey`, the rate limits and the X-Forwarded-Host sent to
- * Django. A raw Host differing in case or port resolved the same store
- * yet missed its caches and rate-limit buckets, and a capital letter
- * was "Store not found".
- */
-export function requestTenantHost(event: H3Event): string {
-  return tenantHostOf(getRequestHost(event, { xForwardedHost: false }))
-}
-
 const TENANT_CACHE_TTL = 5 * 60 * 1000
 const TENANT_CACHE_MAX_ENTRIES = 1000
 const tenantCache = new Map<string, { config: TenantConfig, expiry: number }>()
@@ -73,7 +51,7 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
 
   const config = useRuntimeConfig()
   try {
-    const response = await $fetch(
+    const response = await backendFetchFor({ tenantHost: domain })(
       `${config.apiBaseUrl}/tenant/resolve`,
       { query: { domain } },
     )

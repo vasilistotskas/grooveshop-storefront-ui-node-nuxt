@@ -1,4 +1,5 @@
 import { Agent, setGlobalDispatcher } from 'undici'
+import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
  * HTTP Agent plugin for connection pooling and keep-alive.

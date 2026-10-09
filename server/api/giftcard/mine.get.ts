@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Gift cards linked to the authenticated account.
  */
@@ -6,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const accessToken = await requireAllAuthAccessToken(event)
 
   try {
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/giftcard/mine`,
       {
         method: 'GET',
@@ -19,6 +21,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zListMyGiftCardsResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

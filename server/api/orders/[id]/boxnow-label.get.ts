@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { createError, defineEventHandler, useRuntimeConfig } from 'nuxt/server'
 
 const zBoxNowLabelPath = z.object({
   // Order IDs are unsigned integers — reject negative values that
@@ -11,9 +12,9 @@ const zBoxNowLabelPath = z.object({
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const headers = await getAllAuthHeaders()
+  const headers = await getAllAuthHeaders(event)
   try {
-    const params = await getValidatedRouterParams(event, zBoxNowLabelPath.parse)
+    const params = await parseRouterParams(event, zBoxNowLabelPath)
 
     // Use ``arrayBuffer`` rather than ``blob`` because Nitro's
     // default response handler JSON-stringifies a returned ``Blob``
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
     // the customer ends up with ``[object Blob]`` instead of a PDF.
     // Convert the ArrayBuffer to a ``Buffer`` and let Nitro send it
     // as raw binary with the Content-Type we set explicitly.
-    const response = await $fetch.raw<ArrayBuffer>(
+    const response = await useBackendFetch(event).raw<ArrayBuffer, 'arrayBuffer'>(
       `${config.apiBaseUrl}/order/${params.id}/boxnow_label`,
       {
         method: 'GET',
@@ -30,15 +31,15 @@ export default defineEventHandler(async (event) => {
       },
     )
 
-    setResponseHeader(event, 'Content-Type', 'application/pdf')
-    setResponseHeader(event, 'Content-Disposition', `attachment; filename="boxnow-${params.id}.pdf"`)
+    event.res.headers.set('Content-Type', 'application/pdf')
+    event.res.headers.set('Content-Disposition', `attachment; filename="boxnow-${params.id}.pdf"`)
 
     if (!response._data) {
-      throw createError({ statusCode: 502, statusMessage: 'Empty PDF body from upstream' })
+      throw createError({ status: 502, statusText: 'Empty PDF body from upstream' })
     }
     return Buffer.from(response._data)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

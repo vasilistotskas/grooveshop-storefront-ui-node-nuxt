@@ -1,3 +1,5 @@
+import { defineEventHandler } from 'nuxt/server'
+
 /**
  * The signed-in user's id on the request's wide event.
  *
@@ -8,11 +10,12 @@
  * them, and unsealing it there buys nothing.
  */
 export default defineEventHandler(async (event) => {
-  if (event.path.startsWith('/_nuxt') || event.path.startsWith('/_ipx') || event.path.startsWith('/assets')) return
+  const path = event.url.pathname
+  if (path.startsWith('/_nuxt') || path.startsWith('/_ipx') || path.startsWith('/assets')) return
   if (!requestHasSession(event)) return
 
   const session = await getUserSession(event)
   if (session.user) {
-    useLogger(event).set({ user: { id: session.user.id } })
+    event.context.log?.set({ user: { id: session.user.id } })
   }
 })

@@ -1,12 +1,14 @@
+import { defineEventHandler, setResponseStatus, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zDestroyProductReviewPath.parse,
+      zDestroyProductReviewPath,
     )
-    await $fetch(
+    await useBackendFetch(event)(
       `${config.apiBaseUrl}/product/review/${params.id}`,
       {
         method: 'DELETE',
@@ -18,6 +20,6 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(event, 204)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

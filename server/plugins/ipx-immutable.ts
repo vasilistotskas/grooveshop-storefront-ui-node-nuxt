@@ -1,3 +1,5 @@
+import { defineNitroPlugin } from 'nitropack/runtime'
+
 /**
  * Mark successful IPX responses immutable.
  *

@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { defineEventHandler, getValidatedQuery, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
 
 const zGuestQuery = z.object({
   uuid: z.string().uuid().optional(),
@@ -8,24 +9,24 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zCancelOrderPath.parse,
+      zCancelOrderPath,
     )
-    const query = await getValidatedQuery(event, zGuestQuery.parse)
-    const body = await readValidatedBody(event, zCancelOrderBody.parse)
+    const query = await getValidatedQuery(event, zGuestQuery)
+    const body = await readValidatedBody(event, zCancelOrderBody)
     const url = new URL(`${config.apiBaseUrl}/order/${params.id}/cancel`)
     if (query.uuid) {
       url.searchParams.set('uuid', query.uuid)
     }
-    const response = await $fetch(url.toString(), {
+    const response = await useBackendFetch(event)(url.toString(), {
       method: 'POST',
       body,
-      headers: createHeaders(null, accessToken),
+      headers: createHeaders(event, null, accessToken),
     })
     return await parseDataAs(response, zCancelOrderResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

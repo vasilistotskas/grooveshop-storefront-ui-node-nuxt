@@ -1,13 +1,15 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const cartSession = useCartSession(event)
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
 
   try {
     const headers = await cartSession.getCartHeaders()
-    const body = await readValidatedBody(event, zCreateCartItemBody.parse)
-    wideLog.set({ cart: { item: { productId: body.product, quantity: body.quantity } } })
-    const response = await $fetch(`${config.apiBaseUrl}/cart/item`, {
+    const body = await readValidatedBody(event, zCreateCartItemBody)
+    wideLog?.set({ cart: { item: { productId: body.product, quantity: body.quantity } } })
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/item`, {
       method: 'POST',
       headers,
       body,
@@ -24,6 +26,6 @@ export default defineEventHandler(async (event) => {
     // Return Django 4xx bodies (DRF detail / field errors) so clients
     // can show the reason — thrown createError({data}) is stripped in
     // production. See forwardUpstreamClientError.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

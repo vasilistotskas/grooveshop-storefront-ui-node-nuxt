@@ -1,3 +1,5 @@
+import { defineEventHandler, getRequestHeader } from 'h3'
+
 /**
  * Stamps the normalized device class (mobile | tablet | desktop) as a
  * synthetic ``x-device-class`` request header so the cached-SSR route
@@ -9,8 +11,11 @@
  * served to phones; found live on 2026-08-28).
  *
  * Set as a REQUEST header (not context) because Nitro's cache ``varies``
- * reads request headers. Overwrites any client-supplied value — the
- * header must never be spoofable into cache poisoning.
+ * reads request headers: the Node request's, which only h3's event
+ * exposes (a web `Request`'s headers are immutable), so this middleware
+ * is Nitro cache code and uses h3 rather than `nuxt/server`. Overwrites
+ * any client-supplied value — the header must never be spoofable into
+ * cache poisoning.
  */
 export default defineEventHandler((event) => {
   const ua = getRequestHeader(event, 'user-agent') || ''

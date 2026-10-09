@@ -1,3 +1,5 @@
+import { defineEventHandler, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Federated Search API Route
  *
@@ -8,17 +10,17 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const query = await getValidatedQuery(event, zApiV1SearchFederatedRetrieveQuery.parse)
+    const query = await getValidatedQuery(event, zApiV1SearchFederatedRetrieveQuery)
 
-    const response = await $fetch(`${config.apiBaseUrl}/search/federated`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/search/federated`, {
       method: 'GET',
       query,
-      headers: createHeaders(null, null),
+      headers: createHeaders(event, null, null),
     })
 
     return await parseDataAs(response, zFederatedSearchResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

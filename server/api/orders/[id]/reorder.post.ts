@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Clones a past order's items back into the authenticated user's active
  * cart. The backend enforces ownership (and only accepts authenticated
@@ -7,22 +9,22 @@
  */
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zReorderOrderPath.parse,
+      zReorderOrderPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/order/${params.id}/reorder`,
       {
         method: 'POST',
-        headers: createHeaders(null, accessToken),
+        headers: createHeaders(event, null, accessToken),
       },
     )
     return await parseDataAs(response, zReorderOrderResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

@@ -1,14 +1,16 @@
-export default defineEventHandler(async () => {
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const headers = await getAllAuthHeaders()
-    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/webauthn/authenticate`, {
+    const headers = await getAllAuthHeaders(event)
+    const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/auth/webauthn/authenticate`, {
       method: 'GET',
       headers,
     })
     return await parseDataAs(response, ZodWebAuthnAuthenticateGetResponse)
   }
   catch (error) {
-    await handleAllAuthError(error)
+    await handleAllAuthError(event, error)
   }
 })

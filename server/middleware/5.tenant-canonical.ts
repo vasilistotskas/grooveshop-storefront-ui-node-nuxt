@@ -1,3 +1,5 @@
+import { defineEventHandler, getRequestHost, sendRedirect } from 'nuxt/server'
+
 /**
  * Tenant-aware canonical-host redirect.
  *
@@ -27,8 +29,8 @@ export default defineEventHandler((event) => {
   const tenant = event.context.tenant
   if (!tenant?.primaryDomain) return
 
-  if (event.method !== 'GET' && event.method !== 'HEAD') return
-  if (event.path.startsWith('/api/')) return
+  if (event.req.method !== 'GET' && event.req.method !== 'HEAD') return
+  if (event.url.pathname.startsWith('/api/')) return
 
   // The Host as sent, port aside — not `requestTenantHost`, which folds
   // case: a case variant resolves the same store, but the page cache
@@ -39,7 +41,7 @@ export default defineEventHandler((event) => {
 
   return sendRedirect(
     event,
-    `https://${tenant.primaryDomain}${event.path}`,
+    `https://${tenant.primaryDomain}${event.url.pathname}${event.url.search}`,
     301,
   )
 })

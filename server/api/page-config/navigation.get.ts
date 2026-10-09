@@ -1,4 +1,6 @@
-export default defineCachedEventHandler(async (event) => {
+import { useRuntimeConfig } from 'nuxt/server'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   // The page's locale, clamped to the tenant's by
   // server/middleware/1.locale.ts (from the X-Language the app states).
@@ -10,7 +12,7 @@ export default defineCachedEventHandler(async (event) => {
     // useBackendFetch: NavigationMenu rows are per-tenant tables — the
     // fetch must carry X-Forwarded-Host or Django serves the public
     // schema (N1 pattern in MULTI_TENANT_AUDIT.md).
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/page-config/navigation`,
       { method: 'GET', query: { locale } },
     )
@@ -20,7 +22,7 @@ export default defineCachedEventHandler(async (event) => {
     )
   }
   catch (error) {
-    await handleError(error)
+    await handleError(event, error)
   }
 }, {
   name: 'pageConfigNavigation',

@@ -1,17 +1,19 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   await requireUserSession(event)
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
     const body = await readValidatedBody(
       event,
-      zDeleteUserAccountGdprBody.parse,
+      zDeleteUserAccountGdprBody,
     )
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zDeleteUserAccountGdprPath.parse,
+      zDeleteUserAccountGdprPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/account/${params.id}/delete_account`,
       {
         method: 'POST',
@@ -29,6 +31,6 @@ export default defineEventHandler(async (event) => {
     return data
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

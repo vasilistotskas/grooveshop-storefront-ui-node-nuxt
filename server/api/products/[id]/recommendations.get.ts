@@ -1,4 +1,6 @@
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { createError, getRouterParam, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
 
 // Cached per (tenant host, seed, surface, limit, exclude, locale): the
 // engine's answer for a product is shared by every viewer. What is
@@ -8,17 +10,17 @@ import { DEFAULT_LOCALE } from '~~/i18n/locales'
 // event on this read). Short SWR window so a merchant curating a
 // relation sees it within minutes; Django's ``recommendations`` cache
 // surface purges ``productRecommendations`` for the urgent case.
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const seed = Number(getRouterParam(event, 'id'))
+    const seed = Number(getRouterParam(event, 'id', { decode: true }))
     if (!Number.isInteger(seed) || seed < 1) {
-      throw createError({ statusCode: 400, statusMessage: 'Bad Request' })
+      throw createError({ status: 400, statusText: 'Bad Request' })
     }
-    const query = await getValidatedQuery(event, zApiV1RecommendationsRetrieveQuery.parse)
+    const query = await getValidatedQuery(event, zApiV1RecommendationsRetrieveQuery)
     // useBackendFetch: X-Forwarded-Host resolves the tenant schema and
     // X-Language picks the translation the names are served in.
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/recommendations`,
       {
         method: 'GET',
@@ -28,7 +30,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zApiV1RecommendationsRetrieveResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'productRecommendations',
@@ -45,7 +47,7 @@ export default defineCachedEventHandler(async (event) => {
       .join('&')
     return tenantCacheKey(
       event,
-      `recommendations:${getRouterParam(event, 'id')}:${locale}:${filtered || 'default'}`,
+      `recommendations:${getRouterParam(event, 'id', { decode: true })}:${locale}:${filtered || 'default'}`,
     )
   },
 })

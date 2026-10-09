@@ -1,14 +1,16 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const session = await requireUserSession(event)
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const body = await readValidatedBody(event, zChangeUserAccountUsernameBody.parse)
-    const params = await getValidatedRouterParams(
+    const body = await readValidatedBody(event, zChangeUserAccountUsernameBody)
+    const params = await parseRouterParams(
       event,
-      zChangeUserAccountUsernamePath.parse,
+      zChangeUserAccountUsernamePath,
     )
-    const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/change_username`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/user/account/${params.id}/change_username`, {
       method: 'POST',
       body,
       headers: {
@@ -30,6 +32,6 @@ export default defineEventHandler(async (event) => {
     // Return Django 4xx bodies (409 "Username already taken." detail)
     // so the client toast can show the reason — thrown
     // createError({data}) is stripped in production.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Coupons the shopper may use on the current cart, each pre-judged.
  *
@@ -22,7 +24,7 @@ export default defineEventHandler(async (event) => {
   try {
     const cartHeaders = await cartSession.getCartHeaders()
 
-    const response = await $fetch(`${config.apiBaseUrl}/cart/coupons`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/coupons`, {
       method: 'GET',
       headers: {
         ...cartHeaders,
@@ -35,6 +37,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zListCartCouponsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

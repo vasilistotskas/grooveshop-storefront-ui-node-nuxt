@@ -1,5 +1,7 @@
-import { createError, defineEventHandler, H3Error, setResponseHeader } from 'h3'
-import { FetchError } from 'ofetch'
+import { H3Error } from 'h3'
+import { createError, defineEventHandler, getValidatedQuery, isNuxtError } from 'nuxt/server'
+import type { NuxtErrorLike, RequestEvent } from 'nuxt/server'
+import { $fetch, FetchError } from 'ofetch'
 import { describe, expect, it } from 'vitest'
 import { z, ZodError } from 'zod'
 import {
@@ -13,11 +15,10 @@ import { parseDataAs } from '~~/server/utils/parser'
 import {
   backend,
   callRoute,
-  createTestEvent,
+  createRequestEvent,
   jsonResponse,
   log,
   testSession,
-  withEvent,
 } from '~~/test/helpers/nitro'
 
 // ── Real payloads ─────────────────────────────────────────────────────
@@ -38,24 +39,22 @@ const allauth = {
 }
 
 /**
- * A real `FetchError`: ofetch's own, raised by the global `$fetch` for a
+ * A real `FetchError`: ofetch's own, as a Django call raises it for a
  * backend answer of `status` with `body`. POST, so ofetch does not retry.
  */
 async function upstreamError(status: number, body?: unknown): Promise<FetchError> {
   backend.replyOnce(jsonResponse(body, status))
-  const error = await globalThis.$fetch<unknown>('http://backend.test/api/v1/upstream', { method: 'POST' }).catch((caught: unknown) => caught)
-  expect(error).toBeInstanceOf(FetchError)
-  return error as FetchError
+  return await rejectionOf($fetch('http://backend.test/api/v1/upstream', { method: 'POST' }), FetchError)
 }
 
-/** What `handleError` threw. It always throws: that is its contract. */
-function thrownBy(fn: () => unknown): H3Error {
+/** What `handleError` threw. It always throws, an HTTP error: that is its contract. */
+function thrownBy(fn: () => unknown): NuxtErrorLike {
   try {
     fn()
   }
   catch (error) {
-    expect(error).toBeInstanceOf(H3Error)
-    return error as H3Error
+    if (!isNuxtError(error)) throw new Error(`expected an HTTP error, got ${String(error)}`, { cause: error })
+    return error
   }
   throw new Error('expected a throw')
 }
@@ -69,9 +68,18 @@ const INBOUND_ISSUE = {
   input: 'gravitysmtp-settings',
 }
 
-/** What h3's `getValidatedQuery` throws when the inbound parse fails. */
+/**
+ * What `nuxt/server`'s validators throw for a malformed request: a 400
+ * whose `data.issues` lists what failed (`getValidatedQuery` below proves
+ * the shape against the real thing).
+ */
 function inboundValidationError(path: PropertyKey[] = ['page']) {
-  return createError({ statusCode: 400, statusMessage: 'Validation Error', data: new ZodError([{ ...INBOUND_ISSUE, path }]) })
+  return createError({
+    status: 400,
+    statusText: 'Validation failed',
+    message: 'Validation failed',
+    data: { issues: [{ ...INBOUND_ISSUE, path }], message: 'Validation failed' },
+  })
 }
 
 /** The error `promise` rejects with, which must be an `ErrorClass`; a promise that resolves fails the test. */
@@ -82,11 +90,11 @@ async function rejectionOf<E extends Error>(promise: Promise<unknown>, ErrorClas
 }
 
 /** What `parseDataAs` throws when a Django response fails its schema. */
-function responseContractError(): Promise<H3Error> {
-  return rejectionOf(parseDataAs({ weightInfo: null }, z.object({ weightInfo: z.object({}) })), H3Error)
+function responseContractError(): Promise<Error> {
+  return rejectionOf(parseDataAs({ weightInfo: null }, z.object({ weightInfo: z.object({}) })), Error)
 }
 
-const probe = () => createTestEvent({ method: 'GET', url: '/api/blog/posts?page=gravitysmtp-settings' })
+const probe = () => createRequestEvent({ method: 'GET', url: '/api/blog/posts?page=gravitysmtp-settings' })
 
 // ── isAllAuthError ────────────────────────────────────────────────────
 
@@ -111,13 +119,14 @@ describe('isAllAuthError', () => {
 describe('handleError', () => {
   describe('validation failures', () => {
     // A malformed REQUEST and a drifted RESPONSE both arrive as a 4xx
-    // H3Error carrying a ZodError, and they are opposites: in the 48h to
-    // 2026-09-08 every inbound one came from a bot, while the one drifted
-    // response (`weightInfo`) broke add-to-cart for every zero-weight product.
+    // HTTP error carrying validation issues, and they are opposites: in
+    // the 48h to 2026-09-08 every inbound one came from a bot, while the
+    // one drifted response (`weightInfo`) broke add-to-cart for every
+    // zero-weight product.
     it('files a malformed request as one warning naming route, field and rule, never the value, and rethrows it', () => {
       const original = inboundValidationError()
 
-      const thrown = withEvent(probe(), () => thrownBy(() => handleError(original)))
+      const thrown = thrownBy(() => handleError(probe(), original))
 
       expect(thrown).toBe(original)
       expect(log.warn).toHaveBeenCalledTimes(1)
@@ -131,13 +140,27 @@ describe('handleError', () => {
       expect(log.error).not.toHaveBeenCalled()
     })
 
+    it('recognises what nuxt/server\'s getValidatedQuery really throws', async () => {
+      const event = probe()
+      const original = await rejectionOf(getValidatedQuery(event, z.object({ page: z.string().regex(/^-?\d+$/) })), Error)
+
+      const thrown = thrownBy(() => handleError(event, original))
+
+      expect(thrown).toBe(original)
+      expect(thrown.status).toBe(400)
+      expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({
+        action: 'validation:request',
+        issues: [expect.objectContaining({ path: 'page', code: 'invalid_format' })],
+      }))
+    })
+
     it('keeps a drifted response at error level and rethrows its 422', async () => {
       const drifted = await responseContractError()
 
-      const thrown = withEvent(probe(), () => thrownBy(() => handleError(drifted)))
+      const thrown = thrownBy(() => handleError(probe(), drifted))
 
       expect(thrown).toBe(drifted)
-      expect(thrown.statusCode).toBe(422)
+      expect(thrown.status).toBe(422)
       expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation:response', issues: [expect.objectContaining({ path: 'weightInfo' })] }))
       expect(log.warn).not.toHaveBeenCalled()
     })
@@ -145,24 +168,18 @@ describe('handleError', () => {
     it('answers a bare ZodError (a hand-rolled parse) as 400 "Validation error" with its issues, logged at error', () => {
       const zod = new ZodError([INBOUND_ISSUE])
 
-      const thrown = thrownBy(() => handleError(zod))
+      const thrown = thrownBy(() => handleError(probe(), zod))
 
-      expect(thrown.statusCode).toBe(400)
-      expect(thrown.statusMessage).toBe('Validation error')
+      expect(thrown.status).toBe(400)
+      expect(thrown.statusText).toBe('Validation error')
       expect(thrown.data).toEqual({ issues: zod.issues })
       expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation:response' }))
     })
 
     it('survives a symbol in the issue path (Array#join would throw on it)', () => {
-      withEvent(probe(), () => thrownBy(() => handleError(inboundValidationError([Symbol('weird'), 'page']))))
+      thrownBy(() => handleError(probe(), inboundValidationError([Symbol('weird'), 'page'])))
 
       expect(log.warn.mock.calls[0]![0]).toMatchObject({ issues: [{ path: 'Symbol(weird).page' }] })
-    })
-
-    it('still logs outside a request, just without the route', () => {
-      thrownBy(() => handleError(inboundValidationError()))
-
-      expect(log.warn).toHaveBeenCalledWith({ action: 'validation:request', issues: [expect.any(Object)] })
     })
   })
 
@@ -173,9 +190,9 @@ describe('handleError', () => {
     ])('forwards a %i with its body, logged as a warning', async (status, body) => {
       const error = await upstreamError(status, body)
 
-      const thrown = thrownBy(() => handleError(error))
+      const thrown = thrownBy(() => handleError(probe(), error))
 
-      expect(thrown.statusCode).toBe(status)
+      expect(thrown.status).toBe(status)
       expect(thrown.data).toEqual(body)
       expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
       expect(log.error).not.toHaveBeenCalled()
@@ -184,9 +201,9 @@ describe('handleError', () => {
     it('drops a 5xx body, which can carry dependency diagnostics, and logs at error', async () => {
       const error = await upstreamError(502, { traceback: 'stripe.error.APIConnectionError at /srv/app' })
 
-      const thrown = thrownBy(() => handleError(error))
+      const thrown = thrownBy(() => handleError(probe(), error))
 
-      expect(thrown.statusCode).toBe(502)
+      expect(thrown.status).toBe(502)
       expect(thrown.data).toBeUndefined()
       expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
       expect(log.warn).not.toHaveBeenCalled()
@@ -194,24 +211,24 @@ describe('handleError', () => {
 
     it('answers a network failure (no status) as a 500 at error level, messaged from the error', async () => {
       backend.failOnce()
-      const error = await rejectionOf(globalThis.$fetch<unknown>('http://backend.test/api/v1/upstream', { method: 'POST' }), FetchError)
+      const error = await rejectionOf($fetch('http://backend.test/api/v1/upstream', { method: 'POST' }), FetchError)
 
-      const thrown = thrownBy(() => handleError(error))
+      const thrown = thrownBy(() => handleError(probe(), error))
 
-      expect(thrown.statusCode).toBe(500)
-      expect(thrown.statusMessage).toBe(error.message)
+      expect(thrown.status).toBe(500)
+      expect(thrown.statusText).toBe(error.message)
       expect(log.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
     })
   })
 
-  describe('h3 errors', () => {
+  describe('HTTP errors', () => {
     it.each([
       [404, 'warn'],
       [503, 'error'],
     ] as const)('rethrows a %i untouched, logged at %s', (status, level) => {
-      const original = createError({ statusCode: status, statusMessage: 'x' })
+      const original = createError({ status, statusText: 'x' })
 
-      expect(thrownBy(() => handleError(original))).toBe(original)
+      expect(thrownBy(() => handleError(probe(), original))).toBe(original)
       expect(log[level]).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
       expect(log[level === 'warn' ? 'error' : 'warn']).not.toHaveBeenCalled()
     })
@@ -224,10 +241,10 @@ describe('handleError', () => {
     ['a number', 404],
     ['a plain Error', new Error('boom')],
   ])('answers anything else (%s) as a bare 500', (_label, error) => {
-    const thrown = thrownBy(() => handleError(error))
+    const thrown = thrownBy(() => handleError(probe(), error))
 
-    expect(thrown.statusCode).toBe(500)
-    expect(thrown.statusMessage).toBe('Internal Server Error')
+    expect(thrown.status).toBe(500)
+    expect(thrown.statusText).toBe('Internal Server Error')
     expect(thrown.data).toBeUndefined()
   })
 })
@@ -235,14 +252,14 @@ describe('handleError', () => {
 // ── Route-level helpers: they set the response status ────────────────
 
 /** A route that calls the backend and hands the failure to `onError`. */
-function routeCatching(onError: (error: unknown) => unknown, prelude?: (event: Parameters<typeof setResponseHeader>[0]) => void) {
+function routeCatching(onError: (event: RequestEvent, error: unknown) => unknown, prelude?: (event: RequestEvent) => void) {
   return defineEventHandler(async (event) => {
     prelude?.(event)
     try {
-      return await globalThis.$fetch<unknown>('http://backend.test/api/v1/upstream', { method: 'POST' })
+      return await $fetch('http://backend.test/api/v1/upstream', { method: 'POST' })
     }
     catch (error) {
-      return await onError(error)
+      return await onError(event, error)
     }
   })
 }
@@ -280,9 +297,9 @@ describe('forwardUpstreamClientError', () => {
 
 describe('handleAllAuthError', () => {
   const stored = { user: { id: 1 }, secure: { sessionToken: 'stored-session', accessToken: 'stored-access' } }
-  const stampTokens = (event: Parameters<typeof setResponseHeader>[0]) => {
-    setResponseHeader(event, 'X-Session-Token', 'leak')
-    setResponseHeader(event, 'Authorization', 'Bearer leak')
+  const stampTokens = (event: RequestEvent) => {
+    event.res.headers.set('X-Session-Token', 'leak')
+    event.res.headers.set('Authorization', 'Bearer leak')
   }
 
   it('stores the new session token of a pending flow, keeping the stored access token, then throws', async () => {

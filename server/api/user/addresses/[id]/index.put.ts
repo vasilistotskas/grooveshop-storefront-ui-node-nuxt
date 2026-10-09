@@ -1,13 +1,15 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const body = await readValidatedBody(event, zUpdateUserAddressBody.parse)
-    const params = await getValidatedRouterParams(
+    const body = await readValidatedBody(event, zUpdateUserAddressBody)
+    const params = await parseRouterParams(
       event,
-      zUpdateUserAddressPath.parse,
+      zUpdateUserAddressPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/address/${params.id}`,
       {
         method: 'PUT',
@@ -23,6 +25,6 @@ export default defineEventHandler(async (event) => {
     // Return Django 4xx bodies (DRF detail / field errors) so clients
     // can show the reason — thrown createError({data}) is stripped in
     // production. See forwardUpstreamClientError.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

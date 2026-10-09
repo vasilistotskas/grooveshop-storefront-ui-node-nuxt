@@ -1,9 +1,9 @@
+import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/server'
 import { createHash } from 'node:crypto'
-import { defineEventHandler, getRequestHost, setHeader } from 'h3'
 import { SKILLS } from './_skills'
 
 export default defineEventHandler((event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const tenant = event.context.tenant
   const host = getRequestHost(event, { xForwardedHost: false })
   const tenantDomain = tenant?.primaryDomain || host
@@ -11,8 +11,8 @@ export default defineEventHandler((event) => {
   const storeName = tenant?.storeName || (config.public.appTitle as string)
   const skillCtx = { storeName, siteUrl }
 
-  setHeader(event, 'content-type', 'application/json')
-  setHeader(event, 'cache-control', 'public, max-age=3600')
+  event.res.headers.set('content-type', 'application/json')
+  event.res.headers.set('cache-control', 'public, max-age=3600')
 
   return {
     $schema: 'https://agentskills.io/schemas/v0.2.0.json',

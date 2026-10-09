@@ -1,4 +1,4 @@
-import { defineEventHandler, getRequestHost, setHeader } from 'h3'
+import { defineEventHandler, getRequestHost, useRuntimeConfig } from 'nuxt/server'
 
 // RFC 9728 protected-resource metadata (root form). The MCP commerce
 // endpoint (/mcp on this host, served by the agent gateway) is the
@@ -6,7 +6,7 @@ import { defineEventHandler, getRequestHost, setHeader } from 'h3'
 // (allauth.idp — discovery at {issuer}/.well-known/openid-configuration
 // and /.well-known/oauth-authorization-server).
 export default defineEventHandler((event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const tenant = event.context.tenant
   const host = getRequestHost(event, { xForwardedHost: false })
   const tenantDomain = tenant?.primaryDomain || host
@@ -18,8 +18,8 @@ export default defineEventHandler((event) => {
     ? `https://${tenant.apiDomain}`
     : (config.public.djangoUrl as string)
 
-  setHeader(event, 'content-type', 'application/json')
-  setHeader(event, 'cache-control', 'public, max-age=3600')
+  event.res.headers.set('content-type', 'application/json')
+  event.res.headers.set('cache-control', 'public, max-age=3600')
 
   // ``resource`` must match the origin of the document serving this
   // metadata (RFC 9728 §3.1). The Django API is the logical resource, but

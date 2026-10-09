@@ -23,6 +23,8 @@
  * cannot drift.
  */
 import type { H3Event } from 'h3'
+import { getRequestHeader, setResponseHeader } from 'h3'
+import { defineNitroPlugin, useRuntimeConfig } from 'nitropack/runtime'
 
 export function isNuxtErrorRender(event: H3Event): boolean {
   return (

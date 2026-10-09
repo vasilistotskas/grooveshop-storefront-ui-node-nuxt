@@ -1,4 +1,5 @@
 import type { DrainContext } from 'evlog'
+import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
  * Put browser `log.*` events on stdout, where the cluster ships them.
@@ -26,7 +27,7 @@ import type { DrainContext } from 'evlog'
  * The store goes on the line as `tenantSchema` / `tenantName`, the fields
  * `0.tenant.ts` sets on server events. The drain gets no h3 event, only
  * evlog's safe headers, and `host` survives that filter, so the store is
- * resolved from it by `getTenantConfig` — the cached resolver the tenant
+ * resolved from it by `getTenantConfig` ï¿½ the cached resolver the tenant
  * middleware just used for this same request, so it is a cache hit, not a
  * second Django call. An unresolvable host leaves the fields off.
  */

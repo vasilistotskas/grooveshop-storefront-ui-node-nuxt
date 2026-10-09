@@ -14,16 +14,49 @@ The Django proxy contract, middleware, plugins, logging and the generated OpenAP
 The Nuxt server acts as a **proxy** to the Django backend. Client-side code calls `/api/...` routes on the Nuxt server, which then forwards requests to the Django API (`NUXT_API_BASE_URL`).
 
 - **Server API routes** (`server/api/`): Proxy endpoints organized by domain — products, cart, orders, blog (posts/comments/categories), user (account/addresses), search, loyalty, notifications, subscriptions (topics/user), contact, countries, regions, pay-way, settings, health, websocket
-- **Server API pattern**: Routes use `getValidatedQuery`/`readValidatedBody` with Zod schemas, `$fetch` to Django, `parseDataAs` for response validation, `handleError` for error handling. Many routes use `defineCachedEventHandler` with SWR for caching.
-- **`server/utils/auth.ts`**: Creates forwarding headers (`X-Session-Token`, `Authorization`, `X-Forwarded-Host`) for Django requests; `createHeaders` sets `X-Forwarded-Host` to the request's own host (`getRequestHost(event, { xForwardedHost: false })`, so a client-sent `X-Forwarded-Host` cannot pick the tenant), falling back to `config.public.djangoHostName` only outside a request context; `processAllAuthSession` handles token propagation
+- **Server API pattern**: Routes use `getValidatedQuery`/`readValidatedBody` (from `nuxt/server`, given the Zod schema itself) and `parseRouterParams` for input, `useBackendFetch(event)` to Django, `parseDataAs` for response validation, `handleError(event, error)` for error handling. Cached routes use `defineCachedRoute` (Nitro's cache, SWR) — see "Server code and Nuxt 5".
+- **`server/utils/backendFetch.ts`**: every Django call goes through `useBackendFetch(event)` (or `backendFetchFor({ tenantHost, locale })` in a cached function, which has no request): an explicit ofetch instance that adds `X-Forwarded-Proto`, the store's `X-Forwarded-Host`, `X-Language`, the visitor's identity and the correlation id, to Django origins only (`isInternalBackendUrl`). There is no global `$fetch` on the server and nothing patches one.
+- **`server/utils/auth.ts`**: Creates forwarding headers (`X-Session-Token`, `Authorization`, `X-Forwarded-Host`) for Django requests; `createHeaders(event, …)` sets `X-Forwarded-Host` to the store the request is for (`requestTenantHost`, never a client-sent `X-Forwarded-Host`); `processAllAuthSession(event, …)` handles token propagation. Every helper takes the request explicitly.
+- **`server/utils/tenantHost.ts`**: `server/middleware/0.tenant.ts` resolves the store's host once (`resolveTenantHost`) into `event.context.tenantHost`, before its bypass checks; `requestTenantHost(event)` reads it there, so it serves a route's event and the h3 event Nitro gives cache keys and plugins alike
 - **`server/utils/api.ts`**: `createCachedFetcher<T>` for paginated data fetching with caching
-- **`server/utils/cartSession.ts`**: Cart session management via `useCartSession(event)` — stores `cartId` in http-only session cookies, provides `getCartHeaders`/`handleCartResponse`/`clearCartSession`; `getCartHeaders` sets `X-Forwarded-Host` the same way as `createHeaders`
+- **`server/utils/cartSession.ts`**: Cart session management via `useCartSession(event)` — keeps `cartId` in nuxt-auth-utils' session (the signed-in user's `nuxt-session` cookie, written with the cart's 30-day lifetime) plus a plain `cart-id` spare cookie; provides `getCartHeaders`/`handleCartResponse`/`clearCartSession`; `getCartHeaders` sets `X-Forwarded-Host` the same way as `createHeaders`
 - **`server/utils/parser.ts`**: `parseDataAs(data, zodSchema)` for runtime validation of API responses
-- **`server/utils/error.ts`**: `handleError` (Zod/Fetch/H3 errors), `handleAllAuthError` (auth-specific errors with session management)
+- **`server/utils/error.ts`**: `handleError(event, error)` (request validation, response contract, Fetch and HTTP errors), `handleAllAuthError(event, error)` (auth-specific errors with session management)
 - **`server/utils/oauth.ts`**: Shared OAuth helpers (`captureOAuthProcess`, `readAndClearOAuthProcess`, `storeOAuthTokensAndRedirect`, `redirectOAuthError`) used by Google and Facebook route handlers
 - **`app/utils/auth.ts`** (client): `callAuthChangeHook` → `nuxtApp.callHook('auth:change')` — the only path for auth state changes; composable `onResponse`/`onResponseError` interceptors call this
 - **Guest order access**: Guest order API calls require a `?uuid=` query parameter for Django's `IsOwnerOrAdminOrGuest` permission check. Server routes under `server/api/orders/[id]/` forward the UUID to the backend.
-- **`server/utils/logger.ts`**: `Logger` class that writes error logs to `./logs/` as JSON files
+
+## Server code and Nuxt 5
+
+Nuxt 5 runs Nitro v3, which has no server auto-imports and no global
+`$fetch`. The server is written for it now:
+
+- **Routes and middleware import from `nuxt/server`** (`defineEventHandler`,
+  `getValidatedQuery`, `readValidatedBody`, `createError` with
+  `status`/`statusText`, `sendRedirect` — which RETURNS the body to respond
+  with — `getRouterParam(s)` with `{ decode: true }`, `useRuntimeConfig()`
+  without an event) and use web APIs on the event: `event.url`,
+  `event.req.method`, `event.req.formData()`, `event.res.headers`.
+- **Nitro-only APIs are imported from `nitropack/runtime`** (Nuxt 5 renames
+  these to `nitro/*`): `defineNitroPlugin`, `defineCachedFunction`,
+  `useStorage`, `useEvent`. Server plugins are Nitro code and use h3's
+  helpers on the h3 event Nitro gives their hooks.
+- **Cached routes use `defineCachedRoute(handler, options)`**
+  (`server/utils/cachedRoute.ts`): Nitro's cache around a `nuxt/server`
+  handler. Its `getKey`/`shouldBypassCache` get h3's event: read the query
+  with h3's `getQuery`, params with `nuxt/server`'s `getRouterParam(s)`,
+  and the store and locale from the context (`tenantCacheKey`).
+- **evlog's wide-event logger is `event.context.log`** (typed in
+  `shared/types/request-context.d.ts`); evlog's `useLogger` is typed on h3's
+  event only.
+- **h3 handlers remain only where a module or h3 itself requires them**:
+  the OAuth routes (nuxt-auth-utils' factories), the sitemap source,
+  the RSS feed, the manifest and `4.tenant-site-config.ts` (nuxt-site-config
+  takes h3's event), `1.device-class.ts` (writes a Node request header for
+  Nitro's cache `varies`) and `contact/attachment.post.ts` (`proxyRequest`
+  streams the upload).
+- `test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on any
+  h3 or Nitro name used in `server/**` without an import.
 
 ## Server Middleware
 
@@ -53,7 +86,7 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both client and server (Nitro).
 
 - **Simple logging**: `log.info('tag', 'message')` (2 args max — evlog ≥2.22 silently drops a third context arg), or the wide-event object form for context: `log.info({ tag: 'tag', message: 'message', ...context })`, `log.error({ action: 'name', error })`
-- **Wide events** (server only): `const wideLog = useLogger(event)` → `wideLog.set({ key: value })` — one rich event per request, auto-emitted at request end
+- **Wide events** (server only): `event.context.log?.set({ key: value })` in routes and middleware (evlog's `useLogger(event)` is typed on h3's event, so `nuxt/server` code reads the logger from the context, where evlog puts it) — one rich event per request, auto-emitted at request end
 - **What reaches the log line**: only fields set on the request logger BEFORE it emits — `server/middleware/0.tenant.ts` (`tenantSchema`, `tenantName`), `server/middleware/2.evlog-auth.ts` (user id), `server/middleware/2.evlog-client.ts` (`client`: browser + major version, OS name, render `deviceClass`, `bot`, `country`). evlog prints the stdout line (what Vector ships to VictoriaLogs) at emit; `evlog:enrich` hooks run after that and feed drains only, and there is no drain, so never add an `evlog:enrich` hook expecting it in the logs. `silent` + an `evlog:drain` hook is not the way out either: only request events reach that hook, so every other `log.*` line (errors included) would vanish. Never log the raw User-Agent or an OS version (browsers freeze it).
 - **Every request is logged** except the assets a page pulls (`evlog.exclude` in `nuxt.config.ts`): page renders and `_payload.json` included. In VictoriaLogs a storefront event's path is its `_msg` (the `VL-Msg-Field` fallback), not a `log.path` field.
 - **Sampling**: Production-only via `$production.evlog.sampling` in `nuxt.config.ts`
@@ -80,8 +113,9 @@ Commit `openapi/schema.json`, both `schema.yml` files, and `shared/openapi/*` to
 ## Shared Code (`shared/`)
 
 Auto-imported in both app and server contexts (via `imports.dirs` and `nitro.imports.dirs`). Contains:
-- `types/` — Hand-written types organized by domain: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `ordering.ts`, `search.ts`, `form.ts`, `meilisearch.ts`, `LoyaltySettings.ts`, `enum/`, `utility/`
-- `schemas/` — Zod validation schemas mirroring the types structure: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `form.ts`
+- `types/` — Hand-written types organized by domain: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `search.ts`, `meilisearch.ts`, `LoyaltySettings.ts`, `enum/`, `utility/`
+- `schemas/` — Zod validation schemas mirroring the types structure: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`
+- Nothing in `shared/` imports Vue or Nuxt UI (`#ui/types`): Nuxt forbids it, and with typed `$fetch` it pulls the app's whole type graph into the shared context. UI-only types live in `app/types/` (the dynamic form schema, ordering options).
 - `openapi/` — Auto-generated `types.gen.ts` and `zod.gen.ts`
 - `constants/` — `AuthenticatedRoutes`, `AuthenticatedRoutesSet`, `Flow2path`, `AuthChangeEvent`, `GSIAuthProcess`, `RedirectToURLs`, `Flows`, `AuthenticatorType`, `defaultSelectOptionChoose`
 - `utils/` — `error.ts` (error helpers), `html.ts` (HTML processing)

@@ -1,3 +1,5 @@
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Shipping options proxy.
  *
@@ -16,14 +18,14 @@
 
 const zQuery = zListShippingOptionsQuery
 
-export default defineCachedEventHandler(
+export default defineCachedRoute(
   async (event) => {
     const config = useRuntimeConfig()
-    const headers = createHeaders()
+    const headers = createHeaders(event)
     try {
-      const query = await getValidatedQuery(event, zQuery.parse)
+      const query = await getValidatedQuery(event, zQuery)
 
-      const raw = await $fetch(
+      const raw = await useBackendFetch(event)(
         `${config.apiBaseUrl}/shipping/options`,
         {
           method: 'GET',
@@ -40,7 +42,7 @@ export default defineCachedEventHandler(
       return await parseDataAs(raw, zListShippingOptionsResponse)
     }
     catch (error) {
-      handleError(error)
+      handleError(event, error)
     }
   },
   {

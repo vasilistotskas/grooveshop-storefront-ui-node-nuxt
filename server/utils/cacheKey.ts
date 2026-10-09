@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { H3Event } from 'h3'
+import type { RequestEvent } from 'nuxt/server'
 import { requestLocale } from './locale'
 
 /**
@@ -27,7 +27,7 @@ const TENANT_KEY_DELIMITER = '__'
 
 /**
  * Prefix a cache key with the tenant host and the request locale. Use in
- * every `getKey` of `defineCachedEventHandler`.
+ * every `getKey` of `defineCachedRoute`.
  *
  * The host prevents cross-tenant contamination. The locale
  * (`event.context.locale`, the page's language) prevents cross-language
@@ -49,7 +49,7 @@ const TENANT_KEY_DELIMITER = '__'
  * would share one entry. The readable prefix survives (stripped) for
  * debuggability; the 64 bits of FNV-1a carry the actual uniqueness.
  */
-export function tenantCacheKey(event: H3Event, key: string): string {
+export function tenantCacheKey(event: Pick<RequestEvent, 'context'>, key: string): string {
   const host = requestTenantHost(event)
   return hashedCacheKey(
     `${host}${TENANT_KEY_DELIMITER}${requestLocale(event)}${TENANT_KEY_DELIMITER}${key}`,

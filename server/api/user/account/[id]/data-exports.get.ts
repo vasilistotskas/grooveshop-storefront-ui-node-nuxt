@@ -1,13 +1,15 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   await requireUserSession(event)
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zListUserAccountDataExportsPath.parse,
+      zListUserAccountDataExportsPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/account/${params.id}/data_exports`,
       {
         method: 'GET',
@@ -19,6 +21,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zListUserAccountDataExportsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

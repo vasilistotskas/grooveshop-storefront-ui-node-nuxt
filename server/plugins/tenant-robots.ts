@@ -1,4 +1,6 @@
-import { getTenantConfig, requestTenantHost } from '../utils/tenant'
+import { getTenantConfig } from '../utils/tenant'
+import { requestTenantHost } from '../utils/tenantHost'
+import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
  * Per-tenant robots.txt via @nuxtjs/robots' runtime Nitro hook.

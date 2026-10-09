@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest'
 import handler from '~~/server/routes/cart/claim.get'
 import { useCartSession } from '~~/server/utils/cartSession'
 import { makeCart } from '~~/test/fixtures/cart'
-import { backend, callRoute, createTestEvent, jsonResponse, loggerOf } from '~~/test/helpers/nitro'
+import { backend, callRoute, createRequestEvent, jsonResponse, loggerOf } from '~~/test/helpers/nitro'
 import type { RouteResponse } from '~~/test/helpers/nitro'
 
 const route = '/cart/claim'
@@ -33,7 +33,7 @@ async function sessionCartId(response: RouteResponse, cookie = ''): Promise<stri
     const index = pair.indexOf('=')
     jar.set(pair.slice(0, index), pair.slice(index + 1))
   }
-  const next = createTestEvent({ headers: { cookie: [...jar].map(([name, value]) => `${name}=${value}`).join('; ') } })
+  const next = createRequestEvent({ headers: { cookie: [...jar].map(([name, value]) => `${name}=${value}`).join('; ') } })
   return (await useCartSession(next).getSession()).cartId
 }
 

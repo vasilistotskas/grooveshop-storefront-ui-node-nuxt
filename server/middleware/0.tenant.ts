@@ -1,3 +1,5 @@
+import { createError, defineEventHandler, getRequestHeader } from 'nuxt/server'
+
 /**
  * Paths that must bypass tenant resolution. Each entry is explained below.
  *
@@ -72,7 +74,13 @@ const BYPASS_EXACT: readonly string[] = [
 const BYPASS_SUFFIXES: readonly string[] = ['.md'] as const
 
 export default defineEventHandler(async (event) => {
-  const path = event.path
+  // First, before any bypass: every request names its store once, and
+  // everything keyed on the store reads it from here (`requestTenantHost`),
+  // the bypassed sitemap and manifest routes and Nitro's cache keys
+  // included.
+  event.context.tenantHost = resolveTenantHost(event)
+
+  const path = event.url.pathname
 
   // Prefix bypass check (O(n) but n is small and constant)
   if (BYPASS_PREFIXES.some(prefix => path.startsWith(prefix))) {
@@ -89,12 +97,11 @@ export default defineEventHandler(async (event) => {
   // meaningful tenant Host). Exempt from this bypass: requests carrying the
   // `x-md-negotiation-internal` marker set by
   // server/middleware/0.markdown-negotiation.ts's internal re-fetch — that
-  // fetch forwards the ORIGINAL request's real Host header (h3's
-  // `event.fetch()` does this automatically for relative-path targets), so
+  // fetch forwards the ORIGINAL request's real Host header, so
   // resolving tenant context there produces a tenant-scoped .md mirror
   // instead of always falling through to public-schema content.
   if (
-    event.method === 'GET'
+    event.req.method === 'GET'
     && BYPASS_SUFFIXES.some(suffix => path.endsWith(suffix))
     && !getRequestHeader(event, 'x-md-negotiation-internal')
   ) {
@@ -120,17 +127,16 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  const host = requestTenantHost(event)
-  const result = await getTenantConfig(host)
+  const result = await getTenantConfig(event.context.tenantHost)
 
   if (result.type === 'error_5xx') {
     // Backend is temporarily unavailable — don't cache; respond 503 so the
     // client retries rather than getting a misleading 404.
-    throw createError({ statusCode: 503, statusMessage: 'Service Unavailable' })
+    throw createError({ status: 503, statusText: 'Service Unavailable' })
   }
 
   if (!result.config) {
-    throw createError({ statusCode: 404, statusMessage: 'Store not found' })
+    throw createError({ status: 404, statusText: 'Store not found' })
   }
 
   event.context.tenant = result.config
@@ -141,5 +147,5 @@ export default defineEventHandler(async (event) => {
   // reach the stdout line Vector ships (evlog 2.29 `logger.ts`
   // emitWideEvent; its docs: "after they are emitted, before they reach
   // your drain adapters").
-  useLogger(event).set({ tenantSchema: result.config.schemaName, tenantName: result.config.name })
+  event.context.log?.set({ tenantSchema: result.config.schemaName, tenantName: result.config.name })
 })

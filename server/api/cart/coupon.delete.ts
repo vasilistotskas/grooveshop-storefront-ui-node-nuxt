@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Detach the applied coupon code from the cart.
  */
@@ -9,7 +11,7 @@ export default defineEventHandler(async (event) => {
   try {
     const cartHeaders = await cartSession.getCartHeaders()
 
-    const response = await $fetch(`${config.apiBaseUrl}/cart/coupon`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/coupon`, {
       method: 'DELETE',
       headers: {
         ...cartHeaders,
@@ -22,6 +24,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zRemoveCartCouponResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

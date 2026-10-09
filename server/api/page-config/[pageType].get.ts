@@ -1,8 +1,9 @@
 import { FetchError } from 'ofetch'
+import { getRouterParam, useRuntimeConfig } from 'nuxt/server'
 
-export default defineCachedEventHandler(async (event): Promise<PageConfigResponse> => {
+export default defineCachedRoute(async (event): Promise<PageConfigResponse> => {
   const config = useRuntimeConfig()
-  const pageType = getRouterParam(event, 'pageType')
+  const pageType = getRouterParam(event, 'pageType', { decode: true })
   // The page's locale, clamped to the tenant's by
   // server/middleware/1.locale.ts (from the X-Language the app states).
   // Sent to Django as `?locale=`, which page_config reads to pick the
@@ -14,7 +15,7 @@ export default defineCachedEventHandler(async (event): Promise<PageConfigRespons
     // $fetch carries no X-Forwarded-Host, Django resolves the public
     // schema and every tenant would get 404/fallback (N1 pattern in
     // MULTI_TENANT_AUDIT.md).
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/page-config/${pageType}`,
       { method: 'GET', query: { locale } },
     )
@@ -62,7 +63,7 @@ export default defineCachedEventHandler(async (event): Promise<PageConfigRespons
     if (error instanceof FetchError && error.statusCode === 404) {
       return { layout: null }
     }
-    return handleError(error)
+    return handleError(event, error)
   }
 }, {
   name: 'pageConfig',
@@ -70,7 +71,7 @@ export default defineCachedEventHandler(async (event): Promise<PageConfigRespons
   staleMaxAge: 60 * 60,
   swr: true,
   getKey: (event) => {
-    const pageType = getRouterParam(event, 'pageType')
+    const pageType = getRouterParam(event, 'pageType', { decode: true })
     // The locale belongs in the key: Django resolves section titles and
     // props for it, so one cached entry per tenant would serve whichever
     // language warmed the cache to every other one.

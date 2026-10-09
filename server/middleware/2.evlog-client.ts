@@ -1,5 +1,6 @@
 import type { WideEvent } from 'evlog'
 import { createGeoEnricher, createUserAgentEnricher } from 'evlog/enrichers'
+import { defineEventHandler, getRequestHeader } from 'nuxt/server'
 
 /**
  * Marks the post-deploy cache warm-up's own requests (`CACHE_WARM_HEADER`
@@ -54,7 +55,7 @@ export default defineEventHandler((event) => {
   const country = (scratch.event.geo as { country?: string } | undefined)?.country
   const major = (version?: string) => version?.split('.')[0]
 
-  useLogger(event).set({
+  event.context.log?.set({
     client: {
       browser: userAgent?.browser && [userAgent.browser.name, major(userAgent.browser.version)].filter(Boolean).join(' '),
       os: userAgent?.os?.name,

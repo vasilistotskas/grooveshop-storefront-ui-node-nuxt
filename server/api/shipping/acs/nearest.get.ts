@@ -7,6 +7,7 @@
  * list — no GPS, no widget, no external script.
  */
 import * as z from 'zod'
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
 
 const zNearestQuery = z.object({
   postalCode: z.string().min(3).max(10),
@@ -18,16 +19,16 @@ const zNearestQuery = z.object({
   countryCode: z.string().length(2).optional(),
 })
 
-export default defineCachedEventHandler(
+export default defineCachedRoute(
   async (event) => {
     const config = useRuntimeConfig()
     // Server-side header helper (handles X-Forwarded-Host etc.) — public
     // endpoint, no auth tokens needed.
-    const headers = createHeaders()
+    const headers = createHeaders(event)
     try {
-      const query = await getValidatedQuery(event, zNearestQuery.parse)
+      const query = await getValidatedQuery(event, zNearestQuery)
 
-      const raw = await $fetch(
+      const raw = await useBackendFetch(event)(
         `${config.apiBaseUrl}/shipping/acs/stations/nearest`,
         {
           method: 'GET',
@@ -44,7 +45,7 @@ export default defineCachedEventHandler(
       return await parseDataAs(raw, zFindNearestAcsStationsResponse)
     }
     catch (error) {
-      handleError(error)
+      handleError(event, error)
     }
   },
   {

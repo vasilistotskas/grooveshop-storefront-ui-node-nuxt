@@ -1,3 +1,5 @@
+import { defineEventHandler } from 'nuxt/server'
+
 /**
  * Shallow Nuxt-only liveness probe.
  *
@@ -8,6 +10,6 @@
  * For full-stack health (Django + Redis + Celery), use `/api/health`.
  */
 export default defineEventHandler((event) => {
-  setHeader(event, 'cache-control', 'no-store')
+  event.res.headers.set('cache-control', 'no-store')
   return { status: 'ok' as const }
 })

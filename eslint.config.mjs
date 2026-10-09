@@ -59,7 +59,7 @@ const NO_PAGE_MACROS = {
  * typescript-eslint's `return-await` would cover any promise, but needs
  * typed linting, which this config does not run.
  */
-const ASYNC_CALLEE = ':matches([callee.name=/^(parseDataAs|\\$fetch|backendFetch)$/], [callee.object.name="$fetch"], [callee.callee.name="useBackendFetch"])'
+const ASYNC_CALLEE = ':matches([callee.name=/^(parseDataAs|\\$fetch|backendFetch)$/], [callee.object.name="$fetch"], [callee.callee.name=/^(useBackendFetch|backendFetchFor)$/])'
 const RETURN_AWAITED_IN_TRY = ['', 'TSAsExpression > ', 'TSNonNullExpression > '].map(wrapper => ({
   selector: `TryStatement > BlockStatement ReturnStatement > ${wrapper}CallExpression${ASYNC_CALLEE}`,
   message: 'Return `await` inside try: an un-awaited promise rejects after the try exits, so the catch (handleError) never sees the failure.',
@@ -240,6 +240,10 @@ export default withNuxt(
       'vue/attribute-hyphenation': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
+      // An empty interface extending ONE type is how a module augmentation
+      // adds a supertype (`interface H3EventContext extends RequestEventContext {}`,
+      // `interface User extends UserDetails {}`); anything else stays an error.
+      '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
       'no-console': 'error',
     },
   },

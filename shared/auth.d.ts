@@ -1,11 +1,12 @@
 declare module '#auth-utils' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface User extends UserDetails {}
 
   interface UserSession {
     user?: User | null
     /** Post IDs for which this session has already incremented the view counter. */
     viewedPosts?: string[]
+    /** The cart's UUID, sent to Django as `X-Cart-Id`: `server/utils/cartSession.ts`. */
+    cartId?: string
   }
 
   interface SecureSessionData {

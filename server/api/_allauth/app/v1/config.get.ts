@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   // During Nitro prerendering the external API may be unreachable
   // (e.g. Cloudflare managed challenge blocks CI runners).
@@ -13,8 +15,8 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig()
   try {
-    const headers = await getAllAuthHeaders()
-    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/config`, {
+    const headers = await getAllAuthHeaders(event)
+    const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/config`, {
       method: 'GET',
       headers,
     })
@@ -26,13 +28,13 @@ export default defineEventHandler(async (event) => {
     if (isAllAuthError(error) && error.data?.status === 410) {
       log.info('auth', 'Config: expired session (410), clearing and retrying without auth')
       await clearUserSession(event)
-      const headers = createHeaders()
-      const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/config`, {
+      const headers = createHeaders(event)
+      const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1/config`, {
         method: 'GET',
         headers,
       })
       return await parseDataAs(response, ZodConfigResponse)
     }
-    await handleAllAuthError(error)
+    await handleAllAuthError(event, error)
   }
 })

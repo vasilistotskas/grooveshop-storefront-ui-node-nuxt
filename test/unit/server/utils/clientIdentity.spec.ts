@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { clientIdentityHeaders } from '~~/server/utils/clientIdentity'
-import { createTestEvent } from '~~/test/helpers/nitro'
+import { createRequestEvent } from '~~/test/helpers/nitro'
 
 /**
  * Django believes a client IP only alongside the edge's `X-Origin-Verify`
@@ -14,19 +14,19 @@ describe('clientIdentityHeaders', () => {
     ['True-Client-IP when Cloudflare sent no CF-Connecting-IP', { 'true-client-ip': '203.0.113.2', 'x-forwarded-for': '203.0.113.3' }, '203.0.113.2'],
     ['the first X-Forwarded-For hop next', { 'x-forwarded-for': '203.0.113.3, 10.0.0.1' }, '203.0.113.3'],
   ])('takes X-Real-IP from %s', (_label, headers, ip) => {
-    expect(clientIdentityHeaders(createTestEvent({ headers, remoteAddress: '10.0.0.9' }))['X-Real-IP']).toBe(ip)
+    expect(clientIdentityHeaders(createRequestEvent({ headers, remoteAddress: '10.0.0.9' }))['X-Real-IP']).toBe(ip)
   })
 
   it('falls back to the socket peer', () => {
-    expect(clientIdentityHeaders(createTestEvent({ remoteAddress: '10.0.0.9' }))['X-Real-IP']).toBe('10.0.0.9')
+    expect(clientIdentityHeaders(createRequestEvent({ remoteAddress: '10.0.0.9' }))['X-Real-IP']).toBe('10.0.0.9')
   })
 
   it('sends no X-Real-IP when nothing identifies the caller', () => {
-    expect(clientIdentityHeaders(createTestEvent())).not.toHaveProperty('X-Real-IP')
+    expect(clientIdentityHeaders(createRequestEvent())).not.toHaveProperty('X-Real-IP')
   })
 
   it('relays User-Agent, X-Forwarded-For and X-Origin-Verify verbatim', () => {
-    const headers = clientIdentityHeaders(createTestEvent({
+    const headers = clientIdentityHeaders(createRequestEvent({
       headers: {
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64)',
         'x-forwarded-for': '203.0.113.3, 10.0.0.1',
@@ -43,6 +43,6 @@ describe('clientIdentityHeaders', () => {
   })
 
   it('sends nothing it was not given', () => {
-    expect(clientIdentityHeaders(createTestEvent())).toEqual({})
+    expect(clientIdentityHeaders(createRequestEvent())).toEqual({})
   })
 })

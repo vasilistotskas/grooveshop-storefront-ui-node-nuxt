@@ -32,16 +32,39 @@ import {
   runWithEvent,
 } from './runtime'
 import type { NitroApp, NitroAppPlugin } from 'nitropack/types'
+import { defineEventHandler as defineRouteHandler } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
+import { tenantHostOf } from '../../../server/utils/tenantHost'
 import type { TestRequestLogger } from './runtime'
 
 export {
   cacheOptionsOf,
+  localFetch,
   log,
   setRuntimeConfig,
   testSession,
   useRuntimeConfig,
   useStorage,
 } from './runtime'
+
+// ── Handlers ──────────────────────────────────────────────────────────
+
+/** A `nuxt/server` route or middleware: what the server's files default-export. */
+export type RouteHandler = (event: RequestEvent) => unknown
+
+/**
+ * A handler as Nitro 2 mounts it: on h3's router, called with h3's event.
+ *
+ * Nitro 2 types its router and handlers on h3 v1's event, which is not
+ * the web-shaped `RequestEvent` a `nuxt/server` handler declares; at
+ * runtime there is no difference, because `nuxt/server`'s
+ * `defineEventHandler` gives the handler the portable view of the h3
+ * event it is called with. The assertion is that typing gap, as in
+ * `server/utils/cachedRoute.ts`, and nothing else.
+ */
+export function asH3Handler(handler: EventHandler | RouteHandler): EventHandler {
+  return handler as EventHandler
+}
 
 // ── Requests ──────────────────────────────────────────────────────────
 
@@ -110,13 +133,47 @@ export function createTestEvent(req: TestRequest = {}): H3Event {
     nodeReq.push(null)
   }
   const event = createEvent(nodeReq, new ServerResponse(nodeReq))
-  Object.assign(event.context, { log: createRequestLogger() }, req.context)
+  Object.assign(event.context, requestContext(req))
   return event
 }
 
+const testLoggers = new WeakSet<object>()
+
+function isTestLogger(value: unknown): value is TestRequestLogger {
+  return typeof value === 'object' && value !== null && testLoggers.has(value)
+}
+
+/**
+ * The context a request reaches a route with: the evlog request logger
+ * (`context.log`, as the evlog Nitro plugin leaves it) and the store's
+ * host (`context.tenantHost`, as `server/middleware/0.tenant.ts` sets it
+ * on every request), then whatever the spec passes.
+ */
+function requestContext(req: TestRequest): Record<string, unknown> {
+  const logger = createRequestLogger()
+  const context = { log: logger, tenantHost: tenantHostOf(req.host ?? TEST_HOST), ...req.context }
+  testLoggers.add(logger)
+  return context
+}
+
+/**
+ * The event a `nuxt/server` handler is given for `req`: the portable view
+ * of a `createTestEvent` event, made the way Nitro makes it.
+ */
+export function createRequestEvent(req: TestRequest = {}): RequestEvent {
+  let portable: RequestEvent | undefined
+  asH3Handler(defineRouteHandler((event) => {
+    portable = event
+  }))(createTestEvent(req))
+  if (!portable) throw new Error('nuxt/server did not call the handler')
+  return portable
+}
+
 /** The evlog request logger of `event` (see `createTestEvent`). */
-export function loggerOf(event: H3Event): TestRequestLogger {
-  return event.context.log as TestRequestLogger
+export function loggerOf(event: { context: { log?: unknown } }): TestRequestLogger {
+  const logger = event.context.log
+  if (!isTestLogger(logger)) throw new Error('Not an event made by createTestEvent or callRoute')
+  return logger
 }
 
 /** Run `fn` with `useEvent()` bound to `event`, as inside a Nitro request. */
@@ -129,8 +186,8 @@ export function withEvent<T>(event: H3Event, fn: () => T): T {
  * `useEvent()`), resolving to what it returns and rejecting with what it
  * throws. For status, headers and the serialised body, use `callRoute`.
  */
-export async function callHandler<T>(handler: EventHandler<any, T>, event: H3Event = createTestEvent()): Promise<Awaited<T>> {
-  return await runWithEvent(event, () => handler(event)) as Awaited<T>
+export async function callHandler<T>(handler: EventHandler<any, T> | ((event: RequestEvent) => T), event: H3Event = createTestEvent()): Promise<Awaited<T>> {
+  return await runWithEvent(event, () => asH3Handler(handler)(event)) as Awaited<T>
 }
 
 // ── Routes ────────────────────────────────────────────────────────────
@@ -166,7 +223,7 @@ export interface RouteResponse {
  * `message`, `data`), not Nuxt's production error handler, which strips
  * `data` — assert on it only for what h3 itself would send.
  */
-export async function callRoute(handler: EventHandler, req: RouteRequest = {}): Promise<RouteResponse> {
+export async function callRoute(handler: EventHandler | RouteHandler, req: RouteRequest = {}): Promise<RouteResponse> {
   const url = req.url ?? req.route ?? '/'
   const method = (req.method ?? 'GET').toUpperCase()
   let event: H3Event | undefined
@@ -182,7 +239,7 @@ export async function callRoute(handler: EventHandler, req: RouteRequest = {}): 
     if (req.remoteAddress) {
       Object.defineProperty(e.node.req.socket, 'remoteAddress', { value: req.remoteAddress, configurable: true })
     }
-    return runWithEvent(e, () => handler(e))
+    return runWithEvent(e, () => asH3Handler(handler)(e))
   }), method.toLowerCase() as RouterMethod)
   app.use(router)
   const headers = requestHeaders(req)
@@ -198,7 +255,7 @@ export async function callRoute(handler: EventHandler, req: RouteRequest = {}): 
     path: url,
     headers,
     body,
-    context: { log: createRequestLogger(), ...req.context },
+    context: requestContext(req),
   })
   if (!event) throw new Error(`No route matched ${method} ${url}${req.route ? ` for ${req.route}` : ''}`)
   const responseHeaders = new Headers(response.headers)

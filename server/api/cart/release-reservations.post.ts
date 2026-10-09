@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Release stock reservations when customer abandons checkout.
@@ -23,11 +24,11 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readValidatedBody(event, z.object({
       reservationIds: z.array(z.number().int().positive()).max(100),
-    }).parse)
+    }))
     const cartHeaders = await cartSession.getCartHeaders()
 
     // Call backend release-reservations endpoint
-    const response = await $fetch(`${config.apiBaseUrl}/cart/release-reservations`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/release-reservations`, {
       method: 'POST',
       body,
       headers: {
@@ -41,6 +42,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zReleaseCartReservationsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

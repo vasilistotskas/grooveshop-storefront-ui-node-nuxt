@@ -1,4 +1,5 @@
 import { FetchError } from 'ofetch'
+import { defineEventHandler, setResponseStatus, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Reserve stock for cart items during checkout.
@@ -20,15 +21,15 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
   const cartSession = useCartSession(event)
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
 
   try {
-    wideLog.set({ cart: { reservation: true } })
+    wideLog?.set({ cart: { reservation: true } })
     // Get cart headers (includes cart UUID for guest users)
     const cartHeaders = await cartSession.getCartHeaders()
 
     // Call backend reserve-stock endpoint
-    const response = await $fetch(`${config.apiBaseUrl}/cart/reserve-stock`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart/reserve-stock`, {
       method: 'POST',
       headers: {
         ...cartHeaders,
@@ -68,6 +69,6 @@ export default defineEventHandler(async (event) => {
     }
     // Non-409 upstream 4xx (bad cart, expired session): forward the
     // body so getErrorDetail can surface Django's reason.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

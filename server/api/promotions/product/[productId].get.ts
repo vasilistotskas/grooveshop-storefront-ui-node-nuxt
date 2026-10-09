@@ -1,3 +1,6 @@
+import { getRouterParam, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
 /**
  * Offers that apply to one product.
  *
@@ -28,22 +31,22 @@
  * and the rendered ``/products`` pages on any promotion edit, so the
  * TTL is the backstop rather than the mechanism.
  */
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zListProductPromotionsPath.parse,
+      zListProductPromotionsPath,
     )
-    const query = await getValidatedQuery(event, zLocalizedQuery.parse)
-    const response = await useBackendFetch()(
+    const query = await getValidatedQuery(event, zLocalizedQuery)
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/promotion/product/${params.productId}`,
       { method: 'GET', query },
     )
     return await parseDataAs(response, zListProductPromotionsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ProductPromotionList',
@@ -56,7 +59,7 @@ export default defineCachedEventHandler(async (event) => {
   getKey: event =>
     tenantCacheKey(
       event,
-      `promotions:product:${getRouterParam(event, 'productId')}`
+      `promotions:product:${getRouterParam(event, 'productId', { decode: true })}`
       + `:${getQuery(event).languageCode ?? ''}`,
     ),
 })

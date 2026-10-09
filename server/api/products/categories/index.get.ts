@@ -1,12 +1,14 @@
 import { z } from 'zod'
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
 
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   const query = await getValidatedQuery(event, z.object({
     idIn: z.union([z.string(), z.array(z.string())]).optional(),
     languageCode: z.string().optional(),
     pageSize: z.union([z.number(), z.string()]).optional(),
-  }).passthrough().parse)
+  }).passthrough())
 
   // Build the backend query, mapping frontend params to Django filter params
   const backendQuery: Record<string, unknown> = { ...query }
@@ -18,15 +20,15 @@ export default defineCachedEventHandler(async (event) => {
   }
 
   try {
-    const response = await $fetch(`${config.apiBaseUrl}/product/category`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/category`, {
       method: 'GET',
       query: backendQuery,
-      headers: createHeaders(null, null),
+      headers: createHeaders(event, null, null),
     })
     return await parseDataAs(response, zListProductCategoryResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ProductCategoryViewSet',

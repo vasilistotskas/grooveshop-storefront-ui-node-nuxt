@@ -1,3 +1,5 @@
+import { defineEventHandler } from 'nuxt/server'
+
 /**
  * Pure Nitro liveness probe — returns 200 immediately, no upstream deps.
  *

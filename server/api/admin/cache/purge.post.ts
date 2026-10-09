@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { useStorage } from 'nitropack/runtime'
+import { createError, defineEventHandler, getRequestHeader, getRequestIP, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
 
 /**
  * Admin cache purge endpoint, called by the Django admin's
@@ -97,10 +99,10 @@ export default defineEventHandler(async (event) => {
       message: 'Rejected: invalid token',
       ip: getRequestIP(event, { xForwardedFor: true }),
     })
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+    throw createError({ status: 401, statusText: 'Unauthorized' })
   }
 
-  const body = await readValidatedBody(event, bodySchema.parse)
+  const body = await readValidatedBody(event, bodySchema)
   const storage = useStorage('cache')
   // As the keys name the store (`requestTenantHost`), whatever case the
   // caller sends it in.

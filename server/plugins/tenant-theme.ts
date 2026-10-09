@@ -1,4 +1,5 @@
 import { buildTenantThemeCss } from '../utils/themeTokens'
+import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
  * Injects the per-tenant design-token stylesheet into every SSR

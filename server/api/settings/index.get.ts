@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Fetch per-tenant extra_settings rows.
  *
@@ -10,10 +12,10 @@
  * The cache key is already tenant-scoped via `tenantCacheKey`; this fix
  * makes the upstream fetch itself tenant-aware too.
  */
-export default defineCachedEventHandler(async () => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const response = await useBackendFetch()(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/settings`,
       {
         method: 'GET',
@@ -22,7 +24,7 @@ export default defineCachedEventHandler(async () => {
     return await parseDataAs(response, zApiV1SettingsListResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'SettingsViewSet',

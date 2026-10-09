@@ -1,5 +1,6 @@
-import type { H3Event, SessionConfig } from 'h3'
-import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import type { SessionConfig } from 'h3'
+import { createError, getCookie, getRequestHeader, getRequestProtocol, useRuntimeConfig } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
 import { clientIdentityHeaders } from './clientIdentity'
 
 // Responses that only carry session tokens in meta (no authenticated user data).
@@ -14,9 +15,7 @@ type PartialAllAuthResponse = {
   }
 }
 
-export function createHeaders(sessionToken?: string | null, accessToken?: string | null) {
-  const event = useEvent()
-
+export function createHeaders(event: RequestEvent, sessionToken?: string | null, accessToken?: string | null) {
   const headers = {} as Record<string, string>
 
   headers['Content-Type'] = 'application/json'
@@ -34,9 +33,6 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // comes back as whatever the public host says — a Traefik basic-auth
   // `401 Unauthorized` on staging, a Nuxt `404` in production — instead
   // of data, so product pages 404 at random (observed on both envs).
-  // Requests that reach here without a usable event context (cached
-  // handlers revalidating in the background, prerender, startup) are
-  // exactly the ones that used to lose the header.
   const publicScheme = (config.public.baseUrl || '').startsWith('http://')
     ? 'http'
     : 'https'
@@ -45,8 +41,7 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
     = requestProtocol === 'https' ? requestProtocol : publicScheme
 
   // Tenant resolution: the store this request is for, so Django's
-  // TenantMainMiddleware picks its schema. `useEvent()` above throws
-  // outside a request, so there always is one. django-tenants sets
+  // TenantMainMiddleware picks its schema. django-tenants sets
   // ALLOWED_HOSTS=["*"] because domain validation happens at the
   // tenant-resolution layer.
   headers['X-Forwarded-Host'] = requestTenantHost(event)
@@ -60,7 +55,7 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   }
 
   // Who the visitor is — client IP, proof of edge, user agent. Shared
-  // with `useBackendFetch()` so no backend call can drop them.
+  // with `useBackendFetch(event)` so no backend call can drop them.
   Object.assign(headers, clientIdentityHeaders(event))
 
   // Tell Django which language to render emails/responses in.
@@ -69,15 +64,12 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // the app's fetchers state on an /api request), clamped to the tenant.
   // allauth's adapter + every Celery email task reads this header to
   // capture/override user language.
-  const locale = event?.context?.locale || DEFAULT_LOCALE
-  headers['X-Language'] = locale
+  headers['X-Language'] = requestLocale(event)
 
   return headers
 }
 
-export async function processAllAuthSession(response: AllAuthResponse | PartialAllAuthResponse) {
-  const event = useEvent()
-
+export async function processAllAuthSession(event: RequestEvent, response: AllAuthResponse | PartialAllAuthResponse) {
   const resolvedSessionToken = response.meta?.session_token
   const resolvedAccessToken = response.meta?.access_token
 
@@ -97,7 +89,7 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
 
   if (response.data?.user && ((response.status === 200 && response.meta?.access_token) || response.meta?.is_authenticated)) {
     log.debug('auth', 'Fetching user data')
-    await fetchUserData(response as AllAuthResponse)
+    await fetchUserData(event, response as AllAuthResponse)
   }
 }
 
@@ -112,11 +104,12 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
  * `x-<name>-session` header first, then the `<name>` cookie; both names
  * come from the same `runtimeConfig.session` nuxt-auth-utils uses.
  */
-export function requestHasSession(event: H3Event): boolean {
+export function requestHasSession(event: RequestEvent): boolean {
   // Read through h3's own `SessionConfig`, the contract this mirrors:
-  // nuxt.config declares no `sessionHeader`, so the inferred runtime
-  // config type has none, though h3 honours one when it is set.
-  const { name, sessionHeader }: Pick<SessionConfig, 'name' | 'sessionHeader'> = useRuntimeConfig(event).session
+  // nuxt-auth-utils seals its session with h3, and nuxt.config declares
+  // no `sessionHeader`, so the inferred runtime config type has none,
+  // though h3 honours one when it is set.
+  const { name, sessionHeader }: Pick<SessionConfig, 'name' | 'sessionHeader'> = useRuntimeConfig().session
   // nuxt-auth-utils defaults it (`nuxt-session`); absent means the module is not configured.
   if (!name) throw new Error('runtimeConfig.session.name is not set')
   if (sessionHeader !== false) {
@@ -126,46 +119,44 @@ export function requestHasSession(event: H3Event): boolean {
   return Boolean(getCookie(event, name))
 }
 
-export async function getAllAuthHeaders() {
-  const session = await getUserSession(useEvent())
+export async function getAllAuthHeaders(event: RequestEvent) {
+  const session = await getUserSession(event)
   const sessionToken = session.secure?.sessionToken
   const accessToken = session.secure?.accessToken
 
-  return createHeaders(sessionToken, accessToken)
+  return createHeaders(event, sessionToken, accessToken)
 }
 
-export async function getAllAuthSessionToken() {
-  const session = await getUserSession(useEvent())
+export async function getAllAuthSessionToken(event: RequestEvent) {
+  const session = await getUserSession(event)
   return session.secure?.sessionToken
 }
 
-export async function getAllAuthAccessToken(event?: H3Event) {
-  const session = await getUserSession(event ?? useEvent())
+export async function getAllAuthAccessToken(event: RequestEvent) {
+  const session = await getUserSession(event)
   return session?.secure?.accessToken
 }
 
-export async function requireAllAuthAccessToken(event?: H3Event): Promise<string> {
-  const session = await requireUserSession(event ?? useEvent())
+export async function requireAllAuthAccessToken(event: RequestEvent): Promise<string> {
+  const session = await requireUserSession(event)
   const accessToken = session?.secure?.accessToken
   if (!accessToken) {
     throw createError({
-      statusCode: 401,
-      statusMessage: 'Access token required',
+      status: 401,
+      statusText: 'Access token required',
     })
   }
   return accessToken
 }
 
-export async function fetchUserData(response: AllAuthResponse) {
+export async function fetchUserData(event: RequestEvent, response: AllAuthResponse) {
   const config = useRuntimeConfig()
-  const event = useEvent()
   const token = response.meta?.access_token
-  const locale = event?.context?.locale || DEFAULT_LOCALE
   let headers: Record<string, string>
   if (response.meta?.is_authenticated && !token) {
     // getAllAuthHeaders → createHeaders, which already sets the
     // tenant-aware X-Forwarded-Host: the store this request is for.
-    headers = await getAllAuthHeaders()
+    headers = await getAllAuthHeaders(event)
   }
   else {
     headers = {
@@ -173,13 +164,13 @@ export async function fetchUserData(response: AllAuthResponse) {
       // Tenant resolution: the store this request is for, so Django's
       // TenantMainMiddleware picks the right schema, as createHeaders() does.
       'X-Forwarded-Host': requestTenantHost(event),
-      'X-Language': locale,
+      'X-Language': requestLocale(event),
     }
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
   }
-  const user = await $fetch(`${config.apiBaseUrl}/user/account/${response.data.user.id}`, {
+  const user = await useBackendFetch(event)(`${config.apiBaseUrl}/user/account/${response.data.user.id}`, {
     method: 'GET',
     headers,
   })

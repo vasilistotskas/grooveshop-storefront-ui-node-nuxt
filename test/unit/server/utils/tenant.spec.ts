@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { clearTenantCache, getTenantConfig, isPlatformTenantConfig, requestTenantHost } from '~~/server/utils/tenant'
+import { clearTenantCache, getTenantConfig, isPlatformTenantConfig } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
-import { backend, createTestEvent, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
+import { backend, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
 
 /**
  * `getTenantConfig` runs on every request (server/middleware/0.tenant.ts),
@@ -23,27 +23,6 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
-})
-
-/**
- * The store a request is for, as everything keyed on it must name it:
- * the resolver, the caches, the rate limits and Django. A Host differing
- * only in case or port is the same store.
- */
-describe('requestTenantHost', () => {
-  it.each([
-    ['a bare host', 'webside.gr', 'webside.gr'],
-    ['a port', 'webside.gr:443', 'webside.gr'],
-    ['upper case', 'WebSide.GR', 'webside.gr'],
-    ['both', 'WEBSIDE.gr:3000', 'webside.gr'],
-    ['an IPv6 literal with a port', '[::1]:3000', '[::1]'],
-  ])('names the store for %s', (_label, host, expected) => {
-    expect(requestTenantHost(createTestEvent({ host }))).toBe(expected)
-  })
-
-  it('never reads X-Forwarded-Host, which the client controls', () => {
-    expect(requestTenantHost(createTestEvent({ host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } }))).toBe('webside.gr')
-  })
 })
 
 describe('getTenantConfig', () => {

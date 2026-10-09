@@ -5,7 +5,7 @@
  * Leaflet map component) doesn't paginate or know about
  * provider-specific shapes.
  *
- * Cache: 1 hour SWR via ``defineCachedEventHandler``. The Django
+ * Cache: 1 hour SWR via ``defineCachedRoute``. The Django
  * sync_acs_stations beat task refreshes the underlying rows once a
  * day, so customers picking a locker get a snapshot at most an
  * hour stale — perfectly acceptable for a 167-row fixture in
@@ -18,7 +18,9 @@
  * us); adding ``elta`` / ``speedex`` / ``geniki`` later means
  * extending the ``PROVIDER_FETCHERS`` table by one entry.
  */
+import type { $Fetch } from 'ofetch'
 import * as z from 'zod'
+import { createError, getRouterParam, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
 
 const zQuery = z.object({
   country: z.string().length(2).optional(),
@@ -65,6 +67,7 @@ function _normalize(row: AcsStation): NormalisedLocker {
 }
 
 async function _fetchAcsStations(
+  backendFetch: $Fetch,
   apiBaseUrl: string,
   headers: Record<string, string>,
   country: string | undefined,
@@ -76,7 +79,7 @@ async function _fetchAcsStations(
   // to 10 pages (= 1000 lockers) of headroom for future expansion.
   const maxPages = 10
   while (page <= maxPages) {
-    const raw = await $fetch(
+    const raw = await backendFetch(
       `${apiBaseUrl}/shipping/acs/stations`,
       {
         method: 'GET',
@@ -103,6 +106,7 @@ async function _fetchAcsStations(
 const PROVIDER_FETCHERS: Record<
   string,
   (
+    backendFetch: $Fetch,
     apiBaseUrl: string,
     headers: Record<string, string>,
     country: string | undefined,
@@ -113,21 +117,22 @@ const PROVIDER_FETCHERS: Record<
   // its iframe widget owns the catalogue.
 }
 
-export default defineCachedEventHandler(
+export default defineCachedRoute(
   async (event) => {
-    const provider = getRouterParam(event, 'provider')?.toLowerCase()
+    const provider = getRouterParam(event, 'provider', { decode: true })?.toLowerCase()
     if (!provider || !(provider in PROVIDER_FETCHERS)) {
       throw createError({
-        statusCode: 404,
-        statusMessage: `No bulk-locker fetcher registered for provider '${provider ?? ''}'`,
+        status: 404,
+        statusText: `No bulk-locker fetcher registered for provider '${provider ?? ''}'`,
       })
     }
     const config = useRuntimeConfig()
-    const headers = createHeaders()
+    const headers = createHeaders(event)
     try {
-      const query = await getValidatedQuery(event, zQuery.parse)
+      const query = await getValidatedQuery(event, zQuery)
       const fetcher = PROVIDER_FETCHERS[provider]!
       const rows = await fetcher(
+        useBackendFetch(event),
         config.apiBaseUrl,
         headers,
         query.country?.toUpperCase(),
@@ -142,14 +147,14 @@ export default defineCachedEventHandler(
       // ``/nearest`` endpoint (uncached) and works.
       if (rows.length === 0) {
         throw createError({
-          statusCode: 503,
-          statusMessage: `Bulk locker catalogue for provider '${provider}' is currently empty — refusing to cache.`,
+          status: 503,
+          statusText: `Bulk locker catalogue for provider '${provider}' is currently empty — refusing to cache.`,
         })
       }
       return rows
     }
     catch (error) {
-      handleError(error)
+      handleError(event, error)
     }
   },
   {
@@ -165,7 +170,7 @@ export default defineCachedEventHandler(
       return url.searchParams.get('refresh') === '1'
     },
     getKey: (event) => {
-      const provider = getRouterParam(event, 'provider') ?? 'unknown'
+      const provider = getRouterParam(event, 'provider', { decode: true }) ?? 'unknown'
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const country = url.searchParams.get('country') ?? 'all'
       return tenantCacheKey(event, `${provider}:${country.toUpperCase()}`)

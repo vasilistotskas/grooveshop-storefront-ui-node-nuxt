@@ -1,3 +1,5 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Confirm a pending subscription with the token from its email.
  *
@@ -12,20 +14,20 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const { token } = await getValidatedRouterParams(
+    const { token } = await parseRouterParams(
       event,
-      zConfirmSubscriptionByTokenPath.parse,
+      zConfirmSubscriptionByTokenPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/subscription/confirm/${encodeURIComponent(token)}`,
       {
         method: 'POST',
-        headers: createHeaders(),
+        headers: createHeaders(event),
       },
     )
     return await parseDataAs(response, zConfirmSubscriptionByTokenResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

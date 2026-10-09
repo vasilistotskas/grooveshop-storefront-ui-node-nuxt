@@ -21,6 +21,9 @@
  * Django (``core/cache/edge.py``): one tag for every storefront page (the
  * post-deploy purge) and one per tenant (a merchant's own edit).
  */
+// Nitro response-hook code (server/plugins/edge-cache.ts): it reads the
+// h3 event Nitro 2 hands its hooks, so it uses h3's own helpers.
+import { getResponseHeader, getResponseStatus } from 'h3'
 import type { H3Event } from 'h3'
 
 export const EDGE_CACHE_TAG = 'storefront-html'

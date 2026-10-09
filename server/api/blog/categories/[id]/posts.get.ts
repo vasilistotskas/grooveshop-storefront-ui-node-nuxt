@@ -1,24 +1,27 @@
-export default defineCachedEventHandler(async (event) => {
+import { getRouterParam, getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListBlogCategoryPostsQuery.parse)
-    const params = await getValidatedRouterParams(
+    const query = await getValidatedQuery(event, zListBlogCategoryPostsQuery)
+    const params = await parseRouterParams(
       event,
-      zListBlogCategoryPostsPath.parse,
+      zListBlogCategoryPostsPath,
     )
-    const response = await $fetch(`${config.apiBaseUrl}/blog/category/${params.id}/posts`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/blog/category/${params.id}/posts`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListBlogCategoryPostsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'BlogCategoryPostsViewSet',
   maxAge: 60 * 10,
   staleMaxAge: 60 * 60,
   swr: true,
-  getKey: event => tenantCacheKey(event, `blog-category-posts:${getRouterParam(event, 'id')}:${JSON.stringify(getQuery(event))}`),
+  getKey: event => tenantCacheKey(event, `blog-category-posts:${getRouterParam(event, 'id', { decode: true })}:${JSON.stringify(getQuery(event))}`),
 })

@@ -1,17 +1,19 @@
-export default defineCachedEventHandler(async (event) => {
+import { getRouterParams, useRuntimeConfig } from 'nuxt/server'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(
+    const params = await parseRouterParams(
       event,
-      zRetrieveBlogPostPath.parse,
+      zRetrieveBlogPostPath,
     )
-    const response = await $fetch(`${config.apiBaseUrl}/blog/post/${params.id}`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/blog/post/${params.id}`, {
       method: 'GET',
     })
     return await parseDataAs(response, zRetrieveBlogPostResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'BlogPostDetailViewSet',
@@ -19,7 +21,7 @@ export default defineCachedEventHandler(async (event) => {
   staleMaxAge: 60 * 60 * 2,
   swr: true,
   getKey: (event) => {
-    const params = getRouterParams(event)
+    const params = getRouterParams(event, { decode: true })
     return tenantCacheKey(event, `blog-post:${params.id}`)
   },
 })

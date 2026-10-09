@@ -1,15 +1,18 @@
-export default defineCachedEventHandler(async (event) => {
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListBlogCommentQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/blog/comment`, {
+    const query = await getValidatedQuery(event, zListBlogCommentQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/blog/comment`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, zListBlogCommentResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'BlogCommentViewSet',

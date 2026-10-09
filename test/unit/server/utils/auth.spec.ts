@@ -10,14 +10,15 @@ import {
   requestHasSession,
   requireAllAuthAccessToken,
 } from '~~/server/utils/auth'
-import { backend, createTestEvent, jsonResponse, setRuntimeConfig, testSession, withEvent } from '~~/test/helpers/nitro'
+import type { RequestEvent } from 'nuxt/server'
+import { backend, createRequestEvent, jsonResponse, setRuntimeConfig, testSession } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
 import { ZodAllAuthResponse } from '~~/shared/schemas/response/all-auth/response'
 import type { AllAuthResponse } from '~~/shared/types/response/all-auth/response'
 
-/** Run `fn` inside a request to shop.test (see `createTestEvent`). */
-function inRequest<T>(fn: () => T, req: TestRequest = {}): T {
-  return withEvent(createTestEvent(req), fn)
+/** Run `fn` with a request to shop.test (see `createRequestEvent`). */
+function inRequest<T>(fn: (event: RequestEvent) => T, req: TestRequest = {}): T {
+  return fn(createRequestEvent(req))
 }
 
 /** A `UserDetails` as Django serialises it (parsed by the real `zUserDetails` below). */
@@ -57,7 +58,7 @@ function loginResponse(meta: NonNullable<AllAuthResponse['meta']>): AllAuthRespo
 
 describe('createHeaders', () => {
   it('sends JSON, the request host, the page locale and no credentials by default', () => {
-    const headers = inRequest(() => createHeaders(), { context: { locale: 'en' } })
+    const headers = inRequest(event => createHeaders(event), { context: { locale: 'en' } })
 
     expect(headers).toMatchObject({
       'Content-Type': 'application/json',
@@ -69,31 +70,31 @@ describe('createHeaders', () => {
   })
 
   it('falls back to the default locale when the request has none', () => {
-    expect(inRequest(() => createHeaders())['X-Language']).toBe('el')
+    expect(inRequest(event => createHeaders(event))['X-Language']).toBe('el')
   })
 
   it('forwards the request host, never a spoofed X-Forwarded-Host', () => {
-    const headers = inRequest(() => createHeaders(), { host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } })
+    const headers = inRequest(event => createHeaders(event), { host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example' } })
 
     expect(headers['X-Forwarded-Host']).toBe('webside.gr')
   })
 
   it('sends the session token and the access token when given', () => {
-    const headers = inRequest(() => createHeaders('session-1', 'knox-1'))
+    const headers = inRequest(event => createHeaders(event, 'session-1', 'knox-1'))
 
     expect(headers['X-Session-Token']).toBe('session-1')
     expect(headers['Authorization']).toBe('Bearer knox-1')
   })
 
   it.each([['empty', ''], ['null', null], ['undefined', undefined]])('omits %s tokens', (_label, token) => {
-    const headers = inRequest(() => createHeaders(token, token))
+    const headers = inRequest(event => createHeaders(event, token, token))
 
     expect(headers).not.toHaveProperty('X-Session-Token')
     expect(headers).not.toHaveProperty('Authorization')
   })
 
   it('merges in who the visitor is (clientIdentityHeaders)', () => {
-    const headers = inRequest(() => createHeaders(), { headers: { 'user-agent': 'UA/1', 'cf-connecting-ip': '203.0.113.9' } })
+    const headers = inRequest(event => createHeaders(event), { headers: { 'user-agent': 'UA/1', 'cf-connecting-ip': '203.0.113.9' } })
 
     expect(headers).toMatchObject({ 'User-Agent': 'UA/1', 'X-Real-IP': '203.0.113.9' })
   })
@@ -112,7 +113,7 @@ describe('createHeaders', () => {
   ])('sends X-Forwarded-Proto for %s', (_label, requestHeaders, baseUrl, expected) => {
     setRuntimeConfig({ public: { baseUrl } })
 
-    expect(inRequest(() => createHeaders(), { headers: requestHeaders })['X-Forwarded-Proto']).toBe(expected)
+    expect(inRequest(event => createHeaders(event), { headers: requestHeaders })['X-Forwarded-Proto']).toBe(expected)
   })
 })
 
@@ -122,37 +123,37 @@ describe('requestHasSession', () => {
   // page and kept every page out of the edge cache. It looks where h3
   // looks: header first, then cookie.
   it('is false for a request with neither the cookie nor the header, and sets no cookie', () => {
-    const event = createTestEvent()
+    const event = createRequestEvent()
 
     expect(requestHasSession(event)).toBe(false)
-    expect(event.node.res.getHeader('set-cookie')).toBeUndefined()
+    expect(event.res.headers.get('set-cookie')).toBeNull()
   })
 
   it('finds the session cookie named in runtimeConfig.session', () => {
-    expect(requestHasSession(createTestEvent({ headers: { cookie: 'nuxt-session=Fe26.2**sealed' } }))).toBe(true)
+    expect(requestHasSession(createRequestEvent({ headers: { cookie: 'nuxt-session=Fe26.2**sealed' } }))).toBe(true)
   })
 
   it('finds the header h3 derives from the session name (x-<name>-session)', () => {
-    expect(requestHasSession(createTestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(true)
+    expect(requestHasSession(createRequestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(true)
   })
 
   it('honours a custom session header', () => {
     setRuntimeConfig({ session: { sessionHeader: 'x-custom' } })
 
-    expect(requestHasSession(createTestEvent({ headers: { 'x-custom': 'Fe26.2**sealed' } }))).toBe(true)
-    expect(requestHasSession(createTestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
+    expect(requestHasSession(createRequestEvent({ headers: { 'x-custom': 'Fe26.2**sealed' } }))).toBe(true)
+    expect(requestHasSession(createRequestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
   })
 
   it('ignores headers when sessionHeader is false, as h3 does', () => {
     setRuntimeConfig({ session: { sessionHeader: false } })
 
-    expect(requestHasSession(createTestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
+    expect(requestHasSession(createRequestEvent({ headers: { 'x-nuxt-session-session': 'Fe26.2**sealed' } }))).toBe(false)
   })
 
   it('fails loudly when the session is not configured, rather than guessing a name', () => {
     setRuntimeConfig({ session: { name: '' } })
 
-    expect(() => requestHasSession(createTestEvent())).toThrow('runtimeConfig.session.name is not set')
+    expect(() => requestHasSession(createRequestEvent())).toThrow('runtimeConfig.session.name is not set')
   })
 })
 
@@ -160,25 +161,25 @@ describe('session token readers', () => {
   it('read the tokens from the encrypted session', async () => {
     testSession.set({ secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 
-    await expect(inRequest(() => getAllAuthSessionToken())).resolves.toBe('session-1')
-    await expect(inRequest(() => getAllAuthAccessToken())).resolves.toBe('knox-1')
+    await expect(inRequest(event => getAllAuthSessionToken(event))).resolves.toBe('session-1')
+    await expect(inRequest(event => getAllAuthAccessToken(event))).resolves.toBe('knox-1')
   })
 
   it('read undefined from an anonymous session', async () => {
-    await expect(inRequest(() => getAllAuthSessionToken())).resolves.toBeUndefined()
-    await expect(inRequest(() => getAllAuthAccessToken())).resolves.toBeUndefined()
+    await expect(inRequest(event => getAllAuthSessionToken(event))).resolves.toBeUndefined()
+    await expect(inRequest(event => getAllAuthAccessToken(event))).resolves.toBeUndefined()
   })
 
   it('getAllAuthAccessToken takes an explicit event outside a bound request', async () => {
     testSession.set({ secure: { accessToken: 'knox-1' } })
 
-    await expect(getAllAuthAccessToken(createTestEvent())).resolves.toBe('knox-1')
+    await expect(getAllAuthAccessToken(createRequestEvent())).resolves.toBe('knox-1')
   })
 
   it('getAllAuthHeaders is createHeaders with the stored tokens', async () => {
     testSession.set({ secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 
-    const headers = await inRequest(() => getAllAuthHeaders())
+    const headers = await inRequest(event => getAllAuthHeaders(event))
 
     expect(headers).toMatchObject({ 'X-Session-Token': 'session-1', 'Authorization': 'Bearer knox-1', 'X-Forwarded-Host': 'shop.test' })
   })
@@ -188,17 +189,17 @@ describe('requireAllAuthAccessToken', () => {
   it('returns the access token of a signed-in session', async () => {
     testSession.set({ user: { id: 7 }, secure: { accessToken: 'knox-1' } })
 
-    await expect(inRequest(() => requireAllAuthAccessToken())).resolves.toBe('knox-1')
+    await expect(inRequest(event => requireAllAuthAccessToken(event))).resolves.toBe('knox-1')
   })
 
   it('rejects an anonymous session with 401', async () => {
-    await expect(inRequest(() => requireAllAuthAccessToken())).rejects.toMatchObject({ statusCode: 401 })
+    await expect(inRequest(event => requireAllAuthAccessToken(event))).rejects.toMatchObject({ statusCode: 401 })
   })
 
   it('rejects a signed-in session without an access token with 401 "Access token required"', async () => {
     testSession.set({ user: { id: 7 }, secure: { sessionToken: 'session-1' } })
 
-    const error = await inRequest(() => requireAllAuthAccessToken()).catch((caught: H3Error) => caught)
+    const error = await inRequest(event => requireAllAuthAccessToken(event)).catch((caught: H3Error) => caught)
 
     expect(error).toBeInstanceOf(H3Error)
     expect(error).toMatchObject({ statusCode: 401, statusMessage: 'Access token required' })
@@ -211,7 +212,7 @@ describe('processAllAuthSession', () => {
   it('stores the tokens allauth returned, keeping the rest of the session', async () => {
     testSession.set({ oauthState: 'x', secure: { sessionToken: 'old', accessToken: 'old-knox' } })
 
-    await inRequest(() => processAllAuthSession({ ...PENDING, meta: { session_token: 'new', access_token: 'new-knox' } }))
+    await inRequest(event => processAllAuthSession(event, { ...PENDING, meta: { session_token: 'new', access_token: 'new-knox' } }))
 
     expect(testSession.data).toEqual({ oauthState: 'x', secure: { sessionToken: 'new', accessToken: 'new-knox' } })
   })
@@ -219,7 +220,7 @@ describe('processAllAuthSession', () => {
   it('leaves the session untouched when there is no token anywhere', async () => {
     testSession.set({ keep: true })
 
-    await inRequest(() => processAllAuthSession(PENDING))
+    await inRequest(event => processAllAuthSession(event, PENDING))
 
     expect(testSession.data).toEqual({ keep: true })
     expect(backend.requests).toEqual([])
@@ -228,7 +229,7 @@ describe('processAllAuthSession', () => {
   it('loads the user once login returns an access token', async () => {
     backend.reply(userDetails())
 
-    await inRequest(() => processAllAuthSession(loginResponse({ access_token: 'knox-1', session_token: 's' })))
+    await inRequest(event => processAllAuthSession(event, loginResponse({ access_token: 'knox-1', session_token: 's' })))
 
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/user/account/7')
     expect(testSession.data.user).toMatchObject({ id: 7, email: 'maria@example.test' })
@@ -238,13 +239,13 @@ describe('processAllAuthSession', () => {
     testSession.set({ secure: { sessionToken: 'session-1' } })
     backend.reply(userDetails())
 
-    await inRequest(() => processAllAuthSession(loginResponse({ is_authenticated: true })))
+    await inRequest(event => processAllAuthSession(event, loginResponse({ is_authenticated: true })))
 
     expect(testSession.data.user).toMatchObject({ id: 7 })
   })
 
   it('does not load a user for an unauthenticated response', async () => {
-    await inRequest(() => processAllAuthSession(loginResponse({ is_authenticated: false, session_token: 's' })))
+    await inRequest(event => processAllAuthSession(event, loginResponse({ is_authenticated: false, session_token: 's' })))
 
     expect(backend.requests).toEqual([])
   })
@@ -256,7 +257,7 @@ describe('fetchUserData', () => {
     backend.reply(userDetails())
 
     const user = await inRequest(
-      () => fetchUserData(loginResponse({ access_token: 'knox-1' })),
+      event => fetchUserData(event, loginResponse({ access_token: 'knox-1' })),
       { host: 'webside.gr', headers: { 'x-forwarded-host': 'evil.example', 'x-forwarded-proto': 'https' }, context: { locale: 'en' } },
     )
 
@@ -276,7 +277,7 @@ describe('fetchUserData', () => {
     testSession.set({ secure: { sessionToken: 'session-1' } })
     backend.reply(userDetails())
 
-    await inRequest(() => fetchUserData(loginResponse({ is_authenticated: true })))
+    await inRequest(event => fetchUserData(event, loginResponse({ is_authenticated: true })))
 
     expect(backend.lastRequest.headers.get('x-session-token')).toBe('session-1')
     expect(backend.lastRequest.headers.has('authorization')).toBe(false)
@@ -286,13 +287,13 @@ describe('fetchUserData', () => {
     testSession.set({ user: { id: 7 } })
     backend.reply(userDetails({ email: 'not-an-email' }))
 
-    await expect(inRequest(() => fetchUserData(loginResponse({ access_token: 'k' })))).rejects.toMatchObject({ statusCode: 422 })
+    await expect(inRequest(event => fetchUserData(event, loginResponse({ access_token: 'k' })))).rejects.toMatchObject({ statusCode: 422 })
     expect(testSession.data).toEqual({ user: { id: 7 } })
   })
 
   it('lets an upstream failure through', async () => {
     backend.reply(jsonResponse({ detail: 'Not found.' }, 404))
 
-    await expect(inRequest(() => fetchUserData(loginResponse({ access_token: 'k' })))).rejects.toMatchObject({ statusCode: 404 })
+    await expect(inRequest(event => fetchUserData(event, loginResponse({ access_token: 'k' })))).rejects.toMatchObject({ statusCode: 404 })
   })
 })

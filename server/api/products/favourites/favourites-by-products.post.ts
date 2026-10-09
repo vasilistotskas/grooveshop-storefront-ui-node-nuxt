@@ -1,12 +1,14 @@
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
     const body = await readValidatedBody(
       event,
-      zGetProductFavouritesByProductsBody.parse,
+      zGetProductFavouritesByProductsBody,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/product/favourite/favourites_by_products`,
       {
         method: 'POST',
@@ -19,6 +21,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zGetProductFavouritesByProductsResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

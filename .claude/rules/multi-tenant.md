@@ -45,7 +45,7 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 
 ## `tenantCacheKey` requirement
 
-Every `defineCachedEventHandler` whose data is tenant-specific MUST prefix its cache key with `tenantCacheKey(event, ...)`. Without it, Tenant A's data can be returned to Tenant B from cache (P0 data leak). It also carries the request locale (`host__locale__key`): Django answers in the `X-Language` it is sent, so an English entry must never serve a Greek page. `defineCachedFunction`s have no event, so callers pass the host AND `requestLocale(event)` and the function sends `X-Language` itself (`createCachedFetcher`). Usage:
+Every `defineCachedRoute` (Nitro's cached handler, `server/utils/cachedRoute.ts`) whose data is tenant-specific MUST prefix its cache key with `tenantCacheKey(event, ...)`. Without it, Tenant A's data can be returned to Tenant B from cache (P0 data leak). It also carries the request locale (`host__locale__key`): Django answers in the `X-Language` it is sent, so an English entry must never serve a Greek page. `defineCachedFunction`s have no event, so callers pass the host AND `requestLocale(event)` and the function sends `X-Language` itself (`createCachedFetcher`). Usage:
 
 ```ts
 getKey: (event) => tenantCacheKey(event, `my-route:${param}`)
@@ -55,11 +55,11 @@ getKey: (event) => tenantCacheKey(event, `my-route:${param}`)
 
 Routes that are **not** tenant-scoped (e.g. raw public data identical across all tenants) may omit it, but this must be an explicit decision — add a comment explaining why.
 
-## `useBackendFetch` vs raw `$fetch`
+## Calling Django
 
-- Server utils and middleware use raw `$fetch` with `createHeaders()` for forwarding headers (X-Forwarded-Host, Authorization). This is the standard proxy pattern.
-- `useBackendFetch` is a higher-level helper that also injects `X-Forwarded-Host`. Prefer it for new server routes over manually assembling headers.
-- Shipping routes (`server/api/shipping/`) use `createHeaders()` because they are public (no auth token forwarding needed).
+- Every call goes through `useBackendFetch(event)`, which names the request's store (`X-Forwarded-Host` from `requestTenantHost`), its language and the visitor; a cached function, which has no request, uses `backendFetchFor({ tenantHost, locale })` with the store and language it is keyed by. There is no global `$fetch` on the server.
+- Routes that forward credentials pass `createHeaders(event, sessionToken, accessToken)` (or `getAllAuthHeaders(event)`) as the call's headers; a header the call sets wins over the fetcher's defaults.
+- The store's host is resolved once, by `server/middleware/0.tenant.ts`, into `event.context.tenantHost`; read it with `requestTenantHost(event)`, never from a header.
 
 ## `useTenantStore` Pinia hydration sequence
 

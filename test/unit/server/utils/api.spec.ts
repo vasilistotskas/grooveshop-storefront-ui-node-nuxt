@@ -39,15 +39,6 @@ describe('createCachedFetcher', () => {
     expect(backend.lastRequest.headers.get('x-language')).toBe('en')
   })
 
-  it('sends no X-Forwarded-Host when there is no tenant key', async () => {
-    backend.reply(page([1]))
-
-    await createCachedFetcher('test', 60)('', 'el', 'http://backend.test/api/v1/data')
-
-    expect(backend.lastRequest.headers.has('x-forwarded-host')).toBe(false)
-    expect(backend.lastRequest.headers.get('x-language')).toBe('el')
-  })
-
   it('follows next links and concatenates every page', async () => {
     backend.replyOnce(page([1, 2], 'http://backend.test/api/v1/data?page=2'))
     backend.replyOnce(page([3]))

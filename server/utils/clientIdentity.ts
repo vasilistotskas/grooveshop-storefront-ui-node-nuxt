@@ -1,4 +1,5 @@
-import type { H3Event } from 'h3'
+import { getRequestHeaders, getRequestIP } from 'nuxt/server'
+import type { RequestEvent } from 'nuxt/server'
 
 /**
  * The headers that tell Django WHO is behind a proxied request.
@@ -25,7 +26,7 @@ import type { H3Event } from 'h3'
  *   reachable through Traefik, so a caller cannot inject a valid one.
  * - `User-Agent`: allauth's session list and the audit log.
  */
-export function clientIdentityHeaders(event: H3Event): Record<string, string> {
+export function clientIdentityHeaders(event: RequestEvent): Record<string, string> {
   const requestHeaders = getRequestHeaders(event)
   const headers: Record<string, string> = {}
 

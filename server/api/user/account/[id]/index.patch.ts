@@ -1,13 +1,15 @@
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const form = await readFormData(event)
-    const params = await getValidatedRouterParams(
+    const form = await event.req.formData()
+    const params = await parseRouterParams(
       event,
-      zPartialUpdateUserAccountPath.parse,
+      zPartialUpdateUserAccountPath,
     )
-    const response = await $fetch(
+    const response = await useBackendFetch(event)(
       `${config.apiBaseUrl}/user/account/${params.id}`,
       {
         method: 'PATCH',
@@ -30,6 +32,6 @@ export default defineEventHandler(async (event) => {
     // or username validation) so clients can show the reason — thrown
     // createError({data}) is stripped in production. See
     // forwardUpstreamClientError.
-    return forwardUpstreamClientError(error)
+    return forwardUpstreamClientError(event, error)
   }
 })

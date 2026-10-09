@@ -1,13 +1,15 @@
+import { defineEventHandler, getValidatedQuery, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
     const body = await readValidatedBody(
       event,
-      zCreateProductFavouriteBody.parse,
+      zCreateProductFavouriteBody,
     )
-    const query = await getValidatedQuery(event, zCreateProductFavouriteQuery.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/product/favourite`, {
+    const query = await getValidatedQuery(event, zCreateProductFavouriteQuery)
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/favourite`, {
       method: 'POST',
       body,
       query,
@@ -18,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateProductFavouriteResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 })

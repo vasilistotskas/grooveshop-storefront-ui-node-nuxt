@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
 
 /**
  * Fetch all product attributes with their values
@@ -9,14 +11,14 @@ import { z } from 'zod'
  * @example
  * GET /api/products/attributes?languageCode=el&active=true
  */
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
 
   try {
     // Get and validate query parameters
     const query = await getValidatedQuery(event, z.object({
       languageCode: z.string().optional(),
-    }).passthrough().parse)
+    }).passthrough())
 
     // Build the backend query
     const backendQuery: Record<string, unknown> = {
@@ -26,7 +28,7 @@ export default defineCachedEventHandler(async (event) => {
     }
 
     // Fetch attributes from Django backend
-    const response = await $fetch(`${config.apiBaseUrl}/product/attribute`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}/product/attribute`, {
       method: 'GET',
       query: backendQuery,
     })
@@ -35,7 +37,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListAttributeResponse)
   }
   catch (error) {
-    handleError(error)
+    handleError(event, error)
   }
 }, {
   name: 'ProductAttributeViewSet',

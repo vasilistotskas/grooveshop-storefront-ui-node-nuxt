@@ -25,14 +25,6 @@ describe('publicSettingsForHost', () => {
     expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('webside.gr')
   })
 
-  it('sends no X-Forwarded-Host without a host', async () => {
-    backend.reply({ settings: {} })
-
-    await publicSettingsForHost('', API)
-
-    expect(backend.lastRequest.headers.has('x-forwarded-host')).toBe(false)
-  })
-
   it.each([
     ['a 5xx', () => backend.reply(jsonResponse({ detail: 'x' }, 503))],
     ['a network failure', () => backend.reply(() => {

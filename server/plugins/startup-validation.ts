@@ -1,3 +1,6 @@
+import { defineNitroPlugin } from 'nitropack/runtime'
+import { useRuntimeConfig } from 'nuxt/server'
+
 /**
  * Validates required environment variables at server startup.
  * Fails hard so misconfigured deployments are caught immediately.
