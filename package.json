@@ -59,7 +59,7 @@
     "@nuxtjs/seo": "5.3.16",
     "@pinia/nuxt": "1.0.2",
     "@vueuse/nuxt": "15.0.0",
-    "better-sqlite3": "12.11.1",
+    "better-sqlite3": "13.0.3",
     "defu": "6.1.7",
     "evlog": "2.30.1",
     "h3": "1.15.11",
