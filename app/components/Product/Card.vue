@@ -135,27 +135,7 @@ const ratingText = computed(() =>
   $i18n.n(ratingOutOfFive.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
 )
 
-// Wholesale price hydration — client-only, retail renders first then
-// swaps (the cached anonymous catalogue HTML must never carry a
-// per-customer price; see useB2BPricing).
-const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
-onMounted(() => {
-  registerB2BPrice(productId.value)
-})
-const b2bPrice = computed(() => b2bPriceFor(productId.value))
-const isWholesalePrice = computed(() =>
-  !!b2bPrice.value
-  && Number(b2bPrice.value.finalPrice) < (product.value.finalPrice ?? 0),
-)
-const displayFinalPrice = computed(() =>
-  isWholesalePrice.value && b2bPrice.value
-    ? Number(b2bPrice.value.finalPrice)
-    : product.value.finalPrice,
-)
-
-// What the shopper would otherwise have paid — the number to strike
-// through (see productWasPrice for why it is not `product.price`).
-const wasPrice = computed(() => productWasPrice(product.value, displayFinalPrice.value))
+const { displayFinalPrice, wasPrice } = useShopperPrice(productId, product)
 
 const addToCartName = computed(() => t('add_named', { name: productName.value ?? '' }))
 
@@ -314,7 +294,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <p
         v-if="lowStockCount"
-        class="text-xs font-bold text-warning"
+        class="text-xs font-bold text-default"
       >
         {{ t('only_n_left', { count: lowStockCount }, lowStockCount) }}
       </p>

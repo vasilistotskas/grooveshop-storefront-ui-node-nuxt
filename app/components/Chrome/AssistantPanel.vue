@@ -3,8 +3,9 @@
  * The assistant's conversation: header, messages, quick questions and
  * the prompt. The panel (`Chrome/Assistant.vue`) frames it on a wide
  * screen and the drawer on a phone. The messages are plain text and
- * Markdown with the tool activity above them; the gateway sends no
- * product data, so there are no product cards.
+ * Markdown with the tool activity above them; the products the gateway
+ * surfaced render as cards where they arrived in the reply
+ * (`Chrome/AssistantProducts.vue`).
  */
 withDefaults(defineProps<{ autofocusPrompt?: boolean }>(), {
   autofocusPrompt: false,
@@ -41,18 +42,28 @@ const isThinking = computed(() => {
 
 // UChatMessages consumes the Vercel-AI UIMessage shape ({id, role,
 // parts}); our transport-agnostic ShopChatMessage maps onto text parts.
-// Tool activity rides along for the #content slot — a message with only
-// tool chips (text still streaming) is worth showing.
-const uiMessages = computed(() =>
+// What a UIMessage cannot carry (tool activity, the text and product lists
+// in the order they happened) is looked up by id in the #content slot — a
+// message with only tool chips or cards (text still streaming) is worth
+// showing.
+const shownMessages = computed(() =>
   messages.value
-    .filter(m => m.text !== '' || (m.tools && m.tools.length > 0))
+    .filter(m => m.text !== '' || (m.tools && m.tools.length > 0) || (m.products && m.products.length > 0))
     .map(m => ({
-      id: m.id,
-      role: m.role,
-      parts: [{ type: 'text' as const, text: m.text }],
-      tools: m.tools ?? [],
+      ...m,
+      segments: chatSegments(m.text, m.products),
     })),
 )
+
+const uiMessages = computed(() =>
+  shownMessages.value.map(m => ({
+    id: m.id,
+    role: m.role,
+    parts: [{ type: 'text' as const, text: m.text }],
+  })),
+)
+
+const shownMessage = (id: string) => shownMessages.value.find(m => m.id === id)
 
 const streamingMessageId = computed(() => {
   if (status.value !== 'streaming') return ''
@@ -192,18 +203,28 @@ function onSubmit() {
         <template #content="{ message }">
           <template v-if="message.role === 'assistant'">
             <UChatTool
-              v-for="(tool, index) in (message as any).tools"
+              v-for="(tool, index) in shownMessage(message.id)?.tools"
               :key="`${message.id}-tool-${index}`"
               :icon="toolMeta(tool.name).icon"
               :text="t(`tools.${toolMeta(tool.name).key}`)"
               :streaming="tool.status === 'running'"
             />
-            <Markdown
-              v-if="message.parts[0]?.text"
-              :value="message.parts[0].text"
-              :streaming="message.id === streamingMessageId"
-              class="*:first:mt-0 *:last:mb-0"
-            />
+            <template
+              v-for="(segment, index) in shownMessage(message.id)?.segments"
+              :key="`${message.id}-segment-${index}`"
+            >
+              <Markdown
+                v-if="segment.type === 'text'"
+                :value="segment.text"
+                :streaming="message.id === streamingMessageId && index === (shownMessage(message.id)?.segments.length ?? 0) - 1"
+                class="*:first:mt-0 *:last:mb-0"
+              />
+              <ChromeAssistantProducts
+                v-else
+                :event="segment.event"
+                @navigate="emit('close')"
+              />
+            </template>
           </template>
           <p
             v-else

@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import AssistantPanel from '~/components/Chrome/AssistantPanel.vue'
+import { makeProduct } from '~~/test/fixtures/product'
+
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
 
 /**
  * The assistant's conversation. `useShopChat` is the app's real one; the
@@ -55,6 +59,26 @@ describe('Chrome/AssistantPanel', () => {
 
     expect(wrapper.text()).toContain('Έχετε φορτιστή;')
     expect(wrapper.find('img').exists()).toBe(false)
+  })
+
+  it('renders the products a tool surfaced between the words around them, from the product API', async () => {
+    api.routes({ '/api/products/*': makeProduct({ id: 5 }) })
+    stubReply(
+      'event: delta\ndata: {"text":"Ψάχνω φορτιστές."}\n\n'
+      + 'event: products\ndata: {"tool":"search_products","query":"φορτιστής","total":1,"products":[{"id":5}]}\n\n'
+      + 'event: delta\ndata: {"text":" Βρήκα έναν."}\n\n'
+      + 'event: done\ndata: {"conversationId":"c1","cartMutated":false}\n\n',
+    )
+    const wrapper = await mountPanel()
+
+    await useShopChat().send('Έχετε φορτιστή;')
+    await vi.waitFor(() => expect(wrapper.find('li h4').exists()).toBe(true))
+
+    const text = wrapper.text()
+    expect(wrapper.find('li h4').text()).toBe('Προϊόν 5')
+    expect(text.indexOf('Ψάχνω φορτιστές.')).toBeLessThan(text.indexOf('Προϊόν 5'))
+    expect(text.indexOf('Προϊόν 5')).toBeLessThan(text.indexOf('Βρήκα έναν.'))
+    expect(api.callsTo('/api/products/*').map(call => call.url)).toEqual(['/api/products/5'])
   })
 
   it('says a cart-changing turn updated the cart and links to it', async () => {

@@ -38,12 +38,8 @@ const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
 watch(visibleItems, (items) => {
   registerB2BPrice(items.map(item => item.id))
 }, { immediate: true })
-const displayPrice = (item: { id: number, finalPrice?: number | null }) => {
-  const b2b = b2bPriceFor(item.id)
-  return b2b && Number(b2b.finalPrice) < (item.finalPrice ?? 0)
-    ? Number(b2b.finalPrice)
-    : item.finalPrice
-}
+const displayPrice = (item: { id: number, finalPrice?: number | null }) =>
+  shopperFinalPrice(item.finalPrice, b2bPriceFor(item.id))
 
 // Gracefully hide the whole section when empty — SSR renders nothing so
 // there's no CLS hit when localStorage hydrates with an empty history.

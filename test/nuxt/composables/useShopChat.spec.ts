@@ -281,4 +281,85 @@ describe('useShopChat', () => {
     expect(chat.conversationId.value).toBe('')
     expect(chat.status.value).toBe('ready')
   })
+
+  describe('products events', () => {
+    const productsEvent = (data: unknown) => `event: products\ndata: ${JSON.stringify(data)}\n\n`
+
+    it('attaches the listed ids to the streaming message at the text position they arrived', async () => {
+      stubStream(
+        'event: delta\ndata: {"text":"Ψάχνω. "}\n\n'
+        + productsEvent({ tool: 'search_products', query: 'καφετιέρα', total: 14, products: [{ id: 7 }, { id: 3 }] })
+        + 'event: delta\ndata: {"text":"Βρήκα 14."}\n\n'
+        + DONE,
+      )
+
+      const chat = useShopChat()
+      await chat.send('καφετιέρα')
+
+      expect(chat.messages.value[1]).toEqual({
+        id: expect.any(String),
+        role: 'assistant',
+        text: 'Ψάχνω. Βρήκα 14.',
+        products: [{ tool: 'search_products', query: 'καφετιέρα', total: 14, ids: [7, 3], at: 'Ψάχνω. '.length }],
+      })
+      expect(chat.status.value).toBe('ready')
+    })
+
+    it('keeps an empty search that still reports its total', async () => {
+      stubStream(productsEvent({ tool: 'search_products', query: 'xyz', total: 0, products: [] }) + DONE)
+
+      const chat = useShopChat()
+      await chat.send('xyz')
+
+      expect(chat.messages.value[1]!.products).toEqual([
+        { tool: 'search_products', query: 'xyz', total: 0, ids: [], at: 0 },
+      ])
+    })
+
+    it('keeps each event of the turn in order', async () => {
+      stubStream(
+        productsEvent({ tool: 'search_products', products: [{ id: 1 }] })
+        + productsEvent({ tool: 'get_product', products: [{ id: 2 }] })
+        + DONE,
+      )
+
+      const chat = useShopChat()
+      await chat.send('δείξε')
+
+      expect(chat.messages.value[1]!.products?.map(p => [p.tool, p.ids])).toEqual([
+        ['search_products', [1]],
+        ['get_product', [2]],
+      ])
+    })
+
+    it.each([
+      ['an id that is not a number', { tool: 'get_product', products: [{ id: 'abc' }] }],
+      ['a missing tool', { products: [{ id: 1 }] }],
+      ['a negative total', { tool: 'search_products', total: -1, products: [] }],
+      ['no list', { tool: 'search_products' }],
+    ])('ignores %s and finishes the turn normally', async (_case, payload) => {
+      stubStream(
+        productsEvent(payload)
+        + 'event: delta\ndata: {"text":"ok"}\n\n'
+        + DONE,
+      )
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(chat.messages.value[1]!.products).toBeUndefined()
+      expect(chat.messages.value[1]!.text).toBe('ok')
+      expect(chat.status.value).toBe('ready')
+    })
+
+    it('ignores a payload that is not JSON', async () => {
+      stubStream('event: products\ndata: not-json\n\n' + DONE)
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(chat.messages.value[1]!.products).toBeUndefined()
+      expect(chat.status.value).toBe('ready')
+    })
+  })
 })
