@@ -393,6 +393,11 @@ export default defineNuxtConfig({
     typedPages: true,
     inlineRouteRules: true,
     crossOriginPrefetch: true,
+    // Kept on although the server imports every h3 and Nitro helper
+    // explicitly (test/unit/source-rules/server-imports-are-explicit.spec.ts):
+    // on Nuxt 4.6, turning it off still declares those names but drops
+    // evlog's `log`, which server code uses as an auto-import. Remove it
+    // with the Nuxt 5 upgrade, once evlog provides `log` without it.
     nitroAutoImports: true,
     emitRouteChunkError: 'automatic-immediate',
   },
