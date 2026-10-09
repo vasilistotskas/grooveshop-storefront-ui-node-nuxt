@@ -1,3 +1,10 @@
+## [3.241.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.3...v3.241.4) (2026-10-09)
+
+
+### Performance Improvements
+
+* **images:** bound article images to their column and serve 2x ([#94](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/94)) ([3263280](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3263280f9b1d1425c33298e05706473460a77b1a))
+
 ## [3.241.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.2...v3.241.3) (2026-10-09)
 
 
