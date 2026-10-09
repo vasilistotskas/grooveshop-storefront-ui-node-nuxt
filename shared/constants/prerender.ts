@@ -1,5 +1,5 @@
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales'
-import { splitLocale } from '../i18n/localeFromPath'
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales.ts'
+import { splitLocale } from '../i18n/localeFromPath.ts'
 
 /**
  * Brand-bearing static routes cached per tenant host (see ``routeRules``

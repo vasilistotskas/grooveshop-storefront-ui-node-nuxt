@@ -55,13 +55,13 @@ const BlogPostCard = computed(() =>
           md:basis-1/2
         `,
         next: `
-          top-2/5 end-2
-          sm:end-2
+          inset-e-2 top-2/5
+          sm:inset-e-2
           md:top-1/2
         `,
         prev: `
-          top-2/5 start-2
-          sm:start-2
+          inset-s-2 top-2/5
+          sm:inset-s-2
           md:top-1/2
         `,
       }"

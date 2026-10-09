@@ -144,7 +144,7 @@ const groups = computed(() => {
           label: getDisplayTitle(product),
           slot: 'product' as const,
           product,
-          to: localePath(productUrl(product.master, product.slug)),
+          to: localePath({ path: productUrl(product.master, product.slug) }),
           onSelect: () => onResultClick(product, rank),
         })),
       })
@@ -158,7 +158,7 @@ const groups = computed(() => {
           id: `guide-${post.id}`,
           label: getDisplayTitle(post),
           slot: 'guide' as const,
-          to: localePath(blogPostUrl(post.master, post.slug)),
+          to: localePath({ path: blogPostUrl(post.master, post.slug) }),
           onSelect: () => onResultClick(post, rank),
         })),
       })

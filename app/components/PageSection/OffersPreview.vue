@@ -69,7 +69,7 @@ function onCopy(code: string) {
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_offers', { count: live.length }, live.length)"
-    :cta-link="ctaLink ? localePath(ctaLink) : localePath('/offers')"
+    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('offers')"
     :surface="props.surface === 'ink' ? 'inverted' : props.surface"
     heading-size="lg"
   >

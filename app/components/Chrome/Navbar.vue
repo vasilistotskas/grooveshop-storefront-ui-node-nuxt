@@ -103,10 +103,10 @@ const shopItem = computed<NavigationMenuItem>(() => ({
   label: t('shop'),
   value: SHOP,
   slot: SHOP,
-  to: localePath(CATALOGUE_PATH),
+  to: localePath('products'),
   active: isRouteActive('products'),
   children: hasCategories.value
-    ? categories.value.map(category => ({ label: category.label, to: localePath(category.to) }))
+    ? categories.value.map(category => ({ label: category.label, to: localePath(pathLocation(category.to)) }))
     : undefined,
 }))
 
@@ -124,7 +124,7 @@ const items = computed<NavigationMenuItem[]>(() => {
       : {
           label: item.label,
           icon: item.icon,
-          to: item.to ? localePath(item.to) : undefined,
+          to: item.to ? localePath(pathLocation(item.to)) : undefined,
           href: item.to ? undefined : item.href,
           target: item.href ? '_blank' : undefined,
           active: isPathActive(item.to),
@@ -135,28 +135,28 @@ const items = computed<NavigationMenuItem[]>(() => {
   if (promotionsEnabled.value) {
     base.push({
       label: t('offers'),
-      to: localePath('/offers'),
+      to: localePath('offers'),
       active: isRouteActive('offers'),
     })
   }
   if (tenantStore.blogEnabled) {
     base.push({
       label: t('blog'),
-      to: localePath('/blog'),
+      to: localePath('blog'),
       active: isRouteActive('blog'),
     })
   }
   if (giftCardsEnabled.value) {
     base.push({
       label: t('gift_cards'),
-      to: localePath('/gift-cards'),
+      to: localePath('gift-cards'),
       active: isRouteActive('gift-cards'),
     })
   }
   if (loyaltyEnabled.value) {
     base.push({
       label: t('loyalty'),
-      to: localePath('/loyalty-program'),
+      to: localePath('loyalty-program'),
       active: isRouteActive('loyalty-program'),
     })
   }
@@ -290,7 +290,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
 
           <UButton
             v-if="favouritesEnabled"
-            :to="localePath(loggedIn ? '/account/favourites/products' : '/account/login')"
+            :to="localePath(loggedIn ? 'account-favourites-products' : 'account-login')"
             :aria-label="t('favourites')"
             icon="i-heroicons-heart"
             color="neutral"

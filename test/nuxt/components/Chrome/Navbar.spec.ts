@@ -127,16 +127,21 @@ describe('Chrome/Navbar', () => {
   })
 
   it('replaces the platform menu with the operator\'s, opening external links in a new tab', async () => {
+    // The visitor is on a page UNDER the entry's path, so the entry is
+    // active by prefix. It must be a real route: Nuxt does not navigate
+    // to a path no page matches, it hands it to the browser instead.
+    setTenant({ giftCardsEnabled: true })
+    state.flags = { GIFT_CARDS_ENABLED: true }
     state.header = [
-      { label: 'Σχετικά', to: '/about' },
+      { label: 'Δωροκάρτες', to: '/gift-cards' },
       { label: 'Εργαστήριο', href: 'https://workshop.example' },
     ]
 
-    const wrapper = await mountNavbar('/about/team')
+    const wrapper = await mountNavbar('/gift-cards/success')
 
     const items = wrapper.findComponent({ name: 'UNavigationMenu' }).props('items') as NavigationMenuItem[]
     expect(items.map(item => [item.label, item.to, item.href, item.target, item.active])).toEqual([
-      ['Σχετικά', '/about', undefined, undefined, true],
+      ['Δωροκάρτες', '/gift-cards', undefined, undefined, true],
       ['Εργαστήριο', undefined, 'https://workshop.example', '_blank', false],
     ])
   })

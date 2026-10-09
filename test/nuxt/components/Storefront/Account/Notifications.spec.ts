@@ -142,7 +142,7 @@ describe('Storefront/Account/Notifications', () => {
     await openButton(wrapper, 'Η παραγγελία στάλθηκε').trigger('click')
     await flushPromises()
 
-    await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith(useLocalePath()('/account/orders/42')))
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith(useLocalePath()(pathLocation('/account/orders/42'))))
     expect(posted['mark-as-seen']).toEqual([{ notificationUserIds: [1] }])
     expect(asked.length).toBeGreaterThan(1)
   })

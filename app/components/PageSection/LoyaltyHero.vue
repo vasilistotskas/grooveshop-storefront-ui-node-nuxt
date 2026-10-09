@@ -137,7 +137,7 @@ const tierTerms = (tier: LoyaltyTier) =>
                    change with the mode, so the theme's primary (which
                    turns light in dark mode) would vanish into it. -->
               <UButton
-                :to="ctaLink ? localePath(ctaLink) : localePath('account-signup')"
+                :to="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('account-signup')"
                 :label="ctaText || t('cta_join')"
                 color="neutral"
                 class="
@@ -147,7 +147,7 @@ const tierTerms = (tier: LoyaltyTier) =>
                 "
               />
               <UButton
-                :to="secondaryCtaLink ? localePath(secondaryCtaLink) : localePath('loyalty-program')"
+                :to="secondaryCtaLink ? localePath(pathLocation(secondaryCtaLink)) : localePath('loyalty-program')"
                 :label="secondaryCtaText || t('cta_how')"
                 color="neutral"
                 variant="outline"

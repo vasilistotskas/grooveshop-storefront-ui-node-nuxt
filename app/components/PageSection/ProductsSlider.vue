@@ -60,7 +60,7 @@ const cta = computed(() => {
   if (props.ctaText || props.ctaLink) {
     return {
       text: props.ctaText || t('all_products'),
-      link: props.ctaLink ? localePath(props.ctaLink) : localePath('/products'),
+      link: props.ctaLink ? localePath(pathLocation(props.ctaLink)) : localePath('products'),
     }
   }
   const sort = LISTING_SORT[props.ordering]
@@ -69,7 +69,7 @@ const cta = computed(() => {
         text: t(`all.${props.ordering}`),
         link: localePath({ path: '/products', query: { sort } }),
       }
-    : { text: t('all_products'), link: localePath('/products') }
+    : { text: t('all_products'), link: localePath('products') }
 })
 </script>
 

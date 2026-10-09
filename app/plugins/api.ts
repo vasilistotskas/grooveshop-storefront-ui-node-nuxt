@@ -1,3 +1,5 @@
+import type { $Fetch } from '#app'
+
 /**
  * Provides `$api`: the `$fetch` instance for the storefront's own `/api`,
  * which states the page's locale on every request (see
@@ -14,7 +16,7 @@ export default defineNuxtPlugin({
   setup(nuxtApp) {
     const api = $fetch.create({
       onRequest: pageLocaleHeader(nuxtApp),
-    }) as typeof $fetch
+    }) as $Fetch
 
     return { provide: { api } }
   },

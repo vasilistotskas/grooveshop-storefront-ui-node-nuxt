@@ -53,7 +53,7 @@ const blogCommentsEnabled = useSettingFlag('BLOG_COMMENTS_ENABLED', {
 
 const title = computed(() => extractTranslated(props.post, 'title', locale.value) ?? '')
 const subtitle = computed(() => extractTranslated(props.post, 'subtitle', locale.value) ?? '')
-const url = computed(() => localePath(blogPostUrl(props.post.id, props.post.slug)))
+const url = computed(() => localePath({ path: blogPostUrl(props.post.id, props.post.slug) }))
 
 /**
  * The count the like button shows. Seeded from the post and moved by

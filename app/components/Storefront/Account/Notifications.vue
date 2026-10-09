@@ -103,7 +103,7 @@ const onRowClick = async (row: NotificationUserDetail) => {
   // A locale-neutral storefront path; open it in the viewer's locale.
   const link = row.notification?.link ?? ''
   if (!link) return
-  await navigateTo(localePath(link))
+  await navigateTo(localePath(pathLocation(link)))
 }
 
 const onToggleSeen = async (row: NotificationUserDetail) => {

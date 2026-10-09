@@ -74,7 +74,7 @@ const chips = computed<Chip[]>(() => {
         class="shrink-0"
       >
         <UButton
-          :to="localePath(chip.to)"
+          :to="localePath(pathLocation(chip.to))"
           :color="chip.current ? 'primary' : 'neutral'"
           :variant="chip.current ? 'solid' : 'outline'"
           :aria-current="chip.current ? 'page' : undefined"

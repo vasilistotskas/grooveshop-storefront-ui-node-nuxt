@@ -62,7 +62,7 @@ const crumbs = computed(() => {
     { label: t('breadcrumb.items.index.label'), to: localePath('index') },
     ...trail.value.map((item, index) => index === last
       ? { label: item.label, to: route.path, current: true }
-      : { label: item.label, to: item.to ? localePath(item.to) : undefined }),
+      : { label: item.label, to: item.to ? localePath(pathLocation(item.to)) : undefined }),
   ]
 })
 </script>

@@ -42,11 +42,6 @@ async function onSubmit() {
     code.value = []
   }
 }
-
-function handleComplete(value: number[]) {
-  code.value = value
-  onSubmit()
-}
 </script>
 
 <template>
@@ -96,7 +91,7 @@ function handleComplete(value: number[]) {
                   type="number"
                   size="xl"
                   otp
-                  @complete="handleComplete"
+                  @complete="onSubmit"
                 />
               </div>
             </UFormField>

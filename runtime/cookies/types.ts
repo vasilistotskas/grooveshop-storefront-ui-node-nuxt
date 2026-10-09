@@ -51,7 +51,6 @@ export const DEFAULTS: Required<ModuleOptions> = {
     path: '/',
     readonly: false,
     sameSite: 'strict',
-    secure: Boolean(import.meta.env.PROD),
   },
   isAcceptNecessaryButtonEnabled: true,
   isControlButtonEnabled: true,

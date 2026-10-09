@@ -110,7 +110,7 @@ const [
       },
     },
   ),
-  useApi(
+  useApi<ListProductReviewsResponse>(
     `/api/products/${productId}/reviews`,
     {
       key: `productReviewsSchema${productId}`,

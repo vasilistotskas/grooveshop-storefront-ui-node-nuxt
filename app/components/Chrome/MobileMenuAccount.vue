@@ -25,7 +25,7 @@ const name = computed(() =>
 
 <template>
   <ULink
-    :to="localePath('/account')"
+    :to="localePath('account')"
     class="
       flex items-center gap-3 rounded-md border border-default bg-default
       p-3.5

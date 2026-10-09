@@ -1,5 +1,5 @@
 import type { FetchContext } from 'ofetch'
-import type { NuxtApp } from '#app'
+import type { $Fetch, NuxtApp } from '#app'
 
 type OnRequest = (context: FetchContext) => void | Promise<void>
 
@@ -51,12 +51,12 @@ export const useLazyApi = createUseFetch(callerOptions => ({
  * it forwards the visitor's request headers (host, cookies) to the local
  * route. Call it in setup scope, like `useRequestFetch`.
  */
-export function useRequestApi(): typeof $fetch {
+export function useRequestApi(): $Fetch {
   const requestFetch = useRequestFetch()
   const nuxtApp = useNuxtApp()
-  return ((request, options) =>
+  return ((...[request, options]: Parameters<$Fetch>) =>
     requestFetch(request, {
       ...options,
       onRequest: withPageLocale(nuxtApp, options?.onRequest),
-    })) as typeof $fetch
+    })) as $Fetch
 }

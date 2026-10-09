@@ -52,16 +52,16 @@ export function useFooterNavigation() {
   const defaultPrimary = computed<FooterLinkColumn[]>(() => {
     const shop: FooterLink[] = []
     if (catalogueEnabled.value) {
-      shop.push({ label: t('footer.all_products'), to: localePath('/products') })
+      shop.push({ label: t('footer.all_products'), to: localePath('products') })
     }
     if (tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value) {
-      shop.push({ label: t('offers'), to: localePath('/offers') })
+      shop.push({ label: t('offers'), to: localePath('offers') })
     }
     if (tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value) {
-      shop.push({ label: t('gift_cards'), to: localePath('/gift-cards') })
+      shop.push({ label: t('gift_cards'), to: localePath('gift-cards') })
     }
     if (tenantStore.loyaltyEnabled && loyaltyRuntimeEnabled.value) {
-      shop.push({ label: t('footer.rewards_programme'), to: localePath('/loyalty-program') })
+      shop.push({ label: t('footer.rewards_programme'), to: localePath('loyalty-program') })
     }
 
     const help: FooterLink[] = [
@@ -78,7 +78,7 @@ export function useFooterNavigation() {
   })
 
   const defaultSecondary = computed<FooterLink[]>(() => [
-    ...(tenantStore.blogEnabled ? [{ label: t('blog'), to: localePath('/blog') }] : []),
+    ...(tenantStore.blogEnabled ? [{ label: t('blog'), to: localePath('blog') }] : []),
     { label: t('footer.term_of_use'), to: localePath('terms-of-use') },
     { label: t('footer.privacy_policy'), to: localePath('privacy-policy') },
     { label: t('footer.cookies_policy'), to: localePath('cookies-policy') },

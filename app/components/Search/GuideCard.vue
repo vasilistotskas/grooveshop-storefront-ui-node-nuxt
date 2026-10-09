@@ -18,7 +18,7 @@ const { blogPostUrl } = useUrls()
 
 <template>
   <NuxtLink
-    :to="localePath(blogPostUrl(post.master, post.slug))"
+    :to="localePath({ path: blogPostUrl(post.master, post.slug) })"
     class="
       flex items-center gap-3.5 rounded-2xl border border-default bg-default
       p-3 transition-colors

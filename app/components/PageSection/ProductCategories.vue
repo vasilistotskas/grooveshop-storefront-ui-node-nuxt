@@ -70,7 +70,7 @@ const DESK_COLUMNS = [
     v-if="entries.length"
     :heading="label"
     :cta-text="t('all_products')"
-    :cta-link="localePath('/products')"
+    :cta-link="localePath('products')"
     :surface="surface"
   >
     <UCarousel

@@ -27,7 +27,7 @@ const { blogPostUrl } = useUrls()
 
 const title = computed(() => extractTranslated(props.post, 'title', locale.value) ?? '')
 const subtitle = computed(() => extractTranslated(props.post, 'subtitle', locale.value) ?? '')
-const url = computed(() => localePath(blogPostUrl(props.post.id, props.post.slug)))
+const url = computed(() => localePath({ path: blogPostUrl(props.post.id, props.post.slug) }))
 </script>
 
 <template>

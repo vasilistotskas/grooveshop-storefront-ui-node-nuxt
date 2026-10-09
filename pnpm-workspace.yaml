@@ -147,10 +147,10 @@ minimumReleaseAgeExclude:
   - '@nuxt/icon@2.3.1 || 2.5.0 || 2.5.1'
   - '@semantic-release/github@12.0.9'
   - '@stripe/stripe-js@9.9.0 || 9.14.0'
-  - vite@8.1.3
+  - vite@8.1.3 || 8.3.4
   - '@nuxtjs/i18n@10.4.1'
   - semantic-release@25.0.6
-  - '@iconify-json/lucide@1.2.119 || 1.2.123 || 1.2.126'
+  - '@iconify-json/lucide@1.2.119 || 1.2.123 || 1.2.126 || 1.2.141 || 1.2.142'
   - '@nuxt/devtools-kit@3.3.1'
   - '@nuxt/devtools-wizard@3.3.1'
   - '@nuxt/devtools@3.3.1'
@@ -160,16 +160,29 @@ minimumReleaseAgeExclude:
   - nuxtseo-shared@5.3.12 || 5.3.14 || 5.3.15
   - '@nuxt/scripts@1.3.4 || 1.3.9 || 1.3.10'
   - magic-string@1.2.0
-  - happy-dom@20.14.5
+  - happy-dom@20.14.5 || 20.14.6
   - yaml@2.9.1
+  - playwright-core@1.64.0
+  - vue-router@5.4.0
+  - nuxt-auth-utils@0.5.31
 # reka-ui's RatingItemIndicator decides whether a half-step is visible by
 # comparing VueUse's `useActiveElement()` with its own element. On the
 # server both are `undefined`, so `undefined === undefined` rendered every
 # half-step with opacity 1 and the client expected 0 — a hydration style
 # mismatch on every product card and testimonial that draws stars with
-# `step: 0.5` (44 warnings on the demo homepage, 2026-09-22). Unfixed
-# through reka-ui 2.10.5. The patch requires a real element before the
-# comparison counts. Drop it the day upstream does the same; pnpm refuses
-# to install if the pinned version moves without the patch moving with it.
+# `step: 0.5` (44 warnings on the demo homepage, 2026-09-22). Fixed
+# upstream in reka-ui 2.11.0 (unovue/reka-ui#2965), but @nuxt/ui pins
+# reka-ui exactly and still ships 2.10.5. Drop the patch with the @nuxt/ui
+# release that moves to reka-ui >= 2.11; pnpm refuses to install if the
+# pinned version moves without the patch moving with it.
+#
+# @nuxt/nitro-server 4.6.0 matches the renderer it must bundle against
+# POSIX paths only ("nuxt/dist"), so on Windows Nitro leaves
+# nuxt/dist/runtime/server/renderer external, `import.meta.dev` is never
+# replaced, and every SSR page in `nuxt dev` (and the e2e suite) answers
+# 500 "Either manifest or precomputed data must be provided"
+# (nuxt/nuxt#36467). The patch is upstream's hotfix nuxt/nuxt@21657c6fcf,
+# unreleased in 4.6.0; drop it with the release that ships it.
 patchedDependencies:
-  reka-ui@2.10.4: patches/reka-ui@2.10.4.patch
+  '@nuxt/nitro-server@4.6.0': patches/@nuxt__nitro-server@4.6.0.patch
+  reka-ui@2.10.5: patches/reka-ui@2.10.5.patch

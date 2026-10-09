@@ -122,7 +122,7 @@ const [
       },
     },
   ),
-  useApi(
+  useApi<ListProductReviewsResponse>(
     `/api/products/${productId}/reviews`,
     {
       key: `productReviewsSchema${productId}`,
@@ -300,7 +300,7 @@ async function showMoreReviews() {
   if (loadingReviews.value) return
   loadingReviews.value = true
   try {
-    const page = await $api(`/api/products/${productId}/reviews`, {
+    const page = await $api<ListProductReviewsResponse>(`/api/products/${productId}/reviews`, {
       query: { languageCode: locale.value, page: reviewPages.value.length + 2 },
     })
     reviewPages.value = [...reviewPages.value, page.results ?? []]
@@ -739,7 +739,7 @@ useSchemaOrg([
       },
       ...parentCrumbs.value.map(crumb => ({
         name: crumb.label,
-        item: localePath(crumb.to),
+        item: localePath(pathLocation(crumb.to)),
       })),
       {
         name: productName.value,

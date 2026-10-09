@@ -1,3 +1,5 @@
+import type { RouteMapI18n } from 'vue-router'
+
 export type AccountNavKey
   = | 'overview' | 'orders' | 'addresses' | 'favourites' | 'reviews'
     | 'notifications' | 'rewards' | 'gift_cards' | 'business' | 'newsletter'
@@ -17,7 +19,7 @@ export interface AccountNavItem {
 interface AccountNavEntry {
   key: AccountNavKey
   icon: string
-  route: 'account' | `account-${string}`
+  route: keyof RouteMapI18n
   /** Route base names this entry is active for, besides its own. */
   owns?: (name: string) => boolean
 }

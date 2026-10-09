@@ -1,10 +1,10 @@
 import type { NuxtModule } from 'nuxt/schema'
 import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
-import { DEFAULT_LOCALE } from './i18n/locales'
-import { version } from './package.json'
-import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender'
-import { FONT_FAMILY_NAMES, FONT_WEIGHTS } from './shared/theme/constants'
+import { DEFAULT_LOCALE } from './i18n/locales.ts'
+import packageJson from './package.json' with { type: 'json' }
+import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
+import { FONT_FAMILY_NAMES, FONT_WEIGHTS } from './shared/theme/constants.ts'
 
 // Style-ish module ids must never be captured by a codeSplitting group:
 // folding them into a named JS chunk makes Nuxt emit that chunk's CSS as
@@ -255,7 +255,7 @@ export default defineNuxtConfig({
       static: {
         origin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       },
-      version,
+      version: packageJson.version,
     },
   },
   routeRules: {
@@ -392,15 +392,12 @@ export default defineNuxtConfig({
     asyncContext: true,
     typedPages: true,
     inlineRouteRules: true,
-    viteEnvironmentApi: process.env.NODE_ENV !== 'test',
     crossOriginPrefetch: true,
     nitroAutoImports: true,
     emitRouteChunkError: 'automatic-immediate',
   },
   compatibilityDate: 'latest',
   nitro: {
-    // Server specs and their harness, type-checked in the server context.
-    typescript: { tsConfig: { include: ['../test/unit/server/**/*', '../test/helpers/nitro/**/*'] } },
     // Plugins listed here run BEFORE every module's server plugin (modules
     // append to this list, scanned server/plugins/ come after both). Only
     // what must see a request first belongs here; see the file.
@@ -413,10 +410,6 @@ export default defineNuxtConfig({
       '/chat': {
         target: `${process.env.NUXT_AGENT_GATEWAY_URL || 'http://localhost:8090'}/chat`,
       },
-    },
-    prerender: {
-      crawlLinks: false,
-      ignore: ['/_ipx/'],
     },
     imports: {
       dirs: [
@@ -574,9 +567,9 @@ export default defineNuxtConfig({
     // The root tsconfig references every Nuxt type context, so
     // `pnpm typecheck` checks each spec in the context of the code it
     // tests: these join `test/nuxt` in the app context, and the server
-    // specs join the server context (`nitro.typescript` above — Nuxt 4.5
-    // has no `serverTsConfig` yet).
-    tsConfig: { include: ['../test/unit/app/**/*', '../test/unit/shared/**/*', '../test/unit/openapi/**/*', '../test/unit/fixtures/**/*', '../test/unit/source-rules/**/*', '../test/unit/scripts/**/*', '../test/e2e/**/*'] },
+    // specs and their harness join the server context.
+    appTsConfig: { include: ['../test/unit/app/**/*', '../test/unit/shared/**/*', '../test/unit/openapi/**/*', '../test/unit/fixtures/**/*', '../test/unit/source-rules/**/*', '../test/unit/scripts/**/*', '../test/e2e/**/*'] },
+    serverTsConfig: { include: ['../test/unit/server/**/*', '../test/helpers/nitro/**/*'] },
   },
   debug: false,
   hooks: {
@@ -1163,6 +1156,10 @@ export default defineNuxtConfig({
   },
   ogImage: {
     enabled: false,
+  },
+  prerender: {
+    crawlLinks: false,
+    ignore: ['/_ipx/'],
   },
   // ``@nuxtjs/robots`` (shipped via @nuxtjs/seo). Defines explicit
   // User-agent groups so RFC 9309-aware crawlers (and isitagentready.com

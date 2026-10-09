@@ -59,7 +59,7 @@ const links = computed(() => props.items.filter(item => !item.children))
 
 async function go(path: string) {
   open.value = false
-  await navigateTo(localePath(path))
+  await navigateTo(localePath(pathLocation(path)))
 }
 
 // Any navigation closes the panel, including one started from a link
@@ -96,7 +96,7 @@ watch(() => route.fullPath, () => {
         <ChromeMobileMenuAccount v-if="loggedIn" />
         <UButton
           v-else
-          :to="localePath('/account/login')"
+          :to="localePath('account-login')"
           :label="t('login')"
           block
         />

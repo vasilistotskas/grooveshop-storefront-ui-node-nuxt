@@ -89,7 +89,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 
         <UButton
           v-if="hasLink"
-          :to="localePath(buttonLink!)"
+          :to="localePath(pathLocation(buttonLink!))"
           :label="buttonText"
           :color="isDarkBackground ? 'neutral' : 'secondary'"
           size="xl"

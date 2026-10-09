@@ -51,7 +51,7 @@ const [{ posts, hasPosts }, categoryName] = await Promise.all([
     :heading="heading || title || t('heading')"
     :subheading="subheading"
     :cta-text="ctaText || t('all_posts')"
-    :cta-link="ctaLink ? localePath(ctaLink) : localePath('/blog')"
+    :cta-link="ctaLink ? localePath(pathLocation(ctaLink)) : localePath('blog')"
     :surface="surface"
   >
     <BlogRail

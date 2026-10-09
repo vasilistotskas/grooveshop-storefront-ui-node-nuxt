@@ -223,7 +223,7 @@ least N of them, so it cannot go blind silently.
 - Types: `pnpm typecheck` checks every spec, each in the Nuxt type context
   of the code it tests (the root tsconfig references all four):
   `test/nuxt`, `test/e2e` and `test/unit/{app,shared,openapi,fixtures,
-  source-rules,scripts}` in the app context (`typescript.tsConfig` in
+  source-rules,scripts}` in the app context (`typescript.appTsConfig` in
   `nuxt.config.ts`); `test/unit/server` and `test/helpers/nitro` in the
-  server context (`nitro.typescript.tsConfig`). A new spec directory goes
+  server context (`typescript.serverTsConfig`). A new spec directory goes
   into one of those lists, or it is not type-checked.

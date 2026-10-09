@@ -1,4 +1,17 @@
-import type { RouteMapI18n } from 'vue-router'
+import { parsePath, parseQuery } from 'ufo'
+import type { RouteLocationAsPathGeneric, RouteMapI18n } from 'vue-router'
+
+/**
+ * A path known only at runtime (a CMS or menu link, a notification
+ * target, a URL builder's result) as the location `localePath` and
+ * `navigateTo` accept under typed routes, which take a route name or a
+ * location object, never a path string. The query and hash are split out
+ * because vue-router keeps only the pathname of `{ path }`.
+ */
+export function pathLocation(path: string): RouteLocationAsPathGeneric {
+  const { pathname, search, hash } = parsePath(path)
+  return { path: pathname, query: parseQuery(search), hash }
+}
 
 // Route NAMES, so they live with the app's typed routes: `RouteMapI18n`
 // exists only in the app context, and `satisfies` checks every entry

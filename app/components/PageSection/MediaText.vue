@@ -224,7 +224,7 @@ const bodyParts = computed(() => {
 
         <UButton
           v-if="ctaText && ctaLink"
-          :to="localePath(ctaLink)"
+          :to="localePath(pathLocation(ctaLink))"
           :label="ctaText"
           color="secondary"
           size="lg"

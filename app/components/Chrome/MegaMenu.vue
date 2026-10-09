@@ -30,7 +30,7 @@ const localePath = useLocalePath()
         class="flex flex-col gap-3"
       >
         <ULink
-          :to="localePath(category.to)"
+          :to="localePath(pathLocation(category.to))"
           class="
             flex items-center gap-1.5 text-base font-extrabold
             text-highlighted
@@ -45,7 +45,7 @@ const localePath = useLocalePath()
         <ULink
           v-for="child in category.children"
           :key="child.id"
-          :to="localePath(child.to)"
+          :to="localePath(pathLocation(child.to))"
           class="
             text-[0.9375rem] font-semibold text-muted
             hover:text-highlighted
@@ -58,7 +58,7 @@ const localePath = useLocalePath()
 
     <div class="flex flex-wrap gap-2.5 pb-7">
       <UButton
-        :to="localePath('/products')"
+        :to="localePath('products')"
         :label="t('all_products')"
         color="neutral"
         variant="outline"
@@ -80,7 +80,7 @@ const localePath = useLocalePath()
       />
       <UButton
         v-if="offersEnabled"
-        :to="localePath('/offers')"
+        :to="localePath('offers')"
         :label="t('on_offer')"
         color="neutral"
         variant="outline"

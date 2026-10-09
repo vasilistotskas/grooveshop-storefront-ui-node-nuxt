@@ -170,14 +170,14 @@ const hasContent = computed(
       >
         <UButton
           v-if="ctaText && ctaLink"
-          :to="localePath(ctaLink)"
+          :to="localePath(pathLocation(ctaLink))"
           :label="ctaText"
           color="secondary"
           size="xl"
         />
         <UButton
           v-if="secondaryCtaText && secondaryCtaLink"
-          :to="localePath(secondaryCtaLink)"
+          :to="localePath(pathLocation(secondaryCtaLink))"
           :label="secondaryCtaText"
           color="neutral"
           variant="outline"

@@ -64,7 +64,7 @@ async function onSelect(axisId: number, rawValue: unknown) {
   const valueId = Number(rawValue)
   if (Number.isNaN(valueId) || isCurrentValue(axisId, valueId)) return
   const target = resolveTarget(axisId, valueId)
-  if (target) await navigateTo(localePath(productUrl(target.id, target.slug)))
+  if (target) await navigateTo(localePath({ path: productUrl(target.id, target.slug) }))
 }
 
 const LEGEND = 'mb-3 text-sm font-bold text-highlighted'

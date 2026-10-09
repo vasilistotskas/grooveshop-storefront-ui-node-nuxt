@@ -8,9 +8,9 @@ import {
 } from '@nuxt/kit'
 
 import type { Nuxt } from '@nuxt/schema'
-import { version } from '../package.json'
-import type { ModuleOptions } from '../runtime/cookies/types'
-import { DEFAULTS } from '../runtime/cookies/types'
+import packageJson from '../package.json' with { type: 'json' }
+import type { ModuleOptions } from '../runtime/cookies/types.ts'
+import { DEFAULTS } from '../runtime/cookies/types.ts'
 
 const resolver = createResolver(import.meta.url)
 const cookiesDir = resolver.resolve('../runtime/cookies')
@@ -18,11 +18,17 @@ const cookiesDir = resolver.resolve('../runtime/cookies')
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: '@groove/nuxt-cookies',
-    version,
+    version: packageJson.version,
     configKey: 'cookieControl',
     compatibility: { nuxt: '^4.0.0' },
   },
-  defaults: DEFAULTS,
+  // `secure` depends on the build, so it is decided here, where the module
+  // runs, rather than in DEFAULTS: that file is also loaded by Node outside
+  // Vite, where `import.meta.env` does not exist.
+  defaults: nuxt => ({
+    ...DEFAULTS,
+    cookieOptions: { ...DEFAULTS.cookieOptions, secure: !nuxt.options.dev },
+  }),
 
   setup(moduleOptions: ModuleOptions, nuxt: Nuxt) {
     nuxt.options.alias['#cookie-control'] = cookiesDir

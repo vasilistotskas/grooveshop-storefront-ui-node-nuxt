@@ -1,5 +1,5 @@
 import type { FetchContext } from 'ofetch'
-import type { NuxtApp } from '#app'
+import type { $Fetch, NuxtApp } from '#app'
 
 /**
  * The `onRequest` hook that states the PAGE's locale on a request to the
@@ -44,5 +44,5 @@ export function pageLocaleHeader(nuxtApp: NuxtApp) {
  * is a singleton (`callWithNuxt` sets it once), and on the server
  * `experimental.asyncContext` carries it across awaits.
  */
-export const $api = ((request, options) =>
-  useNuxtApp().$api(request, options)) as typeof $fetch
+export const $api = ((...args: Parameters<$Fetch>) =>
+  useNuxtApp().$api(...args)) as $Fetch

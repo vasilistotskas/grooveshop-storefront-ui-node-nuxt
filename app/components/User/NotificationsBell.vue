@@ -50,7 +50,7 @@ const onNotificationClick = async (
   if (link) {
     markAsSeen([notificationUserId]).catch(() => {})
     setupNotifications().catch(() => {})
-    await navigateTo(localePath(link))
+    await navigateTo(localePath(pathLocation(link)))
     return
   }
   await markAsSeen([notificationUserId])

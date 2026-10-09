@@ -54,6 +54,16 @@ sidebar). Never put `definePageMeta`/`defineRouteRules` in a body (they are
 inert outside `pages/`), and never put visitor-facing markup in a shell.
 ESLint enforces both across bodies and pages (`eslint.config.mjs`: page macros are banned under `app/components/**`, and an un-awaited `usePageConfig` anywhere in `app/**`).
 
+**`localePath` takes a route name or a location, never a path string.** With
+typed pages, `@nuxtjs/i18n` types its argument as a name from `RouteMapI18n`
+or a location object; a path string still works at runtime only for backwards
+compatibility. A fixed destination is a name (`localePath('products')`,
+`localePath('account-login')`); a URL builder's result is `{ path: productUrl(…) }`;
+a path known only at runtime (CMS/menu links, notification targets, breadcrumb
+`to`) goes through `pathLocation()` (`app/utils/route.ts`), which keeps its
+`?query` and `#hash`. A bare `{ path }` would drop them, because vue-router
+keeps only the pathname of `path`.
+
 ## The frozen `webside` tree
 
 `app/components/variants/webside/**` is the storefront webside.gr renders

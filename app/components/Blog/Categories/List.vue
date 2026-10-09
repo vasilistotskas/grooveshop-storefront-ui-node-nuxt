@@ -88,7 +88,7 @@ watch(
           <h2 class="font-display text-xl font-bold text-highlighted">
             <NuxtLink
               v-if="category.slug"
-              :to="localePath(blogCategoryUrl(category))"
+              :to="localePath({ path: blogCategoryUrl(category) })"
               class="
                 after:absolute after:inset-0 after:rounded-[1.25rem]
                 focus-visible:outline-none

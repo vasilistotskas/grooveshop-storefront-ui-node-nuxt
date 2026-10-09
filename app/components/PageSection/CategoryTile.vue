@@ -16,7 +16,7 @@ const localePath = useLocalePath()
 
 <template>
   <ULink
-    :to="localePath(category.to)"
+    :to="localePath(pathLocation(category.to))"
     class="group flex h-full flex-col gap-3"
   >
     <div class="aspect-square overflow-hidden rounded-[0.875rem] bg-elevated">

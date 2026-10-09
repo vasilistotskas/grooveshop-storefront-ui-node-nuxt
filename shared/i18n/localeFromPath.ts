@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales'
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales.ts'
 
 // `/en`, `/en/`, `/en/products`, `/en-us/products` — the home page of a
 // prefixed locale carries no further segment, which a `(?=\/)` lookahead

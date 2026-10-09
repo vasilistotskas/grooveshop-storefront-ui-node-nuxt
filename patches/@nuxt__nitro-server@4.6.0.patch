@@ -1,0 +1,26 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 0d86f8fccdab0db68e996531b1609091683c5f5d..46537b010ddbdc9ddd389649d0beb46d3af85c9c 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -41,6 +41,10 @@ function resolveNitroCommand(command, options) {
+ function toArray(value) {
+ 	return Array.isArray(value) ? value : [value];
+ }
++const NUXT_DIST_RE = /\/node_modules\/nuxt(?:3|-nightly)?\/dist\//;
++function isNuxtDistId(id) {
++	return NUXT_DIST_RE.test(normalize(id));
++}
+ const NODE_MODULES_RE = /\/node_modules\//g;
+ /**
+ * Build the regex Nitro uses to skip transforming files under `node_modules`,
+@@ -741,9 +745,7 @@ async function bundle(nuxt) {
+ 					nuxt.options.buildDir
+ 				],
+ 				...nuxt.options.build.transpile.filter((i) => typeof i === "string"),
+-				"nuxt/dist",
+-				"nuxt3/dist",
+-				"nuxt-nightly/dist",
++				isNuxtDistId,
+ 				distDir,
+ 				...layerDirs.map((dirs) => join(dirs.app, "app.config"))
+ 			],

@@ -92,7 +92,7 @@ const title = (post: BlogPost) => extractTranslated(post, 'title', locale.value)
         "
       >
         <NuxtLink
-          :to="localePath(blogPostUrl(post.id, post.slug))"
+          :to="localePath({ path: blogPostUrl(post.id, post.slug) })"
           class="
             line-clamp-3
             after:absolute after:inset-0

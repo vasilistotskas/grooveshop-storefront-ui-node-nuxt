@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { useOrdering } from '~/composables/useOrdering'
-import type { EntityOrdering } from '~~/shared/types/ordering'
+import type { EntityOrdering } from '~/types/ordering'
 
 describe('useOrdering', () => {
   it('builds an ascending and a descending option per field, grouped by field', () => {

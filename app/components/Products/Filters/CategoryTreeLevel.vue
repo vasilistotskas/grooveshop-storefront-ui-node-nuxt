@@ -32,7 +32,7 @@ const isNextStep = computed(() => level.value > 0 && props.trailIds[level.value 
       class="flex flex-col gap-2"
     >
       <ULink
-        :to="localePath(node.to)"
+        :to="localePath(pathLocation(node.to))"
         :aria-current="node.id === currentId ? 'page' : undefined"
         class="flex items-baseline justify-between gap-3"
         :class="[

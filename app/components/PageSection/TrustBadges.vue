@@ -59,7 +59,7 @@ const visible = computed(() =>
         :is="badge.href ? 'ULink' : 'div'"
         v-for="badge in visible"
         :key="badge.label"
-        :to="badge.href ? localePath(badge.href) : undefined"
+        :to="badge.href ? localePath(pathLocation(badge.href)) : undefined"
         class="flex items-center gap-2.5 text-sm font-semibold text-highlighted"
       >
         <ImgWithFallback
@@ -105,7 +105,7 @@ const visible = computed(() =>
       >
         <component
           :is="badge.href ? 'ULink' : 'div'"
-          :to="badge.href ? localePath(badge.href) : undefined"
+          :to="badge.href ? localePath(pathLocation(badge.href)) : undefined"
           class="
             flex h-10 items-center gap-2.5 rounded-full border border-default
             bg-default px-3.5 text-sm font-semibold text-highlighted

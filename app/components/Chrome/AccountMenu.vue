@@ -114,14 +114,14 @@ const MENU_UI = { content: 'w-72' }
 
     <UButton
       v-else
-      :to="localePath('/account/login')"
+      :to="localePath('account-login')"
       :label="t('login')"
       size="sm"
     />
 
     <template #fallback>
       <UButton
-        :to="localePath('/account/login')"
+        :to="localePath('account-login')"
         :label="t('login')"
         size="sm"
       />

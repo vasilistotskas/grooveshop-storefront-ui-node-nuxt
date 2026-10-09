@@ -88,7 +88,7 @@ const productDescription = computed(() => {
 
 // `useUrls` returns locale-less route paths; the card linked every
 // English shopper to the Greek product page.
-const to = computed(() => localePath(productUrl(productId.value, product.value.slug)))
+const to = computed(() => localePath({ path: productUrl(productId.value, product.value.slug) }))
 
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 

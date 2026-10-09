@@ -105,7 +105,7 @@ const chips = computed(() => items.value.map((slide) => {
   if (!product) return undefined
   const was = productWasPrice(product, product.finalPrice)
   return {
-    to: localePath(productUrl(product.id, product.slug)),
+    to: localePath({ path: productUrl(product.id, product.slug) }),
     image: product.mainImagePath,
     name: extractTranslated(product, 'name', locale.value) ?? '',
     price: formatPrice(product.finalPrice),
@@ -302,7 +302,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                    because there is no copy to put a button in. -->
               <NuxtLink
                 v-if="!hasCopy(item) && item.ctaLink"
-                :to="localePath(item.ctaLink)"
+                :to="localePath(pathLocation(item.ctaLink))"
                 :aria-label="t('carousel.bannerLink')"
                 class="absolute inset-0"
               />
@@ -417,7 +417,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                 >
                   <UButton
                     v-if="item.ctaText && item.ctaLink"
-                    :to="localePath(item.ctaLink)"
+                    :to="localePath(pathLocation(item.ctaLink))"
                     :label="item.ctaText"
                     :size="ctaSize"
                     color="neutral"
@@ -430,7 +430,7 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                   />
                   <UButton
                     v-if="item.secondaryCtaText && item.secondaryCtaLink"
-                    :to="localePath(item.secondaryCtaLink)"
+                    :to="localePath(pathLocation(item.secondaryCtaLink))"
                     :label="item.secondaryCtaText"
                     :size="ctaSize"
                     color="neutral"
