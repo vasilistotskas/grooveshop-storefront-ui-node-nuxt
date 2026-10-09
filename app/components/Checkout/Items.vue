@@ -37,7 +37,7 @@ const nameOf = (item: CartItem) => extractTranslated(item.product, 'name', local
             :height="56"
             fit="cover"
             loading="lazy"
-            densities="x1"
+            densities="x1 x2"
             class="size-full object-cover"
           />
         </Anchor>

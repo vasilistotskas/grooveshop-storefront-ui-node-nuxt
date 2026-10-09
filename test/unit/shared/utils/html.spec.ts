@@ -4,8 +4,10 @@ import {
   decodeHtmlEntities,
   defaultHtmlImageConfig,
   htmlToPlainText,
+  PAGE_CONTENT_MAX_WIDTH,
   sanitizeRichHtml,
   stripCloudflareImagePrefix,
+  transformHtmlImages,
 } from '~~/shared/utils/html'
 
 describe('stripCloudflareImagePrefix', () => {
@@ -204,5 +206,83 @@ describe('sanitizeRichHtml', () => {
     expect(sanitizeRichHtml('')).toBe('')
     expect(sanitizeRichHtml(null)).toBe('')
     expect(sanitizeRichHtml(undefined)).toBe('')
+  })
+})
+
+describe('transformHtmlImages', () => {
+  const config = {
+    mediaStreamOrigin: 'https://assets.example.gr',
+    mediaStreamPath: '/media_stream-image',
+    allowedDomains: ['https://api.example.gr'],
+    maxWidth: 704,
+  }
+  const key = '/media/x/uploads/tinymce/a.png'
+  const url = (w: number, h: number) =>
+    `https://assets.example.gr/media_stream-image${key}/${w}/${h}/contain/entropy/transparent/0/80.avif`
+
+  it('bounds an image with no dimensions to the column, width only, with no 2x candidate', () => {
+    const out = transformHtmlImages(`<img src="https://api.example.gr${key}">`, config)
+
+    expect(out).toContain(`src="${url(704, 0)}"`)
+    // No authored width to fix its rendered size: a source narrower than
+    // the bound would come back identical for "2x" and draw at half size.
+    expect(out).not.toContain('srcset=')
+    expect(out).not.toContain('sizes=')
+    expect(out).not.toContain('/0/0/')
+    expect(out).not.toMatch(/\swidth=/)
+  })
+
+  it('caps an authored width at the bound and keeps the authored aspect', () => {
+    const out = transformHtmlImages(
+      `<img src="https://api.example.gr${key}" width="1408" height="704">`,
+      config,
+    )
+
+    expect(out).toContain(`src="${url(704, 352)}"`)
+    expect(out).toContain(`${url(1408, 704)} 1408w`)
+    // The author's own attributes are left as written
+    expect(out).toContain('width="1408"')
+    expect(out).toContain('height="704"')
+  })
+
+  it('requests a smaller authored width as written', () => {
+    const out = transformHtmlImages(
+      `<img src="https://api.example.gr${key}" width="300" height="150">`,
+      config,
+    )
+
+    expect(out).toContain(`src="${url(300, 150)}"`)
+    expect(out).toContain(`${url(600, 300)} 600w`)
+    expect(out).toContain('sizes="(max-width: 300px) 100vw, 300px"')
+  })
+
+  it('drops a non-pixel width and replaces an editor srcset', () => {
+    const out = transformHtmlImages(
+      `<img src="https://api.example.gr${key}" width="100%" srcset="/x.png 2x" sizes="50vw">`,
+      config,
+    )
+
+    expect(out).not.toContain('100%')
+    expect(out).not.toContain('/x.png')
+    expect(out).not.toContain('50vw')
+    expect(out).toContain(`src="${url(704, 0)}"`)
+  })
+
+  it('defaults the bound to the page content frame', () => {
+    const { maxWidth: _unset, ...withoutBound } = config
+    const out = transformHtmlImages(`<img src="https://api.example.gr${key}">`, withoutBound)
+
+    expect(out).toContain(`/${PAGE_CONTENT_MAX_WIDTH}/0/contain/`)
+  })
+
+  it('leaves images it does not own untouched', () => {
+    const external = '<img src="https://elsewhere.example/a.png" width="900">'
+    const svg = `<img src="https://api.example.gr/media/logo.svg">`
+    const data = '<img src="data:image/png;base64,AAAA">'
+    const optimized = `<img src="https://assets.example.gr/media_stream-image${key}/704/0/contain/entropy/transparent/0/80.avif">`
+
+    for (const tag of [external, svg, data, optimized]) {
+      expect(transformHtmlImages(tag, config)).toBe(tag)
+    }
   })
 })

@@ -202,7 +202,7 @@ defineExpose({
                     :format="'svg'"
                     :background="'transparent'"
                     alt=""
-                    densities="x1"
+                    densities="x1 x2"
                   />
                   <UIcon
                     v-else
