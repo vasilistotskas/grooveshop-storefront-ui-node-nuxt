@@ -30,7 +30,8 @@ export const cents = (value: number) => Math.round(value * 100) / 100
  * properties compute them (`product/models/product.py`: discount and
  * VAT are both taken off the NET price, `finalPrice = price + vat -
  * discount`), so `makeProduct({ price: 100, discountPercent: 10 })` is
- * self-consistent. An explicit override of a derived field wins.
+ * self-consistent. `offerKind` follows the discount the way the backend
+ * labels a markdown. An explicit override of a derived field wins.
  */
 export function makeProduct(overrides: Partial<Product> = {}): Product {
   const id = overrides.id ?? 1
@@ -71,6 +72,7 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     active: true,
     weight: { unit: 'g', value: 500 },
     discountPercent,
+    offerKind: discountPercent > 0 ? 'MARKDOWN' : null,
     discountValue,
     priceSavePercent: price > 0 ? (discountValue / price) * 100 : 0,
     vatPercent,

@@ -74,12 +74,20 @@ describe('Product/Card', () => {
 
   // One badge, most urgent first: cannot buy it, cheaper than usual,
   // new. Every product below is also new (ten days old).
-  it.each([
+  it.each<[string, Partial<Product>, { label: string, paint: string }]>([
     ['sold out beats everything', { stock: 0, discountPercent: 20 }, { label: 'Εξαντλήθηκε', paint: 'neutral-soft' }],
     ['a discount beats newness, in volt', { stock: 50, discountPercent: 12.6 }, { label: '−13%', paint: 'volt' }],
+    ['a promotion says "Offer", in volt, ahead of newness', { stock: 50, offerKind: 'PROMOTION' }, { label: 'Προσφορά', paint: 'volt' }],
+    ['sold out beats a promotion', { stock: 0, offerKind: 'PROMOTION' }, { label: 'Εξαντλήθηκε', paint: 'neutral-soft' }],
     ['a new product says so in ink', { stock: 50 }, { label: 'Νέο', paint: 'primary-solid' }],
   ])('badge: %s', async (_case, overrides, expected) => {
     expect(await badgeOf(makeProduct(overrides))).toEqual(expected)
+  })
+
+  it('shows no percentage unless the backend labels the discount a markdown', async () => {
+    const product = makeProduct({ stock: 50, discountPercent: 20, offerKind: null, createdAt: '2025-12-20T23:59:59Z' })
+
+    expect(await badgeOf(product)).toBeUndefined()
   })
 
   it('shows no badge on an ordinary product older than three weeks', async () => {
@@ -206,5 +214,20 @@ describe('Product/Card', () => {
     expect(wrapper.text()).toContain('4,0 · 14')
     expect(wrapper.text()).toContain('Νέο')
     expect(wrapper.text()).toContain('Μόνο 3 απέμειναν')
+  })
+
+  it.each([
+    ['a markdown', { discountPercent: 20, offerKind: 'MARKDOWN' as const }, '−20%'],
+    ['a promotion', { discountPercent: 0, offerKind: 'PROMOTION' as const }, 'Προσφορά'],
+  ])('badges a search hit that is %s as the home card does', async (_case, overrides, label) => {
+    const hit = makeProductSearchHit({ createdAt: null, ...overrides })
+
+    expect(await badgeOf(hit as unknown as Product)).toEqual({ label, paint: 'volt' })
+  })
+
+  it('badges nothing on a search hit with no offer', async () => {
+    const hit = makeProductSearchHit({ createdAt: null, discountPercent: 20, offerKind: null })
+
+    expect(await badgeOf(hit as unknown as Product)).toBeUndefined()
   })
 })

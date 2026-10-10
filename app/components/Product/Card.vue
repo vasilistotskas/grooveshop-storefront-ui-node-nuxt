@@ -9,8 +9,8 @@ import type { PropType } from 'vue'
  * photograph on a sunken tile, and under it the brand, the name, the
  * rating and the price — nothing boxed around them.
  *
- * The photograph carries one badge, by priority (sold out, a discount,
- * new); stock running low is a line under the price, where the shopper
+ * The photograph carries one badge, by priority (sold out, an offer —
+ * a markdown's percentage or "Offer" for a promotion — new); stock running low is a line under the price, where the shopper
  * is deciding. The buy button is ALWAYS visible, not revealed on hover —
  * a hover-only control does not exist on a touch screen: an "Add" pill
  * on the photograph from `sm` up, an icon button beside the price on a
@@ -104,10 +104,19 @@ const badge = computed(() => {
   if (outOfStock.value) {
     return { label: t('sold_out'), color: 'neutral' as const, variant: 'soft' as const, class: undefined }
   }
-  if ((product.value.discountPercent ?? 0) > 0) {
+  // A markdown names its percentage; a promotion has none to name.
+  if (product.value.offerKind === 'MARKDOWN' && (product.value.discountPercent ?? 0) > 0) {
     return {
       // U+2212, the minus sign the design sets, not a hyphen.
       label: `−${Math.round(product.value.discountPercent ?? 0)}%`,
+      color: 'neutral' as const,
+      variant: 'solid' as const,
+      class: 'bg-volt text-on-volt',
+    }
+  }
+  if (product.value.offerKind === 'PROMOTION') {
+    return {
+      label: t('offer'),
       color: 'neutral' as const,
       variant: 'solid' as const,
       class: 'bg-volt text-on-volt',
@@ -330,6 +339,7 @@ el:
   add_named: 'Προσθήκη του «{name}» στο καλάθι'
   sold_out: Εξαντλήθηκε
   new: Νέο
+  offer: Προσφορά
   only_n_left: 'Μόνο {count} απέμεινε | Μόνο {count} απέμειναν'
   notify_back: Ειδοποίησέ με όταν ξαναέρθει
   view_product: Προβολή προϊόντος
@@ -339,6 +349,7 @@ en:
   add_named: 'Add {name} to cart'
   sold_out: Sold out
   new: New
+  offer: Offer
   only_n_left: 'Only {count} left | Only {count} left'
   notify_back: Notify me when it's back
   view_product: View product

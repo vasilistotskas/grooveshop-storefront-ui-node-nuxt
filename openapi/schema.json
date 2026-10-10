@@ -23174,7 +23174,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Filter by payment method key (case-insensitive)"
+                        "description": "Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)"
                     },
                     {
                         "in": "query",
@@ -28398,7 +28398,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Filter by payment method key (case-insensitive)"
+                        "description": "Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)"
                     },
                     {
                         "in": "query",
@@ -30313,7 +30313,7 @@
                                 "VIVA_WALLET"
                             ]
                         },
-                        "description": "Filter by payment method key\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
+                        "description": "Φίλτρο ανά κλειδί τρόπου πληρωμής\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     {
                         "in": "query",
@@ -43761,7 +43761,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Comma-separated brand IDs (brand IN [ids])"
+                        "description": "Αναγνωριστικά μάρκας χωρισμένα με κόμμα (brand IN [ids])"
                     },
                     {
                         "in": "query",
@@ -43798,7 +43798,7 @@
                                 }
                             ]
                         },
-                        "description": "When true, only products with stock above zero"
+                        "description": "Όταν είναι true, μόνο προϊόντα με απόθεμα μεγαλύτερο από μηδέν"
                     },
                     {
                         "in": "query",
@@ -43875,7 +43875,7 @@
                                 }
                             ]
                         },
-                        "description": "When true, only products carrying a markdown (discount_percent > 0). Promotions are cart-level (coupons, scoped and windowed) and are not part of this filter."
+                        "description": "Όταν είναι true, μόνο προϊόντα σε προσφορά: με έκπτωση (discount_percent > 0) ή που καλύπτονται από ενεργή αυτόματη προσφορά σε συγκεκριμένα προϊόντα ή κατηγορίες (δεν μετρούν η δωρεάν αποστολή, οι προσφορές για όλη την παραγγελία και οι προσφορές με κωδικό κουπονιού)."
                     },
                     {
                         "in": "query",
@@ -57983,7 +57983,7 @@
                         "type": "number",
                         "format": "double",
                         "readOnly": true,
-                        "description": "VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here."
+                        "description": "ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ."
                     },
                     "totalItems": {
                         "oneOf": [
@@ -58192,7 +58192,7 @@
                     "personal": {
                         "type": "boolean",
                         "readOnly": true,
-                        "description": "Whether the code is reserved for this customer (assigned to their account or email) rather than offered to everyone."
+                        "description": "Αν ο κωδικός είναι δεσμευμένος για αυτόν τον πελάτη (αντιστοιχισμένος στον λογαριασμό ή το email του) αντί να προσφέρεται σε όλους."
                     },
                     "eligible": {
                         "type": "boolean",
@@ -58360,7 +58360,7 @@
                         "type": "number",
                         "format": "double",
                         "readOnly": true,
-                        "description": "VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here."
+                        "description": "ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ."
                     },
                     "totalItems": {
                         "oneOf": [
@@ -60290,6 +60290,17 @@
                         "type": "integer",
                         "nullable": true
                     },
+                    "offerKind": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OfferKindEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
+                    },
                     "stock": {
                         "type": "integer"
                     },
@@ -61731,6 +61742,14 @@
                 "enum": [
                     null
                 ]
+            },
+            "OfferKindEnum": {
+                "enum": [
+                    "MARKDOWN",
+                    "PROMOTION"
+                ],
+                "type": "string",
+                "description": "* `MARKDOWN` - Έκπτωση προϊόντος\n* `PROMOTION` - Ενεργή προσφορά"
             },
             "Order": {
                 "type": "object",
@@ -66730,7 +66749,7 @@
                             }
                         ],
                         "title": "Κλειδί",
-                        "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
+                        "description": "Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
                         "type": "boolean",
@@ -67704,7 +67723,7 @@
                         ],
                         "readOnly": true,
                         "title": "Κλειδί",
-                        "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
+                        "description": "Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
                         "type": "boolean",
@@ -67868,7 +67887,7 @@
                             }
                         ],
                         "title": "Κλειδί",
-                        "description": "Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
+                        "description": "Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet"
                     },
                     "active": {
                         "type": "boolean",
@@ -68342,6 +68361,17 @@
                             "$ref": "#/components/schemas/ProductAttribute"
                         },
                         "readOnly": true
+                    },
+                    "offerKind": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OfferKindEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -69495,6 +69525,17 @@
                         },
                         "readOnly": true
                     },
+                    "offerKind": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OfferKindEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
+                    },
                     "priceDropAlertsEnabled": {
                         "type": "boolean",
                         "readOnly": true,
@@ -69767,6 +69808,17 @@
                         },
                         "readOnly": true
                     },
+                    "offerKind": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OfferKindEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
+                    },
                     "priceDropAlertsEnabled": {
                         "type": "boolean",
                         "readOnly": true,
@@ -70007,6 +70059,7 @@
                     },
                     "isMain": {
                         "type": "boolean",
+                        "default": false,
                         "title": "Κύριο"
                     },
                     "sortOrder": {
@@ -70375,6 +70428,17 @@
                     "discountPercent": {
                         "type": "integer",
                         "nullable": true
+                    },
+                    "offerKind": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OfferKindEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
                     },
                     "stock": {
                         "type": "integer"
@@ -70907,6 +70971,17 @@
                             "$ref": "#/components/schemas/ProductAttribute"
                         },
                         "readOnly": true
+                    },
+                    "offerKind": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/OfferKindEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
                     },
                     "priceDropAlertsEnabled": {
                         "type": "boolean",
@@ -72655,12 +72730,12 @@
                     "deliveryDaysMin": {
                         "type": "integer",
                         "nullable": true,
-                        "description": "Fastest delivery in business days after dispatch, or null when the rate advertises no estimate. Pair with the public ``DISPATCH_CUTOFF`` setting for the 'order before HH:MM' line. Day counts only, never dates, so the response stays cacheable."
+                        "description": "Η ταχύτερη παράδοση σε εργάσιμες ημέρες μετά την αποστολή, ή null όταν η τιμή αποστολής δεν διαφημίζει εκτίμηση. Συνδυάστε με τη δημόσια ρύθμιση ``DISPATCH_CUTOFF`` για τη γραμμή «παραγγείλτε πριν τις ΩΩ:ΛΛ». Μόνο αριθμοί ημερών, ποτέ ημερομηνίες, ώστε η απάντηση να μπορεί να αποθηκεύεται στην cache."
                     },
                     "deliveryDaysMax": {
                         "type": "integer",
                         "nullable": true,
-                        "description": "Slowest delivery in business days after dispatch; null exactly when ``delivery_days_min`` is."
+                        "description": "Η πιο αργή παράδοση σε εργάσιμες ημέρες μετά την αποστολή· null ακριβώς όταν είναι και το ``delivery_days_min``."
                     },
                     "logoUrl": {
                         "type": "string",
