@@ -1,3 +1,10 @@
+# [3.242.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.4...v3.242.0) (2026-10-10)
+
+
+### Features
+
+* **chat:** show product cards in the shop assistant ([#95](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/95)) ([5537cea](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5537cea23516fd572ecd7bbaf27a60e47fca8bf8))
+
 ## [3.241.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.3...v3.241.4) (2026-10-09)
 
 
