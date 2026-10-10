@@ -1,3 +1,10 @@
+# [3.243.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.242.0...v3.243.0) (2026-10-10)
+
+
+### Features
+
+* **products:** badge promotions as an offer ([#96](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/96)) ([78d19b9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/78d19b9f789f2b99ed25c9a7264d63cc461488b8))
+
 # [3.242.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.241.4...v3.242.0) (2026-10-10)
 
 
