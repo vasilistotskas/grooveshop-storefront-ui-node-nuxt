@@ -47,8 +47,13 @@ const parts = computed(() => [
          it must be legible rather than tucked in with the rest. -->
     <strong
       v-if="inLiquidation"
-      class="block font-semibold text-warning"
+      class="flex items-center gap-1.5 font-semibold text-default"
     >
+      <UIcon
+        name="i-lucide-triangle-alert"
+        class="size-4 shrink-0 text-warning"
+        aria-hidden="true"
+      />
       {{ t('in_liquidation') }}
     </strong>
   </address>

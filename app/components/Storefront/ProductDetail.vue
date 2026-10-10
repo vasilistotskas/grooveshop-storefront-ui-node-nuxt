@@ -332,33 +332,9 @@ const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
 }
 
-// Wholesale price hydration — client-only, retail renders first then
-// swaps (cached/anonymous catalogue HTML must never carry a
-// per-customer price; see useB2BPricing).
-const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
-onMounted(() => {
-  if (product.value?.id) {
-    registerB2BPrice(product.value.id)
-  }
-})
-const b2bPrice = computed(() =>
-  product.value?.id ? b2bPriceFor(product.value.id) : undefined,
-)
-const isWholesalePrice = computed(() =>
-  !!b2bPrice.value
-  && Number(b2bPrice.value.finalPrice) < (product.value?.finalPrice ?? 0),
-)
-const displayFinalPrice = computed(() =>
-  isWholesalePrice.value && b2bPrice.value
-    ? Number(b2bPrice.value.finalPrice)
-    : product.value?.finalPrice,
-)
-
-// What the shopper would otherwise have paid — the number to strike
-// through (see productWasPrice for why it is not `product.price`).
-const wasPrice = computed(() =>
-  product.value ? productWasPrice(product.value, displayFinalPrice.value ?? product.value.finalPrice) : undefined,
-)
+// What this shopper pays and what to strike through: retail renders
+// first, the wholesale price swaps in after hydration (see useShopperPrice).
+const { displayFinalPrice, wasPrice } = useShopperPrice(() => product.value?.id, product)
 
 /**
  * The product's name in the best language it EXISTS in.
@@ -507,14 +483,15 @@ const startShare = async () => {
 }
 
 /**
- * The stock line under the variants. The dot and the words carry the
- * status together, in the Volt status colours, which read as text.
+ * The stock line under the variants. The dot carries the status colour
+ * (a fill); the words stay in the default text colour, since the status
+ * colours do not reach AA as text.
  */
 const stockLine = computed(() => {
-  if (productStock.value <= 0) return { label: t('out_of_stock'), tone: 'text-error', dot: 'bg-error' }
+  if (productStock.value <= 0) return { label: t('out_of_stock'), dot: 'bg-error' }
   const left = product.value ? lowStockLeft(product.value) : null
-  if (left) return { label: t('low_stock', { count: left }, left), tone: 'text-warning', dot: 'bg-warning' }
-  return { label: t('in_stock'), tone: 'text-success', dot: 'bg-success' }
+  if (left) return { label: t('low_stock', { count: left }, left), dot: 'bg-warning' }
+  return { label: t('in_stock'), dot: 'bg-success' }
 })
 
 /** What the discount saves, beside the struck price. */
@@ -880,8 +857,7 @@ useSchemaOrg([
 
           <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <p
-              class="flex items-center gap-2 text-sm font-bold"
-              :class="stockLine.tone"
+              class="flex items-center gap-2 text-sm font-bold text-default"
             >
               <span
                 class="size-2 rounded-full"

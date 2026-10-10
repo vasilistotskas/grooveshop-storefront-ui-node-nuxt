@@ -3,11 +3,25 @@ export interface ShopChatTool {
   status: 'running' | 'done'
 }
 
+/**
+ * A `products` event attached to the message it arrived in. `at` is how
+ * much of the message's text had streamed when it arrived, so the cards
+ * render where the assistant surfaced them rather than after the answer.
+ */
+export interface ShopChatProducts {
+  tool: string
+  query?: string
+  total?: number
+  ids: number[]
+  at: number
+}
+
 export interface ShopChatMessage {
   id: string
   role: 'user' | 'assistant'
   text: string
   tools?: ShopChatTool[]
+  products?: ShopChatProducts[]
 }
 
 export type ShopChatStatus = 'ready' | 'streaming' | 'error'
@@ -25,8 +39,9 @@ interface ChatDoneEvent {
  * (Traefik path-routes it to the gateway in production; a Nitro dev
  * proxy covers local dev). Contract: `delta` events stream assistant
  * text, `tool` events report tool activity as `{name, status}`
- * (running|done), `error` carries a localized message, `done` closes
- * the turn with `{conversationId, cartId?, cartMutated}`. Pre-stream
+ * (running|done), `products` lists the ids a product tool surfaced
+ * (`zChatProductsEvent`), `error` carries a localized message, `done`
+ * closes the turn with `{conversationId, cartId?, cartMutated}`. Pre-stream
  * failures are plain JSON `{error}` — 409 means the conversation hit
  * its turn cap and a fresh one must be started.
  *
@@ -104,6 +119,26 @@ export const useShopChat = () => {
       })
     }
 
+    const addProducts = (event: ChatProductsEvent) => {
+      messages.value = messages.value.map(m =>
+        m.id === assistantId
+          ? {
+              ...m,
+              products: [
+                ...(m.products ?? []),
+                {
+                  tool: event.tool,
+                  query: event.query,
+                  total: event.total,
+                  ids: event.products.map(product => product.id),
+                  at: m.text.length,
+                },
+              ],
+            }
+          : m,
+      )
+    }
+
     const failTurn = (msg: string) => {
       // Drop the empty assistant bubble so the error state is clean.
       messages.value = messages.value.filter(
@@ -154,6 +189,21 @@ export const useShopChat = () => {
         else if (event === 'tool') {
           const payload = JSON.parse(data) as ShopChatTool
           setTool(payload.name, payload.status)
+        }
+        else if (event === 'products') {
+          // Cards are an enhancement: a payload that does not fit the
+          // contract is dropped, never allowed to fail the turn.
+          let payload: unknown
+          try {
+            payload = JSON.parse(data)
+          }
+          catch {
+            return
+          }
+          const parsed = zChatProductsEvent.safeParse(payload)
+          if (parsed.success) {
+            addProducts(parsed.data)
+          }
         }
         else if (event === 'error') {
           const payload = JSON.parse(data) as { message: string }

@@ -155,8 +155,13 @@ const ready = computed(() =>
           </p>
           <p
             v-else
-            class="text-xs font-medium text-success-600 dark:text-success-400"
+            class="flex items-center gap-1 text-xs font-medium text-default"
           >
+            <UIcon
+              name="i-heroicons-check-circle"
+              class="size-4 text-success"
+              aria-hidden="true"
+            />
             {{ t('max_tier_reached') }}
           </p>
         </div>

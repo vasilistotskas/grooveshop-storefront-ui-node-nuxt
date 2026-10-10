@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { productWasPrice } from '~/utils/productPrice'
+import { productWasPrice, shopperFinalPrice } from '~/utils/productPrice'
 import { makeProduct } from '~~/test/fixtures/product'
 
 /**
@@ -40,5 +40,24 @@ describe('productWasPrice', () => {
     const product = makeProduct({ price: 50, vatPercent: 24, discountPercent: 0 })
 
     expect(productWasPrice(product, product.finalPrice)).toBeUndefined()
+  })
+})
+
+describe('shopperFinalPrice', () => {
+  it('is the retail price without a wholesale price', () => {
+    expect(shopperFinalPrice(124, undefined)).toBe(124)
+  })
+
+  it('is the wholesale price when it is below retail, as a number whatever its wire type', () => {
+    expect(shopperFinalPrice(124, { finalPrice: '90.00' as unknown as number })).toBe(90)
+  })
+
+  it('keeps retail when the wholesale price is not lower', () => {
+    expect(shopperFinalPrice(62, { finalPrice: 70 })).toBe(62)
+    expect(shopperFinalPrice(62, { finalPrice: 62 })).toBe(62)
+  })
+
+  it('keeps a missing retail price missing', () => {
+    expect(shopperFinalPrice(null, undefined)).toBeNull()
   })
 })

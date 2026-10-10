@@ -46,10 +46,10 @@ const localePath = useLocalePath()
           >
             <div class="flex items-start justify-between gap-3">
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-warning-900 dark:text-warning-100 truncate">
+                <p class="font-medium text-default truncate">
                   {{ item.productName }}
                 </p>
-                <p class="text-sm text-warning-700 dark:text-warning-300 mt-1">
+                <p class="text-sm text-toned mt-1">
                   {{ t('stock_error.requested_vs_available', {
                     requested: item.requested,
                     available: item.available,
