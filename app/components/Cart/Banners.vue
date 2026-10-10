@@ -2,7 +2,9 @@
 /**
  * What the cart page says above its lines: that free delivery has been
  * reached — or, until it is, how far the cart is from it — and, for each
- * offer the cart is a few euros short of, what it would take to unlock.
+ * offer the cart is just short of, what it would take to unlock: a few
+ * euros more, or a few more items (a minimum quantity, or the rest of a
+ * "2+1" group).
  *
  * The delivery threshold is the store's cheapest free-delivery carrier
  * (`useFreeShippingInfo`), so no carrier is named: the shopper picks one
@@ -12,7 +14,7 @@ const props = defineProps<{
   cartTotal: number
   /** The subtotal at which delivery turns free; 0 when the store has none. */
   threshold: number
-  nearMisses: Array<{ promotionId?: number, name?: string, remainingAmount?: number }>
+  nearMisses: Cart['promotionNearMiss']
 }>()
 
 const { t, n } = useI18n()
@@ -48,7 +50,12 @@ const qualified = computed(() => props.threshold > 0 && props.cartTotal >= props
         class="size-4 shrink-0"
         aria-hidden="true"
       />
-      <p>{{ t('near_miss', { amount: n(miss.remainingAmount || 0, 'currency'), name: miss.name }) }}</p>
+      <p v-if="miss.remainingQuantity !== null">
+        {{ t('near_miss_quantity', { count: miss.remainingQuantity, name: miss.name }, miss.remainingQuantity) }}
+      </p>
+      <p v-else-if="miss.remainingAmount !== null">
+        {{ t('near_miss', { amount: n(miss.remainingAmount, 'currency'), name: miss.name }) }}
+      </p>
     </div>
   </div>
 </template>
@@ -58,8 +65,10 @@ el:
   unlocked_title: Δωρεάν μεταφορικά
   unlocked_description: Η παραγγελία σου ξεπερνά τα {threshold}, άρα τα μεταφορικά είναι δικά μας.
   near_miss: Πρόσθεσε {amount} ακόμη και κέρδισε «{name}»
+  near_miss_quantity: 'Πρόσθεσε {count} ακόμη τεμάχιο και κέρδισε «{name}» | Πρόσθεσε {count} ακόμη τεμάχια και κέρδισε «{name}»'
 en:
   unlocked_title: Free delivery unlocked
   unlocked_description: Your order is over {threshold}, so delivery is on us.
   near_miss: Add {amount} more and get {name}
+  near_miss_quantity: 'Add {count} more item and get {name} | Add {count} more items and get {name}'
 </i18n>

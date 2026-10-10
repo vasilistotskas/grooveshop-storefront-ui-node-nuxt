@@ -422,10 +422,11 @@
       "discount_code_invalid": "The code is not valid",
       "discount_code_expired": "The offer has ended",
       "discount_code_not_started": "The offer has not started yet",
-      "discount_code_minimum_not_met": "Your basket does not reach the offer minimum",
+      "discount_code_minimum_not_met": "Your basket does not meet the offer minimum",
       "discount_code_usage_limit_reached": "The code has been used up",
       "discount_code_combination_disallowed": "The code cannot be combined with the active offers",
-      "discount_code_user_ineligible": "The code is not available for your account"
+      "discount_code_user_ineligible": "The code is not available for your account",
+      "discount_code_not_applicable": "Nothing in your basket is covered by this code"
     }
   },
   "account_nav": {

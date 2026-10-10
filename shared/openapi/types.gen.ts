@@ -2148,12 +2148,19 @@ export type Cart = {
     quantity?: number
   }>
   /**
-     * Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
+     * Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
      */
   readonly promotionNearMiss: Array<{
-    promotionId?: number
-    name?: string
-    remainingAmount?: number
+    promotionId: number
+    name: string
+    /**
+         * Subtotal still missing; null when the missing part is units
+         */
+    remainingAmount: number | null
+    /**
+         * Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+         */
+    remainingQuantity: number | null
   }>
   /**
      * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
@@ -2353,12 +2360,19 @@ export type CartDetail = {
     quantity?: number
   }>
   /**
-     * Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
+     * Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
      */
   readonly promotionNearMiss: Array<{
-    promotionId?: number
-    name?: string
-    remainingAmount?: number
+    promotionId: number
+    name: string
+    /**
+         * Subtotal still missing; null when the missing part is units
+         */
+    remainingAmount: number | null
+    /**
+         * Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+         */
+    remainingQuantity: number | null
   }>
   /**
      * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).

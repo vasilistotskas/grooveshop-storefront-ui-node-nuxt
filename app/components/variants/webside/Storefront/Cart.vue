@@ -415,7 +415,7 @@ useSeoMeta({
             <WebsideCheckoutCouponInput />
 
             <UAlert
-              v-for="miss in cart.promotionNearMiss || []"
+              v-for="miss in (cart.promotionNearMiss || []).filter(entry => entry.remainingAmount !== null)"
               :key="`miss-${miss.promotionId}`"
               icon="i-heroicons-sparkles"
               color="info"

@@ -3057,9 +3057,10 @@ export const zCart = z.object({
     quantity: z.int().optional(),
   })).readonly(),
   promotionNearMiss: z.array(z.object({
-    promotionId: z.int().optional(),
-    name: z.string().optional(),
-    remainingAmount: z.number().optional(),
+    promotionId: z.int(),
+    name: z.string(),
+    remainingAmount: z.number().nullable(),
+    remainingQuantity: z.int().nullable(),
   })).readonly(),
   b2bPricing: z.object({
     applied: z.boolean().optional(),
@@ -3107,9 +3108,10 @@ export const zCartDetail = z.object({
     quantity: z.int().optional(),
   })).readonly(),
   promotionNearMiss: z.array(z.object({
-    promotionId: z.int().optional(),
-    name: z.string().optional(),
-    remainingAmount: z.number().optional(),
+    promotionId: z.int(),
+    name: z.string(),
+    remainingAmount: z.number().nullable(),
+    remainingQuantity: z.int().nullable(),
   })).readonly(),
   b2bPricing: z.object({
     applied: z.boolean().optional(),

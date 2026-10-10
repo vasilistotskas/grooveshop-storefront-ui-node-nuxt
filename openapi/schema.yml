@@ -35301,7 +35301,18 @@ components:
                 type: string
               remainingAmount:
                 type: number
-          description: Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
+                nullable: true
+                description: Subtotal still missing; null when the missing part is units
+              remainingQuantity:
+                type: integer
+                nullable: true
+                description: Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+            required:
+              - promotionId
+              - name
+              - remainingAmount
+              - remainingQuantity
+          description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
           readOnly: true
         b2bPricing:
           type: object
@@ -35622,7 +35633,18 @@ components:
                 type: string
               remainingAmount:
                 type: number
-          description: Αυτόματες προσφορές που μπλοκάρονται μόνο από το ελάχιστο υποσύνολό τους — 'προσθέστε X ακόμα για ξεκλείδωμα'
+                nullable: true
+                description: Subtotal still missing; null when the missing part is units
+              remainingQuantity:
+                type: integer
+                nullable: true
+                description: Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+            required:
+              - promotionId
+              - name
+              - remainingAmount
+              - remainingQuantity
+          description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
           readOnly: true
         b2bPricing:
           type: object

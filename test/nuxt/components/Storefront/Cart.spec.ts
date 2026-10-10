@@ -140,7 +140,7 @@ describe('Storefront/Cart', () => {
     })
 
     it('nudges toward an offer the cart is short of', async () => {
-      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 4, name: 'POWER8', remainingAmount: 9.44 }] })
+      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 4, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null }] })
 
       const wrapper = await mountPage()
 

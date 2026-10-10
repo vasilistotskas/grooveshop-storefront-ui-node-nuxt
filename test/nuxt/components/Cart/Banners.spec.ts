@@ -20,7 +20,7 @@ const messages = YAML.parse(
 const words = (value: string) => value.replace(/\s+/g, '')
 const euro = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
-const mountBanners = (props: { cartTotal: number, threshold: number, nearMisses?: Array<{ promotionId?: number, name?: string, remainingAmount?: number }> }) =>
+const mountBanners = (props: { cartTotal: number, threshold: number, nearMisses?: Cart['promotionNearMiss'] }) =>
   mountSuspended(Banners, { props: { nearMisses: [], ...props }, route: false })
 
 describe('Cart/Banners', () => {
@@ -50,13 +50,31 @@ describe('Cart/Banners', () => {
       cartTotal: 10,
       threshold: 0,
       nearMisses: [
-        { promotionId: 1, name: 'POWER8', remainingAmount: 9.44 },
-        { promotionId: 2, name: 'AUDIO', remainingAmount: 3 },
+        { promotionId: 1, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null },
+        { promotionId: 2, name: 'AUDIO', remainingAmount: 3, remainingQuantity: null },
       ],
     })
 
     const text = words(wrapper.text())
     expect(text).toContain(words(messages.near_miss.replace('{amount}', euro(9.44)).replace('{name}', 'POWER8')))
     expect(text).toContain(words(messages.near_miss.replace('{amount}', euro(3)).replace('{name}', 'AUDIO')))
+  })
+
+  it('nudges by items when an offer is short of units, as a "2+1" with two in the cart', async () => {
+    const [one, many] = messages.near_miss_quantity.split('|').map((form: string) => form.trim())
+    const wrapper = await mountBanners({
+      cartTotal: 20,
+      threshold: 0,
+      nearMisses: [
+        { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1 },
+        { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2 },
+      ],
+    })
+
+    const text = words(wrapper.text())
+    expect(text).toContain(words(one.replace('{count}', '1').replace('{name}', '2+1')))
+    expect(text).toContain(words(many.replace('{count}', '2').replace('{name}', '-5%')))
+    // A units teaser never reads as "add 0,00 €".
+    expect(text).not.toContain(words(euro(0)))
   })
 })

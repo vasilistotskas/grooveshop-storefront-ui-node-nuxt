@@ -422,10 +422,11 @@
       "discount_code_invalid": "Ο κωδικός δεν είναι έγκυρος",
       "discount_code_expired": "Η προσφορά έχει λήξει",
       "discount_code_not_started": "Η προσφορά δεν έχει ξεκινήσει ακόμα",
-      "discount_code_minimum_not_met": "Το καλάθι δεν φτάνει το ελάχιστο ποσό της προσφοράς",
+      "discount_code_minimum_not_met": "Το καλάθι δεν πληροί την ελάχιστη προϋπόθεση της προσφοράς",
       "discount_code_usage_limit_reached": "Ο κωδικός έχει εξαντληθεί",
       "discount_code_combination_disallowed": "Ο κωδικός δεν συνδυάζεται με τις ενεργές προσφορές",
-      "discount_code_user_ineligible": "Ο κωδικός δεν είναι διαθέσιμος για τον λογαριασμό σου"
+      "discount_code_user_ineligible": "Ο κωδικός δεν είναι διαθέσιμος για τον λογαριασμό σου",
+      "discount_code_not_applicable": "Κανένα προϊόν του καλαθιού δεν καλύπτεται από αυτόν τον κωδικό"
     }
   },
   "account_nav": {
