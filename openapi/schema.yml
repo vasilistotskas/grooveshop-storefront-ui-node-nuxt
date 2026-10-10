@@ -13550,7 +13550,7 @@ paths:
           name: payWay_Key
           schema:
             type: string
-          description: Filter by payment method key (case-insensitive)
+          description: Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)
         - in: query
           name: paymentId
           schema:
@@ -16640,7 +16640,7 @@ paths:
           name: payWay_Key
           schema:
             type: string
-          description: Filter by payment method key (case-insensitive)
+          description: Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)
         - in: query
           name: paymentId
           schema:
@@ -17812,7 +17812,7 @@ paths:
               - STRIPE
               - VIVA_WALLET
           description: |-
-            Filter by payment method key
+            Φίλτρο ανά κλειδί τρόπου πληρωμής
 
             * `CREDIT_CARD` - Πιστωτική κάρτα
             * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -25836,7 +25836,7 @@ paths:
           name: brands
           schema:
             type: string
-          description: Comma-separated brand IDs (brand IN [ids])
+          description: Αναγνωριστικά μάρκας χωρισμένα με κόμμα (brand IN [ids])
         - in: query
           name: categories
           schema:
@@ -25858,7 +25858,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: When true, only products with stock above zero
+          description: Όταν είναι true, μόνο προϊόντα με απόθεμα μεγαλύτερο από μηδέν
         - in: query
           name: languageCode
           schema:
@@ -25899,7 +25899,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: When true, only products carrying a markdown (discount_percent > 0). Promotions are cart-level (coupons, scoped and windowed) and are not part of this filter.
+          description: 'Όταν είναι true, μόνο προϊόντα σε προσφορά: με έκπτωση (discount_percent > 0) ή που καλύπτονται από ενεργή αυτόματη προσφορά σε συγκεκριμένα προϊόντα ή κατηγορίες (δεν μετρούν η δωρεάν αποστολή, οι προσφορές για όλη την παραγγελία και οι προσφορές με κωδικό κουπονιού).'
         - in: query
           name: priceMax
           schema:
@@ -35211,7 +35211,7 @@ components:
           type: number
           format: double
           readOnly: true
-          description: VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
+          description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
         totalItems:
           oneOf:
             - type: integer
@@ -35384,7 +35384,7 @@ components:
         personal:
           type: boolean
           readOnly: true
-          description: Whether the code is reserved for this customer (assigned to their account or email) rather than offered to everyone.
+          description: Αν ο κωδικός είναι δεσμευμένος για αυτόν τον πελάτη (αντιστοιχισμένος στον λογαριασμό ή το email του) αντί να προσφέρεται σε όλους.
         eligible:
           type: boolean
           readOnly: true
@@ -35532,7 +35532,7 @@ components:
           type: number
           format: double
           readOnly: true
-          description: VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
+          description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
         totalItems:
           oneOf:
             - type: integer
@@ -37089,6 +37089,11 @@ components:
         discountPercent:
           type: integer
           nullable: true
+        offerKind:
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/OfferKindEnum'
+            - $ref: '#/components/schemas/NullEnum'
         stock:
           type: integer
         likesCount:
@@ -38293,6 +38298,14 @@ components:
     NullEnum:
       enum:
         - null
+    OfferKindEnum:
+      enum:
+        - MARKDOWN
+        - PROMOTION
+      type: string
+      description: |-
+        * `MARKDOWN` - Έκπτωση προϊόντος
+        * `PROMOTION` - Ενεργή προσφορά
     Order:
       type: object
       properties:
@@ -42107,7 +42120,7 @@ components:
             - $ref: '#/components/schemas/PayWayKeyEnum'
           title: Κλειδί
           description: |-
-            Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+            Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.
 
             * `CREDIT_CARD` - Πιστωτική κάρτα
             * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -42795,7 +42808,7 @@ components:
           readOnly: true
           title: Κλειδί
           description: |-
-            Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+            Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.
 
             * `CREDIT_CARD` - Πιστωτική κάρτα
             * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -42947,7 +42960,7 @@ components:
             - $ref: '#/components/schemas/PayWayKeyEnum'
           title: Κλειδί
           description: |-
-            Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+            Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.
 
             * `CREDIT_CARD` - Πιστωτική κάρτα
             * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -43348,6 +43361,11 @@ components:
           items:
             $ref: '#/components/schemas/ProductAttribute'
           readOnly: true
+        offerKind:
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/OfferKindEnum'
+            - $ref: '#/components/schemas/NullEnum'
       required:
         - attributes
         - brand
@@ -44200,6 +44218,11 @@ components:
           items:
             $ref: '#/components/schemas/ProductAttribute'
           readOnly: true
+        offerKind:
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/OfferKindEnum'
+            - $ref: '#/components/schemas/NullEnum'
         priceDropAlertsEnabled:
           type: boolean
           readOnly: true
@@ -44413,6 +44436,11 @@ components:
           items:
             $ref: '#/components/schemas/ProductAttribute'
           readOnly: true
+        offerKind:
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/OfferKindEnum'
+            - $ref: '#/components/schemas/NullEnum'
         priceDropAlertsEnabled:
           type: boolean
           readOnly: true
@@ -44595,6 +44623,7 @@ components:
           readOnly: true
         isMain:
           type: boolean
+          default: false
           title: Κύριο
         sortOrder:
           type: integer
@@ -44865,6 +44894,11 @@ components:
         discountPercent:
           type: integer
           nullable: true
+        offerKind:
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/OfferKindEnum'
+            - $ref: '#/components/schemas/NullEnum'
         stock:
           type: integer
         likesCount:
@@ -45304,6 +45338,11 @@ components:
           items:
             $ref: '#/components/schemas/ProductAttribute'
           readOnly: true
+        offerKind:
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/OfferKindEnum'
+            - $ref: '#/components/schemas/NullEnum'
         priceDropAlertsEnabled:
           type: boolean
           readOnly: true
@@ -46649,11 +46688,11 @@ components:
         deliveryDaysMin:
           type: integer
           nullable: true
-          description: Fastest delivery in business days after dispatch, or null when the rate advertises no estimate. Pair with the public ``DISPATCH_CUTOFF`` setting for the 'order before HH:MM' line. Day counts only, never dates, so the response stays cacheable.
+          description: Η ταχύτερη παράδοση σε εργάσιμες ημέρες μετά την αποστολή, ή null όταν η τιμή αποστολής δεν διαφημίζει εκτίμηση. Συνδυάστε με τη δημόσια ρύθμιση ``DISPATCH_CUTOFF`` για τη γραμμή «παραγγείλτε πριν τις ΩΩ:ΛΛ». Μόνο αριθμοί ημερών, ποτέ ημερομηνίες, ώστε η απάντηση να μπορεί να αποθηκεύεται στην cache.
         deliveryDaysMax:
           type: integer
           nullable: true
-          description: Slowest delivery in business days after dispatch; null exactly when ``delivery_days_min`` is.
+          description: Η πιο αργή παράδοση σε εργάσιμες ημέρες μετά την αποστολή· null ακριβώς όταν είναι και το ``delivery_days_min``.
         logoUrl:
           type: string
           format: uri

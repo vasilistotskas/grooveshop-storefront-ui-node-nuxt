@@ -2090,7 +2090,7 @@ export type Cart = {
   readonly totalPrice: number
   readonly totalDiscountValue: number
   /**
-     * VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
+     * ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
      */
   readonly totalVatValue: number
   /**
@@ -2201,7 +2201,7 @@ export type CartCoupon = {
      */
   readonly code: string
   /**
-     * Whether the code is reserved for this customer (assigned to their account or email) rather than offered to everyone.
+     * Αν ο κωδικός είναι δεσμευμένος για αυτόν τον πελάτη (αντιστοιχισμένος στον λογαριασμό ή το email του) αντί να προσφέρεται σε όλους.
      */
   readonly personal: boolean
   /**
@@ -2295,7 +2295,7 @@ export type CartDetail = {
   readonly totalPrice: number
   readonly totalDiscountValue: number
   /**
-     * VAT contained in total_price once promotion_discount is taken off. A price discount reduces the taxable base, so this is the figure the invoice will carry. Loyalty points are redeemed against the order and are not reflected here.
+     * ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
      */
   readonly totalVatValue: number
   /**
@@ -3248,6 +3248,7 @@ export type FederatedSearchResult = {
   finalPrice?: number | null
   price?: number | null
   discountPercent?: number | null
+  offerKind?: OfferKindEnum | NullEnum | null
   stock?: number
   likesCount?: number
   viewCount?: number
@@ -3983,6 +3984,12 @@ export type NotificationUserWriteRequest = {
 }
 
 export type NullEnum = never
+
+/**
+ * * `MARKDOWN` - Έκπτωση προϊόντος
+ * * `PROMOTION` - Ενεργή προσφορά
+ */
+export type OfferKindEnum = 'MARKDOWN' | 'PROMOTION'
 
 export type Order = {
   readonly id: number
@@ -6086,7 +6093,7 @@ export type PatchedPayWayWriteRequest = {
   /**
      * Κλειδί
      *
-     * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+     * Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.
      *
      * * `CREDIT_CARD` - Πιστωτική κάρτα
      * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -6597,7 +6604,7 @@ export type PayWay = {
   /**
      * Κλειδί
      *
-     * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+     * Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.
      *
      * * `CREDIT_CARD` - Πιστωτική κάρτα
      * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -6702,7 +6709,7 @@ export type PayWayWriteRequest = {
   /**
      * Κλειδί
      *
-     * Language-independent identifier of the payment method. The storefront resolves its label from this key, so it never depends on which languages the store has translated.
+     * Αναγνωριστικό του τρόπου πληρωμής ανεξάρτητο από τη γλώσσα. Το storefront παίρνει την ετικέτα του από αυτό το κλειδί, ώστε να μην εξαρτάται ποτέ από το ποιες γλώσσες έχει μεταφράσει το κατάστημα.
      *
      * * `CREDIT_CARD` - Πιστωτική κάρτα
      * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -6956,6 +6963,7 @@ export type Product = {
   readonly updatedAt: string
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
+  offerKind?: OfferKindEnum | NullEnum | null
 }
 
 export type ProductAlert = {
@@ -7422,6 +7430,7 @@ export type ProductDetail = {
   readonly updatedAt: string
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
+  offerKind?: OfferKindEnum | NullEnum | null
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
@@ -7527,6 +7536,7 @@ export type ProductDetailResponse = {
   readonly updatedAt: string
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
+  offerKind?: OfferKindEnum | NullEnum | null
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
@@ -7759,6 +7769,7 @@ export type ProductMeiliSearchResult = {
   finalPrice: number | null
   price: number | null
   discountPercent: number | null
+  offerKind?: OfferKindEnum | NullEnum | null
   stock: number
   likesCount: number
   viewCount: number
@@ -7999,6 +8010,7 @@ export type ProductRetrieve = {
   readonly updatedAt: string
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
+  offerKind?: OfferKindEnum | NullEnum | null
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
@@ -8814,11 +8826,11 @@ export type ShippingOption = {
      */
   exceedsMaxWeight: boolean
   /**
-     * Fastest delivery in business days after dispatch, or null when the rate advertises no estimate. Pair with the public ``DISPATCH_CUTOFF`` setting for the 'order before HH:MM' line. Day counts only, never dates, so the response stays cacheable.
+     * Η ταχύτερη παράδοση σε εργάσιμες ημέρες μετά την αποστολή, ή null όταν η τιμή αποστολής δεν διαφημίζει εκτίμηση. Συνδυάστε με τη δημόσια ρύθμιση ``DISPATCH_CUTOFF`` για τη γραμμή «παραγγείλτε πριν τις ΩΩ:ΛΛ». Μόνο αριθμοί ημερών, ποτέ ημερομηνίες, ώστε η απάντηση να μπορεί να αποθηκεύεται στην cache.
      */
   deliveryDaysMin: number | null
   /**
-     * Slowest delivery in business days after dispatch; null exactly when ``delivery_days_min`` is.
+     * Η πιο αργή παράδοση σε εργάσιμες ημέρες μετά την αποστολή· null ακριβώς όταν είναι και το ``delivery_days_min``.
      */
   deliveryDaysMax: number | null
   /**
@@ -12347,6 +12359,7 @@ export type ProductWritable = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  offerKind?: OfferKindEnum | NullEnum | null
 }
 
 export type ProductAlertWritable = {
@@ -12565,6 +12578,7 @@ export type ProductDetailWritable = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  offerKind?: OfferKindEnum | NullEnum | null
 }
 
 /**
@@ -12614,6 +12628,7 @@ export type ProductDetailResponseWritable = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  offerKind?: OfferKindEnum | NullEnum | null
 }
 
 export type ProductFavouriteWritable = {
@@ -12729,6 +12744,7 @@ export type ProductRetrieveWritable = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  offerKind?: OfferKindEnum | NullEnum | null
 }
 
 /**
@@ -19523,7 +19539,7 @@ export type ListOrderData = {
          */
     payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by payment method key (case-insensitive)
+         * Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)
          */
     payWay_Key?: string
     /**
@@ -20889,7 +20905,7 @@ export type ListMyOrdersData = {
          */
     payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by payment method key (case-insensitive)
+         * Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)
          */
     payWay_Key?: string
     /**
@@ -21531,7 +21547,7 @@ export type ListPayWayData = {
     /**
          * Κλειδί
          *
-         * Filter by payment method key
+         * Φίλτρο ανά κλειδί τρόπου πληρωμής
          *
          * * `CREDIT_CARD` - Πιστωτική κάρτα
          * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -25313,7 +25329,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     attributeValues?: string
     /**
-         * Comma-separated brand IDs (brand IN [ids])
+         * Αναγνωριστικά μάρκας χωρισμένα με κόμμα (brand IN [ids])
          */
     brands?: string
     /**
@@ -25325,7 +25341,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     facets?: string
     /**
-         * When true, only products with stock above zero
+         * Όταν είναι true, μόνο προϊόντα με απόθεμα μεγαλύτερο από μηδέν
          */
     inStock?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -25345,7 +25361,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     offset?: string | number
     /**
-         * When true, only products carrying a markdown (discount_percent > 0). Promotions are cart-level (coupons, scoped and windowed) and are not part of this filter.
+         * Όταν είναι true, μόνο προϊόντα σε προσφορά: με έκπτωση (discount_percent > 0) ή που καλύπτονται από ενεργή αυτόματη προσφορά σε συγκεκριμένα προϊόντα ή κατηγορίες (δεν μετρούν η δωρεάν αποστολή, οι προσφορές για όλη την παραγγελία και οι προσφορές με κωδικό κουπονιού).
          */
     onOffer?: 'true' | 'false' | '1' | '0' | boolean
     /**

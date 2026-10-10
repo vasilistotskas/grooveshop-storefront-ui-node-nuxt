@@ -1232,55 +1232,6 @@ export const zFederationMetadata = z.object({
 })
 
 /**
- * Serializer for individual federated search result.
- *
- * This combines fields from both ProductTranslation and BlogPostTranslation
- * with federation metadata.
- */
-export const zFederatedSearchResult = z.object({
-  id: z.int(),
-  languageCode: z.string(),
-  contentType: z.string(),
-  slug: z.string().optional(),
-  mainImagePath: z.string().optional(),
-  matchesPosition: z.unknown(),
-  rankingScore: z.number().nullable(),
-  formatted: z.unknown(),
-  name: z.string().optional(),
-  description: z.string().optional(),
-  finalPrice: z.number().nullish(),
-  price: z.number().nullish(),
-  discountPercent: z.int().nullish(),
-  stock: z.int().optional(),
-  likesCount: z.int().optional(),
-  viewCount: z.int().optional(),
-  reviewAverage: z.number().nullish(),
-  vatPercent: z.number().nullish(),
-  categoryName: z.string().nullish(),
-  brandName: z.string().nullish(),
-  reviewCount: z.int().optional(),
-  createdAt: z.iso.datetime({ offset: true }).nullish(),
-  lowStockThreshold: z.int().nullish(),
-  title: z.string().optional(),
-  subtitle: z.string().optional(),
-  body: z.string().optional(),
-  master: z.int().optional(),
-  federation: zFederationMetadata,
-})
-
-/**
- * Serializer for federated search response.
- */
-export const zFederatedSearchResponse = z.object({
-  queryId: z.uuid(),
-  relaxedQuery: z.string().nullable(),
-  limit: z.int(),
-  offset: z.int(),
-  estimatedTotalHits: z.int(),
-  results: z.array(zFederatedSearchResult),
-})
-
-/**
  * * `general` - Γενικά
  * * `website` - Ιστότοπος & UX
  * * `products` - Προϊόντα
@@ -1686,6 +1637,65 @@ export const zNotificationUserWriteRequest = z.object({
 })
 
 export const zNullEnum = z.unknown()
+
+/**
+ * * `MARKDOWN` - Έκπτωση προϊόντος
+ * * `PROMOTION` - Ενεργή προσφορά
+ */
+export const zOfferKindEnum = z.enum(['MARKDOWN', 'PROMOTION'])
+
+/**
+ * Serializer for individual federated search result.
+ *
+ * This combines fields from both ProductTranslation and BlogPostTranslation
+ * with federation metadata.
+ */
+export const zFederatedSearchResult = z.object({
+  id: z.int(),
+  languageCode: z.string(),
+  contentType: z.string(),
+  slug: z.string().optional(),
+  mainImagePath: z.string().optional(),
+  matchesPosition: z.unknown(),
+  rankingScore: z.number().nullable(),
+  formatted: z.unknown(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  finalPrice: z.number().nullish(),
+  price: z.number().nullish(),
+  discountPercent: z.int().nullish(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
+  stock: z.int().optional(),
+  likesCount: z.int().optional(),
+  viewCount: z.int().optional(),
+  reviewAverage: z.number().nullish(),
+  vatPercent: z.number().nullish(),
+  categoryName: z.string().nullish(),
+  brandName: z.string().nullish(),
+  reviewCount: z.int().optional(),
+  createdAt: z.iso.datetime({ offset: true }).nullish(),
+  lowStockThreshold: z.int().nullish(),
+  title: z.string().optional(),
+  subtitle: z.string().optional(),
+  body: z.string().optional(),
+  master: z.int().optional(),
+  federation: zFederationMetadata,
+})
+
+/**
+ * Serializer for federated search response.
+ */
+export const zFederatedSearchResponse = z.object({
+  queryId: z.uuid(),
+  relaxedQuery: z.string().nullable(),
+  limit: z.int(),
+  offset: z.int(),
+  estimatedTotalHits: z.int(),
+  results: z.array(zFederatedSearchResult),
+})
 
 /**
  * The acquisition signals the storefront captured for this tab.
@@ -2984,6 +2994,10 @@ export const zProduct = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
 })
 
 export const zCartItem = z.object({
@@ -3495,6 +3509,10 @@ export const zProductDetail = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
   priceDropAlertsEnabled: z.boolean().readonly(),
 })
 
@@ -3555,6 +3573,10 @@ export const zProductDetailResponse = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
   priceDropAlertsEnabled: z.boolean().readonly(),
 })
 
@@ -3622,7 +3644,7 @@ export const zProductImage = z.object({
   imageUrl: z.string().readonly(),
   imageSizeKb: z.number().readonly(),
   altText: z.string().readonly(),
-  isMain: z.boolean().optional(),
+  isMain: z.boolean().optional().default(false),
   sortOrder: z.int().readonly().nullable(),
   translations: z.object({
     el: z.object({
@@ -3728,6 +3750,10 @@ export const zProductMeiliSearchResult = z.object({
   finalPrice: z.number().nullable(),
   price: z.number().nullable(),
   discountPercent: z.int().nullable(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
   stock: z.int(),
   likesCount: z.int(),
   viewCount: z.int(),
@@ -4008,6 +4034,10 @@ export const zProductRetrieve = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
   priceDropAlertsEnabled: z.boolean().readonly(),
   ratingDistribution: z.array(zRatingDistribution).readonly(),
 })
@@ -7906,6 +7936,10 @@ export const zProductWritable = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
 })
 
 export const zPaginatedProductListWritable = z.object({
@@ -8131,6 +8165,10 @@ export const zProductDetailWritable = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
 })
 
 /**
@@ -8171,6 +8209,10 @@ export const zProductDetailResponseWritable = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
 })
 
 export const zProductFavouriteWritable = z.record(z.string(), z.unknown())
@@ -8199,7 +8241,7 @@ export const zProductFavouriteWriteWritable = z.object({
  */
 export const zProductImageWritable = z.object({
   image: z.url(),
-  isMain: z.boolean().optional(),
+  isMain: z.boolean().optional().default(false),
   translations: z.object({
     el: z.object({
       title: z.string().optional(),
@@ -8287,6 +8329,10 @@ export const zProductRetrieveWritable = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
+  offerKind: z.union([
+    zOfferKindEnum,
+    zNullEnum,
+  ]).nullish(),
 })
 
 /**

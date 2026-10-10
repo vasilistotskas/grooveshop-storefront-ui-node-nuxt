@@ -352,8 +352,9 @@ describe('Search/Modal (palette)', () => {
     it('shows a product\'s price, and its discount only when it has one', async () => {
       api.routes({
         '/api/search': answering(() => searchResponse([
-          makeProductSearchHit({ id: 1, name: 'Προϊόν 1', finalPrice: 41.5, discountPercent: 15 }),
+          makeProductSearchHit({ id: 1, name: 'Προϊόν 1', finalPrice: 41.5, discountPercent: 15, offerKind: 'MARKDOWN' }),
           makeProductSearchHit({ id: 2, name: 'Προϊόν 2', finalPrice: 27.9, discountPercent: 0 }),
+          makeProductSearchHit({ id: 3, name: 'Προϊόν 3', finalPrice: 30, discountPercent: 0, offerKind: 'PROMOTION' }),
         ], [])),
       })
 
@@ -363,6 +364,9 @@ describe('Search/Modal (palette)', () => {
       expect(optionTexts()[0]).toContain('−15%')
       expect(optionTexts()[1]).toContain(eur(27.9))
       expect(optionTexts()[1]).not.toContain('%')
+      expect(optionTexts()[1]).not.toContain('Προσφορά')
+      expect(optionTexts()[2]).toContain('Προσφορά')
+      expect(optionTexts()[2]).not.toContain('%')
     })
 
     it('names the category under a product that has one', async () => {
