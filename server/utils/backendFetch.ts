@@ -100,9 +100,23 @@ export function backendFetchFor({ tenantHost, locale, headers = {} }: BackendCal
   })
 }
 
+/**
+ * The id that ties this request to the Django calls it makes: the
+ * caller's `X-Correlation-ID` when it sent one, else evlog's `requestId`
+ * for this request. Browsers never send the header, so forwarding only
+ * an inbound value left Django minting a fresh id per call and no
+ * storefront request could be followed into Django's logs.
+ */
+function correlationIdOf(event: RequestEvent): string | undefined {
+  const inbound = getRequestHeader(event, 'x-correlation-id')
+  if (inbound) return inbound
+  const requestId = event.context.log?.getContext().requestId
+  return typeof requestId === 'string' && requestId ? requestId : undefined
+}
+
 /** A fetcher for Django calls made while answering `event`. */
 export function useBackendFetch(event: RequestEvent): $Fetch {
-  const correlationId = getRequestHeader(event, 'x-correlation-id')
+  const correlationId = correlationIdOf(event)
   return backendFetchFor({
     tenantHost: requestTenantHost(event),
     locale: requestLocale(event),
