@@ -426,7 +426,8 @@
       "discount_code_usage_limit_reached": "The code has been used up",
       "discount_code_combination_disallowed": "The code cannot be combined with the active offers",
       "discount_code_user_ineligible": "The code is not available for your account",
-      "discount_code_not_applicable": "Nothing in your basket is covered by this code"
+      "discount_code_not_applicable": "Nothing in your basket is covered by this code",
+      "discount_code_gift_unavailable": "The gift for this code is not available right now"
     }
   },
   "account_nav": {

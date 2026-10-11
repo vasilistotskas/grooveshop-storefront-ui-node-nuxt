@@ -426,7 +426,8 @@
       "discount_code_usage_limit_reached": "Ο κωδικός έχει εξαντληθεί",
       "discount_code_combination_disallowed": "Ο κωδικός δεν συνδυάζεται με τις ενεργές προσφορές",
       "discount_code_user_ineligible": "Ο κωδικός δεν είναι διαθέσιμος για τον λογαριασμό σου",
-      "discount_code_not_applicable": "Κανένα προϊόν του καλαθιού δεν καλύπτεται από αυτόν τον κωδικό"
+      "discount_code_not_applicable": "Κανένα προϊόν του καλαθιού δεν καλύπτεται από αυτόν τον κωδικό",
+      "discount_code_gift_unavailable": "Το δώρο αυτού του κωδικού δεν είναι διαθέσιμο αυτή τη στιγμή"
     }
   },
   "account_nav": {

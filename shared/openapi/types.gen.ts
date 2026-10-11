@@ -2137,6 +2137,28 @@ export type Cart = {
      */
   readonly appliedCouponCodes: Array<string>
   /**
+     * Τι κάνει αυτή τη στιγμή κάθε συνδεδεμένο κουπόνι για το καλάθι: το ποσό που αφαιρεί, τα δωρεάν μεταφορικά ή το δώρο που κερδίζει, ή γιατί το απορρίπτει ο μηχανισμός. Ένας κωδικός που δεν θα άλλαζε τίποτα απορρίπτεται, οπότε σε κάθε εγγραφή ισχύει ακριβώς ένα από τα τέσσερα.
+     */
+  readonly appliedCoupons: Array<{
+    code: string
+    /**
+         * Money this code takes off; 0 when its benefit is not money, or it is refused
+         */
+    amount: number
+    /**
+         * This code waives shipping
+         */
+    freeShipping: boolean
+    /**
+         * This code earns the gift listed in promotionGiftItems
+         */
+    gift: boolean
+    /**
+         * Why the engine refuses the attached code now; null while it applies
+         */
+    rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
+  }>
+  /**
      * Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
      */
   readonly promotionGiftItems: Array<{
@@ -2148,7 +2170,7 @@ export type Cart = {
     quantity?: number
   }>
   /**
-     * Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
+     * Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
      */
   readonly promotionNearMiss: Array<{
     promotionId: number
@@ -2158,9 +2180,13 @@ export type Cart = {
          */
     remainingAmount: number | null
     /**
-         * Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+         * Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group, or of a reward product); null when the missing part is subtotal
          */
     remainingQuantity: number | null
+    /**
+         * The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
+         */
+    rewardProducts: Array<PromotionProductRef>
   }>
   /**
      * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
@@ -2349,6 +2375,28 @@ export type CartDetail = {
      */
   readonly appliedCouponCodes: Array<string>
   /**
+     * Τι κάνει αυτή τη στιγμή κάθε συνδεδεμένο κουπόνι για το καλάθι: το ποσό που αφαιρεί, τα δωρεάν μεταφορικά ή το δώρο που κερδίζει, ή γιατί το απορρίπτει ο μηχανισμός. Ένας κωδικός που δεν θα άλλαζε τίποτα απορρίπτεται, οπότε σε κάθε εγγραφή ισχύει ακριβώς ένα από τα τέσσερα.
+     */
+  readonly appliedCoupons: Array<{
+    code: string
+    /**
+         * Money this code takes off; 0 when its benefit is not money, or it is refused
+         */
+    amount: number
+    /**
+         * This code waives shipping
+         */
+    freeShipping: boolean
+    /**
+         * This code earns the gift listed in promotionGiftItems
+         */
+    gift: boolean
+    /**
+         * Why the engine refuses the attached code now; null while it applies
+         */
+    rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
+  }>
+  /**
      * Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
      */
   readonly promotionGiftItems: Array<{
@@ -2360,7 +2408,7 @@ export type CartDetail = {
     quantity?: number
   }>
   /**
-     * Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
+     * Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
      */
   readonly promotionNearMiss: Array<{
     promotionId: number
@@ -2370,9 +2418,13 @@ export type CartDetail = {
          */
     remainingAmount: number | null
     /**
-         * Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+         * Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group, or of a reward product); null when the missing part is subtotal
          */
     remainingQuantity: number | null
+    /**
+         * The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
+         */
+    rewardProducts: Array<PromotionProductRef>
   }>
   /**
      * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).

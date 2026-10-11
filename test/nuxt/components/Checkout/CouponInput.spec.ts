@@ -55,10 +55,15 @@ function reject(data: Record<string, unknown> | undefined) {
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
 const text = (wrapper: VueWrapper) => wrapper.text().replace(/\u00A0/g, ' ')
 
-function withCoupon(code: string, amount: number | null, overrides: CartOverrides = {}): CartOverrides {
+type CouponRow = CartDetail['appliedCoupons'][number]
+
+/** A cart carrying one attached code, with what the engine says it does. */
+function withCoupon(code: string, row: Partial<CouponRow> = {}, overrides: CartOverrides = {}): CartOverrides {
+  const coupon: CouponRow = { code, amount: 0, freeShipping: false, gift: false, rejection: null, ...row }
   return {
     appliedCouponCodes: [code],
-    appliedPromotions: amount === null ? [] : [{ promotionId: 3, name: '-5€ σε αγορές από 49€', code, amount }],
+    appliedCoupons: [coupon],
+    appliedPromotions: coupon.amount > 0 ? [{ promotionId: 3, name: '-5€ σε αγορές από 49€', code, amount: coupon.amount }] : [],
     ...overrides,
   }
 }
@@ -102,7 +107,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
 
   describe('applying a code', () => {
     it('sends the trimmed code, re-reads the cart and shows the code as applied', async () => {
-      cartAfter = makeCart(withCoupon('WELCOME10', 5))
+      cartAfter = makeCart(withCoupon('WELCOME10', { amount: 5 }))
       const wrapper = await mount()
 
       await submitCode(wrapper, '  WELCOME10 ')
@@ -117,7 +122,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
     })
 
     it('confirms with the discount the code earned', async () => {
-      cartAfter = makeCart(withCoupon('WELCOME10', 5))
+      cartAfter = makeCart(withCoupon('WELCOME10', { amount: 5 }))
       const wrapper = await mount()
 
       await submitCode(wrapper, 'WELCOME10')
@@ -127,13 +132,22 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       expect(String(toasts()[0]!.description).replace(/\u00A0/g, ' ')).toBe('Έκπτωση 5,00 €')
     })
 
-    it('says so when the code took nothing off because a better offer applies', async () => {
-      cartAfter = makeCart(withCoupon('WELCOME10', null))
+    it('confirms free delivery for a code whose benefit is free shipping', async () => {
+      cartAfter = makeCart(withCoupon('SHIPFREE', { freeShipping: true }))
       const wrapper = await mount()
 
-      await submitCode(wrapper, 'WELCOME10')
+      await submitCode(wrapper, 'shipfree')
 
-      expect(toasts()[0]!.description).toBe('Δεν μείωσε το σύνολο — ισχύει ήδη καλύτερη προσφορά')
+      expect(toasts()[0]!.description).toBe(tree === 'webside' ? 'Η αποστολή σας είναι δωρεάν' : 'Η αποστολή σου είναι δωρεάν')
+    })
+
+    it('confirms the gift for a code whose benefit is a gift', async () => {
+      cartAfter = makeCart(withCoupon('GIFT', { gift: true }))
+      const wrapper = await mount()
+
+      await submitCode(wrapper, 'GIFT')
+
+      expect(toasts()[0]!.description).toBe(tree === 'webside' ? 'Το δώρο σας είναι στο καλάθι' : 'Το δώρο σου είναι στο καλάθι')
     })
 
     it('keeps the apply button disabled until something other than spaces is typed', async () => {
@@ -160,7 +174,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
 
   describe.runIf(tree === 'default')('the redesigned row', () => {
     it('names the applied code and says it is applied', async () => {
-      useCartStore().cart = makeCart(withCoupon('SAVE5', 5))
+      useCartStore().cart = makeCart(withCoupon('SAVE5', { amount: 5 }))
       const wrapper = await mount()
 
       expect(wrapper.find('.font-mono').text()).toBe('SAVE5')
@@ -211,6 +225,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       useCartStore().cart = makeCart({
         promotionDiscount: 39.98,
         appliedCouponCodes: ['SAVE5'],
+        appliedCoupons: [{ code: 'SAVE5', amount: 5, freeShipping: false, gift: false, rejection: null }],
         appliedPromotions: [
           { promotionId: 4, name: '-15% στην κατηγορία', code: null, amount: 14.99 },
           { promotionId: 5, name: '2+1 δώρο', code: null, amount: 19.99 },
@@ -225,22 +240,47 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       expect(wrapper.find('form').exists()).toBe(false)
     })
 
-    it('says a code earned nothing when a better offer won', async () => {
-      // The code lost the stacking comparison, so it has no entry.
-      useCartStore().cart = makeCart({
+    it('says why a code stopped applying, in the refusal vocabulary', async () => {
+      // The code lost the stacking comparison to a better automatic offer.
+      useCartStore().cart = makeCart(withCoupon('SAVE5', { rejection: 'discount_code_combination_disallowed' }, {
         promotionDiscount: 30,
-        appliedCouponCodes: ['SAVE5'],
         appliedPromotions: [{ promotionId: 9, name: 'Μεγάλη προσφορά', code: null, amount: 30 }],
-      })
+      }))
       const wrapper = await mount()
 
       expect(text(wrapper)).toContain('SAVE5')
-      expect(text(wrapper)).toContain('Ισχύει καλύτερη προσφορά')
+      expect(text(wrapper)).toContain(t('promotion.rejection.discount_code_combination_disallowed'))
       expect(text(wrapper)).not.toContain('30,00')
     })
 
+    it('shows free delivery for a free-shipping code, never "a better offer"', async () => {
+      // Demo store, 2026-10-11: SHIPFREE read "Ισχύει καλύτερη προσφορά"
+      // while it was waiving shipping, because the row only knew money.
+      useCartStore().cart = makeCart(withCoupon('SHIPFREE', { freeShipping: true }))
+      const wrapper = await mount()
+
+      expect(text(wrapper)).toContain('SHIPFREE')
+      expect(text(wrapper)).toContain(t('promotion.benefit.free_shipping'))
+      expect(text(wrapper)).not.toContain(t('promotion.rejection.discount_code_combination_disallowed'))
+    })
+
+    it('shows the gift for a gift code', async () => {
+      useCartStore().cart = makeCart(withCoupon('GIFT', { gift: true }))
+      const wrapper = await mount()
+
+      expect(text(wrapper)).toContain(t('promotion.benefit.free_gift'))
+    })
+
+    it('says when a gift code\'s gift ran out', async () => {
+      useCartStore().cart = makeCart(withCoupon('GIFT', { rejection: 'discount_code_gift_unavailable' }))
+      const wrapper = await mount()
+
+      expect(text(wrapper)).toContain(t('promotion.rejection.discount_code_gift_unavailable'))
+      expect(text(wrapper)).not.toContain(t('promotion.benefit.free_gift'))
+    })
+
     it('removes the code from its remove control and offers the field again', async () => {
-      useCartStore().cart = makeCart(withCoupon('SAVE5', 5))
+      useCartStore().cart = makeCart(withCoupon('SAVE5', { amount: 5 }))
       cartAfter = makeCart()
       const wrapper = await mount()
 
@@ -284,6 +324,14 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
   describe('wholesale carts', () => {
     const wholesale = (allowPromotions: boolean, appliedCouponCodes: string[] = []) => makeCart({
       appliedCouponCodes,
+      // Django refuses every code on a wholesale cart that does not stack.
+      appliedCoupons: appliedCouponCodes.map(code => ({
+        code,
+        amount: 0,
+        freeShipping: false,
+        gift: false,
+        rejection: 'discount_code_combination_disallowed' as const,
+      })),
       b2bPricing: { applied: true, groupName: 'Wholesale', allowPromotions, allowLoyalty: false },
     })
 

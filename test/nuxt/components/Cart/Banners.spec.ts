@@ -8,7 +8,7 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 /**
  * Above the cart's lines: free delivery reached (named for no carrier),
  * or the meter toward it, and one nudge per offer the cart is a few
- * euros short of.
+ * euros, a few items, or one reward product short of.
  */
 mockComponent('ShippingFreeShippingNotice', { template: '<div data-stub="meter" />' })
 
@@ -50,8 +50,8 @@ describe('Cart/Banners', () => {
       cartTotal: 10,
       threshold: 0,
       nearMisses: [
-        { promotionId: 1, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null },
-        { promotionId: 2, name: 'AUDIO', remainingAmount: 3, remainingQuantity: null },
+        { promotionId: 1, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [] },
+        { promotionId: 2, name: 'AUDIO', remainingAmount: 3, remainingQuantity: null, rewardProducts: [] },
       ],
     })
 
@@ -66,8 +66,8 @@ describe('Cart/Banners', () => {
       cartTotal: 20,
       threshold: 0,
       nearMisses: [
-        { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1 },
-        { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2 },
+        { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1, rewardProducts: [] },
+        { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2, rewardProducts: [] },
       ],
     })
 
@@ -76,5 +76,38 @@ describe('Cart/Banners', () => {
     expect(text).toContain(words(many.replace('{count}', '2').replace('{name}', '-5%')))
     // A units teaser never reads as "add 0,00 €".
     expect(text).not.toContain(words(euro(0)))
+  })
+
+  it('names the reward to add, linked, when what is missing is an offer\'s reward', async () => {
+    const [one, many] = messages.near_miss_reward.split('|').map((form: string) => form.trim())
+    const protector: PromotionProductRef = { id: 34, name: 'Τζαμάκι οθόνης', slug: 'tzamaki', mainImagePath: '' }
+    const glass: PromotionProductRef = { id: 35, name: 'Τζαμάκι privacy', slug: 'privacy', mainImagePath: '' }
+    const wrapper = await mountBanners({
+      cartTotal: 20,
+      threshold: 0,
+      nearMisses: [
+        { promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector] },
+        { promotionId: 8, name: 'Δεύτερο τζαμάκι', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector, glass] },
+      ],
+    })
+
+    const text = words(wrapper.text())
+    expect(text).toContain(words(one.replace('{name}', 'Θήκη + τζαμάκι -50%')))
+    expect(text).toContain(words(many.replace('{name}', 'Δεύτερο τζαμάκι')))
+    // Not the units wording: the shopper is told WHAT to add.
+    expect(text).not.toContain(words(messages.near_miss_quantity.split('|')[0].trim().replace('{count}', '1').replace('{name}', 'Θήκη + τζαμάκι -50%')))
+    const links = wrapper.findAll('a').map(link => link.attributes('title'))
+    expect(links).toEqual(['Τζαμάκι οθόνης', 'Τζαμάκι οθόνης', 'Τζαμάκι privacy'])
+  })
+
+  it('shows at most three reward products per teaser', async () => {
+    const rewards: PromotionProductRef[] = [1, 2, 3, 4].map(id => ({ id, name: `Τζαμάκι ${id}`, slug: `tzamaki-${id}`, mainImagePath: '' }))
+    const wrapper = await mountBanners({
+      cartTotal: 20,
+      threshold: 0,
+      nearMisses: [{ promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: rewards }],
+    })
+
+    expect(wrapper.findAll('a').map(link => link.attributes('title'))).toEqual(['Τζαμάκι 1', 'Τζαμάκι 2', 'Τζαμάκι 3'])
   })
 })

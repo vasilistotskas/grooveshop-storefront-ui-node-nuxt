@@ -15,7 +15,13 @@ const { rejectionMessage } = usePromotionOffer()
 const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
   fallback: false,
 })
-const appliedCodes = computed(() => cart.value?.appliedCouponCodes ?? [])
+// What each attached code does right now, as Django's engine decided
+// it: the money it takes off, free shipping, a gift, or why it is
+// refused. Reading only the money made a free-shipping code say "a
+// better offer applies".
+const couponRows = computed(() => cart.value?.appliedCoupons ?? [])
+const allRefused = computed(() =>
+  couponRows.value.every(row => row.rejection !== null))
 
 // Wholesale carts don't stack retail promotions unless the merchant
 // opts in (B2B_ALLOW_PROMOTIONS) — when they don't stack, the backend
@@ -30,26 +36,22 @@ const b2bSuppressesCoupons = computed(() => {
 const promotionsEnabled = computed(
   () => tenantStore.promotionsEnabled
     && promotionsRuntimeEnabled.value
-    && (!b2bSuppressesCoupons.value || appliedCodes.value.length > 0),
+    && (!b2bSuppressesCoupons.value || couponRows.value.length > 0),
 )
-// What THIS coupon earned, not what the cart saved in total.
-// `promotionDiscount` is the sum of every live promotion, so showing it
-// beside a code credited automatic offers to the coupon: a cart with
-// two automatic offers worth 34,98 € and a 5 € code read "SAVE5
-// −39,98 €". `appliedPromotions` is the per-offer breakdown, and a code
-// that lost the stacking comparison contributes no entry at all — so it
-// now reads as earning nothing instead of claiming someone else's money.
-const appliedPromotions = computed(() => cart.value?.appliedPromotions ?? [])
 
-const couponRows = computed(() => appliedCodes.value.map(code => ({
-  code,
-  amount: appliedPromotions.value
-    .filter(entry => entry.code === code)
-    .reduce((sum, entry) => sum + Number(entry.amount ?? 0), 0),
-})))
+type CouponRow = Cart['appliedCoupons'][number]
 
-const couponDiscount = computed(() =>
-  couponRows.value.reduce((sum, row) => sum + row.amount, 0))
+// Django accepts a code only when it changes the outcome, so a code it
+// just accepted always carries one of the three benefits.
+const appliedDescription = (row: CouponRow | undefined) => {
+  if (!row) return undefined
+  if (row.amount > 0) {
+    return t('applied_description', { amount: $i18n.n(row.amount, 'currency') })
+  }
+  if (row.freeShipping) return t('applied_free_shipping')
+  if (row.gift) return t('applied_gift')
+  return undefined
+}
 
 const couponSchema = z.object({
   code: z
@@ -67,19 +69,18 @@ const applyCoupon = async () => {
   couponError.value = null
   submitting.value = true
   try {
+    const code = formState.code.trim()
     await $api('/api/cart/coupon', {
       method: 'POST',
-      body: { code: formState.code.trim() },
+      body: { code },
     })
     await cartStore.refreshCart()
     formState.code = ''
     toast.add({
       title: t('applied_title'),
-      description: couponDiscount.value > 0
-        ? t('applied_description', {
-            amount: $i18n.n(couponDiscount.value, 'currency'),
-          })
-        : t('applied_no_discount'),
+      description: appliedDescription(
+        couponRows.value.find(row => row.code === code.toUpperCase()),
+      ),
       color: 'success',
       icon: 'i-heroicons-check-circle',
     })
@@ -127,10 +128,10 @@ const removeCoupon = async () => {
     </span>
 
     <UAlert
-      v-if="appliedCodes.length"
-      color="success"
+      v-if="couponRows.length"
+      :color="allRefused ? 'warning' : 'success'"
       variant="soft"
-      :title="t('applied_title')"
+      :title="allRefused ? t('refused_title') : t('applied_title')"
       icon="i-heroicons-ticket"
       :close="{ variant: 'link' }"
       @update:open="(value: boolean) => { if (!value) removeCoupon() }"
@@ -145,18 +146,30 @@ const removeCoupon = async () => {
             <span class="font-mono font-semibold tracking-wide">
               {{ row.code }}
             </span>
+            <span
+              v-if="row.rejection"
+              class="shrink-0 text-xs opacity-80"
+            >
+              {{ rejectionMessage(row.rejection) }}
+            </span>
             <strong
-              v-if="row.amount > 0"
+              v-else-if="row.amount > 0"
               class="shrink-0 text-success-700 dark:text-success-300"
             >
               -{{ $i18n.n(row.amount, 'currency') }}
             </strong>
-            <span
-              v-else
-              class="shrink-0 text-xs opacity-80"
+            <strong
+              v-else-if="row.freeShipping"
+              class="shrink-0 text-success-700 dark:text-success-300"
             >
-              {{ t('no_discount_better_offer') }}
-            </span>
+              {{ t('promotion.benefit.free_shipping') }}
+            </strong>
+            <strong
+              v-else-if="row.gift"
+              class="shrink-0 text-success-700 dark:text-success-300"
+            >
+              {{ t('promotion.benefit.free_gift') }}
+            </strong>
           </p>
         </div>
       </template>
@@ -222,8 +235,9 @@ el:
   apply: "Εφαρμογή"
   applied_title: "Το κουπόνι εφαρμόστηκε"
   applied_description: "Έκπτωση {amount}"
-  applied_no_discount: "Δεν μείωσε το σύνολο — ισχύει ήδη καλύτερη προσφορά"
-  no_discount_better_offer: "Ισχύει καλύτερη προσφορά"
+  applied_free_shipping: "Η αποστολή σας είναι δωρεάν"
+  applied_gift: "Το δώρο σας είναι στο καλάθι"
+  refused_title: "Το κουπόνι δεν εφαρμόζεται"
   validation:
     required: "Συμπληρώστε τον κωδικό"
     too_short: "Ο κωδικός είναι πολύ σύντομος"
@@ -235,8 +249,9 @@ en:
   apply: "Apply"
   applied_title: "Coupon applied"
   applied_description: "Discount {amount}"
-  applied_no_discount: "It did not reduce your total — a better offer already applies"
-  no_discount_better_offer: "A better offer applies"
+  applied_free_shipping: "Your delivery is free"
+  applied_gift: "Your gift is in your basket"
+  refused_title: "Coupon not applied"
   validation:
     required: "Enter the code"
     too_short: "The code is too short"

@@ -103,6 +103,7 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
     appliedPromotions: [],
     promotionFreeShipping: false,
     appliedCouponCodes: [],
+    appliedCoupons: [],
     promotionGiftItems: [],
     promotionNearMiss: [],
     b2bPricing: null,

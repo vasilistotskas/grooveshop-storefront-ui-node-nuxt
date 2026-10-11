@@ -35271,6 +35271,45 @@ components:
             type: string
           readOnly: true
           description: Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
+        appliedCoupons:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              amount:
+                type: number
+                description: Money this code takes off; 0 when its benefit is not money, or it is refused
+              freeShipping:
+                type: boolean
+                description: This code waives shipping
+              gift:
+                type: boolean
+                description: This code earns the gift listed in promotionGiftItems
+              rejection:
+                type: string
+                nullable: true
+                enum:
+                  - discount_code_invalid
+                  - discount_code_expired
+                  - discount_code_not_started
+                  - discount_code_minimum_not_met
+                  - discount_code_usage_limit_reached
+                  - discount_code_combination_disallowed
+                  - discount_code_user_ineligible
+                  - discount_code_not_applicable
+                  - discount_code_gift_unavailable
+                  - null
+                description: Why the engine refuses the attached code now; null while it applies
+            required:
+              - code
+              - amount
+              - freeShipping
+              - gift
+              - rejection
+          readOnly: true
+          description: 'Τι κάνει αυτή τη στιγμή κάθε συνδεδεμένο κουπόνι για το καλάθι: το ποσό που αφαιρεί, τα δωρεάν μεταφορικά ή το δώρο που κερδίζει, ή γιατί το απορρίπτει ο μηχανισμός. Ένας κωδικός που δεν θα άλλαζε τίποτα απορρίπτεται, οπότε σε κάθε εγγραφή ισχύει ακριβώς ένα από τα τέσσερα.'
         promotionGiftItems:
           type: array
           items:
@@ -35306,13 +35345,19 @@ components:
               remainingQuantity:
                 type: integer
                 nullable: true
-                description: Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+                description: Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group, or of a reward product); null when the missing part is subtotal
+              rewardProducts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PromotionProductRef'
+                description: The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
             required:
               - promotionId
               - name
               - remainingAmount
               - remainingQuantity
-          description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
+              - rewardProducts
+          description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
           readOnly: true
         b2bPricing:
           type: object
@@ -35349,6 +35394,7 @@ components:
           title: Τελευταία δραστηριότητα
       required:
         - appliedCouponCodes
+        - appliedCoupons
         - appliedPromotions
         - b2bPricing
         - createdAt
@@ -35603,6 +35649,45 @@ components:
             type: string
           readOnly: true
           description: Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
+        appliedCoupons:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              amount:
+                type: number
+                description: Money this code takes off; 0 when its benefit is not money, or it is refused
+              freeShipping:
+                type: boolean
+                description: This code waives shipping
+              gift:
+                type: boolean
+                description: This code earns the gift listed in promotionGiftItems
+              rejection:
+                type: string
+                nullable: true
+                enum:
+                  - discount_code_invalid
+                  - discount_code_expired
+                  - discount_code_not_started
+                  - discount_code_minimum_not_met
+                  - discount_code_usage_limit_reached
+                  - discount_code_combination_disallowed
+                  - discount_code_user_ineligible
+                  - discount_code_not_applicable
+                  - discount_code_gift_unavailable
+                  - null
+                description: Why the engine refuses the attached code now; null while it applies
+            required:
+              - code
+              - amount
+              - freeShipping
+              - gift
+              - rejection
+          readOnly: true
+          description: 'Τι κάνει αυτή τη στιγμή κάθε συνδεδεμένο κουπόνι για το καλάθι: το ποσό που αφαιρεί, τα δωρεάν μεταφορικά ή το δώρο που κερδίζει, ή γιατί το απορρίπτει ο μηχανισμός. Ένας κωδικός που δεν θα άλλαζε τίποτα απορρίπτεται, οπότε σε κάθε εγγραφή ισχύει ακριβώς ένα από τα τέσσερα.'
         promotionGiftItems:
           type: array
           items:
@@ -35638,13 +35723,19 @@ components:
               remainingQuantity:
                 type: integer
                 nullable: true
-                description: Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group); null when the missing part is subtotal
+                description: Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group, or of a reward product); null when the missing part is subtotal
+              rewardProducts:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PromotionProductRef'
+                description: The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
             required:
               - promotionId
               - name
               - remainingAmount
               - remainingQuantity
-          description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό ή τεμάχια) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
+              - rewardProducts
+          description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
           readOnly: true
         b2bPricing:
           type: object
@@ -35687,6 +35778,7 @@ components:
           description: Προτάσεις προϊόντων βάσει περιεχομένου καλαθιού
       required:
         - appliedCouponCodes
+        - appliedCoupons
         - appliedPromotions
         - b2bPricing
         - createdAt
