@@ -15579,7 +15579,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/OrderCancelError'
           description: ''
         '401':
           content:
@@ -38687,6 +38687,7 @@ components:
         canBeCanceled:
           type: boolean
           readOnly: true
+          description: 'Αν ο πελάτης μπορεί να ακυρώσει την παραγγελία τώρα: η κατάστασή της το επιτρέπει και ο courier δεν έχει ακόμη παραλάβει το δέμα. Προκύπτει από τοπικά δεδομένα, οπότε το ίδιο το αίτημα ακύρωσης ρωτά πάντα τον courier και μπορεί να απορριφθεί με ``error.type`` ``parcel_with_courier``.'
         isPaid:
           type: boolean
           readOnly: true
@@ -38804,6 +38805,36 @@ components:
 
             * `ucp` - ucp
             * `acp` - acp
+    OrderCancelError:
+      type: object
+      description: |-
+        The 400 body of ``POST /order/{id}/cancel``.
+
+        A refusal the order service types carries ``error.type``; any other
+        refusal (the order's status no longer allows a cancel) is ``detail``
+        alone, which is why ``error`` is optional.
+      properties:
+        detail:
+          type: string
+        error:
+          $ref: '#/components/schemas/OrderCancelErrorDetail'
+    OrderCancelErrorDetail:
+      type: object
+      properties:
+        type:
+          allOf:
+            - $ref: '#/components/schemas/OrderCancelErrorType'
+          description: |-
+            Σταθερός κωδικός για τον λόγο απόρριψης της ακύρωσης. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail``, που είναι στη γλώσσα του αιτήματος.
+
+            * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+      required:
+        - type
+    OrderCancelErrorType:
+      enum:
+        - parcel_with_courier
+      type: string
+      description: '* `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier'
     OrderCreateDocumentType:
       enum:
         - RECEIPT
@@ -39397,6 +39428,7 @@ components:
         canBeCanceled:
           type: boolean
           readOnly: true
+          description: 'Αν ο πελάτης μπορεί να ακυρώσει την παραγγελία τώρα: η κατάστασή της το επιτρέπει και ο courier δεν έχει ακόμη παραλάβει το δέμα. Προκύπτει από τοπικά δεδομένα, οπότε το ίδιο το αίτημα ακύρωσης ρωτά πάντα τον courier και μπορεί να απορριφθεί με ``error.type`` ``parcel_with_courier``.'
         isPaid:
           type: boolean
           readOnly: true

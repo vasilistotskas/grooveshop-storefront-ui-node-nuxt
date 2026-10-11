@@ -4247,6 +4247,9 @@ export type Order = {
      * How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.
      */
   deliveryMethod: OrderDeliveryMethod
+  /**
+     * Αν ο πελάτης μπορεί να ακυρώσει την παραγγελία τώρα: η κατάστασή της το επιτρέπει και ο courier δεν έχει ακόμη παραλάβει το δέμα. Προκύπτει από τοπικά δεδομένα, οπότε το ίδιο το αίτημα ακύρωσης ρωτά πάντα τον courier και μπορεί να απορριφθεί με ``error.type`` ``parcel_with_courier``.
+     */
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -4312,6 +4315,32 @@ export type OrderAttributionInputRequest = {
      */
   agentProtocol?: AgentProtocolEnum
 }
+
+/**
+ * The 400 body of ``POST /order/{id}/cancel``.
+ *
+ * A refusal the order service types carries ``error.type``; any other
+ * refusal (the order's status no longer allows a cancel) is ``detail``
+ * alone, which is why ``error`` is optional.
+ */
+export type OrderCancelError = {
+  detail?: string
+  error?: OrderCancelErrorDetail
+}
+
+export type OrderCancelErrorDetail = {
+  /**
+     * Σταθερός κωδικός για τον λόγο απόρριψης της ακύρωσης. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail``, που είναι στη γλώσσα του αιτήματος.
+     *
+     * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+     */
+  type: OrderCancelErrorType
+}
+
+/**
+ * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+ */
+export type OrderCancelErrorType = 'parcel_with_courier'
 
 /**
  * * `RECEIPT` - Απόδειξη
@@ -4752,6 +4781,9 @@ export type OrderDetail = {
      * How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.
      */
   deliveryMethod: OrderDeliveryMethod
+  /**
+     * Αν ο πελάτης μπορεί να ακυρώσει την παραγγελία τώρα: η κατάστασή της το επιτρέπει και ο courier δεν έχει ακόμη παραλάβει το δέμα. Προκύπτει από τοπικά δεδομένα, οπότε το ίδιο το αίτημα ακύρωσης ρωτά πάντα τον courier και μπορεί να απορριφθεί με ``error.type`` ``parcel_with_courier``.
+     */
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -20517,7 +20549,7 @@ export type CancelOrderData = {
 }
 
 export type CancelOrderErrors = {
-  400: ErrorResponse
+  400: OrderCancelError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse

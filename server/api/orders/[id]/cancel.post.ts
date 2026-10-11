@@ -27,6 +27,10 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCancelOrderResponse)
   }
   catch (error) {
-    handleError(event, error)
+    // A refused cancel carries `error.type` (`parcel_with_courier`: the
+    // courier already has the parcel) that the order page turns into
+    // its own message. A thrown error's body is stripped in production,
+    // so Django's 4xx body is returned as it came.
+    return forwardUpstreamClientError(event, error)
   }
 })

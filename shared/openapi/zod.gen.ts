@@ -1717,6 +1717,27 @@ export const zOrderAttributionInputRequest = z.object({
 })
 
 /**
+ * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+ */
+export const zOrderCancelErrorType = z.enum(['parcel_with_courier'])
+
+export const zOrderCancelErrorDetail = z.object({
+  type: zOrderCancelErrorType,
+})
+
+/**
+ * The 400 body of ``POST /order/{id}/cancel``.
+ *
+ * A refusal the order service types carries ``error.type``; any other
+ * refusal (the order's status no longer allows a cancel) is ``detail``
+ * alone, which is why ``error`` is optional.
+ */
+export const zOrderCancelError = z.object({
+  detail: z.string().optional(),
+  error: zOrderCancelErrorDetail.optional(),
+})
+
+/**
  * * `RECEIPT` - Απόδειξη
  * * `INVOICE` - Τιμολόγιο
  */

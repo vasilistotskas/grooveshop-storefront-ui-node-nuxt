@@ -214,6 +214,25 @@ describe('Storefront/Account/OrderDetail', () => {
     expect(fetches).toBe(2)
   })
 
+  it('says the parcel is with the courier when Django refuses the cancel for that', async () => {
+    cancelOrder.mockRejectedValueOnce(Object.assign(new Error('Bad Request'), {
+      statusCode: 400,
+      data: { detail: 'refused', error: { type: 'parcel_with_courier' } },
+    }))
+    const wrapper = await mountPage()
+
+    await button(wrapper, 'Ακύρωση παραγγελίας')!.trigger('click')
+    await flushPromises()
+    const confirm = [...document.body.querySelectorAll('button')].find(control => control.textContent?.trim() === 'Ναι, ακύρωσέ τη')!
+    confirm.click()
+    await flushPromises()
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      color: 'error',
+      description: expect.stringContaining('εταιρεία μεταφορών'),
+    }))
+  })
+
   it('offers no cancel once the order cannot be canceled', async () => {
     state.order = makeOrder({ id: 3, canBeCanceled: false })
 

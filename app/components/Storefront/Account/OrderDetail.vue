@@ -200,13 +200,17 @@ async function confirmCancel() {
   }
   catch (error) {
     const status = (error as { statusCode?: number })?.statusCode
-    log.error({ action: 'order:cancel', status, error })
+    const refusal = (error as { data?: OrderCancelError })?.data?.error?.type
+    log.error({ action: 'order:cancel', status, refusal, error })
     // The order moved on since the page loaded (or someone else
-    // canceled it): show its real state.
+    // canceled it): show its real state. A parcel the courier already
+    // has is its own reason, with what to do instead.
     const moved = status === 409 || status === 400
     toast.add({
       title: t('cancel.error_title'),
-      description: moved ? t('cancel.error_moved') : t('cancel.error_description'),
+      description: refusal === 'parcel_with_courier'
+        ? t('cancel.error_with_courier')
+        : moved ? t('cancel.error_moved') : t('cancel.error_description'),
       color: 'error',
       icon: 'i-lucide-circle-x',
     })
@@ -632,6 +636,7 @@ el:
     error_title: Η παραγγελία δεν ακυρώθηκε
     error_description: Κάτι πήγε στραβά. Δοκίμασε ξανά.
     error_moved: Η παραγγελία προχώρησε και δεν ακυρώνεται πια.
+    error_with_courier: Το δέμα σου είναι ήδη στην εταιρεία μεταφορών, οπότε η παραγγελία δεν ακυρώνεται πια. Επικοινώνησε με το κατάστημα για να κανονίσετε επιστροφή.
 en:
   title: "Order #{id}"
   placed: Placed {date} at {time}
@@ -685,4 +690,5 @@ en:
     error_title: The order was not canceled
     error_description: Something went wrong. Please try again.
     error_moved: The order has moved on and can no longer be canceled.
+    error_with_courier: Your parcel is already with the courier, so the order can no longer be canceled. Contact the store to arrange a return.
 </i18n>
