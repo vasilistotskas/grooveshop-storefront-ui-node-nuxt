@@ -161,7 +161,11 @@ describe('usePromotionOffer', () => {
     const { rejectionMessage } = usePromotionOffer()
 
     const known = rejectionMessage('discount_code_minimum_not_met')
-    expect(known).toContain('ελάχιστο ποσό')
+    // A minimum is an amount OR an item count, so the message names neither.
+    expect(known).toContain('ελάχιστη προϋπόθεση')
+
+    // A code whose products are not in the basket says exactly that.
+    expect(rejectionMessage('discount_code_not_applicable')).toContain('Κανένα προϊόν')
 
     // Django owns the vocabulary and can gain a value first; the
     // shopper must never be shown the raw key path.
