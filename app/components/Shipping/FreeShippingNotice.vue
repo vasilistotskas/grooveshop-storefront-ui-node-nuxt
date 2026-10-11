@@ -8,23 +8,28 @@
  * per-carrier mention on purpose — the shopper picks the carrier in
  * checkout; this is the store's promise, not a quote.
  *
- * The cart total is per visitor, so a caller on a cached page (the
- * product page) renders this on the client only.
+ * It reads the cart itself: the gross total, which checkout quotes
+ * delivery on (`orderValueAmount`), and whether a promotion — an
+ * automatic offer or a free-shipping coupon — already waives delivery,
+ * which checkout then charges at 0 (`useCheckoutTotals`). With SHIPFREE
+ * applied the meter used to ask for 17,63 € more. The cart is per
+ * visitor, so a caller on a cached page (the product page) renders this
+ * on the client only.
  */
-const props = defineProps<{
-  /** The cart's subtotal before shipping. */
-  cartTotal: number
-}>()
-
 const { t, n } = useI18n()
+const { cart } = storeToRefs(useCartStore())
 const { data, pending, error } = await useFreeShippingInfo()
 
+const cartTotal = computed(() => cart.value?.totalPrice ?? 0)
+const waived = computed(() => Boolean(cart.value?.promotionFreeShipping))
 const threshold = computed(() => data.value?.minThreshold ?? 0)
-const remaining = computed(() => Math.max(0, threshold.value - props.cartTotal))
+const remaining = computed(() =>
+  waived.value ? 0 : Math.max(0, threshold.value - cartTotal.value))
 const qualified = computed(() => remaining.value <= 0)
-const progress = computed(() =>
-  threshold.value > 0 ? Math.min(100, (props.cartTotal / threshold.value) * 100) : 0,
-)
+const progress = computed(() => {
+  if (qualified.value) return 100
+  return threshold.value > 0 ? Math.min(100, (cartTotal.value / threshold.value) * 100) : 0
+})
 
 const shouldRender = computed(() => !pending.value && !error.value && threshold.value > 0)
 </script>

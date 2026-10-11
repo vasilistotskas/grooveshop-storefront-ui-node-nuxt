@@ -4,6 +4,7 @@ import { clearNuxtData } from '#app'
 import FreeShippingNotice from '~/components/Shipping/FreeShippingNotice.vue'
 import WebsideFreeShippingNotice from '~/components/variants/webside/Shipping/FreeShippingNotice.vue'
 import { failWith } from '~~/test/helpers/api'
+import { makeCart } from '~~/test/fixtures/cart'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -91,32 +92,63 @@ describe('webside FreeShippingNotice', () => {
 
 /**
  * The Groove Volt meter: how far the cart is from the cheapest
- * free-delivery threshold, in a line over a progress bar. Both callers
- * pass the cart total — the product page from the client, since its
- * HTML is cached and the cart is per visitor.
+ * free-delivery threshold, in a line over a progress bar. It reads the
+ * cart from the store — the cart page, the drawer and the product page
+ * (from the client, since its HTML is cached and the cart is per
+ * visitor) all render the same meter.
  */
 describe('default FreeShippingNotice', () => {
   beforeEach(() => {
     clearNuxtData(INFO_KEY)
     api.routes({ [INFO_URL]: buildResponse() })
+    useCartStore().cart = null
   })
 
   const meter = (wrapper: Awaited<ReturnType<typeof mountSuspended>>) =>
     wrapper.get('[role="progressbar"]')
 
   it.each([
-    { cartTotal: 0, remaining: 30, value: '0' },
     { cartTotal: 22, remaining: 8, value: String((22 / 30) * 100) },
     { cartTotal: 29.99, remaining: 0.01, value: String((29.99 / 30) * 100) },
   ])('says what is left for a cart of $cartTotal and fills the meter that far', async ({ cartTotal, remaining, value }) => {
-    const wrapper = await mountSuspended(FreeShippingNotice, { route: false, props: { cartTotal } })
+    useCartStore().cart = makeCart({ totalPrice: cartTotal })
+    const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
 
     expect(wrapper.text()).toBe(`Σου λείπουν ${euro(remaining)} για δωρεάν μεταφορικά`)
     expect(meter(wrapper).attributes('aria-valuenow')).toBe(value)
   })
 
+  it('counts a visitor without a cart as 0 € into the threshold', async () => {
+    const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
+
+    expect(wrapper.text()).toBe(`Σου λείπουν ${euro(30)} για δωρεάν μεταφορικά`)
+    expect(meter(wrapper).attributes('aria-valuenow')).toBe('0')
+  })
+
   it.each([30, 50])('says delivery is free at or past the threshold (cart of %s), the meter full', async (cartTotal) => {
-    const wrapper = await mountSuspended(FreeShippingNotice, { route: false, props: { cartTotal } })
+    useCartStore().cart = makeCart({ totalPrice: cartTotal })
+    const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
+
+    expect(wrapper.text()).toBe('Τα μεταφορικά σου είναι δωρεάν')
+    expect(meter(wrapper).attributes('aria-valuenow')).toBe('100')
+  })
+
+  // Checkout quotes delivery on the gross total (`orderValueAmount`), so
+  // measuring the discounted subtotal told a shopper who already ships
+  // free that they were still short of it.
+  it('measures free delivery on the total checkout quotes it on', async () => {
+    api.routes({ [INFO_URL]: buildResponse({ minThreshold: 120 }) })
+    useCartStore().cart = makeCart({ totalPrice: 100, promotionDiscount: 60 })
+    const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
+
+    expect(wrapper.text()).toBe(`Σου λείπουν ${euro(20)} για δωρεάν μεταφορικά`)
+  })
+
+  // Demo store, 2026-10-11: with SHIPFREE applied the meter still asked
+  // for 17,63 € more, while checkout charged nothing for delivery.
+  it('says delivery is free when a promotion already waives it, below the threshold', async () => {
+    useCartStore().cart = makeCart({ totalPrice: 12.37, promotionFreeShipping: true })
+    const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
 
     expect(wrapper.text()).toBe('Τα μεταφορικά σου είναι δωρεάν')
     expect(meter(wrapper).attributes('aria-valuenow')).toBe('100')
@@ -129,7 +161,8 @@ describe('default FreeShippingNotice', () => {
   ])('renders nothing when $name', async ({ reply }) => {
     api.routes({ [INFO_URL]: reply })
 
-    const wrapper = await mountSuspended(FreeShippingNotice, { route: false, props: { cartTotal: 10 } })
+    useCartStore().cart = makeCart({ totalPrice: 10 })
+    const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
 
     expect(wrapper.text()).toBe('')
     expect(wrapper.find('[role="progressbar"]').exists()).toBe(false)

@@ -39,10 +39,7 @@ const qualified = computed(() => props.threshold > 0 && props.cartTotal >= props
       :title="t('unlocked_title')"
       :description="t('unlocked_description', { threshold: n(threshold, 'currency') })"
     />
-    <ShippingFreeShippingNotice
-      v-else
-      :cart-total="cartTotal"
-    />
+    <ShippingFreeShippingNotice v-else />
 
     <div
       v-for="miss in nearMisses"

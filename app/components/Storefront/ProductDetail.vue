@@ -927,10 +927,7 @@ useSchemaOrg([
           <!-- The cart is per visitor and this page is cached. A visitor
                without a cart is 0 € into the threshold. -->
           <ClientOnly>
-            <ShippingFreeShippingNotice
-              v-if="cartStore.loaded"
-              :cart-total="cartStore.cart?.totalPrice ?? 0"
-            />
+            <ShippingFreeShippingNotice v-if="cartStore.loaded" />
           </ClientOnly>
 
           <!-- Promotions that apply to THIS product, resolved by Django

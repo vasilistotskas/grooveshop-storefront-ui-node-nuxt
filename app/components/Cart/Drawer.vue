@@ -129,9 +129,7 @@ const UDrawer = resolveComponent('UDrawer')
       </div>
 
       <template v-else>
-        <!-- The gross total, as checkout quotes delivery on it
-             (`orderValueAmount`) and every other meter reads it. -->
-        <ShippingFreeShippingNotice :cart-total="cart?.totalPrice ?? 0" />
+        <ShippingFreeShippingNotice />
 
         <ul class="flex flex-col divide-y divide-default">
           <li

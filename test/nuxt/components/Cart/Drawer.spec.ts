@@ -28,7 +28,7 @@ mockNuxtImport('useRoute', () => () => route.value)
 // The line row, the add button and the free-delivery meter have their own specs.
 mockComponent('CartItemCard', { props: { cartItem: Object, compact: Boolean }, template: '<div data-row :data-compact="compact">{{ cartItem.id }}</div>' })
 mockComponent('ButtonProductAddToCart', { props: ['product', 'text'], template: '<button data-add>{{ text }}</button>' })
-mockComponent('ShippingFreeShippingNotice', { props: { cartTotal: Number }, template: '<p data-meter>{{ cartTotal }}</p>' })
+mockComponent('ShippingFreeShippingNotice', { template: '<p data-meter />' })
 
 const messages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Cart/Drawer.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
@@ -95,17 +95,6 @@ describe('Cart/Drawer', () => {
     expect(text()).toContain(money(80))
     expect(link(messages.view_cart)!.getAttribute('href')).toBe('/cart')
     expect(link(messages.checkout)!.getAttribute('href')).toBe('/checkout')
-  })
-
-  // Checkout quotes delivery on the gross total (`orderValueAmount`), so
-  // measuring the discounted subtotal told a shopper who already ships
-  // free that they were still short of it.
-  it('measures free delivery on the total checkout quotes it on', async () => {
-    useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { id: 1, price: 100, vatPercent: 0 } }], promotionDiscount: 60 })
-
-    await mountDrawer()
-
-    expect(panel().querySelector('[data-meter]')!.textContent).toBe('100')
   })
 
   // Checkout sends a cart with a stock problem straight back to the cart.
