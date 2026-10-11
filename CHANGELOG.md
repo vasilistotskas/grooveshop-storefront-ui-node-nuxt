@@ -1,3 +1,10 @@
+## [3.243.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.2...v3.243.3) (2026-10-11)
+
+
+### Bug Fixes
+
+* **shipping:** the free-delivery meter honours a promotion's free shipping ([5530737](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5530737acab1dee85abfc2e6f0732b1153f94439))
+
 ## [3.243.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.1...v3.243.2) (2026-10-11)
 
 
