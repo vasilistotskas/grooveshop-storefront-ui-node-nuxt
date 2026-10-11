@@ -268,6 +268,8 @@ export interface TestRequestLogger {
   readonly level: string | undefined
   set: (fields: Record<string, unknown>) => void
   setLevel: (level: string) => void
+  /** evlog's accessor for the fields set so far (`requestId` among them in production). */
+  getContext: () => Record<string, unknown>
 }
 
 export function createRequestLogger(): TestRequestLogger {
@@ -285,6 +287,9 @@ export function createRequestLogger(): TestRequestLogger {
     },
     setLevel(next) {
       level = next
+    },
+    getContext() {
+      return fields
     },
   }
 }

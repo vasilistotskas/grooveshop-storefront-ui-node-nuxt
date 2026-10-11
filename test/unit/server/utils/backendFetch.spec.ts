@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { backendFetchFor, isInternalBackendUrl, useBackendFetch } from '~~/server/utils/backendFetch'
-import { backend, createRequestEvent, setRuntimeConfig } from '~~/test/helpers/nitro'
+import { backend, createRequestEvent, loggerOf, setRuntimeConfig } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
 
 const API = 'http://backend.test/api/v1'
@@ -45,6 +45,29 @@ describe('useBackendFetch', () => {
 
   it('relays the request correlation id', async () => {
     expect((await send(undefined, {}, { headers: { 'x-correlation-id': 'req-42' } })).get('x-correlation-id')).toBe('req-42')
+  })
+
+  // Browsers never send X-Correlation-ID; without evlog's requestId Django
+  // minted a fresh id per call and no storefront request could be
+  // followed into its logs.
+  it('sends the evlog requestId as the correlation id when the caller sent none', async () => {
+    const event = createRequestEvent()
+    loggerOf(event).set({ requestId: 'evlog-req-7' })
+    backend.reply({ ok: true })
+
+    await useBackendFetch(event)(`${API}/contact`)
+
+    expect(backend.lastRequest.headers.get('x-correlation-id')).toBe('evlog-req-7')
+  })
+
+  it('keeps an inbound correlation id over the evlog requestId', async () => {
+    const event = createRequestEvent({ headers: { 'x-correlation-id': 'upstream-1' } })
+    loggerOf(event).set({ requestId: 'evlog-req-7' })
+    backend.reply({ ok: true })
+
+    await useBackendFetch(event)(`${API}/contact`)
+
+    expect(backend.lastRequest.headers.get('x-correlation-id')).toBe('upstream-1')
   })
 
   it('never overwrites a header the caller set', async () => {
