@@ -1,3 +1,10 @@
+## [3.243.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.0...v3.243.1) (2026-10-11)
+
+
+### Bug Fixes
+
+* **cart:** tease offers that are short of items, and name inapplicable codes ([3200ece](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3200ece1451ba233d3a9d26a2e1abd91bfc61c77))
+
 # [3.243.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.242.0...v3.243.0) (2026-10-10)
 
 
