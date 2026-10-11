@@ -1,3 +1,10 @@
+## [3.243.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.3...v3.243.4) (2026-10-11)
+
+
+### Bug Fixes
+
+* **logging:** send the request id to Django and capture browser errors ([#98](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/98)) ([a1a91cf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a1a91cf5453c7a60a7c1713ea9fcfc2e37e4602e)), closes [#97](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/97)
+
 ## [3.243.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.2...v3.243.3) (2026-10-11)
 
 
