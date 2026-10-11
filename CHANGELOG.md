@@ -1,3 +1,10 @@
+## [3.243.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.1...v3.243.2) (2026-10-11)
+
+
+### Bug Fixes
+
+* **checkout:** say what each coupon does, and name the reward to add ([750acdc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/750acdc15bba7c4306d58f04267fbfad97be435b))
+
 ## [3.243.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.0...v3.243.1) (2026-10-11)
 
 
