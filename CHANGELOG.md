@@ -1,3 +1,10 @@
+## [3.243.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.8...v3.243.9) (2026-10-12)
+
+
+### Bug Fixes
+
+* **orders:** read the order's amountDue ([#105](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/105)) ([f0bc552](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f0bc552aaecebddac92a0d8c34fcdd9fc17c7f9c)), closes [#158](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/158)
+
 ## [3.243.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.7...v3.243.8) (2026-10-12)
 
 
