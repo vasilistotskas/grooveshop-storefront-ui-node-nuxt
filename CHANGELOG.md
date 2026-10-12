@@ -1,3 +1,10 @@
+## [3.243.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.4...v3.243.5) (2026-10-12)
+
+
+### Bug Fixes
+
+* **products:** count attribute values with the selection Django needs ([#100](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/100)) ([3ad5e68](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3ad5e688d084f4769f3d1c089371e57af776d328)), closes [#151](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/151)
+
 ## [3.243.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.3...v3.243.4) (2026-10-11)
 
 
