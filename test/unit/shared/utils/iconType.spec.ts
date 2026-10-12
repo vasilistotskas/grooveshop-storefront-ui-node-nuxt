@@ -17,6 +17,7 @@ describe('iconMimeType', () => {
     ['no extension', 'https://cdn.test/icon'],
     ['a dot only in the query', 'https://cdn.test/icon?file=a.png'],
     ['a dot only in the host', 'https://cdn.png/icon'],
+    ['an extension named like a prototype property', 'https://cdn.test/icon.constructor'],
   ])('declares none for %s, so the browser sniffs the file', (_case, url) => {
     expect(iconMimeType(url)).toBeUndefined()
   })
