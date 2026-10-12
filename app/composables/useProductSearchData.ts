@@ -194,8 +194,12 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // ============================================
   // ATTRIBUTE VALUE FACETS (product counts per attribute value)
   // ============================================
-  // Fetch attribute value facets based on current filters (excluding attribute values)
-  // This shows how many products match each attribute value given other filters.
+  // How many products each attribute value would show. Unlike the
+  // other facets this one carries its own selection: values of one
+  // attribute combine with OR and different attributes with AND, so a
+  // selected colour must narrow the sizes' counts but not the other
+  // colours'. Django applies exactly that per attribute (disjunctive
+  // facets), which a query without the selection could not express.
   // The scoped category joins the URL's category filter, as it does in
   // the listing's own query (Products/List.vue).
   const attributeFacetCategories = computed(() => scopedCategories(filters.value.categories, scopeCategory.value))
@@ -206,6 +210,7 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
     priceMax: filters.value.priceMax,
     likesMin: filters.value.likesMin,
     viewsMin: filters.value.viewsMin,
+    attributeValues: filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined,
     categories: attributeFacetCategories.value.length > 0 ? attributeFacetCategories.value.join(',') : undefined,
     brands: brandsParam.value,
     ...availabilityQuery.value,
@@ -214,7 +219,7 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
     limit: 1,
   }))
 
-  // Create a unique key based on filter values (excluding attribute values)
+  // A unique key for every filter the attribute facet query sends
   const attributeFacetKey = computed(() => {
     const params = new URLSearchParams()
     if (filters.value.search) params.set('q', filters.value.search)
@@ -222,6 +227,7 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
     if (filters.value.priceMax !== undefined) params.set('priceMax', filters.value.priceMax.toString())
     if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
     if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
+    if (filters.value.attributeValues.length > 0) params.set('attributeValues', filters.value.attributeValues.join(','))
     if (attributeFacetCategories.value.length > 0) params.set('categories', attributeFacetCategories.value.join(','))
     if (brandsParam.value) params.set('brands', brandsParam.value)
     if (availabilityKey.value) params.set('availability', availabilityKey.value)

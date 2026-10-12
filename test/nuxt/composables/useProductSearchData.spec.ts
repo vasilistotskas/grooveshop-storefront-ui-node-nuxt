@@ -9,8 +9,10 @@ import type { ProductSearchScope } from '~/composables/useProductSearchData'
 
 /**
  * The filter sidebar's data: the listing's filters become the facet
- * queries sent to `/api/products/search` (each facet leaves out its OWN
- * filter, so a category's count reflects every other filter), plus the
+ * queries sent to `/api/products/search` (the category facet leaves out
+ * its OWN filter, so a category's count reflects every other filter; the
+ * attribute facet sends its selection, because Django counts each
+ * attribute without its own selection but with the others'), plus the
  * price bounds and the id → name lookups the chips use.
  *
  * `useProductFilters` is mocked to a plain ref: how the URL becomes
@@ -76,7 +78,7 @@ afterEach(() => {
 
 describe('useProductSearchData', () => {
   describe('facet queries', () => {
-    it('sends every other filter with each facet, and leaves the facet\'s own filter out', async () => {
+    it('sends every other filter with each facet, the category facet without its own filter', async () => {
       filters.value = {
         search: 'shoe',
         priceMin: 10,
@@ -96,7 +98,7 @@ describe('useProductSearchData', () => {
 
       const shared = { languageCode: 'el', query: 'shoe', priceMin: 10, priceMax: 90, likesMin: 2, viewsMin: 50, sort: '-finalPrice', limit: 1, inStock: true, onOffer: true }
       expect(facetRequests('category')).toEqual([{ ...shared, attributeValues: '3,4', brands: '5,6', facets: 'category' }])
-      expect(facetRequests('attribute_values')).toEqual([{ ...shared, categories: '1,2', brands: '5,6', facets: 'attribute_values' }])
+      expect(facetRequests('attribute_values')).toEqual([{ ...shared, attributeValues: '3,4', categories: '1,2', brands: '5,6', facets: 'attribute_values' }])
     })
 
     it('sends no brand or availability filter when none is set', async () => {
@@ -117,7 +119,7 @@ describe('useProductSearchData', () => {
       const [category] = facetRequests('category')
       const [attributes] = facetRequests('attribute_values')
       expect(category).toMatchObject({ query: undefined, attributeValues: undefined })
-      expect(attributes).toMatchObject({ query: undefined, categories: undefined })
+      expect(attributes).toMatchObject({ query: undefined, categories: undefined, attributeValues: undefined })
     })
 
     it('asks again when a filter changes, with the new value', async () => {
@@ -129,6 +131,9 @@ describe('useProductSearchData', () => {
       await flushPromises()
 
       expect(facetRequests('category').map(query => query.attributeValues)).toEqual([undefined, '7'])
+      // Selecting a value narrows the OTHER attributes' counts, so the
+      // attribute facet is asked again too, with the selection.
+      expect(facetRequests('attribute_values').map(query => query.attributeValues)).toEqual([undefined, '7'])
     })
 
     it('counts attribute values inside the scoped category, beside the URL\'s own category filter', async () => {
