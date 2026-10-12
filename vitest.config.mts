@@ -193,6 +193,14 @@ export default defineConfig({
           include: ['test/nuxt/**/*.spec.ts'],
           environment: 'nuxt',
           ...isolation,
+          // Vitest 5.0.4 turned `fsModuleCache` on by default. The `nuxt`
+          // project's app entry is a virtual module that @nuxt/test-utils
+          // loads under a path inside `node_modules/.pnpm/nuxt@…/dist/app`;
+          // replayed from the cache, its relative imports (`./nuxt.js`)
+          // fail to resolve and every file in the project errors on the
+          // SECOND run (the first, cold run passes). Off for this project;
+          // the `unit` project keeps the cache.
+          fsModuleCache: false,
           environmentOptions: {
             nuxt: {
               mock: {
