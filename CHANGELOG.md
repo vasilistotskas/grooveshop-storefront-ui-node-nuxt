@@ -1,3 +1,10 @@
+## [3.243.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.10...v3.243.11) (2026-10-12)
+
+
+### Bug Fixes
+
+* **auth:** resolve Django permissions for platform identities only ([3b041e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3b041e16f453c0bb8014ad451f0b2062654afec3))
+
 ## [3.243.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.9...v3.243.10) (2026-10-12)
 
 
