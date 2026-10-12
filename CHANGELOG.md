@@ -1,3 +1,10 @@
+## [3.244.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.244.0...v3.244.1) (2026-10-12)
+
+
+### Bug Fixes
+
+* **products:** sort and filter prices on the effective price ([#108](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/108)) ([4867202](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/486720282206c5a72bba054eff9458b9a38055ac)), closes [vasilistotskas/grooveshop-django-api#140](https://github.com/vasilistotskas/grooveshop-django-api/issues/140)
+
 # [3.244.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.11...v3.244.0) (2026-10-12)
 
 
