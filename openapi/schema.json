@@ -25474,11 +25474,11 @@
                 }
             }
         },
-        "/api/v1/order-items/{id}/refund": {
+        "/api/v1/order-items/{id}/restock": {
             "post": {
-                "operationId": "refundOrderItem",
-                "description": "Επεξεργασία επιστροφής χρημάτων για είδος παραγγελίας.",
-                "summary": "Επεξεργασία επιστροφής χρημάτων για είδος παραγγελίας",
+                "operationId": "restockOrderItem",
+                "description": "Επιστρέφει στο απόθεμα τα επιστρεφόμενα τεμάχια μιας γραμμής παραγγελίας και τα καταγράφει στη γραμμή. Δεν μετακινεί χρήματα: επιστρέψτε την πληρωμή με την ενέργεια επιστροφής της παραγγελίας.",
+                "summary": "Επαναφορά στο απόθεμα επιστρεφόμενων τεμαχίων προϊόντος παραγγελίας",
                 "parameters": [
                     {
                         "in": "path",
@@ -25504,17 +25504,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderItemRefundRequest"
+                                "$ref": "#/components/schemas/OrderItemRestockRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderItemRefundRequest"
+                                "$ref": "#/components/schemas/OrderItemRestockRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderItemRefundRequest"
+                                "$ref": "#/components/schemas/OrderItemRestockRequest"
                             }
                         }
                     }
@@ -25579,7 +25579,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/OrderItemRefundResponse"
+                                    "$ref": "#/components/schemas/OrderItemRestockResponse"
                                 }
                             }
                         },
@@ -31218,7 +31218,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter by multiple attribute value IDs (comma-separated)",
+                        "description": "Filter by multiple attribute value IDs (comma-separated). Values of the same attribute are alternatives (any of them); values of different attributes must all match.",
                         "explode": false,
                         "style": "form"
                     },
@@ -43721,7 +43721,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "ID τιμών χαρακτηριστικών διαχωρισμένα με κόμμα (attribute_values IN [ids])"
+                        "description": "ID τιμών χαρακτηριστικών διαχωρισμένα με κόμμα. Οι τιμές του ίδιου χαρακτηριστικού είναι εναλλακτικές (αρκεί μία από αυτές)· οι τιμές διαφορετικών χαρακτηριστικών πρέπει να ταιριάζουν όλες. Με το facet attribute_values, οι τιμές ενός χαρακτηριστικού μετριούνται χωρίς τη δική τους επιλογή."
                     },
                     {
                         "in": "query",
@@ -63621,34 +63621,26 @@
                     "uuid"
                 ]
             },
-            "OrderItemRefundRequest": {
+            "OrderItemRestockRequest": {
                 "type": "object",
                 "properties": {
                     "quantity": {
                         "type": "integer",
                         "minimum": 1,
-                        "description": "Ποσότητα προς επιστροφή. Αν δεν δοθεί, επιστρέφονται όλα."
+                        "description": "Ποσότητα που επιστράφηκε και επανήλθε στο απόθεμα. Αν δεν δοθεί, όλα τα τεμάχια που δεν έχουν ακόμη επανέλθει."
                     },
                     "reason": {
                         "type": "string",
-                        "description": "Προαιρετική αιτία επιστροφής",
+                        "description": "Προαιρετικός λόγος επιστροφής",
                         "maxLength": 255
                     }
                 }
             },
-            "OrderItemRefundResponse": {
+            "OrderItemRestockResponse": {
                 "type": "object",
                 "properties": {
                     "detail": {
                         "type": "string"
-                    },
-                    "refundedAmount": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true
                     },
                     "item": {
                         "$ref": "#/components/schemas/OrderItem"
@@ -63656,8 +63648,7 @@
                 },
                 "required": [
                     "detail",
-                    "item",
-                    "refundedAmount"
+                    "item"
                 ]
             },
             "OrderItemWriteRequest": {
