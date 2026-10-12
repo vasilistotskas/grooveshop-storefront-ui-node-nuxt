@@ -6,6 +6,7 @@ import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.v
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
 import { makeBlogPost } from '~~/test/fixtures/blog'
+import { ARTICLE_COLUMN_MAX_WIDTH, WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH } from '~~/shared/utils/html'
 
 /**
  * A blog post page counts one view of the post in its route, once it
@@ -76,6 +77,50 @@ describe.each([
     expect(api.callsTo('/api/blog/posts/*').filter(call => call.url.endsWith('/update-view-count'))).toEqual([
       { url: '/api/blog/posts/7/update-view-count', options: expect.objectContaining({ method: 'POST' }) },
     ])
+    wrapper.unmount()
+  })
+})
+
+/**
+ * An inline image is requested no wider than the column the page shows
+ * it in: each tree's own article column, never the page frame. A 1440px
+ * request on webside's 672px column cost every visitor twice the pixels
+ * and made a cold post exhaust the media service.
+ */
+describe.each([
+  ['default', BlogPost, ARTICLE_COLUMN_MAX_WIDTH],
+  ['webside', WebsideBlogPost, WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH],
+])('BlogPost inline images (%s tree)', (_tree, Component, columnWidth) => {
+  const IMAGE = 'https://api.store.test/media/webside/uploads/tinymce/chart.png'
+
+  beforeEach(() => {
+    clearNuxtData()
+    clearCursorState()
+    setTenant({ blogEnabled: true, apiDomain: 'api.store.test', assetsDomain: 'assets.store.test' })
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/blog/posts/7': {
+        ...POST,
+        translations: { el: { ...POST.translations.el, body: `<p>x</p><img src="${IMAGE}" alt="chart">` } },
+      },
+      '/api/blog/categories/2': POST.category,
+      '/api/blog/authors/3': POST.author,
+      '/api/*': empty,
+    })
+  })
+
+  it('asks the media service for the article column\'s width', async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    const image = await vi.waitFor(() => {
+      const found = wrapper.find('img[alt="chart"]')
+      expect(found.exists()).toBe(true)
+      return found
+    })
+    expect(image.attributes('src')).toContain(
+      `/media/webside/uploads/tinymce/chart.png/${columnWidth}/0/`,
+    )
     wrapper.unmount()
   })
 })
