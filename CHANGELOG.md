@@ -1,3 +1,10 @@
+# [3.244.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.11...v3.244.0) (2026-10-12)
+
+
+### Features
+
+* **product:** announce price reductions from the Omnibus prior price ([#107](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/107)) ([dcda0d5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dcda0d5d94f146b11225320683108303d51ca612))
+
 ## [3.243.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.10...v3.243.11) (2026-10-12)
 
 
