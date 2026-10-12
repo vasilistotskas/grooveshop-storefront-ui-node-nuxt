@@ -97,7 +97,7 @@ const paymentMethodLabel = computed(() =>
   order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
 )
 
-const paidAmount = computed(() => order.value?.paidAmount || 0)
+const amountDue = computed(() => order.value?.amountDue || 0)
 const shippingPrice = computed(() => order.value?.shippingPrice || 0)
 const totalPriceItems = computed(() => order.value?.totalPriceItems || 0)
 const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
@@ -183,7 +183,7 @@ function tryFirePurchaseEvent() {
     // 'EUR' here is just paranoia — the field is always populated
     // server-side per the project's monetary defaults.
     const currency = order.value.currency ?? 'EUR'
-    const value = Number(paidAmount.value ?? 0)
+    const value = Number(amountDue.value ?? 0)
     const transactionId = String(order.value.id)
 
     metaPixel.trackPurchase(
@@ -522,7 +522,7 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
         {{ t('payment.on_delivery.title') }}
       </template>
       <template #description>
-        {{ t('payment.on_delivery.description', { amount: $i18n.n(paidAmount, 'currency') }) }}
+        {{ t('payment.on_delivery.description', { amount: $i18n.n(amountDue, 'currency') }) }}
       </template>
     </UAlert>
 
@@ -693,7 +693,7 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
 
             <div class="flex items-center justify-between text-lg font-semibold">
               <span class="text-highlighted">{{ t('pricing.total') }}</span>
-              <span class="text-highlighted">{{ $i18n.n(paidAmount, 'currency') }}</span>
+              <span class="text-highlighted">{{ $i18n.n(amountDue, 'currency') }}</span>
             </div>
 
             <div v-if="paymentMethodLabel" class="pt-2">

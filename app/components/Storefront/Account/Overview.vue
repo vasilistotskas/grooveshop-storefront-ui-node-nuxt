@@ -121,7 +121,7 @@ const itemCount = (order: Order) => order.items.reduce((sum, item) => sum + (ite
                   year="numeric"
                 />
                 · {{ t('items', itemCount(latestOrder)) }}
-                · {{ n(latestOrder.paidAmount, 'currency') }}
+                · {{ n(latestOrder.amountDue, 'currency') }}
               </p>
             </div>
           </div>

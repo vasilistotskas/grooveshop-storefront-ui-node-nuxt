@@ -28,7 +28,7 @@ describe('makeOrder', () => {
       isCollectedOnDelivery: false,
       paymentStatus: 'COMPLETED',
       isPaid: true,
-      paidAmount: 42,
+      amountDue: 42,
     })
 
     expect(problems(zOrderDetail, order)).toEqual([])

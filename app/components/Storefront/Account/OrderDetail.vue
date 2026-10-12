@@ -490,7 +490,7 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
             {{ order.isPaid ? t('totals.paid') : t('totals.total') }}
           </dt>
           <dd class="font-mono font-bold text-highlighted">
-            {{ n(order.pricingBreakdown?.grandTotal ?? order.paidAmount, 'currency') }}
+            {{ n(order.pricingBreakdown?.grandTotal ?? order.amountDue, 'currency') }}
           </dd>
         </div>
       </dl>

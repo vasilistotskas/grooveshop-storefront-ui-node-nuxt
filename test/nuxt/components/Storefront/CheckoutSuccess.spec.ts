@@ -74,7 +74,7 @@ function order(overrides: Partial<OrderDetail> = {}): OrderDetail {
   return makeOrder({
     id: 1001,
     uuid: UUID,
-    paidAmount: 42,
+    amountDue: 42,
     shippingPrice: 3,
     totalPriceItems: 39,
     totalPriceExtra: 3,

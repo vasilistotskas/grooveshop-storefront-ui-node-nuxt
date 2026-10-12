@@ -4611,6 +4611,7 @@ export const zOrder = z.object({
   city: z.string().max(255),
   phone: z.string(),
   customerNotes: z.string().optional(),
+  amountDue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
   items: z.array(zOrderItemDetail),
   shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -5642,6 +5643,7 @@ export const zOrderDetail = z.object({
   city: z.string().max(255),
   phone: z.string().readonly(),
   customerNotes: z.string().optional(),
+  amountDue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
   items: z.array(zOrderItemDetail),
   shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -5698,6 +5700,7 @@ export const zOrderDetail = z.object({
     giftCardAmount: z.number().optional(),
     grandTotal: z.number().optional(),
     currency: z.string().optional(),
+    amountDue: z.number().optional(),
     paidAmount: z.number().optional(),
     remainingAmount: z.number().optional(),
   }).readonly(),
@@ -12718,6 +12721,22 @@ export const zListOrderQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  amountDue_Gte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  amountDue_Lte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  amountDueMax: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  amountDueMin: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
   city: z.string().optional(),
   city_Icontains: z.string().optional(),
   country: z.string().optional(),
@@ -12824,7 +12843,7 @@ export const zListOrderQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$/).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -12839,22 +12858,6 @@ export const zListOrderQuery = z.object({
     'limitOffset',
     'pageNumber',
   ]).optional().default('pageNumber'),
-  paidAmount_Gte: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  paidAmount_Lte: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  paidAmountMax: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  paidAmountMin: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
   payWay: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -13576,6 +13579,22 @@ export const zListMyOrdersQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  amountDue_Gte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  amountDue_Lte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  amountDueMax: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  amountDueMin: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
   city: z.string().optional(),
   city_Icontains: z.string().optional(),
   country: z.string().optional(),
@@ -13682,7 +13701,7 @@ export const zListMyOrdersQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$/).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -13697,22 +13716,6 @@ export const zListMyOrdersQuery = z.object({
     'limitOffset',
     'pageNumber',
   ]).optional().default('pageNumber'),
-  paidAmount_Gte: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  paidAmount_Lte: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  paidAmountMax: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  paidAmountMin: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
   payWay: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -17262,7 +17265,7 @@ export const zGetUserAccountOrdersQuery = z.object({
     'el',
     'en',
   ]).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|paidAmount|\-paidAmount)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|paidAmount|\-paidAmount))*$/).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|amountDue|\-amountDue)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|amountDue|\-amountDue))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),

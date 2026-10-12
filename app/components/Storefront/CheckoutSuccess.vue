@@ -96,7 +96,7 @@ const paymentMethodLabel = computed(() =>
   order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
 )
 
-const paidAmount = computed(() => order.value?.paidAmount || 0)
+const amountDue = computed(() => order.value?.amountDue || 0)
 const shippingPrice = computed(() => order.value?.shippingPrice || 0)
 
 // Only fetch + show the store's guides when the tenant has the blog
@@ -165,7 +165,7 @@ function tryFirePurchaseEvent() {
     // 'EUR' here is just paranoia — the field is always populated
     // server-side per the project's monetary defaults.
     const currency = order.value.currency ?? 'EUR'
-    const value = Number(paidAmount.value ?? 0)
+    const value = Number(amountDue.value ?? 0)
     const transactionId = String(order.value.id)
 
     metaPixel.trackPurchase(
@@ -391,7 +391,7 @@ const paymentAlert = computed(() => {
     description: state === 'verifying'
       ? t('verifying.description')
       : state === 'on_delivery'
-        ? t('payment.on_delivery.description', { amount: n(paidAmount.value, 'currency') })
+        ? t('payment.on_delivery.description', { amount: n(amountDue.value, 'currency') })
         : t(`payment.${state}.description`),
   }
 })
@@ -422,7 +422,7 @@ const steps = computed(() => {
     {
       value: pickup.value ? 'ready_for_pickup' : 'delivered',
       done: reached >= 4,
-      description: collected ? t('steps.pay_there', { amount: n(paidAmount.value, 'currency') }) : '',
+      description: collected ? t('steps.pay_there', { amount: n(amountDue.value, 'currency') }) : '',
       estimate: awaitsDelivery(order.value?.status) ? order.value?.trackingDetails?.estimatedDelivery : null,
     },
   ]
@@ -612,7 +612,7 @@ async function openInvoice() {
                   {{ isPaid ? t('totals.paid') : t('totals.total') }}
                 </dt>
                 <dd class="font-mono text-lg font-bold text-highlighted">
-                  {{ n(paidAmount, 'currency') }}
+                  {{ n(amountDue, 'currency') }}
                 </dd>
               </div>
             </dl>

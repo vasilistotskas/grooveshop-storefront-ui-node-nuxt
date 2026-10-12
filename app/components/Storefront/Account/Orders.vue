@@ -119,7 +119,7 @@ const detailsTo = (order: Order) => localePath({ name: 'account-orders-id', para
           </p>
         </div>
         <p class="font-mono font-semibold text-highlighted">
-          {{ n(order.paidAmount, 'currency') }}
+          {{ n(order.amountDue, 'currency') }}
         </p>
         <div class="flex flex-wrap gap-2">
           <UButton

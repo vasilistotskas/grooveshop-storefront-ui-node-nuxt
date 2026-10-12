@@ -435,7 +435,7 @@ const customerInitials = computed(() => {
             dark:text-gray-100
           "
         >
-          {{ $i18n.n(order.paidAmount, 'currency') }}
+          {{ $i18n.n(order.amountDue, 'currency') }}
         </p>
       </div>
 
