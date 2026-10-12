@@ -103,11 +103,10 @@ Active modules in `nuxt.config.ts` (the `modules` array, in order):
 8. `@nuxt/icon` — Icon system (server bundle: remote with externalized JSON for 9 icon sets; client bundle: scanned with 128KB limit)
 9. `@nuxtjs/i18n` — Internationalization (browser detection, cookie-based, typed pages)
 10. `@nuxtjs/leaflet` — Leaflet maps (locker/pickup-point selection)
-11. `@nuxtjs/seo` — SEO suite (sitemap, OG image, Schema.org, link checker)
+11. `@nuxtjs/seo` — SEO suite: robots, sitemap, OG image (disabled), Schema.org, link checker, SEO utils, site config, and **AI Ready**, which it installs (`nuxt-ai-ready` is no longer a module or dependency of ours). AI Ready serves `/llms.txt`, `/llms-full.txt` and on-demand `/<route>.md` under the `aiReady` key: `database: false` (no page store, so no `drizzle-orm`), `contentNegotiation: false` (`server/middleware/0.markdown-negotiation.ts` does the `Accept: text/markdown` negotiation, which the module's cannot do on our cached routes), `autoI18n: false`, `agentSkills: false`, and `runtimeSync`/`cron` off. `skewProtection: false` turns off the other module it installs. `robots` is configured explicitly in `nuxt.config.ts`.
 12. `@pinia/nuxt` — Pinia state management
 13. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
 14. `nuxt-auth-utils` — Session management
-15. `nuxt-ai-ready` — AI/LLM discoverability: serves `/llms.txt`, `/llms-full.txt`, on-demand `/<route>.md`, and emits robots.txt Content Signals (`aiTrain`/`search`/`aiInput` all enabled). Auto-detects `@nuxtjs/i18n` and emits `Link: rel="alternate"; hreflang="el-GR"` headers on `.md` responses. Requires `robots: {}` in `nuxt.config.ts` because v1.3.0 crashes if `nuxt.options.robots` is undefined when `contentSignal` is set. `runtimeSync`/`cron` intentionally **disabled** — with 2 SSR replicas each holding an ephemeral `.data/ai-ready/pages.db`, scheduled background indexing would race and double-submit; SSR pages still index on first visit per pod via the runtime fallback.
 
 Conditionally pushed (NOT active in production):
 - `@nuxt/test-utils/module` — only when `NODE_ENV === 'test'`

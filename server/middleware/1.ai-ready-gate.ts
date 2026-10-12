@@ -4,10 +4,10 @@ import { createError, defineEventHandler, getRequestHeader } from 'nuxt/server'
  * Interim multi-tenant gate for nuxt-ai-ready's discovery surfaces.
  *
  * `/llms.txt`, `/llms-full.txt` and the direct `.md` page mirrors are
- * NOT tenant-safe today: the module stores indexed pages in one
- * per-pod SQLite with no host column and renders headers/canonical
- * origins from the tenant-less site config — so tenant B's `/llms.txt`
- * would announce tenant A's brand and enumerate tenant A's pages.
+ * NOT tenant-safe today: the module renders headers/canonical origins
+ * from the tenant-less site config and lists the platform's pages — so
+ * tenant B's `/llms.txt` would announce tenant A's brand and enumerate
+ * tenant A's pages.
  * Until the module supports per-host indexes, these surfaces are
  * served ONLY on the platform's own storefront (the tenant whose
  * ``isPlatformStorefront`` flag is set — resolved here, because these
@@ -22,10 +22,9 @@ import { createError, defineEventHandler, getRequestHeader } from 'nuxt/server'
  *   every tenant.
  * - `/api/**` — no AI surface lives there; avoids accidental matches.
  *
- * CUTOVER NOTE: before a second tenant goes live in production, the
- * module's runtime indexer should also be disabled (or made host-
- * aware) — pages rendered on tenant hosts still land in the shared
- * index; this gate only prevents their cross-tenant EXPOSURE.
+ * The module's page database is off (`aiReady.database: false` in
+ * nuxt.config.ts), so pages rendered on tenant hosts no longer land in
+ * a shared per-pod index.
  */
 export default defineEventHandler(async (event) => {
   if (event.req.method !== 'GET') return

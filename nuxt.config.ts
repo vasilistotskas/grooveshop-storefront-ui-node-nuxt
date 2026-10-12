@@ -57,7 +57,6 @@ const modules: (string | NuxtModule)[] = [
   '@pinia/nuxt',
   '@vueuse/nuxt',
   'nuxt-auth-utils',
-  'nuxt-ai-ready',
   // @nuxtjs/leaflet unconditionally pushes leaflet/dist/leaflet.css into
   // the GLOBAL css array (dist/module.mjs:38, no opt-out) — a
   // render-blocking stylesheet on every page for a map that exists only
@@ -124,7 +123,6 @@ export default defineNuxtConfig({
   app: {
     head: {
       viewport: 'width=device-width,initial-scale=1,viewport-fit=cover',
-      charset: 'utf-8',
       titleTemplate: '%s %separator %siteName',
       link: [
         // Icon links are PER-TENANT and rendered by ``setupPageHeader``
@@ -676,14 +674,24 @@ export default defineNuxtConfig({
     // April 2026, and PageSpeed/Lighthouse flags every occurrence as
     // "Unknown directive". The 25-bot user-agent groups in ``robots.groups``
     // below already gate AI access via standards-compliant Allow/Disallow.
-    // Production runs as the unprivileged ``node`` user (UID 1000) with
-    // ``WORKDIR=/app`` owned by root, so the default ``.data/ai-ready``
-    // path under cwd is read-only. The runtime DB is ephemeral per pod
-    // anyway (we don't enable ``runtimeSync``), so ``/tmp`` — always
-    // writable — is the right choice.
-    database: {
-      filename: '/tmp/ai-ready/pages.db',
-    },
+    // Accept negotiation is done by server/middleware/0.markdown-negotiation.ts
+    // (one hop, 200 + text/markdown, before the module's middleware). The
+    // module's own negotiation cannot run on our cached routes anyway: v3
+    // turns it off for any response cache without ``accept`` in
+    // ``cache.varies`` and warned about each of ~30 routes per build. We
+    // keep the cache key host + device class rather than fragmenting every
+    // page by Accept. Explicit ``.md`` URLs, the Link headers and
+    // ``llms.txt`` stay.
+    contentNegotiation: false,
+    // No page database. In v3 an explicit ``database`` option turns the
+    // database on, and the database needs ``drizzle-orm`` (a release
+    // candidate only). Nothing here needs stored pages: ``runtimeSync`` and
+    // ``cron`` are off, we use none of the module's MCP/WebMCP page tools
+    // (``app/plugins/webmcp.client.ts`` is our own), and the v2 database
+    // under ``/tmp/ai-ready`` stayed at zero rows after visiting pages
+    // (2026-10-13, node:sqlite). ``/llms.txt`` and the ``.md`` twins are
+    // generated without it.
+    database: false,
     // Agent Skills discovery (new in 2.3.0) is ON unless switched off:
     // ``module.ts`` resolves ``config.agentSkills === false ? false :
     // (config.agentSkills ?? {})``, so an absent key still scans
@@ -1314,4 +1322,13 @@ export default defineNuxtConfig({
     ],
     cacheMaxAgeSeconds: 60 * 60 * 24, // 24 hours
   },
+  // @nuxtjs/seo 6 installs nuxt-skew-protection, which keeps the assets of
+  // earlier builds after a deploy. It stores them under
+  // ``node_modules/.cache/nuxt-seo/skew-protection`` and our image build
+  // starts from a clean checkout, so nothing would survive from one image
+  // to the next; and it warns on the one-year immutable ``Cache-Control``
+  // of the ``/img/**``, ``/screenshots/**``, favicon and asset-extension
+  // route rules (its retention window is 30 days). Off until deploys keep
+  // old builds somewhere (``skewProtection.storage``).
+  skewProtection: false,
 })
