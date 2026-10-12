@@ -1831,14 +1831,13 @@ export const zOrderItemCreateRequest = z.object({
   notes: z.string().optional(),
 })
 
-export const zOrderItemRefundRequest = z.object({
+export const zOrderItemRestockRequest = z.object({
   quantity: z.int().gte(1).optional(),
   reason: z.string().max(255).optional(),
 })
 
-export const zOrderItemRefundResponse = z.object({
+export const zOrderItemRestockResponse = z.object({
   detail: z.string(),
-  refundedAmount: z.number().gt(-1000000000).lt(1000000000),
   item: zOrderItem,
 })
 
@@ -7559,9 +7558,8 @@ export const zOrderDetailWritable = z.object({
   shippingCarrier: z.string().max(255).optional(),
 })
 
-export const zOrderItemRefundResponseWritable = z.object({
+export const zOrderItemRestockResponseWritable = z.object({
   detail: z.string(),
-  refundedAmount: z.number().gt(-1000000000).lt(1000000000),
   item: zOrderItemWritable,
 })
 
@@ -13329,16 +13327,16 @@ export const zUpdateOrderItemQuery = z.object({
 
 export const zUpdateOrderItemResponse = zOrderItemDetail
 
-export const zRefundOrderItemBody = zOrderItemRefundRequest
+export const zRestockOrderItemBody = zOrderItemRestockRequest
 
-export const zRefundOrderItemPath = z.object({
+export const zRestockOrderItemPath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
 })
 
-export const zRefundOrderItemResponse = zOrderItemRefundResponse
+export const zRestockOrderItemResponse = zOrderItemRestockResponse
 
 export const zDestroyOrderPath = z.object({
   id: z.union([

@@ -5006,20 +5006,19 @@ export type OrderItemDetail = {
   notes?: string
 }
 
-export type OrderItemRefundRequest = {
+export type OrderItemRestockRequest = {
   /**
-     * Ποσότητα προς επιστροφή. Αν δεν δοθεί, επιστρέφονται όλα.
+     * Ποσότητα που επιστράφηκε και επανήλθε στο απόθεμα. Αν δεν δοθεί, όλα τα τεμάχια που δεν έχουν ακόμη επανέλθει.
      */
   quantity?: number
   /**
-     * Προαιρετική αιτία επιστροφής
+     * Προαιρετικός λόγος επιστροφής
      */
   reason?: string
 }
 
-export type OrderItemRefundResponse = {
+export type OrderItemRestockResponse = {
   detail: string
-  refundedAmount: number
   item: OrderItem
 }
 
@@ -11745,9 +11744,8 @@ export type OrderItemDetailWritable = {
   notes?: string
 }
 
-export type OrderItemRefundResponseWritable = {
+export type OrderItemRestockResponseWritable = {
   detail: string
-  refundedAmount: number
   item: OrderItemWritable
 }
 
@@ -20285,16 +20283,16 @@ export type UpdateOrderItemResponses = {
 
 export type UpdateOrderItemResponse = UpdateOrderItemResponses[keyof UpdateOrderItemResponses]
 
-export type RefundOrderItemData = {
-  body?: OrderItemRefundRequest
+export type RestockOrderItemData = {
+  body?: OrderItemRestockRequest
   path: {
     id: string | number
   }
   query?: never
-  url: '/api/v1/order-items/{id}/refund'
+  url: '/api/v1/order-items/{id}/restock'
 }
 
-export type RefundOrderItemErrors = {
+export type RestockOrderItemErrors = {
   400: ErrorResponse
   401: ErrorResponse
   403: ErrorResponse
@@ -20302,13 +20300,13 @@ export type RefundOrderItemErrors = {
   500: ErrorResponse
 }
 
-export type RefundOrderItemError = RefundOrderItemErrors[keyof RefundOrderItemErrors]
+export type RestockOrderItemError = RestockOrderItemErrors[keyof RestockOrderItemErrors]
 
-export type RefundOrderItemResponses = {
-  200: OrderItemRefundResponse
+export type RestockOrderItemResponses = {
+  200: OrderItemRestockResponse
 }
 
-export type RefundOrderItemResponse = RefundOrderItemResponses[keyof RefundOrderItemResponses]
+export type RestockOrderItemResponse = RestockOrderItemResponses[keyof RestockOrderItemResponses]
 
 export type DestroyOrderData = {
   body?: never
@@ -21918,7 +21916,7 @@ export type ListProductData = {
          */
     attributeValue?: string | number
     /**
-         * Filter by multiple attribute value IDs (comma-separated)
+         * Filter by multiple attribute value IDs (comma-separated). Values of the same attribute are alternatives (any of them); values of different attributes must all match.
          */
     attributeValue_In?: string | Array<number>
     /**
@@ -25419,7 +25417,7 @@ export type ApiV1SearchProductRetrieveData = {
   path?: never
   query?: {
     /**
-         * ID τιμών χαρακτηριστικών διαχωρισμένα με κόμμα (attribute_values IN [ids])
+         * ID τιμών χαρακτηριστικών διαχωρισμένα με κόμμα. Οι τιμές του ίδιου χαρακτηριστικού είναι εναλλακτικές (αρκεί μία από αυτές)· οι τιμές διαφορετικών χαρακτηριστικών πρέπει να ταιριάζουν όλες. Με το facet attribute_values, οι τιμές ενός χαρακτηριστικού μετριούνται χωρίς τη δική τους επιλογή.
          */
     attributeValues?: string
     /**
