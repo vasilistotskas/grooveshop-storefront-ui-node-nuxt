@@ -22540,27 +22540,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "canBeCanceled",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο παραγγελιών που μπορούν να ακυρωθούν"
-                    },
-                    {
-                        "in": "query",
                         "name": "city",
                         "schema": {
                             "type": "string"
@@ -26614,6 +26593,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderCancelError"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -27762,27 +27751,6 @@
                             ]
                         },
                         "description": "Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "canBeCanceled",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο παραγγελιών που μπορούν να ακυρωθούν"
                     },
                     {
                         "in": "query",
@@ -62370,7 +62338,7 @@
             },
             "OrderCancelError": {
                 "type": "object",
-                "description": "The 400 body of ``POST /order/{id}/cancel``.\n\nA refusal the order service types carries ``error.type``; any other\nrefusal (the order's status no longer allows a cancel) is ``detail``\nalone, which is why ``error`` is optional.",
+                "description": "The 400 and 503 body of ``POST /order/{id}/cancel``.\n\nA refusal the order service types carries ``error.type``\n(``courier_unreachable`` is the 503); any other refusal (the order's\nstatus no longer allows a cancel) is ``detail`` alone, which is why\n``error`` is optional.",
                 "properties": {
                     "detail": {
                         "type": "string"
@@ -62389,7 +62357,7 @@
                                 "$ref": "#/components/schemas/OrderCancelErrorType"
                             }
                         ],
-                        "description": "Σταθερός κωδικός για τον λόγο απόρριψης της ακύρωσης. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail``, που είναι στη γλώσσα του αιτήματος.\n\n* `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier"
+                        "description": "Σταθερός κωδικός για τον λόγο απόρριψης της ακύρωσης. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail``, που είναι στη γλώσσα του αιτήματος.\n\n* `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier\n* `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier"
                     }
                 },
                 "required": [
@@ -62398,10 +62366,11 @@
             },
             "OrderCancelErrorType": {
                 "enum": [
-                    "parcel_with_courier"
+                    "parcel_with_courier",
+                    "courier_unreachable"
                 ],
                 "type": "string",
-                "description": "* `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier"
+                "description": "* `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier\n* `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier"
             },
             "OrderCreateDocumentType": {
                 "enum": [

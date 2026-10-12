@@ -1718,19 +1718,21 @@ export const zOrderAttributionInputRequest = z.object({
 
 /**
  * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+ * * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
  */
-export const zOrderCancelErrorType = z.enum(['parcel_with_courier'])
+export const zOrderCancelErrorType = z.enum(['parcel_with_courier', 'courier_unreachable'])
 
 export const zOrderCancelErrorDetail = z.object({
   type: zOrderCancelErrorType,
 })
 
 /**
- * The 400 body of ``POST /order/{id}/cancel``.
+ * The 400 and 503 body of ``POST /order/{id}/cancel``.
  *
- * A refusal the order service types carries ``error.type``; any other
- * refusal (the order's status no longer allows a cancel) is ``detail``
- * alone, which is why ``error`` is optional.
+ * A refusal the order service types carries ``error.type``
+ * (``courier_unreachable`` is the 503); any other refusal (the order's
+ * status no longer allows a cancel) is ``detail`` alone, which is why
+ * ``error`` is optional.
  */
 export const zOrderCancelError = z.object({
   detail: z.string().optional(),
@@ -12718,13 +12720,6 @@ export const zListOrderQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  canBeCanceled: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   city: z.string().optional(),
   city_Icontains: z.string().optional(),
   country: z.string().optional(),
@@ -13577,13 +13572,6 @@ export const zUpdateOrderStatusResponse = zOrderDetail
 
 export const zListMyOrdersQuery = z.object({
   activeOrders: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  canBeCanceled: z.union([
     z.literal('true'),
     z.literal('false'),
     z.literal('1'),

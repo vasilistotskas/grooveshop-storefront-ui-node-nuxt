@@ -4317,11 +4317,12 @@ export type OrderAttributionInputRequest = {
 }
 
 /**
- * The 400 body of ``POST /order/{id}/cancel``.
+ * The 400 and 503 body of ``POST /order/{id}/cancel``.
  *
- * A refusal the order service types carries ``error.type``; any other
- * refusal (the order's status no longer allows a cancel) is ``detail``
- * alone, which is why ``error`` is optional.
+ * A refusal the order service types carries ``error.type``
+ * (``courier_unreachable`` is the 503); any other refusal (the order's
+ * status no longer allows a cancel) is ``detail`` alone, which is why
+ * ``error`` is optional.
  */
 export type OrderCancelError = {
   detail?: string
@@ -4333,14 +4334,16 @@ export type OrderCancelErrorDetail = {
      * Σταθερός κωδικός για τον λόγο απόρριψης της ακύρωσης. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail``, που είναι στη γλώσσα του αιτήματος.
      *
      * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+     * * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
      */
   type: OrderCancelErrorType
 }
 
 /**
  * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+ * * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
  */
-export type OrderCancelErrorType = 'parcel_with_courier'
+export type OrderCancelErrorType = 'parcel_with_courier' | 'courier_unreachable'
 
 /**
  * * `RECEIPT` - Απόδειξη
@@ -19481,10 +19484,6 @@ export type ListOrderData = {
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
-         */
-    canBeCanceled?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)
          */
     city?: string
@@ -20554,6 +20553,7 @@ export type CancelOrderErrors = {
   403: ErrorResponse
   404: ErrorResponse
   500: ErrorResponse
+  503: OrderCancelError
 }
 
 export type CancelOrderError = CancelOrderErrors[keyof CancelOrderErrors]
@@ -20846,10 +20846,6 @@ export type ListMyOrdersData = {
          * Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
-         */
-    canBeCanceled?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)
          */

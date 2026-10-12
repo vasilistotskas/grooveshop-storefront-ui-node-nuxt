@@ -233,6 +233,26 @@ describe('Storefront/Account/OrderDetail', () => {
     }))
   })
 
+  it('asks to try again, and keeps the order as it was, when the courier gives no answer', async () => {
+    cancelOrder.mockRejectedValueOnce(Object.assign(new Error('Service Unavailable'), {
+      statusCode: 503,
+      data: undefined,
+    }))
+    const wrapper = await mountPage()
+
+    await button(wrapper, 'Ακύρωση παραγγελίας')!.trigger('click')
+    await flushPromises()
+    const confirm = [...document.body.querySelectorAll('button')].find(control => control.textContent?.trim() === 'Ναι, ακύρωσέ τη')!
+    confirm.click()
+    await flushPromises()
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      color: 'error',
+      description: expect.stringContaining('Δοκίμασε ξανά'),
+    }))
+    expect(fetches).toBe(1)
+  })
+
   it('offers no cancel once the order cannot be canceled', async () => {
     state.order = makeOrder({ id: 3, canBeCanceled: false })
 

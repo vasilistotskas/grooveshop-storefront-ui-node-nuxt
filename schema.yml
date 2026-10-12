@@ -13182,18 +13182,6 @@ paths:
               - type: boolean
           description: Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
         - in: query
-          name: canBeCanceled
-          schema:
-            oneOf:
-              - type: string
-                enum:
-                  - 'true'
-                  - 'false'
-                  - '1'
-                  - '0'
-              - type: boolean
-          description: Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
-        - in: query
           name: city
           schema:
             type: string
@@ -15605,6 +15593,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCancelError'
+          description: ''
   /api/v1/order/{id}/confirm_agent_payment:
     post:
       operationId: confirmAgentPaymentForOrder
@@ -16272,18 +16266,6 @@ paths:
                   - '0'
               - type: boolean
           description: Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
-        - in: query
-          name: canBeCanceled
-          schema:
-            oneOf:
-              - type: string
-                enum:
-                  - 'true'
-                  - 'false'
-                  - '1'
-                  - '0'
-              - type: boolean
-          description: Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
         - in: query
           name: city
           schema:
@@ -38808,11 +38790,12 @@ components:
     OrderCancelError:
       type: object
       description: |-
-        The 400 body of ``POST /order/{id}/cancel``.
+        The 400 and 503 body of ``POST /order/{id}/cancel``.
 
-        A refusal the order service types carries ``error.type``; any other
-        refusal (the order's status no longer allows a cancel) is ``detail``
-        alone, which is why ``error`` is optional.
+        A refusal the order service types carries ``error.type``
+        (``courier_unreachable`` is the 503); any other refusal (the order's
+        status no longer allows a cancel) is ``detail`` alone, which is why
+        ``error`` is optional.
       properties:
         detail:
           type: string
@@ -38828,13 +38811,17 @@ components:
             Σταθερός κωδικός για τον λόγο απόρριψης της ακύρωσης. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail``, που είναι στη γλώσσα του αιτήματος.
 
             * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+            * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
       required:
         - type
     OrderCancelErrorType:
       enum:
         - parcel_with_courier
+        - courier_unreachable
       type: string
-      description: '* `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier'
+      description: |-
+        * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+        * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
     OrderCreateDocumentType:
       enum:
         - RECEIPT
