@@ -1,3 +1,10 @@
+## [3.243.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.9...v3.243.10) (2026-10-12)
+
+
+### Bug Fixes
+
+* **openapi:** stop requiring the order's removed paidAmount ([#106](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/106)) ([8b538be](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b538be5687ee83fb152e9401a21e033af1e1afb)), closes [#159](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/159)
+
 ## [3.243.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.8...v3.243.9) (2026-10-12)
 
 
