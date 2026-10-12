@@ -61985,16 +61985,6 @@
                         "exclusiveMinimum": true,
                         "readOnly": true
                     },
-                    "paidAmount": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
-                        "deprecated": true
-                    },
                     "items": {
                         "type": "array",
                         "items": {
@@ -62253,7 +62243,6 @@
                     "items",
                     "lastName",
                     "loyaltyDiscount",
-                    "paidAmount",
                     "payWay",
                     "payWayKey",
                     "paymentMethodFee",
@@ -62868,16 +62857,6 @@
                         "exclusiveMinimum": true,
                         "readOnly": true
                     },
-                    "paidAmount": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
-                        "deprecated": true
-                    },
                     "items": {
                         "type": "array",
                         "items": {
@@ -63170,10 +63149,6 @@
                             "amountDue": {
                                 "type": "number"
                             },
-                            "paidAmount": {
-                                "type": "number",
-                                "deprecated": true
-                            },
                             "remainingAmount": {
                                 "type": "number"
                             }
@@ -63378,7 +63353,6 @@
                     "loyaltyPointsToEarn",
                     "metaEventIds",
                     "orderTimeline",
-                    "paidAmount",
                     "payWay",
                     "payWayKey",
                     "paymentMethodFee",

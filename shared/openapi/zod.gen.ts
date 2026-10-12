@@ -4612,7 +4612,6 @@ export const zOrder = z.object({
   phone: z.string(),
   customerNotes: z.string().optional(),
   amountDue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
   items: z.array(zOrderItemDetail),
   shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -5644,7 +5643,6 @@ export const zOrderDetail = z.object({
   phone: z.string().readonly(),
   customerNotes: z.string().optional(),
   amountDue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
   items: z.array(zOrderItemDetail),
   shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -5701,7 +5699,6 @@ export const zOrderDetail = z.object({
     grandTotal: z.number().optional(),
     currency: z.string().optional(),
     amountDue: z.number().optional(),
-    paidAmount: z.number().optional(),
     remainingAmount: z.number().optional(),
   }).readonly(),
   trackingDetails: z.object({

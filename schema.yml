@@ -38492,15 +38492,6 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-        paidAmount:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-          deprecated: true
         items:
           type: array
           items:
@@ -38717,7 +38708,6 @@ components:
         - items
         - lastName
         - loyaltyDiscount
-        - paidAmount
         - payWay
         - payWayKey
         - paymentMethodFee
@@ -39248,15 +39238,6 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
-        paidAmount:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-          deprecated: true
         items:
           type: array
           items:
@@ -39489,9 +39470,6 @@ components:
               type: string
             amountDue:
               type: number
-            paidAmount:
-              type: number
-              deprecated: true
             remainingAmount:
               type: number
           readOnly: true
@@ -39652,7 +39630,6 @@ components:
         - loyaltyPointsToEarn
         - metaEventIds
         - orderTimeline
-        - paidAmount
         - payWay
         - payWayKey
         - paymentMethodFee
