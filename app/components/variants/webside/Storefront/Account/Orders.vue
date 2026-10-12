@@ -32,7 +32,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: orders, status, error, refresh: refreshOrders } = await useApi(
+const { data: orders, status, error, refresh: refreshOrders } = await useApi<ListMyOrdersResponse>(
   `/api/orders/my-orders`,
   {
     key: `userOrders${user.value?.id}`,

@@ -48,7 +48,7 @@ const localePath = useLocalePath()
 const cartStore = useCartStore()
 const { cleanCartState } = cartStore
 
-const { data: order, error } = await useApi(
+const { data: order, error } = await useApi<RetrieveOrderByUuidResponse>(
   `/api/orders/uuid/${orderUUID}`,
   {
     key: `order${orderUUID}`,
@@ -327,7 +327,7 @@ onMounted(async () => {
     // confirmation. A missed poll keeps the last answer on screen and
     // the next one tries again.
     try {
-      order.value = await $api(`/api/orders/uuid/${orderUUID}`, {
+      order.value = await $api<RetrieveOrderByUuidResponse>(`/api/orders/uuid/${orderUUID}`, {
         method: 'GET',
         query: { languageCode: locale.value },
       })

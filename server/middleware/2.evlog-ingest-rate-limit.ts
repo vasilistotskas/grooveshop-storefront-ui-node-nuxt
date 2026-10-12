@@ -6,9 +6,8 @@ import { defineEventHandler, getRequestURL } from 'nuxt/server'
  * `/api/_evlog/ingest` belongs to evlog (`transport.enabled` in
  * `nuxt.config.ts` mounts it) and is unauthenticated by design: its origin
  * check only blocks cross-site browsers, any script can satisfy it. Since
- * `server/plugins/evlog-client-drain.ts` puts what it accepts on stdout —
- * and so into VictoriaLogs — an unthrottled route would let anyone flood
- * the log store. The route is evlog's, so the limit sits in front of it.
+ * evlog prints what it accepts on stdout, and so into VictoriaLogs, an
+ * unthrottled route would let anyone flood the log store. The route is evlog's, so the limit sits in front of it.
  *
  * The browser sends one event per POST (no batching), and logs only
  * deliberately: warnings, errors and the websocket's connect/reconnect

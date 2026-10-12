@@ -28,7 +28,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: favourites, refresh: refreshFavourites, status, error } = await useApi(
+const { data: favourites, refresh: refreshFavourites, status, error } = await useApi<GetUserAccountFavouriteProductsResponse>(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
     key: `favouriteProducts${user.value?.id}`,

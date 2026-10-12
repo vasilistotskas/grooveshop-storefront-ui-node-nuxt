@@ -374,7 +374,7 @@ export const useCartStore = defineStore('cart', () => {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     try {
-      const data = await $api('/api/cart', {
+      const data = await $api<RetrieveCartResponse | null>('/api/cart', {
         method: 'GET',
         headers,
       })
@@ -400,7 +400,7 @@ export const useCartStore = defineStore('cart', () => {
 
   async function refreshCart() {
     try {
-      const data = await $api('/api/cart', {
+      const data = await $api<RetrieveCartResponse | null>('/api/cart', {
         method: 'GET',
         headers: useRequestHeaders(),
       })
