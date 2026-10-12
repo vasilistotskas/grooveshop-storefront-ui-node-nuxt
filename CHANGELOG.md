@@ -1,3 +1,10 @@
+## [3.244.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.244.1...v3.244.2) (2026-10-12)
+
+
+### Bug Fixes
+
+* **fonts:** enable only the font providers the families use ([#111](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/111)) ([f187145](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f187145a93c5983382e1bae86f45ef1fdaf6df91))
+
 ## [3.244.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.244.0...v3.244.1) (2026-10-12)
 
 
