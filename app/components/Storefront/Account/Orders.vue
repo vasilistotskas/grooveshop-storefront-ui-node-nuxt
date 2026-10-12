@@ -24,7 +24,7 @@ const ordering = computed<Sort>(() =>
   SORTS.includes(route.query.ordering as Sort) ? route.query.ordering as Sort : '-createdAt',
 )
 
-const { data: orders, status, refresh } = await useApi('/api/orders/my-orders', {
+const { data: orders, status, refresh } = await useApi<ListMyOrdersResponse>('/api/orders/my-orders', {
   key: 'account-orders',
   method: 'GET',
   query: { page, pageSize: PAGE_SIZE, ordering },

@@ -17,7 +17,7 @@ const { updateFavouriteProducts } = useUserStore()
 const PAGE_SIZE = 12
 const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
-const { data: favourites, status, refresh } = await useApi(`/api/user/account/${user.value?.id}/favourite-products`, {
+const { data: favourites, status, refresh } = await useApi<GetUserAccountFavouriteProductsResponse>(`/api/user/account/${user.value?.id}/favourite-products`, {
   key: `favourite-products-${user.value?.id}`,
   method: 'GET',
   query: { page, pageSize: PAGE_SIZE, ordering: '-createdAt' },

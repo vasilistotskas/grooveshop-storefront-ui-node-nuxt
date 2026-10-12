@@ -13,7 +13,7 @@ const { user } = useUserSession()
 const { items } = useAccountNavigation()
 const { signOut, signingOut } = useSignOut()
 
-const { data: latest, status: latestStatus, refresh: refreshLatest } = await useApi('/api/orders/my-orders', {
+const { data: latest, status: latestStatus, refresh: refreshLatest } = await useApi<ListMyOrdersResponse>('/api/orders/my-orders', {
   key: 'account-latest-order',
   method: 'GET',
   query: { pageSize: 1, ordering: '-createdAt' },

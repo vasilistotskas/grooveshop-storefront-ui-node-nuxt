@@ -263,7 +263,7 @@ onMounted(() => {
 
 // User-specific data: client-side only
 const { data: userProductReview, refresh: refreshUserProductReview }
-  = useLazyApi(`/api/products/reviews/${productId}/user-product-review`, {
+  = useLazyApi<GetUserProductReviewResponse>(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     method: 'GET',
     immediate: loggedIn.value,

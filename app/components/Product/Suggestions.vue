@@ -48,7 +48,7 @@ const fetches = props.items === undefined && typeof props.seedId === 'number'
 // routes resolve the response type from it, which a URL function
 // would not. The seed is fixed for the component's lifetime — the
 // page remounts it per product.
-const { data } = useApi(`/api/products/${props.seedId}/recommendations`, {
+const { data: served } = useApi(`/api/products/${props.seedId}/recommendations`, {
   key: `recommendations:${props.surface}:${props.seedId}:${props.limit ?? ''}`,
   query: {
     surface: props.surface,
@@ -63,6 +63,10 @@ const { data } = useApi(`/api/products/${props.seedId}/recommendations`, {
   // app/utils/payloadCachedData.ts.
   getCachedData: payloadCachedData,
 })
+// The route's response type comes from the generated Zod schema, where an
+// OpenAPI `NullEnum` is `unknown` (the TypeScript types have it as `never`);
+// the contract type is what the cards and the tracker are written against.
+const data = computed(() => served.value as ApiV1RecommendationsRetrieveResponse | null)
 
 const products = computed<readonly Product[]>(() => {
   if (props.items !== undefined) {
