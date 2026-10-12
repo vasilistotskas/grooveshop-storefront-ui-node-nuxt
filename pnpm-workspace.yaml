@@ -130,16 +130,16 @@ minimumReleaseAgeExclude:
   - '@vue/language-core@3.3.2'
   - isomorphic-dompurify@3.14.0 || 4.2.0
   - vue-tsc@3.3.2
-  - '@vitest/coverage-v8@4.1.7'
+  - '@vitest/coverage-v8@4.1.7 || 5.0.4'
   - '@vitest/expect@4.1.7'
-  - '@vitest/mocker@4.1.7'
+  - '@vitest/mocker@4.1.7 || 5.0.4'
   - '@vitest/pretty-format@4.1.7'
   - '@vitest/runner@4.1.7'
   - '@vitest/snapshot@4.1.7'
-  - '@vitest/spy@4.1.7'
+  - '@vitest/spy@4.1.7 || 5.0.4'
   - '@vitest/ui@4.1.7'
   - '@vitest/utils@4.1.7'
-  - vitest@4.1.7
+  - vitest@4.1.7 || 5.0.4
   - '@nuxt/ui@4.8.0'
   - '@iconify-json/ant-design@1.2.6'
   - eslint@10.6.0 || 10.7.0
@@ -150,7 +150,7 @@ minimumReleaseAgeExclude:
   - vite@8.1.3 || 8.3.4
   - '@nuxtjs/i18n@10.4.1'
   - semantic-release@25.0.6
-  - '@iconify-json/lucide@1.2.119 || 1.2.123 || 1.2.126 || 1.2.141 || 1.2.142'
+  - '@iconify-json/lucide@1.2.119 || 1.2.123 || 1.2.126 || 1.2.141 || 1.2.142 || 1.2.143'
   - '@nuxt/devtools-kit@3.3.1'
   - '@nuxt/devtools-wizard@3.3.1'
   - '@nuxt/devtools@3.3.1'
@@ -165,6 +165,8 @@ minimumReleaseAgeExclude:
   - playwright-core@1.64.0
   - vue-router@5.4.0
   - nuxt-auth-utils@0.5.31
+  - evlog@2.31.0
+  - zod@4.6.7
 # reka-ui's RatingItemIndicator decides whether a half-step is visible by
 # comparing VueUse's `useActiveElement()` with its own element. On the
 # server both are `undefined`, so `undefined === undefined` rendered every
@@ -175,14 +177,5 @@ minimumReleaseAgeExclude:
 # reka-ui exactly and still ships 2.10.5. Drop the patch with the @nuxt/ui
 # release that moves to reka-ui >= 2.11; pnpm refuses to install if the
 # pinned version moves without the patch moving with it.
-#
-# @nuxt/nitro-server 4.6.0 matches the renderer it must bundle against
-# POSIX paths only ("nuxt/dist"), so on Windows Nitro leaves
-# nuxt/dist/runtime/server/renderer external, `import.meta.dev` is never
-# replaced, and every SSR page in `nuxt dev` (and the e2e suite) answers
-# 500 "Either manifest or precomputed data must be provided"
-# (nuxt/nuxt#36467). The patch is upstream's hotfix nuxt/nuxt@21657c6fcf,
-# unreleased in 4.6.0; drop it with the release that ships it.
 patchedDependencies:
-  '@nuxt/nitro-server@4.6.0': patches/@nuxt__nitro-server@4.6.0.patch
   reka-ui@2.10.5: patches/reka-ui@2.10.5.patch
