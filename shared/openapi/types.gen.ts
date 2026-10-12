@@ -4127,10 +4127,6 @@ export type Order = {
      */
   customerNotes?: string
   readonly amountDue: number
-  /**
-     * @deprecated
-     */
-  readonly paidAmount: number
   items: Array<OrderItemDetail>
   readonly shippingPrice: number
   readonly paymentMethodFee: number
@@ -4668,10 +4664,6 @@ export type OrderDetail = {
      */
   customerNotes?: string
   readonly amountDue: number
-  /**
-     * @deprecated
-     */
-  readonly paidAmount: number
   items: Array<OrderItemDetail>
   readonly shippingPrice: number
   readonly paymentMethodFee: number
@@ -4824,10 +4816,6 @@ export type OrderDetail = {
     grandTotal?: number
     currency?: string
     amountDue?: number
-    /**
-         * @deprecated
-         */
-    paidAmount?: number
     remainingAmount?: number
   }
   /**
