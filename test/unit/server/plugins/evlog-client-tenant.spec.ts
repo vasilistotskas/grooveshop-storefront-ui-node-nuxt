@@ -1,14 +1,14 @@
-import type { MockInstance } from 'vitest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { getTenantConfig } from '~~/server/utils/tenant'
-import plugin from '~~/server/plugins/evlog-client-drain'
+import plugin from '~~/server/plugins/evlog-client-tenant'
 import { runNitroPlugin } from '~~/test/helpers/nitro'
 
 /**
- * evlog's ingest route hands a browser event to `evlog:drain` and prints
- * nothing, so the drain is the only thing that puts it on stdout. Server
- * events reach the same hook already printed, and must not print twice.
+ * evlog's ingest route runs `evlog:enrich` on a browser event BEFORE it
+ * prints it, so a field set there lands on the stdout line. Server events
+ * reach the same hook already printed, and carry their store from
+ * `0.tenant.ts`, so they are left alone.
  */
 vi.mock('~~/server/utils/tenant', async importOriginal => ({
   ...await importOriginal<typeof import('~~/server/utils/tenant')>(),
@@ -17,61 +17,50 @@ vi.mock('~~/server/utils/tenant', async importOriginal => ({
 
 const request = { method: 'POST', path: '/api/_evlog/ingest' }
 
-async function drain(event: Record<string, unknown>, headers: Record<string, string> = { host: 'shop.test' }) {
+async function enrich(event: Record<string, unknown>, headers: Record<string, string> = { host: 'shop.test' }) {
   const nitroApp = await runNitroPlugin(plugin)
-  await nitroApp.hooks.callHook('evlog:drain', { event, request, headers })
+  await nitroApp.hooks.callHook('evlog:enrich', { event, request, headers })
+  return event
 }
 
-describe('server/plugins/evlog-client-drain', () => {
-  let spies: Record<'log' | 'warn' | 'error', MockInstance>
-
-  // Spies are restored before every test (`restoreMocks`), so they are
-  // installed per test, not once at describe time.
+describe('server/plugins/evlog-client-tenant', () => {
   beforeEach(() => {
     vi.mocked(getTenantConfig).mockResolvedValue({ type: 'ok', config: validTenantConfig('shop.test', { schemaName: 'shop', name: 'Shop' }) })
-    spies = {
-      log: vi.spyOn(console, 'log').mockImplementation(() => {}),
-      warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
-      error: vi.spyOn(console, 'error').mockImplementation(() => {}),
-    }
   })
 
-  it.each([
-    ['info', 'log'],
-    ['debug', 'log'],
-    ['warn', 'warn'],
-    ['error', 'error'],
-  ] as const)('prints a client %s event as one JSON line on console.%s', async (level, method) => {
-    const event = { level, source: 'client', tag: 'cart', message: 'cart:setup:signed-in-without-cart', service: 'grooveshop-storefront' }
+  it('names the store a client event came from', async () => {
+    const event = await enrich({ level: 'warn', source: 'client', tag: 'cart' })
 
-    await drain(event)
+    expect(event).toEqual({ level: 'warn', source: 'client', tag: 'cart', tenantSchema: 'shop', tenantName: 'Shop' })
+  })
 
-    expect(spies[method]).toHaveBeenCalledExactlyOnceWith(JSON.stringify({ ...event, tenantSchema: 'shop', tenantName: 'Shop' }))
-    expect(Object.values(spies).reduce((calls, spy) => calls + spy.mock.calls.length, 0)).toBe(1)
+  it('resolves the store from the request host, port and case dropped', async () => {
+    await enrich({ level: 'warn', source: 'client' }, { host: 'Shop.Test:443' })
+
+    expect(getTenantConfig).toHaveBeenCalledWith('shop.test')
   })
 
   it.each([
     ['no source', { level: 'error', method: 'GET', path: '/' }],
     ['a server source', { level: 'error', source: 'server' }],
-  ])('ignores an event with %s (evlog printed it already)', async (_name, event) => {
-    await drain(event)
+  ])('leaves an event with %s alone', async (_name, event) => {
+    const before = { ...event }
 
-    expect(Object.values(spies).reduce((calls, spy) => calls + spy.mock.calls.length, 0)).toBe(0)
+    expect(await enrich(event)).toEqual(before)
+    expect(getTenantConfig).not.toHaveBeenCalled()
   })
 
-  it('names the store the event came from, resolved from the request host', async () => {
-    await drain({ level: 'warn', source: 'client', tag: 'cart' }, { host: 'Shop.Test:443' })
-
-    expect(getTenantConfig).toHaveBeenCalledWith('shop.test')
-    expect(spies.warn).toHaveBeenCalledExactlyOnceWith(JSON.stringify({ level: 'warn', source: 'client', tag: 'cart', tenantSchema: 'shop', tenantName: 'Shop' }))
-  })
-
-  it('still prints the event, without a store, when the host resolves to none', async () => {
+  it('leaves the event without a store when the host resolves to none', async () => {
     vi.mocked(getTenantConfig).mockResolvedValue({ type: 'not_found', config: null })
     const event = { level: 'warn', source: 'client' }
 
-    await drain(event)
+    expect(await enrich(event)).toEqual({ level: 'warn', source: 'client' })
+  })
 
-    expect(spies.warn).toHaveBeenCalledExactlyOnceWith(JSON.stringify(event))
+  it('leaves the event alone when the request carries no host', async () => {
+    const event = { level: 'warn', source: 'client' }
+
+    expect(await enrich(event, {})).toEqual({ level: 'warn', source: 'client' })
+    expect(getTenantConfig).not.toHaveBeenCalled()
   })
 })

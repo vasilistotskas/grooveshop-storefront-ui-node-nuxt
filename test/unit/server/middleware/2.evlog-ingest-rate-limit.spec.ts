@@ -1,6 +1,6 @@
 /**
  * evlog's `/api/_evlog/ingest` is unauthenticated by design and, once the
- * client-drain plugin prints what it accepts, a way to write to our logs:
+ * ingest route prints what it accepts, a way to write to our logs:
  * 60 events a minute per IP and store, a 429 past that, nothing else touched.
  */
 import { describe, expect, it } from 'vitest'
