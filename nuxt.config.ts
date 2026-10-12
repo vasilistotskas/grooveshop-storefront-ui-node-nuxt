@@ -856,6 +856,18 @@ export default defineNuxtConfig({
       // global default — see the byte-cost note above.
       ...(FONT_WEIGHTS[key] ? { weights: FONT_WEIGHTS[key] } : {}),
     })),
+    // Every family is a Google font. @nuxt/fonts 1.x fails the build when
+    // ANY enabled provider cannot initialise, and each remote provider
+    // fetches its catalogue at build time: a timeout on the unused
+    // googleicons provider broke main's build on 2026-10-13. Only the
+    // providers the families above use stay on (local/npm are offline).
+    providers: {
+      googleicons: false,
+      bunny: false,
+      fontshare: false,
+      fontsource: false,
+      adobe: false,
+    },
   },
   i18n: {
     defaultLocale: DEFAULT_LOCALE,
