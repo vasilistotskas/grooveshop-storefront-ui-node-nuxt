@@ -1,3 +1,10 @@
+## [3.243.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.6...v3.243.7) (2026-10-12)
+
+
+### Bug Fixes
+
+* **tenant:** give the demo store its own favicon ([#101](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/101)) ([c964793](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c964793bc09306a2d1772b6803a7ed78839f512b))
+
 ## [3.243.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.5...v3.243.6) (2026-10-12)
 
 
