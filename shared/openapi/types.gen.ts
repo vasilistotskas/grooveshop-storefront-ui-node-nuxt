@@ -4247,6 +4247,9 @@ export type Order = {
      * How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.
      */
   deliveryMethod: OrderDeliveryMethod
+  /**
+     * Αν ο πελάτης μπορεί να ακυρώσει την παραγγελία τώρα: η κατάστασή της το επιτρέπει και ο courier δεν έχει ακόμη παραλάβει το δέμα. Προκύπτει από τοπικά δεδομένα, οπότε το ίδιο το αίτημα ακύρωσης ρωτά πάντα τον courier και μπορεί να απορριφθεί με ``error.type`` ``parcel_with_courier``.
+     */
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -4312,6 +4315,35 @@ export type OrderAttributionInputRequest = {
      */
   agentProtocol?: AgentProtocolEnum
 }
+
+/**
+ * The 400 and 503 body of ``POST /order/{id}/cancel``.
+ *
+ * A refusal the order service types carries ``error.type``
+ * (``courier_unreachable`` is the 503); any other refusal (the order's
+ * status no longer allows a cancel) is ``detail`` alone, which is why
+ * ``error`` is optional.
+ */
+export type OrderCancelError = {
+  detail?: string
+  error?: OrderCancelErrorDetail
+}
+
+export type OrderCancelErrorDetail = {
+  /**
+     * Σταθερός κωδικός για τον λόγο απόρριψης της ακύρωσης. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail``, που είναι στη γλώσσα του αιτήματος.
+     *
+     * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+     * * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
+     */
+  type: OrderCancelErrorType
+}
+
+/**
+ * * `parcel_with_courier` - Το δέμα βρίσκεται ήδη στον courier
+ * * `courier_unreachable` - Δεν ήταν δυνατή η επικοινωνία με τον courier
+ */
+export type OrderCancelErrorType = 'parcel_with_courier' | 'courier_unreachable'
 
 /**
  * * `RECEIPT` - Απόδειξη
@@ -4752,6 +4784,9 @@ export type OrderDetail = {
      * How the order is delivered: the carrier (code and display name, null for a legacy order handled outside any provider) and the generic fulfilment kind (home delivery or pickup point). On the list too, so order history can label a row without opening it.
      */
   deliveryMethod: OrderDeliveryMethod
+  /**
+     * Αν ο πελάτης μπορεί να ακυρώσει την παραγγελία τώρα: η κατάστασή της το επιτρέπει και ο courier δεν έχει ακόμη παραλάβει το δέμα. Προκύπτει από τοπικά δεδομένα, οπότε το ίδιο το αίτημα ακύρωσης ρωτά πάντα τον courier και μπορεί να απορριφθεί με ``error.type`` ``parcel_with_courier``.
+     */
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -19449,10 +19484,6 @@ export type ListOrderData = {
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
-         */
-    canBeCanceled?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)
          */
     city?: string
@@ -20517,11 +20548,12 @@ export type CancelOrderData = {
 }
 
 export type CancelOrderErrors = {
-  400: ErrorResponse
+  400: OrderCancelError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
   500: ErrorResponse
+  503: OrderCancelError
 }
 
 export type CancelOrderError = CancelOrderErrors[keyof CancelOrderErrors]
@@ -20814,10 +20846,6 @@ export type ListMyOrdersData = {
          * Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
-         */
-    canBeCanceled?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)
          */
