@@ -50,14 +50,7 @@ export default defineEventHandler(async (event) => {
   // live on tenant #2's 96x96 favicon declared as 192/512). ``sizes``
   // is optional; omitting it lets the browser measure the resource.
   const faviconUrl = tenant?.faviconUrl
-  const faviconType = {
-    png: 'image/png',
-    svg: 'image/svg+xml',
-    ico: 'image/x-icon',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    webp: 'image/webp',
-  }[faviconUrl?.split('.').pop()?.toLowerCase() ?? '']
+  const faviconType = faviconUrl ? iconMimeType(faviconUrl) : undefined
   const icons = faviconUrl
     ? [
         {
