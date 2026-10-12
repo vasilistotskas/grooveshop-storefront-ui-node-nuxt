@@ -877,7 +877,7 @@ async function handleReorder() {
 
                 <div class="flex justify-between text-lg font-semibold">
                   <span>{{ t('total') }}</span>
-                  <span>{{ $i18n.n(order.pricingBreakdown?.grandTotal ?? order.paidAmount, 'currency') }}</span>
+                  <span>{{ $i18n.n(order.pricingBreakdown?.grandTotal ?? order.amountDue, 'currency') }}</span>
                 </div>
 
                 <div

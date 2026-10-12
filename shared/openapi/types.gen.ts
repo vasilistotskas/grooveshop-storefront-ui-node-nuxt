@@ -4126,6 +4126,10 @@ export type Order = {
      * Σημειώσεις Πελάτη
      */
   customerNotes?: string
+  readonly amountDue: number
+  /**
+     * @deprecated
+     */
   readonly paidAmount: number
   items: Array<OrderItemDetail>
   readonly shippingPrice: number
@@ -4663,6 +4667,10 @@ export type OrderDetail = {
      * Σημειώσεις Πελάτη
      */
   customerNotes?: string
+  readonly amountDue: number
+  /**
+     * @deprecated
+     */
   readonly paidAmount: number
   items: Array<OrderItemDetail>
   readonly shippingPrice: number
@@ -4815,6 +4823,10 @@ export type OrderDetail = {
     giftCardAmount?: number
     grandTotal?: number
     currency?: string
+    amountDue?: number
+    /**
+         * @deprecated
+         */
     paidAmount?: number
     remainingAmount?: number
   }
@@ -4889,7 +4901,7 @@ export type OrderDetail = {
     [key: string]: string
   }
   /**
-     * ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.
+     * ISO 4217 currency code for every monetary field on the order (amountDue, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.
      */
   readonly currency: string
   /**
@@ -19481,6 +19493,16 @@ export type ListOrderData = {
          * Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
+    amountDue_Gte?: string | number
+    amountDue_Lte?: string | number
+    /**
+         * Φίλτρο ανά μέγιστο οφειλόμενο ποσό
+         */
+    amountDueMax?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο οφειλόμενο ποσό
+         */
+    amountDueMin?: string | number
     /**
          * Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)
          */
@@ -19596,7 +19618,7 @@ export type ListOrderData = {
          */
     needsProcessing?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, amountDue, -amountDue, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName
          */
     ordering?: string
     /**
@@ -19615,16 +19637,6 @@ export type ListOrderData = {
          * Τύπος στρατηγικής σελιδοποίησης
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
-    paidAmount_Gte?: string | number
-    paidAmount_Lte?: string | number
-    /**
-         * Φίλτρο ανά μέγιστο πληρωμένο ποσό
-         */
-    paidAmountMax?: string | number
-    /**
-         * Φίλτρο ανά ελάχιστο πληρωμένο ποσό
-         */
-    paidAmountMin?: string | number
     /**
          * Φίλτρο ανά ID μεθόδου πληρωμής
          */
@@ -20844,6 +20856,16 @@ export type ListMyOrdersData = {
          * Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
+    amountDue_Gte?: string | number
+    amountDue_Lte?: string | number
+    /**
+         * Φίλτρο ανά μέγιστο οφειλόμενο ποσό
+         */
+    amountDueMax?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο οφειλόμενο ποσό
+         */
+    amountDueMin?: string | number
     /**
          * Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)
          */
@@ -20959,7 +20981,7 @@ export type ListMyOrdersData = {
          */
     needsProcessing?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, amountDue, -amountDue, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName
          */
     ordering?: string
     /**
@@ -20978,16 +21000,6 @@ export type ListMyOrdersData = {
          * Τύπος στρατηγικής σελιδοποίησης
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
-    paidAmount_Gte?: string | number
-    paidAmount_Lte?: string | number
-    /**
-         * Φίλτρο ανά μέγιστο πληρωμένο ποσό
-         */
-    paidAmountMax?: string | number
-    /**
-         * Φίλτρο ανά ελάχιστο πληρωμένο ποσό
-         */
-    paidAmountMin?: string | number
     /**
          * Φίλτρο ανά ID μεθόδου πληρωμής
          */
@@ -27178,7 +27190,7 @@ export type GetUserAccountOrdersData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paymentStatus, -paymentStatus, paidAmount, -paidAmount
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paymentStatus, -paymentStatus, amountDue, -amountDue
          */
     ordering?: string
     /**

@@ -13182,6 +13182,36 @@ paths:
               - type: boolean
           description: Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
         - in: query
+          name: amountDue_Gte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+        - in: query
+          name: amountDue_Lte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+        - in: query
+          name: amountDueMax
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+          description: Φίλτρο ανά μέγιστο οφειλόμενο ποσό
+        - in: query
+          name: amountDueMin
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+          description: Φίλτρο ανά ελάχιστο οφειλόμενο ποσό
+        - in: query
           name: city
           schema:
             type: string
@@ -13444,10 +13474,10 @@ paths:
         - name: ordering
           in: query
           required: false
-          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, amountDue, -amountDue, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
           schema:
             type: string
-            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$
+            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$
         - name: page
           required: false
           in: query
@@ -13484,36 +13514,6 @@ paths:
               - pageNumber
             default: pageNumber
           description: Τύπος στρατηγικής σελιδοποίησης
-        - in: query
-          name: paidAmount_Gte
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-        - in: query
-          name: paidAmount_Lte
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-        - in: query
-          name: paidAmountMax
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-          description: Φίλτρο ανά μέγιστο πληρωμένο ποσό
-        - in: query
-          name: paidAmountMin
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-          description: Φίλτρο ανά ελάχιστο πληρωμένο ποσό
         - in: query
           name: payWay
           schema:
@@ -16267,6 +16267,36 @@ paths:
               - type: boolean
           description: Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
         - in: query
+          name: amountDue_Gte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+        - in: query
+          name: amountDue_Lte
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+        - in: query
+          name: amountDueMax
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+          description: Φίλτρο ανά μέγιστο οφειλόμενο ποσό
+        - in: query
+          name: amountDueMin
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+          description: Φίλτρο ανά ελάχιστο οφειλόμενο ποσό
+        - in: query
           name: city
           schema:
             type: string
@@ -16529,10 +16559,10 @@ paths:
         - name: ordering
           in: query
           required: false
-          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, amountDue, -amountDue, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
           schema:
             type: string
-            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$
+            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|amountDue|\-amountDue|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$
         - in: query
           name: page
           schema:
@@ -16568,36 +16598,6 @@ paths:
               - pageNumber
             default: pageNumber
           description: Τύπος στρατηγικής σελιδοποίησης
-        - in: query
-          name: paidAmount_Gte
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-        - in: query
-          name: paidAmount_Lte
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-        - in: query
-          name: paidAmountMax
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-          description: Φίλτρο ανά μέγιστο πληρωμένο ποσό
-        - in: query
-          name: paidAmountMin
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-          description: Φίλτρο ανά ελάχιστο πληρωμένο ποσό
         - in: query
           name: payWay
           schema:
@@ -29166,10 +29166,10 @@ paths:
         - name: ordering
           in: query
           required: false
-          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paymentStatus, -paymentStatus, paidAmount, -paidAmount'
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paymentStatus, -paymentStatus, amountDue, -amountDue'
           schema:
             type: string
-            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|paidAmount|\-paidAmount)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|paidAmount|\-paidAmount))*$
+            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|amountDue|\-amountDue)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|amountDue|\-amountDue))*$
         - in: query
           name: page
           schema:
@@ -38484,6 +38484,14 @@ components:
         customerNotes:
           type: string
           title: Σημειώσεις Πελάτη
+        amountDue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
         paidAmount:
           type: number
           format: double
@@ -38492,6 +38500,7 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+          deprecated: true
         items:
           type: array
           items:
@@ -38680,6 +38689,7 @@ components:
           nullable: true
           description: Where the shopper came from. Null for an order placed before attribution was recorded.
       required:
+        - amountDue
         - attribution
         - billingActivity
         - billingCity
@@ -39230,6 +39240,14 @@ components:
         customerNotes:
           type: string
           title: Σημειώσεις Πελάτη
+        amountDue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
         paidAmount:
           type: number
           format: double
@@ -39238,6 +39256,7 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+          deprecated: true
         items:
           type: array
           items:
@@ -39468,8 +39487,11 @@ components:
               type: number
             currency:
               type: string
+            amountDue:
+              type: number
             paidAmount:
               type: number
+              deprecated: true
             remainingAmount:
               type: number
           readOnly: true
@@ -39583,13 +39605,14 @@ components:
           type: string
           example: EUR
           readOnly: true
-          description: ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.
+          description: ISO 4217 currency code for every monetary field on the order (amountDue, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.
         isFirstOrder:
           type: boolean
           readOnly: true
           description: True when the customer (account, or email for a guest) has no earlier non-canceled order. Feeds the ``new_customer`` parameter of the Google Ads purchase conversion, which Google asks to be calculated rather than hardcoded.
       required:
         - acsShipment
+        - amountDue
         - appliedCouponCodes
         - attribution
         - billingActivity

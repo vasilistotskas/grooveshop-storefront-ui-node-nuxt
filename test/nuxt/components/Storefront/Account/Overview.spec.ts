@@ -33,7 +33,7 @@ beforeEach(() => {
     id: 3,
     status: 'SHIPPED',
     statusDisplay: 'Απεστάλη',
-    paidAmount: 65.48,
+    amountDue: 65.48,
     items: [makeOrderItem({ id: 1, quantity: 1 }), makeOrderItem({ id: 2, quantity: 2 })],
   })]
   clearNuxtData('account-latest-order')
