@@ -328,10 +328,6 @@ export default defineNuxtConfig({
     // sets its own Cache-Control AFTER route-rule headers are applied,
     // so a rule here is silently dead. server/plugins/ipx-immutable.ts
     // owns that header instead.
-    '/_fonts/**': {
-      // Hashed, self-hosted font files — immutable.
-      headers: { 'cache-control': 'public, max-age=31536000, immutable' },
-    },
     // Brand-bearing static pages — SSR once per tenant, then served from
     // Nitro's cache (stale-while-revalidate). These pages read the
     // tenant store (storeName, logos, primaryDomain), so build-time
@@ -809,7 +805,6 @@ export default defineNuxtConfig({
     exclude: [
       '/_nuxt/**',
       '/_ipx/**',
-      '/_fonts/**',
       '/_i18n/**',
       '/img/**',
       '/platform-favicon/**',
@@ -825,7 +820,7 @@ export default defineNuxtConfig({
     // ``global: true`` forces @font-face emission for every family even
     // though no build-time CSS references them — @font-face is lazy, so
     // each tenant's visitors download only the family their --font-sans
-    // token resolves to. Files are self-hosted under /_fonts/** (no
+    // token resolves to. Files are self-hosted under /_nuxt/fonts/** (no
     // runtime Google requests, no CSP widening).
     //
     // The declarations are NOT free though: the unconstrained cross
@@ -836,6 +831,10 @@ export default defineNuxtConfig({
     // was 224 of the 472 faces; the rare .italic usage synthesizes
     // fine) and the subsets our locales (el/en/de) can produce —
     // cyrillic/vietnamese/greek-ext were dead weight on every page.
+    // @nuxt/fonts 1.x hoists the global faces out of entry.css into an
+    // inline <style> in every HTML response (nuxt/fonts#875: no stylesheet
+    // waterfall, less layout shift), so that same cost is now paid per
+    // document instead of once per immutable CSS file.
     defaults: {
       weights: [400, 500, 600, 700],
       styles: ['normal'],
