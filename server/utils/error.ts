@@ -1,4 +1,5 @@
 import { ZodError } from 'zod'
+import type { ZodType } from 'zod'
 import { FetchError } from 'ofetch'
 import { createError, isNuxtError, setResponseStatus } from 'nuxt/server'
 import type { RequestEvent } from 'nuxt/server'
@@ -174,6 +175,28 @@ export function forwardUpstreamClientError(event: RequestEvent, error: unknown):
     return error.data as unknown as undefined
   }
   handleError(event, error)
+}
+
+// A few routes document a 5xx answer of their own, such as the cancel
+// route's 503 ``courier_unreachable``: the courier gave no answer and
+// the client tells the shopper to try again later. Such a body is
+// returned as it came, like a 4xx, but only when ``schema`` validates
+// it, so an arbitrary upstream 5xx body (a stack trace, an internal
+// path) still takes the throw path and never reaches the browser.
+export function forwardUpstreamDocumentedError(event: RequestEvent, error: unknown, schema: ZodType): undefined {
+  if (error instanceof FetchError && error.status !== undefined && error.status >= 500) {
+    const documented = schema.safeParse(error.data)
+    if (documented.success) {
+      log.warn({
+        action: 'upstream:fetch',
+        error: error.message,
+        data: documented.data,
+      })
+      setResponseStatus(event, error.status)
+      return documented.data as undefined
+    }
+  }
+  return forwardUpstreamClientError(event, error)
 }
 
 function pendingFlowOf(error: AllAuthError) {

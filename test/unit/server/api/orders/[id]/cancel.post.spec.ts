@@ -5,9 +5,10 @@ import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 
 /**
  * POST /api/orders/:id/cancel: the customer's cancel. A refusal RETURNS
- * Django's 4xx body, because its `error.type` (`parcel_with_courier`)
- * is what the order page explains; a thrown error's body is stripped in
- * production.
+ * Django's body, because its `error.type` is what the order page
+ * explains (400 `parcel_with_courier`, 503 `courier_unreachable`); a
+ * thrown error's body is stripped in production. Any other 5xx body is
+ * never forwarded.
  */
 
 function cancel(id = 3) {
@@ -27,6 +28,7 @@ describe('POST /api/orders/:id/cancel', () => {
     const response = await cancel()
 
     expect(response.status).toBe(200)
+    expect(response.body).toEqual(canceled)
     expect(backend.lastRequest.path).toMatch(/\/order\/3\/cancel$/)
     expect(backend.lastRequest.method).toBe('POST')
   })
@@ -44,7 +46,20 @@ describe('POST /api/orders/:id/cancel', () => {
     expect(response.body).toEqual(refusal)
   })
 
-  it('throws a 5xx without forwarding Django\'s body', async () => {
+  it('returns the courier_unreachable 503 with Django\'s body, so the page asks to try again', async () => {
+    const unreachable = {
+      detail: 'We could not reach the courier.',
+      error: { type: 'courier_unreachable' },
+    }
+    backend.reply(jsonResponse(unreachable, 503))
+
+    const response = await cancel()
+
+    expect(response.status).toBe(503)
+    expect(response.body).toEqual(unreachable)
+  })
+
+  it('throws any other 5xx without forwarding Django\'s body', async () => {
     backend.reply(jsonResponse({ detail: 'courier client crashed at /internal' }, 500))
 
     const response = await cancel()

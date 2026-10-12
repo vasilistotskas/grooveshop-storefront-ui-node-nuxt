@@ -34,6 +34,13 @@ const HISTORY_TITLE_KEYS: Record<string, string> = {
   REFUND: 'history.refund',
 }
 
+// What a typed cancel refusal tells the shopper; one entry per type
+// Django can send, so a new one fails the typecheck until it has words.
+const CANCEL_REFUSAL_KEYS = {
+  parcel_with_courier: 'cancel.error_with_courier',
+  courier_unreachable: 'cancel.error_courier_unreachable',
+} satisfies Record<OrderCancelErrorType, string>
+
 interface TimelineEntry {
   key: string
   date: string
@@ -203,13 +210,15 @@ async function confirmCancel() {
     const refusal = (error as { data?: OrderCancelError })?.data?.error?.type
     log.error({ action: 'order:cancel', status, refusal, error })
     // The order moved on since the page loaded (or someone else
-    // canceled it): show its real state. A parcel the courier already
-    // has is its own reason, with what to do instead.
+    // canceled it): show its real state. A typed refusal is its own
+    // reason, with what to do instead: contact the store about a parcel
+    // the courier already has, or try again when the courier gave no
+    // answer (a 503, so the order is not refetched).
     const moved = status === 409 || status === 400
     toast.add({
       title: t('cancel.error_title'),
-      description: refusal === 'parcel_with_courier'
-        ? t('cancel.error_with_courier')
+      description: refusal
+        ? t(CANCEL_REFUSAL_KEYS[refusal])
         : moved ? t('cancel.error_moved') : t('cancel.error_description'),
       color: 'error',
       icon: 'i-lucide-circle-x',
@@ -637,6 +646,7 @@ el:
     error_description: Κάτι πήγε στραβά. Δοκίμασε ξανά.
     error_moved: Η παραγγελία προχώρησε και δεν ακυρώνεται πια.
     error_with_courier: Το δέμα σου είναι ήδη στην εταιρεία μεταφορών, οπότε η παραγγελία δεν ακυρώνεται πια. Επικοινώνησε με το κατάστημα για να κανονίσετε επιστροφή.
+    error_courier_unreachable: Δεν μπορέσαμε να επικοινωνήσουμε με την εταιρεία μεταφορών για να ακυρώσουμε το δέμα σου. Δοκίμασε ξανά σε λίγα λεπτά.
 en:
   title: "Order #{id}"
   placed: Placed {date} at {time}
@@ -691,4 +701,5 @@ en:
     error_description: Something went wrong. Please try again.
     error_moved: The order has moved on and can no longer be canceled.
     error_with_courier: Your parcel is already with the courier, so the order can no longer be canceled. Contact the store to arrange a return.
+    error_courier_unreachable: We couldn't reach the courier to cancel your parcel. Try again in a few minutes.
 </i18n>

@@ -233,11 +233,16 @@ describe('Storefront/Account/OrderDetail', () => {
     }))
   })
 
-  it('asks to try again, and keeps the order as it was, when the courier gives no answer', async () => {
-    cancelOrder.mockRejectedValueOnce(Object.assign(new Error('Service Unavailable'), {
+  it.each([
+    {
+      name: 'the courier gives no answer',
       statusCode: 503,
-      data: undefined,
-    }))
+      data: { detail: 'unreachable', error: { type: 'courier_unreachable' } },
+      says: 'σε λίγα λεπτά',
+    },
+    { name: 'anything else fails', statusCode: 500, data: undefined, says: 'Κάτι πήγε στραβά' },
+  ])('asks to try again, and keeps the order as it was, when $name', async ({ statusCode, data, says }) => {
+    cancelOrder.mockRejectedValueOnce(Object.assign(new Error('failed'), { statusCode, data }))
     const wrapper = await mountPage()
 
     await button(wrapper, 'Ακύρωση παραγγελίας')!.trigger('click')
@@ -248,7 +253,7 @@ describe('Storefront/Account/OrderDetail', () => {
 
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
       color: 'error',
-      description: expect.stringContaining('Δοκίμασε ξανά'),
+      description: expect.stringContaining(says),
     }))
     expect(fetches).toBe(1)
   })
