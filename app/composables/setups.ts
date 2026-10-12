@@ -175,7 +175,9 @@ export function setupPageHeader() {
           ]
         : favicon.value
           ? [
-              { rel: 'icon' as const, type: 'image/x-icon', href: favicon.value, key: 'tenant-favicon' },
+              // The type the store's file really is: a PNG declared as
+              // image/x-icon is a type a browser may refuse to use.
+              { rel: 'icon' as const, type: iconMimeType(favicon.value), href: favicon.value, key: 'tenant-favicon' },
               { rel: 'apple-touch-icon' as const, href: favicon.value },
             ]
           : []),
