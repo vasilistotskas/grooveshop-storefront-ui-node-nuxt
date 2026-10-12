@@ -1,3 +1,10 @@
+## [3.243.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.7...v3.243.8) (2026-10-12)
+
+
+### Bug Fixes
+
+* **blog:** request webside's inline post images at its article column ([#102](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/102)) ([b2da40a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b2da40aaa451b8a14b3555b667aaea38fa7550b6))
+
 ## [3.243.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.6...v3.243.7) (2026-10-12)
 
 
