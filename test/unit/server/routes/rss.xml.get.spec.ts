@@ -74,15 +74,15 @@ const productCategory = {
   recursiveProductCount: 1,
 }
 
-const onSale = makeProduct({ id: 1, price: 100, discountPercent: 10, mainImagePath: 'uploads/products/shoe.png', reviewCount: 2, reviewAverage: 4.5 })
+const onSale = makeProduct({ id: 1, price: 100, discountPercent: 10, effectivePrice: 110, priorPrice: 150, announcedDiscountPercent: 26, mainImagePath: 'uploads/products/shoe.png', reviewCount: 2, reviewAverage: 4.5 })
 const retired = makeProduct({ id: 2, active: false })
 
 /** Django: one blog post, two products (one retired) and their categories. */
-function djangoServesTheCatalogue() {
+function djangoServesTheCatalogue(products = [onSale, retired]) {
   backend.reply((request: BackendRequest) => {
     switch (request.path) {
       case `${API}/blog/post`: return { count: 1, results: [post] }
-      case `${API}/product`: return { count: 2, results: [onSale, retired] }
+      case `${API}/product`: return { count: products.length, results: products }
       case `${API}/blog/category/1`: return blogCategory
       case `${API}/product/category/1`: return productCategory
       default: return jsonResponse({ detail: 'Not found.' }, 404)
@@ -140,9 +140,10 @@ describe('GET /rss.xml', () => {
 
     const xml: string = (await feed()).body
 
-    expect(xml).toContain(`<product:price>${onSale.finalPrice}</product:price>`)
+    expect(xml).toContain('<product:price>110</product:price>')
     expect(xml).toContain('<product:currency>USD</product:currency>')
-    expect(xml).toContain('<product:discount>10%</product:discount>')
+    expect(xml).toContain('<product:discount>26%</product:discount>')
+    expect(xml).toContain('<product:originalPrice>150</product:originalPrice>')
     expect(xml).toContain('<product:availability>in stock</product:availability>')
     expect(xml).toContain('<product:reviewCount>2</product:reviewCount>')
   })

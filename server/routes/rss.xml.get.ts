@@ -324,7 +324,7 @@ async function processProducts(
 
     const customElements: Array<Record<string, unknown>> = [
       { 'atom:updated': new Date(product.updatedAt).toISOString() },
-      { 'product:price': product.finalPrice },
+      { 'product:price': productCurrentPrice(product) },
       { 'product:currency': currency },
     ]
 
@@ -343,9 +343,11 @@ async function processProducts(
       customElements.push({ 'media:title': translation.name })
     }
 
-    if (product.discountPercent && product.discountPercent > 0) {
-      customElements.push({ 'product:discount': `${product.discountPercent}%` })
-      customElements.push({ 'product:originalPrice': product.price })
+    // A reduction is announced only with its Omnibus prior price.
+    const announcement = productAnnouncement(product)
+    if (announcement) {
+      customElements.push({ 'product:discount': `${announcement.percent}%` })
+      customElements.push({ 'product:originalPrice': announcement.priorPrice })
     }
 
     if (typeof product.stock === 'number') {

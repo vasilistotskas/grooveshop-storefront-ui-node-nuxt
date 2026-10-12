@@ -89,13 +89,17 @@ watch(tiles, (items) => {
 }, { immediate: true })
 const displayPrice = (product: Product) => {
   const b2b = b2bPriceFor(product.id)
-  return b2b && Number(b2b.finalPrice) < product.finalPrice
+  const current = productCurrentPrice(product)
+  return b2b && Number(b2b.finalPrice) < current
     ? Number(b2b.finalPrice)
-    : product.finalPrice
+    : current
 }
-// The struck-through price: the VAT-inclusive pre-discount price, or
+// The struck-through price: the prior price of an announced reduction, or
 // the retail price under a lower wholesale one (see productWasPrice).
 const wasPrice = (product: Product) => productWasPrice(product, displayPrice(product))
+// Only a consumer is told of a reduction: none under a wholesale price.
+const announcement = (product: Product) =>
+  displayPrice(product) < productCurrentPrice(product) ? undefined : productAnnouncement(product)
 
 // Feedback loop. The impression is reported from onMounted, which
 // under ``hydrate-on-visible`` fires when the strip scrolls into view
@@ -268,8 +272,16 @@ const arrowButton = {
         </div>
 
         <div class="mt-auto flex items-baseline gap-2">
+          <ProductPriorPrice
+            v-if="announcement(item.product)"
+            :price="announcement(item.product)!.priorPrice"
+            class="
+              text-xs text-neutral-600
+              dark:text-neutral-400
+            "
+          />
           <span
-            v-if="wasPrice(item.product)"
+            v-else-if="wasPrice(item.product)"
             class="
               text-xs text-neutral-600 line-through
               dark:text-neutral-400

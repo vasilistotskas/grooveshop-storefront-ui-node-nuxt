@@ -49,10 +49,7 @@ function openZoom() {
   if (slides.value.length) zoomOpen.value = true
 }
 
-const discount = computed(() =>
-  props.product.offerKind === 'MARKDOWN' ? Math.round(props.product.discountPercent ?? 0) : 0,
-)
-const promoted = computed(() => props.product.offerKind === 'PROMOTION')
+const discount = computed(() => productAnnouncement(props.product)?.percent ?? 0)
 const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
 </script>
 
@@ -121,12 +118,6 @@ const soldOut = computed(() => (props.product.stock ?? 0) <= 0)
           color="neutral"
           class="bg-volt text-on-volt"
         />
-        <UBadge
-          v-else-if="promoted"
-          :label="t('offer')"
-          color="neutral"
-          class="bg-volt text-on-volt"
-        />
       </div>
 
       <UButton
@@ -192,11 +183,9 @@ el:
   zoom: Μεγέθυνση εικόνας
   show_image: Εικόνα {number}
   sold_out: Εξαντλήθηκε
-  offer: Προσφορά
 en:
   gallery: Product photos
   zoom: Zoom the image
   show_image: Image {number}
   sold_out: Sold out
-  offer: Offer
 </i18n>

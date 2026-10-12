@@ -16,7 +16,7 @@ const localePath = useLocalePath()
 const { productUrl } = useUrls()
 
 const { product } = toRefs(props)
-const { displayFinalPrice, wasPrice } = useShopperPrice(() => product.value.id, product)
+const { displayFinalPrice, wasPrice, announcement } = useShopperPrice(() => product.value.id, product)
 
 const name = computed(() => extractTranslated(product.value, 'name', locale.value) ?? '')
 const to = computed(() => localePath({ path: productUrl(product.value.id, product.value.slug) }))
@@ -64,12 +64,17 @@ const lowStockCount = computed(() => lowStockLeft(product.value))
       <span class="font-mono text-sm font-bold tabular-nums text-highlighted">
         {{ $i18n.n(displayFinalPrice, 'currency') }}
       </span>
-      <span
-        v-if="wasPrice"
-        class="font-mono text-xs tabular-nums text-muted line-through"
+      <ProductPriorPrice
+        v-if="announcement"
+        :price="announcement.priorPrice"
+        class="font-mono text-xs tabular-nums text-muted"
+      />
+      <s
+        v-else-if="wasPrice"
+        class="font-mono text-xs tabular-nums text-muted"
       >
         {{ $i18n.n(wasPrice, 'currency') }}
-      </span>
+      </s>
     </div>
 
     <p

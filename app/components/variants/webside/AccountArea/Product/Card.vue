@@ -121,9 +121,9 @@ const badge = computed(() => {
       color: 'warning' as const,
     }
   }
-  if ((product.value.discountPercent ?? 0) > 0) {
+  if (announcement.value) {
     return {
-      label: `-${Math.round(product.value.discountPercent ?? 0)}%`,
+      label: `-${announcement.value.percent}%`,
       color: 'error' as const,
     }
   }
@@ -146,17 +146,18 @@ onMounted(() => {
 const b2bPrice = computed(() => b2bPriceFor(productId.value))
 const isWholesalePrice = computed(() =>
   !!b2bPrice.value
-  && Number(b2bPrice.value.finalPrice) < (product.value.finalPrice ?? 0),
+  && Number(b2bPrice.value.finalPrice) < productCurrentPrice(product.value),
 )
 const displayFinalPrice = computed(() =>
   isWholesalePrice.value && b2bPrice.value
     ? Number(b2bPrice.value.finalPrice)
-    : product.value.finalPrice,
+    : productCurrentPrice(product.value),
 )
 
-// What the shopper would otherwise have paid — the number to strike
-// through (see productWasPrice for why it is not `product.price`).
+// The number to strike through (see productWasPrice) and the reduction a
+// consumer may be told about: none under a wholesale price.
 const wasPrice = computed(() => productWasPrice(product.value, displayFinalPrice.value))
+const announcement = computed(() => isWholesalePrice.value ? undefined : productAnnouncement(product.value))
 
 const shareOptions = computed(() => ({
   title: productName.value || '',
@@ -306,8 +307,13 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <span class="font-mono text-xl font-semibold tabular-nums text-highlighted">
             {{ $i18n.n(displayFinalPrice, 'currency') }}
           </span>
+          <ProductPriorPrice
+            v-if="announcement"
+            :price="announcement.priorPrice"
+            class="font-mono text-sm tabular-nums text-muted"
+          />
           <span
-            v-if="wasPrice"
+            v-else-if="wasPrice"
             class="font-mono text-sm tabular-nums text-muted line-through"
           >
             {{ $i18n.n(wasPrice, 'currency') }}

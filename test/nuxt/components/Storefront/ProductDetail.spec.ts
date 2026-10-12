@@ -87,14 +87,36 @@ describe.each([
     })
   }
 
-  // Net 50, 24 % VAT, 10 % off: final 57, pre-discount gross 62. The
-  // net price is below the final one, so striking it read as a rise.
-  it('strikes the VAT-inclusive pre-discount price beside a discounted final price', async () => {
+  // Net 50, 24 % VAT: 62 gross. The lowest price of the 30 days before the
+  // reduction was 80, and the shopper pays 62, so Django announces 22 %.
+  it('strikes the prior price, named as the lowest of the last 30 days, beside the effective price', async () => {
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, priorPrice: 80, announcedDiscountPercent: 22 }))
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(wrapper.findAll('s').map(node => node.text())).toEqual([money(80)])
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).toContain(money(62))
+    wrapper.unmount()
+  })
+
+  it('shows the effective price, not the final price an unconditional promotion lowers', async () => {
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, effectivePrice: 55 }))
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain(money(55))
+    expect(wrapper.text()).not.toContain(money(62))
+    wrapper.unmount()
+  })
+
+  it('announces nothing for a markdown that has no prior price', async () => {
     serve(makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 10 }))
     const wrapper = await mountSuspended(Component, { route: false })
     await flushPromises()
 
-    expect(wrapper.findAll('.line-through').map(node => node.text())).toEqual([money(62)])
+    expect(wrapper.find('s').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
     expect(wrapper.text()).toContain(money(57))
     wrapper.unmount()
   })
@@ -193,12 +215,19 @@ describe('default ProductDetail', () => {
     expect(wrapper.text()).toContain(line)
   })
 
-  it('names what the discount saves beside the struck price', async () => {
-    // Net 50, 24 % VAT, 10 % off: final 57 against a gross 62.
+  it('names what the announced reduction saves against its prior price', async () => {
+    // The shopper pays 62 against a prior price of 80.
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, priorPrice: 80, announcedDiscountPercent: 22 }))
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain(`Κερδίζεις ${useNuxtApp().$i18n.n(18, 'currency')}`)
+  })
+
+  it('names no saving for a markdown that has no prior price', async () => {
     serve(makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 10 }))
     const wrapper = await mountPage()
 
-    expect(wrapper.text()).toContain(`Κερδίζεις ${useNuxtApp().$i18n.n(5, 'currency')}`)
+    expect(wrapper.text()).not.toContain('Κερδίζεις')
   })
 
   it('opens the restock alert from the stock line of a sold-out product', async () => {

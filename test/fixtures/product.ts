@@ -31,7 +31,11 @@ export const cents = (value: number) => Math.round(value * 100) / 100
  * VAT are both taken off the NET price, `finalPrice = price + vat -
  * discount`), so `makeProduct({ price: 100, discountPercent: 10 })` is
  * self-consistent. `offerKind` follows the discount the way the backend
- * labels a markdown. An explicit override of a derived field wins.
+ * labels a markdown. `effectivePrice` is `finalPrice` (no automatic
+ * promotion), and the product announces no reduction: `priorPrice` and
+ * `announcedDiscountPercent` are null, as Django emits them until a
+ * reduction has a frozen prior price. An explicit override of a derived
+ * field wins.
  */
 export function makeProduct(overrides: Partial<Product> = {}): Product {
   const id = overrides.id ?? 1
@@ -78,6 +82,9 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     vatPercent,
     vatValue,
     finalPrice: cents(price + vatValue - discountValue),
+    effectivePrice: cents(price + vatValue - discountValue),
+    priorPrice: null,
+    announcedDiscountPercent: null,
     mainImagePath: '',
     reviewAverage: 0,
     reviewCount: 0,

@@ -28,6 +28,13 @@ mockNuxtImport('useB2BPricing', () => () => ({ register: vi.fn(), priceFor: b2bP
 mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
   computed(() => flags[key] ?? options.fallback))
 
+/**
+ * A reduction a shopper may be told about: 100 € net at 24 % VAT is 124 €
+ * now, the lowest price of the 30 days before it began was 150 €, so Django
+ * announces 17 % (floor of 17.33).
+ */
+const ANNOUNCED = { price: 100, priorPrice: 150, announcedDiscountPercent: 17 } as const
+
 /** `makeProduct`'s `createdAt` is 2026-01-01; "now" is ten days later. */
 const NOW = new Date('2026-01-11T00:00:00Z')
 
@@ -56,7 +63,7 @@ const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
  * rather than by a type-scale class.
  */
 function pricesOf(wrapper: Awaited<ReturnType<typeof mountCard>>): string[] {
-  return wrapper.findAll('span')
+  return wrapper.findAll('span, s')
     .filter(span => span.element.children.length === 0 && /\d\s*€$/.test(span.text()))
     .map(span => span.text())
 }
@@ -75,17 +82,18 @@ describe('Product/Card', () => {
   // One badge, most urgent first: cannot buy it, cheaper than usual,
   // new. Every product below is also new (ten days old).
   it.each<[string, Partial<Product>, { label: string, paint: string }]>([
-    ['sold out beats everything', { stock: 0, discountPercent: 20 }, { label: 'Εξαντλήθηκε', paint: 'neutral-soft' }],
-    ['a discount beats newness, in volt', { stock: 50, discountPercent: 12.6 }, { label: '−13%', paint: 'volt' }],
-    ['a promotion says "Offer", in volt, ahead of newness', { stock: 50, offerKind: 'PROMOTION' }, { label: 'Προσφορά', paint: 'volt' }],
+    ['sold out beats everything', { stock: 0, ...ANNOUNCED }, { label: 'Εξαντλήθηκε', paint: 'neutral-soft' }],
+    ['an announced reduction beats newness, in volt, with the percentage Django computed', { stock: 50, ...ANNOUNCED }, { label: '−17%', paint: 'volt' }],
+    ['a markdown with no prior price is not announced, so newness shows', { stock: 50, discountPercent: 20 }, { label: 'Νέο', paint: 'primary-solid' }],
+    ['a promotion with no prior price says no "Offer"', { stock: 50, offerKind: 'PROMOTION' }, { label: 'Νέο', paint: 'primary-solid' }],
     ['sold out beats a promotion', { stock: 0, offerKind: 'PROMOTION' }, { label: 'Εξαντλήθηκε', paint: 'neutral-soft' }],
     ['a new product says so in ink', { stock: 50 }, { label: 'Νέο', paint: 'primary-solid' }],
   ])('badge: %s', async (_case, overrides, expected) => {
     expect(await badgeOf(makeProduct(overrides))).toEqual(expected)
   })
 
-  it('shows no percentage unless the backend labels the discount a markdown', async () => {
-    const product = makeProduct({ stock: 50, discountPercent: 20, offerKind: null, createdAt: '2025-12-20T23:59:59Z' })
+  it('shows no percentage for a markdown that has no prior price', async () => {
+    const product = makeProduct({ stock: 50, discountPercent: 20, createdAt: '2025-12-20T23:59:59Z' })
 
     expect(await badgeOf(product)).toBeUndefined()
   })
@@ -135,20 +143,35 @@ describe('Product/Card', () => {
     expect(notify.attributes('data-price-drop')).toBe('false')
   })
 
-  it('strikes through the pre-discount VAT-inclusive price, never the net price', async () => {
-    // 100 € net, 24 % VAT, 10 % off: final 114 €, was 124 €.
+  it('strikes through the prior price, named as the lowest of the last 30 days', async () => {
+    const wrapper = await mountCard(makeProduct(ANNOUNCED))
+
+    expect(pricesOf(wrapper)).toEqual([money(124), money(150)])
+    // The strike-through IS the contract: it is what says "was".
+    expect(wrapper.get('s').text()).toBe(money(150))
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+  })
+
+  it('shows the effective price, which counts an unconditional promotion finalPrice ignores', async () => {
+    const wrapper = await mountCard(makeProduct({ ...ANNOUNCED, effectivePrice: 110, announcedDiscountPercent: 26 }))
+
+    expect(pricesOf(wrapper)).toEqual([money(110), money(150)])
+  })
+
+  it('strikes nothing through on a markdown that has no prior price', async () => {
+    // 10 % off the list price is a markdown, not an announcement.
     const wrapper = await mountCard(makeProduct({ price: 100, discountPercent: 10 }))
 
-    expect(pricesOf(wrapper)).toEqual([money(114), money(124)])
-    // The strike-through IS the contract: it is what says "was".
-    expect(wrapper.find('.line-through').text()).toBe(money(124))
+    expect(pricesOf(wrapper)).toEqual([money(114)])
+    expect(wrapper.find('s').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
   })
 
   it('strikes nothing through on an undiscounted product', async () => {
     const wrapper = await mountCard(makeProduct({ price: 50 }))
 
     expect(pricesOf(wrapper)).toEqual([money(62)])
-    expect(wrapper.find('.line-through').exists()).toBe(false)
+    expect(wrapper.find('s').exists()).toBe(false)
   })
 
   it('swaps in a lower wholesale price with the retail price struck through', async () => {
@@ -157,7 +180,8 @@ describe('Product/Card', () => {
     const wrapper = await mountCard(makeProduct({ price: 50 }))
 
     expect(pricesOf(wrapper)).toEqual([money(40), money(62)])
-    expect(wrapper.find('.line-through').text()).toBe(money(62))
+    expect(wrapper.get('s').text()).toBe(money(62))
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
   })
 
   it('ignores a wholesale price that is not lower than retail', async () => {
@@ -166,7 +190,7 @@ describe('Product/Card', () => {
     const wrapper = await mountCard(makeProduct({ price: 50 }))
 
     expect(pricesOf(wrapper)).toEqual([money(62)])
-    expect(wrapper.find('.line-through').exists()).toBe(false)
+    expect(wrapper.find('s').exists()).toBe(false)
   })
 
   it('links the whole card to the product page, named after the product', async () => {
@@ -217,16 +241,15 @@ describe('Product/Card', () => {
   })
 
   it.each([
-    ['a markdown', { discountPercent: 20, offerKind: 'MARKDOWN' as const }, '−20%'],
-    ['a promotion', { discountPercent: 0, offerKind: 'PROMOTION' as const }, 'Προσφορά'],
+    ['an announced reduction', { priorPrice: 80, effectivePrice: 62, announcedDiscountPercent: 22 }, '−22%'],
   ])('badges a search hit that is %s as the home card does', async (_case, overrides, label) => {
     const hit = makeProductSearchHit({ createdAt: null, ...overrides })
 
     expect(await badgeOf(hit as unknown as Product)).toEqual({ label, paint: 'volt' })
   })
 
-  it('badges nothing on a search hit with no offer', async () => {
-    const hit = makeProductSearchHit({ createdAt: null, discountPercent: 20, offerKind: null })
+  it('badges nothing on a search hit whose markdown or promotion has no prior price', async () => {
+    const hit = makeProductSearchHit({ createdAt: null, discountPercent: 20, offerKind: 'MARKDOWN' })
 
     expect(await badgeOf(hit as unknown as Product)).toBeUndefined()
   })

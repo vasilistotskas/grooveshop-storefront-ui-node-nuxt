@@ -297,22 +297,16 @@ function onPalettePointerMove(event: PointerEvent) {
         <template #product-trailing="{ item }">
           <span class="flex shrink-0 flex-col items-end gap-0.5">
             <span
-              v-if="item.product.finalPrice !== null"
+              v-if="productCurrentPrice(item.product) != null"
               class="font-mono text-sm font-semibold text-highlighted"
             >
-              {{ n(item.product.finalPrice, 'currency') }}
+              {{ n(productCurrentPrice(item.product)!, 'currency') }}
             </span>
             <span
-              v-if="item.product.offerKind === 'MARKDOWN' && (item.product.discountPercent ?? 0) > 0"
+              v-if="productAnnouncement(item.product)"
               class="rounded-full bg-volt px-1.5 py-0.5 font-mono text-[0.6875rem] font-semibold text-on-volt"
             >
-              −{{ Math.round(item.product.discountPercent ?? 0) }}%
-            </span>
-            <span
-              v-else-if="item.product.offerKind === 'PROMOTION'"
-              class="rounded-full bg-volt px-1.5 py-0.5 text-[0.6875rem] font-semibold text-on-volt"
-            >
-              {{ t('offer') }}
+              −{{ productAnnouncement(item.product)!.percent }}%
             </span>
           </span>
         </template>
@@ -443,7 +437,6 @@ el:
   relaxed_notice: Εμφανίζονται αποτελέσματα για "{query}"
   see_all: "Δες το αποτέλεσμα | Δες και τα {count} αποτελέσματα"
   to_navigate: για πλοήγηση
-  offer: Προσφορά
 en:
   title: Search
   description: Search the shop
@@ -462,5 +455,4 @@ en:
   relaxed_notice: Showing results for "{query}"
   see_all: "See the result | See all {count} results"
   to_navigate: to navigate
-  offer: Offer
 </i18n>

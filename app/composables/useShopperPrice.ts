@@ -1,6 +1,8 @@
 import type { MaybeRefOrGetter } from 'vue'
 
-type Priced = Pick<Product, 'finalPrice' | 'discountValue'>
+type Priced = Pick<Product, 'finalPrice' | 'effectivePrice' | 'priorPrice' | 'announcedDiscountPercent'>
+
+const currentPrice = (product: Priced | null | undefined) => product ? productCurrentPrice(product) : undefined
 
 /**
  * The price THIS shopper pays for a product on screen, and the one to
@@ -20,11 +22,11 @@ type Priced = Pick<Product, 'finalPrice' | 'discountValue'>
 export function useShopperPrice(
   productId: MaybeRefOrGetter<number>,
   product: MaybeRefOrGetter<Priced>,
-): { displayFinalPrice: ComputedRef<number>, wasPrice: ComputedRef<number | undefined> }
+): { displayFinalPrice: ComputedRef<number>, wasPrice: ComputedRef<number | undefined>, announcement: ComputedRef<PriceAnnouncement | undefined> }
 export function useShopperPrice(
   productId: MaybeRefOrGetter<number | undefined>,
   product: MaybeRefOrGetter<Priced | null | undefined>,
-): { displayFinalPrice: ComputedRef<number | undefined>, wasPrice: ComputedRef<number | undefined> }
+): { displayFinalPrice: ComputedRef<number | undefined>, wasPrice: ComputedRef<number | undefined>, announcement: ComputedRef<PriceAnnouncement | undefined> }
 export function useShopperPrice(
   productId: MaybeRefOrGetter<number | undefined>,
   product: MaybeRefOrGetter<Priced | null | undefined>,
@@ -36,15 +38,23 @@ export function useShopperPrice(
   })
 
   const displayFinalPrice = computed(() =>
-    shopperFinalPrice(toValue(product)?.finalPrice, priceFor(toValue(productId))),
+    shopperFinalPrice(currentPrice(toValue(product)), priceFor(toValue(productId))),
   )
 
-  // What the shopper would otherwise have paid (see productWasPrice for
-  // why it is not `product.price`).
+  // The prior price of an announced reduction, or the retail price under a
+  // wholesale one (see productWasPrice).
   const wasPrice = computed(() => {
     const current = toValue(product)
-    return current ? productWasPrice(current, displayFinalPrice.value ?? current.finalPrice) : undefined
+    return current ? productWasPrice(current, displayFinalPrice.value ?? productCurrentPrice(current)) : undefined
   })
 
-  return { displayFinalPrice, wasPrice }
+  // The reduction the shopper may be told about: none under a wholesale
+  // price, which is not a consumer announcement.
+  const announcement = computed(() => {
+    const current = toValue(product)
+    const wholesale = current && displayFinalPrice.value !== undefined && displayFinalPrice.value < productCurrentPrice(current)
+    return current && !wholesale ? productAnnouncement(current) : undefined
+  })
+
+  return { displayFinalPrice, wasPrice, announcement }
 }

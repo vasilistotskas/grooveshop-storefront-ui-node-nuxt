@@ -91,15 +91,25 @@ describe('PageSectionHeroCarousel', () => {
       expect(chip.text()).toContain(useNuxtApp().$i18n.n(powerBank.finalPrice, 'currency'))
     })
 
-    it('strikes through what the product cost before its discount', async () => {
+    it('prices the chip at the effective price and strikes the prior price of an announced reduction', async () => {
+      const announced = makeProduct({ id: 7, price: 40, vatPercent: 24, slug: 'power-bank', effectivePrice: 44, priorPrice: 60, announcedDiscountPercent: 26 })
+      api.routes({ '/api/products/7': announced })
+
+      const wrapper = await mountHero({ slides: withChip(7) })
+
+      const { n } = useNuxtApp().$i18n
+      const chip = wrapper.get('a[href="/products/7/power-bank"]')
+      expect(chip.text()).toContain(n(44, 'currency'))
+      expect(chip.get('s').text()).toBe(n(60, 'currency'))
+      expect(chip.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    })
+
+    it('strikes nothing on a markdown that has no prior price', async () => {
       api.routes({ '/api/products/7': powerBank })
 
       const wrapper = await mountHero({ slides: withChip(7) })
 
-      const was = useNuxtApp().$i18n.n(powerBank.finalPrice + powerBank.discountValue, 'currency')
-      const struck = wrapper.get('a[href="/products/7/power-bank"] .line-through')
-      expect(struck.text()).toBe(`Πριν ${was}`)
-      expect(struck.get('.sr-only').text()).toBe('Πριν')
+      expect(wrapper.get('a[href="/products/7/power-bank"]').find('s').exists()).toBe(false)
     })
 
     it('fetches the product of every chip once, together', async () => {

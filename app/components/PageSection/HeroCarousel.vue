@@ -103,13 +103,13 @@ const chipProducts = await useHeroProductChips(
 const chips = computed(() => items.value.map((slide) => {
   const product = slide.productId ? chipProducts.value[slide.productId] : undefined
   if (!product) return undefined
-  const was = productWasPrice(product, product.finalPrice)
+  const prior = productAnnouncement(product)?.priorPrice
   return {
     to: localePath({ path: productUrl(product.id, product.slug) }),
     image: product.mainImagePath,
     name: extractTranslated(product, 'name', locale.value) ?? '',
-    price: formatPrice(product.finalPrice),
-    was: was ? formatPrice(was) : undefined,
+    price: formatPrice(productCurrentPrice(product)),
+    prior,
   }
 }))
 
@@ -328,10 +328,11 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                   <span class="text-sm font-bold text-highlighted">{{ chips[index]!.name }}</span>
                   <span class="flex flex-wrap items-baseline gap-2">
                     <span class="font-mono text-base font-bold text-highlighted tabular-nums">{{ chips[index]!.price }}</span>
-                    <span
-                      v-if="chips[index]!.was"
-                      class="font-mono text-xs text-muted tabular-nums line-through"
-                    ><span class="sr-only">{{ `${t('chip.was')} ` }}</span>{{ chips[index]!.was }}</span>
+                    <ProductPriorPrice
+                      v-if="chips[index]!.prior"
+                      :price="chips[index]!.prior!"
+                      class="font-mono text-xs text-muted tabular-nums"
+                    />
                   </span>
                 </span>
               </NuxtLink>
@@ -530,8 +531,6 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
 
 <i18n lang="yaml">
 el:
-  chip:
-    was: Πριν
   carousel:
     banner: Κύριο banner
     bannerLink: Άνοιγμα συνδέσμου banner
@@ -540,8 +539,6 @@ el:
     prev: Προηγούμενη διαφάνεια
     next: Επόμενη διαφάνεια
 en:
-  chip:
-    was: Was
   carousel:
     banner: Main banner
     bannerLink: Open banner link

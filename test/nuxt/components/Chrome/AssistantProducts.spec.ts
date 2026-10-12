@@ -75,8 +75,28 @@ describe('Chrome/AssistantProducts', () => {
     const wrapper = await mountCards({ ids: [1] })
     await vi.waitFor(() => expect(wrapper.find('li h4').exists()).toBe(true))
 
-    expect(wrapper.find('li .line-through').text()).toBe(money(124))
+    expect(wrapper.get('li s').text()).toBe(money(124))
     expect(wrapper.text()).toContain(money(90))
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
+  })
+
+  it('strikes the prior price of an announced reduction, named as the lowest of 30 days', async () => {
+    catalogue({ 1: makeProduct({ id: 1, price: 100, priorPrice: 150, announcedDiscountPercent: 17 }) })
+
+    const wrapper = await mountCards({ ids: [1] })
+    await vi.waitFor(() => expect(wrapper.find('li h4').exists()).toBe(true))
+
+    expect(wrapper.get('li s').text()).toBe(money(150))
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+  })
+
+  it('strikes nothing on a markdown that has no prior price', async () => {
+    catalogue({ 1: makeProduct({ id: 1, price: 100, discountPercent: 10 }) })
+
+    const wrapper = await mountCards({ ids: [1] })
+    await vi.waitFor(() => expect(wrapper.find('li h4').exists()).toBe(true))
+
+    expect(wrapper.find('li s').exists()).toBe(false)
   })
 
   it('drops a product that is gone or inactive without a trace', async () => {

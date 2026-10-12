@@ -3313,6 +3313,12 @@ export type FederatedSearchResult = {
   description?: string
   finalPrice?: number | null
   price?: number | null
+  effectivePrice?: number | null
+  priorPrice?: number | null
+  announcedDiscountPercent?: number | null
+  /**
+     * @deprecated
+     */
   discountPercent?: number | null
   offerKind?: OfferKindEnum | NullEnum | null
   stock?: number
@@ -7033,13 +7039,24 @@ export type Product = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
+  /**
+     * @deprecated
+     */
   readonly discountValue: number
+  /**
+     * @deprecated
+     */
   readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
   readonly mainImagePath: string
   /**
      * Return the average review rating for this product.
@@ -7500,13 +7517,24 @@ export type ProductDetail = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
+  /**
+     * @deprecated
+     */
   readonly discountValue: number
+  /**
+     * @deprecated
+     */
   readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
   readonly mainImagePath: string
   /**
      * Return the average review rating for this product.
@@ -7606,13 +7634,24 @@ export type ProductDetailResponse = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
+  /**
+     * @deprecated
+     */
   readonly discountValue: number
+  /**
+     * @deprecated
+     */
   readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
   readonly mainImagePath: string
   /**
      * Return the average review rating for this product.
@@ -7868,6 +7907,12 @@ export type ProductMeiliSearchResult = {
   contentType: string
   finalPrice: number | null
   price: number | null
+  effectivePrice: number | null
+  priorPrice: number | null
+  announcedDiscountPercent: number | null
+  /**
+     * @deprecated
+     */
   discountPercent: number | null
   offerKind?: OfferKindEnum | NullEnum | null
   stock: number
@@ -8080,13 +8125,24 @@ export type ProductRetrieve = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
+  /**
+     * @deprecated
+     */
   readonly discountValue: number
+  /**
+     * @deprecated
+     */
   readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
   readonly mainImagePath: string
   /**
      * Return the average review rating for this product.
@@ -12456,6 +12512,8 @@ export type ProductWritable = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null
@@ -12675,6 +12733,8 @@ export type ProductDetailWritable = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null
@@ -12725,6 +12785,8 @@ export type ProductDetailResponseWritable = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null
@@ -12841,6 +12903,8 @@ export type ProductRetrieveWritable = {
   } | null
   /**
      * Ποσοστό Έκπτωσης
+     *
+     * @deprecated
      */
   discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null

@@ -37182,9 +37182,21 @@ components:
           type: number
           format: double
           nullable: true
+        effectivePrice:
+          type: number
+          format: double
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          nullable: true
         discountPercent:
           type: integer
           nullable: true
+          deprecated: true
         offerKind:
           nullable: true
           oneOf:
@@ -43419,6 +43431,7 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
+          deprecated: true
         discountValue:
           type: number
           format: double
@@ -43427,10 +43440,12 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+          deprecated: true
         priceSavePercent:
           type: number
           format: double
           readOnly: true
+          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -43451,6 +43466,28 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        effectivePrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          readOnly: true
+          nullable: true
         mainImagePath:
           type: string
           readOnly: true
@@ -43492,12 +43529,14 @@ components:
             - $ref: '#/components/schemas/OfferKindEnum'
             - $ref: '#/components/schemas/NullEnum'
       required:
+        - announcedDiscountPercent
         - attributes
         - brand
         - brandName
         - category
         - createdAt
         - discountValue
+        - effectivePrice
         - finalPrice
         - id
         - likesCount
@@ -43505,6 +43544,7 @@ components:
         - mainImagePath
         - price
         - priceSavePercent
+        - priorPrice
         - reviewAverage
         - reviewCount
         - slug
@@ -44276,6 +44316,7 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
+          deprecated: true
         discountValue:
           type: number
           format: double
@@ -44284,10 +44325,12 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+          deprecated: true
         priceSavePercent:
           type: number
           format: double
           readOnly: true
+          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -44308,6 +44351,28 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        effectivePrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          readOnly: true
+          nullable: true
         mainImagePath:
           type: string
           readOnly: true
@@ -44354,12 +44419,14 @@ components:
           title: Ειδοποιήσεις πτώσης τιμής
           description: Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
       required:
+        - announcedDiscountPercent
         - attributes
         - brand
         - brandName
         - category
         - createdAt
         - discountValue
+        - effectivePrice
         - finalPrice
         - id
         - likesCount
@@ -44368,6 +44435,7 @@ components:
         - price
         - priceDropAlertsEnabled
         - priceSavePercent
+        - priorPrice
         - reviewAverage
         - reviewCount
         - slug
@@ -44494,6 +44562,7 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
+          deprecated: true
         discountValue:
           type: number
           format: double
@@ -44502,10 +44571,12 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+          deprecated: true
         priceSavePercent:
           type: number
           format: double
           readOnly: true
+          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -44526,6 +44597,28 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        effectivePrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          readOnly: true
+          nullable: true
         mainImagePath:
           type: string
           readOnly: true
@@ -44572,12 +44665,14 @@ components:
           title: Ειδοποιήσεις πτώσης τιμής
           description: Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
       required:
+        - announcedDiscountPercent
         - attributes
         - brand
         - brandName
         - category
         - createdAt
         - discountValue
+        - effectivePrice
         - finalPrice
         - id
         - likesCount
@@ -44586,6 +44681,7 @@ components:
         - price
         - priceDropAlertsEnabled
         - priceSavePercent
+        - priorPrice
         - reviewAverage
         - reviewCount
         - slug
@@ -45016,9 +45112,21 @@ components:
           type: number
           format: double
           nullable: true
+        effectivePrice:
+          type: number
+          format: double
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          nullable: true
         discountPercent:
           type: integer
           nullable: true
+          deprecated: true
         offerKind:
           nullable: true
           oneOf:
@@ -45054,12 +45162,14 @@ components:
           type: integer
           nullable: true
       required:
+        - announcedDiscountPercent
         - brandName
         - categoryName
         - contentType
         - createdAt
         - description
         - discountPercent
+        - effectivePrice
         - finalPrice
         - formatted
         - id
@@ -45071,6 +45181,7 @@ components:
         - matchesPosition
         - name
         - price
+        - priorPrice
         - rankingScore
         - reviewAverage
         - reviewCount
@@ -45396,6 +45507,7 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
+          deprecated: true
         discountValue:
           type: number
           format: double
@@ -45404,10 +45516,12 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+          deprecated: true
         priceSavePercent:
           type: number
           format: double
           readOnly: true
+          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -45428,6 +45542,28 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        effectivePrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          readOnly: true
+          nullable: true
         mainImagePath:
           type: string
           readOnly: true
@@ -45479,12 +45615,14 @@ components:
             $ref: '#/components/schemas/RatingDistribution'
           readOnly: true
       required:
+        - announcedDiscountPercent
         - attributes
         - brand
         - brandName
         - category
         - createdAt
         - discountValue
+        - effectivePrice
         - finalPrice
         - id
         - likesCount
@@ -45493,6 +45631,7 @@ components:
         - price
         - priceDropAlertsEnabled
         - priceSavePercent
+        - priorPrice
         - ratingDistribution
         - reviewAverage
         - reviewCount

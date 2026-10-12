@@ -2,8 +2,8 @@
 /**
  * One cart line, as the boards draw it: the photograph on a sunken tile,
  * the brand and the name, the quantity stepper and "Remove", and the
- * line's price on the right — struck through at what it was when an
- * offer lowers it, with "2 × unit" under it for more than one.
+ * line's price on the right, with "2 × unit" under it for more than one.
+ * A cart line carries no prior price, so it announces no reduction.
  *
  * `compact` is the cart drawer's row: no brand, and an icon-only remove
  * beside the stepper. The quantity control is the shared
@@ -28,11 +28,6 @@ const { deleteCartItem, createCartItem } = useCartStore()
 const name = computed(() => extractTranslated(props.cartItem.product, 'name', locale.value) ?? '')
 const link = computed(() => ({ path: productUrl(props.cartItem.product.id, props.cartItem.product.slug) }))
 const quantity = computed(() => props.cartItem.quantity ?? 1)
-
-/** What the line cost before its offer: the unit's final price plus its discount, per unit. */
-const wasTotal = computed(() => props.cartItem.discountValue > 0
-  ? (props.cartItem.finalPrice + props.cartItem.discountValue) * quantity.value
-  : null)
 
 const removing = ref(false)
 
@@ -123,14 +118,8 @@ async function remove() {
           </Anchor>
         </div>
         <div class="flex shrink-0 flex-col items-end">
-          <p class="flex items-baseline gap-1.5 font-mono font-bold text-highlighted">
-            <span>{{ n(cartItem.totalPrice, 'currency') }}</span>
-            <s
-              v-if="wasTotal !== null"
-              class="text-xs font-medium text-toned"
-            >
-              <span class="sr-only">{{ t('was') }}</span>{{ n(wasTotal, 'currency') }}
-            </s>
+          <p class="font-mono font-bold text-highlighted">
+            {{ n(cartItem.totalPrice, 'currency') }}
           </p>
           <p
             v-if="quantity > 1"
@@ -165,7 +154,6 @@ async function remove() {
 
 <i18n lang="yaml">
 el:
-  was: "Αρχική τιμή: "
   each: "{quantity} × {price}"
   remove: Αφαίρεση
   remove_named: Αφαίρεση του «{name}» από το καλάθι
@@ -176,7 +164,6 @@ el:
     undo_failed: Η αναίρεση δεν έγινε
     delete_failed: Δεν αφαιρέθηκε από το καλάθι. Δοκίμασε ξανά.
 en:
-  was: "Was "
   each: "{quantity} × {price}"
   remove: Remove
   remove_named: Remove “{name}” from the cart

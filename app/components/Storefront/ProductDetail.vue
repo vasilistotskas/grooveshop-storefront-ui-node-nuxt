@@ -193,7 +193,7 @@ onMounted(() => {
     const productData = product.value
     const pid = productData.id != null ? String(productData.id) : ''
     const price = Number(
-      productData.finalPrice ?? productData.price ?? 0,
+      productCurrentPrice(productData) ?? productData.price ?? 0,
     )
     // The same name the page shows, so what the pixels report and
     // what the shopper saw are one string.
@@ -334,7 +334,7 @@ const formatProductPrice = (price?: number) => {
 
 // What this shopper pays and what to strike through: retail renders
 // first, the wholesale price swaps in after hydration (see useShopperPrice).
-const { displayFinalPrice, wasPrice } = useShopperPrice(() => product.value?.id, product)
+const { displayFinalPrice, wasPrice, announcement } = useShopperPrice(() => product.value?.id, product)
 
 /**
  * The product's name in the best language it EXISTS in.
@@ -402,7 +402,7 @@ onMounted(() => {
     name: extractTranslated(product.value, 'name', locale.value) || '',
     mainImagePath: product.value.mainImagePath ?? null,
     finalPrice: typeof product.value.finalPrice === 'number'
-      ? product.value.finalPrice
+      ? productCurrentPrice(product.value)
       : null,
     addedAt: Date.now(),
   })
@@ -494,17 +494,17 @@ const stockLine = computed(() => {
   return { label: t('in_stock'), dot: 'bg-success' }
 })
 
-/** What the discount saves, beside the struck price. */
+/** What the announced reduction saves against its prior price, beside the struck price. */
 const saving = computed(() =>
-  wasPrice.value && displayFinalPrice.value !== undefined
-    ? wasPrice.value - displayFinalPrice.value
+  announcement.value && displayFinalPrice.value !== undefined
+    ? announcement.value.priorPrice - displayFinalPrice.value
     : 0,
 )
 
 const priceDropOffered = computed(() =>
   productAlertsEnabled.value
   && !!product.value?.priceDropAlertsEnabled
-  && (product.value?.finalPrice ?? 0) > 0,
+  && (product.value ? productCurrentPrice(product.value) : 0) > 0,
 )
 
 /**
@@ -629,8 +629,18 @@ useSchemaOrg([
 
       offers: {
         '@type': 'Offer' as const,
-        'price': (product.value?.finalPrice || 0).toFixed(2),
+        'price': (product.value ? productCurrentPrice(product.value) : 0).toFixed(2),
         'priceCurrency': 'EUR',
+        // A strikethrough price is an announcement: only the prior price
+        // of a reduction that may be announced.
+        'priceSpecification': announcement.value
+          ? [{
+              '@type': 'UnitPriceSpecification' as const,
+              'priceType': 'https://schema.org/StrikethroughPrice',
+              'price': announcement.value.priorPrice.toFixed(2),
+              'priceCurrency': 'EUR',
+            }]
+          : undefined,
         'availability': productAvailability.value,
         'itemCondition': productCondition.value,
         'url': canonicalUrl.value,
@@ -641,7 +651,6 @@ useSchemaOrg([
         },
         'hasMerchantReturnPolicy': {
           '@type': 'MerchantReturnPolicy',
-          'applicableCountry': 'GR',
           'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
           'merchantReturnDays': 14,
           'returnMethod': 'https://schema.org/ReturnByMail',
@@ -824,15 +833,23 @@ useSchemaOrg([
                 >
                   {{ formatProductPrice(displayFinalPrice) }}
                 </span>
-                <span
-                  v-if="wasPrice"
+                <ProductPriorPrice
+                  v-if="announcement"
+                  :price="announcement.priorPrice"
                   class="
-                    font-mono text-[1.4375rem] tabular-nums text-muted line-through
+                    font-mono text-[1.4375rem] tabular-nums text-muted
+                    lg:text-[1.6875rem]
+                  "
+                />
+                <s
+                  v-else-if="wasPrice"
+                  class="
+                    font-mono text-[1.4375rem] tabular-nums text-muted
                     lg:text-[1.6875rem]
                   "
                 >
                   {{ formatProductPrice(wasPrice) }}
-                </span>
+                </s>
               </div>
               <UBadge
                 v-if="saving > 0"
