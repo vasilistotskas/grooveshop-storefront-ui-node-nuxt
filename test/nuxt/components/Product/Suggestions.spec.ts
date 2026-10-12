@@ -28,7 +28,7 @@ const named = (id: number, name: string, overrides: Parameters<typeof makeProduc
 // `product.price` both missed the discount and would have struck the
 // wrong number — a VAT-free fixture had hidden that.
 const POT = named(2, 'Γλάστρα', { reviewAverage: 8, reviewCount: 12 })
-const SOIL = named(3, 'Χώμα', { price: 50, discountPercent: 10, vatPercent: 24 })
+const SOIL = named(3, 'Χώμα', { price: 50, vatPercent: 24, priorPrice: 80, announcedDiscountPercent: 22 })
 
 const payload = () => ({
   surface: 'pdp',
@@ -125,13 +125,14 @@ describe('webside Product/Suggestions', () => {
     expect(tiles[1]!.find('p').text()).toBe('Ίδια κατηγορία')
   })
 
-  it('strikes the VAT-inclusive pre-discount price beside the final price of a discounted tile only', async () => {
+  it('strikes the prior price beside the price of a tile with an announced reduction only', async () => {
     const wrapper = await mountStrip()
 
     const [pot, soil] = wrapper.findAll('article')
-    expect(soil!.find('.line-through').text()).toBe(money(62))
-    expect(soil!.find('.font-bold').text()).toBe(money(57))
-    expect(pot!.find('.line-through').exists()).toBe(false)
+    expect(soil!.find('s').text()).toBe(money(80))
+    expect(soil!.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(soil!.find('.font-bold').text()).toBe(money(62))
+    expect(pot!.find('s').exists()).toBe(false)
     expect(pot!.find('.font-bold').text()).toBe(money(POT.finalPrice))
   })
 

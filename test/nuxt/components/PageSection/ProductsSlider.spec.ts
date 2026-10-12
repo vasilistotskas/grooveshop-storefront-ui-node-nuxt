@@ -62,7 +62,7 @@ describe('PageSection/ProductsSlider', () => {
     { ordering: 'featured', sort: '-viewCount', heading: 'Επιλεγμένα προϊόντα', link: ['Όλα τα επιλεγμένα', '/products?sort=-viewCount'] },
     { ordering: 'newest', sort: '-createdAt', heading: 'Νέες αφίξεις', link: ['Όλες οι νέες αφίξεις', '/products?sort=-createdAt'] },
     { ordering: 'popular', sort: '-likesCount', heading: 'Δημοφιλή', link: ['Όλα τα δημοφιλή', '/products?sort=-likesCount'] },
-    { ordering: 'discounted', sort: '-discountPercent', heading: 'Σε προσφορά', link: ['Όλα τα προϊόντα', '/products'] },
+    { ordering: 'discounted', sort: '-announcedDiscountPercent', heading: 'Σε προσφορά', link: ['Όλα τα προϊόντα', '/products'] },
     { ordering: 'rating', sort: '-reviewAverage', heading: 'Κορυφαίες αξιολογήσεις', link: ['Όλα τα προϊόντα', '/products'] },
   ])('orders a $ordering rail by $sort and names it for it', async ({ ordering, sort, heading, link }) => {
     const wrapper = await mountSlider({ ordering })
@@ -78,9 +78,9 @@ describe('PageSection/ProductsSlider', () => {
     expect(api.callsTo(PRODUCTS_URL)[0]!.options.query).toEqual({
       pageSize: 4,
       languageCode: 'el',
-      ordering: '-discountPercent',
+      ordering: '-announcedDiscountPercent',
       category: '3',
-      minDiscountPercent: 1,
+      minAnnouncedDiscountPercent: 1,
     })
   })
 

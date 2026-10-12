@@ -81,15 +81,17 @@ onMounted(() => {
 const b2bPrice = computed(() => b2bPriceFor(productId.value))
 const isWholesalePrice = computed(() =>
   !!b2bPrice.value
-  && Number(b2bPrice.value.finalPrice) < (product.value.finalPrice ?? 0),
+  && Number(b2bPrice.value.finalPrice) < productCurrentPrice(product.value),
 )
 const displayFinalPrice = computed(() =>
   isWholesalePrice.value && b2bPrice.value
     ? Number(b2bPrice.value.finalPrice)
-    : product.value.finalPrice,
+    : productCurrentPrice(product.value),
 )
-// The struck-through price (see productWasPrice for why not `price`).
+// The struck-through price (see productWasPrice) and the reduction a
+// consumer may be told about: none under a wholesale price.
 const wasPrice = computed(() => productWasPrice(product.value, displayFinalPrice.value))
+const announcement = computed(() => isWholesalePrice.value ? undefined : productAnnouncement(product.value))
 
 const shareOptions = computed(() => ({
   title: productName.value || '',
@@ -137,13 +139,13 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
     >
       <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
         <UBadge
-          v-if="product.discountPercent && product.discountPercent > 0"
+          v-if="announcement"
           color="error"
           variant="soft"
           size="lg"
           class="w-fit font-bold"
         >
-          -{{ Math.round(product.discountPercent) }}%
+          -{{ announcement.percent }}%
         </UBadge>
         <UBadge
           v-if="product.stock === 0"
@@ -293,10 +295,19 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <div class="flex flex-col gap-2">
         <div
-          v-if="wasPrice && (isWholesalePrice || showStartPrice)"
+          v-if="wasPrice && (isWholesalePrice || (announcement && showStartPrice))"
           class="flex items-center gap-2"
         >
+          <ProductPriorPrice
+            v-if="announcement"
+            :price="announcement.priorPrice"
+            class="
+              text-sm text-neutral-700
+              dark:text-neutral-300
+            "
+          />
           <span
+            v-else
             class="
               text-sm text-neutral-700 line-through
               dark:text-neutral-300

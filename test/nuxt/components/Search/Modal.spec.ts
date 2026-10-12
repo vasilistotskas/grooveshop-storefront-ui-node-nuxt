@@ -349,24 +349,26 @@ describe('Search/Modal (palette)', () => {
       expect(hrefs[4]).toContain('/2')
     })
 
-    it('shows a product\'s price, and its discount only when it has one', async () => {
+    it('shows a product\'s current price, and a percentage only for an announced reduction', async () => {
       api.routes({
         '/api/search': answering(() => searchResponse([
-          makeProductSearchHit({ id: 1, name: 'Προϊόν 1', finalPrice: 41.5, discountPercent: 15, offerKind: 'MARKDOWN' }),
-          makeProductSearchHit({ id: 2, name: 'Προϊόν 2', finalPrice: 27.9, discountPercent: 0 }),
-          makeProductSearchHit({ id: 3, name: 'Προϊόν 3', finalPrice: 30, discountPercent: 0, offerKind: 'PROMOTION' }),
+          makeProductSearchHit({ id: 1, name: 'Προϊόν 1', finalPrice: 45, effectivePrice: 41.5, priorPrice: 50, announcedDiscountPercent: 17 }),
+          makeProductSearchHit({ id: 2, name: 'Προϊόν 2', finalPrice: 27.9 }),
+          makeProductSearchHit({ id: 3, name: 'Προϊόν 3', finalPrice: 30, discountPercent: 15, offerKind: 'MARKDOWN' }),
+          makeProductSearchHit({ id: 4, name: 'Προϊόν 4', finalPrice: 30, offerKind: 'PROMOTION' }),
         ], [])),
       })
 
       await openModal(SearchModal, 'lap')
 
       expect(optionTexts()[0]).toContain(eur(41.5))
-      expect(optionTexts()[0]).toContain('−15%')
+      expect(optionTexts()[0]).toContain('−17%')
       expect(optionTexts()[1]).toContain(eur(27.9))
       expect(optionTexts()[1]).not.toContain('%')
-      expect(optionTexts()[1]).not.toContain('Προσφορά')
-      expect(optionTexts()[2]).toContain('Προσφορά')
+      // A markdown or a promotion with no prior price announces nothing.
       expect(optionTexts()[2]).not.toContain('%')
+      expect(optionTexts()[3]).not.toContain('Προσφορά')
+      expect(optionTexts()[3]).not.toContain('%')
     })
 
     it('names the category under a product that has one', async () => {

@@ -180,7 +180,7 @@ onMounted(() => {
     const productData = product.value
     const pid = productData.id != null ? String(productData.id) : ''
     const price = Number(
-      productData.finalPrice ?? productData.price ?? 0,
+      productCurrentPrice(productData) ?? productData.price ?? 0,
     )
     const productName = extractTranslated(productData, 'name', locale.value)
     metaPixel.trackViewContent({
@@ -288,16 +288,20 @@ const b2bPrice = computed(() =>
 )
 const isWholesalePrice = computed(() =>
   !!b2bPrice.value
-  && Number(b2bPrice.value.finalPrice) < (product.value?.finalPrice ?? 0),
+  && Number(b2bPrice.value.finalPrice) < (product.value ? productCurrentPrice(product.value) : 0),
 )
 const displayFinalPrice = computed(() =>
   isWholesalePrice.value && b2bPrice.value
     ? Number(b2bPrice.value.finalPrice)
-    : product.value?.finalPrice,
+    : (product.value ? productCurrentPrice(product.value) : undefined),
 )
-// The struck-through price (see productWasPrice for why not `price`).
+// The struck-through price (see productWasPrice) and the reduction a
+// consumer may be told about: none under a wholesale price.
 const wasPrice = computed(() =>
-  product.value ? productWasPrice(product.value, displayFinalPrice.value ?? product.value.finalPrice) : undefined,
+  product.value ? productWasPrice(product.value, displayFinalPrice.value ?? productCurrentPrice(product.value)) : undefined,
+)
+const announcement = computed(() =>
+  product.value && !isWholesalePrice.value ? productAnnouncement(product.value) : undefined,
 )
 
 const incrementQuantity = () => {
@@ -362,7 +366,7 @@ onMounted(() => {
     name: extractTranslated(product.value, 'name', locale.value) || '',
     mainImagePath: product.value.mainImagePath ?? null,
     finalPrice: typeof product.value.finalPrice === 'number'
-      ? product.value.finalPrice
+      ? productCurrentPrice(product.value)
       : null,
     addedAt: Date.now(),
   })
@@ -605,8 +609,18 @@ useSchemaOrg([
 
       offers: {
         '@type': 'Offer' as const,
-        'price': (product.value?.finalPrice || 0).toFixed(2),
+        'price': (product.value ? productCurrentPrice(product.value) : 0).toFixed(2),
         'priceCurrency': 'EUR',
+        // A strikethrough price is an announcement: only the prior price
+        // of a reduction that may be announced.
+        'priceSpecification': product.value && productAnnouncement(product.value)
+          ? [{
+              '@type': 'UnitPriceSpecification' as const,
+              'priceType': 'https://schema.org/StrikethroughPrice',
+              'price': productAnnouncement(product.value)!.priorPrice.toFixed(2),
+              'priceCurrency': 'EUR',
+            }]
+          : undefined,
         'availability': productAvailability.value,
         'itemCondition': productCondition.value,
         'url': canonicalUrl.value,
@@ -773,12 +787,12 @@ useSchemaOrg([
                 </UBadge>
 
                 <UBadge
-                  v-if="product.discountPercent && product.discountPercent > 0"
+                  v-if="announcement"
                   color="info"
                   size="lg"
                   variant="soft"
                 >
-                  -{{ product.discountPercent }}%
+                  -{{ announcement.percent }}%
                 </UBadge>
               </div>
             </div>
@@ -798,8 +812,17 @@ useSchemaOrg([
                   {{ formatProductPrice(displayFinalPrice) }}
                 </span>
 
+                <ProductPriorPrice
+                  v-if="announcement"
+                  :price="announcement.priorPrice"
+                  class="
+                    text-lg text-gray-500
+                    dark:text-gray-200
+                  "
+                />
+
                 <span
-                  v-if="wasPrice"
+                  v-else-if="wasPrice"
                   class="
                     text-lg text-gray-500 line-through
                     dark:text-gray-200
@@ -1083,7 +1106,7 @@ useSchemaOrg([
                     dark:text-primary-400
                   "
                 >
-                  {{ formatProductPrice(product?.finalPrice) }}
+                  {{ formatProductPrice(product ? productCurrentPrice(product) : undefined) }}
                 </span>
                 <UBadge
                   v-if="productStock <= 5 && productStock > 0"

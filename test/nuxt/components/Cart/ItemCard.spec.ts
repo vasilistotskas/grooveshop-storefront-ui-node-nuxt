@@ -13,8 +13,8 @@ import { failWith } from '~~/test/helpers/api'
  * with an Undo that re-creates the line — the row id dies with the
  * DELETE, so Undo can only add the same product and quantity back.
  *
- * The default card is the redesign's (brand, struck "was" price,
- * "2 × unit", a compact drawer row); the frozen webside card keeps its
+ * The default card is the redesign's (brand, "2 × unit", a compact
+ * drawer row; a cart line carries no prior price, so it strikes nothing); the frozen webside card keeps its
  * own suite below, unchanged.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -51,21 +51,22 @@ describe('Cart/ItemCard (default)', () => {
   const removeButton = (wrapper: Awaited<ReturnType<typeof mount>>) =>
     wrapper.get('button[aria-label="Αφαίρεση του «Προϊόν 3» από το καλάθι"]')
 
-  it('links the name to the product and prices the line, struck at what it was, with the unit for more than one', async () => {
+  it('links the name to the product and prices the line, with the unit for more than one', async () => {
     const item = makeCartItem(LINE)
     const wrapper = await mount()
 
     expect(wrapper.findAll('a').map(link => link.attributes('href'))).toEqual(['/products/3/kafetiera', '/products/3/kafetiera'])
     expect(wrapper.text()).toContain('Προϊόν 3')
     expect(wrapper.text()).toContain(money(item.totalPrice))
-    expect(wrapper.get('s').text()).toBe(`Αρχική τιμή: ${money((item.finalPrice + item.discountValue) * 2)}`)
+    // A markdown on the line is no announcement: nothing is struck.
+    expect(item.discountValue).toBeGreaterThan(0)
+    expect(wrapper.find('s').exists()).toBe(false)
     expect(wrapper.text()).toContain(`2 × ${money(item.finalPrice)}`)
   })
 
-  it('strikes nothing without an offer, and shows no unit price for a single item', async () => {
+  it('shows no unit price for a single item', async () => {
     const wrapper = await mount({ ...LINE, quantity: 1, product: { ...LINE.product, discountPercent: 0 } })
 
-    expect(wrapper.find('s').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('1 ×')
   })
 
@@ -142,7 +143,7 @@ describe('Cart/ItemCard (frozen webside)', () => {
     expect(wrapper.find('h3 a').attributes('href')).toBe('/products/3/kafetiera')
     expect(wrapper.find('h3').text()).toBe('Προϊόν 3')
     expect(text).toContain(`Τιμή: ${money(item.finalPrice)}`)
-    expect(text).toContain(`Έκπτωση ${money(item.discountValue)} / Ανά τεμάχιο`)
+    expect(text).not.toContain('Έκπτωση')
     expect(text).toContain(`Σύνολο: ${money(item.totalPrice)}`)
   })
 

@@ -31634,6 +31634,22 @@
                     },
                     {
                         "in": "query",
+                        "name": "minAnnouncedDiscountPercent",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Minimum announced discount percentage: only products with an Omnibus prior price, computed from it"
+                    },
+                    {
+                        "in": "query",
                         "name": "minDiscount",
                         "schema": {
                             "oneOf": [
@@ -31780,10 +31796,10 @@
                         "name": "ordering",
                         "in": "query",
                         "required": false,
-                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent",
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent, announcedDiscountPercent, -announcedDiscountPercent",
                         "schema": {
                             "type": "string",
-                            "pattern": "^(?:price|\\-price|createdAt|\\-createdAt|active|\\-active|availabilityPriority|\\-availabilityPriority|viewCount|\\-viewCount|stock|\\-stock|likesCount|\\-likesCount|reviewAverage|\\-reviewAverage|discountPercent|\\-discountPercent)(?:,(?:price|\\-price|createdAt|\\-createdAt|active|\\-active|availabilityPriority|\\-availabilityPriority|viewCount|\\-viewCount|stock|\\-stock|likesCount|\\-likesCount|reviewAverage|\\-reviewAverage|discountPercent|\\-discountPercent))*$"
+                            "pattern": "^(?:price|\\-price|createdAt|\\-createdAt|active|\\-active|availabilityPriority|\\-availabilityPriority|viewCount|\\-viewCount|stock|\\-stock|likesCount|\\-likesCount|reviewAverage|\\-reviewAverage|discountPercent|\\-discountPercent|announcedDiscountPercent|\\-announcedDiscountPercent)(?:,(?:price|\\-price|createdAt|\\-createdAt|active|\\-active|availabilityPriority|\\-availabilityPriority|viewCount|\\-viewCount|stock|\\-stock|likesCount|\\-likesCount|reviewAverage|\\-reviewAverage|discountPercent|\\-discountPercent|announcedDiscountPercent|\\-announcedDiscountPercent))*$"
                         }
                     },
                     {
@@ -60396,9 +60412,24 @@
                         "format": "double",
                         "nullable": true
                     },
-                    "discountPercent": {
+                    "effectivePrice": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "priorPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "announcedDiscountPercent": {
                         "type": "integer",
                         "nullable": true
+                    },
+                    "discountPercent": {
+                        "type": "integer",
+                        "nullable": true,
+                        "deprecated": true
                     },
                     "offerKind": {
                         "nullable": true,
@@ -68418,7 +68449,8 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "title": "Ποσοστό Έκπτωσης"
+                        "title": "Ποσοστό Έκπτωσης",
+                        "deprecated": true
                     },
                     "discountValue": {
                         "type": "number",
@@ -68427,12 +68459,14 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "priceSavePercent": {
                         "type": "number",
                         "format": "double",
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "vatPercent": {
                         "type": "number",
@@ -68456,6 +68490,31 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "readOnly": true
+                    },
+                    "effectivePrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "priorPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "announcedDiscountPercent": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -68514,12 +68573,14 @@
                     }
                 },
                 "required": [
+                    "announcedDiscountPercent",
                     "attributes",
                     "brand",
                     "brandName",
                     "category",
                     "createdAt",
                     "discountValue",
+                    "effectivePrice",
                     "finalPrice",
                     "id",
                     "likesCount",
@@ -68527,6 +68588,7 @@
                     "mainImagePath",
                     "price",
                     "priceSavePercent",
+                    "priorPrice",
                     "reviewAverage",
                     "reviewCount",
                     "slug",
@@ -69581,7 +69643,8 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "title": "Ποσοστό Έκπτωσης"
+                        "title": "Ποσοστό Έκπτωσης",
+                        "deprecated": true
                     },
                     "discountValue": {
                         "type": "number",
@@ -69590,12 +69653,14 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "priceSavePercent": {
                         "type": "number",
                         "format": "double",
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "vatPercent": {
                         "type": "number",
@@ -69619,6 +69684,31 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "readOnly": true
+                    },
+                    "effectivePrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "priorPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "announcedDiscountPercent": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -69683,12 +69773,14 @@
                     }
                 },
                 "required": [
+                    "announcedDiscountPercent",
                     "attributes",
                     "brand",
                     "brandName",
                     "category",
                     "createdAt",
                     "discountValue",
+                    "effectivePrice",
                     "finalPrice",
                     "id",
                     "likesCount",
@@ -69697,6 +69789,7 @@
                     "price",
                     "priceDropAlertsEnabled",
                     "priceSavePercent",
+                    "priorPrice",
                     "reviewAverage",
                     "reviewCount",
                     "slug",
@@ -69864,7 +69957,8 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "title": "Ποσοστό Έκπτωσης"
+                        "title": "Ποσοστό Έκπτωσης",
+                        "deprecated": true
                     },
                     "discountValue": {
                         "type": "number",
@@ -69873,12 +69967,14 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "priceSavePercent": {
                         "type": "number",
                         "format": "double",
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "vatPercent": {
                         "type": "number",
@@ -69902,6 +69998,31 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "readOnly": true
+                    },
+                    "effectivePrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "priorPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "announcedDiscountPercent": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -69966,12 +70087,14 @@
                     }
                 },
                 "required": [
+                    "announcedDiscountPercent",
                     "attributes",
                     "brand",
                     "brandName",
                     "category",
                     "createdAt",
                     "discountValue",
+                    "effectivePrice",
                     "finalPrice",
                     "id",
                     "likesCount",
@@ -69980,6 +70103,7 @@
                     "price",
                     "priceDropAlertsEnabled",
                     "priceSavePercent",
+                    "priorPrice",
                     "reviewAverage",
                     "reviewCount",
                     "slug",
@@ -70564,9 +70688,24 @@
                         "format": "double",
                         "nullable": true
                     },
-                    "discountPercent": {
+                    "effectivePrice": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "priorPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "announcedDiscountPercent": {
                         "type": "integer",
                         "nullable": true
+                    },
+                    "discountPercent": {
+                        "type": "integer",
+                        "nullable": true,
+                        "deprecated": true
                     },
                     "offerKind": {
                         "nullable": true,
@@ -70620,12 +70759,14 @@
                     }
                 },
                 "required": [
+                    "announcedDiscountPercent",
                     "brandName",
                     "categoryName",
                     "contentType",
                     "createdAt",
                     "description",
                     "discountPercent",
+                    "effectivePrice",
                     "finalPrice",
                     "formatted",
                     "id",
@@ -70637,6 +70778,7 @@
                     "matchesPosition",
                     "name",
                     "price",
+                    "priorPrice",
                     "rankingScore",
                     "reviewAverage",
                     "reviewCount",
@@ -71028,7 +71170,8 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "title": "Ποσοστό Έκπτωσης"
+                        "title": "Ποσοστό Έκπτωσης",
+                        "deprecated": true
                     },
                     "discountValue": {
                         "type": "number",
@@ -71037,12 +71180,14 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "priceSavePercent": {
                         "type": "number",
                         "format": "double",
-                        "readOnly": true
+                        "readOnly": true,
+                        "deprecated": true
                     },
                     "vatPercent": {
                         "type": "number",
@@ -71066,6 +71211,31 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "readOnly": true
+                    },
+                    "effectivePrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "priorPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "announcedDiscountPercent": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -71137,12 +71307,14 @@
                     }
                 },
                 "required": [
+                    "announcedDiscountPercent",
                     "attributes",
                     "brand",
                     "brandName",
                     "category",
                     "createdAt",
                     "discountValue",
+                    "effectivePrice",
                     "finalPrice",
                     "id",
                     "likesCount",
@@ -71151,6 +71323,7 @@
                     "price",
                     "priceDropAlertsEnabled",
                     "priceSavePercent",
+                    "priorPrice",
                     "ratingDistribution",
                     "reviewAverage",
                     "reviewCount",

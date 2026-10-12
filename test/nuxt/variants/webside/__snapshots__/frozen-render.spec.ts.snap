@@ -644,7 +644,7 @@ exports[`webside frozen render > product card 1`] = `
   <!--v-if-->
   <div data-slot="body" class="p-0 sm:p-0">
     <div data-v-X="" class="relative overflow-hidden bg-white dark:bg-neutral-800">
-      <div data-v-X="" class="absolute top-4 left-4 z-10 flex flex-col gap-2"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md bg-error/10 text-error w-fit font-bold"><!--v-if--> -10% <!--v-if--></span>
+      <div data-v-X="" class="absolute top-4 left-4 z-10 flex flex-col gap-2"><span data-v-X="" data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md bg-error/10 text-error w-fit font-bold"><!--v-if--> -16% <!--v-if--></span>
         <!--v-if-->
       </div>
       <div data-v-X="" class="absolute top-4 right-4 z-10 flex gap-2">

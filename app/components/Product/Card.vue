@@ -9,9 +9,9 @@ import type { PropType } from 'vue'
  * photograph on a sunken tile, and under it the brand, the name, the
  * rating and the price — nothing boxed around them.
  *
- * The photograph carries one badge, by priority (sold out, an offer —
- * a markdown's percentage or "Offer" for a promotion — new); stock running low is a line under the price, where the shopper
- * is deciding. The buy button is ALWAYS visible, not revealed on hover —
+ * The photograph carries one badge, by priority (sold out, the percentage
+ * of an announced reduction, new); stock running low is a line under the
+ * price, where the shopper is deciding. The buy button is ALWAYS visible, not revealed on hover —
  * a hover-only control does not exist on a touch screen: an "Add" pill
  * on the photograph from `sm` up, an icon button beside the price on a
  * phone, as the design draws them.
@@ -85,6 +85,8 @@ const productName = computed(() => {
 // English shopper to the Greek product page.
 const to = computed(() => localePath({ path: productUrl(productId.value, product.value.slug) }))
 
+const { displayFinalPrice, wasPrice, announcement } = useShopperPrice(productId, product)
+
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 
 const lowStockCount = computed(() => lowStockLeft(product.value))
@@ -104,19 +106,13 @@ const badge = computed(() => {
   if (outOfStock.value) {
     return { label: t('sold_out'), color: 'neutral' as const, variant: 'soft' as const, class: undefined }
   }
-  // A markdown names its percentage; a promotion has none to name.
-  if (product.value.offerKind === 'MARKDOWN' && (product.value.discountPercent ?? 0) > 0) {
+  // Only an announced reduction names a percentage, computed from its
+  // prior price; a product with none is not on offer as far as the
+  // photograph says.
+  if (announcement.value) {
     return {
       // U+2212, the minus sign the design sets, not a hyphen.
-      label: `−${Math.round(product.value.discountPercent ?? 0)}%`,
-      color: 'neutral' as const,
-      variant: 'solid' as const,
-      class: 'bg-volt text-on-volt',
-    }
-  }
-  if (product.value.offerKind === 'PROMOTION') {
-    return {
-      label: t('offer'),
+      label: `−${announcement.value.percent}%`,
       color: 'neutral' as const,
       variant: 'solid' as const,
       class: 'bg-volt text-on-volt',
@@ -143,8 +139,6 @@ const ratingOutOfFive = computed(() => (product.value.reviewAverage ?? 0) / 2)
 const ratingText = computed(() =>
   $i18n.n(ratingOutOfFive.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
 )
-
-const { displayFinalPrice, wasPrice } = useShopperPrice(productId, product)
 
 const addToCartName = computed(() => t('add_named', { name: productName.value ?? '' }))
 
@@ -278,12 +272,17 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <span class="font-mono text-base font-bold tabular-nums text-highlighted sm:text-lg">
             {{ $i18n.n(displayFinalPrice, 'currency') }}
           </span>
-          <span
-            v-if="wasPrice"
-            class="font-mono text-sm tabular-nums text-muted line-through"
+          <ProductPriorPrice
+            v-if="announcement"
+            :price="announcement.priorPrice"
+            class="font-mono text-sm tabular-nums text-muted"
+          />
+          <s
+            v-else-if="wasPrice"
+            class="font-mono text-sm tabular-nums text-muted"
           >
             {{ $i18n.n(wasPrice, 'currency') }}
-          </span>
+          </s>
         </div>
         <LazyButtonProductAddToCart
           v-if="showAddToCartButton"
@@ -339,7 +338,6 @@ el:
   add_named: 'Προσθήκη του «{name}» στο καλάθι'
   sold_out: Εξαντλήθηκε
   new: Νέο
-  offer: Προσφορά
   only_n_left: 'Μόνο {count} απέμεινε | Μόνο {count} απέμειναν'
   notify_back: Ειδοποίησέ με όταν ξαναέρθει
   view_product: Προβολή προϊόντος
@@ -349,7 +347,6 @@ en:
   add_named: 'Add {name} to cart'
   sold_out: Sold out
   new: New
-  offer: Offer
   only_n_left: 'Only {count} left | Only {count} left'
   notify_back: Notify me when it's back
   view_product: View product

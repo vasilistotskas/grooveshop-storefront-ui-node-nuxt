@@ -141,12 +141,6 @@ const formattedTotal = computed(() => {
           class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500"
         >
           <span>{{ t('price') }}: {{ formattedPrice }}</span>
-          <span
-            v-if="cartItem.discountValue"
-            class="text-green-600"
-          >
-            ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }} / {{ t('per_item') }})
-          </span>
         </div>
       </div>
 
@@ -193,9 +187,7 @@ const formattedTotal = computed(() => {
 <i18n lang="yaml">
 el:
   remove_from_cart: Αφαίρεση από το καλάθι {name}
-  per_item: Ανά τεμάχιο
   price: Τιμή
-  save: Έκπτωση
   total: Σύνολο
   toast:
     removed_title: Αφαιρέθηκε από το καλάθι
