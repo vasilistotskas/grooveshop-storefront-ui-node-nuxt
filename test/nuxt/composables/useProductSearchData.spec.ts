@@ -86,7 +86,7 @@ describe('useProductSearchData', () => {
         likesMin: 2,
         viewsMin: 50,
         categories: ['1', '2'],
-        sort: '-finalPrice',
+        sort: '-effectivePrice',
         attributeValues: ['3', '4'],
         brands: ['5', '6'],
         inStock: true,
@@ -96,7 +96,7 @@ describe('useProductSearchData', () => {
       setup({ listingFilters: true })
       await flushPromises()
 
-      const shared = { languageCode: 'el', query: 'shoe', priceMin: 10, priceMax: 90, likesMin: 2, viewsMin: 50, sort: '-finalPrice', limit: 1, inStock: true, onOffer: true }
+      const shared = { languageCode: 'el', query: 'shoe', priceMin: 10, priceMax: 90, likesMin: 2, viewsMin: 50, sort: '-effectivePrice', limit: 1, inStock: true, onOffer: true }
       expect(facetRequests('category')).toEqual([{ ...shared, attributeValues: '3,4', brands: '5,6', facets: 'category' }])
       expect(facetRequests('attribute_values')).toEqual([{ ...shared, attributeValues: '3,4', categories: '1,2', brands: '5,6', facets: 'attribute_values' }])
     })
@@ -179,7 +179,7 @@ describe('useProductSearchData', () => {
       setup()
       await flushPromises()
 
-      expect(facetRequests('final_price')).toEqual([{ facets: 'final_price', limit: 1, languageCode: 'el' }])
+      expect(facetRequests('effective_price')).toEqual([{ facets: 'effective_price', limit: 1, languageCode: 'el' }])
     })
 
     it('asks for the scoped category\'s price facet, under a key of its own', async () => {
@@ -188,17 +188,17 @@ describe('useProductSearchData', () => {
       setup()
       await flushPromises()
 
-      expect(facetRequests('final_price')).toEqual([
-        { facets: 'final_price', limit: 1, languageCode: 'el', categories: '4' },
-        { facets: 'final_price', limit: 1, languageCode: 'el' },
+      expect(facetRequests('effective_price')).toEqual([
+        { facets: 'effective_price', limit: 1, languageCode: 'el', categories: '4' },
+        { facets: 'effective_price', limit: 1, languageCode: 'el' },
       ])
     })
 
     it.each([
-      ['the price facet', { facetStats: { finalPrice: { min: 5, max: 250 } } }, { min: 5, max: 250 }],
+      ['the price facet', { facetStats: { effectivePrice: { min: 5, max: 250 } } }, { min: 5, max: 250 }],
       ['no price facet', { facetStats: {} }, { min: 0, max: 1000 }],
     ])('reads the slider bounds from %s', async (_case, answer, bounds) => {
-      api.routes({ [SEARCH]: byFacet({ final_price: answer }) })
+      api.routes({ [SEARCH]: byFacet({ effective_price: answer }) })
 
       const { priceStats } = setup()
       await flushPromises()
@@ -210,7 +210,7 @@ describe('useProductSearchData', () => {
     // real bounds, or the slider renders the placeholder 0–1000 range —
     // until the stats arrive, and for good when they cannot.
     it('reports the bounds as loaded only once the price facet answered', async () => {
-      api.routes({ [SEARCH]: byFacet({ final_price: { facetStats: { finalPrice: { min: 5, max: 250 } } } }) })
+      api.routes({ [SEARCH]: byFacet({ effective_price: { facetStats: { effectivePrice: { min: 5, max: 250 } } } }) })
 
       const { isPriceStatsLoaded } = setup()
       expect(isPriceStatsLoaded.value).toBe(false)
@@ -221,7 +221,7 @@ describe('useProductSearchData', () => {
 
     it.each([
       ['the price search fails', failWith(502)],
-      ['the search reports no price facet', byFacet({ final_price: { facetStats: {} } })],
+      ['the search reports no price facet', byFacet({ effective_price: { facetStats: {} } })],
     ])('never reports the bounds as loaded when %s', async (_case, answer) => {
       api.routes({ [SEARCH]: answer })
 

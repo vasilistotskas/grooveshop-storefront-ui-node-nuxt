@@ -81,7 +81,7 @@ describe('Products/List', () => {
 
   describe('the search request', () => {
     it('carries every URL filter, in the page locale, from the first page', async () => {
-      setFilters({ search: 'laptop', priceMin: 10, priceMax: 90, categories: ['2', '3'], attributeValues: ['7', '8'], sort: '-finalPrice' })
+      setFilters({ search: 'laptop', priceMin: 10, priceMax: 90, categories: ['2', '3'], attributeValues: ['7', '8'], sort: '-effectivePrice' })
 
       await mountList()
 
@@ -91,7 +91,7 @@ describe('Products/List', () => {
         priceMax: 90,
         categories: '2,3',
         attributeValues: '7,8',
-        sort: '-finalPrice',
+        sort: '-effectivePrice',
         languageCode: 'el',
         limit: 12,
         offset: 0,

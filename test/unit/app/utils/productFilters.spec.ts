@@ -48,7 +48,7 @@ describe('parseProductFilters', () => {
     ['viewsMin', '100', { viewsMin: 100 }],
     ['priceMin', '0', { priceMin: 0 }],
     ['priceMax', '19.99', { priceMax: 19.99 }],
-    ['sort', '-finalPrice', { sort: '-finalPrice' }],
+    ['sort', '-effectivePrice', { sort: '-effectivePrice' }],
     ['category', '1', { categories: ['1'] }],
     ['category', ['1', '2', '3'], { categories: ['1', '2', '3'] }],
     ['attributeValue', '10', { attributeValues: ['10'] }],
@@ -138,7 +138,7 @@ describe('applyFilterUpdates', () => {
     ['viewsMin', { viewsMin: 100 }, { viewsMin: '100' }],
     ['one category, bare', { categories: ['1'] }, { category: '1' }],
     ['several categories, as a list', { categories: ['1', '2'] }, { category: ['1', '2'] }],
-    ['sort', { sort: '-finalPrice' }, { sort: '-finalPrice' }],
+    ['sort', { sort: '-effectivePrice' }, { sort: '-effectivePrice' }],
     ['one attribute value, bare', { attributeValues: ['10'] }, { attributeValue: '10' }],
     ['several attribute values, as a list', { attributeValues: ['10', '20'] }, { attributeValue: ['10', '20'] }],
     ['one brand, bare', { brands: ['3'] }, { brand: '3' }],
@@ -156,7 +156,7 @@ describe('applyFilterUpdates', () => {
     likesMin: '50',
     viewsMin: '100',
     category: ['1', '2'],
-    sort: '-finalPrice',
+    sort: '-effectivePrice',
     attributeValue: '10',
     brand: ['3', '7'],
     inStock: 'true',
@@ -214,17 +214,17 @@ describe('CLEARED_FILTERS', () => {
       brand: ['3', '7'],
       inStock: 'true',
       onOffer: 'true',
-      sort: '-finalPrice',
+      sort: '-effectivePrice',
       utm_source: 'mail',
     }
 
-    expect(applyFilterUpdates(query, CLEARED_FILTERS)).toEqual({ sort: '-finalPrice', utm_source: 'mail' })
+    expect(applyFilterUpdates(query, CLEARED_FILTERS)).toEqual({ sort: '-effectivePrice', utm_source: 'mail' })
   })
 })
 
 describe('isFilterChip', () => {
   it('counts every chip a shopper set as a filter, and the sort as none', () => {
-    const chips = buildFilterChips({ ...NONE, search: 'cable', priceMin: 10, categories: ['1'], attributeValues: ['7'], sort: '-finalPrice' }, key => key)
+    const chips = buildFilterChips({ ...NONE, search: 'cable', priceMin: 10, categories: ['1'], attributeValues: ['7'], sort: '-effectivePrice' }, key => key)
 
     expect(chips.filter(isFilterChip).map(chip => chip.type)).toEqual(['search', 'price', 'category', 'attribute'])
   })
@@ -242,7 +242,7 @@ describe('countActiveFilters', () => {
     ['viewsMin', { viewsMin: 100 }, 1],
     ['several categories, once', { categories: ['1', '2'] }, 1],
     ['several attribute values, once', { attributeValues: ['10', '20'] }, 1],
-    ['a sort', { sort: '-finalPrice' }, 1],
+    ['a sort', { sort: '-effectivePrice' }, 1],
     ['every filter', {
       search: 'x',
       priceMin: 1,
@@ -356,8 +356,8 @@ describe('buildFilterChips', () => {
       { key: 'attributeValues', type: 'attribute', label: 't:filters.attributes', value: '10' },
       { key: 'attributeValues', type: 'attribute', label: 't:filters.attributes', value: '20' },
     ]],
-    ['a sort', { sort: '-finalPrice' }, [
-      { key: 'sort', type: 'sort', label: 't:filters.sort', value: '-finalPrice' },
+    ['a sort', { sort: '-effectivePrice' }, [
+      { key: 'sort', type: 'sort', label: 't:filters.sort', value: '-effectivePrice' },
     ]],
   ])('builds %s', (_label, overrides, expected) => {
     expect(buildFilterChips(filters(overrides), t)).toEqual(expected)

@@ -87,7 +87,7 @@ describe('webside Products/Filters/ActiveFilters', () => {
       ['a category by its name', { key: 'categories', type: 'category', label: 'c', value: '2' }, () => 'Βιβλία'],
       ['an unknown category by its id', { key: 'categories', type: 'category', label: 'c', value: '99' }, () => '99'],
       ['an attribute value by its name', { key: 'attributeValues', type: 'attribute', label: 'c', value: '7' }, () => 'Κόκκινο'],
-      ['a known sort by its label', { key: 'sort', type: 'sort', label: 'c', value: '-finalPrice' }, w => own(w, 'sort.price_desc')],
+      ['a known sort by its label', { key: 'sort', type: 'sort', label: 'c', value: '-effectivePrice' }, w => own(w, 'sort.price_desc')],
       ['an unknown sort as its raw value', { key: 'sort', type: 'sort', label: 'c', value: 'title' }, () => 'title'],
     ])('shows %s', async (_case, chip, expected) => {
       showChips(chip)
@@ -182,14 +182,14 @@ describe('default Products/Filters/ActiveFilters', () => {
   })
 
   it('renders nothing for a sort alone, and no chip for the sort beside filters', async () => {
-    showChips({ key: 'sort', type: 'sort', label: 'sort', value: '-finalPrice' })
+    showChips({ key: 'sort', type: 'sort', label: 'sort', value: '-effectivePrice' })
     const sortOnly = await mountSuspended(ActiveFilters, { route: false })
     expect(sortOnly.find('ul').exists()).toBe(false)
     sortOnly.unmount()
 
     showChips(
       { key: 'attributeValues', type: 'attribute', label: 'c', value: '7' },
-      { key: 'sort', type: 'sort', label: 'sort', value: '-finalPrice' },
+      { key: 'sort', type: 'sort', label: 'sort', value: '-effectivePrice' },
     )
     const wrapper = await mountSuspended(ActiveFilters, { route: false })
 

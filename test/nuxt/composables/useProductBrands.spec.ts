@@ -53,7 +53,7 @@ describe('useProductBrands', () => {
       attributeValues: ['3', '4'],
       brands: ['5'],
       inStock: true,
-      sort: '-finalPrice',
+      sort: '-effectivePrice',
     })
 
     setup(4)
@@ -67,7 +67,7 @@ describe('useProductBrands', () => {
       categories: '4,9',
       attributeValues: '3,4',
       inStock: true,
-      sort: '-finalPrice',
+      sort: '-effectivePrice',
       facets: 'brand',
       limit: 1,
     }])

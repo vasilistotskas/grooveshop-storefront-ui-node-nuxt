@@ -1218,6 +1218,7 @@ export const zFacetStatsItem = z.object({
  */
 export const zFacetStats = z.object({
   finalPrice: zFacetStatsItem.optional(),
+  effectivePrice: zFacetStatsItem.optional(),
   likesCount: zFacetStatsItem.optional(),
   viewCount: zFacetStatsItem.optional(),
 })
@@ -14391,6 +14392,10 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  maxEffectivePrice: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
   maxFinalPrice: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -14435,6 +14440,10 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  minEffectivePrice: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
   minFinalPrice: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -14463,7 +14472,7 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent))*$/).optional(),
+  ordering: z.string().regex(/^(?:price|\-price|effectivePrice|\-effectivePrice|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent)(?:,(?:price|\-price|effectivePrice|\-effectivePrice|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
