@@ -134,7 +134,7 @@ const { transformImages } = useHtmlContent()
 
 const blogPostBody = computed(() => {
   const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
-  return transformImages(rawBody)
+  return transformImages(rawBody, { maxWidth: WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH })
 })
 
 const blogPostTitle = computed(() =>
