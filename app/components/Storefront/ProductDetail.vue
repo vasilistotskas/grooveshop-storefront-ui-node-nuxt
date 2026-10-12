@@ -199,7 +199,7 @@ onMounted(() => {
     // what the shopper saw are one string.
     const reportedName = productName.value
     metaPixel.trackViewContent({
-      currency: 'EUR',
+      currency: tenantStore.defaultCurrency,
       value: price,
       contentType: 'product',
       contentIds: pid ? [pid] : [],
@@ -215,14 +215,14 @@ onMounted(() => {
       contentName: reportedName,
     })
     openaiPixel.trackContentsViewed({
-      currency: 'EUR',
+      currency: tenantStore.defaultCurrency,
       amount: price,
       contents: pid
         ? [{ id: pid, name: reportedName, contentType: 'product', quantity: 1 }]
         : [],
     })
     tiktokPixel.trackViewContent({
-      currency: 'EUR',
+      currency: tenantStore.defaultCurrency,
       value: price,
       contentType: 'product',
       contentName: reportedName,
@@ -238,7 +238,7 @@ onMounted(() => {
         : [],
     })
     ga4.trackViewItem({
-      currency: 'EUR',
+      currency: tenantStore.defaultCurrency,
       value: price,
       items: pid
         ? [
@@ -630,7 +630,7 @@ useSchemaOrg([
       offers: {
         '@type': 'Offer' as const,
         'price': (product.value ? productCurrentPrice(product.value) : 0).toFixed(2),
-        'priceCurrency': 'EUR',
+        'priceCurrency': tenantStore.defaultCurrency,
         // A strikethrough price is an announcement: only the prior price
         // of a reduction that may be announced.
         'priceSpecification': announcement.value
@@ -638,7 +638,7 @@ useSchemaOrg([
               '@type': 'UnitPriceSpecification' as const,
               'priceType': 'https://schema.org/StrikethroughPrice',
               'price': announcement.value.priorPrice.toFixed(2),
-              'priceCurrency': 'EUR',
+              'priceCurrency': tenantStore.defaultCurrency,
             }]
           : undefined,
         'availability': productAvailability.value,
@@ -648,40 +648,6 @@ useSchemaOrg([
         'seller': {
           '@type': 'Organization',
           'name': siteConfig.name,
-        },
-        'hasMerchantReturnPolicy': {
-          '@type': 'MerchantReturnPolicy',
-          'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
-          'merchantReturnDays': 14,
-          'returnMethod': 'https://schema.org/ReturnByMail',
-          'returnFees': 'https://schema.org/ReturnFeesCustomerResponsibility',
-        },
-        'shippingDetails': {
-          '@type': 'OfferShippingDetails',
-          'shippingRate': {
-            '@type': 'MonetaryAmount',
-            'value': 0,
-            'currency': 'EUR',
-          },
-          'shippingDestination': {
-            '@type': 'DefinedRegion',
-            'addressCountry': 'GR',
-          },
-          'deliveryTime': {
-            '@type': 'ShippingDeliveryTime',
-            'handlingTime': {
-              '@type': 'QuantitativeValue',
-              'minValue': 0,
-              'maxValue': 1,
-              'unitCode': 'DAY',
-            },
-            'transitTime': {
-              '@type': 'QuantitativeValue',
-              'minValue': 3,
-              'maxValue': 5,
-              'unitCode': 'DAY',
-            },
-          },
         },
       },
 

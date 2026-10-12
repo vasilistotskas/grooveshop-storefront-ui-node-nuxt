@@ -14423,6 +14423,10 @@ export const zListProductQuery = z.object({
   metadataHasAnyKeys: z.string().optional(),
   metadataHasKey: z.string().optional(),
   metadataHasKeys: z.string().optional(),
+  minAnnouncedDiscountPercent: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
   minDiscount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -14459,7 +14463,7 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent))*$/).optional(),
+  ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),

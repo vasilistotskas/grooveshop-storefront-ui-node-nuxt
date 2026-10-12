@@ -22079,6 +22079,10 @@ export type ListProductData = {
          */
     metadataHasKeys?: string
     /**
+         * Minimum announced discount percentage: only products with an Omnibus prior price, computed from it
+         */
+    minAnnouncedDiscountPercent?: string | number
+    /**
          * Minimum discount value amount
          */
     minDiscount?: string | number
@@ -22115,7 +22119,7 @@ export type ListProductData = {
          */
     minWeight?: string | number
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent, announcedDiscountPercent, -announcedDiscountPercent
          */
     ordering?: string
     /**

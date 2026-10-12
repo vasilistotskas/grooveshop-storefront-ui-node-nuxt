@@ -35,7 +35,7 @@ const ORDERING: Record<ProductRailOrdering, string> = {
   featured: '-viewCount',
   newest: '-createdAt',
   popular: '-likesCount',
-  discounted: '-discountPercent',
+  discounted: '-announcedDiscountPercent',
   rating: '-reviewAverage',
 }
 
@@ -62,7 +62,7 @@ export async function useProductRail(options: {
       languageCode: locale.value,
       ordering: ORDERING[ordering.value] ?? ORDERING.featured,
       ...(categoryId.value ? { category: String(categoryId.value) } : {}),
-      ...(ordering.value === 'discounted' ? { minDiscountPercent: 1 } : {}),
+      ...(ordering.value === 'discounted' ? { minAnnouncedDiscountPercent: 1 } : {}),
     })),
     // Two bands can resolve to the same key on one page; defer rather
     // than cancel, or each reader re-issues the request.

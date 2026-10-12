@@ -18601,6 +18601,14 @@ paths:
             type: string
           description: Φίλτρο αντικειμένων όπου τα metadata περιέχουν όλα τα καθορισμένα κλειδιά (διαχωρισμένα με κόμμα)
         - in: query
+          name: minAnnouncedDiscountPercent
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+(\.\d+)?$
+              - type: number
+          description: 'Minimum announced discount percentage: only products with an Omnibus prior price, computed from it'
+        - in: query
           name: minDiscount
           schema:
             oneOf:
@@ -18675,10 +18683,10 @@ paths:
         - name: ordering
           in: query
           required: false
-          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent'
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent, announcedDiscountPercent, -announcedDiscountPercent'
           schema:
             type: string
-            pattern: ^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent))*$
+            pattern: ^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent))*$
         - name: page
           required: false
           in: query
