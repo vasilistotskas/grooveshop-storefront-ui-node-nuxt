@@ -66,8 +66,8 @@ const formattedCount = computed(() => {
 const sortOptions = [
   { label: t('sort.recommended'), value: 'recommended' },
   { label: t('sort.newest'), value: '-createdAt' },
-  { label: t('sort.priceAsc'), value: 'finalPrice' },
-  { label: t('sort.priceDesc'), value: '-finalPrice' },
+  { label: t('sort.priceAsc'), value: 'effectivePrice' },
+  { label: t('sort.priceDesc'), value: '-effectivePrice' },
   { label: t('sort.mostViewed'), value: '-viewCount' },
 ]
 

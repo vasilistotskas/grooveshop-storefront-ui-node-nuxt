@@ -113,7 +113,7 @@ describe('useProductFilters', () => {
       likesMin: '50',
       viewsMin: '100',
       category: ['1', '2'],
-      sort: '-finalPrice',
+      sort: '-effectivePrice',
       attributeValue: ['10', '20'],
     }
     mockRoute.value.query = { ...full }

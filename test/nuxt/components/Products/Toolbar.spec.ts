@@ -87,7 +87,7 @@ describe('default Products/Toolbar', () => {
     })
 
     it.each([
-      ['a sort field as-is', '-finalPrice', '-finalPrice'],
+      ['a sort field as-is', '-effectivePrice', '-effectivePrice'],
       ['"recommended" as no sort at all', 'recommended', ''],
     ])('emits %s from either frame', async (_case, picked, emitted) => {
       const wrapper = await mountToolbar({ currentSort: '-createdAt' })
@@ -96,6 +96,16 @@ describe('default Products/Toolbar', () => {
       await nextTick()
 
       expect(wrapper.emitted('update:sort')).toEqual([[emitted], [emitted]])
+    })
+
+    it('sorts by price on the effective price the shopper pays', async () => {
+      const wrapper = await mountToolbar()
+
+      const values = (selects(wrapper, 'sort_products')[0]!.props('items') as { value: string }[]).map(item => item.value)
+
+      expect(values).toEqual(expect.arrayContaining(['effectivePrice', '-effectivePrice']))
+      expect(values).not.toContain('finalPrice')
+      expect(values).not.toContain('-finalPrice')
     })
 
     it('ignores a value that is not a sort', async () => {
@@ -144,7 +154,7 @@ describe('default Products/Toolbar', () => {
       pf.activeListingChips.value = [
         { key: 'attributeValues', type: 'attribute', label: 'a', value: '7' },
         { key: 'priceMin', type: 'price', label: 'p', value: { min: 10, max: 60 } },
-        { key: 'sort', type: 'sort', label: 's', value: '-finalPrice' },
+        { key: 'sort', type: 'sort', label: 's', value: '-effectivePrice' },
       ]
 
       const wrapper = await mountToolbar()
@@ -164,7 +174,7 @@ describe('default Products/Toolbar', () => {
     })
 
     it('offers no count and nothing to clear with only a sort set', async () => {
-      pf.activeListingChips.value = [{ key: 'sort', type: 'sort', label: 's', value: '-finalPrice' }]
+      pf.activeListingChips.value = [{ key: 'sort', type: 'sort', label: 's', value: '-effectivePrice' }]
 
       const wrapper = await mountToolbar()
 

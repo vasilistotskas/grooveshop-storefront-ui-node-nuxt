@@ -63,7 +63,7 @@ describe('GET /api/products/search', () => {
       language_code: 'el',
       limit: '20',
       offset: '0',
-      facets: 'category,final_price,likes_count,view_count,attribute_values',
+      facets: 'category,effective_price,likes_count,view_count,attribute_values',
     })
   })
 

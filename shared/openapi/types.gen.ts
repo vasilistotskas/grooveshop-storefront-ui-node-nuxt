@@ -3249,6 +3249,7 @@ export type ErrorResponse = {
  */
 export type FacetStats = {
   finalPrice?: FacetStatsItem
+  effectivePrice?: FacetStatsItem
   likesCount?: FacetStatsItem
   viewCount?: FacetStatsItem
 }
@@ -22035,7 +22036,13 @@ export type ListProductData = {
          */
     maxDiscountPercent?: string | number
     /**
-         * Maximum final price (after VAT and discount)
+         * Maximum price the customer pays now (VAT, markdown and unconditional automatic promotions included)
+         */
+    maxEffectivePrice?: string | number
+    /**
+         * Deprecated: use maxEffectivePrice. Maximum price after VAT and markdown, ignoring promotions
+         *
+         * @deprecated
          */
     maxFinalPrice?: string | number
     /**
@@ -22091,7 +22098,13 @@ export type ListProductData = {
          */
     minDiscountPercent?: string | number
     /**
-         * Minimum final price (after VAT and discount)
+         * Minimum price the customer pays now (VAT, markdown and unconditional automatic promotions included)
+         */
+    minEffectivePrice?: string | number
+    /**
+         * Deprecated: use minEffectivePrice. Minimum price after VAT and markdown, ignoring promotions
+         *
+         * @deprecated
          */
     minFinalPrice?: string | number
     /**
@@ -22119,7 +22132,7 @@ export type ListProductData = {
          */
     minWeight?: string | number
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent, announcedDiscountPercent, -announcedDiscountPercent
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, effectivePrice, -effectivePrice, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent, announcedDiscountPercent, -announcedDiscountPercent
          */
     ordering?: string
     /**
@@ -25525,11 +25538,11 @@ export type ApiV1SearchProductRetrieveData = {
          */
     onOffer?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Φίλτρο μέγιστης τιμής (final_price <= value)
+         * Maximum price filter (effective_price <= value): the price the customer pays, unconditional automatic promotions included
          */
     priceMax?: string | number
     /**
-         * Φίλτρο ελάχιστης τιμής (final_price >= value)
+         * Minimum price filter (effective_price >= value): the price the customer pays, unconditional automatic promotions included
          */
     priceMin?: string | number
     /**
@@ -25537,7 +25550,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     query?: string
     /**
-         * Πεδίο ταξινόμησης (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)
+         * Sort field (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). finalPrice and -finalPrice are deprecated: they ignore promotions.
          */
     sort?: string
     /**

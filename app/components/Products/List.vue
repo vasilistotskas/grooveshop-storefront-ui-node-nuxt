@@ -187,7 +187,7 @@ const {
       languageCode: locale,
       limit,
       offset,
-      facets: 'category,final_price,likes_count,view_count,attribute_values',
+      facets: 'category,effective_price,likes_count,view_count,attribute_values',
     },
     // Only watch limit and offset - query params are already reactive
     watch: [limit, offset],

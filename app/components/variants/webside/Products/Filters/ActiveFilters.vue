@@ -52,8 +52,8 @@ const formatFilterValue = (chip: FilterChip): string => {
  */
 const getSortLabel = (sortValue: string): string => {
   const sortLabels: Record<string, string> = {
-    'finalPrice': t('sort.price_asc'),
-    '-finalPrice': t('sort.price_desc'),
+    'effectivePrice': t('sort.price_asc'),
+    '-effectivePrice': t('sort.price_desc'),
     '-likesCount': t('sort.popularity'),
     '-viewCount': t('sort.most_viewed'),
     '-createdAt': t('sort.newest'),

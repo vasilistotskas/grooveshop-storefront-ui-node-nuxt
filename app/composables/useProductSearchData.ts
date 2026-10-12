@@ -81,7 +81,7 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
       : `price-stats-${$i18n.locale.value}-category-${scopeCategory.value}`,
     () => requestFetch('/api/products/search', {
       query: {
-        facets: 'final_price',
+        facets: 'effective_price',
         limit: 1,
         languageCode: $i18n.locale.value,
         ...(scopeCategory.value === undefined ? {} : { categories: String(scopeCategory.value) }),
@@ -94,7 +94,7 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // `data` as undefined, so a `!== null` check was always true), when
   // the fetch failed, or when the search reports no priced product.
   const priceBounds = computed(() =>
-    (priceStatsData.value?.facetStats as FacetStats | undefined)?.finalPrice)
+    (priceStatsData.value?.facetStats as FacetStats | undefined)?.effectivePrice)
 
   // Gates the slider: without real bounds it shows its skeleton.
   const isPriceStatsLoaded = computed(() => priceBounds.value !== undefined)

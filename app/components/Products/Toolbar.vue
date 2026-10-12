@@ -44,15 +44,15 @@ const formattedCount = computed(
 /**
  * The values must match the Meilisearch endpoint's allowlist
  * (`_ALLOWED_PRODUCT_SORT_FIELDS` in the Django `search` app):
- * finalPrice, likesCount, viewCount, createdAt, each with an optional
+ * effectivePrice, likesCount, viewCount, createdAt, each with an optional
  * `-` for descending. An unknown field is dropped in silence and the
  * default order comes back.
  */
 const sortOptions = computed(() => [
   { label: t('sort.recommended'), value: 'recommended' },
   { label: t('sort.newest'), value: '-createdAt' },
-  { label: t('sort.priceAsc'), value: 'finalPrice' },
-  { label: t('sort.priceDesc'), value: '-finalPrice' },
+  { label: t('sort.priceAsc'), value: 'effectivePrice' },
+  { label: t('sort.priceDesc'), value: '-effectivePrice' },
   { label: t('sort.mostViewed'), value: '-viewCount' },
 ])
 

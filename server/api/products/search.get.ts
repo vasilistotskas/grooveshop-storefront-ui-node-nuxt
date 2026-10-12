@@ -15,7 +15,7 @@ import { getQuery } from 'h3'
  * - Error handling
  *
  * @example
- * GET /api/products/search?q=laptop&priceMin=500&priceMax=1500&categories=1,2&attributeValues=10,20&facets=category,final_price,attribute_values
+ * GET /api/products/search?q=laptop&priceMin=500&priceMax=1500&categories=1,2&attributeValues=10,20&facets=category,effective_price,attribute_values
  */
 
 const zSearchProductQuery = zApiV1SearchProductRetrieveQuery
@@ -38,7 +38,7 @@ export default defineCachedRoute(async (event) => {
       limit: query.limit || 20,
       offset: query.offset || 0,
       // Add default facets if not provided - include attribute_values for filtering
-      facets: query.facets || 'category,final_price,likes_count,view_count,attribute_values',
+      facets: query.facets || 'category,effective_price,likes_count,view_count,attribute_values',
     }
 
     // Add optional filter parameters if provided
