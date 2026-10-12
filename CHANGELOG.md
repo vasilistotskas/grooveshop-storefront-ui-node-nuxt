@@ -1,3 +1,10 @@
+## [3.243.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.5...v3.243.6) (2026-10-12)
+
+
+### Bug Fixes
+
+* **orders:** explain a cancel refused because the courier has the parcel ([#99](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/99)) ([083dab0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/083dab09c5d18225d8b9a97af389401909b46c60))
+
 ## [3.243.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.243.4...v3.243.5) (2026-10-12)
 
 
