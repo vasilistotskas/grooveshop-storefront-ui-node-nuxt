@@ -98,6 +98,11 @@ jobs:
       # ``vue-tsc --noEmit``, which CI previously ran non-blocking).
       - name: Typecheck
         run: pnpm typecheck
+        # vue-tsc holds the whole app's program in one V8 heap, and the
+        # app outgrew Node's ~4 GB default (OOM in "Mark-Compact"); the
+        # same heap the Docker build is given (docker/Dockerfile).
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
 
       - name: Lint
         run: pnpm lint:ci
