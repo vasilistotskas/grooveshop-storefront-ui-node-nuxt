@@ -279,7 +279,11 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
 
   it('renders nothing, and asks for no comments, when the merchant turned comments off', async () => {
     state.flags = { BLOG_COMMENTS_ENABLED: false }
-    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]) })
+    api.routes({
+      // The fetch decision reads the store's settings, awaited.
+      '/api/settings/public': { settings: { BLOG_COMMENTS_ENABLED: 'False' } },
+      [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]),
+    })
 
     const wrapper = await mount()
     await flushPromises()
