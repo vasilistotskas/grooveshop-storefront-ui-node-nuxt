@@ -42,7 +42,7 @@ const m = vi.hoisted(() => ({
   },
   tiktok: { trackInitiateCheckout: vi.fn(), trackAddPaymentInfo: vi.fn() },
   openai: { trackCheckoutStarted: vi.fn() },
-  googleAds: { trackBeginCheckout: vi.fn() },
+  googleAds: { trackBeginCheckout: vi.fn(), trackAddPaymentInfo: vi.fn() },
   ga4: { trackBeginCheckout: vi.fn(), trackAddPaymentInfo: vi.fn() },
 }))
 
@@ -595,6 +595,10 @@ describe('useCheckoutSubmit', () => {
         ],
       })
       expect(m.tiktok.trackAddPaymentInfo).toHaveBeenCalledOnce()
+      expect(m.googleAds.trackAddPaymentInfo).toHaveBeenCalledExactlyOnceWith({
+        currency: 'EUR',
+        value: 130,
+      })
     })
 
     it('never lets a failing pixel block the checkout', async () => {

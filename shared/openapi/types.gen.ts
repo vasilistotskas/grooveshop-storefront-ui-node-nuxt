@@ -9575,6 +9575,7 @@ export type TenantConfig = {
   readonly googleAdsPurchaseLabel: string
   readonly googleAdsAddToCartLabel: string
   readonly googleAdsBeginCheckoutLabel: string
+  googleAdsAddPaymentInfoLabel?: string
   readonly googleAdsPageViewLabel: string
   readonly totpIssuer: string
   readonly socialsDiscord: string
@@ -13282,6 +13283,7 @@ export type TenantConfigWritable = {
   recommendationsEnabled?: boolean
   codeResendCooldownSeconds?: number
   openaiPixelId?: string
+  googleAdsAddPaymentInfoLabel?: string
 }
 
 export type UserAddressWritable = {
@@ -25538,11 +25540,11 @@ export type ApiV1SearchProductRetrieveData = {
          */
     onOffer?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Maximum price filter (effective_price <= value): the price the customer pays, unconditional automatic promotions included
+         * Φίλτρο μέγιστης τιμής (effective_price <= value): η τιμή που πληρώνει ο πελάτης, με τις άνευ όρων αυτόματες προσφορές
          */
     priceMax?: string | number
     /**
-         * Minimum price filter (effective_price >= value): the price the customer pays, unconditional automatic promotions included
+         * Φίλτρο ελάχιστης τιμής (effective_price >= value): η τιμή που πληρώνει ο πελάτης, με τις άνευ όρων αυτόματες προσφορές
          */
     priceMin?: string | number
     /**
@@ -25550,7 +25552,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     query?: string
     /**
-         * Sort field (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). finalPrice and -finalPrice are deprecated: they ignore promotions.
+         * Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). Τα finalPrice και -finalPrice είναι παρωχημένα: αγνοούν τις προσφορές.
          */
     sort?: string
     /**

@@ -58,6 +58,7 @@ const GETTERS: GetterRow[] = [
   ['googleAdsPurchaseLabel', 'googleAdsPurchaseLabel', '', 'purchase'],
   ['googleAdsAddToCartLabel', 'googleAdsAddToCartLabel', '', 'add'],
   ['googleAdsBeginCheckoutLabel', 'googleAdsBeginCheckoutLabel', '', 'begin'],
+  ['googleAdsAddPaymentInfoLabel', 'googleAdsAddPaymentInfoLabel', '', 'payment'],
   ['googleAdsPageViewLabel', 'googleAdsPageViewLabel', '', 'view'],
   ['totpIssuer', 'totpIssuer', '', 'Acme'],
   ['boxNowPartnerId', 'boxNowPartnerId', '', '10391'],
