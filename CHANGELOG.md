@@ -1,3 +1,15 @@
+# [3.245.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.244.2...v3.245.0) (2026-10-13)
+
+
+### Bug Fixes
+
+* **seo:** state og:image size only for the 1200x630 rendition ([#112](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/112)) ([697fc96](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/697fc96cf443bb6cdb9e6fb3aa8f27dbb534b078))
+
+
+### Features
+
+* **analytics:** send the Google Ads add-payment-info conversion ([#113](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/113)) ([512fa26](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/512fa263aee9c2a84b5eed2ceb9555204dbe1818))
+
 ## [3.244.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.244.1...v3.244.2) (2026-10-12)
 
 
