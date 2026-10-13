@@ -44,6 +44,24 @@ describe('ekfyseosfyteias hero_banner', () => {
       ])
     })
 
+    it('lists the stats as a definition list of label and value pairs', async () => {
+      const wrapper = await mountHero({
+        stats: [{ value: '2024', label: 'Ίδρυση' }, { value: '540 μ.', label: 'υψόμετρο' }],
+      })
+
+      expect(wrapper.findAll('dl > div').map(row => [row.find('dt').text(), row.find('dd').text()])).toEqual([
+        ['Ίδρυση', '2024'],
+        ['υψόμετρο', '540 μ.'],
+      ])
+      expect(wrapper.findAll('dl > div > *').every(el => ['DT', 'DD'].includes(el.element.tagName))).toBe(true)
+    })
+
+    it('draws no stats row without stats', async () => {
+      const wrapper = await mountHero()
+
+      expect(wrapper.find('dl').exists()).toBe(false)
+    })
+
     it('draws the three berries only when decor asks for orbs', async () => {
       const plain = await mountHero()
       const orbs = await mountHero({ decor: 'orbs' })

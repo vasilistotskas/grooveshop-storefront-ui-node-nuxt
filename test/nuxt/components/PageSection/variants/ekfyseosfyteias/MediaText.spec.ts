@@ -27,9 +27,18 @@ describe('ekfyseosfyteias media_text', () => {
 
     expect(wrapper.find('h2').text()).toBe(PROPS.heading)
     expect(wrapper.find('figcaption').text()).toBe(PROPS.note)
-    expect(wrapper.find('img').attributes('alt')).toBe(PROPS.heading)
+    // The note is the alt text; its caption is hidden so it is not read twice.
+    expect(wrapper.find('img').attributes('alt')).toBe(PROPS.note)
+    expect(wrapper.find('figcaption').attributes('aria-hidden')).toBe('true')
     const link = wrapper.find('a')
     expect([link.text(), link.attributes('href')]).toEqual([PROPS.ctaText, '/about'])
+  })
+
+  it('gives a photograph without a note an empty alt', async () => {
+    const wrapper = await mountSplit({ note: undefined })
+
+    expect(wrapper.find('img').attributes('alt')).toBe('')
+    expect(wrapper.find('figcaption').exists()).toBe(false)
   })
 
   it('splits the body into paragraphs on blank lines', async () => {

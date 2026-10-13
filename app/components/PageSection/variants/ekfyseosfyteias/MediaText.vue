@@ -9,6 +9,10 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * interpolated HTML. `bullets` are rows between dashed rules; a bullet
  * written `Label: value` prints its label in bold, which is how the
  * funding page lists its facts. `specs` and `decor` are not read.
+ *
+ * The photograph has no alt prop of its own, so `note` is both: it is the
+ * image's alt text, and its visible caption is hidden from assistive
+ * technology so it is not read twice. No note, no alt (decorative).
  */
 // The section row hands over every prop its type admits. The ones this
 // band does not read must not fall through onto it as DOM attributes.
@@ -90,7 +94,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
       >
         <ImgWithFallback
           :src="imageUrl"
-          :alt="label || note || ''"
+          :alt="note ?? ''"
           :width="960"
           :height="720"
           sizes="xs:100vw lg:50vw"
@@ -102,6 +106,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         />
         <figcaption
           v-if="note"
+          aria-hidden="true"
           class="text-sm text-(--fy-text-muted)"
         >
           {{ note }}
