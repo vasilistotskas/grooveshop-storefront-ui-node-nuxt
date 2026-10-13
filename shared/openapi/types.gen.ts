@@ -3248,7 +3248,6 @@ export type ErrorResponse = {
  * Serializer for facet statistics (numeric facets).
  */
 export type FacetStats = {
-  finalPrice?: FacetStatsItem
   effectivePrice?: FacetStatsItem
   likesCount?: FacetStatsItem
   viewCount?: FacetStatsItem
@@ -7044,14 +7043,6 @@ export type Product = {
      * @deprecated
      */
   discountPercent?: number
-  /**
-     * @deprecated
-     */
-  readonly discountValue: number
-  /**
-     * @deprecated
-     */
-  readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -7522,14 +7513,6 @@ export type ProductDetail = {
      * @deprecated
      */
   discountPercent?: number
-  /**
-     * @deprecated
-     */
-  readonly discountValue: number
-  /**
-     * @deprecated
-     */
-  readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -7639,14 +7622,6 @@ export type ProductDetailResponse = {
      * @deprecated
      */
   discountPercent?: number
-  /**
-     * @deprecated
-     */
-  readonly discountValue: number
-  /**
-     * @deprecated
-     */
-  readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -8130,14 +8105,6 @@ export type ProductRetrieve = {
      * @deprecated
      */
   discountPercent?: number
-  /**
-     * @deprecated
-     */
-  readonly discountValue: number
-  /**
-     * @deprecated
-     */
-  readonly priceSavePercent: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -22042,12 +22009,6 @@ export type ListProductData = {
          */
     maxEffectivePrice?: string | number
     /**
-         * Deprecated: use maxEffectivePrice. Maximum price after VAT and markdown, ignoring promotions
-         *
-         * @deprecated
-         */
-    maxFinalPrice?: string | number
-    /**
          * Maximum likes count
          */
     maxLikes?: string | number
@@ -22103,12 +22064,6 @@ export type ListProductData = {
          * Minimum price the customer pays now (VAT, markdown and unconditional automatic promotions included)
          */
     minEffectivePrice?: string | number
-    /**
-         * Deprecated: use minEffectivePrice. Minimum price after VAT and markdown, ignoring promotions
-         *
-         * @deprecated
-         */
-    minFinalPrice?: string | number
     /**
          * Minimum likes count
          */

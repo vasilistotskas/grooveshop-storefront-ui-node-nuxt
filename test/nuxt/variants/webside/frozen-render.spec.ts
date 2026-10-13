@@ -127,8 +127,6 @@ const PRODUCT = {
   active: true,
   weight: { unit: 'g', value: 120 },
   discountPercent: 10,
-  discountValue: 1.49,
-  priceSavePercent: 10,
   vatPercent: 24,
   vatValue: 3.22,
   finalPrice: 16.63,

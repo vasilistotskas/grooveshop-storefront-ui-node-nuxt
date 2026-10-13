@@ -24,8 +24,7 @@ export const cents = (value: number) => Math.round(value * 100) / 100
  * stock, 500 g, parler `translations` for `el` and `en`. `uuid` and
  * `slug` follow `id`.
  *
- * The derived money fields — `discountValue`, `priceSavePercent`,
- * `vatValue`, `finalPrice` — are computed from `price`,
+ * The derived money fields — `vatValue`, `finalPrice` — are computed from `price`,
  * `discountPercent` and `vatPercent` the way Django's `Product`
  * properties compute them (`product/models/product.py`: discount and
  * VAT are both taken off the NET price, `finalPrice = price + vat -
@@ -77,8 +76,6 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     weight: { unit: 'g', value: 500 },
     discountPercent,
     offerKind: discountPercent > 0 ? 'MARKDOWN' : null,
-    discountValue,
-    priceSavePercent: price > 0 ? (discountValue / price) * 100 : 0,
     vatPercent,
     vatValue,
     finalPrice: cents(price + vatValue - discountValue),

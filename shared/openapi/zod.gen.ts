@@ -1217,7 +1217,6 @@ export const zFacetStatsItem = z.object({
  * Serializer for facet statistics (numeric facets).
  */
 export const zFacetStats = z.object({
-  finalPrice: zFacetStatsItem.optional(),
   effectivePrice: zFacetStatsItem.optional(),
   likesCount: zFacetStatsItem.optional(),
   viewCount: zFacetStatsItem.optional(),
@@ -3007,8 +3006,6 @@ export const zProduct = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -3411,8 +3408,6 @@ export const zProductDetail = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -3478,8 +3473,6 @@ export const zProductDetailResponse = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -4097,8 +4090,6 @@ export const zProductRetrieve = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -14398,10 +14389,6 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  maxFinalPrice: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
   maxLikes: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -14443,10 +14430,6 @@ export const zListProductQuery = z.object({
     z.number(),
   ]).optional(),
   minEffectivePrice: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minFinalPrice: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
