@@ -12,9 +12,16 @@ export const useAccountMenus = () => {
   // honest so it never advertises a dead page. Fail-open defaults
   // mirror the Django defaults (enabled), except gift cards which
   // defaults disabled.
-  const reviewsEnabled = useSettingFlag('ACCOUNT_REVIEWS_ENABLED', {
+  // "My reviews" needs reviews on as well as its own page switch.
+  const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', {
     fallback: true,
   })
+  const accountReviewsEnabled = useSettingFlag('ACCOUNT_REVIEWS_ENABLED', {
+    fallback: true,
+  })
+  const reviewsEnabled = computed(
+    () => productReviewsEnabled.value && accountReviewsEnabled.value,
+  )
   const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', {
     fallback: true,
   })
@@ -44,7 +51,11 @@ export const useAccountMenus = () => {
         ? [
             {
               label: t('favourites'),
-              to: '/account/favourites/posts',
+              // The posts tab exists only with the blog; without it
+              // the favourites live on the products tab.
+              to: tenantStore.blogEnabled
+                ? '/account/favourites/posts'
+                : '/account/favourites/products',
               icon: 'i-mdi-heart-outline',
             },
           ]

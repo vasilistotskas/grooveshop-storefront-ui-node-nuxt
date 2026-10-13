@@ -13,11 +13,15 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const localePath = useLocalePath()
+const tenantStore = useTenantStore()
 const { products, posts } = await useFavouriteCounts()
 
+// Saved posts exist only with the blog: without it, no posts tab.
 const tabs = computed(() => [
   { key: 'products' as const, label: t('products'), count: products.value, to: localePath('account-favourites-products') },
-  { key: 'posts' as const, label: t('posts'), count: posts.value, to: localePath('account-favourites-posts') },
+  ...(tenantStore.blogEnabled
+    ? [{ key: 'posts' as const, label: t('posts'), count: posts.value, to: localePath('account-favourites-posts') }]
+    : []),
 ])
 </script>
 

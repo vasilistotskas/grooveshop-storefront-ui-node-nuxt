@@ -15,6 +15,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
   // page led to the Greek one.
   const localePath = useLocalePath()
   const tenantStore = useTenantStore()
+  const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', { fallback: true })
   const img = useMediaStreamImage()
 
   const avatarImg = computed(() => {
@@ -50,10 +51,10 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
         to: localePath('search'),
         label: t('search.title'),
       },
-      // Points at a BLOG surface, so it follows blogEnabled the way the
-      // desktop navbar's equivalent already does — otherwise a
-      // blog-disabled tenant shows a heart that leads to a gated route.
-      ...(tenantStore.blogEnabled
+      // Points at the favourite POSTS, so it follows both the blog and
+      // the favourites switch — otherwise the heart leads to a gated
+      // route on a store without either.
+      ...(tenantStore.blogEnabled && favouritesEnabled.value
         ? [{
             icon: 'i-heroicons-heart',
             to: localePath(loggedIn.value ? 'account-favourites-posts' : RedirectToURLs.LOGIN_URL),

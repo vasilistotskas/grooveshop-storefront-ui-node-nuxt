@@ -220,6 +220,15 @@ describe('Product/Card', () => {
     expect(unreviewed.find('[aria-label^="Βαθμολογία"]').exists()).toBe(false)
   })
 
+  it('shows no rating when the store has reviews off, however reviewed the product', async () => {
+    flags.PRODUCT_REVIEWS_ENABLED = false
+
+    const card = await mountCard(makeProduct({ reviewAverage: 7, reviewCount: 12 }))
+
+    expect(card.find('[aria-label^="Βαθμολογία"]').exists()).toBe(false)
+    expect(card.text()).not.toContain('· 12')
+  })
+
   // A search hit is handed to the card as it came, with no mapping step:
   // the hit's field names ARE the card's, so these four lines only appear
   // while the engine's payload keeps them.

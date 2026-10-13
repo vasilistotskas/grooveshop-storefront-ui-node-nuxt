@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, ref } from 'vue'
+import { computed, effectScope, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The phone's bottom bar. Its links are in the page's language, and the
@@ -13,6 +14,9 @@ const { route, loggedIn } = vi.hoisted(() => ({
   loggedIn: { value: false },
 }))
 mockNuxtImport('useRoute', () => () => route)
+const flags = vi.hoisted(() => ({} as Record<string, boolean>))
+mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
+  computed(() => flags[key] ?? options.fallback))
 // The full surface: the app's auth plugin reads it at boot.
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(loggedIn.value),
@@ -40,6 +44,8 @@ const nextOf = (to: unknown) => new URL(String(to), 'https://shop.test').searchP
 describe('useMobileNavItems', () => {
   beforeEach(() => {
     loggedIn.value = false
+    for (const key of Object.keys(flags)) Reflect.deleteProperty(flags, key)
+    setTenant({ blogEnabled: true, availableLocales: ['el', 'en'] })
     Object.assign(route, { name: 'search___el', path: '/search', fullPath: '/search', query: {} })
   })
 
@@ -73,5 +79,17 @@ describe('useMobileNavItems', () => {
     expect(links[0]).toBe('/en')
     expect(links).toContain('/en/search')
     expect(links.every(link => link.startsWith('/en'))).toBe(true)
+  })
+
+  // The heart leads to the saved POSTS: it needs the blog and favourites.
+  it.each([
+    [true, true, true],
+    [true, false, false],
+    [false, true, false],
+  ])('offers the favourites heart with blog %s and favourites %s: %s', (blog, favourites, shown) => {
+    setTenant({ blogEnabled: blog, availableLocales: ['el', 'en'] })
+    flags.FAVOURITES_ENABLED = favourites
+
+    expect(items().some(item => item.icon === 'i-heroicons-heart')).toBe(shown)
   })
 })

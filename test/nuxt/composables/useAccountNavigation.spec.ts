@@ -15,7 +15,7 @@ const state = vi.hoisted(() => ({
   route: 'account___el',
 }))
 
-const GATED_KEYS = ['ACCOUNT_REVIEWS_ENABLED', 'FAVOURITES_ENABLED', 'NEWSLETTER_ENABLED', 'GIFT_CARDS_ENABLED', 'B2B_WHOLESALE_ENABLED']
+const GATED_KEYS = ['PRODUCT_REVIEWS_ENABLED', 'ACCOUNT_REVIEWS_ENABLED', 'FAVOURITES_ENABLED', 'NEWSLETTER_ENABLED', 'GIFT_CARDS_ENABLED', 'B2B_WHOLESALE_ENABLED']
 const servedSettings = () => Object.fromEntries(GATED_KEYS.map(key => [key, state.settings[key] ?? 'True']))
 registerEndpoint('/api/settings/public', () => ({ settings: servedSettings() }))
 
@@ -65,6 +65,7 @@ describe('useAccountNavigation', () => {
   it.each([
     ['favourites', 'FAVOURITES_ENABLED'],
     ['reviews', 'ACCOUNT_REVIEWS_ENABLED'],
+    ['reviews', 'PRODUCT_REVIEWS_ENABLED'],
     ['newsletter', 'NEWSLETTER_ENABLED'],
   ])('leaves out %s while the store switches %s off', async (key, setting) => {
     state.settings = { [setting]: 'False' }

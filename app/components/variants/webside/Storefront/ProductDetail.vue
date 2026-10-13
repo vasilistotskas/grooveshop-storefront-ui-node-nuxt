@@ -114,6 +114,9 @@ const [
     `/api/products/${productId}/reviews`,
     {
       key: `productReviewsSchema${productId}`,
+      // With reviews off none are fetched, so none reach the page or its
+      // structured data (Django answers 404 for them too).
+      immediate: productReviewsEnabled.value,
       method: 'GET',
       headers: useRequestHeaders(),
       query: {
@@ -666,7 +669,7 @@ useSchemaOrg([
         },
       },
 
-      aggregateRating: product.value?.reviewCount && product.value.reviewCount > 0
+      aggregateRating: productReviewsEnabled.value && product.value?.reviewCount && product.value.reviewCount > 0
         ? {
             '@type': 'AggregateRating' as const,
             'ratingValue': product.value.reviewAverage || 0,

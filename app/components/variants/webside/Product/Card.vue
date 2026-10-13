@@ -3,6 +3,8 @@ import type { PropType } from 'vue'
 
 const { productUrl } = useUrls()
 const { t, locale } = useI18n()
+// Off, reviews are gone everywhere — the stars on a card with them.
+const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
 
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },
@@ -266,7 +268,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       </p>
 
       <div
-        v-if="product.reviewAverage && product.reviewAverage > 0" class="
+        v-if="productReviewsEnabled && product.reviewAverage && product.reviewAverage > 0" class="
           flex items-center gap-2
         "
       >

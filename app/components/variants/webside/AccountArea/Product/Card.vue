@@ -48,6 +48,9 @@ const emit = defineEmits<{
  * restock is still "new" when a shopper comes back, short enough that
  * the badge means something.
  */
+// Off, reviews are gone everywhere — the stars on a card with them.
+const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
+
 const NEW_FOR_DAYS = 21
 
 const localePath = useLocalePath()
@@ -287,7 +290,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       </p>
 
       <div
-        v-if="product.reviewCount"
+        v-if="productReviewsEnabled && product.reviewCount"
         class="flex items-center gap-1.5"
       >
         <UInputRating

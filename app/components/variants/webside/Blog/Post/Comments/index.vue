@@ -79,6 +79,9 @@ const {
       languageCode: locale,
       approved: true,
     },
+    // Off, the comments are gone: none fetched, so none reach the page
+    // payload behind the hidden section (Django answers 404 too).
+    immediate: blogCommentsEnabled.value,
   },
 )
 
