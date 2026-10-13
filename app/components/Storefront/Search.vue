@@ -13,6 +13,9 @@
 const { t, locale } = useI18n()
 const route = useRoute(`search___${locale.value}`)
 const { trackResultClick } = useSearchClickTracking()
+// Without the blog plan there are no guides: no tab, no aside, and no
+// request (Django answers 404 for the blog search).
+const tenantStore = useTenantStore()
 
 /** How many guides sit beside the products. */
 const ASIDE_GUIDES = 3
@@ -23,7 +26,7 @@ const firstOf = (value: unknown): string =>
   typeof value === 'string' ? value : Array.isArray(value) && typeof value[0] === 'string' ? value[0] : ''
 
 const query = computed(() => firstOf(route.query.query).trim())
-const tab = computed<Tab>(() => route.query.tab === 'guides' ? 'guides' : 'products')
+const tab = computed<Tab>(() => route.query.tab === 'guides' && tenantStore.blogEnabled ? 'guides' : 'products')
 const page = computed(() => Math.max(1, Number(firstOf(route.query.page)) || 1))
 const limit = ref(12)
 const offset = computed(() => (page.value - 1) * limit.value)
@@ -78,7 +81,7 @@ const {
   refresh: refreshGuides,
 } = await useApi<BlogPostMeiliSearchResponse>('/api/search/blog-posts', {
   query: { query, languageCode: locale, limit: guidesLimit, offset: guidesOffset },
-  immediate: hasQuery.value,
+  immediate: hasQuery.value && tenantStore.blogEnabled,
   watch: false,
 })
 
@@ -86,7 +89,7 @@ watch([query, locale, limit, productsOffset], () => {
   if (hasQuery.value) refreshProducts()
 })
 watch([query, locale, guidesLimit, guidesOffset], () => {
-  if (hasQuery.value) refreshGuides()
+  if (hasQuery.value && tenantStore.blogEnabled) refreshGuides()
 })
 
 const trending = useLazyApi<TrendingSearchResponse>('/api/search/trending', {
@@ -104,7 +107,7 @@ const relaxedQuery = computed(() => (tab.value === 'guides' ? guides : products)
 
 const tabItems = computed(() => [
   { value: 'products', label: t('tabs.products'), badge: productCount.value },
-  { value: 'guides', label: t('tabs.guides'), badge: guideCount.value },
+  ...(tenantStore.blogEnabled ? [{ value: 'guides', label: t('tabs.guides'), badge: guideCount.value }] : []),
 ])
 
 function selectTab(value: string | number) {

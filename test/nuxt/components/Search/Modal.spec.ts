@@ -14,6 +14,7 @@ import {
   makeProductSearchHit,
   makeProductSearchResponse,
 } from '~~/test/fixtures/productFilters'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The default modal is a command palette (the second suite below); the
@@ -102,6 +103,7 @@ describe('Webside Search/Modal', () => {
     clearNuxtData()
     localStorage.clear()
     sent.length = 0
+    setTenant({ blogEnabled: true })
     api.routes({
       '/api/search': answering(() => searchResponse()),
       '/api/search/trending': { windowHours: 24, contentType: 'product', languageCode: 'el', results: [] },
@@ -162,6 +164,21 @@ describe('Webside Search/Modal', () => {
       await nextTick()
 
       expect(optionTitles().map(title => title.match(/(Προϊόν|Άρθρο) \d/)?.[0])).toEqual(expected)
+    })
+
+    it('offers no articles tab, and lists the products alone, when the store\'s plan has no blog', async () => {
+      setTenant({ blogEnabled: false })
+      api.routes({
+        '/api/search': answering(() => ({ ...searchResponse(), blogPosts: null })),
+      })
+
+      const wrapper = await openModal(C, 'lap')
+
+      const articlesTab = own(wrapper, 'search.tabs.blog_posts', { count: 0 })
+      expect([...document.querySelectorAll('button')].filter(b => b.textContent?.trim() === articlesTab)).toEqual([])
+      expect(optionTitles().map(title => title.match(/(Προϊόν|Άρθρο) \d/)?.[0])).toEqual([
+        'Προϊόν 1', 'Προϊόν 2', 'Προϊόν 3',
+      ])
     })
 
     it('appends the next page to the results it already shows', async () => {
@@ -272,6 +289,7 @@ describe('Search/Modal (palette)', () => {
     clearNuxtData()
     localStorage.clear()
     sent.length = 0
+    setTenant({ blogEnabled: true })
     api.routes({
       '/api/search': answering(() => searchResponse()),
       '/api/search/trending': { windowHours: 24, contentType: 'product', languageCode: 'el', results: [] },
