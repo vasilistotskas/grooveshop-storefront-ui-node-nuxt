@@ -1,3 +1,10 @@
+## [3.245.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.3...v3.245.4) (2026-10-13)
+
+
+### Bug Fixes
+
+* **features:** ask for nothing a store has switched off, and show none of it ([#118](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/118)) ([96e36c3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96e36c3e1ac974d6fb064fa6dfc0cecdb66677f6))
+
 ## [3.245.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.2...v3.245.3) (2026-10-13)
 
 
