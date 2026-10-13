@@ -1,3 +1,10 @@
+## [3.245.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.1...v3.245.2) (2026-10-13)
+
+
+### Bug Fixes
+
+* **openapi:** regenerate the API types without the deprecated discount percent ([#116](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/116)) ([e79178b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e79178bee7eda2989729631d946bf74d8719d2a7))
+
 ## [3.245.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.0...v3.245.1) (2026-10-13)
 
 
