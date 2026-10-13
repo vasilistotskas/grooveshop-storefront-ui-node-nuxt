@@ -275,7 +275,8 @@ const { data: userProductReview, refresh: refreshUserProductReview }
   = useLazyApi<GetUserProductReviewResponse>(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     method: 'GET',
-    immediate: loggedIn.value,
+    // A store with reviews off has no review of the shopper to show.
+    immediate: loggedIn.value && reviewsOn,
     server: false, // Client-side only - user-specific data
   })
 
