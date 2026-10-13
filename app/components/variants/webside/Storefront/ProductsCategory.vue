@@ -66,8 +66,7 @@ const ogImage = computed(() => {
   const firstProduct = seoProducts.value?.results?.[0]
   if (firstProduct?.mainImagePath) {
     return img(firstProduct.mainImagePath, {
-      width: 1200,
-      height: 630,
+      ...OG_IMAGE_SIZE,
       fit: 'cover',
       format: 'png',
     }, {
@@ -76,6 +75,9 @@ const ogImage = computed(() => {
   }
   return ogImageUrl.value
 })
+
+// Only the rendition has a known size; the logo fallback does not.
+const ogImageIsRendition = computed(() => !!seoProducts.value?.results?.[0]?.mainImagePath)
 
 const baseUrl = siteConfig.url
 
@@ -108,6 +110,8 @@ useSeoMeta({
   ogDescription: () => categoryDescription.value,
   ogType: 'website',
   ogImage: () => ogImage.value,
+  ogImageWidth: () => ogImageIsRendition.value ? OG_IMAGE_SIZE.width : undefined,
+  ogImageHeight: () => ogImageIsRendition.value ? OG_IMAGE_SIZE.height : undefined,
   ogImageAlt: () => categoryName.value || t('title'),
 })
 

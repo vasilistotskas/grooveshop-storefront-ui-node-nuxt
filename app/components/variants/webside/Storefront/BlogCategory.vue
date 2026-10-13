@@ -94,8 +94,7 @@ const ogImage = computed(() => {
   }
 
   return img(category.value.mainImagePath, {
-    width: 1200,
-    height: 630,
+    ...OG_IMAGE_SIZE,
     format: 'png',
     fit: 'cover',
   }, {
@@ -146,6 +145,8 @@ useSeoMeta({
   description: () => categoryDescription.value,
   ogDescription: () => categoryDescription.value,
   ogImage: ogImage.value,
+  ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
+  ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
   twitterImage: ogImage.value,
 })
 

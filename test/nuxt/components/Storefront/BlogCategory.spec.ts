@@ -4,10 +4,12 @@ import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/
 import { flushPromises } from '@vue/test-utils'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
+import { injectHead } from '#imports'
 import BlogCategory from '~/components/Storefront/BlogCategory.vue'
-import type { BlogPost } from '~~/shared/openapi/types.gen'
+import type { BlogCategory as BlogCategory_, BlogPost } from '~~/shared/openapi/types.gen'
 import { makeBlogCategory, makeBlogPost } from '~~/test/fixtures/blog'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant } from '~~/test/helpers/tenant'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
@@ -126,5 +128,48 @@ describe('Storefront/BlogCategory', () => {
     await flushPromises()
 
     expect(captured).toMatchObject({ statusCode: 404 })
+  })
+
+  describe('og:image size', () => {
+    beforeEach(() => {
+      setTenant()
+    })
+
+    async function ogMeta(category: BlogCategory_) {
+      api.routes({ '/api/blog/categories/4': () => category, '/api/blog/categories/4/posts': () => envelope([]) })
+      const head = injectHead()
+      const before = new Set(head.entries.keys())
+      const wrapper = await mountPage()
+      vi.useFakeTimers({ toFake: ['setTimeout'] })
+      try {
+        head.render()
+        vi.runOnlyPendingTimers()
+      }
+      finally {
+        vi.useRealTimers()
+      }
+      const read = (property: string) => document.querySelector(`meta[property="${property}"]`)?.getAttribute('content') ?? null
+      const painted = { image: read('og:image'), width: read('og:image:width'), height: read('og:image:height') }
+      wrapper.unmount()
+      for (const key of head.entries.keys()) {
+        if (!before.has(key)) head.entries.delete(key)
+      }
+      return painted
+    }
+
+    it('states 1200x630 when the og:image is the category image rendition', async () => {
+      const og = await ogMeta({ ...CATEGORY, mainImagePath: 'media/uploads/blog/odigoi.png' })
+
+      expect(og.image).toContain('1200/630')
+      expect(og.width).toBe('1200')
+      expect(og.height).toBe('630')
+    })
+
+    it('states no size when the category has no image', async () => {
+      const og = await ogMeta({ ...CATEGORY, mainImagePath: '' })
+
+      expect(og.width).toBeNull()
+      expect(og.height).toBeNull()
+    })
   })
 })

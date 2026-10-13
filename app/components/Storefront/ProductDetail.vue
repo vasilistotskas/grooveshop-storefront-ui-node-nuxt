@@ -422,8 +422,7 @@ const ogImage = computed(() => {
   if (!product.value?.mainImagePath) return ''
 
   return img(product.value.mainImagePath, {
-    width: 1200,
-    height: 630,
+    ...OG_IMAGE_SIZE,
     fit: 'cover',
     format: 'png',
   }, {
@@ -558,8 +557,8 @@ useSeoMeta({
   ogTitle: () => productTitle.value,
   ogDescription: () => productDescription.value,
   ogImage: () => ogImage.value,
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
+  ogImageWidth: OG_IMAGE_SIZE.width,
+  ogImageHeight: OG_IMAGE_SIZE.height,
   ogImageAlt: () => productTitle.value,
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
