@@ -1666,7 +1666,6 @@ export const zFederatedSearchResult = z.object({
   effectivePrice: z.number().nullish(),
   priorPrice: z.number().nullish(),
   announcedDiscountPercent: z.int().nullish(),
-  discountPercent: z.int().nullish(),
   offerKind: z.union([
     zOfferKindEnum,
     zNullEnum,
@@ -3005,7 +3004,6 @@ export const zProduct = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -3407,7 +3405,6 @@ export const zProductDetail = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -3472,7 +3469,6 @@ export const zProductDetailResponse = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -3666,7 +3662,6 @@ export const zProductMeiliSearchResult = z.object({
   effectivePrice: z.number().nullable(),
   priorPrice: z.number().nullable(),
   announcedDiscountPercent: z.int().nullable(),
-  discountPercent: z.int().nullable(),
   offerKind: z.union([
     zOfferKindEnum,
     zNullEnum,
@@ -4089,7 +4084,6 @@ export const zProductRetrieve = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   vatPercent: z.number().readonly(),
   vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -8005,7 +7999,6 @@ export const zProductWritable = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   offerKind: z.union([
     zOfferKindEnum,
     zNullEnum,
@@ -8234,7 +8227,6 @@ export const zProductDetailWritable = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   offerKind: z.union([
     zOfferKindEnum,
     zNullEnum,
@@ -8278,7 +8270,6 @@ export const zProductDetailResponseWritable = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   offerKind: z.union([
     zOfferKindEnum,
     zNullEnum,
@@ -8398,7 +8389,6 @@ export const zProductRetrieveWritable = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   offerKind: z.union([
     zOfferKindEnum,
     zNullEnum,

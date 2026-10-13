@@ -25915,7 +25915,7 @@ paths:
           name: sort
           schema:
             type: string
-          description: 'Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). Τα finalPrice και -finalPrice είναι παρωχημένα: αγνοούν τις προσφορές.'
+          description: Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt).
         - in: query
           name: viewsMin
           schema:
@@ -37201,10 +37201,6 @@ components:
         announcedDiscountPercent:
           type: integer
           nullable: true
-        discountPercent:
-          type: integer
-          nullable: true
-          deprecated: true
         offerKind:
           nullable: true
           oneOf:
@@ -43431,15 +43427,6 @@ components:
             unit: kg
             value: 1
           nullable: true
-        discountPercent:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          title: Ποσοστό Έκπτωσης
-          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -44300,15 +44287,6 @@ components:
             unit: kg
             value: 1
           nullable: true
-        discountPercent:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          title: Ποσοστό Έκπτωσης
-          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -44530,15 +44508,6 @@ components:
             unit: kg
             value: 1
           nullable: true
-        discountPercent:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          title: Ποσοστό Έκπτωσης
-          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -45083,10 +45052,6 @@ components:
         announcedDiscountPercent:
           type: integer
           nullable: true
-        discountPercent:
-          type: integer
-          nullable: true
-          deprecated: true
         offerKind:
           nullable: true
           oneOf:
@@ -45128,7 +45093,6 @@ components:
         - contentType
         - createdAt
         - description
-        - discountPercent
         - effectivePrice
         - finalPrice
         - formatted
@@ -45459,15 +45423,6 @@ components:
             unit: kg
             value: 1
           nullable: true
-        discountPercent:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          title: Ποσοστό Έκπτωσης
-          deprecated: true
         vatPercent:
           type: number
           format: double

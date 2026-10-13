@@ -1,9 +1,10 @@
-import type { CartDetail, CartItem, Product } from '~~/shared/openapi/types.gen'
+import type { CartDetail, CartItem } from '~~/shared/openapi/types.gen'
+import type { ProductOverrides } from './product'
 import { cents, FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from './product'
 
 /** A cart line's overrides; `product` is itself a `makeProduct` override. */
 export type CartItemOverrides = Partial<Omit<CartItem, 'product'>> & {
-  product?: Partial<Product>
+  product?: ProductOverrides
 }
 
 /** A cart's overrides; each of `items` is a `makeCartItem` override. */
@@ -31,7 +32,8 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
   const id = rest.id ?? 1
   const quantity = rest.quantity ?? 1
   const unitWeight = product.weight?.value ?? 0
-  const discountValue = cents((product.price * (product.discountPercent ?? 0)) / 100)
+  const discountPercent = productOverrides?.discountPercent ?? 0
+  const discountValue = cents((product.price * discountPercent) / 100)
 
   return {
     id,
@@ -47,7 +49,7 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
     finalPrice: product.finalPrice,
     discountValue,
     priceSavePercent: product.price > 0 ? (discountValue / product.price) * 100 : 0,
-    discountPercent: product.discountPercent ?? 0,
+    discountPercent,
     vatPercent: product.vatPercent,
     vatValue: product.vatValue,
     totalPrice: cents(product.finalPrice * quantity),

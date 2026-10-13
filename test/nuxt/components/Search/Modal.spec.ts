@@ -354,7 +354,7 @@ describe('Search/Modal (palette)', () => {
         '/api/search': answering(() => searchResponse([
           makeProductSearchHit({ id: 1, name: 'Προϊόν 1', finalPrice: 45, effectivePrice: 41.5, priorPrice: 50, announcedDiscountPercent: 17 }),
           makeProductSearchHit({ id: 2, name: 'Προϊόν 2', finalPrice: 27.9 }),
-          makeProductSearchHit({ id: 3, name: 'Προϊόν 3', finalPrice: 30, discountPercent: 15, offerKind: 'MARKDOWN' }),
+          makeProductSearchHit({ id: 3, name: 'Προϊόν 3', finalPrice: 30, offerKind: 'MARKDOWN' }),
           makeProductSearchHit({ id: 4, name: 'Προϊόν 4', finalPrice: 30, offerKind: 'PROMOTION' }),
         ], [])),
       })

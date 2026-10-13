@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { Product } from '~~/shared/openapi/types.gen'
 import ProductCard from '~/components/Product/Card.vue'
+import type { ProductOverrides } from '~~/test/fixtures/product'
 import { makeProduct } from '~~/test/fixtures/product'
 import { makeProductSearchHit } from '~~/test/fixtures/productFilters'
 
@@ -81,7 +82,7 @@ describe('Product/Card', () => {
 
   // One badge, most urgent first: cannot buy it, cheaper than usual,
   // new. Every product below is also new (ten days old).
-  it.each<[string, Partial<Product>, { label: string, paint: string }]>([
+  it.each<[string, ProductOverrides, { label: string, paint: string }]>([
     ['sold out beats everything', { stock: 0, ...ANNOUNCED }, { label: 'Εξαντλήθηκε', paint: 'neutral-soft' }],
     ['an announced reduction beats newness, in volt, with the percentage Django computed', { stock: 50, ...ANNOUNCED }, { label: '−17%', paint: 'volt' }],
     ['a markdown with no prior price is not announced, so newness shows', { stock: 50, discountPercent: 20 }, { label: 'Νέο', paint: 'primary-solid' }],
@@ -249,7 +250,7 @@ describe('Product/Card', () => {
   })
 
   it('badges nothing on a search hit whose markdown or promotion has no prior price', async () => {
-    const hit = makeProductSearchHit({ createdAt: null, discountPercent: 20, offerKind: 'MARKDOWN' })
+    const hit = makeProductSearchHit({ createdAt: null, offerKind: 'MARKDOWN' })
 
     expect(await badgeOf(hit as unknown as Product)).toBeUndefined()
   })

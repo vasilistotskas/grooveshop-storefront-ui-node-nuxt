@@ -203,7 +203,6 @@ export function makeProductSearchHit(overrides: Partial<ProductMeiliSearchResult
     priorPrice: null,
     announcedDiscountPercent: null,
     price: 50,
-    discountPercent: 0,
     offerKind: null,
     stock: 10,
     likesCount: 0,

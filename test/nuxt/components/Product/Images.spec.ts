@@ -41,7 +41,7 @@ describe('Product/Images', () => {
   })
 
   it('badges nothing for a markdown or a promotion that has no prior price', async () => {
-    expect(await badgeOf({ discountPercent: 20, offerKind: 'MARKDOWN' })).toBeUndefined()
+    expect(await badgeOf({ offerKind: 'MARKDOWN' })).toBeUndefined()
     expect(await badgeOf({ offerKind: 'PROMOTION' })).toBeUndefined()
   })
 })

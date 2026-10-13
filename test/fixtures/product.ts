@@ -17,6 +17,12 @@ export function fixtureUuid(scope: number, id: number): string {
 export const cents = (value: number) => Math.round(value * 100) / 100
 
 /**
+ * A `makeProduct` override: any `Product` field, plus the merchant's
+ * markdown percent that the derived prices are computed from.
+ */
+export type ProductOverrides = Partial<Product> & { discountPercent?: number }
+
+/**
  * A `Product` as Django serialises it, valid against the generated
  * `zProduct` (proved by `test/unit/fixtures/product.spec.ts`).
  *
@@ -25,22 +31,23 @@ export const cents = (value: number) => Math.round(value * 100) / 100
  * `slug` follow `id`.
  *
  * The derived money fields — `vatValue`, `finalPrice` — are computed from `price`,
- * `discountPercent` and `vatPercent` the way Django's `Product`
+ * the merchant's markdown (`discountPercent`, a fixture knob: the API no
+ * longer serialises it) and `vatPercent` the way Django's `Product`
  * properties compute them (`product/models/product.py`: discount and
  * VAT are both taken off the NET price, `finalPrice = price + vat -
  * discount`), so `makeProduct({ price: 100, discountPercent: 10 })` is
- * self-consistent. `offerKind` follows the discount the way the backend
- * labels a markdown. `effectivePrice` is `finalPrice` (no automatic
+ * self-consistent. `offerKind` follows the markdown the way the backend
+ * labels it. `effectivePrice` is `finalPrice` (no automatic
  * promotion), and the product announces no reduction: `priorPrice` and
  * `announcedDiscountPercent` are null, as Django emits them until a
  * reduction has a frozen prior price. An explicit override of a derived
  * field wins.
  */
-export function makeProduct(overrides: Partial<Product> = {}): Product {
-  const id = overrides.id ?? 1
-  const price = overrides.price ?? 50
-  const discountPercent = overrides.discountPercent ?? 0
-  const vatPercent = overrides.vatPercent ?? 24
+export function makeProduct(overrides: ProductOverrides = {}): Product {
+  const { discountPercent = 0, ...fields } = overrides
+  const id = fields.id ?? 1
+  const price = fields.price ?? 50
+  const vatPercent = fields.vatPercent ?? 24
   const discountValue = cents((price * discountPercent) / 100)
   const vatValue = cents((price * vatPercent) / 100)
 
@@ -74,7 +81,6 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     lowStockThreshold: 0,
     active: true,
     weight: { unit: 'g', value: 500 },
-    discountPercent,
     offerKind: discountPercent > 0 ? 'MARKDOWN' : null,
     vatPercent,
     vatValue,
@@ -90,7 +96,7 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(1, id),
     attributes: [],
-    ...overrides,
+    ...fields,
   }
 }
 

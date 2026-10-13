@@ -47,7 +47,7 @@ describe('productAnnouncement', () => {
   it('announces nothing for a markdown without a prior price', () => {
     const product = makeProduct({ price: 50, discountPercent: 10 })
 
-    expect(product.discountPercent).toBe(10)
+    expect(product.finalPrice).toBe(57)
     expect(productAnnouncement(product)).toBeUndefined()
   })
 
