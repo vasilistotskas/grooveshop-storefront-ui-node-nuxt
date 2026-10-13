@@ -88,6 +88,11 @@ const footerClass = computed(() =>
     >
       {{ t('a11y.skipToContent') }}
     </a>
+    <!-- The EU co-funding strip is legally the first thing on a page, so it
+         sits before the header slot and stays whatever a page puts there.
+         After the skip link, which has to remain the first focusable
+         element. -->
+    <ChromeFundingBanner />
     <slot name="header">
       <!-- A tenant whose design specifies its own header ships it as a
            chrome variant (see app/utils/variantRegistry.ts) — the same
