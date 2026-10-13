@@ -3316,10 +3316,6 @@ export type FederatedSearchResult = {
   effectivePrice?: number | null
   priorPrice?: number | null
   announcedDiscountPercent?: number | null
-  /**
-     * @deprecated
-     */
-  discountPercent?: number | null
   offerKind?: OfferKindEnum | NullEnum | null
   stock?: number
   likesCount?: number
@@ -7037,12 +7033,6 @@ export type Product = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -7507,12 +7497,6 @@ export type ProductDetail = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -7616,12 +7600,6 @@ export type ProductDetailResponse = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -7886,10 +7864,6 @@ export type ProductMeiliSearchResult = {
   effectivePrice: number | null
   priorPrice: number | null
   announcedDiscountPercent: number | null
-  /**
-     * @deprecated
-     */
-  discountPercent: number | null
   offerKind?: OfferKindEnum | NullEnum | null
   stock: number
   likesCount: number
@@ -8099,12 +8073,6 @@ export type ProductRetrieve = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   readonly vatPercent: number
   readonly vatValue: number
   readonly finalPrice: number
@@ -12479,12 +12447,6 @@ export type ProductWritable = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null
 }
 
@@ -12700,12 +12662,6 @@ export type ProductDetailWritable = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null
 }
 
@@ -12752,12 +12708,6 @@ export type ProductDetailResponseWritable = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null
 }
 
@@ -12870,12 +12820,6 @@ export type ProductRetrieveWritable = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Ποσοστό Έκπτωσης
-     *
-     * @deprecated
-     */
-  discountPercent?: number
   offerKind?: OfferKindEnum | NullEnum | null
 }
 
@@ -25507,7 +25451,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     query?: string
     /**
-         * Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). Τα finalPrice και -finalPrice είναι παρωχημένα: αγνοούν τις προσφορές.
+         * Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt).
          */
     sort?: string
     /**
