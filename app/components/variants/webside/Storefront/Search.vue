@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 const route = useRoute(`search___${locale.value}`)
+// Without the blog plan the search has no posts to show: no Blog tab.
+const tenantStore = useTenantStore()
 
 const query = ref(
   Array.isArray(route.query.query)
@@ -132,11 +134,13 @@ const tabItems = computed(() => {
       label: t('page.tabs.products_label'),
       badge: productsCount,
     },
-    {
-      value: 'blogPosts',
-      label: t('page.tabs.blog_posts_label'),
-      badge: blogPostsCount,
-    },
+    ...(tenantStore.blogEnabled
+      ? [{
+          value: 'blogPosts',
+          label: t('page.tabs.blog_posts_label'),
+          badge: blogPostsCount,
+        }]
+      : []),
   ]
 })
 

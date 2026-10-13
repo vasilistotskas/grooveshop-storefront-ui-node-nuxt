@@ -9,6 +9,7 @@ import {
   makeProductSearchHit,
   makeProductSearchResponse,
 } from '~~/test/fixtures/productFilters'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The search page keeps its state in the URL (`?query=`, `?tab=`,
@@ -88,6 +89,7 @@ describe('Storefront/Search', () => {
   beforeEach(() => {
     clearNuxtData()
     navigateToMock.mockReset()
+    setTenant({ blogEnabled: true })
     answer()
   })
 
@@ -124,6 +126,18 @@ describe('Storefront/Search', () => {
 
     expect(lastQuery(PRODUCTS)).toMatchObject({ limit: 12, offset: 24 })
     expect(lastQuery(GUIDES)).toMatchObject({ limit: 3, offset: 0 })
+  })
+
+  it('finds products alone when the store\'s plan has no blog: no guides asked for, no tab, none beside them', async () => {
+    setTenant({ blogEnabled: false })
+
+    const wrapper = await render({ query: 'καλώδιο', tab: 'guides' })
+
+    expect(api.callsTo(GUIDES)).toEqual([])
+    expect(lastQuery(PRODUCTS)).toMatchObject({ query: 'καλώδιο', limit: 12, offset: 0 })
+    expect(wrapper.findAll('[role="tab"]').map(tab => tab.text())).toEqual([`${own(wrapper, 'tabs.products')}2`])
+    expect(wrapper.findAll('[data-test="card"]').map(card => card.text())).toEqual(['Προϊόν 1', 'Προϊόν 2'])
+    expect(wrapper.findAll('[data-test="guide"]')).toEqual([])
   })
 
   it('counts both kinds on their tabs', async () => {

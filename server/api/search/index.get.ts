@@ -14,22 +14,27 @@ export default defineEventHandler(async (event) => {
     }
 
     const fwdHeaders = createHeaders(event, null, null)
+    // A store whose plan has no blog answers 404 to the blog search, and
+    // asking anyway failed the whole palette — products included.
+    const blogEnabled = event.context.tenant?.blogEnabled ?? true
     const [productResponse, blogPostResponse] = await Promise.all([
       useBackendFetch(event)(`${config.apiBaseUrl}/search/product`, {
         method: 'GET',
         query,
         headers: fwdHeaders,
       }),
-      useBackendFetch(event)(`${config.apiBaseUrl}/search/blog/post`, {
-        method: 'GET',
-        query,
-        headers: fwdHeaders,
-      }),
+      blogEnabled
+        ? useBackendFetch(event)(`${config.apiBaseUrl}/search/blog/post`, {
+            method: 'GET',
+            query,
+            headers: fwdHeaders,
+          })
+        : null,
     ])
 
     const [productsParsedData, blogPostsParsedData] = await Promise.all([
       parseDataAs(productResponse, zProductMeiliSearchResponse),
-      parseDataAs(blogPostResponse, zBlogPostMeiliSearchResponse),
+      blogPostResponse === null ? null : parseDataAs(blogPostResponse, zBlogPostMeiliSearchResponse),
     ])
 
     return {
