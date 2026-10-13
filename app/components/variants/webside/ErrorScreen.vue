@@ -15,8 +15,6 @@ useSeoMeta({
   title: t('error.page.title'),
   ogImage: () => ogImageUrl.value,
   ogImageAlt: 'Page not found',
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
 })
 
 useHead({

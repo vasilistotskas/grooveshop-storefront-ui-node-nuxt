@@ -47,8 +47,6 @@ useSeoMeta({
   title: () => pageTitle.value,
   ogImage: () => ogImageUrl.value,
   ogImageAlt: () => heading.value,
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
 })
 useHead({
   title: () => pageTitle.value,
