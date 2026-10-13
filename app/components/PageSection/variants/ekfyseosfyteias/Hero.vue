@@ -14,6 +14,9 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  *   the page already has its h1.
  * - `page` (no artwork): the typographic page hero. The page's h1.
  *
+ * `stats` (value and label) are a dashed-ruled row of facts under the lead
+ * of the seal hero only; the other two presentations have no place for them.
+ *
  * The φ is the co-op's logo letter, drawn as decoration. It overhangs the
  * band on purpose, so the band clips it.
  */
@@ -33,6 +36,7 @@ const props = defineProps<{
   ctaLink?: string
   secondaryCtaText?: string
   secondaryCtaLink?: string
+  stats?: Array<{ value: string, label: string }>
   decor?: 'none' | 'orbs' | 'gradient'
   theme?: 'light' | 'dark' | 'auto'
 }>()
@@ -110,6 +114,28 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
         >
           {{ subheading }}
         </p>
+
+        <dl
+          v-if="stats?.length"
+          class="
+            grid w-full gap-x-6 gap-y-4 border-t-[1.5px] border-dashed
+            border-(--fy-text) pt-[18px]
+            grid-cols-[repeat(auto-fit,minmax(min(140px,100%),1fr))]
+          "
+        >
+          <div
+            v-for="stat in stats"
+            :key="stat.label"
+            class="flex flex-col gap-1"
+          >
+            <dt class="text-[13px] font-bold tracking-[0.12em] text-(--fy-eyebrow-on-sage) uppercase">
+              {{ stat.label }}
+            </dt>
+            <dd class="font-display text-2xl font-bold [font-variant-numeric:lining-nums]">
+              {{ stat.value }}
+            </dd>
+          </div>
+        </dl>
 
         <div
           v-if="primary || secondary"
