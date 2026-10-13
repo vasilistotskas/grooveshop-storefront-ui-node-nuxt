@@ -18533,15 +18533,6 @@ paths:
               - type: number
           description: Maximum price the customer pays now (VAT, markdown and unconditional automatic promotions included)
         - in: query
-          name: maxFinalPrice
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-          description: 'Deprecated: use maxEffectivePrice. Maximum price after VAT and markdown, ignoring promotions'
-          deprecated: true
-        - in: query
           name: maxLikes
           schema:
             oneOf:
@@ -18641,15 +18632,6 @@ paths:
                 pattern: ^-?\d+(\.\d+)?$
               - type: number
           description: Minimum price the customer pays now (VAT, markdown and unconditional automatic promotions included)
-        - in: query
-          name: minFinalPrice
-          schema:
-            oneOf:
-              - type: string
-                pattern: ^-?\d+(\.\d+)?$
-              - type: number
-          description: 'Deprecated: use minEffectivePrice. Minimum price after VAT and markdown, ignoring promotions'
-          deprecated: true
         - in: query
           name: minLikes
           schema:
@@ -37119,8 +37101,6 @@ components:
       type: object
       description: Serializer for facet statistics (numeric facets).
       properties:
-        finalPrice:
-          $ref: '#/components/schemas/FacetStatsItem'
         effectivePrice:
           $ref: '#/components/schemas/FacetStatsItem'
         likesCount:
@@ -43460,20 +43440,6 @@ components:
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
           deprecated: true
-        discountValue:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-          deprecated: true
-        priceSavePercent:
-          type: number
-          format: double
-          readOnly: true
-          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -43563,7 +43529,6 @@ components:
         - brandName
         - category
         - createdAt
-        - discountValue
         - effectivePrice
         - finalPrice
         - id
@@ -43571,7 +43536,6 @@ components:
         - lowStockThreshold
         - mainImagePath
         - price
-        - priceSavePercent
         - priorPrice
         - reviewAverage
         - reviewCount
@@ -44345,20 +44309,6 @@ components:
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
           deprecated: true
-        discountValue:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-          deprecated: true
-        priceSavePercent:
-          type: number
-          format: double
-          readOnly: true
-          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -44453,7 +44403,6 @@ components:
         - brandName
         - category
         - createdAt
-        - discountValue
         - effectivePrice
         - finalPrice
         - id
@@ -44462,7 +44411,6 @@ components:
         - mainImagePath
         - price
         - priceDropAlertsEnabled
-        - priceSavePercent
         - priorPrice
         - reviewAverage
         - reviewCount
@@ -44591,20 +44539,6 @@ components:
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
           deprecated: true
-        discountValue:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-          deprecated: true
-        priceSavePercent:
-          type: number
-          format: double
-          readOnly: true
-          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -44699,7 +44633,6 @@ components:
         - brandName
         - category
         - createdAt
-        - discountValue
         - effectivePrice
         - finalPrice
         - id
@@ -44708,7 +44641,6 @@ components:
         - mainImagePath
         - price
         - priceDropAlertsEnabled
-        - priceSavePercent
         - priorPrice
         - reviewAverage
         - reviewCount
@@ -45536,20 +45468,6 @@ components:
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
           deprecated: true
-        discountValue:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-          deprecated: true
-        priceSavePercent:
-          type: number
-          format: double
-          readOnly: true
-          deprecated: true
         vatPercent:
           type: number
           format: double
@@ -45649,7 +45567,6 @@ components:
         - brandName
         - category
         - createdAt
-        - discountValue
         - effectivePrice
         - finalPrice
         - id
@@ -45658,7 +45575,6 @@ components:
         - mainImagePath
         - price
         - priceDropAlertsEnabled
-        - priceSavePercent
         - priorPrice
         - ratingDistribution
         - reviewAverage

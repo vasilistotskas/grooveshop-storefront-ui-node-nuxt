@@ -31,6 +31,7 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
   const id = rest.id ?? 1
   const quantity = rest.quantity ?? 1
   const unitWeight = product.weight?.value ?? 0
+  const discountValue = cents((product.price * (product.discountPercent ?? 0)) / 100)
 
   return {
     id,
@@ -44,13 +45,13 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
     },
     price: product.price,
     finalPrice: product.finalPrice,
-    discountValue: product.discountValue,
-    priceSavePercent: product.priceSavePercent,
+    discountValue,
+    priceSavePercent: product.price > 0 ? (discountValue / product.price) * 100 : 0,
     discountPercent: product.discountPercent ?? 0,
     vatPercent: product.vatPercent,
     vatValue: product.vatValue,
     totalPrice: cents(product.finalPrice * quantity),
-    totalDiscountValue: cents(product.discountValue * quantity),
+    totalDiscountValue: cents(discountValue * quantity),
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(3, id),

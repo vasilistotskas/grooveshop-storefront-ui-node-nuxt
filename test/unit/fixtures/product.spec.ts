@@ -22,8 +22,6 @@ describe('makeProduct', () => {
     expect(problems(zProduct, product)).toEqual([])
     expect(product).toMatchObject({
       price: 100,
-      discountValue: 10,
-      priceSavePercent: 10,
       vatValue: 24,
       finalPrice: 114,
     })
