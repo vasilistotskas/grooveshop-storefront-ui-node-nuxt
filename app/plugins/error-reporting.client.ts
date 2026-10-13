@@ -9,10 +9,16 @@
  * rate-limited on the server.
  */
 export default defineNuxtPlugin((nuxtApp) => {
-  const report = createClientErrorReporter(entry => log.error(entry))
+  const report = createClientErrorReporter((level, entry) => log[level](entry))
 
   nuxtApp.hook('vue:error', (error, _instance, info) => {
     report('vue-error', error, info)
+  })
+  // Nuxt's own chunk detection (`experimental.emitRouteChunkError`), fired
+  // before it reloads the page: a chunk the visitor's browser could not
+  // download. Logged at `warn`, once, however many hooks the error reaches.
+  nuxtApp.hook('app:chunkError', ({ error }) => {
+    report('chunk-error', error)
   })
   nuxtApp.hook('app:error', (error) => {
     report('app-error', error)
