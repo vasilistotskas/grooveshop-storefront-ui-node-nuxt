@@ -1,0 +1,60 @@
+/*
+ * «Εκ φύσεως Φυτειάς» — the tenant variant's colour roles.
+ *
+ * Imported only by the ekfyseosfyteias variant components (chrome and
+ * page sections), so it ships in that tenant's chunks and nowhere else.
+ * Every variant component paints through these roles, never through a
+ * literal hex, so light and dark mode are one decision made here.
+ *
+ * Light values come from the co-op's logo: the sage disc (#b1bd99), the
+ * black φ, the apricot berries (#d09870). Every text/ground pair below is
+ * WCAG AA (≥ 4.5:1), measured: the site is checked with AChecker and WAVE
+ * as part of its EU-funding (ΕΣΠΑ) compliance evidence.
+ */
+html {
+  --fy-ground: #f2f3ec;
+  --fy-raised: #e4e8d8;
+  --fy-surface: #ffffff;
+  --fy-sage: #b1bd99;
+  --fy-sage-glyph: #a7b48f;
+  --fy-text: #1c1a17;
+  --fy-text-muted: #524a45;
+  --fy-eyebrow: #4a5636;
+  --fy-eyebrow-on-sage: #3f4a2c;
+  --fy-ink-band: #1c1a17;
+  --fy-on-ink: #f2f3ec;
+  --fy-on-ink-muted: #c7cabb;
+  --fy-accent: #d09870;
+  --fy-on-accent: #1c1a17;
+  --fy-accent-text: #7a4f2f;
+  --fy-chip: #dfe4cf;
+  --fy-rule: rgb(28 26 23 / 30%);
+  --fy-rule-on-ink: rgb(242 243 236 / 32%);
+  --fy-focus: #1d4f91;
+  /* The ΕΣΠΑ strip stays white in both modes: the official banner
+     artwork has a white ground. */
+  --fy-funding-ground: #ffffff;
+  --fy-funding-link: #1d4f91;
+}
+
+html.dark {
+  --fy-ground: #1d201a;
+  --fy-raised: #262a22;
+  --fy-surface: #2c3027;
+  --fy-sage: #2f3826;
+  --fy-sage-glyph: #35402b;
+  --fy-text: #f2f3ec;
+  --fy-text-muted: #c7cabb;
+  --fy-eyebrow: #b1bd99;
+  --fy-eyebrow-on-sage: #d9e0c8;
+  --fy-ink-band: #11120f;
+  --fy-on-ink: #f2f3ec;
+  --fy-on-ink-muted: #c7cabb;
+  --fy-accent: #d09870;
+  --fy-on-accent: #1c1a17;
+  --fy-accent-text: #e0b48f;
+  --fy-chip: #3d4a2a;
+  --fy-rule: rgb(242 243 236 / 28%);
+  --fy-rule-on-ink: rgb(242 243 236 / 32%);
+  --fy-focus: #8fb4e8;
+}

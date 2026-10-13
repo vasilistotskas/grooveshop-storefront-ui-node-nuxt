@@ -206,10 +206,16 @@ const pageDefaults: Record<PageKey, Component> = {
  * Δelta Σigma ships its own header and footer: a contractor's site with
  * none of the shop affordances (⌘K search, favourites, account avatar)
  * — see `app/components/Chrome/variants/delta_sigma/`.
+ *
+ * «Εκ φύσεως Φυτειάς» ships its own header and footer too: a co-operative
+ * with no online shop and a paper-and-ink design of its own — see
+ * `app/components/Chrome/variants/ekfyseosfyteias/`.
  */
 const variants: Record<string, Component> = {
   'chrome:navbar@delta_sigma': lazy(() => import('~/components/Chrome/variants/delta_sigma/Navbar.vue')),
   'chrome:footer@delta_sigma': lazy(() => import('~/components/Chrome/variants/delta_sigma/Footer.vue')),
+  'chrome:navbar@ekfyseosfyteias': lazy(() => import('~/components/Chrome/variants/ekfyseosfyteias/Navbar.vue')),
+  'chrome:footer@ekfyseosfyteias': lazy(() => import('~/components/Chrome/variants/ekfyseosfyteias/Footer.vue')),
 
   // webside: today's platform storefront, frozen byte-for-byte under
   // app/components/variants/webside/ while the defaults are redesigned.

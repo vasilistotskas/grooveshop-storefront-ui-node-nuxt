@@ -116,4 +116,13 @@ describe('variantRegistry', () => {
     // ...and only those: delta_sigma has no page bodies of its own.
     expect(resolvePage('home', 'delta_sigma')).toBe(resolvePage('home', null))
   })
+
+  it('keeps the ekfyseosfyteias chrome variants, and no other tenant gets them', () => {
+    expect(resolveChrome('navbar', 'ekfyseosfyteias')).not.toBe(resolveChrome('navbar', null))
+    expect(resolveChrome('footer', 'ekfyseosfyteias')).not.toBe(resolveChrome('footer', null))
+    expect(resolveChrome('navbar', 'ekfyseosfyteias')).not.toBe(resolveChrome('navbar', 'delta_sigma'))
+    expect(resolveChrome('navbar', 'demo')).toBe(resolveChrome('navbar', null))
+    // Chrome only: the mobile tab bar and the rest stay the platform's.
+    expect(resolveChrome('mobile_nav', 'ekfyseosfyteias')).toBe(resolveChrome('mobile_nav', null))
+  })
 })
