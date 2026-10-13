@@ -1,3 +1,10 @@
+## [3.245.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.2...v3.245.3) (2026-10-13)
+
+
+### Bug Fixes
+
+* **search:** find products on a store whose plan has no blog ([#117](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/117)) ([b4b2892](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b4b28924f6c879f11a157b309990e3ee59074541))
+
 ## [3.245.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.1...v3.245.2) (2026-10-13)
 
 
