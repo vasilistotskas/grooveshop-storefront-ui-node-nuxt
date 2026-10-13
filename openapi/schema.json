@@ -43909,7 +43909,7 @@
                                 }
                             ]
                         },
-                        "description": "Maximum price filter (effective_price <= value): the price the customer pays, unconditional automatic promotions included"
+                        "description": "Φίλτρο μέγιστης τιμής (effective_price <= value): η τιμή που πληρώνει ο πελάτης, με τις άνευ όρων αυτόματες προσφορές"
                     },
                     {
                         "in": "query",
@@ -43925,7 +43925,7 @@
                                 }
                             ]
                         },
-                        "description": "Minimum price filter (effective_price >= value): the price the customer pays, unconditional automatic promotions included"
+                        "description": "Φίλτρο ελάχιστης τιμής (effective_price >= value): η τιμή που πληρώνει ο πελάτης, με τις άνευ όρων αυτόματες προσφορές"
                     },
                     {
                         "in": "query",
@@ -43941,7 +43941,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Sort field (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). finalPrice and -finalPrice are deprecated: they ignore promotions."
+                        "description": "Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). Τα finalPrice και -finalPrice είναι παρωχημένα: αγνοούν τις προσφορές."
                     },
                     {
                         "in": "query",
@@ -74217,6 +74217,9 @@
                     "googleAdsBeginCheckoutLabel": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "googleAdsAddPaymentInfoLabel": {
+                        "type": "string"
                     },
                     "googleAdsPageViewLabel": {
                         "type": "string",

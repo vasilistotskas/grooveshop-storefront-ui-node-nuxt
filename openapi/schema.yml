@@ -25915,7 +25915,7 @@ paths:
               - type: string
                 pattern: ^-?\d+(\.\d+)?$
               - type: number
-          description: 'Maximum price filter (effective_price <= value): the price the customer pays, unconditional automatic promotions included'
+          description: 'Φίλτρο μέγιστης τιμής (effective_price <= value): η τιμή που πληρώνει ο πελάτης, με τις άνευ όρων αυτόματες προσφορές'
         - in: query
           name: priceMin
           schema:
@@ -25923,7 +25923,7 @@ paths:
               - type: string
                 pattern: ^-?\d+(\.\d+)?$
               - type: number
-          description: 'Minimum price filter (effective_price >= value): the price the customer pays, unconditional automatic promotions included'
+          description: 'Φίλτρο ελάχιστης τιμής (effective_price >= value): η τιμή που πληρώνει ο πελάτης, με τις άνευ όρων αυτόματες προσφορές'
         - in: query
           name: query
           schema:
@@ -25933,7 +25933,7 @@ paths:
           name: sort
           schema:
             type: string
-          description: 'Sort field (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). finalPrice and -finalPrice are deprecated: they ignore promotions.'
+          description: 'Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt). Τα finalPrice και -finalPrice είναι παρωχημένα: αγνοούν τις προσφορές.'
         - in: query
           name: viewsMin
           schema:
@@ -47897,6 +47897,8 @@ components:
         googleAdsBeginCheckoutLabel:
           type: string
           readOnly: true
+        googleAdsAddPaymentInfoLabel:
+          type: string
         googleAdsPageViewLabel:
           type: string
           readOnly: true

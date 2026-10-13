@@ -802,7 +802,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       // it was showing are answered.
       if (currentStep.value === 0) addressStepErrors.value = []
       currentStep.value++
-      // Meta Pixel: AddPaymentInfo + GA4: add_payment_info both fire
+      // Meta Pixel: AddPaymentInfo, GA4: add_payment_info and the Google
+      // Ads add-payment-info conversion all fire
       // once when the customer enters the payment step. Browser-only
       // events (no server-side dedup); the Meta composable mints its
       // own eventID.
@@ -826,6 +827,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
             contentType: 'product',
             contents: cartTikTokContents(cart.value),
           })
+
+          googleAds.trackAddPaymentInfo({ currency, value })
 
           ga4.trackAddPaymentInfo({
             currency,

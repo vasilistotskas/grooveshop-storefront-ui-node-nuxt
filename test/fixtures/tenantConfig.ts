@@ -61,6 +61,7 @@ export function validTenantConfig(
     googleAdsPurchaseLabel: '',
     googleAdsAddToCartLabel: '',
     googleAdsBeginCheckoutLabel: '',
+    googleAdsAddPaymentInfoLabel: '',
     googleAdsPageViewLabel: '',
     totpIssuer: '',
     socialsDiscord: '',

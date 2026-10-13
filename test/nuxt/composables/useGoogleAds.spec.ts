@@ -28,6 +28,7 @@ const LABELS = {
   googleAdsPurchaseLabel: '7T1qCJOa0vocEPTc8tNE',
   googleAdsAddToCartLabel: 'Z2D-CPLn1PocEPTc8tNE',
   googleAdsBeginCheckoutLabel: 'teQICK2s1_ocEPTc8tNE',
+  googleAdsAddPaymentInfoLabel: 'pAyInF0CK2s1_ocEPTc8tNE',
   googleAdsPageViewLabel: 'x3diCPOe1_ocEPTc8tNE',
 }
 
@@ -115,13 +116,40 @@ describe('useGoogleAds — conversions', () => {
 
     ads.trackAddToCart({ value: 12.5, currency: 'EUR' })
     ads.trackBeginCheckout({ value: 40, currency: 'EUR' })
+    ads.trackAddPaymentInfo({ value: 40, currency: 'EUR' })
     ads.trackPageView()
 
     expect(gtagMock.mock.calls.map(c => (c[2] as any).send_to)).toEqual([
       `${ADS}/${LABELS.googleAdsAddToCartLabel}`,
       `${ADS}/${LABELS.googleAdsBeginCheckoutLabel}`,
+      `${ADS}/${LABELS.googleAdsAddPaymentInfoLabel}`,
       `${ADS}/${LABELS.googleAdsPageViewLabel}`,
     ])
+  })
+
+  it('sends add-payment-info with the real value and currency', () => {
+    setTenant({ googleAdsConversionId: ADS, ...LABELS })
+
+    useGoogleAds().trackAddPaymentInfo({ value: 130, currency: 'EUR' })
+
+    expect(gtagMock).toHaveBeenCalledExactlyOnceWith('event', 'conversion', {
+      send_to: `${ADS}/${LABELS.googleAdsAddPaymentInfoLabel}`,
+      value: 130,
+      currency: 'EUR',
+    })
+  })
+
+  it('reports no add-payment-info when its label is not set', () => {
+    // The label is optional on the API (a store may not have created the
+    // conversion action); the other actions must keep working.
+    const { googleAdsAddPaymentInfoLabel: _unset, ...others } = LABELS
+    setTenant({ googleAdsConversionId: ADS, ...others })
+    const ads = useGoogleAds()
+
+    ads.trackAddPaymentInfo({ value: 1, currency: 'EUR' })
+
+    expect(ads.hasConversion('add_payment_info')).toBe(false)
+    expect(gtagMock).not.toHaveBeenCalled()
   })
 
   it('sends a page view without a value', () => {

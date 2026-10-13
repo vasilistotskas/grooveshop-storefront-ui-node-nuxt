@@ -5211,6 +5211,7 @@ export const zTenantConfig = z.object({
   googleAdsPurchaseLabel: z.string().readonly(),
   googleAdsAddToCartLabel: z.string().readonly(),
   googleAdsBeginCheckoutLabel: z.string().readonly(),
+  googleAdsAddPaymentInfoLabel: z.string().optional(),
   googleAdsPageViewLabel: z.string().readonly(),
   totpIssuer: z.string().readonly(),
   socialsDiscord: z.string().readonly(),
@@ -8723,6 +8724,7 @@ export const zTenantConfigWritable = z.object({
   recommendationsEnabled: z.boolean().optional(),
   codeResendCooldownSeconds: z.int().optional(),
   openaiPixelId: z.string().optional(),
+  googleAdsAddPaymentInfoLabel: z.string().optional(),
 })
 
 export const zUserAddressWritable = z.object({

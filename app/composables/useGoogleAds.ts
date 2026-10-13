@@ -9,7 +9,7 @@
  * nothing at all — no platform fallback.
  *
  * Values are the REAL amounts: the order total on purchase, the line
- * total on add-to-cart, the cart total on begin-checkout. Google's
+ * total on add-to-cart, the cart total on begin-checkout and add-payment-info. Google's
  * snippet ships `value: 1.0` as a placeholder, and a store that pastes
  * it counts every conversion as one euro.
  *
@@ -26,7 +26,11 @@
  */
 
 export type GoogleAdsConversion
-  = 'purchase' | 'add_to_cart' | 'begin_checkout' | 'page_view'
+  = 'purchase'
+    | 'add_to_cart'
+    | 'begin_checkout'
+    | 'add_payment_info'
+    | 'page_view'
 
 export interface GoogleAdsValue {
   value: number
@@ -52,6 +56,7 @@ export function useGoogleAds() {
     purchase: tenantStore.googleAdsPurchaseLabel,
     add_to_cart: tenantStore.googleAdsAddToCartLabel,
     begin_checkout: tenantStore.googleAdsBeginCheckoutLabel,
+    add_payment_info: tenantStore.googleAdsAddPaymentInfoLabel,
     page_view: tenantStore.googleAdsPageViewLabel,
   }
 
@@ -89,6 +94,9 @@ export function useGoogleAds() {
   const trackBeginCheckout = (data: GoogleAdsValue) =>
     convert('begin_checkout', { value: data.value, currency: data.currency })
 
+  const trackAddPaymentInfo = (data: GoogleAdsValue) =>
+    convert('add_payment_info', { value: data.value, currency: data.currency })
+
   /** No value: a page view has none, and Google's placeholder 1.0 is noise. */
   const trackPageView = () => convert('page_view')
 
@@ -98,6 +106,7 @@ export function useGoogleAds() {
     trackPurchase,
     trackAddToCart,
     trackBeginCheckout,
+    trackAddPaymentInfo,
     trackPageView,
   }
 }

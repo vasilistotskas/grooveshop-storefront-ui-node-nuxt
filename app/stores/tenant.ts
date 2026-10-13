@@ -65,6 +65,9 @@ export const useTenantStore = defineStore('tenant', () => {
   const googleAdsBeginCheckoutLabel = computed(
     () => config.value?.googleAdsBeginCheckoutLabel ?? '',
   )
+  const googleAdsAddPaymentInfoLabel = computed(
+    () => config.value?.googleAdsAddPaymentInfoLabel ?? '',
+  )
   const googleAdsPageViewLabel = computed(
     () => config.value?.googleAdsPageViewLabel ?? '',
   )
@@ -149,6 +152,7 @@ export const useTenantStore = defineStore('tenant', () => {
     googleAdsPurchaseLabel,
     googleAdsAddToCartLabel,
     googleAdsBeginCheckoutLabel,
+    googleAdsAddPaymentInfoLabel,
     googleAdsPageViewLabel,
     totpIssuer,
     boxNowPartnerId,
