@@ -164,8 +164,6 @@ useSchemaOrg([
 useSeoMeta({
   ogImage: siteLogo,
   ogImageAlt: siteName,
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
 })
 
 // Per-tenant theme-color: matches manifest.webmanifest.get.ts which

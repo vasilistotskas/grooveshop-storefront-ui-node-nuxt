@@ -201,8 +201,7 @@ const ogImage = computed(() => {
   if (!post?.mainImagePath) return ''
 
   return img(post.mainImagePath, {
-    width: 1200,
-    height: 630,
+    ...OG_IMAGE_SIZE,
     fit: 'cover',
     format: 'png',
   }, {
@@ -290,8 +289,8 @@ useSeoMeta({
   title: () => blogPostDocumentTitle.value,
   description: () => blogPostDescription.value,
   ogDescription: () => blogPostDescription.value,
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
+  ogImageWidth: OG_IMAGE_SIZE.width,
+  ogImageHeight: OG_IMAGE_SIZE.height,
   ogImage: () => ogImage.value,
   ogType: 'article',
   ogUrl: () => canonicalUrl.value,

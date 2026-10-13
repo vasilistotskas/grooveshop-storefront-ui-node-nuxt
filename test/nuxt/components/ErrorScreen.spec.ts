@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
+import { injectHead } from '#imports'
+import { setTenant } from '~~/test/helpers/tenant'
 import ErrorScreen from '~/components/ErrorScreen.vue'
 
 /**
@@ -111,5 +113,31 @@ describe('ErrorScreen', () => {
     await button('Επικοινωνία').trigger('click')
 
     expect(clearError.mock.calls).toEqual([[{ redirect: '/products' }], [{ redirect: '/contact' }]])
+  })
+
+  it('names the tenant logo as its og:image without a size, which the logo upload does not state', async () => {
+    setTenant({ logoLightUrl: 'https://shop.test/logo.png', isPlatformStorefront: false })
+    const head = injectHead()
+    const before = new Set(head.entries.keys())
+
+    const wrapper = await mountScreen()
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    try {
+      head.render()
+      vi.runOnlyPendingTimers()
+    }
+    finally {
+      vi.useRealTimers()
+    }
+    const read = (property: string) => document.querySelector(`meta[property="${property}"]`)?.getAttribute('content') ?? null
+    const painted = { image: read('og:image'), width: read('og:image:width'), height: read('og:image:height') }
+    wrapper.unmount()
+    for (const key of head.entries.keys()) {
+      if (!before.has(key)) head.entries.delete(key)
+    }
+
+    expect(painted.image).toBe('https://shop.test/logo.png')
+    expect(painted.width).toBeNull()
+    expect(painted.height).toBeNull()
   })
 })

@@ -67,3 +67,8 @@ export const AuthChangeEvent = Object.freeze({
   REAUTHENTICATION_REQUIRED: 'REAUTHENTICATION_REQUIRED',
   FLOW_UPDATED: 'FLOW_UPDATED',
 })
+
+// The social-card rendition every og:image body asks the media service for.
+// A page states these as og:image:width/height only when the og:image really
+// is this rendition (never for the tenant logo fallback, whose size is unknown).
+export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const

@@ -107,8 +107,7 @@ const ogImage = computed(() => {
   const path = author.value?.user?.mainImagePath
   if (!path) return ''
   return img(path, {
-    width: 1200,
-    height: 630,
+    ...OG_IMAGE_SIZE,
     format: 'png',
     fit: 'cover',
   }, {
@@ -155,6 +154,8 @@ useSeoMeta({
   description: () => metaDescription.value,
   ogDescription: () => metaDescription.value,
   ogImage: ogImage.value,
+  ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
+  ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
   twitterImage: ogImage.value,
 })
 
