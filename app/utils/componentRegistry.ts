@@ -108,6 +108,22 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   // form is the only thing on the route.
   'contact_panel@delta_sigma': eagerSection(() => import('~/components/PageSection/variants/delta_sigma/ContactPanel.vue')),
 
+  // «Εκ φύσεως Φυτειάς» tenant variants — the redesign's bands, same
+  // contract as the Δelta Σigma ones: the layout DATA stays portable and
+  // only the presentation is per-tenant. Which presentation a section
+  // gets is chosen from its own props (see each component's header).
+  'hero_banner@ekfyseosfyteias': eagerSection(() => import('~/components/PageSection/variants/ekfyseosfyteias/Hero.vue')),
+  'partner_strip@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/PartnerStrip.vue')),
+  'features_grid@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/FeaturesGrid.vue')),
+  'media_text@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/MediaText.vue')),
+  'pull_quote@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/PullQuote.vue')),
+  'story_timeline@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/StoryTimeline.vue')),
+  'blog_posts_grid@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/BlogPosts.vue')),
+  'blog_posts_list@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/BlogPosts.vue')),
+  'contact_panel@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/ContactPanel.vue')),
+  'image_gallery@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/ImageGallery.vue')),
+  'cta_banner@ekfyseosfyteias': lazySection(() => import('~/components/PageSection/variants/ekfyseosfyteias/CtaBanner.vue')),
+
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for
   // these componentTypes: a tenant without a published layout for them
