@@ -57,6 +57,10 @@ export const FONT_ALLOWLIST: Record<string, string> = {
   // Greek subset — every heading on a Greek page would have fallen back
   // glyph by glyph to the body face.
   'geologica': '"Geologica", ui-sans-serif, system-ui, sans-serif',
+  // «Εκ φύσεως Φυτειάς»: Vollkorn headings with Commissioner body. Both
+  // ship a Greek subset (verified on Google Fonts).
+  'vollkorn': '"Vollkorn", ui-serif, Georgia, serif',
+  'commissioner': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
 }
 
 /** Google Fonts family names for the pre-bundled entries above. */
@@ -76,6 +80,8 @@ export const FONT_FAMILY_NAMES: Record<string, string> = {
   'ibm-plex-sans': 'IBM Plex Sans',
   'jetbrains-mono': 'JetBrains Mono',
   'geologica': 'Geologica',
+  'vollkorn': 'Vollkorn',
+  'commissioner': 'Commissioner',
 }
 
 /**
@@ -97,6 +103,21 @@ export const FONT_WEIGHTS: Record<string, number[]> = {
   'jetbrains-mono': [400, 500, 600, 700, 800],
   'manrope': [400, 500, 600, 700, 800],
   'geologica': [700],
+  'vollkorn': [500, 600, 700, 800, 900],
+}
+
+/**
+ * Per-family style overrides for the ``@nuxt/fonts`` declarations;
+ * families absent here take the global default (upright only).
+ *
+ * Vollkorn is the one face with a real italic: its design sets ribbon
+ * items, quotes and captions in 500/600 italic, and a synthesized slant
+ * of a serif is visibly wrong. ``@nuxt/fonts`` takes ``styles`` per
+ * family but not per weight, so the italic is declared at every Vollkorn
+ * weight (+15 @font-face rules: 5 weights x 3 subsets).
+ */
+export const FONT_STYLES: Record<string, ('normal' | 'italic')[]> = {
+  vollkorn: ['normal', 'italic'],
 }
 
 /**
