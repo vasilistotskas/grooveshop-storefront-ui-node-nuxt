@@ -1,3 +1,11 @@
+## [3.245.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.0...v3.245.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* **logging:** report browser errors with their content, chunk load failures at warn ([#115](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/115)) ([86367d8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/86367d8757644cb9271a39c1d7de29efee68a9a7))
+* **openapi:** regenerate the API types without the deprecated price fields ([#114](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/114)) ([b6af2e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b6af2e11fe9268e7021c159406722a7e89b4c9fe))
+
 # [3.245.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.244.2...v3.245.0) (2026-10-13)
 
 
