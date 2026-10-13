@@ -103,6 +103,12 @@ if (!product.value) {
   )
 }
 
+// Awaited, not the computed: at this point the store settings may still
+// be loading, and the computed would read its fallback (on) and fetch the
+// reviews, and put them in the structured data, for a store with reviews
+// off. Fails open on a settings outage, like the review section.
+const reviewsOn = await settingEnabled('PRODUCT_REVIEWS_ENABLED', { fallback: true })
+
 // Images, reviews and the category list in parallel — all three are
 // needed for SSR (the gallery, the review section, Schema.org and the
 // breadcrumb). The category list is the header menu's, already fetched.
@@ -126,6 +132,9 @@ const [
     `/api/products/${productId}/reviews`,
     {
       key: `productReviewsSchema${productId}`,
+      // With reviews off none are fetched, so none reach the page or its
+      // structured data (Django answers 404 for them too).
+      immediate: reviewsOn,
       method: 'GET',
       headers: useRequestHeaders(),
       query: {
@@ -266,7 +275,8 @@ const { data: userProductReview, refresh: refreshUserProductReview }
   = useLazyApi<GetUserProductReviewResponse>(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     method: 'GET',
-    immediate: loggedIn.value,
+    // A store with reviews off has no review of the shopper to show.
+    immediate: loggedIn.value && reviewsOn,
     server: false, // Client-side only - user-specific data
   })
 
@@ -650,7 +660,7 @@ useSchemaOrg([
         },
       },
 
-      aggregateRating: product.value?.reviewCount && product.value.reviewCount > 0
+      aggregateRating: reviewsOn && product.value?.reviewCount && product.value.reviewCount > 0
         ? {
             '@type': 'AggregateRating' as const,
             'ratingValue': product.value.reviewAverage || 0,

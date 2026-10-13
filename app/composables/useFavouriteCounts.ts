@@ -11,6 +11,8 @@ export function favouriteCountKey(kind: 'products' | 'posts', userId: number | u
 export async function useFavouriteCounts() {
   const { user } = useUserSession()
   const userId = user.value?.id
+  // Saved posts exist only with the blog; without it Django answers 404.
+  const blogEnabled = useTenantStore().blogEnabled
 
   const [{ data: products }, { data: posts }] = await Promise.all([
     useApi(`/api/user/account/${userId}/favourite-products`, {
@@ -22,6 +24,8 @@ export async function useFavouriteCounts() {
       key: favouriteCountKey('posts', userId),
       method: 'GET',
       query: { pageSize: 1 },
+      immediate: blogEnabled,
+      server: blogEnabled,
     }),
   ])
 

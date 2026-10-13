@@ -88,6 +88,21 @@ describe('createSettingGate', () => {
     await expect(gate(to, to)).resolves.toBeUndefined()
   })
 
+  it('with several keys, serves the page when every one is on', async () => {
+    answer({ SOME_FLAG: 'True', OTHER_FLAG: 'True' })
+
+    await expect(createSettingGate('SOME_FLAG', 'OTHER_FLAG')(to, to)).resolves.toBeUndefined()
+  })
+
+  it.each([
+    [{ SOME_FLAG: 'True', OTHER_FLAG: 'False' }],
+    [{ SOME_FLAG: 'False', OTHER_FLAG: 'True' }],
+  ])('with several keys, 404s when any one is off: %o', async (settings) => {
+    answer(settings)
+
+    await expect(createSettingGate('SOME_FLAG', 'OTHER_FLAG')(to, to)).rejects.toMatchObject({ statusCode: 404 })
+  })
+
   it('reads the settings once per render, however many gates run', async () => {
     answer({ SOME_FLAG: 'True', OTHER_FLAG: 'True' })
 
@@ -95,5 +110,17 @@ describe('createSettingGate', () => {
     await createSettingGate('OTHER_FLAG')(to, to)
 
     expect(api.callsTo(SETTINGS)).toHaveLength(1)
+  })
+})
+
+describe('account-reviews-enabled', () => {
+  beforeEach(() => {
+    clearNuxtData()
+  })
+
+  it('04s with product reviews off, the page belonging to them', async () => {
+    answer({ PRODUCT_REVIEWS_ENABLED: 'False', ACCOUNT_REVIEWS_ENABLED: 'True' })
+
+    await expect(accountReviewsEnabled(to, to)).rejects.toMatchObject({ statusCode: 404 })
   })
 })

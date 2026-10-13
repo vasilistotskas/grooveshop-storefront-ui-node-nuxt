@@ -271,6 +271,21 @@ describe('default ProductDetail', () => {
     expect(wrapper.findAll('#reviews button').find(b => b.text() === 'Περισσότερες αξιολογήσεις')).toBeUndefined()
   })
 
+  it('asks for no reviews, and shows none, when the store has reviews off', async () => {
+    const reviews = () => ({ count: 14, next: null, previous: null, results: [makeProductReview({ id: 1 })] })
+    serve(
+      makeProduct({ id: 123, reviewAverage: 8, reviewCount: 14 }),
+      reviews,
+      [{ rate: 10, count: 14 }],
+      { PRODUCT_REVIEWS_ENABLED: 'False' },
+    )
+
+    const wrapper = await mountPage()
+
+    expect(api.callsTo('/api/products/123/reviews')).toEqual([])
+    expect(wrapper.find('#reviews').exists()).toBe(false)
+  })
+
   it('marks the page for the footer to keep clear of the sticky buy bar', async () => {
     serve(makeProduct({ id: 123 }))
     const wrapper = await mountPage()

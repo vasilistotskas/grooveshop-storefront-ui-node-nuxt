@@ -61,6 +61,11 @@ const isOpen = ref(false)
 const allComments = ref<BlogComment[]>([])
 const isLoadingMore = ref(false)
 
+// Awaited, not the computed: the settings may still be loading at setup,
+// and the computed would read its fallback (on) and fetch the comments of
+// a store that has them off. Fails open like the section itself.
+const commentsOn = await settingEnabled('BLOG_COMMENTS_ENABLED', { fallback: true })
+
 const {
   data: comments,
   status,
@@ -79,6 +84,9 @@ const {
       languageCode: locale,
       approved: true,
     },
+    // Off, the comments are gone: none fetched, so none reach the page
+    // payload behind the hidden section (Django answers 404 too).
+    immediate: commentsOn,
   },
 )
 
@@ -229,7 +237,7 @@ const scrollToComments = () => {
 watch(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
   async () => {
-    await refresh()
+    if (commentsOn) await refresh()
   },
 )
 
@@ -251,7 +259,7 @@ watch(
 watch(
   () => route.query.comment_page,
   async () => {
-    await refresh()
+    if (commentsOn) await refresh()
   },
 )
 

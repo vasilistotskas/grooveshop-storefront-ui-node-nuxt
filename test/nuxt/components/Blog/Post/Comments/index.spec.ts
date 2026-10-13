@@ -277,14 +277,21 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     expect(button(wrapper, COPY.guestPrompt)).toBeTruthy()
   })
 
-  it('renders nothing when the merchant turned comments off', async () => {
+  it('renders nothing, and asks for no comments, when the merchant turned comments off', async () => {
     state.flags = { BLOG_COMMENTS_ENABLED: false }
-    api.routes({ [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]) })
+    api.routes({
+      // The fetch decision reads the store's settings, awaited.
+      '/api/settings/public': { settings: { BLOG_COMMENTS_ENABLED: 'False' } },
+      [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]),
+    })
 
     const wrapper = await mount()
     await flushPromises()
 
     expect(wrapper.find('#blog-post-comments').exists()).toBe(false)
     expect(renderedIds(wrapper)).toEqual([])
+    // Fetched behind the hidden section, they would still ship in the
+    // page payload.
+    expect(api.callsTo(PROXY_URL)).toEqual([])
   })
 })

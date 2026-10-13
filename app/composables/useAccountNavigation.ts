@@ -45,7 +45,10 @@ export function useAccountNavigation() {
   const tenantStore = useTenantStore()
 
   const { data: loyaltySettings } = useLoyalty().fetchSettings()
-  const reviewsEnabled = useSettingFlag('ACCOUNT_REVIEWS_ENABLED', { fallback: true })
+  // "My reviews" needs reviews on as well as its own page switch.
+  const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
+  const accountReviewsEnabled = useSettingFlag('ACCOUNT_REVIEWS_ENABLED', { fallback: true })
+  const reviewsEnabled = computed(() => productReviewsEnabled.value && accountReviewsEnabled.value)
   const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', { fallback: true })
   const newsletterEnabled = useSettingFlag('NEWSLETTER_ENABLED', { fallback: true })
   const giftCardsEnabled = useSettingFlag('GIFT_CARDS_ENABLED', { fallback: false })

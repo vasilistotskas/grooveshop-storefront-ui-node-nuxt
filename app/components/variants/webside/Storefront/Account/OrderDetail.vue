@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
+// Off, reviews are gone everywhere — the stars on a card with them.
+const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
 const route = useRoute(`account-orders-id___${locale.value}`)
 const orderId = 'id' in route.params
   ? route.params.id
@@ -812,7 +814,7 @@ async function handleReorder() {
                            about the shop now, not about this order. -->
 
                       <div
-                        v-if="item.product.reviewCount > 0"
+                        v-if="productReviewsEnabled && item.product.reviewCount > 0"
                         class="
                           mt-2 flex items-center gap-2 text-sm text-gray-600
                           dark:text-gray-200

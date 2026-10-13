@@ -10,6 +10,7 @@ let mockLoyaltyEnabled = false
 let mockSettingValues: Record<string, string> = {}
 
 const SETTING_FLAG_KEYS = [
+  'PRODUCT_REVIEWS_ENABLED',
   'ACCOUNT_REVIEWS_ENABLED',
   'FAVOURITES_ENABLED',
   'NEWSLETTER_ENABLED',
@@ -58,7 +59,8 @@ describe('useAccountMenus', () => {
   beforeEach(() => {
     mockLoyaltyEnabled = false
     mockSettingValues = {}
-    setTenant()
+    // A store with the blog, so favourites lead to the saved posts.
+    setTenant({ blogEnabled: true })
     // useFetch caches by key across tests sharing the runtime app.
     clearNuxtData(STORE_SETTINGS_KEY)
   })
@@ -81,6 +83,7 @@ describe('useAccountMenus', () => {
 
   it.each([
     ['ACCOUNT_REVIEWS_ENABLED', '/account/reviews'],
+    ['PRODUCT_REVIEWS_ENABLED', '/account/reviews'],
     ['FAVOURITES_ENABLED', '/account/favourites/posts'],
     ['NEWSLETTER_ENABLED', '/account/subscriptions'],
   ])('hides the entry the store switched off with %s', async (key, path) => {
@@ -90,6 +93,15 @@ describe('useAccountMenus', () => {
 
     expect(paths).not.toContain(path)
     expect(paths).toContain('/account/orders')
+  })
+
+  it('leads favourites to the saved products on a store without the blog', async () => {
+    setTenant()
+
+    const paths = await pathsOf()
+
+    expect(paths).toContain('/account/favourites/products')
+    expect(paths).not.toContain('/account/favourites/posts')
   })
 
   it('never offers the deleted help page', async () => {

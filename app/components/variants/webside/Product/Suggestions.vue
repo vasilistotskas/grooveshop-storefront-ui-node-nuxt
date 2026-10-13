@@ -30,6 +30,8 @@ const props = defineProps<{
 
 const { t, locale } = useI18n()
 const { productUrl } = useUrls()
+// Off, reviews are gone everywhere — the stars on a card with them.
+const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
 const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const { getFavouriteIdByProductId } = useUserStore()
@@ -255,7 +257,7 @@ const arrowButton = {
         </NuxtLinkLocale>
 
         <div
-          v-if="item.product.reviewAverage > 0"
+          v-if="productReviewsEnabled && item.product.reviewAverage > 0"
           class="flex items-center gap-1"
         >
           <UIcon
