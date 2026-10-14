@@ -60,6 +60,16 @@ describe('Chrome/AccessibilityToolbar', () => {
     expect(button(COPY.reset).disabled).toBe(true)
   })
 
+  it('names every preference in full, never cut short', async () => {
+    const { panel } = await openPanel()
+
+    const toggles = [...panel.querySelectorAll('button[aria-pressed]')]
+    expect(toggles.map(toggle => toggle.textContent?.trim())).toContain(COPY.contrast)
+    // The class is the contract: a `truncate` label ends in «…» once the
+    // panel is narrower than the name, as it was on a phone.
+    expect(toggles.filter(toggle => toggle.querySelector('.truncate'))).toEqual([])
+  })
+
   it('turns a preference on: pressed, a class on <html>, remembered here', async () => {
     const { button } = await openPanel()
 

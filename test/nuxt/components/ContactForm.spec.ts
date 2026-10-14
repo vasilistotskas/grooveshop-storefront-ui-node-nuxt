@@ -87,6 +87,17 @@ async function submit(wrapper: VueWrapper) {
 }
 
 describe('ContactForm', () => {
+  it('labels the send button with text that can wrap under enlarged text', async () => {
+    const wrapper = await mount()
+
+    const button = wrapper.find('button[type="submit"]')
+    // The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach.
+    expect(button.text()).toBe('Αποστολή μηνύματος')
+    // The class is the contract: a `truncate` label cannot wrap, and the
+    // fit-content button then grew past the form on a phone.
+    expect(button.find('.truncate').exists()).toBe(false)
+  })
+
   describe('sending the enquiry', () => {
     it('sends the name, email and message, and tells the visitor it went', async () => {
       const wrapper = await mount()
