@@ -1,3 +1,10 @@
+## [3.247.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.5...v3.247.6) (2026-10-14)
+
+
+### Bug Fixes
+
+* **a11y:** draw the skip link's label in the readable-on-secondary colour ([#130](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/130)) ([08ec4ca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/08ec4caa8eddd0b4a26100e9967e1b64a6c5d0b8)), closes [#d09d75](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/d09d75)
+
 ## [3.247.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.4...v3.247.5) (2026-10-14)
 
 
