@@ -376,6 +376,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </UCheckbox>
     </UFormField>
 
+    <!-- The label is the default slot, not the `label` prop: the prop's
+         slot is `truncate`, which cannot wrap, so a fit-content button
+         grew past the form under enlarged text and pushed a phone page
+         sideways. -->
     <UButton
       type="submit"
       color="neutral"
@@ -384,8 +388,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       class="w-fit"
       :loading="isSubmitting"
       :disabled="isSubmitting || attachments.isUploading.value"
-      :label="t('submit')"
-    />
+    >
+      {{ t('submit') }}
+    </UButton>
   </UForm>
 </template>
 
