@@ -57,6 +57,8 @@ describe('ekfyseosfyteias features_grid', () => {
 
       const row = wrapper.find('[role="region"]')
       expect([row.attributes('aria-label'), row.attributes('tabindex')]).toEqual(['Γεύσεις της Φυτειάς, σε βάζο.', '0'])
+      // The row clips its cards only as their containing block (see BlogPosts.spec).
+      expect(row.classes()).toEqual(expect.arrayContaining(['overflow-x-auto', 'relative']))
       expect(row.find('ul').findAll('li')).toHaveLength(ITEMS.length)
     })
 
