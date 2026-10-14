@@ -1,3 +1,10 @@
+## [3.249.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.1...v3.249.2) (2026-10-14)
+
+
+### Bug Fixes
+
+* **images:** show rich-text images as the editor sizes them, never padded ([#138](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/138)) ([a21e5dd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a21e5ddde83dff6d0241d6fba13acfe966351cd0))
+
 ## [3.249.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.0...v3.249.1) (2026-10-14)
 
 
