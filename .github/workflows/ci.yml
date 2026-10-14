@@ -280,6 +280,12 @@ jobs:
         run: pnpm run build
         env:
           NODE_ENV: production
+          # Node's happy-eyeballs gives each address 250 ms by default; from
+          # the runner every attempt at fonts.googleapis.com expired
+          # (`AggregateError [ETIMEDOUT]` in internalConnectMultiple) and
+          # failed the build whenever the fonts cache missed. Same value
+          # as the Dockerfile's build stage.
+          NODE_OPTIONS: --network-family-autoselection-attempt-timeout=2000
 
       # One entry stylesheet the server also links, and one build tag on
       # every client JS file — see scripts/check-build-output.mjs. The
