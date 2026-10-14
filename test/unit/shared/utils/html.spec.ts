@@ -217,13 +217,15 @@ describe('transformHtmlImages', () => {
     maxWidth: 704,
   }
   const key = '/media/x/uploads/tinymce/a.png'
-  const url = (w: number, h: number) =>
-    `https://assets.example.gr/media_stream-image${key}/${w}/${h}/contain/entropy/transparent/0/80.avif`
+  const url = (w: number, h: number, fit: 'contain' | 'inside' = 'contain') =>
+    `https://assets.example.gr/media_stream-image${key}/${w}/${h}/${fit}/entropy/transparent/0/80.avif`
 
   it('bounds an image with no dimensions to the column, width only, with no 2x candidate', () => {
     const out = transformHtmlImages(`<img src="https://api.example.gr${key}">`, config)
 
-    expect(out).toContain(`src="${url(704, 0)}"`)
+    // `inside`: the width is a bound and the source keeps its own aspect.
+    // `contain` with one axis padded a narrower source out to the bound.
+    expect(out).toContain(`src="${url(704, 0, 'inside')}"`)
     // No authored width to fix its rendered size: a source narrower than
     // the bound would come back identical for "2x" and draw at half size.
     expect(out).not.toContain('srcset=')
@@ -265,14 +267,23 @@ describe('transformHtmlImages', () => {
     expect(out).not.toContain('100%')
     expect(out).not.toContain('/x.png')
     expect(out).not.toContain('50vw')
-    expect(out).toContain(`src="${url(704, 0)}"`)
+    expect(out).toContain(`src="${url(704, 0, 'inside')}"`)
+  })
+
+  it('bounds an authored width without a height, keeping the source aspect', () => {
+    const out = transformHtmlImages(`<img src="https://api.example.gr${key}" width="300">`, config)
+
+    expect(out).toContain(`src="${url(300, 0, 'inside')}"`)
+    expect(out).toContain(`${url(600, 0, 'inside')} 600w`)
   })
 
   it('defaults the bound to the page content frame', () => {
     const { maxWidth: _unset, ...withoutBound } = config
-    const out = transformHtmlImages(`<img src="https://api.example.gr${key}">`, withoutBound)
+    // webside's product descriptions: TinyMCE images saved with width="100%"
+    const out = transformHtmlImages(`<img src="https://api.example.gr${key}" width="100%" height="100%">`, withoutBound)
 
-    expect(out).toContain(`/${PAGE_CONTENT_MAX_WIDTH}/0/contain/`)
+    expect(out).toContain(`/${PAGE_CONTENT_MAX_WIDTH}/0/inside/`)
+    expect(out).not.toContain('100%')
   })
 
   it('leaves images it does not own untouched', () => {
