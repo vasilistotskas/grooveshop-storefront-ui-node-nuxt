@@ -60,7 +60,8 @@ const modules: (string | NuxtModule)[] = [
   // @nuxtjs/leaflet unconditionally pushes leaflet/dist/leaflet.css into
   // the GLOBAL css array (dist/module.mjs:38, no opt-out) — a
   // render-blocking stylesheet on every page for a map that exists only
-  // in checkout, and SmartpointMap.client.vue imports that css itself so
+  // in checkout and the contact map — SmartpointMap.client.vue and
+  // PageSection/LocationCanvas.client.vue import that css themselves, so
   // the global copy is a pure duplicate (Lighthouse flagged it on the
   // homepage, 2026-08-29). Inline module placed after @nuxtjs/leaflet so
   // it strips the entry the module just added.
@@ -139,10 +140,10 @@ export default defineNuxtConfig({
         // is baked at build time, where the NUXT_PUBLIC_* env is absent,
         // so production shipped ``http://localhost:*`` hints on every
         // page (found 2026-09-10).
-        { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com' },
-        { rel: 'dns-prefetch', href: 'https://www.google-analytics.com' },
-        { rel: 'preconnect', href: 'https://www.googletagmanager.com', crossorigin: 'anonymous' },
-        { rel: 'preconnect', href: 'https://www.google-analytics.com', crossorigin: 'anonymous' },
+        // No Google hints here either: a hint opens a connection to
+        // Google on every store's every page, before any consent and
+        // with no Google service configured. The tag loads (and needs
+        // no hint) only where a store has provisioned one.
       ],
     },
     pageTransition: false,

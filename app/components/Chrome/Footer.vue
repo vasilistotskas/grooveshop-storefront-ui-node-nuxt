@@ -275,7 +275,7 @@ const storeName = computed(() => tenantStore.storeName || '')
                     {{ link.label }}
                   </ULink>
                 </li>
-                <li>
+                <li v-if="tenantStore.hasOptionalServices">
                   <ClientOnly>
                     <button
                       type="button"
@@ -369,7 +369,7 @@ const storeName = computed(() => tenantStore.storeName || '')
             {{ link.label }}
           </ULink>
         </template>
-        <ClientOnly>
+        <ClientOnly v-if="tenantStore.hasOptionalServices">
           <span aria-hidden="true">·</span>
           <button
             type="button"

@@ -2,7 +2,9 @@
 /**
  * The cookie banner: what the shop uses cookies for, the two answers at
  * equal weight — necessary only, or all — and the way into the choices.
- * It stays until the visitor decides. The preferences
+ * It stays until the visitor decides. A store with no optional service
+ * (`tenantStore.hasOptionalServices`) sets nothing optional, so it asks
+ * nothing and draws no banner. The preferences
  * (`Cookie/Preferences.vue`) open from here and from the footer.
  *
  * A card, not a full-width bar: in the bottom-left corner on a wide
@@ -15,13 +17,6 @@ const tenantStore = useTenantStore()
 const { isConsentGiven, isModalActive } = useCookieControl()
 const { acceptAll, necessaryOnly } = useCookieConsent()
 useCookieConsentSync()
-
-/** The analytics and ad services this store has switched on, by name. */
-const services = computed(() => [
-  (tenantStore.gaTrackingId || tenantStore.googleAdsConversionId) && 'Google',
-  tenantStore.metaPixelId && 'Meta',
-  tenantStore.tiktokPixelId && 'TikTok',
-].filter((name): name is string => Boolean(name)))
 </script>
 
 <template>
@@ -32,7 +27,7 @@ const services = computed(() => [
          hydration read the cookie and removed it. -->
     <ClientOnly>
       <section
-        v-if="!isConsentGiven && !isModalActive"
+        v-if="tenantStore.hasOptionalServices && !isConsentGiven && !isModalActive"
         aria-labelledby="cookie-consent-title"
         class="
           fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))]
@@ -57,7 +52,7 @@ const services = computed(() => [
         </div>
 
         <p class="text-sm text-muted">
-          {{ services.length ? t('body_services', { services: services.join(', ') }) : t('body') }}
+          {{ t('body', { services: tenantStore.optionalServices.join(', ') }) }}
           <ULink
             :to="localePath('cookies-policy')"
             class="font-semibold text-accent hover:underline"
@@ -101,16 +96,14 @@ const services = computed(() => [
 <i18n lang="yaml">
 el:
   title: Τα cookies, με δυο λόγια
-  body: Χρησιμοποιούμε τα απαραίτητα cookies για να λειτουργεί το κατάστημα. Με τη συγκατάθεσή σου χρησιμοποιούμε και προαιρετικά cookies, για να το βελτιώνουμε.
-  body_services: "Χρησιμοποιούμε τα απαραίτητα cookies για να λειτουργεί το κατάστημα. Με τη συγκατάθεσή σου χρησιμοποιούμε και cookies στατιστικών και διαφημίσεων ({services}), για να το βελτιώνουμε."
+  body: "Χρησιμοποιούμε τα απαραίτητα cookies για να λειτουργεί το κατάστημα. Με τη συγκατάθεσή σου χρησιμοποιούμε και cookies στατιστικών και διαφημίσεων ({services}), για να το βελτιώνουμε."
   policy: Πολιτική cookies
   necessary_only: Μόνο τα απαραίτητα
   accept_all: Αποδοχή όλων
   customise: Προσαρμογή
 en:
   title: Cookies, briefly
-  body: We use necessary cookies to run the shop. With your OK we also use optional cookies to improve it.
-  body_services: "We use necessary cookies to run the shop. With your OK we also use analytics and ad cookies ({services}) to improve it."
+  body: "We use necessary cookies to run the shop. With your OK we also use analytics and ad cookies ({services}) to improve it."
   policy: Cookie policy
   necessary_only: Necessary only
   accept_all: Accept all

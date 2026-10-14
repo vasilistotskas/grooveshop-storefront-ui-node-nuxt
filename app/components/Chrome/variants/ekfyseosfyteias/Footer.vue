@@ -316,7 +316,7 @@ const pages = computed(() =>
               {{ link.label }}
             </NuxtLink>
           </li>
-          <li>
+          <li v-if="tenantStore.hasOptionalServices">
             <ClientOnly>
               <button
                 type="button"

@@ -46,7 +46,7 @@ const cookie = (name: string) =>
 describe('Chrome/CookieConsent', () => {
   beforeEach(() => {
     resetConsent()
-    setTenant({ gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '' })
+    setTenant({ gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '123', tiktokPixelId: '', openaiPixelId: '' })
   })
   afterEach(resetConsent)
 
@@ -59,14 +59,19 @@ describe('Chrome/CookieConsent', () => {
   })
 
   it('names only the services this store has switched on', async () => {
-    setTenant({ gaTrackingId: 'G-1', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: 'T-1' })
-    const withServices = await mountBanner()
-    expect(withServices.find('p').text()).toContain(own(withServices, 'body_services', { services: 'Google, TikTok' }))
-    withServices.unmount()
+    setTenant({ gaTrackingId: 'G-1', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: 'T-1', openaiPixelId: 'O-1' })
 
-    setTenant({ gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '' })
-    const without = await mountBanner()
-    expect(without.find('p').text()).toContain(own(without, 'body'))
+    const wrapper = await mountBanner()
+
+    expect(wrapper.find('p').text()).toContain(own(wrapper, 'body', { services: 'Google, TikTok, OpenAI' }))
+  })
+
+  it('asks nothing of a store with no optional service', async () => {
+    setTenant({ gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '' })
+
+    const wrapper = await mountBanner()
+
+    expect(wrapper.find('section').exists()).toBe(false)
   })
 
   it('enables every category on "accept all", remembers it, and goes away', async () => {

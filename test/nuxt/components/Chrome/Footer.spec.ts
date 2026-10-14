@@ -64,7 +64,7 @@ describe('Chrome/Footer', () => {
     state.payWays = []
     state.flags = {}
     state.cookieModal.value = false
-    setTenant({ giftCardsEnabled: false, agentCommerceEnabled: false, availableLocales: ['el'] })
+    setTenant({ giftCardsEnabled: false, agentCommerceEnabled: false, availableLocales: ['el'], metaPixelId: '123' })
   })
 
   it('prints the store\'s description in the shopper\'s locale', async () => {
@@ -178,6 +178,14 @@ describe('Chrome/Footer', () => {
 
     setTenant({ agentCommerceEnabled: true, availableLocales: ['el'] })
     expect((await mountFooter()).text()).toContain(COPY.agentReady)
+  })
+
+  it('has no cookie settings for a store with no optional service', async () => {
+    setTenant({ availableLocales: ['el'], gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '' })
+
+    const wrapper = await mountFooter()
+
+    expect(wrapper.findAll('button').some(candidate => candidate.text() === COPY.cookieSettings)).toBe(false)
   })
 
   it('opens the cookie preferences', async () => {

@@ -79,7 +79,7 @@ describe('Chrome/variants/ekfyseosfyteias/Footer', () => {
     state.secondary = [{ label: 'Πολιτική απορρήτου', to: '/privacy-policy' }]
     state.logo = '/media/seal.png'
     state.cookieModal.value = false
-    setTenant({ storeName: 'Εκ φύσεως Φυτειάς', socialsFacebook: '', socialsInstagram: '' })
+    setTenant({ storeName: 'Εκ φύσεως Φυτειάς', socialsFacebook: '', socialsInstagram: '', metaPixelId: '123' })
   })
 
   it('invites the visitor with the phone button and the seal', async () => {
@@ -149,6 +149,14 @@ describe('Chrome/variants/ekfyseosfyteias/Footer', () => {
     expect(wrapper.find('[data-test="identity"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="funding"]').text()).toBe('true')
     expect(wrapper.text()).toContain(`© ${new Date().getFullYear()} Εκ φύσεως Φυτειάς`)
+  })
+
+  it('has no cookie settings for a store with no optional service', async () => {
+    setTenant({ gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '' })
+
+    const wrapper = await mountFooter()
+
+    expect(wrapper.findAll('button').some(candidate => candidate.text() === COPY.cookieSettings)).toBe(false)
   })
 
   it('opens the cookie preferences', async () => {
