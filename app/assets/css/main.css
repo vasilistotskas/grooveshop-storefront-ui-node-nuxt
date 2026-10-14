@@ -170,7 +170,10 @@
    surfaces are warm and its text greys are not, and tenants re-skin a
    Volt store through the accent, not the greys. Measured contrast:
    muted text is 6.73:1 on white, 6.27:1 on the ground and 5.84:1 on
-   the sunken tone; every status colour is at least 5.4:1 on its tint. */
+   the sunken tone; every status colour is at least 5.4:1 on its tint.
+   Dimmed text is still text — Nuxt UI paints every input and select
+   placeholder with it — so it holds AA too: 5.44:1 on white, 5.07:1
+   on the ground, 4.72:1 on the sunken tone. */
 [data-design="volt"] {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Geologica", ui-sans-serif, system-ui, sans-serif;
@@ -191,7 +194,7 @@
   --ui-border-accented: #c9c9c4;
   --ui-border-inverted: #17171a;
 
-  --ui-text-dimmed: #8a8a92;
+  --ui-text-dimmed: #696971;
   --ui-text-muted: #5b5b63;
   --ui-text-toned: #3f3f46;
   --ui-text: #17171a;
@@ -262,7 +265,8 @@
   --ui-border-accented: #3a3a40;
   --ui-border-inverted: #f7f7f5;
 
-  --ui-text-dimmed: #71717a;
+  /* 5.58:1 on the surface, 6.02:1 on the ground, 4.88:1 sunken. */
+  --ui-text-dimmed: #8f8f98;
   --ui-text-muted: #a1a1aa;
   --ui-text-toned: #d4d4d8;
   --ui-text: #f4f4f5;
