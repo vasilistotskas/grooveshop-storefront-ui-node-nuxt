@@ -12,9 +12,9 @@
  * `surface` is how a page separates this band from the one above it.
  * `backgroundColor` is the operator's own hex and overrides the
  * surface — and, because a hex says nothing about the text on top of
- * it, the copy switches to light or dark by the colour's luminance. A
- * dark navy with the page's ordinary heading colour on it is
- * unreadable.
+ * it, the copy takes whichever colour clears AA on it, in both colour
+ * modes. A dark navy with the page's ordinary heading colour on it is
+ * unreadable, and so is white on a mid-tone terracotta.
  */
 const props = defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
@@ -32,23 +32,21 @@ const localePath = useLocalePath()
 const label = computed(() => props.heading || props.title)
 
 /**
- * WCAG relative luminance of a `#RRGGBB` (the only shape the props
- * schema admits). Above the 0.5 midpoint the band is light and keeps
- * the page's own text colours.
+ * The copy's colour on the operator's `#RRGGBB` (the only shape the
+ * props schema admits), set on the band so the heading and its line
+ * inherit it. The page's own text colours flip with the colour mode;
+ * the operator's hex does not, so neither may the copy on it.
  */
-const isDarkBackground = computed(() => {
-  const hex = props.backgroundColor
-  if (!hex) return false
+const copyColor = computed(() =>
+  props.backgroundColor ? readableTextOn(props.backgroundColor) : undefined,
+)
 
-  const channel = (start: number) => {
-    const value = Number.parseInt(hex.slice(start, start + 2), 16) / 255
-    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
-  }
-
-  const luminance
-    = 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5)
-  return luminance < 0.5
-})
+/** Copy lighter than the band means a dark band, which takes a white button. */
+const isDarkBackground = computed(() =>
+  !!props.backgroundColor
+  && !!copyColor.value
+  && relativeLuminance(copyColor.value) > relativeLuminance(props.backgroundColor),
+)
 
 const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 </script>
@@ -57,7 +55,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
   <PageSectionBand
     v-if="label || description || hasLink"
     :surface="surface"
-    :style="backgroundColor ? { backgroundColor } : undefined"
+    :style="backgroundColor ? { backgroundColor, color: copyColor } : undefined"
   >
     <template #header>
       <div
@@ -71,7 +69,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
             v-if="label"
             :class="[
               'font-display text-2xl font-semibold tracking-tight text-balance md:text-3xl',
-              isDarkBackground ? 'text-white' : 'text-highlighted',
+              !backgroundColor && 'text-highlighted',
             ]"
           >
             {{ label }}
@@ -80,7 +78,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
             v-if="description"
             :class="[
               'text-base text-pretty md:text-lg',
-              isDarkBackground ? 'text-white/85' : 'text-muted',
+              !backgroundColor && 'text-muted',
             ]"
           >
             {{ description }}
