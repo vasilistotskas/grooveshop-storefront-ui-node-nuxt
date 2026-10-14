@@ -1,3 +1,10 @@
+# [3.247.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.246.1...v3.247.0) (2026-10-14)
+
+
+### Features
+
+* **ekfyseosfyteias:** present the blog as «Δράσεις» with its own index and post ([#121](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/121)) ([006ef4f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/006ef4f5911937dfa8118e82cfa8fb59c888012b))
+
 ## [3.246.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.246.0...v3.246.1) (2026-10-14)
 
 
