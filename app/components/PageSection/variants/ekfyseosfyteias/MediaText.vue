@@ -13,6 +13,11 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * The photograph has no alt prop of its own, so `note` is both: it is the
  * image's alt text, and its visible caption is hidden from assistive
  * technology so it is not read twice. No note, no alt (decorative).
+ *
+ * The heading's size follows its length: a title past `LONG_HEADING`
+ * characters (an operation's official name, say) takes the artboards'
+ * card-title scale instead of the display one, which would set it in
+ * seven lines.
  */
 // The section row hands over every prop its type admits. The ones this
 // band does not read must not fall through onto it as DOM attributes.
@@ -35,7 +40,11 @@ const props = defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
+const LONG_HEADING = 60
+
 const label = computed(() => props.heading || props.title)
+
+const longHeading = computed(() => (label.value?.length ?? 0) > LONG_HEADING)
 
 const imageFirst = computed(() => props.imagePosition !== 'right')
 
@@ -98,7 +107,9 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
           :width="960"
           :height="720"
           sizes="xs:100vw lg:50vw"
-          class="block aspect-4/3 w-full rounded-[28px] object-cover"
+          class="
+            block aspect-4/3 w-full rounded-[28px] bg-(--fy-chip) object-cover
+          "
           fit="cover"
           quality="80"
           densities="x1 x2"
@@ -130,9 +141,14 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
         <h2
           v-if="label"
           class="
-            font-display text-[length:clamp(38px,4.2vw,62px)] leading-[1.02]
-            font-extrabold tracking-[-0.015em] text-balance text-(--fy-text)
+            font-display text-balance text-(--fy-text)
           "
+          :class="longHeading
+            ? 'text-[length:clamp(28px,2.6vw,36px)] leading-[1.1] font-bold'
+            : `
+              text-[length:clamp(38px,4.2vw,62px)] leading-[1.02] font-extrabold
+              tracking-[-0.015em]
+            `"
         >
           {{ label }}
         </h2>

@@ -34,6 +34,18 @@ describe('ekfyseosfyteias media_text', () => {
     expect([link.text(), link.attributes('href')]).toEqual([PROPS.ctaText, '/about'])
   })
 
+  it('sets an operation-length title at the smaller heading scale', async () => {
+    const short = await mountSplit()
+    const long = await mountSplit({
+      heading: 'Δράσεις στήριξης υφιστάμενων και νέων κοινωνικών επιχειρήσεων Κ.ΑΛ.Ο. στην Κεντρική Μακεδονία',
+    })
+
+    // The size class is the contract here: the display scale set this title in seven lines.
+    expect(short.find('h2').classes()).toContain('text-[length:clamp(38px,4.2vw,62px)]')
+    expect(long.find('h2').classes()).toContain('text-[length:clamp(28px,2.6vw,36px)]')
+    expect(long.find('h2').classes()).not.toContain('text-[length:clamp(38px,4.2vw,62px)]')
+  })
+
   it('gives a photograph without a note an empty alt', async () => {
     const wrapper = await mountSplit({ note: undefined })
 
