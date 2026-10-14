@@ -1,3 +1,10 @@
+## [3.247.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.3...v3.247.4) (2026-10-14)
+
+
+### Bug Fixes
+
+* **a11y:** clear axe review items on the ekfyseosfyteias pages ([#127](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/127)) ([9b43aaa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9b43aaa7bcb2b5aafef612bf25d8c3a1c5bc4333))
+
 ## [3.247.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.2...v3.247.3) (2026-10-14)
 
 
