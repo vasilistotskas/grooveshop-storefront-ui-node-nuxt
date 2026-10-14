@@ -184,6 +184,20 @@ describe('ContactForm', () => {
     })
   })
 
+  describe('what an accessibility checker reads', () => {
+    // A named Reka select or checkbox inside a form renders a hidden
+    // native twin with no label of its own, and WAVE reports each as
+    // "Missing form label" — the store's ESPA evidence needs 0 errors.
+    it('renders no hidden native select or checkbox beside the labelled controls', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.find('button[role="combobox"]').exists()).toBe(true)
+      expect(wrapper.find('button[role="checkbox"]').exists()).toBe(true)
+      expect(wrapper.findAll('select')).toHaveLength(0)
+      expect(wrapper.findAll('input[aria-hidden="true"]')).toHaveLength(0)
+    })
+  })
+
   describe('files', () => {
     it('draws no attachment control when the store does not accept files', async () => {
       const wrapper = await mount()

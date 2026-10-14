@@ -209,12 +209,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </UFormField>
     </div>
 
+    <!-- The form is sent from `state`, never natively, so the topic and
+         the consent tick carry an empty `name` (HTML's "not submitted").
+         Given the field's name, Reka UI renders an unlabelled hidden
+         native select / checkbox beside each for native submission,
+         which WAVE reports as "Missing form label". Validation keys on
+         the UFormField's `name`, which stays. -->
     <UFormField
       :label="t('topic')"
       name="topic"
     >
       <USelect
         v-model="state.topic"
+        name=""
         :items="topicItems"
         :placeholder="t('topic_placeholder')"
         class="w-full"
@@ -351,6 +358,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     <UFormField name="consent">
       <UCheckbox
         v-model="state.consent"
+        name=""
         color="neutral"
       >
         <template #label>
