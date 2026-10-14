@@ -14,11 +14,18 @@
  * The link colour is a fixed AA blue for the same reason. That is why
  * this component takes no tenant colours and imports no tenant CSS.
  *
+ * The strip is an ``aside`` named for what it is, so it sits inside a
+ * landmark instead of loose between the skip link and the header. The
+ * ``framed`` copy lives inside the footer's own landmark, where a
+ * complementary region would nest, so it stays a plain box.
+ *
  * ``framed`` is the same banner as a white rounded box, for a footer.
  */
 const { framed = false } = defineProps<{
   framed?: boolean
 }>()
+
+const { t } = useI18n()
 
 const raw = useSettingValue('FUNDING_BANNER')
 
@@ -58,8 +65,10 @@ const width = computed(() => (framed ? 760 : 560))
 </script>
 
 <template>
-  <div
+  <component
+    :is="framed ? 'div' : 'aside'"
     v-if="banner"
+    :aria-label="framed ? undefined : t('label')"
     :class="framed
       ? 'rounded-2xl bg-white p-3'
       : 'border-b border-neutral-200 bg-white'"
@@ -104,5 +113,12 @@ const width = computed(() => (framed ? 760 : 560))
         >{{ banner.label }}</span>
       </component>
     </div>
-  </div>
+  </component>
 </template>
+
+<i18n lang="yaml">
+el:
+  label: Συγχρηματοδότηση από την Ευρωπαϊκή Ένωση
+en:
+  label: Co-funded by the European Union
+</i18n>

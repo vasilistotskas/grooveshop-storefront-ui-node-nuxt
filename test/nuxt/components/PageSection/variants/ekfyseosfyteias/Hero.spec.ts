@@ -62,6 +62,16 @@ describe('ekfyseosfyteias hero_banner', () => {
       expect(wrapper.find('dl').exists()).toBe(false)
     })
 
+    it('draws the φ as a pseudo-element: no element carries it as a text node', async () => {
+      const wrapper = await mountHero()
+
+      // A glyph element would be a text node axe cannot read ("content
+      // is too short") and a box under part of the heading and lead.
+      expect(wrapper.findAll('span').filter(span => span.text().trim() === 'φ')).toEqual([])
+      // The class is the contract: the stylesheet draws the letter on it.
+      expect(wrapper.classes()).toContain('hero-glyph')
+    })
+
     it('draws the three berries only when decor asks for orbs', async () => {
       const plain = await mountHero()
       const orbs = await mountHero({ decor: 'orbs' })
@@ -86,6 +96,16 @@ describe('ekfyseosfyteias hero_banner', () => {
       expect(wrapper.find('img').attributes('alt')).toBe(PROPS.imageAlt)
       // The photo is a sibling of the card, never its container.
       expect(wrapper.find('h2').element.closest('figure, picture')).toBeNull()
+    })
+
+    it('pulls the card up by its own padding, so no line of its text sits on the photo edge', async () => {
+      const wrapper = await mountHero({ theme: 'dark' })
+
+      // The class pair is the contract: the margin and the padding read
+      // one variable, so the photo's edge can only cross the padding.
+      const card = wrapper.find('h2').element.parentElement!
+      expect(card.className).toContain('-mt-(--card-pad)')
+      expect(card.className).toContain('p-(--card-pad)')
     })
 
     it('offers the first call to action as a text link', async () => {

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import 'leaflet/dist/leaflet.css'
+
 /**
  * The store's own pin on an OpenStreetMap canvas.
  *
@@ -14,6 +16,11 @@
  * Client-only because Leaflet touches `window` on import; the caller
  * hydrates it on visibility so the contact page does not pay for the
  * library above the fold.
+ *
+ * The stylesheet is imported here, not globally: `nuxt.config.ts` strips
+ * the module's site-wide copy so no other page pays for it. Without it the
+ * panes are unpositioned blocks, and the map shows one stray tile and no
+ * pin.
  *
  * Same CARTO basemaps the locker picker uses (``shared/utils
  * /carto-basemaps.ts``). The parent (``LocationMap.vue``) only mounts
@@ -40,7 +47,7 @@ const center = computed<[number, number]>(() => [props.lat, props.lng])
 </script>
 
 <template>
-  <div v-if="tile" class="h-80 overflow-hidden rounded-xl ring ring-default md:h-96">
+  <div v-if="tile" class="size-full overflow-hidden rounded-xl ring ring-default">
     <LMap
       :zoom="15"
       :center="center"

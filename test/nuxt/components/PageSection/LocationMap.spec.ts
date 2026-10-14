@@ -35,8 +35,15 @@ vi.mock('~/components/PageSection/LocationCanvas.client.vue', async () => {
 const mountMap = (props: Record<string, unknown>) =>
   mountSuspended(LocationMap, { route: false, props })
 
+/** The canvas loads on the visitor's request, so a test that wants it asks. */
+const mountOpenMap = async (props: Record<string, unknown>) => {
+  const wrapper = await mountMap(props)
+  await wrapper.find('button').trigger('click')
+  return wrapper
+}
+
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
-const COPY = { title: 'Τοποθεσία καταστήματος' }
+const COPY = { title: 'Τοποθεσία καταστήματος', show_map: 'Εμφάνιση χάρτη' }
 
 describe('the location map band', () => {
   // The canvas additionally requires the platform's CARTO basemaps key
@@ -52,8 +59,20 @@ describe('the location map band', () => {
     useRuntimeConfig().public.cartoBasemapsKey = originalKey as string
   })
 
-  it('draws a canvas for coordinates alone', async () => {
+  it('offers the map instead of loading it, until the visitor asks', async () => {
     const wrapper = await mountMap({ lat: 40.6403, lng: 22.9439 })
+
+    expect(wrapper.find('button').text()).toBe(COPY.show_map)
+    expect(wrapper.find('[data-test="canvas"]').exists()).toBe(false)
+
+    await wrapper.find('button').trigger('click')
+
+    await vi.waitFor(() => expect(wrapper.find('[data-test="canvas"]').exists()).toBe(true))
+    expect(wrapper.find('button').exists()).toBe(false)
+  })
+
+  it('draws a canvas for coordinates alone', async () => {
+    const wrapper = await mountOpenMap({ lat: 40.6403, lng: 22.9439 })
 
     await vi.waitFor(() => expect(wrapper.find('[data-test="canvas"]').exists()).toBe(true))
     const canvas = wrapper.find('[data-test="canvas"]')
@@ -62,7 +81,7 @@ describe('the location map band', () => {
   })
 
   it('draws the canvas at a zero coordinate — 0 is a place, not a missing value', async () => {
-    const wrapper = await mountMap({ lat: 0, lng: 22.9439 })
+    const wrapper = await mountOpenMap({ lat: 0, lng: 22.9439 })
 
     await vi.waitFor(() => expect(wrapper.find('[data-test="canvas"]').attributes('data-lat')).toBe('0'))
   })
@@ -77,6 +96,7 @@ describe('the location map band', () => {
     const frame = wrapper.find('iframe')
     expect(frame.attributes('src')).toBe('https://www.google.com/maps/embed?pb=x')
     expect(frame.attributes('title')).toBe(COPY.title)
+    expect(wrapper.find('button').exists()).toBe(false)
     expect(wrapper.find('[data-test="canvas"]').exists()).toBe(false)
   })
 

@@ -80,6 +80,25 @@ describe('Chrome/FundingBanner', () => {
     expect(framed.findAll('a')).toHaveLength(1)
   })
 
+  // The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach.
+  it('is a named complementary landmark in the page, so it is not content outside every region', async () => {
+    setting.value = banner()
+
+    const wrapper = await mountBanner()
+
+    expect(wrapper.element.tagName).toBe('ASIDE')
+    expect(wrapper.attributes('aria-label')).toBe('Συγχρηματοδότηση από την Ευρωπαϊκή Ένωση')
+  })
+
+  it('stays a plain box inside the footer, where a second landmark would nest', async () => {
+    setting.value = banner()
+
+    const framed = await mountBanner({ framed: true })
+
+    expect(framed.element.tagName).toBe('DIV')
+    expect(framed.attributes('aria-label')).toBeUndefined()
+  })
+
   describe('renders nothing', () => {
     it.each([
       ['no setting', ''],

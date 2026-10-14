@@ -226,9 +226,9 @@ export function setupGoogleAnalyticsConsent() {
       // interaction, or after 5s for passive sessions — any engaged
       // session still gets its consent-mode pings and page_view (gtag
       // calls queue in the dataLayer stub until the script lands), only
-      // sub-5s no-interaction bounces go unmeasured. Warmup drops to
-      // preconnect: the connection stays warm, the bytes wait for the
-      // trigger.
+      // sub-5s no-interaction bounces go unmeasured. No warmup at all:
+      // a preconnect would open the connection to Google at page load,
+      // before the visitor has done or decided anything.
       trigger: import.meta.client
         ? new Promise<void>((resolve) => {
             const events = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'] as const
@@ -248,7 +248,7 @@ export function setupGoogleAnalyticsConsent() {
             }
           })
         : 'onNuxtReady',
-      warmupStrategy: 'preconnect',
+      warmupStrategy: false,
     },
     defaultConsent: GOOGLE_TAG_DEFAULT_CONSENT,
   }) as any
@@ -510,6 +510,12 @@ export function setupCookieConsentTracking() {
   if (import.meta.server) return
 
   const { isConsentGiven, cookiesEnabledIds, moduleOptions } = useCookieControl()
+  const tenantStore = useTenantStore()
+
+  // The platform's banner is not drawn for a store with no optional
+  // service, so there is no impression to count. A frozen store keeps its
+  // own banner, which always asks.
+  const bannerDrawn = () => !resolveDesign(tenantStore.schemaName) || tenantStore.hasOptionalServices
 
   const post = (body: CookieConsentEventBody) =>
     $api('/api/analytics/cookie-consent', {
@@ -530,7 +536,7 @@ export function setupCookieConsentTracking() {
   }
 
   onMounted(() => {
-    if (isConsentGiven.value === true) return
+    if (isConsentGiven.value === true || !bannerDrawn()) return
     try {
       if (window.sessionStorage.getItem(COOKIE_BANNER_SEEN_KEY)) return
       window.sessionStorage.setItem(COOKIE_BANNER_SEEN_KEY, '1')

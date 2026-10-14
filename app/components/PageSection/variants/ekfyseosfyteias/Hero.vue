@@ -14,11 +14,19 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  *   the page already has its h1.
  * - `page` (no artwork): the typographic page hero. The page's h1.
  *
+ * The overlap card is pulled up by exactly its own padding, so the photo's
+ * lower edge never crosses a line of its text. Axe reads the elements
+ * under each line of a paragraph and cannot determine what the text is
+ * painted on when one line has the photo behind it and the next does not.
+ *
  * `stats` (value and label) are a dashed-ruled row of facts under the lead
  * of the seal hero only; the other two presentations have no place for them.
  *
  * The φ is the co-op's logo letter, drawn as decoration. It overhangs the
- * band on purpose, so the band clips it.
+ * band on purpose, so the band clips it. It is the band's own `::before`,
+ * not an element with a text node: a glyph element sits in the stacking
+ * order under part of the band's text, and axe cannot tell what the text
+ * is painted on once one line is over it and the next is not.
  */
 // The section row hands over every prop its type admits. The ones this
 // band does not read must not fall through onto it as DOM attributes.
@@ -60,18 +68,10 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
   <section
     v-if="hasContent && presentation === 'seal'"
     class="
-      relative isolate overflow-hidden bg-(--fy-sage) text-(--fy-text)
+      hero-glyph relative isolate overflow-hidden bg-(--fy-sage)
+      text-(--fy-text)
     "
   >
-    <span
-      aria-hidden="true"
-      class="
-        pointer-events-none absolute -bottom-[330px] -left-[90px] -z-10
-        font-display text-[980px] leading-none font-black
-        text-(--fy-sage-glyph) select-none
-      "
-    >φ</span>
-
     <div
       class="
         mx-auto grid w-full max-w-[1280px] items-center gap-14 px-6 pt-[clamp(48px,6vw,88px)]
@@ -227,10 +227,10 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
     <div class="mx-auto w-full max-w-[1280px] px-6">
       <div
         class="
-          relative -mt-[clamp(80px,12vw,200px)] flex max-w-[560px] flex-col
-          items-start gap-4 rounded-[28px] bg-(--fy-ground)
-          p-[clamp(28px,3.5vw,44px)]
+          relative -mt-(--card-pad) flex max-w-[560px] flex-col items-start
+          gap-4 rounded-[28px] bg-(--fy-ground) p-(--card-pad)
           shadow-[0_24px_60px_-30px_rgb(28_26_23/50%)]
+          [--card-pad:clamp(28px,3.5vw,44px)]
         "
       >
         <p
@@ -327,3 +327,22 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
     </div>
   </section>
 </template>
+
+<style scoped>
+/* The alternative text after the slash (empty) keeps the letter out of
+   the accessibility tree, like the aria-hidden span it replaces. */
+.hero-glyph::before {
+  content: 'φ' / '';
+  position: absolute;
+  bottom: -330px;
+  left: -90px;
+  z-index: -10;
+  font-family: var(--font-display);
+  font-size: 980px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--fy-sage-glyph);
+  pointer-events: none;
+  user-select: none;
+}
+</style>

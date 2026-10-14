@@ -183,4 +183,28 @@ describe('useTenantStore', () => {
       expect(store.isMultilingual).toBe(multilingual)
     })
   })
+
+  describe('optionalServices / hasOptionalServices', () => {
+    const NONE = { gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '' }
+
+    it('is empty for a store with no consent-gated service', () => {
+      const store = useTenantStore()
+      store.setConfig(config(NONE))
+      expect(store.optionalServices).toEqual([])
+      expect(store.hasOptionalServices).toBe(false)
+    })
+
+    it.each<[string, Partial<TenantConfig>, string[]]>([
+      ['GA4', { gaTrackingId: 'G-1' }, ['Google']],
+      ['Google Ads alone', { googleAdsConversionId: 'AW-1' }, ['Google']],
+      ['GA4 and Ads as one Google tag', { gaTrackingId: 'G-1', googleAdsConversionId: 'AW-1' }, ['Google']],
+      ['every pixel', { gaTrackingId: 'G-1', metaPixelId: '1', tiktokPixelId: 'T', openaiPixelId: 'O' }, ['Google', 'Meta', 'TikTok', 'OpenAI']],
+      ['the ChatGPT pixel alone', { openaiPixelId: 'O' }, ['OpenAI']],
+    ])('names %s', (_label, overrides, names) => {
+      const store = useTenantStore()
+      store.setConfig(config({ ...NONE, ...overrides }))
+      expect(store.optionalServices).toEqual(names)
+      expect(store.hasOptionalServices).toBe(true)
+    })
+  })
 })

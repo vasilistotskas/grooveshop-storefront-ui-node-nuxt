@@ -72,6 +72,22 @@ export const useTenantStore = defineStore('tenant', () => {
     () => config.value?.googleAdsPageViewLabel ?? '',
   )
 
+  // The consent-gated services this store has provisioned, by name. The
+  // single answer to "does this store use anything optional": the
+  // cookie banner, its preferences and the footer's cookie entry all
+  // read it, and a store with none sets no optional cookie or storage
+  // and loads no third-party script, so there is nothing to ask. Each
+  // name here is a service ``setups.ts`` registers behind consent.
+  const optionalServices = computed(() =>
+    [
+      (gaTrackingId.value || googleAdsConversionId.value) && 'Google',
+      metaPixelId.value && 'Meta',
+      tiktokPixelId.value && 'TikTok',
+      openaiPixelId.value && 'OpenAI',
+    ].filter((name): name is string => Boolean(name)),
+  )
+  const hasOptionalServices = computed(() => optionalServices.value.length > 0)
+
   // MFA — empty string means Django uses its own default issuer
   const totpIssuer = computed(() => config.value?.totpIssuer ?? '')
 
@@ -149,6 +165,8 @@ export const useTenantStore = defineStore('tenant', () => {
     openaiPixelId,
     gaTrackingId,
     googleAdsConversionId,
+    optionalServices,
+    hasOptionalServices,
     googleAdsPurchaseLabel,
     googleAdsAddToCartLabel,
     googleAdsBeginCheckoutLabel,

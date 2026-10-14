@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { setTenant } from '~~/test/helpers/tenant'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
 /**
@@ -25,6 +26,8 @@ const { providerToken, navigateToMock, toastAdd, gsi } = vi.hoisted(() => {
   }
   return { providerToken: vi.fn(), navigateToMock: vi.fn(), toastAdd: vi.fn(), gsi }
 })
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+mockNuxtImport('$api', () => api)
 mockNuxtImport('useScript', () => () => gsi)
 mockNuxtImport('useAllAuthAuthentication', () => () => ({ providerToken }))
 mockNuxtImport('navigateTo', () => navigateToMock)
@@ -100,5 +103,47 @@ describe('setupSocialLogin', () => {
     expect(toastAdd).toHaveBeenCalledTimes(1)
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
     expect(navigateToMock).not.toHaveBeenCalled()
+  })
+})
+
+/**
+ * `setupCookieConsentTracking`: the `banner_shown` impression is the
+ * denominator of the accept rate, so it is counted only where a banner is
+ * drawn. The platform's banner is not drawn for a store with no optional
+ * service; a frozen store keeps its own banner, which always asks.
+ */
+const TrackingHarness = defineComponent({
+  setup() {
+    setupCookieConsentTracking()
+    return () => h('div')
+  },
+})
+
+describe('setupCookieConsentTracking', () => {
+  const NONE = { gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '' }
+
+  beforeEach(() => {
+    window.sessionStorage.clear()
+    useCookieControl().isConsentGiven.value = undefined
+    api.routes({ '/api/analytics/cookie-consent': {} })
+  })
+
+  const impressions = async (overrides: Record<string, unknown>, schemaName: string) => {
+    setTenant({ ...NONE, ...overrides, schemaName })
+    await mountSuspended(TrackingHarness, { route: false })
+    await flushPromises()
+    return api.callsTo('/api/analytics/cookie-consent').filter(call => call.options?.body?.event === 'banner_shown')
+  }
+
+  it('counts the impression of a banner that is drawn', async () => {
+    expect(await impressions({ metaPixelId: '123' }, 'demo')).toHaveLength(1)
+  })
+
+  it('counts nothing for a store whose banner is not drawn', async () => {
+    expect(await impressions({}, 'demo')).toHaveLength(0)
+  })
+
+  it('still counts a frozen store, whose own banner always asks', async () => {
+    expect(await impressions({}, 'webside')).toHaveLength(1)
   })
 })

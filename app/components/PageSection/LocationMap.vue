@@ -18,6 +18,11 @@
  * (`shared/utils/carto-basemaps.ts`) — without one, CARTO's tiles come
  * back watermarked, so the canvas is treated the same as a missing
  * `lat`/`lng`: falls through to the address line, or renders nothing.
+ *
+ * The canvas loads when the visitor asks for it, not on arrival. It is
+ * third-party tiles and Leaflet's own controls, and the tiles overhang
+ * the frame (clipped, but still boxes in the page's stacking order), so
+ * a checker cannot tell what the text above the map is painted on.
  */
 const props = defineProps<{
   /** The operator's section title, from the section row itself. */
@@ -31,6 +36,8 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
+
+const mapRequested = ref(false)
 
 const showEmbed = computed(() => Boolean(props.embedUrl))
 
@@ -48,34 +55,56 @@ const showCanvas = computed(
     v-if="showEmbed || showCanvas || address"
     :heading="title"
     :surface="surface"
+    padding="sm"
   >
     <div
       v-if="showEmbed"
-      class="overflow-hidden rounded-xl ring ring-default"
+      class="h-64 overflow-hidden rounded-xl ring ring-default md:h-72"
     >
       <iframe
         :src="embedUrl"
         :title="t('title')"
-        class="h-96 w-full border-0"
+        class="size-full border-0"
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         allowfullscreen
       />
     </div>
-    <!-- Leaflet touches `window` on import and is not worth the bytes
-         until the band is on screen, so the canvas is client-only and
-         lazy — the same shape the locker picker uses. The fallback
-         holds the band's height so the page does not jump. -->
-    <ClientOnly v-else-if="showCanvas">
-      <LazyPageSectionLocationCanvas
-        :lat="lat!"
-        :lng="lng!"
-        :address="address"
-      />
-      <template #fallback>
-        <USkeleton class="h-80 w-full rounded-xl md:h-96" />
-      </template>
-    </ClientOnly>
+    <!-- Leaflet touches `window` on import, so the canvas is client-only
+         and lazy — the same shape the locker picker uses — and it mounts
+         only once the visitor has asked for the map. One frame holds the
+         placeholder, the skeleton and the map, so the band keeps its
+         height when the map opens. -->
+    <div
+      v-else-if="showCanvas"
+      class="h-64 md:h-72"
+    >
+      <div
+        v-if="!mapRequested"
+        class="
+          flex size-full items-center justify-center rounded-xl bg-default ring
+          ring-default
+        "
+      >
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-heroicons-map-pin"
+          :label="t('show_map')"
+          @click="() => { mapRequested = true }"
+        />
+      </div>
+      <ClientOnly v-else>
+        <LazyPageSectionLocationCanvas
+          :lat="lat!"
+          :lng="lng!"
+          :address="address"
+        />
+        <template #fallback>
+          <USkeleton class="size-full rounded-xl" />
+        </template>
+      </ClientOnly>
+    </div>
     <p
       v-if="address"
       class="flex items-center gap-2 text-muted"
@@ -92,6 +121,8 @@ const showCanvas = computed(
 <i18n lang="yaml">
 el:
   title: Τοποθεσία καταστήματος
+  show_map: Εμφάνιση χάρτη
 en:
   title: Store location
+  show_map: Show map
 </i18n>
