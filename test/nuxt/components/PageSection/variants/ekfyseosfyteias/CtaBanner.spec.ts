@@ -23,6 +23,20 @@ describe('ekfyseosfyteias cta_banner', () => {
     expect([link.text(), link.attributes('href')]).toEqual([PROPS.buttonText, '/contact'])
   })
 
+  it('opens with its own space above the box, and drops it right after a paper band', async () => {
+    const wrapper = await mountSuspended(CtaBanner, { route: false, props: PROPS })
+
+    // The class pair is the contract: a sibling selector on the band's
+    // own surface, which happy-dom cannot lay out. On the cellar the box
+    // sat flush against the raised gift band above it.
+    const band = wrapper.find('section')
+    expect(band.classes()).toEqual(expect.arrayContaining([
+      'pt-[clamp(64px,8vw,112px)]',
+      '[[data-fy-surface=ground]+&]:pt-0',
+    ]))
+    expect(band.attributes('data-fy-surface')).toBe('ground')
+  })
+
   it('ignores backgroundColor', async () => {
     const wrapper = await mountSuspended(CtaBanner, {
       route: false,

@@ -52,6 +52,27 @@ describe('ekfyseosfyteias features_grid', () => {
       expect([link.text(), link.attributes('href')]).toEqual(['Όλα τα προϊόντα', '/products'])
     })
 
+    it('makes a teaser (it links to the full list) a row the keyboard can scroll: a named, focusable region', async () => {
+      const wrapper = await mountFramed({ heading: 'Γεύσεις της Φυτειάς, σε βάζο.', ctaText: 'Όλα τα προϊόντα', ctaLink: '/kelari' })
+
+      const row = wrapper.find('[role="region"]')
+      expect([row.attributes('aria-label'), row.attributes('tabindex')]).toEqual(['Γεύσεις της Φυτειάς, σε βάζο.', '0'])
+      expect(row.find('ul').findAll('li')).toHaveLength(ITEMS.length)
+    })
+
+    it('keeps a band without the link (the list itself) a plain grid, with no extra tab stop', async () => {
+      const wrapper = await mountFramed({ heading: 'Λικέρ' })
+
+      expect(wrapper.find('[role="region"]').exists()).toBe(false)
+      expect(wrapper.find('[tabindex]').exists()).toBe(false)
+    })
+
+    it('says it is a paper band, so a call-to-action band after it adds no space of its own', async () => {
+      const wrapper = await mountFramed()
+
+      expect(wrapper.find('section').attributes('data-fy-surface')).toBe('ground')
+    })
+
     it('ends the grid with the ink card when there is a prompt', async () => {
       const wrapper = await mountFramed({
         prompt: { title: 'Παραγγελίες', text: 'Τηλεφωνήστε μας.', ctaText: 'Καλέστε', ctaLink: '/contact' },

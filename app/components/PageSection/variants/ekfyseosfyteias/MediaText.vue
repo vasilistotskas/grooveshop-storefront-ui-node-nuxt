@@ -86,6 +86,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
   <section
     v-if="label || body || imageUrl"
     :class="surface === 'muted' ? 'bg-(--fy-raised)' : 'bg-(--fy-ground)'"
+    :data-fy-surface="surface === 'muted' ? undefined : 'ground'"
   >
     <div
       class="
@@ -106,7 +107,7 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
           :alt="note ?? ''"
           :width="960"
           :height="720"
-          sizes="xs:100vw lg:50vw"
+          sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:640px"
           class="
             block aspect-4/3 w-full rounded-[28px] bg-(--fy-chip) object-cover
           "

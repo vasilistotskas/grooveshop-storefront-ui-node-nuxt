@@ -6,6 +6,12 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * button on the right. The operator's `backgroundColor` and `surface`
  * are not read: this store's colour roles are fixed, and an arbitrary
  * hex would escape them (and their dark mode).
+ *
+ * The box sits on the paper ground. After another paper band, whose own
+ * bottom padding already spaces it, the band adds none above the box;
+ * after a band of another surface (the cellar's raised gift band) the
+ * box would touch that band's edge, so the band opens with its own.
+ * Each paper band says so with `data-fy-surface="ground"`.
  */
 // The section row hands over every prop its type admits. The ones this
 // band does not read must not fall through onto it as DOM attributes.
@@ -27,7 +33,11 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
 <template>
   <section
     v-if="label || description || hasLink"
-    class="bg-(--fy-ground)"
+    class="
+      bg-(--fy-ground) pt-[clamp(64px,8vw,112px)]
+      [[data-fy-surface=ground]+&]:pt-0
+    "
+    data-fy-surface="ground"
   >
     <div
       class="

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import LocationMap from '~/components/PageSection/LocationMap.vue'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The `location_map` section has accepted `lat`/`lng` since it was
@@ -106,14 +107,19 @@ describe('the location map band', () => {
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it('hides the canvas when no CARTO basemaps key is configured', async () => {
+  it('hides the canvas when no CARTO basemaps key is configured, and keeps the app links', async () => {
     // CARTO watermarks a keyless tile request rather than refusing it,
     // so an empty key must hide the canvas, not render a broken one.
     useRuntimeConfig().public.cartoBasemapsKey = ''
 
     const wrapper = await mountMap({ lat: 40.6403, lng: 22.9439 })
 
-    expect(wrapper.find('section').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain(COPY.show_map)
+    expect(wrapper.find('[data-test="canvas"]').exists()).toBe(false)
+    expect(wrapper.findAll('a').map(link => link.attributes('href'))).toEqual([
+      'https://www.google.com/maps/search/?api=1&query=40.6403%2C22.9439',
+      'https://maps.apple.com/place?coordinate=40.6403,22.9439',
+    ])
   })
 
   it('still shows the address line with no key and no embed', async () => {
@@ -121,6 +127,35 @@ describe('the location map band', () => {
 
     const wrapper = await mountMap({ lat: 40.6403, lng: 22.9439, address: '12 Main St' })
 
-    expect(wrapper.find('section').text()).toBe('12 Main St')
+    expect(wrapper.find('p').text()).toBe('12 Main St')
+  })
+
+  describe('opening the place in a maps app', () => {
+    it('links Google Maps and Apple Maps in a new tab, and says so to a screen reader', async () => {
+      const wrapper = await mountMap({ lat: 40.56325, lng: 22.10968, address: 'Φυτειά Βέροιας, Ημαθία' })
+
+      const links = wrapper.findAll('a')
+      expect(links.map(link => [link.text(), link.attributes('target')])).toEqual([
+        ['Google Maps (ανοίγει σε νέα καρτέλα)', '_blank'],
+        ['Apple Maps (ανοίγει σε νέα καρτέλα)', '_blank'],
+      ])
+      expect(links[0]!.attributes('href')).toBe('https://www.google.com/maps/search/?api=1&query=40.56325%2C22.10968')
+    })
+
+    it('names the Apple place card after the store', async () => {
+      setTenant({ storeName: 'Εκ Φύσεως Φυτειάς' })
+
+      const wrapper = await mountMap({ lat: 40.56325, lng: 22.10968 })
+
+      expect(wrapper.findAll('a')[1]!.attributes('href'))
+        .toBe(`https://maps.apple.com/place?coordinate=40.56325,22.10968&name=${encodeURIComponent('Εκ Φύσεως Φυτειάς')}`)
+    })
+
+    it('searches for the address when the band has only that', async () => {
+      const wrapper = await mountMap({ address: 'Φυτειά Βέροιας, Ημαθία' })
+
+      expect(wrapper.findAll('a')[0]!.attributes('href'))
+        .toBe(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Φυτειά Βέροιας, Ημαθία')}`)
+    })
   })
 })
