@@ -44,7 +44,7 @@ exports[`webside frozen render > cart button 1`] = `
 `;
 
 exports[`webside frozen render > default layout with the webside schema 1`] = `
-"<div class="relative"><a href="#main-content" class="sr-only z-50 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Μετάβαση στο κύριο περιεχόμενο</a>
+"<div class="relative"><a href="#main-content" class="sr-only z-50 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-(--ui-on-secondary) focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Μετάβαση στο κύριο περιεχόμενο</a>
   <!--v-if-->
   <header data-slot="root" class="sticky top-0 z-50 h-auto bg-default/75 backdrop-blur-sm">
     <div data-slot="container" class="mx-auto flex h-full w-full max-w-full items-center justify-between gap-3 px-0">
@@ -859,7 +859,7 @@ exports[`webside frozen render > signed in > account addresses 1`] = `
 `;
 
 exports[`webside frozen render > signed in > account chrome 1`] = `
-"<div class="relative"><a href="#main-content" class="sr-only z-50 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Μετάβαση στο κύριο περιεχόμενο</a>
+"<div class="relative"><a href="#main-content" class="sr-only z-50 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-(--ui-on-secondary) focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Μετάβαση στο κύριο περιεχόμενο</a>
   <!--v-if-->
   <header data-slot="root" class="sticky top-0 z-50 h-auto bg-default/75 backdrop-blur-sm">
     <div data-slot="container" class="mx-auto flex h-full w-full max-w-full items-center justify-between gap-3 px-0">
