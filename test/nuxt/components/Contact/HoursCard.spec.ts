@@ -12,7 +12,7 @@ type Entry = { opens: string, closes: string } | null
 
 const hours = vi.hoisted(() => ({
   hasData: true,
-  isOpen: true,
+  isOpen: true as boolean | null,
   today: 'wed' as string | null,
   schedule: null as Record<string, { opens: string, closes: string } | null> | null,
 }))
@@ -69,6 +69,17 @@ describe('Contact/HoursCard', () => {
     hours.isOpen = false
     const closed = await mount()
     expect(closed.find('[data-slot="base"]').text()).toBe('Κλειστά τώρα')
+  })
+
+  it('draws the table but no badge and no today mark while the clock is unknown', async () => {
+    hours.isOpen = null
+    hours.today = null
+
+    const wrapper = await mount()
+
+    expect(wrapper.findAll('li')).toHaveLength(7)
+    expect(wrapper.find('[data-slot="base"]').exists()).toBe(false)
+    expect(wrapper.find('li[aria-current="date"]').exists()).toBe(false)
   })
 
   it('draws nothing for a store with no published hours', async () => {

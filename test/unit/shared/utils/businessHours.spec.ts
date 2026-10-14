@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { groupBusinessHours, parseBusinessHoursValue, resolveBusinessHoursState } from '~~/shared/utils/businessHours'
+import { groupBusinessHours, isBusinessHoursTimezoneKnown, parseBusinessHoursValue, resolveBusinessHoursState } from '~~/shared/utils/businessHours'
 
 const HOURS = {
   timezone: 'Europe/Athens',
@@ -47,6 +47,13 @@ describe('parseBusinessHoursValue', () => {
       },
     }
     expect(parseBusinessHoursValue(JSON.stringify(inverted))).toBeNull()
+  })
+})
+
+describe('isBusinessHoursTimezoneKnown', () => {
+  it('is true for an Intl-known timezone and false for an unknown one', () => {
+    expect(isBusinessHoursTimezoneKnown(HOURS)).toBe(true)
+    expect(isBusinessHoursTimezoneKnown({ ...HOURS, timezone: 'Mars/Olympus' })).toBe(false)
   })
 })
 

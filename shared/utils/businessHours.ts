@@ -73,6 +73,15 @@ export function resolveBusinessHoursState(
   return { day, time, todayHours, isOpen }
 }
 
+/**
+ * Whether ``hours`` can be resolved at all, i.e. its timezone is known
+ * to ``Intl``. Independent of the clock, so a server render can say
+ * whether to draw the schedule without knowing what time it is.
+ */
+export function isBusinessHoursTimezoneKnown(hours: BusinessHours): boolean {
+  return resolveBusinessHoursState(hours, new Date(0)) !== null
+}
+
 export interface BusinessHoursGroup {
   from: WeekDayKey
   to: WeekDayKey

@@ -5,7 +5,7 @@ const { hasData, todayHours, isOpen } = useBusinessHours()
 
 <template>
   <div
-    v-if="hasData"
+    v-if="hasData && isOpen !== null"
     class="
       flex items-center gap-2 text-sm text-primary-950
       dark:text-primary-100

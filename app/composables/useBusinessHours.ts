@@ -10,6 +10,15 @@
  * The open/closed check is minute-accurate in the STORE's timezone
  * (see ``resolveBusinessHoursState``) on a ``useNow`` minute tick, so
  * a visitor's local clock never shifts the badge.
+ *
+ * The clock-dependent fields (``today``, ``todayHours``, ``isOpen``) are
+ * ``null`` on the server and through hydration, and fill in once the
+ * component has mounted. Pages are served from Nitro's cache for minutes
+ * after they were rendered, so a server-side clock is stale by the time
+ * the visitor reads it (and at every opening time, closing time and
+ * midnight it contradicts the client's, which is a hydration mismatch).
+ * The schedule, timezone and ``hasData`` do not depend on the clock and
+ * stay in the server HTML.
  */
 export function useBusinessHours() {
   const value = useSettingValue('BUSINESS_HOURS')
@@ -29,16 +38,22 @@ export function useBusinessHours() {
 
   const now = useNow({ scheduler: update => useIntervalFn(update, 60_000) })
 
+  const mounted = useMounted()
+
   const state = computed(() =>
-    hours.value ? resolveBusinessHoursState(hours.value, now.value) : null,
+    mounted.value && hours.value
+      ? resolveBusinessHoursState(hours.value, now.value)
+      : null,
   )
 
   return {
-    hasData: computed(() => state.value !== null),
+    hasData: computed(() =>
+      hours.value !== null && isBusinessHoursTimezoneKnown(hours.value),
+    ),
     schedule: computed(() => hours.value?.schedule ?? null),
     timezone: computed(() => hours.value?.timezone ?? null),
     today: computed(() => state.value?.day ?? null),
     todayHours: computed(() => state.value?.todayHours ?? null),
-    isOpen: computed(() => state.value?.isOpen ?? false),
+    isOpen: computed(() => state.value?.isOpen ?? null),
   }
 }

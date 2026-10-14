@@ -9,7 +9,7 @@ import FooterHoursBadge from '~/components/Footer/HoursBadge.vue'
  * when closed; nothing for a store that published no hours.
  */
 const { hours } = vi.hoisted(() => ({
-  hours: { hasData: true, isOpen: true, todayHours: { opens: '09:00', closes: '20:00' } as { opens: string, closes: string } | null },
+  hours: { hasData: true, isOpen: true as boolean | null, todayHours: { opens: '09:00', closes: '20:00' } as { opens: string, closes: string } | null },
 }))
 
 mockNuxtImport('useBusinessHours', () => () => ({
@@ -38,6 +38,15 @@ describe('Footer/HoursBadge', () => {
     const wrapper = await mountSuspended(FooterHoursBadge, { route: false })
 
     expect(wrapper.text().replace(/\s+/g, ' ')).toBe(COPY.closed)
+  })
+
+  it('says neither open nor closed while the clock is unknown', async () => {
+    hours.isOpen = null
+
+    const wrapper = await mountSuspended(FooterHoursBadge, { route: false })
+
+    expect(wrapper.text()).toBe('')
+    expect(wrapper.find('p').exists()).toBe(true)
   })
 
   it('says nothing without published hours', async () => {

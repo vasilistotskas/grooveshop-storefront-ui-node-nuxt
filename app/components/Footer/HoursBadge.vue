@@ -2,7 +2,8 @@
 /**
  * Whether the store is open right now — "Open now · until 20:00" — in
  * the footer. Green when open, muted when closed; the words say which,
- * so the colour is never the only signal.
+ * so the colour is never the only signal. The state depends on the clock,
+ * so the line stays empty (its height reserved) until the page is mounted.
  */
 const { t } = useI18n()
 const { hasData, todayHours, isOpen } = useBusinessHours()
@@ -12,20 +13,22 @@ const { hasData, todayHours, isOpen } = useBusinessHours()
   <p
     v-if="hasData"
     :class="[
-      'flex items-center gap-2 text-sm font-bold',
+      'flex min-h-5 items-center gap-2 text-sm font-bold',
       isOpen ? 'text-success' : 'text-muted',
     ]"
   >
-    <span
-      aria-hidden="true"
-      class="size-2 shrink-0 rounded-full bg-current"
-    />
-    <span v-if="isOpen">
-      {{ t('open_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('until', { time: todayHours.closes }) }}</span></template>
-    </span>
-    <span v-else>
-      {{ t('closed_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('today', { opens: todayHours.opens, closes: todayHours.closes }) }}</span></template>
-    </span>
+    <template v-if="isOpen !== null">
+      <span
+        aria-hidden="true"
+        class="size-2 shrink-0 rounded-full bg-current"
+      />
+      <span v-if="isOpen">
+        {{ t('open_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('until', { time: todayHours.closes }) }}</span></template>
+      </span>
+      <span v-else>
+        {{ t('closed_now') }}<template v-if="todayHours"> · <span class="tabular-nums">{{ t('today', { opens: todayHours.opens, closes: todayHours.closes }) }}</span></template>
+      </span>
+    </template>
   </p>
 </template>
 
