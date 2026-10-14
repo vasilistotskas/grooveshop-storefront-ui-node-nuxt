@@ -98,23 +98,28 @@ const TOGGLES: Array<{ key: AccessibilityToggle, icon: string }> = [
           </div>
         </div>
 
-        <ul class="grid grid-cols-2 gap-3">
+        <!-- One toggle per row, the label in the default slot: the `label`
+             prop's slot is `truncate`, and two columns cut the Greek names
+             to «Υψηλή αντίθ…», in the one panel where nothing may be lost.
+             The slot's text wraps instead, under enlarged text too. -->
+        <ul class="flex flex-col gap-2">
           <li
             v-for="item in TOGGLES"
             :key="item.key"
           >
             <UButton
               :icon="item.icon"
-              :label="t(`toggles.${item.key}`)"
               color="neutral"
               variant="outline"
               active-variant="solid"
               :active="preferences[item.key]"
               :aria-pressed="preferences[item.key]"
               block
-              class="h-full min-h-14 justify-start text-left whitespace-normal"
+              class="min-h-12 justify-start text-left"
               @click="() => { toggle(item.key) }"
-            />
+            >
+              {{ t(`toggles.${item.key}`) }}
+            </UButton>
           </li>
         </ul>
 
