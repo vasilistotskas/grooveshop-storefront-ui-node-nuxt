@@ -1,3 +1,10 @@
+# [3.249.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.248.1...v3.249.0) (2026-10-14)
+
+
+### Features
+
+* **ekfyseosfyteias:** keep the co-funding logos in view, add an accessibility toolbar ([#136](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/136)) ([77ccd6e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/77ccd6e5bf1f4b63a1b21fe30add284e297b2090))
+
 ## [3.248.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.248.0...v3.248.1) (2026-10-14)
 
 
