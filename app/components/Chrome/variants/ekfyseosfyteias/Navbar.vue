@@ -31,6 +31,10 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  *
  * Colours are the `--fy-*` roles only (see the tenant stylesheet), so
  * light and dark are decided in one place.
+ *
+ * The accessibility toolbar's button floats in the bottom corner, but is
+ * mounted first in the header, so a keyboard reaches it right after the
+ * skip link and the funding strip.
  */
 const { t } = useI18n()
 const route = useRoute()
@@ -79,6 +83,7 @@ onKeyStroke('Escape', () => {
       text-(color:--fy-text)
     "
   >
+    <ChromeAccessibilityToolbar />
     <div
       class="
         mx-auto flex w-full max-w-(--ui-container) flex-wrap items-center

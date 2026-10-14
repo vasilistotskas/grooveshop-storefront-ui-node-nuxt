@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed } from 'vue'
+import { computed, nextTick } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ChromeFundingBanner from '~/components/Chrome/FundingBanner.vue'
 
@@ -8,9 +8,17 @@ import ChromeFundingBanner from '~/components/Chrome/FundingBanner.vue'
  * ONE link around the artwork and the optional label, and nothing at all
  * when the setting is missing, off or malformed.
  */
-const { setting } = vi.hoisted(() => ({ setting: { value: '' as string } }))
+const { setting, observed } = vi.hoisted(() => ({
+  setting: { value: '' as string },
+  // Every in-page copy's IntersectionObserver callback, in mount order.
+  observed: [] as Array<(entries: Array<{ isIntersecting: boolean }>) => void>,
+}))
 
 mockNuxtImport('useSettingValue', () => () => computed(() => setting.value))
+mockNuxtImport('useIntersectionObserver', () => (_target: unknown, callback: (entries: Array<{ isIntersecting: boolean }>) => void) => {
+  observed.push(callback)
+  return { stop: () => {}, pause: () => {}, resume: () => {}, isSupported: true, isActive: true }
+})
 
 const ALT = 'Με τη συγχρηματοδότηση της Ευρωπαϊκής Ένωσης — ΕΣΠΑ 2021-2027'
 
@@ -28,6 +36,8 @@ const mountBanner = (props: { framed?: boolean } = {}) =>
 describe('Chrome/FundingBanner', () => {
   beforeEach(() => {
     setting.value = ''
+    observed.length = 0
+    clearNuxtState('funding-banner-visibility')
   })
 
   it('renders one link to the operation, around the artwork', async () => {
@@ -75,8 +85,8 @@ describe('Chrome/FundingBanner', () => {
     const framed = await mountBanner({ framed: true })
 
     // The box is the variant's contract, so the class is asserted.
-    expect(framed.classes()).toContain('rounded-2xl')
-    expect(strip.classes()).not.toContain('rounded-2xl')
+    expect(framed.find('.rounded-2xl').exists()).toBe(true)
+    expect(strip.find('.rounded-2xl').exists()).toBe(false)
     expect(framed.findAll('a')).toHaveLength(1)
   })
 
@@ -86,8 +96,7 @@ describe('Chrome/FundingBanner', () => {
 
     const wrapper = await mountBanner()
 
-    expect(wrapper.element.tagName).toBe('ASIDE')
-    expect(wrapper.attributes('aria-label')).toBe('Συγχρηματοδότηση από την Ευρωπαϊκή Ένωση')
+    expect(wrapper.find('aside').attributes('aria-label')).toBe('Συγχρηματοδότηση από την Ευρωπαϊκή Ένωση')
   })
 
   it('stays a plain box inside the footer, where a second landmark would nest', async () => {
@@ -95,8 +104,60 @@ describe('Chrome/FundingBanner', () => {
 
     const framed = await mountBanner({ framed: true })
 
-    expect(framed.element.tagName).toBe('DIV')
-    expect(framed.attributes('aria-label')).toBeUndefined()
+    expect(framed.find('aside').exists()).toBe(false)
+    expect(framed.find('.rounded-2xl').attributes('aria-label')).toBeUndefined()
+  })
+
+  describe('floating, while no in-page copy is on screen', () => {
+    const floatingIn = (wrapper: { find: (selector: string) => { exists: () => boolean } }) =>
+      wrapper.find('[data-funding-floating]').exists()
+
+    it('does not show before the strip has been measured, so it cannot flash in over it', async () => {
+      setting.value = banner()
+
+      const strip = await mountBanner()
+
+      expect(floatingIn(strip)).toBe(false)
+    })
+
+    it('stays hidden while the strip is on screen, and shows once it scrolls away', async () => {
+      setting.value = banner()
+      const strip = await mountBanner()
+
+      observed[0]!([{ isIntersecting: true }])
+      await nextTick()
+      expect(floatingIn(strip)).toBe(false)
+
+      observed[0]!([{ isIntersecting: false }])
+      await nextTick()
+      expect(floatingIn(strip)).toBe(true)
+    })
+
+    it('hides again while the footer\'s copy is on screen, so the logos are never shown twice', async () => {
+      setting.value = banner()
+      const strip = await mountBanner()
+      const framed = await mountBanner({ framed: true })
+
+      observed[0]!([{ isIntersecting: false }])
+      observed[1]!([{ isIntersecting: true }])
+      await nextTick()
+
+      expect(floatingIn(strip)).toBe(false)
+      expect(floatingIn(framed)).toBe(false)
+    })
+
+    it('links to the operation for a pointer, but is a duplicate assistive technology skips', async () => {
+      setting.value = banner()
+      const strip = await mountBanner()
+
+      observed[0]!([{ isIntersecting: false }])
+      await nextTick()
+
+      const bar = strip.find('[data-funding-floating]')
+      expect(bar.attributes('aria-hidden')).toBe('true')
+      const link = bar.find('a')
+      expect([link.attributes('href'), link.attributes('tabindex')]).toEqual(['/chrimatodotisi', '-1'])
+    })
   })
 
   describe('renders nothing', () => {

@@ -361,6 +361,12 @@ html {
   font-family: var(--font-sans);
 }
 
+/* While the floating co-funding banner covers the bottom of the screen
+   (Chrome/FundingBanner.vue), focus and in-page jumps stop above it. */
+html:has([data-funding-floating]) {
+  scroll-padding-bottom: 6rem;
+}
+
 button, a, [role="button"] {
   touch-action: manipulation;
 }

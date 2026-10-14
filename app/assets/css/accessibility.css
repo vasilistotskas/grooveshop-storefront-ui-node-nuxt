@@ -1,0 +1,112 @@
+/* The accessibility toolbar's preferences (useAccessibilityPreferences),
+   applied as classes on <html>. `:root.a11y-*` (0,2,0) outranks both the
+   tenant theme (`:root`, `html.dark`) and the design tokens (`html`),
+   so a preference holds in either colour mode. */
+
+/* Text size: the page is zoomed the way the browser's own zoom does it.
+   The designs size their type in px, which a root font-size would not
+   reach. */
+:root.a11y-text-1 body {
+  zoom: 1.15;
+}
+
+:root.a11y-text-2 body {
+  zoom: 1.3;
+}
+
+/* Reflow (WCAG 1.4.10): while text is enlarged, set in a wider font or
+   spaced out, a word that no longer fits its line breaks instead of
+   pushing the page sideways on a phone. */
+:root:is(.a11y-text-1, .a11y-text-2, .a11y-font, .a11y-spacing) body {
+  overflow-wrap: anywhere;
+}
+
+/* High contrast: white on black, yellow for the accent, no greys. */
+:root.a11y-contrast {
+  color-scheme: dark;
+
+  --ui-bg: #000000;
+  --ui-bg-muted: #000000;
+  --ui-bg-elevated: #000000;
+  --ui-bg-accented: #1a1a1a;
+  --ui-bg-inverted: #ffffff;
+  --ui-text-dimmed: #ffffff;
+  --ui-text-muted: #ffffff;
+  --ui-text-toned: #ffffff;
+  --ui-text: #ffffff;
+  --ui-text-highlighted: #ffffff;
+  --ui-text-inverted: #000000;
+  --ui-border: #ffffff;
+  --ui-border-muted: #ffffff;
+  --ui-border-accented: #ffffff;
+  --ui-border-inverted: #000000;
+  --ui-primary: #ffffff;
+  --ui-secondary: #ffff00;
+  --ui-on-secondary: #000000;
+
+  --fy-ground: #000000;
+  --fy-raised: #000000;
+  --fy-surface: #000000;
+  --fy-sage: #000000;
+  --fy-sage-glyph: #1a1a1a;
+  --fy-text: #ffffff;
+  --fy-text-muted: #ffffff;
+  --fy-eyebrow: #ffff00;
+  --fy-eyebrow-on-sage: #ffff00;
+  --fy-ink-band: #000000;
+  --fy-on-ink: #ffffff;
+  --fy-on-ink-muted: #ffffff;
+  --fy-accent: #ffff00;
+  --fy-on-accent: #000000;
+  --fy-accent-text: #ffff00;
+  --fy-chip: #000000;
+  --fy-rule: #ffffff;
+  --fy-rule-on-ink: #ffffff;
+  --fy-focus: #ffff00;
+}
+
+/* The root is the one element whose filter does not become the containing
+   block of its fixed descendants, so the floating controls stay put. */
+:root.a11y-grayscale {
+  filter: grayscale(1);
+}
+
+:root.a11y-links a {
+  text-decoration-line: underline !important;
+  text-underline-offset: 0.2em;
+}
+
+/* A plain, open sans-serif for all text, headings included. */
+:root.a11y-font {
+  --font-sans: Verdana, Tahoma, "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-sans);
+}
+
+/* WCAG 2.1 SC 1.4.12's text spacing: line height 1.5, paragraphs 2em
+   apart, letters 0.12em and words 0.16em. */
+:root.a11y-spacing body :where(p, li, dd, dt, blockquote, h1, h2, h3, h4, h5, h6, a, span, label, button, td, th) {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+
+:root.a11y-spacing body p {
+  margin-bottom: 2em !important;
+}
+
+:root.a11y-motion *,
+:root.a11y-motion *::before,
+:root.a11y-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* On a phone the floating co-funding bar takes the bottom of the screen
+   (Chrome/FundingBanner.vue); the toolbar's button rises above it. */
+@media (width < 40rem) {
+  :root:has([data-funding-floating]) .a11y-fab {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom));
+  }
+}

@@ -290,11 +290,14 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
       >
         {{ eyebrow }}
       </p>
+      <!-- wrap-anywhere + hyphens-auto: «Χρηματοδότηση» alone is wider than
+           a 320px phone at 40px, and pushed the page sideways. -->
       <h1
         v-if="label"
         class="
           max-w-[860px] font-display text-[length:clamp(40px,5vw,72px)]
           leading-none font-extrabold tracking-[-0.02em] text-balance
+          wrap-anywhere hyphens-auto
         "
       >
         {{ label }}

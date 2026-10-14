@@ -20,12 +20,23 @@
  * complementary region would nest, so it stays a plain box.
  *
  * ``framed`` is the same banner as a white rounded box, for a footer.
+ *
+ * The strip also keeps the logos on screen while the visitor reads: its
+ * FLOATING twin, a bar along the bottom of a phone and a card in the
+ * corner of a desk, shows exactly while no in-page copy (this strip or a
+ * footer's box) is on screen (``useFundingBannerVisibility``), so the
+ * logos are always in view and never twice. The twin is a visual
+ * duplicate: hidden from assistive technology and out of the tab order,
+ * since the strip and the box already carry the same link for them. It is
+ * rendered by the strip rather than the layout so that a store with no
+ * banner renders exactly what it did before.
  */
 const { framed = false } = defineProps<{
   framed?: boolean
 }>()
 
 const { t } = useI18n()
+const { floating, track } = useFundingBannerVisibility()
 
 const raw = useSettingValue('FUNDING_BANNER')
 
@@ -45,6 +56,8 @@ const banner = computed(() => {
   return parsed
 })
 
+track(useTemplateRef<HTMLElement>('copy'))
+
 // An absolute URL is not ours to resize: IPX only proxies the origins it
 // is configured for, so the artwork is passed through as it is.
 const provider = computed(() =>
@@ -62,58 +75,98 @@ const wrapperProps = computed(() =>
 // The artwork's rendered width, the figure the EU emblem sizing rule in
 // the design is measured against: 560px in the strip, 760px in a footer.
 const width = computed(() => (framed ? 760 : 560))
+// The floating twin's: at most 420px on a phone, 340px in a desk corner.
+const FLOATING_WIDTH = 420
 </script>
 
 <template>
-  <component
-    :is="framed ? 'div' : 'aside'"
-    v-if="banner"
-    :aria-label="framed ? undefined : t('label')"
-    :class="framed
-      ? 'rounded-2xl bg-white p-3'
-      : 'border-b border-neutral-200 bg-white'"
-  >
-    <div
+  <template v-if="banner">
+    <component
+      :is="framed ? 'div' : 'aside'"
+      ref="copy"
+      :aria-label="framed ? undefined : t('label')"
       :class="framed
-        ? ''
-        : `
-          mx-auto w-full max-w-(--ui-container) px-4 py-2
-          sm:px-6
-          lg:px-8
-        `"
+        ? 'rounded-2xl bg-white p-3'
+        : 'border-b border-neutral-200 bg-white'"
+    >
+      <div
+        :class="framed
+          ? ''
+          : `
+            mx-auto w-full max-w-(--ui-container) px-4 py-2
+            sm:px-6
+            lg:px-8
+          `"
+      >
+        <component
+          :is="wrapper"
+          v-bind="wrapperProps"
+          class="
+            flex flex-wrap items-center gap-x-6 gap-y-1 rounded-sm text-blue-800
+            focus-visible:outline-2 focus-visible:outline-offset-2
+            focus-visible:outline-blue-800
+          "
+          :class="framed ? 'justify-center' : 'justify-between'"
+        >
+          <ImgWithFallback
+            v-if="banner.image"
+            :src="banner.image"
+            :alt="banner.alt"
+            :provider="provider"
+            :width="width"
+            densities="x1 x2"
+            quality="90"
+            fallback=""
+            class="block h-auto"
+            :style="{ width: `min(${width}px, 100%)` }"
+          />
+          <span
+            v-if="banner.label"
+            class="
+              inline-flex min-h-11 items-center text-[13.5px] font-semibold
+              underline underline-offset-4
+            "
+          >{{ banner.label }}</span>
+        </component>
+      </div>
+    </component>
+
+    <div
+      v-if="!framed && floating"
+      data-funding-floating
+      aria-hidden="true"
+      class="
+        fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white
+        px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]
+        shadow-[0_-8px_24px_-12px_rgb(0_0_0/25%)]
+        sm:inset-x-auto sm:bottom-4 sm:left-4 sm:rounded-xl sm:border sm:p-2
+        sm:shadow-lg
+      "
     >
       <component
         :is="wrapper"
         v-bind="wrapperProps"
-        class="
-          flex flex-wrap items-center gap-x-6 gap-y-1 rounded-sm text-blue-800
-          focus-visible:outline-2 focus-visible:outline-offset-2
-          focus-visible:outline-blue-800
-        "
-        :class="framed ? 'justify-center' : 'justify-between'"
+        :tabindex="banner.link ? -1 : undefined"
+        class="mx-auto block w-fit"
       >
         <ImgWithFallback
           v-if="banner.image"
           :src="banner.image"
-          :alt="banner.alt"
+          alt=""
           :provider="provider"
-          :width="width"
+          :width="FLOATING_WIDTH"
           densities="x1 x2"
           quality="90"
           fallback=""
-          class="block h-auto"
-          :style="{ width: `min(${width}px, 100%)` }"
+          class="block h-auto w-[min(420px,100%)] sm:w-[340px]"
         />
         <span
-          v-if="banner.label"
-          class="
-            inline-flex min-h-11 items-center text-[13.5px] font-semibold
-            underline underline-offset-4
-          "
+          v-else
+          class="text-[13.5px] font-semibold text-blue-800"
         >{{ banner.label }}</span>
       </component>
     </div>
-  </component>
+  </template>
 </template>
 
 <i18n lang="yaml">

@@ -98,5 +98,6 @@ watch(
     :size="size"
     :show-edges="isMobileOrTablet ? false : true"
     color="neutral"
+    :ui="{ list: 'flex-wrap justify-center' }"
   />
 </template>
