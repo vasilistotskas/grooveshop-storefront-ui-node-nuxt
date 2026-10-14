@@ -210,12 +210,16 @@ const pageDefaults: Record<PageKey, Component> = {
  * «Εκ φύσεως Φυτειάς» ships its own header and footer too: a co-operative
  * with no online shop and a paper-and-ink design of its own — see
  * `app/components/Chrome/variants/ekfyseosfyteias/`.
+ * Its blog is presented as «Δράσεις» (activities), index and post, under
+ * `app/components/variants/ekfyseosfyteias/`.
  */
 const variants: Record<string, Component> = {
   'chrome:navbar@delta_sigma': lazy(() => import('~/components/Chrome/variants/delta_sigma/Navbar.vue')),
   'chrome:footer@delta_sigma': lazy(() => import('~/components/Chrome/variants/delta_sigma/Footer.vue')),
   'chrome:navbar@ekfyseosfyteias': lazy(() => import('~/components/Chrome/variants/ekfyseosfyteias/Navbar.vue')),
   'chrome:footer@ekfyseosfyteias': lazy(() => import('~/components/Chrome/variants/ekfyseosfyteias/Footer.vue')),
+  'page:blog@ekfyseosfyteias': lazy(() => import('~/components/variants/ekfyseosfyteias/Storefront/BlogIndex.vue')),
+  'page:blog-post@ekfyseosfyteias': lazy(() => import('~/components/variants/ekfyseosfyteias/Storefront/BlogPost.vue')),
 
   // webside: today's platform storefront, frozen byte-for-byte under
   // app/components/variants/webside/ while the defaults are redesigned.

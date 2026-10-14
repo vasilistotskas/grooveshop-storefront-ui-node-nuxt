@@ -38,100 +38,26 @@ const props = defineProps({
 
 const { paginationType, pageSize, paginationStrategy } = toRefs(props)
 
-const route = useRoute()
-const localePath = useLocalePath()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { loggedIn, user } = useUserSession()
 const cursorState = useState<CursorState>('cursor-state')
 
 const userStore = useUserStore()
 const { updateLikedPosts } = userStore
 
-const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-createdAt')
-const id = computed(() => route.query.id)
-const author = computed(() => route.query.author)
-const slug = computed(() => route.query.slug)
-const tags = computed(() => route.query.tags)
-const category = computed(() => route.query.category)
-const search = computed(() => route.query.search)
-const cursor = computed(
-  () => cursorState.value[PaginationCursorStateEnum.BLOG_POSTS],
-)
 const allPosts = shallowRef<BlogPost[]>([])
 
 const {
-  data: posts,
+  posts,
   status,
-} = await useApi(
-  '/api/blog/posts',
-  {
-    key: `blogPosts${paginationType.value}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      id: id,
-      author: author,
-      slug: slug,
-      tags: tags,
-      category: category,
-      search: search,
-      cursor: cursor,
-      pageSize: pageSize,
-      paginationType: paginationType,
-      languageCode: locale,
-    },
-
-  },
-)
-
-// The posts carry their category as an id; the names, and the filter
-// pills, come from the store's categories.
-const { data: categories } = await useApi('/api/blog/categories', {
-  key: 'blogCategoryFilter',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: { pageSize: 50, paginationType: 'pageNumber', languageCode: locale },
-})
-
-const categoryNames = computed(() => new Map(
-  (categories.value?.results ?? []).map(entry => [entry.id, extractTranslated(entry, 'name', locale.value) ?? '']),
-))
-
-const pills = computed(() => (categories.value?.results ?? [])
-  .filter(entry => entry.postCount > 0)
-  .map(entry => ({
-    id: entry.id,
-    label: extractTranslated(entry, 'name', locale.value) ?? '',
-    to: localePath({
-      path: route.path,
-      query: { ...route.query, category: String(entry.id), page: undefined },
-    }),
-    active: String(category.value) === String(entry.id),
-  })))
-
-const allPill = computed(() => ({
-  to: localePath({
-    path: route.path,
-    query: { ...route.query, category: undefined, page: undefined },
-  }),
-  active: !category.value,
-}))
-
-// Every filter and the search cleared: the way out of an empty result.
-const unfilteredTo = computed(() => localePath({ path: route.path }))
-
-const isFiltered = computed(() => Boolean(category.value || search.value || tags.value || author.value))
-
-const pagination = computed(() => {
-  if (posts.value) {
-    const paginationData = usePagination<BlogPost>(posts.value)
-    return paginationData
-  }
-  return null
-})
+  pagination,
+  categoryNames,
+  pills,
+  allPill,
+  unfilteredTo,
+  isFiltered,
+  isFirstPage,
+} = await useBlogListing({ paginationType, pageSize })
 
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
@@ -180,7 +106,6 @@ const showResults = computed(() => {
 
 // The featured post opens the unfiltered first page, as the board does;
 // it is one of the page's own posts, so it costs no request.
-const isFirstPage = computed(() => !page.value || String(page.value) === '1')
 const featuredPost = computed(() =>
   isFirstPage.value && !isFiltered.value && paginationType.value !== PaginationTypeEnum.CURSOR
     ? allPosts.value.find(post => post.featured)
