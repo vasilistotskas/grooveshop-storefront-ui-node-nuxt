@@ -1,3 +1,10 @@
+# [3.246.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.4...v3.246.0) (2026-10-14)
+
+
+### Features
+
+* **ekfyseosfyteias:** the store's new design, with an ΕΣΠΑ co-funding strip and two Greek fonts ([#119](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/119)) ([5f6264a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5f6264a662aed446cf3046c5ab8d2e9482a01bf4))
+
 ## [3.245.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.3...v3.245.4) (2026-10-13)
 
 
