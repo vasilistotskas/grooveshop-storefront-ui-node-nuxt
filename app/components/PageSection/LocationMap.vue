@@ -55,15 +55,16 @@ const showCanvas = computed(
     v-if="showEmbed || showCanvas || address"
     :heading="title"
     :surface="surface"
+    padding="sm"
   >
     <div
       v-if="showEmbed"
-      class="overflow-hidden rounded-xl ring ring-default"
+      class="h-64 overflow-hidden rounded-xl ring ring-default md:h-72"
     >
       <iframe
         :src="embedUrl"
         :title="t('title')"
-        class="h-96 w-full border-0"
+        class="size-full border-0"
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         allowfullscreen
@@ -71,34 +72,39 @@ const showCanvas = computed(
     </div>
     <!-- Leaflet touches `window` on import, so the canvas is client-only
          and lazy — the same shape the locker picker uses — and it mounts
-         only once the visitor has asked for the map. The placeholder
-         holds the band's height, and so does the fallback. -->
+         only once the visitor has asked for the map. One frame holds the
+         placeholder, the skeleton and the map, so the band keeps its
+         height when the map opens. -->
     <div
-      v-else-if="showCanvas && !mapRequested"
-      class="
-        flex h-80 items-center justify-center rounded-xl bg-muted ring
-        ring-default
-        md:h-96
-      "
+      v-else-if="showCanvas"
+      class="h-64 md:h-72"
     >
-      <UButton
-        color="neutral"
-        variant="outline"
-        icon="i-heroicons-map-pin"
-        :label="t('show_map')"
-        @click="() => { mapRequested = true }"
-      />
+      <div
+        v-if="!mapRequested"
+        class="
+          flex size-full items-center justify-center rounded-xl bg-default ring
+          ring-default
+        "
+      >
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-heroicons-map-pin"
+          :label="t('show_map')"
+          @click="() => { mapRequested = true }"
+        />
+      </div>
+      <ClientOnly v-else>
+        <LazyPageSectionLocationCanvas
+          :lat="lat!"
+          :lng="lng!"
+          :address="address"
+        />
+        <template #fallback>
+          <USkeleton class="size-full rounded-xl" />
+        </template>
+      </ClientOnly>
     </div>
-    <ClientOnly v-else-if="showCanvas">
-      <LazyPageSectionLocationCanvas
-        :lat="lat!"
-        :lng="lng!"
-        :address="address"
-      />
-      <template #fallback>
-        <USkeleton class="h-80 w-full rounded-xl md:h-96" />
-      </template>
-    </ClientOnly>
     <p
       v-if="address"
       class="flex items-center gap-2 text-muted"

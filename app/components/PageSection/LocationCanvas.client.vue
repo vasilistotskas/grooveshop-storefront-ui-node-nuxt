@@ -47,7 +47,7 @@ const center = computed<[number, number]>(() => [props.lat, props.lng])
 </script>
 
 <template>
-  <div v-if="tile" class="h-80 overflow-hidden rounded-xl ring ring-default md:h-96">
+  <div v-if="tile" class="size-full overflow-hidden rounded-xl ring ring-default">
     <LMap
       :zoom="15"
       :center="center"

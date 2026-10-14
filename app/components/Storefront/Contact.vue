@@ -50,7 +50,7 @@ const layoutHasHours = computed(() =>
         v-if="showBreadcrumb"
         class="pt-6"
       >
-        <PageBreadcrumb class="mb-5" />
+        <PageBreadcrumb />
       </UContainer>
     </template>
     <template #after>
@@ -61,6 +61,7 @@ const layoutHasHours = computed(() =>
       <PageSectionBand
         v-if="!sectionsProvideForm(brandSections)"
         :surface="surface"
+        padding="sm"
       >
         <header
           v-if="!sectionsProvideHeading(brandSections)"
