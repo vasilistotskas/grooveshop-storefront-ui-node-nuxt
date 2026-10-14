@@ -258,15 +258,36 @@ describe('transformHtmlImages', () => {
     expect(out).toContain('sizes="(max-width: 300px) 100vw, 300px"')
   })
 
-  it('drops a non-pixel width and replaces an editor srcset', () => {
+  it('keeps a percentage width, draws it across that share of the column and replaces an editor srcset', () => {
     const out = transformHtmlImages(
       `<img src="https://api.example.gr${key}" width="100%" srcset="/x.png 2x" sizes="50vw">`,
       config,
     )
 
-    expect(out).not.toContain('100%')
+    // As the editor shows it: the attribute sets the CSS width
+    expect(out).toContain('width="100%"')
     expect(out).not.toContain('/x.png')
     expect(out).not.toContain('50vw')
+    expect(out).toContain(`src="${url(704, 0, 'inside')}"`)
+    // sizes cannot name the column, so a 2x candidate would be fetched at
+    // twice the page frame on every retina screen
+    expect(out).not.toContain('srcset=')
+  })
+
+  it('requests a percentage width at that share of the bound, capped at the full column', () => {
+    const half = transformHtmlImages(`<img src="https://api.example.gr${key}" width="50%">`, config)
+    const over = transformHtmlImages(`<img src="https://api.example.gr${key}" width="150%">`, config)
+
+    expect(half).toContain(`src="${url(352, 0, 'inside')}"`)
+    expect(half).toContain('width="50%"')
+    expect(over).toContain(`src="${url(704, 0, 'inside')}"`)
+  })
+
+  it('drops a width that is neither pixels nor a percentage, and a percentage height', () => {
+    const out = transformHtmlImages(`<img src="https://api.example.gr${key}" width="20em" height="100%">`, config)
+
+    expect(out).not.toMatch(/\swidth=/)
+    expect(out).not.toMatch(/\sheight=/)
     expect(out).toContain(`src="${url(704, 0, 'inside')}"`)
   })
 
@@ -283,7 +304,8 @@ describe('transformHtmlImages', () => {
     const out = transformHtmlImages(`<img src="https://api.example.gr${key}" width="100%" height="100%">`, withoutBound)
 
     expect(out).toContain(`/${PAGE_CONTENT_MAX_WIDTH}/0/inside/`)
-    expect(out).not.toContain('100%')
+    expect(out).toContain('width="100%"')
+    expect(out).not.toMatch(/\sheight=/)
   })
 
   it('leaves images it does not own untouched', () => {
