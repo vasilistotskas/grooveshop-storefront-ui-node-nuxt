@@ -1,3 +1,10 @@
+## [3.247.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.1...v3.247.2) (2026-10-14)
+
+
+### Bug Fixes
+
+* **assets:** let any origin read the build's stylesheets, scripts and fonts ([#124](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/124)) ([abb4b46](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/abb4b46875d088670b3c7522825b8521d8004063))
+
 ## [3.247.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.0...v3.247.1) (2026-10-14)
 
 
