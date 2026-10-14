@@ -252,7 +252,7 @@
    to #4D73FF are the design's only two givens. White on #4D73FF is
    4.03:1, under AA for a button label, and ink is 4.79:1 — so the
    accent carries ink, the same choice `readableTextOn` makes for a
-   tenant accent (`server/utils/themeTokens.ts`). */
+   tenant accent (`shared/utils/contrast.ts`). */
 [data-design="volt"]:where(.dark) {
   --ui-bg: #17171a;
   --ui-bg-muted: #0e0e10;

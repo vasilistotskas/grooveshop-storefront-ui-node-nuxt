@@ -194,9 +194,10 @@ describe('buildTenantThemeCss', () => {
     // Platform blue → white text (unchanged behaviour).
     const blue = buildTenantThemeCss({ accentHex: '#1d4ed8' }).css
     expect(blue).toContain('--ui-on-secondary: #ffffff')
-    // Mid-luminance terracotta → white fails AA (3.3:1) → near-black.
+    // Mid-luminance terracotta → white (4.17:1) and the near-black ink
+    // (4.30:1) both fail AA → black, 5.04:1.
     const terracotta = buildTenantThemeCss({ accentHex: '#b3694b' }).css
-    expect(terracotta).toContain('--ui-on-secondary: #171717')
+    expect(terracotta).toContain('--ui-on-secondary: #000000')
     // Light terracotta (a dark-mode accent) → near-black.
     const { css } = buildTenantThemeCss({
       accentHex: '#b3694b',

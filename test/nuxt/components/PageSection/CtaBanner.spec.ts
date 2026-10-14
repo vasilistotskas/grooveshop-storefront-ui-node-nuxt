@@ -7,21 +7,32 @@ const mountBanner = (props: Record<string, unknown>) => mountSuspended(CtaBanner
 /**
  * One ask, alone on a band. The operator's own colour overrides the
  * surface, and because a hex says nothing about the text on it, the
- * copy switches to light over a dark colour — `text-white` is that
- * contract, asserted as a class on purpose.
+ * copy takes whichever colour clears AA on it. It is set on the band
+ * and inherited, never a mode-dependent class: the page's own text
+ * colours flip in dark mode and the operator's hex does not.
  */
 describe('PageSection/CtaBanner', () => {
   it('switches the copy to light over a dark operator colour', async () => {
     const wrapper = await mountBanner({ heading: 'Δωρεάν αποστολή', backgroundColor: '#1F2937' })
 
     expect(wrapper.find('section').attributes('style')).toContain('background-color: #1F2937')
-    expect(wrapper.find('h2').classes()).toContain('text-white')
+    expect(wrapper.find('section').attributes('style')).toContain('color: #ffffff')
+    expect(wrapper.find('h2').classes()).not.toContain('text-highlighted')
   })
 
-  it('keeps the page\'s own colours over a light one', async () => {
+  it('switches the copy to dark over a light one, in both colour modes', async () => {
     const wrapper = await mountBanner({ heading: 'Δωρεάν αποστολή', backgroundColor: '#FFF7ED' })
 
-    expect(wrapper.find('h2').classes()).not.toContain('text-white')
+    // Explicit near-black, so dark mode cannot put its white headings on it.
+    expect(wrapper.find('section').attributes('style')).toContain('color: #171717')
+    expect(wrapper.find('h2').classes()).not.toContain('text-highlighted')
+  })
+
+  it('keeps AA over a mid-tone, where neither white nor the ink does', async () => {
+    // Terracotta: white 4.17:1, #171717 4.30:1, black 5.04:1.
+    const wrapper = await mountBanner({ heading: 'Δωρεάν αποστολή', backgroundColor: '#b3694b' })
+
+    expect(wrapper.find('section').attributes('style')).toContain('color: #000000')
   })
 
   it('prefers the heading over the section title', async () => {

@@ -163,8 +163,8 @@ export default defineAppConfig({
     // ``text-inverted``, which is white in light mode but near-BLACK in
     // dark mode — and the tenant accent stays a mid blue in both, so the
     // dark-mode pairing measured 3.7:1 on the catalogue's "New" badge and
-    // the offers page's "Gift" one. ``--ui-on-secondary`` is white in both
-    // modes by definition, which is what the accent was chosen against.
+    // the offers page's "Gift" one. ``--ui-on-secondary`` is picked against
+    // the accent in each mode (white on the platform blue), so it clears AA.
     // A TINTED badge paints its label in the status colour, and those
     // colours are calibrated as FILLS: on `bg-{color}/10` they measured
     // 2.8-4.2:1 across the catalogue, the offers page, the loyalty
