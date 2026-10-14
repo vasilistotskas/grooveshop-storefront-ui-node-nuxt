@@ -2,14 +2,14 @@
  * Bulk locker-catalogue endpoint, used by the carrier-aware map
  * view in the checkout. Returns every active locker for the
  * supplied country in one normalised array — the caller (the
- * Leaflet map component) doesn't paginate or know about
+ * checkout's map component) doesn't paginate or know about
  * provider-specific shapes.
  *
  * Cache: 1 hour SWR via ``defineCachedRoute``. The Django
  * sync_acs_stations beat task refreshes the underlying rows once a
  * day, so customers picking a locker get a snapshot at most an
- * hour stale — perfectly acceptable for a 167-row fixture in
- * Athens that almost never changes.
+ * hour stale. ACS has 1,576 stations in Greece (2026-10-14), 16
+ * pages of 100.
  *
  * Provider routing: we expose this endpoint at
  * ``/api/shipping/lockers/<code>`` and switch on the path segment
@@ -25,6 +25,9 @@ import { createError, getRouterParam, getValidatedQuery, useRuntimeConfig } from
 const zQuery = z.object({
   country: z.string().length(2).optional(),
 })
+
+/** The largest page Django's API serves (`max_page_size`). */
+const STATIONS_PAGE_SIZE = 100
 
 interface NormalisedLocker {
   externalId: string
@@ -73,19 +76,18 @@ async function _fetchAcsStations(
   country: string | undefined,
 ): Promise<NormalisedLocker[]> {
   const collected: NormalisedLocker[] = []
-  let page = 1
-  // Hard cap to prevent unbounded paging if Django returns garbage —
-  // 167 stations / 100 page_size = 2 pages today; we still allow up
-  // to 10 pages (= 1000 lockers) of headroom for future expansion.
-  const maxPages = 10
-  while (page <= maxPages) {
+  // The walk ends on the page Django names as the last, or on the first
+  // page that is not full, whichever comes first: a `totalPages` that
+  // cannot be right then cannot make it endless. A fixed page cap used to
+  // do that job and cut the map at 1,000 of ACS's 1,576 Greek stations.
+  for (let page = 1; ; page += 1) {
     const raw = await backendFetch(
       `${apiBaseUrl}/shipping/acs/stations`,
       {
         method: 'GET',
         query: {
           page,
-          pageSize: 100,
+          pageSize: STATIONS_PAGE_SIZE,
           countryCode: country,
         },
         headers,
@@ -94,11 +96,11 @@ async function _fetchAcsStations(
     // Runtime-validate each page with the generated paginated schema —
     // the previous bare TS generic let upstream shape drift through.
     const response = await parseDataAs(raw, zPaginatedAcsStationList)
-    for (const row of response.results ?? []) {
+    const rows = response.results ?? []
+    for (const row of rows) {
       collected.push(_normalize(row))
     }
-    if (page >= (response.totalPages ?? 1)) break
-    page += 1
+    if (page >= (response.totalPages ?? 1) || rows.length < STATIONS_PAGE_SIZE) break
   }
   return collected
 }
