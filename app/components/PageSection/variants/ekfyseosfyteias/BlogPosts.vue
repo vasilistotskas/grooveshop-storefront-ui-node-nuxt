@@ -95,11 +95,14 @@ const cards = computed(() => posts.value.map(post => ({
            swipes, to the viewport's edges (the row takes the container's
            gutter back as its padding) with the next card peeking in; from
            md they are the grid. Every card holds a link, so the row needs
-           no tab stop of its own. -->
+           no tab stop of its own. `relative` makes the row the containing
+           block of the links' absolute screen-reader text: without it the
+           row's overflow does not clip that text, and the cards off to the
+           right widened the phone page to ~1000px. -->
       <ol
         class="
-          -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-5 overflow-x-auto
-          px-6 [scrollbar-width:none]
+          relative -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-5
+          overflow-x-auto px-6 [scrollbar-width:none]
           md:mx-0 md:grid
           md:grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))]
           md:overflow-visible md:px-0

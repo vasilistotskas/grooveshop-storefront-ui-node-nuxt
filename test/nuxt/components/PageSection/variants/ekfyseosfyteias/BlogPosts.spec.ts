@@ -73,6 +73,18 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
     expect(link.text()).toBe(`${COPY.read}: Το ροζ χωράφι`)
   })
 
+  it('clips the off-screen cards\' screen-reader text inside the swiped row', async () => {
+    const wrapper = await mountPosts({ count: 4 })
+
+    // The class pair is the contract: an overflow clips an absolute box
+    // only when it is that box's containing block. Without `relative`
+    // the links' `sr-only` text of the cards to the right widened the
+    // phone page to ~1000px (v3.248.0), which happy-dom cannot lay out.
+    const row = wrapper.find('ol')
+    expect(row.classes()).toEqual(expect.arrayContaining(['overflow-x-auto', 'relative']))
+    expect(row.find('.sr-only').exists()).toBe(true)
+  })
+
   it('treats the photo as decoration, since the title sits beside it', async () => {
     const wrapper = await mountPosts({ count: 1 })
 

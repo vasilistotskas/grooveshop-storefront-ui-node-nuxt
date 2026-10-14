@@ -90,14 +90,15 @@ const numeral = (index: number) => index < 12 ? t(`numerals.${index + 1}`) : Str
            (it takes the container's gutter back as its padding). Its cards
            hold nothing focusable, so the row itself takes the keyboard:
            a named, focusable region, as WCAG's scrollable-region rule
-           asks. From md it is the grid and does not scroll. -->
+           asks. `relative`: an overflow clips only the absolute boxes whose
+           containing block it is (see BlogPosts). From md it is the grid. -->
       <div
         :role="teaser ? 'region' : undefined"
         :aria-label="teaser ? label : undefined"
         :tabindex="teaser ? 0 : undefined"
         :class="teaser && `
-          -mx-6 snap-x snap-mandatory scroll-px-6 overflow-x-auto px-6
-          [scrollbar-width:none]
+          relative -mx-6 snap-x snap-mandatory scroll-px-6 overflow-x-auto
+          px-6 [scrollbar-width:none]
           focus-visible:outline-2 focus-visible:-outline-offset-2
           focus-visible:outline-(--fy-text)
           md:mx-0 md:overflow-visible md:px-0
