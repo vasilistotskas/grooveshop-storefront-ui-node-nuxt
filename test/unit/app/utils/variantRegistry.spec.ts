@@ -125,4 +125,15 @@ describe('variantRegistry', () => {
     // Chrome only: the mobile tab bar and the rest stay the platform's.
     expect(resolveChrome('mobile_nav', 'ekfyseosfyteias')).toBe(resolveChrome('mobile_nav', null))
   })
+
+  it('gives ekfyseosfyteias its own blog index and post, and no other page or tenant', () => {
+    for (const key of ['blog', 'blog-post'] as const) {
+      expect(resolvePage(key, 'ekfyseosfyteias')).not.toBe(resolvePage(key, null))
+      expect(resolvePage(key, 'ekfyseosfyteias')).not.toBe(resolvePage(key, 'webside'))
+      expect(resolvePage(key, 'demo')).toBe(resolvePage(key, null))
+    }
+    // The category, author and categories pages keep the platform's body.
+    expect(resolvePage('blog-category', 'ekfyseosfyteias')).toBe(resolvePage('blog-category', null))
+    expect(resolvePage('home', 'ekfyseosfyteias')).toBe(resolvePage('home', null))
+  })
 })
