@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseBusinessHoursValue, resolveBusinessHoursState } from '~~/shared/utils/businessHours'
+import { groupBusinessHours, parseBusinessHoursValue, resolveBusinessHoursState } from '~~/shared/utils/businessHours'
 
 const HOURS = {
   timezone: 'Europe/Athens',
@@ -99,5 +99,37 @@ describe('resolveBusinessHoursState', () => {
   it('returns null for an Intl-unknown timezone', () => {
     const bad = { ...HOURS, timezone: 'Mars/Olympus_Mons' }
     expect(resolveBusinessHoursState(bad, monday(12))).toBeNull()
+  })
+})
+
+describe('groupBusinessHours', () => {
+  it('runs consecutive days with the same hours together, closed days included', () => {
+    expect(groupBusinessHours(HOURS.schedule)).toEqual([
+      { from: 'mon', to: 'fri', entry: { opens: '10:00', closes: '19:00' } },
+      { from: 'sat', to: 'sun', entry: null },
+    ])
+  })
+
+  it('splits a run where the hours change and where a day closes', () => {
+    const long = { opens: '10:00', closes: '21:00' }
+    expect(groupBusinessHours({
+      ...HOURS.schedule,
+      wed: null,
+      fri: long,
+      sat: long,
+    })).toEqual([
+      { from: 'mon', to: 'tue', entry: { opens: '10:00', closes: '19:00' } },
+      { from: 'wed', to: 'wed', entry: null },
+      { from: 'thu', to: 'thu', entry: { opens: '10:00', closes: '19:00' } },
+      { from: 'fri', to: 'sat', entry: long },
+      { from: 'sun', to: 'sun', entry: null },
+    ])
+  })
+
+  it('keeps a week of one schedule as a single run', () => {
+    const open = { opens: '09:00', closes: '17:00' }
+    expect(groupBusinessHours({
+      mon: open, tue: open, wed: open, thu: open, fri: open, sat: open, sun: open,
+    })).toEqual([{ from: 'mon', to: 'sun', entry: open }])
   })
 })

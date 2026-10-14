@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
-import { FONT_FAMILY_NAMES, FONT_WEIGHTS } from './shared/theme/constants.ts'
+import { FONT_FAMILY_NAMES, FONT_STYLES, FONT_WEIGHTS } from './shared/theme/constants.ts'
 
 // Style-ish module ids must never be captured by a codeSplitting group:
 // folding them into a named JS chunk makes Nuxt emit that chunk's CSS as
@@ -855,6 +855,8 @@ export default defineNuxtConfig({
       // Families listed in FONT_WEIGHTS declare fewer faces than the
       // global default — see the byte-cost note above.
       ...(FONT_WEIGHTS[key] ? { weights: FONT_WEIGHTS[key] } : {}),
+      // Only Vollkorn declares an italic; everyone else stays upright.
+      ...(FONT_STYLES[key] ? { styles: FONT_STYLES[key] } : {}),
     })),
     // Every family is a Google font. @nuxt/fonts 1.x fails the build when
     // ANY enabled provider cannot initialise, and each remote provider

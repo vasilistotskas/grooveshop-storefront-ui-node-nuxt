@@ -72,3 +72,36 @@ export function resolveBusinessHoursState(
     && time < todayHours.closes
   return { day, time, todayHours, isOpen }
 }
+
+export interface BusinessHoursGroup {
+  from: WeekDayKey
+  to: WeekDayKey
+  entry: BusinessHoursDayEntry
+}
+
+/**
+ * The week as runs of consecutive days that keep the same hours
+ * ("Mon–Fri 10:00–19:00, Sat–Sun closed"), in week order. A closed day
+ * is a run of its own, so a footer can say it is closed rather than
+ * leave the day out.
+ */
+export function groupBusinessHours(
+  schedule: BusinessHours['schedule'],
+): BusinessHoursGroup[] {
+  const groups: BusinessHoursGroup[] = []
+  for (const day of WEEK_DAY_KEYS) {
+    const entry = schedule[day]
+    const last = groups.at(-1)
+    if (
+      last
+      && last.entry?.opens === entry?.opens
+      && last.entry?.closes === entry?.closes
+    ) {
+      last.to = day
+    }
+    else {
+      groups.push({ from: day, to: day, entry })
+    }
+  }
+  return groups
+}

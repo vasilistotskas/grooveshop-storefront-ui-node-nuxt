@@ -217,6 +217,15 @@ describe('buildTenantThemeCss', () => {
     expect(css).toContain('--font-display: "Source Serif 4"')
   })
 
+  it('resolves the Vollkorn display face and the Commissioner body face', () => {
+    const { css, metadataError } = buildTenantThemeCss({
+      themeMetadata: { fontSans: 'commissioner', fontDisplay: 'vollkorn' },
+    })
+    expect(metadataError).toBeUndefined()
+    expect(css).toContain('--font-sans: "Commissioner"')
+    expect(css).toContain('--font-display: "Vollkorn"')
+  })
+
   it('emits --font-mono only when fontMono is set', () => {
     expect(buildTenantThemeCss({}).css).not.toContain('--font-mono')
     const { css } = buildTenantThemeCss({

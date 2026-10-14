@@ -3,6 +3,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import Renderer from '~/components/PageSection/Renderer.vue'
 import CtaBanner from '~/components/PageSection/CtaBanner.vue'
 import DeltaSigmaCtaBanner from '~/components/PageSection/variants/delta_sigma/CtaBanner.vue'
+import FyteiaCtaBanner from '~/components/PageSection/variants/ekfyseosfyteias/CtaBanner.vue'
 import type { ComponentTypeEnum, PageSection } from '~~/shared/openapi/types.gen'
 import { fixtureUuid } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
@@ -50,6 +51,16 @@ describe('PageSection/Renderer', () => {
 
     await vi.waitFor(() => expect(wrapper.findComponent(DeltaSigmaCtaBanner).exists()).toBe(true))
     expect(wrapper.findComponent(CtaBanner).exists()).toBe(false)
+  })
+
+  it('gives «Εκ φύσεως Φυτειάς» its own variant, and the others none of it', async () => {
+    setTenant({ schemaName: 'ekfyseosfyteias' })
+
+    const wrapper = await mountSection(section('cta_banner', { description: 'Για αγορές άνω των 30 €' }))
+
+    await vi.waitFor(() => expect(wrapper.findComponent(FyteiaCtaBanner).exists()).toBe(true))
+    expect(wrapper.findComponent(CtaBanner).exists()).toBe(false)
+    expect(wrapper.findComponent(DeltaSigmaCtaBanner).exists()).toBe(false)
   })
 
   it('renders nothing for a section type it does not know', async () => {
