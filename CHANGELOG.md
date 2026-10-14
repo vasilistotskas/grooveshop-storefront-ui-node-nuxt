@@ -1,3 +1,10 @@
+## [3.247.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.0...v3.247.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* **hours:** leave the open/closed state unknown until the page has mounted ([#123](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/123)) ([f76e085](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f76e085cee9568923932603bb742755d832ed984))
+
 # [3.247.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.246.1...v3.247.0) (2026-10-14)
 
 
