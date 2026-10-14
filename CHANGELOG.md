@@ -1,3 +1,10 @@
+## [3.249.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.0...v3.249.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* name every accessibility preference in full, let the contact send button wrap ([#137](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/137)) ([fd54b60](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fd54b609fbe74385d86f5e3104d1672d1f1d7027))
+
 # [3.249.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.248.1...v3.249.0) (2026-10-14)
 
 
