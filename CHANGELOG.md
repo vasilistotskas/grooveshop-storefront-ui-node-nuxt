@@ -1,3 +1,10 @@
+## [3.247.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.6...v3.247.7) (2026-10-14)
+
+
+### Bug Fixes
+
+* **theme:** keep text on an operator colour at AA ([#132](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/132)) ([c243f6c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c243f6cd5bd22ea0d3efb2b4e27b316a112b6f31)), closes [#171717](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/171717) [#b3694b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/b3694b) [#171717](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/171717) [#b3694b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/b3694b) [#171717](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/171717)
+
 ## [3.247.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.5...v3.247.6) (2026-10-14)
 
 
