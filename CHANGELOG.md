@@ -1,3 +1,10 @@
+## [3.248.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.248.0...v3.248.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* **ekfyseosfyteias:** stop the phone carousels widening the page ([#135](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/135)) ([d8dde2a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d8dde2a2013c91327425f676e6c88ebfe76ebf8f))
+
 # [3.248.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.8...v3.248.0) (2026-10-14)
 
 
