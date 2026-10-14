@@ -1,3 +1,10 @@
+## [3.247.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.4...v3.247.5) (2026-10-14)
+
+
+### Bug Fixes
+
+* **ekfyseosfyteias:** polish header, CTA band, section rhythm and long headings ([#129](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/129)) ([7b7239d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7b7239d9063dec36524537c5264933507cc18423))
+
 ## [3.247.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.3...v3.247.4) (2026-10-14)
 
 
