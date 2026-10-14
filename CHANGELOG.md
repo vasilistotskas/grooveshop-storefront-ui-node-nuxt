@@ -1,3 +1,10 @@
+## [3.247.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.7...v3.247.8) (2026-10-14)
+
+
+### Bug Fixes
+
+* **contact:** drop the unlabelled hidden controls WAVE flags ([#133](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/133)) ([060306d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/060306da5d2d17fb47b09a6f4bdcf9373390fca6))
+
 ## [3.247.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.6...v3.247.7) (2026-10-14)
 
 
