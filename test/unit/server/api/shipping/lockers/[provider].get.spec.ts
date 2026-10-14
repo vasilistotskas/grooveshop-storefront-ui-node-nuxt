@@ -72,12 +72,13 @@ describe('GET /api/shipping/lockers/[provider]', () => {
 
   it('reads every page, 100 stations at a time, for the upper-cased country', async () => {
     backend.reply((request: BackendRequest) => request.query.page === '1'
-      ? page([station(1)], 1, 2)
-      : page([station(2)], 2, 2))
+      ? page(Array.from({ length: 100 }, (_, index) => station(index + 1)), 1, 2)
+      : page([station(101)], 2, 2))
 
     const response = await callRoute(handler, { route, url: '/api/shipping/lockers/ACS?country=gr', headers: { 'x-forwarded-host': 'evil.example' } })
 
-    expect(response.body.map((locker: { externalId: string }) => locker.externalId)).toEqual(['ACS-1', 'ACS-2'])
+    expect(response.body).toHaveLength(101)
+    expect(response.body.at(-1).externalId).toBe('ACS-101')
     expect(backend.requests.map(request => request.query)).toEqual([
       { page: '1', pageSize: '100', countryCode: 'GR' },
       { page: '2', pageSize: '100', countryCode: 'GR' },
@@ -86,13 +87,27 @@ describe('GET /api/shipping/lockers/[provider]', () => {
     expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('shop.test')
   })
 
-  it('stops after ten pages however many Django claims', async () => {
+  it('reads every page Django declares, past the old ten-page cap', async () => {
+    // ACS's Greek catalogue: 1,576 stations, 16 pages of 100.
+    const fullPage = (pageNumber: number) => Array.from({ length: 100 }, (_, index) => station((pageNumber - 1) * 100 + index + 1))
+    backend.reply((request: BackendRequest) => {
+      const pageNumber = Number(request.query.page)
+      return page(pageNumber < 16 ? fullPage(pageNumber) : fullPage(16).slice(0, 76), pageNumber, 16)
+    })
+
+    const response = await callRoute(handler, { route, url: '/api/shipping/lockers/acs?country=GR' })
+
+    expect(response.body).toHaveLength(1576)
+    expect(backend.requests).toHaveLength(16)
+  })
+
+  it('stops at the first page that is not full, whatever totalPages claims', async () => {
     backend.reply((request: BackendRequest) => page([station(Number(request.query.page))], Number(request.query.page), 999))
 
     const response = await callRoute(handler, { route, url: '/api/shipping/lockers/acs' })
 
-    expect(response.body).toHaveLength(10)
-    expect(backend.requests).toHaveLength(10)
+    expect(response.body).toHaveLength(1)
+    expect(backend.requests).toHaveLength(1)
   })
 
   it('refuses to answer (and so to cache) an empty catalogue', async () => {
