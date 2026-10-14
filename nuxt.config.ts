@@ -265,7 +265,19 @@ export default defineNuxtConfig({
     // glob — that namespace still belongs to the module.
     '/sitemap_index.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
     '/__sitemap__/el-GR.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
-    '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
+    // Access-Control-Allow-Origin: the build links its stylesheet, scripts
+    // and fonts with `crossorigin`, which makes every fetch a CORS request.
+    // Same-origin they load either way; served into another origin they
+    // need the header, or the browser drops them — WAVE's report renders
+    // the store from wave.webaim.org and showed it unstyled, 146 "contrast
+    // errors" on default link colours (2026-10-14). Public, immutable,
+    // credential-free files, so any origin may read them.
+    '/_nuxt/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Access-Control-Allow-Origin': '*',
+      },
+    },
     '/_nuxt/builds/**': {
       headers: {
         'Cache-Control': 'public, max-age=60, stale-while-revalidate=3600',
