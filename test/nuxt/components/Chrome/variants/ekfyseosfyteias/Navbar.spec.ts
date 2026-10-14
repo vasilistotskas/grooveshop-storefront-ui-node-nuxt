@@ -15,7 +15,8 @@ import { setTenant } from '~~/test/helpers/tenant'
  * - on a phone the menu button opens and closes the same links, closes on
  *   Escape (focus back on the button) and when the route changes;
  * - the logo renders only when the store has one, so the name is not
- *   printed twice.
+ *   printed twice;
+ * - the dark-theme switch is on the bar and in the phone menu.
  */
 const state = vi.hoisted(() => ({
   header: [] as { label: string, to?: string }[] | null,
@@ -120,6 +121,14 @@ describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
     state.logo = ''
 
     expect((await mountNavbar()).find('[data-test="logo"]').exists()).toBe(false)
+  })
+
+  it('offers the dark-theme switch on the bar and inside the phone menu', async () => {
+    const wrapper = await mountNavbar()
+
+    await vi.waitFor(() => expect(wrapper.findAll('button[aria-pressed]')).toHaveLength(2))
+    expect(mobilePanel(wrapper).find('button[aria-pressed]').exists()).toBe(true)
+    expect(desktopNav(wrapper).element.parentElement!.querySelector('button[aria-pressed]')).not.toBeNull()
   })
 
   describe('the menu on a phone', () => {

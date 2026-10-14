@@ -6,12 +6,17 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * «Εκ φύσεως Φυτειάς» header, built to the `Header` and `Mobile`
  * artboards: a paper band with a dashed rule beneath, the seal and the
  * store's name on the left, the page links as pills and one phone button
- * on the right. A phone gets the seal, the name and a round menu button
- * that opens the same links in large type below the bar.
+ * on the right. Below `xl` (where the links, the phone button and the
+ * theme switch no longer fit one row) it is the seal, the name and a
+ * round menu button that opens the same links in large type below the bar.
  *
  * What the design deliberately does not have, and so neither does this:
- * search, the cart, favourites, an account menu, a language switcher and
- * a colour-mode button. The store is Greek-only and sells nothing online.
+ * search, the cart, favourites, an account menu and a language switcher.
+ * The store is Greek-only and sells nothing online. The one addition is
+ * the dark-theme switch (`ColorModeToggle`): the site follows the OS
+ * preference, and a visitor needs a way to override it. It sits beside
+ * the phone button on a desktop and inside the menu below `xl`, so the
+ * bar, and the funding strip above it, keep their height.
  *
  * Data, not markup: the links are the tenant's `NavigationMenu` header
  * rows (`useNavigation`), the phone number is the published
@@ -125,7 +130,7 @@ onKeyStroke('Escape', () => {
         </span>
       </NuxtLinkLocale>
 
-      <div class="flex items-center gap-x-5 gap-y-2 max-md:hidden md:flex-wrap">
+      <div class="flex items-center gap-x-5 max-xl:hidden">
         <nav
           v-if="links.length"
           :aria-label="t('navigation')"
@@ -157,6 +162,7 @@ onKeyStroke('Escape', () => {
             </li>
           </ul>
         </nav>
+        <ChromeVariantsEkfyseosfyteiasColorModeToggle />
         <a
           v-if="phone"
           :href="telHref"
@@ -186,7 +192,7 @@ onKeyStroke('Escape', () => {
           border-2 border-(color:--fy-text)
           focus-visible:outline-3 focus-visible:outline-offset-3
           focus-visible:outline-(color:--fy-focus)
-          md:hidden
+          xl:hidden
         "
         :aria-label="t('menu')"
         :aria-expanded="open"
@@ -209,7 +215,7 @@ onKeyStroke('Escape', () => {
         mx-auto flex w-full max-w-(--ui-container) flex-col gap-1 border-t-[1.5px]
         border-dashed border-(color:--fy-rule) px-4 pt-2 pb-6
         sm:px-6
-        md:hidden
+        xl:hidden
       "
     >
       <NuxtLinkLocale
@@ -242,6 +248,9 @@ onKeyStroke('Escape', () => {
           dark:ring-1 dark:ring-(color:--fy-rule-on-ink)
         "
       >{{ t('call', { phone }) }}</a>
+      <div class="mt-2">
+        <ChromeVariantsEkfyseosfyteiasColorModeToggle labelled />
+      </div>
     </nav>
   </header>
 </template>

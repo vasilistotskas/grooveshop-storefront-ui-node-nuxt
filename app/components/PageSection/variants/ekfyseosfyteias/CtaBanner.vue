@@ -36,24 +36,26 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
     >
       <div
         class="
-          flex flex-wrap items-center justify-between gap-6 rounded-[32px]
-          border-2 border-dashed border-(--fy-text)
-          p-[clamp(28px,4vw,56px)]
+          grid items-center gap-x-14 gap-y-7 rounded-[32px] border-2
+          border-dashed border-(--fy-text) p-[clamp(28px,4vw,56px)]
         "
+        :class="hasLink
+          ? 'grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))]'
+          : 'grid-cols-1'"
       >
-        <div class="flex max-w-[16em] flex-col gap-3">
+        <div class="flex flex-col gap-3">
           <h2
             v-if="label"
             class="
               font-display text-[length:clamp(30px,3vw,44px)] leading-[1.08]
-              font-extrabold text-(--fy-text)
+              font-extrabold text-balance text-(--fy-text)
             "
           >
             {{ label }}
           </h2>
           <p
             v-if="description"
-            class="text-[18px] leading-[1.65] text-(--fy-text-muted)"
+            class="text-[18px] leading-[1.65] text-pretty text-(--fy-text-muted)"
           >
             {{ description }}
           </p>
@@ -63,6 +65,7 @@ const hasLink = computed(() => !!(props.buttonText && props.buttonLink))
           v-if="hasLink"
           :to="buttonLink!"
           look="apricot"
+          class="justify-self-start"
           arrow
         >
           {{ buttonText }}

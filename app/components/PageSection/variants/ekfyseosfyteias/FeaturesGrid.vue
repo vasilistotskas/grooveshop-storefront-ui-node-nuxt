@@ -48,11 +48,10 @@ const numeral = (index: number) => index < 12 ? t(`numerals.${index + 1}`) : Str
     :class="framed ? 'bg-(--fy-ground)' : 'bg-(--fy-sage)'"
   >
     <div
-      class="
-        mx-auto flex w-full max-w-[1280px] flex-col px-6
-        py-[clamp(64px,8vw,112px)]
-      "
-      :class="framed ? 'gap-12' : 'gap-10'"
+      class="mx-auto flex w-full max-w-[1280px] flex-col px-6"
+      :class="framed
+        ? 'gap-8 py-[clamp(36px,4.5vw,64px)]'
+        : 'gap-10 py-[clamp(64px,8vw,112px)]'"
     >
       <PageSectionVariantsEkfyseosfyteiasSectionHeader
         :heading="heading || title"

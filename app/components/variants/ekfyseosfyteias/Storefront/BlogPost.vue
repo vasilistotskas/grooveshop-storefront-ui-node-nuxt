@@ -66,7 +66,7 @@ const CARD_FOCUS = `
         pb-[clamp(40px,5vw,64px)]
       "
     >
-      <div class="flex flex-col items-start gap-[22px]">
+      <div class="flex min-w-0 flex-col items-start gap-[22px]">
         <VariantsEkfyseosfyteiasBlogBreadcrumb :items="breadcrumb" />
         <p class="flex flex-wrap items-center gap-2.5">
           <span
@@ -87,10 +87,12 @@ const CARD_FOCUS = `
             class="text-sm font-semibold text-(--fy-accent-text)"
           />
         </p>
+        <!-- min-w-0 + wrap-anywhere: a long Greek word may break rather than run under the photograph. -->
         <h1
           class="
-            font-display text-[length:clamp(52px,7vw,104px)] leading-[0.95]
-            font-extrabold tracking-[-0.025em] text-balance
+            min-w-0 font-display text-[length:clamp(40px,4.4vw,64px)]
+            leading-[0.98] font-extrabold tracking-[-0.025em] text-balance
+            wrap-anywhere hyphens-auto
           "
         >
           {{ blogPostTitle }}
