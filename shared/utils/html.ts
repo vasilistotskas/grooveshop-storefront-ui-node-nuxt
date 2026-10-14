@@ -135,9 +135,11 @@ const IMAGE_DENSITIES = [1, 2] as const
 /**
  * Default configuration for image optimization.
  *
- * Media stream reads a `0` width or height as "unconstrained on that axis":
- * width only keeps the source aspect, both `0` encodes the full-size
- * original. Rich-text images always carry a width, never both `0`.
+ * Media stream reads a `0` width or height as "unconstrained on that axis";
+ * both `0` encodes the full-size original. Rich-text images always carry a
+ * width, never both `0`. `fit` applies to an image with an authored box;
+ * one bounded by width alone is requested with `inside` (see
+ * {@link transformImgTag}).
  */
 export const defaultHtmlImageConfig: Required<HtmlImageOptimizationConfig> = {
   mediaStreamOrigin: '',
@@ -161,6 +163,8 @@ export interface ParsedImageAttributes {
   src: string
   width?: number
   height?: number
+  /** A `width` written as a share of the column (`"100%"` → 100), clamped to 100 */
+  widthPercent?: number
   alt?: string
   loading?: string
   decoding?: string
@@ -198,6 +202,17 @@ function parseDimensionValue(value: string | undefined): number | undefined {
 }
 
 /**
+ * Parse a percentage `width` ("100%", "50%"), as TinyMCE's image dialog
+ * writes it. Returns the percentage, at most 100, or undefined.
+ */
+function parsePercentageValue(value: string | undefined): number | undefined {
+  const match = value?.trim().match(/^(\d+(?:\.\d+)?)%$/)
+  if (!match?.[1]) return undefined
+  const percent = Number.parseFloat(match[1])
+  return percent > 0 ? Math.min(percent, 100) : undefined
+}
+
+/**
  * Parse attributes from an img tag string
  */
 export function parseImgAttributes(imgTag: string): ParsedImageAttributes {
@@ -217,6 +232,9 @@ export function parseImgAttributes(imgTag: string): ParsedImageAttributes {
       const numValue = parseDimensionValue(value)
       if (numValue !== undefined) {
         attrs[name] = numValue
+      }
+      else if (name === 'width') {
+        attrs.widthPercent = parsePercentageValue(value)
       }
     }
     else {
@@ -453,12 +471,19 @@ export function transformImgTag(
   }
 
   // Request no wider than the column the image is shown in: the author's
-  // width when it is smaller, the bound otherwise. Height is only sent
-  // together with an authored width, scaled to the same ratio, so the
-  // requested box keeps the author's aspect; otherwise it stays 0 and
-  // media stream keeps the source aspect.
-  const width = Math.min(attrs.width || config.maxWidth, config.maxWidth)
+  // width when it is smaller, the author's share of the bound for a
+  // percentage width, the bound otherwise. Height is only sent together
+  // with an authored width, scaled to the same ratio, so the requested box
+  // keeps the author's aspect (`config.fit`). Otherwise it stays 0 and the
+  // width is only a bound: `inside` returns the source at its own aspect,
+  // never enlarged. `contain` means "fill this box", and with one axis it
+  // padded a narrower source out to the full bound — webside's 517px
+  // description images came back 1440x388 with the photo a third of the
+  // width (2026-10-14).
+  const columnShare = !attrs.width && attrs.widthPercent ? attrs.widthPercent / 100 : 1
+  const width = Math.min(attrs.width || Math.round(config.maxWidth * columnShare), config.maxWidth)
   const heightPerWidth = attrs.width && attrs.height ? attrs.height / attrs.width : 0
+  const fit = heightPerWidth ? config.fit : 'inside'
   const candidates = IMAGE_DENSITIES.map((density) => {
     const candidateWidth = width * density
     return {
@@ -466,6 +491,7 @@ export function transformImgTag(
       url: buildMediaStreamUrl(attrs.src, config, {
         width: candidateWidth,
         height: Math.round(candidateWidth * heightPerWidth),
+        fit,
       }),
     }
   })
@@ -482,9 +508,14 @@ export function transformImgTag(
     : ''
   newTag = newTag.replace(/src=["'][^"']*["']/i, `src="${candidates[0]?.url}"${srcset}`)
 
-  // Drop a width/height that is not a pixel value (like "100%"); a valid
-  // one is the author's and stays.
-  if (!attrs.width) {
+  // A pixel width/height is the author's and stays, and so does a
+  // percentage width: "100%" from the editor's image dialog draws the image
+  // across that share of the column, as the editor shows it (HTML maps a
+  // percentage `width` to the CSS width; `.article img` sets no width of
+  // its own). No 2x candidate for it: `sizes` cannot name the column, so a
+  // retina screen would fetch twice the page frame. Any other width, and a
+  // non-pixel height (`height: auto` keeps the aspect), is dropped.
+  if (!attrs.width && !attrs.widthPercent) {
     newTag = newTag.replace(/\s*width=["'][^"']*["']/i, '')
   }
   if (!attrs.height) {
