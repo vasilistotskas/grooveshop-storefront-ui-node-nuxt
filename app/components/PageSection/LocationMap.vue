@@ -23,6 +23,9 @@
  * third-party tiles and Leaflet's own controls, and the tiles overhang
  * the frame (clipped, but still boxes in the page's stacking order), so
  * a checker cannot tell what the text above the map is painted on.
+ *
+ * Beside the address, the place opens in Google Maps or Apple Maps
+ * (`mapLinks`): the visitor's own app is where the directions are.
  */
 const props = defineProps<{
   /** The operator's section title, from the section row itself. */
@@ -36,8 +39,16 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
+const tenantStore = useTenantStore()
 
 const mapRequested = ref(false)
+
+const links = computed(() => mapLinks({
+  lat: props.lat,
+  lng: props.lng,
+  address: props.address,
+  name: tenantStore.storeName || undefined,
+}))
 
 const showEmbed = computed(() => Boolean(props.embedUrl))
 
@@ -52,7 +63,7 @@ const showCanvas = computed(
 
 <template>
   <PageSectionBand
-    v-if="showEmbed || showCanvas || address"
+    v-if="showEmbed || showCanvas || address || links"
     :heading="title"
     :surface="surface"
     padding="sm"
@@ -105,16 +116,51 @@ const showCanvas = computed(
         </template>
       </ClientOnly>
     </div>
-    <p
-      v-if="address"
-      class="flex items-center gap-2 text-muted"
+    <div
+      v-if="address || links"
+      class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
     >
-      <UIcon
-        name="i-heroicons-map-pin"
-        class="size-5 shrink-0 text-secondary"
-      />
-      {{ address }}
-    </p>
+      <p
+        v-if="address"
+        class="flex items-center gap-2 text-muted"
+      >
+        <UIcon
+          name="i-heroicons-map-pin"
+          class="size-5 shrink-0 text-secondary"
+        />
+        {{ address }}
+      </p>
+      <ul
+        v-if="links"
+        class="flex flex-wrap gap-2"
+        :aria-label="t('open_in')"
+      >
+        <li>
+          <UButton
+            :to="links.google"
+            target="_blank"
+            color="neutral"
+            variant="outline"
+            icon="i-mdi-google-maps"
+            trailing-icon="i-heroicons-arrow-up-right-20-solid"
+          >
+            {{ t('google_maps') }}<span class="sr-only"> ({{ t('new_tab') }})</span>
+          </UButton>
+        </li>
+        <li>
+          <UButton
+            :to="links.apple"
+            target="_blank"
+            color="neutral"
+            variant="outline"
+            icon="i-mdi-apple"
+            trailing-icon="i-heroicons-arrow-up-right-20-solid"
+          >
+            {{ t('apple_maps') }}<span class="sr-only"> ({{ t('new_tab') }})</span>
+          </UButton>
+        </li>
+      </ul>
+    </div>
   </PageSectionBand>
 </template>
 
@@ -122,7 +168,15 @@ const showCanvas = computed(
 el:
   title: Τοποθεσία καταστήματος
   show_map: Εμφάνιση χάρτη
+  open_in: Άνοιγμα στους χάρτες
+  google_maps: Google Maps
+  apple_maps: Apple Maps
+  new_tab: ανοίγει σε νέα καρτέλα
 en:
   title: Store location
   show_map: Show map
+  open_in: Open in maps
+  google_maps: Google Maps
+  apple_maps: Apple Maps
+  new_tab: opens in a new tab
 </i18n>

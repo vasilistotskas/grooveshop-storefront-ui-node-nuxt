@@ -98,6 +98,17 @@ describe('ekfyseosfyteias hero_banner', () => {
       expect(wrapper.find('h2').element.closest('figure, picture')).toBeNull()
     })
 
+    it('offers the photo in files as wide as the desk it covers, and as the ~800px a phone\'s band shows', async () => {
+      // It was `sizes="xs:100vw"` alone: one 320px variant (640 at x2),
+      // stretched 2.25x across a 1440px desk.
+      const wrapper = await mountHero({ theme: 'dark' })
+
+      const img = wrapper.find('img')
+      const widths = (img.attributes('srcset') ?? '').split(',').map(candidate => Number.parseInt(candidate.trim().split(' ')[1] ?? ''))
+      expect(Math.max(...widths)).toBeGreaterThanOrEqual(1536)
+      expect(img.attributes('sizes')).toMatch(/^\(max-width: 767px\) 800px, /)
+    })
+
     it('pulls the card up by its own padding, so no line of its text sits on the photo edge', async () => {
       const wrapper = await mountHero({ theme: 'dark' })
 

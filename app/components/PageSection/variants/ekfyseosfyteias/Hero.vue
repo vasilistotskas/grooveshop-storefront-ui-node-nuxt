@@ -171,7 +171,7 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
             :alt="imageAlt || label || ''"
             :width="1080"
             :height="1080"
-            sizes="xs:90vw md:540px"
+            sizes="xs:90vw sm:90vw md:540px"
             class="block size-full rounded-full object-cover"
             fit="cover"
             quality="80"
@@ -211,13 +211,17 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
   <section
     v-else-if="hasContent && presentation === 'overlap'"
     class="relative bg-(--fy-ground) pb-[clamp(48px,5vw,72px)]"
+    data-fy-surface="ground"
   >
+    <!-- The band's ratio runs from near-square on a phone to 2.4:1 on a
+         desk, so the files keep the photograph's own ratio (no height)
+         and `object-cover` crops in the browser. Each `sizes` entry is the
+         width the photograph is DRAWN at: on a phone the 360px-tall band
+         covers ~800px of it, from a tablet on the full viewport. -->
     <ImgWithFallback
       :src="imageUrl"
       :alt="imageAlt || label || ''"
-      :width="1536"
-      :height="640"
-      sizes="xs:100vw"
+      sizes="xs:800px md:100vw lg:100vw xl:100vw xxl:100vw"
       class="block h-[clamp(360px,42vw,600px)] w-full object-cover"
       fit="cover"
       quality="80"

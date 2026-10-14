@@ -76,6 +76,7 @@ const cards = computed(() => posts.value.map(post => ({
   <section
     v-if="hasPosts"
     class="bg-(--fy-ground)"
+    data-fy-surface="ground"
   >
     <div
       class="
@@ -90,17 +91,28 @@ const cards = computed(() => posts.value.map(post => ({
         :cta-link="ctaLink || BLOG_PATH"
       />
 
+      <!-- A teaser of /blog: on a phone the cards run in a row the thumb
+           swipes, to the viewport's edges (the row takes the container's
+           gutter back as its padding) with the next card peeking in; from
+           md they are the grid. Every card holds a link, so the row needs
+           no tab stop of its own. -->
       <ol
         class="
-          grid grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))] gap-5
+          -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-5 overflow-x-auto
+          px-6 [scrollbar-width:none]
+          md:mx-0 md:grid
+          md:grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))]
+          md:overflow-visible md:px-0
         "
       >
         <li
           v-for="card in cards"
           :key="card.id"
           class="
-            flex flex-col overflow-hidden rounded-3xl bg-(--fy-surface)
+            flex w-[min(300px,80vw)] shrink-0 snap-start flex-col
+            overflow-hidden rounded-3xl bg-(--fy-surface)
             shadow-[0_1px_0_rgb(28_26_23/8%)]
+            md:w-auto
           "
         >
           <ImgWithFallback
@@ -108,7 +120,7 @@ const cards = computed(() => posts.value.map(post => ({
             alt=""
             :width="640"
             :height="480"
-            sizes="xs:100vw md:50vw lg:400px"
+            sizes="xs:300px md:50vw lg:33vw xl:320px"
             class="block aspect-4/3 w-full object-cover"
             fit="cover"
             quality="80"

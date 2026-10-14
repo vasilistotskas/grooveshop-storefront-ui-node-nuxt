@@ -31,6 +31,7 @@ const trackClass = computed(() => TRACK_CLASSES[props.columns] ?? TRACK_CLASSES[
   <section
     v-if="items?.length"
     :class="surface === 'muted' ? 'bg-(--fy-raised)' : 'bg-(--fy-ground)'"
+    :data-fy-surface="surface === 'muted' ? undefined : 'ground'"
   >
     <div
       class="
@@ -62,7 +63,7 @@ const trackClass = computed(() => TRACK_CLASSES[props.columns] ?? TRACK_CLASSES[
               :alt="item.alt"
               :width="600"
               :height="600"
-              sizes="xs:100vw md:33vw lg:400px"
+              sizes="xs:100vw sm:50vw md:50vw lg:33vw xl:400px"
               class="block aspect-square w-full rounded-3xl object-cover"
               fit="cover"
               quality="80"
