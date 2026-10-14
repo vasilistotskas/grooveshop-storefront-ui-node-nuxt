@@ -1,3 +1,10 @@
+## [3.247.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.2...v3.247.3) (2026-10-14)
+
+
+### Bug Fixes
+
+* **shipping:** read every page of the ACS locker catalogue, not the first ten ([#125](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/125)) ([545faa2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/545faa2a902f2c670559b7012a8171adebb7f61a))
+
 ## [3.247.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.1...v3.247.2) (2026-10-14)
 
 
