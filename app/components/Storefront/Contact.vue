@@ -83,7 +83,7 @@ const layoutHasHours = computed(() =>
 
         <div
           class="
-            grid gap-6
+            grid grid-cols-[minmax(0,1fr)] gap-6
             lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-start
           "
         >
