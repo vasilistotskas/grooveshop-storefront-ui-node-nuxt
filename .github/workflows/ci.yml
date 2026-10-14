@@ -244,6 +244,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # @nuxt/fonts resolves and downloads every font at build time; with
+      # this directory restored it requests nothing from Google, whose
+      # timeouts from the runners failed the build (`fonts.cache` in
+      # nuxt.config.ts). Keyed on what decides which fonts exist; the
+      # prefix restore keeps every face a config change did not touch.
+      # docker.yml restores the same key for the image build.
+      - name: Cache fonts
+        uses: actions/cache@v6
+        with:
+          path: .cache/nuxt-fonts
+          key: nuxt-fonts-${{ hashFiles('nuxt.config.ts', 'shared/theme/constants.ts', 'app/assets/css/**/*.css') }}
+          restore-keys: nuxt-fonts-
+
       # SECURITY: no real secret may enter this build. `pnpm run build` bakes
       # runtimeConfig defaults into `.output`. Real values are supplied
       # ONLY at runtime by the K8s sealed secret; the placeholders below are
@@ -267,6 +280,12 @@ jobs:
         run: pnpm run build
         env:
           NODE_ENV: production
+          # Node's happy-eyeballs gives each address 250 ms by default; from
+          # the runner every attempt at fonts.googleapis.com expired
+          # (`AggregateError [ETIMEDOUT]` in internalConnectMultiple) and
+          # failed the build whenever the fonts cache missed. Same value
+          # as the Dockerfile's build stage.
+          NODE_OPTIONS: --network-family-autoselection-attempt-timeout=2000
 
       # One entry stylesheet the server also links, and one build tag on
       # every client JS file — see scripts/check-build-output.mjs. The

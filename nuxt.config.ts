@@ -870,6 +870,13 @@ export default defineNuxtConfig({
       fontsource: false,
       adobe: false,
     },
+    // Resolved metadata and the downloaded files, kept between builds. CI
+    // restores this directory (ci.yml, docker.yml) so a build asks Google
+    // for nothing: fetching from GitHub's runners timed out on JetBrains
+    // Mono in 4 of 6 builds on 2026-10-14. It sits at the project root,
+    // not under node_modules, so the Docker build context carries it
+    // (.dockerignore drops node_modules).
+    cache: '.cache/nuxt-fonts',
   },
   i18n: {
     defaultLocale: DEFAULT_LOCALE,

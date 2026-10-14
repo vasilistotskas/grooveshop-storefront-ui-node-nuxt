@@ -33,10 +33,15 @@ COPY . .
 
 RUN pnpm prepare
 
+# The network-family attempt timeout: @nuxt/fonts fetches from Google
+# during the build, and Node's happy-eyeballs gives each address 250 ms
+# by default; from a slow builder every attempt expired
+# (`AggregateError [ETIMEDOUT]` in internalConnectMultiple) and failed
+# the build. Same value as ci.yml's Build.
 ENV NODE_ENV=production \
     NUXT_HOST=0.0.0.0 \
     NUXT_PORT=3000 \
-    NODE_OPTIONS="--max-old-space-size=8192" \
+    NODE_OPTIONS="--max-old-space-size=8192 --network-family-autoselection-attempt-timeout=2000" \
     NUXT_CACHE_BASE=memory
 
 # The same guard CI runs, against THIS context: `.dockerignore` decides

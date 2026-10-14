@@ -67,6 +67,17 @@ jobs:
           echo "=== .env file created (keys only) ==="
           cut -d'=' -f1 .env
 
+      # The fonts ci.yml's Build cached (`fonts.cache` in nuxt.config.ts):
+      # the directory is in the build context, so the image build requests
+      # nothing from Google. Restore only — the build runs inside BuildKit
+      # and cannot write back to the runner.
+      - name: Restore the fonts cache
+        uses: actions/cache/restore@v6
+        with:
+          path: .cache/nuxt-fonts
+          key: nuxt-fonts-${{ hashFiles('nuxt.config.ts', 'shared/theme/constants.ts', 'app/assets/css/**/*.css') }}
+          restore-keys: nuxt-fonts-
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v6
