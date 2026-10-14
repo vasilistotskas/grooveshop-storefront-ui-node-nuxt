@@ -1,3 +1,10 @@
+## [3.246.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.246.0...v3.246.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* **theme:** give Volt's dimmed text AA contrast, since every placeholder paints with it ([#120](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/120)) ([18d5b09](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/18d5b09c9eba6242a5c4379371cedcee3dc03223)), closes [#8a8a92](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/8a8a92) [#71717a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/71717a) [#696971](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/696971) [#8f8f98](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/8f8f98)
+
 # [3.246.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.245.4...v3.246.0) (2026-10-14)
 
 
