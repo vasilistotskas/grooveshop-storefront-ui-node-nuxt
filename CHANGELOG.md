@@ -1,3 +1,10 @@
+# [3.248.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.8...v3.248.0) (2026-10-14)
+
+
+### Features
+
+* **ekfyseosfyteias:** map app links, phone carousels, sharper photos, cellar CTA spacing ([#134](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/134)) ([deeea1f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/deeea1feb6adc82539f17003ab2c6e531be1011e))
+
 ## [3.247.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.247.7...v3.247.8) (2026-10-14)
 
 
