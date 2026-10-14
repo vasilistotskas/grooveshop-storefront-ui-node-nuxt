@@ -3,7 +3,9 @@
  * The week's opening hours, with today marked and an open/closed badge.
  *
  * The schedule is the `BUSINESS_HOURS` merchant setting, so the section
- * carries no props of its own beyond where it sits on the page.
+ * carries no props of its own beyond where it sits on the page. Today's
+ * row and the badge depend on the clock, so they appear once the page is
+ * mounted; the server HTML carries the table alone.
  */
 defineProps<{
   /** The operator's section title, from the section row itself. */
@@ -41,6 +43,7 @@ const rows = computed(() => {
           {{ title || t('title') }}
         </h2>
         <UBadge
+          v-if="isOpen !== null"
           :color="isOpen ? 'success' : 'error'"
           variant="subtle"
           size="lg"

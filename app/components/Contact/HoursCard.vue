@@ -3,6 +3,8 @@
  * The week's opening hours as a card beside the contact form: today in
  * bold, an "Open now" badge, a closed day said as closed. The schedule
  * is the `BUSINESS_HOURS` setting; a store without one renders nothing.
+ * Today's mark and the badge depend on the clock, so they appear once the
+ * page is mounted; the server HTML carries the table alone.
  *
  * (`PageSection/BusinessHours` is the page builder's full-width band of
  * the same data; this is the contact page's own, smaller card.)
@@ -35,6 +37,7 @@ const rows = computed(() => {
         {{ t('title') }}
       </h2>
       <UBadge
+        v-if="isOpen !== null"
         :color="isOpen ? 'success' : 'neutral'"
         variant="soft"
         size="sm"
