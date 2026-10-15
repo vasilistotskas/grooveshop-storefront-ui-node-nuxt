@@ -21,8 +21,12 @@ type ContentPage = { slug: string, translations: Record<string, unknown> }
 const store: {
   settings: Record<string, string> | 'down'
   content: ContentPage[] | 'down'
-  layout: (pageType: string) => { isPublished: boolean } | 'absent'
-} = { settings: {}, content: [], layout: () => ({ isPublished: true }) }
+  /** The page types the store has published a layout for. */
+  layouts: string[] | 'down'
+} = { settings: {}, content: [], layouts: [] }
+
+/** The layout-backed static routes that 404 until their layout is published. */
+const BRAND_PAGE_TYPES = ['about', 'vision', 'what-is-microlearning', 'why-microlearning']
 
 /** A translation with its body written; a key alone is no document. */
 const WRITTEN = { title: 'T', body: '<p>text</p>' }
@@ -34,11 +38,11 @@ function answer(request: BackendRequest) {
   const down = jsonResponse({ detail: 'upstream down' }, 404)
   if (request.path.endsWith('/settings/public')) return store.settings === 'down' ? down : { settings: store.settings }
   if (request.path.endsWith('/content-page')) return store.content === 'down' ? down : { results: store.content }
-  const pageType = request.path.match(/\/page-config\/([^/?]+)$/)?.[1]
-  if (pageType) {
-    const layout = store.layout(pageType)
-    // Django answers 404 for "no published layout".
-    return layout === 'absent' ? jsonResponse({ detail: 'Not found.' }, 404) : layout
+  // One read of every published layout; a per-type read is unexpected.
+  if (request.path.endsWith('/page-config')) {
+    return store.layouts === 'down'
+      ? down
+      : store.layouts.map(pageType => ({ pageType, lastModified: '2026-10-01T08:00:00Z' }))
   }
   if (request.path.endsWith('/tenant/resolve')) return resolvedTenant ?? jsonResponse({ detail: 'Not found.' }, 404)
   throw new Error(`unexpected backend request: ${request.path}`)
@@ -88,7 +92,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     // gates, and the webside.gr state Ahrefs reported.
     store.settings = {}
     store.content = ALL_LEGAL()
-    store.layout = () => ({ isPublished: true })
+    store.layouts = [...BRAND_PAGE_TYPES]
     resolvedTenant = undefined
     backend.reply(answer)
     nitroApp = await runNitroPlugin(plugin)
@@ -658,7 +662,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
 
     it('is independent of the layout gate', async () => {
       // A tenant can have its legal documents without any brand page.
-      store.layout = () => 'absent'
+      store.layouts = []
 
       expect(await runLegal(OPEN)).toEqual(URLS.map(u => u.loc))
     })
@@ -703,31 +707,28 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     })
 
     it('drops every brand page for a tenant that has none', async () => {
-      // Django answers 404 for "no published layout" — the state of
-      // every tenant but webside.
-      store.layout = () => 'absent'
+      // The state of every tenant but webside.
+      store.layouts = []
 
       expect(await runLayout(OPEN)).toEqual([])
     })
 
     it('drops only the unpublished one', async () => {
-      store.layout = pageType => pageType === 'about' ? { isPublished: true } : 'absent'
+      store.layouts = ['about']
 
       expect(await runLayout(OPEN)).toEqual(['https://example.com/about'])
     })
 
-    it('treats an unpublished layout as absent', async () => {
-      // A 200 carrying isPublished:false is the draft state, and the
-      // page 404s on it exactly like a missing row.
-      store.layout = () => ({ isPublished: false })
+    it('fails closed when the layouts cannot be read', async () => {
+      store.layouts = 'down'
 
       expect(await runLayout(OPEN)).toEqual([])
     })
 
-    it('reads each pageType once, in one pass', async () => {
+    it('reads the published layouts once, for every route', async () => {
       await runLayout(OPEN)
 
-      expect(requestsTo('/page-config/').map(r => r.path.split('/').pop()).sort()).toEqual(['about', 'vision', 'what-is-microlearning', 'why-microlearning'])
+      expect(requestsTo('/page-config').map(r => r.path)).toEqual([expect.stringMatching(/\/page-config$/)])
     })
   })
 })

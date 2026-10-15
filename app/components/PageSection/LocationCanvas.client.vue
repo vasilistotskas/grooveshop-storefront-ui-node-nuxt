@@ -4,14 +4,12 @@ import 'leaflet/dist/leaflet.css'
 /**
  * The store's own pin on an OpenStreetMap canvas.
  *
- * The `location_map` section has always accepted `lat`/`lng` — the demo
- * seeder fills them from `STORE_GEO_LAT`/`STORE_GEO_LNG` — but only an
- * `embed_url` ever rendered anything, so a store that gave coordinates
- * got a full band holding one line of address. Coordinates are the
- * cheaper thing for an operator to supply *and* the safer one: the
- * embed path needs the provider's origin in the tenant's
- * `allowed_csp_sources`, while these tiles are already in every
- * tenant's `img-src` (`shared/utils/csp.ts`).
+ * The `location_map` band draws it from the store's own location
+ * (`STORE_GEO_LAT`/`STORE_GEO_LNG`, `useStoreLocation`), the one its
+ * structured data reports too. Coordinates are the cheaper thing for an
+ * operator to supply *and* the safer one: the embed path needs the
+ * provider's origin in the tenant's `allowed_csp_sources`, while these
+ * tiles are already in every tenant's `img-src` (`shared/utils/csp.ts`).
  *
  * Client-only because Leaflet touches `window` on import; the caller
  * hydrates it on visibility so the contact page does not pay for the

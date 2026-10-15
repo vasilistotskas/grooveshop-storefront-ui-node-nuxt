@@ -25,6 +25,8 @@ const ALT = 'Με τη συγχρηματοδότηση της Ευρωπαϊκ�
 const banner = (value: Record<string, unknown> = {}) => JSON.stringify({
   enabled: true,
   image: '/img/espa.png',
+  width: 1800,
+  height: 197,
   alt: ALT,
   link: '/chrimatodotisi',
   ...value,
@@ -73,7 +75,7 @@ describe('Chrome/FundingBanner', () => {
   // height pushed the whole page down as the image arrived. The inline
   // style is the mechanism, so it is what is asserted.
   it('draws the artwork\'s box in its own proportions before it loads', async () => {
-    setting.value = banner({ width: 1800, height: 197 })
+    setting.value = banner()
 
     const wrapper = await mountBanner()
     observed[0]!([{ isIntersecting: false }])
@@ -85,7 +87,7 @@ describe('Chrome/FundingBanner', () => {
   })
 
   it('renders the label alone when there is no artwork', async () => {
-    setting.value = banner({ image: undefined, label: 'Συγχρηματοδότηση ΕΣΠΑ' })
+    setting.value = banner({ image: undefined, width: undefined, height: undefined, label: 'Συγχρηματοδότηση ΕΣΠΑ' })
 
     const wrapper = await mountBanner()
 
@@ -180,8 +182,8 @@ describe('Chrome/FundingBanner', () => {
       ['no setting', ''],
       ['an empty object', '{}'],
       ['malformed JSON', '{"enabled":'],
-      ['a disabled banner', JSON.stringify({ enabled: false, alt: ALT, image: '/img/espa.png' })],
-      ['an enabled banner without alt', JSON.stringify({ enabled: true, image: '/img/espa.png' })],
+      ['a disabled banner', JSON.stringify({ enabled: false, alt: ALT, image: '/img/espa.png', width: 1800, height: 197 })],
+      ['an enabled banner without alt', JSON.stringify({ enabled: true, image: '/img/espa.png', width: 1800, height: 197 })],
       ['an image over http', banner({ image: 'http://example.com/espa.png' })],
       ['neither artwork nor label', JSON.stringify({ enabled: true, alt: ALT })],
     ])('for %s', async (_name, value) => {

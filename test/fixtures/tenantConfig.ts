@@ -74,6 +74,23 @@ export function validTenantConfig(
     socialsTwitter: '',
     socialsYoutube: '',
     boxNowPartnerId: '',
+    // The store's features as Django resolves them; the plan-gated ones
+    // follow the flags above (blog, loyalty, promotions, gift cards and
+    // wholesale are off).
+    features: {
+      blog: false,
+      blogComments: false,
+      productReviews: true,
+      accountReviews: true,
+      favourites: true,
+      newsletter: true,
+      feedback: true,
+      loyalty: false,
+      promotions: false,
+      giftCards: false,
+      wholesale: false,
+      productSuggestions: true,
+    },
     // Spread last so a caller can turn on the flags its own scenario
     // needs (a second locale, the blog) without restating the other
     // ~50 fields the schema requires.

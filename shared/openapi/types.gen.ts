@@ -409,6 +409,9 @@ export type AddTrackingRequest = {
  * than a tool result should carry.
  */
 export type AgentFavourite = {
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
   /**
      * ID προϊόντος
      */
@@ -419,6 +422,8 @@ export type AgentFavourite = {
   name: string
   /**
      * Τρέχουσα τιμή με ΦΠΑ
+     *
+     * @deprecated
      */
   finalPrice: string
   /**
@@ -4831,7 +4836,7 @@ export type OrderDetail = {
     trackingUrl?: string | null
   } | null
   /**
-     * True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.
+     * True when the order has a retail receipt registered with AADE (myDATA) and its PDF, so the frontend can show the download CTA without asking the receipt endpoint. False while the receipt is pending, rejected or cancelled, and always for a store that issues its receipts outside the platform.
      */
   readonly hasInvoice: boolean
   /**
@@ -8229,7 +8234,9 @@ export type ProductReviewWriteRequest = {
 /**
  * A single sibling product within a variant group, trimmed to what a
  * storefront swatch card needs: identity, image, price and its
- * variant-axis attribute values (Colour, Memory, …).
+ * variant-axis attribute values (Colour, Memory, …). Its price fields
+ * are the product's, so a variant shows what a shopper pays and the
+ * Omnibus-lawful announcement exactly as the product card does.
  */
 export type ProductVariant = {
   readonly id: number
@@ -8271,6 +8278,9 @@ export type ProductVariant = {
      * Ποσοστό Έκπτωσης
      */
   readonly discountPercent: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
   readonly mainImagePath: string
   readonly attributeValues: Array<ProductAttribute>
 }
@@ -8461,6 +8471,25 @@ export type PublicSettings = {
   settings: {
     [key: string]: string
   }
+}
+
+/**
+ * One published layout of the store, as the storefront's sitemap
+ * lists it (``public_published_layouts``).
+ *
+ * ``last_modified`` is the later of the layout's own ``updated_at`` and
+ * its newest section's: editing a section changes the page without
+ * touching the layout row, and a sitemap ``<lastmod>`` that missed it
+ * would tell crawlers the page had not changed.
+ */
+export type PublishedPageLayout = {
+  /**
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
+     */
+  pageType: string
+  readonly lastModified: string
 }
 
 /**
@@ -9044,6 +9073,26 @@ export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 export type SlotEnum = 'header' | 'footer' | 'mobile'
 
 /**
+ * Each optional feature's effective state for the store: its plan
+ * flag AND its store settings (``tenant/features.py``), so a client reads
+ * one answer instead of combining the two tiers and copying defaults.
+ */
+export type StoreFeatures = {
+  readonly blog: boolean
+  readonly blogComments: boolean
+  readonly productReviews: boolean
+  readonly accountReviews: boolean
+  readonly favourites: boolean
+  readonly newsletter: boolean
+  readonly feedback: boolean
+  readonly loyalty: boolean
+  readonly promotions: boolean
+  readonly giftCards: boolean
+  readonly wholesale: boolean
+  readonly productSuggestions: boolean
+}
+
+/**
  * * `curated` - Επιλογή εμπόρου
  * * `variant_group` - Ίδια ομάδα παραλλαγών
  * * `category` - Ίδια κατηγορία
@@ -9488,6 +9537,7 @@ export type TenantConfig = {
   readonly apiDomain: string
   readonly assetsDomain: string
   readonly staticDomain: string
+  features: StoreFeatures
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
   readonly promotionsEnabled: boolean
@@ -10443,8 +10493,6 @@ export type PageSectionBusinessHoursProps = {
 export type PageSectionLocationMapProps = {
   surface?: 'default' | 'muted'
   embedUrl?: string
-  lat?: number
-  lng?: number
   address?: string
 }
 
@@ -10707,6 +10755,40 @@ export type PageSectionStatsStripProps = {
     label: string
   }>
   surface?: 'default' | 'muted'
+}
+
+/**
+ * Compact favourite row for agents — the storefront's favourite
+ * serializers embed the full product detail payload, which is far more
+ * than a tool result should carry.
+ */
+export type AgentFavouriteWritable = {
+  /**
+     * ID προϊόντος
+     */
+  productId: number
+  /**
+     * Όνομα προϊόντος στην τρέχουσα γλώσσα
+     */
+  name: string
+  /**
+     * Τρέχουσα τιμή με ΦΠΑ
+     *
+     * @deprecated
+     */
+  finalPrice: string
+  /**
+     * Νόμισμα τιμής
+     */
+  currency: string
+  /**
+     * Αν το προϊόν είναι αυτή τη στιγμή διαθέσιμο σε απόθεμα
+     */
+  inStock: boolean
+  /**
+     * Πότε προστέθηκε το προϊόν στα αγαπημένα
+     */
+  addedAt: string
 }
 
 /**
@@ -12884,7 +12966,9 @@ export type ProductReviewDetailWritable = {
 /**
  * A single sibling product within a variant group, trimmed to what a
  * storefront swatch card needs: identity, image, price and its
- * variant-axis attribute values (Colour, Memory, …).
+ * variant-axis attribute values (Colour, Memory, …). Its price fields
+ * are the product's, so a variant shows what a shopper pays and the
+ * Omnibus-lawful announcement exactly as the product card does.
  */
 export type ProductVariantWritable = {
   translations: {
@@ -12919,6 +13003,24 @@ export type ProductVariantWritable = {
 export type ProductVariantsResponseWritable = {
   axes: Array<VariantAxis>
   variants: Array<ProductVariantWritable>
+}
+
+/**
+ * One published layout of the store, as the storefront's sitemap
+ * lists it (``public_published_layouts``).
+ *
+ * ``last_modified`` is the later of the layout's own ``updated_at`` and
+ * its newest section's: editing a section changes the page without
+ * touching the layout row, and a sitemap ``<lastmod>`` that missed it
+ * would tell crawlers the page had not changed.
+ */
+export type PublishedPageLayoutWritable = {
+  /**
+     * Τύπος σελίδας
+     *
+     * Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
+     */
+  pageType: string
 }
 
 export type RecommendationItemWritable = {
@@ -20519,7 +20621,12 @@ export type CancelOrderData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/cancel'
 }
 
@@ -20545,7 +20652,12 @@ export type ConfirmAgentPaymentForOrderData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/confirm_agent_payment'
 }
 
@@ -20570,7 +20682,12 @@ export type CreateOrderCheckoutSessionData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/create_checkout_session'
 }
 
@@ -20595,7 +20712,12 @@ export type CreateOrderPaymentIntentData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/create_payment_intent'
 }
 
@@ -20668,7 +20790,12 @@ export type GetOrderPaymentStatusData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/payment_status'
 }
 
@@ -20718,7 +20845,12 @@ export type RetryOrderPaymentData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/retry-payment'
 }
 
@@ -21234,6 +21366,19 @@ export type VivaReturnLookupResponses = {
 }
 
 export type VivaReturnLookupResponse2 = VivaReturnLookupResponses[keyof VivaReturnLookupResponses]
+
+export type ApiV1PageConfigListData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/page-config'
+}
+
+export type ApiV1PageConfigListResponses = {
+  200: Array<PublishedPageLayout>
+}
+
+export type ApiV1PageConfigListResponse = ApiV1PageConfigListResponses[keyof ApiV1PageConfigListResponses]
 
 export type ApiV1PageConfigRetrieveData = {
   body?: never

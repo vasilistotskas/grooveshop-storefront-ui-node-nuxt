@@ -61,8 +61,7 @@ function orgSocialUrl(key: string): string | undefined {
 const { hasData: hasBusinessHours, schedule: businessSchedule }
   = useBusinessHours()
 const { identity, hasIdentity } = useMerchantIdentity()
-const geoLat = useSettingValue('STORE_GEO_LAT')
-const geoLng = useSettingValue('STORE_GEO_LNG')
+const storeLocation = useStoreLocation()
 
 const SCHEMA_DAY_NAMES: Record<WeekDayKey, string> = {
   mon: 'Monday',
@@ -101,12 +100,10 @@ const openingHoursSpecification = computed(() => {
 })
 
 const geo = computed(() => {
-  const latitude = Number.parseFloat(geoLat.value)
-  const longitude = Number.parseFloat(geoLng.value)
-  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-    return undefined
-  }
-  return { '@type': 'GeoCoordinates', latitude, longitude }
+  const location = storeLocation.value
+  return location
+    ? { '@type': 'GeoCoordinates', 'latitude': location.lat, 'longitude': location.lng }
+    : undefined
 })
 
 const postalAddress = computed(() => {

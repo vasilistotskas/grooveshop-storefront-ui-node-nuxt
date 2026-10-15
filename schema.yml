@@ -15541,6 +15541,12 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
           required: true
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
       tags:
         - Orders
       requestBody:
@@ -15613,6 +15619,12 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
           required: true
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
       tags:
         - Orders
       requestBody:
@@ -15680,6 +15692,12 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
           required: true
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
       tags:
         - Orders
       requestBody:
@@ -15747,6 +15765,12 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
           required: true
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
       tags:
         - Orders
       requestBody:
@@ -15808,8 +15832,8 @@ paths:
   /api/v1/order/{id}/invoice:
     get:
       operationId: retrieveOrderInvoice
-      description: Επιστρέφει τα μεταδεδομένα τιμολογίου της παραγγελίας και ένα απόλυτο URL προς το endpoint λήψης μέσω ροής (``/order/{id}/invoice/download``). Το URL προστατεύεται από τον ίδιο έλεγχο δικαιώματος ιδιοκτήτη/διαχειριστή όπως και αυτό το endpoint μεταδεδομένων — δεν εκτίθενται ακατέργαστα URL αποθήκευσης στον client. 404 αν το τιμολόγιο δεν έχει δημιουργηθεί ακόμα (π.χ. η παραγγελία δεν έχει ολοκληρωθεί).
-      summary: Λήψη μεταδεδομένων λήψης τιμολογίου για παραγγελία
+      description: 'Επιστρέφει τα μεταδεδομένα της απόδειξης λιανικής της παραγγελίας και ένα απόλυτο URL προς το endpoint λήψης μέσω ροής (``/order/{id}/invoice/download``). Το URL προστατεύεται από τον ίδιο έλεγχο δικαιώματος ιδιοκτήτη/διαχειριστή όπως και αυτό το endpoint μεταδεδομένων — δεν εκτίθενται ακατέργαστα URL αποθήκευσης στον client. 404 εκτός αν η απόδειξη έχει καταχωριστεί στην ΑΑΔΕ (myDATA): δεν έχει εκδοθεί ακόμη, εκκρεμεί, απορρίφθηκε ή ακυρώθηκε, ή το κατάστημα εκδίδει τις αποδείξεις του εκτός της πλατφόρμας.'
+      summary: Λήψη μεταδεδομένων λήψης απόδειξης για παραγγελία
       parameters:
         - in: path
           name: id
@@ -15863,8 +15887,8 @@ paths:
   /api/v1/order/{id}/invoice/download:
     get:
       operationId: downloadOrderInvoice
-      description: Μεταδίδει το παραχθέν PDF μέσω ταυτοποίησης Django. 404 όταν το τιμολόγιο δεν έχει δημιουργηθεί ακόμα. Ίδιος έλεγχος ιδιοκτησίας όπως και το endpoint μεταδεδομένων — επιστρέφει υπογεγραμμένη ροή S3 σε παραγωγή και ροή αρχείου συστήματος σε ανάπτυξη, χωρίς να εκθέτει το URL αποθήκευσης στον client.
-      summary: Λήψη PDF τιμολογίου
+      description: Μεταδίδει το PDF της απόδειξης λιανικής μέσω ταυτοποίησης Django, από τον ρυθμισμένο χώρο αποθήκευσης (S3 σε παραγωγή, σύστημα αρχείων σε ανάπτυξη), ώστε το URL αποθήκευσης να μην εκτίθεται ποτέ στον client. 404 εκτός αν η απόδειξη έχει καταχωριστεί στην ΑΑΔΕ (myDATA). Ίδιος έλεγχος ιδιοκτησίας όπως και το endpoint μεταδεδομένων.
+      summary: Λήψη PDF απόδειξης
       parameters:
         - in: path
           name: id
@@ -15902,6 +15926,12 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
           required: true
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
       tags:
         - Orders
       security:
@@ -16012,6 +16042,12 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
           required: true
+        - in: query
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          description: The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
       tags:
         - Orders
       requestBody:
@@ -17088,6 +17124,33 @@ paths:
           description: No response body
         '404':
           description: No response body
+  /api/v1/page-config:
+    get:
+      operationId: api_v1_page_config_list
+      description: |-
+        Every layout this store has published, with when its page last
+        changed.
+
+        One read for what used to take one request per page type: the
+        storefront's sitemap lists the store's custom pages from it, and
+        gates the static routes that answer 404 until their layout is
+        published. Which page type a static route renders, and so which
+        layouts are custom pages, is the storefront's routing and stays
+        there.
+      tags:
+        - Page Config
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublishedPageLayout'
+          description: ''
   /api/v1/page-config/{page_type}:
     get:
       operationId: api_v1_page_config_retrieve
@@ -32568,6 +32631,28 @@ components:
         serializers embed the full product detail payload, which is far more
         than a tool result should carry.
       properties:
+        effectivePrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          readOnly: true
+          nullable: true
         productId:
           type: integer
           description: ID προϊόντος
@@ -32577,6 +32662,7 @@ components:
         finalPrice:
           type: string
           description: Τρέχουσα τιμή με ΦΠΑ
+          deprecated: true
         currency:
           type: string
           description: Νόμισμα τιμής
@@ -32589,10 +32675,13 @@ components:
           description: Πότε προστέθηκε το προϊόν στα αγαπημένα
       required:
         - addedAt
+        - announcedDiscountPercent
         - currency
+        - effectivePrice
         - finalPrice
         - inStock
         - name
+        - priorPrice
         - productId
     AgentProfile:
       type: object
@@ -39514,7 +39603,7 @@ components:
         hasInvoice:
           type: boolean
           readOnly: true
-          description: True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.
+          description: True when the order has a retail receipt registered with AADE (myDATA) and its PDF, so the frontend can show the download CTA without asking the receipt endpoint. False while the receipt is pending, rejected or cancelled, and always for a store that issues its receipts outside the platform.
         boxnowShipment:
           allOf:
             - $ref: '#/components/schemas/BoxNowShipmentDetail'
@@ -45741,7 +45830,9 @@ components:
       description: |-
         A single sibling product within a variant group, trimmed to what a
         storefront swatch card needs: identity, image, price and its
-        variant-axis attribute values (Colour, Memory, …).
+        variant-axis attribute values (Colour, Memory, …). Its price fields
+        are the product's, so a variant shows what a shopper pays and the
+        Omnibus-lawful announcement exactly as the product card does.
       properties:
         id:
           type: integer
@@ -45825,6 +45916,28 @@ components:
           exclusiveMinimum: true
           readOnly: true
           title: Ποσοστό Έκπτωσης
+        effectivePrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        priorPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          nullable: true
+        announcedDiscountPercent:
+          type: integer
+          readOnly: true
+          nullable: true
         mainImagePath:
           type: string
           readOnly: true
@@ -45835,12 +45948,15 @@ components:
           readOnly: true
       required:
         - active
+        - announcedDiscountPercent
         - attributeValues
         - discountPercent
+        - effectivePrice
         - finalPrice
         - id
         - mainImagePath
         - price
+        - priorPrice
         - slug
         - stock
         - translations
@@ -46171,6 +46287,29 @@ components:
           description: Τιμές ρυθμίσεων με κλειδί το όνομα της ρύθμισης.
       required:
         - settings
+    PublishedPageLayout:
+      type: object
+      description: |-
+        One published layout of the store, as the storefront's sitemap
+        lists it (``public_published_layouts``).
+
+        ``last_modified`` is the later of the layout's own ``updated_at`` and
+        its newest section's: editing a section changes the page without
+        touching the layout row, and a sitemap ``<lastmod>`` that missed it
+        would tell crawlers the page had not changed.
+      properties:
+        pageType:
+          type: string
+          title: Τύπος σελίδας
+          description: Αναγνωριστικό της σελίδας (π.χ. "home", "products", "blog").
+          maxLength: 50
+        lastModified:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+        - lastModified
+        - pageType
     RateEnum:
       enum:
         - 1
@@ -47023,6 +47162,62 @@ components:
         * `header` - Κεφαλίδα
         * `footer` - Υποσέλιδο
         * `mobile` - Κινητό
+    StoreFeatures:
+      type: object
+      description: |-
+        Each optional feature's effective state for the store: its plan
+        flag AND its store settings (``tenant/features.py``), so a client reads
+        one answer instead of combining the two tiers and copying defaults.
+      properties:
+        blog:
+          type: boolean
+          readOnly: true
+        blogComments:
+          type: boolean
+          readOnly: true
+        productReviews:
+          type: boolean
+          readOnly: true
+        accountReviews:
+          type: boolean
+          readOnly: true
+        favourites:
+          type: boolean
+          readOnly: true
+        newsletter:
+          type: boolean
+          readOnly: true
+        feedback:
+          type: boolean
+          readOnly: true
+        loyalty:
+          type: boolean
+          readOnly: true
+        promotions:
+          type: boolean
+          readOnly: true
+        giftCards:
+          type: boolean
+          readOnly: true
+        wholesale:
+          type: boolean
+          readOnly: true
+        productSuggestions:
+          type: boolean
+          readOnly: true
+      required:
+        - accountReviews
+        - blog
+        - blogComments
+        - favourites
+        - feedback
+        - giftCards
+        - loyalty
+        - newsletter
+        - productReviews
+        - productSuggestions
+        - promotions
+        - wholesale
     StrategyEnum:
       enum:
         - curated
@@ -47701,6 +47896,10 @@ components:
         staticDomain:
           type: string
           readOnly: true
+        features:
+          allOf:
+            - $ref: '#/components/schemas/StoreFeatures'
+          readOnly: true
         loyaltyEnabled:
           type: boolean
           readOnly: true
@@ -47822,6 +48021,7 @@ components:
         - defaultLocale
         - errorHex
         - faviconUrl
+        - features
         - gaTrackingId
         - giftCardsEnabled
         - googleAdsAddToCartLabel
@@ -49432,14 +49632,6 @@ components:
           type: string
           maxLength: 1000
           pattern: ^https://
-        lat:
-          type: number
-          minimum: -90
-          maximum: 90
-        lng:
-          type: number
-          minimum: -180
-          maximum: 180
         address:
           type: string
           maxLength: 300

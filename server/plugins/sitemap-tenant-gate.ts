@@ -8,6 +8,7 @@ import {
   type FeatureGatedRoute,
   type PlanFlags,
 } from '~~/shared/utils/gatedRoutes'
+import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { useRuntimeConfig } from 'nuxt/server'
 
@@ -97,21 +98,18 @@ const GATED_ROUTES: readonly GatedRoute[] = [
     path: `/${route}`,
     contentSlug: slug,
   })),
-  // The layout-driven static routes. Each calls `usePageConfig` and
-  // throws a hard 404 when the tenant has published no layout, and only
-  // webside has any of them — `seed_brand_pages` publishes its brand
-  // pages together with the footer menu that links them. Every other
-  // tenant was advertising three or four 404s: demo and fyteia listed
-  // /vision, /what-is-microlearning and /why-microlearning; delta-sigma
-  // listed those plus /about, once per locale it serves.
-  //
-  // Only the four that 404. The other `usePageConfig` pages (home,
-  // products, blog, contact, feedback) render FALLBACK_LAYOUTS and
-  // answer 200 without one, so they belong in every sitemap.
-  { path: '/about', pageType: 'about' },
-  { path: '/vision', pageType: 'vision' },
-  { path: '/what-is-microlearning', pageType: 'what-is-microlearning' },
-  { path: '/why-microlearning', pageType: 'why-microlearning' },
+  // The layout-backed static routes that throw a hard 404 until the
+  // store publishes their layout (`requiresLayout`), and only webside
+  // has any of them: `seed_brand_pages` publishes its brand pages with
+  // the footer menu that links them. Every other tenant was advertising
+  // three or four 404s: demo and fyteia listed /vision,
+  // /what-is-microlearning and /why-microlearning; delta-sigma listed
+  // those plus /about, once per locale it serves. The others (home,
+  // products, blog, contact, feedback) render a fallback and answer 200
+  // without one, so they belong in every sitemap.
+  ...Object.entries(STATIC_LAYOUT_ROUTES)
+    .filter(([, { requiresLayout }]) => requiresLayout)
+    .map(([pageType, { path }]) => ({ path, pageType })),
 ]
 
 function pathOf(loc: string | URL | undefined): string {
@@ -188,20 +186,17 @@ export default defineNitroPlugin((nitroApp) => {
       ? await publishedContentLocalesForHost(host, apiBaseUrl)
       : null
 
-    // One read per gated pageType — there is no bulk endpoint — run in
-    // parallel, and only for the routes whose earlier gates passed.
-    const layoutRoutes = GATED_ROUTES.filter(
+    // The store's published layouts, read once, and only when a route
+    // whose earlier gates passed needs a layout. `null` (the read
+    // failed) publishes none of them, like the other gates.
+    const needsLayouts = GATED_ROUTES.some(
       route => planAllows(route) && route.pageType,
     )
-    const layoutPublished = new Map<string, boolean>(
-      await Promise.all(
-        layoutRoutes.map(async route =>
-          [
-            route.pageType!,
-            await pageTypePublishedForHost(host, apiBaseUrl, route.pageType!),
-          ] as const,
-        ),
-      ),
+    const publishedLayouts = needsLayouts
+      ? await publishedLayoutsForHost(host, apiBaseUrl)
+      : null
+    const publishedPageTypes = new Set(
+      publishedLayouts?.map(layout => layout.pageType),
     )
 
     const allowed = GATED_ROUTES.map((route) => {
@@ -213,7 +208,7 @@ export default defineNitroPlugin((nitroApp) => {
         return contentLocales?.has(route.contentSlug) ?? false
       }
       if (route.pageType) {
-        return layoutPublished.get(route.pageType) ?? false
+        return publishedPageTypes.has(route.pageType)
       }
       return true
     })

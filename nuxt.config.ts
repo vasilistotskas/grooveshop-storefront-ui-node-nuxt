@@ -278,8 +278,8 @@ export default defineNuxtConfig({
     // locale, rather than becoming a 404.
     ...Object.fromEntries(
       Object.entries(STATIC_LAYOUT_ROUTES)
-        .filter(([pageType, path]) => path !== `/${pageType}`)
-        .flatMap(([pageType, path]) => {
+        .filter(([pageType, { path }]) => path !== `/${pageType}`)
+        .flatMap(([pageType, { path }]) => {
           const targets = withLocalePrefixes(path)
           return withLocalePrefixes(`/${pageType}`).map((route, i) =>
             [route, { redirect: { to: targets[i], statusCode: 301 } }] as const)

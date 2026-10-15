@@ -17,21 +17,33 @@
  * ``//host`` is neither and is refused.
  *
  * ``width`` and ``height`` are the artwork's intrinsic size in pixels,
- * together or not at all. The strip sits above everything, so an image
- * with no reserved box pushed the whole page down as it loaded (CLS
- * 0.12 on a desktop home page); with them the box is drawn at its final
- * size before the artwork arrives.
+ * required with an ``image`` and refused without one. The strip sits
+ * above everything, so an image with no reserved box pushed the whole
+ * page down as it loaded (CLS 0.12 on a desktop home page); with them
+ * the box is drawn at its final size before the artwork arrives.
  */
 
-export interface FundingBanner {
+interface FundingBannerBase {
   enabled: boolean
-  image?: string
   alt?: string
   link?: string
   label?: string
-  width?: number
-  height?: number
 }
+
+/** The official artwork, with the intrinsic size its box is drawn at. */
+interface WithArtwork {
+  image: string
+  width: number
+  height: number
+}
+
+interface WithoutArtwork {
+  image?: undefined
+  width?: undefined
+  height?: undefined
+}
+
+export type FundingBanner = FundingBannerBase & (WithArtwork | WithoutArtwork)
 
 const URL_RE = /^(\/(?!\/)|https:\/\/)/
 const URL_MAX = 1000
@@ -61,8 +73,12 @@ export function isFundingBanner(value: unknown): value is FundingBanner {
   if (data.link !== undefined && !isUrl(data.link)) return false
   if (data.alt !== undefined && !isBoundedString(data.alt, TEXT_MAX)) return false
   if (data.label !== undefined && !isBoundedString(data.label, TEXT_MAX)) return false
-  if ((data.width === undefined) !== (data.height === undefined)) return false
-  if (data.width !== undefined && !(isPixels(data.width) && isPixels(data.height))) return false
+  if (data.image === undefined) {
+    if (data.width !== undefined || data.height !== undefined) return false
+  }
+  else if (!isPixels(data.width) || !isPixels(data.height)) {
+    return false
+  }
 
   // An enabled strip is a public compliance mark: an image without its
   // description fails the accessibility check it exists to pass.
