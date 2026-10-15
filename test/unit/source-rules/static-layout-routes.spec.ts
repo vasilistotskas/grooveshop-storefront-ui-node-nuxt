@@ -10,6 +10,7 @@ import {
   REPO,
   appLabel,
   callsIn,
+  readSource,
   sfcTemplate,
   staticText,
   vueFiles,
@@ -57,7 +58,10 @@ interface RenderedPageType {
 /** Every page type a static page renders, with the file that renders it. */
 function renderedPageTypes(): RenderedPageType[] {
   const out: RenderedPageType[] = []
-  for (const file of vueFiles(COMPONENTS)) {
+  // Only the components that mention the call are parsed: a script AST of
+  // every component took the whole five-second budget under coverage.
+  const callers = vueFiles(COMPONENTS).filter(file => readSource(file).includes('usePageConfig'))
+  for (const file of callers) {
     for (const { call } of callsIn(file, /^usePageConfig$/)) {
       const pageType = staticText(call.arguments[0])
       if (pageType !== undefined) out.push({ pageType, file, brandPage: false })
@@ -79,6 +83,7 @@ function renderedPageTypes(): RenderedPageType[] {
 
 describe('static routes and the custom pages beside them', () => {
   const segments = servedSegments()
+  const rendered = renderedPageTypes()
 
   // A canary: the walk above reading nothing would pass every case.
   it('reads the routes from disk', () => {
@@ -90,7 +95,6 @@ describe('static routes and the custom pages beside them', () => {
   })
 
   it('names every page type a static page renders, and no other', () => {
-    const rendered = renderedPageTypes()
     const unknown = rendered
       .filter(({ pageType }) => !Object.hasOwn(STATIC_LAYOUT_ROUTES, pageType))
       .map(({ pageType, file }) => `${pageType} in ${appLabel(file)}`)
@@ -109,7 +113,7 @@ describe('static routes and the custom pages beside them', () => {
   // The brand pages hand their page type to one shared body, so the page
   // file is the only place that says which route renders which type.
   it('gives each brand page the page type of its own route', () => {
-    const mismatched = renderedPageTypes()
+    const mismatched = rendered
       .filter(({ file }) => file.startsWith(PAGES))
       .filter(({ pageType, file }) => STATIC_LAYOUT_ROUTES[pageType as StaticLayoutPageType].path !== `/${routeName(appLabel(file).slice('pages/'.length))}`)
       .map(({ pageType, file }) => `${pageType} in ${appLabel(file)}`)
@@ -120,7 +124,6 @@ describe('static routes and the custom pages beside them', () => {
   // published only when the route answers 404 without one; a fallback
   // page dropped from the sitemap would be a live page nobody is told of.
   it('requires a layout exactly for the page types the brand-page body renders', () => {
-    const rendered = renderedPageTypes()
     const wrong = Object.entries(STATIC_LAYOUT_ROUTES)
       .filter(([pageType, { requiresLayout }]) =>
         requiresLayout !== rendered.some(entry => entry.pageType === pageType && entry.brandPage))
