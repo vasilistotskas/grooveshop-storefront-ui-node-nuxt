@@ -1,3 +1,10 @@
+# [3.251.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.250.0...v3.251.0) (2026-10-15)
+
+
+### Features
+
+* **chrome:** the funding strip in the visitor's language ([#141](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/141)) ([8648190](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8648190444a5b3c4121ab221ef58df13d276669d))
+
 # [3.250.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.3...v3.250.0) (2026-10-15)
 
 
