@@ -53,6 +53,44 @@ describe('Chrome/FundingBanner', () => {
     expect(links[0]!.find('img').attributes('alt')).toBe(ALT)
   })
 
+  it('shows an English page the English artwork, and links it to the English page', async () => {
+    setting.value = banner({
+      i18n: {
+        en: {
+          image: '/img/espa-en.png',
+          width: 1920,
+          height: 234,
+          alt: 'Co-funded by the European Union',
+        },
+      },
+    })
+    const i18n = useNuxtApp().$i18n
+
+    await i18n.setLocale('en')
+    try {
+      const link = (await mountBanner()).find('a')
+      const image = link.find('img')
+
+      expect(link.attributes('href')).toBe('/en/chrimatodotisi')
+      expect(image.attributes('alt')).toBe('Co-funded by the European Union')
+      expect(image.attributes('src')).toContain('espa-en.png')
+      expect(image.attributes('style')).toContain('aspect-ratio: 1920 / 234')
+    }
+    finally {
+      await i18n.setLocale('el')
+    }
+
+    const link = (await mountBanner()).find('a')
+    expect(link.attributes('href')).toBe('/chrimatodotisi')
+    expect(link.find('img').attributes('alt')).toBe(ALT)
+  })
+
+  it('leaves an https link as it is', async () => {
+    setting.value = banner({ link: 'https://example.com/espa' })
+
+    expect((await mountBanner()).find('a').attributes('href')).toBe('https://example.com/espa')
+  })
+
   it('keeps the label inside the same link', async () => {
     setting.value = banner({ label: 'Δείτε την πράξη' })
 
