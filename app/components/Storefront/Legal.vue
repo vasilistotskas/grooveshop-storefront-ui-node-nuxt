@@ -218,16 +218,21 @@ useHead({
   color: var(--ui-text-highlighted);
 }
 
+/* A table fits the column: its cells wrap, and a long name such as
+   `sessionStorage` breaks where it must. It used to scroll sideways
+   (`display: block; overflow-x: auto`), and a scrolling region needs a
+   tabindex the merchant's HTML never carries, so a keyboard could not
+   reach the overflow: WCAG 2.1 AA failed (axe scrollable-region-focusable)
+   on a phone's cookie table, 473px in a 358px column. */
 .legal-prose :deep(table) {
   border-collapse: collapse;
-  display: block;
-  overflow-x: auto;
   width: 100%;
 }
 
 .legal-prose :deep(th),
 .legal-prose :deep(td) {
   border: 1px solid var(--ui-border);
+  overflow-wrap: anywhere;
   padding: 0.5rem 0.75rem;
   text-align: start;
 }
