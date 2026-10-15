@@ -1,3 +1,10 @@
+# [3.250.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.3...v3.250.0) (2026-10-15)
+
+
+### Features
+
+* **seo:** list every store's custom pages in its sitemap, pin the map to the store's location ([#140](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/140)) ([63b75af](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/63b75af77b68e960a47317565644b2eea137d7a2))
+
 ## [3.249.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.2...v3.249.3) (2026-10-15)
 
 
