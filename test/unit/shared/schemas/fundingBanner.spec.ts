@@ -64,6 +64,22 @@ describe('isFundingBanner', () => {
     expect(isFundingBanner(banner({ enabled: 'true' }))).toBe(false)
   })
 
+  it('accepts the artwork\'s intrinsic size', () => {
+    expect(isFundingBanner(banner({ width: 1800, height: 197 }))).toBe(true)
+  })
+
+  it.each<[Record<string, unknown>, string]>([
+    [{ width: 1800 }, 'a width without a height'],
+    [{ height: 197 }, 'a height without a width'],
+    [{ width: 0, height: 197 }, 'a zero width'],
+    [{ width: 1800, height: -1 }, 'a negative height'],
+    [{ width: 1800.5, height: 197 }, 'a fractional width'],
+    [{ width: '1800', height: '197' }, 'sizes as text'],
+    [{ width: 10001, height: 197 }, 'a width past any artwork'],
+  ])('refuses %j (%s)', (size) => {
+    expect(isFundingBanner(banner(size))).toBe(false)
+  })
+
   it('refuses a key it does not know', () => {
     expect(isFundingBanner(banner({ color: 'red' }))).toBe(false)
   })

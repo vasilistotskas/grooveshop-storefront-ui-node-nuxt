@@ -191,7 +191,7 @@ export function describePageRenders(): void {
       ['/about'],
       // The catch-all [slug] route with no layout behind it.
       ['/no-such-page'],
-      // Refused by the catch-all's `validate` (app/utils/customPageSlug.ts)
+      // Refused by the catch-all's `validate` (shared/utils/customPageSlug.ts)
       // before any layout is asked for.
       ['/Our-Story'],
       ['/products/999999/unknown-product'],
@@ -216,6 +216,19 @@ export function describePageRenders(): void {
       const { statusCode, body } = await request(path, TENANT_HOST, BROWSER_ACCEPT)
 
       expect(statusCode, body.slice(0, 900)).toBe(503)
+    }, 60000)
+
+    // A page type a static route renders, at its own name: `/` owns the
+    // home layout, and the catch-all used to serve a second copy of it
+    // at `/home` (STATIC_LAYOUT_ROUTES).
+    it.each([
+      ['/home', '/'],
+      ['/en/home', '/en'],
+    ])('moves %s to %s for good', async (path, target) => {
+      const { statusCode, location } = await request(path, TENANT_HOST, BROWSER_ACCEPT)
+
+      expect(statusCode).toBe(301)
+      expect(location).toBe(target)
     }, 60000)
 
     it.each([

@@ -5,6 +5,7 @@ import { DEFAULT_LOCALE } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
 import { FONT_FAMILY_NAMES, FONT_STYLES, FONT_WEIGHTS } from './shared/theme/constants.ts'
+import { STATIC_LAYOUT_ROUTES } from './shared/utils/staticLayoutRoutes.ts'
 
 // Style-ish module ids must never be captured by a codeSplitting group:
 // folding them into a named JS chunk makes Nuxt emit that chunk's CSS as
@@ -265,7 +266,25 @@ export default defineNuxtConfig({
     // an informational redirect. Exact paths, not a `/__sitemap__/**`
     // glob — that namespace still belongs to the module.
     '/sitemap_index.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
+    // One sitemap per store, shared by every pod and purgeable per store:
+    // see `sitemap.cacheMaxAgeSeconds` below for why the module's own
+    // cache is off.
+    '/sitemap.xml': { swr: 60 * 60 * 24, cache: { varies: ['host'] } },
     '/__sitemap__/el-GR.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
+    // A page type a static route renders, asked for at its own name. The
+    // catch-all used to render the home layout at `/home` as well, a
+    // second homepage with its own canonical on every store; links to it
+    // may exist, so it moves to the route that renders it, in every
+    // locale, rather than becoming a 404.
+    ...Object.fromEntries(
+      Object.entries(STATIC_LAYOUT_ROUTES)
+        .filter(([pageType, path]) => path !== `/${pageType}`)
+        .flatMap(([pageType, path]) => {
+          const targets = withLocalePrefixes(path)
+          return withLocalePrefixes(`/${pageType}`).map((route, i) =>
+            [route, { redirect: { to: targets[i], statusCode: 301 } }] as const)
+        }),
+    ),
     // Access-Control-Allow-Origin: the build links its stylesheet, scripts
     // and fonts with `crossorigin`, which makes every fetch a CORS request.
     // Same-origin they load either way; served into another origin they
@@ -1253,6 +1272,12 @@ export default defineNuxtConfig({
   schemaOrg: {
     enabled: true,
     minify: true,
+    // No default WebSite/WebPage nodes: with @nuxtjs/i18n installed they
+    // take their languages from the platform's locale list, which every
+    // store shares, so a Greek-only store declared `en-US` and a
+    // translation at `/en` (a 404). app.vue defines both from the
+    // languages the store serves.
+    defaults: false,
   },
   scripts: {
     assets: {
@@ -1354,7 +1379,15 @@ export default defineNuxtConfig({
     sources: [
       '/api/__sitemap__/urls',
     ],
-    cacheMaxAgeSeconds: 60 * 60 * 24, // 24 hours
+    // The module's own cache is off: it keeps the sitemap under a
+    // `sitemap` storage base that nothing mounts, i.e. in each pod's
+    // memory, keyed by a hash of the host and its other parts. Every pod
+    // then served its own copy for 24 hours and no purge could reach it:
+    // fyteia's sitemap kept listing `/products` after the store switched
+    // its catalogue off (2026-10-15). The `/sitemap.xml` route rule
+    // caches the response instead, in the Redis `cache` mount, per host
+    // (`sitemap_seo` purges it per store).
+    cacheMaxAgeSeconds: false,
   },
   // @nuxtjs/seo 6 installs nuxt-skew-protection, which keeps the assets of
   // earlier builds after a deploy. It stores them under

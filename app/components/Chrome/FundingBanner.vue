@@ -77,6 +77,15 @@ const wrapperProps = computed(() =>
 const width = computed(() => (framed ? 760 : 560))
 // The floating twin's: at most 420px on a phone, 340px in a desk corner.
 const FLOATING_WIDTH = 420
+
+// The artwork's own proportions, so its box is drawn at the final size
+// before the image arrives: the strip is the first thing on the page, and
+// without it every byte of the artwork pushed the page down (CLS).
+const aspectRatio = computed(() =>
+  banner.value?.width && banner.value.height
+    ? `${banner.value.width} / ${banner.value.height}`
+    : undefined,
+)
 </script>
 
 <template>
@@ -118,7 +127,7 @@ const FLOATING_WIDTH = 420
             quality="90"
             fallback=""
             class="block h-auto"
-            :style="{ width: `min(${width}px, 100%)` }"
+            :style="{ width: `min(${width}px, 100%)`, aspectRatio }"
           />
           <span
             v-if="banner.label"
@@ -159,6 +168,7 @@ const FLOATING_WIDTH = 420
           quality="90"
           fallback=""
           class="block h-auto w-[min(420px,100%)] sm:w-[340px]"
+          :style="{ aspectRatio }"
         />
         <span
           v-else
