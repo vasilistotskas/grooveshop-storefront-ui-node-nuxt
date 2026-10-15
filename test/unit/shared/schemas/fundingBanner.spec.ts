@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   isFundingBanner,
+  localizedFundingBanner,
   parseFundingBannerValue,
 } from '../../../../shared/schemas/fundingBanner'
 
@@ -109,4 +110,71 @@ describe('parseFundingBannerValue', () => {
       expect(parseFundingBannerValue(raw)).toBeNull()
     },
   )
+})
+
+const ENGLISH = {
+  image: '/media/espa/banner-en.png',
+  width: 1920,
+  height: 234,
+  alt: 'Co-funded by the European Union',
+  label: 'See the operation',
+}
+
+describe('the per-locale overlay', () => {
+  it('accepts a locale that replaces the artwork and the words', () => {
+    expect(isFundingBanner(banner({ i18n: { en: ENGLISH } }))).toBe(true)
+  })
+
+  it.each(['alt', 'label'] as const)('accepts a locale that overrides its %s alone', (key) => {
+    expect(isFundingBanner(banner({ i18n: { en: { [key]: ENGLISH[key] } } }))).toBe(true)
+  })
+
+  it.each(['image', 'width', 'height'] as const)(
+    'refuses a localized artwork without its %s: the box of another picture would be drawn',
+    (missing) => {
+      const { [missing]: _dropped, ...rest } = ENGLISH
+      expect(isFundingBanner(banner({ i18n: { en: rest } }))).toBe(false)
+    },
+  )
+
+  it('refuses a localized artwork without its own alt: the default describes another picture', () => {
+    const { alt: _dropped, ...rest } = ENGLISH
+    expect(isFundingBanner(banner({ i18n: { en: rest } }))).toBe(false)
+  })
+
+  it.each([
+    ['the link', { link: '/elsewhere' }],
+    ['the switch', { enabled: false }],
+    ['an unknown key', { color: 'red' }],
+    ['a blank alt', { alt: '   ' }],
+    ['an http artwork', { image: 'http://example.com/en.png' }],
+  ])('refuses a locale that overrides %s', (_name, extra) => {
+    expect(isFundingBanner(banner({ i18n: { en: { ...ENGLISH, ...extra } } }))).toBe(false)
+  })
+
+  it.each([[{ en: {} }], [{ en: 'Co-funded' }], [['en']], ['en']])('refuses the overlay %j', (i18n) => {
+    expect(isFundingBanner(banner({ i18n }))).toBe(false)
+  })
+})
+
+describe('localizedFundingBanner', () => {
+  it('lays the artwork and words of the locale over the default and drops the overlay', () => {
+    const value = { ...banner({ label: 'Δείτε την πράξη' }), i18n: { en: ENGLISH } }
+
+    expect(localizedFundingBanner(value, 'en')).toEqual({
+      enabled: true,
+      link: '/chrimatodotisi',
+      ...ENGLISH,
+    })
+  })
+
+  it('keeps the default artwork when the locale overrides only its words', () => {
+    const value = { ...banner(), i18n: { en: { alt: ENGLISH.alt } } }
+
+    expect(localizedFundingBanner(value, 'en')).toEqual({ ...banner(), alt: ENGLISH.alt })
+  })
+
+  it('renders the default for a locale without an override', () => {
+    expect(localizedFundingBanner({ ...banner(), i18n: { en: ENGLISH } }, 'el')).toEqual(banner())
+  })
 })

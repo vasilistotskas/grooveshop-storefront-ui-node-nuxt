@@ -21,13 +21,23 @@
  * above everything, so an image with no reserved box pushed the whole
  * page down as it loaded (CLS 0.12 on a desktop home page); with them
  * the box is drawn at its final size before the artwork arrives.
+ *
+ * ``i18n`` is a PARTIAL per-locale override, the same convention as
+ * ``ANNOUNCEMENT_BAR`` and ``PageSection.i18n``: a locale may replace the
+ * artwork (the programme publishes the strip per language), always with
+ * its own size and alt, and the words. ``link`` and ``enabled`` are one value for
+ * every language; the strip puts the locale prefix on the path. Readers
+ * go through ``localizedFundingBanner``, never the raw overlay.
  */
 
-interface FundingBannerBase {
-  enabled: boolean
+interface FundingBannerText {
   alt?: string
-  link?: string
   label?: string
+}
+
+interface FundingBannerBase extends FundingBannerText {
+  enabled: boolean
+  link?: string
 }
 
 /** The official artwork, with the intrinsic size its box is drawn at. */
@@ -43,13 +53,22 @@ interface WithoutArtwork {
   height?: undefined
 }
 
-export type FundingBanner = FundingBannerBase & (WithArtwork | WithoutArtwork)
+/** What one locale replaces: its artwork, with its own size, and its words. */
+export type FundingBannerOverride = FundingBannerText & (WithArtwork | WithoutArtwork)
+
+/** The banner one locale renders: the overlay is already applied. */
+export type LocalizedFundingBanner = FundingBannerBase & (WithArtwork | WithoutArtwork)
+
+export type FundingBanner = LocalizedFundingBanner & {
+  i18n?: Record<string, FundingBannerOverride>
+}
 
 const URL_RE = /^(\/(?!\/)|https:\/\/)/
 const URL_MAX = 1000
 const TEXT_MAX = 300
 const PIXELS_MAX = 10000
-const ALLOWED_KEYS = new Set(['enabled', 'image', 'alt', 'link', 'label', 'width', 'height'])
+const ALLOWED_KEYS = new Set(['enabled', 'image', 'alt', 'link', 'label', 'width', 'height', 'i18n'])
+const OVERRIDE_KEYS = new Set(['image', 'alt', 'label', 'width', 'height'])
 
 function isBoundedString(value: unknown, max: number): value is string {
   return typeof value === 'string' && value.length <= max
@@ -63,28 +82,71 @@ function isPixels(value: unknown): value is number {
   return Number.isInteger(value) && (value as number) > 0 && (value as number) <= PIXELS_MAX
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+/** ``image`` with its intrinsic size, or none of the three. */
+function hasValidArtwork(data: Record<string, unknown>): boolean {
+  if (data.image === undefined) return data.width === undefined && data.height === undefined
+  return isUrl(data.image) && isPixels(data.width) && isPixels(data.height)
+}
+
+function hasValidText(data: Record<string, unknown>): boolean {
+  return (data.alt === undefined || isBoundedString(data.alt, TEXT_MAX))
+    && (data.label === undefined || isBoundedString(data.label, TEXT_MAX))
+}
+
+function isOverride(value: unknown): value is FundingBannerOverride {
+  if (!isRecord(value)) return false
+  const keys = Object.keys(value)
+  if (!keys.length || keys.some(key => !OVERRIDE_KEYS.has(key))) return false
+  // A locale may change the logos' accessible name, never blank it, and
+  // its own artwork brings its own: the default alt describes another
+  // picture, in another language.
+  if (value.alt !== undefined && !String(value.alt).trim()) return false
+  if (value.image !== undefined && value.alt === undefined) return false
+  return hasValidArtwork(value) && hasValidText(value)
+}
+
 export function isFundingBanner(value: unknown): value is FundingBanner {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
-  const data = value as Record<string, unknown>
+  if (!isRecord(value)) return false
+  const data = value
   if (Object.keys(data).some(key => !ALLOWED_KEYS.has(key))) return false
 
   if (typeof data.enabled !== 'boolean') return false
-  if (data.image !== undefined && !isUrl(data.image)) return false
   if (data.link !== undefined && !isUrl(data.link)) return false
-  if (data.alt !== undefined && !isBoundedString(data.alt, TEXT_MAX)) return false
-  if (data.label !== undefined && !isBoundedString(data.label, TEXT_MAX)) return false
-  if (data.image === undefined) {
-    if (data.width !== undefined || data.height !== undefined) return false
-  }
-  else if (!isPixels(data.width) || !isPixels(data.height)) {
+  if (!hasValidArtwork(data) || !hasValidText(data)) return false
+  if (data.i18n !== undefined
+    && !(isRecord(data.i18n) && Object.values(data.i18n).every(isOverride))) {
     return false
   }
 
   // An enabled strip is a public compliance mark: an image without its
   // description fails the accessibility check it exists to pass.
-  if (data.enabled && !(data.alt ?? '').trim()) return false
+  if (data.enabled && !(typeof data.alt === 'string' && data.alt.trim())) return false
 
   return true
+}
+
+/**
+ * The banner as ``locale`` renders it: that locale's override laid over
+ * the default, artwork and size together, and the overlay itself gone.
+ */
+export function localizedFundingBanner(
+  banner: FundingBanner,
+  locale: string,
+): LocalizedFundingBanner {
+  const { i18n, ...base } = banner
+  const override = i18n?.[locale]
+  if (!override) return base
+  const text: FundingBannerText = {
+    ...(override.alt !== undefined && { alt: override.alt }),
+    ...(override.label !== undefined && { label: override.label }),
+  }
+  return override.image === undefined
+    ? { ...base, ...text }
+    : { ...base, ...text, image: override.image, width: override.width, height: override.height }
 }
 
 /**

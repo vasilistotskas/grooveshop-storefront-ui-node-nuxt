@@ -35,7 +35,8 @@ const { framed = false } = defineProps<{
   framed?: boolean
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const localePath = useLocalePath()
 const { floating, track } = useFundingBannerVisibility()
 
 const raw = useSettingValue('FUNDING_BANNER')
@@ -51,9 +52,12 @@ const banner = computed(() => {
     })
     return null
   }
+  // The locale's own artwork and words: the programme publishes the
+  // strip per language.
+  const localized = localizedFundingBanner(parsed, locale.value)
   // A strip with neither artwork nor words is a blank band.
-  if (!parsed.enabled || (!parsed.image && !parsed.label)) return null
-  return parsed
+  if (!localized.enabled || (!localized.image && !localized.label)) return null
+  return localized
 })
 
 track(useTemplateRef<HTMLElement>('copy'))
@@ -66,11 +70,15 @@ const provider = computed(() =>
 
 // A strip without a link is plain markup; with one it is ONE link around
 // the artwork and the label (a second link to the same page is noise).
+// A path is the operation's page in the visitor's language, so it gets
+// the locale prefix; an https URL is someone else's and is left alone.
 const NuxtLink = resolveComponent('NuxtLink')
 const wrapper = computed(() => (banner.value?.link ? NuxtLink : 'div'))
-const wrapperProps = computed(() =>
-  banner.value?.link ? { to: banner.value.link } : {},
-)
+const wrapperProps = computed(() => {
+  const link = banner.value?.link
+  if (!link) return {}
+  return { to: link.startsWith('https://') ? link : localePath(pathLocation(link)) }
+})
 
 // The artwork's rendered width, the figure the EU emblem sizing rule in
 // the design is measured against: 560px in the strip, 760px in a footer.
