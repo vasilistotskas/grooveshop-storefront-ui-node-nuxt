@@ -1,3 +1,10 @@
+## [3.249.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.2...v3.249.3) (2026-10-15)
+
+
+### Bug Fixes
+
+* **seo:** one URL per layout, store-scoped structured data, banner box, shared sitemap cache ([#139](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/139)) ([da12120](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/da1212038d802d43aedfd99797425b66d1de1869))
+
 ## [3.249.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.249.1...v3.249.2) (2026-10-14)
 
 
