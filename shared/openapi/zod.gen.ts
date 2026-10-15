@@ -77,6 +77,9 @@ export const zAddTrackingRequest = z.object({
  * than a tool result should carry.
  */
 export const zAgentFavourite = z.object({
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
   productId: z.int(),
   name: z.string(),
   finalPrice: z.string(),
@@ -3709,7 +3712,9 @@ export const zProductPoints = z.object({
 /**
  * A single sibling product within a variant group, trimmed to what a
  * storefront swatch card needs: identity, image, price and its
- * variant-axis attribute values (Colour, Memory, …).
+ * variant-axis attribute values (Colour, Memory, …). Its price fields
+ * are the product's, so a variant shows what a shopper pays and the
+ * Omnibus-lawful announcement exactly as the product card does.
  */
 export const zProductVariant = z.object({
   id: z.int().readonly(),
@@ -3742,6 +3747,9 @@ export const zProductVariant = z.object({
   price: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
   mainImagePath: z.string().readonly(),
   attributeValues: z.array(zProductAttribute).readonly(),
 })
@@ -3967,6 +3975,20 @@ export const zPaginatedCartList = z.object({
  */
 export const zPublicSettings = z.object({
   settings: z.record(z.string(), z.string()),
+})
+
+/**
+ * One published layout of the store, as the storefront's sitemap
+ * lists it (``public_published_layouts``).
+ *
+ * ``last_modified`` is the later of the layout's own ``updated_at`` and
+ * its newest section's: editing a section changes the page without
+ * touching the layout row, and a sitemap ``<lastmod>`` that missed it
+ * would tell crawlers the page had not changed.
+ */
+export const zPublishedPageLayout = z.object({
+  pageType: z.string().max(50),
+  lastModified: z.iso.datetime({ offset: true }).readonly(),
 })
 
 /**
@@ -4902,6 +4924,26 @@ export const zPatchedNavigationMenuRequest = z.object({
 })
 
 /**
+ * Each optional feature's effective state for the store: its plan
+ * flag AND its store settings (``tenant/features.py``), so a client reads
+ * one answer instead of combining the two tiers and copying defaults.
+ */
+export const zStoreFeatures = z.object({
+  blog: z.boolean().readonly(),
+  blogComments: z.boolean().readonly(),
+  productReviews: z.boolean().readonly(),
+  accountReviews: z.boolean().readonly(),
+  favourites: z.boolean().readonly(),
+  newsletter: z.boolean().readonly(),
+  feedback: z.boolean().readonly(),
+  loyalty: z.boolean().readonly(),
+  promotions: z.boolean().readonly(),
+  giftCards: z.boolean().readonly(),
+  wholesale: z.boolean().readonly(),
+  productSuggestions: z.boolean().readonly(),
+})
+
+/**
  * * `curated` - Επιλογή εμπόρου
  * * `variant_group` - Ίδια ομάδα παραλλαγών
  * * `category` - Ίδια κατηγορία
@@ -5174,6 +5216,7 @@ export const zTenantConfig = z.object({
   apiDomain: z.string().readonly(),
   assetsDomain: z.string().readonly(),
   staticDomain: z.string().readonly(),
+  features: zStoreFeatures,
   loyaltyEnabled: z.boolean().readonly(),
   blogEnabled: z.boolean().readonly(),
   promotionsEnabled: z.boolean().readonly(),
@@ -6652,8 +6695,6 @@ export const zPageSectionBusinessHoursProps = z.object({
 export const zPageSectionLocationMapProps = z.object({
   surface: z.enum(['default', 'muted']).optional(),
   embedUrl: z.string().max(1000).regex(/^https:\/\//).optional(),
-  lat: z.number().gte(-90).lte(90).optional(),
-  lng: z.number().gte(-180).lte(180).optional(),
   address: z.string().max(300).optional(),
 })
 
@@ -6941,6 +6982,20 @@ export const zPageSectionStatsStripProps = z.object({
     label: z.string().min(1).max(80),
   })).max(4).optional(),
   surface: z.enum(['default', 'muted']).optional(),
+})
+
+/**
+ * Compact favourite row for agents — the storefront's favourite
+ * serializers embed the full product detail payload, which is far more
+ * than a tool result should carry.
+ */
+export const zAgentFavouriteWritable = z.object({
+  productId: z.int(),
+  name: z.string(),
+  finalPrice: z.string(),
+  currency: z.string(),
+  inStock: z.boolean(),
+  addedAt: z.iso.datetime({ offset: true }),
 })
 
 /**
@@ -8451,7 +8506,9 @@ export const zProductReviewDetailWritable = z.object({
 /**
  * A single sibling product within a variant group, trimmed to what a
  * storefront swatch card needs: identity, image, price and its
- * variant-axis attribute values (Colour, Memory, …).
+ * variant-axis attribute values (Colour, Memory, …). Its price fields
+ * are the product's, so a variant shows what a shopper pays and the
+ * Omnibus-lawful announcement exactly as the product card does.
  */
 export const zProductVariantWritable = z.object({
   translations: z.object({
@@ -8486,6 +8543,19 @@ export const zProductVariantWritable = z.object({
 export const zProductVariantsResponseWritable = z.object({
   axes: z.array(zVariantAxis),
   variants: z.array(zProductVariantWritable),
+})
+
+/**
+ * One published layout of the store, as the storefront's sitemap
+ * lists it (``public_published_layouts``).
+ *
+ * ``last_modified`` is the later of the layout's own ``updated_at`` and
+ * its newest section's: editing a section changes the page without
+ * touching the layout row, and a sitemap ``<lastmod>`` that missed it
+ * would tell crawlers the page had not changed.
+ */
+export const zPublishedPageLayoutWritable = z.object({
+  pageType: z.string().max(50),
 })
 
 export const zRecommendationItemWritable = z.record(z.string(), z.unknown())
@@ -13459,6 +13529,10 @@ export const zCancelOrderPath = z.object({
   ]),
 })
 
+export const zCancelOrderQuery = z.object({
+  uuid: z.uuid().optional(),
+})
+
 export const zCancelOrderResponse = zOrderDetail
 
 export const zConfirmAgentPaymentForOrderBody = zConfirmAgentPaymentRequestRequest
@@ -13468,6 +13542,10 @@ export const zConfirmAgentPaymentForOrderPath = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
+})
+
+export const zConfirmAgentPaymentForOrderQuery = z.object({
+  uuid: z.uuid().optional(),
 })
 
 export const zConfirmAgentPaymentForOrderResponse = zConfirmAgentPaymentResponse
@@ -13481,6 +13559,10 @@ export const zCreateOrderCheckoutSessionPath = z.object({
   ]),
 })
 
+export const zCreateOrderCheckoutSessionQuery = z.object({
+  uuid: z.uuid().optional(),
+})
+
 export const zCreateOrderCheckoutSessionResponse = zCreateCheckoutSessionResponse
 
 export const zCreateOrderPaymentIntentBody = zCreatePaymentIntentRequestRequest
@@ -13490,6 +13572,10 @@ export const zCreateOrderPaymentIntentPath = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
+})
+
+export const zCreateOrderPaymentIntentQuery = z.object({
+  uuid: z.uuid().optional(),
 })
 
 export const zCreateOrderPaymentIntentResponse = zCreatePaymentIntentResponse
@@ -13519,6 +13605,10 @@ export const zGetOrderPaymentStatusPath = z.object({
   ]),
 })
 
+export const zGetOrderPaymentStatusQuery = z.object({
+  uuid: z.uuid().optional(),
+})
+
 export const zGetOrderPaymentStatusResponse = zPaymentStatusResponse
 
 export const zReorderOrderPath = z.object({
@@ -13537,6 +13627,10 @@ export const zRetryOrderPaymentPath = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
+})
+
+export const zRetryOrderPaymentQuery = z.object({
+  uuid: z.uuid().optional(),
 })
 
 export const zRetryOrderPaymentResponse = zCreatePaymentIntentResponse
@@ -13850,6 +13944,8 @@ export const zVivaReturnLookupQuery = z.object({
 })
 
 export const zVivaReturnLookupResponse2 = zVivaReturnLookupResponse
+
+export const zApiV1PageConfigListResponse = z.array(zPublishedPageLayout)
 
 export const zApiV1PageConfigRetrievePath = z.object({
   pageType: z.string(),

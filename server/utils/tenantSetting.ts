@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * Read a tenant's public merchant `extra_settings` from a Nitro route
  * that has no tenant context of its own.
@@ -52,39 +54,40 @@ export async function settingEnabledForHost(
 }
 
 /**
- * Whether this tenant has a PUBLISHED page-config layout for a pageType.
+ * Every page-config layout this tenant has PUBLISHED, with when its page
+ * last changed (Django `GET page-config`).
  *
- * `/about`, `/vision`, `/what-is-microlearning` and `/why-microlearning`
- * are static routes in the build-time manifest, so every tenant's
- * sitemap advertised all four — but each renders a `page_config` layout
- * and throws a hard 404 when the tenant has not published one. Only
- * webside has them, so the other three production tenants listed three
- * or four 404s each.
+ * Two sitemap callers read it: the source lists the store's custom pages
+ * (every published layout no static route renders, at `/<pageType>`),
+ * and the tenant gate drops the layout-backed static routes whose layout
+ * the store has not published, which answer 404. One read for both,
+ * where the gate used to ask Django once per page type.
  *
- * Django answers 404 for "no published layout", which is the documented
- * normal state rather than a fault (see
- * `server/api/page-config/[pageType].get.ts`). One read per gated
- * pageType because there is no bulk endpoint; the caller runs them in
- * parallel and the sitemap response is cached for a day.
- *
- * Fails CLOSED, like its neighbours here.
+ * Fails CLOSED like {@link publicSettingsForHost}: `null` when the read
+ * fails or the answer is not the contract, so neither caller lists a
+ * page it could not confirm. Unlike a route, nothing downstream reports
+ * the failure, so it is logged here: a drifted contract is our defect.
  */
-export async function pageTypePublishedForHost(
+export async function publishedLayoutsForHost(
   host: string,
   apiBaseUrl: string,
-  pageType: string,
-): Promise<boolean> {
+): Promise<readonly PublishedPageLayout[] | null> {
   try {
-    const layout = await backendFetchFor({ tenantHost: host })<{ isPublished?: boolean } | null>(
-      `${apiBaseUrl}/page-config/${pageType}`,
-      {
+    return await parseDataAs(
+      backendFetchFor({ tenantHost: host })(`${apiBaseUrl}/page-config`, {
         method: 'GET',
-      },
+      }),
+      z.array(zPublishedPageLayout),
     )
-    return layout?.isPublished === true
   }
-  catch {
-    return false
+  catch (error) {
+    log.warn({
+      tag: 'sitemap',
+      message: 'Published layouts unreadable; no custom page or brand page is listed',
+      host,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return null
   }
 }
 

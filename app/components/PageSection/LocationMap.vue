@@ -4,8 +4,11 @@
  *
  * Two ways to draw it, in order of preference for the operator:
  *
- * - `lat`/`lng`, which render on our own OpenStreetMap canvas. Nothing
- *   to configure: the tile origins are in every tenant's `img-src`.
+ * - the store's own location (`STORE_GEO_LAT`/`STORE_GEO_LNG`,
+ *   `useStoreLocation`), on our own OpenStreetMap canvas. Nothing to
+ *   configure: the tile origins are in every tenant's `img-src`. The
+ *   band used to carry its own coordinates, which drifted from the
+ *   location the store's structured data reports.
  * - `embed_url`, for a store that wants a specific provider's map.
  *   Only https embeds survive the props schema, and the tenant must
  *   also carry the embed origin (e.g. `https://www.google.com`) in
@@ -16,8 +19,8 @@
  * at all unless the operator asked for the address on its own. The
  * canvas also needs the platform's `cartoBasemapsKey`
  * (`shared/utils/carto-basemaps.ts`) — without one, CARTO's tiles come
- * back watermarked, so the canvas is treated the same as a missing
- * `lat`/`lng`: falls through to the address line, or renders nothing.
+ * back watermarked, so the canvas is treated the same as a store with no
+ * location: falls through to the address line, or renders nothing.
  *
  * The canvas loads when the visitor asks for it, not on arrival. It is
  * third-party tiles and Leaflet's own controls, and the tiles overhang
@@ -31,8 +34,6 @@ const props = defineProps<{
   /** The operator's section title, from the section row itself. */
   title?: string
   embedUrl?: string
-  lat?: number
-  lng?: number
   address?: string
   surface?: 'default' | 'muted'
 }>()
@@ -40,23 +41,22 @@ const props = defineProps<{
 const { t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
 const tenantStore = useTenantStore()
+const location = useStoreLocation()
 
 const mapRequested = ref(false)
 
 const links = computed(() => mapLinks({
-  lat: props.lat,
-  lng: props.lng,
+  lat: location.value?.lat,
+  lng: location.value?.lng,
   address: props.address,
   name: tenantStore.storeName || undefined,
 }))
 
 const showEmbed = computed(() => Boolean(props.embedUrl))
 
-/** Leaflet only needs a point; `0` is a valid coordinate, so test the type. */
 const showCanvas = computed(
   () => !showEmbed.value
-    && typeof props.lat === 'number'
-    && typeof props.lng === 'number'
+    && location.value !== undefined
     && Boolean(runtimeConfig.public.cartoBasemapsKey),
 )
 </script>
@@ -107,8 +107,9 @@ const showCanvas = computed(
       </div>
       <ClientOnly v-else>
         <LazyPageSectionLocationCanvas
-          :lat="lat!"
-          :lng="lng!"
+          v-if="location"
+          :lat="location.lat"
+          :lng="location.lng"
           :address="address"
         />
         <template #fallback>

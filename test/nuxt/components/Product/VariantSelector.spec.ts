@@ -37,6 +37,9 @@ const variant = (id: number, slug: string, finalPrice: number, colour: number, m
   price: finalPrice,
   finalPrice,
   discountPercent: 0,
+  effectivePrice: finalPrice,
+  priorPrice: null,
+  announcedDiscountPercent: null,
   mainImagePath: `media/test-tenant/uploads/${colour === WHITE ? 'white' : 'black'}.jpg`,
   attributeValues: [attr(COLOUR, colour), attr(MEMORY, memory)],
 })

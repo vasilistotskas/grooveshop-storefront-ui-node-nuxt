@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  pageTypePublishedForHost,
+  publishedLayoutsForHost,
   publicSettingsForHost,
   publishedContentLocalesForHost,
   settingEnabledForHost,
@@ -60,23 +60,23 @@ describe('settingEnabledForHost', () => {
   })
 })
 
-describe('pageTypePublishedForHost', () => {
-  it('is true only for a layout Django reports as published, read as the store', async () => {
-    backend.replyOnce({ isPublished: true })
-    backend.replyOnce({ isPublished: false })
+describe('publishedLayoutsForHost', () => {
+  it('reads every published layout once, as the store', async () => {
+    const layouts = [
+      { pageType: 'about', lastModified: '2026-10-01T08:00:00Z' },
+      { pageType: 'kelari', lastModified: '2026-10-14T18:30:00Z' },
+    ]
+    backend.reply(layouts)
 
-    await expect(pageTypePublishedForHost('webside.gr', API, 'about')).resolves.toBe(true)
-    await expect(pageTypePublishedForHost('webside.gr', API, 'vision')).resolves.toBe(false)
-    backend.replyOnce({})
-    await expect(pageTypePublishedForHost('webside.gr', API, 'why-microlearning')).resolves.toBe(false)
-    expect(backend.requests.map(request => request.path)).toEqual([`${API}/page-config/about`, `${API}/page-config/vision`, `${API}/page-config/why-microlearning`])
+    await expect(publishedLayoutsForHost('webside.gr', API)).resolves.toEqual(layouts)
+    expect(backend.requests.map(request => request.path)).toEqual([`${API}/page-config`])
     expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('webside.gr')
   })
 
-  it('is false for the normal "no published layout" 404', async () => {
-    backend.reply(jsonResponse({ detail: 'Not found.' }, 404))
+  it('fails closed when the read fails', async () => {
+    backend.reply(jsonResponse({ detail: 'x' }, 500))
 
-    await expect(pageTypePublishedForHost('webside.gr', API, 'about')).resolves.toBe(false)
+    await expect(publishedLayoutsForHost('webside.gr', API)).resolves.toBeNull()
   })
 })
 

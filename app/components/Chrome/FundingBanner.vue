@@ -82,7 +82,7 @@ const FLOATING_WIDTH = 420
 // before the image arrives: the strip is the first thing on the page, and
 // without it every byte of the artwork pushed the page down (CLS).
 const aspectRatio = computed(() =>
-  banner.value?.width && banner.value.height
+  banner.value?.image
     ? `${banner.value.width} / ${banner.value.height}`
     : undefined,
 )

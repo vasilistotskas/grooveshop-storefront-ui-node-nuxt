@@ -28,6 +28,8 @@ interface Catalogue {
   products?: unknown[]
   productCategories?: unknown[]
   contentPages?: unknown[]
+  /** Published layouts by page type, or `'down'` for a failed read. */
+  layouts?: string[] | 'down'
 }
 
 const page = (results: unknown[] = []) => ({ count: results.length, links: { next: null, previous: null }, results })
@@ -42,6 +44,7 @@ function serve(catalogue: Catalogue = {}) {
     products = [makeProduct({ id: 100, slug: 'my-product' })],
     productCategories = [{ id: 200, slug: 'electronics', updatedAt: UPDATED }],
     contentPages = [],
+    layouts = [],
   } = catalogue
   backend.reply(({ url }: BackendRequest) => {
     switch (url.pathname.replace('/api/v1', '')) {
@@ -54,12 +57,21 @@ function serve(catalogue: Catalogue = {}) {
       case '/product': return page(products)
       case '/product/category': return page(productCategories)
       case '/content-page': return page(contentPages)
+      case '/page-config':
+        return layouts === 'down'
+          ? jsonResponse({ detail: 'upstream down' }, 500)
+          : layouts.map(pageType => ({ pageType, lastModified: UPDATED }))
       default: return jsonResponse({ detail: 'Not found.' }, 404)
     }
   })
 }
 
-type SitemapUrl = { loc: string, images?: Array<{ loc: string, title?: string, caption?: string }> }
+type SitemapUrl = {
+  loc: string
+  lastmod?: string | Date
+  _i18nTransform?: boolean
+  images?: Array<{ loc: string, title?: string, caption?: string }>
+}
 
 async function sitemap(context: Record<string, unknown> = {}): Promise<SitemapUrl[]> {
   const response = await callRoute(handler, { route, host: HOST, headers: { 'x-forwarded-host': 'evil.example' }, context })
@@ -162,7 +174,9 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
 
     await sitemap({ ...tenantContext(), locale: 'en' })
 
-    const reads = backend.requests.filter(request => !request.url.pathname.endsWith('/settings/public'))
+    // The store's settings and layouts are not per language.
+    const reads = backend.requests.filter(request =>
+      !['/settings/public', '/page-config'].some(path => request.url.pathname.endsWith(path)))
     expect(reads).toHaveLength(5)
     for (const read of reads) {
       expect(read.headers.get('x-forwarded-host')).toBe(HOST)
@@ -283,5 +297,57 @@ describe('server/api/__sitemap__/urls — product images', () => {
     const urls = await sitemap(tenantContext())
 
     expect(urls.find(url => url.loc.includes('/products/100/'))?.images).toBeUndefined()
+  })
+})
+
+describe('server/api/__sitemap__/urls — custom pages', () => {
+  it('lists every published layout no static route renders, at its own path, in every locale', async () => {
+    serve({ layouts: ['kelari', 'poies-eimaste'] })
+
+    const urls = await sitemap(tenantContext())
+
+    const custom = urls.filter(url => ['/kelari', '/poies-eimaste'].includes(url.loc))
+    expect(custom.map(url => url.loc)).toEqual(['/kelari', '/poies-eimaste'])
+    for (const url of custom) {
+      expect(url._i18nTransform).toBe(true)
+      expect(new Date(url.lastmod!).toISOString()).toBe(new Date(UPDATED).toISOString())
+    }
+  })
+
+  // Their static routes list them already, and the catch-all refuses
+  // them: `/home` was a second homepage on every store.
+  it('never lists a page type a static route renders, nor a reserved path', async () => {
+    serve({ layouts: ['home', 'about', 'contact', 'offers', 'en', 'kelari'] })
+
+    const urls = locs(await sitemap(tenantContext()))
+
+    expect(urls.filter(loc => loc.startsWith('/'))).toEqual(['/kelari'])
+  })
+
+  it('reads the layouts as the requesting store', async () => {
+    serve({ layouts: ['kelari'] })
+
+    await sitemap(tenantContext())
+
+    const layouts = backend.requests.find(request => request.url.pathname.endsWith('/page-config'))
+    expect(layouts?.headers.get('x-forwarded-host')).toBe(HOST)
+  })
+
+  it('reads no layouts without a store', async () => {
+    serve({ layouts: ['kelari'] })
+
+    const urls = locs(await sitemap())
+
+    expect(urls).not.toContain('/kelari')
+    expect(backend.requests.some(request => request.url.pathname.endsWith('/page-config'))).toBe(false)
+  })
+
+  it('lists no custom page when the read fails, and everything else still', async () => {
+    serve({ layouts: 'down' })
+
+    const urls = locs(await sitemap(tenantContext()))
+
+    expect(urls.some(loc => loc.startsWith('/'))).toBe(false)
+    expect(urls).toContain('https://acme.test/blog/post/1/my-post')
   })
 })

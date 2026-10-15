@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { isCustomPageSlug } from '~~/shared/utils/customPageSlug'
 import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
+import type { StaticLayoutPageType } from '~~/shared/utils/staticLayoutRoutes'
 import {
   APP,
   COMPONENTS,
@@ -46,20 +47,29 @@ function servedSegments(): string[] {
   return [...new Set([...pages, ...serverRoutes, 'api', ...publicEntries])].sort()
 }
 
+interface RenderedPageType {
+  pageType: string
+  file: string
+  /** The page hands it to the brand-page body, which answers 404 without a layout. */
+  brandPage: boolean
+}
+
 /** Every page type a static page renders, with the file that renders it. */
-function renderedPageTypes(): Array<{ pageType: string, file: string }> {
-  const out: Array<{ pageType: string, file: string }> = []
+function renderedPageTypes(): RenderedPageType[] {
+  const out: RenderedPageType[] = []
   for (const file of vueFiles(COMPONENTS)) {
     for (const { call } of callsIn(file, /^usePageConfig$/)) {
       const pageType = staticText(call.arguments[0])
-      if (pageType !== undefined) out.push({ pageType, file })
+      if (pageType !== undefined) out.push({ pageType, file, brandPage: false })
     }
   }
   for (const file of vueFiles(PAGES)) {
+    const brandPage = callsIn(file, /^resolvePage$/)
+      .some(({ call }) => staticText(call.arguments[0]) === 'brand-page')
     walkElements(sfcTemplate(file), (node) => {
       for (const prop of node.props) {
         if (prop.type === 6 && prop.name === 'page-type' && prop.value) {
-          out.push({ pageType: prop.value.content, file })
+          out.push({ pageType: prop.value.content, file, brandPage })
         }
       }
     })
@@ -89,7 +99,7 @@ describe('static routes and the custom pages beside them', () => {
       .toEqual(Object.keys(STATIC_LAYOUT_ROUTES).sort())
   })
 
-  it.each(Object.entries(STATIC_LAYOUT_ROUTES))('%s is rendered by a page at %s', (_pageType, path) => {
+  it.each(Object.entries(STATIC_LAYOUT_ROUTES).map(([pageType, { path }]) => [pageType, path]))('%s is rendered by a page at %s', (_pageType, path) => {
     const page = path === '/' ? 'index' : path.slice(1)
     expect(
       existsSync(resolve(PAGES, `${page}.vue`)) || existsSync(resolve(PAGES, page, 'index.vue')),
@@ -101,8 +111,20 @@ describe('static routes and the custom pages beside them', () => {
   it('gives each brand page the page type of its own route', () => {
     const mismatched = renderedPageTypes()
       .filter(({ file }) => file.startsWith(PAGES))
-      .filter(({ pageType, file }) => STATIC_LAYOUT_ROUTES[pageType as keyof typeof STATIC_LAYOUT_ROUTES] !== `/${routeName(appLabel(file).slice('pages/'.length))}`)
+      .filter(({ pageType, file }) => STATIC_LAYOUT_ROUTES[pageType as StaticLayoutPageType].path !== `/${routeName(appLabel(file).slice('pages/'.length))}`)
       .map(({ pageType, file }) => `${pageType} in ${appLabel(file)}`)
     expect(mismatched).toEqual([])
+  })
+
+  // The sitemap gate drops a route whose layout the store has not
+  // published only when the route answers 404 without one; a fallback
+  // page dropped from the sitemap would be a live page nobody is told of.
+  it('requires a layout exactly for the page types the brand-page body renders', () => {
+    const rendered = renderedPageTypes()
+    const wrong = Object.entries(STATIC_LAYOUT_ROUTES)
+      .filter(([pageType, { requiresLayout }]) =>
+        requiresLayout !== rendered.some(entry => entry.pageType === pageType && entry.brandPage))
+      .map(([pageType]) => pageType)
+    expect(wrong).toEqual([])
   })
 })

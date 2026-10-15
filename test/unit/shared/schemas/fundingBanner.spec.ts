@@ -13,6 +13,8 @@ import {
 const banner = (extra: Record<string, unknown> = {}) => ({
   enabled: true,
   image: '/media/espa/banner.png',
+  width: 1800,
+  height: 197,
   alt: 'Με τη συγχρηματοδότηση της Ευρωπαϊκής Ένωσης',
   link: '/chrimatodotisi',
   ...extra,
@@ -64,20 +66,27 @@ describe('isFundingBanner', () => {
     expect(isFundingBanner(banner({ enabled: 'true' }))).toBe(false)
   })
 
-  it('accepts the artwork\'s intrinsic size', () => {
-    expect(isFundingBanner(banner({ width: 1800, height: 197 }))).toBe(true)
-  })
-
+  // Without its size the artwork's box cannot be reserved, and the
+  // strip pushes every page down as it loads.
   it.each<[Record<string, unknown>, string]>([
-    [{ width: 1800 }, 'a width without a height'],
-    [{ height: 197 }, 'a height without a width'],
-    [{ width: 0, height: 197 }, 'a zero width'],
-    [{ width: 1800, height: -1 }, 'a negative height'],
-    [{ width: 1800.5, height: 197 }, 'a fractional width'],
+    [{ height: undefined }, 'an artwork with no height'],
+    [{ width: undefined }, 'an artwork with no width'],
+    [{ width: undefined, height: undefined }, 'an artwork with no size'],
+    [{ width: 0 }, 'a zero width'],
+    [{ height: -1 }, 'a negative height'],
+    [{ width: 1800.5 }, 'a fractional width'],
     [{ width: '1800', height: '197' }, 'sizes as text'],
-    [{ width: 10001, height: 197 }, 'a width past any artwork'],
+    [{ width: 10001 }, 'a width past any artwork'],
   ])('refuses %j (%s)', (size) => {
     expect(isFundingBanner(banner(size))).toBe(false)
+  })
+
+  it('refuses a size without an artwork', () => {
+    expect(isFundingBanner({ enabled: true, alt: 'x', label: 'Δείτε την πράξη', width: 1800, height: 197 })).toBe(false)
+  })
+
+  it('needs no size for a banner without an artwork', () => {
+    expect(isFundingBanner({ enabled: true, alt: 'x', label: 'Δείτε την πράξη', link: '/chrimatodotisi' })).toBe(true)
   })
 
   it('refuses a key it does not know', () => {
