@@ -8,15 +8,16 @@
  * showed the owner's pin while the location it gave search engines was
  * about 750 m away.
  *
- * `undefined` until both settings parse as finite numbers; `0` is a
- * coordinate, not a missing one.
+ * `undefined` until both settings are decimal degrees in range
+ * (`parseDegrees`): a malformed or impossible value is no location rather
+ * than a wrong one. `0` is a coordinate, not a missing one.
  */
 export function useStoreLocation() {
   const latitude = useSettingValue('STORE_GEO_LAT')
   const longitude = useSettingValue('STORE_GEO_LNG')
   return computed(() => {
-    const lat = Number.parseFloat(latitude.value)
-    const lng = Number.parseFloat(longitude.value)
-    return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : undefined
+    const lat = parseDegrees(latitude.value, LATITUDE_LIMIT)
+    const lng = parseDegrees(longitude.value, LONGITUDE_LIMIT)
+    return lat !== undefined && lng !== undefined ? { lat, lng } : undefined
   })
 }
