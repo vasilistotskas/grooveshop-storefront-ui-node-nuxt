@@ -1,3 +1,10 @@
+## [3.251.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.251.0...v3.251.1) (2026-10-15)
+
+
+### Bug Fixes
+
+* **legal:** a table in a legal document fits the column instead of scrolling ([#142](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/142)) ([1a0aeb9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1a0aeb9c40ef48948e773f5aef9a10c8c426cfe3))
+
 # [3.251.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.250.0...v3.251.0) (2026-10-15)
 
 
