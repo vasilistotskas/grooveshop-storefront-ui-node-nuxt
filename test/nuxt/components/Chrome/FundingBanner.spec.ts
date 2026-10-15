@@ -69,6 +69,21 @@ describe('Chrome/FundingBanner', () => {
     expect(wrapper.find('img').attributes('alt')).toBe(ALT)
   })
 
+  // The strip is the first thing on every page: an artwork box with no
+  // height pushed the whole page down as the image arrived. The inline
+  // style is the mechanism, so it is what is asserted.
+  it('draws the artwork\'s box in its own proportions before it loads', async () => {
+    setting.value = banner({ width: 1800, height: 197 })
+
+    const wrapper = await mountBanner()
+    observed[0]!([{ isIntersecting: false }])
+    await nextTick()
+
+    const styles = wrapper.findAll('img').map(img => img.attributes('style'))
+    expect(styles).toHaveLength(2)
+    for (const style of styles) expect(style).toContain('aspect-ratio: 1800 / 197')
+  })
+
   it('renders the label alone when there is no artwork', async () => {
     setting.value = banner({ image: undefined, label: 'Συγχρηματοδότηση ΕΣΠΑ' })
 

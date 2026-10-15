@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { withTrailingSlash } from 'ufo'
+import type { SupportedLocale } from '~~/i18n/locales'
+
 // The Nuxt UI locale bundles live in `app/utils/uiLocales.ts` so
 // `UApp` here and the language switchers read one map — activating a
 // locale is a single edit. That file also documents
@@ -38,7 +41,6 @@ const siteName = computed(
 const siteLogo = computed(
   () => ogImageUrl.value,
 )
-const siteUrl = computed(() => siteConfig.url || config.public.baseUrl)
 
 watch([loggedIn, user], ([l, u]) => {
   if (import.meta.dev || process.env.NODE_ENV === 'development') return
@@ -151,14 +153,46 @@ const organizationNode = {
   'openingHoursSpecification': openingHoursSpecification,
 }
 
-useSchemaOrg([
-  defineWebPage(),
-  defineWebSite({
-    url: siteUrl,
-    name: siteName,
-    description: siteConfig.description,
-    inLanguage: locales.value.map(l => l.language),
+// The WebSite and WebPage nodes are ours, not nuxt-schema-org's
+// (`schemaOrg.defaults: false` in nuxt.config.ts): its defaults read the
+// platform's locale list, so every store declared `en-US` and a
+// translation at `/en`, which a Greek-only store answers with a 404, and
+// unhead concatenates arrays on merge, so our node could not take them
+// back. Each language is its own WebSite (`@id` per locale home, the
+// module's shape), related to the others in the languages THIS store
+// serves. A non-default WebSite is not the `#website` unhead links
+// pages and publishers to by default, so both links are explicit.
+const localePath = useLocalePath()
+const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true, withBase: true })
+const websiteIdFor = (code: SupportedLocale) =>
+  `${resolveSitePath(localePath('index', code)).value}#website`
+const currentLocale = computed(() => locale.value as SupportedLocale)
+const websiteId = computed(() => websiteIdFor(currentLocale.value))
+const translations = computed(() =>
+  websiteTranslations(currentLocale.value, tenantStore.availableLocales, websiteIdFor),
+)
+
+// The translation relations are CreativeWork properties the WebSite
+// definer's input type does not declare, so they attach after it, the
+// same way the store's extras attach to the Organization node above.
+const websiteNode = {
+  ...defineWebSite({
+    '@id': websiteId,
+    'url': () => resolveSitePath(localePath('index')).value,
+    'name': siteName,
+    'description': siteConfig.description,
+    'inLanguage': () => locales.value.find(l => l.code === currentLocale.value)?.language,
+    'publisher': { '@id': () => `${withTrailingSlash(resolveSitePath('/').value)}#identity` },
   }),
+  workTranslation: () => translations.value.workTranslation,
+  translationOfWork: () => translations.value.translationOfWork,
+}
+
+useSchemaOrg([
+  defineWebPage({
+    isPartOf: { '@id': websiteId },
+  }),
+  websiteNode,
   organizationNode,
 ])
 useSeoMeta({

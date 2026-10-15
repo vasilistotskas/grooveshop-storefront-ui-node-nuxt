@@ -15,6 +15,12 @@
  * line beside the artwork, inside the same link. ``image`` and ``link``
  * are a ``/``-relative path or an https URL — a protocol-relative
  * ``//host`` is neither and is refused.
+ *
+ * ``width`` and ``height`` are the artwork's intrinsic size in pixels,
+ * together or not at all. The strip sits above everything, so an image
+ * with no reserved box pushed the whole page down as it loaded (CLS
+ * 0.12 on a desktop home page); with them the box is drawn at its final
+ * size before the artwork arrives.
  */
 
 export interface FundingBanner {
@@ -23,12 +29,15 @@ export interface FundingBanner {
   alt?: string
   link?: string
   label?: string
+  width?: number
+  height?: number
 }
 
 const URL_RE = /^(\/(?!\/)|https:\/\/)/
 const URL_MAX = 1000
 const TEXT_MAX = 300
-const ALLOWED_KEYS = new Set(['enabled', 'image', 'alt', 'link', 'label'])
+const PIXELS_MAX = 10000
+const ALLOWED_KEYS = new Set(['enabled', 'image', 'alt', 'link', 'label', 'width', 'height'])
 
 function isBoundedString(value: unknown, max: number): value is string {
   return typeof value === 'string' && value.length <= max
@@ -36,6 +45,10 @@ function isBoundedString(value: unknown, max: number): value is string {
 
 function isUrl(value: unknown): value is string {
   return isBoundedString(value, URL_MAX) && URL_RE.test(value)
+}
+
+function isPixels(value: unknown): value is number {
+  return Number.isInteger(value) && (value as number) > 0 && (value as number) <= PIXELS_MAX
 }
 
 export function isFundingBanner(value: unknown): value is FundingBanner {
@@ -48,6 +61,8 @@ export function isFundingBanner(value: unknown): value is FundingBanner {
   if (data.link !== undefined && !isUrl(data.link)) return false
   if (data.alt !== undefined && !isBoundedString(data.alt, TEXT_MAX)) return false
   if (data.label !== undefined && !isBoundedString(data.label, TEXT_MAX)) return false
+  if ((data.width === undefined) !== (data.height === undefined)) return false
+  if (data.width !== undefined && !(isPixels(data.width) && isPixels(data.height))) return false
 
   // An enabled strip is a public compliance mark: an image without its
   // description fails the accessibility check it exists to pass.
