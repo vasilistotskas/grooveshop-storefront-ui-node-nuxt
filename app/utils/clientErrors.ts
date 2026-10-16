@@ -27,6 +27,8 @@ export type ClientErrorReport = {
   error: SerializedClientError
   /** Vue's lifecycle hint for a component error ("render function", …). */
   info?: string
+  /** The browser cannot run this page at all (`browserCannotRunPage`). */
+  unsupportedBrowser?: true
 }
 
 /**
@@ -51,6 +53,26 @@ export const MAX_ERROR_STACK_LENGTH = 2000
  * (`experimental.emitRouteChunkError`) already reloads the page.
  */
 const CHUNK_LOAD_MESSAGE = /failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|unable to preload css|loading (?:css )?chunk [\w-]+ failed/i
+
+/**
+ * What a browser's `fetch` rejects with when the request got no response
+ * at all (offline, the page left mid-request, a blocker): Chrome "Failed to
+ * fetch", Firefox "NetworkError when attempting to fetch resource.", Safari
+ * "Load failed" and "A network error occurred.". The whole message, not a
+ * substring: an error that merely mentions one is not one.
+ */
+const NO_RESPONSE_MESSAGE = /^(?:failed to fetch|networkerror when attempting to fetch resource\.?|load failed|a network error occurred\.?)$/i
+
+/**
+ * Browser notices that say nothing about our code, reported by no one who
+ * can act on them, so they are not reported at all:
+ * - "ResizeObserver loop completed with undelivered notifications" (and
+ *   the older "loop limit exceeded"): the spec's own benign notice that a
+ *   resize was deferred to the next frame;
+ * - "Error invoking postMessage: Java object is gone": an Android in-app
+ *   browser (Facebook, Instagram) whose bridge object was torn down.
+ */
+const BROWSER_NOISE_MESSAGE = /^resizeobserver loop (?:completed with undelivered notifications|limit exceeded)\.?$|^error invoking postmessage: java object is gone$/i
 
 /** A URL's query string and fragment can carry tokens: drop them. */
 const URL_QUERY = /(https?:\/\/[^\s?#)'"]+)[?#][^\s)'"]*?(?=(?::\d+){1,2}(?:[\s)]|$)|[\s)'"]|$)/g
@@ -100,12 +122,43 @@ export function isChunkLoadError(error: SerializedClientError): boolean {
   return error.name === 'ChunkLoadError' || CHUNK_LOAD_MESSAGE.test(error.message)
 }
 
+/** Whether the error is a `fetch` that got no response in the visitor's browser. */
+export function isNoResponseError(error: SerializedClientError): boolean {
+  return NO_RESPONSE_MESSAGE.test(error.message.trim())
+}
+
+/** Whether the error is a browser notice that is not reported at all. */
+export function isBrowserNoise(error: SerializedClientError): boolean {
+  return BROWSER_NOISE_MESSAGE.test(error.message.trim())
+}
+
 /**
- * `warn` for a chunk that would not download (not ours to fix, still
- * visible), `error` for everything else, which pages the team.
+ * `warn` for the visitor's connection failing — a chunk that would not
+ * download, a request that got no response — which is not ours to fix
+ * but stays visible; `error` for everything else, which pages the team.
  */
 export function levelOf(source: ClientErrorSource, error: SerializedClientError): ClientErrorLevel {
-  return source === 'chunk-error' || isChunkLoadError(error) ? 'warn' : 'error'
+  return source === 'chunk-error' || isChunkLoadError(error) || isNoResponseError(error) ? 'warn' : 'error'
+}
+
+/**
+ * Whether this browser cannot run the page at all: the page resolves its
+ * chunks' `#entry` import through an import map (Nuxt's
+ * `experimental.entryImportMap`, on by default), and the browser reads
+ * none — Safari before 16.4, which also lacks `HTMLScriptElement.supports`
+ * before 16. Not one lazy chunk loads there, so every error the page
+ * reports follows from it: "Module specifier '#entry' does not start
+ * with…", then "$routeBaseName is not a function" from the i18n plugin
+ * that could not finish (production, 2026-10-16). The store chose to keep
+ * the import map for every other visitor; such a page's reports go out at
+ * `warn`, flagged, rather than page the team.
+ */
+export function browserCannotRunPage(
+  page: { querySelector: (selector: string) => unknown },
+  scriptElement: { supports?: (type: string) => boolean } | undefined,
+): boolean {
+  if (!page.querySelector('script[type="importmap"]')) return false
+  return !(typeof scriptElement?.supports === 'function' && scriptElement.supports('importmap'))
 }
 
 function signatureOf(error: SerializedClientError): string {
@@ -117,16 +170,23 @@ function signatureOf(error: SerializedClientError): string {
  * A reporter that hands each DISTINCT browser error to `send` once per
  * page load, up to `MAX_CLIENT_ERROR_REPORTS`. One error can reach more
  * than one hook (a mount failure is both a Vue error and an app error),
- * and a failing render repeats.
+ * and a failing render repeats. Browser noise is not handed over, and on
+ * a browser that cannot run the page every report is a flagged `warn`.
  */
-export function createClientErrorReporter(send: (level: ClientErrorLevel, report: ClientErrorReport) => void) {
+export function createClientErrorReporter(
+  send: (level: ClientErrorLevel, report: ClientErrorReport) => void,
+  options: { unsupportedBrowser?: boolean } = {},
+) {
   const seen = new Set<string>()
   return (source: ClientErrorSource, error: unknown, info?: string) => {
     if (seen.size >= MAX_CLIENT_ERROR_REPORTS) return
     const serialized = serializeClientError(error)
+    if (isBrowserNoise(serialized)) return
     const signature = signatureOf(serialized)
     if (seen.has(signature)) return
     seen.add(signature)
-    send(levelOf(source, serialized), { action: `client:${source}`, error: serialized, ...(info ? { info } : {}) })
+    const report: ClientErrorReport = { action: `client:${source}`, error: serialized, ...(info ? { info } : {}) }
+    if (options.unsupportedBrowser) send('warn', { ...report, unsupportedBrowser: true })
+    else send(levelOf(source, serialized), report)
   }
 }

@@ -1,5 +1,3 @@
-import type { WideEvent } from 'evlog'
-import { createGeoEnricher, createUserAgentEnricher } from 'evlog/enrichers'
 import { defineEventHandler, getRequestHeader } from 'nuxt/server'
 
 /**
@@ -9,31 +7,20 @@ import { defineEventHandler, getRequestHeader } from 'nuxt/server'
  */
 export const CACHE_WARM_HEADER = 'x-grooveshop-cache-warm'
 
-const userAgentEnricher = createUserAgentEnricher()
-const geoEnricher = createGeoEnricher()
-
 /**
- * Who is asking, on the request's wide event: browser (name and major
- * version), OS (name only), the device class the page was rendered for,
- * whether it is a bot, the country, whether it is the post-deploy cache
- * warm-up, and the device class Cloudflare computed, when it sent one. Enough to tell a crawler burst or the warm-up from real
- * shoppers, or one browser's failures from everyone's.
+ * Who is asking, on the request's wide event: the coarse browser, OS, bot
+ * and country facts (`clientFacts`, never the raw User-Agent), the device
+ * class the page was rendered for, whether it is the post-deploy cache
+ * warm-up, and the device class Cloudflare computed, when it sent one.
+ * Enough to tell a crawler burst or the warm-up from real shoppers, or one
+ * browser's failures from everyone's.
  *
  * Set on the request logger, not in an `evlog:enrich` hook, because evlog
  * prints the line when it emits and runs enrichers only afterwards, for
  * drains; there is no drain here (see `server/middleware/0.tenant.ts`).
- * evlog's own enrichers do the parsing, run on a scratch context, and only
- * the coarse fields are kept:
- *
- * - not the raw User-Agent string, which is detailed enough to help
- *   fingerprint a visitor, and not the full browser version;
- * - no OS version: browsers freeze it in the User-Agent (Windows 11 sends
- *   "Windows NT 10.0", every macOS "10_15_7"), so it would be wrong;
- * - the device class from `1.device-class.ts`, the one the page is
- *   rendered and cached for, rather than evlog's own classification (it
- *   calls an iPad a tablet; the storefront serves it the mobile render);
- * - behind Cloudflare, only the country: `cf-ipcountry` is the one
- *   location header Cloudflare sends.
+ * The device class is the one from `1.device-class.ts`, the one the page
+ * is rendered and cached for, rather than evlog's own classification (it
+ * calls an iPad a tablet; the storefront serves it the mobile render).
  *
  * Nothing at all without a User-Agent. That is every internal `/api`
  * request a server render makes (the visitor's headers are not forwarded
@@ -44,24 +31,11 @@ const geoEnricher = createGeoEnricher()
 export default defineEventHandler((event) => {
   const userAgentHeader = getRequestHeader(event, 'user-agent')
   if (!userAgentHeader) return
-  const headers: Record<string, string> = { 'user-agent': userAgentHeader }
-  const countryHeader = getRequestHeader(event, 'cf-ipcountry')
-  if (countryHeader) headers['cf-ipcountry'] = countryHeader
-  const scratch = { event: {} as WideEvent, headers }
-  userAgentEnricher(scratch)
-  geoEnricher(scratch)
-
-  const userAgent = scratch.event.userAgent as { browser?: { name: string, version?: string }, os?: { name: string }, device?: { type: string } } | undefined
-  const country = (scratch.event.geo as { country?: string } | undefined)?.country
-  const major = (version?: string) => version?.split('.')[0]
 
   event.context.log?.set({
     client: {
-      browser: userAgent?.browser && [userAgent.browser.name, major(userAgent.browser.version)].filter(Boolean).join(' '),
-      os: userAgent?.os?.name,
+      ...clientFacts(userAgentHeader, getRequestHeader(event, 'cf-ipcountry')),
       deviceClass: getRequestHeader(event, 'x-device-class'),
-      bot: userAgent?.device?.type === 'bot',
-      country,
       cacheWarm: getRequestHeader(event, CACHE_WARM_HEADER) === '1',
       // Cloudflare's own class when it caches by device type. Never used
       // to render (shared/utils/deviceClass.ts); logged so a change in
