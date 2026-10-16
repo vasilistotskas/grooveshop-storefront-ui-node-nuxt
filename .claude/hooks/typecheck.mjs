@@ -18,8 +18,41 @@
  * must not be able to wedge every turn.
  */
 import { readFileSync, existsSync, unlinkSync } from 'node:fs'
-import { execSync } from 'node:child_process'
+import { execFileSync, execSync } from 'node:child_process'
 import { resolve } from 'node:path'
+
+// Two `nuxt typecheck` runs regenerate `.nuxt/` at the same time, and the one
+// that reads it half written sees an empty typed-route map: dozens of
+// `RouteLocationI18nInput<never>` errors that are not in the code. Other
+// Claude sessions run the same command in this checkout, so wait for them.
+const TYPECHECK_PATTERN = String.raw`nuxt(\.mjs)?[\s"]+typecheck`
+
+function nuxtTypecheckRunning() {
+  try {
+    if (process.platform === 'win32') {
+      const out = execFileSync('powershell', [
+        '-NoProfile', '-NonInteractive', '-Command',
+        `(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^node' -and $_.CommandLine -match '${TYPECHECK_PATTERN}' -and $_.ProcessId -ne ${process.pid} } | Measure-Object).Count`,
+      ], { encoding: 'utf8', stdio: 'pipe', timeout: 20_000 })
+      return Number(out.trim()) > 0
+    }
+    execFileSync('pgrep', ['-f', String.raw`^node\s.*` + TYPECHECK_PATTERN], { stdio: 'pipe' })
+    return true
+  }
+  catch {
+    // pgrep exits 1 on no match; a failed probe must not block the turn.
+    return false
+  }
+}
+
+function waitForOtherTypecheck(timeoutMs = 300_000, pollMs = 3_000) {
+  const deadline = Date.now() + timeoutMs
+  while (nuxtTypecheckRunning()) {
+    if (Date.now() >= deadline) return false
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, pollMs)
+  }
+  return true
+}
 
 let input = {}
 try {
@@ -48,12 +81,19 @@ catch {
   // If the marker survives, the next turn simply re-runs the check.
 }
 
+if (!waitForOtherTypecheck()) {
+  process.stderr.write('nuxt typecheck skipped: another run was still going after 5 minutes; run `pnpm typecheck` manually.\n')
+  process.exit(0)
+}
+
 try {
   execSync('pnpm run typecheck', {
     cwd: projectDir,
     stdio: 'pipe',
     timeout: 600_000,
     encoding: 'utf8',
+    // 8 GB heap, like CI: the default limit aborts with exit 134 (OOM), not a type error.
+    env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=8192' },
   })
   process.exit(0)
 }
