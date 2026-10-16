@@ -71,6 +71,7 @@ onMounted(() => {
       orientation="horizontal"
       :items="dockItems"
       :aria-label="t('mobile_navigation')"
+      :data-dock="keyboardOpen ? undefined : 'tabbar'"
       color="neutral"
       variant="link"
       :ui="{
@@ -78,8 +79,8 @@ onMounted(() => {
         // would otherwise shrink to the icons and bunch them in the
         // middle of the bar.
         root: `
-          fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))]
-          z-50 h-16 rounded-[1.375rem] border border-default bg-default/95 px-2
+          fixed inset-x-3 bottom-(--dock-base) z-50 h-(--dock-tabbar-height)
+          rounded-[1.375rem] border border-default bg-default/95 px-2
           shadow-(--ui-overlay-shadow) backdrop-blur-md transition-transform
           duration-200
           [&>div]:flex-1

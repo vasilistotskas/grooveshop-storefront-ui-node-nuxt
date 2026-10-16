@@ -10,10 +10,6 @@ const { isMobileOrTablet } = useDevice()
 const stickyAddToCartEnabled = useSettingFlag('STICKY_ADD_TO_CART_ENABLED', {
   fallback: true,
 })
-// The sticky bar floats above the phone's tab bar when there is one.
-const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
-  fallback: true,
-})
 // Merchant feature toggles (endpoints are also gated server-side).
 const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', {
   fallback: true,
@@ -1133,15 +1129,14 @@ useSchemaOrg([
       >
         <div
           v-if="stickyAddToCartEnabled && showStickyAddToCart"
+          data-dock="bar"
           class="
-            fixed inset-x-3 z-40 flex items-center gap-3 rounded-[1.125rem]
-            border border-default bg-default py-2.5 ps-4 pe-2.5
+            fixed inset-x-3 bottom-[calc(var(--dock-base)+var(--dock-tabbar))]
+            z-40 flex h-(--dock-bar-height) items-center gap-3
+            rounded-[1.125rem] border border-default bg-default ps-4 pe-2.5
             shadow-(--ui-overlay-shadow)
-            lg:inset-x-0 lg:bottom-6 lg:mx-auto lg:w-xl
+            lg:inset-x-0 lg:mx-auto lg:w-xl
           "
-          :class="mobileBottomNavEnabled
-            ? 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]'
-            : 'bottom-[calc(0.75rem+env(safe-area-inset-bottom))]'"
         >
           <span
             class="

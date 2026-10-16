@@ -24,11 +24,13 @@ const chatEnabled = useSettingFlag('CHAT_WIDGET_ENABLED', {
     <UButton
       color="neutral"
       class="
-        fixed right-4 bottom-24 z-40 size-14 justify-center rounded-full
-        bg-inverted text-(--ui-volt-on-inverted) shadow-lg transition
+        fixed right-4
+        bottom-[calc(var(--dock-base)+var(--dock-tabbar)+var(--dock-bar)+var(--dock-fab))]
+        z-40 size-14 justify-center rounded-full bg-inverted
+        text-(--ui-volt-on-inverted) shadow-lg transition
         hover:bg-inverted
         motion-safe:hover:scale-105 motion-safe:active:scale-95
-        md:right-6 md:bottom-6
+        md:right-6
       "
       :icon="open ? 'i-lucide-x' : 'i-lucide-zap'"
       :ui="{ leadingIcon: 'size-6' }"

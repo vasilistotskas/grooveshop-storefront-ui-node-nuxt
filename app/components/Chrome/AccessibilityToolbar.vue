@@ -57,9 +57,11 @@ const TOGGLES: Array<{ key: AccessibilityToggle, icon: string }> = [
       square
       :aria-label="t('open')"
       :ui="{ leadingIcon: 'size-7' }"
+      data-dock="fab"
       class="
-        a11y-fab fixed right-4 bottom-4 z-50 size-14 justify-center
-        rounded-full shadow-lg
+        a11y-fab fixed right-4
+        bottom-[calc(var(--dock-base)+var(--dock-tabbar)+var(--dock-bar))] z-50
+        size-14 justify-center rounded-full shadow-lg
       "
     />
 

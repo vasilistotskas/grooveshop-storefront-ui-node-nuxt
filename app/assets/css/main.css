@@ -107,6 +107,60 @@
   --ui-error: var(--color-error-600);
 }
 
+/* The bottom dock: what is fixed to the bottom edge of the screen,
+   stacked by one rule. Each docked element marks itself with
+   `data-dock` (`tabbar`, `bar` for a sticky action bar, `fab` for a
+   floating button that another one stacks above), and `:has()` turns
+   what is actually on screen into offsets. No component knows another's
+   height: the assistant button used a fixed `bottom-24` that ignored
+   the iPhone home-indicator inset the tab bar adds, and it sat on top of
+   the sticky add-to-cart bar (owner review, 2026-10-16).
+
+   Offsets, bottom up: `--dock-base` (gap above the safe area, or above
+   the ESPA strip that floats along a phone's bottom edge), then the tab
+   bar, then a sticky bar (phones and tablets only; on a desktop it is a
+   centred card that no corner button reaches), then a floating button. */
+:root {
+  --dock-gap: 0.75rem;
+  --dock-tabbar-height: 4rem;
+  --dock-bar-height: 4.125rem;
+  --dock-fab-size: 3.5rem;
+  --dock-edge: 0px;
+  --dock-base: calc(var(--dock-gap) + max(env(safe-area-inset-bottom), var(--dock-edge)));
+  --dock-tabbar: 0px;
+  --dock-bar: 0px;
+  --dock-fab: 0px;
+}
+
+:root:has([data-dock="tabbar"]) {
+  --dock-tabbar: calc(var(--dock-tabbar-height) + var(--dock-gap));
+}
+
+:root:has([data-dock="fab"]) {
+  --dock-fab: calc(var(--dock-fab-size) + var(--dock-gap));
+}
+
+/* The floating funding strip's measured height (Chrome/FundingBanner.vue),
+   which already includes the safe area. Phones only: from `sm` up it is
+   a card in the bottom-left corner. */
+@media (width < 40rem) {
+  :root:has([data-funding-floating]) {
+    --dock-edge: var(--funding-strip-height, 0px);
+  }
+}
+
+@media (width < 64rem) {
+  :root:has([data-dock="bar"]) {
+    --dock-bar: calc(var(--dock-bar-height) + var(--dock-gap));
+  }
+}
+
+@media (width >= 64rem) {
+  :root {
+    --dock-gap: 1.5rem;
+  }
+}
+
 
 .dark {
   --ui-bg: var(--ui-color-neutral-950);

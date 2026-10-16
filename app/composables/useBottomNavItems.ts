@@ -99,6 +99,10 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
               text: cartCount.value > 99 ? '99+' : cartCount.value,
               color: 'secondary',
               size: '3xl',
+              // On the icon's corner, not inside it: NavigationMenu
+              // insets the chip by default, and at this size it covered
+              // the bag (owner review, 2026-10-16).
+              inset: false,
             }
           : undefined,
       })
