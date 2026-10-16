@@ -37,8 +37,9 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
   margin-block-start: 1.75rem;
 }
 
-.fy-prose :deep(p) {
-  margin: 0;
+.fy-prose > :deep(p:first-child) {
+  font-size: 1.3125rem;
+  line-height: 1.65;
 }
 
 .fy-prose :deep(h1),
@@ -83,7 +84,6 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
 
 .fy-prose :deep(ul),
 .fy-prose :deep(ol) {
-  margin: 0;
   padding-inline-start: 1.5rem;
 }
 
@@ -105,6 +105,23 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
   display: block;
   height: auto;
   max-width: 100%;
+}
+
+/*
+ * A run of photographs: two columns that keep every picture whole,
+ * whatever its orientation (a phone's portraits beside a landscape).
+ * The editor writes it as <div class="fy-gallery"> around the <img>s.
+ */
+.fy-prose :deep(.fy-gallery) {
+  column-count: 2;
+  column-gap: 0.75rem;
+}
+
+.fy-prose :deep(.fy-gallery img) {
+  border-radius: 1rem;
+  break-inside: avoid;
+  margin-block-end: 0.75rem;
+  width: 100%;
 }
 
 .fy-prose :deep(figure) {
@@ -133,7 +150,7 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
   font-style: italic;
   font-weight: 500;
   line-height: 1.22;
-  margin-block: 0.5rem;
+  margin-block: 2.5rem 0.5rem;
   margin-inline: 0;
   padding: 0;
 }
