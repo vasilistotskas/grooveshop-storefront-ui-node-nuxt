@@ -572,7 +572,6 @@ useSchemaOrg([
       </article>
 
       <LazyWebsideBlogPostComments
-        :id="`blog-post-${blogPost.id}-comments`"
         hydrate-on-visible
         :blog-post-id="String(blogPost.id)"
         :comments-count="blogPost.commentsCount"

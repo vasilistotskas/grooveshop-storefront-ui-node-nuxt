@@ -5,6 +5,13 @@ export const ALLAUTH_CONFIG_URL = `${ALLAUTH_API_PREFIX}/config` as const
 
 export const defaultSelectOptionChoose = 'choose'
 
+/**
+ * The id of a blog post's comments section: the comments button and the
+ * cards' comments links jump to it. The page used to pass its own id to
+ * the section, which replaced this one, so neither found it.
+ */
+export const BLOG_POST_COMMENTS_ID = 'blog-post-comments'
+
 export const GSIAuthProcess = {
   LOGIN: 'login',
   CONNECT: 'connect',

@@ -252,3 +252,47 @@ describe('BlogPost page (default tree)', () => {
     })
   })
 })
+
+/**
+ * The comments button scrolls to the comments. The page used to give
+ * the comments section its own id, which replaced the one the button
+ * looks for, so the button did nothing (owner review, 2026-10-16).
+ */
+describe.each([
+  ['default', BlogPost],
+  ['webside', WebsideBlogPost],
+])('BlogPost comments button (%s tree)', (_tree, Component) => {
+  beforeEach(() => {
+    clearNuxtData()
+    clearCursorState()
+    setTenant({ blogEnabled: true })
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/blog/posts/7': { ...POST, commentsCount: 3 },
+      '/api/blog/categories/2': POST.category,
+      '/api/blog/authors/3': POST.author,
+      '/api/*': empty,
+    })
+  })
+
+  it('scrolls the comments section into view', async () => {
+    const scrolled: Element[] = []
+    vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(function (this: Element) {
+      scrolled.push(this)
+    })
+    const wrapper = await mountSuspended(Component, { route: false, attachTo: document.body })
+    await flushPromises()
+
+    // The button shows the comment count (both trees label it with it).
+    const button = await vi.waitFor(() => {
+      const found = wrapper.findAll('button').find(candidate => candidate.text() === '3')
+      expect(found).toBeTruthy()
+      return found!
+    })
+    await vi.waitFor(() => expect(document.getElementById(BLOG_POST_COMMENTS_ID)).not.toBeNull())
+    await button.trigger('click')
+
+    expect(scrolled.map(element => element.id)).toContain(BLOG_POST_COMMENTS_ID)
+    wrapper.unmount()
+  })
+})

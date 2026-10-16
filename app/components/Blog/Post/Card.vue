@@ -169,7 +169,7 @@ const startShare = async () => {
         />
         <UButton
           v-if="blogCommentsEnabled"
-          :to="`${url}#blog-post-comments`"
+          :to="`${url}#${BLOG_POST_COMMENTS_ID}`"
           :label="String(post.commentsCount)"
           :aria-label="t('comments', { count: post.commentsCount }, post.commentsCount)"
           icon="i-lucide-message-circle"

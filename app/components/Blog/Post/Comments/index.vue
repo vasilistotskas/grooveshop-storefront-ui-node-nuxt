@@ -224,9 +224,9 @@ async function onAddCommentSubmit(values: Record<string, any>) {
 }
 
 const scrollToComments = () => {
-  if (window.location.hash === '#blog-post-comments') {
+  if (window.location.hash === `#${BLOG_POST_COMMENTS_ID}`) {
     nextTick(() => {
-      const commentsElement = document.getElementById('blog-post-comments')
+      const commentsElement = document.getElementById(BLOG_POST_COMMENTS_ID)
       if (commentsElement) {
         commentsElement.scrollIntoView({ behavior: 'smooth' })
       }
@@ -271,7 +271,7 @@ onMounted(() => {
 <template>
   <div
     v-if="blogCommentsEnabled"
-    id="blog-post-comments"
+    :id="BLOG_POST_COMMENTS_ID"
     class="flex flex-col items-start justify-center gap-4"
   >
     <div class="grid w-full">
