@@ -32,7 +32,7 @@ const cookieConsent = computed(() =>
 )
 
 // Tenant-aware SEO metadata. siteConfig is already overridden per
-// tenant by server/middleware/4.tenant-site-config.ts; tenantStore
+// tenant by server/plugins/tenant-site-config.ts; tenantStore
 // exposes the branding fields (logo, store name) — the env-level
 // appTitle is only the no-tenant fallback.
 const siteName = computed(

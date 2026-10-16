@@ -35,8 +35,7 @@ export async function useNewsletterAvailability() {
   const { data: availability } = await useApi('/api/subscriptions/newsletter', {
     key: 'newsletter-availability',
     dedupe: 'defer',
-    immediate: newsletterEnabled.value,
-    server: newsletterEnabled.value,
+    enabled: newsletterEnabled,
     // The band hydrates when it scrolls into view, after the app has
     // finished hydrating — see app/utils/payloadCachedData.ts.
     getCachedData: payloadCachedData,

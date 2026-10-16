@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { getTenantConfig } from '~~/server/utils/tenant'
-import plugin from '~~/server/plugins/evlog-client-tenant'
+import plugin from '~~/server/plugins/evlog-client-context'
 import { runNitroPlugin } from '~~/test/helpers/nitro'
 
 /**
  * evlog's ingest route runs `evlog:enrich` on a browser event BEFORE it
  * prints it, so a field set there lands on the stdout line. Server events
  * reach the same hook already printed, and carry their store from
- * `0.tenant.ts`, so they are left alone.
+ * `0.tenant.ts` and their browser from `2.evlog-client.ts`, so they are
+ * left alone.
  */
 vi.mock('~~/server/utils/tenant', async importOriginal => ({
   ...await importOriginal<typeof import('~~/server/utils/tenant')>(),
@@ -23,7 +24,9 @@ async function enrich(event: Record<string, unknown>, headers: Record<string, st
   return event
 }
 
-describe('server/plugins/evlog-client-tenant', () => {
+const SAFARI_15 = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.6 Mobile/15E148 Safari/604.1'
+
+describe('server/plugins/evlog-client-context', () => {
   beforeEach(() => {
     vi.mocked(getTenantConfig).mockResolvedValue({ type: 'ok', config: validTenantConfig('shop.test', { schemaName: 'shop', name: 'Shop' }) })
   })
@@ -32,6 +35,13 @@ describe('server/plugins/evlog-client-tenant', () => {
     const event = await enrich({ level: 'warn', source: 'client', tag: 'cart' })
 
     expect(event).toEqual({ level: 'warn', source: 'client', tag: 'cart', tenantSchema: 'shop', tenantName: 'Shop' })
+  })
+
+  it('names the browser it came from, as server events do, never the raw User-Agent', async () => {
+    const event = await enrich({ level: 'error', source: 'client' }, { 'host': 'shop.test', 'user-agent': SAFARI_15, 'cf-ipcountry': 'GR' })
+
+    expect(event.client).toEqual({ browser: 'Safari 15', os: 'iOS', bot: false, country: 'GR' })
+    expect(JSON.stringify(event)).not.toContain('Mozilla')
   })
 
   it('resolves the store from the request host, port and case dropped', async () => {

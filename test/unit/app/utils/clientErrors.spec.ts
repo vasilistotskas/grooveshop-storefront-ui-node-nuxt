@@ -3,8 +3,11 @@ import {
   MAX_CLIENT_ERROR_REPORTS,
   MAX_ERROR_MESSAGE_LENGTH,
   MAX_ERROR_STACK_FRAMES,
+  browserCannotRunPage,
   createClientErrorReporter,
+  isBrowserNoise,
   isChunkLoadError,
+  isNoResponseError,
   serializeClientError,
 } from '~/utils/clientErrors'
 import type { ClientErrorLevel, ClientErrorReport } from '~/utils/clientErrors'
@@ -106,6 +109,56 @@ describe('isChunkLoadError', () => {
   })
 })
 
+// Production, 2026-10-16: Safari's "Load failed" and "A network error
+// occurred." reached the logs at error level, as did 13 ResizeObserver
+// notices and 7 from Android in-app browsers in three days.
+describe('isNoResponseError', () => {
+  it.each([
+    ['Chrome', 'Failed to fetch'],
+    ['Firefox', 'NetworkError when attempting to fetch resource.'],
+    ['Safari', 'Load failed'],
+    ['Safari, NetworkError', 'A network error occurred.'],
+  ])('recognises %s', (_browser, message) => {
+    expect(isNoResponseError({ message })).toBe(true)
+  })
+
+  it('needs the whole message, not a mention of one', () => {
+    expect(isNoResponseError({ message: 'Failed to fetch the cart summary: 500' })).toBe(false)
+    expect(isNoResponseError({ message: 'Image load failed' })).toBe(false)
+  })
+})
+
+describe('browserCannotRunPage', () => {
+  const page = (importMap: boolean) => ({ querySelector: (selector: string) => importMap && selector === 'script[type="importmap"]' ? {} : null })
+
+  it('is true for a page with an import map in a browser that reads none', () => {
+    // Safari 16.0–16.3: `supports` exists and says no.
+    expect(browserCannotRunPage(page(true), { supports: type => type !== 'importmap' })).toBe(true)
+    // Safari before 16: no `supports` at all.
+    expect(browserCannotRunPage(page(true), {})).toBe(true)
+  })
+
+  it('is false where the browser reads import maps, or the page has none', () => {
+    expect(browserCannotRunPage(page(true), { supports: () => true })).toBe(false)
+    expect(browserCannotRunPage(page(false), {})).toBe(false)
+  })
+})
+
+describe('isBrowserNoise', () => {
+  it.each([
+    ['ResizeObserver loop completed with undelivered notifications.'],
+    ['ResizeObserver loop limit exceeded'],
+    ['Error invoking postMessage: Java object is gone'],
+  ])('recognises "%s"', (message) => {
+    expect(isBrowserNoise({ message })).toBe(true)
+  })
+
+  it('does not swallow an error that only mentions one', () => {
+    expect(isBrowserNoise({ message: 'Cannot read properties of undefined (reading \'observe\')' })).toBe(false)
+    expect(isBrowserNoise({ message: 'postMessage target origin mismatch' })).toBe(false)
+  })
+})
+
 describe('createClientErrorReporter', () => {
   it('sends a plain-data report tagged with where the error surfaced, with Vue hint', () => {
     const send = sender()
@@ -139,6 +192,36 @@ describe('createClientErrorReporter', () => {
     report('app-error', { message: 'Importing a module script failed.', statusCode: 500 })
 
     expect(send.mock.calls.map(([level]) => level)).toEqual(['warn', 'warn', 'warn'])
+  })
+
+  it('reports a request that got no response at warn level', () => {
+    const send = sender()
+    const report = createClientErrorReporter(send)
+
+    report('unhandled-rejection', new TypeError('Load failed'))
+    report('unhandled-rejection', Object.assign(new Error('A network error occurred.'), { name: 'NetworkError' }))
+
+    expect(send.mock.calls.map(([level]) => level)).toEqual(['warn', 'warn'])
+  })
+
+  it('reports every error at warn, flagged, from a browser that cannot run the page', () => {
+    const send = sender()
+    const report = createClientErrorReporter(send, { unsupportedBrowser: true })
+
+    report('app-error', { message: 'Module specifier, \'#entry\' does not start with "/", "./", or "../".', statusCode: 500 })
+    report('app-error', { message: 'H().$routeBaseName is not a function', statusCode: 500 })
+
+    expect(send.mock.calls.map(([level, entry]) => [level, entry.unsupportedBrowser])).toEqual([['warn', true], ['warn', true]])
+  })
+
+  it('does not report browser noise at all', () => {
+    const send = sender()
+    const report = createClientErrorReporter(send)
+
+    report('window-error', 'ResizeObserver loop completed with undelivered notifications.')
+    report('window-error', new Error('Error invoking postMessage: Java object is gone'))
+
+    expect(send).not.toHaveBeenCalled()
   })
 
   it('reports the same error once, whichever hooks it reaches', () => {

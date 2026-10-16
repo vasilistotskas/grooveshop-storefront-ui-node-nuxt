@@ -7,11 +7,20 @@
  *
  * Fully controlled — state lives in ``useCheckoutForm`` so the parent
  * step can show or hide its address fields from the same selection.
+ *
+ * An address that fails checkout's rules (no region, no phone, a
+ * postcode its country rejects) says it needs updating. Picking it keeps
+ * its card picked while the step opens its fields to complete.
  */
 const props = defineProps<{
   addresses: UserAddressDetail[]
   selectedId: number | null
-  /** ``saved``: a card is selected; ``new``: the shopper chose to type one. */
+  /** Ids of the addresses that fail checkout's rules. */
+  needingUpdate: number[]
+  /**
+   * ``saved``: the picked card stands for the address fields; ``new``:
+   * the fields are open, for the picked card's address or a new one.
+   */
   mode: 'saved' | 'new'
 }>()
 
@@ -26,6 +35,7 @@ type Item = {
   value: number
   label: string
   isMain: boolean
+  needsUpdate: boolean
   recipient: string
   street: string
   city: string
@@ -35,6 +45,7 @@ const items = computed<Item[]>(() => props.addresses.map(address => ({
   value: address.id,
   label: address.title,
   isMain: address.isMain ?? false,
+  needsUpdate: props.needingUpdate.includes(address.id),
   recipient: `${address.firstName} ${address.lastName}`.trim(),
   street: [address.street, address.streetNumber].filter(Boolean).join(' '),
   city: [address.zipcode, address.city].filter(Boolean).join(' '),
@@ -42,11 +53,13 @@ const items = computed<Item[]>(() => props.addresses.map(address => ({
 
 /** The picked address id; nothing is picked while the shopper types a new one. */
 const modelValue = computed<number | undefined>({
-  get: () => (props.mode === 'new' ? undefined : (props.selectedId ?? undefined)),
+  get: () => props.selectedId ?? undefined,
   set: (next) => {
     if (typeof next === 'number') emit('select', next)
   },
 })
+
+const typingNew = computed(() => props.mode === 'new' && props.selectedId === null)
 </script>
 
 <template>
@@ -76,6 +89,14 @@ const modelValue = computed<number | undefined>({
           >
             · {{ t('main') }}
           </span>
+          <UBadge
+            v-if="(item as Item).needsUpdate"
+            color="warning"
+            variant="subtle"
+            size="sm"
+            icon="i-lucide-triangle-alert"
+            :label="t('needs_update')"
+          />
         </span>
       </template>
       <template #description="{ item }">
@@ -90,9 +111,9 @@ const modelValue = computed<number | undefined>({
     <div>
       <UButton
         color="neutral"
-        :variant="mode === 'new' ? 'soft' : 'outline'"
+        :variant="typingNew ? 'soft' : 'outline'"
         icon="i-lucide-plus"
-        :aria-pressed="mode === 'new'"
+        :aria-pressed="typingNew"
         @click="() => emit('new')"
       >
         {{ t('new_address') }}
@@ -105,9 +126,11 @@ const modelValue = computed<number | undefined>({
 el:
   legend: Αποθηκευμένες διευθύνσεις
   main: "Κύρια"
+  needs_update: Χρειάζεται ενημέρωση
   new_address: Νέα διεύθυνση
 en:
   legend: Saved addresses
   main: "Main"
+  needs_update: Needs updating
   new_address: New address
 </i18n>

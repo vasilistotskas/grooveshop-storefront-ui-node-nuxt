@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { FormError } from '@nuxt/ui'
+import type { FormError, FormErrorEvent, FormErrorWithId } from '@nuxt/ui'
 
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
@@ -9,6 +9,8 @@ const props = defineProps<{
   regionOptions: Array<{ label: string, value: string }>
   savedAddresses?: UserAddressDetail[]
   selectedSavedAddressId?: number | null
+  /** Saved addresses that fail checkout's rules, marked in the picker. */
+  addressIdsNeedingUpdate?: number[]
   /**
    * ``saved`` = shopper picked a saved address (personal info + address
    * form sections collapse into the card summary); ``new`` = shopper is
@@ -47,6 +49,7 @@ const emit = defineEmits<{
   'next': []
   'select-saved-address': [addressId: number]
   'use-new-address': []
+  'edit-address': []
 }>()
 
 const { t } = useI18n()
@@ -102,19 +105,61 @@ const HEADING = 'font-display text-[1.375rem] font-bold text-highlighted'
 // in the checkout page) can trigger Zod validation + emit `next`.
 const formRef = useTemplateRef<{
   submit: () => Promise<void>
+  validate: (opts: { name?: string[], silent?: boolean }) => Promise<unknown>
   setErrors: (errors: FormError[]) => void
+  getErrors: () => FormErrorWithId[]
 }>('formRef')
 defineExpose({
   submit: () => formRef.value?.submit(),
 })
 
+/**
+ * An error on a field the ``saved`` mode does not render has nowhere to
+ * show: Nuxt UI resolves each error to its input, so a missing input
+ * leaves a validation error without an id and drops a ``setErrors`` one.
+ * «Continue» then did nothing on screen (demo, 2026-10-16). Open the
+ * picked address's fields first, so every error lands under its input.
+ */
+async function openFieldsFor(errors: FormError[]): Promise<boolean> {
+  if (!isSavedMode.value) return false
+  if (!errors.some(error => error.name && SAVED_ADDRESS_FIELDS.includes(error.name))) return false
+  emit('edit-address')
+  await nextTick()
+  return true
+}
+
+async function onFormError(event: FormErrorEvent) {
+  if (await openFieldsFor(event.errors)) {
+    // The same errors again, resolved against the inputs now on screen.
+    await formRef.value?.validate({ silent: true })
+    scrollToFirstFormError({ errors: formRef.value?.getErrors() ?? [] })
+    return
+  }
+  scrollToFirstFormError(event)
+}
+
 // The step mounts after a rejected order sends the shopper back here,
 // so apply on mount as well as on change.
-function applyServerErrors() {
-  if (props.serverErrors?.length) formRef.value?.setErrors(props.serverErrors)
+async function applyServerErrors() {
+  if (!props.serverErrors?.length) return
+  await openFieldsFor(props.serverErrors)
+  formRef.value?.setErrors(props.serverErrors)
 }
 onMounted(applyServerErrors)
 watch(() => props.serverErrors, applyServerErrors)
+
+// A picked address that fails checkout's rules opens in the form with
+// its card still picked (``validateAppliedAddress``): mark what is wrong
+// on its fields rather than wait for «Continue». Django's own messages,
+// when an order came back rejected, are the ones to show: validating
+// those fields again would replace them.
+const editingSavedAddress = computed(() => !isSavedMode.value && props.selectedSavedAddressId != null)
+async function markSavedAddressErrors() {
+  if (!editingSavedAddress.value || props.serverErrors?.length) return
+  await formRef.value?.validate({ name: [...SAVED_ADDRESS_FIELDS], silent: true })
+}
+onMounted(markSavedAddressErrors)
+watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
 </script>
 
 <template>
@@ -123,7 +168,7 @@ watch(() => props.serverErrors, applyServerErrors)
     :state="formState"
     :schema="schema"
     class="flex flex-col gap-6"
-    @error="scrollToFirstFormError"
+    @error="onFormError"
     @submit="emit('next')"
   >
     <!-- Contact — hidden with the rest of the typed details when the
@@ -192,6 +237,7 @@ watch(() => props.serverErrors, applyServerErrors)
         v-if="hasSavedAddresses"
         :addresses="savedAddresses ?? []"
         :selected-id="selectedSavedAddressId ?? null"
+        :needing-update="addressIdsNeedingUpdate ?? []"
         :mode="mode ?? 'new'"
         @select="onSelectSaved"
         @new="onUseNew"

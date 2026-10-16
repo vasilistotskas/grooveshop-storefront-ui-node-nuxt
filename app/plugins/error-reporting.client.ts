@@ -6,10 +6,14 @@
  * rejections never left the browser: two client events reached production
  * in seven days. Each distinct error goes through `log.error` once per
  * page load (`createClientErrorReporter`); the ingest route is
- * rate-limited on the server.
+ * rate-limited on the server. A browser that cannot run the page
+ * (`browserCannotRunPage`: no import maps) reports at `warn`.
  */
 export default defineNuxtPlugin((nuxtApp) => {
-  const report = createClientErrorReporter((level, entry) => log[level](entry))
+  const report = createClientErrorReporter(
+    (level, entry) => log[level](entry),
+    { unsupportedBrowser: browserCannotRunPage(document, window.HTMLScriptElement) },
+  )
 
   nuxtApp.hook('vue:error', (error, _instance, info) => {
     report('vue-error', error, info)

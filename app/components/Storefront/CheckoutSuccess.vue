@@ -684,7 +684,7 @@ el:
   title: Η παραγγελία καταχωρήθηκε
   heading: Ευχαριστούμε, {name}. Η παραγγελία σου καταχωρήθηκε.
   heading_anonymous: Ευχαριστούμε. Η παραγγελία σου καταχωρήθηκε.
-  lead: "Παραγγελία {number} · στείλαμε την απόδειξη στο {email}."
+  lead: "Παραγγελία {number} · στείλαμε την επιβεβαίωση της παραγγελίας στο {email}."
   verifying:
     payment: Επαλήθευση πληρωμής...
     description: Παρακαλώ περίμενε ενώ επιβεβαιώνουμε την πληρωμή σου.
@@ -724,10 +724,10 @@ el:
   actions:
     track: Παρακολούθηση παραγγελίας
     continue: Συνέχεια αγορών
-    invoice: Τιμολόγιο (PDF)
+    invoice: Απόδειξη (PDF)
   invoice:
-    error_title: Το τιμολόγιο δεν άνοιξε
-    error_missing: Το τιμολόγιο δεν είναι ακόμη έτοιμο. Δοκίμασε ξανά σε λίγο.
+    error_title: Η απόδειξη δεν άνοιξε
+    error_missing: Η απόδειξη δεν είναι ακόμη έτοιμη. Δοκίμασε ξανά σε λίγο.
     error_description: Κάτι πήγε στραβά. Δοκίμασε ξανά.
   guides:
     title: Μέχρι να φτάσει
@@ -736,7 +736,7 @@ en:
   title: Your order is in
   heading: Thank you, {name}. Your order is in.
   heading_anonymous: Thank you. Your order is in.
-  lead: "Order {number} · we emailed the receipt to {email}."
+  lead: "Order {number} · we emailed the order confirmation to {email}."
   verifying:
     payment: Verifying payment…
     description: Please wait while we confirm your payment.
@@ -776,10 +776,10 @@ en:
   actions:
     track: Track order
     continue: Continue shopping
-    invoice: Invoice (PDF)
+    invoice: Receipt (PDF)
   invoice:
-    error_title: The invoice did not open
-    error_missing: The invoice is not ready yet. Try again shortly.
+    error_title: The receipt did not open
+    error_missing: The receipt is not ready yet. Try again shortly.
     error_description: Something went wrong. Try again.
   guides:
     title: While you wait

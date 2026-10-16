@@ -85,8 +85,10 @@ const {
       approved: true,
     },
     // Off, the comments are gone: none fetched, so none reach the page
-    // payload behind the hidden section (Django answers 404 too).
-    immediate: commentsOn,
+    // payload behind the hidden section (Django answers 404 too). Not
+    // `immediate`, which skips only the first fetch: a change to the
+    // query's refs (the locale, the cursor) still refetched.
+    enabled: commentsOn,
   },
 )
 
@@ -224,9 +226,9 @@ async function onAddCommentSubmit(values: Record<string, any>) {
 }
 
 const scrollToComments = () => {
-  if (window.location.hash === '#blog-post-comments') {
+  if (window.location.hash === `#${BLOG_POST_COMMENTS_ID}`) {
     nextTick(() => {
-      const commentsElement = document.getElementById('blog-post-comments')
+      const commentsElement = document.getElementById(BLOG_POST_COMMENTS_ID)
       if (commentsElement) {
         commentsElement.scrollIntoView({ behavior: 'smooth' })
       }
@@ -237,7 +239,7 @@ const scrollToComments = () => {
 watch(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
   async () => {
-    if (commentsOn) await refresh()
+    await refresh()
   },
 )
 
@@ -271,7 +273,7 @@ onMounted(() => {
 <template>
   <div
     v-if="blogCommentsEnabled"
-    id="blog-post-comments"
+    :id="BLOG_POST_COMMENTS_ID"
     class="flex flex-col items-start justify-center gap-4"
   >
     <div class="grid w-full">

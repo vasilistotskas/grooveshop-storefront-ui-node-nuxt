@@ -353,13 +353,16 @@ describe('CheckoutSuccess (default layout)', () => {
     route.query = {}
   })
 
-  it('thanks the shopper by name, with the order number and where the receipt went', async () => {
+  it('thanks the shopper by name, with the order number and where the order confirmation went', async () => {
     serveOrders(order())
 
     const wrapper = await mount()
 
     expect(wrapper.get('h1').text()).toBe('Ευχαριστούμε, Maria. Η παραγγελία σου καταχωρήθηκε.')
-    expect(wrapper.text()).toContain('Παραγγελία #1001 · στείλαμε την απόδειξη στο maria@example.com.')
+    // The email sent now is the order confirmation; a receipt exists only
+    // once the store registers one (`hasInvoice`).
+    expect(wrapper.text()).toContain('Παραγγελία #1001 · στείλαμε την επιβεβαίωση της παραγγελίας στο maria@example.com.')
+    expect(wrapper.text()).not.toContain('απόδειξη')
   })
 
   it('says a failed payment charged nothing, once the provider answered', async () => {

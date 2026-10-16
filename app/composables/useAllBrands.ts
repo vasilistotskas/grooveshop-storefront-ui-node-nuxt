@@ -16,7 +16,6 @@ export function useAllBrands() {
   return useApi<Brand[]>('/api/products/brands/all', {
     key: 'all-brands',
     dedupe: 'defer',
-    immediate: catalogueEnabled.value,
-    server: catalogueEnabled.value,
+    enabled: catalogueEnabled,
   })
 }

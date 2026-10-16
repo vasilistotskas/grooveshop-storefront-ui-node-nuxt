@@ -48,6 +48,38 @@ const NO_PAGE_MACROS = {
 }
 
 /**
+ * A navigation target is a route name or a `localePath(...)` result,
+ * never a literal path. Every route has a locale prefix except the
+ * default one's, so a bare `'/search'` sends an English visitor to the
+ * Greek page: the quick search's "See all results" opened Greek results
+ * for an English query, which found nothing (owner review, 2026-10-16).
+ */
+const NAVIGATION_CALL = ':matches(CallExpression[callee.name="navigateTo"], CallExpression[callee.object.name="router"][callee.property.name=/^(push|replace)$/])'
+const LOCALIZED_NAVIGATION_MESSAGE = 'Navigate with localePath({ name: ... }) — a literal path drops the locale prefix.'
+// esquery regexes cannot contain "/", so a leading slash is `\x2F`.
+const LOCALIZED_NAVIGATION = [
+  `${NAVIGATION_CALL} > Literal.arguments[value=/^\\x2F/]`,
+  `${NAVIGATION_CALL} > TemplateLiteral.arguments`,
+  `${NAVIGATION_CALL} > ObjectExpression.arguments > Property[key.name="path"] > Literal.value[value=/^\\x2F/]`,
+  `${NAVIGATION_CALL} > ObjectExpression.arguments > Property[key.name="path"] > TemplateLiteral.value`,
+].map(selector => ({ selector, message: LOCALIZED_NAVIGATION_MESSAGE }))
+
+/**
+ * A request is gated with `enabled`, never with `immediate: <condition>`.
+ * `immediate` skips only the first fetch: the fetcher still refetches when
+ * a reactive option in its query or body changes (the locale, a cursor),
+ * which is how anonymous visitors posted to the signed-in-only
+ * liked-posts route on every page change (2026-07-04). Nuxt's `enabled`
+ * (v4.5) is checked on every run: the first fetch, `refresh`/`execute`
+ * and watch triggers. `immediate: false` stays, for a fetch the code
+ * starts itself.
+ */
+const GATE_WITH_ENABLED = {
+  selector: 'CallExpression[callee.name=/^use(Lazy)?(Api|AsyncData)$/] > ObjectExpression > Property[key.name="immediate"]:not([value.type="Literal"])',
+  message: 'Gate the request with `enabled` — `immediate` skips only the first fetch, and a reactive option refetches anyway.',
+}
+
+/**
  * A promise returned from a `try` without `await` settles after the try
  * has exited, so its rejection never reaches the `catch` — in a server
  * route, `handleError`, which is what reports a drifted response loudly.
@@ -178,12 +210,21 @@ export default withNuxt(
     files: ['app/**/*.{ts,vue}'],
     ignores: ['app/plugins/api.ts', 'app/composables/useApi.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
     },
   },
   {
     // Repeats the app-wide selectors — see APP_FETCHER_SELECTORS for why.
     files: ['app/components/**/*.vue'],
+    rules: {
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
+    },
+  },
+  {
+    // The frozen webside tree keeps its own navigation and its own
+    // request gates: webside serves Greek only, has every gated feature
+    // on, and the tree changes only for webside bugs.
+    files: ['app/components/variants/webside/**/*.vue'],
     rules: {
       'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS],
     },

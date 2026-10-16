@@ -157,10 +157,21 @@ const addToCartEvent = async () => {
   announceAdded()
 }
 
+/** One toast for every add, whichever button made it. */
+const ADDED_TOAST_ID = 'cart:added'
+
+// Adds since the toast last opened, across every add-to-cart button.
+const addedWhileOpen = useState('cart-added-toast-count', () => 0)
+
 /**
  * How an added line is announced, as the boards draw it: on a desktop
  * the cart drawer opens with it; on a phone a toast shows the product's
  * photograph and "View", which opens the drawer.
+ *
+ * One toast, updated in place: a new toast per tap stacked up to five
+ * over half a phone screen (owner review, 2026-10-16). Updating it
+ * restarts its timer, so it closes a few seconds after the LAST add, and
+ * counts the adds while it is open.
  */
 function announceAdded() {
   const name = productName.value ?? ''
@@ -168,22 +179,34 @@ function announceAdded() {
     drawer.show(name)
     return
   }
+  addedWhileOpen.value += 1
   const imagePath = 'mainImagePath' in product.value ? product.value.mainImagePath : undefined
-  toast.add({
-    title: t('toast.added_title'),
-    description: name,
-    icon: imagePath ? undefined : 'i-lucide-circle-check',
-    avatar: imagePath
+  const content = {
+    'title': addedWhileOpen.value > 1
+      ? t('toast.added_many', { count: addedWhileOpen.value })
+      : t('toast.added_title'),
+    'description': name,
+    'icon': imagePath ? undefined : 'i-lucide-circle-check',
+    'avatar': imagePath
       ? { src: img(imagePath, { width: 96, height: 96, fit: 'cover' }, { provider: 'mediaStream' }), alt: name }
       : undefined,
-    color: 'success',
-    actions: [{
+    'color': 'success' as const,
+    'actions': [{
       label: t('toast.view'),
-      color: 'neutral',
-      variant: 'solid',
+      color: 'neutral' as const,
+      variant: 'solid' as const,
       onClick: () => drawer.show(name),
     }],
-  })
+    'onUpdate:open': (open: boolean) => {
+      if (!open) addedWhileOpen.value = 0
+    },
+  }
+  if (toast.toasts.value.some(item => item.id === ADDED_TOAST_ID)) {
+    toast.update(ADDED_TOAST_ID, content)
+  }
+  else {
+    toast.add({ id: ADDED_TOAST_ID, ...content })
+  }
 }
 </script>
 
@@ -226,6 +249,7 @@ el:
   unavailable: Μή Διαθέσιμο
   toast:
     added_title: Προστέθηκε στο καλάθι
+    added_many: Προστέθηκαν {count} προϊόντα στο καλάθι
     view: Προβολή
     failed_title: Δεν προστέθηκε στο καλάθι
     failed_description: Κάτι πήγε στραβά. Δοκίμασε ξανά σε λίγο.
@@ -233,6 +257,7 @@ en:
   unavailable: Unavailable
   toast:
     added_title: Added to cart
+    added_many: '{count} items added to cart'
     view: View
     failed_title: Not added to your basket
     failed_description: Something went wrong. Try again in a moment.

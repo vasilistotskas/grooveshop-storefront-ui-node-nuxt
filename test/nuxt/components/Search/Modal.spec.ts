@@ -479,9 +479,26 @@ describe('Search/Modal (palette)', () => {
       modalButton('Δες και τα 5 αποτελέσματα').click()
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptop' } })
+      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
       expect(wrapper.emitted('update:open')).toEqual([[false]])
       expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
+    })
+
+    it('keeps the language: an English search opens the English results', async () => {
+      const { $i18n } = useNuxtApp()
+      const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+      $i18n.locale.value = 'en'
+      try {
+        await openModal(SearchModal, 'laptop')
+
+        modalButton('See all 5 results').click()
+        await nextTick()
+
+        expect(replace).toHaveBeenCalledExactlyOnceWith('/en/search?query=laptop')
+      }
+      finally {
+        $i18n.locale.value = 'el'
+      }
     })
 
     it('is offered whenever there is a query, even for a search that found nothing', async () => {
@@ -492,7 +509,7 @@ describe('Search/Modal (palette)', () => {
       modalButton('Αναζήτηση για «zzz»').click()
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'zzz' } })
+      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=zzz')
     })
 
     it('is not offered before there is a query', async () => {
@@ -518,7 +535,7 @@ describe('Search/Modal (palette)', () => {
       await nextTick()
 
       expect(event.defaultPrevented).toBe(true)
-      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptop' } })
+      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
       expect(trackResultClick).not.toHaveBeenCalled()
       expect(wrapper.emitted('update:open')).toEqual([[false]])
       expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
@@ -533,7 +550,7 @@ describe('Search/Modal (palette)', () => {
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptop' } })
+      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
       expect(wrapper.emitted('update:query')).toBeUndefined()
     })
 
@@ -545,7 +562,7 @@ describe('Search/Modal (palette)', () => {
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'zzz' } })
+      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=zzz')
     })
 
     it('leaves Enter to the palette once the shopper has moved to a row with the arrow keys', async () => {
@@ -579,7 +596,7 @@ describe('Search/Modal (palette)', () => {
       pressKey('Enter')
       await nextTick()
 
-      expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptops' } })
+      expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptops')
     })
 
     it('does nothing for an empty query, where Enter picks the highlighted recent search', async () => {

@@ -15,7 +15,7 @@ export default defineNuxtPlugin({
       // to the Nuxt app AND to the serialized window.__NUXT__.config,
       // so rewriting the clone here — before @nuxtjs/i18n's plugin
       // reads it — is race-free and fixes SSR and client in one place.
-      // Same ``https://`` derivation as 4.tenant-site-config.ts: the
+      // Same ``https://`` derivation as server/plugins/tenant-site-config.ts: the
       // two values must compare EQUAL host-for-host.
       const primaryDomain = tenant.value?.primaryDomain
       if (primaryDomain) {

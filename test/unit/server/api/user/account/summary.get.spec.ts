@@ -4,20 +4,30 @@ import { makeBusinessProfile } from '~~/test/fixtures/business'
 import { makeGiftCard } from '~~/test/fixtures/giftCard'
 import { makeSummary, makeTier } from '~~/test/fixtures/loyalty'
 import { makeOrderListItem } from '~~/test/fixtures/order'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callRoute, jsonResponse, testSession } from '~~/test/helpers/nitro'
 import type { BackendRequest } from '~~/test/helpers/nitro'
 
 /**
  * GET /api/user/account/summary: the account band's figures, composed
- * from four Django endpoints. A 404 from the loyalty, gift-card or B2B
- * one means the store has that feature off (or the shopper has no
- * business profile) and makes that part `null`; anything else fails.
+ * from four Django endpoints. The loyalty, gift-card and B2B ones are
+ * asked for only while the store has the feature on; a 404 from one of
+ * them (no business profile, a feature switched off since the tenant
+ * was cached) makes that part `null`; anything else fails.
  */
 const API = 'http://backend.test/api/v1'
 const NOW = '2026-06-01T00:00:00Z'
 
 const signIn = () => testSession.set({ user: { id: 1 }, secure: { accessToken: 'knox-1' } })
-const summary = () => callRoute(handler, { url: '/api/user/account/summary' })
+type Optional = 'loyalty' | 'giftCards' | 'wholesale'
+const ALL_ON: Record<Optional, boolean> = { loyalty: true, giftCards: true, wholesale: true }
+
+/** The route on a store whose optional features are `features`, as the tenant payload carries them. */
+function summary(features: Partial<Record<Optional, boolean>> = {}) {
+  const base = validTenantConfig('shop.test')
+  const tenant = validTenantConfig('shop.test', { features: { ...base.features, ...ALL_ON, ...features } })
+  return callRoute(handler, { url: '/api/user/account/summary', context: { tenant } })
+}
 
 type Replies = Partial<Record<'orders' | 'loyalty' | 'giftCards' | 'business', unknown>>
 
@@ -98,7 +108,7 @@ describe('GET /api/user/account/summary', () => {
     ['loyalty', { loyalty: null }],
     ['giftCards', { giftCardBalance: null }],
     ['business', { businessStatus: null }],
-  ] as const)('leaves out %s when Django has it switched off (404)', async (part, expected) => {
+  ] as const)('leaves out %s when Django answers 404', async (part, expected) => {
     signIn()
     answer({ [part]: notFound() })
 
@@ -106,6 +116,21 @@ describe('GET /api/user/account/summary', () => {
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({ ordersCount: 14, ...expected })
+  })
+
+  it.each([
+    ['loyalty', '/loyalty/summary', { loyalty: null }],
+    ['giftCards', '/giftcard/mine', { giftCardBalance: null }],
+    ['wholesale', '/b2b/profile', { businessStatus: null }],
+  ] as const)('does not ask for %s while the store has it switched off', async (feature, path, expected) => {
+    signIn()
+    answer()
+
+    const response = await summary({ [feature]: false })
+
+    expect(response.body).toMatchObject({ ordersCount: 14, ...expected })
+    expect(backend.requests.map(request => request.path)).not.toContain(`${API}${path}`)
+    expect(backend.requests).toHaveLength(3)
   })
 
   it('fails when one of them fails for another reason', async () => {

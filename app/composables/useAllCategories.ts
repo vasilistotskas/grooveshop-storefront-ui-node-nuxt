@@ -25,7 +25,6 @@ export function useAllCategories() {
   return useApi<ProductCategory[]>('/api/products/categories/all', {
     key: 'all-categories',
     dedupe: 'defer',
-    immediate: catalogueEnabled.value,
-    server: catalogueEnabled.value,
+    enabled: catalogueEnabled,
   })
 }

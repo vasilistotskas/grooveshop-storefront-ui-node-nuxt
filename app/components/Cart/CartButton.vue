@@ -16,6 +16,10 @@ import type { ButtonProps } from '@nuxt/ui'
  *
  * Once the page is running it opens the cart drawer; until then (the
  * server render, a page still hydrating) it is a plain link to the cart.
+ *
+ * The count sits on the bag's top-right corner: it is anchored to the
+ * icon, not to the 44px button around it, where an inset chip covered
+ * half the bag on a phone (owner review, 2026-10-16).
  */
 const cartStore = useCartStore()
 const { getCartTotalItems, hasStockIssues, pending } = storeToRefs(cartStore)
@@ -36,8 +40,9 @@ const label = computed(() =>
   count.value ? t('cart_with_items', { count: count.value }, count.value) : t('cart'),
 )
 
+const CART_ICON = 'i-lucide-shopping-bag'
+
 const button: ButtonProps = {
-  icon: 'i-lucide-shopping-bag',
   color: 'neutral',
   variant: 'ghost',
   square: true,
@@ -46,25 +51,31 @@ const button: ButtonProps = {
 
 <template>
   <ClientOnly>
-    <UChip
-      size="3xl"
-      :color="hasStockIssues ? 'warning' : 'secondary'"
-      :show="!pending && count > 0"
-      :text="displayCount"
-      inset
-      :ui="{ base: 'top-1 right-0.5' }"
+    <UButton
+      v-bind="button"
+      :aria-label="label"
+      aria-haspopup="dialog"
+      @click="() => drawer.show()"
     >
-      <UButton
-        v-bind="button"
-        :aria-label="label"
-        aria-haspopup="dialog"
-        @click="() => drawer.show()"
-      />
-    </UChip>
+      <template #leading>
+        <UChip
+          size="3xl"
+          :color="hasStockIssues ? 'warning' : 'secondary'"
+          :show="!pending && count > 0"
+          :text="displayCount"
+        >
+          <UIcon
+            :name="CART_ICON"
+            class="size-5"
+          />
+        </UChip>
+      </template>
+    </UButton>
 
     <template #fallback>
       <UButton
         v-bind="button"
+        :icon="CART_ICON"
         :to="localePath('cart')"
         :aria-label="t('cart')"
       />

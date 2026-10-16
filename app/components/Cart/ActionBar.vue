@@ -13,23 +13,19 @@ defineProps<{
 
 const { t, n } = useI18n()
 const localePath = useLocalePath()
-
-const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
-  fallback: true,
-})
 </script>
 
 <template>
+  <!-- Docked above the tab bar when there is one (`--dock-*` in
+       main.css). -->
   <div
+    data-dock="bar"
     class="
-      fixed inset-x-3 z-40 flex items-center gap-3 rounded-[1.125rem] border
-      border-default bg-default py-2.5 ps-4 pe-2.5
-      shadow-(--ui-overlay-shadow)
+      fixed inset-x-3 bottom-[calc(var(--dock-base)+var(--dock-tabbar))] z-40
+      flex h-(--dock-bar-height) items-center gap-3 rounded-[1.125rem] border
+      border-default bg-default ps-4 pe-2.5 shadow-(--ui-overlay-shadow)
       lg:hidden
     "
-    :class="mobileBottomNavEnabled
-      ? 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]'
-      : 'bottom-[calc(0.75rem+env(safe-area-inset-bottom))]'"
   >
     <div class="flex min-w-0 flex-1 flex-col">
       <span class="text-xs text-toned">{{ t('total') }}</span>

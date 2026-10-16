@@ -1361,10 +1361,10 @@ el:
   payment_method_fee: Χρέωση μεθόδου πληρωμής
   payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
   invoice:
-    download: "Λήψη τιμολογίου"
-    error_title: "Αποτυχία λήψης τιμολογίου"
+    download: "Λήψη απόδειξης"
+    error_title: "Αποτυχία λήψης απόδειξης"
     error_description: "Δοκίμασε ξανά σε λίγο."
-    error_missing: "Το τιμολόγιο δεν είναι διαθέσιμο ακόμη."
+    error_missing: "Η απόδειξη δεν είναι διαθέσιμη ακόμη."
   cancel:
     success_title: "Η παραγγελία ακυρώθηκε"
     success_description: "Η παραγγελία σου ακυρώθηκε με επιτυχία."
@@ -1456,10 +1456,10 @@ en:
   payment_method_fee: Payment method fee
   payment_pending_desc: There is {amount} still to pay on this order
   invoice:
-    download: "Download invoice"
-    error_title: "Could not download the invoice"
+    download: "Download receipt"
+    error_title: "Could not download the receipt"
     error_description: "Please try again in a moment."
-    error_missing: "The invoice is not available yet."
+    error_missing: "The receipt is not available yet."
   cancel:
     success_title: "Order cancelled"
     success_description: "Your order was cancelled."

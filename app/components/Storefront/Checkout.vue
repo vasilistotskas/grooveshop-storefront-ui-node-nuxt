@@ -56,6 +56,8 @@ const {
   savedAddresses,
   selectedSavedAddressId,
   selectSavedAddress,
+  addressIdsNeedingUpdate,
+  editSelectedAddress,
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
@@ -242,12 +244,14 @@ useSeoMeta({
               :region-options="regionOptions"
               :saved-addresses="savedAddresses"
               :selected-saved-address-id="selectedSavedAddressId"
+              :address-ids-needing-update="addressIdsNeedingUpdate"
               :mode="addressEntryMode"
               :b2b-invoicing-enabled="b2bInvoicingEnabled"
               :acs-enabled="acsEnabled"
               @next="nextStep"
               @select-saved-address="selectSavedAddress"
               @use-new-address="useNewAddress"
+              @edit-address="editSelectedAddress"
             />
 
             <CheckoutStepShipping

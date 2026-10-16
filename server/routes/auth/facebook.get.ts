@@ -24,6 +24,7 @@ const facebookHandler = defineOAuthFacebookEventHandler({
 })
 
 export default defineEventHandler(async (event) => {
+  await requireSocialProvider(event, 'facebook')
   captureOAuthProcess(event, getQuery(event) as Record<string, string>)
   return facebookHandler(event)
 })

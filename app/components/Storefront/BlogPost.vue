@@ -28,7 +28,7 @@ const { data: likedPostsData } = await useApi('/api/blog/posts/liked-posts', {
   body: {
     postIds: [blogPostId.value],
   },
-  immediate: loggedIn.value,
+  enabled: loggedIn,
   server: false, // Client-side only - not needed for initial render
 })
 
@@ -106,10 +106,10 @@ const likeClicked = async () => {
 }
 
 const scrollToComments = () => {
-  const comments = document.getElementById('blog-post-comments')
+  const comments = document.getElementById(BLOG_POST_COMMENTS_ID)
   if (comments) {
-    if (!window.location.hash.includes('#blog-post-comments')) {
-      window.location.hash = '#blog-post-comments'
+    if (window.location.hash !== `#${BLOG_POST_COMMENTS_ID}`) {
+      window.location.hash = `#${BLOG_POST_COMMENTS_ID}`
     }
     comments.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -294,7 +294,6 @@ onReactivated(async () => {
         </article>
 
         <LazyBlogPostComments
-          :id="`blog-post-${blogPost.id}-comments`"
           hydrate-on-visible
           :blog-post-id="String(blogPost.id)"
           :comments-count="blogPost.commentsCount"

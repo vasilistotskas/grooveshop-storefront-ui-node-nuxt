@@ -62,6 +62,19 @@ const banner = computed(() => {
 
 track(useTemplateRef<HTMLElement>('copy'))
 
+// On a phone the floating twin is the bottom edge of the screen. Its
+// height depends on the artwork, so it is measured and handed to the
+// bottom dock (`--dock-edge` in main.css), which stacks the corner
+// buttons above it; the accessibility button used to cover the logos.
+// The variable only counts while the strip is on screen (`:has`).
+useResizeObserver(useTemplateRef<HTMLElement>('floatingStrip'), ([entry]) => {
+  if (!entry) return
+  document.documentElement.style.setProperty(
+    '--funding-strip-height',
+    `${entry.borderBoxSize[0]?.blockSize ?? entry.target.getBoundingClientRect().height}px`,
+  )
+})
+
 // An absolute URL is not ours to resize: IPX only proxies the origins it
 // is configured for, so the artwork is passed through as it is.
 const provider = computed(() =>
@@ -150,6 +163,7 @@ const aspectRatio = computed(() =>
 
     <div
       v-if="!framed && floating"
+      ref="floatingStrip"
       data-funding-floating
       aria-hidden="true"
       class="

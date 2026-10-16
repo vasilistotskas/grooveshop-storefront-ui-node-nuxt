@@ -924,6 +924,63 @@ describe('useCheckoutForm', () => {
       expect(formState.country).toBe('GR')
       expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'warning' }))
     })
+
+    // The demo accounts' seeded addresses had neither (2026-10-16): the
+    // saved mode hid both fields, and «Continue» did nothing on screen.
+    describe('a saved address without a region and a phone', () => {
+      const incomplete = savedAddress({ region: null, phone: '' })
+
+      it('opens the main one in the form, still picked, and toasts why', async () => {
+        api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([incomplete, second]) })
+
+        const { addressEntryMode, selectedSavedAddressId, formState } = await setup()
+
+        expect(addressEntryMode.value).toBe('new')
+        expect(selectedSavedAddressId.value).toBe(1)
+        expect(formState).toMatchObject({ street: 'Ermou', zipcode: '10563', region: '', phone: '' })
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+          color: 'warning',
+          description: useNuxtApp().$i18n.t('saved_address_invalid_fields_description'),
+        }))
+      })
+
+      it('is the one address marked as needing an update', async () => {
+        api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([incomplete, second]) })
+
+        const { addressIdsNeedingUpdate } = await setup()
+
+        expect(addressIdsNeedingUpdate.value).toEqual([1])
+      })
+
+      it('opens when picked after a complete one, without its phone or region', async () => {
+        api.routes({ ...defaultRoutes(), '/api/user/addresses': paginated([second, { ...incomplete, isMain: false }]) })
+        const { addressEntryMode, formState, selectSavedAddress } = await setup()
+        expect(addressEntryMode.value).toBe('saved')
+
+        await selectSavedAddress(1)
+        // The Cypriot address's fetch is superseded by the country
+        // watcher's, which runs the check.
+        await vi.waitFor(() => expect(addressEntryMode.value).toBe('new'))
+
+        // Not the Cypriot recipient's phone and region, carried over.
+        expect(formState).toMatchObject({ country: 'GR', phone: '', region: '' })
+      })
+    })
+
+    it('marks no address when every one passes', async () => {
+      const { addressIdsNeedingUpdate } = await setup()
+
+      expect(addressIdsNeedingUpdate.value).toEqual([])
+    })
+
+    it('editSelectedAddress opens the fields and keeps the address picked', async () => {
+      const { addressEntryMode, selectedSavedAddressId, editSelectedAddress } = await setup()
+
+      editSelectedAddress()
+
+      expect(addressEntryMode.value).toBe('new')
+      expect(selectedSavedAddressId.value).toBe(1)
+    })
   })
 
   describe('a signed-in shopper with no saved address', () => {

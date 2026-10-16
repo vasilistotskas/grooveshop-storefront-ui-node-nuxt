@@ -85,9 +85,24 @@ describe('scrollToFirstFormError', () => {
     })
   })
 
-  it('does nothing when the failing field is not on screen', () => {
-    // A step that is no longer rendered: nothing to scroll to, and the
-    // message still shows wherever the form puts it.
+  it('skips an error whose field is not on screen for the first one that is', () => {
+    // Nuxt UI gives an error no id when its input is not rendered.
+    const phone = makeField('checkout-phone')
+
+    scrollToFirstFormError({
+      errors: [
+        { name: 'region', message: 'Required' },
+        { id: 'absent', name: 'email', message: 'Required' },
+        { id: 'checkout-phone', name: 'phone', message: 'Required' },
+      ],
+    })
+
+    expect(phone.scrollIntoView).toHaveBeenCalled()
+  })
+
+  it('does nothing when no failing field is on screen', () => {
+    // A field that is not rendered has nothing to scroll to: a form
+    // that hides fields opens them first (checkout's saved address).
     expect(() => scrollToFirstFormError({
       errors: [{ id: 'absent', name: 'email', message: 'Required' }],
     } as never)).not.toThrow()

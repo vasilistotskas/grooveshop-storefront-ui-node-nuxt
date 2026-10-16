@@ -12,17 +12,21 @@ import type { FormErrorEvent } from '@nuxt/ui'
  *
  * Focus moves first with `preventScroll` so the browser's own jump does
  * not fight the smooth scroll that follows, and the field is centred
- * rather than pinned under a sticky header. A field the shopper cannot
- * see is not skipped silently — if its element is missing (a step that
- * is no longer rendered), nothing scrolls and the message still shows.
+ * rather than pinned under a sticky header.
+ *
+ * Only an error on a field that is on screen can be scrolled to: Nuxt UI
+ * gives an error no id when its input is not rendered, and such an error
+ * shows nowhere. The first error that has an element wins; a form that
+ * hides fields must open them before calling this (checkout's saved
+ * address does, `Checkout/StepPersonalInfo.vue`).
  *
  * Honours `prefers-reduced-motion`: an animated jump is exactly what
  * that setting exists to prevent.
  */
-export function scrollToFirstFormError(event: FormErrorEvent): void {
+export function scrollToFirstFormError(event: Pick<FormErrorEvent, 'errors'>): void {
   if (!import.meta.client) return
 
-  const firstError = event?.errors?.[0]
+  const firstError = event?.errors?.find(error => error.id && document.getElementById(error.id))
   if (!firstError?.id) return
 
   const element = document.getElementById(firstError.id)

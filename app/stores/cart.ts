@@ -414,6 +414,23 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  /**
+   * Adopt the cart the shopping assistant created for a browser that had
+   * none, as the storefront keeps a guest cart it made itself
+   * (`/api/cart/claim`).
+   */
+  async function claimCart(uuid: string) {
+    try {
+      cart.value = await $api<RetrieveCartResponse>('/api/cart/claim', {
+        method: 'POST',
+        body: { uuid },
+      })
+    }
+    catch (err) {
+      log.error({ action: 'cart:claim', error: err })
+    }
+  }
+
   async function cleanCartState() {
     try {
       await $api('/api/cart/clear-session', { method: 'POST' })
@@ -448,6 +465,7 @@ export const useCartStore = defineStore('cart', () => {
     getStockStatusMessage,
     setupCart,
     refreshCart,
+    claimCart,
     createCartItem,
     updateCartItem,
     deleteCartItem,

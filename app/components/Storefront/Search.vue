@@ -66,11 +66,9 @@ const productsOffset = computed(() => tab.value === 'products' ? offset.value : 
 const {
   data: products,
   status: productsStatus,
-  refresh: refreshProducts,
 } = await useApi<ProductMeiliSearchResponse>('/api/products/search', {
   query: { query, languageCode: locale, limit, offset: productsOffset, facets: 'category' },
-  immediate: hasQuery.value,
-  watch: false,
+  enabled: hasQuery,
 })
 
 const guidesLimit = computed(() => tab.value === 'guides' ? limit.value : ASIDE_GUIDES)
@@ -78,18 +76,9 @@ const guidesOffset = computed(() => tab.value === 'guides' ? offset.value : 0)
 const {
   data: guides,
   status: guidesStatus,
-  refresh: refreshGuides,
 } = await useApi<BlogPostMeiliSearchResponse>('/api/search/blog-posts', {
   query: { query, languageCode: locale, limit: guidesLimit, offset: guidesOffset },
-  immediate: hasQuery.value && tenantStore.blogEnabled,
-  watch: false,
-})
-
-watch([query, locale, limit, productsOffset], () => {
-  if (hasQuery.value) refreshProducts()
-})
-watch([query, locale, guidesLimit, guidesOffset], () => {
-  if (hasQuery.value && tenantStore.blogEnabled) refreshGuides()
+  enabled: () => hasQuery.value && tenantStore.blogEnabled,
 })
 
 const trending = useLazyApi<TrendingSearchResponse>('/api/search/trending', {
