@@ -273,8 +273,8 @@ importers:
         specifier: 4.6.1
         version: 4.6.1(c4a412058d3a7a115630679ca5e9cb82)
       nuxt-auth-utils:
-        specifier: 0.5.31
-        version: 0.5.31(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))
+        specifier: 0.5.32
+        version: 0.5.32(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))
       ofetch:
         specifier: 1.5.1
         version: 1.5.1
@@ -6863,8 +6863,8 @@ packages:
       postgres:
         optional: true
 
-  nuxt-auth-utils@0.5.31:
-    resolution: {integrity: sha512-WBqH5M5hpRPusvM64FBLdo5lItwkxOZL+vAoyD9/16k/iem5zYJGMJon3N83UAOXYD/A88al2R1DvK5Al2IbhA==}
+  nuxt-auth-utils@0.5.32:
+    resolution: {integrity: sha512-QtvKTxx3WrEBVwxJ1qHBfE1LZD927fk3Ubfj11zaBqlh2HvsXLjnzHfgbXYHpA86TyZMRINc8/RfryeLlYvkLg==}
     peerDependencies:
       '@atproto/api': ^0.13.15
       '@atproto/oauth-client-node': ^0.2.0
@@ -15809,7 +15809,7 @@ snapshots:
       - vue
       - zod
 
-  nuxt-auth-utils@0.5.31(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))):
+  nuxt-auth-utils@0.5.32(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))):
     dependencies:
       '@adonisjs/hash': 9.1.1
       '@nuxt/kit': 4.6.1(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))
