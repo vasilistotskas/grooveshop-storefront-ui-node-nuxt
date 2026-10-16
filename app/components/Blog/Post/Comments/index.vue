@@ -85,8 +85,10 @@ const {
       approved: true,
     },
     // Off, the comments are gone: none fetched, so none reach the page
-    // payload behind the hidden section (Django answers 404 too).
-    immediate: commentsOn,
+    // payload behind the hidden section (Django answers 404 too). Not
+    // `immediate`, which skips only the first fetch: a change to the
+    // query's refs (the locale, the cursor) still refetched.
+    enabled: commentsOn,
   },
 )
 
@@ -237,7 +239,7 @@ const scrollToComments = () => {
 watch(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
   async () => {
-    if (commentsOn) await refresh()
+    await refresh()
   },
 )
 

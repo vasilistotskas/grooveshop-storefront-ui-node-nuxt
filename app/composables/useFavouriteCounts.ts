@@ -24,8 +24,7 @@ export async function useFavouriteCounts() {
       key: favouriteCountKey('posts', userId),
       method: 'GET',
       query: { pageSize: 1 },
-      immediate: blogEnabled,
-      server: blogEnabled,
+      enabled: blogEnabled,
     }),
   ])
 

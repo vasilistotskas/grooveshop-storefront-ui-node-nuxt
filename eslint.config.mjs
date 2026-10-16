@@ -65,6 +65,21 @@ const LOCALIZED_NAVIGATION = [
 ].map(selector => ({ selector, message: LOCALIZED_NAVIGATION_MESSAGE }))
 
 /**
+ * A request is gated with `enabled`, never with `immediate: <condition>`.
+ * `immediate` skips only the first fetch: the fetcher still refetches when
+ * a reactive option in its query or body changes (the locale, a cursor),
+ * which is how anonymous visitors posted to the signed-in-only
+ * liked-posts route on every page change (2026-07-04). Nuxt's `enabled`
+ * (v4.5) is checked on every run: the first fetch, `refresh`/`execute`
+ * and watch triggers. `immediate: false` stays, for a fetch the code
+ * starts itself.
+ */
+const GATE_WITH_ENABLED = {
+  selector: 'CallExpression[callee.name=/^use(Lazy)?(Api|AsyncData)$/] > ObjectExpression > Property[key.name="immediate"]:not([value.type="Literal"])',
+  message: 'Gate the request with `enabled` — `immediate` skips only the first fetch, and a reactive option refetches anyway.',
+}
+
+/**
  * A promise returned from a `try` without `await` settles after the try
  * has exited, so its rejection never reaches the `catch` — in a server
  * route, `handleError`, which is what reports a drifted response loudly.
@@ -195,19 +210,20 @@ export default withNuxt(
     files: ['app/**/*.{ts,vue}'],
     ignores: ['app/plugins/api.ts', 'app/composables/useApi.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, ...LOCALIZED_NAVIGATION],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
     },
   },
   {
     // Repeats the app-wide selectors — see APP_FETCHER_SELECTORS for why.
     files: ['app/components/**/*.vue'],
     rules: {
-      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS, ...LOCALIZED_NAVIGATION],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS, ...LOCALIZED_NAVIGATION, GATE_WITH_ENABLED],
     },
   },
   {
-    // The frozen webside tree keeps its own navigation: webside serves
-    // Greek only, and the tree changes only for webside bugs.
+    // The frozen webside tree keeps its own navigation and its own
+    // request gates: webside serves Greek only, has every gated feature
+    // on, and the tree changes only for webside bugs.
     files: ['app/components/variants/webside/**/*.vue'],
     rules: {
       'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS],

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, ref } from 'vue'
+import { computed, ref, toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NewsletterSignup from '~/components/PageSection/NewsletterSignup.vue'
@@ -26,7 +27,7 @@ mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolea
 
 /** The availability lookup; a `vi.fn` so the request gate can be asserted. */
 const { useApiMock } = vi.hoisted(() => ({
-  useApiMock: vi.fn((_url: string, _options: { immediate?: boolean, server?: boolean }) =>
+  useApiMock: vi.fn((_url: string, _options: { enabled?: MaybeRefOrGetter<boolean> }) =>
     Promise.resolve({ data: ref({ available: flags.available }) })),
 }))
 mockNuxtImport('useApi', () => useApiMock)
@@ -115,9 +116,11 @@ describe('NewsletterSignup', () => {
     const wrapper = await mountBand()
 
     expect(wrapper.find('form').exists()).toBe(false)
-    // Django 404s the lookup while the toggle is off: the REQUEST is gated.
-    expect(useApiMock.mock.calls.map(([url, options]) => [url, options.immediate, options.server]))
-      .toEqual([[NEWSLETTER_URL, false, false]])
+    // Django 404s the lookup while the toggle is off: the REQUEST is gated,
+    // with `enabled`, which blocks every run (the first fetch, refreshes
+    // and watch triggers), not only the first.
+    expect(useApiMock.mock.calls.map(([url, options]) => [url, toValue(options.enabled)]))
+      .toEqual([[NEWSLETTER_URL, false]])
   })
 
   it('refuses to submit without consent', async () => {

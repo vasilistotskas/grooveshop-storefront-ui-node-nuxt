@@ -87,7 +87,7 @@ vi.mock('~/components/DynamicForm/index.vue', () => ({ default: FormStub }))
 vi.mock('~/components/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
 vi.mock('~/components/variants/webside/Account/Login/FormModal.vue', () => ({ default: NoopStub }))
 
-describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostComments', ({ C }) => {
+describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostComments', ({ tree, C }) => {
   const mount = () => mountSuspended(C, {
     route: false,
     props: { blogPostId: '42', commentsCount: 2, displayImageOf: 'user' },
@@ -293,5 +293,28 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     // Fetched behind the hidden section, they would still ship in the
     // page payload.
     expect(api.callsTo(PROXY_URL)).toEqual([])
+  })
+
+  // The query carries the page's locale, and a changed reactive option
+  // refetches whatever `immediate` said; `enabled` blocks every run.
+  it.runIf(tree === 'default')('asks for no comments either when the language of the page changes', async () => {
+    state.flags = { BLOG_COMMENTS_ENABLED: false }
+    api.routes({
+      '/api/settings/public': { settings: { BLOG_COMMENTS_ENABLED: 'False' } },
+      [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]),
+    })
+    await mount()
+    await flushPromises()
+    const { locale } = useNuxtApp().$i18n
+
+    try {
+      locale.value = 'en'
+      await flushPromises()
+
+      expect(api.callsTo(PROXY_URL)).toEqual([])
+    }
+    finally {
+      locale.value = 'el'
+    }
   })
 })

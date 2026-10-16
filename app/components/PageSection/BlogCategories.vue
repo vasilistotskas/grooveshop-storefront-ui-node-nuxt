@@ -24,8 +24,7 @@ const { data } = await useApi('/api/blog/categories', {
   key: 'blogCategories-slider',
   query: { pageSize: 10, languageCode: locale },
   dedupe: 'defer',
-  immediate: enabled,
-  server: enabled,
+  enabled,
   // The band hydrates when it scrolls into view, after the app has
   // finished hydrating — see app/utils/payloadCachedData.ts.
   getCachedData: payloadCachedData,

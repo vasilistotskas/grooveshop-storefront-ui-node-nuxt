@@ -9,10 +9,16 @@ import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
  * unseen-notification count is not here: the bell keeps it live, and
  * the account navigation reads the same key — `useUnseenNotificationsCount`.)
  *
- * A 404 from one of them means "nothing to show": the loyalty, gift-card
- * and B2B viewsets answer 404 while the store has the feature off, and
- * the B2B profile 404s for a shopper without one. That part becomes
- * `null`. Any other failure fails the route.
+ * A feature the store has switched off is not asked for: the tenant
+ * payload says which are on (`features`, Django's effective state), and
+ * asking anyway made Django log `feature_gate:refused` on every account
+ * page, which pages the team (`GrooveShopFeatureGateRefused`, owner
+ * review 2026-10-16). That part is `null`.
+ *
+ * A 404 from one that is asked for also means "nothing to show": the B2B
+ * profile 404s for a shopper without one, and a feature switched off
+ * within the tenant cache's lifetime answers 404 until it expires. Any
+ * other failure fails the route.
  *
  * Never cached: per-user data.
  */
@@ -20,6 +26,7 @@ export default defineEventHandler(async (event): Promise<AccountSummary> => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken(event)
   const backendFetch = useBackendFetch(event)
+  const features = event.context.tenant?.features
   const get = (path: string, query?: Record<string, string | number>) =>
     backendFetch(`${config.apiBaseUrl}${path}`, {
       method: 'GET',
@@ -30,10 +37,16 @@ export default defineEventHandler(async (event): Promise<AccountSummary> => {
   try {
     const [orders, loyalty, giftCards, business] = await Promise.all([
       get('/order/my_orders', { pageSize: 1 }).then(response => parseDataAs(response, zListMyOrdersResponse)),
-      absentOn404(get('/loyalty/summary').then(response => parseDataAs(response, zGetLoyaltySummaryResponse))),
+      features?.loyalty
+        ? absentOn404(get('/loyalty/summary').then(response => parseDataAs(response, zGetLoyaltySummaryResponse)))
+        : null,
       // `pagination=false`: every card, not the first page of them.
-      absentOn404(get('/giftcard/mine', { pagination: 'false' }).then(response => parseDataAs(response, z.array(zGiftCard)))),
-      absentOn404(get('/b2b/profile').then(response => parseDataAs(response, zGetB2bProfileResponse))),
+      features?.giftCards
+        ? absentOn404(get('/giftcard/mine', { pagination: 'false' }).then(response => parseDataAs(response, z.array(zGiftCard))))
+        : null,
+      features?.wholesale
+        ? absentOn404(get('/b2b/profile').then(response => parseDataAs(response, zGetB2bProfileResponse)))
+        : null,
     ])
 
     const now = Date.now()

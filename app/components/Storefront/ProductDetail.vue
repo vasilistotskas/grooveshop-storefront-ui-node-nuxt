@@ -130,7 +130,7 @@ const [
       key: `productReviewsSchema${productId}`,
       // With reviews off none are fetched, so none reach the page or its
       // structured data (Django answers 404 for them too).
-      immediate: reviewsOn,
+      enabled: reviewsOn,
       method: 'GET',
       headers: useRequestHeaders(),
       query: {
@@ -272,7 +272,7 @@ const { data: userProductReview, refresh: refreshUserProductReview }
     key: `productReviews${productId}${user.value?.id}`,
     method: 'GET',
     // A store with reviews off has no review of the shopper to show.
-    immediate: loggedIn.value && reviewsOn,
+    enabled: () => loggedIn.value && reviewsOn,
     server: false, // Client-side only - user-specific data
   })
 

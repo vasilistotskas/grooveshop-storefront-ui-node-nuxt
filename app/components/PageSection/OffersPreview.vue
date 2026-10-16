@@ -44,8 +44,7 @@ const { data } = await useApi('/api/promotions', {
   key: () => `offers-preview-${locale.value}`,
   dedupe: 'defer',
   query: { languageCode: locale },
-  immediate: enabled.value,
-  server: enabled.value,
+  enabled,
   // The band hydrates when it scrolls into view, after the app has
   // finished hydrating — see app/utils/payloadCachedData.ts.
   getCachedData: payloadCachedData,

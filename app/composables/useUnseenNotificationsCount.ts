@@ -17,7 +17,7 @@ export function useUnseenNotificationsCount() {
     'unseenNotificationsCount',
     () => getUnseenCount(),
     {
-      immediate: loggedIn.value,
+      enabled: loggedIn,
       watch: [notifications],
       server: false,
       lazy: true,

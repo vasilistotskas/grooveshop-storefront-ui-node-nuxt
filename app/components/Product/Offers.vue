@@ -77,7 +77,7 @@ const { data: offers } = await useApi(
     // Django answers 404 for a disabled store; with the gate above we
     // no longer ask. `default` still covers the enabled-but-empty case.
     default: () => [],
-    immediate: offersEnabled,
+    enabled: offersEnabled,
   },
 )
 

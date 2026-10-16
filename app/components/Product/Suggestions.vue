@@ -54,7 +54,7 @@ const { data: served } = useApi(`/api/products/${props.seedId}/recommendations`,
     surface: props.surface,
     ...(typeof props.limit === 'number' ? { limit: props.limit } : {}),
   },
-  immediate: fetches,
+  enabled: fetches,
   default: () => null,
   // The grid is `hydrate-on-visible`: its setup runs after the app has
   // finished hydrating, when Nuxt's default no longer reads the payload

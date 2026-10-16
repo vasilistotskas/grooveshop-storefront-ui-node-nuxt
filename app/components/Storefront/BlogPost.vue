@@ -28,7 +28,7 @@ const { data: likedPostsData } = await useApi('/api/blog/posts/liked-posts', {
   body: {
     postIds: [blogPostId.value],
   },
-  immediate: loggedIn.value,
+  enabled: loggedIn,
   server: false, // Client-side only - not needed for initial render
 })
 

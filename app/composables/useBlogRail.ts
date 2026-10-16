@@ -31,8 +31,7 @@ export async function useBlogRail(options: {
     })),
     // Two blog bands can sit on one page; same key, one request.
     dedupe: 'defer',
-    immediate: enabled,
-    server: enabled,
+    enabled,
     // The band hydrates when it scrolls into view, after the app has
     // finished hydrating — see app/utils/payloadCachedData.ts.
     getCachedData: payloadCachedData,
