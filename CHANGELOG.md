@@ -1,3 +1,10 @@
+## [3.252.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.1...v3.252.2) (2026-10-16)
+
+
+### Bug Fixes
+
+* owner review batch 1 — blog, alerts, dock, checkout addresses, search locale, toasts, AI links, sign-in providers, receipt, chat cart ([#158](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/158)) ([1954149](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1954149aaf47834e5ba48b275f999a81c209f6a9)), closes [#147](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/147) [#150](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/150) [#152](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/152) [#153](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/153) [#149](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/149) [#151](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/151) [#148](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/148) [#entry](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/entry) [#154](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/154) [#155](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/155) [#128](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/128) [grooveshop-agent-gateway#24](https://github.com/grooveshop-agent-gateway/issues/24) [vasilistotskas/grooveshop-agent-gateway#24](https://github.com/vasilistotskas/grooveshop-agent-gateway/issues/24) [#146](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/146)
+
 ## [3.252.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.0...v3.252.1) (2026-10-16)
 
 
