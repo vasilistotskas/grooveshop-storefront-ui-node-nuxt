@@ -13,7 +13,7 @@ import type { RequestEvent } from 'nuxt/server'
  * was. Used by `/cart/claim` (the checkout link the assistant hands out)
  * and `/api/cart/claim` (the chat widget, when the browser had no cart).
  */
-export async function claimCart(event: RequestEvent, uuid: string): Promise<RetrieveCartResponse> {
+export async function claimCart(event: RequestEvent, uuid: string) {
   const config = useRuntimeConfig()
   const cartSession = useCartSession(event)
   const response = await useBackendFetch(event)(`${config.apiBaseUrl}/cart`, {
