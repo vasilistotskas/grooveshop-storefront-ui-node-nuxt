@@ -149,6 +149,7 @@ export const useShopChat = () => {
     }
 
     controller = new AbortController()
+    const sentCartId = cartStore.cart?.uuid || undefined
     try {
       const response = await fetch('/chat', {
         method: 'POST',
@@ -156,7 +157,7 @@ export const useShopChat = () => {
         body: JSON.stringify({
           conversationId: conversationId.value || undefined,
           message,
-          cartId: cartStore.cart?.uuid || undefined,
+          cartId: sentCartId,
         }),
         signal: controller.signal,
       })
@@ -233,7 +234,11 @@ export const useShopChat = () => {
         conversationId.value = turn.conversationId
         if (turn.cartMutated) {
           cartMutated.value = true
-          await cartStore.refreshCart()
+          // A browser that had no cart takes the one the assistant
+          // created: refreshing would reload its own, still none, and the
+          // assistant reported an add the shopper's cart never showed.
+          if (!sentCartId && turn.cartId) await cartStore.claimCart(turn.cartId)
+          else await cartStore.refreshCart()
         }
       }
       status.value = 'ready'

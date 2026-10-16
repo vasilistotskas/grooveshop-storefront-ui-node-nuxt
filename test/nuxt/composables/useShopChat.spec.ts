@@ -117,11 +117,13 @@ describe('useShopChat', () => {
   })
 
   it('reloads the cart when the turn mutated it', async () => {
-    const updated = makeCart({ items: [{ id: 1 }, { id: 2, product: { id: 2 } }] })
+    const own = makeCart()
+    useCartStore().cart = own
+    const updated = makeCart({ uuid: own.uuid, items: [{ id: 1 }, { id: 2, product: { id: 2 } }] })
     api.routes({ '/api/cart': updated })
     stubStream(
       'event: delta\ndata: {"text":"Το πρόσθεσα."}\n\n'
-      + 'event: done\ndata: {"conversationId":"c1","cartId":"abc","cartMutated":true}\n\n',
+      + `event: done\ndata: {"conversationId":"c1","cartId":"${own.uuid}","cartMutated":true}\n\n`,
     )
 
     const chat = useShopChat()
@@ -129,6 +131,24 @@ describe('useShopChat', () => {
 
     expect(chat.cartMutated.value).toBe(true)
     expect(useCartStore().cart).toEqual(updated)
+    expect(api.callsTo('/api/cart/claim')).toEqual([])
+  })
+
+  // The assistant's add_to_cart creates a cart for a browser that sent
+  // none; reloading the browser's own found nothing, and the shopper saw
+  // an empty cart after the assistant said it added the product
+  // (gateway#24).
+  it('takes the cart the assistant created when the browser had none', async () => {
+    const created = makeCart({ uuid: '6f1c1f3e-2d6a-4b0f-9a3e-2f6d6c1b9a10' })
+    api.routes({ '/api/cart/claim': created })
+    stubStream(`event: done\ndata: {"conversationId":"c1","cartId":"${created.uuid}","cartMutated":true}\n\n`)
+
+    await useShopChat().send('βάλε το στο καλάθι')
+
+    expect(api.callsTo('/api/cart/claim')).toEqual([
+      expect.objectContaining({ options: expect.objectContaining({ method: 'POST', body: { uuid: created.uuid } }) }),
+    ])
+    expect(useCartStore().cart).toEqual(created)
   })
 
   it('leaves the cart alone when the turn did not touch it', async () => {
