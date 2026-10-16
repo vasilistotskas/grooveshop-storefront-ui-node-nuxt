@@ -23,6 +23,13 @@ describe('GET /api/auth/oauth-params', () => {
     expect(testSession.data.user).toEqual({ id: 5 })
   })
 
+  it('answers 404 to a visitor without a session, creating none', async () => {
+    const response = await callRoute(handler, { route })
+
+    expect(response.status).toBe(404)
+    expect(testSession.minted).toBe(0)
+  })
+
   it('answers 404 the second time', async () => {
     testSession.set({ secure: { oauthParams } })
 

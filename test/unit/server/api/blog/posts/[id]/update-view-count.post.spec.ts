@@ -5,7 +5,8 @@ import { backend, callRoute, jsonResponse, testSession, useStorage } from '~~/te
 
 /**
  * POST /api/blog/posts/[id]/update-view-count: counts a post view once
- * per session; how often one visitor may count is Django's to say.
+ * per session, for a reader who has one; how often one visitor may count
+ * is Django's to say.
  */
 
 const route = '/api/blog/posts/:id/update-view-count'
@@ -76,7 +77,8 @@ describe('POST /api/blog/posts/[id]/update-view-count', () => {
     expect(zBlogPostDetail.safeParse(postDetail).success).toBe(true)
   })
 
-  it('counts the view at Django and remembers it in the session', async () => {
+  it('counts the view at Django and remembers it in the reader\'s session', async () => {
+    testSession.set({ cartId: '11111111-1111-4111-8111-111111111111' })
     backend.reply(postDetail)
 
     const response = await view()
@@ -86,6 +88,16 @@ describe('POST /api/blog/posts/[id]/update-view-count', () => {
     expect(backend.lastRequest.method).toBe('POST')
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/blog/post/3/update_view_count')
     expect(testSession.data.viewedPosts).toEqual(['3'])
+  })
+
+  it('counts a reader without a session and gives them none', async () => {
+    backend.reply(postDetail)
+
+    const response = await view()
+
+    expect(response.status).toBe(200)
+    expect(testSession.minted).toBe(0)
+    expect(testSession.data).toEqual({})
   })
 
   it('counts the view at Django as the visitor, not as this pod', async () => {

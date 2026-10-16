@@ -1,6 +1,7 @@
 import type { SessionConfig } from 'h3'
 import { createError, getCookie, getRequestHeader, getRequestProtocol, useRuntimeConfig } from 'nuxt/server'
 import type { RequestEvent } from 'nuxt/server'
+import type { UserSession } from '#auth-utils'
 import { clientIdentityHeaders } from './clientIdentity'
 
 // Responses that only carry session tokens in meta (no authenticated user data).
@@ -112,6 +113,11 @@ export function requestHasSession(event: RequestEvent): boolean {
   const { name, sessionHeader }: Pick<SessionConfig, 'name' | 'sessionHeader'> = useRuntimeConfig().session
   // nuxt-auth-utils defaults it (`nuxt-session`); absent means the module is not configured.
   if (!name) throw new Error('runtimeConfig.session.name is not set')
+  // A session written earlier in this request is its session too (h3
+  // keeps it on the event): the cart's first write, read again before
+  // the response sets the cookie.
+  const sessions = event.context.sessions
+  if (typeof sessions === 'object' && sessions !== null && name in sessions) return true
   if (sessionHeader !== false) {
     const header = typeof sessionHeader === 'string' ? sessionHeader : `x-${name.toLowerCase()}-session`
     if (getRequestHeader(event, header)) return true
@@ -119,8 +125,21 @@ export function requestHasSession(event: RequestEvent): boolean {
   return Boolean(getCookie(event, name))
 }
 
+/**
+ * What the request's session holds, WITHOUT creating one: an empty
+ * session when the request carries none. Every read goes through here.
+ * `getUserSession` is for the writes that create a session on purpose
+ * (sign-in, the cart), because on a request without one it mints a
+ * session and sends `nuxt-session` back: the allauth config, the cart and
+ * the blog view count did that for every visitor before they signed in
+ * or added anything (2026-10-15).
+ */
+export async function readUserSession(event: RequestEvent): Promise<Partial<UserSession>> {
+  return requestHasSession(event) ? await getUserSession(event) : {}
+}
+
 export async function getAllAuthHeaders(event: RequestEvent) {
-  const session = await getUserSession(event)
+  const session = await readUserSession(event)
   const sessionToken = session.secure?.sessionToken
   const accessToken = session.secure?.accessToken
 
@@ -128,13 +147,13 @@ export async function getAllAuthHeaders(event: RequestEvent) {
 }
 
 export async function getAllAuthSessionToken(event: RequestEvent) {
-  const session = await getUserSession(event)
+  const session = await readUserSession(event)
   return session.secure?.sessionToken
 }
 
 export async function getAllAuthAccessToken(event: RequestEvent) {
-  const session = await getUserSession(event)
-  return session?.secure?.accessToken
+  const session = await readUserSession(event)
+  return session.secure?.accessToken
 }
 
 export async function requireAllAuthAccessToken(event: RequestEvent): Promise<string> {

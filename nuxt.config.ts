@@ -163,6 +163,10 @@ export default defineNuxtConfig({
     preference: 'system',
     fallback: 'light',
     storage: 'cookie',
+    // Named as useCookie reads them. @nuxtjs/color-mode 4.0.1's default is
+    // `{ 'max-age': '31536000' }`, which useCookie ignores, so the choice
+    // was a session cookie (nuxt-modules/color-mode#435, not released).
+    cookieAttrs: { maxAge: 60 * 60 * 24 * 365, path: '/', sameSite: 'lax', secure: true },
   },
   ui: {
     // UContentToc on the blog post; the content set only registers with @nuxt/content otherwise.

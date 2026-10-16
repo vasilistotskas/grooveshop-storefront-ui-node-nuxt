@@ -1,24 +1,33 @@
 /**
  * Captures the landing page's traffic source for the order it may lead
- * to (see `useOrderAttribution`). Once per page load, synchronously at
- * plugin time and straight from `window.location`: that is the URL the
- * browser landed on, before any client navigation could replace it —
- * a deferred read (`onNuxtReady`) would record the second page when
- * the shopper clicks on before the idle callback fires. It is one
- * sessionStorage write, so it costs the first render nothing. The
- * landing query survives to this point: browser-language detection is
- * off (`detectBrowserLanguage: false`), so no i18n redirect replaces
- * the URL, and the server's www / canonical-host redirects keep
- * `event.path`, query included.
+ * to (see `useOrderAttribution`). Once per page load, and straight from
+ * `window.location` at plugin time: that is the URL the browser landed
+ * on, before any client navigation could replace it — a deferred read
+ * (`onNuxtReady`) would record the second page when the shopper clicks
+ * on before the idle callback fires. The landing query survives to this
+ * point: browser-language detection is off (`detectBrowserLanguage:
+ * false`), so no i18n redirect replaces the URL, and the server's www /
+ * canonical-host redirects keep `event.path`, query included.
+ *
+ * Stored only on a store that can take an order: the value travels with
+ * the order and nothing else reads it, so on a store with the cart off
+ * it was storage on the visitor's device with no use at all. The gate
+ * is the cart's own (`CART_ENABLED`, failing open like `cart-enabled`),
+ * read in parallel so it holds up nothing.
  */
-export default defineNuxtPlugin(() => {
-  const { capture } = useOrderAttribution()
-  const { location } = window
+export default defineNuxtPlugin({
+  name: 'attribution',
+  parallel: true,
+  async setup() {
+    const { capture } = useOrderAttribution()
+    const { location } = window
+    const landing = {
+      query: Object.fromEntries(new URLSearchParams(location.search)),
+      referrer: document.referrer,
+      landingPath: location.pathname,
+      ownOrigin: location.origin,
+    }
 
-  capture({
-    query: Object.fromEntries(new URLSearchParams(location.search)),
-    referrer: document.referrer,
-    landingPath: location.pathname,
-    ownOrigin: location.origin,
-  })
+    if (await settingEnabled('CART_ENABLED', { fallback: true })) capture(landing)
+  },
 })

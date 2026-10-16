@@ -18,11 +18,12 @@ const MERGED_UUID = '0e2b9c1a-7d3f-4b6e-8a5c-1f2e3d4c5b6a'
 const getCart = (headers?: Record<string, string>) => callRoute(handler, { route, headers })
 
 describe('GET /api/cart', () => {
-  it('asks nothing of Django for a visitor with neither a cart nor an account', async () => {
+  it('asks nothing of Django for a visitor with neither a cart nor an account, and gives them no session', async () => {
     const response = await getCart()
 
     expect(response.body).toBeUndefined()
     expect(backend.requests).toEqual([])
+    expect(testSession.minted).toBe(0)
   })
 
   it('fetches a guest\'s cart by the UUID their session carries', async () => {

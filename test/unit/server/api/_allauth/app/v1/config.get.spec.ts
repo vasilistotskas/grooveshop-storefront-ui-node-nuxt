@@ -37,6 +37,17 @@ describe('GET /api/_allauth/app/v1/config', () => {
     expect(backend.lastRequest.headers.get('x-session-token')).toBe('sess-1')
   })
 
+  it('fetches the config for a visitor without a session and creates none', async () => {
+    backend.reply(configResponse)
+
+    const response = await callRoute(handler, { route })
+
+    expect(response.status).toBe(200)
+    expect(backend.lastRequest.headers.has('x-session-token')).toBe(false)
+    expect(testSession.minted).toBe(0)
+    expect(response.headers.getSetCookie()).toEqual([])
+  })
+
   it('drops an expired session and retries anonymously', async () => {
     testSession.set({ secure: { sessionToken: 'sess-expired' }, user: { id: 5 } })
     backend.replyOnce(expired)
