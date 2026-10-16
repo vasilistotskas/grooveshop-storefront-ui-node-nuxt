@@ -182,16 +182,16 @@ function announceAdded() {
   addedWhileOpen.value += 1
   const imagePath = 'mainImagePath' in product.value ? product.value.mainImagePath : undefined
   const content = {
-    title: addedWhileOpen.value > 1
+    'title': addedWhileOpen.value > 1
       ? t('toast.added_many', { count: addedWhileOpen.value })
       : t('toast.added_title'),
-    description: name,
-    icon: imagePath ? undefined : 'i-lucide-circle-check',
-    avatar: imagePath
+    'description': name,
+    'icon': imagePath ? undefined : 'i-lucide-circle-check',
+    'avatar': imagePath
       ? { src: img(imagePath, { width: 96, height: 96, fit: 'cover' }, { provider: 'mediaStream' }), alt: name }
       : undefined,
-    color: 'success' as const,
-    actions: [{
+    'color': 'success' as const,
+    'actions': [{
       label: t('toast.view'),
       color: 'neutral' as const,
       variant: 'solid' as const,
