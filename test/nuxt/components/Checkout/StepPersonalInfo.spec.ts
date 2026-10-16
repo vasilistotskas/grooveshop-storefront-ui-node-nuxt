@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
-import { nextTick, reactive } from 'vue'
+import { defineComponent, h, nextTick, reactive, ref } from 'vue'
+import * as z from 'zod'
 import StepPersonalInfo from '~/components/Checkout/StepPersonalInfo.vue'
 import WebsideStepPersonalInfo from '~/components/variants/webside/Checkout/StepPersonalInfo.vue'
 import type { UserAddressDetail } from '~~/shared/openapi/types.gen'
@@ -493,6 +494,88 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
 
       expect(wrapper.findComponent({ name: own('CheckoutSavedAddresses') }).exists()).toBe(false)
       expect(hasField(wrapper, 'firstName')).toBe(true)
+    })
+  })
+
+  // The demo accounts' saved addresses had no region and no phone
+  // (2026-10-16). The saved mode renders neither field, so «Continue»
+  // failed on two errors with nowhere to show and did nothing on screen.
+  describe.runIf(tree === 'default')('a saved address that fails checkout\'s rules', () => {
+    // Stands in for `step1Schema`: the step only needs a schema that
+    // rejects the two fields.
+    const REGION_MISSING = 'Διάλεξε νομό'
+    const PHONE_MISSING = 'Συμπλήρωσε το τηλέφωνο'
+    const schema = z.object({
+      region: z.string().min(1, { error: REGION_MISSING }),
+      phone: z.string().min(1, { error: PHONE_MISSING }),
+    })
+    const incomplete = { ...makeAddress(1), region: null, phone: '' }
+
+    /**
+     * The step inside the checkout page's half of the contract:
+     * `edit-address` opens the fields, as `editSelectedAddress` does.
+     * Attached, so the scroll can find the field by its id.
+     */
+    async function mountOpening(overrides: { mode?: 'saved' | 'new', serverErrors?: unknown[] } = {}) {
+      const props = makeProps({
+        formState: makeFormState({ firstName: 'Μαρία', street: 'Πατησίων', country: 'GR' }),
+        schema,
+        selectedCountry: GREECE,
+        regionOptions: [{ label: 'Αττική', value: 'GR-I' }],
+        savedAddresses: [incomplete],
+        selectedSavedAddressId: 1,
+        serverErrors: overrides.serverErrors,
+      })
+      const Page = defineComponent({
+        setup() {
+          const mode = ref(overrides.mode ?? 'saved')
+          const openFields = () => {
+            mode.value = 'new'
+          }
+          return () => h(C, { ...props, mode: mode.value, onEditAddress: openFields })
+        },
+      })
+      const page = await mountSuspended(Page, { route: false, attachTo: document.body })
+      return { page, step: page.findComponent(C) }
+    }
+
+    /** The control a field's label points at. */
+    function controlOf(wrapper: VueWrapper, label: string) {
+      const labelEl = wrapper.findAll('label').find(l => l.text().startsWith(label))
+      if (!labelEl) throw new Error(`no field "${label}"`)
+      return labelEl.attributes('for')
+    }
+
+    it('pressing «Continue» opens the address with each error under its field, and goes to the first', async () => {
+      const scrolled: string[] = []
+      vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(function (this: Element) {
+        scrolled.push(this.id)
+      })
+      const { page, step } = await mountOpening()
+
+      await (step.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
+
+      await vi.waitFor(() => expect(scrolled).toEqual([controlOf(page, t('form.region'))]))
+      expect(step.emitted('edit-address')).toHaveLength(1)
+      expect(step.emitted('next')).toBeUndefined()
+      expect(page.text()).toContain(REGION_MISSING)
+      expect(page.text()).toContain(PHONE_MISSING)
+    })
+
+    it('opens the address for Django\'s error on a field the card stands for', async () => {
+      const message = 'Εισήγαγε έγκυρο αριθμό τηλεφώνου'
+      const { page, step } = await mountOpening({ serverErrors: [{ name: 'phone', message }] })
+
+      await vi.waitFor(() => expect(page.text()).toContain(message))
+      expect(step.emitted('edit-address')).toHaveLength(1)
+    })
+
+    it('marks what is wrong as soon as the checkout opens a picked address', async () => {
+      const { page, step } = await mountOpening({ mode: 'new' })
+
+      await vi.waitFor(() => expect(page.text()).toContain(REGION_MISSING))
+      expect(page.text()).toContain(PHONE_MISSING)
+      expect(step.emitted('next')).toBeUndefined()
     })
   })
 

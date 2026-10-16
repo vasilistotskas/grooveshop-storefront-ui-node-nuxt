@@ -189,41 +189,76 @@ export async function useCheckoutForm() {
   const addressEntryMode = ref<'saved' | 'new'>('new')
 
   /**
+   * The form fields a saved address fills: its own values, a blank one
+   * included. Falling back to what the form held carried the previously
+   * picked address's phone and region onto the next one, so a pick
+   * could pass with another recipient's phone.
+   */
+  const savedAddressFields = (address: UserAddressDetail) => ({
+    firstName: address.firstName,
+    lastName: address.lastName,
+    // E.164; the phone field reads its country back out of it.
+    phone: address.phone,
+    phoneCountry: '',
+    street: address.street,
+    streetNumber: address.streetNumber,
+    city: address.city,
+    zipcode: address.zipcode,
+    country: address.country,
+    countryId: address.country,
+    region: address.region ?? '',
+    regionId: address.region ?? undefined,
+  })
+
+  /**
    * Apply a saved UserAddress to the checkout form state. Shared between
    * the "prefill main on mount" and "user picks an address from the
    * dropdown" code paths so the mapping stays consistent. Email comes
    * from the session (addresses don't carry one).
    */
   const applyAddressToFormState = (address: UserAddressDetail) => {
-    formState.firstName = address.firstName || formState.firstName
-    formState.lastName = address.lastName || formState.lastName
-    if (address.phone) {
-      // E.164; the phone field reads its country back out of it.
-      formState.phone = address.phone
-      formState.phoneCountry = ''
-    }
-    formState.street = address.street || formState.street
-    formState.streetNumber = address.streetNumber || formState.streetNumber
-    formState.city = address.city || formState.city
-    formState.zipcode = address.zipcode || formState.zipcode
-    formState.country = address.country || formState.country
-    formState.countryId = address.country || formState.countryId
-    formState.region = address.region || formState.region
-    formState.regionId = address.region || formState.regionId
+    Object.assign(formState, savedAddressFields(address))
     if (user.value?.email && !formState.email) {
       formState.email = user.value.email
     }
   }
 
   /**
+   * The fields of ``state`` that fail step 1 among those a picked saved
+   * address stands for (``SAVED_ADDRESS_FIELDS``) — the errors the
+   * ``saved`` mode has no input to show under. Checked with
+   * ``step1Schema`` itself, so the picker and «Continue» can never
+   * disagree about what a usable address is.
+   */
+  const savedAddressIssues = (state: typeof formState): string[] => {
+    const result = step1Schema.safeParse(state)
+    if (result.success) return []
+    const names = result.error.issues.map(issue => String(issue.path[0]))
+    return [...new Set(names)].filter(name => SAVED_ADDRESS_FIELDS.includes(name))
+  }
+
+  /**
+   * Saved addresses that fail checkout's rules: saved before a rule
+   * existed, or seeded without a region and a phone (the demo
+   * accounts, 2026-10-16). The picker marks them as needing an update,
+   * and picking one opens its fields. Each is checked with the values
+   * ``applyAddressToFormState`` would put in the form.
+   */
+  const addressIdsNeedingUpdate = computed(() => savedAddresses.value
+    .filter(address => savedAddressIssues({ ...formState, ...savedAddressFields(address) }).length)
+    .map(address => address.id))
+
+  /**
    * Verify an applied saved address before checkout relies on it.
    * Saved addresses can carry a stale region alpha (region renamed or
-   * removed upstream) or predate the delivery-address rules (a postcode
-   * typed into the street-number field — prod order #316). Either way
-   * we surface it instead of leaving the shopper stuck on a hidden
-   * validation error: switch to ``new`` mode so the fields are
-   * visible, and toast why. Pre-filled values stay so the shopper only
-   * fixes what is wrong; the stored address is not rewritten.
+   * removed upstream), predate the delivery-address rules (a postcode
+   * typed into the street-number field — prod order #316) or lack a
+   * field checkout requires (no region, no phone). Each one is surfaced
+   * instead of leaving «Continue» doing nothing over a hidden field:
+   * switch to ``new`` mode so the fields are visible (the step marks
+   * the failing ones while the address stays picked), and toast why.
+   * Pre-filled values stay so the shopper only fixes what is wrong;
+   * the stored address is not rewritten.
    */
   const validateAppliedAddress = async () => {
     // Countries here are already filtered to ``shippable: true``
@@ -262,7 +297,7 @@ export async function useCheckoutForm() {
       })
       return
     }
-    if (addressIssues(selectedCountry.value, formState).length) {
+    if (savedAddressIssues(formState).length) {
       addressEntryMode.value = 'new'
       toast.add({
         title: t('saved_address_invalid_title'),
@@ -270,6 +305,15 @@ export async function useCheckoutForm() {
         color: 'warning',
       })
     }
+  }
+
+  /**
+   * Open the picked saved address's fields, keeping it picked: the step
+   * calls this when an error lands on a field the ``saved`` mode does
+   * not render, so the error shows under its input.
+   */
+  const editSelectedAddress = () => {
+    addressEntryMode.value = 'new'
   }
 
   /**
@@ -287,6 +331,8 @@ export async function useCheckoutForm() {
     if (!address) return
     applyAddressToFormState(address)
     addressEntryMode.value = 'saved'
+    // Superseded when the address is in another country: the country
+    // watcher fetched that country's regions and checks the address.
     if (!(await fetchRegions())) return
     await validateAppliedAddress()
   }
@@ -394,6 +440,10 @@ export async function useCheckoutForm() {
       else {
         formState.regionId = undefined
       }
+      // A saved address picked in another country: this run's request
+      // superseded ``selectSavedAddress``'s, so the check it skipped
+      // runs here, against the list just fetched.
+      if (addressEntryMode.value === 'saved') await validateAppliedAddress()
     },
     { flush: 'post' },
   )
@@ -1198,6 +1248,8 @@ export async function useCheckoutForm() {
     savedAddresses,
     selectedSavedAddressId,
     selectSavedAddress,
+    addressIdsNeedingUpdate,
+    editSelectedAddress,
     addressEntryMode,
     useNewAddress,
     b2bInvoicingEnabled,

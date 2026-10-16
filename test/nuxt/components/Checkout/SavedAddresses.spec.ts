@@ -14,7 +14,9 @@ import { trees } from '~~/test/helpers/trees'
  *
  * The default draws one radio card per saved address (title, recipient,
  * street, postcode and city) and a separate "New address" button; the
- * frozen webside copy keeps a "new address" radio card among them.
+ * frozen webside copy keeps a "new address" radio card among them. The
+ * default also says which addresses fail checkout's rules, and keeps
+ * the picked card picked while the step has its fields open.
  */
 function makeAddress(overrides: Partial<UserAddressDetail> = {}): UserAddressDetail {
   const id = overrides.id ?? 1
@@ -47,8 +49,12 @@ const ADDRESSES = [
 const NEW_LABEL = 'Νέα διεύθυνση'
 
 describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tree Checkout/SavedAddresses', ({ tree, C }) => {
-  const mount = (props: { selectedId: number | null, mode: 'saved' | 'new' }) =>
-    mountSuspended(C, { route: false, props: { addresses: ADDRESSES, ...props } })
+  const mount = (props: { selectedId: number | null, mode: 'saved' | 'new', needingUpdate?: number[] }) =>
+    mountSuspended(C, {
+      route: false,
+      // The frozen copy has no `needingUpdate` prop.
+      props: { addresses: ADDRESSES, ...(tree === 'default' ? { needingUpdate: [] } : {}), ...props },
+    })
 
   const radios = (wrapper: VueWrapper) => wrapper.findAll('[role="radio"]')
   const checked = (wrapper: VueWrapper) => radios(wrapper).filter(r => r.attributes('aria-checked') === 'true')
@@ -106,13 +112,27 @@ describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tr
     expect(checked(wrapper)).toHaveLength(1)
   })
 
+  it.runIf(tree === 'default')('keeps the picked address chosen while the step has its fields open', async () => {
+    const wrapper = await mount({ selectedId: 2, mode: 'new' })
+
+    expect(radioFor(wrapper, 'Γραφείο').attributes('aria-checked')).toBe('true')
+    expect(checked(wrapper)).toHaveLength(1)
+  })
+
   it.runIf(tree === 'default').each([
-    { selectedId: 2, mode: 'new' as const },
+    { selectedId: null, mode: 'new' as const },
     { selectedId: null, mode: 'saved' as const },
   ])('shows no address as chosen for $selectedId in $mode mode', async (props) => {
     const wrapper = await mount(props)
 
     expect(checked(wrapper)).toHaveLength(0)
+  })
+
+  it.runIf(tree === 'default')('says which addresses need updating, and only those', async () => {
+    const wrapper = await mount({ selectedId: 1, mode: 'saved', needingUpdate: [2] })
+
+    // One `label` per card, in order (see `radioFor`).
+    expect(wrapper.findAll('label').map(card => card.text().includes('Χρειάζεται ενημέρωση'))).toEqual([false, true])
   })
 
   it('reports the address the shopper picks', async () => {
@@ -143,10 +163,14 @@ describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tr
   })
 
   it.runIf(tree === 'default')('marks the new-address button pressed only while typing a new address', async () => {
-    const typing = await mount({ selectedId: 1, mode: 'new' })
+    const typing = await mount({ selectedId: null, mode: 'new' })
     expect(newAddressButton(typing).attributes('aria-pressed')).toBe('true')
 
     const picked = await mount({ selectedId: 1, mode: 'saved' })
     expect(newAddressButton(picked).attributes('aria-pressed')).toBe('false')
+
+    // A picked address whose fields the step opened is still that address.
+    const editing = await mount({ selectedId: 1, mode: 'new' })
+    expect(newAddressButton(editing).attributes('aria-pressed')).toBe('false')
   })
 })

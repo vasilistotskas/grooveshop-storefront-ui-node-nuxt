@@ -1,5 +1,23 @@
 import type { FormError } from '@nuxt/ui'
 
+/**
+ * The address step's fields a picked saved address stands for: its card
+ * replaces their inputs (``StepPersonalInfo``'s ``saved`` mode), so an
+ * error on one of them has nowhere to show until the fields are opened.
+ */
+export const SAVED_ADDRESS_FIELDS: readonly string[] = [
+  'email',
+  'firstName',
+  'lastName',
+  'phone',
+  'country',
+  'region',
+  'street',
+  'streetNumber',
+  'city',
+  'zipcode',
+]
+
 // Django's order-create field names (camelCased by the API) that live
 // on the address step, mapped to that step's ``UFormField`` names.
 const ADDRESS_STEP_FIELDS: Record<string, string> = {
