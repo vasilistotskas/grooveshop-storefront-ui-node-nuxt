@@ -31,7 +31,15 @@ import { failWith } from '~~/test/helpers/api'
  * "added" toast.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-const toast = vi.hoisted(() => ({ add: vi.fn(), remove: vi.fn(), update: vi.fn(), clear: vi.fn() }))
+const toast = vi.hoisted(() => ({
+  // The open toasts, as `useToast().toasts` holds them: the component
+  // updates its toast in place when it is already open.
+  toasts: { value: [] as Array<{ id: string | number }> },
+  add: vi.fn(),
+  remove: vi.fn(),
+  update: vi.fn(),
+  clear: vi.fn(),
+}))
 
 const viewport = vi.hoisted(() => ({ desktop: true }))
 
@@ -56,6 +64,12 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     cartHolds()
     viewport.desktop = true
     useCartDrawer().close()
+    toast.toasts.value = []
+    toast.add.mockImplementation((added: { id: string | number }) => {
+      toast.toasts.value.push(added)
+      return added
+    })
+    useState('cart-added-toast-count').value = 0
   })
 
   const mount = (props: { product: Product, quantity?: number, iconOnly?: boolean }) =>
@@ -158,6 +172,29 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
 
     expect(drawer.open.value).toBe(true)
     expect(drawer.added.value).toBe('Προϊόν 4')
+  })
+
+  it.runIf(tree === 'default')('keeps one toast for quick adds, counting them, and starts over once it closes', async () => {
+    viewport.desktop = false
+    const wrapper = await mount({ product: makeProduct({ id: 4, mainImagePath: '' }) })
+
+    await click(wrapper)
+    await click(wrapper)
+    await click(wrapper)
+
+    expect(toast.add).toHaveBeenCalledOnce()
+    expect(toast.update.mock.calls.map(([id, content]) => [id, content.title])).toEqual([
+      ['cart:added', 'Προστέθηκαν 2 προϊόντα στο καλάθι'],
+      ['cart:added', 'Προστέθηκαν 3 προϊόντα στο καλάθι'],
+    ])
+
+    // Closed (timer or dismiss): the toast leaves the list and the count resets.
+    toast.add.mock.calls[0]![0]['onUpdate:open'](false)
+    toast.toasts.value = []
+    await click(wrapper)
+
+    expect(toast.add).toHaveBeenCalledTimes(2)
+    expect(toast.add.mock.calls[1]![0]).toEqual(expect.objectContaining({ id: 'cart:added', title: 'Προστέθηκε στο καλάθι' }))
   })
 
   it.runIf(tree === 'default')('toasts a product without a photograph with a check instead', async () => {
