@@ -14,6 +14,11 @@ export async function useBlogPostPage() {
   const route = useRoute(`blog-post-id-slug___${locale.value}`)
   const siteConfig = useSiteConfig()
   const img = useMediaStreamImage()
+  // Before the first await, like every composable here: it reads a Pinia
+  // store, and after an await the server has lost the injection context
+  // Pinia needs. Called below it, the post page answered 500 ("reading
+  // '_s'") whenever another request had changed the active Pinia.
+  const { transformImages } = useHtmlContent()
   const siteUrl = siteConfig.url
 
   const blogPostId = computed(() => Number(route.params.id) || null)
@@ -88,8 +93,6 @@ export async function useBlogPostPage() {
     key: `relatedPosts${blogPostId.value}`,
     method: 'GET',
   })
-
-  const { transformImages } = useHtmlContent()
 
   const blogPostBody = computed(() => {
     const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
