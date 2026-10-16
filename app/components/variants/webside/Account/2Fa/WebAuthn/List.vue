@@ -49,19 +49,39 @@ async function deleteKey(key: any) {
   })
 }
 
-async function onSave(key: any, name: string) {
-  const newKeys = keys.value?.filter(k => k.id !== key.id)
-  newKeys?.push({ ...key, name })
-  if (!newKeys) {
-    return
+// Renaming edits a draft, not the row: "Edit" used to enable a borderless
+// input that looked like the plain name, with a small check icon as the
+// only save and no way back (owner review, 2026-10-16).
+const draftName = ref('')
+
+function startRename(id: number, name: string | undefined) {
+  editId.value = id
+  draftName.value = name ?? ''
+}
+
+function cancelRename() {
+  editId.value = null
+}
+
+/** The row shows the new name once the API has kept it. */
+async function onSave(id: number) {
+  const name = draftName.value.trim()
+  if (!name) return
+  loading.value = true
+  try {
+    const ok = (await updateWebAuthnCredential({ id, name }))?.status === 200
+    if (ok) {
+      keys.value = keys.value?.map(k => (k.id === id ? { ...k, name } : k))
+      editId.value = null
+    }
+    toast.add({ title: ok ? t('success.title') : t('error.default'), color: ok ? 'success' : 'error' })
   }
-  await optimisticSetKeys(newKeys, async () => {
-    const resp = await updateWebAuthnCredential({
-      id: key.id,
-      name,
-    })
-    return (resp?.status === 200)
-  })
+  catch {
+    toast.add({ title: t('error.default'), color: 'error' })
+  }
+  finally {
+    loading.value = false
+  }
 }
 
 function getTypeColor(type: string) {
@@ -129,7 +149,7 @@ const actionItems = (row: { id: number, name: string, type: string, created_at: 
     ui: {
       itemLeadingIcon: 'text-dark dark:text-white',
     },
-    onSelect: () => (editId.value = row.id),
+    onSelect: () => startRename(row.id, row.name),
   })
 
   items.push({
@@ -195,34 +215,36 @@ onReactivated(async () => {
             </template>
             <template #name-cell="{ row }">
               <div class="flex items-center gap-2">
-                <UInput
-                  v-model="row.original.name"
-                  :name="row.original.name"
-                  size="sm"
-                  color="neutral"
-                  variant="none"
-                  :placeholder="row.original.name || t('unnamed_key')"
-                  :disabled="editId !== row.original.id"
-                  :loading="loading"
-                  :ui="{
-                    base: 'p-0!',
-                  }"
+                <form
+                  v-if="editId === row.original.id"
+                  class="flex items-center gap-2"
+                  @submit.prevent="() => onSave(row.original.id)"
                 >
-                  <template #trailing>
-                    <UTooltip
-                      v-if="row.original.name && editId === row.original.id"
-                      :text="t('save')"
-                    >
-                      <UButton
-                        color="success"
-                        variant="link"
-                        icon="i-heroicons-check-20-solid"
-                        :padded="false"
-                        @click="onSave(row.original, row.original.name)"
-                      />
-                    </UTooltip>
-                  </template>
-                </UInput>
+                  <UInput
+                    v-model="draftName"
+                    :aria-label="t('rename_label')"
+                    size="sm"
+                    color="neutral"
+                    autofocus
+                    @keydown.esc="cancelRename"
+                  />
+                  <UButton
+                    :label="t('save')"
+                    :loading="loading"
+                    :disabled="!draftName.trim()"
+                    type="submit"
+                    color="neutral"
+                    size="sm"
+                  />
+                  <UButton
+                    :label="t('cancel')"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    @click="cancelRename"
+                  />
+                </form>
+                <span v-else>{{ row.original.name || t('unnamed_key') }}</span>
                 <UBadge
                   v-if="row.original.is_passwordless"
                   color="secondary"
@@ -336,6 +358,7 @@ el:
   passwordless: Χωρίς κωδικό
   recovery_codes: Κωδικοί ανάκτησης
   unnamed_key: Ανώνυμο κλειδί
+  rename_label: Νέο όνομα κλειδιού
   total: Σύνολο
   total_keys: Δεν υπάρχουν κλειδιά | 1 κλειδί | {count} κλειδιά
   empty:
@@ -350,6 +373,7 @@ en:
   passwordless: Passwordless
   recovery_codes: Recovery codes
   unnamed_key: Unnamed key
+  rename_label: New key name
   total: Total
   total_keys: "No keys | 1 key | {count} keys"
   empty:
