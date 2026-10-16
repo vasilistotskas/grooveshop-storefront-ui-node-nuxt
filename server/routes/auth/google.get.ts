@@ -22,6 +22,7 @@ const googleHandler = defineOAuthGoogleEventHandler({
 })
 
 export default defineEventHandler(async (event) => {
+  await requireSocialProvider(event, 'google')
   captureOAuthProcess(event, getQuery(event) as Record<string, string>)
   return googleHandler(event)
 })

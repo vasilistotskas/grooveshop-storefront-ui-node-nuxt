@@ -12,9 +12,7 @@ export function useSocialProviders() {
   const authStore = useAuthStore()
   const { config } = storeToRefs(authStore)
 
-  const providers = computed<Provider[]>(() =>
-    (config.value?.socialaccount?.providers ?? []).filter(provider => provider.client_id !== ''),
-  )
+  const providers = computed<Provider[]>(() => usableSocialProviders(config.value))
 
   return { providers, hasProviders: computed(() => providers.value.length > 0) }
 }
