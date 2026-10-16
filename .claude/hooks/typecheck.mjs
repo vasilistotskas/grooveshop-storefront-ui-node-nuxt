@@ -90,8 +90,12 @@ function acquireLock(lockPath, deadline) {
         return true
       }
       if (lockIsStale(lockPath)) {
-        try { unlinkSync(lockPath) }
-        catch { /* another hook removed it first */ }
+        try {
+          unlinkSync(lockPath)
+        }
+        catch {
+          // Another hook removed it first.
+        }
         continue
       }
       if (Date.now() >= deadline) return false
