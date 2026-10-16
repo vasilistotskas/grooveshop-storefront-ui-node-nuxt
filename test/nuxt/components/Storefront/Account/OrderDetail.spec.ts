@@ -285,7 +285,7 @@ describe('Storefront/Account/OrderDetail', () => {
     const open = vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window)
 
     const wrapper = await mountPage()
-    await button(wrapper, 'Τιμολόγιο')!.trigger('click')
+    await button(wrapper, 'Απόδειξη')!.trigger('click')
     // Opened before the request answers: Safari blocks a tab opened later.
     expect(open).toHaveBeenCalledWith('', '_blank')
     await flushPromises()
@@ -301,7 +301,7 @@ describe('Storefront/Account/OrderDetail', () => {
     vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window)
 
     const wrapper = await mountPage()
-    await button(wrapper, 'Τιμολόγιο')!.trigger('click')
+    await button(wrapper, 'Απόδειξη')!.trigger('click')
     await flushPromises()
 
     expect(tab.close).toHaveBeenCalled()
@@ -309,7 +309,7 @@ describe('Storefront/Account/OrderDetail', () => {
   })
 
   it('offers no invoice before one exists', async () => {
-    expect(button(await mountPage(), 'Τιμολόγιο')).toBeUndefined()
+    expect(button(await mountPage(), 'Απόδειξη')).toBeUndefined()
   })
 
   it('buys the order again', async () => {

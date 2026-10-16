@@ -629,12 +629,12 @@ el:
     payment_pending: Η πληρωμή εκκρεμεί
     payment_pending_description: Απομένουν {amount} για να ολοκληρωθεί η πληρωμή.
   invoice:
-    cta: Τιμολόγιο
+    cta: Απόδειξη
     details: Στοιχεία τιμολογίου
     vat: "ΑΦΜ {vat} · {office}"
-    error_title: Το τιμολόγιο δεν άνοιξε
+    error_title: Η απόδειξη δεν άνοιξε
     error_description: Δοκίμασε ξανά σε λίγο.
-    error_missing: Το τιμολόγιο δεν είναι ακόμα διαθέσιμο.
+    error_missing: Η απόδειξη δεν είναι ακόμα διαθέσιμη.
   cancel:
     cta: Ακύρωση παραγγελίας
     confirm_title: "Ακύρωση της παραγγελίας #{id};"
@@ -684,12 +684,12 @@ en:
     payment_pending: Payment pending
     payment_pending_description: "{amount} is still due to complete the payment."
   invoice:
-    cta: Invoice
+    cta: Receipt
     details: Invoice details
     vat: "VAT {vat} · {office}"
-    error_title: The invoice did not open
+    error_title: The receipt did not open
     error_description: Please try again in a moment.
-    error_missing: The invoice is not available yet.
+    error_missing: The receipt is not available yet.
   cancel:
     cta: Cancel order
     confirm_title: "Cancel order #{id}?"
