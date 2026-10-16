@@ -1311,7 +1311,8 @@ export default defineNuxtConfig({
   },
   seo: {
     // The module's canonical redirect runs as MODULE middleware —
-    // before 4.tenant-site-config pushes the per-tenant URL — so it
+    // written when the per-tenant URL was pushed by a later route
+    // middleware (server/plugins/tenant-site-config.ts now) — so it
     // compared every host against the env-frozen platform site URL
     // and 301'd every other tenant's storefront onto tenant #1's
     // domain. server/middleware/5.tenant-canonical.ts is the

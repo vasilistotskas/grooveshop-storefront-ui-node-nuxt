@@ -31,7 +31,7 @@ export function useTenantBranding() {
   )
   const faviconUrl = computed(() => tenantStore.faviconUrl || '')
   // Absolute on purpose: og:image must be a full URL, and siteConfig.url
-  // is already the tenant's own origin (4.tenant-site-config.ts).
+  // is already the tenant's own origin (server/plugins/tenant-site-config.ts).
   const ogImageUrl = computed(
     () =>
       tenantStore.logoLightUrl

@@ -4,8 +4,8 @@ import { defineEventHandler, getRequestHost, sendRedirect } from 'nuxt/server'
  * Tenant-aware canonical-host redirect.
  *
  * Replaces `@nuxtjs/seo`'s `redirectToCanonicalSiteUrl`, which runs as
- * MODULE middleware — before `4.tenant-site-config.ts` pushes the
- * tenant's own URL — so it compared every host against the env-frozen
+ * MODULE middleware — before a later route middleware pushed the
+ * tenant's own URL (`server/plugins/tenant-site-config.ts` now) — so it compared every host against the env-frozen
  * platform `NUXT_SITE_URL` and 301'd every other tenant's storefront
  * onto tenant #1's domain (observed on staging: tenant2 host → 301
  * https://staging.webside.gr). Single-tenant production never exposed

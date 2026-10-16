@@ -51,8 +51,7 @@ Nuxt 5 runs Nitro v3, which has no server auto-imports and no global
   event only.
 - **h3 handlers remain only where a module or h3 itself requires them**:
   the OAuth routes (nuxt-auth-utils' factories), the sitemap source,
-  the RSS feed, the manifest and `4.tenant-site-config.ts` (nuxt-site-config
-  takes h3's event), `1.device-class.ts` (writes a Node request header for
+  the RSS feed, the manifest, `1.device-class.ts` (writes a Node request header for
   Nitro's cache `varies`) and `contact/attachment.post.ts` (`proxyRequest`
   streams the upload).
 - `test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on any
@@ -69,7 +68,6 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 - `1.locale.ts` — `event.context.locale` = the page's locale: the path prefix of a page request, or the `X-Language` the app's fetchers state on an `/api` request, clamped by `servedLocale` (`shared/i18n/tenantLocales.ts`). No cookie, `Accept-Language` or `?locale=` source. It is sent to Django as `X-Language` and is part of every `tenantCacheKey`
 - `2.evlog-auth.ts` — attaches the auth session user id to the wide event (`useLogger`)
 - `3.csp.ts` — per-tenant Content-Security-Policy (extends src lists with the tenant's `allowedCspSources`)
-- `4.tenant-site-config.ts` — sets per-tenant `@nuxtjs/seo` site config (url/name)
 - `5.tenant-canonical.ts` — canonical host enforcement for the tenant's primary domain
 - `6.tenant-favicon.ts` — serves the tenant's favicon
 
@@ -78,6 +76,7 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 - `http-agent.ts` — Undici Agent for connection pooling (100 connections, pipelining 10, keep-alive 30s) — reduces latency for internal API calls
 - `edge-cache.ts` — lets Cloudflare cache ONLY the pages Nitro served from its page cache: `Cloudflare-CDN-Cache-Control` (never `s-maxage`, which disables the edge's stale-while-revalidate), `Cache-Control: no-cache` for browsers, and `Cache-Tag: storefront-html,storefront-html-<schema>` — tag names are a contract with Django's `core/cache/edge.py`, which purges them after an edit and after a deploy. Set as the response ENDS, because h3's 304 revalidation is sent from inside Nitro's cached handler. Rules in `server/utils/edgeCache.ts`
 - `storage.ts` — Configurable cache backend: tests Redis connectivity, falls back to memory driver if unavailable
+- `tenant-site-config.ts` — the store's own `@nuxtjs/seo` site config (url, name, per-locale description) through nuxt-site-config's `site-config:init` hook, which runs whenever a request's site config is first built, before any route middleware. A route middleware was too late: nuxt-ai-ready builds its `Link` header ahead of every middleware and serves `/llms.txt` and the `.md` mirrors on paths `0.tenant.ts` bypasses, so they named the platform's URL. On a store that does not serve those surfaces (`servesAiSurfaces`, `server/utils/aiSurfaces.ts`) the `Link` header loses its links to them as the response ends
 - `server/early-plugins/runtime-config.ts` — NOT in `server/plugins/`: registered via `nitro.plugins` in `nuxt.config.ts` so it runs before every module's plugin. Seeds each request's `useRuntimeConfig(event)` with a clone of the boot-resolved config, skipping Nitro 2's per-request env re-walk (63% of a trivial request's CPU, ~19% of a page render). Keep it first; a copy built by an earlier `request` hook makes it a no-op.
 - `startup-validation.ts` — Validates required env vars (`NUXT_SESSION_PASSWORD` >= 32 chars) at startup; fails hard on misconfiguration
 

@@ -3,17 +3,18 @@ import { createError, defineEventHandler, getRequestHeader } from 'nuxt/server'
 /**
  * Interim multi-tenant gate for nuxt-ai-ready's discovery surfaces.
  *
- * `/llms.txt`, `/llms-full.txt` and the direct `.md` page mirrors are
- * NOT tenant-safe today: the module renders headers/canonical origins
- * from the tenant-less site config and lists the platform's pages — so
- * tenant B's `/llms.txt` would announce tenant A's brand and enumerate
- * tenant A's pages.
- * Until the module supports per-host indexes, these surfaces are
- * served ONLY on the platform's own storefront (the tenant whose
+ * `/llms.txt`, `/llms-full.txt` and the direct `.md` page mirrors
+ * (`isAiSurfacePath`) name the store they are served for, since the
+ * site config is the store's from the start of each request
+ * (`server/plugins/tenant-site-config.ts`). They are still not opened to
+ * every store: the module builds `/llms.txt` through a cached function
+ * whose key is not the store's host, and lists pages from the sitemap.
+ * Until that is settled, these surfaces are served ONLY on the
+ * platform's own storefront (`servesAiSurfaces`: the tenant whose
  * ``isPlatformStorefront`` flag is set — resolved here, because these
  * paths sit in 0.tenant's bypass list) and 404 everywhere else,
- * including when no store carries the flag: the shared index would
- * otherwise leak cross-tenant.
+ * including when no store carries the flag. Other stores do not
+ * advertise them in their `Link` header either.
  *
  * Exemptions:
  * - The `x-md-negotiation-internal` re-fetch from
@@ -29,17 +30,12 @@ import { createError, defineEventHandler, getRequestHeader } from 'nuxt/server'
 export default defineEventHandler(async (event) => {
   if (event.req.method !== 'GET') return
 
-  const path = event.url.pathname
-  const isAiSurface
-    = path === '/llms.txt'
-      || path === '/llms-full.txt'
-      || (path.endsWith('.md') && !path.startsWith('/api/'))
-  if (!isAiSurface) return
+  if (!isAiSurfacePath(event.url.pathname)) return
   if (getRequestHeader(event, 'x-md-negotiation-internal')) return
 
   const host = requestTenantHost(event)
   const result = host ? await getTenantConfig(host) : null
-  if (result?.type !== 'ok' || result.config.isPlatformStorefront !== true) {
+  if (result?.type !== 'ok' || !servesAiSurfaces(result.config)) {
     throw createError({ status: 404, statusText: 'Not Found' })
   }
 })

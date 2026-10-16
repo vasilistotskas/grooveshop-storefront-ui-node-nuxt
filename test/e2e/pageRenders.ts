@@ -48,6 +48,9 @@ const WEBSIDE_HOST = 'webside-smoke.localhost'
 // `locale-available` gate: every platform locale exists as a ROUTE on
 // every store, so only that middleware keeps `/en/**` off this one.
 const GREEK_ONLY_HOST = 'el-only-smoke.localhost'
+// The platform's own storefront (`isPlatformStorefront`), the one store
+// that serves nuxt-ai-ready's `/llms.txt` and `.md` mirrors.
+const PLATFORM_STORE_HOST = 'platform-smoke.localhost'
 
 // Content that fails upstream, for the 5xx → 503 mapping.
 const OUTAGE_CONTENT_SLUG = 'outage'
@@ -79,6 +82,7 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
     sendJson(res, validTenantConfig(domain, {
       // The whole point of the /en assertions below.
       availableLocales: domain.startsWith('el-only') ? ['el'] : ['el', 'en'],
+      isPlatformStorefront: domain === PLATFORM_STORE_HOST,
       blogEnabled: true,
       // ...and of the chrome-variant assertions at the end.
       schemaName: domain.startsWith('delta-sigma')
@@ -419,6 +423,27 @@ export function describePageRenders(): void {
         `/ redirected to ${location ?? '(no location)'}`,
       ).toBe(200)
       expect(body).toContain('lang="el-GR"')
+    }, 60000)
+  })
+
+  // nuxt-ai-ready builds the header in a handler ahead of every server
+  // middleware, from the site config: before it was the store's from the
+  // start of the request, every store advertised the platform's
+  // `NUXT_SITE_URL` (here `.env`'s localhost:3000).
+  describe('the Link header', () => {
+    it('advertises nothing a store answers with 404', async () => {
+      const { statusCode, headers } = await request('/', TENANT_HOST, BROWSER_ACCEPT)
+
+      expect(statusCode).toBe(200)
+      expect(headers.link).toBeUndefined()
+    }, 60000)
+
+    it('names the host of the platform storefront for its .md twin and llms.txt', async () => {
+      const { headers } = await request('/products', PLATFORM_STORE_HOST, BROWSER_ACCEPT)
+
+      expect(headers.link).toBe(
+        `<https://${PLATFORM_STORE_HOST}/products.md>; rel="alternate"; type="text/markdown", <https://${PLATFORM_STORE_HOST}/llms.txt>; rel="describedby"`,
+      )
     }, 60000)
   })
 }

@@ -417,7 +417,7 @@ onMounted(() => {
 const canonicalUrl = computed(() => {
   // Read from siteConfig.url so the canonical, ogUrl, and hreflang
   // alternates all point at the active tenant's primary domain (set
-  // by ``server/middleware/4.tenant-site-config.ts``). Reading
+  // by ``server/plugins/tenant-site-config.ts``). Reading
   // ``runtimeConfig.public.baseUrl`` would always emit the platform
   // base URL for every tenant.
   const baseUrl = siteConfig.url || runtimeConfig.public.baseUrl

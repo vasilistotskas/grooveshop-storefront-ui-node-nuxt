@@ -1,5 +1,3 @@
-import { localeFromPath } from '~~/shared/i18n/localeFromPath'
-import { servedLocale } from '~~/shared/i18n/tenantLocales'
 import { defineEventHandler, getRequestHeader } from 'nuxt/server'
 
 /**
@@ -32,9 +30,5 @@ export default defineEventHandler((event) => {
   const path = event.url.pathname
   if (path.startsWith('/_nuxt') || path.startsWith('/_ipx') || path.startsWith('/assets')) return
 
-  const candidate = path.startsWith('/api/')
-    ? getRequestHeader(event, 'x-language')
-    : localeFromPath(path)
-
-  event.context.locale = servedLocale(candidate, event.context.tenant)
+  event.context.locale = pageLocale(path, getRequestHeader(event, 'x-language'), event.context.tenant)
 })
