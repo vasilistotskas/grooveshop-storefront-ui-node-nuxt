@@ -126,7 +126,10 @@ function onResultClick(result: SearchResult, rank: number) {
 function goToSearchPage() {
   if (!localQuery.value) return
   history.add(localQuery.value)
-  router.replace({ path: '/search', query: { query: localQuery.value } })
+  // Through localePath: a bare '/search' dropped the /en prefix, so an
+  // English quick search opened the Greek results page, which found
+  // nothing for an English word.
+  router.replace(localePath({ name: 'search', query: { query: localQuery.value } }))
   close()
 }
 

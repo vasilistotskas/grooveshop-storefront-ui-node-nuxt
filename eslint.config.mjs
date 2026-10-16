@@ -48,6 +48,23 @@ const NO_PAGE_MACROS = {
 }
 
 /**
+ * A navigation target is a route name or a `localePath(...)` result,
+ * never a literal path. Every route has a locale prefix except the
+ * default one's, so a bare `'/search'` sends an English visitor to the
+ * Greek page: the quick search's "See all results" opened Greek results
+ * for an English query, which found nothing (owner review, 2026-10-16).
+ */
+const NAVIGATION_CALL = ':matches(CallExpression[callee.name="navigateTo"], CallExpression[callee.object.name="router"][callee.property.name=/^(push|replace)$/])'
+const LOCALIZED_NAVIGATION_MESSAGE = 'Navigate with localePath({ name: ... }) — a literal path drops the locale prefix.'
+// esquery regexes cannot contain "/", so a leading slash is `\x2F`.
+const LOCALIZED_NAVIGATION = [
+  `${NAVIGATION_CALL} > Literal.arguments[value=/^\\x2F/]`,
+  `${NAVIGATION_CALL} > TemplateLiteral.arguments`,
+  `${NAVIGATION_CALL} > ObjectExpression.arguments > Property[key.name="path"] > Literal.value[value=/^\\x2F/]`,
+  `${NAVIGATION_CALL} > ObjectExpression.arguments > Property[key.name="path"] > TemplateLiteral.value`,
+].map(selector => ({ selector, message: LOCALIZED_NAVIGATION_MESSAGE }))
+
+/**
  * A promise returned from a `try` without `await` settles after the try
  * has exited, so its rejection never reaches the `catch` — in a server
  * route, `handleError`, which is what reports a drifted response loudly.
@@ -178,12 +195,20 @@ export default withNuxt(
     files: ['app/**/*.{ts,vue}'],
     ignores: ['app/plugins/api.ts', 'app/composables/useApi.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED],
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, ...LOCALIZED_NAVIGATION],
     },
   },
   {
     // Repeats the app-wide selectors — see APP_FETCHER_SELECTORS for why.
     files: ['app/components/**/*.vue'],
+    rules: {
+      'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS, ...LOCALIZED_NAVIGATION],
+    },
+  },
+  {
+    // The frozen webside tree keeps its own navigation: webside serves
+    // Greek only, and the tree changes only for webside bugs.
+    files: ['app/components/variants/webside/**/*.vue'],
     rules: {
       'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS],
     },

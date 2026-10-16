@@ -16,12 +16,12 @@ definePageMeta({
   // don't need to resolve the UUID path param here. It's just a
   // correlation marker from the email and we drop it on forward,
   // passing ``recovered=1`` so the cart page can show the welcome
-  // banner. ``@nuxtjs/i18n``'s routing middleware rewrites the path to
-  // include the active locale prefix when needed, so a plain
-  // ``/cart`` target is safe across all configured locales.
+  // banner. Through ``localePath``, in the recovery link's own locale
+  // (i18n switches to it before page middleware runs): a bare ``/cart``
+  // has no prefix, so an English link landed on the Greek cart.
   middleware: [
     () => navigateTo(
-      { path: '/cart', query: { recovered: '1' } },
+      useLocalePath()({ name: 'cart', query: { recovered: '1' } }),
       { replace: true },
     ),
   ],
