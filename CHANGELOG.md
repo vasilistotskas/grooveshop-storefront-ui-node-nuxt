@@ -1,3 +1,10 @@
+# [3.252.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.251.1...v3.252.0) (2026-10-16)
+
+
+### Features
+
+* **chrome:** a language switch in the ekfyseosfyteias header, icon-only controls in its phone menu ([ff238e0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ff238e0a9ccbc80cd8f46867d839ac0908d049f5))
+
 ## [3.251.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.251.0...v3.251.1) (2026-10-15)
 
 
