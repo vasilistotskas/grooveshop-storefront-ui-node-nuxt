@@ -1,3 +1,10 @@
+## [3.252.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.0...v3.252.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **fyteia:** blog prose keeps its paragraph rhythm and lays photographs out as a gallery ([#159](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/159)) ([54e2b5c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/54e2b5c26953c345802d82bbc1a69ec5d84e99ae))
+
 # [3.252.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.251.1...v3.252.0) (2026-10-16)
 
 
