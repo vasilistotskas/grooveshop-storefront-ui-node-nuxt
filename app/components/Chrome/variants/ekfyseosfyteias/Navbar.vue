@@ -11,12 +11,14 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * round menu button that opens the same links in large type below the bar.
  *
  * What the design deliberately does not have, and so neither does this:
- * search, the cart, favourites, an account menu and a language switcher.
- * The store is Greek-only and sells nothing online. The one addition is
- * the dark-theme switch (`ColorModeToggle`): the site follows the OS
- * preference, and a visitor needs a way to override it. It sits beside
- * the phone button on a desktop and inside the menu below `xl`, so the
- * bar, and the funding strip above it, keep their height.
+ * search, the cart, favourites and an account menu; the store sells
+ * nothing online. Two round buttons were added to it: the dark-theme
+ * switch (`ColorModeToggle`: the site follows the OS preference, and a
+ * visitor needs a way to override it) and the language switch
+ * (`LanguageSwitch`, the store's other language, when it serves one).
+ * They sit beside the phone button on a desktop and in one row inside the
+ * menu below `xl`, the same buttons in both, so the bar, and the funding
+ * strip above it, keep their height.
  *
  * Data, not markup: the links are the tenant's `NavigationMenu` header
  * rows (`useNavigation`), the phone number is the published
@@ -167,6 +169,7 @@ onKeyStroke('Escape', () => {
             </li>
           </ul>
         </nav>
+        <ChromeVariantsEkfyseosfyteiasLanguageSwitch />
         <ChromeVariantsEkfyseosfyteiasColorModeToggle />
         <a
           v-if="phone"
@@ -253,8 +256,9 @@ onKeyStroke('Escape', () => {
           dark:ring-1 dark:ring-(color:--fy-rule-on-ink)
         "
       >{{ t('call', { phone }) }}</a>
-      <div class="mt-2">
-        <ChromeVariantsEkfyseosfyteiasColorModeToggle labelled />
+      <div class="mt-3 flex items-center gap-3">
+        <ChromeVariantsEkfyseosfyteiasLanguageSwitch />
+        <ChromeVariantsEkfyseosfyteiasColorModeToggle />
       </div>
     </nav>
   </header>

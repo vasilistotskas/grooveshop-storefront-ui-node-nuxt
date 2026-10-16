@@ -131,6 +131,15 @@ describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
     expect(desktopNav(wrapper).element.parentElement!.querySelector('button[aria-pressed]')).not.toBeNull()
   })
 
+  it('offers the language switch on the bar and inside the phone menu when the store serves two languages', async () => {
+    setTenant({ storeName: 'Εκ φύσεως Φυτειάς', availableLocales: ['el', 'en'] })
+
+    const wrapper = await mountNavbar()
+
+    expect(mobilePanel(wrapper).find('a[hreflang="en"]').exists()).toBe(true)
+    expect(desktopNav(wrapper).element.parentElement!.querySelector('a[hreflang="en"]')).not.toBeNull()
+  })
+
   describe('the menu on a phone', () => {
     it('starts closed and opens and closes with its button', async () => {
       const wrapper = await mountNavbar()

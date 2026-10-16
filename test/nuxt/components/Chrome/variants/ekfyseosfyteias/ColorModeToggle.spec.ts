@@ -13,8 +13,8 @@ mockNuxtImport('useColorMode', () => () => mode)
 
 const NAME = 'Σκούρο θέμα'
 
-const mountToggle = async (props: { labelled?: boolean } = {}) => {
-  const wrapper = await mountSuspended(ColorModeToggle, { route: false, props })
+const mountToggle = async () => {
+  const wrapper = await mountSuspended(ColorModeToggle, { route: false })
   await vi.waitFor(() => expect(wrapper.find('button').exists()).toBe(true))
   return wrapper
 }
@@ -53,10 +53,10 @@ describe('Chrome/variants/ekfyseosfyteias/ColorModeToggle', () => {
     expect(mode.preference).toBe('light')
   })
 
-  it('prints its name beside the icon in the phone menu, without a duplicate aria-label', async () => {
-    const button = (await mountToggle({ labelled: true })).find('button')
+  it('is an icon button: its name is for assistive technology only', async () => {
+    const button = (await mountToggle()).find('button')
 
-    expect(button.text()).toBe(NAME)
-    expect(button.attributes('aria-label')).toBeUndefined()
+    expect(button.text()).toBe('')
+    expect(button.attributes('aria-label')).toBe(NAME)
   })
 })
