@@ -1,3 +1,10 @@
+# [3.253.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.9...v3.253.0) (2026-10-17)
+
+
+### Features
+
+* **reviews:** one mobile-first review UI for every store, webside included ([#169](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/169)) ([99d573e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/99d573e1b20fe50ca545e30d66671ef42a2e0a82)), closes [#reviews](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/reviews) [#reviews](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/reviews) [#reviews](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/reviews)
+
 ## [3.252.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.8...v3.252.9) (2026-10-17)
 
 
