@@ -8794,9 +8794,9 @@ export type ReserveStockResponse = {
 export type ResultTypeEnum = 'product' | 'blog_post'
 
 /**
- * * `NEW` - Νέο
- * * `TRUE` - Ναι
- * * `FALSE` - Όχι
+ * * `NEW` - Σε αναμονή έγκρισης
+ * * `TRUE` - Εγκεκριμένο
+ * * `FALSE` - Απορρίφθηκε
  */
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE'
 
@@ -11117,6 +11117,22 @@ export type CartItemWritable = {
      * Ποσότητα
      */
   quantity?: number
+}
+
+export type CartItemCreateRequestWritable = {
+  /**
+     * Προϊόν
+     */
+  product: number
+  /**
+     * Ποσότητα
+     */
+  quantity?: number
+  /**
+     * Εμφάνιση σύστασης
+     */
+  recommendationImpressionId?: string | null
+  attribution?: OrderAttributionInputRequest
 }
 
 export type CartItemDetailWritable = {
@@ -17834,7 +17850,7 @@ export type ListCartItemResponses = {
 export type ListCartItemResponse = ListCartItemResponses[keyof ListCartItemResponses]
 
 export type CreateCartItemData = {
-  body: CartItemCreateRequest
+  body: CartItemCreateRequestWritable
   headers?: {
     /**
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
@@ -24743,9 +24759,9 @@ export type ListProductReviewData = {
          *
          * Φίλτρο ανά κατάσταση αξιολόγησης
          *
-         * * `NEW` - Νέο
-         * * `TRUE` - Ναι
-         * * `FALSE` - Όχι
+         * * `NEW` - Σε αναμονή έγκρισης
+         * * `TRUE` - Εγκεκριμένο
+         * * `FALSE` - Απορρίφθηκε
          */
     status?: 'FALSE' | 'NEW' | 'TRUE'
     /**
