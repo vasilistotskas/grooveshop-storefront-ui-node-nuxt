@@ -42,6 +42,7 @@ const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
 const runtimeConfig = useRuntimeConfig()
 const img = useMediaStreamImage()
+const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 
 const userStore = useUserStore()
 const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
@@ -606,9 +607,12 @@ useSchemaOrg([
   // @unhead/schema-org v3 definer-type rewrite — reactive nodes must be
   // a single computed() over plain values instead.
   defineProduct(computed(() => {
+    // The catalogue feeds' variant (SEARCH_IMAGE_VARIANT): one URL per image
+    // across the structured data, the sitemap and the Google / Meta feeds.
     const images = (productImages.value ?? [])
-      .map(img => img.imageUrl)
+      .map(img => img.mainImagePath)
       .filter((path): path is string => Boolean(path))
+      .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT))
 
     const priceValidUntilDate = new Date()
     priceValidUntilDate.setDate(priceValidUntilDate.getDate() + 30)
