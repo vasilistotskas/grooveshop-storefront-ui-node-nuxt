@@ -243,7 +243,9 @@ describe('Storefront/Account/Reviews', () => {
       state.total = 21
       const wrapper = await mountPage()
 
-      await deleteWhen(wrapper, () => { state.failList = true })
+      await deleteWhen(wrapper, () => {
+        state.failList = true
+      })
 
       await vi.waitFor(() => expect(navigateTo).toHaveBeenCalledWith({ query: { page: 2 } }))
     })
@@ -255,7 +257,9 @@ describe('Storefront/Account/Reviews', () => {
 
       const before = requests.length
 
-      await deleteWhen(wrapper, () => { state.total = 14 })
+      await deleteWhen(wrapper, () => {
+        state.total = 14
+      })
       await vi.waitFor(() => expect(requests.length).toBeGreaterThan(before))
 
       expect(navigateTo).not.toHaveBeenCalled()
