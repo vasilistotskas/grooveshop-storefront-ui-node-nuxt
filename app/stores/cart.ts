@@ -15,6 +15,7 @@ export const useCartStore = defineStore('cart', () => {
   const ga4 = useGA4()
   const googleAds = useGoogleAds()
   const attribution = useRecommendationAttribution()
+  const orderAttribution = useOrderAttribution()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
   const pending = computed(() => inFlight.size > 0)
@@ -185,7 +186,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function createCartItem(body: CartItemCreateRequest) {
+  async function createCartItem(body: CartItemCreateRequestWritable) {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     try {
@@ -194,12 +195,17 @@ export const useCartStore = defineStore('cart', () => {
       // shopper reached this product from, if there is one, so the
       // backend can attach the eventual order line to it exactly.
       const recommendationImpressionId = attribution.take(body.product)
+      // The tab's first-touch source (the same capture the order sends):
+      // Django records it on the cart the first time one is set.
+      const orderSource = orderAttribution.read()
       await $api('/api/cart/items', {
         method: 'POST',
         headers: useRequestHeaders(),
-        body: recommendationImpressionId
-          ? { ...body, recommendationImpressionId }
-          : body,
+        body: {
+          ...body,
+          ...(recommendationImpressionId ? { recommendationImpressionId } : {}),
+          ...(orderSource ? { attribution: orderSource } : {}),
+        },
       })
       await refreshCart()
       error.value = null

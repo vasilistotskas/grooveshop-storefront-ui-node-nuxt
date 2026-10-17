@@ -70,6 +70,7 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
       return added
     })
     useState('cart-added-toast-count').value = 0
+    window.sessionStorage.clear()
   })
 
   const mount = (props: { product: Product, quantity?: number, iconOnly?: boolean }) =>
@@ -126,6 +127,26 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
 
     expect(api.callsTo('/api/cart/items')).toEqual([
       { url: '/api/cart/items', options: expect.objectContaining({ method: 'POST', body: { product: 4, quantity: 2 } }) },
+    ])
+  })
+
+  // The tab's first-touch source (the one the order carries) rides on the
+  // add, so Django records it on the cart; with nothing captured the body
+  // above is exactly the line.
+  it('sends the captured order attribution with the add', async () => {
+    window.sessionStorage.setItem('order-attribution', JSON.stringify({ utmSource: 'newsletter', clickIds: ['gclid'], landingPath: '/p/4' }))
+    const wrapper = await mount({ product: makeProduct({ id: 4 }), quantity: 2 })
+
+    await click(wrapper)
+
+    expect(api.callsTo('/api/cart/items')).toEqual([
+      {
+        url: '/api/cart/items',
+        options: expect.objectContaining({
+          method: 'POST',
+          body: { product: 4, quantity: 2, attribution: { utmSource: 'newsletter', clickIds: ['gclid'], landingPath: '/p/4' } },
+        }),
+      },
     ])
   })
 

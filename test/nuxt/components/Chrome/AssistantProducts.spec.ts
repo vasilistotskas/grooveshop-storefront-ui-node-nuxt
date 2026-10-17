@@ -47,6 +47,8 @@ const mountCards = (event: Partial<ShopChatProducts> = {}) =>
 describe('Chrome/AssistantProducts', () => {
   beforeEach(async () => {
     await useCartStore().cleanCartState()
+    // The boot's attribution plugin records this tab's landing; the add carries it, which is not what this spec is about.
+    window.sessionStorage.clear()
     const cart = makeCart({ items: [] })
     useCartStore().cart = cart
     api.routes({ '/api/cart': cart })

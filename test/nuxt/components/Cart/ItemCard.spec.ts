@@ -42,6 +42,8 @@ async function clickUndo() {
 describe('Cart/ItemCard (default)', () => {
   beforeEach(async () => {
     await useCartStore().cleanCartState()
+    // The boot's attribution plugin records this tab's landing; the add carries it, which is not what this spec is about.
+    window.sessionStorage.clear()
     useCartStore().cart = makeCart({ items: [LINE] })
     api.routes({ '/api/cart': makeCart({ items: [] }) })
   })
@@ -127,6 +129,8 @@ describe('Cart/ItemCard (frozen webside)', () => {
 
   beforeEach(async () => {
     await useCartStore().cleanCartState()
+    // The boot's attribution plugin records this tab's landing; the add carries it, which is not what this spec is about.
+    window.sessionStorage.clear()
     useCartStore().cart = makeCart({ items: [LINE] })
     api.routes({ '/api/cart': makeCart({ items: [] }) })
   })

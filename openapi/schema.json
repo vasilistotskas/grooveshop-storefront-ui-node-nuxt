@@ -41256,7 +41256,7 @@
                                 "TRUE"
                             ]
                         },
-                        "description": "Φίλτρο ανά κατάσταση αξιολόγησης\n\n* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - Όχι"
+                        "description": "Φίλτρο ανά κατάσταση αξιολόγησης\n\n* `NEW` - Σε αναμονή έγκρισης\n* `TRUE` - Εγκεκριμένο\n* `FALSE` - Απορρίφθηκε"
                     },
                     {
                         "in": "query",
@@ -59142,6 +59142,14 @@
                         "format": "uuid",
                         "nullable": true,
                         "title": "Εμφάνιση σύστασης"
+                    },
+                    "attribution": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderAttributionInputRequest"
+                            }
+                        ],
+                        "writeOnly": true
                     }
                 },
                 "required": [
@@ -72993,7 +73001,7 @@
                     "FALSE"
                 ],
                 "type": "string",
-                "description": "* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - Όχι"
+                "description": "* `NEW` - Σε αναμονή έγκρισης\n* `TRUE` - Εγκεκριμένο\n* `FALSE` - Απορρίφθηκε"
             },
             "ScanStatusEnum": {
                 "enum": [

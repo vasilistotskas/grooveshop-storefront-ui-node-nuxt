@@ -4315,9 +4315,9 @@ export const zReserveStockResponse = z.object({
 export const zResultTypeEnum = z.enum(['product', 'blog_post'])
 
 /**
- * * `NEW` - Νέο
- * * `TRUE` - Ναι
- * * `FALSE` - Όχι
+ * * `NEW` - Σε αναμονή έγκρισης
+ * * `TRUE` - Εγκεκριμένο
+ * * `FALSE` - Απορρίφθηκε
  */
 export const zReviewStatus = z.enum([
   'NEW',
@@ -7276,6 +7276,13 @@ export const zCartDetailWritable = z.object({
 
 export const zCartItemWritable = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
+})
+
+export const zCartItemCreateRequestWritable = z.object({
+  product: z.int(),
+  quantity: z.int().gte(0).lte(2147483647).optional(),
+  recommendationImpressionId: z.uuid().nullish(),
+  attribution: zOrderAttributionInputRequest.optional(),
 })
 
 export const zCartItemDetailWritable = z.object({
@@ -11887,7 +11894,7 @@ export const zListCartItemQuery = z.object({
 
 export const zListCartItemResponse = zPaginatedCartItemList
 
-export const zCreateCartItemBody = zCartItemCreateRequest
+export const zCreateCartItemBody = zCartItemCreateRequestWritable
 
 export const zCreateCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
