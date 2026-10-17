@@ -1,3 +1,10 @@
+## [3.252.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.7...v3.252.8) (2026-10-17)
+
+
+### Bug Fixes
+
+* **checkout:** webside: an error on a hidden saved-address field opens the fields ([#164](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/164)) ([4085ae1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4085ae18ab2929a260add6dc537903f9af0b2c10))
+
 ## [3.252.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.6...v3.252.7) (2026-10-17)
 
 
