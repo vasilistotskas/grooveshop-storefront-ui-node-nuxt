@@ -106,12 +106,25 @@ onMounted(() => {
             <div
               class="
                 flex items-center gap-4
+                max-sm:gap-3
                 lg:sr-only
               "
             >
               <LazyWebsideSearchInput />
               <WebsideCartButton v-if="cartEnabled" />
-              <LazyWebsideLanguageSwitcher v-if="locales.length > 1" />
+              <!-- The select is ~150px wide with its label and chevron: on
+                   a phone that squeezed the logo to nothing and, with the
+                   notifications bell of a signed-in shopper, pushed the
+                   row past the viewport. Below `sm` it keeps only the
+                   flag, which the aria-label names. -->
+              <LazyWebsideLanguageSwitcher
+                v-if="locales.length > 1"
+                class="
+                  max-sm:pe-3
+                  max-sm:[&>[data-slot=trailing]]:hidden
+                  max-sm:[&>[data-slot=value]]:hidden
+                "
+              />
               <UColorModeButton
                 class="w-6"
                 :ui="{
