@@ -135,6 +135,49 @@ describe.each([
  * The Groove Volt product page: the category trail, the buy box's stock
  * line, the review list and the alerts dialog.
  */
+// Captures the Product node each page hands to the schema.org module.
+const { schemaNodes } = vi.hoisted(() => ({ schemaNodes: [] as unknown[] }))
+mockNuxtImport('useSchemaOrg', () => (nodes: unknown[]) => {
+  schemaNodes.push(...nodes)
+})
+mockNuxtImport('defineProduct', () => (input: unknown) => ({ product: input }))
+
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail structured data (%s tree)', (_tree, Component) => {
+  beforeEach(() => {
+    clearNuxtData()
+    setTenant({ assetsDomain: 'assets.shop.test' })
+    schemaNodes.length = 0
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': makeProduct({ id: 123 }),
+      '/api/products/123/images': [
+        { id: 1, mainImagePath: 'media/acme/uploads/products/a.jpg', imageUrl: 'https://static.platform.test/media/acme/uploads/products/a.jpg' },
+        { id: 2, mainImagePath: 'media/acme/uploads/products/b.png', imageUrl: 'https://static.platform.test/media/acme/uploads/products/b.png' },
+      ],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+  })
+
+  // The catalogue feeds' variant, so search engines see one URL per image
+  // across the structured data, the sitemap and the Google / Meta feeds,
+  // never the original (which the static host only redirects).
+  it('lists each image as its media-stream search variant, not the original', async () => {
+    await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    const node = schemaNodes.find(n => (n as { product?: unknown }).product) as { product: { value: { image?: string[] } } }
+    expect(node.product.value.image).toEqual([
+      'https://assets.shop.test/media_stream-image/media/acme/uploads/products/a.jpg/1000/1000/contain/center/FFFFFF/5/85.jpeg',
+      'https://assets.shop.test/media_stream-image/media/acme/uploads/products/b.png/1000/1000/contain/center/FFFFFF/5/85.jpeg',
+    ])
+  })
+})
+
 describe('default ProductDetail', () => {
   const empty = { count: 0, next: null, previous: null, results: [] }
   const CATEGORIES = [
