@@ -1,3 +1,10 @@
+## [3.252.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.2...v3.252.3) (2026-10-17)
+
+
+### Bug Fixes
+
+* **privacy:** no session, attribution or session-length appearance cookie a visitor did not need; nuxt-auth-utils 0.5.32 ([#160](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/160)) ([94002b0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/94002b0a2309bfe412456c9b2538e80929869446)), closes [#143](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/143) [#144](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/144) [#145](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/145)
+
 ## [3.252.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.1...v3.252.2) (2026-10-16)
 
 
