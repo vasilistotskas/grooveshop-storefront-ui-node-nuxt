@@ -67,6 +67,7 @@ export function makeOrder(overrides: Partial<OrderDetail> = {}): OrderDetail {
     pricingBreakdown: {},
     trackingDetails: null,
     hasInvoice: false,
+    hasSpecimenReceipt: false,
     boxnowShipment: null,
     acsShipment: null,
     shipment: null,
