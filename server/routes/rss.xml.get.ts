@@ -245,15 +245,17 @@ async function processBlogPosts(
     const readingTimeMinutes = Math.max(1, Math.round(wordCount / 200))
 
     const customElements = [
-      { 'media:content': {
-        _attr: {
-          url: mainImageUrl,
-          type: mimeType || 'image/jpeg',
-          medium: 'image',
-          width: '472',
-          height: '311',
-        },
-      } },
+      ...(mainImageUrl
+        ? [{ 'media:content': {
+            _attr: {
+              url: mainImageUrl,
+              type: mimeType || 'image/jpeg',
+              medium: 'image',
+              width: '472',
+              height: '311',
+            },
+          } }]
+        : []),
       { 'media:title': translation.title },
       { 'media:description': translation.subtitle },
       { readingTime: `${readingTimeMinutes} min read` },

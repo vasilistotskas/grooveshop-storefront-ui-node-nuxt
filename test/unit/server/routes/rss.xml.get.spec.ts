@@ -184,6 +184,8 @@ describe('GET /rss.xml', () => {
 
     expect(xml).toContain('<title><![CDATA[Summer news]]></title>')
     expect(xml).not.toContain('media_stream-image')
+    expect(xml).not.toContain('<media:content')
+    expect(xml).not.toContain('<enclosure')
   })
 
   it('names the store to Django as it was resolved, whatever case or port the Host carries', async () => {
