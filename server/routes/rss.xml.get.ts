@@ -6,6 +6,18 @@ import { useRuntimeConfig } from 'nuxt/server'
 
 const RSS_CACHE_AGE = 60 * 60
 
+// The thumbnail each feed item carries (`<img>`, media:content, enclosure).
+const RSS_IMAGE_VARIANT: MediaStreamVariant = {
+  width: 472,
+  height: 311,
+  fit: 'cover',
+  position: 'attention',
+  background: 'transparent',
+  trimThreshold: 0,
+  quality: 100,
+  format: 'webp',
+}
+
 // Casts below: @hey-api/openapi-ts's zod plugin marks OpenAPI `readOnly`
 // array properties (here, `children`) as `.readonly()`, so the zod-inferred
 // type has `readonly X[]`; the typescript plugin instead marks the
@@ -142,9 +154,7 @@ export default defineEventHandler(async (event) => {
     // only the origin is per-tenant (assetsDomain). Falls back to the
     // platform path when there's no tenant context (prerender). Same
     // resolution as useMediaStreamBaseUrl() on the client.
-    const mediaStreamBase = tenant?.assetsDomain
-      ? `https://${tenant.assetsDomain}${extractMediaStreamPath(config.mediaStreamPath as string | undefined)}`
-      : config.mediaStreamPath
+    const mediaStreamBase = mediaStreamBaseUrl(tenant?.assetsDomain, config.mediaStreamPath as string | undefined)
 
     const feedString = await generateRssFeed(
       host,
@@ -207,11 +217,9 @@ async function processBlogPosts(
       continue
     }
 
-    // Media-stream route shape: ``.../{trimThreshold}/{quality}.{format}``
-    // — quality first, dotted format last. The previous ``/webp/100``
-    // ordering produced no-match 404s at the controller (verified
-    // 2026-05-18 in the media-stream warn log).
-    const mainImageUrl = encodeURI(`${mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/0/100.webp`)
+    const mainImageUrl = post.mainImagePath
+      ? buildMediaStreamImageUrl(mediaStreamPath, post.mainImagePath, RSS_IMAGE_VARIANT)
+      : ''
     const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
 
     let description = translation.subtitle || ''
@@ -299,10 +307,8 @@ async function processProducts(
       continue
     }
 
-    // Media-stream route shape: ``.../{trimThreshold}/{quality}.{format}``
-    // — see blog branch above.
     const mainImageUrl = product.mainImagePath
-      ? encodeURI(`${mediaStreamPath}/${product.mainImagePath}/472/311/cover/attention/transparent/0/100.webp`)
+      ? buildMediaStreamImageUrl(mediaStreamPath, product.mainImagePath, RSS_IMAGE_VARIANT)
       : ''
     const mimeType = product.mainImagePath ? getMimeType(product.mainImagePath) : undefined
 
