@@ -102,7 +102,8 @@ const addToCartEvent = async () => {
 
   if (failed) return
 
-  toast.add({
+  // One toast, updated in place, however many times the shopper adds.
+  showOrUpdateToast(toast, ADDED_TO_CART_TOAST_ID, {
     title: t('toast.added_title'),
     description: t('toast.added_description', { name: productName.value }),
     color: 'success',

@@ -157,9 +157,6 @@ const addToCartEvent = async () => {
   announceAdded()
 }
 
-/** One toast for every add, whichever button made it. */
-const ADDED_TOAST_ID = 'cart:added'
-
 // Adds since the toast last opened, across every add-to-cart button.
 const addedWhileOpen = useState('cart-added-toast-count', () => 0)
 
@@ -201,12 +198,7 @@ function announceAdded() {
       if (!open) addedWhileOpen.value = 0
     },
   }
-  if (toast.toasts.value.some(item => item.id === ADDED_TOAST_ID)) {
-    toast.update(ADDED_TOAST_ID, content)
-  }
-  else {
-    toast.add({ id: ADDED_TOAST_ID, ...content })
-  }
+  showOrUpdateToast(toast, ADDED_TO_CART_TOAST_ID, content)
 }
 </script>
 
