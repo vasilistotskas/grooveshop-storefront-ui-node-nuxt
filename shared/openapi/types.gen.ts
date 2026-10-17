@@ -4854,6 +4854,10 @@ export type OrderDetail = {
      */
   readonly hasInvoice: boolean
   /**
+     * True when the storefront may offer the watermarked specimen receipt (``/order/{id}/specimen/download``): a demo store, for an order a receipt is issued for (shipped onwards). Always false on any other store.
+     */
+  readonly hasSpecimenReceipt: boolean
+  /**
      * BoxNow shipment details when shipping_provider.code is 'boxnow', else null.
      */
   boxnowShipment: BoxNowShipmentDetail | null
@@ -21009,6 +21013,32 @@ export type GetShipmentLabelForOrderResponses = {
 }
 
 export type GetShipmentLabelForOrderResponse = GetShipmentLabelForOrderResponses[keyof GetShipmentLabelForOrderResponses]
+
+export type DownloadOrderSpecimenReceiptData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/specimen/download'
+}
+
+export type DownloadOrderSpecimenReceiptErrors = {
+  /**
+     * Δεν είστε ο ιδιοκτήτης της παραγγελίας
+     */
+  403: unknown
+  /**
+     * Το δείγμα δεν είναι διαθέσιμο
+     */
+  404: unknown
+}
+
+export type DownloadOrderSpecimenReceiptResponses = {
+  200: Blob | File
+}
+
+export type DownloadOrderSpecimenReceiptResponse = DownloadOrderSpecimenReceiptResponses[keyof DownloadOrderSpecimenReceiptResponses]
 
 export type UpdateOrderStatusData = {
   body: UpdateStatusRequest

@@ -16313,6 +16313,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/order/{id}/specimen/download:
+    get:
+      operationId: downloadOrderSpecimenReceipt
+      description: 'Δημιουργεί κατά παραγγελία ένα δείγμα της απόδειξης λιανικής της παραγγελίας με υδατογράφημα: το ίδιο έγγραφο χωρίς αριθμό, χωρίς κωδικό QR και χωρίς φορολογική ισχύ. Μόνο για καταστήματα επίδειξης και για παραγγελία για την οποία εκδίδεται απόδειξη (από την αποστολή και μετά). Όταν δεν υπάρχει διαθέσιμο δείγμα επιστρέφει 404. Τίποτα δεν αποθηκεύεται και τίποτα δεν στέλνεται στο myDATA. Ίδιος έλεγχος ιδιοκτησίας με τα endpoints της απόδειξης.'
+      summary: Λήψη του PDF δείγματος απόδειξης
+      parameters:
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+      tags:
+        - Orders
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '403':
+          description: Δεν είστε ο ιδιοκτήτης της παραγγελίας
+        '404':
+          description: Το δείγμα δεν είναι διαθέσιμο
   /api/v1/order/{id}/update_status:
     post:
       operationId: updateOrderStatus
@@ -39717,6 +39747,10 @@ components:
           type: boolean
           readOnly: true
           description: True when the order has a retail receipt registered with AADE (myDATA) and its PDF, so the frontend can show the download CTA without asking the receipt endpoint. False while the receipt is pending, rejected or cancelled, and always for a store that issues its receipts outside the platform.
+        hasSpecimenReceipt:
+          type: boolean
+          readOnly: true
+          description: 'True when the storefront may offer the watermarked specimen receipt (``/order/{id}/specimen/download``): a demo store, for an order a receipt is issued for (shipped onwards). Always false on any other store.'
         boxnowShipment:
           allOf:
             - $ref: '#/components/schemas/BoxNowShipmentDetail'
@@ -39835,6 +39869,7 @@ components:
         - fullAddress
         - giftCardAmount
         - hasInvoice
+        - hasSpecimenReceipt
         - id
         - isCanceled
         - isCollectedOnDelivery
