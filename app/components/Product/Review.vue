@@ -100,6 +100,7 @@ const rateWord = computed(() => {
 const RATING_UI = {
   item: 'size-13',
   icon: 'size-13',
+  indicator: 'data-[state=active]:text-(--ui-rating)',
   emptyIcon: 'text-(--ui-border-accented)',
 }
 
@@ -374,6 +375,7 @@ const heading = computed(() => props.userHadReviewed ? t('update_review') : t('w
           :label="userHadReviewed ? t('update_review') : t('submit')"
           type="submit"
           :form="formId"
+          color="secondary"
           class="min-h-11"
           :loading="submitting"
         />

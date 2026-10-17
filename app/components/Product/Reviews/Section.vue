@@ -104,6 +104,7 @@ const signInToReview = computed(() =>
           v-if="loggedIn"
           :label="userHadReviewed ? t('update_review') : t('write_review')"
           :loading="reviewStatus === 'pending'"
+          color="secondary"
           icon="i-lucide-pen-line"
           class="mt-1.5 min-h-11"
           @click="openSheet"
@@ -111,6 +112,7 @@ const signInToReview = computed(() =>
         <UButton
           v-else
           :label="t('sign_in_to_write')"
+          color="secondary"
           icon="i-lucide-pen-line"
           :to="signInToReview"
           class="mt-1.5 min-h-11"

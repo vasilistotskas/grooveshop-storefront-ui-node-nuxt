@@ -7,8 +7,8 @@
  * `rate` is the model's 1..10 scale and may be fractional (an average);
  * the stars are the five a reader counts. The row is one image to a
  * screen reader ("Rated 4.5 out of 5"), never five stars. The empty
- * stars take the border token, so the row follows the store's theme and
- * the dark scheme without a colour of its own.
+ * stars take the border token and the filled ones the `--ui-rating` amber,
+ * so the row reads the same in every theme and scheme.
  */
 const props = withDefaults(defineProps<{
   rate: number
@@ -20,10 +20,11 @@ const props = withDefaults(defineProps<{
 
 const { t, n } = useI18n()
 
+const FILLED = 'data-[state=active]:text-(--ui-rating)'
 const STARS_UI = {
-  xs: { emptyIcon: 'text-(--ui-border-accented)' },
-  card: { item: 'size-3.5', icon: 'size-3.5', emptyIcon: 'text-(--ui-border-accented)' },
-  sm: { emptyIcon: 'text-(--ui-border-accented)' },
+  xs: { indicator: FILLED, emptyIcon: 'text-(--ui-border-accented)' },
+  card: { item: 'size-3.5', icon: 'size-3.5', indicator: FILLED, emptyIcon: 'text-(--ui-border-accented)' },
+  sm: { indicator: FILLED, emptyIcon: 'text-(--ui-border-accented)' },
 } as const
 
 const outOfFive = computed(() => props.rate / 2)
