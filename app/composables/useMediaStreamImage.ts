@@ -22,13 +22,10 @@ export function useMediaStreamBaseUrl() {
   const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
 
-  return computed(() => {
-    if (tenantStore.assetsDomain) {
-      const pathSuffix = extractMediaStreamPath(config.public.mediaStreamPath as string | undefined)
-      return `https://${tenantStore.assetsDomain}${pathSuffix}`
-    }
-    return (config.public.mediaStreamPath as string | undefined) || ''
-  })
+  return computed(() => mediaStreamBaseUrl(
+    tenantStore.assetsDomain,
+    config.public.mediaStreamPath as string | undefined,
+  ))
 }
 
 /**

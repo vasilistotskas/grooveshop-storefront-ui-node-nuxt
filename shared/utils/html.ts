@@ -7,6 +7,8 @@
 
 import DOMPurify from 'isomorphic-dompurify'
 
+import { buildMediaStreamImageUrl } from './mediaStream'
+
 import {
   EMBED_IFRAME_ATTRS,
   isAllowedEmbedUrl,
@@ -358,65 +360,19 @@ export function buildMediaStreamUrl(
   // stream as if it were part of the object key.
   imagePath = stripCloudflareImagePrefix(imagePath)
 
-  // Build the path portion (without origin)
-  const pathSegments = [
-    config.mediaStreamPath,
-    imagePath,
-    width.toString(),
-    height.toString(),
+  // No origin configured: a root-relative URL on the page's own host.
+  const baseUrl = `${config.mediaStreamOrigin.replace(/\/$/, '')}${config.mediaStreamPath}`
+
+  return buildMediaStreamImageUrl(baseUrl, imagePath, {
+    width,
+    height,
     fit,
     position,
     background,
-    trimThreshold.toString(),
-    `${quality}.${format}`,
-  ]
-
-  // Join path segments and clean up multiple consecutive slashes
-  const path = pathSegments.join('/').replace(/\/{2,}/g, '/')
-
-  // Encode path segments that contain unicode characters
-  const encodedPath = encodeMediaStreamPath(path)
-
-  // Prepend origin if provided
-  if (config.mediaStreamOrigin) {
-    return `${config.mediaStreamOrigin.replace(/\/$/, '')}${encodedPath}`
-  }
-
-  return encodedPath
-}
-
-/**
- * Encode a single path segment to handle Unicode characters safely
- * Only encodes characters that are not valid in URL paths
- */
-export function encodePathSegment(segment: string): string {
-  if (!segment) return segment
-
-  // Only encode if the segment contains non-ASCII characters
-  // eslint-disable-next-line no-control-regex
-  if (!/[^\x00-\x7F]/.test(segment)) {
-    return segment
-  }
-
-  try {
-    // Decode first to avoid double-encoding, then encode
-    return encodeURIComponent(decodeURIComponent(segment))
-  }
-  catch {
-    // If decoding fails, just encode
-    return encodeURIComponent(segment)
-  }
-}
-
-/**
- * Encode path to handle Unicode characters in filenames safely
- * Only encodes segments that contain non-ASCII characters
- */
-export function encodeMediaStreamPath(path: string): string {
-  return path
-    .split('/')
-    .map(segment => encodePathSegment(segment))
-    .join('/')
+    trimThreshold,
+    quality,
+    format,
+  })
 }
 
 /**

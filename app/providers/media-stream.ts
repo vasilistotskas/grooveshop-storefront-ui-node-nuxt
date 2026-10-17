@@ -1,11 +1,10 @@
 import type { ImageModifiers } from '@nuxt/image'
 import { defineProvider } from '@nuxt/image/runtime'
-import { hasProtocol, joinURL } from 'ufo'
+import { hasProtocol } from 'ufo'
 // Explicit, not auto-imported: @nuxt/image's generated providers.d.ts
 // pulls this file into the shared and node type contexts too, which have
-// no app auto-imports. `evlog/client` is the module the app's `log`
-// auto-import resolves to — the same instance.
-import { log } from 'evlog/client'
+// no app auto-imports and no `~~` alias.
+import { buildMediaStreamImageUrl } from '../../shared/utils/mediaStream.js'
 
 /**
  * Media Stream service modifiers — the standard {@link ImageModifiers} plus the
@@ -74,58 +73,20 @@ export default defineProvider<Partial<MediaStreamOptions>>({
     const quality = modifiers.quality || 80
     const format = modifiers.format || 'avif'
 
-    // Pattern: /{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
-    const url = joinURL(
-      effectiveBaseURL,
-      src,
-      width.toString(),
-      height.toString(),
-      fit,
-      position,
-      background,
-      trimThreshold.toString(),
-      `${quality}.${format}`,
-    )
-
     return {
-      url: encodeImageUrl(url),
+      url: buildMediaStreamImageUrl(effectiveBaseURL, src, {
+        width,
+        height,
+        fit,
+        position,
+        background,
+        trimThreshold,
+        quality,
+        format,
+      }),
     }
   },
 })
-
-/**
- * Encode image URL to handle Unicode characters for social media crawlers
- *
- * @param url - The image URL to encode
- * @returns Properly encoded URL safe for social media meta tags
- *
- * @example
- * encodeImageUrl('https://cdn.com/media/πωσ.png/1200/630/80.webp')
- * // Returns: 'https://cdn.com/media/%CF%80%CF%89%CF%83.png/1200/630/80.webp'
- */
-function encodeImageUrl(url: string): string {
-  try {
-    const urlObj = new URL(url)
-
-    urlObj.pathname = urlObj.pathname
-      .split('/')
-      .map((segment) => {
-        try {
-          return encodeURIComponent(decodeURIComponent(segment))
-        }
-        catch {
-          return encodeURIComponent(segment)
-        }
-      })
-      .join('/')
-
-    return urlObj.toString()
-  }
-  catch {
-    log.warn('image', 'Failed to encode image URL')
-    return url
-  }
-}
 
 /**
  * Normalize position values to match backend expectations

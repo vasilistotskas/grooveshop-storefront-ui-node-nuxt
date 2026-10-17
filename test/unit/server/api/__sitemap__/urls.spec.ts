@@ -222,12 +222,14 @@ describe('server/api/__sitemap__/urls — product images', () => {
     return urls.find(url => url.loc.includes('/products/100/'))?.images?.[0]
   }
 
+  // The full media-stream route, in the catalogue feeds' variant: a URL
+  // without the size and format segments is a 404 at the service.
   it('emits image:loc on the tenant\'s own assetsDomain when set', async () => {
     serve({ products: [productWithImage()] })
 
     const image = productImage(await sitemap(tenantContext({ assetsDomain: 'assets.acme.test' })))
 
-    expect(image?.loc).toBe('https://assets.acme.test/media_stream-image/media/acme/uploads/products/x.jpg')
+    expect(image?.loc).toBe('https://assets.acme.test/media_stream-image/media/acme/uploads/products/x.jpg/1000/1000/contain/center/FFFFFF/5/85.jpeg')
   })
 
   it('falls back to the platform media path when the tenant has no assetsDomain', async () => {
@@ -235,7 +237,7 @@ describe('server/api/__sitemap__/urls — product images', () => {
 
     const image = productImage(await sitemap(tenantContext({ assetsDomain: '' })))
 
-    expect(image?.loc).toBe('/media_stream-image/media/acme/uploads/products/x.jpg')
+    expect(image?.loc).toBe('/media_stream-image/media/acme/uploads/products/x.jpg/1000/1000/contain/center/FFFFFF/5/85.jpeg')
   })
 
   it('titles the image with the Greek name and captions it with the tag-free description, cut to 160 characters', async () => {

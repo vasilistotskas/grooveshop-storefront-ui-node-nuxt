@@ -159,6 +159,35 @@ describe('GET /rss.xml', () => {
     expect(xml).not.toContain('assets.platform.test')
   })
 
+  // Django sends a Greek filename percent-encoded; encoding it again gave
+  // `%25CE…`, a second URL for the same image at the edge.
+  it('encodes an already encoded Greek filename once', async () => {
+    djangoServesTheCatalogue([{ ...onSale, mainImagePath: 'uploads/products/%CE%BA%CE%BB%CE%B9%CF%80.png' }])
+
+    const xml: string = (await feed()).body
+
+    expect(xml).toContain('url="https://assets.shop.test/media_stream-image/uploads/products/%CE%BA%CE%BB%CE%B9%CF%80.png/472/311/cover/attention/transparent/0/100.webp"')
+    expect(xml).not.toContain('%25')
+  })
+
+  it('gives a post without an image no image URL', async () => {
+    backend.reply((request: BackendRequest) => {
+      switch (request.path) {
+        case `${API}/blog/post`: return { count: 1, results: [{ ...post, mainImagePath: '' }] }
+        case `${API}/product`: return { count: 0, results: [] }
+        case `${API}/blog/category/1`: return blogCategory
+        default: return jsonResponse({ detail: 'Not found.' }, 404)
+      }
+    })
+
+    const xml: string = (await feed()).body
+
+    expect(xml).toContain('<title><![CDATA[Summer news]]></title>')
+    expect(xml).not.toContain('media_stream-image')
+    expect(xml).not.toContain('<media:content')
+    expect(xml).not.toContain('<enclosure')
+  })
+
   it('names the store to Django as it was resolved, whatever case or port the Host carries', async () => {
     djangoServesTheCatalogue()
 
