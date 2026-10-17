@@ -1,3 +1,10 @@
+## [3.253.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.253.0...v3.253.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* **webside:** keep the signed-in header inside a phone viewport ([#171](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/171)) ([ae7f527](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ae7f52743dafb4f76e7c52015102543a5ef9008e))
+
 # [3.253.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.9...v3.253.0) (2026-10-17)
 
 
