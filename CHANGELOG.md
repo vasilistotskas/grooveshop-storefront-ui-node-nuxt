@@ -1,3 +1,10 @@
+## [3.252.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.3...v3.252.4) (2026-10-17)
+
+
+### Bug Fixes
+
+* **sitemap:** product image URLs name a real media-stream variant, through one URL builder ([#161](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/161)) ([222f4a0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/222f4a016a86eb021130efb882ebb842c161e528))
+
 ## [3.252.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.2...v3.252.3) (2026-10-17)
 
 
