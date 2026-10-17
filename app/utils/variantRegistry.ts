@@ -302,7 +302,9 @@ const variants: Record<string, Component> = {
   'page:account-orders@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Orders.vue')),
   'page:account-password-change@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/PasswordChange.vue')),
   'page:account-providers@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Providers.vue')),
-  'page:account-reviews@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Reviews.vue')),
+  // The reviews UI is one implementation for every store: this entry is
+  // only webside's page frame around the platform's own body.
+  'page:account-reviews@webside': lazy(() => import('~/components/variants/webside/AccountArea/Page/Reviews.vue')),
   'page:account-sessions@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Sessions.vue')),
   'page:account-settings@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Settings.vue')),
   'page:account-settings-privacy@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Privacy.vue')),

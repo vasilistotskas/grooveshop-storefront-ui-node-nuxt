@@ -136,9 +136,6 @@ const badge = computed(() => {
   return undefined
 })
 
-/** `reviewAverage` is the model's 1..10; stars are the 5 a reader expects. */
-const ratingOutOfFive = computed(() => (product.value.reviewAverage ?? 0) / 2)
-
 // Wholesale price hydration — client-only, retail renders first then
 // swaps (the cached anonymous catalogue HTML must never carry a
 // per-customer price; see useB2BPricing).
@@ -289,21 +286,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         {{ contentShorten(productDescription, 0, 100) }}
       </p>
 
-      <div
-        v-if="productReviewsEnabled && product.reviewCount"
-        class="flex items-center gap-1.5"
-      >
-        <UInputRating
-          :model-value="ratingOutOfFive"
-          :length="5"
-          :step="0.5"
-          size="xs"
-          color="warning"
-          readonly
-          :aria-label="t('rated_n', { n: ratingOutOfFive.toFixed(1) })"
-        />
-        <span class="text-xs text-muted">({{ product.reviewCount }})</span>
-      </div>
+      <ProductRating
+        v-if="productReviewsEnabled"
+        :average="product.reviewAverage"
+        :count="product.reviewCount"
+      />
 
       <div class="mt-auto flex flex-col gap-1 pt-1">
         <div class="flex flex-wrap items-baseline gap-x-2">
@@ -350,7 +337,6 @@ el:
   new: Νέο
   only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν
   view_product: Προβολή προϊόντος
-  rated_n: Βαθμολογία {n} στα 5
 en:
   vat_included: VAT included
   share: Share
@@ -359,5 +345,4 @@ en:
   new: New
   only_n_left: Only {count} left | Only {count} left
   view_product: View product
-  rated_n: Rated {n} out of 5
 </i18n>

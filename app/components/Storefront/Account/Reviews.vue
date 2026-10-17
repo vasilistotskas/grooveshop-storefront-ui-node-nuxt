@@ -2,16 +2,19 @@
 /**
  * The shopper's reviews, as the boards draw them: one row per review
  * with the product, the stars, where moderation stands and the comment,
- * then Edit and delete. No "write a review" prompts: Django has no list
+ * and a way to edit it. No "write a review" prompts: Django has no list
  * of products waiting for one (PLAN B46).
  *
- * Editing opens the product page's own review dialog, with the review
- * as that page fetches it (`user-product-review`, the detail shape the
- * dialog takes) — one dialog for writing and editing everywhere.
+ * Editing opens the product page's own review sheet, with the review as
+ * that page fetches it (`user-product-review`, the detail shape the sheet
+ * takes) — one sheet for writing, editing and deleting everywhere; a
+ * delete asks there before it happens. Newest or oldest first, and the
+ * list pages through the URL.
  */
-const { t, n, locale } = useI18n()
+const { t, locale } = useI18n()
 useHead({ title: () => t('title') })
 const route = useRoute()
+const localePath = useLocalePath()
 const toast = useToast()
 const { user } = useUserSession()
 const { productUrl } = useUrls()
@@ -19,18 +22,19 @@ const { productUrl } = useUrls()
 const PAGE_SIZE = 10
 const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
+const ORDERINGS = { newest: '-createdAt', oldest: 'createdAt' } as const
+const ordering = computed(() => Object.values(ORDERINGS).find(value => value === route.query.ordering) ?? ORDERINGS.newest)
+const orderingItems = computed(() => Object.entries(ORDERINGS).map(([key, value]) => ({ value, label: t(`ordering.${key}`) })))
+const orderingModel = computed({
+  get: () => ordering.value,
+  set: value => navigateTo({ query: { ...route.query, ordering: value === ORDERINGS.newest ? undefined : value, page: undefined } }),
+})
+
 const { data: reviews, status, refresh } = await useApi(`/api/user/account/${user.value?.id}/product-reviews`, {
   key: `account-reviews-${user.value?.id}`,
   method: 'GET',
-  query: { page, pageSize: PAGE_SIZE, ordering: '-createdAt' },
+  query: { page, pageSize: PAGE_SIZE, ordering },
 })
-
-const MODERATION: Record<ReviewStatus, { key: string, color: 'success' | 'warning' | 'error' }> = {
-  TRUE: { key: 'status.published', color: 'success' },
-  NEW: { key: 'status.in_review', color: 'warning' },
-  FALSE: { key: 'status.rejected', color: 'error' },
-}
-const moderation = (review: ProductReview) => MODERATION[review.status ?? 'NEW']
 
 // The brief product carries its name already in the page's language
 // (Django answers in the `X-Language` it is sent).
@@ -39,7 +43,6 @@ const productName = (review: ProductReview) => review.product.name ?? ''
 const editing = ref<ProductReviewDetail | null>(null)
 const editOpen = ref(false)
 const loadingEdit = ref<number | null>(null)
-const deleting = ref<number | null>(null)
 
 async function edit(review: ProductReview) {
   loadingEdit.value = review.id
@@ -58,40 +61,46 @@ async function edit(review: ProductReview) {
   }
 }
 
-async function remove(review: ProductReview) {
-  deleting.value = review.id
-  try {
-    await $api(`/api/products/reviews/${review.id}`, { method: 'DELETE' })
-    toast.add({ title: t('deleted'), color: 'success' })
-    await refresh()
-  }
-  catch (error) {
-    log.error({ action: 'review:delete', error })
-    toast.add({ title: t('delete_error'), color: 'error' })
-  }
-  finally {
-    deleting.value = null
-  }
-}
-
-async function onEdited() {
+async function onChanged() {
   editOpen.value = false
   await refresh()
+  // Deleting the last review of a page leaves that page empty (or, for
+  // Django, out of range) while earlier pages still hold reviews: go back
+  // to the last page that exists rather than say there are none.
+  if (page.value > 1 && !reviews.value?.results.length) {
+    const count = reviews.value?.count
+    const last = Math.max(1, Math.min(page.value - 1, count ? Math.ceil(count / PAGE_SIZE) : page.value - 1))
+    await navigateTo({ query: { ...route.query, page: last > 1 ? last : undefined } })
+  }
 }
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
-    <AccountPageHeader :title="t('title')" />
+    <AccountPageHeader :title="t('title')">
+      <template
+        v-if="reviews?.count"
+        #actions
+      >
+        <USelect
+          v-model="orderingModel"
+          :items="orderingItems"
+          :aria-label="t('ordering.label')"
+          size="lg"
+          class="min-h-11 w-full sm:w-48"
+        />
+      </template>
+    </AccountPageHeader>
 
     <div
       v-if="status === 'pending' && !reviews"
       class="flex flex-col gap-3"
+      aria-hidden="true"
     >
       <USkeleton
         v-for="index in 3"
         :key="index"
-        class="h-24 w-full rounded-[1.25rem]"
+        class="h-24 w-full rounded-md"
       />
     </div>
 
@@ -108,9 +117,9 @@ async function onEdited() {
       <li
         v-for="review in reviews.results"
         :key="review.id"
-        class="flex gap-4 rounded-[1.25rem] bg-default p-5 ring ring-default"
+        class="flex gap-3 rounded-md bg-default p-4 ring ring-default sm:gap-4 sm:p-5"
       >
-        <span class="size-14 shrink-0 overflow-hidden rounded-[0.875rem] bg-elevated">
+        <span class="size-14 shrink-0 overflow-hidden rounded-sm bg-elevated">
           <ImgWithFallback
             :src="review.product.mainImagePath"
             alt=""
@@ -129,65 +138,29 @@ async function onEdited() {
             {{ productName(review) }}
           </ULink>
           <div class="flex flex-wrap items-center gap-2">
-            <UInputRating
-              :model-value="review.rate / 2"
-              :step="0.5"
-              size="xs"
-              color="primary"
-              icon="i-heroicons-star-solid"
-              :ui="{ emptyIcon: 'text-(--ui-border-accented)' }"
-              readonly
-              :aria-label="t('rated', { n: n(review.rate / 2, { maximumFractionDigits: 1 }) })"
-            />
-            <UBadge
-              :label="t(moderation(review).key)"
-              :color="moderation(review).color"
-              variant="soft"
-              size="sm"
-            />
+            <ProductReviewsStars :rate="review.rate" />
+            <ProductReviewsStatusBadge :status="review.status" />
           </div>
-          <p class="text-sm text-toned">
+          <p class="wrap-anywhere text-sm text-toned">
             {{ extractTranslated(review, 'comment', locale) }}
           </p>
         </div>
-        <div class="flex shrink-0 items-start gap-1">
-          <UButton
-            :label="t('edit')"
-            :aria-label="t('edit_named', { name: productName(review) })"
-            :loading="loadingEdit === review.id"
-            icon="i-lucide-pencil"
-            color="neutral"
-            variant="outline"
-            size="sm"
-            class="max-sm:hidden"
-            @click="() => edit(review)"
-          />
-          <UButton
-            :aria-label="t('edit_named', { name: productName(review) })"
-            :loading="loadingEdit === review.id"
-            icon="i-lucide-pencil"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            class="sm:hidden"
-            @click="() => edit(review)"
-          />
-          <UButton
-            :aria-label="t('delete_named', { name: productName(review) })"
-            :loading="deleting === review.id"
-            icon="i-lucide-trash-2"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            @click="() => remove(review)"
-          />
-        </div>
+        <UButton
+          :aria-label="t('edit_named', { name: productName(review) })"
+          :loading="loadingEdit === review.id"
+          icon="i-lucide-pencil"
+          color="neutral"
+          variant="outline"
+          square
+          class="size-11 shrink-0 self-start"
+          @click="() => edit(review)"
+        />
       </li>
     </ul>
 
     <div
       v-else
-      class="flex flex-col gap-2 rounded-[1.25rem] bg-default p-6 ring ring-default"
+      class="flex flex-col items-start gap-2 rounded-md bg-default p-6 ring ring-default"
     >
       <p class="font-semibold text-highlighted">
         {{ t('empty.title') }}
@@ -195,6 +168,13 @@ async function onEdited() {
       <p class="text-toned">
         {{ t('empty.description') }}
       </p>
+      <UButton
+        :label="t('empty.browse')"
+        :to="localePath('products')"
+        color="neutral"
+        variant="outline"
+        class="mt-2 min-h-11"
+      />
     </div>
 
     <UPagination
@@ -206,16 +186,15 @@ async function onEdited() {
       class="self-center"
     />
 
-    <ProductReview
-      v-if="editing && user"
+    <LazyProductReview
+      v-if="editing"
       v-model:open="editOpen"
       :user-product-review="editing"
       :user-had-reviewed="true"
       :product="editing.product"
       :product-name="extractTranslated(editing.product, 'name', locale) ?? ''"
-      :user="user"
-      @update-existing-review="onEdited"
-      @delete-existing-review="onEdited"
+      @update-existing-review="onChanged"
+      @delete-existing-review="onChanged"
     />
   </div>
 </template>
@@ -224,35 +203,27 @@ async function onEdited() {
 el:
   title: Οι κριτικές μου
   list_error: Οι κριτικές σου δεν φορτώθηκαν.
-  rated: Βαθμολογία {n} στα 5
-  status:
-    published: Δημοσιευμένη
-    in_review: Σε έλεγχο
-    rejected: Δεν δημοσιεύτηκε
-  edit: Επεξεργασία
   edit_named: Επεξεργασία της κριτικής για «{name}»
-  delete_named: Διαγραφή της κριτικής για «{name}»
-  deleted: Η κριτική διαγράφηκε
-  delete_error: Η κριτική δεν διαγράφηκε
   load_error: Η κριτική δεν άνοιξε για επεξεργασία
+  ordering:
+    label: Ταξινόμηση κριτικών
+    newest: Πρώτες οι πιο πρόσφατες
+    oldest: Πρώτες οι παλαιότερες
   empty:
     title: Καμία κριτική ακόμα
-    description: Όταν γράψεις κριτική για ένα προϊόν, θα τη βρίσκεις εδώ.
+    description: Όταν γράψεις κριτική για ένα προϊόν που έχεις αγοράσει, θα τη βρίσκεις εδώ.
+    browse: Δες τα προϊόντα
 en:
   title: My reviews
   list_error: Your reviews did not load.
-  rated: Rated {n} out of 5
-  status:
-    published: Published
-    in_review: In review
-    rejected: Not published
-  edit: Edit
   edit_named: Edit your review of “{name}”
-  delete_named: Delete your review of “{name}”
-  deleted: Review deleted
-  delete_error: The review could not be deleted
   load_error: The review did not open for editing
+  ordering:
+    label: Sort reviews
+    newest: Newest first
+    oldest: Oldest first
   empty:
     title: No reviews yet
-    description: When you review a product, you will find it here.
+    description: When you review a product you have bought, you will find it here.
+    browse: Browse products
 </i18n>

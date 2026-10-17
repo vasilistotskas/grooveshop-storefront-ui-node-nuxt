@@ -256,26 +256,11 @@ const arrowButton = {
           </h3>
         </NuxtLinkLocale>
 
-        <div
-          v-if="productReviewsEnabled && item.product.reviewAverage > 0"
-          class="flex items-center gap-1"
-        >
-          <UIcon
-            v-for="star in 5"
-            :key="star"
-            :name="star <= Math.round(item.product.reviewAverage / 2) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
-            class="size-3.5 text-warning"
-          />
-          <span
-            v-if="item.product.reviewCount"
-            class="
-              text-xs text-neutral-600
-              dark:text-neutral-400
-            "
-          >
-            ({{ item.product.reviewCount }})
-          </span>
-        </div>
+        <ProductRating
+          v-if="productReviewsEnabled"
+          :average="item.product.reviewAverage"
+          :count="item.product.reviewCount"
+        />
 
         <div class="mt-auto flex items-baseline gap-2">
           <ProductPriorPrice

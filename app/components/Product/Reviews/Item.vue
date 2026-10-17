@@ -12,30 +12,26 @@ const props = defineProps<{
   review: ProductReview
 }>()
 
-const { t, n, locale } = useI18n()
+const { t, locale } = useI18n()
 const tenantStore = useTenantStore()
 
+/** A longer comment is cut to a few lines with a "Read more". */
+const PREVIEW_CHARS = 280
+
 const author = computed(() => reviewerName(props.review.user) ?? t('anonymous'))
-const outOfFive = computed(() => props.review.rate / 2)
 const comment = computed(() =>
   resolveTranslated(props.review, 'comment', locale.value, [tenantStore.defaultLocale]),
 )
+const expanded = ref(false)
+const collapsible = computed(() => (comment.value?.value.length ?? 0) > PREVIEW_CHARS)
+const commentId = useId()
 </script>
 
 <template>
   <article class="flex flex-col gap-2.5 border-b border-default py-5.5">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-2.5">
-        <UInputRating
-          :model-value="outOfFive"
-          :step="0.5"
-          size="xs"
-          color="primary"
-          icon="i-heroicons-star-solid"
-          :ui="{ emptyIcon: 'text-(--ui-border-accented)' }"
-          readonly
-          :aria-label="t('rated', { n: n(outOfFive, { maximumFractionDigits: 1 }) })"
-        />
+        <ProductReviewsStars :rate="review.rate" />
         <strong class="text-sm text-highlighted">{{ author }}</strong>
         <UBadge
           v-if="review.isVerifiedPurchase"
@@ -43,6 +39,7 @@ const comment = computed(() =>
           icon="i-lucide-check"
           color="success"
           variant="subtle"
+          :ui="{ base: 'text-toned', leadingIcon: 'text-success' }"
           size="sm"
         />
       </div>
@@ -51,26 +48,44 @@ const comment = computed(() =>
         :locale="locale"
         relative
         numeric="auto"
-        class="text-[0.8125rem] text-muted"
+        class="text-[0.8125rem] text-toned"
       />
     </div>
-    <p
-      v-if="comment"
-      class="text-muted"
-      :lang="comment.locale === locale ? undefined : comment.locale"
-    >
-      {{ comment.value }}
-    </p>
+    <template v-if="comment">
+      <!-- `wrap-anywhere` breaks only a token wider than the card (a
+           URL); `break-all` split every Greek word at the edge. -->
+      <p
+        :id="commentId"
+        class="wrap-anywhere text-toned"
+        :class="collapsible && !expanded ? 'line-clamp-4' : undefined"
+        :lang="comment.locale === locale ? undefined : comment.locale"
+      >
+        {{ comment.value }}
+      </p>
+      <UButton
+        v-if="collapsible"
+        :label="expanded ? t('less') : t('more')"
+        :aria-expanded="expanded"
+        :aria-controls="commentId"
+        color="neutral"
+        variant="link"
+        size="sm"
+        class="min-h-11 self-start px-0"
+        @click="() => { expanded = !expanded }"
+      />
+    </template>
   </article>
 </template>
 
 <i18n lang="yaml">
 el:
   anonymous: Ανώνυμος πελάτης
-  rated: Βαθμολογία {n} στα 5
   verified: Επαληθευμένη αγορά
+  more: Διάβασε περισσότερα
+  less: Διάβασε λιγότερα
 en:
   anonymous: Anonymous shopper
-  rated: Rated {n} out of 5
   verified: Verified purchase
+  more: Read more
+  less: Read less
 </i18n>

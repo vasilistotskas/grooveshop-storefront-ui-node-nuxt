@@ -120,7 +120,7 @@ describe('webside Product/Suggestions', () => {
     expect(tiles).toHaveLength(2)
     expect(tiles[0]!.find('h3').text()).toBe('Γλάστρα')
     expect(tiles[0]!.find('p').text()).toBe('Ταιριάζει με')
-    expect(tiles[0]!.text()).toContain('(12)')
+    expect(tiles[0]!.text()).toContain('4,0 · 12')
     expect(tiles[1]!.find('h3').text()).toBe('Χώμα')
     expect(tiles[1]!.find('p').text()).toBe('Ίδια κατηγορία')
   })

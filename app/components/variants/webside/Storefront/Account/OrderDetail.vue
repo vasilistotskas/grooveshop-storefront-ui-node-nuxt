@@ -813,23 +813,13 @@ async function handleReorder() {
                            computed from TODAY's catalog — a number
                            about the shop now, not about this order. -->
 
-                      <div
-                        v-if="productReviewsEnabled && item.product.reviewCount > 0"
-                        class="
-                          mt-2 flex items-center gap-2 text-sm text-gray-600
-                          dark:text-gray-200
-                        "
-                      >
-                        <div class="flex items-center">
-                          <UIcon
-                            name="i-heroicons-star" class="
-                              h-4 w-4 text-yellow-400
-                            "
-                          />
-                          <span class="ml-1">{{ item.product.reviewAverage?.toFixed(1) || 0 }}</span>
-                        </div>
-                        <span>({{ item.product.reviewCount }} {{ t('reviews') }})</span>
-                      </div>
+                      <ProductRating
+                        v-if="productReviewsEnabled"
+                        :average="item.product.reviewAverage"
+                        :count="item.product.reviewCount"
+                        verbose
+                        class="mt-2"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1307,7 +1297,6 @@ el:
   quantity: Ποσότητα
   unit_price: Τιμή Μονάδας
   subtotal: Υποσύνολο
-  reviews: κριτικές
   details: Λεπτομέρειες
   shipping: Έξοδα αποστολής
   synopsis: Συνοπτικά
@@ -1402,7 +1391,6 @@ en:
   quantity: Quantity
   unit_price: Unit Price
   subtotal: Subtotal
-  reviews: reviews
   details: Details
   shipping: Delivery
   synopsis: At a glance

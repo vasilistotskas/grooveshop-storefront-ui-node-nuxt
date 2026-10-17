@@ -105,6 +105,11 @@
   --ui-info: var(--color-info-600);
   --ui-warning: var(--color-warning-600);
   --ui-error: var(--color-error-600);
+  /* The filled stars of a rating: ONE warm amber in every theme, never
+     the page's ink or grey. 3.3:1 on the warm Volt ground (a graphic needs 3:1); the
+     `.dark` block lightens it. Volt does not redefine it, so both
+     designs read it from here, and a tenant theme may override it. */
+  --ui-rating: #cc6d00;
 }
 
 /* The bottom dock: what is fixed to the bottom edge of the screen,
@@ -192,6 +197,7 @@
   --ui-info: var(--color-info-400);
   --ui-warning: var(--color-warning-400);
   --ui-error: var(--color-error-400);
+  --ui-rating: #fbbf24;
 }
 
 /* Groove Volt — the platform-default design.
