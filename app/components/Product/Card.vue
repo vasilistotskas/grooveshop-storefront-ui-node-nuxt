@@ -127,22 +127,6 @@ const badge = computed(() => {
   return undefined
 })
 
-/**
- * Solid stars, 14px, the empty ones a step lighter than muted text — the
- * design's; the default icon is an outline, which read as no rating.
- */
-const STARS_UI = {
-  item: 'size-3.5',
-  icon: 'size-3.5',
-  emptyIcon: 'text-(--ui-border-accented)',
-}
-
-/** `reviewAverage` is the model's 1..10; stars are the 5 a reader expects. */
-const ratingOutOfFive = computed(() => (product.value.reviewAverage ?? 0) / 2)
-const ratingText = computed(() =>
-  $i18n.n(ratingOutOfFive.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
-)
-
 const addToCartName = computed(() => t('add_named', { name: productName.value ?? '' }))
 
 const favouriteId = computed(() => getFavouriteIdByProductId(productId.value))
@@ -250,25 +234,11 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </h3>
       </NuxtLink>
 
-      <div
-        v-if="productReviewsEnabled && product.reviewCount"
-        class="flex items-center gap-1.5"
-      >
-        <UInputRating
-          :model-value="ratingOutOfFive"
-          :length="5"
-          :step="0.5"
-          size="xs"
-          color="primary"
-          icon="i-heroicons-star-solid"
-          :ui="STARS_UI"
-          readonly
-          :aria-label="t('rated_n', { n: ratingText })"
-        />
-        <span class="text-[0.8125rem] font-semibold text-muted">
-          {{ ratingText }} · {{ product.reviewCount }}
-        </span>
-      </div>
+      <ProductRating
+        v-if="productReviewsEnabled"
+        :average="product.reviewAverage"
+        :count="product.reviewCount"
+      />
 
       <div class="mt-0.5 flex items-center justify-between gap-2">
         <div class="flex flex-wrap items-baseline gap-x-2">
@@ -344,7 +314,6 @@ el:
   only_n_left: 'Μόνο {count} απέμεινε | Μόνο {count} απέμειναν'
   notify_back: Ειδοποίησέ με όταν ξαναέρθει
   view_product: Προβολή προϊόντος
-  rated_n: Βαθμολογία {n} στα 5
 en:
   add: Add
   add_named: 'Add {name} to cart'
@@ -353,5 +322,4 @@ en:
   only_n_left: 'Only {count} left | Only {count} left'
   notify_back: Notify me when it's back
   view_product: View product
-  rated_n: Rated {n} out of 5
 </i18n>

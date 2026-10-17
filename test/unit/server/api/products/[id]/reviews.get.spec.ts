@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/products/[id]/reviews.get'
+import { REVIEW_SORTS } from '~/utils/reviewSort'
 import { backend, cacheOptionsOf, callRoute, createTestEvent, jsonResponse } from '~~/test/helpers/nitro'
 
 const route = '/api/products/:id/reviews'
@@ -15,6 +16,18 @@ describe('GET /api/products/[id]/reviews', () => {
     expect(response.body).toEqual(page)
     expect(backend.lastRequest.path).toBe('http://backend.test/api/v1/product/42/reviews')
     expect(backend.lastRequest.query).toMatchObject({ ordering: '-rate', page: '2', pageSize: '6' })
+  })
+
+  // Every order the product page's sort offers must get through the
+  // route's validation: a tie-break key joined with a comma is easy to
+  // break and the page would show an error for a pick the menu offers.
+  it.each(Object.entries(REVIEW_SORTS))('accepts the %s sort and forwards it as the API takes it', async (_name, ordering) => {
+    backend.reply(page)
+
+    const response = await callRoute(handler, { route, url: `/api/products/42/reviews?ordering=${encodeURIComponent(ordering)}` })
+
+    expect(response.status).toBe(200)
+    expect(backend.lastRequest.query).toMatchObject({ ordering })
   })
 
   it('rejects an ordering the API does not advertise without calling the backend', async () => {

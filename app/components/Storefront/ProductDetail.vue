@@ -36,7 +36,6 @@ const suggestionsEnabled = computed(
 
 const { user, loggedIn } = useUserSession()
 
-const toast = useToast()
 const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
@@ -48,7 +47,6 @@ const userStore = useUserStore()
 const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
 const cartStore = useCartStore()
 
-const isReviewModalOpen = ref(false)
 const selectorQuantity = ref(1)
 
 const productId = 'id' in route.params ? route.params.id : undefined
@@ -136,6 +134,7 @@ const [
       headers: useRequestHeaders(),
       query: {
         languageCode: locale,
+        ordering: REVIEW_SORTS[DEFAULT_REVIEW_SORT],
       },
     },
   ),
@@ -267,73 +266,12 @@ onMounted(() => {
   }
 })
 
-// User-specific data: client-side only
-const { data: userProductReview, refresh: refreshUserProductReview }
-  = useLazyApi<GetUserProductReviewResponse>(`/api/products/reviews/${productId}/user-product-review`, {
-    key: `productReviews${productId}${user.value?.id}`,
-    method: 'GET',
-    // A store with reviews off has no review of the shopper to show.
-    enabled: () => loggedIn.value && reviewsOn,
-    server: false, // Client-side only - user-specific data
-  })
-
-const userHadReviewed = computed(() => !!userProductReview.value)
-
-/**
- * The review list: three at first, as the design draws it, then every
- * review of the first page, then a page more per click. The first page
- * is the server's (it also feeds Schema.org); later pages are fetched
- * on demand and appended.
- */
-const REVIEWS_FIRST = 3
-const reviewsExpanded = ref(false)
-const reviewPages = ref<ProductReview[][]>([])
-const loadingReviews = ref(false)
-const loadedReviews = computed(() => [
-  ...(productReviews.value?.results ?? []),
-  ...reviewPages.value.flat(),
+// The reviews' own sheet reports a change; the list on THIS page and the
+// product's average are what must move.
+const onReviewChanged = () => Promise.all([
+  refreshProduct(),
+  refreshProductReviews(),
 ])
-const visibleReviews = computed(() =>
-  reviewsExpanded.value ? loadedReviews.value : loadedReviews.value.slice(0, REVIEWS_FIRST),
-)
-const reviewsTotal = computed(() => productReviews.value?.count ?? 0)
-const moreReviews = computed(() => reviewsTotal.value > visibleReviews.value.length)
-
-async function showMoreReviews() {
-  if (!reviewsExpanded.value) {
-    reviewsExpanded.value = true
-    if (loadedReviews.value.length > REVIEWS_FIRST) return
-  }
-  if (loadingReviews.value) return
-  loadingReviews.value = true
-  try {
-    const page = await $api<ListProductReviewsResponse>(`/api/products/${productId}/reviews`, {
-      query: { languageCode: locale.value, page: reviewPages.value.length + 2 },
-    })
-    reviewPages.value = [...reviewPages.value, page.results ?? []]
-  }
-  catch (error) {
-    log.error({ action: 'reviews:loadMore', error })
-    toast.add({ title: t('reviews.load_error'), color: 'error' })
-  }
-  finally {
-    loadingReviews.value = false
-  }
-}
-
-// The review widget used to refetch a list of its own that nothing
-// rendered; the list on THIS page is the one that must move.
-const onReviewChanged = async () => {
-  reviewPages.value = []
-  await Promise.all([
-    refreshProduct(),
-    refreshUserProductReview(),
-    refreshProductReviews(),
-  ])
-}
-const onAddExistingReview = onReviewChanged
-const onUpdateExistingReview = onReviewChanged
-const onDeleteExistingReview = onReviewChanged
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -359,17 +297,6 @@ const productName = computed(() =>
   ])?.value
   || extractTranslated(product.value, 'seoTitle', locale.value)
   || '',
-)
-
-/** `reviewAverage` is the model's 1..10; stars are the 5 a reader expects. */
-const ratingOutOfFive = computed(() => (product.value?.reviewAverage ?? 0) / 2)
-const ratingText = computed(() =>
-  n(ratingOutOfFive.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
-)
-
-/** A guest is sent to sign in, and brought back to the reviews. */
-const signInToReview = computed(() =>
-  localePath({ name: RedirectToURLs.LOGIN_URL, query: { next: `${route.fullPath.split('#')[0]}#reviews` } }),
 )
 
 const productTitle = computed(() => {
@@ -770,30 +697,13 @@ useSchemaOrg([
               {{ productName }}
             </h1>
 
-            <a
-              v-if="productReviewsEnabled && product.reviewCount"
+            <ProductRating
+              v-if="productReviewsEnabled"
+              :average="product.reviewAverage"
+              :count="product.reviewCount"
               href="#reviews"
-              class="flex items-center gap-1.5 self-start"
-            >
-              <UInputRating
-                :model-value="ratingOutOfFive"
-                :step="0.5"
-                size="xs"
-                color="primary"
-                icon="i-heroicons-star-solid"
-                :ui="{ emptyIcon: 'text-(--ui-border-accented)' }"
-                readonly
-                :aria-label="t('rated', { n: ratingText })"
-              />
-              <span
-                class="
-                  text-[0.8125rem] font-semibold text-muted underline-offset-2
-                  hover:underline
-                "
-              >
-                {{ ratingText }} · {{ t('n_reviews', { count: product.reviewCount }, product.reviewCount) }}
-              </span>
-            </a>
+              verbose
+            />
           </div>
 
           <div class="flex flex-col gap-2">
@@ -1021,68 +931,14 @@ useSchemaOrg([
 
     <PageSectionBand
       v-if="productReviewsEnabled"
-      id="reviews"
       surface="muted"
-      class="scroll-mt-24"
     >
-      <div
-        class="
-          grid gap-6
-          lg:grid-cols-[20rem_1fr] lg:gap-16
-        "
-      >
-        <div class="flex flex-col items-start gap-4">
-          <h2
-            class="
-              font-display text-[1.625rem] font-bold tracking-[-0.02em]
-              text-highlighted
-              lg:text-[2rem]
-            "
-          >
-            {{ t('reviews.title') }}
-          </h2>
-          <ProductReviewsOverview
-            :average="product.reviewAverage"
-            :count="product.reviewCount"
-            :distribution="product.ratingDistribution"
-          />
-          <UButton
-            v-if="user"
-            :label="userHadReviewed ? t('update_review') : t('write_review')"
-            icon="i-lucide-pen-line"
-            class="mt-1.5"
-            @click="() => { isReviewModalOpen = true }"
-          />
-          <UButton
-            v-else
-            :label="t('write_review')"
-            icon="i-lucide-pen-line"
-            :to="signInToReview"
-            class="mt-1.5"
-          />
-        </div>
-
-        <div
-          v-if="visibleReviews.length"
-          class="flex flex-col items-start"
-        >
-          <ProductReviewsItem
-            v-for="review in visibleReviews"
-            :key="review.id"
-            :review="review"
-            class="self-stretch"
-          />
-          <UButton
-            v-if="moreReviews"
-            :label="reviewsExpanded ? t('reviews.more') : t('reviews.all', { count: reviewsTotal }, reviewsTotal)"
-            color="neutral"
-            variant="outline"
-            :loading="loadingReviews"
-            class="mt-5"
-            @click="showMoreReviews"
-          />
-        </div>
-      </div>
+      <ProductReviewsSection
+        :product="product"
+        :product-name="productName"
+        :first-page="productReviews"
+        @changed="onReviewChanged"
+      />
     </PageSectionBand>
 
     <!-- A product that cannot be bought gets replacements instead of
@@ -1093,19 +949,6 @@ useSchemaOrg([
       :surface="productStock === 0 ? 'out_of_stock' : 'pdp'"
       :seed-id="product.id"
       hydrate-on-visible
-    />
-
-    <ProductReview
-      v-if="user && productReviewsEnabled"
-      v-model:open="isReviewModalOpen"
-      :user-product-review="userProductReview"
-      :user-had-reviewed="userHadReviewed"
-      :product="product"
-      :product-name="productName"
-      :user="user"
-      @add-existing-review="onAddExistingReview"
-      @update-existing-review="onUpdateExistingReview"
-      @delete-existing-review="onDeleteExistingReview"
     />
 
     <LazyProductNotifyMe
@@ -1189,16 +1032,8 @@ el:
   share: Κοινοποίηση
   price_drop_alert: Ειδοποίηση πτώσης τιμής
   notify_me: Ειδοποίησέ με
-  update_review: Ενημέρωση κριτικής
-  write_review: Γράψε κριτική
-  rated: Βαθμολογία {n} στα 5
-  n_reviews: "{count} αξιολόγηση | {count} αξιολογήσεις"
   save: Κερδίζεις {amount}
   reviews:
-    title: Αξιολογήσεις
-    all: "Δες την αξιολόγηση | Δες και τις {count} αξιολογήσεις"
-    more: Περισσότερες αξιολογήσεις
-    load_error: Οι αξιολογήσεις δεν φορτώθηκαν. Δοκίμασε ξανά.
     anonymous: Ανώνυμος πελάτης
   weight: Βάρος
   description: Περιγραφή
@@ -1218,16 +1053,8 @@ en:
   share: Share
   price_drop_alert: Price-drop alert
   notify_me: Notify me
-  update_review: Update your review
-  write_review: Write a review
-  rated: Rated {n} out of 5
-  n_reviews: "{count} review | {count} reviews"
   save: Save {amount}
   reviews:
-    title: Reviews
-    all: "Show the review | Show all {count} reviews"
-    more: More reviews
-    load_error: The reviews could not be loaded. Try again.
     anonymous: Anonymous shopper
   weight: Weight
   description: Description

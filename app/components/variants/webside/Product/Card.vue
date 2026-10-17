@@ -267,32 +267,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         {{ contentShorten(productDescription, 0, 100) }}
       </p>
 
-      <div
-        v-if="productReviewsEnabled && product.reviewAverage && product.reviewAverage > 0" class="
-          flex items-center gap-2
-        "
-      >
-        <div v-memo="[product.reviewAverage]" class="flex items-center">
-          <UIcon
-            v-for="star in 5"
-            :key="star"
-            :name="star <= Math.round(product.reviewAverage / 2) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
-            class="size-4 text-warning"
-          />
-        </div>
-        <span
-          class="
-            flex items-center gap-1 text-sm text-neutral-700
-            dark:text-neutral-300
-          "
-        >
-          {{ product.reviewAverage.toFixed(1) }}
-          <span v-if="product.reviewCount" class="text-xs">
-            ({{ product.reviewCount }})
-          </span>
-        </span>
-      </div>
-
+      <!-- A card without reviews keeps the row's height: the grid
+           aligns the prices of a row of cards by it. -->
+      <ProductRating
+        v-if="productReviewsEnabled && product.reviewCount"
+        :average="product.reviewAverage"
+        :count="product.reviewCount"
+        class="h-5"
+      />
       <div v-else class="h-5" />
 
       <div class="flex flex-col gap-2">

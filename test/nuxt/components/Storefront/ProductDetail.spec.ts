@@ -286,14 +286,54 @@ describe('default ProductDetail', () => {
     expect(notify.attributes('data-sold-out')).toBe('true')
   })
 
-  it('shows three reviews, then the rest of the page, then a page more per click', async () => {
-    const reviews = (page: number) => ({
-      count: 14,
-      next: page === 1 ? 'next' : null,
-      previous: null,
-      results: Array.from({ length: page === 1 ? 12 : 2 }, (_, i) => makeProductReview({ id: (page - 1) * 12 + i + 1 })),
+  it('marks the page for the footer to keep clear of the sticky buy bar', async () => {
+    serve(makeProduct({ id: 123 }))
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('[data-action-bar]').exists()).toBe(true)
+  })
+})
+
+/**
+ * The reviews of a product page are ONE implementation: webside's page
+ * mounts the same section, rating link and list as the default one, so
+ * every case here runs over both trees.
+ */
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail reviews (%s tree)', (_tree, Component) => {
+  const empty = { count: 0, next: null, previous: null, results: [] }
+
+  const reviews = (page: number) => ({
+    count: 14,
+    next: page === 1 ? 'next' : null,
+    previous: null,
+    results: Array.from({ length: page === 1 ? 12 : 2 }, (_, i) => makeProductReview({ id: (page - 1) * 12 + i + 1 })),
+  })
+
+  function serve(settings: Record<string, string> = {}) {
+    clearNuxtData()
+    setTenant()
+    api.routes({
+      '/api/products/123': { ...makeProduct({ id: 123, reviewAverage: 8.6, reviewCount: 14 }), ratingDistribution: [{ rate: 10, count: 14 }] },
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/settings/public': { settings },
+      '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
+      '/api/products/123/*': empty,
+      '/api/*': empty,
     })
-    serve(makeProduct({ id: 123, reviewAverage: 8, reviewCount: 14 }), reviews, [{ rate: 10, count: 14 }])
+  }
+
+  const mountPage = async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('shows three reviews, then the rest of the page, then a page more per click', async () => {
+    serve()
     const wrapper = await mountPage()
     const shown = () => wrapper.findAll('#reviews article').length
     const button = (label: string) => wrapper.findAll('#reviews button').find(b => b.text() === label)!
@@ -314,25 +354,38 @@ describe('default ProductDetail', () => {
     expect(wrapper.findAll('#reviews button').find(b => b.text() === 'Περισσότερες αξιολογήσεις')).toBeUndefined()
   })
 
-  it('asks for no reviews, and shows none, when the store has reviews off', async () => {
-    const reviews = () => ({ count: 14, next: null, previous: null, results: [makeProductReview({ id: 1 })] })
-    serve(
-      makeProduct({ id: 123, reviewAverage: 8, reviewCount: 14 }),
-      reviews,
-      [{ rate: 10, count: 14 }],
-      { PRODUCT_REVIEWS_ENABLED: 'False' },
-    )
+  it('fetches the first page newest first, for the page and its structured data', async () => {
+    serve()
+    await mountPage()
+
+    expect(api.callsTo('/api/products/123/reviews')[0]!.options?.query).toMatchObject({ ordering: '-createdAt' })
+  })
+
+  it('links the rating by the title to the reviews, as 4,3 · 14 reviews', async () => {
+    serve()
+    const wrapper = await mountPage()
+
+    const link = wrapper.get('a[href="#reviews"]')
+    expect(link.text()).toBe('4,3 · 14 αξιολογήσεις')
+    expect(link.attributes('aria-label')).toBe('Βαθμολογία 4,3 στα 5, από 14 αξιολογήσεις')
+    // The model's own 1..10 scale never reaches a reader.
+    expect(wrapper.get('#reviews').text()).not.toMatch(/\/\s*10/)
+  })
+
+  it('invites a guest to sign in to write one', async () => {
+    serve()
+    const wrapper = await mountPage()
+
+    expect(wrapper.get('#reviews').text()).toContain('Συνδέσου για να γράψεις κριτική')
+  })
+
+  it('asks for no reviews, and shows no rating or section, when the store has reviews off', async () => {
+    serve({ PRODUCT_REVIEWS_ENABLED: 'False' })
 
     const wrapper = await mountPage()
 
     expect(api.callsTo('/api/products/123/reviews')).toEqual([])
     expect(wrapper.find('#reviews').exists()).toBe(false)
-  })
-
-  it('marks the page for the footer to keep clear of the sticky buy bar', async () => {
-    serve(makeProduct({ id: 123 }))
-    const wrapper = await mountPage()
-
-    expect(wrapper.find('[data-action-bar]').exists()).toBe(true)
+    expect(wrapper.find('a[href="#reviews"]').exists()).toBe(false)
   })
 })

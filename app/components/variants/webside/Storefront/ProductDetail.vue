@@ -42,8 +42,6 @@ const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 const userStore = useUserStore()
 const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
 
-const isReviewModalOpen = ref(false)
-const isLoginModalOpen = ref(false)
 const selectorQuantity = ref(1)
 
 const productId = 'id' in route.params ? route.params.id : undefined
@@ -69,7 +67,7 @@ const viewContentFired = ref(false)
 // without re-fetching on homepage/PDP rails.
 const recentlyViewed = useRecentlyViewed()
 
-const { data: product, error: productError, refresh: refreshProduct } = await useApi<ProductDetail>(
+const { data: product, error: productError, refresh: refreshProduct } = await useApi<ProductRetrieve>(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
@@ -123,11 +121,12 @@ const [
       key: `productReviewsSchema${productId}`,
       // With reviews off none are fetched, so none reach the page or its
       // structured data (Django answers 404 for them too).
-      immediate: reviewsOn,
+      enabled: reviewsOn,
       method: 'GET',
       headers: useRequestHeaders(),
       query: {
         languageCode: locale,
+        ordering: REVIEW_SORTS[DEFAULT_REVIEW_SORT],
       },
     },
   ),
@@ -256,30 +255,12 @@ onMounted(() => {
   }
 })
 
-// User-specific data: client-side only
-const { data: userProductReview, refresh: refreshUserProductReview }
-  = useLazyApi<GetUserProductReviewResponse>(`/api/products/reviews/${productId}/user-product-review`, {
-    key: `productReviews${productId}${user.value?.id}`,
-    method: 'GET',
-    // A store with reviews off has no review of the shopper to show.
-    immediate: loggedIn.value && reviewsOn,
-    server: false, // Client-side only - user-specific data
-  })
-
-const userHadReviewed = computed(() => !!userProductReview.value)
-
-// The review widget used to refetch a list of its own that nothing
-// rendered; the list on THIS page is the one that must move.
-const onReviewChanged = async () => {
-  await Promise.all([
-    refreshProduct(),
-    refreshUserProductReview(),
-    refreshProductReviews(),
-  ])
-}
-const onAddExistingReview = onReviewChanged
-const onUpdateExistingReview = onReviewChanged
-const onDeleteExistingReview = onReviewChanged
+// The reviews' own sheet reports a change; the list on THIS page and the
+// product's average are what must move.
+const onReviewChanged = () => Promise.all([
+  refreshProduct(),
+  refreshProductReviews(),
+])
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -333,18 +314,7 @@ const decrementQuantity = () => {
   }
 }
 
-const openModal = () => {
-  if (user?.value) {
-    isReviewModalOpen.value = true
-  }
-  else {
-    isLoginModalOpen.value = true
-    toast.add({
-      title: t('must_be_logged_in'),
-      color: 'error',
-    })
-  }
-}
+const productName = computed(() => extractTranslated(product.value, 'name', locale.value) ?? '')
 
 const productTitle = computed(() => {
   return capitalize(
@@ -439,13 +409,6 @@ const items = computed(() => [
     label: productTitle.value,
   },
 ])
-
-const reviewButtonText = computed(() => {
-  if (userHadReviewed.value) {
-    return t('update_review')
-  }
-  return t('write_review')
-})
 
 const shareOptions = reactive({
   title: extractTranslated(product.value, 'name', locale.value) || '',
@@ -695,7 +658,7 @@ useSchemaOrg([
             '@type': 'Review' as const,
             'author': {
               '@type': 'Person' as const,
-              'name': [r.user?.firstName, r.user?.lastName].filter(Boolean).join(' ') || 'Anonymous',
+              'name': reviewerName(r.user) ?? t('reviews.anonymous'),
             },
             'reviewRating': {
               '@type': 'Rating' as const,
@@ -789,6 +752,15 @@ useSchemaOrg([
               >
                 {{ extractTranslated(product, 'name', locale) }}
               </h1>
+
+              <ProductRating
+                v-if="productReviewsEnabled"
+                :average="product.reviewAverage"
+                :count="product.reviewCount"
+                href="#reviews"
+                verbose
+                class="mt-2"
+              />
 
               <div class="mt-3 flex items-center gap-2">
                 <UBadge
@@ -1042,50 +1014,14 @@ useSchemaOrg([
 
         <USeparator v-if="productReviewsEnabled" class="my-10" />
 
-        <div
+        <ProductReviewsSection
           v-if="productReviewsEnabled"
-          id="reviews"
-          class="grid gap-6"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <h2
-              class="
-                text-2xl font-bold tracking-tight text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('reviews.title') }}
-            </h2>
-
-            <UButton
-              :label="reviewButtonText"
-              color="neutral"
-              variant="outline"
-              icon="i-heroicons-pencil-square"
-              @click="openModal"
-            />
-          </div>
-
-          <WebsideProductReviewsList
-            :reviews="productReviews?.results ?? []"
-            :reviews-average="product.reviewAverage"
-            :reviews-count="product.reviewCount"
-            display-image-of="user"
-          />
-        </div>
+          :product="product"
+          :product-name="productName"
+          :first-page="productReviews"
+          @changed="onReviewChanged"
+        />
       </div>
-
-      <WebsideProductReview
-        v-if="user && productReviewsEnabled"
-        v-model:open="isReviewModalOpen"
-        :user-product-review="userProductReview"
-        :user-had-reviewed="userHadReviewed"
-        :product="product"
-        :user="user"
-        @add-existing-review="onAddExistingReview"
-        @update-existing-review="onUpdateExistingReview"
-        @delete-existing-review="onDeleteExistingReview"
-      />
 
       <div
         v-if="stickyAddToCartEnabled && showStickyAddToCart"
@@ -1185,11 +1121,8 @@ el:
   qty: Ποσότητα
   share: Μοιράσου το
   max_quantity_reached: Επιτεύχθηκε η μέγιστη ποσότητα
-  must_be_logged_in: Πρέπει να συνδεθείς
-  update_review: Ενημέρωση κριτικής
-  write_review: Γράψε κριτική
   reviews:
-    title: Αξιολογήσεις
+    anonymous: Ανώνυμος πελάτης
   weight: Βάρος
   description: Περιγραφή
   specifications: Προδιαγραφές
@@ -1209,11 +1142,8 @@ en:
   qty: Quantity
   share: Share it
   max_quantity_reached: Maximum quantity reached
-  must_be_logged_in: You have to sign in
-  update_review: Update the review
-  write_review: Write a review
   reviews:
-    title: Reviews
+    anonymous: Anonymous shopper
   weight: Weight
   description: Description
   specifications: Specifications
