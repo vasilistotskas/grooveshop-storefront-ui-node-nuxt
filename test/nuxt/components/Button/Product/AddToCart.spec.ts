@@ -141,6 +141,17 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     }))
   })
 
+  it.runIf(tree === 'webside')('keeps one toast for quick adds, updated in place', async () => {
+    const wrapper = await mount({ product: makeProduct({ id: 4 }) })
+
+    await click(wrapper)
+    await click(wrapper)
+    await click(wrapper)
+
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: 'cart:added' }))
+    expect(toast.update.mock.calls.map(([id]) => id)).toEqual(['cart:added', 'cart:added'])
+  })
+
   it.runIf(tree === 'default')('opens the cart drawer with the added line on a desktop, without a toast', async () => {
     const wrapper = await mount({ product: makeProduct({ id: 4 }) })
 
