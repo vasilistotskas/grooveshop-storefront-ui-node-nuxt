@@ -123,6 +123,11 @@ describe('Checkout/StepShipping delivery estimates', () => {
 })
 
 describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShipping', ({ tree, C, own }) => {
+  // The tenant store outlives a test: every test starts from the defaults.
+  beforeEach(() => {
+    setTenant()
+  })
+
   const mount = (overrides: Record<string, unknown> = {}) =>
     mountSuspended(C, { route: false, props: makeProps(overrides) })
 
