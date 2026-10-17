@@ -43,6 +43,14 @@ const { data: userProductReview, status: reviewStatus, refresh: refreshUserProdu
     server: false,
   })
 
+// `enabled` only blocks a request, it never starts one: a product page is
+// served from a cache that knows no shopper, so the session can arrive after
+// setup, and the review the shopper wrote must be fetched then.
+watch(loggedIn, (signedIn) => {
+  if (signedIn) void refreshUserProductReview()
+  else userProductReview.value = undefined
+})
+
 const userHadReviewed = computed(() => !!userProductReview.value)
 
 const sheetMounted = ref(false)

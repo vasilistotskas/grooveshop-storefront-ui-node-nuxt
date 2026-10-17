@@ -16,13 +16,13 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const { session, flags } = vi.hoisted(() => ({
-  session: { loggedIn: false },
-  flags: { reviews: true },
-}))
+const { session, flags } = await vi.hoisted(async () => {
+  const { ref } = await import('vue')
+  return { session: { loggedIn: ref(false) }, flags: { reviews: true } }
+})
 mockNuxtImport('useUserSession', () => () => ({
-  loggedIn: ref(session.loggedIn),
-  user: ref(session.loggedIn ? { id: 7 } : null),
+  loggedIn: session.loggedIn,
+  user: computed(() => session.loggedIn.value ? { id: 7 } : null),
   session: ref({}),
   ready: ref(true),
   fetch: () => Promise.resolve(),
@@ -79,7 +79,7 @@ const writeButton = (wrapper: Awaited<ReturnType<typeof mountSection>>, label: s
   wrapper.findAll('button, a').find(node => node.text() === label)
 
 beforeEach(() => {
-  session.loggedIn = false
+  session.loggedIn.value = false
   flags.reviews = true
   clearNuxtData(['productReviews42undefined', 'productReviews427'])
   api.routes({ '/api/products/reviews/42/user-product-review': OWN_REVIEW })
@@ -128,7 +128,7 @@ describe('Product/Reviews/Section', () => {
 
   describe('a signed-in shopper', () => {
     beforeEach(() => {
-      session.loggedIn = true
+      session.loggedIn.value = true
     })
 
     it('writes a review in the sheet, mounted when they ask for it', async () => {
@@ -162,6 +162,17 @@ describe('Product/Reviews/Section', () => {
 
       expect(wrapper.emitted('changed')).toHaveLength(1)
       expect(userReviewRequests()).toHaveLength(before + 1)
+    })
+
+    it('fetches their review when the session arrives after the page did', async () => {
+      session.loggedIn.value = false
+      const wrapper = await mountSection()
+      expect(userReviewRequests()).toEqual([])
+
+      session.loggedIn.value = true
+      await vi.waitFor(() => expect(writeButton(wrapper, 'Ενημέρωση κριτικής')).toBeDefined())
+
+      expect(userReviewRequests()).toHaveLength(1)
     })
 
     it('can still write one when their own review could not be fetched', async () => {
