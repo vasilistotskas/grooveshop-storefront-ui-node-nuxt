@@ -752,6 +752,14 @@ export const zCancelOrderRequestRequest = z.object({
 })
 
 /**
+ * Response of ``POST /api/v1/cart/agent-token``.
+ */
+export const zCartAgentTokenResponse = z.object({
+  token: z.string(),
+  expiresIn: z.int(),
+})
+
+/**
  * * `home_delivery` - home_delivery
  * * `pickup_point` - pickup_point
  */
@@ -4727,6 +4735,7 @@ export const zShippingOption = z.object({
   deliveryDaysMin: z.int().nullable(),
   deliveryDaysMax: z.int().nullable(),
   logoUrl: z.url().nullish(),
+  logoPath: z.string().nullish(),
   metadata: z.record(z.string(), z.unknown()),
   payWays: z.array(zShippingOptionPayWay),
 })
@@ -11685,6 +11694,7 @@ export const zDestroyCartHeaders = z.object({
 
 export const zRetrieveCartHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zRetrieveCartResponse = zCartDetail
@@ -11701,8 +11711,11 @@ export const zUpdateCartHeaders = z.object({
 
 export const zUpdateCartResponse = zCartDetail
 
+export const zCreateCartAgentTokenResponse = zCartAgentTokenResponse
+
 export const zRemoveCartCouponHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zRemoveCartCouponResponse = zCartDetail
@@ -11711,12 +11724,14 @@ export const zApplyCartCouponBody = zCouponApplyRequestRequest
 
 export const zApplyCartCouponHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zApplyCartCouponResponse = zCartDetail
 
 export const zListCartCouponsHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zListCartCouponsResponse = z.array(zCartCoupon)
@@ -11731,6 +11746,7 @@ export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
 
 export const zListCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zListCartItemQuery = z.object({
@@ -11875,12 +11891,14 @@ export const zCreateCartItemBody = zCartItemCreateRequest
 
 export const zCreateCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zCreateCartItemResponse = zCartItemDetail
 
 export const zDestroyCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zDestroyCartItemPath = z.object({
@@ -11892,6 +11910,7 @@ export const zDestroyCartItemPath = z.object({
 
 export const zRetrieveCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zRetrieveCartItemPath = z.object({
@@ -11915,6 +11934,7 @@ export const zPartialUpdateCartItemBody = zPatchedCartItemUpdateRequest
 
 export const zPartialUpdateCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zPartialUpdateCartItemPath = z.object({
@@ -11938,6 +11958,7 @@ export const zUpdateCartItemBody = zCartItemUpdateRequest
 
 export const zUpdateCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zUpdateCartItemPath = z.object({

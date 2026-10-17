@@ -2219,6 +2219,20 @@ export type Cart = {
 }
 
 /**
+ * Response of ``POST /api/v1/cart/agent-token``.
+ */
+export type CartAgentTokenResponse = {
+  /**
+     * Στείλτε το ως κεφαλίδα X-Cart-Token.
+     */
+  token: string
+  /**
+     * Δευτερόλεπτα μέχρι να σταματήσει να λειτουργεί το διακριτικό.
+     */
+  expiresIn: number
+}
+
+/**
  * One coupon the checkout picker offers, with its verdict.
  *
  * The offer itself is NESTED rather than flattened: the storefront
@@ -8958,6 +8972,10 @@ export type ShippingOption = {
      * Απόλυτο URL για το λογότυπο μάρκας που ανέβασε ο χειριστής, υπολογισμένο ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το κατάστημα τότε επιστρέφει στην ενσωματωμένη προεπιλογή του. Το ``settings.MEDIA_URL`` είναι απόλυτο σε κάθε περιβάλλον, οπότε αυτό είναι πάντα πλήρες URL όταν υπάρχει.
      */
   logoUrl?: string | null
+  /**
+     * Relative media path of the same logo as ``logo_url`` (``media/{schema}/uploads/shipping/…``), for the storefront to render through media-stream at the size it shows. Null when no logo is uploaded.
+     */
+  logoPath?: string | null
   metadata: {
     [key: string]: unknown
   }
@@ -17390,6 +17408,10 @@ export type RetrieveCartData = {
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query?: never
@@ -17469,6 +17491,29 @@ export type UpdateCartResponses = {
 
 export type UpdateCartResponse = UpdateCartResponses[keyof UpdateCartResponses]
 
+export type CreateCartAgentTokenData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/cart/agent-token'
+}
+
+export type CreateCartAgentTokenErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type CreateCartAgentTokenError = CreateCartAgentTokenErrors[keyof CreateCartAgentTokenErrors]
+
+export type CreateCartAgentTokenResponses = {
+  200: CartAgentTokenResponse
+}
+
+export type CreateCartAgentTokenResponse = CreateCartAgentTokenResponses[keyof CreateCartAgentTokenResponses]
+
 export type RemoveCartCouponData = {
   body?: never
   headers?: {
@@ -17476,6 +17521,10 @@ export type RemoveCartCouponData = {
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query?: never
@@ -17505,6 +17554,10 @@ export type ApplyCartCouponData = {
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query?: never
@@ -17534,6 +17587,10 @@ export type ListCartCouponsData = {
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query?: never
@@ -17592,6 +17649,10 @@ export type ListCartItemData = {
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query?: {
@@ -17779,6 +17840,10 @@ export type CreateCartItemData = {
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query?: never
@@ -17808,6 +17873,10 @@ export type DestroyCartItemData = {
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path: {
     id: string | number
@@ -17831,6 +17900,10 @@ export type RetrieveCartItemData = {
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path: {
     id: string | number
@@ -17866,6 +17939,10 @@ export type PartialUpdateCartItemData = {
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path: {
     id: string | number
@@ -17902,6 +17979,10 @@ export type UpdateCartItemData = {
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path: {
     id: string | number

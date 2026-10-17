@@ -14871,6 +14871,14 @@
                             "format": "uuid"
                         },
                         "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     }
                 ],
                 "tags": [
@@ -15167,6 +15175,83 @@
                 }
             }
         },
+        "/api/v1/cart/agent-token": {
+            "post": {
+                "operationId": "createCartAgentToken",
+                "description": "Εκδίδει ένα βραχύβιο διακριτικό που επιτρέπει στον βοηθό αγορών να ενεργεί στο δικό του καλάθι του συνδεδεμένου αγοραστή: να το διαβάζει, να προσθέτει, να ενημερώνει και να αφαιρεί προϊόντα, να εφαρμόζει και να αφαιρεί κουπόνια. Τίποτα άλλο: ούτε πληρωμή, ούτε δέσμευση αποθέματος, ούτε ολοκλήρωση αγοράς, ούτε διαγραφή του καλαθιού. Στείλτε το ως κεφαλίδα ``X-Cart-Token``. Σταματά να λειτουργεί όταν λήξει ή όταν ο αγοραστής αποσυνδεθεί· εκδώστε νέο όταν μια κλήση απορρίπτεται με 401.",
+                "summary": "Έκδοση διακριτικού καλαθιού για τον βοηθό αγορών",
+                "tags": [
+                    "Cart"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartAgentTokenResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/cart/coupon": {
             "post": {
                 "operationId": "applyCartCoupon",
@@ -15181,6 +15266,14 @@
                             "format": "uuid"
                         },
                         "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     }
                 ],
                 "tags": [
@@ -15287,6 +15380,14 @@
                             "format": "uuid"
                         },
                         "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     }
                 ],
                 "tags": [
@@ -15375,6 +15476,14 @@
                             "format": "uuid"
                         },
                         "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     }
                 ],
                 "tags": [
@@ -15575,6 +15684,14 @@
                             "format": "uuid"
                         },
                         "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     },
                     {
                         "in": "query",
@@ -16263,6 +16380,14 @@
                             "format": "uuid"
                         },
                         "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     }
                 ],
                 "tags": [
@@ -16374,6 +16499,14 @@
                         "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     },
                     {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -16479,6 +16612,14 @@
                             "format": "uuid"
                         },
                         "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     },
                     {
                         "in": "path",
@@ -16601,6 +16742,14 @@
                             "format": "uuid"
                         },
                         "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     },
                     {
                         "in": "path",
@@ -16737,6 +16886,14 @@
                             "format": "uuid"
                         },
                         "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403."
                     },
                     {
                         "in": "path",
@@ -58340,6 +58497,24 @@
                     "uuid"
                 ]
             },
+            "CartAgentTokenResponse": {
+                "type": "object",
+                "description": "Response of ``POST /api/v1/cart/agent-token``.",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "description": "Στείλτε το ως κεφαλίδα X-Cart-Token."
+                    },
+                    "expiresIn": {
+                        "type": "integer",
+                        "description": "Δευτερόλεπτα μέχρι να σταματήσει να λειτουργεί το διακριτικό."
+                    }
+                },
+                "required": [
+                    "expiresIn",
+                    "token"
+                ]
+            },
             "CartCoupon": {
                 "type": "object",
                 "description": "One coupon the checkout picker offers, with its verdict.\n\nThe offer itself is NESTED rather than flattened: the storefront\nrenders the same card here, on ``/offers`` and on the product page,\nso sharing the exact ``PublicPromotion`` shape is what lets one\ncomponent and one headline formatter serve all three. The five\nfields beside it are the only cart-dependent part.\n\n``code`` is its own field, not the promotion's: a promotion can\ncarry many codes, and a personal coupon carries one that\n``PublicPromotionSerializer.get_code`` deliberately refuses to\npublish. The picker is about a specific code.",
@@ -73093,6 +73268,11 @@
                         "format": "uri",
                         "nullable": true,
                         "description": "Απόλυτο URL για το λογότυπο μάρκας που ανέβασε ο χειριστής, υπολογισμένο ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το κατάστημα τότε επιστρέφει στην ενσωματωμένη προεπιλογή του. Το ``settings.MEDIA_URL`` είναι απόλυτο σε κάθε περιβάλλον, οπότε αυτό είναι πάντα πλήρες URL όταν υπάρχει."
+                    },
+                    "logoPath": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Relative media path of the same logo as ``logo_url`` (``media/{schema}/uploads/shipping/…``), for the storefront to render through media-stream at the size it shows. Null when no logo is uploaded."
                     },
                     "metadata": {
                         "type": "object",
