@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { FormError } from '@nuxt/ui'
+import type { FormError, FormErrorWithId } from '@nuxt/ui'
 
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
@@ -42,6 +42,7 @@ const emit = defineEmits<{
   'next': []
   'select-saved-address': [addressId: number]
   'use-new-address': []
+  'edit-address': []
 }>()
 
 const { t } = useI18n()
@@ -68,17 +69,24 @@ function onUseNew() {
 // just like the in-card button used to.
 const formRef = useTemplateRef<{
   submit: () => Promise<void>
+  validate: (opts: { name?: string[], silent?: boolean }) => Promise<unknown>
   setErrors: (errors: FormError[]) => void
+  getErrors: () => FormErrorWithId[]
 }>('formRef')
 defineExpose({
   submit: () => formRef.value?.submit(),
 })
 
+// Errors on the fields the ``saved`` mode does not render open them first.
+const { onFormError, showServerErrors } = useSavedAddressErrors({
+  form: formRef,
+  isSavedMode,
+  openFields: () => emit('edit-address'),
+})
+
 // The step mounts after a rejected order sends the shopper back here,
 // so apply on mount as well as on change.
-function applyServerErrors() {
-  if (props.serverErrors?.length) formRef.value?.setErrors(props.serverErrors)
-}
+const applyServerErrors = () => showServerErrors(props.serverErrors)
 onMounted(applyServerErrors)
 watch(() => props.serverErrors, applyServerErrors)
 </script>
@@ -91,7 +99,7 @@ watch(() => props.serverErrors, applyServerErrors)
       </h2>
     </template>
 
-    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError" @submit="emit('next')">
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="onFormError" @submit="emit('next')">
       <!-- Saved-address picker — renders visual cards and a "new
            address" option. Only shown when the shopper actually has
            saved addresses. Guests never see this section. -->

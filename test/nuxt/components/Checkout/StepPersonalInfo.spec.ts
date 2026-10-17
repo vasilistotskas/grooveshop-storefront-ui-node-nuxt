@@ -500,7 +500,7 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
   // The demo accounts' saved addresses had no region and no phone
   // (2026-10-16). The saved mode renders neither field, so «Continue»
   // failed on two errors with nowhere to show and did nothing on screen.
-  describe.runIf(tree === 'default')('a saved address that fails checkout\'s rules', () => {
+  describe('a saved address that fails checkout\'s rules', () => {
     // Stands in for `step1Schema`: the step only needs a schema that
     // rejects the two fields.
     const REGION_MISSING = 'Διάλεξε νομό'
@@ -570,7 +570,8 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
       expect(step.emitted('edit-address')).toHaveLength(1)
     })
 
-    it('marks what is wrong as soon as the checkout opens a picked address', async () => {
+    // The frozen copy opens the fields but does not mark them ahead of «Continue».
+    it.runIf(tree === 'default')('marks what is wrong as soon as the checkout opens a picked address', async () => {
       const { page, step } = await mountOpening({ mode: 'new' })
 
       await vi.waitFor(() => expect(page.text()).toContain(REGION_MISSING))
