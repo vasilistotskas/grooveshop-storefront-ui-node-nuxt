@@ -1,3 +1,10 @@
+## [3.252.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.5...v3.252.6) (2026-10-17)
+
+
+### Bug Fixes
+
+* **cart:** one add-to-cart toast on webside too, updated in place ([#163](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/163)) ([10e631e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/10e631ecc4d9fb16d93c44fca314fc528a454519))
+
 ## [3.252.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.4...v3.252.5) (2026-10-17)
 
 
