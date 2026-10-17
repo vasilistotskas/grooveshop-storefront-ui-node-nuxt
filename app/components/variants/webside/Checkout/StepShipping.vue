@@ -86,7 +86,7 @@ const isBoxNowDisabled = computed(() =>
 //
 // Brand metadata (icon, optional badge tagline) lives in
 // ``app/utils/shipping-methods.ts``. ``logo`` is sourced per-API-row
-// from ``ShippingOption.logoUrl`` (operator upload via Django admin)
+// from ``ShippingOption.logoPath`` (operator upload via Django admin)
 // with a single bundled fallback — see ``resolveShippingLogo``.
 type ShippingOptionItemBase = {
   value: ShippingMethodKey
@@ -146,7 +146,7 @@ const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItemBase>>(
 // first occurrence wins) because we collapse all home-delivery
 // providers to a single ``'home_delivery'`` UI row.
 //
-// The logo is sourced from the API row's ``logoUrl`` (operator
+// The logo is sourced from the API row's ``logoPath`` (operator
 // upload via Django admin) and falls back to the single bundled
 // ``DEFAULT_SHIPPING_LOGO`` SVG when the backend hasn't supplied
 // one. The first-occurrence-wins rule applies to both the row
@@ -232,7 +232,7 @@ const shippingOptions = computed(() => {
       && !isBoxNowCountrySupported.value
     ordered.push({
       ...baseItem,
-      logo: resolveShippingLogo(option.logoUrl),
+      logo: resolveShippingLogo(option.logoPath),
       // Resolved through the same label map the payment step uses, so
       // the two never disagree on what a method is called.
       exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
@@ -254,7 +254,7 @@ const shippingOptions = computed(() => {
 function buildBrandMeta(method: ShippingMethodKey) {
   const meta = getShippingMethodMeta(method)
   // ``logo`` is filled in by the caller from the matching
-  // ``ShippingOption.logoUrl`` (via ``resolveShippingLogo``) so this
+  // ``ShippingOption.logoPath`` (via ``resolveShippingLogo``) so this
   // helper only emits the static i18n + icon hints; the brand asset
   // is whatever the operator uploaded in Django admin, or the single
   // bundled default when nothing is uploaded.

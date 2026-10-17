@@ -105,28 +105,28 @@ onMounted(() => {
 // without scrolling back. ``null`` on earlier steps so the alert
 // stays hidden until shipping has actually been chosen.
 //
-// ``logoUrl`` is sourced from the matching ``/api/v1/shipping/options``
+// ``logoPath`` is sourced from the matching ``/api/v1/shipping/options``
 // row (the same source the picker uses) so the sidebar mirrors what
 // the shopper saw at step 2 — and the operator gets a single edit
 // surface in Django admin that propagates everywhere.
-const shippingLogoUrl = computed(() => {
+const shippingLogoPath = computed(() => {
   const method = formState.shippingMethod
   if (!method) return null
   const match = shippingOptions.value.find(
     o => methodKeyForOption(o) === method,
   )
-  return match?.logoUrl ?? null
+  return match?.logoPath ?? null
 })
 
 const shippingSummary = computed(() => {
   if (currentStep.value !== 2) return null
   const method = formState.shippingMethod
-  const logoUrl = shippingLogoUrl.value
+  const logoPath = shippingLogoPath.value
   if (method === 'box_now_locker') {
     const locker = formState.boxnowLocker
     return {
       method,
-      logoUrl,
+      logoPath,
       lockerName: locker?.boxnowLockerName ?? null,
       lockerId: formState.boxnowLockerId || locker?.boxnowLockerId || null,
       lockerAddress: locker?.boxnowLockerAddressLine1 ?? null,
@@ -136,7 +136,7 @@ const shippingSummary = computed(() => {
     const station = formState.acsStation
     return {
       method,
-      logoUrl,
+      logoPath,
       lockerName: station?.name ?? null,
       lockerId: formState.acsStationExternalId || null,
       lockerAddress: [station?.addressLine1, station?.city]
@@ -144,7 +144,7 @@ const shippingSummary = computed(() => {
         .join(', ') || null,
     }
   }
-  return { method, logoUrl }
+  return { method, logoPath }
 })
 
 const handleStockRetry = () => {
