@@ -307,11 +307,14 @@ export function useLogger(event: H3Event, service?: string): TestRequestLogger {
 /**
  * The visitor's session. One visitor per test: nuxt-auth-utils keeps it
  * in a sealed cookie, which a unit test has no second request to carry,
- * so the store is simply the session data the next call will read.
+ * so the store is simply the session data the next call will read, for
+ * a request that sends the session (`SESSION_COOKIE`).
  */
 let sessionData: Record<string, unknown> = {}
 /** The session config the last write passed (nuxt-auth-utils' third argument). */
 let sessionWriteConfig: Record<string, unknown> | undefined
+/** `getUserSession` calls on a request that carried no session. */
+let sessionsMinted = 0
 
 const TEST_SESSION_ID = 'unit-test-session'
 
@@ -323,22 +326,63 @@ export const testSession = {
   get writeConfig(): Record<string, unknown> | undefined {
     return sessionWriteConfig
   },
+  /**
+   * How many sessions a read created: nuxt-auth-utils' `getUserSession`
+   * on a request without one mints a session and sets its cookie.
+   */
+  get minted(): number {
+    return sessionsMinted
+  },
   set(data: Record<string, unknown>) {
     sessionData = structuredClone(data)
   },
 }
 
-export async function getUserSession(_event: H3Event): Promise<Record<string, any>> {
+function sessionName(): string {
+  return String((runtimeConfig.session as { name: string }).name)
+}
+
+/**
+ * Whether `event` has the session the way h3 finds it: one already on
+ * the event (`context.sessions`, where h3 keeps a session it loaded or
+ * created), the `x-<name>-session` header, then the `<name>` cookie.
+ * Either event kind: h3's carries `headers`, the portable `nuxt/server`
+ * one `req.headers`.
+ */
+function carriesSession(event: H3Event | { req: Request, context: H3Event['context'] }): boolean {
+  const name = sessionName()
+  if (event.context.sessions?.[name]) return true
+  const headers = 'req' in event && event.req instanceof Request ? event.req.headers : (event as H3Event).headers
+  if (headers.get(`x-${name}-session`)) return true
+  return (headers.get('cookie') ?? '').split(';').some(part => part.trim().startsWith(`${name}=`))
+}
+
+/** Keep the session on the event, as h3's `useSession` does. */
+function keepOnEvent(event: H3Event): void {
+  event.context.sessions ??= Object.create(null)
+  event.context.sessions![sessionName()] ??= { id: TEST_SESSION_ID, createdAt: 0, data: {} }
+}
+
+/** A request without the session gets a new, empty one, as h3 mints it. */
+export async function getUserSession(event: H3Event): Promise<Record<string, any>> {
+  const minted = !carriesSession(event)
+  keepOnEvent(event)
+  if (minted) {
+    sessionsMinted += 1
+    return { id: TEST_SESSION_ID }
+  }
   return { ...structuredClone(sessionData), id: TEST_SESSION_ID }
 }
 
-export async function setUserSession(_event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
+export async function setUserSession(event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
+  keepOnEvent(event)
   sessionWriteConfig = config
   sessionData = defu(structuredClone(data), sessionData)
   return sessionData
 }
 
-export async function replaceUserSession(_event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
+export async function replaceUserSession(event: H3Event, data: Record<string, unknown>, config?: Record<string, unknown>) {
+  keepOnEvent(event)
   sessionWriteConfig = config
   const { id: _id, ...rest } = data
   sessionData = structuredClone(rest)
@@ -408,4 +452,5 @@ export function resetNitroRuntime(): void {
   storage = createStorage()
   sessionData = {}
   sessionWriteConfig = undefined
+  sessionsMinted = 0
 }

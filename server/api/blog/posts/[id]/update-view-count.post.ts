@@ -9,8 +9,11 @@ export default defineEventHandler(async (event) => {
   )
 
   // Per-session deduplication: skip the upstream call if this session has
-  // already incremented the view count for this post.
-  const session = await getUserSession(event)
+  // already incremented the view count for this post. Only a reader who
+  // already has a session is remembered: creating one to count views
+  // would store an identifier on every reader's device. Django throttles
+  // view counting per visitor for the rest.
+  const session = await readUserSession(event)
   const viewedPosts = session.viewedPosts ?? []
   const postId = String(params.id)
 
@@ -21,10 +24,12 @@ export default defineEventHandler(async (event) => {
   }
 
   // Record in session (fire-and-forget; view dedup is best-effort)
-  replaceUserSession(event, {
-    ...session,
-    viewedPosts: [...viewedPosts, postId],
-  }).catch(() => {})
+  if (requestHasSession(event)) {
+    replaceUserSession(event, {
+      ...session,
+      viewedPosts: [...viewedPosts, postId],
+    }).catch(() => {})
+  }
 
   try {
     // useBackendFetch relays the visitor's identity: Django throttles

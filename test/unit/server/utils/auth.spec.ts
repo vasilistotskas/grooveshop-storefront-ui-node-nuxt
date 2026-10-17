@@ -7,9 +7,11 @@ import {
   getAllAuthHeaders,
   getAllAuthSessionToken,
   processAllAuthSession,
+  readUserSession,
   requestHasSession,
   requireAllAuthAccessToken,
 } from '~~/server/utils/auth'
+import { updateCartSession } from '~~/server/utils/cartSession'
 import type { RequestEvent } from 'nuxt/server'
 import { backend, createRequestEvent, jsonResponse, setRuntimeConfig, testSession } from '~~/test/helpers/nitro'
 import type { TestRequest } from '~~/test/helpers/nitro'
@@ -155,9 +157,45 @@ describe('requestHasSession', () => {
 
     expect(() => requestHasSession(createRequestEvent())).toThrow('runtimeConfig.session.name is not set')
   })
+
+  it('counts a session written earlier in the same request, before its cookie is sent', async () => {
+    const event = createRequestEvent()
+
+    await updateCartSession(event, { cartId: '11111111-1111-4111-8111-111111111111' })
+
+    expect(requestHasSession(event)).toBe(true)
+  })
+})
+
+describe('readUserSession', () => {
+  it('reads nothing and creates no session for a visitor who has none', async () => {
+    await expect(inRequest(event => readUserSession(event))).resolves.toEqual({})
+    expect(testSession.minted).toBe(0)
+  })
+
+  it('reads the session a visitor sends', async () => {
+    testSession.set({ cartId: '11111111-1111-4111-8111-111111111111' })
+
+    await expect(inRequest(event => readUserSession(event))).resolves.toMatchObject({ cartId: '11111111-1111-4111-8111-111111111111' })
+  })
+
+  it('reads a session written earlier in the same request', async () => {
+    const event = createRequestEvent()
+    await updateCartSession(event, { cartId: '11111111-1111-4111-8111-111111111111' })
+
+    await expect(readUserSession(event)).resolves.toMatchObject({ cartId: '11111111-1111-4111-8111-111111111111' })
+  })
 })
 
 describe('session token readers', () => {
+  it('create no session for a visitor who has none', async () => {
+    await inRequest(event => getAllAuthHeaders(event))
+    await inRequest(event => getAllAuthSessionToken(event))
+    await inRequest(event => getAllAuthAccessToken(event))
+
+    expect(testSession.minted).toBe(0)
+  })
+
   it('read the tokens from the encrypted session', async () => {
     testSession.set({ secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 

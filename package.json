@@ -68,7 +68,7 @@
     "lottie-web": "5.13.0",
     "magic-string": "1.4.3",
     "nuxt": "4.6.1",
-    "nuxt-auth-utils": "0.5.31",
+    "nuxt-auth-utils": "0.5.32",
     "ofetch": "1.5.1",
     "pinia": "4.0.3",
     "redis": "6.3.0",

@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     const accessToken = await getAllAuthAccessToken(event)
     identity = {
       id: sessionData.cartId,
-      signedIn: Boolean((await getUserSession(event)).user),
+      signedIn: Boolean((await readUserSession(event)).user),
       accessToken: Boolean(accessToken),
       cartId: Boolean(sessionData.cartId),
     }

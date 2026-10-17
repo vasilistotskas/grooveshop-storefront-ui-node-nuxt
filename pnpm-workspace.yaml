@@ -163,7 +163,7 @@ minimumReleaseAgeExclude:
   - yaml@2.9.1
   - playwright-core@1.64.0
   - vue-router@5.4.0
-  - nuxt-auth-utils@0.5.31
+  - nuxt-auth-utils@0.5.32
   - evlog@2.31.0
   - zod@4.6.7
   - '@nuxtjs/robots@7.0.0'

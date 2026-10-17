@@ -97,6 +97,26 @@ const RETURN_AWAITED_IN_TRY = ['', 'TSAsExpression > ', 'TSNonNullExpression > '
   message: 'Return `await` inside try: an un-awaited promise rejects after the try exits, so the catch (handleError) never sees the failure.',
 }))
 
+/**
+ * Reading a session must not create one. `getUserSession` (and h3's
+ * `useSession` under it) mints a session and sets `nuxt-session` for a
+ * request that has none, which gave every visitor a session cookie before
+ * they signed in or added to a cart (2026-10-15). Reads go through
+ * `readUserSession`; the writers that create a session on purpose are the
+ * files `SESSION_WRITERS` lists.
+ */
+const SESSION_READ = {
+  selector: 'CallExpression[callee.name=/^(getUserSession|useSession)$/]',
+  message: 'This mints a session for a visitor without one. Read with readUserSession (server/utils/auth.ts); only a file that writes a session on purpose (SESSION_WRITERS in eslint.config.mjs) calls it.',
+}
+/** Sign-in, the cart's first write, the OAuth hand-off and the auth error path: they write a session. */
+const SESSION_WRITERS = [
+  'server/utils/auth.ts',
+  'server/utils/cartSession.ts',
+  'server/utils/error.ts',
+  'server/utils/oauth.ts',
+]
+
 export default withNuxt(
   globalIgnores([
     // Only ignore the raw schema files at the project root, NOT the
@@ -202,6 +222,12 @@ export default withNuxt(
     // instance and the composables that wrap Nuxt's fetchers are the
     // only places allowed to touch them.
     files: ['server/**/*.ts'],
+    rules: {
+      'no-restricted-syntax': ['error', ...RETURN_AWAITED_IN_TRY, SESSION_READ],
+    },
+  },
+  {
+    files: SESSION_WRITERS,
     rules: {
       'no-restricted-syntax': ['error', ...RETURN_AWAITED_IN_TRY],
     },

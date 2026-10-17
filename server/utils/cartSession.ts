@@ -57,7 +57,7 @@ function writeFallbackCartId(event: RequestEvent, cartId: string | undefined): v
 }
 
 export async function getCartSession(event: RequestEvent): Promise<CartSessionData> {
-  const { cartId } = await getUserSession(event)
+  const { cartId } = await readUserSession(event)
   if (cartId) return { cartId }
   const fallbackId = readFallbackCartId(event)
   if (fallbackId) {

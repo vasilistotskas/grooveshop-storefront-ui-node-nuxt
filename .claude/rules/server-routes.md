@@ -61,6 +61,7 @@ Nuxt 5 runs Nitro v3, which has no server auto-imports and no global
 
 Numeric prefixes order execution. Request logging is via evlog (there is no `log.ts`).
 
+- `0.anonymous-session.ts` — answers nuxt-auth-utils' `GET /api/_auth/session` with `{}` for a visitor without a session, which the module's own handler would mint (see `.claude/rules/auth.md`)
 - `0.markdown-negotiation.ts` — serves the `.md` variant of a route when an AI/agent client negotiates for it (`@nuxtjs/seo`'s AI Ready)
 - `0.redirects.ts` — 301 redirect from `www.` to non-www
 - `0.tenant.ts` — resolves `event.context.tenant` from the request host (runs first; see Multi-Tenant Architecture)

@@ -17,9 +17,8 @@ async function run(url: string, headers: Record<string, string> = {}) {
 
 describe('server/middleware/2.evlog-auth', () => {
   it('never reads the session of a visitor who has none', async () => {
-    testSession.set({ user: { id: 42 } })
-
     expect(await run('/')).toEqual({})
+    expect(testSession.minted).toBe(0)
   })
 
   it('records a signed-in visitor\'s user id', async () => {

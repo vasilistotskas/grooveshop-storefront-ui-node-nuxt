@@ -30,6 +30,8 @@ import {
   backendFetch,
   createRequestLogger,
   runWithEvent,
+  testSession,
+  useRuntimeConfig,
 } from './runtime'
 import type { NitroApp, NitroAppPlugin } from 'nitropack/types'
 import { defineEventHandler as defineRouteHandler } from 'nuxt/server'
@@ -93,6 +95,15 @@ function requestHeaders(req: TestRequest): Record<string, string> {
   const headers: Record<string, string> = { host: req.host ?? TEST_HOST }
   for (const [name, value] of Object.entries(req.headers ?? {})) {
     headers[name.toLowerCase()] = value
+  }
+  // The visitor's browser sends the session it holds (`testSession`), as
+  // it does once a write has set the cookie; a visitor with none sends none.
+  if (Object.keys(testSession.data).length) {
+    const name = String(useRuntimeConfig().session.name)
+    const cookies = headers.cookie ? headers.cookie.split(';').map(part => part.trim()) : []
+    if (!cookies.some(part => part.startsWith(`${name}=`)) && !headers[`x-${name.toLowerCase()}-session`]) {
+      headers.cookie = [...cookies, `${name}=sealed`].join('; ')
+    }
   }
   if (isJsonBody(req.body) && !headers['content-type']) {
     headers['content-type'] = 'application/json'

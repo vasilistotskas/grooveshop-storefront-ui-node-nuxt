@@ -220,6 +220,12 @@ export default defineConfig({
                 robots: {
                   enabled: false,
                 },
+                // nuxt-seo-utils warns that an SPA renders nothing for
+                // crawlers unless the site is marked non-indexable, which
+                // a test harness is.
+                site: {
+                  indexable: false,
+                },
                 // Pin the locale. jsdom reports `navigator.language` as
                 // en-US, so once a second platform locale existed
                 // @nuxtjs/i18n resolved `en` in the harness — which

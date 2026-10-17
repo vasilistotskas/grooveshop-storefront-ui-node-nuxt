@@ -1,5 +1,6 @@
 import { describe } from 'vitest'
 import { setupDevServer, startFakeDjango } from '../helpers/e2e'
+import { anonymousVisitorUpstream, describeAnonymousVisitor } from './anonymousVisitor'
 import { describePageRenders, pageRenderUpstream } from './pageRenders'
 import { PLATFORM_FALLBACK_HOST, describeSwrHostPropagation, swrProbeUpstream } from './swrHostPropagation'
 
@@ -19,6 +20,7 @@ import { PLATFORM_FALLBACK_HOST, describeSwrHostPropagation, swrProbeUpstream } 
 describe('storefront on a real dev server', async () => {
   const fakeDjango = await startFakeDjango((req, res, url) => {
     if (swrProbeUpstream(req, res, url)) return
+    if (anonymousVisitorUpstream(req, res, url)) return
     pageRenderUpstream(req, res, url)
   })
 
@@ -28,4 +30,5 @@ describe('storefront on a real dev server', async () => {
 
   describePageRenders()
   describeSwrHostPropagation()
+  describeAnonymousVisitor()
 })
