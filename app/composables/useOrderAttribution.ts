@@ -30,22 +30,10 @@ import type { LocationQuery } from 'vue-router'
 const STORAGE_KEY = 'order-attribution'
 
 /**
- * The click-id query params whose presence is recorded: exactly the
- * `ClickIdsEnum` Django's order attribution accepts. A `Record` over the
- * generated enum, so a param added or dropped on either side fails the
- * type check instead of drifting.
+ * The click-id query params whose presence is recorded: `CLICK_ID_PARAMS`
+ * (`shared/constants/trackingParams.ts`), exactly the `ClickIdsEnum`
+ * Django's order attribution accepts.
  */
-const CLICK_ID_PARAMS: Record<ClickIdsEnum, true> = {
-  gclid: true,
-  gbraid: true,
-  wbraid: true,
-  msclkid: true,
-  ttclid: true,
-  twclid: true,
-  li_fat_id: true,
-  epik: true,
-  fbclid: true,
-}
 export const ORDER_ATTRIBUTION_CLICK_IDS = Object.keys(CLICK_ID_PARAMS) as ClickIdsEnum[]
 
 const UTM_CAPS = {

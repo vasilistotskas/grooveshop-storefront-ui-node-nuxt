@@ -3,6 +3,7 @@ import { setupDevServer, startFakeDjango } from '../helpers/e2e'
 import { anonymousVisitorUpstream, describeAnonymousVisitor } from './anonymousVisitor'
 import { describePageRenders, pageRenderUpstream } from './pageRenders'
 import { PLATFORM_FALLBACK_HOST, describeSwrHostPropagation, swrProbeUpstream } from './swrHostPropagation'
+import { describeTrackingParams, trackingParamsUpstream } from './trackingParams'
 
 /**
  * The ONE dev server the e2e suites share.
@@ -21,6 +22,8 @@ describe('storefront on a real dev server', async () => {
   const fakeDjango = await startFakeDjango((req, res, url) => {
     if (swrProbeUpstream(req, res, url)) return
     if (anonymousVisitorUpstream(req, res, url)) return
+    // Only counts; the page-render stub below still answers.
+    trackingParamsUpstream(req, res, url)
     pageRenderUpstream(req, res, url)
   })
 
@@ -31,4 +34,5 @@ describe('storefront on a real dev server', async () => {
   describePageRenders()
   describeSwrHostPropagation()
   describeAnonymousVisitor()
+  describeTrackingParams()
 })
