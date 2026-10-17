@@ -64,6 +64,14 @@ async function edit(review: ProductReview) {
 async function onChanged() {
   editOpen.value = false
   await refresh()
+  // Deleting the last review of a page leaves that page empty (or, for
+  // Django, out of range) while earlier pages still hold reviews: go back
+  // to the last page that exists rather than say there are none.
+  if (page.value > 1 && !reviews.value?.results.length) {
+    const count = reviews.value?.count
+    const last = Math.max(1, Math.min(page.value - 1, count ? Math.ceil(count / PAGE_SIZE) : page.value - 1))
+    await navigateTo({ query: { ...route.query, page: last > 1 ? last : undefined } })
+  }
 }
 </script>
 

@@ -134,4 +134,104 @@ describe('Product/Reviews/List', () => {
 
     expect(shown(wrapper)).toEqual([expect.stringContaining('Επιτέλους')])
   })
+
+  /**
+   * Answers held back until the test says so, in any order: the shape of
+   * a slow network, where an older request can finish after a newer one.
+   */
+  describe('while a request is in flight', () => {
+    interface Held { query: { ordering: string, page: number }, resolve: (value: ListProductReviewsResponse) => void, reject: (error: Error) => void }
+    let held: Held[] = []
+    const holdReviews = () => {
+      held = []
+      api.routes({
+        '/api/products/42/reviews': (_url: string, options: { query: Held['query'] }) =>
+          new Promise<ListProductReviewsResponse>((resolve, reject) => { held.push({ query: options.query, resolve, reject }) }),
+      })
+    }
+    const comment = (text: string) => page([makeProductReview({ id: 90, translations: { el: { comment: text } } })], 5)
+    const pick = (wrapper: Wrapper, sort: string) => wrapper.getComponent({ name: 'USelect' }).vm.$emit('update:modelValue', sort)
+
+    it('shows the sort picked last, whichever answer arrives last', async () => {
+      holdReviews()
+      const wrapper = await mountList(page(reviews(1, 5), 5))
+
+      await pick(wrapper, 'highest')
+      await pick(wrapper, 'lowest')
+      await flushPromises()
+      expect(held.map(request => request.query.ordering)).toEqual(['-rate,-createdAt', 'rate,-createdAt'])
+
+      held[1]!.resolve(comment('lowest first'))
+      await flushPromises()
+      held[0]!.resolve(comment('highest first'))
+      await flushPromises()
+
+      expect(shown(wrapper)).toEqual([expect.stringContaining('lowest first')])
+    })
+
+    it('asks for the new sort when it is picked after "more", and drops the previous sort page', async () => {
+      holdReviews()
+      const wrapper = await mountList(page(reviews(1, 12), 14))
+      await button(wrapper, 'Δες και τις 14 αξιολογήσεις')!.trigger('click')
+      await button(wrapper, 'Περισσότερες αξιολογήσεις')!.trigger('click')
+      expect(held.map(request => request.query.page)).toEqual([2])
+
+      await pick(wrapper, 'highest')
+      await flushPromises()
+      expect(held.map(request => request.query.ordering)).toEqual(['-createdAt', '-rate,-createdAt'])
+
+      held[0]!.resolve(page(reviews(13, 2), 14))
+      await flushPromises()
+      held[1]!.resolve(comment('highest first'))
+      await flushPromises()
+
+      expect(shown(wrapper)).toEqual([expect.stringContaining('highest first')])
+    })
+
+    it('drops a later page that arrives after the parent refreshed the first one', async () => {
+      holdReviews()
+      const wrapper = await mountList(page(reviews(1, 12), 14))
+      await button(wrapper, 'Δες και τις 14 αξιολογήσεις')!.trigger('click')
+      await button(wrapper, 'Περισσότερες αξιολογήσεις')!.trigger('click')
+
+      await wrapper.setProps({ firstPage: page(reviews(30, 12), 14) })
+      held[0]!.resolve(page(reviews(13, 2), 14))
+      await flushPromises()
+
+      expect(shown(wrapper)).toHaveLength(12)
+      expect(shown(wrapper)[0]).toContain('Κριτική 30')
+    })
+
+    it('raises no error for an answer that failed after it was replaced', async () => {
+      holdReviews()
+      const wrapper = await mountList(page(reviews(1, 5), 5))
+      await pick(wrapper, 'highest')
+      await pick(wrapper, 'lowest')
+      await flushPromises()
+
+      held[0]!.reject(new Error('stale'))
+      await flushPromises()
+
+      expect(wrapper.text()).not.toContain('Οι αξιολογήσεις δεν φορτώθηκαν.')
+      held[1]!.resolve(comment('lowest first'))
+      await flushPromises()
+      expect(shown(wrapper)).toEqual([expect.stringContaining('lowest first')])
+    })
+
+    it('stays busy until the current request answers, not the replaced one', async () => {
+      holdReviews()
+      const wrapper = await mountList(page(reviews(1, 5), 5))
+      await pick(wrapper, 'highest')
+      await pick(wrapper, 'lowest')
+      await flushPromises()
+
+      held[0]!.resolve(comment('highest first'))
+      await flushPromises()
+      expect(wrapper.find('[aria-busy="true"], [aria-hidden="true"] .animate-pulse').exists()).toBe(true)
+
+      held[1]!.resolve(comment('lowest first'))
+      await flushPromises()
+      expect(wrapper.find('.animate-pulse').exists()).toBe(false)
+    })
+  })
 })

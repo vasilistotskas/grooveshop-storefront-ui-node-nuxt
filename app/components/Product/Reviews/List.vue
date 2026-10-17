@@ -43,31 +43,47 @@ function fetchPage(page: number) {
   })
 }
 
-/** Runs one request with the list's loading and error states around it. */
-async function load(request: () => Promise<void>) {
+/**
+ * Bumped by every restart (a new sort, a refreshed first page). A request
+ * belongs to the generation it started in, and an answer from an older
+ * one is dropped whole: its data, its error and its end of loading, which
+ * would otherwise land on a list that has moved on.
+ */
+let generation = 0
+
+/**
+ * Runs one request with the list's loading and error states around it.
+ * A second "more" while one is pending is ignored; a restart clears
+ * `loading` itself, so its request is never skipped.
+ */
+async function load<T>(request: () => Promise<T>, apply: (value: T) => void) {
   if (loading.value) return
+  const mine = generation
   loading.value = true
   failed.value = false
   try {
-    await request()
+    const value = await request()
+    if (mine === generation) apply(value)
   }
   catch (error) {
+    if (mine !== generation) return
     log.error({ action: 'reviews:load', error })
     failed.value = true
   }
   finally {
-    loading.value = false
+    if (mine === generation) loading.value = false
   }
 }
 
-const loadFirstOfSort = () => load(async () => {
-  sortedFirst.value = await fetchPage(1)
-})
+const loadFirstOfSort = () => load(
+  () => fetchPage(1),
+  (page) => { sortedFirst.value = page },
+)
 
-const loadNextPage = () => load(async () => {
-  const page = await fetchPage(laterPages.value.length + 2)
-  laterPages.value = [...laterPages.value, page.results ?? []]
-})
+const loadNextPage = () => load(
+  () => fetchPage(laterPages.value.length + 2),
+  (page) => { laterPages.value = [...laterPages.value, page.results ?? []] },
+)
 
 async function showMore() {
   if (!expanded.value) {
@@ -80,9 +96,11 @@ async function showMore() {
 const retry = () => sort.value !== DEFAULT_REVIEW_SORT && !sortedFirst.value ? loadFirstOfSort() : loadNextPage()
 
 function restart() {
+  generation++
   laterPages.value = []
   sortedFirst.value = null
   failed.value = false
+  loading.value = false
   if (sort.value !== DEFAULT_REVIEW_SORT) void loadFirstOfSort()
 }
 

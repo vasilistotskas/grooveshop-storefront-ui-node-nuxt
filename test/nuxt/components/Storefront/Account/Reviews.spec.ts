@@ -186,6 +186,82 @@ describe('Storefront/Account/Reviews', () => {
     })
   })
 
+  describe('after the sheet deletes the last review of a page', () => {
+    /** Opens the first review's sheet, lets the server change, then deletes. */
+    const deleteWhen = async (wrapper: Awaited<ReturnType<typeof mountPage>>, serverChanges: () => void) => {
+      api.routes({ '/api/products/reviews/41/user-product-review': { ...makeProductReview({ id: 1 }), product: makeProduct({ id: 41 }) } })
+      await editButton(rows(wrapper)[0]!).trigger('click')
+      await vi.waitFor(() => expect(wrapper.find('[data-delete]').exists()).toBe(true))
+      serverChanges()
+      navigateTo.mockClear()
+      await wrapper.get('[data-delete]').trigger('click')
+      await flushPromises()
+    }
+
+    it('goes back to the last page that still has reviews, not to "No reviews yet"', async () => {
+      route.query = { page: '2', ordering: 'createdAt' }
+      state.total = 11
+      const wrapper = await mountPage()
+
+      // The reload finds page 2 empty while ten reviews remain.
+      await deleteWhen(wrapper, () => {
+        state.reviews = []
+        state.total = 10
+      })
+
+      await vi.waitFor(() => expect(navigateTo).toHaveBeenCalledWith({ query: { ordering: 'createdAt', page: undefined } }))
+    })
+
+    it('goes straight to the last page that exists when several pages are gone', async () => {
+      route.query = { page: '4' }
+      state.total = 31
+      const wrapper = await mountPage()
+
+      await deleteWhen(wrapper, () => {
+        state.reviews = []
+        state.total = 10
+      })
+
+      await vi.waitFor(() => expect(navigateTo).toHaveBeenCalledWith({ query: { page: undefined } }))
+    })
+
+    it('never stays on or moves past an empty page, whatever count the reload claims', async () => {
+      route.query = { page: '2' }
+      state.total = 11
+      const wrapper = await mountPage()
+
+      await deleteWhen(wrapper, () => {
+        state.reviews = []
+        state.total = 50
+      })
+
+      await vi.waitFor(() => expect(navigateTo).toHaveBeenCalledWith({ query: { page: undefined } }))
+    })
+
+    it('steps back one page when the reload gives no count to compute from', async () => {
+      route.query = { page: '3' }
+      state.total = 21
+      const wrapper = await mountPage()
+
+      await deleteWhen(wrapper, () => { state.failList = true })
+
+      await vi.waitFor(() => expect(navigateTo).toHaveBeenCalledWith({ query: { page: 2 } }))
+    })
+
+    it('stays where it is while the page still has reviews', async () => {
+      route.query = { page: '2' }
+      state.total = 15
+      const wrapper = await mountPage()
+
+      const before = requests.length
+
+      await deleteWhen(wrapper, () => { state.total = 14 })
+      await vi.waitFor(() => expect(requests.length).toBeGreaterThan(before))
+
+      expect(navigateTo).not.toHaveBeenCalled()
+    })
+  })
+
   it('pages through the URL once there are more than a page of reviews', async () => {
     state.total = 25
     route.query = { page: '2' }
