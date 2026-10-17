@@ -35,7 +35,6 @@ describe.each(trees(ProductImage, WebsideProductImage))('$tree Product/Image', (
           uuid: fixtureUuid(5, 1),
           product: 1,
           image: '/img/products/1.jpg',
-          imageUrl: '/img/products/1.jpg',
           imageSizeKb: 12,
           altText: '',
           isMain: true,
