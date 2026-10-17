@@ -7312,7 +7312,6 @@ export type ProductCategoryImage = {
     }
   }
   readonly imagePath: string
-  readonly imageUrl: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -7368,7 +7367,6 @@ export type ProductCategoryImageDetail = {
     }
   }
   readonly imagePath: string
-  readonly imageUrl: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -7720,7 +7718,6 @@ export type ProductImage = {
      * Εικόνα
      */
   image: string
-  readonly imageUrl: string
   readonly imageSizeKb: number
   readonly altText: string
   /**
@@ -7760,7 +7757,6 @@ export type ProductImageDetail = {
      * Εικόνα
      */
   image: string
-  readonly imageUrl: string
   readonly imageSizeKb: number
   readonly altText: string
   /**
@@ -8969,11 +8965,7 @@ export type ShippingOption = {
      */
   deliveryDaysMax: number | null
   /**
-     * Απόλυτο URL για το λογότυπο μάρκας που ανέβασε ο χειριστής, υπολογισμένο ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το κατάστημα τότε επιστρέφει στην ενσωματωμένη προεπιλογή του. Το ``settings.MEDIA_URL`` είναι απόλυτο σε κάθε περιβάλλον, οπότε αυτό είναι πάντα πλήρες URL όταν υπάρχει.
-     */
-  logoUrl?: string | null
-  /**
-     * Relative media path of the same logo as ``logo_url`` (``media/{schema}/uploads/shipping/…``), for the storefront to render through media-stream at the size it shows. Null when no logo is uploaded.
+     * Relative media path (``media/{schema}/uploads/shipping/…``) of the operator-uploaded brand logo, resolved per (provider, kind) so the home-delivery row and the pickup-point row of the same carrier can show different images; the storefront renders it through media-stream at the size it shows. Null when no logo is uploaded — the storefront then falls back to its bundled default.
      */
   logoPath?: string | null
   metadata: {
@@ -9041,7 +9033,7 @@ export type ShippingProvider = {
      */
   readonly logo: string | null
   /**
-     * Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier's home-delivery brand mark). Surfaced on the pickup_point row's ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``.
+     * Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier's home-delivery brand mark). Surfaced on the pickup_point row's ``logoPath`` when uploaded; otherwise the row falls back to ``logo``.
      */
   readonly logoPickupPoint: string | null
   /**

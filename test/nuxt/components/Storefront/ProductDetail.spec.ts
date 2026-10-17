@@ -154,8 +154,8 @@ describe.each([
     api.routes({
       '/api/products/123': makeProduct({ id: 123 }),
       '/api/products/123/images': [
-        { id: 1, mainImagePath: 'media/acme/uploads/products/a.jpg', imageUrl: 'https://static.platform.test/media/acme/uploads/products/a.jpg' },
-        { id: 2, mainImagePath: 'media/acme/uploads/products/b.png', imageUrl: 'https://static.platform.test/media/acme/uploads/products/b.png' },
+        { id: 1, mainImagePath: 'media/acme/uploads/products/a.jpg', image: 'https://static.platform.test/media/acme/uploads/products/a.jpg' },
+        { id: 2, mainImagePath: 'media/acme/uploads/products/b.png', image: 'https://static.platform.test/media/acme/uploads/products/b.png' },
       ],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
