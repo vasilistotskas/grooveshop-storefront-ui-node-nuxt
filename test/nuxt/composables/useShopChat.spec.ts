@@ -8,9 +8,10 @@
  * composable refreshes after a cart-mutating turn.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { makeCart } from '~~/test/fixtures/cart'
+import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -300,6 +301,130 @@ describe('useShopChat', () => {
     expect(chat.messages.value).toHaveLength(0)
     expect(chat.conversationId.value).toBe('')
     expect(chat.status.value).toBe('ready')
+  })
+
+  describe('a signed-in shopper', () => {
+    const MINTED = (token: string) => ({ token, expiresIn: 1800 })
+    const signIn = (id: number | null) => {
+      useState('nuxt-session').value = id ? { user: { id } } : null
+    }
+    const tokenCalls = () => api.callsTo('/api/cart/agent-token')
+    // The browser logger posts to its own ingest through the same fetch.
+    const chatCalls = (fetchMock: { mock: { calls: [string, RequestInit][] } }) =>
+      fetchMock.mock.calls.filter(([url]) => url === '/chat')
+    const tokensSent = (fetchMock: { mock: { calls: [string, RequestInit][] } }) =>
+      chatCalls(fetchMock).map(call => bodyOf(call).cartToken)
+
+    beforeEach(() => signIn(6))
+    afterEach(() => signIn(null))
+
+    it('sends the cart token instead of a cart id, and mints it once for the conversation', async () => {
+      useCartStore().cart = makeCart()
+      api.routes({ '/api/cart/agent-token': MINTED('pass-1') })
+      const fetchMock = stubStream(DONE)
+
+      const chat = useShopChat()
+      await chat.send('πρώτο')
+      await chat.send('δεύτερο')
+
+      expect(chatCalls(fetchMock).map(bodyOf)).toEqual([
+        { message: 'πρώτο', cartToken: 'pass-1' },
+        { conversationId: 'c1', message: 'δεύτερο', cartToken: 'pass-1' },
+      ])
+      expect(tokenCalls()).toHaveLength(1)
+      expect(tokenCalls()[0]!.options).toMatchObject({ method: 'POST' })
+    })
+
+    it('mints a new token for the next turn after the gateway refused it', async () => {
+      let minted = 0
+      api.routes({ '/api/cart/agent-token': () => MINTED(`pass-${++minted}`) })
+      const refused = 'event: done\ndata: {"conversationId":"c1","cartMutated":false,"cartTokenRefused":true}\n\n'
+      const fetchMock = vi.fn((_url: string, _init: RequestInit) =>
+        Promise.resolve(sseResponse(fetchMock.mock.calls.length === 1 ? refused : DONE)))
+      vi.stubGlobal('fetch', fetchMock)
+
+      const chat = useShopChat()
+      await chat.send('πρώτο')
+      await chat.send('δεύτερο')
+      await chat.send('τρίτο')
+
+      expect(tokensSent(fetchMock)).toEqual(['pass-1', 'pass-2', 'pass-2'])
+      expect(tokenCalls()).toHaveLength(2)
+    })
+
+    it('ignores done.cartId and refreshes the shopper\'s own cart on a mutation', async () => {
+      const own = makeCart()
+      const updated = makeCart({ uuid: own.uuid, items: [{ id: 1 }, { id: 2, product: { id: 2 } }] })
+      api.routes({ '/api/cart/agent-token': MINTED('pass-1'), '/api/cart': updated })
+      stubStream('event: done\ndata: {"conversationId":"c1","cartId":"6f1c1f3e-2d6a-4b0f-9a3e-2f6d6c1b9a10","cartMutated":true}\n\n')
+
+      await useShopChat().send('βάλε το στο καλάθι')
+
+      expect(api.callsTo('/api/cart/claim')).toEqual([])
+      expect(useCartStore().cart).toEqual(updated)
+    })
+
+    it('fails the turn, without calling the gateway, when no token can be minted', async () => {
+      api.routes({ '/api/cart/agent-token': failWith(502) })
+      const fetchMock = stubStream(DONE)
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(chatCalls(fetchMock)).toEqual([])
+      expect(chat.status.value).toBe('error')
+    })
+
+    it('drops the token on sign-out and sends none to the visitor that follows', async () => {
+      api.routes({ '/api/cart/agent-token': () => MINTED('pass-x') })
+      const fetchMock = stubStream(DONE)
+
+      const chat = useShopChat()
+      await chat.send('πρώτο')
+      signIn(null)
+      await chat.send('δεύτερο')
+      signIn(6)
+      await chat.send('τρίτο')
+
+      expect(tokensSent(fetchMock)).toEqual(['pass-x', undefined, 'pass-x'])
+      expect(tokenCalls()).toHaveLength(2)
+    })
+
+    it('never reuses one shopper\'s token for another account', async () => {
+      let minted = 0
+      api.routes({ '/api/cart/agent-token': () => MINTED(`pass-${++minted}`) })
+      const fetchMock = stubStream(DONE)
+
+      const chat = useShopChat()
+      await chat.send('πρώτο')
+      signIn(7)
+      await chat.send('δεύτερο')
+
+      expect(tokensSent(fetchMock)).toEqual(['pass-1', 'pass-2'])
+    })
+
+    it('does not mint for a visitor, who keeps naming the cart the browser holds', async () => {
+      signIn(null)
+      const cart = makeCart()
+      useCartStore().cart = cart
+      const fetchMock = stubStream(DONE)
+
+      await useShopChat().send('γεια')
+
+      expect(tokenCalls()).toEqual([])
+      expect(bodyOf(chatCalls(fetchMock)[0]!)).toEqual({ message: 'γεια', cartId: cart.uuid })
+    })
+
+    it('adopts done.cartId on an anonymous turn', async () => {
+      signIn(null)
+      const created = makeCart({ uuid: '6f1c1f3e-2d6a-4b0f-9a3e-2f6d6c1b9a10' })
+      api.routes({ '/api/cart/claim': created })
+      stubStream(`event: done\ndata: {"conversationId":"c1","cartId":"${created.uuid}","cartMutated":true}\n\n`)
+
+      await useShopChat().send('βάλε το στο καλάθι')
+
+      expect(useCartStore().cart).toEqual(created)
+    })
   })
 
   describe('products events', () => {

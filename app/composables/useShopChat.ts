@@ -30,6 +30,7 @@ interface ChatDoneEvent {
   conversationId: string
   cartId?: string
   cartMutated: boolean
+  cartTokenRefused?: boolean
 }
 
 /**
@@ -41,9 +42,18 @@ interface ChatDoneEvent {
  * text, `tool` events report tool activity as `{name, status}`
  * (running|done), `products` lists the ids a product tool surfaced
  * (`zChatProductsEvent`), `error` carries a localized message, `done`
- * closes the turn with `{conversationId, cartId?, cartMutated}`. Pre-stream
- * failures are plain JSON `{error}` — 409 means the conversation hit
+ * closes the turn with `{conversationId, cartId?, cartMutated,
+ * cartTokenRefused}`. Pre-stream failures are plain JSON `{error}` — 409 means the conversation hit
  * its turn cap and a fresh one must be started.
+ *
+ * A signed-in shopper's turns carry a `cartToken`, the pass the assistant
+ * edits THAT shopper's cart with (`POST /api/cart/agent-token`). One is
+ * minted for the conversation and reused until the gateway reports it
+ * refused (`cartTokenRefused`), when the next turn mints another. It
+ * stays in memory, tied to the user it was minted for, so a sign-out (or
+ * another account) never reuses it. A turn that sent one gets no
+ * `done.cartId`, and the widget would ignore it: the cart is the
+ * shopper's own, refreshed through their session.
  *
  * State lives in `useState` so the conversation survives panel
  * close/reopen and route changes within the session.
@@ -51,6 +61,7 @@ interface ChatDoneEvent {
 export const useShopChat = () => {
   const cartStore = useCartStore()
   const { $i18n } = useNuxtApp()
+  const { user } = useUserSession()
 
   const messages = useState<ShopChatMessage[]>('shop-chat-messages', () => [])
   const conversationId = useState<string>('shop-chat-conversation', () => '')
@@ -59,6 +70,8 @@ export const useShopChat = () => {
   const cartMutated = useState<boolean>('shop-chat-cart-mutated', () => false)
   // Whether the assistant is on screen: the launcher and its panel share it.
   const open = useState<boolean>('shop-chat-open', () => false)
+  // Never persisted or rendered server-side: it is set from a client turn.
+  const cartPass = useState<{ token: string, userId: number } | null>('shop-chat-cart-pass', () => null)
 
   let controller: AbortController | null = null
 
@@ -70,6 +83,21 @@ export const useShopChat = () => {
     status.value = 'ready'
     errorMessage.value = ''
     cartMutated.value = false
+    cartPass.value = null
+  }
+
+  /** The signed-in shopper's cart token, minted once and reused; none for a visitor. */
+  const cartTokenFor = async (): Promise<string | undefined> => {
+    const userId = user.value?.id
+    if (!userId) {
+      cartPass.value = null
+      return undefined
+    }
+    if (cartPass.value?.userId !== userId) {
+      const { token } = await $api<CartAgentTokenResponse>('/api/cart/agent-token', { method: 'POST' })
+      cartPass.value = { token, userId }
+    }
+    return cartPass.value.token
   }
 
   const send = async (text: string) => {
@@ -149,8 +177,11 @@ export const useShopChat = () => {
     }
 
     controller = new AbortController()
-    const sentCartId = cartStore.cart?.uuid || undefined
     try {
+      const cartToken = await cartTokenFor()
+      // A turn with a token acts on the shopper's own cart: the id is
+      // only for a visitor, whose cart the browser names.
+      const sentCartId = cartToken ? undefined : cartStore.cart?.uuid || undefined
       const response = await fetch('/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -158,6 +189,7 @@ export const useShopChat = () => {
           conversationId: conversationId.value || undefined,
           message,
           cartId: sentCartId,
+          cartToken,
         }),
         signal: controller.signal,
       })
@@ -232,12 +264,13 @@ export const useShopChat = () => {
       if (done !== null) {
         const turn = done as ChatDoneEvent
         conversationId.value = turn.conversationId
+        if (turn.cartTokenRefused) cartPass.value = null
         if (turn.cartMutated) {
           cartMutated.value = true
           // A browser that had no cart takes the one the assistant
           // created: refreshing would reload its own, still none, and the
           // assistant reported an add the shopper's cart never showed.
-          if (!sentCartId && turn.cartId) await cartStore.claimCart(turn.cartId)
+          if (!cartToken && !sentCartId && turn.cartId) await cartStore.claimCart(turn.cartId)
           else await cartStore.refreshCart()
         }
       }
