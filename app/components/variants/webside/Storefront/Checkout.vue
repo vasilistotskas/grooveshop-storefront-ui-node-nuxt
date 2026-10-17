@@ -56,6 +56,7 @@ const {
   savedAddresses,
   selectedSavedAddressId,
   selectSavedAddress,
+  editSelectedAddress,
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
@@ -295,6 +296,7 @@ useSeoMeta({
             @next="nextStep"
             @select-saved-address="selectSavedAddress"
             @use-new-address="useNewAddress"
+            @edit-address="editSelectedAddress"
           />
 
           <!-- Step 1: Shipping Method -->

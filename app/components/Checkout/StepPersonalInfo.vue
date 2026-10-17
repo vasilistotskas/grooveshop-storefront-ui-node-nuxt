@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { FormError, FormErrorEvent, FormErrorWithId } from '@nuxt/ui'
+import type { FormError, FormErrorWithId } from '@nuxt/ui'
 
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
@@ -113,38 +113,16 @@ defineExpose({
   submit: () => formRef.value?.submit(),
 })
 
-/**
- * An error on a field the ``saved`` mode does not render has nowhere to
- * show: Nuxt UI resolves each error to its input, so a missing input
- * leaves a validation error without an id and drops a ``setErrors`` one.
- * «Continue» then did nothing on screen (demo, 2026-10-16). Open the
- * picked address's fields first, so every error lands under its input.
- */
-async function openFieldsFor(errors: FormError[]): Promise<boolean> {
-  if (!isSavedMode.value) return false
-  if (!errors.some(error => error.name && SAVED_ADDRESS_FIELDS.includes(error.name))) return false
-  emit('edit-address')
-  await nextTick()
-  return true
-}
-
-async function onFormError(event: FormErrorEvent) {
-  if (await openFieldsFor(event.errors)) {
-    // The same errors again, resolved against the inputs now on screen.
-    await formRef.value?.validate({ silent: true })
-    scrollToFirstFormError({ errors: formRef.value?.getErrors() ?? [] })
-    return
-  }
-  scrollToFirstFormError(event)
-}
+// Errors on the fields the ``saved`` mode does not render open them first.
+const { onFormError, showServerErrors } = useSavedAddressErrors({
+  form: formRef,
+  isSavedMode,
+  openFields: () => emit('edit-address'),
+})
 
 // The step mounts after a rejected order sends the shopper back here,
 // so apply on mount as well as on change.
-async function applyServerErrors() {
-  if (!props.serverErrors?.length) return
-  await openFieldsFor(props.serverErrors)
-  formRef.value?.setErrors(props.serverErrors)
-}
+const applyServerErrors = () => showServerErrors(props.serverErrors)
 onMounted(applyServerErrors)
 watch(() => props.serverErrors, applyServerErrors)
 

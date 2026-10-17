@@ -248,8 +248,11 @@ export default withNuxt(
   },
   {
     // The frozen webside tree keeps its own navigation and its own
-    // request gates: webside serves Greek only, has every gated feature
-    // on, and the tree changes only for webside bugs.
+    // request gates: webside serves Greek only, and the tree changes only
+    // for webside bugs. It does NOT have every gated feature on (reviews,
+    // promotions, loyalty and gift cards were off on 2026-10-17); its
+    // gated fetches are safe only because none has a reactive trigger, so
+    // a reactive query added to one must gate with `enabled` by hand.
     files: ['app/components/variants/webside/**/*.vue'],
     rules: {
       'no-restricted-syntax': ['error', ...APP_FETCHER_SELECTORS, PAGE_CONFIG_AWAITED, NO_PAGE_MACROS],
