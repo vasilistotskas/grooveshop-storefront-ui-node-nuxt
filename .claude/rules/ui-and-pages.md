@@ -83,6 +83,18 @@ then, the version those pages rendered is frozen apart under
 `variants/webside/AccountArea/` (`WebsideAccountAreaProductCard`,
 `WebsideAccountAreaPageWrapper`, …) — those copies are for those pages only.
 
+**Reviews are the exception (owner decision 2026-10-17, storefront #165).**
+Webside's product page, its product cards (`Product/Card`, `Product/Suggestions`,
+`AccountArea/Product/Card`, `Storefront/Account/OrderDetail`) and its "My reviews"
+page mount the shared review components, styled in webside's own tokens (zinc
+primary, `--ui-secondary`, the system face, the tenant theme's radius), so a
+reviews fix lands once for every store. `page:account-reviews@webside` is only
+webside's page frame (`AccountArea/Page/Reviews.vue`) around the platform body.
+A shared review component styles itself with tokens and Nuxt UI classes, never a
+`--volt-*` variable, and a webside-specific touch is a prop or a slot, never a
+copy. `test/unit/source-rules/reviews-are-one-implementation.spec.ts` fails the
+day a webside file draws its own stars or a review component returns.
+
 Rules:
 
 - **Never edit a file in that tree** except to fix a webside-only bug, and never
@@ -109,7 +121,7 @@ Components in `app/components/` organized by domain:
 - **DynamicForm** — Multi-step form system
 - **Loyalty** — PointsBadge, RewardsCard (the account overview's), Summary, TierSystem, ProgressHero, Transactions, Redemption
 - **Order** — Progress (the five-step strip), StatusBadge, Thumbs — the account's order rows and order page (`app/utils/orderStatus.ts` holds the flow and the status tints)
-- **Product** — the product page's parts (Images/ImageModal gallery and zoom, VariantSelector, Offers, NotifyMe alerts dialog, Review dialog, Suggestions grid), Reviews (Overview/Item on the product page), Favourites, CardSkeleton, Categories slider
+- **Product** — the product page's parts (Images/ImageModal gallery and zoom, VariantSelector, Offers, NotifyMe alerts dialog, Review sheet, Suggestions grid), Favourites, CardSkeleton, Categories slider. **Reviews is one implementation for every store, webside included** (below): `Reviews/Section` (id `reviews`: summary, write button, list, the sheet), `Reviews/Overview`, `Reviews/List` (sort, show all, load more), `Reviews/Item`, `Reviews/Stars`, `Reviews/StatusBadge`, `Product/Rating` (the "4.3 · 12" quote on cards and beside the title) and `Review.vue` (the write/edit sheet: `UDrawer` below `sm`, `UModal` from it up, chosen by `useDevice`)
 - **Products** — the listing (Header, CategoryChips, Browse, List, Toolbar, Sidebar, Pagination, Filters: CategoryTree, AttributeValues, PriceRange, ActiveFilters) and the Rail of product cards
 - **Search** — Input, Modal, Result
 - **User** — Avatar, NotificationsBell
