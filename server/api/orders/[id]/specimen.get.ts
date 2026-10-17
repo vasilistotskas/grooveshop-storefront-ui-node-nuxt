@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         responseType: 'arrayBuffer',
       },
     )
-    if (!response._data) {
+    if (!response._data?.byteLength) {
       throw createError({ status: 502, statusText: 'Empty PDF body from upstream' })
     }
 

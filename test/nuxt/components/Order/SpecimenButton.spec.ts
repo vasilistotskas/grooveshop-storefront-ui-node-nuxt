@@ -18,11 +18,16 @@ const LABEL = 'Δείγμα απόδειξης (όχι φορολογικό πα
 const UUID = '0b8e2d1c-5f6a-4c3e-9d7a-1e2f3a4b5c6d'
 
 let saved: { href: string, download: string }[]
+let revokedRightAfterClick: number
 
 beforeEach(() => {
   saved = []
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
     saved.push({ href: this.href, download: this.download })
+    // The code after the click has run by the next microtask.
+    queueMicrotask(() => {
+      revokedRightAfterClick = vi.mocked(URL.revokeObjectURL).mock.calls.length
+    })
   })
   URL.createObjectURL = vi.fn(() => 'blob:specimen')
   URL.revokeObjectURL = vi.fn()
@@ -52,7 +57,9 @@ describe('Order/SpecimenButton', () => {
     expect(call.options.responseType).toBe('blob')
     expect(call.options.query).toBeUndefined()
     expect(saved).toEqual([{ href: 'blob:specimen', download: 'specimen-3.pdf' }])
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:specimen')
+    // Not before the browser has taken the blob, but not leaked either.
+    expect(revokedRightAfterClick).toBe(0)
+    await vi.waitFor(() => expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:specimen'))
     expect(toastAdd).not.toHaveBeenCalled()
   })
 

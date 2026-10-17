@@ -67,8 +67,8 @@ describe('GET /api/orders/:id/specimen', () => {
     expect(response.status).toBe(status)
   })
 
-  it('answers 502 when Django sends no body', async () => {
-    backend.reply(new Response(null, { status: 200, headers: { 'content-type': 'application/pdf' } }))
+  it.each([null, ''])('answers 502 when Django sends no PDF bytes (%j)', async (body) => {
+    backend.reply(new Response(body, { status: 200, headers: { 'content-type': 'application/pdf' } }))
 
     const response = await download()
 

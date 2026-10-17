@@ -36,7 +36,8 @@ async function download() {
     link.href = url
     link.download = `specimen-${props.orderId}.pdf`
     link.click()
-    URL.revokeObjectURL(url)
+    // After the click: the browser reads the blob once the download starts.
+    setTimeout(() => URL.revokeObjectURL(url), 0)
   }
   catch (error) {
     log.error({ action: 'order:specimen:download', error })
