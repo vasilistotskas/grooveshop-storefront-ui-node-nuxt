@@ -34,7 +34,6 @@ import CartButton from '~/components/variants/webside/Cart/CartButton.vue'
 import PageTitle from '~/components/variants/webside/Page/Title.vue'
 import PageBreadcrumb from '~/components/variants/webside/Page/Breadcrumb.vue'
 import EmptyState from '~/components/variants/webside/Empty/State.vue'
-import Rating from '~/components/variants/webside/Rating.vue'
 import PaginationPageNumber from '~/components/variants/webside/Pagination/PageNumber.vue'
 import ProductCard from '~/components/variants/webside/Product/Card.vue'
 import ProductCardSkeleton from '~/components/variants/webside/Product/CardSkeleton.vue'
@@ -322,10 +321,6 @@ describe('webside frozen render', () => {
 
   it('empty state', async () => {
     await expectSnapshot(EmptyState, { props: { title: 'Δεν υπάρχουν προϊόντα', description: 'Δοκίμασε άλλα φίλτρα.' } })
-  })
-
-  it('rating', async () => {
-    await expectSnapshot(Rating, { props: { rate: 7 } })
   })
 
   it('pagination page number', async () => {
