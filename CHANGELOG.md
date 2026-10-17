@@ -1,3 +1,10 @@
+## [3.254.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.254.0...v3.254.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* **openapi:** accept product and shipping responses without the original-URL fields ([#172](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/172)) ([b2920f8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b2920f8b00ef8e003cd584285e50ce6cda0f7c4c)), closes [grooveshop-django-api#238](https://github.com/grooveshop-django-api/issues/238)
+
 # [3.254.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.253.1...v3.254.0) (2026-10-17)
 
 
