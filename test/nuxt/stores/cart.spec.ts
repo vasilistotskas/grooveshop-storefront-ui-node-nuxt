@@ -360,6 +360,20 @@ describe('Cart Store', () => {
       expect(store.error).toBeNull()
     })
 
+    it('carries the captured order attribution on the add, and none when nothing was captured', async () => {
+      api.routes({ '/api/cart': twoLineCart() })
+      const bodies = () => api.callsTo('/api/cart/items').map(call => call.options.body)
+
+      await store.createCartItem({ product: 1, quantity: 1 })
+      window.sessionStorage.setItem('order-attribution', JSON.stringify({ utmMedium: 'cpc', referrer: 'https://www.google.com' }))
+      await store.createCartItem({ product: 2, quantity: 1 })
+
+      expect(bodies()).toEqual([
+        { product: 1, quantity: 1 },
+        { product: 2, quantity: 1, attribution: { utmMedium: 'cpc', referrer: 'https://www.google.com' } },
+      ])
+    })
+
     it('records the failure and rethrows it', async () => {
       const failure = new Error('Failed to create')
       api.routes({
