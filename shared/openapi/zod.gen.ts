@@ -5761,6 +5761,7 @@ export const zOrderDetail = z.object({
     trackingUrl: z.string().nullish(),
   }).readonly().nullable(),
   hasInvoice: z.boolean().readonly(),
+  hasSpecimenReceipt: z.boolean().readonly(),
   boxnowShipment: zBoxNowShipmentDetail.nullable(),
   acsShipment: zAcsShipmentDetail.nullable(),
   shipment: z.record(z.string(), z.unknown()).readonly().nullable(),
@@ -13675,6 +13676,15 @@ export const zGetShipmentLabelForOrderPath = z.object({
 })
 
 export const zGetShipmentLabelForOrderResponse = z.string()
+
+export const zDownloadOrderSpecimenReceiptPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zDownloadOrderSpecimenReceiptResponse = z.string()
 
 export const zUpdateOrderStatusBody = zUpdateStatusRequest
 
