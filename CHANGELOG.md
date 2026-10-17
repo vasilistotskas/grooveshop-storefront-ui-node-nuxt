@@ -1,3 +1,10 @@
+# [3.254.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.253.1...v3.254.0) (2026-10-17)
+
+
+### Features
+
+* **chat:** the assistant acts on a signed-in shopper's cart; add to cart carries the order source ([#170](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/170)) ([35bc481](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/35bc48136c6f436e0b394480a75fe788be891a19))
+
 ## [3.253.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.253.0...v3.253.1) (2026-10-17)
 
 
