@@ -1,3 +1,10 @@
+## [3.252.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.4...v3.252.5) (2026-10-17)
+
+
+### Performance Improvements
+
+* **cache:** one page-cache entry and one render for every ad-tagged URL of a cached page ([#162](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/162)) ([ec36340](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ec363403a7d4534fd1f20fc802349475f66bc80c))
+
 ## [3.252.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.3...v3.252.4) (2026-10-17)
 
 
