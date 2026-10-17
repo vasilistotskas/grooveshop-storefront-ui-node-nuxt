@@ -65,9 +65,7 @@ export default defineSitemapEventHandler(async (event) => {
   // Falls back to the platform path when there's no tenant context (the
   // build/SWR case this route is normally hit in). Mirrors the RSS feed and
   // useMediaStreamBaseUrl() resolution.
-  const mediaStreamBase = tenant?.assetsDomain
-    ? `https://${tenant.assetsDomain}${extractMediaStreamPath(config.public.mediaStreamPath as string | undefined)}`
-    : config.public.mediaStreamPath as string
+  const mediaStreamBase = mediaStreamBaseUrl(tenant?.assetsDomain, config.public.mediaStreamPath as string | undefined)
 
   const blogEnabled = tenant?.blogEnabled ?? true
   // The catalogue is a merchant SETTING, not a plan flag: a store can
@@ -184,7 +182,7 @@ export default defineSitemapEventHandler(async (event) => {
       lastmod: new Date(product.updatedAt),
       images: product.mainImagePath
         ? [{
-            loc: `${mediaStreamBase}/${product.mainImagePath}`,
+            loc: buildMediaStreamImageUrl(mediaStreamBase, product.mainImagePath, SEARCH_IMAGE_VARIANT),
             // The request locale's translation, as the data was read in
             // it; any other locale's name so the field is never empty.
             title: product.translations?.[locale]?.name
