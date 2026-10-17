@@ -4,7 +4,7 @@
  *
  * Brand logos at runtime come from the backend —
  * ``ShippingProvider.logo`` (uploaded via Django admin) is surfaced
- * on every ``/api/v1/shipping/options`` row as ``logoUrl``. This
+ * on every ``/api/v1/shipping/options`` row as ``logoPath``. This
  * module only owns:
  *
  *   1. ``DEFAULT_SHIPPING_LOGO`` — a single neutral SVG used when
@@ -79,12 +79,12 @@ export function getShippingMethodMeta(
 }
 
 /**
- * Resolve the logo URL for a shipping option: API-supplied value
+ * Resolve the logo for a shipping option: the API-supplied media path
  * wins, the bundled neutral SVG fills in when the backend hasn't
- * returned one. Pass the matching ``ShippingOption.logoUrl`` from
+ * returned one. Pass the matching ``ShippingOption.logoPath`` from
  * the ``/api/v1/shipping/options`` response (or ``null``/``undefined``
  * if the row hasn't been fetched yet).
  */
-export function resolveShippingLogo(apiLogoUrl?: string | null): string {
-  return apiLogoUrl || DEFAULT_SHIPPING_LOGO
+export function resolveShippingLogo(apiLogoPath?: string | null): string {
+  return apiLogoPath || DEFAULT_SHIPPING_LOGO
 }

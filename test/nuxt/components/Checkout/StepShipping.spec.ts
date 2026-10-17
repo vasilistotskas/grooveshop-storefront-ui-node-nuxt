@@ -13,6 +13,7 @@ import {
   boxNowLockerOption,
   makeShippingOption,
 } from '~~/test/fixtures/shippingOptions'
+import { setTenant } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -143,6 +144,25 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
 
       expect(radio(wrapper, 'box_now_locker').attributes('aria-checked')).toBe('true')
       expect(radio(wrapper, 'home_delivery').attributes('aria-checked')).toBe('false')
+    })
+
+    // The original under the static host only redirects to media-stream at
+    // full size; the path renders the logo at the card's own size.
+    it('draws an uploaded carrier logo through media-stream at the card\'s size', async () => {
+      setTenant({ assetsDomain: 'assets.shop.test' })
+      const wrapper = await mount({
+        apiOptions: [acsHomeDeliveryOption({ logoPath: 'media/acme/uploads/shipping/acs.png' })],
+      })
+
+      const src = card(wrapper, 'home_delivery').find('img').attributes('src')
+      expect(src).toContain('https://assets.shop.test/media_stream-image/media/acme/uploads/shipping/acs.png/96/66/contain/')
+      expect(src).not.toContain('static')
+    })
+
+    it('falls back to the bundled logo when none is uploaded', async () => {
+      const wrapper = await mount({ apiOptions: [acsHomeDeliveryOption({ logoPath: null })] })
+
+      expect(card(wrapper, 'home_delivery').find('img').attributes('src')).toContain('/img/shipping/default.svg')
     })
   })
 
