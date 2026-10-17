@@ -292,6 +292,36 @@ describe('webside frozen render', () => {
     await expectSnapshot(PageNavbar)
   })
 
+  it('mobile navbar keeps only the flag of the language switcher', async () => {
+    // Issue 168: the select (flag, language name, chevron) measured ~152px
+    // and, beside a signed-in shopper's bell, pushed the header past a
+    // 360px viewport. happy-dom lays nothing out, so the width cannot be
+    // measured here: the classes that collapse it below `sm` ARE the
+    // contract (checked at 360, 375, 390 and 414px in a real browser).
+    // A store that serves two languages: the switcher is hidden otherwise.
+    useTenantStore().setConfig(validTenantConfig('webside.gr', {
+      schemaName: 'webside',
+      storeName: 'Webside',
+      availableLocales: ['el', 'en'],
+    }) as TenantConfig)
+    await atViewportWidth(375, async () => {
+      const wrapper = await mountSuspended(PageNavbar)
+      // The desktop nav, hidden below `lg`, renders its own switcher too:
+      // the phone's is the one that carries the collapse classes.
+      await vi.waitFor(() => {
+        expect(wrapper.findAll('button[aria-haspopup="listbox"]').length).toBeGreaterThanOrEqual(2)
+      }, { timeout: 4000 })
+      const collapsed = wrapper.findAll('button[aria-haspopup="listbox"]')
+        .filter(button => button.classes().includes('max-sm:pe-3'))
+      expect(collapsed).toHaveLength(1)
+      expect(collapsed[0]!.classes()).toEqual(expect.arrayContaining([
+        'max-sm:[&>[data-slot=trailing]]:hidden',
+        'max-sm:[&>[data-slot=value]]:hidden',
+      ]))
+      wrapper.unmount()
+    })
+  })
+
   it('footer desktop', async () => {
     await expectSnapshot(FooterDesktop)
   })
