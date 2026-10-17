@@ -1,3 +1,10 @@
+## [3.252.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.8...v3.252.9) (2026-10-17)
+
+
+### Bug Fixes
+
+* **checkout:** carrier logos render through media-stream at their size ([#167](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/167)) ([3b08981](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3b08981135dcc97ca9fe41d26c7626b35a8b8780))
+
 ## [3.252.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.7...v3.252.8) (2026-10-17)
 
 
