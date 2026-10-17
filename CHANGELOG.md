@@ -1,3 +1,10 @@
+## [3.252.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.6...v3.252.7) (2026-10-17)
+
+
+### Bug Fixes
+
+* **seo:** product structured data names each image by its media-stream search URL ([#166](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/166)) ([2a4177c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2a4177ca2e232ba35cb8d0709dee2ca2f0746996))
+
 ## [3.252.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.252.5...v3.252.6) (2026-10-17)
 
 
