@@ -1,3 +1,10 @@
+## [3.255.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.3...v3.255.4) (2026-10-18)
+
+
+### Bug Fixes
+
+* **a11y:** label the skip link on the sign-in pages ([#179](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/179)) ([6c59f1e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6c59f1eceb65f89aa7b011bb11341c87a70332d8))
+
 ## [3.255.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.2...v3.255.3) (2026-10-18)
 
 
