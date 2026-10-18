@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { clearTenantCache, getTenantConfig, invalidateTenantConfigs, isPlatformTenantConfig } from '~~/server/utils/tenant'
+import { clearTenantCache, getTenantConfig, invalidateTenantConfigs, isPlatformTenantConfig, tenantConfigEpoch } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, jsonResponse, log, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
 
@@ -173,7 +173,9 @@ describe('getTenantConfig', () => {
 /**
  * A feature flip must reach the storefront without waiting out the 5 minute
  * copy. Django's purge reaches ONE pod, so it leaves an epoch in the shared
- * cache storage and every pod drops its copies when it sees the epoch move.
+ * cache storage (one per store, one platform-wide) and every pod drops the
+ * store's copy when it sees an epoch move. The epoch a pod holds is what the
+ * cache keys of everything rendered from the config carry.
  */
 describe('tenant config purge', () => {
   const T0 = new Date('2026-10-18T12:00:00Z')
@@ -197,7 +199,7 @@ describe('tenant config purge', () => {
   it('drops the copies of a pod the purge did not reach, once its next check sees the epoch move', async () => {
     await getTenantConfig('webside.gr')
     // Another pod handled the purge: only the shared storage changed.
-    await useStorage('cache').setItem('tenant-config-epoch', 'purged')
+    await useStorage('cache').setItem('tenant-config-epoch:webside.gr', 'purged')
 
     vi.setSystemTime(T0.getTime() + 4_000)
     await getTenantConfig('webside.gr')
@@ -211,12 +213,13 @@ describe('tenant config purge', () => {
   it('reads the shared storage at most once per window, however many requests', async () => {
     const getItem = vi.spyOn(useStorage(), 'getItem')
 
+    // A store's epoch is two reads: the platform-wide one and its own.
     for (let i = 0; i < 20; i++) await getTenantConfig('webside.gr')
-    expect(getItem).toHaveBeenCalledTimes(1)
+    expect(getItem).toHaveBeenCalledTimes(2)
 
     vi.setSystemTime(T0.getTime() + 6_000)
     await getTenantConfig('webside.gr')
-    expect(getItem).toHaveBeenCalledTimes(2)
+    expect(getItem).toHaveBeenCalledTimes(4)
   })
 
   it('keeps serving the cached copy, and says so, when the shared storage cannot be read', async () => {
@@ -229,6 +232,60 @@ describe('tenant config purge', () => {
     expect(result.type).toBe('ok')
     expect(resolves()).toBe(1)
     expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ tag: 'tenant', message: expect.stringContaining('epoch unreadable') }))
+  })
+})
+
+describe('tenant config epoch', () => {
+  beforeEach(() => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+  })
+
+  it('is what a pod holds for the store, and the same on every call until a purge moves it', async () => {
+    await getTenantConfig('webside.gr')
+    const held = tenantConfigEpoch('webside.gr')
+
+    await getTenantConfig('webside.gr')
+
+    expect(tenantConfigEpoch('Webside.GR:443')).toBe(held)
+    expect(tenantConfigEpoch('never-resolved.test')).toBe('0.0')
+  })
+
+  it('moves for the purged store only, and for every store on a platform-wide purge', async () => {
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
+    const before = { a: tenantConfigEpoch('webside.gr'), b: tenantConfigEpoch('tenant-b.test') }
+
+    await invalidateTenantConfigs('webside.gr')
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
+    expect(tenantConfigEpoch('webside.gr')).not.toBe(before.a)
+    expect(tenantConfigEpoch('tenant-b.test')).toBe(before.b)
+
+    const afterStore = tenantConfigEpoch('webside.gr')
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(Date.now() + 10_000)
+    await invalidateTenantConfigs()
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
+    expect(tenantConfigEpoch('webside.gr')).not.toBe(afterStore)
+    expect(tenantConfigEpoch('tenant-b.test')).not.toBe(before.b)
+  })
+
+  it('moves on a pod the purge did not reach only once its window is up, and its copy goes with it', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    const t0 = Date.now()
+    await getTenantConfig('webside.gr')
+    const held = tenantConfigEpoch('webside.gr')
+
+    await useStorage('cache').setItem('tenant-config-epoch:webside.gr', 'purged-elsewhere')
+    vi.setSystemTime(t0 + 1_000)
+    await getTenantConfig('webside.gr')
+    expect(tenantConfigEpoch('webside.gr')).toBe(held)
+
+    vi.setSystemTime(t0 + 6_000)
+    await getTenantConfig('webside.gr')
+    expect(tenantConfigEpoch('webside.gr')).not.toBe(held)
+    expect(backend.requests).toHaveLength(2)
   })
 })
 

@@ -13,7 +13,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/admin/cache/purge.post'
 import { tenantCacheKey } from '~~/server/utils/cacheKey'
-import { clearTenantCache, getTenantConfig } from '~~/server/utils/tenant'
+import { clearTenantCache, getTenantConfig, tenantConfigEpoch } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callRoute, createTestEvent, log, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
 
@@ -146,6 +146,23 @@ describe('POST /api/admin/cache/purge', () => {
       await getTenantConfig(WEBSIDE)
 
       expect(backend.requests).toHaveLength(2)
+    })
+
+    it('move to a new epoch for the purged store only, and for every store on a platform-wide purge', async () => {
+      await getTenantConfig(WEBSIDE)
+      await getTenantConfig(DEMO)
+      const before = { website: tenantConfigEpoch(WEBSIDE), demo: tenantConfigEpoch(DEMO) }
+
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE })
+      await getTenantConfig(WEBSIDE)
+      await getTenantConfig(DEMO)
+      expect(tenantConfigEpoch(WEBSIDE)).not.toBe(before.website)
+      expect(tenantConfigEpoch(DEMO)).toBe(before.demo)
+      expect(backend.requests.map(request => request.query.domain)).toEqual([WEBSIDE, DEMO, WEBSIDE])
+
+      await purge({ patterns: PAGE_CONFIG_PATTERNS })
+      await getTenantConfig(DEMO)
+      expect(backend.requests).toHaveLength(4)
     })
 
     it('are kept by a dry run, which changes nothing', async () => {

@@ -39,6 +39,14 @@ const TENANT_KEY_DELIMITER = '__'
  * vary, is what keeps a route from getting it wrong. The host stays
  * first, so `cacheKeyBelongsToHost` still scopes a purge to one store.
  *
+ * The last segment is the store's tenant-config EPOCH (`tenantConfigEpoch`,
+ * held in memory): what the key's response was rendered from includes
+ * `TenantConfig.features`, and a pod that has not yet seen a purge's new
+ * epoch fills the OLD one, which no updated pod reads. Without it a page
+ * rendered from stale features in the seconds after a purge would outlive
+ * the purge. An old epoch's entries are never read again and leave on
+ * their TTL.
+ *
  * The returned key ends with a word-character-only hash of the raw
  * `host__locale__key` string. This is load-bearing: nitropack passes custom
  * keys through `escapeKey` (`String(key).replace(/\W/g, '')`), which
@@ -52,7 +60,7 @@ const TENANT_KEY_DELIMITER = '__'
 export function tenantCacheKey(event: Pick<RequestEvent, 'context'>, key: string): string {
   const host = requestTenantHost(event)
   return hashedCacheKey(
-    `${host}${TENANT_KEY_DELIMITER}${requestLocale(event)}${TENANT_KEY_DELIMITER}${key}`,
+    `${host}${TENANT_KEY_DELIMITER}${requestLocale(event)}${TENANT_KEY_DELIMITER}${key}${TENANT_KEY_DELIMITER}e${tenantConfigEpoch(host)}`,
   )
 }
 

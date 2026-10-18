@@ -17,43 +17,74 @@ const tenantCache = new Map<string, { config: TenantConfig, expiry: number }>()
 // The resolve payload carries `features`, and a feature flip must not wait
 // out the TTL. Every storefront pod keeps its own copy, and Django's
 // purge (`/api/admin/cache/purge`) reaches ONE pod, so the purge writes an
-// epoch to the shared cache storage (`invalidateTenantConfigs`) and each
-// pod, at most every EPOCH_CHECK_MS, compares it with the one it last saw
-// and drops its copies when it moved. A cost of one shared-storage read
-// per pod per window, never one per request.
+// EPOCH to the shared cache storage (`invalidateTenantConfigs`): one per
+// store, plus one for a platform-wide purge. Each pod re-reads a store's
+// epochs at most every EPOCH_CHECK_MS (one read per pod per store per
+// window, never one per request) and drops that store's copy when they
+// moved.
+//
+// The epoch a pod holds is also part of every cache key built from the
+// tenant config (`tenantCacheKey`, and the `x-tenant-epoch` header the
+// route-rule page cache varies on). A pod that has not seen a new epoch
+// yet renders from the old features and files the result under the OLD
+// epoch, which no updated pod reads; once a pod sees the new one it reads
+// and writes under that. Entries of an old epoch are never read again and
+// leave on their own TTL.
 const TENANT_EPOCH_KEY = 'tenant-config-epoch'
 const EPOCH_CHECK_MS = 5000
-let lastEpochCheck = 0
-let seenEpoch: string | null | undefined
+const NO_EPOCH = '0.0'
+const epochs = new Map<string, { value: string, checkedAt: number }>()
 
-async function dropCopiesWhenPurged() {
+const epochKeyOf = (domain: string) => `${TENANT_EPOCH_KEY}:${domain}`
+const PLATFORM_EPOCH_KEY = `${TENANT_EPOCH_KEY}:*`
+
+/** Re-read `domain`'s epoch when the window is up, and drop its copy when it moved. */
+async function syncEpoch(domain: string) {
   const now = Date.now()
-  if (now - lastEpochCheck < EPOCH_CHECK_MS) return
-  lastEpochCheck = now
+  const known = epochs.get(domain)
+  if (known && now - known.checkedAt < EPOCH_CHECK_MS) return
+  // Claim the window first: concurrent requests keep the held value.
+  epochs.set(domain, { value: known?.value ?? NO_EPOCH, checkedAt: now })
   try {
-    const epoch = await useStorage('cache').getItem<string>(TENANT_EPOCH_KEY) ?? null
-    if (seenEpoch !== undefined && epoch !== seenEpoch) tenantCache.clear()
-    seenEpoch = epoch
+    const storage = useStorage('cache')
+    const [platform, store] = await Promise.all([
+      storage.getItem<string>(PLATFORM_EPOCH_KEY),
+      storage.getItem<string>(epochKeyOf(domain)),
+    ])
+    const value = `${platform ?? 0}.${store ?? 0}`
+    epochs.set(domain, { value, checkedAt: now })
+    if (known && known.value !== value) tenantCache.delete(domain)
   }
   catch (error) {
     // The shared storage is down: keep serving the copy the TTL bounds.
     log.warn({
       tag: 'tenant',
       message: 'tenant epoch unreadable, keeping the cached configs',
+      domain,
       error: error instanceof Error ? error.message : String(error),
     })
   }
 }
 
 /**
- * Every pod drops its cached tenant configs within EPOCH_CHECK_MS. Called
- * by the cache purge endpoint BEFORE it evicts rendered pages, so a page
- * re-rendered after the purge reads the store's new features. Clears every
- * host, not just the purging store's: a config is cheap to resolve again.
+ * The epoch this pod holds for the store `host` names, for the cache keys
+ * of everything rendered from its tenant config. Read from memory: the
+ * tenant middleware has synced it before any handler or cache key runs.
  */
-export async function invalidateTenantConfigs() {
-  clearTenantCache()
-  await useStorage('cache').setItem(TENANT_EPOCH_KEY, `${Date.now()}`)
+export function tenantConfigEpoch(host: string): string {
+  return epochs.get(tenantHostOf(host))?.value ?? NO_EPOCH
+}
+
+/**
+ * Every pod drops the cached tenant config of `host` (every store when
+ * omitted) within EPOCH_CHECK_MS, and keys what it renders next under a
+ * new epoch. Called by the cache purge endpoint BEFORE it evicts rendered
+ * pages, so a page re-rendered after the purge reads the new features.
+ */
+export async function invalidateTenantConfigs(host?: string) {
+  const domain = host ? tenantHostOf(host) : undefined
+  clearTenantCache(domain)
+  await useStorage('cache').setItem(domain ? epochKeyOf(domain) : PLATFORM_EPOCH_KEY, `${Date.now()}`)
 }
 
 function rememberTenant(domain: string, config: TenantConfig) {
@@ -61,7 +92,10 @@ function rememberTenant(domain: string, config: TenantConfig) {
   // Drop expired entries opportunistically — bounds the map without a
   // background timer.
   for (const [key, entry] of tenantCache) {
-    if (entry.expiry <= now) tenantCache.delete(key)
+    if (entry.expiry <= now) {
+      tenantCache.delete(key)
+      epochs.delete(key)
+    }
   }
   // Hard cap: if we're still above the limit, evict the oldest entry
   // (Map preserves insertion order so `.keys().next()` is the earliest).
@@ -69,6 +103,7 @@ function rememberTenant(domain: string, config: TenantConfig) {
     const oldest = tenantCache.keys().next().value
     if (oldest === undefined) break
     tenantCache.delete(oldest)
+    epochs.delete(oldest)
   }
   tenantCache.set(domain, { config, expiry: now + TENANT_CACHE_TTL })
 }
@@ -86,7 +121,7 @@ type TenantResult
 
 export async function getTenantConfig(host: string): Promise<TenantResult> {
   const domain = tenantHostOf(host)
-  await dropCopiesWhenPurged()
+  if (tenantCache.has(domain)) await syncEpoch(domain)
 
   const cached = tenantCache.get(domain)
   if (cached && cached.expiry > Date.now()) {
@@ -121,6 +156,7 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
     }
 
     rememberTenant(domain, tenantConfig)
+    await syncEpoch(domain)
     return { type: 'ok', config: tenantConfig }
   }
   catch (err: unknown) {
@@ -170,11 +206,11 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
 export function clearTenantCache(host?: string) {
   if (host) {
     tenantCache.delete(tenantHostOf(host))
+    epochs.delete(tenantHostOf(host))
   }
   else {
     tenantCache.clear()
-    lastEpochCheck = 0
-    seenEpoch = undefined
+    epochs.clear()
   }
 }
 
