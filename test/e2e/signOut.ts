@@ -53,7 +53,13 @@ export function signOutUpstream(req: IncomingMessage, res: ServerResponse, url: 
     return true
   }
   if (url.pathname === `${AUTH}/session` && req.method === 'DELETE') {
-    if (sent) live.delete(sent)
+    // A sign-out that forwards no live token signs nobody out, and the
+    // test below would pass on a session that was never ended.
+    if (!sent) {
+      sendJson(res, { status: 400, errors: [{ message: 'sign-out sent no session token' }] }, 400)
+      return true
+    }
+    live.delete(sent)
     sendJson(res, { status: 401, data: { flows: [] }, meta: { is_authenticated: false } }, 401)
     return true
   }
@@ -95,7 +101,8 @@ export function describeSignOut(): void {
       expect(first.statusCode, first.body.slice(0, 600)).toBe(200)
 
       const signOut = await send('DELETE', '/api/_allauth/app/v1/auth/session')
-      expect(signOut.statusCode).toBe(401)
+      expect(signOut.statusCode, signOut.body.slice(0, 600)).toBe(401)
+      expect(live.size, 'the sign-out ended the session at allauth').toBe(0)
 
       const again = await send('POST', '/api/_allauth/app/v1/auth/login', credentials)
       expect(again.statusCode, again.body.slice(0, 600)).toBe(200)
