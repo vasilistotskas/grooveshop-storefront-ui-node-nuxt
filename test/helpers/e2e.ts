@@ -30,15 +30,16 @@ export interface HostResponse {
   location?: string
 }
 
-/** GET `path` on the dev server as `host`. Redirects are NOT followed. */
+/** Request `path` on the dev server as `host` (GET unless `method` says). Redirects are NOT followed. */
 export function requestWithHost(
   path: string,
   host: string,
   headers: Record<string, string> = {},
+  { method = 'GET', body }: { method?: string, body?: string } = {},
 ): Promise<HostResponse> {
   return new Promise((resolve, reject) => {
     const target = new URL(url(path))
-    const req = httpRequest(target, { headers: { Host: host, ...headers } }, (res) => {
+    const req = httpRequest(target, { method, headers: { Host: host, ...headers } }, (res) => {
       let body = ''
       res.on('data', (chunk: Buffer) => {
         body += chunk.toString()
@@ -53,7 +54,7 @@ export function requestWithHost(
       )
     })
     req.on('error', reject)
-    req.end()
+    req.end(body)
   })
 }
 
