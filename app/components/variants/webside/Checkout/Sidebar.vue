@@ -72,25 +72,9 @@ const effectiveShippingPrice = computed<number | null>(() =>
 
 const payWayCost = computed(() => {
   if (!payWay?.value) return 0
-  // Mirror the backend: the free threshold is evaluated on the
-  // DISCOUNTED items total plus shipping. Not-yet-priced (``null``,
-  // loading or ``shippingOptionsError``) is treated as 0 here — the
-  // checkout step already blocks advancing in that state, so this
-  // total is never the one actually charged.
-  const shipping = shippingSummaryView.value
-    ? (effectiveShippingPrice.value ?? 0)
-    : 0
-  const subtotal = Math.max(
-    0,
-    (cart.value?.totalPrice || 0) - promotionDiscount.value + shipping,
-  )
-  const threshold = payWay.value.freeThreshold || 0
-
-  if (threshold > 0 && subtotal >= threshold) {
-    return 0
-  }
-
-  return payWay.value.cost || 0
+  // Django waives the fee on the cart's `freeThresholdValue`, the one
+  // value it judges free shipping on too; it is read, never recomputed.
+  return payWayDisplayCost(payWay.value, cart.value?.freeThresholdValue ?? 0).cost
 })
 
 // A pay way may have no name in this language (parler allows a blank

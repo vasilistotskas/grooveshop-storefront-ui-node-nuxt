@@ -8,8 +8,9 @@
  * per-carrier mention on purpose — the shopper picks the carrier in
  * checkout; this is the store's promise, not a quote.
  *
- * It reads the cart itself: the gross total, which checkout quotes
- * delivery on (`orderValueAmount`), and whether a promotion — an
+ * It reads the cart itself: its `freeThresholdValue`, the one value
+ * Django judges free shipping on (the products after promotion and coupon
+ * discounts), never the gross total, and whether a promotion — an
  * automatic offer or a free-shipping coupon — already waives delivery,
  * which checkout then charges at 0 (`useCheckoutTotals`). With SHIPFREE
  * applied the meter used to ask for 17,63 € more. The cart is per
@@ -20,7 +21,7 @@ const { t, n } = useI18n()
 const { cart } = storeToRefs(useCartStore())
 const { data, pending, error } = await useFreeShippingInfo()
 
-const cartTotal = computed(() => cart.value?.totalPrice ?? 0)
+const cartTotal = computed(() => cart.value?.freeThresholdValue ?? 0)
 const waived = computed(() => Boolean(cart.value?.promotionFreeShipping))
 const threshold = computed(() => data.value?.minThreshold ?? 0)
 const remaining = computed(() =>

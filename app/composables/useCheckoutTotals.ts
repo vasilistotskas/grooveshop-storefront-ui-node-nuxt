@@ -48,12 +48,7 @@ export function useCheckoutTotals(inputs: CheckoutTotalsInputs) {
 
   const payWayCost = computed(() => {
     if (!payWay.value) return 0
-    const feeBase = payWayFeeBase({
-      totalPrice: cart.value?.totalPrice || 0,
-      promotionDiscount: promotionDiscount.value,
-      shipping: shippingCharged.value,
-    })
-    return payWayDisplayCost(payWay.value, feeBase).cost
+    return payWayDisplayCost(payWay.value, cart.value?.freeThresholdValue ?? 0).cost
   })
 
   const paymentFee = computed(() => toValue(inputs.includePaymentFee) ? payWayCost.value : 0)

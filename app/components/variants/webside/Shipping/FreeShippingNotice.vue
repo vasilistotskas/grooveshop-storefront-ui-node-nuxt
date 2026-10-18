@@ -19,7 +19,7 @@
 
 const props = defineProps<{
   /**
-   * Pre-shipping cart subtotal (already in the carrier's currency).
+   * The cart's `freeThresholdValue` (already in the carrier's currency).
    * Omit on the PDP — the carrier has no cart context there.
    */
   cartTotal?: number | null

@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import Cart from '~/components/Storefront/Cart.vue'
+import WebsideCart from '~/components/variants/webside/Storefront/Cart.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
@@ -128,6 +129,24 @@ describe('Storefront/Cart', () => {
       await vi.waitFor(() => expect(wrapper.text()).toContain(`· ${messages.free_delivery_unlocked}`))
 
       expect(wrapper.text()).toContain('Δωρεάν μεταφορικά')
+    })
+
+    // Django judges free delivery on the cart's `freeThresholdValue`, the
+    // products after promotion and coupon discounts, not on the gross total.
+    it.each([
+      { name: '39,98 € is short', totalPrice: 39.98, promotionDiscount: 0, unlocked: false },
+      { name: '40,00 € unlocks it', totalPrice: 40, promotionDiscount: 0, unlocked: true },
+      { name: '45,00 € less a 6,00 € coupon is short', totalPrice: 45, promotionDiscount: 6, unlocked: false },
+    ])('says free delivery is unlocked on the freeThresholdValue: $name', async ({ totalPrice, promotionDiscount, unlocked }) => {
+      api.routes({ '/api/shipping/free-shipping-info': () => ({ providers: [], minThreshold: 40, maxThreshold: 40, currency: 'EUR', countryCode: 'GR' }) })
+      useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { price: 1, finalPrice: 1 } }], totalPrice, promotionDiscount })
+
+      const wrapper = await mountPage()
+      await vi.waitFor(() => expect(wrapper.text()).toMatch(/μεταφορικ/))
+
+      expect(wrapper.text().includes(`· ${messages.free_delivery_unlocked}`)).toBe(unlocked)
+      // The banner above the lines agrees with it.
+      expect(wrapper.text().includes('Η παραγγελία σου ξεπερνά')).toBe(unlocked)
     })
 
     it('does not say it while the cart is under the threshold', async () => {
@@ -314,5 +333,26 @@ describe('Storefront/Cart', () => {
 
       expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(false)
     })
+  })
+})
+
+/**
+ * The frozen webside cart shows the same free-delivery notice, fed the
+ * cart's `freeThresholdValue`: a 45,00 € cart with a 6,00 € coupon is
+ * 1,00 € short of a 40,00 € threshold, not past it.
+ */
+describe('Storefront/Cart (frozen webside)', () => {
+  it.each([
+    { name: '39,98 €', totalPrice: 39.98, promotionDiscount: 0, notice: () => `Πρόσθεσε ακόμα ${euro(0.02)} για δωρεάν μεταφορικά` },
+    { name: '40,00 €', totalPrice: 40, promotionDiscount: 0, notice: () => 'Έχεις δωρεάν μεταφορικά' },
+    { name: '45,00 € less a 6,00 € coupon', totalPrice: 45, promotionDiscount: 6, notice: () => `Πρόσθεσε ακόμα ${euro(1)} για δωρεάν μεταφορικά` },
+  ])('measures free delivery on the freeThresholdValue of the cart: $name', async ({ totalPrice, promotionDiscount, notice }) => {
+    api.routes({ '/api/shipping/free-shipping-info': () => ({ providers: [], minThreshold: 40, maxThreshold: 40, currency: 'EUR', countryCode: 'GR' }) })
+    useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { price: 1, finalPrice: 1 } }], totalPrice, promotionDiscount })
+
+    const wrapper = await mountSuspended(WebsideCart, { route: false })
+    await flushPromises()
+
+    await vi.waitFor(() => expect(wrapper.text()).toContain(notice()))
   })
 })

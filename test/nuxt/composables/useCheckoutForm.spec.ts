@@ -255,15 +255,18 @@ describe('useCheckoutForm', () => {
       expect(shippingPrice.value).toBe(2.99)
     })
 
-    it('quotes shipping for the cart\'s own total, weight and currency', async () => {
-      setCart(makeCart({ currency: 'USD', items: [{ quantity: 2 }] }))
+    it('quotes shipping for the cart\'s own freeThresholdValue, weight and currency', async () => {
+      // A coupon makes the value differ from the gross total, which is
+      // not what Django judges free shipping on.
+      setCart(makeCart({ currency: 'USD', items: [{ quantity: 2 }], promotionDiscount: 5 }))
 
       await setup()
 
       const [call] = api.callsTo('/api/shipping/options')
+      expect(cart!.freeThresholdValue).not.toBe(cart!.totalPrice)
       expect(call?.options.query).toEqual({
         countryCode: 'GR',
-        orderValueAmount: cart!.totalPrice,
+        orderValueAmount: cart!.freeThresholdValue,
         currency: 'USD',
         weightGrams: cart!.totalWeightGrams,
       })
@@ -475,21 +478,37 @@ describe('useCheckoutForm', () => {
     const THRESHOLD = 50
     const withFee = makePayWay({ id: 3, cost: FEE, freeThreshold: THRESHOLD })
 
-    async function optionFor(itemsTotal: number) {
+    async function optionFor(itemsTotal: number, promotionDiscount = 0) {
       // One line whose final price is the items total the shopper sees.
-      setCart(makeCart({ items: [{ product: { price: itemsTotal, vatPercent: 0 } }] }))
+      setCart(makeCart({ items: [{ product: { price: itemsTotal, vatPercent: 0 } }], promotionDiscount }))
       api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
       const { payWayOptions, shippingPrice } = await setup()
       return { option: payWayOptions.value[0]!, shippingPrice: shippingPrice.value }
     }
 
-    it('waives the fee once items + shipping reach the threshold, as Django does', async () => {
-      // 48,00 € of items + 2,99 € shipping = 50,99 € ≥ 50 €.
-      const { option, shippingPrice } = await optionFor(48)
+    it('waives the fee once the products reach the threshold, as Django does', async () => {
+      const { option } = await optionFor(50)
 
-      expect(shippingPrice).toBe(2.99)
       expect(option.label).not.toContain('(+')
       expect(option.freeThresholdHint).toBe('')
+    })
+
+    it('charges the fee just below the threshold, though shipping would lift the total over it', async () => {
+      // 49,98 € of products + 2,99 € shipping = 52,97 € ≥ 50 €, yet the
+      // value Django judges the fee on (`freeThresholdValue`) excludes it.
+      const { option, shippingPrice } = await optionFor(49.98)
+
+      expect(shippingPrice).toBe(2.99)
+      expect(option.cost).toBe(FEE)
+    })
+
+    it('reads the freeThresholdValue of the cart, never recomputes it', async () => {
+      setCart(makeCart({ items: [{ product: { price: 30, vatPercent: 0 } }], freeThresholdValue: 50 }))
+      api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
+
+      const { payWayOptions } = await setup()
+
+      expect(payWayOptions.value[0]!.cost).toBe(0)
     })
 
     it('shows the surcharge and how to avoid it while below the threshold', async () => {
@@ -511,7 +530,7 @@ describe('useCheckoutForm', () => {
     })
 
     it('carries a cost of 0 once the fee is waived', async () => {
-      const { option } = await optionFor(48)
+      const { option } = await optionFor(50)
 
       expect(option.cost).toBe(0)
     })
@@ -523,9 +542,9 @@ describe('useCheckoutForm', () => {
     })
 
     /**
-     * Django waives the fee on the items AFTER promotions plus the
-     * delivery as charged (`order/services.py`): the card must not show
-     * a fee the total then leaves out, or the other way round.
+     * Django waives the fee on the products AFTER promotions
+     * (`OrderService.threshold_value`): the card must not show a fee
+     * the total then leaves out, or the other way round.
      */
     async function optionWithPromotion(promotion: { promotionDiscount?: number, promotionFreeShipping?: boolean }) {
       setCart(makeCart({ items: [{ product: { price: 60, vatPercent: 0 } }], ...promotion }))
@@ -546,6 +565,13 @@ describe('useCheckoutForm', () => {
       const option = await optionWithPromotion({ promotionDiscount: 12, promotionFreeShipping: true })
 
       expect(option.cost).toBe(FEE)
+    })
+
+    it('waives the fee when the products after the promotion reach the threshold', async () => {
+      // 60,00 € − 10,00 € = 50,00 €.
+      const option = await optionWithPromotion({ promotionDiscount: 10 })
+
+      expect(option.cost).toBe(0)
     })
   })
 
