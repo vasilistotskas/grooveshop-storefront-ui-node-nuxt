@@ -28,9 +28,14 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 - `identity.global.ts` — Global: hydrates identity/session state
 - `design-layout.global.ts` — Global: the layout a tenant's design draws a kind of page in (`resolveLayout` in `variantRegistry.ts`); `setPageLayout` is how a middleware overrides the layout a page file fixed at build time
 - `guest.ts` — Prevents logged-in users from accessing login/signup pages
-- `loyalty-enabled.ts` — Redirects to home if loyalty system is disabled for the tenant
-- `blog-enabled.ts` — Redirects to home if blog is disabled for the tenant
-- `account-reviews-enabled.ts` — Gates the account reviews route
+- `<feature>-enabled.ts` (`blog`, `loyalty`, `promotions`, `gift-cards`, `favourites`, `newsletter`, `feedback`, `account-reviews`, `b2b`) — each is one line, `createFeatureGate('<feature>')` (`app/utils/routeGate.ts`): a hard 404 unless `TenantConfig.features` has that feature. Synchronous, no request, no fallback
+- `cart-enabled.ts`, `catalogue-enabled.ts` — `createPreferenceGate`: the two settings that are not store features yet (see "Store features" below)
+
+## Store features
+
+`TenantConfig.features` is Django's effective state of each optional feature (its plan flag AND its store settings; Django's `docs/store-features.md`). **The storefront reads it and nothing else**: `useStoreFeature('loyalty')` in a component, composable or route middleware, `eventStoreFeature(event, 'blog')` in a Nitro route, `storeFeatureOn(tenant, name)` where there is only a tenant (`shared/utils/storeFeature.ts`). The feature names come from the generated `StoreFeatures` type. Never combine a plan flag with a setting, copy a setting's default, or keep a fail-open or fail-closed fallback for a feature: the answer is already in the tenant payload, so it is known on the server, costs no request and cannot be "unreadable". Gate a feature's request with `enabled: useStoreFeature(...)`, never `immediate` (see "Gate the request" in `CLAUDE.md`).
+
+The settings that remain are read through ONE typed accessor, `useStorePreference(name)` (`storePreferenceEnabled(name)` outside a component), whose `STORE_PREFERENCES` table (`shared/utils/storePreference.ts`) holds each key and what a missing row means: the presentation preferences (`MOBILE_BOTTOM_NAV`, `STICKY_ADD_TO_CART`, `RECENTLY_VIEWED`, `DEMO_ACCOUNT`) and `CART_ENABLED` / `CATALOGUE_ENABLED`, which Django's API does not gate yet (gateway-first follow-up, grooveshop-agent-gateway issue 27; when they join `features`, their rows leave the table). `app/components/variants/webside/**` is frozen and keeps its own `useSettingFlag` / plan-flag reads; `shared/utils/gatedRoutes.ts` is the one table the sitemap and the menus read.
 
 (Page/layout transitions are disabled globally in `nuxt.config.ts` via `app.pageTransition: false` / `layoutTransition: false` — no middleware needed.)
 
