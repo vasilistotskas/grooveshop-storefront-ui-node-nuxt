@@ -133,16 +133,24 @@ describe('POST /api/admin/cache/purge', () => {
     expect(await remainingKeys()).toHaveLength(total)
   })
 
+  /**
+   * Moving a store's epoch orphans everything cached for it, so only a purge
+   * that follows a change to its tenant config (`tenantConfig: true`) may do
+   * it. Django's ordinary purges (a product edit, a nightly task) must not.
+   */
   describe('the tenant configs (TenantConfig.features)', () => {
+    const epochKey = (host?: string) => `tenant-config-epoch:${host ?? '*'}`
+    const storedEpoch = (host?: string) => useStorage('cache').getItem(epochKey(host))
+
     beforeEach(() => {
       clearTenantCache()
       backend.reply(({ query }) => validTenantConfig(query.domain!))
     })
 
-    it('are resolved again after a purge, so a re-rendered page sees the new features', async () => {
+    it('are resolved again after a purge that follows a tenant config change, so a re-rendered page sees the new features', async () => {
       await getTenantConfig(WEBSIDE)
 
-      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE })
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE, tenantConfig: true })
       await getTenantConfig(WEBSIDE)
 
       expect(backend.requests).toHaveLength(2)
@@ -153,31 +161,62 @@ describe('POST /api/admin/cache/purge', () => {
       await getTenantConfig(DEMO)
       const before = { website: tenantConfigEpoch(WEBSIDE), demo: tenantConfigEpoch(DEMO) }
 
-      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE })
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE, tenantConfig: true })
       await getTenantConfig(WEBSIDE)
       await getTenantConfig(DEMO)
       expect(tenantConfigEpoch(WEBSIDE)).not.toBe(before.website)
       expect(tenantConfigEpoch(DEMO)).toBe(before.demo)
       expect(backend.requests.map(request => request.query.domain)).toEqual([WEBSIDE, DEMO, WEBSIDE])
 
-      await purge({ patterns: PAGE_CONFIG_PATTERNS })
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, tenantConfig: true })
       await getTenantConfig(DEMO)
       expect(backend.requests).toHaveLength(4)
     })
 
-    it('are kept by a dry run, which changes nothing', async () => {
+    it.each([
+      ['a purge of one store', { host: WEBSIDE }],
+      ['a platform-wide purge', {}],
+    ])('are left alone by %s that does not follow a tenant config change', async (_label, scope) => {
+      await getTenantConfig(WEBSIDE)
+      await getTenantConfig(DEMO)
+      const before = { website: tenantConfigEpoch(WEBSIDE), demo: tenantConfigEpoch(DEMO) }
+
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, ...scope })
+      await getTenantConfig(WEBSIDE)
+      await getTenantConfig(DEMO)
+
+      expect(tenantConfigEpoch(WEBSIDE)).toBe(before.website)
+      expect(tenantConfigEpoch(DEMO)).toBe(before.demo)
+      expect(await storedEpoch(WEBSIDE)).toBeNull()
+      expect(await storedEpoch()).toBeNull()
+      // Still the in-memory copies: Django was not asked again.
+      expect(backend.requests).toHaveLength(2)
+    })
+
+    it('write the epoch for the store, or the platform-wide one, only on a purge that follows a change', async () => {
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE, tenantConfig: true })
+      expect(await storedEpoch(WEBSIDE)).not.toBeNull()
+      expect(await storedEpoch(DEMO)).toBeNull()
+      expect(await storedEpoch()).toBeNull()
+
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, tenantConfig: true })
+      expect(await storedEpoch()).not.toBeNull()
+    })
+
+    it('are kept by a dry run, even one that follows a change', async () => {
       await getTenantConfig(WEBSIDE)
 
-      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE, dryRun: true })
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE, tenantConfig: true, dryRun: true })
       await getTenantConfig(WEBSIDE)
 
       expect(backend.requests).toHaveLength(1)
+      expect(await storedEpoch(WEBSIDE)).toBeNull()
     })
 
     it('are kept by a rejected caller', async () => {
       await getTenantConfig(WEBSIDE)
 
-      await purge({ patterns: PAGE_CONFIG_PATTERNS }, 'nope')
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, tenantConfig: true }, 'nope')
       await getTenantConfig(WEBSIDE)
 
       expect(backend.requests).toHaveLength(1)
