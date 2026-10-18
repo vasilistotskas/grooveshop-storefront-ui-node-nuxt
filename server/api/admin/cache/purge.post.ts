@@ -14,6 +14,10 @@ import { createError, defineEventHandler, getRequestHeader, getRequestIP, readVa
  *     patterns: string[]  // glob patterns; trailing `*` is implicit when stripped
  *     dryRun?: boolean    // default false
  *     host?: string       // scope to one tenant's keys (see bodySchema)
+ *     tenantConfig?: boolean // default false: the purge follows a change to the
+ *                         // store's tenant config (its settings or feature
+ *                         // switches); only then is the tenant config dropped
+ *                         // and the cache epoch moved (see bodySchema)
  *   }
  *
  * Response:
@@ -54,6 +58,12 @@ const bodySchema = z.object({
   // handlers but never the rendered pages or the sitemap feeds.
   // Omitted for a deliberately platform-wide purge.
   host: z.string().min(1).optional(),
+  // The purge follows a change to the store's tenant config (its settings
+  // or feature switches). Only then are the tenant configs dropped and the
+  // store's cache epoch moved, which orphans EVERYTHING cached for it
+  // (pages, payloads, handlers) and not just what the patterns name. An
+  // ordinary purge (a product edit, a nightly task) must never do that.
+  tenantConfig: z.boolean().optional().default(false),
 })
 
 function timingSafeEqual(a: string, b: string): boolean {
@@ -107,11 +117,12 @@ export default defineEventHandler(async (event) => {
   // As the keys name the store (`requestTenantHost`), whatever case the
   // caller sends it in.
   const host = body.host === undefined ? undefined : tenantHostOf(body.host)
-  // The store's tenant config (`TenantConfig.features` among them) goes
-  // first, and what is rendered from it moves to a new cache epoch, so a
-  // page re-rendered after this purge sees the store's new features. A
-  // platform-wide purge (no host) does it for every store.
-  if (!body.dryRun) await invalidateTenantConfigs(host)
+  // A purge that follows a change to the tenant config (`TenantConfig.features`
+  // among it) drops the store's copy first, and what is rendered from it
+  // moves to a new cache epoch, so a page re-rendered after this purge sees
+  // the store's new features. A platform-wide purge (no host) does it for
+  // every store. Any other purge leaves both alone.
+  if (!body.dryRun && body.tenantConfig) await invalidateTenantConfigs(host)
 
   let matched = 0
   let deleted = 0
