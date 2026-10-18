@@ -37,7 +37,7 @@ export async function useBlogRail(options: {
   })
 
   const posts = computed<BlogPost[]>(() =>
-    enabled ? (data.value?.results ?? []) : [],
+    enabled.value ? (data.value?.results ?? []) : [],
   )
 
   return {

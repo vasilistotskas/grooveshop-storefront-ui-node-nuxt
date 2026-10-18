@@ -84,6 +84,15 @@ describe('PageSection/BlogPosts', () => {
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
+  it('renders nothing for a tenant without the blog, even with posts already in the payload', async () => {
+    useNuxtApp().payload.data['blog-rail-3-all-el'] = { results: [post(1)], count: 1 }
+    setTenantFeatures({ blog: false })
+
+    const wrapper = await mountPosts()
+
+    expect(wrapper.find('section').exists()).toBe(false)
+  })
+
   it.each([
     // `blog_posts_grid` spells the size `count`, `blog_posts_list` spells
     // it `pageSize`; one component serves both keys.
