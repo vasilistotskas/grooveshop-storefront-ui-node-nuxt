@@ -3,7 +3,7 @@ import { defineComponent, h } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import BlogPosts from '~/components/PageSection/BlogPosts.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -40,7 +40,8 @@ describe('PageSection/BlogPosts', () => {
   beforeEach(() => {
     // `useBlogRail` serves a cached payload for its key.
     clearNuxtData()
-    setTenant({ blogEnabled: true })
+    setTenant()
+    setTenantFeatures({ blog: true })
     api.routes({
       [POSTS_URL]: { results: [post(1), post(2, 2)], count: 2 },
       [CATEGORIES_URL]: { results: [makeBlogCategory({ id: 1 }), makeBlogCategory({ id: 2 })], count: 2 },
@@ -74,7 +75,7 @@ describe('PageSection/BlogPosts', () => {
   })
 
   it('asks for nothing and renders nothing when the tenant has no blog', async () => {
-    setTenant({ blogEnabled: false })
+    setTenantFeatures({ blog: false })
 
     const wrapper = await mountPosts()
 

@@ -6,7 +6,6 @@ import {
   FEATURE_GATED_ROUTES,
   featureRouteAllowed,
   type FeatureGatedRoute,
-  type PlanFlags,
 } from '~~/shared/utils/gatedRoutes'
 import { STATIC_LAYOUT_ROUTES } from '~~/shared/utils/staticLayoutRoutes'
 import { defineNitroPlugin } from 'nitropack/runtime'
@@ -38,7 +37,7 @@ import { useRuntimeConfig } from 'nuxt/server'
  * `sitemap.autoI18n: false` would fix that by removing locales from
  * the sitemap for EVERYONE, including the tenant that legitimately has
  * two. Gating here instead keeps a bilingual tenant's `/en/**` listed
- * with correct alternates, and is the same trade the plan-flag gate
+ * with correct alternates, and is the same trade the feature gate
  * below already makes.
  *
  * `sitemap.exclude` cannot express either half: it is a static path
@@ -49,7 +48,7 @@ import { useRuntimeConfig } from 'nuxt/server'
  * needs.
  *
  * The dynamic half of the sitemap (`server/api/__sitemap__/urls.ts`)
- * gates blog URLs on `tenant.blogEnabled` and product URLs on
+ * gates blog URLs on the `blog` feature and product URLs on
  * `CATALOGUE_ENABLED`; this closes the same hole for the static routes
  * that head each of those surfaces.
  */
@@ -144,24 +143,17 @@ export default defineNitroPlugin((nitroApp) => {
     const config = useRuntimeConfig()
     const apiBaseUrl = config.apiBaseUrl as string
 
-    const plan: PlanFlags = {
-      loyaltyEnabled: tenant.loyaltyEnabled,
-      blogEnabled: tenant.blogEnabled,
-      promotionsEnabled: tenant.promotionsEnabled,
-      giftCardsEnabled: tenant.giftCardsEnabled,
-    }
-    const planAllows = (route: GatedRoute) =>
-      !route.planFlag || plan[route.planFlag]
+    const featureAllows = (route: GatedRoute) =>
+      !route.feature || storeFeatureOn(tenant, route.feature)
 
     // One bulk read of the store's public settings for every route
-    // whose plan gate passed — and none at all when no route needs
-    // one. `null` means the lookup itself failed, and the shared rule
-    // then ALLOWS, because every route middleware renders on that
-    // failure: this feed used to fail closed there and list fewer URLs
-    // than the store was serving. What a missing KEY means is the
-    // route's own fallback, also in the table.
+    // whose feature is on and that a preference gates (the catalogue),
+    // and none at all when no route needs one. `null` means the lookup
+    // itself failed, and the shared rule then ALLOWS, because the route
+    // middleware renders on that failure. What a missing KEY means is
+    // the preference's own default.
     const needsSettings = GATED_ROUTES.some(
-      route => planAllows(route) && route.settingKey,
+      route => featureAllows(route) && route.preference,
     )
     const settings = needsSettings
       ? await publicSettingsForHost(host, apiBaseUrl)
@@ -180,7 +172,7 @@ export default defineNitroPlugin((nitroApp) => {
     // Same shape for the content gate: one bulk read, and only when a
     // route whose earlier gates passed, or an info page, needs it.
     const needsContent = hasInfoPages || GATED_ROUTES.some(
-      route => planAllows(route) && route.contentSlug,
+      route => featureAllows(route) && route.contentSlug,
     )
     const contentLocales = needsContent
       ? await publishedContentLocalesForHost(host, apiBaseUrl)
@@ -190,7 +182,7 @@ export default defineNitroPlugin((nitroApp) => {
     // whose earlier gates passed needs a layout. `null` (the read
     // failed) publishes none of them, like the other gates.
     const needsLayouts = GATED_ROUTES.some(
-      route => planAllows(route) && route.pageType,
+      route => featureAllows(route) && route.pageType,
     )
     const publishedLayouts = needsLayouts
       ? await publishedLayoutsForHost(host, apiBaseUrl)
@@ -200,10 +192,7 @@ export default defineNitroPlugin((nitroApp) => {
     )
 
     const allowed = GATED_ROUTES.map((route) => {
-      if (!planAllows(route)) return false
-      if (route.settingKey && !featureRouteAllowed(route, plan, settings)) {
-        return false
-      }
+      if (!featureRouteAllowed(route, tenant, settings)) return false
       if (route.contentSlug) {
         return contentLocales?.has(route.contentSlug) ?? false
       }

@@ -28,15 +28,15 @@ export function useFooterNavigation() {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
   const localePath = useLocalePath()
-  const tenantStore = useTenantStore()
   const { footerColumns } = useNavigation()
   const { links: contentPageLinks } = useFooterContentPages()
 
-  const catalogueEnabled = useSettingFlag('CATALOGUE_ENABLED', { fallback: true })
-  const feedbackEnabled = useSettingFlag('FEEDBACK_ENABLED', { fallback: true })
-  const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', { fallback: false })
-  const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', { fallback: false })
-  const loyaltyRuntimeEnabled = useSettingFlag('LOYALTY_ENABLED', { fallback: false })
+  const catalogueEnabled = useStorePreference('CATALOGUE_ENABLED')
+  const feedbackEnabled = useStoreFeature('feedback')
+  const promotionsEnabled = useStoreFeature('promotions')
+  const giftCardsEnabled = useStoreFeature('giftCards')
+  const loyaltyEnabled = useStoreFeature('loyalty')
+  const blogEnabled = useStoreFeature('blog')
 
   const configured = computed<FooterLinkColumn[] | null>(() =>
     footerColumns.value?.map(column => ({
@@ -54,13 +54,13 @@ export function useFooterNavigation() {
     if (catalogueEnabled.value) {
       shop.push({ label: t('footer.all_products'), to: localePath('products') })
     }
-    if (tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value) {
+    if (promotionsEnabled.value) {
       shop.push({ label: t('offers'), to: localePath('offers') })
     }
-    if (tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value) {
+    if (giftCardsEnabled.value) {
       shop.push({ label: t('gift_cards'), to: localePath('gift-cards') })
     }
-    if (tenantStore.loyaltyEnabled && loyaltyRuntimeEnabled.value) {
+    if (loyaltyEnabled.value) {
       shop.push({ label: t('footer.rewards_programme'), to: localePath('loyalty-program') })
     }
 
@@ -78,7 +78,7 @@ export function useFooterNavigation() {
   })
 
   const defaultSecondary = computed<FooterLink[]>(() => [
-    ...(tenantStore.blogEnabled ? [{ label: t('blog'), to: localePath('blog') }] : []),
+    ...(blogEnabled.value ? [{ label: t('blog'), to: localePath('blog') }] : []),
     { label: t('footer.term_of_use'), to: localePath('terms-of-use') },
     { label: t('footer.privacy_policy'), to: localePath('privacy-policy') },
     { label: t('footer.cookies_policy'), to: localePath('cookies-policy') },

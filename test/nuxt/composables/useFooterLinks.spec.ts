@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The footer every store renders, and the links it may carry.
@@ -21,7 +21,6 @@ import { setTenant } from '~~/test/helpers/tenant'
 interface NavColumn { label: string, icon?: string, children: Array<{ label: string, to?: string, href?: string }> }
 
 let configuredColumns: NavColumn[] | null = null
-let settings: Record<string, string> = {}
 let contentPages: Array<{ slug: string, translations: Record<string, { title: string }> }> = []
 
 mockNuxtImport('useNavigation', () => () => ({
@@ -30,12 +29,8 @@ mockNuxtImport('useNavigation', () => () => ({
   footerColumns: computed(() => configuredColumns),
 }))
 
-let served = { settings: 0, contentPages: 0 }
+let served = { contentPages: 0 }
 
-registerEndpoint('/api/settings/public', () => {
-  served.settings++
-  return { settings }
-})
 registerEndpoint('/api/content-pages', () => {
   served.contentPages++
   return {
@@ -52,24 +47,23 @@ const hrefs = (columns: Array<{ children: Array<{ to: string }> }>) =>
   columns.flatMap(column => column.children.map(child => child.to))
 
 /**
- * The footer once its settings and content-pages requests have settled —
- * several expectations below are also what the footer shows BEFORE they
- * do, so passing early would prove nothing.
+ * The footer once its content-pages request has settled — several
+ * expectations below are also what the footer shows BEFORE it does, so
+ * passing early would prove nothing.
  */
 async function footer() {
   const { columns } = useFooterLinks()
-  await vi.waitFor(() => expect(served).toEqual({ settings: 1, contentPages: 1 }))
+  await vi.waitFor(() => expect(served).toEqual({ contentPages: 1 }))
   await flushPromises()
   return columns
 }
 
 beforeEach(() => {
   configuredColumns = null
-  served = { settings: 0, contentPages: 0 }
-  settings = {}
+  served = { contentPages: 0 }
   contentPages = []
   setTenant()
-  clearNuxtData([STORE_SETTINGS_KEY, 'footer-content-pages'])
+  clearNuxtData(['footer-content-pages'])
 })
 
 describe('useFooterLinks', () => {
@@ -85,9 +79,8 @@ describe('useFooterLinks', () => {
     ])
   })
 
-  it('drops the feedback link only when the merchant turned feedback off', async () => {
-    // Fail-open: a settings payload without the key keeps it (above).
-    settings = { FEEDBACK_ENABLED: 'false' }
+  it('drops the feedback link only when the store lacks the feedback feature', async () => {
+    setTenantFeatures({ feedback: false })
 
     const columns = await footer()
 
@@ -96,12 +89,11 @@ describe('useFooterLinks', () => {
   })
 
   it.each([
-    ['the plan and the setting both allow it', true, 'true', true],
-    ['the setting is absent (fail-closed)', true, undefined, false],
-    ['the plan does not include it', false, 'true', false],
-  ])('links gift cards only when %s', async (_case, planEnabled, setting, linked) => {
-    setTenant({ giftCardsEnabled: planEnabled })
-    settings = setting === undefined ? {} : { GIFT_CARDS_ENABLED: setting }
+    ['the store has the feature, plan flag off', false, true, true],
+    ['the store lacks the feature, plan flag on', true, false, false],
+  ])('links gift cards only when %s', async (_case, planFlag, feature, linked) => {
+    setTenant({ giftCardsEnabled: planFlag })
+    setTenantFeatures({ giftCards: feature })
 
     const columns = await footer()
 

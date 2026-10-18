@@ -25,16 +25,10 @@ const props = withDefaults(defineProps<{
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const tenantStore = useTenantStore()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 const toast = useToast()
 
-const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
-  fallback: false,
-})
-const enabled = computed(
-  () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
-)
+const enabled = useStoreFeature('promotions')
 
 // `languageCode` and a locale-keyed cache entry, for the same reason as
 // the `/offers` page: Django resolves an offer's name and description

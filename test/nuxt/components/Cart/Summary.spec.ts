@@ -7,7 +7,7 @@ import Summary from '~/components/Cart/Summary.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makePayWay } from '~~/test/fixtures/payWay'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
@@ -19,9 +19,6 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
-
-const flags = vi.hoisted(() => ({ GIFT_CARDS_ENABLED: false } as Record<string, boolean>))
-mockNuxtImport('useSettingFlag', () => (key: string) => computed(() => flags[key] ?? false))
 
 mockComponent('CheckoutCouponInput', { template: '<div data-stub="coupon" />' })
 mockComponent('CheckoutPointsEarned', { template: '<div data-stub="points" />' })
@@ -36,7 +33,7 @@ const euro = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
 beforeEach(() => {
   setTenant()
-  flags.GIFT_CARDS_ENABLED = false
+  setTenantFeatures({ giftCards: false })
   clearNuxtData('footer-pay-ways')
   api.routes({
     '/api/pay-way': () => ({
@@ -149,8 +146,7 @@ describe('Cart/Summary', () => {
     expect(without.text()).toContain(useNuxtApp().$i18n.t('payment_methods.PAY_ON_DELIVERY'))
     expect(without.text()).not.toContain(messages.gift_card)
 
-    setTenant({ giftCardsEnabled: true })
-    flags.GIFT_CARDS_ENABLED = true
+    setTenantFeatures({ giftCards: true })
     clearNuxtData('footer-pay-ways')
     const withGift = await mountSummary()
 

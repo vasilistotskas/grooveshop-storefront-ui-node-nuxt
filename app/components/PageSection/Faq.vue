@@ -26,7 +26,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const chatEnabled = useSettingFlag('CHAT_WIDGET_ENABLED', { fallback: false })
+const chatEnabled = useStoreFeature('chatWidget')
 
 const accordionItems = computed<AccordionItem[]>(() =>
   (props.items ?? []).map(item => ({

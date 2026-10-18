@@ -4,7 +4,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ChromeFooter from '~/components/Chrome/Footer.vue'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The default footer. What it must get right:
@@ -22,6 +22,7 @@ const { state } = vi.hoisted(() => ({
   state: {
     identity: null as { phone: string, email: string } | null,
     payWays: [] as unknown[],
+    /** The preferences still read from the settings (the mobile bottom nav). */
     flags: {} as Record<string, boolean>,
     cookieModal: { value: false },
   },
@@ -65,6 +66,7 @@ describe('Chrome/Footer', () => {
     state.flags = {}
     state.cookieModal.value = false
     setTenant({ giftCardsEnabled: false, agentCommerceEnabled: false, availableLocales: ['el'], metaPixelId: '123' })
+    setTenantFeatures({ giftCards: false })
   })
 
   it('prints the store\'s description in the shopper\'s locale', async () => {
@@ -159,12 +161,12 @@ describe('Chrome/Footer', () => {
     expect(wrapper.text()).not.toContain('Αποστολή')
   })
 
-  it.each<{ name: string, tenant: Partial<TenantConfig>, flags: Record<string, boolean>, shown: boolean }>([
-    { name: 'the plan flag only', tenant: { giftCardsEnabled: true }, flags: {}, shown: false },
-    { name: 'the setting only', tenant: { giftCardsEnabled: false }, flags: { GIFT_CARDS_ENABLED: true }, shown: false },
-    { name: 'both gates', tenant: { giftCardsEnabled: true }, flags: { GIFT_CARDS_ENABLED: true }, shown: true },
-  ])('offers gift cards as a way to pay with $name: $shown', async ({ tenant, flags, shown }) => {
+  it.each<{ name: string, tenant: Partial<TenantConfig>, flags: Record<string, boolean>, feature: boolean, shown: boolean }>([
+    { name: 'the plan flag and setting on, the feature off', tenant: { giftCardsEnabled: true }, flags: { GIFT_CARDS_ENABLED: true }, feature: false, shown: false },
+    { name: 'the feature on, the plan flag and setting off', tenant: { giftCardsEnabled: false }, flags: { GIFT_CARDS_ENABLED: false }, feature: true, shown: true },
+  ])('offers gift cards as a way to pay with $name: $shown', async ({ tenant, flags, feature, shown }) => {
     setTenant({ agentCommerceEnabled: false, availableLocales: ['el'], ...tenant })
+    setTenantFeatures({ giftCards: feature })
     state.flags = flags
     state.payWays = [makePayWay({ key: 'VIVA_WALLET' })]
 

@@ -29,7 +29,7 @@ const { t } = useI18n()
 const route = useRoute()
 const localePath = useLocalePath()
 const { user, loggedIn } = useUserSession()
-const reviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
+const reviewsEnabled = useStoreFeature('productReviews')
 
 const headingId = useId()
 

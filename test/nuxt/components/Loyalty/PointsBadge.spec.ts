@@ -5,7 +5,7 @@ import type { MaybeRefOrGetter } from 'vue'
 import LoyaltyPointsBadge from '~/components/Loyalty/PointsBadge.vue'
 import WebsideLoyaltyPointsBadge from '~/components/variants/webside/Loyalty/PointsBadge.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeLoyaltySettings, makeProductPoints } from '~~/test/fixtures/loyalty'
 import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { ProductPoints } from '~~/shared/openapi/types.gen'
@@ -107,6 +107,7 @@ describe('webside Loyalty/PointsBadge', () => {
 describe('default Loyalty/PointsBadge', () => {
   beforeEach(() => {
     setTenant({ loyaltyEnabled: true })
+    setTenantFeatures({ loyalty: true })
     settings.reset()
     points.reset()
     loggedIn.value = true
@@ -146,16 +147,24 @@ describe('default Loyalty/PointsBadge', () => {
     expect(wrapper.text()).toBe('Κέρδισε 30 πόντους')
   })
 
-  it.each([
-    ['a store with loyalty off', () => { settings.data.value = makeLoyaltySettings({ enabled: false }) }],
-    ['a store whose plan has no loyalty', () => { setTenant({ loyaltyEnabled: false }) }],
-  ])('renders nothing and asks for no points on %s', async (_case, arrange) => {
-    arrange()
+  it('renders nothing and asks for no points on a store without the loyalty feature, plan flag on', async () => {
+    setTenantFeatures({ loyalty: false })
 
     const wrapper = await mountBadge()
 
     expect(asksForPoints()).toBe(false)
     expect(wrapper.text()).toBe('')
+  })
+
+  it('decides from the feature alone: on while the plan flag and the loyalty setting read off', async () => {
+    setTenant({ loyaltyEnabled: false })
+    setTenantFeatures({ loyalty: true })
+    settings.data.value = makeLoyaltySettings({ pointsFactor: 1.5, enabled: false })
+
+    const wrapper = await mountBadge()
+
+    expect(asksForPoints()).toBe(true)
+    expect(wrapper.text()).toBe('Κέρδισε 36 πόντους')
   })
 
   it('renders nothing when the price earns no points', async () => {

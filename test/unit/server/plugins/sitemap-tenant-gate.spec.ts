@@ -73,8 +73,12 @@ const ALL_URLS = [
   { loc: 'https://example.com/contact' },
 ]
 
-/** A tenant with every gated surface ON, to vary one at a time. */
-const OPEN = { loyaltyEnabled: true, blogEnabled: true, promotionsEnabled: true }
+/** A tenant with every store feature ON, to vary one at a time. */
+const ALL_ON = Object.fromEntries(
+  Object.keys(validTenantConfig('example.com').features).map(name => [name, true]),
+) as TenantConfig['features']
+const open = (features: Partial<TenantConfig['features']> = {}) => ({ features: { ...ALL_ON, ...features } })
+const OPEN = open()
 
 async function run(tenant: Record<string, unknown> | null) {
   const ctx = {
@@ -98,12 +102,12 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     nitroApp = await runNitroPlugin(plugin)
   })
 
-  it('drops a gated route when the tenant plan flag is off', async () => {
-    // The plan gate decides on its own: a runtime setting that says ON
-    // never overrides a plan that says OFF.
+  it('drops a gated route when the store lacks its feature, whatever any setting says', async () => {
+    // Django's effective state decides on its own: a setting that says
+    // ON never overrides a feature that is off.
     store.settings = { LOYALTY_ENABLED: 'True' }
 
-    const locs = await run({ ...OPEN, loyaltyEnabled: false })
+    const locs = await run(open({ loyalty: false }))
 
     expect(locs).not.toContain('https://example.com/loyalty-program')
     // Ungated URLs are untouched.
@@ -111,7 +115,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     expect(locs).toContain('https://example.com/')
   })
 
-  it('reads the settings ONCE for every gate that needs one', async () => {
+  it('reads the settings ONCE, and only for the catalogue', async () => {
     await run(OPEN)
 
     expect(requestsTo('/settings/public')).toHaveLength(1)
@@ -128,15 +132,13 @@ describe('server/plugins/sitemap-tenant-gate', () => {
   })
 
   it('keeps the catalogue when the setting was never set', async () => {
-    // `createSettingGate` fails OPEN: a store that never touched
-    // CATALOGUE_ENABLED serves its catalogue, so the sitemap lists it.
-    // The commercial gates (loyalty, offers, gift cards) fail closed on
-    // the same absence — each route's own fallback, from the shared
-    // table, not one policy for the feed.
+    // The catalogue is a preference until the API gates it: a store that
+    // never touched CATALOGUE_ENABLED serves its catalogue, so the
+    // sitemap lists it. The features have no such default: Django says.
     const locs = await run(OPEN)
 
     expect(locs).toContain('https://example.com/products')
-    expect(locs).not.toContain('https://example.com/loyalty-program')
+    expect(locs).toContain('https://example.com/loyalty-program')
   })
 
   it('keeps the catalogue when the merchant setting is on', async () => {
@@ -147,10 +149,8 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     expect(locs).toContain('https://example.com/products')
   })
 
-  it('drops the blog index on the plan flag alone', async () => {
-    // No extra_settings counterpart exists for the blog: the flag is
-    // the sole gate, and `middleware/blog-enabled.ts` reads it too.
-    const locs = await run({ ...OPEN, blogEnabled: false })
+  it('drops the blog index when the store lacks the blog feature', async () => {
+    const locs = await run(open({ blog: false }))
 
     expect(locs).not.toContain('https://example.com/blog')
   })
@@ -166,74 +166,38 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     expect(ctx.urls.map(u => u.loc)).toEqual(['/blog', '/blog/categories'])
   })
 
-  it('drops a gated route when the plan flag is on but the runtime setting is false', async () => {
-    // Exactly the webside.gr state that put a 404 in the sitemap.
-    store.settings = { LOYALTY_ENABLED: 'False' }
+  it('keeps a gated route on the feature alone: no setting row, a false one or a failed lookup cannot close it', async () => {
+    const lookups: Array<typeof store.settings> = [{}, { LOYALTY_ENABLED: 'False', PROMOTIONS_ENABLED: 'False' }, 'down']
+    for (const settings of lookups) {
+      store.settings = settings
 
-    const locs = await run(OPEN)
+      const locs = await run(OPEN)
 
-    expect(locs).not.toContain('https://example.com/loyalty-program')
+      expect(locs).toContain('https://example.com/loyalty-program')
+      expect(locs).toContain('https://example.com/offers')
+    }
   })
 
-  it('keeps a gated route when both gates pass', async () => {
-    store.settings = { LOYALTY_ENABLED: 'True' }
-
-    const locs = await run(OPEN)
-
-    expect(locs).toContain('https://example.com/loyalty-program')
-  })
-
-  it('accepts the shared truthiness rule, not only "True"', async () => {
-    store.settings = { LOYALTY_ENABLED: '1' }
-
-    const locs = await run(OPEN)
-
-    expect(locs).toContain('https://example.com/loyalty-program')
-  })
-
-  it('allows the gated routes when the settings lookup errors, as the pages do', async () => {
-    // Every route middleware RENDERS on a failed lookup: settingEnabled()
-    // catches it and returns onError ?? fallback (true for
-    // createSettingGate and for promotions), and loyalty-enabled.ts
-    // returns without throwing. This feed used to fail closed here and
-    // list fewer URLs than the store was serving. The rule lives in
-    // shared/utils/gatedRoutes.ts so the two cannot drift apart again.
+  it('allows the catalogue when the settings lookup errors, as the page does', async () => {
+    // The catalogue route middleware RENDERS on a failed lookup; the
+    // rule lives in shared/utils/gatedRoutes.ts so the two cannot drift.
     store.settings = 'down'
 
     const locs = await run(OPEN)
 
-    expect(locs).toContain('https://example.com/loyalty-program')
     expect(locs).toContain('https://example.com/products')
-    expect(locs).toContain('https://example.com/offers')
   })
 
-  it('drops the offers page when the promotions plan flag is off', async () => {
+  it('drops the offers page when the store lacks the promotions feature', async () => {
     store.settings = { PROMOTIONS_ENABLED: 'True' }
 
-    const locs = await run({ ...OPEN, promotionsEnabled: false })
+    const locs = await run(open({ promotions: false }))
 
     expect(locs).not.toContain('https://example.com/offers')
-  })
-
-  it('drops the offers page when the plan flag is on but the runtime setting is false', async () => {
-    // The webside.gr state Ahrefs reported on 2026-09-11.
-    store.settings = { PROMOTIONS_ENABLED: 'False' }
-
-    const locs = await run(OPEN)
-
-    expect(locs).not.toContain('https://example.com/offers')
-  })
-
-  it('keeps the offers page when both promotion gates pass', async () => {
-    store.settings = { PROMOTIONS_ENABLED: 'True' }
-
-    const locs = await run(OPEN)
-
-    expect(locs).toContain('https://example.com/offers')
   })
 
   it('resolves the tenant itself when the sitemap route bypassed tenant middleware', async () => {
-    resolvedTenant = validTenantConfig('example.com', { ...OPEN, loyaltyEnabled: false })
+    resolvedTenant = validTenantConfig('example.com', open({ loyalty: false }))
 
     const locs = await run(null)
 
@@ -249,7 +213,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
         { loc: '/contact' },
       ],
       sitemapName: 'sitemap',
-      event: eventFor({ ...OPEN, loyaltyEnabled: false }),
+      event: eventFor(open({ loyalty: false })),
     }
     await gate(ctx)
 
@@ -262,22 +226,21 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     expect(locs).toEqual(ALL_URLS.map(u => u.loc))
   })
 
-  it('drops the gift-card page when the plan does not include it', async () => {
+  it('drops the gift-card page when the store lacks the feature', async () => {
     store.settings = { GIFT_CARDS_ENABLED: 'True' }
-    const ctx = await gate({ urls: [{ loc: '/gift-cards' }, { loc: '/contact' }], event: eventFor({ ...OPEN, giftCardsEnabled: false }) })
+    const ctx = await gate({ urls: [{ loc: '/gift-cards' }, { loc: '/contact' }], event: eventFor(open({ giftCards: false })) })
 
     expect(ctx.urls.map(u => u.loc)).toEqual(['/contact'])
   })
 
-  it('keeps the gift-card page when plan and setting both allow it', async () => {
-    store.settings = { GIFT_CARDS_ENABLED: 'True' }
-    const ctx = await gate({ urls: [{ loc: '/gift-cards' }], event: eventFor({ ...OPEN, giftCardsEnabled: true }) })
+  it('keeps the gift-card page when the store has the feature', async () => {
+    const ctx = await gate({ urls: [{ loc: '/gift-cards' }], event: eventFor(OPEN) })
 
     expect(ctx.urls.map(u => u.loc)).toEqual(['/gift-cards'])
   })
 
   it('filters plain-string URL entries like object ones', async () => {
-    const ctx = await gate({ urls: ['/loyalty-program', '/contact'], event: eventFor({ ...OPEN, loyaltyEnabled: false }) })
+    const ctx = await gate({ urls: ['/loyalty-program', '/contact'], event: eventFor(open({ loyalty: false })) })
 
     expect(ctx.urls).toEqual(['/contact'])
   })
@@ -312,7 +275,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       const ctx = {
         urls: [...urls],
         sitemapName: 'sitemap',
-        event: eventFor({ ...OPEN, loyaltyEnabled: false, ...tenant }),
+        event: eventFor({ ...open({ loyalty: false }), ...tenant }),
       }
       await gate(ctx)
       return ctx.urls as Array<Record<string, any>>
@@ -579,11 +542,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
       // configured bilingual store with ONE untranslated legal document
       // hits exactly that combination, so the return has to account for
       // locale-restricted routes or the 404 survives.
-      store.settings = {
-        LOYALTY_ENABLED: 'True',
-        CATALOGUE_ENABLED: 'True',
-        PROMOTIONS_ENABLED: 'True',
-      }
+      store.settings = { CATALOGUE_ENABLED: 'True' }
       store.content = Object.values(LEGAL_ROUTE_SLUGS)
         .map(slug => ({ slug, translations: { el: WRITTEN } }))
 

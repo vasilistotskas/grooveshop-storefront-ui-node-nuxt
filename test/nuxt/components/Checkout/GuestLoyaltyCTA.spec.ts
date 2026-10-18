@@ -7,13 +7,13 @@ import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings } from '~~/test/fixtures/loyalty'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
 /**
  * A guest's nudge to sign up: "earn N points on this order", with
- * N = floor(cart total × points factor). Shown only when the tenant's
- * plan includes loyalty AND the merchant has it switched on, and only
+ * N = floor(cart total × points factor). Shown only when the store has
+ * the loyalty feature (the frozen webside tree: plan AND setting), and only
  * for a positive estimate. The trees share the logic; the default reads
  * as a line of copy, the frozen webside copy carries a "+N" badge.
  */
@@ -25,6 +25,7 @@ describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$
   beforeEach(() => {
     settings.reset()
     setTenant({ loyaltyEnabled: true })
+    setTenantFeatures({ loyalty: true })
     useCartStore().cart = makeCart({ totalPrice: 49.9 })
   })
 
@@ -40,9 +41,15 @@ describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$
     expect(wrapper.find('a').attributes('href')).toBe('/account/signup')
   })
 
+  // Off for the default tree is the feature; the frozen tree reads the setting.
+  function switchOff() {
+    settings.data.value = makeLoyaltySettings({ enabled: false, pointsFactor: 0.5 })
+    setTenantFeatures({ loyalty: false })
+  }
+
   it.each([
-    { case: 'the plan has no loyalty', arrange: () => { setTenant({ loyaltyEnabled: false }) } },
-    { case: 'the merchant switched it off', arrange: () => { settings.data.value = makeLoyaltySettings({ enabled: false, pointsFactor: 0.5 }) } },
+    { case: 'the store has no loyalty', arrange: () => { setTenant({ loyaltyEnabled: false, features: { ...useTenantStore().config!.features, loyalty: false } }) } },
+    { case: 'the merchant switched it off', arrange: switchOff },
     { case: 'the settings have not loaded', arrange: () => { settings.data.value = undefined } },
     { case: 'the estimate rounds to zero', arrange: () => { useCartStore().cart = makeCart({ totalPrice: 1.5 }) } },
     { case: 'there is no cart', arrange: () => { useCartStore().cart = null } },
@@ -52,5 +59,15 @@ describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$
     const wrapper = await mount()
 
     expect(wrapper.text()).toBe('')
+  })
+
+  it.runIf(tree === 'default')('decides from the feature alone: shown while the loyalty setting reads off and the plan flag is off', async () => {
+    setTenant({ loyaltyEnabled: false })
+    setTenantFeatures({ loyalty: true })
+    settings.data.value = makeLoyaltySettings({ enabled: false, pointsFactor: 0.5 })
+
+    const wrapper = await mount()
+
+    expect(wrapper.text()).toContain('Κέρδισε 24 πόντους')
   })
 })

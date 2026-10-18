@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import BlogCategories from '~/components/PageSection/BlogCategories.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -26,7 +26,8 @@ describe('PageSection/BlogCategories', () => {
   beforeEach(() => {
     // Cached under a fixed key (`blogCategories-slider`).
     clearNuxtData()
-    setTenant({ blogEnabled: true })
+    setTenant()
+    setTenantFeatures({ blog: true })
     api.routes({ [CATEGORIES_URL]: { results: [{ id: 1, slug: 'news', translations: { el: { name: 'Νέα' } } }], count: 1 } })
   })
 
@@ -61,7 +62,7 @@ describe('PageSection/BlogCategories', () => {
   })
 
   it('asks for nothing and draws nothing when the tenant has no blog', async () => {
-    setTenant({ blogEnabled: false })
+    setTenantFeatures({ blog: false })
 
     const wrapper = await mountBand()
 

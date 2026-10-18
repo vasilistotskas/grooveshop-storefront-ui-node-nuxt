@@ -52,7 +52,7 @@ const emit = defineEmits<{
  * the badge means something.
  */
 // Off, reviews are gone everywhere — the stars on a card with them.
-const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
+const productReviewsEnabled = useStoreFeature('productReviews')
 
 const NEW_FOR_DAYS = 21
 
@@ -63,7 +63,7 @@ const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const userStore = useUserStore()
 const { getFavouriteIdByProductId } = userStore
-const productAlertsEnabled = useSettingFlag('PRODUCT_ALERTS_ENABLED', { fallback: false })
+const productAlertsEnabled = useStoreFeature('productAlerts')
 
 const { product } = toRefs(props)
 

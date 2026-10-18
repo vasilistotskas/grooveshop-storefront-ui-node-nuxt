@@ -28,6 +28,6 @@ export default defineNuxtPlugin({
       ownOrigin: location.origin,
     }
 
-    if (await settingEnabled('CART_ENABLED', { fallback: true })) capture(landing)
+    if (await storePreferenceEnabled('CART_ENABLED')) capture(landing)
   },
 })

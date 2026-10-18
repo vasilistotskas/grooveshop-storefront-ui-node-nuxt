@@ -3,18 +3,13 @@ import * as z from 'zod'
 
 const { t } = useI18n()
 const toast = useToast()
-const tenantStore = useTenantStore()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const { $i18n } = useNuxtApp()
 const { rejectionMessage } = usePromotionOffer()
 
-// Two-tier gate: tenant plan flag + merchant runtime setting (the
-// loyalty pattern) so a disabled feature never renders the widget.
-// Fails CLOSED — a disabled commercial feature must not leak.
-const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
-  fallback: false,
-})
+// A store without promotions never renders the widget.
+const promotionsFeature = useStoreFeature('promotions')
 // What each attached code does right now, as Django's engine decided
 // it: the money it takes off, free shipping, a gift — or why it is
 // refused (a better automatic offer won, its item left the cart, its
@@ -35,8 +30,7 @@ const b2bSuppressesCoupons = computed(() => {
   return Boolean(b2b?.applied) && !b2b?.allowPromotions
 })
 const promotionsEnabled = computed(
-  () => tenantStore.promotionsEnabled
-    && promotionsRuntimeEnabled.value
+  () => promotionsFeature.value
     && (!b2bSuppressesCoupons.value || couponRows.value.length > 0),
 )
 

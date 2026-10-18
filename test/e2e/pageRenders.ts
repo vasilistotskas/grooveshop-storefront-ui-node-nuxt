@@ -84,6 +84,7 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       availableLocales: domain.startsWith('el-only') ? ['el'] : ['el', 'en'],
       isPlatformStorefront: domain === PLATFORM_STORE_HOST,
       blogEnabled: true,
+      features: { ...validTenantConfig(domain).features, blog: true },
       // ...and of the chrome-variant assertions at the end.
       schemaName: domain.startsWith('delta-sigma')
         ? VARIANT_SCHEMA

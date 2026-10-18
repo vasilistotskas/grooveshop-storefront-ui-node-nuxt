@@ -34,9 +34,7 @@ const route = useRoute()
 const { user, loggedIn } = useUserSession()
 // Merchant UI toggle — fails OPEN: core navigation must never vanish
 // because the settings endpoint hiccuped.
-const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
-  fallback: true,
-})
+const mobileBottomNavEnabled = useStorePreference('MOBILE_BOTTOM_NAV_ENABLED')
 
 const routeName = computed(() => $routeBaseName(route))
 

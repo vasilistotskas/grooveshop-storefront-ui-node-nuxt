@@ -30,9 +30,7 @@ export interface CategoryMenuEntry {
 
 export function useCategoryMenu() {
   const { locale } = useI18n()
-  const catalogueEnabled = useSettingFlag('CATALOGUE_ENABLED', {
-    fallback: true,
-  })
+  const catalogueEnabled = useStorePreference('CATALOGUE_ENABLED')
 
   const { data } = useAllCategories()
 

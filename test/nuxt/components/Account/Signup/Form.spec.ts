@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import SignupForm from '~/components/Account/Signup/Form.vue'
 import WebsideSignupForm from '~/components/variants/webside/Account/Signup/Form.vue'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 import { newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
 
@@ -33,10 +34,8 @@ const { signup, navigateToMock, toastAdd, newsletter } = vi.hoisted(() => ({
 mockNuxtImport('useAllAuthAuthentication', () => () => ({ signup }))
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
-// The newsletter availability (`useNewsletterAvailability`): the toggle
-// at its default, the store's answer per test.
-mockNuxtImport('useSettingFlag', () => (_key: string, options: { fallback: boolean }) =>
-  computed(() => options.fallback))
+// The newsletter availability (`useNewsletterAvailability`): the feature
+// on (the default tenant), the store's answer per test.
 mockNuxtImport('useApi', () => () => Promise.resolve({ data: ref({ available: newsletter.available }) }))
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -77,6 +76,7 @@ const PASSKEY_LABEL = 'Εγγραφή με passkey'
 const SIGNUP_PAGE = () => useLocalePath()('account-signup')
 
 beforeEach(() => {
+  setTenant()
   signup.mockResolvedValue({ status: 200 })
   newsletter.available = false
   const auth = useAuthStore()

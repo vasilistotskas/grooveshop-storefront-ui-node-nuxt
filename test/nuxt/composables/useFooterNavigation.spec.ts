@@ -3,7 +3,7 @@ import { computed, effectScope, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavColumn } from '~/composables/useNavigation'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The default footer's links in its two weights: the primary columns a
@@ -62,7 +62,7 @@ describe('useFooterNavigation', () => {
     state.footer = null
     state.flags = {}
     state.pages = []
-    setTenant({ blogEnabled: false, promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false })
+    setTenant()
   })
 
   afterEach(() => {
@@ -91,14 +91,16 @@ describe('useFooterNavigation', () => {
     expect(paths(primary[1]!.children)).toEqual(['/contact', '/feedback'])
   })
 
-  it('links offers, gift cards and rewards only behind both of their gates', () => {
+  it('links offers, gift cards and rewards only for the features the store has', () => {
+    // Plan flags and settings on: only `features` counts.
     setTenant({ promotionsEnabled: true, giftCardsEnabled: true, loyaltyEnabled: true })
-    const planOnly = navigation()
-    expect(paths(planOnly.primary[0]!.children)).toEqual(['/products'])
-
     state.flags = { PROMOTIONS_ENABLED: true, GIFT_CARDS_ENABLED: true, LOYALTY_ENABLED: true }
-    const both = navigation()
-    expect(paths(both.primary[0]!.children)).toEqual(['/products', '/offers', '/gift-cards', '/loyalty-program'])
+    const none = navigation()
+    expect(paths(none.primary[0]!.children)).toEqual(['/products'])
+
+    setTenantFeatures({ promotions: true, giftCards: true, loyalty: true })
+    const all = navigation()
+    expect(paths(all.primary[0]!.children)).toEqual(['/products', '/offers', '/gift-cards', '/loyalty-program'])
   })
 
   it('drops a column with nothing to link', () => {
@@ -110,7 +112,7 @@ describe('useFooterNavigation', () => {
   it('puts the legal documents, and the blog when there is one, in the secondary links', () => {
     expect(paths(navigation().secondary)).toEqual(['/terms-of-use', '/privacy-policy', '/cookies-policy'])
 
-    setTenant({ blogEnabled: true })
+    setTenantFeatures({ blog: true })
     expect(paths(navigation().secondary)[0]).toBe('/blog')
   })
 

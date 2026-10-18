@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ChromeFooterNewsletter from '~/components/Chrome/FooterNewsletter.vue'
 import { newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The footer's newsletter card shares the band's signup
@@ -13,8 +14,6 @@ import { newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
  */
 const flags = vi.hoisted(() => ({ available: true }))
 
-mockNuxtImport('useSettingFlag', () => (_key: string, options: { fallback: boolean }) =>
-  computed(() => options.fallback))
 mockNuxtImport('useApi', () => () => Promise.resolve({ data: ref({ available: flags.available }) }))
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -27,6 +26,15 @@ const mountCard = () => mountSuspended(ChromeFooterNewsletter, { route: false })
 describe('Chrome/FooterNewsletter', () => {
   beforeEach(() => {
     flags.available = true
+    setTenant()
+  })
+
+  it('renders nothing when the newsletter feature is off', async () => {
+    setTenantFeatures({ newsletter: false })
+
+    const wrapper = await mountCard()
+
+    expect(wrapper.find('form').exists()).toBe(false)
   })
 
   it('renders nothing when the store cannot take a subscription', async () => {

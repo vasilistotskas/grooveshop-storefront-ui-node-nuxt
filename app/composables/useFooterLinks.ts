@@ -3,20 +3,11 @@ export function useFooterLinks() {
   const t = $i18n.t.bind($i18n)
   const localePath = useLocalePath()
   const { footerColumns } = useNavigation()
-  const tenantStore = useTenantStore()
 
   // Feature-gated default links: a footer must never advertise a
-  // page the feature gates would 404. Gift cards = two-tier
-  // (fail-closed); feedback = merchant setting (fail-open).
-  const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-    fallback: false,
-  })
-  const giftCardsEnabled = computed(
-    () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
-  )
-  const feedbackEnabled = useSettingFlag('FEEDBACK_ENABLED', {
-    fallback: true,
-  })
+  // page the feature gates would 404.
+  const giftCardsEnabled = useStoreFeature('giftCards')
+  const feedbackEnabled = useStoreFeature('feedback')
 
   // Published ContentPages (per-tenant CMS pages, e.g. FAQ/shipping info)
   // are always safe to link unconditionally — see useFooterContentPages.

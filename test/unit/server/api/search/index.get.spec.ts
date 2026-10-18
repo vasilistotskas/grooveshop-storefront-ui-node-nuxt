@@ -20,11 +20,12 @@ const route = '/api/search'
 const products = makeProductSearchResponse({ results: [makeProductSearchHit({ id: 7 })] })
 const posts = makeBlogPostSearchResponse({ results: [makeBlogPostSearchHit({ id: 4 })] })
 
-const search = (blogEnabled: boolean) =>
+const search = (blog: boolean) =>
   callRoute(handler, {
     route,
     url: `${route}?query=power%20bank&languageCode=el`,
-    context: { tenant: { blogEnabled } },
+    // The plan flag says the opposite: only `features` decides.
+    context: { tenant: { blogEnabled: !blog, features: { blog } } },
   })
 
 describe('GET /api/search', () => {
@@ -41,7 +42,7 @@ describe('GET /api/search', () => {
     ])
   })
 
-  it('returns the products alone, without asking for guides, when the plan has no blog', async () => {
+  it('returns the products alone, without asking for guides, when the store has no blog feature', async () => {
     backend.reply(products)
 
     const response = await search(false)

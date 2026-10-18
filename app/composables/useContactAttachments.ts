@@ -116,11 +116,7 @@ function settingNumber(raw: string | undefined, fallback: number): number {
 }
 
 export function useContactAttachments() {
-  const enabled = useSettingFlag('CONTACT_ATTACHMENTS_ENABLED', {
-    // Fails CLOSED: this is an upload endpoint, and a settings hiccup
-    // must not draw a control the server would 404.
-    fallback: false,
-  })
+  const enabled = useStoreFeature('contactAttachments')
 
   const countSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_COUNT')
   const sizeSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_MB')

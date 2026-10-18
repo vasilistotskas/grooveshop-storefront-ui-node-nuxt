@@ -12,11 +12,7 @@ const { loggedIn } = useUserSession()
 const cartStore = useCartStore()
 const { cart, getCartItems } = storeToRefs(cartStore)
 
-const tenantStore = useTenantStore()
-const loyalty = useLoyalty()
-
-// Fetch loyalty settings
-const { data: settings } = loyalty.fetchSettings()
+const loyaltyEnabled = useStoreFeature('loyalty')
 
 // Wholesale carts sit outside the loyalty program unless the merchant
 // opts in (B2B_LOYALTY_ENABLED). The backend awards nothing for them,
@@ -31,10 +27,8 @@ const pointsPerProduct = ref<Map<number, number>>(new Map())
 const loading = ref(false)
 const hasError = ref(false)
 
-// Tenant plan flag is the primary gate; runtime toggle is the operational lever.
 const shouldFetch = computed(() => loggedIn.value
-  && tenantStore.loyaltyEnabled
-  && settings.value?.enabled
+  && loyaltyEnabled.value
   && !b2bSuppressesLoyalty.value)
 
 // Total points earned for the entire cart
@@ -105,9 +99,9 @@ watch(
 
 <template>
   <!--
-    ClientOnly: `shouldFetch` depends on the session (loggedIn) and a
-    lazy-loaded loyalty-settings fetch, both of which only settle on
-    the client; rendering it on the server tripped a hydration mismatch.
+    ClientOnly: `shouldFetch` depends on the session (loggedIn), which
+    only settles on the client; rendering it on the server tripped a
+    hydration mismatch.
     A logged-in perk, not SEO content.
   -->
   <ClientOnly>

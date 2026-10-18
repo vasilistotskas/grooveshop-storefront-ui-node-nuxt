@@ -1,22 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { computed, defineComponent, h, ref } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import OffersPreview from '~/components/PageSection/OffersPreview.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const { state, toastAdd, copy } = vi.hoisted(() => ({
-  /** Merchant runtime settings; a missing key takes the caller's fallback. */
-  state: { flags: {} as Record<string, boolean> },
+const { toastAdd, copy } = vi.hoisted(() => ({
   toastAdd: vi.fn(),
   copy: vi.fn(),
 }))
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => state.flags[key] ?? options.fallback))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 mockNuxtImport('useClipboard', () => () => ({ copy, isSupported: ref(true) }))
 
@@ -57,8 +53,8 @@ describe('PageSection/OffersPreview', () => {
   beforeEach(() => {
     // Cached under `offers-preview-<locale>`.
     clearNuxtData()
-    setTenant({ promotionsEnabled: true })
-    state.flags = { PROMOTIONS_ENABLED: true }
+    setTenant()
+    setTenantFeatures({ promotions: true })
     api.routes({ [PROMOTIONS_URL]: [offer(1), offer(2), offer(3), offer(4)] })
   })
 
@@ -107,12 +103,10 @@ describe('PageSection/OffersPreview', () => {
     expect(wrapper.text()).not.toContain(COPY.eyebrow)
   })
 
-  it.each<{ name: string, tenant: boolean, flags: Record<string, boolean> }>([
-    { name: 'the merchant setting is missing', tenant: true, flags: {} },
-    { name: 'the plan has no promotions', tenant: false, flags: { PROMOTIONS_ENABLED: true } },
-  ])('asks for nothing and renders nothing when $name', async ({ tenant, flags }) => {
-    setTenant({ promotionsEnabled: tenant })
-    state.flags = flags
+  it('asks for nothing and renders nothing when the store lacks the promotions feature', async () => {
+    // The plan flag stays on: only the feature decides.
+    setTenant({ promotionsEnabled: true })
+    setTenantFeatures({ promotions: false })
 
     const wrapper = await mountBand()
 

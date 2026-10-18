@@ -160,12 +160,11 @@ const paymentLabel = computed(() =>
   order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
 )
 
-// Django answers 0 when the program is off, but the plan flag and the
-// runtime toggle gate the line here too, like every other loyalty surface.
-const tenantStore = useTenantStore()
-const loyaltyRuntimeEnabled = useSettingFlag('LOYALTY_ENABLED', { fallback: false })
+// Django answers 0 when the program is off, but the feature gates the
+// line here too, like every other loyalty surface.
+const loyaltyEnabled = useStoreFeature('loyalty')
 const pointsToEarn = computed(() =>
-  tenantStore.loyaltyEnabled && loyaltyRuntimeEnabled.value ? (order.value?.loyaltyPointsToEarn ?? 0) : 0,
+  loyaltyEnabled.value ? (order.value?.loyaltyPointsToEarn ?? 0) : 0,
 )
 
 const alert = computed(() => {

@@ -9,7 +9,7 @@ import {
   makeProductSearchHit,
   makeProductSearchResponse,
 } from '~~/test/fixtures/productFilters'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The search page keeps its state in the URL (`?query=`, `?tab=`,
@@ -89,7 +89,8 @@ describe('Storefront/Search', () => {
   beforeEach(() => {
     clearNuxtData()
     navigateToMock.mockReset()
-    setTenant({ blogEnabled: true })
+    setTenant()
+    setTenantFeatures({ blog: true })
     answer()
   })
 
@@ -129,7 +130,7 @@ describe('Storefront/Search', () => {
   })
 
   it('finds products alone when the store\'s plan has no blog: no guides asked for, no tab, none beside them', async () => {
-    setTenant({ blogEnabled: false })
+    setTenantFeatures({ blog: false })
 
     const wrapper = await render({ query: 'καλώδιο', tab: 'guides' })
 

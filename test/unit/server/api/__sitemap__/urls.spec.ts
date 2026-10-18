@@ -2,7 +2,7 @@
  * The dynamic sitemap source. What it must keep true:
  *
  * - a gated surface is left out — blog URLs when the tenant has
- *   `blogEnabled: false`, catalogue URLs when the merchant setting
+ *   no `blog` feature, catalogue URLs when the merchant setting
  *   `CATALOGUE_ENABLED` is off — so the sitemap never advertises a URL
  *   its own route middleware answers with a 404;
  * - it resolves the tenant ITSELF (the route is bypassed in
@@ -81,7 +81,8 @@ async function sitemap(context: Record<string, unknown> = {}): Promise<SitemapUr
 
 const locs = (urls: SitemapUrl[]) => urls.map(url => url.loc)
 
-const tenantContext = (overrides: Record<string, unknown> = {}) => ({ tenant: validTenantConfig(HOST, { blogEnabled: true, ...overrides }) })
+const withBlog = (on: boolean) => ({ features: { ...validTenantConfig(HOST).features, blog: on } })
+const tenantContext = (overrides: Record<string, unknown> = {}) => ({ tenant: validTenantConfig(HOST, { ...withBlog(true), ...overrides }) })
 
 describe('server/api/__sitemap__/urls — blog feature gating', () => {
   it('includes blog and catalogue URLs when both are on', async () => {
@@ -97,10 +98,10 @@ describe('server/api/__sitemap__/urls — blog feature gating', () => {
     ]))
   })
 
-  it('excludes all blog URLs, and never fetches them, when blogEnabled is false', async () => {
+  it('excludes all blog URLs, and never fetches them, when the blog feature is off, plan flag on', async () => {
     serve()
 
-    const urls = locs(await sitemap(tenantContext({ blogEnabled: false })))
+    const urls = locs(await sitemap(tenantContext({ ...withBlog(false), blogEnabled: true })))
 
     expect(urls.some(loc => loc.includes('/blog/'))).toBe(false)
     expect(urls).toContain('https://acme.test/products/100/my-product')
@@ -140,8 +141,8 @@ describe('server/api/__sitemap__/urls — catalogue gating', () => {
 })
 
 describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', () => {
-  it('resolves the tenant for the request host when the context has none, honouring its blogEnabled', async () => {
-    serve({ tenant: validTenantConfig(HOST, { blogEnabled: false }) })
+  it('resolves the tenant for the request host when the context has none, honouring its features', async () => {
+    serve({ tenant: validTenantConfig(HOST, withBlog(false)) })
 
     const urls = locs(await sitemap())
 
@@ -153,7 +154,7 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
   })
 
   it('uses the resolved tenant\'s primary domain for every URL', async () => {
-    serve({ tenant: validTenantConfig('www.acme.gr', { blogEnabled: true }) })
+    serve({ tenant: validTenantConfig('www.acme.gr', withBlog(true)) })
 
     const urls = locs(await sitemap())
 
@@ -161,12 +162,13 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
     expect(urls.every(loc => loc.startsWith('https://www.acme.gr/'))).toBe(true)
   })
 
-  it('falls back to the request host and an enabled blog when resolution fails', async () => {
+  it('falls back to the request host, and lists no blog, when resolution fails: no store, no features', async () => {
     serve({ tenant: null })
 
     const urls = locs(await sitemap())
 
-    expect(urls).toContain('https://acme.test/blog/post/1/my-post')
+    expect(urls.some(loc => loc.includes('/blog/'))).toBe(false)
+    expect(urls).toContain('https://acme.test/products/100/my-product')
   })
 
   it('sends the request host and locale on every catalogue read, header and query alike', async () => {

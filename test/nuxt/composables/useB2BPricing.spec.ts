@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { effectScope, nextTick } from 'vue'
 import type { EffectScope } from 'vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -84,14 +84,14 @@ describe('useB2BPricing', () => {
   })
 
   it('does not fetch for logged-out visitors', async () => {
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
     b2bPricing().register([1, 2])
     await vi.advanceTimersByTimeAsync(FLUSH_DELAY_MS)
 
     expect(priceRequests()).toEqual([])
   })
 
-  it('does not fetch when the tenant plan flag is off', async () => {
+  it('does not fetch when the store lacks the wholesale feature', async () => {
     setLoggedIn(true)
     b2bPricing().register(1)
     await vi.advanceTimersByTimeAsync(FLUSH_DELAY_MS)
@@ -101,7 +101,7 @@ describe('useB2BPricing', () => {
 
   it('batches every id registered within the delay into one request', async () => {
     setLoggedIn(true)
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
 
     const { register, priceFor } = b2bPricing()
     register(1)
@@ -120,7 +120,7 @@ describe('useB2BPricing', () => {
 
   it('never re-requests an id it already fetched', async () => {
     setLoggedIn(true)
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
 
     const { register } = b2bPricing()
     register(1)
@@ -134,7 +134,7 @@ describe('useB2BPricing', () => {
   it('buffers registrations while inactive and replays on activation', async () => {
     // The cached-page hard-load case: components register in
     // onMounted BEFORE the async session restore flips loggedIn.
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
 
     const { register, priceFor, active } = b2bPricing()
     expect(active.value).toBe(false)
@@ -151,7 +151,7 @@ describe('useB2BPricing', () => {
 
   it('hides a fetched price as soon as the visitor logs out', async () => {
     setLoggedIn(true)
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
 
     const { register, priceFor } = b2bPricing()
     register(1)
@@ -168,7 +168,7 @@ describe('useB2BPricing', () => {
     [403, 'the caller is outside the program'],
   ])('halts for the session on a %i (%s)', async (statusCode) => {
     setLoggedIn(true)
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
     api.routes({ '/api/b2b/prices': failWith(statusCode) })
 
     const { register, active } = b2bPricing()
@@ -186,7 +186,7 @@ describe('useB2BPricing', () => {
     ['a network failure', () => { throw new TypeError('Failed to fetch') }],
   ])('does not halt on %s — the next registration retries the wanted set', async (_label, failure) => {
     setLoggedIn(true)
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
     api.routes({ '/api/b2b/prices': failure })
 
     const { register, active, priceFor } = b2bPricing()
@@ -204,7 +204,7 @@ describe('useB2BPricing', () => {
 
   it('resetB2BPricing clears prices but keeps the wanted set for the next identity', async () => {
     setLoggedIn(true)
-    setTenant({ b2bEnabled: true })
+    setTenantFeatures({ wholesale: true })
 
     const { register, priceFor } = b2bPricing()
     register(1)

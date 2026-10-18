@@ -30,7 +30,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import { makeCountry } from '~~/test/fixtures/country'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { makePayWay } from '~~/test/fixtures/payWay'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const { mockToastAdd } = vi.hoisted(() => ({ mockToastAdd: vi.fn() }))
@@ -1023,7 +1023,7 @@ describe('useCheckoutForm', () => {
     }
 
     beforeEach(async () => {
-      setTenant({ b2bEnabled: true })
+      setTenantFeatures({ wholesale: true })
       await setLoggedIn(true)
     })
 
@@ -1060,8 +1060,9 @@ describe('useCheckoutForm', () => {
       expect(formState).toMatchObject({ documentType: 'RECEIPT', billingVatId: '', billingCompanyName: '' })
     })
 
-    it('never asks for a profile on a plan without B2B', async () => {
-      setTenant({ b2bEnabled: false })
+    it('never asks for a profile on a store without the wholesale feature', async () => {
+      setTenant({ b2bEnabled: true })
+      setTenantFeatures({ wholesale: false })
 
       await setup()
 

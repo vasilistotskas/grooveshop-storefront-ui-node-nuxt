@@ -16,7 +16,7 @@ const { t, n, locale } = useI18n()
 // the store name, twice — on the one page a customer is most likely to
 // keep open in a tab, or come back to from history.
 useHead({ title: () => t('title') })
-const tenantStore = useTenantStore()
+const blogEnabled = useStoreFeature('blog')
 const { loggedIn } = useUserSession()
 const toast = useToast()
 const route = useRoute(`checkout-success-uuid___${locale.value}`)
@@ -108,7 +108,7 @@ const shippingPrice = computed(() => order.value?.shippingPrice || 0)
 const requestFetch = useRequestApi()
 const { data: recommendedPosts } = useLazyAsyncData(
   `success-recommended-posts:${locale.value}`,
-  () => tenantStore.blogEnabled
+  () => blogEnabled.value
     ? requestFetch('/api/blog/posts', {
         query: {
           languageCode: locale.value,
@@ -121,7 +121,7 @@ const { data: recommendedPosts } = useLazyAsyncData(
   { default: () => null },
 )
 const recommendedPostsList = computed(() =>
-  tenantStore.blogEnabled ? (recommendedPosts.value?.results ?? []) : [],
+  blogEnabled.value ? (recommendedPosts.value?.results ?? []) : [],
 )
 
 onBeforeUnmount(() => {

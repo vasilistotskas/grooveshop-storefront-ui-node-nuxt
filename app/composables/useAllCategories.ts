@@ -18,9 +18,7 @@ import type { ProductCategory } from '~~/shared/openapi/types.gen'
  * it is off.
  */
 export function useAllCategories() {
-  const catalogueEnabled = useSettingFlag('CATALOGUE_ENABLED', {
-    fallback: true,
-  })
+  const catalogueEnabled = useStorePreference('CATALOGUE_ENABLED')
 
   return useApi<ProductCategory[]>('/api/products/categories/all', {
     key: 'all-categories',

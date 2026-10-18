@@ -11,7 +11,7 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 registerEndpoint('/api/page-config/navigation', () => ({
   header: [
@@ -113,9 +113,10 @@ describe('useNavigation — feature gate on operator links', () => {
     mounted = null
   })
 
-  it('drops links to features the plan does not include', async () => {
-    setTenant({ promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false })
-    publicSettings = { PROMOTIONS_ENABLED: 'True', GIFT_CARDS_ENABLED: 'True' }
+  it('drops links to features the store does not have, whatever the plan flags and settings say', async () => {
+    setTenant({ promotionsEnabled: true, giftCardsEnabled: true, loyaltyEnabled: true })
+    setTenantFeatures({ promotions: false, giftCards: false, loyalty: false })
+    publicSettings = { PROMOTIONS_ENABLED: 'True', GIFT_CARDS_ENABLED: 'True', LOYALTY_ENABLED: 'True' }
 
     const { texts } = await render()
 
@@ -125,7 +126,7 @@ describe('useNavigation — feature gate on operator links', () => {
   })
 
   it('drops a column left with nothing to link', async () => {
-    setTenant({ promotionsEnabled: false })
+    setTenantFeatures({ promotions: false })
 
     const { wrapper } = await render()
 
@@ -133,7 +134,7 @@ describe('useNavigation — feature gate on operator links', () => {
     expect(wrapper.text()).toContain('Εξωτερικά')
   })
 
-  it('keeps a fail-open route when its setting was never set, and drops it when off', async () => {
+  it('keeps the catalogue (a preference, not a feature yet) when its setting was never set, and drops it when off', async () => {
     setTenant({})
     let { texts } = await render()
     expect(texts('#header')).toContain('/products')
@@ -143,19 +144,20 @@ describe('useNavigation — feature gate on operator links', () => {
     expect(texts('#header')).not.toContain('/products')
   })
 
-  it('keeps a commercial route only when BOTH tiers pass', async () => {
-    setTenant({ promotionsEnabled: true })
+  it('keeps a feature route exactly when the store has the feature', async () => {
+    setTenant({ promotionsEnabled: false })
+    setTenantFeatures({ promotions: false })
     let { texts } = await render()
-    // Plan on, setting missing: fails closed like the page does.
     expect(texts('#header')).not.toContain('/offers')
 
-    publicSettings = { PROMOTIONS_ENABLED: 'True' }
+    // No setting row and no plan flag: the feature alone opens it.
+    setTenantFeatures({ promotions: true })
     ;({ texts } = await render())
     expect(texts('#header')).toContain('/offers')
   })
 
   it('never touches an external link', async () => {
-    setTenant({ promotionsEnabled: false, giftCardsEnabled: false })
+    setTenantFeatures({ promotions: false, giftCards: false })
 
     const { wrapper } = await render()
 

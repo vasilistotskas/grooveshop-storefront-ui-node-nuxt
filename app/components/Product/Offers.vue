@@ -30,40 +30,7 @@ const { t, locale } = useI18n()
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 
-const tenantStore = useTenantStore()
-const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
-  fallback: false,
-})
-const promotionsEnabled = computed(
-  () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
-)
-
-/**
- * Gate the REQUEST, not just the render.
- *
- * The two-tier gate above was applied only to `rows`, so a store with
- * promotions off still fired one request per product view and Django
- * answered 404 to every one — 58 of them in six hours on webside.gr,
- * which is a wasted round trip on the hot PDP path plus a permanent
- * ERROR-shaped smear across the logs that hides real faults.
- *
- * `settingEnabled` is the awaitable form of the same flag (the
- * `promotions-enabled` middleware uses it for exactly this reason):
- * `useSettingFlag`'s computed may still be unresolved at setup, so
- * deciding `immediate` from it would skip the fetch on stores that DO
- * have promotions on.
- *
- * `onError: false` — fail CLOSED, matching this panel's stated policy.
- * A settings outage shows no offers rather than guessing there are
- * some; the offers page itself fails open because a blank page is
- * worse than a stale one.
- */
-const offersEnabled
-  = tenantStore.promotionsEnabled
-    && (await settingEnabled('PROMOTIONS_ENABLED', {
-      fallback: false,
-      onError: false,
-    }))
+const promotionsEnabled = useStoreFeature('promotions')
 
 const { data: offers } = await useApi(
   () => `/api/promotions/product/${props.productId}`,
@@ -74,10 +41,12 @@ const { data: offers } = await useApi(
     key: () => `product-offers-${props.productId}-${locale.value}`,
     headers: useRequestHeaders(),
     query: { languageCode: locale },
-    // Django answers 404 for a disabled store; with the gate above we
-    // no longer ask. `default` still covers the enabled-but-empty case.
+    // Gate the REQUEST, not just the render: Django answers 404 for a
+    // store without promotions (58 of them in six hours on webside.gr,
+    // a wasted round trip on the hot PDP path). `default` still covers
+    // the enabled-but-empty case.
     default: () => [],
-    enabled: offersEnabled,
+    enabled: promotionsEnabled,
   },
 )
 

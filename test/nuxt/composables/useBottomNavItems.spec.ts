@@ -5,6 +5,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The phone tab bar's entries. What matters:
@@ -55,6 +56,8 @@ describe('useBottomNavItems', () => {
   beforeEach(async () => {
     loggedIn.value = false
     for (const key of Object.keys(flags)) Reflect.deleteProperty(flags, key)
+    setTenant()
+    setTenantFeatures({ favourites: true })
     Object.assign(route, { name: 'index___el', path: '/', fullPath: '/', query: {} })
     await useCartStore().cleanCartState()
     useCartStore().cart = makeCart({ totalItems: 0 })
@@ -68,13 +71,16 @@ describe('useBottomNavItems', () => {
     expect(labels(items())).toEqual([t('home'), t('search.title'), t('saved'), t('cart.title'), t('account')])
   })
 
-  it.each([
-    { name: 'Saved when favourites are off', flag: 'FAVOURITES_ENABLED', gone: 'saved' },
-    { name: 'the cart when the cart is off', flag: 'CART_ENABLED', gone: 'cart.title' },
-  ])('drops $name', ({ flag, gone }) => {
-    flags[flag] = false
+  it('drops Saved for a store without the favourites feature', () => {
+    setTenantFeatures({ favourites: false })
 
-    expect(labels(items())).not.toContain(t(gone))
+    expect(labels(items())).not.toContain(t('saved'))
+  })
+
+  it('drops the cart when the cart preference is off', () => {
+    flags.CART_ENABLED = false
+
+    expect(labels(items())).not.toContain(t('cart.title'))
   })
 
   it('drops the cart where the layout asks it to', () => {

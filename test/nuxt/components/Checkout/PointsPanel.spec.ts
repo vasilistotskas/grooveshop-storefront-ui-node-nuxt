@@ -8,7 +8,7 @@ import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
 import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { CartDetail, LoyaltySummary } from '~~/shared/openapi/types.gen'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * Points redemption on the checkout's payment page. Nothing is spent
@@ -27,6 +27,7 @@ mockNuxtImport('useLoyalty', () => () => ({
 
 beforeEach(() => {
   setTenant({ loyaltyEnabled: true })
+  setTenantFeatures({ loyalty: true })
   settings.reset()
   summary.reset()
   settings.data.value = makeLoyaltySettings()
@@ -117,8 +118,7 @@ describe('Checkout/PointsPanel', () => {
 
   describe('self-gating', () => {
     it.each([
-      ['the plan has no loyalty', () => { setTenant({ loyaltyEnabled: false }) }],
-      ['loyalty is off', () => { settings.data.value = makeLoyaltySettings({ enabled: false }) }],
+      ['the store lacks the loyalty feature', () => { setTenantFeatures({ loyalty: false }) }],
       ['the settings have not arrived', () => { settings.data.value = undefined }],
       // A ratio of 0 redeems nothing; dividing by it offered unbounded
       // points at an infinite discount.
@@ -129,6 +129,16 @@ describe('Checkout/PointsPanel', () => {
       const wrapper = await mount()
 
       expect(wrapper.text()).toBe('')
+    })
+
+    it('decides from the feature alone: offered while the plan flag and the loyalty setting read off', async () => {
+      setTenant({ loyaltyEnabled: false })
+      setTenantFeatures({ loyalty: true })
+      settings.data.value = makeLoyaltySettings({ enabled: false })
+
+      const wrapper = await mount()
+
+      expect(wrapper.find('form').exists()).toBe(true)
     })
 
     // Order creation drops a redemption on a wholesale cart unless the

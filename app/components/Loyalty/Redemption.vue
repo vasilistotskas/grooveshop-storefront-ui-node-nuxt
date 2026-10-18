@@ -22,7 +22,7 @@ const loyalty = useLoyalty()
 const { data: settings } = loyalty.fetchSettings()
 const { data: summary, status } = loyalty.fetchSummary()
 
-// Self-gate on LOYALTY_ENABLED so parents don't have to. Other loyalty
+// Self-gate on the loyalty feature so parents don't have to. Other loyalty
 // surfaces (PointsBadge, PointsEarned, GuestLoyaltyCTA) follow the same
 // self-gating pattern; keeping this consistent means adding a new caller
 // never silently shows "Εξαργύρωση Πόντων" when the owner has disabled
@@ -30,7 +30,7 @@ const { data: summary, status } = loyalty.fetchSummary()
 // Wholesale carts sit outside the loyalty program unless the merchant
 // opts in (B2B_LOYALTY_ENABLED): order creation drops the redemption on
 // them, so offering it here would burn nothing and discount nothing.
-// Self-gated for the same reason as LOYALTY_ENABLED above.
+// Self-gated for the same reason as the loyalty feature above.
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const b2bSuppressesLoyalty = computed(() => {
@@ -46,8 +46,9 @@ const redemptionRatio = computed(() => {
   return ratio && ratio > 0 ? ratio : null
 })
 
+const loyaltyFeature = useStoreFeature('loyalty')
 const loyaltyEnabled = computed(() =>
-  (settings.value?.enabled ?? false) && redemptionRatio.value !== null && !b2bSuppressesLoyalty.value)
+  loyaltyFeature.value && redemptionRatio.value !== null && !b2bSuppressesLoyalty.value)
 
 // Component state - no API call, just local intent
 const applied = ref(false)

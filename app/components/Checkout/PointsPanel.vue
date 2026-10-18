@@ -10,8 +10,8 @@ import type { FormSubmitEvent } from '#ui/types'
  * than a state of its own: when the page drops a redemption Django
  * refused, the panel follows.
  *
- * Self-gated like every loyalty surface: the store's plan includes
- * loyalty AND the merchant has it on, a ratio that redeems something,
+ * Self-gated like every loyalty surface: the store has the `loyalty`
+ * feature, a ratio that redeems something,
  * and wholesale carts left out unless the merchant lets them in
  * (B2B_LOYALTY_ENABLED). The frozen webside tree
  * keeps `Loyalty/Redemption`.
@@ -40,7 +40,7 @@ const loyalty = useLoyalty()
 const { data: settings } = loyalty.fetchSettings()
 const { data: summary, status } = loyalty.fetchSummary()
 const { cart } = storeToRefs(useCartStore())
-const tenantStore = useTenantStore()
+const loyaltyEnabled = useStoreFeature('loyalty')
 
 const b2bSuppressesLoyalty = computed(() => {
   const b2b = cart.value?.b2bPricing
@@ -55,8 +55,7 @@ const ratio = computed(() => {
 })
 
 const enabled = computed(() =>
-  tenantStore.loyaltyEnabled
-  && (settings.value?.enabled ?? false)
+  loyaltyEnabled.value
   && ratio.value !== null
   && !b2bSuppressesLoyalty.value)
 

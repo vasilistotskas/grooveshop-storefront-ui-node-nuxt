@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const tenantStore = useTenantStore()
+const loyaltyEnabled = useStoreFeature('loyalty')
 const { data: loyaltySettings } = await useLoyalty().fetchSettings()
 
 useSeoMeta({
@@ -8,11 +8,10 @@ useSeoMeta({
 })
 
 // The welcome bonus is promised only where the store gives one: loyalty
-// on (plan AND setting) and the new-customer bonus on. Django awards it
+// on (the feature) and the new-customer bonus on. Django awards it
 // with the first order's points.
 const welcomeBonus = computed(() =>
-  tenantStore.loyaltyEnabled
-  && !!loyaltySettings.value?.enabled
+  loyaltyEnabled.value
   && !!loyaltySettings.value?.newCustomerBonusEnabled,
 )
 </script>

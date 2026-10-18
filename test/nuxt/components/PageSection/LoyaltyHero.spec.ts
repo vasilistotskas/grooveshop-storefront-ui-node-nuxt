@@ -4,7 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import LoyaltyHero from '~/components/PageSection/LoyaltyHero.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeTier } from '~~/test/fixtures/loyalty'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -68,13 +68,14 @@ const tierCards = (wrapper: Awaited<ReturnType<typeof mountBand>>) =>
 /**
  * The programme, sold to a guest from the store's own terms and tiers,
  * and the member's own points once the page knows who is looking. Both
- * plan and runtime switches gate it, the requests included.
+ * the store's loyalty feature gates it, the requests included.
  */
 describe('PageSection/LoyaltyHero', () => {
   beforeEach(() => {
     clearNuxtData(['loyalty-settings', 'loyalty-tiers'])
     if (session.loggedIn) session.loggedIn.value = false
     setTenant({ loyaltyEnabled: true, storeName: 'Demo' })
+    setTenantFeatures({ loyalty: true })
     api.routes({ [SETTINGS_URL]: settings(), [TIERS_URL]: TIERS })
   })
 
@@ -156,8 +157,8 @@ describe('PageSection/LoyaltyHero', () => {
     expect(wrapper.find('ol').exists()).toBe(false)
   })
 
-  it('asks for nothing and renders nothing on a plan without the programme', async () => {
-    setTenant({ loyaltyEnabled: false })
+  it('asks for nothing and renders nothing on a store without the loyalty feature', async () => {
+    setTenantFeatures({ loyalty: false })
 
     const wrapper = await mountBand()
 
@@ -166,11 +167,13 @@ describe('PageSection/LoyaltyHero', () => {
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it('renders nothing where the merchant has switched the programme off', async () => {
+  it('decides from the feature alone: the loyalty setting and the plan flag cannot close it', async () => {
+    setTenant({ loyaltyEnabled: false, storeName: 'Demo' })
+    setTenantFeatures({ loyalty: true })
     api.routes({ [SETTINGS_URL]: settings({ LOYALTY_ENABLED: 'false' }), [TIERS_URL]: TIERS })
 
     const wrapper = await mountBand()
 
-    expect(wrapper.find('section').exists()).toBe(false)
+    expect(wrapper.find('section').exists()).toBe(true)
   })
 })

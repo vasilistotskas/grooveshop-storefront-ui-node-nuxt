@@ -21,9 +21,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const recentlyViewedEnabled = useSettingFlag('RECENTLY_VIEWED_ENABLED', {
-  fallback: false,
-})
+const recentlyViewedEnabled = useStorePreference('RECENTLY_VIEWED_ENABLED')
 
 const { items } = useRecentlyViewed()
 

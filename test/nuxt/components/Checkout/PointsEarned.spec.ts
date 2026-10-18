@@ -6,7 +6,7 @@ import PointsEarned from '~/components/Checkout/PointsEarned.vue'
 import WebsidePointsEarned from '~/components/variants/webside/Checkout/PointsEarned.vue'
 import { makeCart } from '~~/test/fixtures/cart'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
 /**
@@ -52,6 +52,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     loyalty.setting = 'true'
     loyalty.points = { 3: 12, 4: 5 }
     setTenant({ loyaltyEnabled: true })
+    setTenantFeatures({ loyalty: true })
     api.routes({
       // app/plugins/setup.ts watches the session: a sign-in re-reads the
       // cart, a sign-out clears it. Answer with the cart the test set, so
@@ -148,11 +149,21 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     expect(promised(wrapper)).toBe(36)
   })
 
+  // Off for the default tree is the feature; the frozen tree reads the setting.
+  function storeWithoutLoyalty() {
+    setTenant({ loyaltyEnabled: false })
+    setTenantFeatures({ loyalty: false })
+  }
+  function merchantTurnsLoyaltyOff() {
+    loyalty.setting = 'false'
+    setTenantFeatures({ loyalty: false })
+  }
+
   describe('never promises, or fetches, a reward the backend will not grant', () => {
     it.each([
       ['a guest', () => { session.loggedIn.value = false }],
-      ['a plan without loyalty', () => setTenant({ loyaltyEnabled: false })],
-      ['a merchant who turned loyalty off', () => { loyalty.setting = 'false' }],
+      ['a store without loyalty', storeWithoutLoyalty],
+      ['a merchant who turned loyalty off', merchantTurnsLoyaltyOff],
     ])('for %s', async (_case, arrange) => {
       arrange()
       // A sign-out empties the cart (app/plugins/setup.ts); put the line

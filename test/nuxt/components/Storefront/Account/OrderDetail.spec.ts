@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import OrderDetailPage from '~/components/Storefront/Account/OrderDetail.vue'
 import { makeAcsShipment, makeAcsStation, makeAcsTrackingEvent } from '~~/test/fixtures/acs'
 import { makeBoxNowLocker, makeBoxNowParcelEvent, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
 import { makeOrder, makeOrderItem } from '~~/test/fixtures/order'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * One order: its progress, one timeline of the store's steps and the
@@ -15,7 +15,7 @@ import { setTenant } from '~~/test/helpers/tenant'
  * totals, the payment, and the order's own actions — the invoice, buy
  * again, and cancel behind a confirmation.
  */
-const state = vi.hoisted(() => ({ order: null as unknown, loyaltyOn: true }))
+const state = vi.hoisted(() => ({ order: null as unknown }))
 const { cancelOrder, reorder, toastAdd } = vi.hoisted(() => ({
   cancelOrder: vi.fn((_id: number) => Promise.resolve({})),
   reorder: vi.fn((_id: number) => Promise.resolve()),
@@ -28,14 +28,13 @@ mockNuxtImport('useRoute', () => () => ({ name: 'account-orders-id___el', params
 mockNuxtImport('useOrder', () => () => ({ cancelOrder }))
 mockNuxtImport('useReorder', () => () => ({ reorder, reordering: ref(null) }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
-mockNuxtImport('useSettingFlag', () => (key: string) => computed(() => key === 'LOYALTY_ENABLED' && state.loyaltyOn))
 
 let fetches = 0
 
 beforeEach(() => {
   fetches = 0
-  state.loyaltyOn = true
   setTenant({ loyaltyEnabled: true })
+  setTenantFeatures({ loyalty: true })
   state.order = makeOrder({ id: 3 })
   clearNuxtData('order3')
   registerEndpoint('/api/orders/3', () => {
@@ -57,13 +56,11 @@ const button = (wrapper: VueWrapper, label: string) =>
 
 describe('Storefront/Account/OrderDetail', () => {
   it.each([
-    { name: 'the order earns points', points: 120, tenant: true, runtime: true, shown: true },
-    { name: 'the order earns nothing', points: 0, tenant: true, runtime: true, shown: false },
-    { name: 'the plan lacks loyalty', points: 120, tenant: false, runtime: true, shown: false },
-    { name: 'the loyalty setting is off', points: 120, tenant: true, runtime: false, shown: false },
-  ])('says what the order will earn only when it can: $name', async ({ points, tenant, runtime, shown }) => {
-    setTenant({ loyaltyEnabled: tenant })
-    state.loyaltyOn = runtime
+    { name: 'the order earns points', points: 120, feature: true, shown: true },
+    { name: 'the order earns nothing', points: 0, feature: true, shown: false },
+    { name: 'the store lacks the loyalty feature, plan flag on', points: 120, feature: false, shown: false },
+  ])('says what the order will earn only when it can: $name', async ({ points, feature, shown }) => {
+    setTenantFeatures({ loyalty: feature })
     state.order = makeOrder({ id: 3, loyaltyPointsToEarn: points })
 
     const wrapper = await mountPage()

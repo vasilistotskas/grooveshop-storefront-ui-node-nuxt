@@ -28,9 +28,7 @@ interface NewsletterSignupOptions {
  */
 export async function useNewsletterAvailability() {
   const { $i18n } = useNuxtApp()
-  const newsletterEnabled = useSettingFlag('NEWSLETTER_ENABLED', {
-    fallback: true,
-  })
+  const newsletterEnabled = useStoreFeature('newsletter')
 
   const { data: availability } = await useApi('/api/subscriptions/newsletter', {
     key: 'newsletter-availability',

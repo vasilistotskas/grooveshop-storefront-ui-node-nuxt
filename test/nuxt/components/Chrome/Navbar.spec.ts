@@ -7,7 +7,7 @@ import type { NavLink } from '~/composables/useNavigation'
 import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
 import ChromeNavbar from '~/components/Chrome/Navbar.vue'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -16,7 +16,7 @@ mockNuxtImport('$fetch', () => api)
 const { state } = vi.hoisted(() => ({
   state: {
     header: null as NavLink[] | null,
-    /** Merchant runtime settings; a missing key takes the caller's fallback. */
+    /** The preferences still read from the settings (the cart); a missing key takes the preference's default. */
     flags: {} as Record<string, boolean>,
   },
 }))
@@ -79,9 +79,9 @@ const menu = (wrapper: VueWrapper) =>
 const t = (key: string) => useNuxtApp().$i18n.t(key)
 
 /**
- * The redesigned header's gates. Offers, gift cards and loyalty are
- * two-tier — the plan flag AND the merchant's runtime setting — and fail
- * CLOSED; the cart and favourites are shopper chrome and fail OPEN.
+ * The redesigned header's gates. Offers, the blog, gift cards, loyalty
+ * and favourites follow `TenantConfig.features`, Django's effective
+ * state, and nothing else; the cart is still a preference.
  */
 describe('Chrome/Navbar', () => {
   beforeEach(() => {
@@ -89,31 +89,33 @@ describe('Chrome/Navbar', () => {
     state.flags = {}
     categories.value = []
     if (session.loggedIn) session.loggedIn.value = false
-    setTenant({ blogEnabled: false, promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false, availableLocales: ['el'] })
+    setTenant({ availableLocales: ['el'] })
   })
 
-  it.each<{ name: string, tenant: Partial<TenantConfig>, flags: Record<string, boolean>, links: string[] }>([
+  it.each<{ name: string, tenant: Partial<TenantConfig>, features: Partial<TenantConfig['features']>, links: string[] }>([
     {
       name: 'every feature on',
-      tenant: { blogEnabled: true, promotionsEnabled: true, giftCardsEnabled: true, loyaltyEnabled: true },
-      flags: { PROMOTIONS_ENABLED: true, GIFT_CARDS_ENABLED: true, LOYALTY_ENABLED: true },
+      tenant: {},
+      features: { blog: true, promotions: true, giftCards: true, loyalty: true },
       links: ['/products', '/offers', '/blog', '/gift-cards', '/loyalty-program'],
     },
     {
-      name: 'the settings missing (fail closed)',
-      tenant: { blogEnabled: true, promotionsEnabled: true, giftCardsEnabled: true, loyaltyEnabled: true },
-      flags: {},
-      links: ['/products', '/blog'],
+      name: 'only the features Django turned on',
+      tenant: {},
+      features: { blog: true, giftCards: true },
+      links: ['/products', '/blog', '/gift-cards'],
     },
     {
-      name: 'the plan flags off',
-      tenant: {},
-      flags: { PROMOTIONS_ENABLED: true, GIFT_CARDS_ENABLED: true, LOYALTY_ENABLED: true },
+      name: 'the plan flags on but the features off',
+      tenant: { blogEnabled: true, promotionsEnabled: true, giftCardsEnabled: true, loyaltyEnabled: true },
+      features: {},
       links: ['/products'],
     },
-  ])('gates the platform menu with $name', async ({ tenant, flags, links }) => {
-    setTenant({ blogEnabled: false, promotionsEnabled: false, giftCardsEnabled: false, loyaltyEnabled: false, availableLocales: ['el'], ...tenant })
-    state.flags = flags
+  ])('gates the platform menu with $name', async ({ tenant, features, links }) => {
+    setTenant({ availableLocales: ['el'], ...tenant })
+    setTenantFeatures(features)
+    // Every setting reads on: none of them can open an entry.
+    state.flags = { PROMOTIONS_ENABLED: true, GIFT_CARDS_ENABLED: true, LOYALTY_ENABLED: true }
 
     const wrapper = await mountNavbar()
 
@@ -130,8 +132,7 @@ describe('Chrome/Navbar', () => {
     // The visitor is on a page UNDER the entry's path, so the entry is
     // active by prefix. It must be a real route: Nuxt does not navigate
     // to a path no page matches, it hands it to the browser instead.
-    setTenant({ giftCardsEnabled: true })
-    state.flags = { GIFT_CARDS_ENABLED: true }
+    setTenantFeatures({ giftCards: true })
     state.header = [
       { label: 'Δωροκάρτες', to: '/gift-cards' },
       { label: 'Εργαστήριο', href: 'https://workshop.example' },
@@ -175,7 +176,7 @@ describe('Chrome/Navbar', () => {
     { name: 'a guest to sign in', loggedIn: false, href: '/account/login' },
     { name: 'a member to their favourites', loggedIn: true, href: '/account/favourites/products' },
   ])('sends $name from the favourites button', async ({ loggedIn, href }) => {
-    setTenant({ blogEnabled: true, availableLocales: ['el'] })
+    setTenantFeatures({ blog: true })
     session.loggedIn.value = loggedIn
 
     const wrapper = await mountNavbar()
@@ -185,7 +186,7 @@ describe('Chrome/Navbar', () => {
 
   it('offers favourites whether or not the store runs a blog', async () => {
     // Favourites are products; the button used to hide with the blog.
-    setTenant({ blogEnabled: false, availableLocales: ['el'] })
+    setTenantFeatures({ blog: false })
 
     const wrapper = await mountNavbar()
 
@@ -208,9 +209,8 @@ describe('Chrome/Navbar', () => {
     expect(wrapper.find('.bg-\\(--ui-scrim\\)').exists()).toBe(true)
   })
 
-  it('draws no favourites button when the merchant turned favourites off', async () => {
-    setTenant({ blogEnabled: true, availableLocales: ['el'] })
-    state.flags = { FAVOURITES_ENABLED: false }
+  it('draws no favourites button when the store lacks the favourites feature', async () => {
+    setTenantFeatures({ blog: true, favourites: false })
 
     const wrapper = await mountNavbar()
 

@@ -3,11 +3,9 @@ import type { PropType } from 'vue'
 
 import type { ButtonProps } from '#ui/types'
 
-// Merchant feature toggle — one gate here covers every call site
-// (product cards, detail page, favourites lists). Fails OPEN.
-const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', {
-  fallback: true,
-})
+// One gate here covers every call site (product cards, detail page,
+// favourites lists).
+const favouritesEnabled = useStoreFeature('favourites')
 
 const props = defineProps({
   productId: {

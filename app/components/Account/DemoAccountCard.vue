@@ -40,7 +40,7 @@ defineProps<{
 
 const { t } = useI18n()
 
-const enabled = useSettingFlag('DEMO_ACCOUNT_ENABLED', { fallback: false })
+const enabled = useStorePreference('DEMO_ACCOUNT_ENABLED')
 const email = useSettingValue('DEMO_ACCOUNT_EMAIL')
 const password = useSettingValue('DEMO_ACCOUNT_PASSWORD')
 const b2bEmail = useSettingValue('DEMO_ACCOUNT_B2B_EMAIL')

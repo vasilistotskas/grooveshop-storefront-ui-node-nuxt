@@ -2,38 +2,16 @@ export const useAccountMenus = () => {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
 
-  const tenantStore = useTenantStore()
-
-  // Fetch loyalty settings using new API
-  const { data: settings } = useLoyalty().fetchSettings()
-
-  // Merchant feature toggles — the real gates are the paired route
-  // middlewares (and the Django permissions); these keep the menu
-  // honest so it never advertises a dead page. Fail-open defaults
-  // mirror the Django defaults (enabled), except gift cards which
-  // defaults disabled.
-  // "My reviews" needs reviews on as well as its own page switch.
-  const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', {
-    fallback: true,
-  })
-  const accountReviewsEnabled = useSettingFlag('ACCOUNT_REVIEWS_ENABLED', {
-    fallback: true,
-  })
-  const reviewsEnabled = computed(
-    () => productReviewsEnabled.value && accountReviewsEnabled.value,
-  )
-  const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', {
-    fallback: true,
-  })
-  const newsletterEnabled = useSettingFlag('NEWSLETTER_ENABLED', {
-    fallback: true,
-  })
-  const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-    fallback: false,
-  })
-  const b2bRuntimeEnabled = useSettingFlag('B2B_WHOLESALE_ENABLED', {
-    fallback: false,
-  })
+  // The store's features — the same answer the paired route middlewares
+  // and Django's permissions give, so the menu never advertises a dead
+  // page. `accountReviews` already needs `productReviews` on.
+  const reviewsEnabled = useStoreFeature('accountReviews')
+  const favouritesEnabled = useStoreFeature('favourites')
+  const newsletterEnabled = useStoreFeature('newsletter')
+  const blogEnabled = useStoreFeature('blog')
+  const loyaltyEnabled = useStoreFeature('loyalty')
+  const giftCardsEnabled = useStoreFeature('giftCards')
+  const wholesaleEnabled = useStoreFeature('wholesale')
 
   const menus = computed(() => {
     const baseMenus = [
@@ -53,7 +31,7 @@ export const useAccountMenus = () => {
               label: t('favourites'),
               // The posts tab exists only with the blog; without it
               // the favourites live on the products tab.
-              to: tenantStore.blogEnabled
+              to: blogEnabled.value
                 ? '/account/favourites/posts'
                 : '/account/favourites/products',
               icon: 'i-mdi-heart-outline',
@@ -81,10 +59,7 @@ export const useAccountMenus = () => {
       },
     ]
 
-    // Only add loyalty menu when both the tenant plan gate and the runtime
-    // operational toggle are enabled. This mirrors the two-tier gate in
-    // app/middleware/loyalty-enabled.ts.
-    if (tenantStore.loyaltyEnabled && settings.value?.enabled) {
+    if (loyaltyEnabled.value) {
       baseMenus.push({
         label: t('loyalty'),
         to: '/account/loyalty',
@@ -92,8 +67,7 @@ export const useAccountMenus = () => {
       })
     }
 
-    // Same two-tier gate for gift cards (app/middleware/gift-cards-enabled.ts).
-    if (tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value) {
+    if (giftCardsEnabled.value) {
       baseMenus.push({
         label: t('gift_cards'),
         to: '/account/gift-cards',
@@ -101,8 +75,7 @@ export const useAccountMenus = () => {
       })
     }
 
-    // Two-tier gate for the wholesale program (app/middleware/b2b-enabled.ts).
-    if (tenantStore.b2bEnabled && b2bRuntimeEnabled.value) {
+    if (wholesaleEnabled.value) {
       baseMenus.push({
         label: t('business_account'),
         to: '/account/business',

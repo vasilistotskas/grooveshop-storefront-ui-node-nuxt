@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import BlogPosts from '~/components/PageSection/variants/ekfyseosfyteias/BlogPosts.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -41,7 +41,8 @@ const mountPosts = (props: Record<string, unknown> = {}) =>
 describe('ekfyseosfyteias blog_posts_grid', () => {
   beforeEach(() => {
     clearNuxtData()
-    setTenant({ blogEnabled: true })
+    setTenant()
+    setTenantFeatures({ blog: true })
     api.routes({ [POSTS_URL]: { results: POSTS, count: POSTS.length } })
   })
 
@@ -111,7 +112,7 @@ describe('ekfyseosfyteias blog_posts_grid', () => {
   })
 
   it('asks for nothing and draws nothing when the store has its blog off', async () => {
-    setTenant({ blogEnabled: false })
+    setTenantFeatures({ blog: false })
 
     const wrapper = await mountPosts()
 
