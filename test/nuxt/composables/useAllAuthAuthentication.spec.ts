@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { setTenant } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
+import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const { hooks, ga4, metaPixel, tiktokPixel, route } = vi.hoisted(() => ({
@@ -190,13 +192,15 @@ describe('useAllAuthAuthentication', () => {
     ['login', a => a.login({ email: 'shopper@example.com', password: 'secret' })],
     ['signup', a => a.signup({ email: 'shopper@example.com', password: 'secret' })],
   ])('%s while the browser is still signed in', (endpoint, call) => {
-    const conflict = () => Object.assign(new Error('Conflict'), { status: 409 })
+    const conflict = failWith(409, asProxiedError({ status: 409 }).data)
+    const wrongPassword = failWith(400, asProxiedError(makeBadResponse({ message: 'Wrong', code: 'email_password_mismatch', param: 'password' })).data)
+    const signedOut = failWith(401, asProxiedError({ status: 401 }).data)
 
     it('ends the old session and signs in with what was typed', async () => {
       let attempts = 0
       api.mockImplementation(async (url, options) => {
-        if (url === `${AUTH}/${endpoint}` && attempts++ === 0) throw conflict()
-        if (url === `${AUTH}/session`) throw Object.assign(new Error('Unauthorized'), { status: 401 })
+        if (url === `${AUTH}/${endpoint}` && attempts++ === 0) conflict()
+        if (url === `${AUTH}/session`) signedOut()
         await options?.onResponse?.({ response: OK })
         return OK._data
       })
@@ -210,22 +214,20 @@ describe('useAllAuthAuthentication', () => {
       let attempts = 0
       api.mockImplementation(async (url) => {
         if (url === `${AUTH}/${endpoint}`) {
-          if (attempts++ === 0) throw conflict()
-          throw Object.assign(new Error('Bad Request'), { status: 400 })
+          if (attempts++ === 0) conflict()
+          wrongPassword()
         }
-        throw Object.assign(new Error('Unauthorized'), { status: 401 })
+        signedOut()
       })
 
-      await expect(call(useAllAuthAuthentication())).rejects.toMatchObject({ status: 400 })
+      await expect(call(useAllAuthAuthentication())).rejects.toMatchObject({ statusCode: 400 })
       expect(api.callsTo(`${AUTH}/session`).map(c => c.options.method)).toEqual(['DELETE'])
     })
 
     it('still fails on any other error without touching the session', async () => {
-      api.mockImplementation(async () => {
-        throw Object.assign(new Error('Bad Request'), { status: 400 })
-      })
+      api.mockImplementation(async () => wrongPassword())
 
-      await expect(call(useAllAuthAuthentication())).rejects.toMatchObject({ status: 400 })
+      await expect(call(useAllAuthAuthentication())).rejects.toMatchObject({ statusCode: 400 })
       expect(api.callsTo(`${AUTH}/session`)).toEqual([])
     })
   })

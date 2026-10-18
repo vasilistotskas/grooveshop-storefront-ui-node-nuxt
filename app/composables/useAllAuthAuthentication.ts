@@ -35,9 +35,7 @@ export default function () {
       return await send()
     }
     catch (error) {
-      const stillSignedIn = typeof error === 'object' && error !== null
-        && 'status' in error && error.status === 409
-      if (!stillSignedIn) throw error
+      if (!isConflictClientError(error)) throw error
       // allauth answers a successful sign-out with 401 (no user left),
       // so the outcome is decided by the retry below, not by this call.
       await $api(`${API_BASE_URL}/session`, {
