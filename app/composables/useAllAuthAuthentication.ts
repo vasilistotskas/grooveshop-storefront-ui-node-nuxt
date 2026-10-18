@@ -22,6 +22,30 @@ export default function () {
     })
   }
 
+  /**
+   * allauth answers a login or signup with 409 when this browser is still
+   * signed in, e.g. after the storefront lost its copy of the user. The
+   * credentials just typed decide who signs in, so the old session is
+   * ended and the request sent once more. Continuing the old session
+   * instead would put whoever typed them into the previous user's
+   * account on a shared computer.
+   */
+  async function asFreshSignIn<T>(send: () => Promise<T>) {
+    try {
+      return await send()
+    }
+    catch (error) {
+      if (!isConflictClientError(error)) throw error
+      // allauth answers a successful sign-out with 401 (no user left),
+      // so the outcome is decided by the retry below, not by this call.
+      await $api(`${API_BASE_URL}/session`, {
+        method: 'DELETE',
+        headers: useRequestHeaders(),
+      }).catch(() => undefined)
+      return send()
+    }
+  }
+
   async function deleteSession({ explicit = false }: { explicit?: boolean } = {}) {
     return $api(`${API_BASE_URL}/session`, {
       method: 'DELETE',
@@ -36,7 +60,7 @@ export default function () {
   }
 
   async function login(body: LoginBody) {
-    return $api(`${API_BASE_URL}/login`, {
+    return asFreshSignIn(() => $api(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -65,11 +89,11 @@ export default function () {
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
       },
-    })
+    }))
   }
 
   async function signup(body: SignupBody) {
-    return $api(`${API_BASE_URL}/signup`, {
+    return asFreshSignIn(() => $api(`${API_BASE_URL}/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -102,7 +126,7 @@ export default function () {
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
       },
-    })
+    }))
   }
 
   async function getEmailVerify(key: string) {
