@@ -1,3 +1,10 @@
+## [3.255.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.0...v3.255.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* **cache:** move a store's cache epoch only on a purge that changes its tenant config ([#175](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/175)) ([18d0b92](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/18d0b92fcc6eb8e54fbb75d7f4d39002901d3462))
+
 # [3.255.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.254.1...v3.255.0) (2026-10-18)
 
 
