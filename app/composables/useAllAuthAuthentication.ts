@@ -22,6 +22,25 @@ export default function () {
     })
   }
 
+  /**
+   * allauth answers a login or signup with 409 when this browser's session
+   * is already signed in: the page showed the form while the session was
+   * still live, e.g. after the storefront lost its copy of the user. That
+   * is not a failure, so the visitor continues with the session they
+   * already have instead of a form that silently does nothing.
+   */
+  async function continueIfSignedIn<T>(request: Promise<T>) {
+    try {
+      return await request
+    }
+    catch (error) {
+      const alreadySignedIn = typeof error === 'object' && error !== null
+        && 'status' in error && error.status === 409
+      if (!alreadySignedIn) throw error
+      return getSession()
+    }
+  }
+
   async function deleteSession({ explicit = false }: { explicit?: boolean } = {}) {
     return $api(`${API_BASE_URL}/session`, {
       method: 'DELETE',
@@ -36,7 +55,7 @@ export default function () {
   }
 
   async function login(body: LoginBody) {
-    return $api(`${API_BASE_URL}/login`, {
+    return continueIfSignedIn($api(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -65,11 +84,11 @@ export default function () {
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
       },
-    })
+    }))
   }
 
   async function signup(body: SignupBody) {
-    return $api(`${API_BASE_URL}/signup`, {
+    return continueIfSignedIn($api(`${API_BASE_URL}/signup`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -102,7 +121,7 @@ export default function () {
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
       },
-    })
+    }))
   }
 
   async function getEmailVerify(key: string) {

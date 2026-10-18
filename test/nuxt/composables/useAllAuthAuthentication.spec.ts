@@ -179,6 +179,37 @@ describe('useAllAuthAuthentication', () => {
     })
   })
 
+  /**
+   * allauth answers 409 when the browser's session is already signed in.
+   * The form used to swallow it, so pressing the button did nothing; the
+   * visitor now continues with the session they already have.
+   */
+  describe.each<[string, (a: Authentication) => Promise<unknown>]>([
+    ['login', a => a.login({ email: 'shopper@example.com', password: 'secret' })],
+    ['signup', a => a.signup({ email: 'shopper@example.com', password: 'secret' })],
+  ])('%s while the session is already signed in', (endpoint, call) => {
+    it('continues with the existing session', async () => {
+      api.mockImplementation(async (url, options) => {
+        if (url === `${AUTH}/${endpoint}`) throw Object.assign(new Error('Conflict'), { status: 409 })
+        await options?.onResponse?.({ response: OK })
+        return OK._data
+      })
+
+      await expect(call(useAllAuthAuthentication())).resolves.toEqual(OK._data)
+      expect(api.callsTo(`${AUTH}/session`)[0]!.options.method).toBe('GET')
+      expect(hooks.onResponse).toHaveBeenCalledWith(OK)
+    })
+
+    it('still fails on any other error', async () => {
+      api.mockImplementation(async () => {
+        throw Object.assign(new Error('Bad Request'), { status: 400 })
+      })
+
+      await expect(call(useAllAuthAuthentication())).rejects.toMatchObject({ status: 400 })
+      expect(api.callsTo(`${AUTH}/session`)).toEqual([])
+    })
+  })
+
   describe('signup', () => {
     it('fires the registration events of every provider once the account exists', async () => {
       respondWith(OK)
