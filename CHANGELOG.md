@@ -1,3 +1,10 @@
+## [3.255.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.1...v3.255.2) (2026-10-18)
+
+
+### Bug Fixes
+
+* **auth:** sign in with the typed credentials when the browser is still signed in ([#176](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/176)) ([236d238](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/236d238328bcf812f2af4df44ab9c312598702b7))
+
 ## [3.255.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.0...v3.255.1) (2026-10-18)
 
 
