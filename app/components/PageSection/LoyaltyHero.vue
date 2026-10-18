@@ -42,12 +42,10 @@ const tenantStore = useTenantStore()
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
 
-const offered = tenantStore.loyaltyEnabled
-const [{ data: settings }, { data: tiers }] = offered
+const offered = useStoreFeature('loyalty')
+const [{ data: settings }, { data: tiers }] = offered.value
   ? await Promise.all([loyalty.fetchSettings(), loyalty.fetchTiers()])
   : [{ data: ref<LoyaltySettings>() }, { data: ref<LoyaltyTier[]>() }]
-
-const running = computed(() => offered && !!settings.value?.enabled)
 
 const mounted = ref(false)
 onMounted(() => {
@@ -88,7 +86,7 @@ const tierTerms = (tier: LoyaltyTier) =>
 </script>
 
 <template>
-  <template v-if="running">
+  <template v-if="offered">
     <PageSectionBand
       v-if="member"
       :heading="title"

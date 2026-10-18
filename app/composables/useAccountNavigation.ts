@@ -42,17 +42,14 @@ export function useAccountNavigation() {
   const t = $i18n.t.bind($i18n)
   const localePath = useLocalePath()
   const route = useRoute()
-  const tenantStore = useTenantStore()
 
-  const { data: loyaltySettings } = useLoyalty().fetchSettings()
-  // "My reviews" needs reviews on as well as its own page switch.
-  const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
-  const accountReviewsEnabled = useSettingFlag('ACCOUNT_REVIEWS_ENABLED', { fallback: true })
-  const reviewsEnabled = computed(() => productReviewsEnabled.value && accountReviewsEnabled.value)
-  const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', { fallback: true })
-  const newsletterEnabled = useSettingFlag('NEWSLETTER_ENABLED', { fallback: true })
-  const giftCardsEnabled = useSettingFlag('GIFT_CARDS_ENABLED', { fallback: false })
-  const b2bEnabled = useSettingFlag('B2B_WHOLESALE_ENABLED', { fallback: false })
+  // `accountReviews` already needs `productReviews` on.
+  const reviewsEnabled = useStoreFeature('accountReviews')
+  const favouritesEnabled = useStoreFeature('favourites')
+  const newsletterEnabled = useStoreFeature('newsletter')
+  const loyaltyEnabled = useStoreFeature('loyalty')
+  const giftCardsEnabled = useStoreFeature('giftCards')
+  const wholesaleEnabled = useStoreFeature('wholesale')
   const { count: unseenNotifications } = useUnseenNotificationsCount()
 
   const under = (prefix: string) => (name: string) => name === prefix || name.startsWith(`${prefix}-`)
@@ -69,13 +66,13 @@ export function useAccountNavigation() {
       ? [{ key: 'reviews', icon: 'i-lucide-thumbs-up', route: 'account-reviews' } as const]
       : []),
     { key: 'notifications', icon: 'i-lucide-bell', route: 'account-notifications' },
-    ...(tenantStore.loyaltyEnabled && loyaltySettings.value?.enabled
+    ...(loyaltyEnabled.value
       ? [{ key: 'rewards', icon: 'i-lucide-hourglass', route: 'account-loyalty' } as const]
       : []),
-    ...(tenantStore.giftCardsEnabled && giftCardsEnabled.value
+    ...(giftCardsEnabled.value
       ? [{ key: 'gift_cards', icon: 'i-lucide-gift', route: 'account-gift-cards' } as const]
       : []),
-    ...(tenantStore.b2bEnabled && b2bEnabled.value
+    ...(wholesaleEnabled.value
       ? [{ key: 'business', icon: 'i-lucide-building-2', route: 'account-business' } as const]
       : []),
     ...(newsletterEnabled.value

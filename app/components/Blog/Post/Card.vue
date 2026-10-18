@@ -47,9 +47,7 @@ const props = withDefaults(defineProps<{
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const { blogPostUrl } = useUrls()
-const blogCommentsEnabled = useSettingFlag('BLOG_COMMENTS_ENABLED', {
-  fallback: true,
-})
+const blogCommentsEnabled = useStoreFeature('blogComments')
 
 const title = computed(() => extractTranslated(props.post, 'title', locale.value) ?? '')
 const subtitle = computed(() => extractTranslated(props.post, 'subtitle', locale.value) ?? '')

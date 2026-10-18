@@ -6,6 +6,7 @@ import type { ListProductReviewsResponse, ProductReviewDetail } from '~~/shared/
 import Section from '~/components/Product/Reviews/Section.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The reviews of a product page: the summary, the way to write one, and
@@ -16,9 +17,9 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const { session, flags } = await vi.hoisted(async () => {
+const { session } = await vi.hoisted(async () => {
   const { ref } = await import('vue')
-  return { session: { loggedIn: ref(false) }, flags: { reviews: true } }
+  return { session: { loggedIn: ref(false) } }
 })
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: session.loggedIn,
@@ -28,8 +29,6 @@ mockNuxtImport('useUserSession', () => () => ({
   fetch: () => Promise.resolve(),
   clear: () => Promise.resolve(),
 }))
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => key === 'PRODUCT_REVIEWS_ENABLED' ? flags.reviews : options.fallback))
 mockNuxtImport('useRoute', () => () => ({
   name: 'products-id-slug___el',
   params: { id: '42', slug: 'pot' },
@@ -80,7 +79,8 @@ const writeButton = (wrapper: Awaited<ReturnType<typeof mountSection>>, label: s
 
 beforeEach(() => {
   session.loggedIn.value = false
-  flags.reviews = true
+  setTenant()
+  setTenantFeatures({ productReviews: true })
   clearNuxtData(['productReviews42undefined', 'productReviews427'])
   api.routes({ '/api/products/reviews/42/user-product-review': OWN_REVIEW })
 })
@@ -183,7 +183,7 @@ describe('Product/Reviews/Section', () => {
     })
 
     it('fetches nothing of their own when the store has reviews off', async () => {
-      flags.reviews = false
+      setTenantFeatures({ productReviews: false })
 
       await mountSection()
 

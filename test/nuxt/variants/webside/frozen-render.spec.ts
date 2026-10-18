@@ -281,6 +281,11 @@ describe('webside frozen render', () => {
       loyaltyEnabled: true,
       recommendationsEnabled: true,
       agentCommerceEnabled: true,
+      // What Django resolves for this fixture: the blog plan flag is on;
+      // loyalty is plan AND `LOYALTY_ENABLED`, and no spec here serves
+      // that setting (the account overview below does, for its own
+      // check), so the feature is off.
+      features: { ...validTenantConfig('webside.gr').features, blog: true, loyalty: false },
     }) as TenantConfig)
   })
 
@@ -453,6 +458,10 @@ describe('webside frozen render', () => {
     })
 
     it('account overview', async () => {
+      // This test serves `LOYALTY_ENABLED`, so Django would resolve the
+      // feature (plan AND setting) as on.
+      const tenant = useTenantStore()
+      tenant.setConfig({ ...tenant.config!, features: { ...tenant.config!.features, loyalty: true } })
       api.routes({
         '/api/loyalty/settings': { LOYALTY_ENABLED: 'true' },
         '/api/loyalty/summary': makeSummary(),

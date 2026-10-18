@@ -14,8 +14,8 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
   // Every link in the page's language: a bare `/search` on an `/en/`
   // page led to the Greek one.
   const localePath = useLocalePath()
-  const tenantStore = useTenantStore()
-  const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', { fallback: true })
+  const favouritesEnabled = useStoreFeature('favourites')
+  const blogEnabled = useStoreFeature('blog')
   const img = useMediaStreamImage()
 
   const avatarImg = computed(() => {
@@ -54,7 +54,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
       // Points at the favourite POSTS, so it follows both the blog and
       // the favourites switch — otherwise the heart leads to a gated
       // route on a store without either.
-      ...(tenantStore.blogEnabled && favouritesEnabled.value
+      ...(blogEnabled.value && favouritesEnabled.value
         ? [{
             icon: 'i-heroicons-heart',
             to: localePath(loggedIn.value ? 'account-favourites-posts' : RedirectToURLs.LOGIN_URL),

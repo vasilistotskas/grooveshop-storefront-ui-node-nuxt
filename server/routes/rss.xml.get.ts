@@ -131,7 +131,7 @@ export default defineEventHandler(async (event) => {
 
     const tenant = event.context.tenant
     const currency = tenant?.defaultCurrency ?? 'EUR'
-    const blogEnabled = tenant?.blogEnabled ?? true
+    const blogEnabled = eventStoreFeature(event, 'blog')
 
     // The RSS feed is a blog feed; when the tenant has blog disabled
     // there's nothing to syndicate, so 404. (Re-thrown intact by the

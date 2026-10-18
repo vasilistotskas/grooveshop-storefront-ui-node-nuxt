@@ -18,6 +18,7 @@ Tenant resolution, the event.context.tenant contract, cache keying and hydration
 2. `getTenantConfig` (in `server/utils/tenant.ts`) checks a 5-minute in-memory cache, then proxies `GET /api/v1/tenant/resolve?domain=<host>` to Django. The response is validated with `parseDataAs(response, zTenantConfig)`.
 
 **The store's host is `requestTenantHost(event)`, everywhere it identifies the store** — resolution, `tenantCacheKey`, cached-fetcher keys, rate-limit keys, and the `X-Forwarded-Host` sent to Django. It is the Host header (never X-Forwarded-Host, which the client controls) lower-cased and without a port (`tenantHostOf`): Django matches `TenantDomain` exactly and stores bare hostnames, so a raw `Webside.GR` was "Store not found" and a raw `webside.gr:443` resolved the store but missed every cache and rate-limit bucket keyed on it. Read the raw `getRequestHost` only to BUILD a URL or forward a request as received.
+   The 5-minute copy is per pod, and `features` lives in it, so a feature flip must not wait it out: `/api/admin/cache/purge` (which Django calls on every switch change) first calls `invalidateTenantConfigs(host)`, writing an EPOCH for the store (or a platform-wide one) to the shared cache storage; every pod re-reads a store's epochs at most every 5 seconds and drops that store's copy when they moved (`server/utils/tenant.ts`). The epoch a pod holds (`tenantConfigEpoch(host)`, from memory) is part of every cache key built from the tenant config: `tenantCacheKey` ends with it, and `1.tenant-epoch.ts` stamps it as `x-tenant-epoch`, which every cached page rule and `/sitemap.xml` vary on (`CACHED_PAGE_VARIES` in `nuxt.config.ts`). A pod that has not yet seen a purge fills the OLD epoch, which no updated pod reads; old epochs' entries leave on their TTL.
 3. On success, `event.context.tenant` is set to the validated `TenantConfig` object.
 4. On Django 5xx: respond 503 (transient — not cached). On 404: respond 404 "Store not found" (not cached).
 5. Certain paths bypass tenant resolution entirely (see `BYPASS_PREFIXES` / `BYPASS_EXACT` in the middleware file): `/_nuxt`, `/_ipx`, `/assets`, `/api/health`, `/health`, `/favicon.ico`, `/favicon.png`, `/logo.svg`, `/robots.txt`, `/manifest.webmanifest`, `/openapi`, `/_health`.
@@ -40,7 +41,7 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 - `defaultCurrency` — ISO 4217 code (e.g. `'EUR'`), used in RSS and checkout
 - `accentHex` — CSS hex for PWA theme_color
 - `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
-- `loyaltyEnabled`, `blogEnabled` — feature flags
+- `features` — Django's effective state of each store feature (`useStoreFeature`, `eventStoreFeature`; see `.claude/rules/ui-and-pages.md`, "Store features"). `loyaltyEnabled`, `blogEnabled` and the other plan flags still arrive but only the frozen webside tree reads them
 - `metaPixelId`, `tiktokPixelId`, `gaTrackingId` — tenant-only analytics/pixel ids, no platform/env fallback (see Environment)
 
 ## `tenantCacheKey` requirement

@@ -21,7 +21,6 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const { loggedIn } = useUserSession()
-const tenantStore = useTenantStore()
 const loyalty = useLoyalty()
 
 // Awaited so the server knows, before it registers the points fetch,
@@ -29,7 +28,7 @@ const loyalty = useLoyalty()
 // checkout, so it costs no extra request.
 const { data: settings } = await loyalty.fetchSettings()
 
-const enabled = computed(() => tenantStore.loyaltyEnabled && (settings.value?.enabled ?? false))
+const enabled = useStoreFeature('loyalty')
 const { data: productPoints } = loyalty.fetchProductPoints(
   props.productId,
   () => loggedIn.value && enabled.value,

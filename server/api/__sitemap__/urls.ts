@@ -67,8 +67,8 @@ export default defineSitemapEventHandler(async (event) => {
   // useMediaStreamBaseUrl() resolution.
   const mediaStreamBase = mediaStreamBaseUrl(tenant?.assetsDomain, config.public.mediaStreamPath as string | undefined)
 
-  const blogEnabled = tenant?.blogEnabled ?? true
-  // The catalogue is a merchant SETTING, not a plan flag: a store can
+  const blogEnabled = storeFeatureOn(tenant, 'blog')
+  // The catalogue is a merchant SETTING, not a store feature yet: a store can
   // hold a product model and serve no shop (an engineering contractor
   // quoting per project). Its listings and product pages 404 under
   // `app/middleware/catalogue-enabled.ts`, so they must not be
@@ -82,7 +82,7 @@ export default defineSitemapEventHandler(async (event) => {
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.
   // languageCode ensures Django returns translations for the active locale.
-  // Blog data is skipped entirely when blogEnabled is false so disabled
+  // Blog data is skipped entirely when the blog feature is off so disabled
   // tenants don't leak blog URL surface in the sitemap.
   const [
     allPosts,

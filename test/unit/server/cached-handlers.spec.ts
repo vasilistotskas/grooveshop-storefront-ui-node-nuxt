@@ -16,7 +16,9 @@
  */
 import { describe, expect, it } from 'vitest'
 import type { EventHandler } from 'h3'
-import { cacheOptionsOf, createTestEvent } from '~~/test/helpers/nitro'
+import { getTenantConfig, invalidateTenantConfigs } from '~~/server/utils/tenant'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { backend, cacheOptionsOf, createTestEvent } from '~~/test/helpers/nitro'
 
 const sources = import.meta.glob<string>('/server/{api,routes}/**/*.ts', { query: '?raw', import: 'default', eager: true })
 const modules = import.meta.glob<{ default: EventHandler }>('/server/{api,routes}/**/*.ts')
@@ -61,5 +63,21 @@ describe('every cached route handler', () => {
     expect(greekA.startsWith('store-a.test__el__')).toBe(true)
     expect(englishA.startsWith('store-a.test__en__')).toBe(true)
     expect(greekA).not.toContain('evil.example')
+  })
+
+  // What every one of them returns was built from `TenantConfig.features`,
+  // so after a purge a pod that has seen it must not read what a pod that
+  // had not filed under the old epoch.
+  it.each(cachedFiles)('%s keys its cache on the tenant-config epoch of the store', async (file) => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+    await getTenantConfig('store-a.test')
+    await getTenantConfig('store-b.test')
+    const before = { a: await keyFor(file, 'store-a.test', 'el'), b: await keyFor(file, 'store-b.test', 'el') }
+
+    await invalidateTenantConfigs('store-a.test')
+    await getTenantConfig('store-a.test')
+
+    expect(await keyFor(file, 'store-a.test', 'el')).not.toBe(before.a)
+    expect(await keyFor(file, 'store-b.test', 'el')).toBe(before.b)
   })
 })

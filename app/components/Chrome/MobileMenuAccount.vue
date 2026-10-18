@@ -11,12 +11,7 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { user } = useUserSession()
-const tenantStore = useTenantStore()
-
-const loyaltyRuntimeEnabled = useSettingFlag('LOYALTY_ENABLED', { fallback: false })
-const loyaltyEnabled = computed(
-  () => tenantStore.loyaltyEnabled && loyaltyRuntimeEnabled.value,
-)
+const loyaltyEnabled = useStoreFeature('loyalty')
 
 const name = computed(() =>
   [user.value?.firstName, user.value?.lastName].filter(Boolean).join(' '),

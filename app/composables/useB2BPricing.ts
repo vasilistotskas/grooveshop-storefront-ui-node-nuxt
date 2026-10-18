@@ -57,7 +57,7 @@ export function resetB2BPricing(): void {
 
 export function useB2BPricing() {
   const { loggedIn } = useUserSession()
-  const tenantStore = useTenantStore()
+  const wholesaleEnabled = useStoreFeature('wholesale')
 
   const prices = pricesState()
   const wanted = wantedState()
@@ -65,7 +65,7 @@ export function useB2BPricing() {
   const halted = haltedState()
 
   const active = computed(
-    () => loggedIn.value && tenantStore.b2bEnabled && !halted.value,
+    () => loggedIn.value && wholesaleEnabled.value && !halted.value,
   )
 
   async function flush(): Promise<void> {

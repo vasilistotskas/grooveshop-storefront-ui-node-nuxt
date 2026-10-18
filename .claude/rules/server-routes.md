@@ -51,8 +51,8 @@ Nuxt 5 runs Nitro v3, which has no server auto-imports and no global
   event only.
 - **h3 handlers remain only where a module or h3 itself requires them**:
   the OAuth routes (nuxt-auth-utils' factories), the sitemap source,
-  the RSS feed, the manifest, `1.device-class.ts` (writes a Node request header for
-  Nitro's cache `varies`) and `contact/attachment.post.ts` (`proxyRequest`
+  the RSS feed, the manifest, `1.device-class.ts` and `1.tenant-epoch.ts` (each writes a Node
+  request header for Nitro's cache `varies`) and `contact/attachment.post.ts` (`proxyRequest`
   streams the upload).
 - `test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on any
   h3 or Nitro name used in `server/**` without an import.
@@ -66,6 +66,7 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 - `0.redirects.ts` — 301 redirect from `www.` to non-www
 - `0.tenant.ts` — resolves `event.context.tenant` from the request host (runs first; see Multi-Tenant Architecture)
 - `1.ai-ready-gate.ts` — gates the on-demand `.md`/llms routes
+- `1.tenant-epoch.ts` — stamps the store's tenant-config epoch as `x-tenant-epoch`, which the cached page rules vary on (see Multi-Tenant Architecture)
 - `1.locale.ts` — `event.context.locale` = the page's locale: the path prefix of a page request, or the `X-Language` the app's fetchers state on an `/api` request, clamped by `servedLocale` (`shared/i18n/tenantLocales.ts`). No cookie, `Accept-Language` or `?locale=` source. It is sent to Django as `X-Language` and is part of every `tenantCacheKey`
 - `2.evlog-auth.ts` — attaches the auth session user id to the wide event (`useLogger`)
 - `3.csp.ts` — per-tenant Content-Security-Policy (extends src lists with the tenant's `allowedCspSources`)

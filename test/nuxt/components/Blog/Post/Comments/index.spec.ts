@@ -8,6 +8,7 @@ import WebsideBlogPostComments from '~/components/variants/webside/Blog/Post/Com
 import { makeBlogComment } from '~~/test/fixtures/blog'
 import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -15,7 +16,7 @@ mockNuxtImport('$fetch', () => api)
 
 const { state, toastAdd } = vi.hoisted(() => ({
   state: {
-    /** Merchant runtime settings; a missing key takes the caller's fallback. */
+    /** The frozen webside tree still reads the merchant setting; a missing key takes the caller's fallback. */
     flags: {} as Record<string, boolean>,
   },
   toastAdd: vi.fn(),
@@ -37,6 +38,12 @@ mockNuxtImport('useUserSession', () => () => {
     clear: () => Promise.resolve(),
   }
 })
+
+/** Comments off: Django's feature for the default tree, the setting the frozen webside tree reads. */
+function commentsOff() {
+  state.flags = { BLOG_COMMENTS_ENABLED: false }
+  setTenantFeatures({ blogComments: false })
+}
 
 const PROXY_URL = '/api/blog/posts/42/comments'
 // DRF's `request.build_absolute_uri()` — an absolute Django origin that must
@@ -105,6 +112,8 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     useState<CursorState>('cursor-state').value = generateInitialCursorState()
     useUserStore().blogLikedComments = []
     state.flags = {}
+    setTenant()
+    setTenantFeatures({ blogComments: true })
     if (session.loggedIn) session.loggedIn.value = false
     if (session.user) session.user.value = null
   })
@@ -278,9 +287,9 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
   })
 
   it('renders nothing, and asks for no comments, when the merchant turned comments off', async () => {
-    state.flags = { BLOG_COMMENTS_ENABLED: false }
+    commentsOff()
     api.routes({
-      // The fetch decision reads the store's settings, awaited.
+      // The frozen webside tree decides from the store's settings, awaited.
       '/api/settings/public': { settings: { BLOG_COMMENTS_ENABLED: 'False' } },
       [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]),
     })
@@ -298,7 +307,7 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
   // The query carries the page's locale, and a changed reactive option
   // refetches whatever `immediate` said; `enabled` blocks every run.
   it.runIf(tree === 'default')('asks for no comments either when the language of the page changes', async () => {
-    state.flags = { BLOG_COMMENTS_ENABLED: false }
+    commentsOff()
     api.routes({
       '/api/settings/public': { settings: { BLOG_COMMENTS_ENABLED: 'False' } },
       [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]),

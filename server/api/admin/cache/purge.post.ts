@@ -107,6 +107,11 @@ export default defineEventHandler(async (event) => {
   // As the keys name the store (`requestTenantHost`), whatever case the
   // caller sends it in.
   const host = body.host === undefined ? undefined : tenantHostOf(body.host)
+  // The store's tenant config (`TenantConfig.features` among them) goes
+  // first, and what is rendered from it moves to a new cache epoch, so a
+  // page re-rendered after this purge sees the store's new features. A
+  // platform-wide purge (no host) does it for every store.
+  if (!body.dryRun) await invalidateTenantConfigs(host)
 
   let matched = 0
   let deleted = 0

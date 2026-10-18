@@ -7,6 +7,7 @@ import WebsideButtonProductAddToFavourite from '~/components/variants/webside/Bu
 import type { ProductFavouriteWrite } from '~~/shared/openapi/types.gen'
 import { failWith } from '~~/test/helpers/api'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * A signed-in shopper adds a product to their favourites or removes it.
@@ -29,12 +30,14 @@ mockNuxtImport('useUserSession', () => () => ({
   fetch: () => Promise.resolve(),
   clear: () => Promise.resolve(),
 }))
+// The frozen webside tree reads the merchant setting; the default tree reads the feature.
 mockNuxtImport('useSettingFlag', () => () => computed(() => true))
 
 const FAVOURITE: ProductFavouriteWrite = { id: 11, product: 5 }
 
 describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavourite))('$tree Button/Product/AddToFavourite', ({ C }) => {
   beforeEach(() => {
+    setTenant()
     loggedIn.value = true
     useUserStore().favouriteProductIds = {}
   })

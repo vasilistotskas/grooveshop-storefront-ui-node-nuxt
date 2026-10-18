@@ -4,7 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import GiftCardInput from '~/components/Checkout/GiftCardInput.vue'
 import WebsideGiftCardInput from '~/components/variants/webside/Checkout/GiftCardInput.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
 
@@ -51,7 +51,10 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
   beforeEach(() => {
     clearNuxtData()
     flags.giftCardsSetting = 'true'
+    // The default tree decides from the feature; the frozen webside tree
+    // from the plan flag and the setting, so every one starts on.
     setTenant({ giftCardsEnabled: true })
+    setTenantFeatures({ giftCards: true })
     routes()
   })
 
@@ -173,7 +176,26 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
     })
   })
 
-  describe('the feature gates (fail closed)', () => {
+  describe.runIf(tree === 'default')('the giftCards feature', () => {
+    it('renders nothing when the store lacks it, plan flag and setting on', async () => {
+      setTenantFeatures({ giftCards: false })
+      const wrapper = await mount()
+
+      expect(wrapper.find('form').exists()).toBe(false)
+    })
+
+    it.each([
+      ['the setting is off', 'false'],
+      ['the settings lookup fails', null],
+    ])('decides from the feature alone: still renders when %s', async (_case, setting) => {
+      flags.giftCardsSetting = setting
+      const wrapper = await mount()
+
+      expect(wrapper.find('form').exists()).toBe(true)
+    })
+  })
+
+  describe.runIf(tree === 'webside')('the gates of the frozen tree (fail closed)', () => {
     it('renders nothing on a plan without gift cards', async () => {
       setTenant({ giftCardsEnabled: false })
       const wrapper = await mount()

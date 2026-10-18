@@ -26,7 +26,6 @@ export default defineEventHandler(async (event): Promise<AccountSummary> => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken(event)
   const backendFetch = useBackendFetch(event)
-  const features = event.context.tenant?.features
   const get = (path: string, query?: Record<string, string | number>) =>
     backendFetch(`${config.apiBaseUrl}${path}`, {
       method: 'GET',
@@ -37,14 +36,14 @@ export default defineEventHandler(async (event): Promise<AccountSummary> => {
   try {
     const [orders, loyalty, giftCards, business] = await Promise.all([
       get('/order/my_orders', { pageSize: 1 }).then(response => parseDataAs(response, zListMyOrdersResponse)),
-      features?.loyalty
+      eventStoreFeature(event, 'loyalty')
         ? absentOn404(get('/loyalty/summary').then(response => parseDataAs(response, zGetLoyaltySummaryResponse)))
         : null,
       // `pagination=false`: every card, not the first page of them.
-      features?.giftCards
+      eventStoreFeature(event, 'giftCards')
         ? absentOn404(get('/giftcard/mine', { pagination: 'false' }).then(response => parseDataAs(response, z.array(zGiftCard))))
         : null,
-      features?.wholesale
+      eventStoreFeature(event, 'wholesale')
         ? absentOn404(get('/b2b/profile').then(response => parseDataAs(response, zGetB2bProfileResponse)))
         : null,
     ])

@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { computed } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { Product } from '~~/shared/openapi/types.gen'
 import ProductCard from '~/components/Product/Card.vue'
 import type { ProductOverrides } from '~~/test/fixtures/product'
 import { makeProduct } from '~~/test/fixtures/product'
 import { makeProductSearchHit } from '~~/test/fixtures/productFilters'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The default tree's card only: the frozen webside card is a different
@@ -21,13 +21,10 @@ vi.mock('~/components/Product/NotifyMe.vue', () => ({
   },
 }))
 
-const { b2bPrice, flags } = vi.hoisted(() => ({
+const { b2bPrice } = vi.hoisted(() => ({
   b2bPrice: vi.fn((_id: number): { finalPrice: string } | undefined => undefined),
-  flags: {} as Record<string, boolean>,
 }))
 mockNuxtImport('useB2BPricing', () => () => ({ register: vi.fn(), priceFor: b2bPrice }))
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => flags[key] ?? options.fallback))
 
 /**
  * A reduction a shopper may be told about: 100 € net at 24 % VAT is 124 €
@@ -73,7 +70,8 @@ describe('Product/Card', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(NOW)
-    for (const key of Object.keys(flags)) Reflect.deleteProperty(flags, key)
+    setTenant()
+    setTenantFeatures({ productAlerts: false, productReviews: true })
   })
 
   afterEach(() => {
@@ -124,13 +122,13 @@ describe('Product/Card', () => {
   it('offers a restock alert on a sold-out product only when the store sends them', async () => {
     expect((await mountCard(makeProduct({ stock: 0 }))).text()).not.toContain('Ειδοποίησέ με')
 
-    flags.PRODUCT_ALERTS_ENABLED = true
+    setTenantFeatures({ productAlerts: true })
     expect((await mountCard(makeProduct({ stock: 0 }))).text()).toContain('Ειδοποίησέ με όταν ξαναέρθει')
     expect((await mountCard(makeProduct({ stock: 9 }))).text()).not.toContain('Ειδοποίησέ με')
   })
 
   it('opens the restock alert in place from a sold-out card', async () => {
-    flags.PRODUCT_ALERTS_ENABLED = true
+    setTenantFeatures({ productAlerts: true })
     const wrapper = await mountCard(makeProduct({ id: 4, stock: 0 }))
     expect(wrapper.find('[data-testid="notify"]').exists()).toBe(false)
 
@@ -221,7 +219,7 @@ describe('Product/Card', () => {
   })
 
   it('shows no rating when the store has reviews off, however reviewed the product', async () => {
-    flags.PRODUCT_REVIEWS_ENABLED = false
+    setTenantFeatures({ productReviews: false })
 
     const card = await mountCard(makeProduct({ reviewAverage: 7, reviewCount: 12 }))
 

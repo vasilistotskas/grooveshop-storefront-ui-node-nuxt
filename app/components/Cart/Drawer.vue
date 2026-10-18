@@ -9,15 +9,14 @@
  *
  * Mounted by the redesign's header once it is first opened, so a page
  * nobody opens a cart on never loads it. The suggestions follow the cart
- * page's rule: the plan flag AND the store's setting.
+ * page's rule: the `productSuggestions` store feature.
  */
 const { t, n, locale } = useI18n()
 const localePath = useLocalePath()
 const { open, added, desktop, close } = useCartDrawer()
 const cartStore = useCartStore()
 const { cart, loaded, hasStockIssues } = storeToRefs(cartStore)
-const tenantStore = useTenantStore()
-const suggestionsSetting = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', { fallback: false })
+const suggestionsEnabled = useStoreFeature('productSuggestions')
 
 const items = computed(() => cart.value?.items ?? [])
 const count = computed(() => Number(cart.value?.totalItems ?? 0))
@@ -36,7 +35,7 @@ const appliedNote = computed(() => {
 })
 
 /** At most two suggestions: the drawer is a glance, the cart page has the strip. */
-const suggestions = computed(() => tenantStore.recommendationsEnabled && suggestionsSetting.value
+const suggestions = computed(() => suggestionsEnabled.value
   ? (cart.value?.recommendations ?? []).slice(0, 2)
   : [])
 

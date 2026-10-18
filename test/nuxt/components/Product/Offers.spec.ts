@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import type { ProductPromotion } from '~~/shared/openapi/types.gen'
 import ProductOffers from '~/components/Product/Offers.vue'
 import WebsideProductOffers from '~/components/variants/webside/Product/Offers.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
 
@@ -77,7 +77,10 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     // Both the store settings and the offers are cached by key on the
     // shared Nuxt app.
     clearNuxtData()
+    // The default tree decides from the feature; the frozen webside tree
+    // from the plan flag and the setting, so every one starts on.
     setTenant({ promotionsEnabled: true })
+    setTenantFeatures({ promotions: true })
     offers = []
     settings = () => ({ settings: { PROMOTIONS_ENABLED: 'true' } })
     api.routes({
@@ -89,18 +92,48 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
   // The gate used to apply to the render only, so a promotions-off store
   // still fired one request per product view and Django answered 404 to
   // every one — 58 in six hours on webside.gr.
-  it.each([
-    ['the tenant plan excludes promotions', () => setTenant({ promotionsEnabled: false })],
-    ['the merchant turned promotions off', () => { settings = () => ({ settings: { PROMOTIONS_ENABLED: 'false' } }) }],
-    ['the store settings cannot be read', () => { settings = failWith(502) }],
-  ])('neither asks for nor renders offers when %s', async (_case, arrange) => {
-    arrange()
+  it('neither asks for nor renders offers when the store lacks the promotions feature', async () => {
+    setTenant({ promotionsEnabled: false })
+    setTenantFeatures({ promotions: false })
     offers = [offer({ relation: 'PRODUCT' })]
 
     const wrapper = await mountPanel()
 
     expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  it.runIf(tree === 'default')('decides from the feature alone: no plan flag or setting can stop the request', async () => {
+    setTenant({ promotionsEnabled: false })
+    setTenantFeatures({ promotions: true })
+    settings = failWith(502)
+    offers = [offer({ relation: 'PRODUCT' })]
+
+    const wrapper = await mountPanel()
+
+    expect(api.callsTo(OFFERS_URL)).toHaveLength(1)
+    expect(wrapper.find('section').exists()).toBe(true)
+  })
+
+  it.runIf(tree === 'default')('no setting can open it either: off in features, on in the settings', async () => {
+    setTenantFeatures({ promotions: false })
+    offers = [offer({ relation: 'PRODUCT' })]
+
+    await mountPanel()
+
+    expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
+  })
+
+  it.runIf(tree === 'webside')('the frozen copy also stays silent when the setting is off or unreadable', async () => {
+    offers = [offer({ relation: 'PRODUCT' })]
+    settings = () => ({ settings: { PROMOTIONS_ENABLED: 'false' } })
+    expect(await mountPanel().then(wrapper => wrapper.find('section').exists())).toBe(false)
+    expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
+
+    clearNuxtData()
+    settings = failWith(502)
+    expect(await mountPanel().then(wrapper => wrapper.find('section').exists())).toBe(false)
+    expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
   })
 
   it.runIf(tree === 'default')('asks in the page language, since Django translates the offers', async () => {

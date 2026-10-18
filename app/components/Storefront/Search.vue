@@ -15,7 +15,7 @@ const route = useRoute(`search___${locale.value}`)
 const { trackResultClick } = useSearchClickTracking()
 // Without the blog plan there are no guides: no tab, no aside, and no
 // request (Django answers 404 for the blog search).
-const tenantStore = useTenantStore()
+const blogEnabled = useStoreFeature('blog')
 
 /** How many guides sit beside the products. */
 const ASIDE_GUIDES = 3
@@ -26,7 +26,7 @@ const firstOf = (value: unknown): string =>
   typeof value === 'string' ? value : Array.isArray(value) && typeof value[0] === 'string' ? value[0] : ''
 
 const query = computed(() => firstOf(route.query.query).trim())
-const tab = computed<Tab>(() => route.query.tab === 'guides' && tenantStore.blogEnabled ? 'guides' : 'products')
+const tab = computed<Tab>(() => route.query.tab === 'guides' && blogEnabled.value ? 'guides' : 'products')
 const page = computed(() => Math.max(1, Number(firstOf(route.query.page)) || 1))
 const limit = ref(12)
 const offset = computed(() => (page.value - 1) * limit.value)
@@ -78,7 +78,7 @@ const {
   status: guidesStatus,
 } = await useApi<BlogPostMeiliSearchResponse>('/api/search/blog-posts', {
   query: { query, languageCode: locale, limit: guidesLimit, offset: guidesOffset },
-  enabled: () => hasQuery.value && tenantStore.blogEnabled,
+  enabled: () => hasQuery.value && blogEnabled.value,
 })
 
 const trending = useLazyApi<TrendingSearchResponse>('/api/search/trending', {
@@ -96,7 +96,7 @@ const relaxedQuery = computed(() => (tab.value === 'guides' ? guides : products)
 
 const tabItems = computed(() => [
   { value: 'products', label: t('tabs.products'), badge: productCount.value },
-  ...(tenantStore.blogEnabled ? [{ value: 'guides', label: t('tabs.guides'), badge: guideCount.value }] : []),
+  ...(blogEnabled.value ? [{ value: 'guides', label: t('tabs.guides'), badge: guideCount.value }] : []),
 ])
 
 function selectTab(value: string | number) {

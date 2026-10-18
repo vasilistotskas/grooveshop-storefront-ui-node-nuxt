@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, ref, toValue } from 'vue'
+import { ref, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NewsletterSignup from '~/components/PageSection/NewsletterSignup.vue'
 import { newsletterConsent, newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The newsletter band. What matters:
@@ -19,11 +20,7 @@ import { failWith } from '~~/test/helpers/api'
  *   header (`pageLocaleHeader`, tested separately), not in the request;
  * - its four states: idle, submitting, sent, error (429 → "later").
  */
-const flags = vi.hoisted(() => ({ newsletterEnabled: true, available: true }))
-
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => (key === 'NEWSLETTER_ENABLED' ? flags.newsletterEnabled : options.fallback)),
-)
+const flags = vi.hoisted(() => ({ available: true }))
 
 /** The availability lookup; a `vi.fn` so the request gate can be asserted. */
 const { useApiMock } = vi.hoisted(() => ({
@@ -58,7 +55,8 @@ const postCalls = () => api.callsTo(NEWSLETTER_URL)
 
 describe('NewsletterSignup', () => {
   beforeEach(() => {
-    flags.newsletterEnabled = true
+    setTenant()
+    setTenantFeatures({ newsletter: true })
     flags.available = true
   })
 
@@ -111,8 +109,8 @@ describe('NewsletterSignup', () => {
     expect(wrapper.text()).toBe('')
   })
 
-  it('renders nothing, and never asks, when NEWSLETTER_ENABLED is off', async () => {
-    flags.newsletterEnabled = false
+  it('renders nothing, and never asks, when the newsletter feature is off', async () => {
+    setTenantFeatures({ newsletter: false })
     const wrapper = await mountBand()
 
     expect(wrapper.find('form').exists()).toBe(false)

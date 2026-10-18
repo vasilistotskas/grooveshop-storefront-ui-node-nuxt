@@ -11,6 +11,7 @@ export async function useCheckoutForm() {
   const cartStore = useCartStore()
   const { getCartItems, cart } = storeToRefs(cartStore)
   const tenantStore = useTenantStore()
+  const wholesaleEnabled = useStoreFeature('wholesale')
   const { loggedIn, user } = useUserSession()
   // Every dial code, not only the shippable countries: the phone is
   // validated against the country picked in the phone field.
@@ -1029,11 +1030,11 @@ export async function useCheckoutForm() {
     ),
     useAsyncData<BusinessProfile | null>(
       'checkout:b2b-profile',
-      // Prefill source for the invoice fields. Gated on the PLAN flag
-      // (synchronously known) so non-B2B tenants never pay the call;
-      // 404 (no profile / runtime setting off) just means no prefill.
+      // Prefill source for the invoice fields. Gated on the `wholesale`
+      // feature so non-B2B tenants never pay the call; a 404 (no
+      // profile) just means no prefill.
       () => {
-        if (!loggedIn.value || !tenantStore.b2bEnabled) {
+        if (!loggedIn.value || !wholesaleEnabled.value) {
           return Promise.resolve(null)
         }
         return $api<BusinessProfile>('/api/b2b/profile', {

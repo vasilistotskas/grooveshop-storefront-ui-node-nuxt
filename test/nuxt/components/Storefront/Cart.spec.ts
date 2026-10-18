@@ -9,7 +9,7 @@ import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
@@ -24,13 +24,12 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const state = vi.hoisted(() => ({ query: {} as Record<string, string>, suggestions: false }))
+const state = vi.hoisted(() => ({ query: {} as Record<string, string> }))
 const { trackViewCart, toastAdd } = vi.hoisted(() => ({ trackViewCart: vi.fn(), toastAdd: vi.fn() }))
 
 mockNuxtImport('useRoute', () => () => ({ name: 'cart___el', params: {}, query: state.query, path: '/cart', fullPath: '/cart', hash: '', meta: {}, matched: [] }))
 mockNuxtImport('useGA4', () => () => ({ trackViewCart }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
-mockNuxtImport('useSettingFlag', () => (key: string) => computed(() => key === 'PRODUCT_SUGGESTIONS_ENABLED' && state.suggestions))
 
 mockComponent('CartItemCard', { props: ['cartItem'], template: '<div data-stub="item" :data-id="cartItem.id" />' })
 mockComponent('CheckoutCouponInput', { template: '<div data-stub="coupon" />' })
@@ -52,8 +51,8 @@ const euro = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 beforeEach(async () => {
   await useCartStore().cleanCartState()
   state.query = {}
-  state.suggestions = false
   setTenant({ recommendationsEnabled: true })
+  setTenantFeatures({ productSuggestions: false })
   clearNuxtData(['shipping:free-shipping-info', 'footer-pay-ways'])
   api.routes({ '/api/shipping/free-shipping-info': () => ({ providers: [], minThreshold: 50, maxThreshold: 50, currency: 'EUR', countryCode: 'GR' }) })
   useCartStore().cart = makeCart({
@@ -300,15 +299,15 @@ describe('Storefront/Cart', () => {
   })
 
   describe('you might also need', () => {
-    it('shows the strip when the plan and the merchant allow it and the cart carries suggestions', async () => {
-      state.suggestions = true
+    it('shows the strip when the store has the feature and the cart carries suggestions', async () => {
+      setTenantFeatures({ productSuggestions: true })
       useCartStore().cart = makeCart({ recommendations: [makeProduct({ id: 9 })] })
 
       const wrapper = await mountPage()
       await vi.waitFor(() => expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(true))
     })
 
-    it('shows nothing when the merchant has switched it off', async () => {
+    it('shows nothing without the productSuggestions feature, plan flag on', async () => {
       useCartStore().cart = makeCart({ recommendations: [makeProduct({ id: 9 })] })
 
       const wrapper = await mountPage()

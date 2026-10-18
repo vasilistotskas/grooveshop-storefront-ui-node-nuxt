@@ -9,21 +9,20 @@ import Drawer from '~/components/Cart/Drawer.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
  * The cart drawer: a slideover on a desktop, a bottom sheet on a phone;
  * the line an add just put in, the lines as compact rows, at most two
- * suggestions when the plan and the store both allow them, and the
+ * suggestions when the store has the feature, and the
  * subtotal after offers — saying which offers — with "View cart" and
  * "Checkout". It closes when the shopper navigates away.
  */
-const state = vi.hoisted(() => ({ desktop: true, suggestions: true }))
+const state = vi.hoisted(() => ({ desktop: true }))
 const route = vi.hoisted(() => ({ value: null as unknown as { fullPath: string } }))
 
 mockNuxtImport('useMediaQuery', () => () => ref(state.desktop))
-mockNuxtImport('useSettingFlag', () => (key: string) => computed(() => key === 'PRODUCT_SUGGESTIONS_ENABLED' && state.suggestions))
 mockNuxtImport('useRoute', () => () => route.value)
 // The line row, the add button and the free-delivery meter have their own specs.
 mockComponent('CartItemCard', { props: { cartItem: Object, compact: Boolean }, template: '<div data-row :data-compact="compact">{{ cartItem.id }}</div>' })
@@ -38,9 +37,9 @@ const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
 beforeEach(() => {
   state.desktop = true
-  state.suggestions = true
   route.value = reactive({ fullPath: '/products' })
-  setTenant({ recommendationsEnabled: true })
+  setTenant()
+  setTenantFeatures({ productSuggestions: true })
   const store = useCartStore()
   store.cart = makeCart({ items: [{ id: 1, quantity: 1, product: { id: 1, price: 40, vatPercent: 0 } }, { id: 2, quantity: 2, product: { id: 2, price: 10, vatPercent: 0 } }] })
   store.loaded = true
@@ -136,12 +135,11 @@ describe('Cart/Drawer', () => {
     ])
   })
 
-  it.each([
-    ['the store switched suggestions off', () => { state.suggestions = false }],
-    ['the plan has no recommendations', () => setTenant({ recommendationsEnabled: false })],
-  ])('suggests nothing when %s', async (_case, switchOff) => {
+  it('suggests nothing when the store lacks the productSuggestions feature, plan flag or not', async () => {
     useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { id: 1, price: 10, vatPercent: 0 } }], recommendations: [makeProduct({ id: 7 })] })
-    switchOff()
+    // The plan flag stays on: only the feature decides.
+    setTenant({ recommendationsEnabled: true })
+    setTenantFeatures({ productSuggestions: false })
 
     await mountDrawer()
 

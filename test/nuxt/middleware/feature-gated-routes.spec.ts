@@ -9,7 +9,8 @@ import giftCardsEnabled from '~/middleware/gift-cards-enabled'
 import loyaltyEnabled from '~/middleware/loyalty-enabled'
 import promotionsEnabled from '~/middleware/promotions-enabled'
 import { FEATURE_GATED_ROUTES, featureRouteAllowed } from '~~/shared/utils/gatedRoutes'
-import type { FeatureGatedRoute, PlanFlags } from '~~/shared/utils/gatedRoutes'
+import type { FeatureGatedRoute } from '~~/shared/utils/gatedRoutes'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { setTenant } from '~~/test/helpers/tenant'
 import { failWith } from '~~/test/helpers/api'
 
@@ -22,8 +23,9 @@ import { failWith } from '~~/test/helpers/api'
  *
  * So for every table row this resolves the route through the real
  * router, runs the middleware its `definePageMeta` names, and compares
- * the outcome with `featureRouteAllowed` across the plan flag and every
- * state of the setting — on, off, no row, lookup failed.
+ * the outcome with `featureRouteAllowed` across the route's feature and
+ * (for the catalogue, the one preference left) every state of its
+ * setting — on, off, no row, lookup failed.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -38,18 +40,9 @@ const MIDDLEWARE: Record<string, RouteMiddleware> = {
   'promotions-enabled': promotionsEnabled,
 }
 
-const PLAN_OFF: PlanFlags = {
-  loyaltyEnabled: false,
-  blogEnabled: false,
-  promotionsEnabled: false,
-  giftCardsEnabled: false,
-}
-const PLAN_ON: PlanFlags = {
-  loyaltyEnabled: true,
-  blogEnabled: true,
-  promotionsEnabled: true,
-  giftCardsEnabled: true,
-}
+const FEATURES = validTenantConfig('test.local').features
+const featuresWith = (on: boolean) =>
+  Object.fromEntries(Object.keys(FEATURES).map(name => [name, on])) as TenantConfig['features']
 
 /**
  * A setting row as the merchant can store it: Django writes a bool row as
@@ -72,23 +65,14 @@ type SettingState = keyof typeof SETTING_STATES
 function settingsFor(route: FeatureGatedRoute, state: SettingState): Record<string, string> | null {
   const raw = SETTING_STATES[state]
   if (raw === null) return null
-  if (raw === undefined || !route.settingKey) return {}
-  return { [route.settingKey]: raw }
+  if (raw === undefined || !route.preference) return {}
+  return { [route.preference]: raw }
 }
 
-/**
- * Serve `settings` the way each transport does: the public-settings map
- * `settingEnabled` reads, and `/api/loyalty/settings`, which answers ''
- * for a key without a row (server/api/loyalty/settings.get.ts).
- */
+/** Serve `settings` the way `storePreferenceEnabled` reads them: the public-settings map. */
 function serve(settings: Record<string, string> | null) {
-  const unavailable = failWith(502)
   api.routes({
-    '/api/settings/public': settings === null ? unavailable : { settings },
-    '/api/loyalty/settings': settings === null
-      ? unavailable
-      : (_url: string, options: { query: { keys: string } }) =>
-          Object.fromEntries(options.query.keys.split(',').map(key => [key, settings[key] ?? ''])),
+    '/api/settings/public': settings === null ? failWith(502) : { settings },
   })
 }
 
@@ -114,12 +98,12 @@ async function outcome(path: string): Promise<'served' | number | undefined> {
 }
 
 const CASES = FEATURE_GATED_ROUTES.flatMap(route =>
-  [PLAN_ON, PLAN_OFF].flatMap(plan =>
+  [true, false].flatMap(featuresOn =>
     (Object.keys(SETTING_STATES) as SettingState[]).map(state => ({
       route,
-      plan,
+      featuresOn,
       state,
-      label: `${route.path}, plan ${plan === PLAN_ON ? 'on' : 'off'}, setting ${state}`,
+      label: `${route.path}, features ${featuresOn ? 'on' : 'off'}, setting ${state}`,
     })),
   ),
 )
@@ -133,12 +117,13 @@ describe('FEATURE_GATED_ROUTES agrees with the page middlewares', () => {
     expect(middlewaresOf(path).length).toBeGreaterThan(0)
   })
 
-  it.each(CASES)('$label', async ({ route, plan, state }) => {
-    setTenant({ ...plan })
+  it.each(CASES)('$label', async ({ route, featuresOn, state }) => {
+    const tenant = { features: featuresWith(featuresOn) }
+    setTenant(tenant)
     const settings = settingsFor(route, state)
     serve(settings)
 
-    const allowed = featureRouteAllowed(route, plan, settings)
+    const allowed = featureRouteAllowed(route, tenant, settings)
     expect(await outcome(route.path)).toBe(allowed ? 'served' : 404)
   })
 })

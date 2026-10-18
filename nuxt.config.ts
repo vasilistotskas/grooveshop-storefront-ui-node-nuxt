@@ -43,6 +43,12 @@ function isStyleModuleId(id: string): boolean {
 const CLIENT_BUILD_TAG = randomUUID().slice(0, 8)
 const clientJsFileNames = `_nuxt/[hash]-${CLIENT_BUILD_TAG}.js`
 
+// What a cached page's key varies on: the store, the device class the markup
+// depends on (`1.device-class.ts`) and the store's tenant-config epoch
+// (`1.tenant-epoch.ts`), so a page rendered from features a purge has since
+// changed is never served to a pod that has seen the purge.
+const CACHED_PAGE_VARIES = ['host', 'x-device-class', 'x-tenant-epoch']
+
 const modules: (string | NuxtModule)[] = [
   'evlog/nuxt',
   '@comark/nuxt',
@@ -273,7 +279,7 @@ export default defineNuxtConfig({
     // One sitemap per store, shared by every pod and purgeable per store:
     // see `sitemap.cacheMaxAgeSeconds` below for why the module's own
     // cache is off.
-    '/sitemap.xml': { swr: 60 * 60 * 24, cache: { varies: ['host'] } },
+    '/sitemap.xml': { swr: 60 * 60 * 24, cache: { varies: ['host', 'x-tenant-epoch'] } },
     '/__sitemap__/el-GR.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
     // A page type a static route renders, asked for at its own name. The
     // catch-all used to render the home layout at `/home` as well, a
@@ -383,7 +389,7 @@ export default defineNuxtConfig({
     ...Object.fromEntries(
       PRERENDERED_ROUTES.flatMap(withLocalePrefixes).map(route => [route, {
         swr: 3600,
-        cache: { varies: ['host', 'x-device-class'] },
+        cache: { varies: CACHED_PAGE_VARIES },
       }]),
     ),
     // Runtime-SWR routes (homepage): same anonymous-render + nonce-free
@@ -395,7 +401,7 @@ export default defineNuxtConfig({
         withLocalePrefixes(route).map(localized => [localized, ttl] as const),
       ).map(([route, ttl]) => [route, {
         swr: ttl,
-        cache: { varies: ['host', 'x-device-class'] },
+        cache: { varies: CACHED_PAGE_VARIES },
       }]),
     ),
     // Blog + catalogue route families (globs). Same contract and the
@@ -407,7 +413,7 @@ export default defineNuxtConfig({
         withLocalePrefixes(route).map(localized => [localized, ttl] as const),
       ).map(([route, ttl]) => [route, {
         swr: ttl,
-        cache: { varies: ['host', 'x-device-class'] },
+        cache: { varies: CACHED_PAGE_VARIES },
       }]),
     ),
   },

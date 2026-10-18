@@ -103,7 +103,7 @@ const feed = (tenant: Record<string, unknown> = {}, headers?: Record<string, str
     locale: 'en',
     siteConfig: siteConfig(),
     tenant: validTenantConfig('shop.test', {
-      blogEnabled: true,
+      features: { ...validTenantConfig('shop.test').features, blog: true },
       defaultCurrency: 'USD',
       assetsDomain: 'assets.shop.test',
       ...tenant,
@@ -194,7 +194,7 @@ describe('GET /rss.xml', () => {
     await callRoute(handler, {
       route,
       host: 'Shop.TEST:443',
-      context: { locale: 'en', siteConfig: siteConfig(), tenant: validTenantConfig('shop.test', { blogEnabled: true }) },
+      context: { locale: 'en', siteConfig: siteConfig(), tenant: validTenantConfig('shop.test', { features: { ...validTenantConfig('shop.test').features, blog: true } }) },
     })
 
     expect(backend.requests.length).toBeGreaterThan(0)
@@ -231,7 +231,7 @@ describe('GET /rss.xml', () => {
   })
 
   it('answers 404 without fetching when the store has no blog', async () => {
-    const response = await feed({ blogEnabled: false })
+    const response = await feed({ blogEnabled: true, features: { ...validTenantConfig('shop.test').features, blog: false } })
 
     expect(response.status).toBe(404)
     expect(backend.requests).toEqual([])

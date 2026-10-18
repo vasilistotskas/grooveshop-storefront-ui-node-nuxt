@@ -1,11 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { computed } from 'vue'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import Faq from '~/components/PageSection/Faq.vue'
-
-const { flags } = vi.hoisted(() => ({ flags: {} as Record<string, boolean> }))
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => flags[key] ?? options.fallback))
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const ITEMS = [
   { question: 'Πόσο κοστίζει η αποστολή;', answer: 'Δωρεάν από 50 €.' },
@@ -21,7 +17,8 @@ const mountFaq = (props: Record<string, unknown> = {}) =>
  */
 describe('PageSection/Faq', () => {
   beforeEach(() => {
-    for (const key of Object.keys(flags)) Reflect.deleteProperty(flags, key)
+    setTenant()
+    setTenantFeatures({ chatWidget: false })
   })
 
   it('opens on the first answer, the rest closed', async () => {
@@ -44,7 +41,7 @@ describe('PageSection/Faq', () => {
   })
 
   it('mentions the shopping assistant only where the store runs it', async () => {
-    flags.CHAT_WIDGET_ENABLED = true
+    setTenantFeatures({ chatWidget: true })
 
     const wrapper = await mountFaq()
 

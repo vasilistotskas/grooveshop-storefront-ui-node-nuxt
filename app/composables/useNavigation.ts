@@ -40,12 +40,7 @@ export function useNavigation() {
   const { settings, unavailable } = useStoreSettings()
   const blocked = computed(() =>
     blockedFeaturePaths(
-      {
-        loyaltyEnabled: tenantStore.loyaltyEnabled,
-        blogEnabled: tenantStore.blogEnabled,
-        promotionsEnabled: tenantStore.promotionsEnabled,
-        giftCardsEnabled: tenantStore.giftCardsEnabled,
-      },
+      tenantStore.config,
       unavailable.value ? null : settings.value,
     ),
   )

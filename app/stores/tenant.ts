@@ -27,6 +27,11 @@ export const useTenantStore = defineStore('tenant', () => {
   )
   const isMultilingual = computed(() => availableLocales.value.length > 1)
   const defaultCurrency = computed(() => config.value?.defaultCurrency ?? 'EUR')
+  // The plan flags below (loyalty, blog, promotions, gift cards, b2b,
+  // recommendations) are read only by the frozen webside tree
+  // (`app/components/variants/webside/**`). Everything else asks
+  // `useStoreFeature`, Django's effective state, and never reads a plan
+  // flag beside it. They go when webside moves to `useStoreFeature`.
   const loyaltyEnabled = computed(() => config.value?.loyaltyEnabled ?? false)
   const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
   const promotionsEnabled = computed(() => config.value?.promotionsEnabled ?? false)
@@ -34,8 +39,6 @@ export const useTenantStore = defineStore('tenant', () => {
   // The carriers the store ships with, as the footer's "Delivered by" marks
   const shippingCarriers = computed(() => config.value?.shippingCarriers ?? [])
   const b2bEnabled = computed(() => config.value?.b2bEnabled ?? false)
-  // Plan tier of the two-tier gate; the runtime half is the
-  // PRODUCT_SUGGESTIONS_ENABLED setting read where a strip is mounted.
   const recommendationsEnabled = computed(() => config.value?.recommendationsEnabled ?? false)
   // Whether this store answers AI agents (MCP/UCP/ACP through the
   // gateway). Read by the trust-badges band, which must not let a

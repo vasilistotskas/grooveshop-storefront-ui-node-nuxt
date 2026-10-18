@@ -13,11 +13,10 @@ export async function useBlogRail(options: {
   categoryId?: MaybeRefOrGetter<number | undefined>
 }) {
   const { locale } = useI18n()
-  const tenantStore = useTenantStore()
 
   const count = computed(() => toValue(options.count))
   const categoryId = computed(() => toValue(options.categoryId))
-  const enabled = tenantStore.blogEnabled
+  const enabled = useStoreFeature('blog')
 
   const { data } = await useApi('/api/blog/posts', {
     key: computed(
@@ -38,7 +37,7 @@ export async function useBlogRail(options: {
   })
 
   const posts = computed<BlogPost[]>(() =>
-    enabled ? (data.value?.results ?? []) : [],
+    enabled.value ? (data.value?.results ?? []) : [],
   )
 
   return {

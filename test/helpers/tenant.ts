@@ -40,3 +40,21 @@ export function setTenant(overrides: Partial<TenantConfig> = {}): TenantConfig {
   useTenantStore().setConfig(config)
   return config
 }
+
+/**
+ * Switch store features on or off for the tenant already in the store,
+ * leaving every other field as it is — what a spec of a feature-gated
+ * component wants, since `TenantConfig.features` is the whole decision
+ * (`useStoreFeature`). Starts from the default tenant when none is set.
+ *
+ * ```ts
+ * setTenantFeatures({ blogComments: false })
+ * ```
+ */
+export function setTenantFeatures(features: Partial<TenantConfig['features']>): TenantConfig {
+  const store = useTenantStore()
+  const current = store.config ?? validTenantConfig(TEST_TENANT_DOMAIN) as TenantConfig
+  const config: TenantConfig = { ...current, features: { ...current.features, ...features } }
+  store.setConfig(config)
+  return config
+}

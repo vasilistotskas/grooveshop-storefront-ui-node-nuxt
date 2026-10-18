@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The contact form's upload step. What matters:
@@ -107,12 +108,21 @@ describe('useContactAttachments', () => {
     FakeXhr.instances = []
     vi.stubGlobal('XMLHttpRequest', FakeXhr)
     settings = {
-      CONTACT_ATTACHMENTS_ENABLED: 'True',
       CONTACT_ATTACHMENTS_MAX_COUNT: '2',
       CONTACT_ATTACHMENTS_MAX_MB: '1',
       CONTACT_ATTACHMENTS_TYPES: 'application/pdf,application/zip',
     }
     api.routes({ '/api/settings/public': () => ({ settings: { ...settings } }) })
+    setTenant()
+    setTenantFeatures({ contactAttachments: true })
+  })
+
+  it('is on exactly when the store has the contactAttachments feature', async () => {
+    setTenantFeatures({ contactAttachments: false })
+    expect((await policy()).enabled.value).toBe(false)
+
+    setTenantFeatures({ contactAttachments: true })
+    expect((await policy()).enabled.value).toBe(true)
   })
 
   it('reads the store own limits and offers them as a picker filter', async () => {

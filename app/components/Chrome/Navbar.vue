@@ -39,9 +39,8 @@ const tenantStore = useTenantStore()
 const { headerItems } = useNavigation()
 const { categories, hasCategories } = useCategoryMenu()
 
-// Chrome fails OPEN, commercial features fail CLOSED — see
-// `.claude/rules/ui-and-pages.md`.
-const cartEnabled = useSettingFlag('CART_ENABLED', { fallback: true })
+// Not a store feature yet (`shared/utils/storePreference.ts`).
+const cartEnabled = useStorePreference('CART_ENABLED')
 
 // The cart drawer is loaded the first time it is opened, then kept.
 const { open: cartDrawerOpen } = useCartDrawer()
@@ -49,28 +48,11 @@ const cartDrawerRequested = ref(cartDrawerOpen.value)
 watch(cartDrawerOpen, (isOpen) => {
   if (isOpen) cartDrawerRequested.value = true
 })
-const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', {
-  fallback: true,
-})
-const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-  fallback: false,
-})
-const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
-  fallback: false,
-})
-const loyaltyRuntimeEnabled = useSettingFlag('LOYALTY_ENABLED', {
-  fallback: false,
-})
-
-const giftCardsEnabled = computed(
-  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
-)
-const promotionsEnabled = computed(
-  () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
-)
-const loyaltyEnabled = computed(
-  () => tenantStore.loyaltyEnabled && loyaltyRuntimeEnabled.value,
-)
+const favouritesEnabled = useStoreFeature('favourites')
+const giftCardsEnabled = useStoreFeature('giftCards')
+const promotionsEnabled = useStoreFeature('promotions')
+const loyaltyEnabled = useStoreFeature('loyalty')
+const blogEnabled = useStoreFeature('blog')
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -139,7 +121,7 @@ const items = computed<NavigationMenuItem[]>(() => {
       active: isRouteActive('offers'),
     })
   }
-  if (tenantStore.blogEnabled) {
+  if (blogEnabled.value) {
     base.push({
       label: t('blog'),
       to: localePath('blog'),

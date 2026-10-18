@@ -4,7 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import BlogPost from '~/components/Storefront/BlogPost.vue'
 import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { ARTICLE_COLUMN_MAX_WIDTH, WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH } from '~~/shared/utils/html'
 
@@ -61,6 +61,7 @@ describe.each([
     // What app.vue's setupCursorState provides the comment list.
     clearCursorState()
     setTenant({ blogEnabled: true })
+    setTenantFeatures({ blog: true, blogComments: true })
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
       '/api/blog/posts/7': POST,
@@ -97,6 +98,7 @@ describe.each([
     clearNuxtData()
     clearCursorState()
     setTenant({ blogEnabled: true, apiDomain: 'api.store.test', assetsDomain: 'assets.store.test' })
+    setTenantFeatures({ blog: true, blogComments: true })
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
       '/api/blog/posts/7': {
@@ -156,6 +158,7 @@ describe('BlogPost page (default tree)', () => {
     clearNuxtData()
     clearCursorState()
     setTenant({ blogEnabled: true })
+    setTenantFeatures({ blog: true, blogComments: true })
     serve()
   })
 
@@ -266,6 +269,7 @@ describe.each([
     clearNuxtData()
     clearCursorState()
     setTenant({ blogEnabled: true })
+    setTenantFeatures({ blog: true, blogComments: true })
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
       '/api/blog/posts/7': { ...POST, commentsCount: 3 },

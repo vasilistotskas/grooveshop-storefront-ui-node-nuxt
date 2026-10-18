@@ -35,15 +35,8 @@ const { identity } = useMerchantIdentity()
 const { isModalActive } = useCookieControl()
 const { getPaymentMethodName } = usePaymentMethod()
 
-const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
-  fallback: true,
-})
-const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-  fallback: false,
-})
-const giftCardsEnabled = computed(
-  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
-)
+const mobileBottomNavEnabled = useStorePreference('MOBILE_BOTTOM_NAV_ENABLED')
+const giftCardsEnabled = useStoreFeature('giftCards')
 
 /**
  * The payment marks are the store's active pay ways, so the footer can

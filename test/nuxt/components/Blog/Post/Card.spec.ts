@@ -1,18 +1,17 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mountSuspended, mockComponent } from '@nuxt/test-utils/runtime'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import BlogPostCard from '~/components/Blog/Post/Card.vue'
 import { makeBlogPost } from '~~/test/fixtures/blog'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * One post wherever posts are listed: the picture, its category, when
  * and how long, the title as the one link that stretches over the card,
  * and the like and comment controls above it as their own targets.
  */
-const flags = vi.hoisted(() => ({ comments: true }))
-mockNuxtImport('useSettingFlag', () => () => computed(() => flags.comments))
 mockComponent('ButtonBlogPostLike', {
   props: ['blogPostId', 'likesCount'],
   emits: ['update'],
@@ -27,7 +26,8 @@ const mountCard = (props: Record<string, unknown> = {}) =>
   mountSuspended(BlogPostCard, { route: false, props: { post: makeBlogPost({ id: 7, slug: 'gan' }), ...props }, global: { stubs: { ImgWithFallback: true } } })
 
 beforeEach(() => {
-  flags.comments = true
+  setTenant()
+  setTenantFeatures({ blogComments: true })
 })
 
 describe('Blog/Post/Card', () => {
@@ -82,7 +82,7 @@ describe('Blog/Post/Card', () => {
   })
 
   it('has no comment link when the store switched comments off', async () => {
-    flags.comments = false
+    setTenantFeatures({ blogComments: false })
 
     const wrapper = await mountCard()
 

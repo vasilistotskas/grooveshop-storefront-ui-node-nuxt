@@ -5,7 +5,7 @@ import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
 import { makeCategory } from '~~/test/fixtures/productFilters'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * A product page counts one view of the product in its route, on the
@@ -380,7 +380,10 @@ describe.each([
   })
 
   it('asks for no reviews, and shows no rating or section, when the store has reviews off', async () => {
+    // Django's feature for the default tree (and the shared review parts
+    // webside mounts); the setting is what the frozen page itself reads.
     serve({ PRODUCT_REVIEWS_ENABLED: 'False' })
+    setTenantFeatures({ productReviews: false })
 
     const wrapper = await mountPage()
 

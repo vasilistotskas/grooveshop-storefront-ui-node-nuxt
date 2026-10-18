@@ -4,14 +4,10 @@ const { isMobile } = useDevice()
 
 const open = ref(false)
 
-// Admin kill switch — extra-setting CHAT_WIDGET_ENABLED, toggled at
-// /admin/extra_settings/setting/. Fail-closed: a launcher that pops in
-// beats one that flashes and vanishes when an admin has disabled it.
-// The value rides the one per-render settings payload, so it is known
-// on the server too; the widget itself stays ClientOnly.
-const chatEnabled = useSettingFlag('CHAT_WIDGET_ENABLED', {
-  fallback: false,
-})
+// Django's effective state for the store (agent commerce on AND the
+// widget switched on). It rides the tenant payload, so it is known on
+// the server too; the widget itself stays ClientOnly.
+const chatEnabled = useStoreFeature('chatWidget')
 </script>
 
 <template>

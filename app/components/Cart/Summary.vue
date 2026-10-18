@@ -15,12 +15,9 @@ const { t, n } = useI18n()
 const localePath = useLocalePath()
 const cartStore = useCartStore()
 const { cart, hasStockIssues } = storeToRefs(cartStore)
-const tenantStore = useTenantStore()
 const { getPaymentMethodName } = usePaymentMethod()
 
-const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-  fallback: false,
-})
+const giftCardsEnabled = useStoreFeature('giftCards')
 
 // Same key and options as the footer's "Pay with" row, so the two share
 // one request.
@@ -32,7 +29,7 @@ const { data: payWays } = useApi('/api/pay-way', {
 const paymentMarks = computed(() => [...new Set([
   ...(payWays.value?.results ?? [])
     .flatMap(payWay => payWay.key ? [getPaymentMethodName(payWay.key)] : []),
-  ...(tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value ? [t('gift_card')] : []),
+  ...(giftCardsEnabled.value ? [t('gift_card')] : []),
 ])])
 
 const total = computed(() =>

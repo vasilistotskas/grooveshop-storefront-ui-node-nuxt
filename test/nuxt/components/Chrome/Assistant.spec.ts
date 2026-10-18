@@ -2,14 +2,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import Assistant from '~/components/Chrome/Assistant.vue'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The assistant's launcher and frame. The conversation is its own spec;
  * its module is replaced by a stub that can close itself, and the
  * overlay (which teleports to the body) is read from the document.
  */
-const state = vi.hoisted(() => ({ enabled: true, mobile: false }))
-mockNuxtImport('useSettingFlag', () => (key: string) => computed(() => key === 'CHAT_WIDGET_ENABLED' && state.enabled))
+const state = vi.hoisted(() => ({ mobile: false }))
 mockNuxtImport('useDevice', () => () => ({ isMobile: state.mobile }))
 
 vi.mock('~/components/Chrome/AssistantPanel.vue', () => ({
@@ -28,13 +28,14 @@ const panel = () => document.body.querySelector('[data-test="panel"]')
 
 describe('Chrome/Assistant', () => {
   beforeEach(() => {
-    state.enabled = true
+    setTenant()
+    setTenantFeatures({ chatWidget: true })
     state.mobile = false
     useShopChat().open.value = false
   })
 
-  it('draws nothing while the merchant has the assistant switched off', async () => {
-    state.enabled = false
+  it('draws nothing while the store lacks the chatWidget feature', async () => {
+    setTenantFeatures({ chatWidget: false })
 
     const wrapper = await mountSuspended(Assistant, { route: false })
 

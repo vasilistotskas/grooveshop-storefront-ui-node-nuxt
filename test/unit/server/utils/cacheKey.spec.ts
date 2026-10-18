@@ -1,11 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect } from 'vitest'
 import {
   cacheKeyBelongsToHost,
   hashedCacheKey,
   nitroVaryHash,
   tenantCacheKey,
 } from '~~/server/utils/cacheKey'
-import { createTestEvent } from '~~/test/helpers/nitro'
+import { getTenantConfig, invalidateTenantConfigs } from '~~/server/utils/tenant'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { backend, createTestEvent } from '~~/test/helpers/nitro'
 
 /**
  * Nitro passes custom getKey results through
@@ -22,6 +24,56 @@ function nitroEscape(key: string): string {
 function on(host: string, locale?: string) {
   return createTestEvent({ host, context: locale ? { locale } : {} })
 }
+
+/**
+ * What a handler cache holds was built from `TenantConfig.features`, so its
+ * key carries the store's tenant-config epoch. A pod that has not yet seen a
+ * purge files its render under the old epoch; an updated pod reads the new
+ * one and never meets it.
+ */
+describe('tenantCacheKey and the tenant-config epoch', () => {
+  beforeEach(() => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+  })
+
+  it('is stable while the epoch holds, and moves with a purge of the store only', async () => {
+    await getTenantConfig('webside.gr')
+    await getTenantConfig('tenant-b.test')
+    const a = () => tenantCacheKey(on('webside.gr', 'el'), 'settings')
+    const b = () => tenantCacheKey(on('tenant-b.test', 'el'), 'settings')
+    const before = { a: a(), b: b() }
+    expect(a()).toBe(before.a)
+
+    await invalidateTenantConfigs('webside.gr')
+    await getTenantConfig('webside.gr')
+
+    expect(a()).not.toBe(before.a)
+    expect(b()).toBe(before.b)
+  })
+
+  it('never serves a render a stale pod filed after a purge to a pod that has seen it', async () => {
+    // Pod A has not seen the purge: it renders from the old features and
+    // files the result under the key it computes. Pod B has seen it.
+    const storage = new Map<string, string>()
+    await getTenantConfig('webside.gr')
+    const stalePodKey = tenantCacheKey(on('webside.gr', 'el'), 'page-config:navigation')
+
+    await invalidateTenantConfigs('webside.gr')
+    storage.set(nitroEscape(stalePodKey), 'rendered from the old features')
+    await getTenantConfig('webside.gr')
+    const updatedPodKey = tenantCacheKey(on('webside.gr', 'el'), 'page-config:navigation')
+
+    expect(storage.get(nitroEscape(updatedPodKey))).toBeUndefined()
+  })
+
+  it('keeps the host first and the locale second, so a store-scoped purge still matches', async () => {
+    await getTenantConfig('webside.gr')
+    const stored = `nitro:handlers:X:${nitroEscape(tenantCacheKey(on('webside.gr', 'en'), 'k'))}.json`
+
+    expect(cacheKeyBelongsToHost(stored, 'webside.gr')).toBe(true)
+    expect(tenantCacheKey(on('webside.gr', 'en'), 'k').startsWith('webside.gr__en__k__')).toBe(true)
+  })
+})
 
 describe('tenantCacheKey', () => {
   it('starts with the request host, the locale, the delimiters and the inner key', () => {

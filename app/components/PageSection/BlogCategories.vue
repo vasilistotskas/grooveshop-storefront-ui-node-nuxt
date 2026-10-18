@@ -17,8 +17,7 @@ defineProps<{
 }>()
 
 const { locale } = useI18n()
-const tenantStore = useTenantStore()
-const enabled = tenantStore.blogEnabled
+const enabled = useStoreFeature('blog')
 
 const { data } = await useApi('/api/blog/categories', {
   key: 'blogCategories-slider',
@@ -30,7 +29,7 @@ const { data } = await useApi('/api/blog/categories', {
   getCachedData: payloadCachedData,
 })
 
-const categories = computed(() => (enabled && data.value?.results) || [])
+const categories = computed(() => (enabled.value && data.value?.results) || [])
 const hasCategories = computed(() => categories.value.length > 0)
 </script>
 

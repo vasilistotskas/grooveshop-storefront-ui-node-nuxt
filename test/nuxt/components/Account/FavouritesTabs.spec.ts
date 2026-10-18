@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import AccountFavouritesTabs from '~/components/Account/FavouritesTabs.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The favourites pages' tabs: links to the saved products and posts, each
@@ -22,7 +22,8 @@ const asked: Record<string, unknown[]> = { products: [], posts: [] }
 
 beforeEach(() => {
   // A store with the blog; the last case takes it away.
-  setTenant({ blogEnabled: true })
+  setTenant()
+  setTenantFeatures({ blog: true })
   asked.products = []
   asked.posts = []
   clearNuxtData(['favourite-products-count-7', 'favourite-posts-count-7'])
@@ -60,7 +61,7 @@ describe('Account/FavouritesTabs', () => {
   })
 
   it('offers the saved products alone, without asking for posts, on a store without the blog', async () => {
-    setTenant({ blogEnabled: false })
+    setTenantFeatures({ blog: false })
 
     const wrapper = await mountSuspended(AccountFavouritesTabs, { props: { current: 'products' } })
     const localePath = useLocalePath()

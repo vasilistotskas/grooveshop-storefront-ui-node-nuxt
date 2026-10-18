@@ -13,4 +13,4 @@
  * Fails OPEN like every other setting gate — an unreachable settings
  * endpoint must not take the catalogue down for the stores that sell.
  */
-export default createSettingGate('CATALOGUE_ENABLED')
+export default createPreferenceGate('CATALOGUE_ENABLED')

@@ -7,7 +7,7 @@ import WebsideCouponInput from '~/components/variants/webside/Checkout/CouponInp
 import type { CartDetail } from '~~/shared/openapi/types.gen'
 import { makeCart } from '~~/test/fixtures/cart'
 import type { CartOverrides } from '~~/test/fixtures/cart'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
 
@@ -78,7 +78,10 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
     clearNuxtData()
     useToast().clear()
     flags.promotionsSetting = 'true'
+    // The default tree decides from the feature; the frozen webside tree
+    // from the plan flag and the setting, so every one starts on.
     setTenant({ promotionsEnabled: true })
+    setTenantFeatures({ promotions: true })
     useCartStore().cart = makeCart()
     cartAfter = makeCart()
     routes()
@@ -295,7 +298,27 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
     })
   })
 
-  describe('the feature gates (fail closed)', () => {
+  describe.runIf(tree === 'default')('the promotions feature', () => {
+    it('renders nothing when the store lacks it, plan flag and setting on', async () => {
+      setTenantFeatures({ promotions: false })
+      const wrapper = await mount()
+
+      expect(wrapper.find('form').exists()).toBe(false)
+    })
+
+    it.each([
+      ['the setting is off', 'false'],
+      ['the setting is missing', ''],
+      ['the settings lookup fails', null],
+    ])('decides from the feature alone: still renders when %s', async (_case, setting) => {
+      flags.promotionsSetting = setting
+      const wrapper = await mount()
+
+      expect(wrapper.find('form').exists()).toBe(true)
+    })
+  })
+
+  describe.runIf(tree === 'webside')('the gates of the frozen tree (fail closed)', () => {
     it('renders nothing on a plan without promotions', async () => {
       setTenant({ promotionsEnabled: false })
       const wrapper = await mount()

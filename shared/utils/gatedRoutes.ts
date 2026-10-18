@@ -1,9 +1,10 @@
 import { splitLocale } from '~~/shared/i18n/localeFromPath'
 import { parseSettingFlag } from '~~/shared/utils/settingFlag'
+import { STORE_PREFERENCES } from '~~/shared/utils/storePreference'
 
 /**
  * The storefront routes a tenant may have switched off, and the rule
- * that says whether one is serving — ONE rule, read by everything that
+ * that says whether one is serving: ONE rule, read by everything that
  * advertises a link to them.
  *
  * Each of these pages already decides for itself, in its route
@@ -14,92 +15,62 @@ import { parseSettingFlag } from '~~/shared/utils/settingFlag'
  * off is a 404 the store advertises on every page, and a sitemap that
  * lists it is a 4XX in Search Console.
  *
- * The rule mirrors the middlewares exactly, including where they
- * disagree with each other:
- *
- * - a plan flag off is a hard no (`loyalty-enabled.ts`,
- *   `promotions-enabled.ts`, `gift-cards-enabled.ts`, `blog-enabled.ts`)
- * - a runtime setting is read with the route's OWN fallback for a
- *   missing key — the commercial gates fail closed, `createSettingGate`
- *   (catalogue, feedback) fails open
- * - every middleware lets the page render when the settings lookup
- *   itself fails, so an unreadable settings response allows here too.
- *   The sitemap used to fail closed in that case and list fewer routes
- *   than the store served; consistency with the page is the point.
+ * The rule is Django's: a route behind a store feature serves when
+ * `TenantConfig.features` says the feature is on (`storeFeatureOn`),
+ * with no per-route fallback. The one exception is the catalogue,
+ * which is a preference until the API gates it (see
+ * `shared/utils/storePreference.ts`): its page renders when the
+ * settings lookup itself fails, so the table does too, and a missing
+ * row means the preference's default.
  */
 export interface FeatureGatedRoute {
   /** Path without a locale prefix, as the route manifest names it. */
   path: string
-  /** Commercial gate — the tenant's plan flag, by TenantConfig key. */
-  planFlag?: 'loyaltyEnabled' | 'blogEnabled' | 'promotionsEnabled' | 'giftCardsEnabled'
-  /** Operational gate — the merchant's `extra_settings` key. */
-  settingKey?: string
-  /** What a MISSING setting means. Read from the route's middleware. */
-  settingFallback?: boolean
+  /** The store feature the route belongs to. */
+  feature?: StoreFeatureName
+  /** The preference that gates it, for the routes that are not a feature yet. */
+  preference?: StorePreferenceName
 }
 
 export const FEATURE_GATED_ROUTES: readonly FeatureGatedRoute[] = [
-  {
-    path: '/loyalty-program',
-    planFlag: 'loyaltyEnabled',
-    settingKey: 'LOYALTY_ENABLED',
-    settingFallback: false,
-  },
-  {
-    path: '/offers',
-    planFlag: 'promotionsEnabled',
-    settingKey: 'PROMOTIONS_ENABLED',
-    settingFallback: false,
-  },
-  {
-    path: '/gift-cards',
-    planFlag: 'giftCardsEnabled',
-    settingKey: 'GIFT_CARDS_ENABLED',
-    settingFallback: false,
-  },
-  // `createSettingGate`: a store that has never set the key serves the
-  // page, so a link to it is fine.
-  { path: '/products', settingKey: 'CATALOGUE_ENABLED', settingFallback: true },
-  { path: '/feedback', settingKey: 'FEEDBACK_ENABLED', settingFallback: true },
-  // The blog is gated on the plan flag alone; there is no setting.
-  { path: '/blog', planFlag: 'blogEnabled' },
-  { path: '/blog/categories', planFlag: 'blogEnabled' },
+  { path: '/loyalty-program', feature: 'loyalty' },
+  { path: '/offers', feature: 'promotions' },
+  { path: '/gift-cards', feature: 'giftCards' },
+  { path: '/products', preference: 'CATALOGUE_ENABLED' },
+  { path: '/feedback', feature: 'feedback' },
+  { path: '/blog', feature: 'blog' },
+  { path: '/blog/categories', feature: 'blog' },
 ]
-
-export type PlanFlags = Pick<
-  Record<NonNullable<FeatureGatedRoute['planFlag']>, boolean>,
-  NonNullable<FeatureGatedRoute['planFlag']>
->
 
 /**
  * Whether ONE gated route is serving for a tenant.
  *
- * `settings` is `null` when the lookup itself failed, which every route
- * middleware treats as "render" — see the table's doc for why this
- * follows them rather than failing closed.
+ * `settings` is `null` when the lookup itself failed, which the
+ * preference's route middleware treats as "render" (an outage must not
+ * take the shop down). Features never read it.
  */
 export function featureRouteAllowed(
   route: FeatureGatedRoute,
-  plan: PlanFlags,
+  tenant: Pick<TenantConfig, 'features'> | null | undefined,
   settings: Readonly<Record<string, string>> | null,
 ): boolean {
-  if (route.planFlag && !plan[route.planFlag]) return false
-  if (!route.settingKey) return true
+  if (route.feature && !storeFeatureOn(tenant, route.feature)) return false
+  if (!route.preference) return true
   if (settings === null) return true
   return parseSettingFlag(
-    settings[route.settingKey],
-    route.settingFallback ?? false,
+    settings[route.preference],
+    STORE_PREFERENCES[route.preference],
   )
 }
 
 /** The paths that are NOT serving for a tenant, ready for lookups. */
 export function blockedFeaturePaths(
-  plan: PlanFlags,
+  tenant: Pick<TenantConfig, 'features'> | null | undefined,
   settings: Readonly<Record<string, string>> | null,
 ): ReadonlySet<string> {
   return new Set(
     FEATURE_GATED_ROUTES.filter(
-      route => !featureRouteAllowed(route, plan, settings),
+      route => !featureRouteAllowed(route, tenant, settings),
     ).map(route => route.path),
   )
 }

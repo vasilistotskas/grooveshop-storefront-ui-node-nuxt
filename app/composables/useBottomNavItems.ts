@@ -39,8 +39,8 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
   const cartStore = useCartStore()
   const { getCartTotalItems, pending: cartPending } = storeToRefs(cartStore)
 
-  const cartEnabled = useSettingFlag('CART_ENABLED', { fallback: true })
-  const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', { fallback: true })
+  const cartEnabled = useStorePreference('CART_ENABLED')
+  const favouritesEnabled = useStoreFeature('favourites')
 
   const routeName = computed(() => String($routeBaseName(route) ?? ''))
   const isActive = (...bases: string[]) =>
