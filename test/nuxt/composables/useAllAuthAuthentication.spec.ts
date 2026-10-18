@@ -180,27 +180,47 @@ describe('useAllAuthAuthentication', () => {
   })
 
   /**
-   * allauth answers 409 when the browser's session is already signed in.
-   * The form used to swallow it, so pressing the button did nothing; the
-   * visitor now continues with the session they already have.
+   * allauth answers 409 when the browser is still signed in. The form used
+   * to swallow it, so the button did nothing. The credentials just typed
+   * decide who signs in: the old session is ended and the request sent
+   * once more, never continued, so on a shared computer nobody lands in
+   * the previous user's account.
    */
   describe.each<[string, (a: Authentication) => Promise<unknown>]>([
     ['login', a => a.login({ email: 'shopper@example.com', password: 'secret' })],
     ['signup', a => a.signup({ email: 'shopper@example.com', password: 'secret' })],
-  ])('%s while the session is already signed in', (endpoint, call) => {
-    it('continues with the existing session', async () => {
+  ])('%s while the browser is still signed in', (endpoint, call) => {
+    const conflict = () => Object.assign(new Error('Conflict'), { status: 409 })
+
+    it('ends the old session and signs in with what was typed', async () => {
+      let attempts = 0
       api.mockImplementation(async (url, options) => {
-        if (url === `${AUTH}/${endpoint}`) throw Object.assign(new Error('Conflict'), { status: 409 })
+        if (url === `${AUTH}/${endpoint}` && attempts++ === 0) throw conflict()
+        if (url === `${AUTH}/session`) throw Object.assign(new Error('Unauthorized'), { status: 401 })
         await options?.onResponse?.({ response: OK })
         return OK._data
       })
 
       await expect(call(useAllAuthAuthentication())).resolves.toEqual(OK._data)
-      expect(api.callsTo(`${AUTH}/session`)[0]!.options.method).toBe('GET')
-      expect(hooks.onResponse).toHaveBeenCalledWith(OK)
+      expect(api.callsTo(`${AUTH}/session`).map(c => c.options.method)).toEqual(['DELETE'])
+      expect(api.callsTo(`${AUTH}/${endpoint}`)).toHaveLength(2)
     })
 
-    it('still fails on any other error', async () => {
+    it('fails when the typed credentials are wrong, without continuing the old session', async () => {
+      let attempts = 0
+      api.mockImplementation(async (url) => {
+        if (url === `${AUTH}/${endpoint}`) {
+          if (attempts++ === 0) throw conflict()
+          throw Object.assign(new Error('Bad Request'), { status: 400 })
+        }
+        throw Object.assign(new Error('Unauthorized'), { status: 401 })
+      })
+
+      await expect(call(useAllAuthAuthentication())).rejects.toMatchObject({ status: 400 })
+      expect(api.callsTo(`${AUTH}/session`).map(c => c.options.method)).toEqual(['DELETE'])
+    })
+
+    it('still fails on any other error without touching the session', async () => {
       api.mockImplementation(async () => {
         throw Object.assign(new Error('Bad Request'), { status: 400 })
       })
