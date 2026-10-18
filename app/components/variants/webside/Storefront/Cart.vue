@@ -426,7 +426,7 @@ useSeoMeta({
               })"
             />
 
-            <WebsideShippingFreeShippingNotice :cart-total="cart.totalPrice" />
+            <WebsideShippingFreeShippingNotice :cart-total="cart.freeThresholdValue" />
           </div>
 
           <template #footer>

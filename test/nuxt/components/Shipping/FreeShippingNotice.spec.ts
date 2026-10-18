@@ -133,15 +133,27 @@ describe('default FreeShippingNotice', () => {
     expect(meter(wrapper).attributes('aria-valuenow')).toBe('100')
   })
 
-  // Checkout quotes delivery on the gross total (`orderValueAmount`), so
-  // measuring the discounted subtotal told a shopper who already ships
-  // free that they were still short of it.
-  it('measures free delivery on the total checkout quotes it on', async () => {
-    api.routes({ [INFO_URL]: buildResponse({ minThreshold: 120 }) })
-    useCartStore().cart = makeCart({ totalPrice: 100, promotionDiscount: 60 })
+  // Django judges free shipping on the cart's `freeThresholdValue`: the
+  // products after promotion and coupon discounts. The gross total told a
+  // shopper with a coupon that delivery was free when Django charged it.
+  it.each([
+    { name: '39,98 €: short by 0,02 €', totalPrice: 39.98, promotionDiscount: 0, text: () => `Σου λείπουν ${euro(0.02)} για δωρεάν μεταφορικά` },
+    { name: '40,00 €: delivery is free', totalPrice: 40, promotionDiscount: 0, text: () => 'Τα μεταφορικά σου είναι δωρεάν' },
+    { name: '45,00 € less a 6,00 € coupon: short by 1,00 €', totalPrice: 45, promotionDiscount: 6, text: () => `Σου λείπουν ${euro(1)} για δωρεάν μεταφορικά` },
+  ])('measures free delivery on the freeThresholdValue of the cart: $name', async ({ totalPrice, promotionDiscount, text }) => {
+    api.routes({ [INFO_URL]: buildResponse({ minThreshold: 40 }) })
+    useCartStore().cart = makeCart({ totalPrice, promotionDiscount })
     const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
 
-    expect(wrapper.text()).toBe(`Σου λείπουν ${euro(20)} για δωρεάν μεταφορικά`)
+    expect(wrapper.text()).toBe(text())
+  })
+
+  it('reads the value Django sent, never recomputes it', async () => {
+    api.routes({ [INFO_URL]: buildResponse({ minThreshold: 120 }) })
+    useCartStore().cart = makeCart({ totalPrice: 100, promotionDiscount: 60, freeThresholdValue: 110 })
+    const wrapper = await mountSuspended(FreeShippingNotice, { route: false })
+
+    expect(wrapper.text()).toBe(`Σου λείπουν ${euro(10)} για δωρεάν μεταφορικά`)
   })
 
   // Demo store, 2026-10-11: with SHIPFREE applied the meter still asked

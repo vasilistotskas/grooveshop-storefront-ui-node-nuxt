@@ -130,6 +130,29 @@ describe('Checkout/Sidebar (default)', () => {
   })
 
   describe('pay-way fee', () => {
+    it('shows no fee while there is no cart to judge the threshold on', async () => {
+      useCartStore().cart = null
+      setPayWay(makePayWay({ cost: 2.5, freeThreshold: 50 }))
+
+      const wrapper = await mount({ shippingPrice: 0, includeShipping: true, showPaymentFee: true })
+
+      expect(wrapper.text()).not.toContain(money(2.5))
+    })
+
+    it.each([
+      { case: '39,98 €: delivery and the fee are charged', totalPrice: 39.98, promotionDiscount: 0, shipping: 2.99, threshold: 40, total: 44.97 },
+      { case: '40,00 €: delivery and the fee are free', totalPrice: 40, promotionDiscount: 0, shipping: 0, threshold: 40, total: 40 },
+      { case: '45,00 € less a 6,00 € coupon: both are charged', totalPrice: 45, promotionDiscount: 6, shipping: 2.99, threshold: 40, total: 43.99 },
+      { case: 'delivery never lifts the discounted products over the threshold', totalPrice: 60, promotionDiscount: 15, shipping: 5, threshold: 50, total: 52 },
+    ])('waives the fee on the freeThresholdValue of the cart, never recomputed: $case', async ({ totalPrice, promotionDiscount, shipping, threshold, total: expected }) => {
+      setCart({ totalPrice, promotionDiscount })
+      setPayWay(makePayWay({ cost: 2, freeThreshold: threshold }))
+
+      const wrapper = await mount({ shippingPrice: shipping, includeShipping: true, showPaymentFee: true })
+
+      expect(total(wrapper)).toBe(money(expected))
+    })
+
     it('shows no fee row before the payment page', async () => {
       setPayWay(makePayWay({ cost: 2.5 }))
 
@@ -275,6 +298,15 @@ describe('Checkout/Sidebar (frozen webside)', () => {
   })
 
   describe('pay-way fee', () => {
+    it('shows no fee while there is no cart to judge the threshold on', async () => {
+      useCartStore().cart = null
+      setPayWay(makePayWay({ cost: 2.5, freeThreshold: 50 }))
+
+      const wrapper = await mount({ shippingPrice: 0, shippingSummary: HOME, showPaymentFee: true })
+
+      expect(wrapper.text()).not.toContain(money(2.5))
+    })
+
     it('adds the fee on a row named after the pay way', async () => {
       setPayWay(makePayWay({ cost: 2.5 }))
 
@@ -305,12 +337,13 @@ describe('Checkout/Sidebar (frozen webside)', () => {
     })
 
     it.each([
-      { case: 'the undiscounted cart reaches the threshold', totalPrice: 60, promotionDiscount: 0, shipping: 0, total: 60 },
-      { case: 'a promotion takes the cart below it', totalPrice: 60, promotionDiscount: 15, shipping: 0, total: 47 },
-      { case: 'shipping lifts the discounted cart back to it', totalPrice: 60, promotionDiscount: 15, shipping: 5, total: 50 },
-    ])('evaluates the free threshold on the discounted cart plus shipping: $case', async ({ totalPrice, promotionDiscount, shipping, total }) => {
+      { case: '39,98 €: delivery and the fee are charged', totalPrice: 39.98, promotionDiscount: 0, shipping: 2.99, threshold: 40, total: 44.97 },
+      { case: '40,00 €: delivery and the fee are free', totalPrice: 40, promotionDiscount: 0, shipping: 0, threshold: 40, total: 40 },
+      { case: '45,00 € less a 6,00 € coupon: both are charged', totalPrice: 45, promotionDiscount: 6, shipping: 2.99, threshold: 40, total: 43.99 },
+      { case: 'delivery never lifts the discounted products over the threshold', totalPrice: 60, promotionDiscount: 15, shipping: 5, threshold: 50, total: 52 },
+    ])('waives the fee on the freeThresholdValue of the cart, never recomputed: $case', async ({ totalPrice, promotionDiscount, shipping, threshold, total }) => {
       setCart({ totalPrice, promotionDiscount })
-      setPayWay(makePayWay({ cost: 2, freeThreshold: 50 }))
+      setPayWay(makePayWay({ cost: 2, freeThreshold: threshold }))
 
       const wrapper = await mount({ shippingPrice: shipping, shippingSummary: HOME, showPaymentFee: true })
 

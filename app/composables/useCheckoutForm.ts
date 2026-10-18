@@ -627,7 +627,9 @@ export async function useCheckoutForm() {
   const fetchShippingOptions = async (): Promise<boolean> => {
     const request = ++shippingOptionsRequest
     try {
-      const cartTotal = cart.value?.totalPrice || 0
+      // Django quotes delivery on the cart's `freeThresholdValue`, the one
+      // value it judges free shipping on, never on the gross total.
+      const freeThresholdValue = cart.value?.freeThresholdValue ?? 0
       const weightGrams = cart.value?.totalWeightGrams ?? 0
       const country = formState.countryId
         ? String(formState.countryId).toUpperCase()
@@ -645,7 +647,7 @@ export async function useCheckoutForm() {
           method: 'GET',
           query: {
             countryCode: country,
-            orderValueAmount: cartTotal,
+            orderValueAmount: freeThresholdValue,
             // The cart states the currency its totals are in; the
             // tenant default only covers the pre-cart case. Neither may
             // be a literal — a non-EUR store would price shipping in a
@@ -677,11 +679,12 @@ export async function useCheckoutForm() {
   }
   const retryShippingOptions = () => fetchShippingOptions()
 
-  // Re-fetch whenever a dep that affects the price changes. Cart total
-  // and weight cover line-item edits; country covers the address step.
+  // Re-fetch whenever a dep that affects the price changes. The threshold
+  // value (which a coupon or an offer moves) and the weight cover line
+  // and discount edits; country covers the address step.
   watch(
     () => [
-      cart.value?.totalPrice,
+      cart.value?.freeThresholdValue,
       cart.value?.totalWeightGrams,
       formState.countryId,
     ],
@@ -771,14 +774,12 @@ export async function useCheckoutForm() {
     return payWays.value?.results?.map((payWay) => {
       const name = payWay.key ? getPaymentMethodName(payWay.key) : undefined
 
-      // The base Django waives the fee on (``payWayFeeBase``): the
-      // items after promotions plus the delivery as charged.
-      const feeBase = payWayFeeBase({
-        totalPrice: cart.value?.totalPrice || 0,
-        promotionDiscount: Number(cart.value?.promotionDiscount ?? 0),
-        shipping: cart.value?.promotionFreeShipping ? 0 : (shippingPrice.value ?? 0),
-      })
-      const { cost: displayCost, freeAbove } = payWayDisplayCost(payWay, feeBase)
+      // Django waives the fee on the cart's `freeThresholdValue`, the same
+      // value it judges free shipping on.
+      // With no cart there is no value to judge it on, so no surcharge.
+      const { cost: displayCost, freeAbove } = cart.value
+        ? payWayDisplayCost(payWay, cart.value.freeThresholdValue)
+        : { cost: 0, freeAbove: null }
       // Only show the surcharge suffix when it's a real charge — a
       // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
       // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer

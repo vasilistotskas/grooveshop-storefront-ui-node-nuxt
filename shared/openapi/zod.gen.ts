@@ -3834,6 +3834,7 @@ export const zCart = z.object({
   totalWeightGrams: z.int().readonly(),
   currency: z.string().readonly(),
   promotionDiscount: z.number().readonly(),
+  freeThresholdValue: z.number().readonly(),
   appliedPromotions: z.array(z.object({
     promotionId: z.int().optional(),
     name: z.string().optional(),
@@ -3903,6 +3904,7 @@ export const zCartDetail = z.object({
   totalWeightGrams: z.int().readonly(),
   currency: z.string().readonly(),
   promotionDiscount: z.number().readonly(),
+  freeThresholdValue: z.number().readonly(),
   appliedPromotions: z.array(z.object({
     promotionId: z.int().optional(),
     name: z.string().optional(),

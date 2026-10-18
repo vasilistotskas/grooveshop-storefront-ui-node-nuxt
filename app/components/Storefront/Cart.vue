@@ -105,7 +105,7 @@ const { data: freeShipping } = useFreeShippingInfo()
 const freeDeliveryThreshold = computed(() => freeShipping.value?.minThreshold ?? 0)
 const freeDeliveryUnlocked = computed(() =>
   freeDeliveryThreshold.value > 0
-  && (cart.value?.totalPrice ?? 0) >= freeDeliveryThreshold.value,
+  && (cart.value?.freeThresholdValue ?? 0) >= freeDeliveryThreshold.value,
 )
 
 const total = computed(() =>
@@ -233,7 +233,7 @@ useSeoMeta({
         <div class="flex min-w-0 flex-col gap-4">
           <template v-if="!initialLoading && cart?.items?.length">
             <CartBanners
-              :cart-total="cart.totalPrice"
+              :cart-total="cart.freeThresholdValue"
               :threshold="freeDeliveryThreshold"
               :near-misses="cart.promotionNearMiss || []"
             />

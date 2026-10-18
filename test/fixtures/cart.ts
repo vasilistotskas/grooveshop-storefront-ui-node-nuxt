@@ -76,7 +76,10 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
  * `cart/models/cart.py` computes them, so a spec that changes an item's
  * quantity gets a consistent cart. Promotion fields do NOT reduce
  * `totalPrice`: Django reports the promotion discount separately in
- * `promotionDiscount`. An explicit override wins.
+ * `promotionDiscount`. `freeThresholdValue` is what Django derives, the
+ * products after those discounts (`OrderService.threshold_value`), so
+ * a spec that sets a discount gets a consistent threshold value. An
+ * explicit override wins.
  *
  * ```ts
  * makeCart({ items: [{ id: 1 }, { id: 2, product: { id: 2, stock: 0 } }] })
@@ -90,7 +93,7 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
   const sum = (pick: (item: CartItem) => number) =>
     cents(items.reduce((total, item) => total + pick(item), 0))
 
-  return {
+  const cart: CartDetail = {
     id,
     user: null,
     uuid,
@@ -103,6 +106,7 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
     totalWeightGrams: Math.round(sum(item => item.weightInfo.totalWeight)),
     currency: 'EUR',
     promotionDiscount: 0,
+    freeThresholdValue: 0,
     appliedPromotions: [],
     promotionFreeShipping: false,
     appliedCouponCodes: [],
@@ -115,5 +119,10 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
     lastActivity: FIXTURE_TIMESTAMP,
     recommendations: [],
     ...rest,
+  }
+  return {
+    ...cart,
+    freeThresholdValue: rest.freeThresholdValue
+      ?? cents(Math.max(0, cart.totalPrice - cart.promotionDiscount)),
   }
 }

@@ -15,8 +15,9 @@
  * in checkout.
  */
 const props = defineProps<{
+  /** The cart's `freeThresholdValue`, which delivery turns free on. */
   cartTotal: number
-  /** The subtotal at which delivery turns free; 0 when the store has none. */
+  /** The value at which delivery turns free; 0 when the store has none. */
   threshold: number
   nearMisses: Cart['promotionNearMiss']
 }>()

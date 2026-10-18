@@ -115,21 +115,39 @@ describe('useCheckoutTotals', () => {
     })
 
     /**
-     * The threshold is compared with what the shopper owes for the goods:
-     * the cart AFTER promotions, plus the delivery. Comparing the
-     * undiscounted cart waived the fee on orders under the threshold.
+     * The threshold is compared with the cart's `freeThresholdValue`: the
+     * products AFTER promotions and coupons, never the delivery or the
+     * fee. It is the value free shipping is judged on too.
      */
     it.each([
-      { case: 'the undiscounted cart reaches the threshold', totalPrice: 60, promotionDiscount: 0, delivery: 0, total: 60 },
-      { case: 'a promotion takes the cart below it', totalPrice: 60, promotionDiscount: 15, delivery: 0, total: 47 },
-      { case: 'the delivery lifts the discounted cart back to it', totalPrice: 60, promotionDiscount: 15, delivery: 5, total: 50 },
-    ])('evaluates the free threshold on the discounted cart plus delivery: $case', ({ totalPrice, promotionDiscount, delivery, total }) => {
+      { case: '39,98 €: delivery and the fee are charged', totalPrice: 39.98, promotionDiscount: 0, delivery: 2.99, threshold: 40, total: 44.97 },
+      { case: '40,00 €: delivery and the fee are free', totalPrice: 40, promotionDiscount: 0, delivery: 0, threshold: 40, total: 40 },
+      { case: '45,00 € less a 6,00 € coupon: both are charged', totalPrice: 45, promotionDiscount: 6, delivery: 2.99, threshold: 40, total: 43.99 },
+      { case: 'delivery never lifts the discounted products over the threshold', totalPrice: 60, promotionDiscount: 15, delivery: 5, threshold: 50, total: 52 },
+    ])('waives the fee on the freeThresholdValue of the cart, never recomputed: $case', ({ totalPrice, promotionDiscount, delivery, threshold, total }) => {
       setCart({ totalPrice, promotionDiscount })
-      setPayWay(makePayWay({ cost: 2, freeThreshold: 50 }))
+      setPayWay(makePayWay({ cost: 2, freeThreshold: threshold }))
 
       const totalsNow = totals({ shippingPrice: delivery, includeShipping: true, includePaymentFee: true })
 
-      expect(totalsNow.total.value).toBe(total)
+      expect(totalsNow.total.value).toBeCloseTo(total, 2)
+    })
+
+    it('charges no fee while there is no cart to judge the threshold on', () => {
+      useCartStore().cart = null
+      setPayWay(makePayWay({ cost: 2, freeThreshold: 50 }))
+
+      const { payWayCost, paymentFee } = totals({ includePaymentFee: true })
+
+      expect(payWayCost.value).toBe(0)
+      expect(paymentFee.value).toBe(0)
+    })
+
+    it('reads the value Django sent, whatever the other totals say', () => {
+      setCart({ totalPrice: 60, promotionDiscount: 0, freeThresholdValue: 30 })
+      setPayWay(makePayWay({ cost: 2, freeThreshold: 50 }))
+
+      expect(totals({ includePaymentFee: true }).payWayCost.value).toBe(2)
     })
   })
 
