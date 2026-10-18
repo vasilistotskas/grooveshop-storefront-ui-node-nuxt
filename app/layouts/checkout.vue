@@ -19,7 +19,7 @@ const checkoutHeader = computed(() =>
         focus:not-sr-only focus:fixed focus:top-2 focus:left-2
       "
     >
-      {{ t('a11y.skipToContent') }}
+      {{ t('a11y.skip_to_content') }}
     </a>
 
     <component :is="checkoutHeader" />
@@ -34,12 +34,3 @@ const checkoutHeader = computed(() =>
     </UMain>
   </div>
 </template>
-
-<i18n lang="yaml">
-el:
-  a11y:
-    skipToContent: Μετάβαση στο κύριο περιεχόμενο
-en:
-  a11y:
-    skipToContent: Skip to main content
-</i18n>

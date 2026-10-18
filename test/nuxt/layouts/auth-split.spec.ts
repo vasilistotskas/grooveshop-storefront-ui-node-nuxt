@@ -32,6 +32,14 @@ beforeEach(() => {
 })
 
 describe('layouts/auth-split', () => {
+  it('labels the skip link in the page\'s language, not with its message key', async () => {
+    const wrapper = await mountLayout()
+
+    const skip = wrapper.find('a[href="#main-content"]')
+    expect(skip.text()).toBe(useNuxtApp().$i18n.t('a11y.skip_to_content'))
+    expect(skip.text()).not.toContain('a11y.')
+  })
+
   describe('without an AUTH_PANEL setting', () => {
     it('keeps the plain ink panel with the store\'s description', async () => {
       const wrapper = await mountLayout()

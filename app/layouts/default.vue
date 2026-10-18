@@ -84,7 +84,7 @@ const footerClass = computed(() =>
         focus:not-sr-only focus:fixed focus:top-2 focus:left-2
       "
     >
-      {{ t('a11y.skipToContent') }}
+      {{ t('a11y.skip_to_content') }}
     </a>
     <!-- The EU co-funding strip is legally the first thing on a page, so it
          sits before the header slot and stays whatever a page puts there.
@@ -134,12 +134,3 @@ const footerClass = computed(() =>
     </ClientOnly>
   </div>
 </template>
-
-<i18n lang="yaml">
-el:
-  a11y:
-    skipToContent: Μετάβαση στο κύριο περιεχόμενο
-en:
-  a11y:
-    skipToContent: Skip to the main content
-</i18n>
