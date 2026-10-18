@@ -13,7 +13,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from '~~/server/api/admin/cache/purge.post'
 import { tenantCacheKey } from '~~/server/utils/cacheKey'
-import { callRoute, createTestEvent, log, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
+import { clearTenantCache, getTenantConfig } from '~~/server/utils/tenant'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
+import { backend, callRoute, createTestEvent, log, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
 
 const TOKEN = 'purge-token-for-tests'
 const route = '/api/admin/cache/purge'
@@ -129,6 +131,40 @@ describe('POST /api/admin/cache/purge', () => {
 
     expect(response.status).toBe(400)
     expect(await remainingKeys()).toHaveLength(total)
+  })
+
+  describe('the tenant configs (TenantConfig.features)', () => {
+    beforeEach(() => {
+      clearTenantCache()
+      backend.reply(({ query }) => validTenantConfig(query.domain!))
+    })
+
+    it('are resolved again after a purge, so a re-rendered page sees the new features', async () => {
+      await getTenantConfig(WEBSIDE)
+
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE })
+      await getTenantConfig(WEBSIDE)
+
+      expect(backend.requests).toHaveLength(2)
+    })
+
+    it('are kept by a dry run, which changes nothing', async () => {
+      await getTenantConfig(WEBSIDE)
+
+      await purge({ patterns: PAGE_CONFIG_PATTERNS, host: WEBSIDE, dryRun: true })
+      await getTenantConfig(WEBSIDE)
+
+      expect(backend.requests).toHaveLength(1)
+    })
+
+    it('are kept by a rejected caller', async () => {
+      await getTenantConfig(WEBSIDE)
+
+      await purge({ patterns: PAGE_CONFIG_PATTERNS }, 'nope')
+      await getTenantConfig(WEBSIDE)
+
+      expect(backend.requests).toHaveLength(1)
+    })
   })
 
   describe('scoped to one tenant host', () => {

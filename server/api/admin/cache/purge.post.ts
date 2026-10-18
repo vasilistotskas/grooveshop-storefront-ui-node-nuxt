@@ -104,6 +104,9 @@ export default defineEventHandler(async (event) => {
 
   const body = await readValidatedBody(event, bodySchema)
   const storage = useStorage('cache')
+  // Tenant configs (`TenantConfig.features` among them) go first, so a
+  // page re-rendered after this purge sees the store's new features.
+  if (!body.dryRun) await invalidateTenantConfigs()
   // As the keys name the store (`requestTenantHost`), whatever case the
   // caller sends it in.
   const host = body.host === undefined ? undefined : tenantHostOf(body.host)

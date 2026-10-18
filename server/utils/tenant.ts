@@ -1,3 +1,4 @@
+import { useStorage } from 'nitropack/runtime'
 import { useRuntimeConfig } from 'nuxt/server'
 
 // In-memory cache with 5-minute TTL.
@@ -12,6 +13,48 @@ import { useRuntimeConfig } from 'nuxt/server'
 const TENANT_CACHE_TTL = 5 * 60 * 1000
 const TENANT_CACHE_MAX_ENTRIES = 1000
 const tenantCache = new Map<string, { config: TenantConfig, expiry: number }>()
+
+// The resolve payload carries `features`, and a feature flip must not wait
+// out the TTL. Every storefront pod keeps its own copy, and Django's
+// purge (`/api/admin/cache/purge`) reaches ONE pod, so the purge writes an
+// epoch to the shared cache storage (`invalidateTenantConfigs`) and each
+// pod, at most every EPOCH_CHECK_MS, compares it with the one it last saw
+// and drops its copies when it moved. A cost of one shared-storage read
+// per pod per window, never one per request.
+const TENANT_EPOCH_KEY = 'tenant-config-epoch'
+const EPOCH_CHECK_MS = 5000
+let lastEpochCheck = 0
+let seenEpoch: string | null | undefined
+
+async function dropCopiesWhenPurged() {
+  const now = Date.now()
+  if (now - lastEpochCheck < EPOCH_CHECK_MS) return
+  lastEpochCheck = now
+  try {
+    const epoch = await useStorage('cache').getItem<string>(TENANT_EPOCH_KEY) ?? null
+    if (seenEpoch !== undefined && epoch !== seenEpoch) tenantCache.clear()
+    seenEpoch = epoch
+  }
+  catch (error) {
+    // The shared storage is down: keep serving the copy the TTL bounds.
+    log.warn({
+      tag: 'tenant',
+      message: 'tenant epoch unreadable, keeping the cached configs',
+      error: error instanceof Error ? error.message : String(error),
+    })
+  }
+}
+
+/**
+ * Every pod drops its cached tenant configs within EPOCH_CHECK_MS. Called
+ * by the cache purge endpoint BEFORE it evicts rendered pages, so a page
+ * re-rendered after the purge reads the store's new features. Clears every
+ * host, not just the purging store's: a config is cheap to resolve again.
+ */
+export async function invalidateTenantConfigs() {
+  clearTenantCache()
+  await useStorage('cache').setItem(TENANT_EPOCH_KEY, `${Date.now()}`)
+}
 
 function rememberTenant(domain: string, config: TenantConfig) {
   const now = Date.now()
@@ -43,6 +86,7 @@ type TenantResult
 
 export async function getTenantConfig(host: string): Promise<TenantResult> {
   const domain = tenantHostOf(host)
+  await dropCopiesWhenPurged()
 
   const cached = tenantCache.get(domain)
   if (cached && cached.expiry > Date.now()) {
@@ -129,6 +173,8 @@ export function clearTenantCache(host?: string) {
   }
   else {
     tenantCache.clear()
+    lastEpochCheck = 0
+    seenEpoch = undefined
   }
 }
 

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { clearTenantCache, getTenantConfig, isPlatformTenantConfig } from '~~/server/utils/tenant'
+import { clearTenantCache, getTenantConfig, invalidateTenantConfigs, isPlatformTenantConfig } from '~~/server/utils/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
-import { backend, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
+import { backend, jsonResponse, log, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
 
 /**
  * `getTenantConfig` runs on every request (server/middleware/0.tenant.ts),
@@ -167,6 +167,68 @@ describe('getTenantConfig', () => {
     await getTenantConfig('tenant-b.test')
 
     expect(backend.requests).toHaveLength(4)
+  })
+})
+
+/**
+ * A feature flip must reach the storefront without waiting out the 5 minute
+ * copy. Django's purge reaches ONE pod, so it leaves an epoch in the shared
+ * cache storage and every pod drops its copies when it sees the epoch move.
+ */
+describe('tenant config purge', () => {
+  const T0 = new Date('2026-10-18T12:00:00Z')
+  const resolves = () => backend.requests.length
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(T0)
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+  })
+
+  it('invalidateTenantConfigs drops the copies of this pod at once', async () => {
+    await getTenantConfig('webside.gr')
+
+    await invalidateTenantConfigs()
+    await getTenantConfig('webside.gr')
+
+    expect(resolves()).toBe(2)
+  })
+
+  it('drops the copies of a pod the purge did not reach, once its next check sees the epoch move', async () => {
+    await getTenantConfig('webside.gr')
+    // Another pod handled the purge: only the shared storage changed.
+    await useStorage('cache').setItem('tenant-config-epoch', 'purged')
+
+    vi.setSystemTime(T0.getTime() + 4_000)
+    await getTenantConfig('webside.gr')
+    expect(resolves()).toBe(1)
+
+    vi.setSystemTime(T0.getTime() + 6_000)
+    await getTenantConfig('webside.gr')
+    expect(resolves()).toBe(2)
+  })
+
+  it('reads the shared storage at most once per window, however many requests', async () => {
+    const getItem = vi.spyOn(useStorage(), 'getItem')
+
+    for (let i = 0; i < 20; i++) await getTenantConfig('webside.gr')
+    expect(getItem).toHaveBeenCalledTimes(1)
+
+    vi.setSystemTime(T0.getTime() + 6_000)
+    await getTenantConfig('webside.gr')
+    expect(getItem).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps serving the cached copy, and says so, when the shared storage cannot be read', async () => {
+    await getTenantConfig('webside.gr')
+    vi.spyOn(useStorage(), 'getItem').mockRejectedValue(new Error('redis down'))
+
+    vi.setSystemTime(T0.getTime() + 6_000)
+    const result = await getTenantConfig('webside.gr')
+
+    expect(result.type).toBe('ok')
+    expect(resolves()).toBe(1)
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ tag: 'tenant', message: expect.stringContaining('epoch unreadable') }))
   })
 })
 
