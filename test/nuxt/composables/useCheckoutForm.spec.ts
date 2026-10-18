@@ -502,6 +502,17 @@ describe('useCheckoutForm', () => {
       expect(option.cost).toBe(FEE)
     })
 
+    it('shows no surcharge while there is no cart to judge the threshold on', async () => {
+      api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })
+      const { payWayOptions } = await setup()
+      useCartStore().cart = null
+      await nextTick()
+
+      expect(payWayOptions.value[0]!.cost).toBe(0)
+      expect(payWayOptions.value[0]!.label).not.toContain('(+')
+      expect(payWayOptions.value[0]!.freeThresholdHint).toBe('')
+    })
+
     it('reads the freeThresholdValue of the cart, never recomputes it', async () => {
       setCart(makeCart({ items: [{ product: { price: 30, vatPercent: 0 } }], freeThresholdValue: 50 }))
       api.routes({ ...defaultRoutes(), '/api/pay-way': paginated([withFee]) })

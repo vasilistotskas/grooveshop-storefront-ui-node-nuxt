@@ -776,7 +776,10 @@ export async function useCheckoutForm() {
 
       // Django waives the fee on the cart's `freeThresholdValue`, the same
       // value it judges free shipping on.
-      const { cost: displayCost, freeAbove } = payWayDisplayCost(payWay, cart.value?.freeThresholdValue ?? 0)
+      // With no cart there is no value to judge it on, so no surcharge.
+      const { cost: displayCost, freeAbove } = cart.value
+        ? payWayDisplayCost(payWay, cart.value.freeThresholdValue)
+        : { cost: 0, freeAbove: null }
       // Only show the surcharge suffix when it's a real charge — a
       // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
       // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer

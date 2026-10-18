@@ -133,6 +133,16 @@ describe('useCheckoutTotals', () => {
       expect(totalsNow.total.value).toBeCloseTo(total, 2)
     })
 
+    it('charges no fee while there is no cart to judge the threshold on', () => {
+      useCartStore().cart = null
+      setPayWay(makePayWay({ cost: 2, freeThreshold: 50 }))
+
+      const { payWayCost, paymentFee } = totals({ includePaymentFee: true })
+
+      expect(payWayCost.value).toBe(0)
+      expect(paymentFee.value).toBe(0)
+    })
+
     it('reads the value Django sent, whatever the other totals say', () => {
       setCart({ totalPrice: 60, promotionDiscount: 0, freeThresholdValue: 30 })
       setPayWay(makePayWay({ cost: 2, freeThreshold: 50 }))

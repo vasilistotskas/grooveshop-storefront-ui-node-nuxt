@@ -71,10 +71,11 @@ const effectiveShippingPrice = computed<number | null>(() =>
   promotionFreeShipping.value ? 0 : props.shippingPrice)
 
 const payWayCost = computed(() => {
-  if (!payWay?.value) return 0
+  // No cart, no value to judge the threshold on: no fee either.
+  if (!payWay?.value || !cart.value) return 0
   // Django waives the fee on the cart's `freeThresholdValue`, the one
   // value it judges free shipping on too; it is read, never recomputed.
-  return payWayDisplayCost(payWay.value, cart.value?.freeThresholdValue ?? 0).cost
+  return payWayDisplayCost(payWay.value, cart.value.freeThresholdValue).cost
 })
 
 // A pay way may have no name in this language (parler allows a blank

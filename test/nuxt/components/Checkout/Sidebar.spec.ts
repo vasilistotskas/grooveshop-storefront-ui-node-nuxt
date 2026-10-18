@@ -130,6 +130,15 @@ describe('Checkout/Sidebar (default)', () => {
   })
 
   describe('pay-way fee', () => {
+    it('shows no fee while there is no cart to judge the threshold on', async () => {
+      useCartStore().cart = null
+      setPayWay(makePayWay({ cost: 2.5, freeThreshold: 50 }))
+
+      const wrapper = await mount({ shippingPrice: 0, includeShipping: true, showPaymentFee: true })
+
+      expect(wrapper.text()).not.toContain(money(2.5))
+    })
+
     it.each([
       { case: '39,98 €: delivery and the fee are charged', totalPrice: 39.98, promotionDiscount: 0, shipping: 2.99, threshold: 40, total: 44.97 },
       { case: '40,00 €: delivery and the fee are free', totalPrice: 40, promotionDiscount: 0, shipping: 0, threshold: 40, total: 40 },
@@ -289,6 +298,15 @@ describe('Checkout/Sidebar (frozen webside)', () => {
   })
 
   describe('pay-way fee', () => {
+    it('shows no fee while there is no cart to judge the threshold on', async () => {
+      useCartStore().cart = null
+      setPayWay(makePayWay({ cost: 2.5, freeThreshold: 50 }))
+
+      const wrapper = await mount({ shippingPrice: 0, shippingSummary: HOME, showPaymentFee: true })
+
+      expect(wrapper.text()).not.toContain(money(2.5))
+    })
+
     it('adds the fee on a row named after the pay way', async () => {
       setPayWay(makePayWay({ cost: 2.5 }))
 
