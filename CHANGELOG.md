@@ -1,3 +1,10 @@
+## [3.255.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.4...v3.255.5) (2026-10-18)
+
+
+### Bug Fixes
+
+* **checkout:** free shipping and free payment fee read the order value from the cart ([#180](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/180)) ([40adfaf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/40adfafd69e06e86ccff7a8c7097744bb6e24722))
+
 ## [3.255.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.3...v3.255.4) (2026-10-18)
 
 
