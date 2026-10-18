@@ -61,7 +61,7 @@ function goBack() {
         focus:not-sr-only focus:fixed focus:top-2 focus:left-2
       "
     >
-      {{ t('a11y.skipToContent') }}
+      {{ t('a11y.skip_to_content') }}
     </a>
 
     <header

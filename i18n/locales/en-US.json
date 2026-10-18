@@ -1,4 +1,7 @@
 {
+  "a11y": {
+    "skip_to_content": "Skip to main content"
+  },
   "id": "ID",
   "type": "Type",
   "favourites": "Favourites",
