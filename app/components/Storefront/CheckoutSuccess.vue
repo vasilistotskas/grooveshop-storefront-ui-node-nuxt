@@ -644,6 +644,13 @@ async function openInvoice() {
             size="lg"
             @click="openInvoice"
           />
+          <OrderSpecimenButton
+            v-if="order.hasSpecimenReceipt"
+            :order-id="order.id"
+            :uuid="orderUUID"
+            variant="ghost"
+            size="lg"
+          />
         </div>
       </div>
     </UContainer>

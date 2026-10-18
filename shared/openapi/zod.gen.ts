@@ -4945,6 +4945,9 @@ export const zStoreFeatures = z.object({
   giftCards: z.boolean().readonly(),
   wholesale: z.boolean().readonly(),
   productSuggestions: z.boolean().readonly(),
+  productAlerts: z.boolean().readonly(),
+  contactAttachments: z.boolean().readonly(),
+  chatWidget: z.boolean().readonly(),
 })
 
 /**
@@ -5761,6 +5764,7 @@ export const zOrderDetail = z.object({
     trackingUrl: z.string().nullish(),
   }).readonly().nullable(),
   hasInvoice: z.boolean().readonly(),
+  hasSpecimenReceipt: z.boolean().readonly(),
   boxnowShipment: zBoxNowShipmentDetail.nullable(),
   acsShipment: zAcsShipmentDetail.nullable(),
   shipment: z.record(z.string(), z.unknown()).readonly().nullable(),
@@ -13610,6 +13614,10 @@ export const zRetrieveOrderInvoicePath = z.object({
   ]),
 })
 
+export const zRetrieveOrderInvoiceQuery = z.object({
+  uuid: z.uuid().optional(),
+})
+
 export const zRetrieveOrderInvoiceResponse = zInvoiceDownloadResponse
 
 export const zDownloadOrderInvoicePath = z.object({
@@ -13617,6 +13625,10 @@ export const zDownloadOrderInvoicePath = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
+})
+
+export const zDownloadOrderInvoiceQuery = z.object({
+  uuid: z.uuid().optional(),
 })
 
 export const zDownloadOrderInvoiceResponse = z.string()
@@ -13675,6 +13687,19 @@ export const zGetShipmentLabelForOrderPath = z.object({
 })
 
 export const zGetShipmentLabelForOrderResponse = z.string()
+
+export const zDownloadOrderSpecimenReceiptPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zDownloadOrderSpecimenReceiptQuery = z.object({
+  uuid: z.uuid().optional(),
+})
+
+export const zDownloadOrderSpecimenReceiptResponse = z.string()
 
 export const zUpdateOrderStatusBody = zUpdateStatusRequest
 

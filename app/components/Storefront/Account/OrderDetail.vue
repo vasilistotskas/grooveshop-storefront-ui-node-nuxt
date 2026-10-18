@@ -287,6 +287,11 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
           size="sm"
           @click="openInvoice"
         />
+        <OrderSpecimenButton
+          v-if="order.hasSpecimenReceipt"
+          :order-id="order.id"
+          variant="ghost"
+        />
         <UButton
           :label="t('reorder.cta')"
           :loading="reordering === order.id"

@@ -4854,6 +4854,10 @@ export type OrderDetail = {
      */
   readonly hasInvoice: boolean
   /**
+     * True when the storefront may offer the watermarked specimen receipt (``/order/{id}/specimen/download``): a demo store, for an order a receipt is issued for (shipped onwards). Always false on any other store.
+     */
+  readonly hasSpecimenReceipt: boolean
+  /**
      * BoxNow shipment details when shipping_provider.code is 'boxnow', else null.
      */
   boxnowShipment: BoxNowShipmentDetail | null
@@ -9100,6 +9104,9 @@ export type StoreFeatures = {
   readonly giftCards: boolean
   readonly wholesale: boolean
   readonly productSuggestions: boolean
+  readonly productAlerts: boolean
+  readonly contactAttachments: boolean
+  readonly chatWidget: boolean
 }
 
 /**
@@ -20832,7 +20839,12 @@ export type RetrieveOrderInvoiceData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/invoice'
 }
 
@@ -20857,16 +20869,27 @@ export type DownloadOrderInvoiceData = {
   path: {
     id: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
   url: '/api/v1/order/{id}/invoice/download'
 }
 
 export type DownloadOrderInvoiceErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
   /**
-     * No response body
+     * Η απόδειξη δεν είναι διαθέσιμη
      */
-  404: unknown
+  404: ErrorResponse
+  500: ErrorResponse
 }
+
+export type DownloadOrderInvoiceError = DownloadOrderInvoiceErrors[keyof DownloadOrderInvoiceErrors]
 
 export type DownloadOrderInvoiceResponses = {
   200: Blob | File
@@ -21009,6 +21032,42 @@ export type GetShipmentLabelForOrderResponses = {
 }
 
 export type GetShipmentLabelForOrderResponse = GetShipmentLabelForOrderResponses[keyof GetShipmentLabelForOrderResponses]
+
+export type DownloadOrderSpecimenReceiptData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         */
+    uuid?: string
+  }
+  url: '/api/v1/order/{id}/specimen/download'
+}
+
+export type DownloadOrderSpecimenReceiptErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  /**
+     * Δεν είστε ο ιδιοκτήτης της παραγγελίας και δεν δόθηκε το UUID της.
+     */
+  403: ErrorResponse
+  /**
+     * Το δείγμα δεν είναι διαθέσιμο
+     */
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type DownloadOrderSpecimenReceiptError = DownloadOrderSpecimenReceiptErrors[keyof DownloadOrderSpecimenReceiptErrors]
+
+export type DownloadOrderSpecimenReceiptResponses = {
+  200: Blob | File
+}
+
+export type DownloadOrderSpecimenReceiptResponse = DownloadOrderSpecimenReceiptResponses[keyof DownloadOrderSpecimenReceiptResponses]
 
 export type UpdateOrderStatusData = {
   body: UpdateStatusRequest

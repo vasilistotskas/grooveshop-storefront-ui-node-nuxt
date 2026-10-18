@@ -504,4 +504,18 @@ describe('CheckoutSuccess (default layout)', () => {
 
     expect(wrapper.findAll('button').some(button => button.text() === messages.actions.invoice)).toBe(false)
   })
+
+  it('offers the specimen receipt by the order\'s uuid, only while Django offers one', async () => {
+    serveOrders(order({ hasSpecimenReceipt: true }))
+
+    const specimen = (await mount()).findComponent({ name: 'OrderSpecimenButton' })
+
+    expect(specimen.props()).toMatchObject({ orderId: 1001, uuid: UUID })
+  })
+
+  it('offers no specimen receipt when Django does not', async () => {
+    serveOrders(order({ hasSpecimenReceipt: false }))
+
+    expect((await mount()).findComponent({ name: 'OrderSpecimenButton' }).exists()).toBe(false)
+  })
 })
