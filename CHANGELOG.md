@@ -1,3 +1,10 @@
+## [3.255.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.2...v3.255.3) (2026-10-18)
+
+
+### Bug Fixes
+
+* **auth:** sign-out clears the session instead of writing it back ([#178](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/178)) ([34e0a28](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/34e0a28401a3551d42b2c06cc46a1dff80b8f840))
+
 ## [3.255.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.1...v3.255.2) (2026-10-18)
 
 
