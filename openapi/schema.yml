@@ -35522,6 +35522,11 @@ components:
           format: double
           readOnly: true
           description: Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
+        freeThresholdValue:
+          type: number
+          format: double
+          readOnly: true
+          description: 'Η αξία με την οποία κρίνονται τα δωρεάν μεταφορικά και το δωρεάν τέλος πληρωμής: τα προϊόντα μετά τις εκπτώσεις προωθήσεων και κουπονιών, χωρίς μεταφορικά και τέλη. Συγκρίνετε ένα όριο «δωρεάν πάνω από» με αυτήν, ποτέ με το total_price.'
         appliedPromotions:
           type: array
           items:
@@ -35676,6 +35681,7 @@ components:
         - b2bPricing
         - createdAt
         - currency
+        - freeThresholdValue
         - id
         - items
         - lastActivity
@@ -35913,6 +35919,11 @@ components:
           format: double
           readOnly: true
           description: Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
+        freeThresholdValue:
+          type: number
+          format: double
+          readOnly: true
+          description: 'Η αξία με την οποία κρίνονται τα δωρεάν μεταφορικά και το δωρεάν τέλος πληρωμής: τα προϊόντα μετά τις εκπτώσεις προωθήσεων και κουπονιών, χωρίς μεταφορικά και τέλη. Συγκρίνετε ένα όριο «δωρεάν πάνω από» με αυτήν, ποτέ με το total_price.'
         appliedPromotions:
           type: array
           items:
@@ -36073,6 +36084,7 @@ components:
         - b2bPricing
         - createdAt
         - currency
+        - freeThresholdValue
         - id
         - items
         - lastActivity
