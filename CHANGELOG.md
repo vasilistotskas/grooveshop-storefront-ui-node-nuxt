@@ -1,3 +1,10 @@
+# [3.255.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.254.1...v3.255.0) (2026-10-18)
+
+
+### Features
+
+* **orders:** a specimen receipt download on demo-store orders ([#173](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/173)) ([95832c5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/95832c56c3fc92f49e9f3f8e5c854c863df618aa))
+
 ## [3.254.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.254.0...v3.254.1) (2026-10-17)
 
 
