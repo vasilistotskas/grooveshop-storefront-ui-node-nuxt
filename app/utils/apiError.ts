@@ -77,16 +77,17 @@ function statusOf(error: unknown): number | undefined {
  * Django's body as it came (`handleError`), so a component never knows
  * which route it called. The one exception is allauth's flows, which answer
  * `{ statusCode, statusMessage, data: <allauth body> }` (`forwardAllAuthFlow`,
- * `handleAllAuthError`): its body carries a numeric `status`, and is read
- * from under that wrapper. A string body (an error page, a text echo) is no
- * body.
+ * `handleAllAuthError`): the wrapper's numeric `statusCode` beside an
+ * allauth body's numeric `status`, which no Django body has, so a Django body
+ * that merely holds a `data` object is never mistaken for it. A string body
+ * (an error page, a text echo) is no body.
  */
 export function apiErrorBodyOf(error: unknown): Record<string, unknown> | undefined {
   if (!isRecord(error)) return undefined
   const data = error.data
   if (!isRecord(data)) return undefined
   const allAuthBody = data.data
-  if (isRecord(allAuthBody) && typeof allAuthBody.status === 'number') return allAuthBody
+  if (typeof data.statusCode === 'number' && isRecord(allAuthBody) && typeof allAuthBody.status === 'number') return allAuthBody
   return data
 }
 
