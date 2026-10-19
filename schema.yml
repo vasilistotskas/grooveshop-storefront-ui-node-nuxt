@@ -33047,6 +33047,9 @@ components:
         reason:
           type: string
           description: Μηχανικά αναγνώσιμη αιτιολογία, π.χ. no_business_profile
+        code:
+          type: string
+          description: Η ίδια τιμή με το ``reason``.
       required:
         - detail
         - reason
@@ -37235,6 +37238,9 @@ components:
         reason:
           type: string
           description: Αιτία απόρριψης σε μορφή αναγνώσιμη από μηχανή (λεξιλόγιο της επέκτασης εκπτώσεων ACP, π.χ. discount_code_invalid)
+        code:
+          type: string
+          description: Η ίδια τιμή με το ``reason``.
       required:
         - detail
         - reason
@@ -37402,6 +37408,9 @@ components:
       properties:
         detail:
           type: string
+        code:
+          type: string
+          description: Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
       required:
         - detail
     ErrorResponse:
@@ -37409,6 +37418,9 @@ components:
       properties:
         detail:
           type: string
+        code:
+          type: string
+          description: Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
         error:
           type: string
       required:
@@ -37908,6 +37920,9 @@ components:
         reason:
           type: string
           description: Αιτία σε μηχαναγνώσιμη μορφή, π.χ. gift_card_invalid
+        code:
+          type: string
+          description: Η ίδια τιμή με το ``reason``.
       required:
         - detail
         - reason
@@ -39131,6 +39146,9 @@ components:
       properties:
         detail:
           type: string
+        code:
+          type: string
+          description: Η ίδια τιμή με το ``error.type``.
         error:
           $ref: '#/components/schemas/OrderCancelErrorDetail'
     OrderCancelErrorDetail:
@@ -39173,6 +39191,9 @@ components:
       properties:
         detail:
           type: string
+        code:
+          type: string
+          description: Η ίδια τιμή με το ``error.type``.
         error:
           $ref: '#/components/schemas/OrderCreateErrorDetail'
         cart:
@@ -49302,6 +49323,52 @@ components:
         - count
         - languageCode
         - query
+    ApiFieldError:
+      type: object
+      description: One message under a field and its stable code. Show ``message``; branch on ``code``.
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+      required:
+        - message
+        - code
+    ApiFieldErrors:
+      description: 'What lies under one field: its messages, or, for a nested serializer, an object (a list serializer keys its rows by position) or list of the same.'
+      oneOf:
+        - type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ApiFieldError'
+              - $ref: '#/components/schemas/ApiFieldErrors'
+        - type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ApiFieldErrors'
+    ApiError:
+      type: object
+      description: A plain API error. ``code`` is stable; ``detail`` is in the request's language.
+      properties:
+        detail:
+          type: string
+        code:
+          type: string
+      required:
+        - detail
+        - code
+    ApiValidationError:
+      type: object
+      description: 'A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field''s messages with their codes. A field of a nested serializer holds the nested object.'
+      properties:
+        code:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ApiFieldErrors'
+      additionalProperties: true
+      required:
+        - fields
     PageSectionHeroBannerProps:
       type: object
       properties:
