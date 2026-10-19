@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { injectHead } from '#imports'
 import { setTenant } from '~~/test/helpers/tenant'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 
@@ -197,5 +198,56 @@ describe('setupGoogleAnalyticsConsent', () => {
     loadIdle.resolve()
     await flushPromises()
     expect(fired).toBe(true)
+  })
+})
+
+/**
+ * `setupPageHeader`'s connection hints: one preconnect, to the origin the
+ * page's images load from, in the mode `<img>` loads in. A hint with
+ * `crossorigin` opens an anonymous-CORS socket that a no-cors image
+ * request cannot reuse, and the static origin is never fetched by the
+ * browser (its paths go through the media origin), so a hint for it is
+ * a wasted connection on every page (Lighthouse 2026-10-19, F9).
+ */
+describe('setupPageHeader connection hints', () => {
+  const HeaderHarness = defineComponent({
+    setup() {
+      setupPageHeader()
+      return () => h('div')
+    },
+  })
+
+  async function connectionHints() {
+    const head = injectHead()
+    const before = new Set(head.entries.keys())
+    await mountSuspended(HeaderHarness, { route: false })
+    await flushPromises()
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    try {
+      head.render()
+      vi.runOnlyPendingTimers()
+    }
+    finally {
+      vi.useRealTimers()
+    }
+    const hints = [...document.querySelectorAll('link[rel="preconnect"], link[rel="dns-prefetch"]')]
+      .map(link => ({
+        rel: link.getAttribute('rel'),
+        href: link.getAttribute('href'),
+        crossorigin: link.getAttribute('crossorigin'),
+      }))
+    for (const key of head.entries.keys()) {
+      if (!before.has(key)) head.entries.delete(key)
+    }
+    return hints
+  }
+
+  it('preconnects to the store\'s media origin only, without CORS mode', async () => {
+    setTenant({ assetsDomain: 'assets.shop.test', staticDomain: 'static.shop.test' })
+
+    expect(await connectionHints()).toEqual([
+      { rel: 'dns-prefetch', href: 'https://assets.shop.test', crossorigin: null },
+      { rel: 'preconnect', href: 'https://assets.shop.test', crossorigin: null },
+    ])
   })
 })

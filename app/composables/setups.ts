@@ -63,27 +63,25 @@ export function setupPageHeader() {
       : gated
   })
 
-  // Asset-origin hints for the origins THIS page's images and static
-  // files actually load from: the tenant's own white-label origin when
-  // it has one, otherwise the platform origin from runtimeConfig — the
-  // same resolution useMediaStreamBaseUrl / the CSP builder use. Runtime
-  // on purpose: the build-time head has no env (see nuxt.config.ts).
+  // Connection hints for the one origin the page's images load from:
+  // the tenant's own white-label media origin when it has one, otherwise
+  // the platform one from runtimeConfig, the same resolution
+  // useMediaStreamBaseUrl uses. Runtime on purpose: the build-time head
+  // has no env (see nuxt.config.ts). The static origin gets no hint: the
+  // browser never fetches from it, because ImgWithFallback and
+  // useHtmlContent send static paths through the media origin. No
+  // `crossorigin` either: `<img>` requests are no-cors, and a browser
+  // only reuses a preconnected socket for a request in the same mode.
   const assetOriginLinks = computed(() => {
-    const origins = new Set<string>()
-    for (const origin of [
-      tenantStore.assetsDomain
-        ? `https://${tenantStore.assetsDomain}`
-        : (publicConfig.mediaStreamOrigin as string | undefined),
-      tenantStore.staticDomain
-        ? `https://${tenantStore.staticDomain}`
-        : (publicConfig.static?.origin as string | undefined),
-    ]) {
-      if (origin) origins.add(origin)
-    }
-    return [...origins].flatMap(href => [
-      { rel: 'dns-prefetch' as const, href },
-      { rel: 'preconnect' as const, href, crossorigin: 'anonymous' as const },
-    ])
+    const href = tenantStore.assetsDomain
+      ? `https://${tenantStore.assetsDomain}`
+      : (publicConfig.mediaStreamOrigin as string | undefined)
+    return href
+      ? [
+          { rel: 'dns-prefetch' as const, href },
+          { rel: 'preconnect' as const, href },
+        ]
+      : []
   })
 
   const colorMode = useColorMode()

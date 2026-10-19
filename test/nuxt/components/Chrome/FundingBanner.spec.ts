@@ -85,6 +85,18 @@ describe('Chrome/FundingBanner', () => {
     expect(link.find('img').attributes('alt')).toBe(ALT)
   })
 
+  it('asks for the artwork as WebP, every candidate, whatever format it was uploaded in', async () => {
+    // The ESPA artwork is a JPEG: as WebP it is a third smaller at the
+    // same size (Lighthouse 2026-10-19, F10).
+    setting.value = banner({ image: '/img/espa.jpg' })
+
+    const image = (await mountBanner()).find('img')
+    const candidates = image.attributes('srcset')!.split(', ').map(candidate => candidate.split(' ')[0]!)
+
+    expect(candidates).toHaveLength(2)
+    for (const url of [image.attributes('src')!, ...candidates]) expect(url).toMatch(/^\/_ipx\/[^/]*\bf_webp\b/)
+  })
+
   it('leaves an https link as it is', async () => {
     setting.value = banner({ link: 'https://example.com/espa' })
 
