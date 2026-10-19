@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Generate Server Route
 
-Creates a new server route file under `server/api/...` (or `server/api/_allauth/app/v1/...` for auth) following the conventions enforced by the `api-route-validator` agent. Import h3 and Nitro helpers explicitly, from `nuxt/server` (routes) or `nitropack/runtime` (Nitro-only APIs), as `.claude/rules/server-routes.md` describes. `server/utils` and `shared` exports stay auto-imported: `useBackendFetch`, `defineCachedRoute`, `tenantCacheKey`, `parseRouterParams`, `parseDataAs`, `handleError`, `handleAllAuthError`, `forwardAllAuthFlow`, `useCartSession`, `getAllAuthHeaders`, `getAllAuthAccessToken`, `requireAllAuthAccessToken`, `processAllAuthSession`, `createHeaders`, and every `z*` / `Zod*` schema. `test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on an h3 or Nitro name used without an import.
+Creates a new server route file under `server/api/...` (or `server/api/_allauth/app/v1/...` for auth) following the conventions the `zod-coverage-reviewer` agent checks. Import h3 and Nitro helpers explicitly, from `nuxt/server` (routes) or `nitropack/runtime` (Nitro-only APIs), as `.claude/rules/server-routes.md` describes. `server/utils` and `shared` exports stay auto-imported: `useBackendFetch`, `defineCachedRoute`, `tenantCacheKey`, `parseRouterParams`, `parseDataAs`, `handleError`, `handleAllAuthError`, `forwardAllAuthFlow`, `useCartSession`, `getAllAuthHeaders`, `getAllAuthAccessToken`, `requireAllAuthAccessToken`, `processAllAuthSession`, `createHeaders`, and every `z*` / `Zod*` schema. `test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on an h3 or Nitro name used without an import.
 
 ## Inputs to ask for
 

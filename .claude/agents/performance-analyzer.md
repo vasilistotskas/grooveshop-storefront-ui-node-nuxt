@@ -40,16 +40,16 @@ Browser → Nuxt SSR (3000) → Django API (8000) → PostgreSQL / Redis / Meili
 - [ ] **No barrel imports from large packages** — import specific functions, not entire modules (e.g., `import { debounce } from 'lodash-es'` not `import _ from 'lodash'`)
 - [ ] **Lazy-load below-the-fold components** — use `Lazy` prefix for components not visible on initial viewport (e.g., footer, modals, carousels); flag statically imported components never rendered during SSR
 - [ ] **No synchronous dynamic imports in SSR path** — `await import()` in server middleware blocks the event loop
-- [ ] **`useLazyFetch` not awaited in `<script setup>`** — awaiting defeats lazy loading by suspending the component
+- [ ] **`useLazyApi` not awaited in `<script setup>`** — awaiting defeats lazy loading by suspending the component
 - [ ] **Heavy client-only code guarded with `import.meta.client`** — Lottie animations, charting libs, Stripe JS should not increase SSR bundle
 - [ ] **`defineAsyncComponent` for rarely-used components** — modals, drawers, and settings panels that most users never open
 - [ ] **Nuxt `<ClientOnly>` wrapper** for components that reference `window`/`document` directly
 
 ### SSR & Hydration Performance
 
-- [ ] **No blocking `await` chains in `<script setup>`** — parallelize with `Promise.all` or use `useLazyFetch`/`useLazyAsyncData`
+- [ ] **No blocking `await` chains in `<script setup>`** — parallelize with `Promise.all` or use `useLazyApi`
 - [ ] **No `watch` with immediate + expensive async** — prefer `watchEffect` with explicit dependencies or fetch in `onMounted`
-- [ ] **No large inline data in SSR payload** — check `useAsyncData`/`useFetch` responses aren't returning entire collections when only summaries are needed
+- [ ] **No large inline data in SSR payload** — check `useApi`/`useAsyncData` responses aren't returning entire collections when only summaries are needed
 - [ ] **Hydration-safe code** — no `Date.now()`, `Math.random()`, or browser-only APIs in SSR render path (causes hydration mismatch)
 - [ ] **`useRequestHeaders` only on server** — avoid sending server request headers to client payload
 

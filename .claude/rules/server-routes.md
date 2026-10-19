@@ -65,11 +65,14 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 - `0.markdown-negotiation.ts` — serves the `.md` variant of a route when an AI/agent client negotiates for it (`@nuxtjs/seo`'s AI Ready)
 - `0.redirects.ts` — 301 redirect from `www.` to non-www
 - `0.request-id.ts` — `x-request-id` on `/api` responses (see Structured Logging)
-- `0.tenant.ts` — resolves `event.context.tenant` from the request host (runs first; see Multi-Tenant Architecture)
+- `0.tenant.ts` — resolves `event.context.tenant` from the request host (before every middleware that reads it; see Multi-Tenant Architecture)
 - `1.ai-ready-gate.ts` — gates the on-demand `.md`/llms routes
+- `1.device-class.ts` — stamps the User-Agent's device class (`mobile`/`tablet`/`desktop`, `shared/utils/deviceClass.ts`) as the `x-device-class` request header, overwriting any client value, which the cached page rules vary on
 - `1.tenant-epoch.ts` — stamps the store's tenant-config epoch as `x-tenant-epoch`, which the cached page rules vary on (see Multi-Tenant Architecture)
 - `1.locale.ts` — `event.context.locale` = the page's locale: the path prefix of a page request, or the `X-Language` the app's fetchers state on an `/api` request, clamped by `servedLocale` (`shared/i18n/tenantLocales.ts`). No cookie, `Accept-Language` or `?locale=` source. It is sent to Django as `X-Language` and is part of every `tenantCacheKey`
 - `2.evlog-auth.ts` — attaches the auth session user id to the wide event (`useLogger`)
+- `2.evlog-client.ts` — sets `client` on the wide event (see Structured Logging); nothing for a request without a User-Agent
+- `2.evlog-ingest-rate-limit.ts` — rate limit, per client IP and store, on evlog's browser-log ingest, `POST /api/_evlog/ingest`
 - `3.csp.ts` — per-tenant Content-Security-Policy (extends src lists with the tenant's `allowedCspSources`)
 - `5.tenant-canonical.ts` — canonical host enforcement for the tenant's primary domain
 - `6.tenant-favicon.ts` — serves the tenant's favicon
@@ -87,7 +90,7 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 
 Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both client and server (Nitro).
 
-- **Simple logging**: `log.info('tag', 'message')` (2 args max — evlog ≥2.22 silently drops a third context arg), or the wide-event object form for context: `log.info({ tag: 'tag', message: 'message', ...context })`, `log.error({ action: 'name', error })`
+- **Simple logging**: `log.info('tag', 'message')` (2 args max — evlog silently drops a third context arg), or the wide-event object form for context: `log.info({ tag: 'tag', message: 'message', ...context })`, `log.error({ action: 'name', error })`
 - **Wide events** (server only): `event.context.log?.set({ key: value })` in routes and middleware (evlog's `useLogger(event)` is typed on h3's event, so `nuxt/server` code reads the logger from the context, where evlog puts it) — one rich event per request, auto-emitted at request end
 - **What reaches the log line**: only fields set on the request logger BEFORE it emits — `server/middleware/0.tenant.ts` (`tenantSchema`, `tenantName`), `server/middleware/2.evlog-auth.ts` (user id), `server/middleware/2.evlog-client.ts` (`client`: browser + major version, OS name, render `deviceClass`, `bot`, `country`). evlog prints the stdout line (what Vector ships to VictoriaLogs) at emit; `evlog:enrich` hooks run after that and feed drains only, and there is no drain, so never add an `evlog:enrich` hook expecting it in a SERVER event's line. Browser events (`/api/_evlog/ingest`) are the exception: evlog redacts, samples and enriches them BEFORE it prints, so `server/plugins/evlog-client-context.ts` names their store and their `client` (the same `clientFacts` as server events: browser + major version, OS name, `bot`, `country`) in an `evlog:enrich` hook. Those events are sampled by the same `sampling.rates` as server ones. `silent` + an `evlog:drain` hook is not the way out either: only request events reach that hook, so every other `log.*` line (errors included) would vanish. Never log the raw User-Agent or an OS version (browsers freeze it).
 - **Every request is logged** except the assets a page pulls (`evlog.exclude` in `nuxt.config.ts`): page renders and `_payload.json` included. In VictoriaLogs a storefront event's path is its `_msg` (the `VL-Msg-Field` fallback), not a `log.path` field.

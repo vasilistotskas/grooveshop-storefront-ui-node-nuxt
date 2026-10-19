@@ -24,11 +24,13 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 
 ## Middleware
 
+- `01.design-only.global.ts` — Global, and first (the `01.` prefix sorts it before every other global middleware): 404s the redesign-only pages (`REDESIGN_ONLY_PAGES`) on a store frozen in the previous design
 - `auth.global.ts` — Global: redirects unauthenticated users from protected routes
 - `identity.global.ts` — Global: hydrates identity/session state
 - `design-layout.global.ts` — Global: the layout a tenant's design draws a kind of page in (`resolveLayout` in `variantRegistry.ts`); `setPageLayout` is how a middleware overrides the layout a page file fixed at build time
+- `locale-available.global.ts` — Global: 404s a locale prefix the tenant does not serve (`servedLocale`, `Tenant.available_locales`); fails open until the tenant config has resolved
 - `guest.ts` — Prevents logged-in users from accessing login/signup pages
-- `<feature>-enabled.ts` (`blog`, `loyalty`, `promotions`, `gift-cards`, `favourites`, `newsletter`, `feedback`, `account-reviews`, `b2b`) — each is one line, `createFeatureGate('<feature>')` (`app/utils/routeGate.ts`): a hard 404 unless `TenantConfig.features` has that feature. Synchronous, no request, no fallback
+- `<feature>-enabled.ts` (`blog`, `loyalty`, `promotions`, `gift-cards`, `favourites`, `newsletter`, `feedback`, `account-reviews`, `b2b`) — each is one line, `createFeatureGate(<its StoreFeatures name>)` (`app/utils/routeGate.ts`; `b2b-enabled.ts` gates `wholesale`): a hard 404 unless `TenantConfig.features` has that feature. Synchronous, no request, no fallback
 - `cart-enabled.ts`, `catalogue-enabled.ts` — `createPreferenceGate`: the two settings that are not store features yet (see "Store features" below)
 
 ## Store features

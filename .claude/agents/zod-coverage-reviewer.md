@@ -38,9 +38,17 @@ Out: files under `server/utils/`, `server/middleware/`, `server/plugins/`, `serv
 - **POST / PUT / PATCH**: must use `readValidatedBody(event, zSchema)` — flag any `readBody(event)` whose result is forwarded.
 - The schema may live in either `shared/openapi/zod.gen.ts` (auto-generated `z*` lowercase) or `shared/schemas/**` (hand-written `Zod*` PascalCase). Both are valid; do not flag based on naming.
 
+### Imports
+
+- h3 and Nitro helpers are imported explicitly, from `nuxt/server` (or `nitropack/runtime` for Nitro-only APIs); `server/utils` and `shared` exports stay auto-imported. Flag a helper used without an import (`test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on it too).
+
 ### Django call
 
 - Every Django call goes through `useBackendFetch(event)`. Flag a global `$fetch` or an `ofetch` call to Django: it drops the store's `X-Forwarded-Host`, `X-Language` and the visitor's identity.
+- The URL starts with `config.apiBaseUrl` (`config.djangoUrl` under `_allauth/**`).
+- The Django call's method matches the route's file suffix (`.get.ts` → GET, `.post.ts` → POST, …). The one deliberate mismatch is `server/api/websocket/user/ticket.get.ts`, which mints the ticket with Django's `POST /websocket/ticket`.
+- A route that needs the signed-in user takes the token from `requireAllAuthAccessToken(event)` (401 without one) and forwards it as the `Authorization` bearer, directly or through `createHeaders(event, …)`.
+- A route that acts on the visitor's session cart goes through `server/utils/cartSession.ts` (`useCartSession(event)` for the `X-Cart-Id` header and the response's cart id). Flag a hand-built `X-Cart-Id`.
 
 ### Response validation
 
@@ -69,11 +77,11 @@ Out: files under `server/utils/`, `server/middleware/`, `server/plugins/`, `serv
 
 ## Known exceptions (DO NOT flag)
 
-These are documented in `MEMORY.md` and `.claude/agents/api-route-validator.md`:
+These are the known exceptions:
 
-- `server/api/products/categories/index.get.ts` — uses `getQuery` with manual sanitization (deferred I15).
-- `server/api/products/attributes/` — uses `getQuery` with manual query building (deferred I16).
 - `server/api/auth/oauth-params.get.ts` — reads OAuth params from session, not a Django proxy.
+- `server/api/__sitemap__/urls.ts` — the `@nuxtjs/sitemap` source (`defineSitemapEventHandler`); it fetches through `createCachedFetcher` (`backendFetchFor` inside a cached function), not the per-request envelope.
+- `server/routes/rss.xml.get.ts` — out of scope (`server/routes/`): the RSS feed, built in cached functions with `backendFetchFor` + `parseDataAs`.
 
 If new routes match these *exact* paths, skip them with a note in the report. Otherwise treat the rule as binding.
 
