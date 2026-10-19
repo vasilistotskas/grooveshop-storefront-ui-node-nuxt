@@ -109,6 +109,7 @@ describe('webside Product/Suggestions', () => {
     api.routes({
       '/api/products/1/recommendations': () => payload(),
       '/api/products/9/recommendations': () => ({ surface: 'pdp', impressionId: IMPRESSION_ID, items: [] }),
+      '/api/recommendations': () => ({ ...payload(), surface: 'empty_cart' }),
     })
   })
 
@@ -218,6 +219,35 @@ describe('webside Product/Suggestions', () => {
     expect(events()).toHaveLength(0)
   })
 
+  it('reports the impression when its own fetch answers after mount (a client-side navigation)', async () => {
+    await mountStrip()
+
+    expect(api.callsTo('/api/products/1/recommendations')).toHaveLength(1)
+    expect(events()).toHaveLength(1)
+    expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'impression', seedId: 1 })
+  })
+
+  it('asks the store-wide route without a seed and reports without one (the empty cart)', async () => {
+    const wrapper = await mountStrip({ surface: 'empty_cart' })
+
+    expect(api.callsTo('/api/recommendations')).toEqual([
+      { url: '/api/recommendations', options: expect.objectContaining({ query: { surface: 'empty_cart' } }) },
+    ])
+    expect(api.callsTo('/api/products/*')).toHaveLength(0)
+    expect(wrapper.find('h2').text()).toBe('Δημοφιλή προϊόντα')
+    expect(wrapper.findAll('article')).toHaveLength(2)
+    expect(events()).toHaveLength(1)
+    expect(events()[0]!.options.body).toEqual({
+      impressionId: IMPRESSION_ID,
+      surface: 'empty_cart',
+      kind: 'impression',
+      items: [
+        { productId: 2, strategy: 'curated', position: 0 },
+        { productId: 3, strategy: 'category', position: 1 },
+      ],
+    })
+  })
+
   it('renders passed items without a reason, a fetch or a report (the cart path)', async () => {
     const wrapper = await mountStrip({ surface: 'cart', items: [named(7, 'Λίπασμα'), named(8, 'Σπόροι')], limit: 1 })
 
@@ -256,6 +286,7 @@ describe('default Product/Suggestions', () => {
     api.routes({
       '/api/products/1/recommendations': () => payload(),
       '/api/products/9/recommendations': () => ({ surface: 'pdp', impressionId: IMPRESSION_ID, items: [] }),
+      '/api/recommendations': () => ({ ...payload(), surface: 'empty_cart' }),
     })
   })
 
@@ -319,6 +350,28 @@ describe('default Product/Suggestions', () => {
     expect(events()).toHaveLength(1)
     expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'click' })
     expect(events()[0]!.options.body.items).toEqual([{ productId: 3, strategy: 'category', position: 1 }])
+  })
+
+  it('reports the impression when its own fetch answers after mount (a client-side navigation)', async () => {
+    await mountGrid()
+
+    expect(api.callsTo('/api/products/1/recommendations')).toHaveLength(1)
+    expect(events()).toHaveLength(1)
+    expect(events()[0]!.options.body).toMatchObject({ impressionId: IMPRESSION_ID, kind: 'impression', seedId: 1 })
+  })
+
+  it('asks the store-wide route without a seed and reports without one (the empty cart)', async () => {
+    const wrapper = await mountGrid({ surface: 'empty_cart' })
+
+    expect(api.callsTo('/api/recommendations')).toEqual([
+      { url: '/api/recommendations', options: expect.objectContaining({ query: { surface: 'empty_cart' } }) },
+    ])
+    expect(api.callsTo('/api/products/*')).toHaveLength(0)
+    expect(wrapper.find('h2').text()).toBe('Δημοφιλή προϊόντα')
+    expect(names(wrapper)).toEqual(['Γλάστρα', 'Χώμα'])
+    expect(events()).toHaveLength(1)
+    expect(events()[0]!.options.body).not.toHaveProperty('seedId')
+    expect(events()[0]!.options.body).toMatchObject({ surface: 'empty_cart', kind: 'impression' })
   })
 
   it('renders passed items without a fetch or a report (the cart path)', async () => {

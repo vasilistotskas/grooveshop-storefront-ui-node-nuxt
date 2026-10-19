@@ -35,9 +35,12 @@ mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 mockComponent('CartItemCard', { props: ['cartItem'], template: '<div data-stub="item" :data-id="cartItem.id" />' })
 mockComponent('CheckoutCouponInput', { template: '<div data-stub="coupon" />' })
 mockComponent('CheckoutPointsEarned', { template: '<div data-stub="points" />' })
-vi.mock('~/components/Product/Suggestions.vue', () => ({
-  default: { template: '<div data-stub="suggestions" />' },
-}))
+const suggestionsStub = {
+  props: ['surface', 'items'],
+  template: `<div data-stub="suggestions" :data-surface="surface" :data-items="items?.length ?? 'fetches'" />`,
+}
+vi.mock('~/components/Product/Suggestions.vue', () => ({ default: suggestionsStub }))
+vi.mock('~/components/variants/webside/Product/Suggestions.vue', () => ({ default: suggestionsStub }))
 
 const messages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Storefront/Cart.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
@@ -333,6 +336,39 @@ describe('Storefront/Cart', () => {
 
       expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(false)
     })
+
+    it('fills an empty cart with the store-wide empty_cart strip, which fetches its own', async () => {
+      setTenantFeatures({ productSuggestions: true })
+      useCartStore().cart = makeCart({ items: [] })
+
+      const wrapper = await mountPage()
+
+      await vi.waitFor(() => expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(true))
+      const strip = wrapper.get('[data-stub="suggestions"]')
+      expect(strip.attributes('data-surface')).toBe('empty_cart')
+      expect(strip.attributes('data-items')).toBe('fetches')
+      expect(wrapper.text()).toContain(messages.empty.title)
+    })
+
+    it('shows no empty-cart strip without the productSuggestions feature', async () => {
+      useCartStore().cart = makeCart({ items: [] })
+
+      const wrapper = await mountPage()
+      await vi.waitFor(() => expect(wrapper.text()).toContain(messages.empty.title))
+
+      expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(false)
+    })
+
+    it('shows no empty-cart strip while the cart is still loading', async () => {
+      setTenantFeatures({ productSuggestions: true })
+      useCartStore().cart = null
+      api.routes({ '/api/cart': () => new Promise(() => {}) })
+      void useCartStore().setupCart()
+
+      const wrapper = await mountPage()
+
+      expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(false)
+    })
   })
 })
 
@@ -342,6 +378,50 @@ describe('Storefront/Cart', () => {
  * 1,00 € short of a 40,00 € threshold, not past it.
  */
 describe('Storefront/Cart (frozen webside)', () => {
+  // The frozen tree decides from the plan flag AND the merchant setting.
+  const showSuggestions = (setting: 'True' | 'False') => {
+    clearNuxtData()
+    api.routes({ '/api/settings/public': () => ({ settings: { PRODUCT_SUGGESTIONS_ENABLED: setting } }) })
+  }
+  const mountWebside = async () => {
+    const wrapper = await mountSuspended(WebsideCart, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('fills an empty cart with the store-wide empty_cart strip', async () => {
+    showSuggestions('True')
+    useCartStore().cart = makeCart({ items: [] })
+
+    const wrapper = await mountWebside()
+
+    await vi.waitFor(() => expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(true))
+    expect(wrapper.get('[data-stub="suggestions"]').attributes('data-surface')).toBe('empty_cart')
+  })
+
+  it('shows no empty-cart strip while the store has suggestions off', async () => {
+    showSuggestions('False')
+    useCartStore().cart = makeCart({ items: [] })
+
+    const wrapper = await mountWebside()
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Το καλάθι σου είναι άδειο'))
+
+    expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(false)
+  })
+
+  it('keeps the cross-sell strip, not the empty-cart one, on a cart with lines', async () => {
+    showSuggestions('True')
+    useCartStore().cart = makeCart({
+      items: [{ id: 1, quantity: 1 }],
+      recommendations: [makeProduct({ id: 9 })],
+    })
+
+    const wrapper = await mountWebside()
+
+    await vi.waitFor(() => expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(true))
+    expect(wrapper.findAll('[data-stub="suggestions"]').map(s => s.attributes('data-surface'))).toEqual(['cart'])
+  })
+
   it.each([
     { name: '39,98 €', totalPrice: 39.98, promotionDiscount: 0, notice: () => `Πρόσθεσε ακόμα ${euro(0.02)} για δωρεάν μεταφορικά` },
     { name: '40,00 €', totalPrice: 40, promotionDiscount: 0, notice: () => 'Έχεις δωρεάν μεταφορικά' },

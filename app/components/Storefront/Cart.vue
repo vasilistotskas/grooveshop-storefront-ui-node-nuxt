@@ -13,7 +13,8 @@ const toast = useToast()
 const { notify } = useApiError()
 // Cross-sell strip. The cart payload already carries ``recommendations``
 // seeded with every basket line, so the strip renders from the store —
-// no extra fetch.
+// no extra fetch. An empty cart has no line to seed from: its strip
+// fetches the store-wide ``empty_cart`` answer itself.
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 const ga4 = useGA4()
 const viewCartFired = ref(false)
@@ -325,6 +326,11 @@ useSeoMeta({
         v-if="suggestionsEnabled && cart?.recommendations?.length"
         surface="cart"
         :items="cart.recommendations"
+        hydrate-on-visible
+      />
+      <LazyProductSuggestions
+        v-else-if="suggestionsEnabled && !initialLoading && !cart?.items?.length"
+        surface="empty_cart"
         hydrate-on-visible
       />
     </UContainer>

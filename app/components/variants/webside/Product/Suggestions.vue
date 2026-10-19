@@ -6,8 +6,9 @@ const props = defineProps<{
    */
   surface: SurfaceEnum
   /**
-   * The product the shopper is looking at. Required unless ``items``
-   * is passed.
+   * The product the shopper is looking at. Without one (and without
+   * ``items``) the strip asks for the surface's store-wide answer —
+   * the empty cart.
    */
   seedId?: number
   /**
@@ -46,13 +47,16 @@ const productName = (product: Product) =>
 // SSR-rendered: Nitro caches this per (seed, surface) so the page
 // pays a cache hit, not a Django round trip. Not fetched at all when
 // the parent already has the items.
-const fetches = props.items === undefined && typeof props.seedId === 'number'
-// A plain template literal, as the product page does: Nitro's typed
-// routes resolve the response type from it, which a URL function
+const fetches = props.items === undefined
+// Plain template literals, as the product page does: Nitro's typed
+// routes resolve the response type from them, which a URL function
 // would not. The seed is fixed for the component's lifetime — the
-// page remounts it per product.
-const { data: served } = useApi(`/api/products/${props.seedId}/recommendations`, {
-  key: `recommendations:${props.surface}:${props.seedId}:${props.limit ?? ''}`,
+// page remounts it per product. No seed: the store-wide route.
+const url = typeof props.seedId === 'number'
+  ? `/api/products/${props.seedId}/recommendations` as const
+  : '/api/recommendations' as const
+const { data: served } = useApi(url, {
+  key: `recommendations:${props.surface}:${props.seedId ?? 'store'}:${props.limit ?? ''}`,
   query: {
     surface: props.surface,
     ...(typeof props.limit === 'number' ? { limit: props.limit } : {}),
@@ -107,18 +111,14 @@ const wasPrice = (product: Product) => productWasPrice(product, displayPrice(pro
 const announcement = (product: Product) =>
   displayPrice(product) < productCurrentPrice(product) ? undefined : productAnnouncement(product)
 
-// Feedback loop. The impression is reported from onMounted, which
-// under ``hydrate-on-visible`` fires when the strip scrolls into view
-// — "shown", not "served". The cart path has no impressionId and
-// reports nothing. A click is any interaction with the tile — the
-// link, the image or "add to cart" — captured on the wrapper.
-const { trackImpression, trackClick } = useRecommendationTracking(props.surface, props.seedId)
-onMounted(() => {
-  const response = data.value
-  if (response?.impressionId && response.items.length > 0) {
-    trackImpression(response.impressionId, response.items)
-  }
-})
+// Feedback loop. The impression is reported once the strip is mounted
+// with items — for a server-rendered strip under ``hydrate-on-visible``,
+// when it scrolls into view: "shown", not "served". The cart path has
+// no impressionId and reports nothing. A click is any interaction with
+// the tile — the link, the image or "add to cart" — captured on the
+// wrapper.
+const { trackImpressionWhenShown, trackClick } = useRecommendationTracking(props.surface, props.seedId)
+trackImpressionWhenShown(data)
 const onTileClick = (tile: Tile, position: number) => {
   const impressionId = data.value?.impressionId
   if (impressionId && tile.reason) {
@@ -315,9 +315,7 @@ el:
     variant_group: "Άλλη παραλλαγή"
     category: "Ίδια κατηγορία"
     attributes: "Παρόμοια χαρακτηριστικά"
-    semantic: "Παρόμοιο"
     co_purchase: "Αγοράζονται μαζί"
-    co_view: "Είδαν επίσης"
     popular: "Δημοφιλές"
 en:
   add_to_cart: "Add to cart"
@@ -339,8 +337,6 @@ en:
     variant_group: "Another variant"
     category: "Same category"
     attributes: "Similar features"
-    semantic: "Similar"
     co_purchase: "Bought together"
-    co_view: "Also viewed"
     popular: "Popular"
 </i18n>

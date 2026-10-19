@@ -4,7 +4,9 @@
  * that earned them. The click must survive the navigation it causes.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { defineComponent, h, nextTick, ref } from 'vue'
+import type { Ref } from 'vue'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import type { RecommendationItem } from '~~/shared/openapi/types.gen'
 import { makeProduct } from '~~/test/fixtures/product'
 
@@ -27,7 +29,7 @@ describe('useRecommendationTracking', () => {
   it('posts one impression for the strip, each tile with its strategy and position', () => {
     const { trackImpression } = useRecommendationTracking('pdp', 42)
 
-    trackImpression(IMPRESSION, [item(7, 'curated'), item(8, 'co_view')])
+    trackImpression(IMPRESSION, [item(7, 'curated'), item(8, 'attributes')])
 
     expect(api.callsTo(ENDPOINT)).toEqual([{
       url: ENDPOINT,
@@ -40,7 +42,7 @@ describe('useRecommendationTracking', () => {
           seedId: 42,
           items: [
             { productId: 7, strategy: 'curated', position: 0 },
-            { productId: 8, strategy: 'co_view', position: 1 },
+            { productId: 8, strategy: 'attributes', position: 1 },
           ],
         },
         keepalive: true,
@@ -78,5 +80,40 @@ describe('useRecommendationTracking', () => {
     useRecommendationTracking('pdp', 42).trackImpression(IMPRESSION, [])
 
     expect(api.callsTo(ENDPOINT)).toEqual([])
+  })
+
+  describe('trackImpressionWhenShown', () => {
+    const response = (impressionId: string, items: RecommendationItem[]) => ({ surface: 'pdp' as const, impressionId, items })
+    const mountStrip = (data: Ref<ReturnType<typeof response> | null>) => mountSuspended(defineComponent({
+      setup() {
+        useRecommendationTracking('pdp', 42).trackImpressionWhenShown(data)
+        return () => h('div')
+      },
+    }), { route: false })
+
+    it('reports once the answer arrives after mount, and only once', async () => {
+      const data = ref<ReturnType<typeof response> | null>(null)
+      await mountStrip(data)
+      expect(api.callsTo(ENDPOINT)).toEqual([])
+
+      data.value = response(IMPRESSION, [])
+      await nextTick()
+      expect(api.callsTo(ENDPOINT)).toEqual([])
+
+      data.value = response(IMPRESSION, [item(7, 'curated')])
+      await nextTick()
+      data.value = response('9b2e4c1a-7d3f-4e5b-8a6c-1f2e3d4c5b6a', [item(8, 'popular')])
+      await nextTick()
+
+      const calls = api.callsTo(ENDPOINT)
+      expect(calls).toHaveLength(1)
+      expect(calls[0]!.options.body).toMatchObject({ impressionId: IMPRESSION, kind: 'impression', seedId: 42 })
+    })
+
+    it('reports at mount when the answer is already there (a server-rendered strip)', async () => {
+      await mountStrip(ref(response(IMPRESSION, [item(7, 'curated')])))
+
+      expect(api.callsTo(ENDPOINT)).toHaveLength(1)
+    })
   })
 })
