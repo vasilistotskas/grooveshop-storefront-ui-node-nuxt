@@ -9,9 +9,10 @@ import type { NavigationMenuItem, TreeItem } from '@nuxt/ui'
  * Loaded lazily and mounted inside `ClientOnly` by the header, so the
  * slideover runtime (`vaul-vue` et al) stays out of every page's eager
  * graph — the reason the header is a hand-rolled element rather than
- * `UHeader` in the first place. The body only mounts while the panel is
- * open, so the account card's loyalty request is made when the menu is,
- * not on every page.
+ * `UHeader` in the first place. The panel's content is premounted once
+ * the page is idle (`useOverlayPremount`), so a tap only shows it; the
+ * account card still waits for the panel's first opening, so its loyalty
+ * request is made when the menu is, not on every page.
  */
 const open = defineModel<boolean>('open', { default: false })
 
@@ -25,6 +26,13 @@ const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 const { loggedIn } = useUserSession()
 const { categories, hasCategories } = useCategoryMenu()
+const premount = useOverlayPremount()
+// Turns true on the first opening and stays true, so the card does not
+// vanish under the panel's closing animation.
+const opened = ref(false)
+watch(open, (value) => {
+  if (value) opened.value = true
+}, { immediate: true })
 
 /**
  * The catalogue as a `UTree`. A branch opens on "All in" its category,
@@ -72,6 +80,7 @@ watch(() => route.fullPath, () => {
 <template>
   <USlideover
     v-model:open="open"
+    :unmount-on-hide="!premount"
     side="left"
     :ui="{
       content: 'w-85 max-w-[calc(100vw-3rem)]',
@@ -93,7 +102,9 @@ watch(() => route.fullPath, () => {
 
     <template #body>
       <div class="flex flex-col gap-4">
-        <ChromeMobileMenuAccount v-if="loggedIn" />
+        <template v-if="loggedIn">
+          <ChromeMobileMenuAccount v-if="opened" />
+        </template>
         <UButton
           v-else
           :to="localePath('account-login')"

@@ -18,6 +18,8 @@ mockNuxtImport('useNavigation', () => () => ({
   footerColumns: computed(() => null),
   mobileLinks: computed(() => state.phoneLinks),
 }))
+// The page is idle at once, as it is a moment after a real page has loaded.
+mockNuxtImport('onNuxtReady', () => (callback: () => void) => callback())
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(false),
   user: ref(null),
@@ -43,5 +45,22 @@ describe('webside Page/BurgerMenu', () => {
 
     expect(hrefs).toContain('/mobile-only')
     expect(hrefs).not.toContain('/services')
+  })
+
+  // Mounting the content in the tap's own task was most of the ~400 ms a
+  // tap on the menu cost on a phone-class CPU (webside's INP, 2026-10-19).
+  it('mounts its content, hidden, once the page is idle, before it is opened', async () => {
+    const wrapper = await mountSuspended(BurgerMenu, { route: false, attachTo: document.body })
+
+    await vi.waitFor(() => expect(document.body.querySelector('a[href="/mobile-only"]')).not.toBeNull())
+    const dialog = document.body.querySelector<HTMLElement>('[role="dialog"]')
+    const trigger = wrapper.find('button[aria-label]')
+
+    expect(trigger.attributes('aria-expanded')).toBe('false')
+    expect(dialog?.style.display).toBe('none')
+
+    await trigger.trigger('click')
+    await vi.waitFor(() => expect(dialog?.style.display).toBe(''))
+    wrapper.unmount()
   })
 })

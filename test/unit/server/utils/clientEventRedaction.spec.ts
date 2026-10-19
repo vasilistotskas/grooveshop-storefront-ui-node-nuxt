@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { REDACTED_BODY, redactBody, redactClientEventError } from '~~/server/utils/clientEventRedaction'
+import { REDACTED_BODY, redactBody, redactClientEventError, redactClientInpReport } from '~~/server/utils/clientEventRedaction'
 
 /**
  * A field error often echoes what the customer typed, and a browser event
@@ -180,5 +180,91 @@ describe('redactClientEventError', () => {
 
     expect(plain).toEqual({ tag: 'cart', message: 'ok' })
     expect(noData).toEqual({ error: { name: 'TypeError', message: 'cart is undefined', stack: 'x' } })
+  })
+})
+
+/**
+ * A browser's INP report (`app/utils/inpReport.ts`) reaches the ingest like
+ * any client event, so the server keeps only the `InpReport` fields, each
+ * in the shape the browser builds it.
+ */
+describe('redactClientInpReport', () => {
+  function report(overrides: Record<string, unknown> = {}) {
+    return {
+      value: 413,
+      rating: 'poor',
+      route: 'products-id-slug___el',
+      interactionType: 'pointer',
+      target: 'div.justify-between>button.rounded-md.lg:hidden.[&>svg]:size-4',
+      loadState: 'complete',
+      inputDelay: 10,
+      processingDuration: 517,
+      presentationDelay: 81,
+      longAnimationFrames: 2,
+      totalScriptDuration: 420,
+      longestScript: {
+        source: '/_nuxt/CeFNOCv3-e0bece00.js',
+        invoker: 'BUTTON.onclick',
+        invokerType: 'event-listener',
+        functionName: 'onClick',
+        subpart: 'processing-duration',
+        duration: 360,
+        forcedStyleAndLayout: 148,
+      },
+      ...overrides,
+    }
+  }
+
+  it('keeps a report the browser built, as it is', () => {
+    const event = { action: 'client:inp', inp: report() }
+
+    redactClientInpReport(event)
+
+    expect(event.inp).toEqual(report())
+  })
+
+  it('drops a field the report does not have', () => {
+    const event = { action: 'client:inp', inp: report({ email: 'x@y.z', url: 'https://webside.gr/account/password/reset/key/3k-a1' }) }
+
+    redactClientInpReport(event)
+
+    expect(event.inp).toEqual(report())
+  })
+
+  it('drops a target, a route or a script that is not in its shape', () => {
+    const event = {
+      action: 'client:inp',
+      inp: report({
+        target: 'Γιάννης Παπαδόπουλος 6912345678',
+        route: '/account/password/reset/key/3k-a1',
+        longestScript: { ...report().longestScript, source: 'https://www.googletagmanager.com/gtag/js?id=G-GGKMZ8YLNN' },
+      }),
+    }
+
+    redactClientInpReport(event)
+
+    expect(event.inp).not.toHaveProperty('target')
+    expect(event.inp).not.toHaveProperty('route')
+    expect(event.inp).not.toHaveProperty('longestScript')
+    expect(JSON.stringify(event)).not.toMatch(/6912345678|reset|G-GGKMZ8YLNN/)
+  })
+
+  it('replaces a report without its value, rating or phases', () => {
+    const missingPhase = { action: 'client:inp', inp: report({ inputDelay: '10 ms' }) }
+    const notAReport = { action: 'client:inp', inp: 'slow click on x@y.z' }
+
+    redactClientInpReport(missingPhase)
+    redactClientInpReport(notAReport)
+
+    expect(missingPhase.inp).toBe(REDACTED_BODY)
+    expect(notAReport.inp).toBe(REDACTED_BODY)
+  })
+
+  it('leaves an event that is not an INP report alone', () => {
+    const event = { action: 'client:vue-error', inp: 'not ours' }
+
+    redactClientInpReport(event)
+
+    expect(event.inp).toBe('not ours')
   })
 })

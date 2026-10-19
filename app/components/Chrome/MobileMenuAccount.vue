@@ -5,8 +5,9 @@
  * tier and points; their email otherwise. The whole card links to the
  * account.
  *
- * Mounted only while the menu is open (see `Chrome/MobileMenu.vue`),
- * which is when the loyalty summary is worth asking for.
+ * Mounted only once the menu is first opened (see `Chrome/MobileMenu.vue`,
+ * which premounts the rest of the panel), which is when the loyalty
+ * summary is worth asking for.
  */
 const { t } = useI18n()
 const localePath = useLocalePath()

@@ -26,6 +26,18 @@ const { providerToken, navigateToMock, toastAdd, gsi } = vi.hoisted(() => {
   }
   return { providerToken: vi.fn(), navigateToMock: vi.fn(), toastAdd: vi.fn(), gsi }
 })
+const { scriptGoogleAnalytics, loadIdle } = vi.hoisted(() => {
+  const loadIdle = { resolve: () => {}, promise: Promise.resolve() }
+  return {
+    loadIdle,
+    scriptGoogleAnalytics: vi.fn((_options: { scriptOptions: { trigger: unknown } }) => ({
+      proxy: { gtag: () => {} },
+      consent: { update: () => {} },
+    })),
+  }
+})
+mockNuxtImport('useScriptGoogleAnalytics', () => scriptGoogleAnalytics)
+mockNuxtImport('afterLoadWhenIdle', () => () => loadIdle.promise)
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('useScript', () => () => gsi)
@@ -145,5 +157,45 @@ describe('setupCookieConsentTracking', () => {
 
   it('still counts a frozen store, whose own banner always asks', async () => {
     expect(await impressions({}, 'webside')).toHaveLength(1)
+  })
+})
+
+/**
+ * gtag loads once the page has loaded and is idle, never on the visitor's
+ * first tap: its ~180 ms evaluation then landed on their next tap (webside's
+ * INP, 2026-10-19).
+ */
+describe('setupGoogleAnalyticsConsent', () => {
+  const GaHarness = defineComponent({
+    setup() {
+      setupGoogleAnalyticsConsent()
+      return () => h('div')
+    },
+  })
+
+  beforeEach(() => {
+    loadIdle.promise = new Promise((resolve) => {
+      loadIdle.resolve = resolve
+    })
+  })
+
+  it('loads the tag when the loaded page is idle, not on the first tap', async () => {
+    setTenant({ gaTrackingId: 'G-GGKMZ8YLNN', googleAdsConversionId: '' })
+    await mountSuspended(GaHarness, { route: false })
+    // The first registration loads the tag; useGoogleAds' later one is 'manual'.
+    const trigger = scriptGoogleAnalytics.mock.calls[0]?.[0].scriptOptions.trigger
+    let fired = false
+    Promise.resolve(trigger).then(() => {
+      fired = true
+    })
+
+    window.dispatchEvent(new Event('pointerdown'))
+    window.dispatchEvent(new Event('touchstart'))
+    await flushPromises()
+    expect(fired).toBe(false)
+
+    loadIdle.resolve()
+    await flushPromises()
+    expect(fired).toBe(true)
   })
 })
