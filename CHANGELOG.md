@@ -1,3 +1,10 @@
+## [3.255.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.5...v3.255.6) (2026-10-19)
+
+
+### Bug Fixes
+
+* **observability:** bump evlog and return the request id to the browser ([#181](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/181)) ([6d66017](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6d66017714eba2d6912a540c6938cd515ca06d65))
+
 ## [3.255.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.4...v3.255.5) (2026-10-18)
 
 
