@@ -1,3 +1,10 @@
+## [3.255.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.9...v3.255.10) (2026-10-19)
+
+
+### Bug Fixes
+
+* **errors:** every route answers Django's error body in one shape ([#188](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/188)) ([594704e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/594704eb79cce50fc0a9ea515cbb830fa17c7ea2))
+
 ## [3.255.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.8...v3.255.9) (2026-10-19)
 
 
