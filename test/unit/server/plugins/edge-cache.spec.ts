@@ -84,6 +84,28 @@ describe('server/plugins/edge-cache', () => {
     expect((await respond(url, options))['cloudflare-cdn-cache-control']).toBeUndefined()
   })
 
+  it.each<[string, string, Respond]>([
+    ['a page rendered with the visitor\'s session', '/account', { headers: { 'content-type': 'text/html;charset=utf-8' } }],
+    ['its payload', '/account/_payload.json', { headers: { 'content-type': 'application/json' } }],
+    ['a 404 Nitro stamped with its SWR header', '/products/999/gone', { status: 404 }],
+    ['a 500 on a cached route', '/', { status: 500 }],
+    ['a cached route of a tenant-less request', '/', { tenant: null }],
+  ])('marks %s private', async (_label, url, options) => {
+    expect(await respond(url, options)).toEqual({
+      'cache-control': 'private, no-store',
+      'cloudflare-cdn-cache-control': undefined,
+      'cache-tag': undefined,
+    })
+  })
+
+  it.each<[string, string, Respond]>([
+    ['a redirect', '/home', { status: 301, headers: { 'content-type': 'text/html', 'cache-control': 'max-age=3600' } }],
+    ['an API response', '/api/products', { headers: { 'content-type': 'application/json', 'cache-control': NITRO_SWR } }],
+    ['markdown with its own policy', '/products', { headers: { 'content-type': 'text/markdown', 'cache-control': 'public, max-age=300' } }],
+  ])('leaves the Cache-Control of %s alone', async (_label, url, options) => {
+    expect((await respond(url, options))['cache-control']).toBe(options.headers!['cache-control'])
+  })
+
   it('does not touch a response whose headers are already sent', async () => {
     expect((await respond('/', { headersSent: true }))['cache-control']).toBe(NITRO_SWR)
   })
