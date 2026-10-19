@@ -1,3 +1,4 @@
+import DOMPurify from 'isomorphic-dompurify'
 import { describe, it, expect } from 'vitest'
 import { Window } from 'happy-dom'
 import {
@@ -205,6 +206,52 @@ describe('sanitizeRichHtml', () => {
 
     expect(out).toContain('https://example.com/a')
     expect(out).toContain('https://cdn.example.com/i.png')
+  })
+
+  it('drops the typeface and the Word-only properties from text pasted from Word', () => {
+    // As webside's posts store it (post 23): the span named Roboto, the
+    // face downloaded mid-render and the paragraph reflowed (CLS 0.115).
+    const out = sanitize(
+      '<p class="MsoNormal" style="line-height: 115%; mso-ansi-language: EL">'
+      + '<span style="font-family: Roboto; font-size: 12.0pt; color: #3364ff">text</span>'
+      + '<span style="font: italic 12pt Roboto">shorthand</span></p>',
+    )
+
+    expect(out).toBe(
+      '<p style="line-height: 115%">'
+      + '<span style="font-size: 12.0pt; color: #3364ff">text</span>'
+      + '<span>shorthand</span></p>',
+    )
+  })
+
+  it('keeps a declaration whose value carries a semicolon', () => {
+    const style = 'background-image: url("data:image/png;base64,AAAA"); font-family: Roboto'
+
+    expect(sanitize(`<div style='${style}'>x</div>`))
+      .toBe('<div style="background-image: url(&quot;data:image/png;base64,AAAA&quot;)">x</div>')
+  })
+
+  it('keeps the classes an author set and drops the ones Word set', () => {
+    expect(sanitize('<p class="MsoListParagraph lead msocomoff">x</p>'))
+      .toBe('<p class="lead">x</p>')
+  })
+
+  it('drops the empty comment links Word leaves and keeps every other link', () => {
+    const out = sanitize(
+      '<p>a<a id="_anchor_1" class="msocomanchor" '
+      + 'href="https://d.docs.live.net/351b/Content.docx#_msocom_1"></a>'
+      + '<a href="#_msocom_2">[A2]</a><a href="https://example.com/"></a></p>',
+    )
+
+    expect(out).toBe('<p>a<a href="#_msocom_2">[A2]</a><a href="https://example.com/"></a></p>')
+  })
+
+  it('leaves the other callers of the DOMPurify singleton untouched', () => {
+    // The TOTP QR code goes through DOMPurify directly.
+    sanitize('<p style="font-family: Roboto">x</p>')
+
+    expect(DOMPurify.sanitize('<p class="MsoNormal" style="font-family: Roboto">x</p>'))
+      .toBe('<p class="MsoNormal" style="font-family: Roboto">x</p>')
   })
 
   it('returns an empty string for empty input', () => {

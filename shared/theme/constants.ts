@@ -31,6 +31,12 @@ export const TAILWIND_COLOR_ALLOWLIST = new Set([
  * ``@nuxt/fonts`` (see ``fonts.families`` in ``nuxt.config.ts``), so a
  * tenant switching families costs one lazy @font-face download — no
  * third-party requests, no CSP widening.
+ *
+ * A page never carries these strings directly: each named stack is
+ * compiled into the stylesheet as ``--font-stack-<key>``
+ * (``modules/font-stacks.ts``), where ``@nuxt/fonts`` adds the family's
+ * metric-matched fallback faces to it, and the tenant's tokens point at
+ * that variable (``fontStackValue``).
  */
 export const FONT_ALLOWLIST: Record<string, string> = {
   'system': 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
@@ -61,6 +67,28 @@ export const FONT_ALLOWLIST: Record<string, string> = {
   // ship a Greek subset (verified on Google Fonts).
   'vollkorn': '"Vollkorn", ui-serif, Georgia, serif',
   'commissioner': '"Commissioner", ui-sans-serif, system-ui, sans-serif',
+}
+
+/**
+ * The custom property holding the compiled stack of a pre-bundled family
+ * (see ``FONT_ALLOWLIST``).
+ */
+export function fontStackProperty(key: string): string {
+  return `--font-stack-${key}`
+}
+
+/**
+ * The value a tenant token takes for the ``FONT_ALLOWLIST`` key ``key``.
+ *
+ * A pre-bundled family resolves to its compiled stack, whose fallback
+ * faces (``"Vollkorn Fallback: Times New Roman"``, sized to Vollkorn's
+ * metrics) hold the text in place until the web font arrives; written
+ * raw, the stack fell straight back to Georgia and the heading reflowed
+ * when Vollkorn loaded. ``system`` has no web font and stays literal.
+ */
+export function fontStackValue(key: string): string | undefined {
+  if (FONT_FAMILY_NAMES[key]) return `var(${fontStackProperty(key)})`
+  return FONT_ALLOWLIST[key]
 }
 
 /** Google Fonts family names for the pre-bundled entries above. */

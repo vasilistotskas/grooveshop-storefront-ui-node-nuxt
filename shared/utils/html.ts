@@ -144,6 +144,107 @@ function replaceYouTubeEmbeds(root: PurifiedElement, options: RichHtmlOptions): 
 }
 
 /**
+ * Inline declarations a body may not keep: the typeface (``font-family``
+ * and the ``font`` shorthand that carries one) and Word's ``mso-*``
+ * properties, which no browser reads.
+ *
+ * Text pasted from Word arrives as ``<span style="font-family: Roboto;
+ * mso-ansi-language: EL">``. The store sets its own faces, and a span
+ * naming another one downloads that face mid-render and reflows the
+ * paragraph around it when it swaps in (CLS 0.115 on webside's post 23).
+ * The author's size, colour, alignment and spacing stay.
+ */
+const FORBIDDEN_STYLE_PROPERTY_RE = /^(?:font|font-family|mso-.*)$/i
+
+/** Word's paragraph and comment classes (``MsoNormal``, ``msocomanchor``). */
+const WORD_CLASS_RE = /^mso/i
+
+/**
+ * Word's comment marker: an empty link to ``#_msocom_<n>``, often in the
+ * author's own OneDrive document. No text, nowhere to go.
+ */
+const WORD_COMMENT_HREF_RE = /#_msocom_\d+$/
+
+/**
+ * The declarations of an inline ``style``, split on the semicolons that
+ * end one: not those inside a string or a ``url(...)``.
+ */
+function splitDeclarations(style: string): string[] {
+  const declarations: string[] = []
+  let depth = 0
+  let quote = ''
+  let start = 0
+  for (let i = 0; i < style.length; i++) {
+    const char = style[i]
+    if (quote) {
+      if (char === '\\') i++
+      else if (char === quote) quote = ''
+    }
+    else if (char === '"' || char === '\'') quote = char
+    else if (char === '(') depth++
+    else if (char === ')') depth = Math.max(0, depth - 1)
+    else if (char === ';' && depth === 0) {
+      declarations.push(style.slice(start, i))
+      start = i + 1
+    }
+  }
+  declarations.push(style.slice(start))
+  return declarations.map(declaration => declaration.trim()).filter(Boolean)
+}
+
+/**
+ * ``style`` without the declarations ``FORBIDDEN_STYLE_PROPERTY_RE``
+ * names, or ``undefined`` when it has none: a style with nothing to drop
+ * stays exactly as the author wrote it.
+ */
+function stripForbiddenDeclarations(style: string): string | undefined {
+  const declarations = splitDeclarations(style)
+  const kept = declarations.filter((declaration) => {
+    const property = declaration.slice(0, declaration.indexOf(':')).trim()
+    return !FORBIDDEN_STYLE_PROPERTY_RE.test(property)
+  })
+  return kept.length === declarations.length ? undefined : kept.join('; ')
+}
+
+/** ``classes`` without Word's, or ``undefined`` when it has none. */
+function stripWordClasses(classes: string): string | undefined {
+  const names = classes.split(/\s+/).filter(Boolean)
+  const kept = names.filter(name => !WORD_CLASS_RE.test(name))
+  return kept.length === names.length ? undefined : kept.join(' ')
+}
+
+/**
+ * True only while ``sanitizeRichHtml`` runs: the hooks below sit on the
+ * DOMPurify singleton, and its other callers (the TOTP QR code's SVG)
+ * must come out untouched. ``sanitize`` is synchronous, so the flag
+ * cannot leak into another call.
+ */
+let cleaningRichText = false
+let wordCleanupHooksInstalled = false
+
+function installWordCleanupHooks(): void {
+  if (wordCleanupHooksInstalled) return
+  wordCleanupHooksInstalled = true
+
+  DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
+    if (!cleaningRichText) return
+    const value = data.attrName === 'style'
+      ? stripForbiddenDeclarations(data.attrValue)
+      : data.attrName === 'class' ? stripWordClasses(data.attrValue) : undefined
+    if (value === undefined) return
+    data.attrValue = value
+    if (!value) data.keepAttr = false
+  })
+
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if (!cleaningRichText || node.nodeName !== 'A') return
+    if (WORD_COMMENT_HREF_RE.test(node.getAttribute('href') ?? '') && !node.textContent?.trim()) {
+      node.remove()
+    }
+  })
+}
+
+/**
  * Sanitise admin-authored rich text for rendering with ``v-html``.
  *
  * Use this for EVERY WYSIWYG field — blog bodies, product
@@ -161,6 +262,10 @@ function replaceYouTubeEmbeds(root: PurifiedElement, options: RichHtmlOptions): 
  * a click-to-load facade: the player weighs 0.5 MB of script per
  * video and sets YouTube and DoubleClick cookies the moment it loads,
  * before the visitor has answered the cookie banner.
+ *
+ * Text pasted from Word loses what only Word reads or what overrides the
+ * store's typeface (``FORBIDDEN_STYLE_PROPERTY_RE``), its ``Mso*``
+ * classes and its empty comment links.
  */
 export function sanitizeRichHtml(
   html: string | null | undefined,
@@ -169,20 +274,28 @@ export function sanitizeRichHtml(
   if (!html) return ''
 
   installEmbedOriginHook()
+  installWordCleanupHooks()
 
   // ``RETURN_DOM`` hands back the sanitised ``<body>``, so the facades
   // are built on the clean tree, after every hook has run, rather than
   // by swapping nodes inside a hook while DOMPurify is walking them.
   // DOMPurify types that ``<body>`` only as a ``Node``.
-  const body = DOMPurify.sanitize(html, {
-    ADD_TAGS: ['iframe'],
-    ADD_ATTR: [...EMBED_IFRAME_ATTRS],
-    // Belt and braces: ``srcdoc`` is not in the default allow-list and
-    // is not added above, but forbidding it explicitly means a future
-    // widening of ADD_ATTR cannot quietly let it back in.
-    FORBID_ATTR: ['srcdoc'],
-    RETURN_DOM: true,
-  }) as PurifiedElement
+  cleaningRichText = true
+  let body: PurifiedElement
+  try {
+    body = DOMPurify.sanitize(html, {
+      ADD_TAGS: ['iframe'],
+      ADD_ATTR: [...EMBED_IFRAME_ATTRS],
+      // Belt and braces: ``srcdoc`` is not in the default allow-list and
+      // is not added above, but forbidding it explicitly means a future
+      // widening of ADD_ATTR cannot quietly let it back in.
+      FORBID_ATTR: ['srcdoc'],
+      RETURN_DOM: true,
+    }) as PurifiedElement
+  }
+  finally {
+    cleaningRichText = false
+  }
   replaceYouTubeEmbeds(body, options)
   return body.innerHTML
 }

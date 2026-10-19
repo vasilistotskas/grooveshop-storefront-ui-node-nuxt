@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   REDESIGN_ONLY_PAGES,
   resolveChrome,
-  resolveDesign,
   resolveLayout,
   resolvePage,
   type ChromeKey,
   type PageKey,
 } from '~/utils/variantRegistry'
+import { resolveDesign } from '~~/shared/theme/design'
 
 /**
  * webside keeps its own copy of EVERY page body and every piece of

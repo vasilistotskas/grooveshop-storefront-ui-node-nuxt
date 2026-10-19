@@ -883,8 +883,10 @@ export default defineNuxtConfig({
     // cyrillic/vietnamese/greek-ext were dead weight on every page.
     // @nuxt/fonts 1.x hoists the global faces out of entry.css into an
     // inline <style> in every HTML response (nuxt/fonts#875: no stylesheet
-    // waterfall, less layout shift), so that same cost is now paid per
-    // document instead of once per immutable CSS file.
+    // waterfall, less layout shift), so that same cost would be paid per
+    // document: server/plugins/tenant-fonts.ts keeps only the faces of the
+    // families the store's tokens set. Each family's fallback metric faces
+    // come from modules/font-stacks.ts.
     defaults: {
       weights: [400, 500, 600, 700],
       styles: ['normal'],
