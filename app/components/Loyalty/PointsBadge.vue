@@ -8,10 +8,9 @@
  * badge in both cases, so the line under the price does not change shape
  * when the session arrives after hydration — only the number can.
  *
- * Renders nothing on a store without loyalty (the plan flag AND the
- * merchant's setting, as every loyalty surface gates), and nothing when
- * there are no points to promise. Django refuses the points of a store
- * without either, so the request is gated the same way.
+ * Renders nothing on a store without the loyalty feature, and nothing
+ * when there are no points to promise. `useLoyalty` asks for no points
+ * on such a store; the signed-in shopper is this badge's own condition.
  */
 const props = defineProps<{
   productId: number
@@ -29,10 +28,7 @@ const loyalty = useLoyalty()
 const { data: settings } = await loyalty.fetchSettings()
 
 const enabled = useStoreFeature('loyalty')
-const { data: productPoints } = loyalty.fetchProductPoints(
-  props.productId,
-  () => loggedIn.value && enabled.value,
-)
+const { data: productPoints } = loyalty.fetchProductPoints(props.productId, loggedIn)
 
 const points = computed(() => {
   if (!enabled.value) return 0

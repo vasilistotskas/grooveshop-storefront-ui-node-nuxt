@@ -64,27 +64,7 @@ const fetchAllProductPoints = async () => {
     const uniqueProductIds = [...new Set(getCartItems.value.map(item => item.product.id))]
 
     // Fetch points for all products in parallel
-    const results = await Promise.all(
-      uniqueProductIds.map(async (productId) => {
-        try {
-          const data = await $api<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
-            method: 'GET',
-          })
-          return { productId, points: data.potentialPoints }
-        }
-        catch {
-          // Silent failure for individual product — non-critical feature
-          return { productId, points: 0 }
-        }
-      }),
-    )
-
-    // Build the map
-    const newMap = new Map<number, number>()
-    for (const result of results) {
-      newMap.set(result.productId, result.points)
-    }
-    pointsPerProduct.value = newMap
+    pointsPerProduct.value = await loyalty.fetchPointsPerProduct(uniqueProductIds)
   }
   catch {
     hasError.value = true

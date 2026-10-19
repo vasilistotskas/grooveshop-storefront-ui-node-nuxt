@@ -6,11 +6,13 @@ import { CalendarDate } from '@internationalized/date'
 import LoyaltyTransactions from '~/components/Loyalty/Transactions.vue'
 import { makeTransactionPage } from '~~/test/fixtures/loyalty'
 import { failWith } from '~~/test/helpers/api'
+import { setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The account's points ledger. Mocked at the request (`useRequestApi`,
  * which `useLoyalty` fetches through), so the filters are checked by
- * the query they actually send.
+ * the query they actually send. The store runs the programme: on one
+ * that does not, `useLoyalty` asks for nothing.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('useRequestApi', () => () => api)
@@ -19,6 +21,7 @@ const LEDGER = '/api/loyalty/transactions'
 
 beforeEach(() => {
   clearNuxtData('loyalty-transactions')
+  setTenantFeatures({ loyalty: true })
   api.routes({
     [LEDGER]: makeTransactionPage([
       { points: 100, transactionType: 'EARN', description: 'Πόντοι από την παραγγελία #12345', createdAt: '2026-01-15T10:30:00Z' },

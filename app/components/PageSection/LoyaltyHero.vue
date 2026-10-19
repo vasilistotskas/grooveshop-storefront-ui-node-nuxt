@@ -43,9 +43,7 @@ const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
 
 const offered = useStoreFeature('loyalty')
-const [{ data: settings }, { data: tiers }] = offered.value
-  ? await Promise.all([loyalty.fetchSettings(), loyalty.fetchTiers()])
-  : [{ data: ref<LoyaltySettings>() }, { data: ref<LoyaltyTier[]>() }]
+const [{ data: settings }, { data: tiers }] = await Promise.all([loyalty.fetchSettings(), loyalty.fetchTiers()])
 
 const mounted = ref(false)
 onMounted(() => {

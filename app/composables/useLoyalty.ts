@@ -6,6 +6,13 @@
  *
  * Provides centralized access to loyalty summary, transactions, redemption,
  * product points preview, tiers list, and settings functionality.
+ *
+ * Nothing is requested on a store without the `loyalty` feature: every
+ * fetch here passes it as `enabled`, so a caller that renders behind its
+ * own gate (or forgets one) can never ask. Django refuses a store's
+ * loyalty API with the feature off (`feature_gate:refused`, which pages
+ * the team), and the data is `undefined`, as every reader already
+ * treats an unconfigured programme.
  */
 export const useLoyalty = () => {
   // Forwards the browser cookie during SSR so internal calls to our own
@@ -21,6 +28,7 @@ export const useLoyalty = () => {
   // omits the headers that would break Nuxt's payload-cache hash
   // (range, if-none-match) and the hop-by-hop ones.
   const requestFetch = useRequestApi()
+  const loyaltyOn = useStoreFeature('loyalty')
 
   /**
    * Fetch loyalty system configuration settings
@@ -49,7 +57,7 @@ export const useLoyalty = () => {
       // checkout CTAs in one render: 'defer' lets the later readers
       // wait on the pending request instead of re-issuing it (the
       // default 'cancel'). See useStoreSettings.
-      { dedupe: 'defer' },
+      { dedupe: 'defer', enabled: loyaltyOn },
     )
   }
 
@@ -64,6 +72,7 @@ export const useLoyalty = () => {
       () => requestFetch<LoyaltySummary>('/api/loyalty/summary', {
         method: 'GET',
       }),
+      { enabled: loyaltyOn },
     )
   }
 
@@ -89,6 +98,7 @@ export const useLoyalty = () => {
         query: buildLoyaltyTransactionsQuery(toValue(params)),
       }),
       {
+        enabled: loyaltyOn,
         watch: [() => toValue(params)],
       },
     )
@@ -101,18 +111,45 @@ export const useLoyalty = () => {
    * Errors are logged but don't throw (silent failure for non-critical feature).
    *
    * @param productId - The product ID
+   * @param enabled - The caller's own condition (a signed-in shopper),
+   *   on top of the store's loyalty feature
    */
   const fetchProductPoints = (productId: number, enabled: MaybeRefOrGetter<boolean>) => {
+    const ask = () => loyaltyOn.value && toValue(enabled)
     return useAsyncData<ProductPoints>(
       `loyalty-product-points-${productId}`,
       () => requestFetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
         method: 'GET',
       }),
-      // Only while the points can exist: Django answers 404 on a store
-      // with loyalty off. `enabled` blocks a fetch but never starts one
-      // when it turns true; the watch does.
-      { enabled, watch: [() => toValue(enabled)] },
+      // `enabled` blocks a fetch but never starts one when it turns
+      // true; the watch does.
+      { enabled: ask, watch: [ask] },
     )
+  }
+
+  /**
+   * The points each product earns the signed-in shopper, asked in
+   * parallel: the cart's total follows its lines as they change, so this
+   * is a plain request rather than keyed async data. A product whose
+   * points cannot be read counts 0 (non-critical).
+   *
+   * @param productIds - Distinct product ids
+   */
+  const fetchPointsPerProduct = async (productIds: readonly number[]): Promise<Map<number, number>> => {
+    if (!loyaltyOn.value) return new Map()
+
+    const entries = await Promise.all(productIds.map(async (productId): Promise<[number, number]> => {
+      try {
+        const data = await requestFetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
+          method: 'GET',
+        })
+        return [productId, data.potentialPoints]
+      }
+      catch {
+        return [productId, 0]
+      }
+    }))
+    return new Map(entries)
   }
 
   /**
@@ -126,6 +163,7 @@ export const useLoyalty = () => {
       () => requestFetch<LoyaltyTier[]>('/api/loyalty/tiers', {
         method: 'GET',
       }),
+      { enabled: loyaltyOn },
     )
   }
 
@@ -136,5 +174,6 @@ export const useLoyalty = () => {
     fetchSettings,
     fetchTiers,
     fetchProductPoints,
+    fetchPointsPerProduct,
   }
 }
