@@ -206,7 +206,9 @@ export const useShopChat = () => {
       status.value = 'error'
     }
 
-    controller = new AbortController()
+    // This run's own: reset() drops the shared one when it aborts.
+    const runController = new AbortController()
+    controller = runController
     try {
       const cartToken = await cartTokenFor()
       // A turn with a token acts on the shopper's own cart: the id is
@@ -222,7 +224,7 @@ export const useShopChat = () => {
           cartToken,
           turnId,
         }),
-        signal: controller.signal,
+        signal: runController.signal,
       })
 
       if (!response.ok || !response.body) {
@@ -320,15 +322,17 @@ export const useShopChat = () => {
       status.value = 'ready'
     }
     catch (error) {
-      if (controller?.signal.aborted) {
-        status.value = 'ready'
+      if (runController.signal.aborted) {
+        // stop() leaves the conversation as it was; reset() already
+        // started a new one, which this run must not touch.
+        if (controller === runController) status.value = 'ready'
         return
       }
       log.error({ action: 'shopChat:send', error })
       failTurn($i18n.t('chat.error.generic'))
     }
     finally {
-      controller = null
+      if (controller === runController) controller = null
     }
   }
 

@@ -410,6 +410,46 @@ describe('useShopChat', () => {
     expect(chat.messages.value[1]!.text).toBe('Μισή απάντ')
   })
 
+  it('reset() during a stream leaves a fresh conversation, not a failed turn', async () => {
+    const stream = openStream()
+    vi.stubGlobal('fetch', stream.fetchMock)
+
+    const chat = useShopChat()
+    const turn = chat.send('γεια')
+    await vi.waitFor(() => expect(stream.fetchMock).toHaveBeenCalledTimes(1), { interval: 1 })
+
+    chat.reset()
+    await turn
+
+    expect(chat.status.value).toBe('ready')
+    expect(chat.errorMessage.value).toBe('')
+    expect(chat.canRetry.value).toBe(false)
+    expect(chat.messages.value).toEqual([])
+  })
+
+  it('a run reset() aborted leaves the next conversation streaming', async () => {
+    const first = openStream()
+    const second = openStream()
+    vi.stubGlobal('fetch', vi.fn()
+      .mockImplementationOnce(first.fetchMock)
+      .mockImplementationOnce(second.fetchMock))
+
+    const chat = useShopChat()
+    const aborted = chat.send('γεια')
+    await vi.waitFor(() => expect(first.fetchMock).toHaveBeenCalledTimes(1), { interval: 1 })
+    chat.reset()
+    const next = chat.send('νέα ερώτηση')
+    await aborted
+    await vi.waitFor(() => expect(second.fetchMock).toHaveBeenCalledTimes(1), { interval: 1 })
+
+    expect(chat.status.value).toBe('streaming')
+
+    second.push('done', { conversationId: 'c2', cartMutated: false })
+    second.close()
+    await next
+    expect(chat.status.value).toBe('ready')
+  })
+
   it('shares whether the assistant is open between every caller', () => {
     useShopChat().open.value = true
 
