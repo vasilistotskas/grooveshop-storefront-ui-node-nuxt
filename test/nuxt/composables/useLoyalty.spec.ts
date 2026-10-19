@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import { useLoyalty } from '~/composables/useLoyalty'
 import { defaultLoyaltySettings } from '~/utils/loyalty'
+import { setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * `useLoyalty` fetches through `useRequestApi` (it must forward the
@@ -11,6 +12,9 @@ import { defaultLoyaltySettings } from '~/utils/loyalty'
  * here, so each test sees the request it makes and the value it hands
  * back. Parsing and query building are table-tested in
  * `test/unit/app/utils/loyalty.spec.ts`.
+ *
+ * The store has the `loyalty` feature unless a test says otherwise:
+ * without it `useLoyalty` asks nothing at all (the last suite).
  */
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -26,6 +30,7 @@ mockNuxtImport('log', () => mockLog)
 describe('useLoyalty', () => {
   beforeEach(() => {
     clearNuxtData()
+    setTenantFeatures({ loyalty: true })
   })
 
   describe('fetchSettings', () => {
@@ -113,8 +118,27 @@ describe('useLoyalty', () => {
     })
   })
 
-  // Django answers 404 for a store with loyalty off: no request until the
-  // caller says the points can exist, and one as soon as it does.
+  describe('fetchPointsPerProduct', () => {
+    it('asks for every product\'s points and counts one that fails as zero', async () => {
+      api.routes({
+        '/api/loyalty/product/7/points': { productId: 7, potentialPoints: 12, tierMultiplierApplied: false },
+        '/api/loyalty/product/8/points': () => {
+          throw new Error('Server error')
+        },
+      })
+
+      const points = await useLoyalty().fetchPointsPerProduct([7, 8])
+
+      expect(api.callsTo('/api/loyalty/product/*').map(call => call.url)).toEqual([
+        '/api/loyalty/product/7/points',
+        '/api/loyalty/product/8/points',
+      ])
+      expect(points).toEqual(new Map([[7, 12], [8, 0]]))
+    })
+  })
+
+  // The caller's own condition (a signed-in shopper): no request until it
+  // holds, and one as soon as it does.
   describe('fetchProductPoints gating', () => {
     // Its own product: a key's options are its first reader's, and the
     // generic case above already registered product 42 outside any scope.
@@ -133,6 +157,48 @@ describe('useLoyalty', () => {
 
       expect(api.callsTo(URL)).toHaveLength(1)
       expect(data.value).toMatchObject({ potentialPoints: 12 })
+    })
+  })
+
+  // Django refuses every loyalty read of a store with the programme
+  // switched off and logs `feature_gate:refused`, which pages the team.
+  // Components gate what they RENDER, and one that forgot to gate its
+  // request did exactly that on webside's checkout; so `useLoyalty`
+  // itself asks nothing there, whoever calls it.
+  describe('on a store without the loyalty feature', () => {
+    type Loyalty = ReturnType<typeof useLoyalty>
+    // One entry per method: the completeness test below fails on a new
+    // fetch that is not listed, so none can join ungated.
+    const FETCHES: Record<keyof Loyalty, (loyalty: Loyalty) => Promise<unknown>> = {
+      fetchSettings: async loyalty => (await loyalty.fetchSettings()).data.value,
+      fetchSummary: async loyalty => (await loyalty.fetchSummary()).data.value,
+      fetchTransactions: async loyalty => (await loyalty.fetchTransactions({ page: 1 })).data.value,
+      fetchTiers: async loyalty => (await loyalty.fetchTiers()).data.value,
+      fetchProductPoints: async loyalty => (await loyalty.fetchProductPoints(44, true)).data.value,
+      // Its first entry: none, when nothing was asked.
+      fetchPointsPerProduct: async loyalty => [...await loyalty.fetchPointsPerProduct([44])][0],
+    }
+
+    beforeEach(async () => {
+      setTenantFeatures({ loyalty: false })
+      api.routes({ '/api/loyalty/*': { pointsBalance: 1 } })
+      // Keyed fetches the earlier tests registered outside any component
+      // live on, and refetched while the feature flipped back on for the
+      // outer `beforeEach`: count only what this test asks.
+      await flushPromises()
+      api.mockClear()
+    })
+
+    it('lists every fetch useLoyalty has', () => {
+      expect(Object.keys(useLoyalty()).sort()).toEqual(Object.keys(FETCHES).sort())
+    })
+
+    it.each(Object.entries(FETCHES))('%s asks nothing and hands back nothing', async (_name, fetch) => {
+      const value = await fetch(useLoyalty())
+      await flushPromises()
+
+      expect(api.callsTo('/api/loyalty/*')).toEqual([])
+      expect(value).toBeUndefined()
     })
   })
 })

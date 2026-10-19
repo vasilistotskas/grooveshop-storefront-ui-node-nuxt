@@ -147,12 +147,13 @@ describe('default Loyalty/PointsBadge', () => {
     expect(wrapper.text()).toBe('Κέρδισε 30 πόντους')
   })
 
-  it('renders nothing and asks for no points on a store without the loyalty feature, plan flag on', async () => {
+  // No points are asked for there either: `useLoyalty` gates every
+  // request on the feature (its own suite), whatever the badge passes.
+  it('renders nothing on a store without the loyalty feature, plan flag on', async () => {
     setTenantFeatures({ loyalty: false })
 
     const wrapper = await mountBadge()
 
-    expect(asksForPoints()).toBe(false)
     expect(wrapper.text()).toBe('')
   })
 
