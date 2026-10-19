@@ -144,10 +144,10 @@ Components in `app/components/` organized by domain:
 
 ## SEO & Performance
 
-- **`@nuxtjs/seo`** suite: sitemap (dynamic via `/api/__sitemap__/urls`, auto-excludes account/cart/checkout routes, 24h cache), OG Image (7-day cache), Schema.org (minified), link checker (dev only), canonical URL redirects
+- **`@nuxtjs/seo`** suite: sitemap (dynamic via `/api/__sitemap__/urls`, excludes account/cart/checkout routes, cached per host in Redis by the `/sitemap.xml` route rule, purged by Django), OG Image disabled, Schema.org (minified), link checker (non-production). The module's canonical redirect is off (`seo.redirectToCanonicalSiteUrl: false`); `server/middleware/5.tenant-canonical.ts` enforces each tenant's canonical host
 - **Route rules**: Immutable caching for `/_nuxt/**`, static assets, images, CSS/JS. CORS for `/api/**`. Custom headers for manifest, favicons. IPX image prerendering.
-- **Experimental features**: `typedPages`, `asyncContext`, `inlineRouteRules`, `crossOriginPrefetch`, `buildCache`, `viteEnvironmentApi` (disabled in test). NuxtLink prefetch on interaction (not visibility).
+- **Experimental features**: `typedPages`, `asyncContext`, `inlineRouteRules`, `crossOriginPrefetch`, `nitroAutoImports` (kept until evlog's `log` works without it), `emitRouteChunkError: 'automatic-immediate'`.
 - **Build-time version injection**: `runtimeConfig.public.version` is set from `process.env.npm_package_version` in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.
 - **Nitro**: ESBuild target `esnext`, gzip + brotli compression, minification, async context. Prerendered routes for critical above-the-fold images.
-- **DNS prefetch + preconnect**: Media stream, static origin, Django, Google services
+- **Resource hints**: per-tenant media-stream/static origin hints rendered at runtime by `setupPageHeader`; none in the build-time head and no Google hints.
 - **Source maps**: Client-side only (server disabled for smaller production bundles)

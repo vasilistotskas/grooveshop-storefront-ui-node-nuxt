@@ -98,7 +98,7 @@ The root `el-GR.json` is mostly flat with selective nesting (`error.default`, `e
 - Some files use `useI18n()` in a different shape: `const { t } = useI18n({ useScope: 'local' })` for strict component-scoped lookup. Inspect the existing file before adding the import.
 - The `i18n/` directory is **outside** Nitro/Nuxt auto-import scope, so the `log` global is unavailable there. Don't suggest moving translation glue code into `i18n/`.
 - Interpolation uses Vue I18n syntax with single curly braces (`{appTitle}`), not `${}` or `{{}}`. Don't translate the placeholder name itself.
-- `t()` returns Greek strings at runtime in nuxt tests too — when updating tests, assert with `expect.any(String)` or the actual Greek text, not the key.
+- `t()` returns real Greek in nuxt tests; assert `useNuxtApp().$i18n.t('key', params)`, not a hardcoded string or `expect.any(String)` (`.claude/rules/testing.md`).
 - After changes to shared locale files, the user may need a dev server restart for HMR to pick them up.
 
 ## What NOT to do

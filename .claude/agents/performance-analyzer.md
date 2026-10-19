@@ -14,11 +14,10 @@ Analyze code changes and codebase patterns for performance regressions and optim
 
 ## Tooling Context
 
-This project uses two official Nuxt performance/quality modules (dev-only):
-- **`@nuxt/hints`** — Real-time Web Vitals (LCP, INP, CLS), third-party script analysis, unused component detection, hydration mismatch debugging
+This project uses one official Nuxt quality module (dev-only):
 - **`@nuxt/a11y`** — axe-core accessibility auditing (WCAG 2.0/2.1/2.2), DevTools violation UI, build-time reports with `failOnViolation`
 
-The analyzer complements these by catching issues at code-review time that the runtime tools cannot.
+The analyzer complements it by catching issues at code-review time that the runtime tool cannot.
 
 ## Architecture Awareness
 
@@ -30,7 +29,7 @@ Browser → Nuxt SSR (3000) → Django API (8000) → PostgreSQL / Redis / Meili
 
 - SSR renders every non-prerendered page — TTFB is critical
 - Nitro server proxies all API calls to Django — double-hop latency
-- Redis caching (`defineCachedEventHandler`) offloads repeated Django calls
+- Redis caching (`defineCachedRoute`, keyed by `tenantCacheKey`) offloads repeated Django calls
 - `@nuxt/image` with custom `mediaStream` provider handles image optimization
 - Nitro uses gzip + brotli compression, esbuild target `esnext`
 
@@ -39,7 +38,7 @@ Browser → Nuxt SSR (3000) → Django API (8000) → PostgreSQL / Redis / Meili
 ### Bundle Size & Code Splitting
 
 - [ ] **No barrel imports from large packages** — import specific functions, not entire modules (e.g., `import { debounce } from 'lodash-es'` not `import _ from 'lodash'`)
-- [ ] **Lazy-load below-the-fold components** — use `Lazy` prefix for components not visible on initial viewport (e.g., footer, modals, carousels). `@nuxt/hints` flags statically imported components never rendered during SSR — enforce the same check here
+- [ ] **Lazy-load below-the-fold components** — use `Lazy` prefix for components not visible on initial viewport (e.g., footer, modals, carousels); flag statically imported components never rendered during SSR
 - [ ] **No synchronous dynamic imports in SSR path** — `await import()` in server middleware blocks the event loop
 - [ ] **`useLazyFetch` not awaited in `<script setup>`** — awaiting defeats lazy loading by suspending the component
 - [ ] **Heavy client-only code guarded with `import.meta.client`** — Lottie animations, charting libs, Stripe JS should not increase SSR bundle
@@ -51,23 +50,22 @@ Browser → Nuxt SSR (3000) → Django API (8000) → PostgreSQL / Redis / Meili
 - [ ] **No blocking `await` chains in `<script setup>`** — parallelize with `Promise.all` or use `useLazyFetch`/`useLazyAsyncData`
 - [ ] **No `watch` with immediate + expensive async** — prefer `watchEffect` with explicit dependencies or fetch in `onMounted`
 - [ ] **No large inline data in SSR payload** — check `useAsyncData`/`useFetch` responses aren't returning entire collections when only summaries are needed
-- [ ] **Hydration-safe code** — no `Date.now()`, `Math.random()`, or browser-only APIs in SSR render path (causes hydration mismatch, flagged by `@nuxt/hints`)
+- [ ] **Hydration-safe code** — no `Date.now()`, `Math.random()`, or browser-only APIs in SSR render path (causes hydration mismatch)
 - [ ] **`useRequestHeaders` only on server** — avoid sending server request headers to client payload
 
 ### Caching Strategy
 
 Current route rules define caching for static assets, images, favicons. Verify API caching:
 
-- [ ] **`defineCachedEventHandler` for read-heavy GET routes** — product lists, categories, blog posts, settings should use SWR caching
-- [ ] **Cache keys include all varying parameters** — `getKey` must include query params, locale, pagination to avoid serving stale data
-- [ ] **Per-user data NEVER cached** — cart, orders, user account, notifications, session endpoints must NOT use `defineCachedEventHandler`
+- [ ] **`defineCachedRoute` for read-heavy GETs** — product lists, categories, blog posts, settings should use SWR caching; `getKey` must start with `tenantCacheKey(event, …)` and include every varying query param
+- [ ] **Per-user data NEVER cached** — cart, orders, user account, notifications, session endpoints must NOT use `defineCachedRoute`
 - [ ] **Cache TTL matches data volatility** — products/blog (1h+), categories (24h), settings (24h), search results (5min)
 - [ ] **Redis cache backend configured for production** — `NUXT_CACHE_BASE=redis` with `storage.ts` plugin fallback to memory
 
 ### Image Optimization
 
 - [ ] **All product/blog images use `<NuxtImg>` or `<NuxtPicture>`** — not raw `<img>` tags
-- [ ] **LCP images have `loading="eager"` and `fetchpriority="high"`** — hero banners, main product images. `@nuxt/hints` flags `loading="lazy"` on LCP elements
+- [ ] **LCP images have `loading="eager"` and `fetchpriority="high"`** — hero banners, main product images; flag `loading="lazy"` on LCP elements
 - [ ] **Below-fold images have `loading="lazy"`** — product grids, blog post cards, footer images
 - [ ] **`sizes` attribute specified** — prevents oversized image downloads on mobile (uses screen config: xs:320, sm:640, md:768, lg:1024, xl:1280, 2xl:1536)
 - [ ] **AVIF/WebP format used** — `format="avif"` with WebP fallback via `<NuxtPicture>`
@@ -77,21 +75,20 @@ Current route rules define caching for static assets, images, favicons. Verify A
 
 - [ ] **Stripe loaded via `@nuxt/scripts` registry** — not a raw `<script>` tag (already configured)
 - [ ] **Google Analytics consent-gated** — not loaded until cookie consent granted
-- [ ] **Third-party scripts have `crossorigin="anonymous"`** — required for error reporting and CORS (flagged by `@nuxt/hints`)
+- [ ] **Third-party scripts have `crossorigin="anonymous"`** — required for error reporting and CORS
 - [ ] **No render-blocking external scripts** — use `async`/`defer` or `@nuxt/scripts` with trigger strategies
 
 ### Network & Resource Hints
 
-Current config includes DNS prefetch and preconnect for media stream, static origin, Django, and Google services. Verify:
+Per-tenant media-stream/static origin hints are rendered at runtime by `setupPageHeader`; there are none in the build-time head and no Google hints. Verify:
 
 - [ ] **Preconnect only to first-party critical origins** — too many preconnects waste bandwidth
 - [ ] **`crossOriginPrefetch: true`** is enabled (it is — experimental setting)
-- [ ] **`prefetchOn.interaction: true`** (not visibility) for NuxtLink — avoids prefetching everything in viewport (already configured)
 
 ### Server Route Performance
 
 - [ ] **No N+1 queries** — routes that fetch a list then individually fetch related data for each item
-- [ ] **`$fetch` to Django uses connection pooling** — `http-agent.ts` plugin provides Undici Agent (100 connections, pipelining, 30s keep-alive)
+- [ ] **Django calls (`useBackendFetch(event)`) use connection pooling** — the `http-agent.ts` plugin sets a global Undici Agent (100 connections, pipelining, 30s keep-alive)
 - [ ] **Response validation is not redundant** — `parseDataAs` runs Zod parse on every response; for high-traffic cached routes, consider if validation is needed on cache hit
 - [ ] **Auth header forwarding is efficient** — `createHeaders()` in `server/utils/auth.ts` reads session once per request
 
@@ -116,9 +113,8 @@ Current config includes DNS prefetch and preconnect for media stream, static ori
 - `no-explicit-any` being off (project convention)
 - Options API disabled (`optionsAPI: false` in vite config — intentional)
 - Server sourcemaps disabled (`sourcemap.server: false` — intentional for smaller production bundles)
-- `prefetchOn.visibility: false` (intentional — interaction-based prefetch is preferred)
 - Prerendered static pages not having SWR (they're built at build time)
-- `@nuxt/hints` or `@nuxt/a11y` being dev-only (they're runtime devtools, not production code)
+- `@nuxt/a11y` being dev-only (it's a runtime devtool, not production code)
 
 ## Output Format
 

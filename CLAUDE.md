@@ -62,7 +62,7 @@ touching its files, read the rule file directly.
 - `shared/` — Auto-imported in both app and server: types, constants, schemas (Zod), utils, OpenAPI generated code
 - `modules/` — Custom Nuxt modules (`cookies.ts` for cookie consent, `purge-comments.ts` removes HTML comments in prod)
 - `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
-- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES = ['el', 'en']` and `DEFAULT_LOCALE = 'el'`), locale detector, i18n config, and a translation file set per locale (`el-GR.json` / `en-US.json`, plus domain-specific: auth, breadcrumb, checkout, cookies, validation). Routes for **both** locales are generated at build time for every tenant; whether one is *reachable* is per-tenant (`Tenant.available_locales`), enforced by `app/middleware/locale-available.global.ts`, which 404s a prefix the tenant does not list
+- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES = ['el', 'en']` and `DEFAULT_LOCALE = 'el'`), i18n config, and a translation file set per locale (`el-GR.json` / `en-US.json`, plus domain-specific: auth, breadcrumb, checkout, cookies, validation). Routes for **both** locales are generated at build time for every tenant; whether one is *reachable* is per-tenant (`Tenant.available_locales`), enforced by `app/middleware/locale-available.global.ts`, which 404s a prefix the tenant does not list
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
 - `scripts/` — `fetch-schema.mjs` (download the OpenAPI schema from Django), `sync-schema-yml.mjs` (regenerate the derived `.yml`), `check-lockstep-deps.mjs`, `audit-visual.mjs`, `capture-ssr.mjs` + `diff-ssr.mjs` (capture a tenant's SSR HTML before/after a change and diff it with build hashes, nonces, generated ids and Cloudflare rewrites normalised — the webside freeze proof; two same-build captures diff to nothing; check the captures are real pages first, a capture of "Store not found" diffs to nothing too), `warm-cache.mjs` (the post-deploy cache warm-up; shipped in the image and run by the infrastructure's PostSync hook: every store's sitemap × device class, page and `_payload.json`)
 
@@ -73,7 +73,7 @@ Pinia stores in `app/stores/`:
 - `cart` — Cart items, totals, stock validation (out-of-stock, limited stock detection, stock status messages)
 - `user` — User account data, addresses, favorites, reviews, orders
 - `user-notification` — The account notification list (the unseen count lives in `useUserNotification`)
-- `app` — Global UI state, health check
+- `tenant` — the resolved `TenantConfig` (hydrated by the `tenant` plugin; see `.claude/rules/multi-tenant.md`)
 
 ### Key Composables
 
@@ -88,7 +88,7 @@ Pinia stores in `app/stores/`:
 
 ### App Utilities (`app/utils/`)
 
-12 utility modules (auth, componentRegistry, variantRegistry, error, pagination, phone, route, search, shipping-methods, sse, str, translate). Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling), `componentRegistry.ts` (page-builder sections, `<type>@<schema>` variants), `variantRegistry.ts` (`resolvePage`/`resolveChrome`/`resolveLayout` — every `app/pages/**.vue` is a thin shell that mounts a body from `app/components/Storefront/` or a tenant's `app/components/variants/<schema>/`; see `.claude/rules/ui-and-pages.md`).
+Utility modules in `app/utils/`. Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling), `componentRegistry.ts` (page-builder sections, `<type>@<schema>` variants), `variantRegistry.ts` (`resolvePage`/`resolveChrome`/`resolveLayout` — every `app/pages/**.vue` is a thin shell that mounts a body from `app/components/Storefront/` or a tenant's `app/components/variants/<schema>/`; see `.claude/rules/ui-and-pages.md`).
 
 ### Nuxt Modules
 
@@ -100,7 +100,7 @@ Active modules in `nuxt.config.ts` (the `modules` array, in order):
 5. `@nuxt/eslint` — ESLint integration with checker enabled
 6. `@nuxt/scripts` — Third-party script management (Stripe registry)
 7. `@nuxt/fonts` — Font optimization
-8. `@nuxt/icon` — Icon system (server bundle: remote with externalized JSON for 9 icon sets; client bundle: scanned with 128KB limit)
+8. `@nuxt/icon` — Icon system (server bundle: icon JSON inlined for the installed collections; client bundle: scanned, with a hard size limit — see `icon` in `nuxt.config.ts`)
 9. `@nuxtjs/i18n` — Internationalization (browser detection, cookie-based, typed pages)
 10. `@nuxtjs/leaflet` — Leaflet maps (locker/pickup-point selection)
 11. `@nuxtjs/seo` — SEO suite: robots, sitemap, OG image (disabled), Schema.org, link checker, SEO utils, site config, and **AI Ready**, which it installs (`nuxt-ai-ready` is no longer a module or dependency of ours). AI Ready serves `/llms.txt`, `/llms-full.txt` and on-demand `/<route>.md` under the `aiReady` key: `database: false` (no page store, so no `drizzle-orm`), `contentNegotiation: false` (`server/middleware/0.markdown-negotiation.ts` does the `Accept: text/markdown` negotiation, which the module's cannot do on our cached routes), `autoI18n: false`, `agentSkills: false`, and `runtimeSync`/`cron` off. `skewProtection: false` turns off the other module it installs. `robots` is configured explicitly in `nuxt.config.ts`.
@@ -130,7 +130,7 @@ Custom local modules:
 - **Linting**: ESLint via `@nuxt/eslint` with stylistic rules + `eslint-plugin-better-tailwindcss` (with NuxtUI class ignores). Key relaxed rules: `no-explicit-any: off`, `ban-ts-comment: off`, `vue/no-v-html: off`, `vue/multi-word-component-names: off`, `vue/attribute-hyphenation: off`, `nuxt/prefer-import-meta: off`. Warns on: `vue/no-watch-after-await`, `vue/no-lifecycle-after-await`, unknown Tailwind classes.
 - **TypeScript**: Strict mode with type checking enabled. Typed pages (`experimental.typedPages: true`). `RouteNamedMapI18n` used for type-safe route names. Vite hoisted.
 - **Releases**: Semantic release on `main` branch with conventional commits (e.g., `feat:`, `fix:`, `chore:`)
-- **API route pattern**: Validate input with Zod → `$fetch` to Django → `parseDataAs` response → `handleError` in catch. `handleError` always throws — code after it is unreachable. Use `throw createError(...)` not `return createError(...)`.
+- **API route pattern**: Validate input with Zod → `useBackendFetch(event)` to Django → `parseDataAs` response → `handleError(event, error)` in catch (`.claude/rules/server-routes.md`). `handleError` always throws — code after it is unreachable. Use `throw createError(...)` not `return createError(...)`.
 - **Zod version**: Zod 4 (import from `zod`, schemas prefixed with `z`)
 - **App fetchers**: the app calls its own `/api` ONLY through `$api` (for `$fetch`), `useApi` / `useLazyApi` (for `useFetch` / `useLazyFetch`) and `useRequestApi` (for `useRequestFetch`) — `app/utils/api.ts`, `app/plugins/api.ts`, `app/composables/useApi.ts`. They state the page's locale in `X-Language` (`pageLocaleHeader`), which is the language Django answers in and what the Nitro caches key on; an ESLint `no-restricted-syntax` rule fails a raw `$fetch` / `useFetch` / `useLazyFetch` / `useRequestFetch` in `app/**`. Tests mock `$api` / `useApi` with `mockNuxtImport`. A component or page handles a failed `$api` call in `try` / `catch` / `finally`, never in ofetch's `onResponse*` hooks: ofetch runs them and THEN rejects, and UButton / UForm hand that rejection to Vue's error handler (`test/unit/source-rules/api-errors-are-caught.spec.ts`). On the server `useApi`/`useLazyApi` fetch a key ONCE per render however many readers it has (`app/utils/serverRenderCachedData.ts`: Nuxt's default refetches for every reader that registers after the first fetch settled); a raw `useAsyncData` must spread `serverRenderCachedData()` and set `dedupe: 'defer'` itself. Readers of one key must pass identical options, so a key read from several places gets ONE composable (`useStoreSettings`, `useAllCategories`). A request a condition gates (a feature flag, a signed-in shopper, a query to search for) passes it as `enabled`, never `immediate: <condition>`: `immediate` skips only the first fetch, and a reactive query or body still refetches; `enabled` blocks every run (an ESLint `no-restricted-syntax` rule fails the `immediate` form).
 - **Store actions**: Must use `$api`, not `useApi` (which is a setup-scope composable). `useLazyApi` should not be `await`ed in `<script setup>` — it defeats lazy loading.
