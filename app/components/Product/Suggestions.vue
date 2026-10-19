@@ -15,8 +15,9 @@ const props = defineProps<{
    */
   surface: SurfaceEnum
   /**
-   * The product the shopper is looking at. Required unless ``items``
-   * is passed.
+   * The product the shopper is looking at. Without one (and without
+   * ``items``) the strip asks for the surface's store-wide answer —
+   * the empty cart.
    */
   seedId?: number
   /**
@@ -43,13 +44,16 @@ const { t } = useI18n()
 // SSR-rendered: Nitro caches this per (seed, surface) so the page
 // pays a cache hit, not a Django round trip. Not fetched at all when
 // the parent already has the items.
-const fetches = props.items === undefined && typeof props.seedId === 'number'
-// A plain template literal, as the product page does: Nitro's typed
-// routes resolve the response type from it, which a URL function
+const fetches = props.items === undefined
+// Plain template literals, as the product page does: Nitro's typed
+// routes resolve the response type from them, which a URL function
 // would not. The seed is fixed for the component's lifetime — the
-// page remounts it per product.
-const { data: served } = useApi(`/api/products/${props.seedId}/recommendations`, {
-  key: `recommendations:${props.surface}:${props.seedId}:${props.limit ?? ''}`,
+// page remounts it per product. No seed: the store-wide route.
+const url = typeof props.seedId === 'number'
+  ? `/api/products/${props.seedId}/recommendations` as const
+  : '/api/recommendations' as const
+const { data: served } = useApi(url, {
+  key: `recommendations:${props.surface}:${props.seedId ?? 'store'}:${props.limit ?? ''}`,
   query: {
     surface: props.surface,
     ...(typeof props.limit === 'number' ? { limit: props.limit } : {}),
@@ -78,18 +82,14 @@ const hasItems = computed(() => products.value.length > 0)
 const title = computed(() => t(`title.${props.surface}`))
 const titleId = `product-suggestions-${props.surface}`
 
-// Feedback loop. The impression is reported from onMounted, which
-// under ``hydrate-on-visible`` fires when the grid scrolls into view
-// — "shown", not "served". The cart path has no impressionId and
-// reports nothing. A click is any interaction with a card — the link,
-// the photograph or "add to cart" — captured on the card.
-const { trackImpression, trackClick } = useRecommendationTracking(props.surface, props.seedId)
-onMounted(() => {
-  const response = data.value
-  if (response?.impressionId && response.items.length > 0) {
-    trackImpression(response.impressionId, response.items)
-  }
-})
+// Feedback loop. The impression is reported once the grid is mounted
+// with items — for a server-rendered grid under ``hydrate-on-visible``,
+// when it scrolls into view: "shown", not "served". The cart path has
+// no impressionId and reports nothing. A click is any interaction with
+// a card — the link, the photograph or "add to cart" — captured on the
+// card.
+const { trackImpressionWhenShown, trackClick } = useRecommendationTracking(props.surface, props.seedId)
+trackImpressionWhenShown(data)
 const onCardClick = (position: number) => {
   const impressionId = data.value?.impressionId
   const item = data.value?.items[position]

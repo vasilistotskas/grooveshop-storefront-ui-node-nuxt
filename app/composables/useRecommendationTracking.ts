@@ -1,6 +1,7 @@
 /**
  * Fire-and-forget feedback for a suggestion strip: one ``impression``
- * when the strip is actually shown, one ``click`` per tile followed.
+ * when the strip is actually shown, one ``click`` per tile followed —
+ * the signals Django's nightly weight learning reads.
  * Both echo the ``impressionId`` the suggestions response minted so
  * the backend can tie click and attach back to the strategy that
  * earned them.
@@ -38,6 +39,26 @@ export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number)
     })))
   }
 
+  /**
+   * Report the strip's impression once, the first time it is mounted
+   * with something in it. A server-rendered strip has its answer in the
+   * payload when it mounts — under `hydrate-on-visible`, when it
+   * scrolls into view. A strip created by a client-side navigation
+   * mounts at once (lazy hydration only delays hydrating server markup)
+   * and its own fetch answers after: reporting only at mount lost every
+   * one of those. Call from the strip's setup.
+   */
+  const trackImpressionWhenShown = (response: Ref<ApiV1RecommendationsRetrieveResponse | null>) => {
+    let reported = false
+    onMounted(() => {
+      watch(response, (value) => {
+        if (reported || !value?.impressionId || value.items.length === 0) return
+        reported = true
+        trackImpression(value.impressionId, value.items)
+      }, { immediate: true })
+    })
+  }
+
   const trackClick = (impressionId: string, item: RecommendationItem, position: number) => {
     // The add-to-cart that follows this click carries the impression
     // to the backend — the exact, identity-free attach path.
@@ -49,5 +70,5 @@ export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number)
     }])
   }
 
-  return { trackImpression, trackClick }
+  return { trackImpression, trackImpressionWhenShown, trackClick }
 }

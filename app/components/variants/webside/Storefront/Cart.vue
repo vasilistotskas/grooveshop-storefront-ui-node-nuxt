@@ -13,6 +13,8 @@ const { hasStockIssue, getStockStatusMessage } = cartStore
 // Cross-sell strip: plan flag AND merchant setting, fails CLOSED. The
 // cart payload already carries ``recommendations`` seeded with every
 // basket line, so the strip renders from the store — no extra fetch.
+// An empty cart has no line to seed from: its strip fetches the
+// store-wide ``empty_cart`` answer itself.
 const tenantStore = useTenantStore()
 const productSuggestionsEnabled = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', {
   fallback: false,
@@ -485,6 +487,12 @@ useSeoMeta({
       v-if="suggestionsEnabled && cart?.recommendations?.length"
       surface="cart"
       :items="cart.recommendations"
+      hydrate-on-visible
+      class="mt-10"
+    />
+    <LazyWebsideProductSuggestions
+      v-else-if="suggestionsEnabled && !initialLoading && !cart?.items?.length"
+      surface="empty_cart"
       hydrate-on-visible
       class="mt-10"
     />

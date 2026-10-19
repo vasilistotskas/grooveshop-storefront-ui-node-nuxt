@@ -854,7 +854,7 @@ export const zCompartmentSizeEnum = z.union([
  * * `hero_carousel` - Κεντρικό καρουζέλ
  * * `products_slider` - Slider προϊόντων
  * * `products_grid` - Πλέγμα προϊόντων
- * * `featured_products` - Προβεβλημένα Προϊόντα
+ * * `featured_products` - Προτεινόμενα Προϊόντα
  * * `product_categories` - Κατηγορίες προϊόντος
  * * `blog_categories` - Λωρίδα κατηγοριών Blog
  * * `blog_posts_carousel` - Καρουζέλ άρθρων Blog
@@ -1402,12 +1402,12 @@ export const zHealthCheckResponse = z.object({
 /**
  * * `MAIN` - Κύρια εικόνα
  * * `BANNER` - Banner
- * * `ICON` - Εικονίδιο
- * * `THUMBNAIL` - Μικρογραφία
+ * * `ICON` - Εικόνα εικονιδίου
+ * * `THUMBNAIL` - Εικόνα μικρογραφίας
  * * `GALLERY` - Εικόνα συλλογής
  * * `BACKGROUND` - Εικόνα φόντου
- * * `HERO` - Κεντρική εικόνα
- * * `FEATURE` - Κεντρική Εικόνα
+ * * `HERO` - Εικόνα εξωφύλλου
+ * * `FEATURE` - Χαρακτηριστική εικόνα
  * * `PROMOTIONAL` - Προωθητική εικόνα
  * * `SEASONAL` - Εποχιακή εικόνα
  */
@@ -1540,7 +1540,7 @@ export const zNewsletterSubscribeRequest = z.object({
  * * `SHIPPING` - Μεταφορικά
  * * `CART` - Καλάθι
  * * `PRODUCT` - Προϊόν
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `ACCOUNT` - Λογαριασμός
  * * `SECURITY` - Ασφάλεια
  * * `PROMOTION` - Προσφορά
  * * `SYSTEM` - Σύστημα
@@ -1607,7 +1607,7 @@ export const zNotificationSuccessResponse = z.object({
  * * `payment_failed` - Η πληρωμή απέτυχε
  * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
  * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
- * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
+ * * `loyalty_tier_up` - Αναβάθμιση βαθμίδας πιστότητας
  * * `comment_liked` - Επισήμανση σχολίου blog
  * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
  * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
@@ -4964,9 +4964,7 @@ export const zStoreFeatures = z.object({
  * * `variant_group` - Ίδια ομάδα παραλλαγών
  * * `category` - Ίδια κατηγορία
  * * `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα
- * * `semantic` - Σημασιολογική ομοιότητα
  * * `co_purchase` - Αγοράζονται μαζί
- * * `co_view` - Προβάλλονται μαζί
  * * `popular` - Δημοφιλή
  */
 export const zStrategyEnum = z.enum([
@@ -4974,9 +4972,7 @@ export const zStrategyEnum = z.enum([
   'variant_group',
   'category',
   'attributes',
-  'semantic',
   'co_purchase',
-  'co_view',
   'popular',
 ])
 
@@ -5003,7 +4999,7 @@ export const zRecommendationItem = z.object({
 /**
  * * `ACTIVE` - Ενεργή
  * * `PENDING` - Εκκρεμεί Επιβεβαίωση
- * * `UNSUBSCRIBED` - Διαγραφή
+ * * `UNSUBSCRIBED` - Απεγγραφή
  * * `BOUNCED` - Επιστράφηκε
  */
 export const zSubscriptionStatus = z.enum([
@@ -5421,7 +5417,7 @@ export const zSubscriptionTopicWriteRequest = z.object({
 })
 
 /**
- * * `EARN` - Κερδίστε
+ * * `EARN` - Κέρδος
  * * `REDEEM` - Εξαργύρωση
  * * `EXPIRE` - Λήξη
  * * `ADJUST` - Προσαρμογή

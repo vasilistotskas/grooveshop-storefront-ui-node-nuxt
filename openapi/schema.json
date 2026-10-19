@@ -20788,8 +20788,8 @@
         "/api/v1/loyalty/tiers": {
             "get": {
                 "operationId": "listLoyaltyTiers",
-                "description": "Λίστα όλων των tier πιστότητας",
-                "summary": "Λίστα όλων των tier πιστότητας",
+                "description": "Λίστα όλων των βαθμίδων πιστότητας",
+                "summary": "Λίστα όλων των βαθμίδων πιστότητας",
                 "parameters": [
                     {
                         "in": "query",
@@ -26669,7 +26669,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -26802,7 +26802,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -26926,7 +26926,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -27050,7 +27050,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -27183,7 +27183,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -27287,7 +27287,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -27392,7 +27392,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -27591,7 +27591,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -27915,7 +27915,7 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "description": "The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff."
+                        "description": "Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος."
                     }
                 ],
                 "tags": [
@@ -37735,7 +37735,7 @@
                                 "THUMBNAIL"
                             ]
                         },
-                        "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
+                        "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικόνα εικονιδίου\n* `THUMBNAIL` - Εικόνα μικρογραφίας\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Εικόνα εξωφύλλου\n* `FEATURE` - Χαρακτηριστική εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
                     },
                     {
                         "in": "query",
@@ -38605,7 +38605,7 @@
                                 "THUMBNAIL"
                             ]
                         },
-                        "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
+                        "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικόνα εικονιδίου\n* `THUMBNAIL` - Εικόνα μικρογραφίας\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Εικόνα εξωφύλλου\n* `FEATURE` - Χαρακτηριστική εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
                     },
                     {
                         "in": "query",
@@ -38782,7 +38782,7 @@
                                 "THUMBNAIL"
                             ]
                         },
-                        "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
+                        "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικόνα εικονιδίου\n* `THUMBNAIL` - Εικόνα μικρογραφίας\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Εικόνα εξωφύλλου\n* `FEATURE` - Χαρακτηριστική εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
                     },
                     {
                         "in": "query",
@@ -51654,7 +51654,7 @@
                                 "UNSUBSCRIBED"
                             ]
                         },
-                        "description": "Φίλτρο ανά κατάσταση συνδρομής\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Εκκρεμεί Επιβεβαίωση\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε"
+                        "description": "Φίλτρο ανά κατάσταση συνδρομής\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Εκκρεμεί Επιβεβαίωση\n* `UNSUBSCRIBED` - Απεγγραφή\n* `BOUNCED` - Επιστράφηκε"
                     },
                     {
                         "in": "query",
@@ -56513,7 +56513,7 @@
                     },
                     "featured": {
                         "type": "boolean",
-                        "title": "Προβεβλημένο"
+                        "title": "Προτεινόμενο"
                     },
                     "viewCount": {
                         "type": "integer",
@@ -56716,7 +56716,7 @@
                     },
                     "featured": {
                         "type": "boolean",
-                        "title": "Προβεβλημένο"
+                        "title": "Προτεινόμενο"
                     },
                     "viewCount": {
                         "type": "integer",
@@ -57020,7 +57020,7 @@
                     },
                     "featured": {
                         "type": "boolean",
-                        "title": "Προβεβλημένο"
+                        "title": "Προτεινόμενο"
                     },
                     "isPublished": {
                         "type": "boolean",
@@ -59628,7 +59628,7 @@
                     "contact_panel"
                 ],
                 "type": "string",
-                "description": "* `hero_banner` - Κεντρικό banner\n* `hero_carousel` - Κεντρικό καρουζέλ\n* `products_slider` - Slider προϊόντων\n* `products_grid` - Πλέγμα προϊόντων\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Λωρίδα κατηγοριών Blog\n* `blog_posts_carousel` - Καρουζέλ άρθρων Blog\n* `blog_posts_grid` - Πλέγμα άρθρων Blog\n* `blog_posts_list` - Λίστα άρθρων Blog\n* `recently_viewed` - Λωρίδα πρόσφατα προβληθέντων\n* `rich_text` - Μπλοκ εμπλουτισμένου κειμένου\n* `cta_banner` - Banner παρότρυνσης για δράση\n* `newsletter_signup` - Εγγραφή στο newsletter\n* `testimonials` - Μαρτυρίες πελατών\n* `about_content` - Περιεχόμενο «Σχετικά με εμάς»\n* `vision_content` - Περιεχόμενο «Όραμα»\n* `what_is_microlearning` - Τι είναι η μικρομάθηση\n* `why_microlearning` - Γιατί μικρομάθηση\n* `spacer` - Κενό διάστημα\n* `divider` - Διαχωριστικό\n* `loyalty_hero` - Κεντρική ενότητα προγράμματος επιβράβευσης\n* `search_bar` - Γραμμή αναζήτησης\n* `business_hours` - Ωράριο λειτουργίας\n* `location_map` - Χάρτης τοποθεσίας\n* `features_grid` - Πλέγμα χαρακτηριστικών\n* `media_text` - Πολυμέσα + κείμενο\n* `image_gallery` - Συλλογή εικόνων\n* `story_timeline` - Χρονολόγιο ιστορίας\n* `faq` - Συχνές ερωτήσεις (accordion)\n* `trust_badges` - Σήματα εμπιστοσύνης\n* `offers_preview` - Προεπισκόπηση προσφορών\n* `stats_strip` - Λωρίδα στατιστικών\n* `partner_strip` - Λωρίδα συνεργατών\n* `pull_quote` - Επισημασμένο απόσπασμα\n* `reference_cards` - Κάρτες αναφοράς\n* `page_hero` - Κεντρική ενότητα σελίδας\n* `feature_lists` - Λίστες χαρακτηριστικών\n* `option_selector` - Επιλογέας επιλογών\n* `comparison_table` - Πίνακας σύγκρισης\n* `flow_steps` - Βήματα ροής\n* `project_register` - Μητρώο έργων\n* `vendor_cards` - Κάρτες προμηθευτών\n* `contact_panel` - Πλαίσιο επικοινωνίας"
+                "description": "* `hero_banner` - Κεντρικό banner\n* `hero_carousel` - Κεντρικό καρουζέλ\n* `products_slider` - Slider προϊόντων\n* `products_grid` - Πλέγμα προϊόντων\n* `featured_products` - Προτεινόμενα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Λωρίδα κατηγοριών Blog\n* `blog_posts_carousel` - Καρουζέλ άρθρων Blog\n* `blog_posts_grid` - Πλέγμα άρθρων Blog\n* `blog_posts_list` - Λίστα άρθρων Blog\n* `recently_viewed` - Λωρίδα πρόσφατα προβληθέντων\n* `rich_text` - Μπλοκ εμπλουτισμένου κειμένου\n* `cta_banner` - Banner παρότρυνσης για δράση\n* `newsletter_signup` - Εγγραφή στο newsletter\n* `testimonials` - Μαρτυρίες πελατών\n* `about_content` - Περιεχόμενο «Σχετικά με εμάς»\n* `vision_content` - Περιεχόμενο «Όραμα»\n* `what_is_microlearning` - Τι είναι η μικρομάθηση\n* `why_microlearning` - Γιατί μικρομάθηση\n* `spacer` - Κενό διάστημα\n* `divider` - Διαχωριστικό\n* `loyalty_hero` - Κεντρική ενότητα προγράμματος επιβράβευσης\n* `search_bar` - Γραμμή αναζήτησης\n* `business_hours` - Ωράριο λειτουργίας\n* `location_map` - Χάρτης τοποθεσίας\n* `features_grid` - Πλέγμα χαρακτηριστικών\n* `media_text` - Πολυμέσα + κείμενο\n* `image_gallery` - Συλλογή εικόνων\n* `story_timeline` - Χρονολόγιο ιστορίας\n* `faq` - Συχνές ερωτήσεις (accordion)\n* `trust_badges` - Σήματα εμπιστοσύνης\n* `offers_preview` - Προεπισκόπηση προσφορών\n* `stats_strip` - Λωρίδα στατιστικών\n* `partner_strip` - Λωρίδα συνεργατών\n* `pull_quote` - Επισημασμένο απόσπασμα\n* `reference_cards` - Κάρτες αναφοράς\n* `page_hero` - Κεντρική ενότητα σελίδας\n* `feature_lists` - Λίστες χαρακτηριστικών\n* `option_selector` - Επιλογέας επιλογών\n* `comparison_table` - Πίνακας σύγκρισης\n* `flow_steps` - Βήματα ροής\n* `project_register` - Μητρώο έργων\n* `vendor_cards` - Κάρτες προμηθευτών\n* `contact_panel` - Πλαίσιο επικοινωνίας"
             },
             "ConfirmAgentPaymentRequestRequest": {
                 "type": "object",
@@ -61660,7 +61660,7 @@
                     "SEASONAL"
                 ],
                 "type": "string",
-                "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
+                "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικόνα εικονιδίου\n* `THUMBNAIL` - Εικόνα μικρογραφίας\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Εικόνα εξωφύλλου\n* `FEATURE` - Χαρακτηριστική εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
             },
             "InvoiceDownloadResponse": {
                 "type": "object",
@@ -61669,7 +61669,7 @@
                     "invoiceNumber": {
                         "type": "string",
                         "readOnly": true,
-                        "title": "Αριθμός τιμολογίου",
+                        "title": "Αριθμός απόδειξης",
                         "description": "Διαδοχικό αναγνωριστικό στη μορφή ``INV-{YEAR}-{NNNNNN}``. Δεν επιτρέπονται κενά βάσει της ελληνικής φορολογικής νομοθεσίας."
                     },
                     "issueDate": {
@@ -62106,7 +62106,7 @@
                     },
                     "notificationType": {
                         "title": "Τύπος ειδοποίησης",
-                        "description": "Λεπτομερές αναγνωριστικό συμβάντος. Δείτε ``notification.enum.NotificationTypeEnum`` για τον πλήρη κατάλογο. Αφήνεται κενό για περιστασιακές ανακοινώσεις διαχειριστή.\n\n* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση",
+                        "description": "Λεπτομερές αναγνωριστικό συμβάντος. Δείτε ``notification.enum.NotificationTypeEnum`` για τον πλήρη κατάλογο. Αφήνεται κενό για περιστασιακές ανακοινώσεις διαχειριστή.\n\n* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση βαθμίδας πιστότητας\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/NotificationTypeEnum"
@@ -62167,7 +62167,7 @@
                     "RECOMMENDATION"
                 ],
                 "type": "string",
-                "description": "* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Ασφάλεια\n* `PROMOTION` - Προσφορά\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Κριτική\n* `WISHLIST` - Λίστα επιθυμιών\n* `SUPPORT` - Υποστήριξη\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Σύσταση"
+                "description": "* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός\n* `SECURITY` - Ασφάλεια\n* `PROMOTION` - Προσφορά\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Κριτική\n* `WISHLIST` - Λίστα επιθυμιών\n* `SUPPORT` - Υποστήριξη\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Σύσταση"
             },
             "NotificationCountResponse": {
                 "type": "object",
@@ -62236,7 +62236,7 @@
                     "ACS_OUT_FOR_DELIVERY"
                 ],
                 "type": "string",
-                "description": "* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση"
+                "description": "* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση βαθμίδας πιστότητας\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση"
             },
             "NotificationUser": {
                 "type": "object",
@@ -66945,7 +66945,7 @@
                     },
                     "featured": {
                         "type": "boolean",
-                        "title": "Προβεβλημένο"
+                        "title": "Προτεινόμενο"
                     },
                     "isPublished": {
                         "type": "boolean",
@@ -73472,7 +73472,7 @@
                     "logoPath": {
                         "type": "string",
                         "nullable": true,
-                        "description": "Relative media path (``media/{schema}/uploads/shipping/…``) of the operator-uploaded brand logo, resolved per (provider, kind) so the home-delivery row and the pickup-point row of the same carrier can show different images; the storefront renders it through media-stream at the size it shows. Null when no logo is uploaded — the storefront then falls back to its bundled default."
+                        "description": "Σχετική διαδρομή πολυμέσων (``media/{schema}/uploads/shipping/…``) του λογότυπου μάρκας που ανέβασε ο χειριστής, υπολογισμένη ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες· το storefront την εμφανίζει μέσω του media-stream στο μέγεθος που χρειάζεται. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το storefront τότε επιστρέφει στην ενσωματωμένη προεπιλογή του."
                     },
                     "metadata": {
                         "type": "object",
@@ -73743,13 +73743,11 @@
                     "variant_group",
                     "category",
                     "attributes",
-                    "semantic",
                     "co_purchase",
-                    "co_view",
                     "popular"
                 ],
                 "type": "string",
-                "description": "* `curated` - Επιλογή εμπόρου\n* `variant_group` - Ίδια ομάδα παραλλαγών\n* `category` - Ίδια κατηγορία\n* `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα\n* `semantic` - Σημασιολογική ομοιότητα\n* `co_purchase` - Αγοράζονται μαζί\n* `co_view` - Προβάλλονται μαζί\n* `popular` - Δημοφιλή"
+                "description": "* `curated` - Επιλογή εμπόρου\n* `variant_group` - Ίδια ομάδα παραλλαγών\n* `category` - Ίδια κατηγορία\n* `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα\n* `co_purchase` - Αγοράζονται μαζί\n* `popular` - Δημοφιλή"
             },
             "SubscriptionStatus": {
                 "enum": [
@@ -73759,7 +73757,7 @@
                     "BOUNCED"
                 ],
                 "type": "string",
-                "description": "* `ACTIVE` - Ενεργή\n* `PENDING` - Εκκρεμεί Επιβεβαίωση\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε"
+                "description": "* `ACTIVE` - Ενεργή\n* `PENDING` - Εκκρεμεί Επιβεβαίωση\n* `UNSUBSCRIBED` - Απεγγραφή\n* `BOUNCED` - Επιστράφηκε"
             },
             "SubscriptionTopic": {
                 "type": "object",
@@ -74870,7 +74868,7 @@
                     "BONUS"
                 ],
                 "type": "string",
-                "description": "* `EARN` - Κερδίστε\n* `REDEEM` - Εξαργύρωση\n* `EXPIRE` - Λήξη\n* `ADJUST` - Προσαρμογή\n* `BONUS` - Bonus"
+                "description": "* `EARN` - Κέρδος\n* `REDEEM` - Εξαργύρωση\n* `EXPIRE` - Λήξη\n* `ADJUST` - Προσαρμογή\n* `BONUS` - Bonus"
             },
             "TrendingSearchItem": {
                 "type": "object",

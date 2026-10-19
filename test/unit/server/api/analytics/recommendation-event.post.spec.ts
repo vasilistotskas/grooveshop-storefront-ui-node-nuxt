@@ -16,7 +16,7 @@ const recommendationEvent = {
   surface: 'pdp',
   kind: 'click',
   seedId: 4,
-  items: [{ productId: 9, strategy: 'co_view', position: 0 }],
+  items: [{ productId: 9, strategy: 'attributes', position: 0 }],
 }
 
 const report = (body: unknown = recommendationEvent) => callRoute(handler, {

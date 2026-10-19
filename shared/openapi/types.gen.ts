@@ -1065,7 +1065,7 @@ export type BlogPost = {
   category: number
   tags: Array<number>
   /**
-     * Προβεβλημένο
+     * Προτεινόμενο
      */
   featured?: boolean
   /**
@@ -1143,7 +1143,7 @@ export type BlogPostDetail = {
   category: BlogCategoryDetail
   readonly tags: Array<BlogTagDetail>
   /**
-     * Προβεβλημένο
+     * Προτεινόμενο
      */
   featured?: boolean
   /**
@@ -1271,7 +1271,7 @@ export type BlogPostWriteRequest = {
   tags?: Array<number>
   author: number
   /**
-     * Προβεβλημένο
+     * Προτεινόμενο
      */
   featured?: boolean
   /**
@@ -2635,7 +2635,7 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `hero_carousel` - Κεντρικό καρουζέλ
  * * `products_slider` - Slider προϊόντων
  * * `products_grid` - Πλέγμα προϊόντων
- * * `featured_products` - Προβεβλημένα Προϊόντα
+ * * `featured_products` - Προτεινόμενα Προϊόντα
  * * `product_categories` - Κατηγορίες προϊόντος
  * * `blog_categories` - Λωρίδα κατηγοριών Blog
  * * `blog_posts_carousel` - Καρουζέλ άρθρων Blog
@@ -3688,12 +3688,12 @@ export type HealthCheckResponse = {
 /**
  * * `MAIN` - Κύρια εικόνα
  * * `BANNER` - Banner
- * * `ICON` - Εικονίδιο
- * * `THUMBNAIL` - Μικρογραφία
+ * * `ICON` - Εικόνα εικονιδίου
+ * * `THUMBNAIL` - Εικόνα μικρογραφίας
  * * `GALLERY` - Εικόνα συλλογής
  * * `BACKGROUND` - Εικόνα φόντου
- * * `HERO` - Κεντρική εικόνα
- * * `FEATURE` - Κεντρική Εικόνα
+ * * `HERO` - Εικόνα εξωφύλλου
+ * * `FEATURE` - Χαρακτηριστική εικόνα
  * * `PROMOTIONAL` - Προωθητική εικόνα
  * * `SEASONAL` - Εποχιακή εικόνα
  */
@@ -3704,7 +3704,7 @@ export type ImageTypeEnum = 'MAIN' | 'BANNER' | 'ICON' | 'THUMBNAIL' | 'GALLERY'
  */
 export type InvoiceDownloadResponse = {
   /**
-     * Αριθμός τιμολογίου
+     * Αριθμός απόδειξης
      *
      * Διαδοχικό αναγνωριστικό στη μορφή ``INV-{YEAR}-{NNNNNN}``. Δεν επιτρέπονται κενά βάσει της ελληνικής φορολογικής νομοθεσίας.
      */
@@ -3950,7 +3950,7 @@ export type Notification = {
      * * `payment_failed` - Η πληρωμή απέτυχε
      * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
      * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
-     * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
+     * * `loyalty_tier_up` - Αναβάθμιση βαθμίδας πιστότητας
      * * `comment_liked` - Επισήμανση σχολίου blog
      * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
      * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
@@ -3978,7 +3978,7 @@ export type Notification = {
  * * `SHIPPING` - Μεταφορικά
  * * `CART` - Καλάθι
  * * `PRODUCT` - Προϊόν
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `ACCOUNT` - Λογαριασμός
  * * `SECURITY` - Ασφάλεια
  * * `PROMOTION` - Προσφορά
  * * `SYSTEM` - Σύστημα
@@ -4030,7 +4030,7 @@ export type NotificationSuccessResponse = {
  * * `payment_failed` - Η πληρωμή απέτυχε
  * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
  * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
- * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
+ * * `loyalty_tier_up` - Αναβάθμιση βαθμίδας πιστότητας
  * * `comment_liked` - Επισήμανση σχολίου blog
  * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
  * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
@@ -5966,7 +5966,7 @@ export type PatchedBlogPostWriteRequest = {
   tags?: Array<number>
   author?: number
   /**
-     * Προβεβλημένο
+     * Προτεινόμενο
      */
   featured?: boolean
   /**
@@ -9005,7 +9005,7 @@ export type ShippingOption = {
      */
   deliveryDaysMax: number | null
   /**
-     * Relative media path (``media/{schema}/uploads/shipping/…``) of the operator-uploaded brand logo, resolved per (provider, kind) so the home-delivery row and the pickup-point row of the same carrier can show different images; the storefront renders it through media-stream at the size it shows. Null when no logo is uploaded — the storefront then falls back to its bundled default.
+     * Σχετική διαδρομή πολυμέσων (``media/{schema}/uploads/shipping/…``) του λογότυπου μάρκας που ανέβασε ο χειριστής, υπολογισμένη ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες· το storefront την εμφανίζει μέσω του media-stream στο μέγεθος που χρειάζεται. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το storefront τότε επιστρέφει στην ενσωματωμένη προεπιλογή του.
      */
   logoPath?: string | null
   metadata: {
@@ -9150,17 +9150,15 @@ export type StoreFeatures = {
  * * `variant_group` - Ίδια ομάδα παραλλαγών
  * * `category` - Ίδια κατηγορία
  * * `attributes` - Κοινά χαρακτηριστικά, ετικέτες και μάρκα
- * * `semantic` - Σημασιολογική ομοιότητα
  * * `co_purchase` - Αγοράζονται μαζί
- * * `co_view` - Προβάλλονται μαζί
  * * `popular` - Δημοφιλή
  */
-export type StrategyEnum = 'curated' | 'variant_group' | 'category' | 'attributes' | 'semantic' | 'co_purchase' | 'co_view' | 'popular'
+export type StrategyEnum = 'curated' | 'variant_group' | 'category' | 'attributes' | 'co_purchase' | 'popular'
 
 /**
  * * `ACTIVE` - Ενεργή
  * * `PENDING` - Εκκρεμεί Επιβεβαίωση
- * * `UNSUBSCRIBED` - Διαγραφή
+ * * `UNSUBSCRIBED` - Απεγγραφή
  * * `BOUNCED` - Επιστράφηκε
  */
 export type SubscriptionStatus = 'ACTIVE' | 'PENDING' | 'UNSUBSCRIBED' | 'BOUNCED'
@@ -9670,7 +9668,7 @@ export type TopQuery = {
 export type TopicCategory = 'MARKETING' | 'PRODUCT' | 'ACCOUNT' | 'SYSTEM' | 'NEWSLETTER' | 'PROMOTIONAL' | 'OTHER'
 
 /**
- * * `EARN` - Κερδίστε
+ * * `EARN` - Κέρδος
  * * `REDEEM` - Εξαργύρωση
  * * `EXPIRE` - Λήξη
  * * `ADJUST` - Προσαρμογή
@@ -11075,7 +11073,7 @@ export type BlogPostWritable = {
   category: number
   tags: Array<number>
   /**
-     * Προβεβλημένο
+     * Προτεινόμενο
      */
   featured?: boolean
   /**
@@ -11116,7 +11114,7 @@ export type BlogPostDetailWritable = {
     }
   }
   /**
-     * Προβεβλημένο
+     * Προτεινόμενο
      */
   featured?: boolean
   /**
@@ -11519,7 +11517,7 @@ export type NotificationWritable = {
      * * `payment_failed` - Η πληρωμή απέτυχε
      * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
      * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
-     * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
+     * * `loyalty_tier_up` - Αναβάθμιση βαθμίδας πιστότητας
      * * `comment_liked` - Επισήμανση σχολίου blog
      * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
      * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
@@ -20789,7 +20787,7 @@ export type CancelOrderData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -20820,7 +20818,7 @@ export type ConfirmAgentPaymentForOrderData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -20850,7 +20848,7 @@ export type CreateOrderCheckoutSessionData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -20880,7 +20878,7 @@ export type CreateOrderPaymentIntentData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -20911,7 +20909,7 @@ export type RetrieveOrderInvoiceData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -20941,7 +20939,7 @@ export type DownloadOrderInvoiceData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -20974,7 +20972,7 @@ export type GetOrderPaymentStatusData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -21029,7 +21027,7 @@ export type RetryOrderPaymentData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -21110,7 +21108,7 @@ export type DownloadOrderSpecimenReceiptData = {
   }
   query?: {
     /**
-         * The order's UUID. Required when the order belongs to a guest (no account); ignored for signed-in owners and store staff.
+         * Το UUID της παραγγελίας. Απαιτείται όταν η παραγγελία ανήκει σε επισκέπτη (χωρίς λογαριασμό)· αγνοείται για συνδεδεμένους ιδιοκτήτες και προσωπικό του καταστήματος.
          */
     uuid?: string
   }
@@ -23879,12 +23877,12 @@ export type ListProductCategoryImageData = {
          *
          * * `MAIN` - Κύρια εικόνα
          * * `BANNER` - Banner
-         * * `ICON` - Εικονίδιο
-         * * `THUMBNAIL` - Μικρογραφία
+         * * `ICON` - Εικόνα εικονιδίου
+         * * `THUMBNAIL` - Εικόνα μικρογραφίας
          * * `GALLERY` - Εικόνα συλλογής
          * * `BACKGROUND` - Εικόνα φόντου
-         * * `HERO` - Κεντρική εικόνα
-         * * `FEATURE` - Κεντρική Εικόνα
+         * * `HERO` - Εικόνα εξωφύλλου
+         * * `FEATURE` - Χαρακτηριστική εικόνα
          * * `PROMOTIONAL` - Προωθητική εικόνα
          * * `SEASONAL` - Εποχιακή εικόνα
          */
@@ -24115,12 +24113,12 @@ export type GetProductCategoryImagesByCategoryData = {
          *
          * * `MAIN` - Κύρια εικόνα
          * * `BANNER` - Banner
-         * * `ICON` - Εικονίδιο
-         * * `THUMBNAIL` - Μικρογραφία
+         * * `ICON` - Εικόνα εικονιδίου
+         * * `THUMBNAIL` - Εικόνα μικρογραφίας
          * * `GALLERY` - Εικόνα συλλογής
          * * `BACKGROUND` - Εικόνα φόντου
-         * * `HERO` - Κεντρική εικόνα
-         * * `FEATURE` - Κεντρική Εικόνα
+         * * `HERO` - Εικόνα εξωφύλλου
+         * * `FEATURE` - Χαρακτηριστική εικόνα
          * * `PROMOTIONAL` - Προωθητική εικόνα
          * * `SEASONAL` - Εποχιακή εικόνα
          */
@@ -24165,12 +24163,12 @@ export type GetProductCategoryImagesByTypeData = {
          *
          * * `MAIN` - Κύρια εικόνα
          * * `BANNER` - Banner
-         * * `ICON` - Εικονίδιο
-         * * `THUMBNAIL` - Μικρογραφία
+         * * `ICON` - Εικόνα εικονιδίου
+         * * `THUMBNAIL` - Εικόνα μικρογραφίας
          * * `GALLERY` - Εικόνα συλλογής
          * * `BACKGROUND` - Εικόνα φόντου
-         * * `HERO` - Κεντρική εικόνα
-         * * `FEATURE` - Κεντρική Εικόνα
+         * * `HERO` - Εικόνα εξωφύλλου
+         * * `FEATURE` - Χαρακτηριστική εικόνα
          * * `PROMOTIONAL` - Προωθητική εικόνα
          * * `SEASONAL` - Εποχιακή εικόνα
          */
@@ -28090,7 +28088,7 @@ export type ListUserSubscriptionData = {
          *
          * * `ACTIVE` - Ενεργή
          * * `PENDING` - Εκκρεμεί Επιβεβαίωση
-         * * `UNSUBSCRIBED` - Διαγραφή
+         * * `UNSUBSCRIBED` - Απεγγραφή
          * * `BOUNCED` - Επιστράφηκε
          */
     status?: 'ACTIVE' | 'BOUNCED' | 'PENDING' | 'UNSUBSCRIBED'
