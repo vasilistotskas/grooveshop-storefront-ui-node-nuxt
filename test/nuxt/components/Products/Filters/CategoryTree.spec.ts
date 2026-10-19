@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import CategoryTree from '~/components/Products/Filters/CategoryTree.vue'
+import { translatorFor } from '~/utils/translate'
 import { buildCategoryForest, categoryTrail } from '~/utils/categoryTree'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 
@@ -30,7 +31,7 @@ const CATEGORIES = [
 ]
 
 function showPage(currentId?: number) {
-  tree.forest.value = buildCategoryForest(CATEGORIES, 'el', { 6: 4, 3: 6, 4: 6, 7: 9 }, currentId)
+  tree.forest.value = buildCategoryForest(CATEGORIES, translatorFor('el'), { 6: 4, 3: 6, 4: 6, 7: 9 }, currentId)
   tree.trail.value = currentId === undefined ? [] : categoryTrail(tree.forest.value, currentId)
 }
 

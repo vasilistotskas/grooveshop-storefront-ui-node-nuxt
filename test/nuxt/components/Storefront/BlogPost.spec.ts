@@ -199,13 +199,16 @@ describe('BlogPost page (default tree)', () => {
     ])
   })
 
-  it('leaves out a category with no name in this language rather than an empty link', async () => {
+  // Named in the language it is written in (`extractTranslated`), never a
+  // blank link.
+  it('names a category not written in the page\'s language in the one it is', async () => {
     serve(RICH_POST, [], { ...POST.category, translations: { en: { name: 'Guides' } } })
 
     const wrapper = await mount()
 
     expect(wrapper.findComponent({ name: 'PageBreadcrumb' }).props('items')).toEqual([
       { label: 'Blog', to: '/blog' },
+      { label: 'Guides', to: '/blog/category/2/guides' },
       { label: 'Οδηγός άνοιξης' },
     ])
   })

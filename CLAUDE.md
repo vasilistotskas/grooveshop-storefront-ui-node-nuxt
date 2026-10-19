@@ -136,7 +136,7 @@ Custom local modules:
 - **Store actions**: Must use `$api`, not `useApi` (which is a setup-scope composable). `useLazyApi` should not be `await`ed in `<script setup>` — it defeats lazy loading.
 - **SSR safety**: Use VueUse `useEventListener` instead of manual `window.addEventListener`/`removeEventListener`. Guard bare `window`/`document` access with `import.meta.client` or `onMounted`.
 - **Lifecycle hooks**: Vue does not await async lifecycle hooks. Use fire-and-forget with `.catch()` for cleanup work in `onBeforeUnmount`.
-- **i18n**: All user-facing strings must use `t()` from `useI18n()` or component-scoped `<i18n lang="yaml">` blocks — no hardcoded Greek or English strings. Use `extractTranslated(obj, field, locale)` for API model translations.
+- **i18n**: All user-facing strings must use `t()` from `useI18n()` or component-scoped `<i18n lang="yaml">` blocks — no hardcoded Greek or English strings. Use `extractTranslated(obj, field, locale)` for API model translations: it reads the row in the page's language when the row is written in it, else in the store's default language (`TenantConfig.defaultLocale`), else in any it has, so an untranslated product is never blank; the Django `translations` map itself stays exact, because it names the languages a page exists in (`translatedLocales`). `resolveTranslated` when the caller needs the locale it got; `translationIn` for the exact read.
 
 ## Environment
 

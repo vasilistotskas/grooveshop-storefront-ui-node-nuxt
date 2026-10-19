@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractTranslated, resolveTranslated } from '~/utils/translate'
+import { resolveTranslated, translationIn } from '~/utils/translate'
 import type { TranslationObject } from '~~/shared/types/utility'
 
 /**
@@ -15,13 +15,16 @@ function row<T extends object>(translations: Record<string, T>): TranslationObje
 }
 
 describe('Translate Utils', () => {
-  describe('extractTranslated', () => {
+  // The exact read under both `resolveTranslated` and `extractTranslated`
+  // (whose fallback to the store's default language is the nuxt project's:
+  // test/nuxt/utils/translate.spec.ts).
+  describe('translationIn', () => {
     it('should extract simple field translation', () => {
       const object = row({
         en: { name: 'English Name' },
         el: { name: 'Greek Name' },
       })
-      const result = extractTranslated(object, 'name', 'en')
+      const result = translationIn(object, 'name', 'en')
       expect(result).toBe('English Name')
     })
 
@@ -30,7 +33,7 @@ describe('Translate Utils', () => {
         en: { name: 'English Name' },
         el: { name: 'Greek Name' },
       })
-      const result = extractTranslated(object, 'name', 'el')
+      const result = translationIn(object, 'name', 'el')
       expect(result).toBe('Greek Name')
     })
 
@@ -42,7 +45,7 @@ describe('Translate Utils', () => {
           },
         },
       })
-      const result = extractTranslated(object, 'product.title', 'en')
+      const result = translationIn(object, 'product.title', 'en')
       expect(result).toBe('Product Title')
     })
 
@@ -56,7 +59,7 @@ describe('Translate Utils', () => {
           },
         },
       })
-      const result = extractTranslated(object, 'level1.level2.level3', 'en')
+      const result = translationIn(object, 'level1.level2.level3', 'en')
       expect(result).toBe('Deep Value')
     })
 
@@ -64,7 +67,7 @@ describe('Translate Utils', () => {
       const object = row({
         en: { name: 'English Name' },
       })
-      const result = extractTranslated(object, 'name', 'fr')
+      const result = translationIn(object, 'name', 'fr')
       expect(result).toBeUndefined()
     })
 
@@ -72,7 +75,7 @@ describe('Translate Utils', () => {
       const object = row<{ name: string, description?: string }>({
         en: { name: 'English Name' },
       })
-      const result = extractTranslated(object, 'description', 'en')
+      const result = translationIn(object, 'description', 'en')
       expect(result).toBeUndefined()
     })
 
@@ -84,29 +87,29 @@ describe('Translate Utils', () => {
           },
         },
       })
-      const result = extractTranslated(object, 'product.description', 'en')
+      const result = translationIn(object, 'product.description', 'en')
       expect(result).toBeUndefined()
     })
 
     it('should return undefined for null object', () => {
-      const result = extractTranslated(null, 'name', 'en')
+      const result = translationIn(null, 'name', 'en')
       expect(result).toBeUndefined()
     })
 
     it('should return undefined for undefined object', () => {
-      const result = extractTranslated(undefined, 'name', 'en')
+      const result = translationIn(undefined, 'name', 'en')
       expect(result).toBeUndefined()
     })
 
     it('should return undefined for object without translations', () => {
       const object = { name: 'Name' } as any
-      const result = extractTranslated(object, 'name', 'en')
+      const result = translationIn(object, 'name', 'en')
       expect(result).toBeUndefined()
     })
 
     it('should return undefined for empty translations', () => {
       const object = row<{ name?: string }>({})
-      const result = extractTranslated(object, 'name', 'en')
+      const result = translationIn(object, 'name', 'en')
       expect(result).toBeUndefined()
     })
 
@@ -114,7 +117,7 @@ describe('Translate Utils', () => {
       const object = row({
         en: { count: 42 },
       })
-      const result = extractTranslated(object, 'count', 'en')
+      const result = translationIn(object, 'count', 'en')
       expect(result).toBeUndefined()
     })
 
@@ -122,7 +125,7 @@ describe('Translate Utils', () => {
       const object = row({
         en: { active: true },
       })
-      const result = extractTranslated(object, 'active', 'en')
+      const result = translationIn(object, 'active', 'en')
       expect(result).toBeUndefined()
     })
 
@@ -130,7 +133,7 @@ describe('Translate Utils', () => {
       const object = row({
         en: { items: ['a', 'b', 'c'] },
       })
-      const result = extractTranslated(object, 'items', 'en')
+      const result = translationIn(object, 'items', 'en')
       expect(result).toBeUndefined()
     })
 
@@ -141,15 +144,15 @@ describe('Translate Utils', () => {
           description: 'Product Description',
         },
       })
-      expect(extractTranslated(object, 'name', 'en')).toBe('Product Name')
-      expect(extractTranslated(object, 'description', 'en')).toBe('Product Description')
+      expect(translationIn(object, 'name', 'en')).toBe('Product Name')
+      expect(translationIn(object, 'description', 'en')).toBe('Product Description')
     })
 
     it('should handle empty string values', () => {
       const object = row({
         en: { name: '' },
       })
-      const result = extractTranslated(object, 'name', 'en')
+      const result = translationIn(object, 'name', 'en')
       expect(result).toBe('')
     })
 
@@ -157,7 +160,7 @@ describe('Translate Utils', () => {
       const object = row({
         en: { name: '   ' },
       })
-      const result = extractTranslated(object, 'name', 'en')
+      const result = translationIn(object, 'name', 'en')
       expect(result).toBe('   ')
     })
   })
@@ -165,7 +168,7 @@ describe('Translate Utils', () => {
 
 /**
  * `resolveTranslated` answers a different question from
- * `extractTranslated`: not "is there a translation in THIS locale" but
+ * `translationIn`: not "is there a translation in THIS locale" but
  * "in which locale does this field exist", so a caller can render the
  * document it has and say which language it is in — instead of
  * treating a missing translation as a missing document.

@@ -13,7 +13,7 @@ export function useCategoryForest(scope: ListingScope = useListingScope()) {
 
   const forest = computed(() => buildCategoryForest(
     allCategories.value ?? [],
-    $i18n.locale.value,
+    translatorFor($i18n.locale.value),
     // An empty distribution is "not answered yet" (or a store with no
     // products): draw the tree without counts rather than prune it bare.
     Object.keys(categoryFacets.value).length ? categoryFacets.value : undefined,

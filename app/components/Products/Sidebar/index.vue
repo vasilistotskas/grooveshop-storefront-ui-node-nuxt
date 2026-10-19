@@ -56,7 +56,7 @@ const attributeGroups = computed(() => buildAttributeGroups(
   allAttributeValues.value?.results ?? [],
   attributeValueFacets.value,
   filters.value.attributeValues,
-  locale.value,
+  translatorFor(locale.value),
 ))
 
 // One member per slot, so each slot's `item` is typed by its own shape.

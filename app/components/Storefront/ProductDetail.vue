@@ -260,12 +260,9 @@ const { displayFinalPrice, wasPrice, announcement } = useShopperPrice(() => prod
 /**
  * The product's name in the best language it EXISTS in.
  *
- * `extractTranslated` answers only "is there a translation in THIS
- * locale", and a product that has not been translated yet returned
- * `undefined` — which rendered an EMPTY `<h1>` while the `<title>` tag,
- * which falls back to the SEO title, carried the name. That is a page with
- * no heading, and it happens to every product the day a store turns on
- * a second locale.
+ * Per field rather than per row (`extractTranslated` picks the row's
+ * language): the page's `<h1>` stays filled even where the page's
+ * language has a translation whose name was left empty.
  */
 const productName = computed(() =>
   resolveTranslated(product.value, 'name', locale.value, [
@@ -363,7 +360,7 @@ const favouriteId = computed(() => {
 const categoryPath = computed(() => {
   const id = product.value?.category
   if (!id) return []
-  return categoryTrail(buildCategoryForest(allCategories.value ?? [], locale.value, undefined), id)
+  return categoryTrail(buildCategoryForest(allCategories.value ?? [], translatorFor(locale.value), undefined), id)
 })
 const parentCrumbs = computed(() =>
   categoryPath.value.length

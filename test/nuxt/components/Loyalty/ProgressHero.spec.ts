@@ -150,14 +150,16 @@ describe.each(trees(LoyaltyProgressHero, WebsideLoyaltyProgressHero))('$tree Loy
     expect(wrapper.text()).toContain(`${el(6500)} / 0 XP`)
   })
 
-  it('names the tier in the page language only', async () => {
+  // The member has a tier: it is named in the language it is written in
+  // (`extractTranslated`), never reported as no tier.
+  it('names a tier not written in the page\'s language in the one it is', async () => {
     summary.data.value = makeSummary({
       tier: makeTier({ id: 2, requiredLevel: 5, translations: { en: { name: 'Silver', description: '' } } }),
     })
 
     const wrapper = await mountHero()
 
-    expect(wrapper.find('h3').text()).toBe(COPY.noTier)
+    expect(wrapper.find('h3').text()).toBe('Silver')
   })
 
   it('shows a skeleton while nothing has loaded yet', async () => {
