@@ -14,7 +14,7 @@
  * a call that got no answer and "not accepted" otherwise. Never
  * `error.message` or `statusMessage`: those are English transport text.
  */
-export interface ApiFieldError {
+export interface DescribedFieldError {
   /** The form field path, dotted for nested serializers (`items.1.quantity`). */
   name: string
   message: string
@@ -29,7 +29,7 @@ export interface DescribedApiError {
   /** Django's stable code: `code`, else `reason` / `error.type`, else the first allauth error's. */
   code?: string
   /** The per-field errors, for `UForm.setErrors`. Empty when the body names no field. */
-  fieldErrors: ApiFieldError[]
+  fieldErrors: DescribedFieldError[]
   /** The id of the failed request, to quote to support (`x-request-id`). */
   requestId?: string
   status?: number
@@ -91,7 +91,7 @@ export function apiErrorBodyOf(error: unknown): Record<string, unknown> | undefi
   return data
 }
 
-function fieldLeaves(value: unknown, path: string[], out: ApiFieldError[]): void {
+function fieldLeaves(value: unknown, path: string[], out: DescribedFieldError[]): void {
   if (Array.isArray(value)) {
     for (const item of value) {
       if (isRecord(item) && typeof item.message === 'string') {
@@ -111,8 +111,8 @@ function fieldLeaves(value: unknown, path: string[], out: ApiFieldError[]): void
 /** Keys of a legacy DRF body that are not field names. */
 const NON_FIELD_KEYS = new Set(['detail', 'code', 'fields', 'reason', 'error', 'nonFieldErrors', 'status'])
 
-function fieldErrorsOf(body: Record<string, unknown>): ApiFieldError[] {
-  const out: ApiFieldError[] = []
+function fieldErrorsOf(body: Record<string, unknown>): DescribedFieldError[] {
+  const out: DescribedFieldError[] = []
   if (isRecord(body.fields)) {
     fieldLeaves(body.fields, [], out)
     return out
@@ -145,7 +145,7 @@ function codeOf(body: Record<string, unknown>): string | undefined {
 }
 
 /** Django's own sentence for the failure, whichever key carried it. */
-function messageOf(body: Record<string, unknown>, fieldErrors: ApiFieldError[]): string | undefined {
+function messageOf(body: Record<string, unknown>, fieldErrors: DescribedFieldError[]): string | undefined {
   const detail = stringOf(body.detail)
   if (detail) return detail
   const nonField = body.nonFieldErrors
