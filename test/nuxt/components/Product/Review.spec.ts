@@ -10,7 +10,12 @@ import { failWith } from '~~/test/helpers/api'
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 
-const { toastAdd, viewport } = vi.hoisted(() => ({ toastAdd: vi.fn(), viewport: { phone: false } }))
+const { toastAdd, viewport, mockLog } = vi.hoisted(() => ({
+  toastAdd: vi.fn(),
+  viewport: { phone: false },
+  mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+}))
+mockNuxtImport('log', () => mockLog)
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 // The sheet is chosen by the viewport, not the user agent.
 mockNuxtImport('useDevice', () => () => ({
@@ -184,6 +189,20 @@ describe('Product/Review', () => {
     // UForm rethrows whatever its handler throws, into Vue's error handler.
     await expect(onSubmit({ data: { rate: 8, comment: COMMENT } })).resolves.toBeUndefined()
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Η κριτική δεν δημιουργήθηκε', color: 'error' })
+  })
+
+  it('logs the request id of the refused submit, to join the report to the server and Django lines', async () => {
+    api.routes({
+      '/api/products/reviews': () => {
+        throw Object.assign(new Error('Bad Request'), { statusCode: 400, response: { headers: new Headers({ 'x-request-id': 'req-4242' }) } })
+      },
+    })
+    const wrapper = await mountSheet()
+    const onSubmit = wrapper.findComponent({ name: 'UForm' }).props('onSubmit')
+
+    await onSubmit({ data: { rate: 8, comment: COMMENT } })
+
+    expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'review:create', requestId: 'req-4242' }))
   })
 
   it('holds the form and shows the submit as busy while the review is on its way', async () => {

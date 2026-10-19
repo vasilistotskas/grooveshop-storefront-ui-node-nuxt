@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     // into its own message: 400 `parcel_with_courier` (the courier
     // already has the parcel) and 503 `courier_unreachable` (the
     // courier gave no answer; try again later). A thrown error's body
-    // is stripped in production, so Django's body is returned as it
+    // would arrive nested, so Django's body is returned as it
     // came: any 4xx, and a 5xx only when it is that typed refusal.
     return forwardUpstreamDocumentedError(event, error, zCancelRefusal)
   }

@@ -249,8 +249,8 @@ importers:
         specifier: 6.1.7
         version: 6.1.7
       evlog:
-        specifier: 2.31.0
-        version: 2.31.0(@nuxt/kit@4.6.1(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))))(h3@1.15.11)(nitropack@2.13.4(better-sqlite3@13.0.3)(oxc-parser@0.153.0)(rolldown@1.2.13)(supports-color@10.2.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))(ofetch@1.5.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))
+        specifier: 2.33.1
+        version: 2.33.1(@nuxt/kit@4.6.1(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))))(h3@1.15.11)(nitropack@2.13.4(better-sqlite3@13.0.3)(oxc-parser@0.153.0)(rolldown@1.2.13)(supports-color@10.2.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))(ofetch@1.5.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))
       h3:
         specifier: 1.15.11
         version: 1.15.11
@@ -5453,16 +5453,18 @@ packages:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
 
-  evlog@2.31.0:
-    resolution: {integrity: sha512-YG1LmtbbRcLs6wEfUawsCzvoHFYv/hjLj2eu3abqMc5ufKWQN2ebIDMlsfLj6Biyr5wPMV7CG9e9Dyig5Ocv2g==}
+  evlog@2.33.1:
+    resolution: {integrity: sha512-raahjdFBFXWBYRD/SMuBs/pBAcarTlV/YzuIk/iWH/Snieo5mqh1a9epfo7DOKXq1OWpHqH4xXhVxWv1JIIg+w==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
       '@nestjs/common': '>=11.2.7'
+      '@nestjs/core': '>=11.2.7'
       '@nuxt/kit': ^4.4.2
       '@orpc/server': '>=1.15.4'
       '@tanstack/start-client-core': ^1.170.34
       ai: '>=6.0.168 <8.0.0'
+      effect: ^4.0.0
       elysia: '>=1.4.30'
       eve: '>=0.30.0'
       express: '>=5.2.1'
@@ -5479,6 +5481,8 @@ packages:
     peerDependenciesMeta:
       '@nestjs/common':
         optional: true
+      '@nestjs/core':
+        optional: true
       '@nuxt/kit':
         optional: true
       '@orpc/server':
@@ -5486,6 +5490,8 @@ packages:
       '@tanstack/start-client-core':
         optional: true
       ai:
+        optional: true
+      effect:
         optional: true
       elysia:
         optional: true
@@ -14369,7 +14375,7 @@ snapshots:
 
   events@3.3.0: {}
 
-  evlog@2.31.0(@nuxt/kit@4.6.1(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))))(h3@1.15.11)(nitropack@2.13.4(better-sqlite3@13.0.3)(oxc-parser@0.153.0)(rolldown@1.2.13)(supports-color@10.2.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))(ofetch@1.5.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)):
+  evlog@2.33.1(@nuxt/kit@4.6.1(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1))))(h3@1.15.11)(nitropack@2.13.4(better-sqlite3@13.0.3)(oxc-parser@0.153.0)(rolldown@1.2.13)(supports-color@10.2.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))(ofetch@1.5.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)):
     optionalDependencies:
       '@nuxt/kit': 4.6.1(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.3.1)(giget@3.3.0)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.46.1)(yaml@2.9.1)))
       h3: 1.15.11

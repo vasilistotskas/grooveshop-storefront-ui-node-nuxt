@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     // Align with signup.post/.put: the signup flow's 4xx payloads
     // (pending mfa_webauthn_signup flow, conflict) must survive to the
-    // client — thrown createError({data}) is stripped in production.
+    // client — thrown createError({data}) is sent in a second, nested shape in production (data.data).
     return await forwardAllAuthFlow(event, error)
   }
 })

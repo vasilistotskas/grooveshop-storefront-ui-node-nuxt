@@ -37,6 +37,16 @@ describe('server/plugins/evlog-client-context', () => {
     expect(event).toEqual({ level: 'warn', source: 'client', tag: 'cart', tenantSchema: 'shop', tenantName: 'Shop' })
   })
 
+  it('strips the body of a failed call to field names and codes, for a client event only', async () => {
+    const body = { email: ['x@y.z is taken'] }
+    const client = await enrich({ source: 'client', error: { name: 'FetchError', message: 'm', data: body } })
+    const server = await enrich({ source: 'server', error: { name: 'FetchError', message: 'm', data: { email: ['x@y.z is taken'] } } })
+
+    expect(client.error).toMatchObject({ data: { email: ['<redacted:body>'] } })
+    expect(JSON.stringify(client)).not.toContain('x@y.z')
+    expect(server.error).toMatchObject({ data: { email: ['x@y.z is taken'] } })
+  })
+
   it('names the browser it came from, as server events do, never the raw User-Agent', async () => {
     const event = await enrich({ level: 'error', source: 'client' }, { 'host': 'shop.test', 'user-agent': SAFARI_15, 'cf-ipcountry': 'GR' })
 

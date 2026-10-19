@@ -54,6 +54,18 @@ describe('serializeClientError', () => {
     expect(serialized).not.toHaveProperty('data')
   })
 
+  it('carries the request id of a failed /api response, so the report joins the server and Django lines', () => {
+    const error = Object.assign(new Error('Bad Request'), { response: { headers: new Headers({ 'x-request-id': 'req-77' }) } })
+
+    expect(serializeClientError(error)).toMatchObject({ message: 'Bad Request', requestId: 'req-77' })
+  })
+
+  it('carries no request id when the response had none', () => {
+    const error = Object.assign(new Error('Bad Request'), { response: { headers: new Headers() } })
+
+    expect(serializeClientError(error)).not.toHaveProperty('requestId')
+  })
+
   it('reads a plain error-like object (a hydrated payload error)', () => {
     expect(serializeClientError({ message: 'Boom', statusCode: 500 })).toEqual({ message: 'Boom', statusCode: 500 })
   })

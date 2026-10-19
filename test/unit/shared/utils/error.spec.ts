@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getErrorDetail, serializeError } from '~~/shared/utils/error'
+import { getErrorDetail, requestIdOf, serializeError } from '~~/shared/utils/error'
 
 describe('getErrorDetail', () => {
   it('reads detail from a forwarded upstream body (error.data.detail)', () => {
@@ -54,5 +54,23 @@ describe('serializeError', () => {
   it('stringifies a thrown primitive', () => {
     expect(serializeError('plain')).toEqual({ message: 'plain' })
     expect(serializeError(null)).toEqual({ message: 'null' })
+  })
+})
+
+describe('requestIdOf', () => {
+  const failed = (id: string | null) => ({ response: { headers: new Headers(id ? { 'x-request-id': id } : {}) } })
+
+  it('reads the id off a failed response (ofetch FetchError.response)', () => {
+    expect(requestIdOf(failed('9f1c-aa'))).toBe('9f1c-aa')
+  })
+
+  it.each([
+    ['a response without one', failed(null)],
+    ['an error with no response', new Error('offline')],
+    ['a response with no headers', { response: {} }],
+    ['a primitive', 'boom'],
+    ['null', null],
+  ])('is undefined for %s', (_label, error) => {
+    expect(requestIdOf(error)).toBeUndefined()
   })
 })

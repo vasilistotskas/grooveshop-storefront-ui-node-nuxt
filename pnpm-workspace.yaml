@@ -164,7 +164,7 @@ minimumReleaseAgeExclude:
   - playwright-core@1.64.0
   - vue-router@5.4.0
   - nuxt-auth-utils@0.5.32
-  - evlog@2.31.0
+  - evlog@2.33.1
   - zod@4.6.7
   - '@nuxtjs/robots@7.0.0'
   - '@nuxtjs/sitemap@9.0.1'

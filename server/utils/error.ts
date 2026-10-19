@@ -151,12 +151,17 @@ export function handleError(
 // field → messages payload the client turns into specific toasts and
 // inline errors (e.g. checkout's ``{"phone": ["Enter a valid phone
 // number."]}``). Like the allauth flows below, those payloads travel in
-// ``createError``'s ``data``, which Nitro strips from thrown-error
-// responses in production — so clients only ever saw the generic
-// statusMessage. For upstream 4xx we therefore RETURN the body verbatim
-// with the upstream status (returned bodies are not stripped); the
-// client's ``onResponseError`` reads it as ``response._data`` in the
-// exact shape Django produced. Everything else keeps the throw path.
+// ``createError``'s ``data``. Nitro DOES send a handled error's ``data`` on
+// an ``/api`` JSON response in production (verified on a production build,
+// 2026-10-19: ``{url, status, statusCode, statusText, statusMessage,
+// message, error, data}``); only an unhandled or fatal error loses it
+// (``isSensitive`` in nitropack's ``error/prod``). But that wraps Django's
+// body one level down (``error.data.data``), so a thrown error and a
+// forwarded one give the client two shapes. For upstream 4xx we therefore
+// RETURN the body verbatim with the upstream status; the client's
+// ``onResponseError`` reads it as ``response._data`` in the exact shape
+// Django produced, whatever the route. Everything else keeps the throw
+// path.
 // Same `undefined` return-type trick as ``forwardAllAuthFlow``: the
 // 4xx status makes `$fetch` reject, so callers never see this value as
 // a resolved result and the route's success type stays clean.
@@ -282,9 +287,9 @@ const HTTP_STATUS_TEXT: Record<AllAuthError['data']['status'], string> = {
 // password, confirm after a code request), and a 400 carries the `errors`
 // array the client translates into specific toasts (incorrect_code,
 // invalid_login, ...). Those payloads travel in `createError`'s `data`, which
-// Nitro strips from thrown-error responses — so the client saw none of it.
-// For any allauth 4xx we therefore RETURN the payload (returned bodies are not
-// stripped) with the upstream status, mirroring the wrapper shape the client
+// Nitro sends in a thrown error's response only nested one level down, as
+// ``error.data.data``. For any allauth 4xx we therefore RETURN the payload
+// with the upstream status, mirroring the wrapper shape the client
 // reads (`error.data.data === payload`). Only non-allauth errors and 5xx still
 // throw via handleAllAuthError. The client-side `auth:change` interceptor only
 // reacts to 401/410, so forwarding a 400 cannot trigger navigation.

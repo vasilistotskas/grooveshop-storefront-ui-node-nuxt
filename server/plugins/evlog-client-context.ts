@@ -2,7 +2,8 @@ import type { EnrichContext } from 'evlog'
 import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
- * Name the store and the browser a browser `log.*` event came from.
+ * Name the store and the browser a browser `log.*` event came from, and
+ * strip the response body a failed call carries down to field names and codes.
  *
  * `transport.enabled` makes the browser POST every client log to evlog's
  * `/api/_evlog/ingest`. That handler tags the event `source: 'client'`,
@@ -32,6 +33,9 @@ import { defineNitroPlugin } from 'nitropack/runtime'
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('evlog:enrich', async ({ event, headers }: EnrichContext) => {
     if (event.source !== 'client') return
+    // The one place every browser event passes: no customer input from a
+    // failed response's body reaches the logs (`redactClientEventError`).
+    redactClientEventError(event)
     const userAgent = headers?.['user-agent']
     if (userAgent) event.client = clientFacts(userAgent, headers?.['cf-ipcountry'])
     if (!headers?.host) return
