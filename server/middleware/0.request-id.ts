@@ -15,7 +15,9 @@ import { defineEventHandler } from 'nuxt/server'
  * so the 404 and 503 that middleware answers carry it too.
  */
 export default defineEventHandler((event) => {
-  if (!event.url.pathname.startsWith('/api/')) return
+  // evlog counts the bare `/api` as an API path too (its error handler answers it as one).
+  const { pathname } = event.url
+  if (pathname !== '/api' && !pathname.startsWith('/api/')) return
 
   const requestId = event.context.log?.getContext().requestId
   if (typeof requestId === 'string' && requestId) {

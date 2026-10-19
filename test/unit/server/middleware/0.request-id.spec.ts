@@ -19,7 +19,11 @@ describe('server/middleware/0.request-id', () => {
     expect(await headerFor('/api/cart', 'abc-123')).toBe('abc-123')
   })
 
-  it.each([['/'], ['/products'], ['/_nuxt/entry.js'], ['/en/blog']])('puts none on %s, a page or an asset that a shared cache replays', async (url) => {
+  it('returns it on the bare /api too, which evlog answers as an API path', async () => {
+    expect(await headerFor('/api', 'abc-123')).toBe('abc-123')
+  })
+
+  it.each([['/apix'], ['/api-docs'], ['/'], ['/products'], ['/_nuxt/entry.js'], ['/en/blog']])('puts none on %s, a page or an asset that a shared cache replays', async (url) => {
     expect(await headerFor(url)).toBeUndefined()
   })
 
