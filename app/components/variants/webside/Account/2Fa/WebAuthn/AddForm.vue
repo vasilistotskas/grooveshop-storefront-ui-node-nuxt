@@ -7,6 +7,7 @@ const { getWebAuthnCreateOptions, addWebAuthnCredential } = useAllAuthAccount()
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const localePath = useLocalePath()
 
 const loading = ref(false)
@@ -44,11 +45,7 @@ async function onSubmit(values: z.infer<typeof webAuthnFormZodSchema>) {
     await navigateTo(localePath(to))
   }
   catch (error) {
-    toast.add({
-      title: t('error.default'),
-      description: error instanceof Error ? error.message : t('error.webauthn_failed'),
-      color: 'error',
-    })
+    notify('webside-webauthn:add', error, { title: t('error.default'), fallback: t('error.webauthn_failed') })
   }
   finally {
     loading.value = false

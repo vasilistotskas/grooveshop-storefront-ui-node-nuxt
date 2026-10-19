@@ -28,6 +28,7 @@ const props = withDefaults(defineProps<{
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const { loggedIn, user } = useUserSession()
 
 const open = ref(false)
@@ -139,16 +140,19 @@ async function onSubmit() {
     const status = (error as { statusCode?: number })?.statusCode
     const isConflict = status === 409
     log.warn({ tag: 'product:notify-me', message: 'create failed', kind: props.kind, status, error })
-    toast.add({
-      title: isConflict ? t('conflict.title') : t('error.title'),
-      description: isConflict ? t('conflict.description') : t('error.description'),
-      color: isConflict ? 'warning' : 'error',
-      icon: isConflict ? 'i-heroicons-information-circle' : 'i-heroicons-x-circle',
-    })
     // Server says the alert already exists — sync our local state so the
     // UI flips to the "active" card on the next render.
     if (isConflict) {
+      toast.add({
+        title: t('conflict.title'),
+        description: t('conflict.description'),
+        color: 'warning',
+        icon: 'i-heroicons-information-circle',
+      })
       await refreshAlert()
+    }
+    else {
+      notify('webside-notify-me:create', error, { title: t('error.title'), fallback: t('error.description') })
     }
   }
   finally {
@@ -174,12 +178,7 @@ async function cancelAlert() {
   }
   catch (error) {
     log.warn({ tag: 'product:notify-me', message: 'cancel failed', kind: props.kind, error })
-    toast.add({
-      title: t('cancel_error.title'),
-      description: t('cancel_error.description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
-    })
+    notify('webside-notify-me:cancel', error, { title: t('cancel_error.title'), fallback: t('cancel_error.description') })
   }
   finally {
     canceling.value = false

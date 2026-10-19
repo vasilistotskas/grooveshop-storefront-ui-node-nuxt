@@ -105,7 +105,7 @@ describe.each(trees(BlogPostCommentsCard, WebsideBlogPostCommentsCard))('$tree B
     await showReplies(wrapper)
 
     expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Σφάλμα φόρτωσης απαντήσεων', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Σφάλμα φόρτωσης απαντήσεων', color: 'error' }))
     expect(wrapper.findAll('[data-reply]')).toHaveLength(0)
     const retry = wrapper.findAll('button').find(b => b.text() === '2 Απαντήσεις')!
     expect(retry.attributes('disabled')).toBeUndefined()
@@ -141,7 +141,7 @@ describe.each(trees(BlogPostCommentsCard, WebsideBlogPostCommentsCard))('$tree B
     await flushPromises()
 
     expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Σφάλμα δημιουργίας σχολίου', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Σφάλμα δημιουργίας σχολίου', color: 'error' }))
     expect(wrapper.emitted('reply-add')).toBeUndefined()
     expect(wrapper.find('[data-test="send-reply"]').exists()).toBe(true)
   })

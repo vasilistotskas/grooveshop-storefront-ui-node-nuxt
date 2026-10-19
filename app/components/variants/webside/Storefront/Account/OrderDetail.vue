@@ -24,6 +24,7 @@ const { data: order, refresh: refreshOrder } = await useApi<OrderDetail>(`/api/o
 
 const { cancelOrder } = useOrder()
 const toast = useToast()
+const { notify } = useApiError()
 const isCanceling = ref(false)
 
 const localePath = useLocalePath()
@@ -336,13 +337,9 @@ async function handleCancelOrder() {
     const status = (error as { statusCode?: number })?.statusCode
     log.error({ action: 'order:cancel', status, error })
     const isConflict = status === 409 || status === 400
-    toast.add({
+    notify('webside-order:cancel', error, {
       title: t('cancel.error_title'),
-      description: isConflict
-        ? t('cancel.error_conflict')
-        : t('cancel.error_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
+      fallback: isConflict ? t('cancel.error_conflict') : t('cancel.error_description'),
     })
     // Sync to the authoritative state — maybe someone else already
     // canceled it or the status moved on since page load.
@@ -389,12 +386,7 @@ async function handleDownloadInvoice() {
   }
   catch (error) {
     log.error({ action: 'order:invoice:download', error })
-    toast.add({
-      title: t('invoice.error_title'),
-      description: t('invoice.error_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
-    })
+    notify('webside-order:invoice', error, { title: t('invoice.error_title'), fallback: t('invoice.error_description') })
   }
   finally {
     isFetchingInvoice.value = false
@@ -452,12 +444,7 @@ async function handleReorder() {
   }
   catch (error) {
     log.error({ action: 'order:reorder', error })
-    toast.add({
-      title: t('reorder.error_title'),
-      description: t('reorder.error_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
-    })
+    notify('webside-order:reorder', error, { title: t('reorder.error_title'), fallback: t('reorder.error_description') })
   }
   finally {
     isReordering.value = false

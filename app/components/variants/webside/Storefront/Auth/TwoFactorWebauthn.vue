@@ -2,6 +2,7 @@
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
 
 const toast = useToast()
+const { notify } = useApiError()
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
@@ -66,12 +67,9 @@ async function onSubmit(): Promise<void> {
     emit('getWebAuthnRequestOptionsForAuthentication')
     emit('authenticateUsingWebAuthn')
   }
-  catch {
+  catch (error) {
     hasError.value = true
-    toast.add({
-      title: t('error.default'),
-      color: 'error',
-    })
+    notify('webside-webauthn:authenticate', error, { title: t('error.default') })
   }
   finally {
     loading.value = false

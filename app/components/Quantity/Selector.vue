@@ -14,10 +14,11 @@ const props = defineProps({
   cartItemId: { type: Number, required: true },
 })
 
-const toast = useToast()
+const { t } = useI18n()
+const { notify } = useApiError()
 const cartStore = useCartStore()
 const { updateCartItem } = cartStore
-const { cart, error } = storeToRefs(cartStore)
+const { cart } = storeToRefs(cartStore)
 
 const serverQuantity = computed(() => {
   const item = cart.value?.items?.find(i => i.id === props.cartItemId)
@@ -58,22 +59,12 @@ async function commit(value: number) {
   }
   catch (err) {
     log.error({ action: 'cart:updateQuantity', error: err })
-    // Revert to the server value on failure.
+    // Revert to the server value on failure, and say why.
     optimisticQuantity.value = serverQuantity.value
+    notify('cart:quantity', err, { title: t('error.default') })
   }
   finally {
     isUpdating.value = false
-  }
-
-  // Forwarded upstream bodies sit at .data; the legacy thrown-error
-  // wrapper nested them at .data.data — accept both.
-  const rawData = error.value?.data as Record<string, unknown> | undefined
-  const errorData = (rawData?.nonFieldErrors ? rawData : rawData?.data) as Record<string, unknown> | undefined
-  const nonFieldErrors = errorData?.nonFieldErrors as string[] | undefined
-  if (nonFieldErrors && nonFieldErrors.length > 0) {
-    nonFieldErrors.forEach((e: string) => {
-      toast.add({ title: e, color: 'error' })
-    })
   }
 
   // Flush the newest value the shopper set while this write was in

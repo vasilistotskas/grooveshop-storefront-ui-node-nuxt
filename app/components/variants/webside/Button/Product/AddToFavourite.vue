@@ -40,6 +40,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { addFavouriteProduct, removeFavouriteProduct } = userStore
@@ -89,10 +90,7 @@ const toggleFavourite = async () => {
     // One toast for every failure: an HTTP refusal carries Django's
     // `detail`, a network failure does not.
     log.error({ action: 'favourite:toggle', error })
-    toast.add({
-      title: getErrorDetail(error) || t('error_occurred'),
-      color: 'error',
-    })
+    notify('webside-Product-AddToFavourite', error, { title: t('error_occurred') })
   }
   finally {
     isLoading.value = false

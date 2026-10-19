@@ -552,6 +552,10 @@ export type B2bErrorResponse = {
      * Μηχανικά αναγνώσιμη αιτιολογία, π.χ. no_business_profile
      */
   reason: string
+  /**
+     * Η ίδια τιμή με το ``reason``.
+     */
+  code?: string
 }
 
 export type B2bPrice = {
@@ -3140,6 +3144,10 @@ export type CouponErrorResponse = {
      * Αιτία απόρριψης σε μορφή αναγνώσιμη από μηχανή (λεξιλόγιο της επέκτασης εκπτώσεων ACP, π.χ. discount_code_invalid)
      */
   reason: string
+  /**
+     * Η ίδια τιμή με το ``reason``.
+     */
+  code?: string
 }
 
 export type CreateCheckoutSessionRequestRequest = {
@@ -3264,10 +3272,18 @@ export type DeleteAccountResponse = {
 
 export type Detail = {
   detail: string
+  /**
+     * Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
+     */
+  code?: string
 }
 
 export type ErrorResponse = {
   detail: string
+  /**
+     * Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
+     */
+  code?: string
   error?: string
 }
 
@@ -3560,6 +3576,10 @@ export type GiftCardErrorResponse = {
      * Αιτία σε μηχαναγνώσιμη μορφή, π.χ. gift_card_invalid
      */
   reason: string
+  /**
+     * Η ίδια τιμή με το ``reason``.
+     */
+  code?: string
 }
 
 export type GiftCardPurchaseRequestRequest = {
@@ -4355,6 +4375,10 @@ export type OrderAttributionInputRequest = {
  */
 export type OrderCancelError = {
   detail?: string
+  /**
+     * Η ίδια τιμή με το ``error.type``.
+     */
+  code?: string
   error?: OrderCancelErrorDetail
 }
 
@@ -4389,6 +4413,10 @@ export type OrderCreateDocumentType = 'RECEIPT' | 'INVOICE'
  */
 export type OrderCreateError = {
   detail?: string
+  /**
+     * Η ίδια τιμή με το ``error.type``.
+     */
+  code?: string
   error?: OrderCreateErrorDetail
   /**
      * ``insufficient_stock`` / ``cart_invalid`` από τον έλεγχο καλαθιού: ένα μήνυμα ανά πρόβλημα, για εμφάνιση.
@@ -10314,6 +10342,40 @@ export type ZeroResultQuery = {
      * Language code for the query
      */
   languageCode: string
+}
+
+/**
+ * One message under a field and its stable code. Show ``message``; branch on ``code``.
+ */
+export type ApiFieldError = {
+  message: string
+  code: string
+}
+
+/**
+ * What lies under one field: its messages, or, for a nested serializer, an object (a list serializer keys its rows by position) or list of the same.
+ */
+export type ApiFieldErrors = Array<ApiFieldError | ApiFieldErrors> | {
+  [key: string]: ApiFieldErrors
+}
+
+/**
+ * A plain API error. ``code`` is stable; ``detail`` is in the request's language.
+ */
+export type ApiError = {
+  detail: string
+  code: string
+}
+
+/**
+ * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
+ */
+export type ApiValidationError = {
+  code?: string
+  fields: {
+    [key: string]: ApiFieldErrors
+  }
+  [key: string]: unknown
 }
 
 export type PageSectionHeroBannerProps = {

@@ -9,6 +9,7 @@ const { productUrl } = useUrls()
 const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const toast = useToast()
+const { notify } = useApiError()
 const cartStore = useCartStore()
 const { deleteCartItem, createCartItem } = cartStore
 
@@ -36,11 +37,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   }
   catch (err) {
     log.error({ action: 'cart:deleteItem', error: err })
-    toast.add({
-      title: t('toast.delete_failed'),
-      color: 'error',
-      icon: 'i-heroicons-exclamation-circle',
-    })
+    notify('webside-ItemCard:1', err, { title: t('toast.delete_failed') })
     return
   }
 
@@ -67,10 +64,7 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
           }
           catch (err) {
             log.error({ action: 'cart:undoRemove', error: err })
-            toast.add({
-              title: t('toast.undo_failed'),
-              color: 'error',
-            })
+            notify('webside-ItemCard:2', err, { title: t('toast.undo_failed') })
           }
         },
       },

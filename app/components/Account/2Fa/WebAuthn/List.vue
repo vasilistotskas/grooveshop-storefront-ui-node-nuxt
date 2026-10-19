@@ -14,6 +14,7 @@
  */
 const { t, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const localePath = useLocalePath()
 const { deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
 const authStore = useAuthStore()
@@ -45,7 +46,7 @@ async function change(id: number, request: () => Promise<{ status?: number } | u
   }
   catch (error) {
     log.error({ action: 'webauthn:change', error })
-    toast.add({ title: t('error'), color: 'error' })
+    notify('webauthn:change', error, { title: t('error') })
   }
   finally {
     busy.value = null

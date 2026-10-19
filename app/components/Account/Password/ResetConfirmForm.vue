@@ -8,6 +8,7 @@ const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
 const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
+const { notify } = useApiError()
 const localePath = useLocalePath()
 const router = useRouter()
 
@@ -88,10 +89,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
       return
     }
     hasError.value = true
-    toast.add({
-      title: t('error.default'),
-      color: 'error',
-    })
+    notify('password-reset:confirm', error, { title: t('error.default') })
   }
   finally {
     isSubmitting.value = false

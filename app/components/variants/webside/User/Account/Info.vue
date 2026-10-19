@@ -25,6 +25,7 @@ const props = defineProps({
 
 const { account } = toRefs(props)
 const toast = useToast()
+const { notify } = useApiError()
 const { t } = useI18n()
 const { fetch } = useUserSession()
 
@@ -62,10 +63,7 @@ const changeUserName = async () => {
     await fetch()
   }
   catch (error) {
-    toast.add({
-      title: getErrorDetail(error) || t('unknown.error'),
-      color: 'error',
-    })
+    notify('webside-Account-Info', error, { title: t('unknown.error') })
   }
 }
 </script>

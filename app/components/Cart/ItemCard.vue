@@ -23,6 +23,7 @@ const props = defineProps<{
 const { productUrl } = useUrls()
 const { t, n, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const { deleteCartItem, createCartItem } = useCartStore()
 
 const name = computed(() => extractTranslated(props.cartItem.product, 'name', locale.value) ?? '')
@@ -41,7 +42,7 @@ async function remove() {
   }
   catch (error) {
     log.error({ action: 'cart:deleteItem', error })
-    toast.add({ title: t('toast.delete_failed'), color: 'error' })
+    notify('ItemCard:1', error, { title: t('toast.delete_failed') })
     return
   }
   finally {
@@ -65,7 +66,7 @@ async function remove() {
         }
         catch (error) {
           log.error({ action: 'cart:undoRemove', error })
-          toast.add({ title: t('toast.undo_failed'), color: 'error' })
+          notify('ItemCard:2', error, { title: t('toast.undo_failed') })
         }
       },
     }],

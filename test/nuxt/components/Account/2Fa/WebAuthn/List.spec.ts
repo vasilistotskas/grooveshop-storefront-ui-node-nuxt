@@ -95,7 +95,7 @@ describe('Account/2Fa/WebAuthn/List', () => {
     await rename(wrapper, 'YubiKey 5C', '  Work key  ')
 
     expect(updateWebAuthnCredential).toHaveBeenCalledExactlyOnceWith({ id: 2, name: 'Work key' })
-    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.renamed, color: 'success' })
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ title: messages.renamed, color: 'success' }))
     expect(getAuthenticators).toHaveBeenCalledOnce()
     expect(wrapper.find('form').exists()).toBe(false)
   })
@@ -131,7 +131,7 @@ describe('Account/2Fa/WebAuthn/List', () => {
     await flushPromises()
 
     expect(deleteWebAuthnCredential).toHaveBeenCalledExactlyOnceWith({ authenticators: [1] })
-    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.removed, color: 'success' })
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ title: messages.removed, color: 'success' }))
     expect(getAuthenticators).toHaveBeenCalledOnce()
   })
 
@@ -154,7 +154,7 @@ describe('Account/2Fa/WebAuthn/List', () => {
     await button(wrapper, 'Επιβεβαίωση αφαίρεσης του «iPhone 16»').trigger('click')
     await flushPromises()
 
-    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.error, color: 'error' })
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ title: messages.error, color: 'error' }))
     expect(getAuthenticators).toHaveBeenCalledOnce()
   })
 })

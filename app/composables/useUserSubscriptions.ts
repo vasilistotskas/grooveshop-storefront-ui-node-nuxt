@@ -9,6 +9,7 @@
  */
 export function useUserSubscriptions() {
   const toast = useToast()
+  const { notify } = useApiError()
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
 
@@ -78,10 +79,9 @@ export function useUserSubscriptions() {
       // email's confirmation link): read it again so the switch shows
       // what is true rather than what was asked.
       await refreshNuxtData('subscription:user:list')
-      toast.add({
+      notify('subscription:subscribe', err, {
         title: t('subscription_notifications.subscribe.error_title'),
-        description: t('subscription_notifications.subscribe.error_description'),
-        color: 'error',
+        fallback: t('subscription_notifications.subscribe.error_description'),
       })
       throw err
     }
@@ -118,10 +118,9 @@ export function useUserSubscriptions() {
       // email's confirmation link): read it again so the switch shows
       // what is true rather than what was asked.
       await refreshNuxtData('subscription:user:list')
-      toast.add({
+      notify('subscription:unsubscribe', err, {
         title: t('subscription_notifications.unsubscribe.error_title'),
-        description: t('subscription_notifications.unsubscribe.error_description'),
-        color: 'error',
+        fallback: t('subscription_notifications.unsubscribe.error_description'),
       })
       throw err
     }

@@ -78,6 +78,7 @@ const {
   giftCards,
   giftCardBalanceTotal,
   stockError,
+  submitError,
   isStripePayment,
   isVivaWalletPayment,
   isOnlinePayment,
@@ -211,6 +212,8 @@ useSeoMeta({
 
       <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_25rem] lg:items-start lg:gap-14">
         <div class="flex min-w-0 flex-col gap-6">
+          <ApiErrorAlert :error="submitError" />
+
           <CheckoutStockErrorAlert
             v-if="stockError?.show"
             :stock-error="stockError"

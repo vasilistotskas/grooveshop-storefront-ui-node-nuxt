@@ -121,7 +121,7 @@ describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/P
     await type(wrapper, 'Password123')
     await submit(wrapper)
 
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Αυτός ο κωδικός είναι πολύ συνηθισμένος.', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Αυτός ο κωδικός είναι πολύ συνηθισμένος.', color: 'error' }))
     expect(navigateToMock).not.toHaveBeenCalled()
   })
 
@@ -133,7 +133,7 @@ describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/P
     await submit(wrapper)
 
     expect(wrapper.findComponent({ name: 'UAlert' }).text()).toContain(COPY[tree].expired)
-    expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('error.default'), color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error.default'), color: 'error' }))
   })
 
   it.each([

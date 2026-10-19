@@ -3,6 +3,7 @@ import * as z from 'zod'
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const tenantStore = useTenantStore()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
@@ -91,9 +92,8 @@ const applyCoupon = async () => {
     // The same vocabulary drives the picker's per-coupon verdicts, so
     // both read from one translated map (``usePromotionOffer``) and a
     // refusal says the same thing wherever the shopper meets it.
-    couponError.value = error?.data?.reason
-      ? rejectionMessage(error.data.reason)
-      : error?.data?.detail || rejectionMessage(null)
+    const described = describeApiError(error, { fallback: rejectionMessage(null) })
+    couponError.value = described.code ? rejectionMessage(described.code) : described.description
   }
   finally {
     submitting.value = false
@@ -108,7 +108,8 @@ const removeCoupon = async () => {
     couponError.value = null
   }
   catch (error) {
-    log.error({ action: 'checkout:removeCoupon', error })
+    log.error({ action: 'checkout:removeCoupon', error, requestId: requestIdOf(error) })
+    notify('webside-coupon:remove', error, { title: t('remove_failed') })
   }
   finally {
     submitting.value = false
@@ -238,6 +239,7 @@ el:
   applied_free_shipping: "Η αποστολή σας είναι δωρεάν"
   applied_gift: "Το δώρο σας είναι στο καλάθι"
   refused_title: "Το κουπόνι δεν εφαρμόζεται"
+  remove_failed: "Το κουπόνι δεν αφαιρέθηκε"
   validation:
     required: "Συμπληρώστε τον κωδικό"
     too_short: "Ο κωδικός είναι πολύ σύντομος"
@@ -252,6 +254,7 @@ en:
   applied_free_shipping: "Your delivery is free"
   applied_gift: "Your gift is in your basket"
   refused_title: "Coupon not applied"
+  remove_failed: "The coupon was not removed"
   validation:
     required: "Enter the code"
     too_short: "The code is too short"

@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const toast = useToast()
+const { notify } = useApiError()
 
 const fetching = ref(false)
 
@@ -42,12 +42,11 @@ async function download() {
   catch (error) {
     log.error({ action: 'order:specimen:download', error })
     const status = (error as { statusCode?: number }).statusCode
-    toast.add({
+    notify('order:specimen', error, {
       title: t('error_title'),
-      description: isRateLimitedClientError(error)
+      fallback: isRateLimitedClientError(error)
         ? t('error_rate_limited')
         : status === 404 ? t('error_missing') : t('error_description'),
-      color: 'error',
     })
   }
   finally {

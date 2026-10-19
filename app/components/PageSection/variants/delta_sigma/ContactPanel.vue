@@ -56,6 +56,7 @@ const localePath = useLocalePath()
 // SSR-stable, so the radiogroup's label association survives hydration.
 const uid = useId()
 const toast = useToast()
+const { notify } = useApiError()
 const { offices } = useStoreOffices()
 const { identity } = useMerchantIdentity()
 const tenantStore = useTenantStore()
@@ -252,16 +253,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     attachments.reset()
   }
   catch (error) {
-    const data = error && typeof error === 'object' && 'data' in error
-      ? (error as { data: unknown }).data
-      : null
-    toast.add({
-      title: t('panel.failed'),
-      description: isDrfFieldErrorMap(data)
-        ? formatDrfFieldErrors(data, t)
-        : undefined,
-      color: 'error',
-    })
+    notify('ContactPanel:send', error, { title: t('panel.failed') })
   }
   finally {
     isSubmitting.value = false

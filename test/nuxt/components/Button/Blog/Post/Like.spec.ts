@@ -82,7 +82,7 @@ describe.each(trees(ButtonBlogPostLike, WebsideButtonBlogPostLike))('$tree Butto
     await expect(click(wrapper)).resolves.toBeUndefined()
 
     expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Πολλά αιτήματα', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error_occurred'), description: 'Πολλά αιτήματα', color: 'error' }))
     expect(useUserStore().blogLikedPosts).toEqual([])
     expect(wrapper.emitted('update')).toBeUndefined()
   })
@@ -93,7 +93,7 @@ describe.each(trees(ButtonBlogPostLike, WebsideButtonBlogPostLike))('$tree Butto
 
     await click(wrapper)
 
-    expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('error_occurred'), color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error_occurred'), color: 'error' }))
   })
 
   it('asks a guest to sign in instead of calling Django', async () => {

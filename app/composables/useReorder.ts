@@ -11,6 +11,7 @@ export function useReorder() {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
   const toast = useToast()
+  const { notify } = useApiError()
   const localePath = useLocalePath()
   const cartStore = useCartStore()
 
@@ -57,12 +58,7 @@ export function useReorder() {
     }
     catch (error) {
       log.error({ action: 'order:reorder', error })
-      toast.add({
-        title: t('reorder.error_title'),
-        description: t('reorder.error_description'),
-        color: 'error',
-        icon: 'i-lucide-circle-x',
-      })
+      notify('order:reorder', error, { title: t('reorder.error_title'), fallback: t('reorder.error_description') })
     }
     finally {
       reordering.value = null

@@ -9,6 +9,7 @@ import * as z from 'zod'
  */
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 
 const loading = ref(false)
 const sent = ref(false)
@@ -179,16 +180,7 @@ async function submit() {
     // The proxy forwards Django's 4xx validation body — surface the
     // field detail (spam filter, disposable email, …) instead of a
     // blanket failure. Same handling as ContactForm.vue.
-    const data = error && typeof error === 'object' && 'data' in error
-      ? (error as { data: unknown }).data
-      : null
-    toast.add({
-      title: t('error.default'),
-      description: isDrfFieldErrorMap(data)
-        ? formatDrfFieldErrors(data, t)
-        : undefined,
-      color: 'error',
-    })
+    notify('FeedbackForm:send', error, { title: t('error.default') })
   }
   finally {
     loading.value = false

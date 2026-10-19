@@ -159,12 +159,19 @@ describe('Product/Review', () => {
     expect(wrapper.text()).toContain(t('validation.min', { min: 10 }))
   })
 
-  // The refusal arrives through the Nitro proxy (`data.product`) or
-  // straight from DRF (`product`), as a code or a list of codes.
+  // Django refuses with a stable code beside a sentence in the page's
+  // language; the shopper is told by the code, never by comparing text. The
+  // refusal reaches the component forwarded (`error.data` is the body) or
+  // thrown by the route (`error.data.data` is).
+  const REFUSAL = (sentence: string) => ({
+    product: sentence,
+    code: 'must_have_purchased',
+    fields: { product: [{ message: sentence, code: 'must_have_purchased' }] },
+  })
   it.each([
-    ['a proxied list of codes', { data: { product: ['must_have_purchased'] } }],
-    ['a proxied single code', { data: { product: 'must_have_purchased' } }],
-    ['a bare DRF list of codes', { product: ['must_have_purchased'] }],
+    ['forwarded, in Greek', REFUSAL('Πρέπει να έχετε αγοράσει το προϊόν για να το αξιολογήσετε.')],
+    ['forwarded, in English', REFUSAL('You must have bought the product to review it.')],
+    ['thrown by the route', { statusCode: 400, statusMessage: 'Bad Request', data: REFUSAL('You must have bought the product.') }],
   ])('tells a shopper who has not bought the product why the review was refused (%s)', async (_shape, body) => {
     api.routes({ '/api/products/reviews': refused(body) })
     const wrapper = await mountSheet()
@@ -173,12 +180,25 @@ describe('Product/Review', () => {
     await wrapper.get('textarea').setValue(COMMENT)
     await submit(wrapper, 'Υποβολή κριτικής')
 
-    expect(toastAdd).toHaveBeenCalledWith({
-      title: 'Μπορείς να γράψεις κριτική μόνο για προϊόντα που έχεις αγοράσει',
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'review:create',
+      title: 'Η κριτική δεν δημιουργήθηκε',
+      description: 'Μπορείς να γράψεις κριτική μόνο για προϊόντα που έχεις αγοράσει.',
       color: 'error',
-    })
+    }))
     expect(wrapper.emitted('add-existing-review')).toBeUndefined()
     expect(wrapper.find('[data-testid="modal"]').exists()).toBe(true)
+  })
+
+  it('shows the reason Django gave for a refusal it has no mapping for', async () => {
+    api.routes({ '/api/products/reviews': refused({ detail: 'Η κριτική απορρίφθηκε.', code: 'review_rejected' }) })
+    const wrapper = await mountSheet()
+
+    await rate(wrapper, 4)
+    await wrapper.get('textarea').setValue(COMMENT)
+    await submit(wrapper, 'Υποβολή κριτικής')
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ description: 'Η κριτική απορρίφθηκε.' }))
   })
 
   it('settles a refused submit instead of throwing it at the form', async () => {
@@ -188,7 +208,7 @@ describe('Product/Review', () => {
 
     // UForm rethrows whatever its handler throws, into Vue's error handler.
     await expect(onSubmit({ data: { rate: 8, comment: COMMENT } })).resolves.toBeUndefined()
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η κριτική δεν δημιουργήθηκε', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Η κριτική δεν δημιουργήθηκε', color: 'error' }))
   })
 
   it('logs the request id of the refused submit, to join the report to the server and Django lines', async () => {
@@ -300,7 +320,7 @@ describe('Product/Review', () => {
       await footerButton(wrapper, 'Ναι, διαγραφή')!.trigger('click')
       await flushPromises()
 
-      expect(toastAdd).toHaveBeenCalledWith({ title: 'Η κριτική δεν διαγράφηκε', color: 'error' })
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Η κριτική δεν διαγράφηκε', color: 'error' }))
       expect(wrapper.emitted('delete-existing-review')).toBeUndefined()
       expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('Καλή γλάστρα, γερή.')
     })

@@ -9,6 +9,9 @@ const { t, locale } = useI18n()
 // never applied.
 useHead({ title: () => t('title') })
 const toast = useToast()
+const { notify } = useApiError()
+const form = useTemplateRef('form')
+const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
 const route = useRoute(`account-addresses-id-edit___${locale.value}`)
 const localePath = useLocalePath()
 
@@ -186,11 +189,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     await navigateTo(localePath('account-addresses'))
   }
-  catch {
-    toast.add({
-      title: t('error'),
-      color: 'error',
-    })
+  catch (error) {
+    await reportFailure('address:update', error, { title: t('error') })
   }
   finally {
     isSubmitting.value = false
@@ -212,11 +212,8 @@ async function onSetMain() {
 
     await navigateTo(localePath('account-addresses'))
   }
-  catch {
-    toast.add({
-      title: t('main.error'),
-      color: 'error',
-    })
+  catch (error) {
+    notify('AddressEdit:2', error, { title: t('main.error') })
   }
 }
 </script>
@@ -253,7 +250,7 @@ async function onSetMain() {
       v-if="address"
       class="rounded-[1.25rem] bg-default p-6 ring ring-default"
     >
-      <UForm :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
+      <UForm ref="form" :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
         <!-- Title -->
         <UFormField :label="t('form.title')" name="title" required>
           <UInput

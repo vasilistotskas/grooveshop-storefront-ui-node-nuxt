@@ -6,6 +6,7 @@ const { t, n, locale } = useI18n()
 // never applied.
 useHead({ title: () => t('title') })
 const toast = useToast()
+const { notify } = useApiError()
 const router = useRouter()
 const localePath = useLocalePath()
 const { user, loggedIn, clear: clearSession } = useUserSession()
@@ -111,11 +112,7 @@ const requestExport = async () => {
   }
   catch (error) {
     log.error({ action: 'privacy:requestExport', error })
-    toast.add({
-      title: t('export.error_title'),
-      color: 'error',
-      icon: 'i-lucide-triangle-alert',
-    })
+    notify('Privacy:1', error, { title: t('export.error_title') })
   }
   finally {
     requesting.value = false
@@ -162,12 +159,7 @@ const onConfirmDelete = async () => {
   }
   catch (error) {
     log.error({ action: 'privacy:deleteAccount', error })
-    toast.add({
-      title: t('delete.error_title'),
-      description: t('delete.error_description'),
-      color: 'error',
-      icon: 'i-lucide-triangle-alert',
-    })
+    notify('Privacy:2', error, { title: t('delete.error_title') })
   }
   finally {
     deleting.value = false

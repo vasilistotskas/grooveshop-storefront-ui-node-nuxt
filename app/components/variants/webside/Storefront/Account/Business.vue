@@ -10,6 +10,8 @@ const { t } = useI18n()
 useHead({ title: () => t('title') })
 const toast = useToast()
 
+const form = useTemplateRef('form')
+const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
 const isSubmitting = ref(false)
 
 // Auto-generated contract schema, tightened with the client-side ΑΦΜ
@@ -75,8 +77,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     toast.add({ title: t('submit.success'), color: 'success' })
     await refresh()
   }
-  catch {
-    toast.add({ title: t('submit.error'), color: 'error' })
+  catch (error) {
+    await reportFailure('webside-business:update', error, { title: t('submit.error') })
   }
   finally {
     isSubmitting.value = false
@@ -120,6 +122,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
          would only mislead. The alert above says to contact the store. -->
     <UCard v-if="profile?.status !== 'SUSPENDED'">
       <UForm
+        ref="form"
         :schema="schema"
         :state="state"
         class="grid gap-4 md:grid-cols-2"

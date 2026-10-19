@@ -27,6 +27,7 @@ const props = defineProps({
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const img = useMediaStreamImage()
 const { fetch } = useUserSession()
 const { enabled } = useAuthPreviewMode()
@@ -142,10 +143,7 @@ const handleUpload = async (file: File | null) => {
   }
   catch (error) {
     log.error({ action: 'account:avatarUpload', error })
-    toast.add({
-      title: t('image.upload.error'),
-      color: 'error',
-    })
+    notify('Avatar:1', error, { title: t('image.upload.error') })
   }
   finally {
     uploadFile.value = null

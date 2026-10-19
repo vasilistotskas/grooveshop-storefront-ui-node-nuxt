@@ -71,7 +71,7 @@ describe.each(trees(ButtonBlogCommentLike, WebsideButtonBlogCommentLike))('$tree
     await expect(click(wrapper)).resolves.toBeUndefined()
 
     expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Πολλά αιτήματα', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('error_occurred'), description: 'Πολλά αιτήματα', color: 'error' }))
     expect(useUserStore().blogLikedComments).toEqual([])
     expect(wrapper.emitted('update')).toBeUndefined()
   })

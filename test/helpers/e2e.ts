@@ -40,14 +40,18 @@ export function requestWithHost(
   return new Promise((resolve, reject) => {
     const target = new URL(url(path))
     const req = httpRequest(target, { method, headers: { Host: host, ...headers } }, (res) => {
-      let body = ''
+      // Decoded once, from the whole body: a chunk boundary can fall inside
+      // a multi-byte character (Greek is two bytes), and decoding each
+      // chunk alone turned the split character into U+FFFD, a difference
+      // between two renders of the same page that was not one.
+      const chunks: Buffer[] = []
       res.on('data', (chunk: Buffer) => {
-        body += chunk.toString()
+        chunks.push(chunk)
       })
       res.on('end', () =>
         resolve({
           statusCode: res.statusCode ?? 0,
-          body,
+          body: Buffer.concat(chunks).toString('utf-8'),
           headers: res.headers,
           location: res.headers.location,
         }),

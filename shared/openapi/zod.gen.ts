@@ -155,6 +155,7 @@ export const zAttributeValue = z.object({
 export const zB2bErrorResponse = z.object({
   detail: z.string(),
   reason: z.string(),
+  code: z.string().optional(),
 })
 
 export const zB2bPrice = z.object({
@@ -1131,6 +1132,7 @@ export const zCouponApplyRequestRequest = z.object({
 export const zCouponErrorResponse = z.object({
   detail: z.string(),
   reason: z.string(),
+  code: z.string().optional(),
 })
 
 export const zCreateCheckoutSessionRequestRequest = z.object({
@@ -1209,10 +1211,12 @@ export const zDeleteAccountResponse = z.object({
 
 export const zDetail = z.object({
   detail: z.string(),
+  code: z.string().optional(),
 })
 
 export const zErrorResponse = z.object({
   detail: z.string(),
+  code: z.string().optional(),
   error: z.string().optional(),
 })
 
@@ -1321,6 +1325,7 @@ export const zGiftCardCheckResponse = z.object({
 export const zGiftCardErrorResponse = z.object({
   detail: z.string(),
   reason: z.string(),
+  code: z.string().optional(),
 })
 
 export const zGiftCardPurchaseResponse = z.object({
@@ -1749,6 +1754,7 @@ export const zOrderCancelErrorDetail = z.object({
  */
 export const zOrderCancelError = z.object({
   detail: z.string().optional(),
+  code: z.string().optional(),
   error: zOrderCancelErrorDetail.optional(),
 })
 
@@ -1801,6 +1807,7 @@ export const zOrderCreateErrorDetail = z.object({
  */
 export const zOrderCreateError = z.object({
   detail: z.string().optional(),
+  code: z.string().optional(),
   error: zOrderCreateErrorDetail.optional(),
   cart: z.array(z.string()).optional(),
   fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
@@ -6471,6 +6478,38 @@ export const zSearchAnalyticsResponse = z.object({
   searchVolume: zSearchVolume,
   performance: zPerformanceMetrics,
   clickThroughRate: z.number(),
+})
+
+/**
+ * One message under a field and its stable code. Show ``message``; branch on ``code``.
+ */
+export const zApiFieldError = z.object({
+  message: z.string(),
+  code: z.string(),
+})
+
+/**
+ * What lies under one field: its messages, or, for a nested serializer, an object (a list serializer keys its rows by position) or list of the same.
+ */
+export const zApiFieldErrors = z.union([
+  z.array(z.union([zApiFieldError, z.lazy((): any => zApiFieldErrors)])),
+  z.record(z.string(), z.lazy((): any => zApiFieldErrors)),
+])
+
+/**
+ * A plain API error. ``code`` is stable; ``detail`` is in the request's language.
+ */
+export const zApiError = z.object({
+  detail: z.string(),
+  code: z.string(),
+})
+
+/**
+ * A validation error: the field keys DRF always sent, plus ``code`` (the one code all errors share, else ``invalid``; absent when a field is itself named ``code``) and ``fields``, each field's messages with their codes. A field of a nested serializer holds the nested object.
+ */
+export const zApiValidationError = z.object({
+  code: z.string().optional(),
+  fields: z.record(z.string(), zApiFieldErrors),
 })
 
 export const zPageSectionHeroBannerProps = z.object({

@@ -10,6 +10,7 @@ const {
 const { t } = useI18n()
 const { getStockStatusMessage, clearCart } = cartStore
 const toast = useToast()
+const { notify } = useApiError()
 // Cross-sell strip. The cart payload already carries ``recommendations``
 // seeded with every basket line, so the strip renders from the store —
 // no extra fetch.
@@ -123,12 +124,7 @@ const onClearCart = async () => {
   }
   catch (error) {
     log.error({ action: 'cart:clearPage', error })
-    toast.add({
-      title: t('clear.error_title'),
-      description: t('clear.error_description'),
-      color: 'error',
-      icon: 'i-lucide-circle-x',
-    })
+    notify('Cart:1', error, { title: t('clear.error_title') })
   }
   finally {
     clearing.value = false

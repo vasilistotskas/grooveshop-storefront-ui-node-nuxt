@@ -263,16 +263,18 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
   it.each([
     { shape: 'the forwarded body', data: { nonFieldErrors: ['Εξαντλήθηκε', 'Όριο 2 τεμαχίων'] } },
     { shape: 'the legacy nested body', data: { data: { nonFieldErrors: ['Εξαντλήθηκε', 'Όριο 2 τεμαχίων'] } } },
-  ])('shows each of Django\'s reasons from $shape, and nothing else', async ({ data }) => {
+  ])('shows Django\'s reasons from $shape in one toast, and nothing else', async ({ data }) => {
     api.routes({ '/api/cart': makeCart({ items: [] }), '/api/cart/items': failWith(400, data) })
     const wrapper = await mount({ product: makeProduct() })
 
     await click(wrapper)
 
-    expect(toast.add.mock.calls).toEqual([
-      [{ title: 'Εξαντλήθηκε', color: 'error' }],
-      [{ title: 'Όριο 2 τεμαχίων', color: 'error' }],
-    ])
+    expect(toast.add).toHaveBeenCalledTimes(1)
+    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Δεν προστέθηκε στο καλάθι',
+      description: 'Εξαντλήθηκε Όριο 2 τεμαχίων',
+      color: 'error',
+    }))
   })
 
   it.runIf(tree === 'default')('tells the shopper when the add failed for any other reason', async () => {

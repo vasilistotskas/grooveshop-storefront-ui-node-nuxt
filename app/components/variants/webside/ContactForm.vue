@@ -4,6 +4,7 @@ import type { FormSubmitEvent } from '#ui/types'
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 
 const isSubmitting = ref(false)
 
@@ -67,16 +68,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     // The proxy forwards Django's 4xx validation body — surface the
     // field detail (spam filter, disposable email, …) instead of a
     // blanket failure.
-    const data = error && typeof error === 'object' && 'data' in error
-      ? (error as { data: unknown }).data
-      : null
-    toast.add({
-      title: t('error.default'),
-      description: isDrfFieldErrorMap(data)
-        ? formatDrfFieldErrors(data, t)
-        : undefined,
-      color: 'error',
-    })
+    notify('webside-ContactForm:send', error, { title: t('error.default') })
   }
   finally {
     isSubmitting.value = false

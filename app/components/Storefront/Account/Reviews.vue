@@ -15,7 +15,7 @@ const { t, locale } = useI18n()
 useHead({ title: () => t('title') })
 const route = useRoute()
 const localePath = useLocalePath()
-const toast = useToast()
+const { notify } = useApiError()
 const { user } = useUserSession()
 const { productUrl } = useUrls()
 
@@ -54,7 +54,7 @@ async function edit(review: ProductReview) {
   }
   catch (error) {
     log.error({ action: 'review:load', error })
-    toast.add({ title: t('load_error'), color: 'error' })
+    notify('Reviews:1', error, { title: t('load_error') })
   }
   finally {
     loadingEdit.value = null

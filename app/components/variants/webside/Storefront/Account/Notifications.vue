@@ -12,6 +12,7 @@ const router = useRouter()
 const { user } = useUserSession()
 const localePath = useLocalePath()
 const toast = useToast()
+const { notify } = useApiError()
 const { markAsSeen, markAsUnseen, markAllSeen } = useUserNotification()
 const { presentationFor } = useNotificationPresentation()
 const userNotificationStore = useUserNotificationStore()
@@ -114,12 +115,7 @@ const onToggleSeen = async (row: NotificationUserDetail) => {
   }
   catch (err) {
     log.error({ action: 'notifications:toggle-seen', error: err })
-    toast.add({
-      title: t('error.toggle_title'),
-      description: t('error.toggle_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
-    })
+    notify('webside-Notifications:1', err, { title: t('error.toggle_title') })
   }
 }
 
@@ -139,12 +135,7 @@ async function onMarkAllSeen() {
   }
   catch (err) {
     log.error({ action: 'notifications:mark-all-seen', error: err })
-    toast.add({
-      title: t('mark_all.error_title'),
-      description: t('mark_all.error_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
-    })
+    notify('webside-Notifications:2', err, { title: t('mark_all.error_title') })
   }
   finally {
     isMarkingAllSeen.value = false

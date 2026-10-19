@@ -14,6 +14,9 @@ const { t, locale } = useI18n()
 const { setLanguage } = useUserLanguage()
 const toast = useToast()
 
+const { notify } = useApiError()
+const form = useTemplateRef('form')
+const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
 const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
 
@@ -210,12 +213,8 @@ const fetchRegions = async () => {
       },
     })
   }
-  catch {
-    toast.add({
-      title: t('error.default'),
-      description: t('error_occurred'),
-      color: 'error',
-    })
+  catch (error) {
+    notify('webside-SettingsForm:1', error, { title: t('error.default') })
   }
 }
 
@@ -294,10 +293,10 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       },
     })
   }
-  catch {
+  catch (error) {
     // ofetch rejects on a 4xx/5xx; rethrown, UForm would hand it to
     // Vue's error handler as an app error.
-    toast.add({ title: t('form.error'), color: 'error' })
+    await reportFailure('webside-account:update', error, { title: t('form.error') })
     isSubmitting.value = false
     return
   }
@@ -337,6 +336,7 @@ watch(calendarDate, (newVal) => {
     <slot />
     <UForm
       id="accountSettingsForm"
+      ref="form"
       :schema="schema"
       :state="state"
       class="

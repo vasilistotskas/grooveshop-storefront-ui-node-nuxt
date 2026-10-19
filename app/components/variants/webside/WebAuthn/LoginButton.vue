@@ -4,7 +4,7 @@ const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAut
 const { getWebAuthnRequestOptionsForLogin, loginUsingWebAuthn } = useAllAuthAuthentication()
 const { t } = useI18n()
 const router = useRouter()
-const toast = useToast()
+const { notify } = useApiError()
 const { clear } = useUserSession()
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
@@ -39,13 +39,9 @@ async function onSubmit() {
     session.value = response?.data
     await performPostLoginActions()
   }
-  catch {
-    log.error({ action: 'webauthn:login' })
-    toast.add({
-      title: t('webauthn.error.title'),
-      description: t('webauthn.error.description'),
-      color: 'error',
-    })
+  catch (error) {
+    log.error({ action: 'webauthn:login', error, requestId: requestIdOf(error) })
+    notify('webside-webauthn:login', error, { title: t('webauthn.error.title'), fallback: t('webauthn.error.description') })
   }
   finally {
     await finalizeLogin()

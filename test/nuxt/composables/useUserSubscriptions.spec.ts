@@ -101,7 +101,7 @@ describe('useUserSubscriptions', () => {
 
       // A refusal is usually stale state: the switch must show what is true.
       expect(mockRefreshNuxtData.mock.calls).toEqual([['subscription:user:list']])
-      expect(mockToast.add).toHaveBeenCalledExactlyOnceWith(failure())
+      expect(mockToast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining(failure()))
     })
   })
 

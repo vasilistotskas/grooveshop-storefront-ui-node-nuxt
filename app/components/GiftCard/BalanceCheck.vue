@@ -43,7 +43,7 @@ async function checkBalance() {
     result.value = response
   }
   catch (error: any) {
-    checkError.value = error?.data?.detail || t('errors.failed')
+    checkError.value = describeApiError(error, { fallback: t('errors.failed') }).description
   }
   finally {
     checking.value = false

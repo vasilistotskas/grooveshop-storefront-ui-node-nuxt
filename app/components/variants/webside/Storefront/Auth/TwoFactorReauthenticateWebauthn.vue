@@ -3,6 +3,7 @@ const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reaut
 
 const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
 const toast = useToast()
+const { notify } = useApiError()
 const { t } = useI18n()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
@@ -49,14 +50,9 @@ async function onSubmit() {
     emit('getWebAuthnRequestOptionsForReauthentication')
     emit('reauthenticateUsingWebAuthn')
   }
-  catch {
+  catch (failure) {
     error.value = t('error.failed')
-    toast.add({
-      title: t('error.default'),
-      description: t('error.description'),
-      color: 'error',
-      icon: 'i-heroicons-exclamation-circle',
-    })
+    notify('webside-webauthn:reauthenticate', failure, { title: t('error.default'), fallback: t('error.description') })
   }
   finally {
     loading.value = false

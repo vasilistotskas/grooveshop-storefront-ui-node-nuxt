@@ -16,6 +16,7 @@ const { address } = toRefs(props)
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const { contentShorten } = useText()
 const localePath = useLocalePath()
 
@@ -41,10 +42,7 @@ const submit = async () => {
   }
   catch (error) {
     log.error({ action: 'address:delete', error })
-    toast.add({
-      title: t('error'),
-      color: 'error',
-    })
+    notify('webside-Card:1', error, { title: t('error') })
   }
   finally {
     isDeleting.value = false

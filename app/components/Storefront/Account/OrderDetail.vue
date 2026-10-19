@@ -10,6 +10,7 @@
  */
 const { t, n, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const route = useRoute(`account-orders-id___${locale.value}`)
 const orderId = 'id' in route.params ? route.params.id : undefined
 
@@ -214,13 +215,10 @@ async function confirmCancel() {
     // the courier already has, or try again when the courier gave no
     // answer (a 503, so the order is not refetched).
     const moved = status === 409 || status === 400
-    toast.add({
+    notify('order:cancel', error, {
       title: t('cancel.error_title'),
-      description: refusal
-        ? t(CANCEL_REFUSAL_KEYS[refusal])
-        : moved ? t('cancel.error_moved') : t('cancel.error_description'),
-      color: 'error',
-      icon: 'i-lucide-circle-x',
+      reason: refusal ? t(CANCEL_REFUSAL_KEYS[refusal]) : undefined,
+      fallback: moved ? t('cancel.error_moved') : t('cancel.error_description'),
     })
     if (moved) {
       cancelOpen.value = false

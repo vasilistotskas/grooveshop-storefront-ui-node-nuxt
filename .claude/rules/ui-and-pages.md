@@ -33,6 +33,17 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 - `<feature>-enabled.ts` (`blog`, `loyalty`, `promotions`, `gift-cards`, `favourites`, `newsletter`, `feedback`, `account-reviews`, `b2b`) — each is one line, `createFeatureGate(<its StoreFeatures name>)` (`app/utils/routeGate.ts`; `b2b-enabled.ts` gates `wholesale`): a hard 404 unless `TenantConfig.features` has that feature. Synchronous, no request, no fallback
 - `cart-enabled.ts`, `catalogue-enabled.ts` — `createPreferenceGate`: the two settings that are not store features yet (see "Store features" below)
 
+## Failed calls: the server's reason
+
+A failed `$api` call tells the shopper why, in the page's language, from Django's error body (`docs/error-contract.md` in the Django repo: `detail` or the field keys, a stable `code`, and for validation `fields: { field: [{ message, code }] }`). Never a sentence the component wrote in advance, never `error.message` / `statusMessage` (English transport text), and never a comparison against translated text.
+
+- `describeApiError(error, { title?, reason?, fallback? })` (`app/utils/apiError.ts`) → `{ title, description, code, fieldErrors, requestId, status, serverFault }`. It reads both client shapes (a forwarded body is `error.data`, a thrown route error wraps it as `error.data.data`) until every Nitro route forwards. Text priority: `errors.codes.<code>` in the locale files, then `reason` (a typed refusal the component can explain better), then Django's message, then `fallback`, then a generic line: "something went wrong on our side" for a 5xx or no answer, "not accepted" otherwise.
+- `useApiError().notify(id, error, { title, fallback })` toasts it: the action's headline, the reason, and behind «Λεπτομέρειες» the code and the request id. The id is the ACTION's (`review:create`), so a repeated failure pulses one toast instead of stacking.
+- `useApiFormErrors(form, { fields }).reportFailure(id, error, { title })` for a form: errors on fields the form renders go under their inputs (`UForm.setErrors`), anything else is a toast. `useSavedAddressErrors` adds checkout's hidden-field handling on top of the same `formErrorsOf`.
+- A failure that blocks a step (checkout, payment) stays on the page: `useCheckoutSubmit().submitError` shown by `<ApiErrorAlert>`, because a toast times out.
+- `test/unit/source-rules/errors-go-through-the-helper.spec.ts` fails on a hand-written `toast.add({ …, color: 'error' })` in a `catch`.
+- A code the storefront should say in its own words gets an `errors.codes.<code>` entry in `el-GR.json` and `en-US.json`. Codes are Django's identifiers; never branch on a translated message.
+
 ## Store features
 
 `TenantConfig.features` is Django's effective state of each optional feature (its plan flag AND its store settings; Django's `docs/store-features.md`). **The storefront reads it and nothing else**: `useStoreFeature('loyalty')` in a component, composable or route middleware, `eventStoreFeature(event, 'blog')` in a Nitro route, `storeFeatureOn(tenant, name)` where there is only a tenant (`shared/utils/storeFeature.ts`). The feature names come from the generated `StoreFeatures` type. Never combine a plan flag with a setting, copy a setting's default, or keep a fail-open or fail-closed fallback for a feature: the answer is already in the tenant payload, so it is known on the server, costs no request and cannot be "unreadable". Gate a feature's request with `enabled: useStoreFeature(...)`, never `immediate` (see "Gate the request" in `CLAUDE.md`).
