@@ -138,8 +138,8 @@ const items = computed(() => [
   },
 ])
 
-const siteConfig = useSiteConfig()
-const siteUrl = siteConfig.url
+const tenantStore = useTenantStore()
+const { blogAuthorUrl } = useUrls()
 
 // No decorative [slug] segment here, unlike the category and product
 // routes. BlogAuthor genuinely has no slug — not on the model, not in
@@ -147,9 +147,11 @@ const siteUrl = siteConfig.url
 // the canonical URL at the mercy of a client-side transliteration that
 // can drift between renders. The id resolves the record; that is the
 // whole URL.
-const canonicalUrl = computed(
-  () => `${siteUrl}/blog/author/${author.value?.id}`,
-)
+// The author page reads the same in every language the store serves (the
+// name is not translated), so it declares them all and the tenant's own
+// locales decide which are advertised.
+const { declare, canonicalUrl } = useDocumentLocales()
+declare(tenantStore.availableLocales, blogAuthorUrl(author.value!.id))
 
 const documentTitle = computed(() =>
   authorName.value ? t('page.title', { name: authorName.value }) : '',
@@ -182,11 +184,6 @@ useSchemaOrg([
 
 useHead({
   title: documentTitle,
-  link: [
-    { rel: 'canonical', href: () => canonicalUrl.value },
-    { rel: 'alternate', hreflang: 'el', href: () => canonicalUrl.value },
-    { rel: 'alternate', hreflang: 'x-default', href: () => canonicalUrl.value },
-  ],
 })
 </script>
 

@@ -99,6 +99,14 @@ export function gateLocaleHeadByTenant<T extends object>(
   const multilingual = allowedLocales.length > 1
   const serves = (tag: string | undefined) =>
     multilingual && allowedLocales.includes(languageOfLocaleTag(tag))
+  // The module emits each locale twice — by its `language` (`en-US`) and
+  // by the bare language (`en`). A region claims a market: `en-US` says
+  // "for the United States", which an English page of a Greek store is
+  // not, and `el-GR` would exclude its Cypriot customers. The bare form
+  // already covers the locale, so the regional duplicate only adds a
+  // second URL for Ahrefs to audit and a targeting claim nobody made.
+  const isRegional = (tag: string | undefined) =>
+    !!tag && tag !== 'x-default' && /[-_]/.test(tag)
   const { link, meta } = head as {
     link?: LocaleHeadLink[]
     meta?: LocaleHeadMeta[]
@@ -106,11 +114,59 @@ export function gateLocaleHeadByTenant<T extends object>(
   return {
     ...head,
     link: link?.filter(
-      l => !(l.rel === 'alternate' && l.hreflang) || serves(l.hreflang),
+      l =>
+        !(l.rel === 'alternate' && l.hreflang)
+        || (serves(l.hreflang) && !isRegional(l.hreflang)),
     ),
     meta: meta?.filter(
       m => m.property !== 'og:locale:alternate' || serves(m.content),
     ),
+  }
+}
+
+/**
+ * The locale a document's canonical names: the current one when the
+ * document exists in it (or nothing says otherwise), else the tenant's
+ * default, else the first locale it does exist in — the order the page
+ * itself falls back in.
+ */
+export function documentCanonicalLocale(
+  declared: readonly string[] | undefined,
+  current: string,
+  defaultLocale: string,
+): string {
+  if (!declared?.length || declared.includes(current)) return current
+  return declared.includes(defaultLocale) ? defaultLocale : declared[0]!
+}
+
+/**
+ * Make the canonical and the hreflang alternates name the document's own
+ * URLs: the canonical the one of `canonicalLocale`, each alternate the
+ * one of the locale it claims, all through `hrefFor`.
+ *
+ * Used when a page declares what it renders (`useDocumentLocales`). The
+ * head the i18n module builds is derived from the ROUTE, which is wrong
+ * for a document in two ways — a decorative `[slug]` segment lets
+ * `/post/1/anything` name itself, and a locale the document is not
+ * written in would still be offered as a canonical. Either way the
+ * hreflang set stops being self-canonical, which Ahrefs reports as
+ * "hreflang to non-canonical".
+ */
+export function pointHeadAtDocument<T extends object>(
+  head: T,
+  hrefFor: (locale: string) => string,
+  canonicalLocale: string,
+): T {
+  const { link } = head as { link?: LocaleHeadLink[] }
+  return {
+    ...head,
+    link: link?.map((l) => {
+      if (l.rel === 'canonical') return { ...l, href: hrefFor(canonicalLocale) }
+      if (l.rel === 'alternate' && l.hreflang) {
+        return { ...l, href: hrefFor(languageOfLocaleTag(l.hreflang)) }
+      }
+      return l
+    }),
   }
 }
 
@@ -122,22 +178,6 @@ export function gateLocaleHeadByTenant<T extends object>(
  * wastes the space Google gives it. Above ~160 the tail is truncated
  * away, so 155 leaves room for the ellipsis inside the budget.
  */
-/**
- * Point the canonical at `href`, leaving every other link alone.
- *
- * Used when a page renders a document in a language other than the
- * route's — the fallback render must not be indexed as a second copy of
- * the same text, so its canonical names the URL of the locale the
- * document actually exists in.
- */
-export function pointCanonicalAt<T extends object>(head: T, href: string): T {
-  const { link } = head as { link?: LocaleHeadLink[] }
-  return {
-    ...head,
-    link: link?.map(l => (l.rel === 'canonical' ? { ...l, href } : l)),
-  }
-}
-
 export const META_DESCRIPTION_MIN_LENGTH = 110
 export const META_DESCRIPTION_MAX_LENGTH = 155
 

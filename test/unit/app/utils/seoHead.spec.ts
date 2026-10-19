@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   composeMetaDescription,
+  documentCanonicalLocale,
   gateLocaleHeadByTenant,
   META_DESCRIPTION_MAX_LENGTH,
   META_DESCRIPTION_MIN_LENGTH,
+  pointHeadAtDocument,
   rebaseLocaleHeadOrigins,
 } from '~/utils/seoHead'
 
@@ -34,10 +36,19 @@ describe('gateLocaleHeadByTenant', () => {
     expect(out.meta.map(m => m.key)).toEqual(['i18n-og-url', 'i18n-og'])
   })
 
-  it('keeps every alternate for a tenant serving both locales', () => {
+  it('keeps each served locale once, by its bare language, plus x-default', () => {
     const out = gateLocaleHeadByTenant(I18N_HEAD, ['el', 'en'])
 
-    expect(out).toEqual(I18N_HEAD)
+    expect(out.link.map(l => l.hreflang).filter(Boolean)).toEqual(['x-default', 'el', 'en'])
+    expect(out.link.map(l => l.key)).toContain('i18n-can')
+    expect(out.meta).toEqual(I18N_HEAD.meta)
+  })
+
+  it('never advertises a region the store did not target', () => {
+    const out = gateLocaleHeadByTenant(I18N_HEAD, ['el', 'en'])
+
+    expect(out.link.map(l => l.hreflang)).not.toContain('en-US')
+    expect(out.link.map(l => l.hreflang)).not.toContain('el-GR')
   })
 
   it('drops only the unserved locale for a bilingual tenant', () => {
@@ -55,7 +66,7 @@ describe('gateLocaleHeadByTenant', () => {
     const out = gateLocaleHeadByTenant(head, ['el', 'en'])
 
     expect(out.link.map(l => l.key)).not.toContain('i18n-alt-de')
-    expect(out.link.map(l => l.key)).toContain('i18n-alt-en-US')
+    expect(out.link.map(l => l.key)).toContain('i18n-alt-en')
     expect(out.meta.map(m => m.key)).not.toContain('i18n-og-alt-de-DE')
     expect(out.meta.map(m => m.key)).toContain('i18n-og-alt-en-US')
   })
@@ -82,6 +93,50 @@ const HEAD = {
     { id: 'i18n-og-loc', property: 'og:locale', content: 'el_GR' },
   ],
 }
+
+describe('documentCanonicalLocale', () => {
+  it('stays on the current locale when the document exists in it', () => {
+    expect(documentCanonicalLocale(['el', 'en'], 'en', 'el')).toBe('en')
+  })
+
+  it('stays on the current locale when nothing says what the document is written in', () => {
+    expect(documentCanonicalLocale(undefined, 'en', 'el')).toBe('en')
+    expect(documentCanonicalLocale([], 'en', 'el')).toBe('en')
+  })
+
+  it('falls back to the tenant default when the document is not in the current locale', () => {
+    expect(documentCanonicalLocale(['el'], 'en', 'el')).toBe('el')
+  })
+
+  it('falls back to the first locale it exists in when the default is not among them', () => {
+    expect(documentCanonicalLocale(['en'], 'el', 'de')).toBe('en')
+  })
+})
+
+describe('pointHeadAtDocument', () => {
+  const hrefFor = (locale: string) => `https://tenant.example/${locale}/post/7/real-slug`
+
+  it('names the URL of the document itself in the canonical and in each alternate', () => {
+    const out = pointHeadAtDocument(gateLocaleHeadByTenant(I18N_HEAD, ['el', 'en']), hrefFor, 'en')
+
+    expect(out.link.find(l => l.rel === 'canonical')?.href).toBe(hrefFor('en'))
+    expect(Object.fromEntries(out.link.filter(l => l.hreflang).map(l => [l.hreflang, l.href]))).toEqual({
+      'x-default': hrefFor('el'),
+      'el': hrefFor('el'),
+      'en': hrefFor('en'),
+    })
+  })
+
+  it('leaves links that are neither canonical nor an hreflang alternate alone', () => {
+    const out = pointHeadAtDocument(I18N_HEAD, hrefFor, 'el')
+
+    expect(out.link.find(l => l.key === 'md')?.href).toBe('/products.md')
+  })
+
+  it('tolerates a head without links', () => {
+    expect(pointHeadAtDocument({}, hrefFor, 'el')).toEqual({ link: undefined })
+  })
+})
 
 describe('rebaseLocaleHeadOrigins', () => {
   it('rewrites only platform-origin urls onto the tenant origin', () => {
