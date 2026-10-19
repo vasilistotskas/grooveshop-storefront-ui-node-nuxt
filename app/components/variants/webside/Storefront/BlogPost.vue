@@ -8,10 +8,9 @@ const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
-const { blogAuthorUrl } = useUrls()
+const { blogAuthorUrl, blogPostUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 const img = useMediaStreamImage()
-const siteUrl = siteConfig.url
 
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
@@ -287,14 +286,18 @@ onReactivated(async () => {
   await refresh()
 })
 
-// Canonical is built from the entity's OWN id+slug, never from
-// route.path: the [slug] segment is decorative (the id resolves the
-// record), so /{id}/anything renders the same page and — self-
-// canonicalising — every variant became its own indexable URL, an
-// unbounded duplicate-content surface. products/[id]/[slug].vue
-// already does this; these routes were the ones that did not.
-const canonicalUrl = computed(
-  () => `${siteUrl}/blog/post/${blogPost.value?.id}/${blogPost.value?.slug}`,
+// The canonical and the hreflang set are built from the entity's OWN
+// id+slug, never from route.path: the [slug] segment is decorative (the
+// id resolves the record), so /{id}/anything renders the same page and —
+// self-canonicalising — every variant became its own indexable URL.
+// Declaring the document (useDocumentLocales) hands that to
+// setupPageHeader, which names the locale each version really exists in;
+// a page writing its own canonical or hreflang is what pointed every
+// /en/** page at the Greek URL.
+const { declare, canonicalUrl } = useDocumentLocales()
+declare(
+  translatedLocales(blogPost.value?.translations, 'body'),
+  blogPostUrl(blogPost.value!.id, blogPost.value!.slug),
 )
 
 useSeoMeta({
@@ -313,28 +316,6 @@ useSeoMeta({
   twitterDescription: () => blogPostDescription.value,
   twitterImage: () => ogImage.value,
   twitterCard: 'summary_large_image',
-})
-
-// Hreflang alternate links. Currently only 'el' is active.
-// When more locales activate, iterate SUPPORTED_LOCALES and emit one
-// <link rel="alternate"> per locale using the localised path.
-useHead({
-  link: [
-    {
-      rel: 'canonical',
-      href: () => canonicalUrl.value,
-    },
-    {
-      rel: 'alternate',
-      hreflang: 'el',
-      href: () => canonicalUrl.value,
-    },
-    {
-      rel: 'alternate',
-      hreflang: 'x-default',
-      href: () => canonicalUrl.value,
-    },
-  ],
 })
 
 useSchemaOrg([

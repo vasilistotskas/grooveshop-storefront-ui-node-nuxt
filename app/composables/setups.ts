@@ -34,14 +34,15 @@ export function setupPageHeader() {
   // via tenantAllowedLocales), so a Greek-only store never advertises
   // the `/en/**` its locale middleware answers 404 for — the same gate
   // the sitemap applies in server/plugins/sitemap-tenant-gate.ts.
-  // A page rendering a document that exists in fewer languages than the
-  // tenant serves declares them (useDocumentLocales); the hreflang set
-  // then covers only those, and on a locale the document is NOT in the
-  // canonical names the URL of the locale it IS in — the tenant's
-  // default first, which is also the order the page itself falls back
-  // in — so the fallback render is never indexed as a second copy.
-  const { forCurrentRoute: documentLocales } = useDocumentLocales()
-  const switchLocalePath = useSwitchLocalePath()
+  // A page rendering a document declares which locales it exists in and
+  // where it lives (useDocumentLocales); the hreflang set then covers
+  // only those, and the canonical and every alternate are rebuilt from
+  // the document's own URLs — on a locale the document is NOT in the
+  // canonical names the one it IS in, the tenant's default first, which
+  // is also the order the page itself falls back in, so the fallback
+  // render is never indexed as a second copy.
+  const { forCurrentRoute: document, urlFor, canonicalLocale }
+    = useDocumentLocales()
   const i18nHead = computed(() => {
     const rebased = tenantStore.primaryDomain
       ? rebaseLocaleHeadOrigins(
@@ -50,29 +51,16 @@ export function setupPageHeader() {
           `https://${tenantStore.primaryDomain}`,
         )
       : rawI18nHead.value
-    const declared = documentLocales.value
+    const declared = document.value?.locales
     const allowed = declared
       ? tenantStore.availableLocales.filter(code =>
           (declared as readonly string[]).includes(code),
         )
       : tenantStore.availableLocales
     const gated = gateLocaleHeadByTenant(rebased, allowed)
-    const current = $i18n.locale.value as string
-    if (
-      !declared
-      || declared.length === 0
-      || (declared as readonly string[]).includes(current)
-    ) {
-      return gated
-    }
-    const target
-      = declared.find(code => code === tenantStore.defaultLocale) ?? declared[0]!
-    // switchLocalePath keeps the current query and hash; a canonical
-    // must not — a visitor arriving with ?utm_source=... would otherwise
-    // get a canonical that names the tracking params, which i18n's own
-    // canonical strips.
-    const path = switchLocalePath(target).split(/[?#]/)[0] ?? ''
-    return path ? pointCanonicalAt(gated, `${siteUrl}${path}`) : gated
+    return declared && declared.length > 0
+      ? pointHeadAtDocument(gated, urlFor, canonicalLocale.value)
+      : gated
   })
 
   // Asset-origin hints for the origins THIS page's images and static

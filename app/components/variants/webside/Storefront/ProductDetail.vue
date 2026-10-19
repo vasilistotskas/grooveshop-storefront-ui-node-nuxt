@@ -35,7 +35,6 @@ const toast = useToast()
 const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
-const runtimeConfig = useRuntimeConfig()
 const img = useMediaStreamImage()
 const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 
@@ -353,15 +352,15 @@ onMounted(() => {
   })
 })
 
-const canonicalUrl = computed(() => {
-  // Read from siteConfig.url so the canonical, ogUrl, and hreflang
-  // alternates all point at the active tenant's primary domain (set
-  // by ``server/middleware/4.tenant-site-config.ts``). Reading
-  // ``runtimeConfig.public.baseUrl`` would always emit the platform
-  // base URL for every tenant.
-  const baseUrl = siteConfig.url || runtimeConfig.public.baseUrl
-  return `${baseUrl}/products/${product.value?.id}/${product.value?.slug}`
-})
+// The canonical and the hreflang set are built from the product's OWN
+// id+slug (useDocumentLocales -> setupPageHeader), in the tenant's own
+// origin, and name only the locales the product is written in.
+const { productUrl } = useUrls()
+const { declare, canonicalUrl } = useDocumentLocales()
+declare(
+  translatedLocales(product.value?.translations, 'name'),
+  productUrl(product.value!.id, product.value!.slug),
+)
 
 const ogImage = computed(() => {
   if (!product.value?.mainImagePath) return ''
@@ -521,18 +520,11 @@ useHead({ meta: [{ property: 'og:type', content: 'product' }] })
 
 useHead({
   link: () => {
-    const links = [
-      {
-        rel: 'canonical',
-        href: canonicalUrl.value,
-      },
-    ] as const
     // Preload the hero image so it's in flight before render — cuts
     // ~200-400ms off LCP on cold product detail pages.
     const heroHref = ogImage.value
-    if (!heroHref) return [...links]
+    if (!heroHref) return []
     return [
-      ...links,
       {
         rel: 'preload' as const,
         as: 'image' as const,

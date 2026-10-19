@@ -339,7 +339,7 @@ const CHIP_OFF = `
 el:
   title: Δράσεις
   lead: Δράσεις που οργανώνει ο συνεταιρισμός μας ή στις οποίες συμμετέχει, στο πλαίσιο της κοινωφελούς δραστηριότητάς του, και οι εκθέσεις όπου στήνουμε τον πάγκο μας.
-  description: "Οι δράσεις του συνεταιρισμού μας: εκδηλώσεις, εργαστήρια και εκθέσεις όπου στήνουμε τον πάγκο μας."
+  description: "Οι δράσεις του συνεταιρισμού μας: εκδηλώσεις, εργαστήρια και εκθέσεις όπου στήνουμε τον πάγκο μας, με φωτογραφίες και ιστορίες από κάθε δράση."
   breadcrumb:
     home: Αρχική
   filter_label: Φίλτρο κατηγορίας
@@ -352,7 +352,7 @@ el:
 en:
   title: Activities
   lead: Activities our co-operative organises or takes part in as part of its public-benefit work, and the fairs where we set up our stall.
-  description: "The activities of our co-operative: events, workshops and the fairs where we set up our stall."
+  description: "The activities of our co-operative: events, workshops and the fairs where we set up our stall, with photos and stories from every activity."
   breadcrumb:
     home: Home
   filter_label: Filter by category

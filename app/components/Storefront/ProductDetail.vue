@@ -22,7 +22,6 @@ const { user, loggedIn } = useUserSession()
 const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
-const runtimeConfig = useRuntimeConfig()
 const img = useMediaStreamImage()
 const mediaStreamBaseUrl = useMediaStreamBaseUrl()
 
@@ -319,15 +318,15 @@ onMounted(() => {
   })
 })
 
-const canonicalUrl = computed(() => {
-  // Read from siteConfig.url so the canonical, ogUrl, and hreflang
-  // alternates all point at the active tenant's primary domain (set
-  // by ``server/plugins/tenant-site-config.ts``). Reading
-  // ``runtimeConfig.public.baseUrl`` would always emit the platform
-  // base URL for every tenant.
-  const baseUrl = siteConfig.url || runtimeConfig.public.baseUrl
-  return `${baseUrl}/products/${product.value?.id}/${product.value?.slug}`
-})
+// The canonical and the hreflang set are built from the product's OWN
+// id+slug (useDocumentLocales -> setupPageHeader), in the tenant's own
+// origin, and name only the locales the product is written in.
+const { productUrl } = useUrls()
+const { declare, canonicalUrl } = useDocumentLocales()
+declare(
+  translatedLocales(product.value?.translations, 'name'),
+  productUrl(product.value!.id, product.value!.slug),
+)
 
 const ogImage = computed(() => {
   if (!product.value?.mainImagePath) return ''
@@ -490,12 +489,6 @@ useHead({ meta: [{ property: 'og:type', content: 'product' }] })
 // URL and srcset its <img> asks for; preloading the 1200x630 social
 // card here fetched an image no element on the page shows.
 useHead({
-  link: () => [
-    {
-      rel: 'canonical',
-      href: canonicalUrl.value,
-    },
-  ],
   meta: [
     {
       name: 'keywords',

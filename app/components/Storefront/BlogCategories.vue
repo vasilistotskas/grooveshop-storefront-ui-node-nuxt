@@ -58,5 +58,5 @@ en:
     blog: Blog
   seo:
     title: Article and guide categories
-    description: Browse the blog categories — find the articles and guides you are looking for, sorted by subject.
+    description: Browse the blog categories — find the articles and guides you are looking for, sorted by subject, from practical advice to news from our team.
 </i18n>
