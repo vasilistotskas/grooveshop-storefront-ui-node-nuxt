@@ -107,8 +107,10 @@ const finishLine = computed(() => {
   return ''
 })
 
+const { sanitize } = useHtmlContent()
+
 const selectedInstructions = computed(() =>
-  sanitizeRichHtml(selectedPayWay.value?.instructions),
+  sanitize(selectedPayWay.value?.instructions),
 )
 
 const hasInstructions = computed(() =>
@@ -245,7 +247,7 @@ defineExpose({
                 <div
                   v-if="item.description"
                   class="pay-way-description text-sm text-toned"
-                  v-html="sanitizeRichHtml(item.description)"
+                  v-html="sanitize(item.description)"
                 />
                 <p
                   v-if="item.freeThresholdHint"

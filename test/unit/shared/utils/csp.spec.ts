@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { BOXNOW_FRAME_ORIGINS } from '~~/shared/utils/boxnow-widget'
 import { buildCspDirectives } from '~~/shared/utils/csp'
-import { EMBED_IFRAME_ORIGINS } from '~~/shared/utils/embeds'
+import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from '~~/shared/utils/embeds'
 
 /**
  * The origins the storefront's Content-Security-Policy must allow for
@@ -77,13 +77,28 @@ describe('frame-src', () => {
     expect(frameSrc.filter(source => /boxnow\.(bg|hr)/.test(source))).toEqual([])
   })
 
-  it('lists every video origin the rich-text sanitiser lets through', () => {
+  it('lists every origin a rich-text video is framed from', () => {
     // Videos in blog posts vanished because TWO layers dropped them: the
     // sanitiser and a frame-src with no video host. An origin the
-    // sanitiser keeps but CSP omits renders as a blank box with only a
+    // sanitiser frames but CSP omits renders as a blank box with only a
     // console entry — invisible to any test that checks one layer.
     const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
 
-    expect(EMBED_IFRAME_ORIGINS.filter(origin => !frameSrc.includes(origin))).toEqual([])
+    expect(EMBED_FRAME_ORIGINS.filter(origin => !frameSrc.includes(origin))).toEqual([])
+  })
+
+  it('frames YouTube only from its privacy-enhanced host', () => {
+    // The regular host sets YouTube and DoubleClick cookies as the frame
+    // loads; the sanitiser never frames it, so the policy refuses it too.
+    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+
+    expect(frameSrc).toContain('https://www.youtube-nocookie.com')
+    expect(frameSrc).not.toContain('https://www.youtube.com')
+  })
+})
+
+describe('img-src', () => {
+  it('allows a YouTube facade\'s poster', () => {
+    expect(pick(buildCspDirectives({ dev: false }), 'img-src')).toContain(YOUTUBE_THUMBNAIL_ORIGIN)
   })
 })

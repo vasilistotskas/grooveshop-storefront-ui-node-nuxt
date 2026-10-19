@@ -76,10 +76,12 @@ const authorInitials = computed(() => {
   return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase()
 })
 
+const { sanitize } = useHtmlContent()
+
 // The bio is rich text (a Django `RichTextField`, like a post body):
 // sanitised for the page, reduced to plain text for meta and schema.org.
 const authorBioHtml = computed(() =>
-  sanitizeRichHtml(extractTranslated(author.value, 'bio', locale.value)),
+  sanitize(extractTranslated(author.value, 'bio', locale.value)),
 )
 const authorBioText = computed(() => htmlToPlainText(authorBioHtml.value))
 

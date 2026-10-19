@@ -5,13 +5,18 @@
  * Works on both client (Nuxt App) and server (Nitro) due to shared/ auto-import.
  */
 
-import DOMPurify from 'isomorphic-dompurify'
+import DOMPurify, { type ElementHook } from 'isomorphic-dompurify'
 
 import { buildMediaStreamImageUrl } from './mediaStream'
 
 import {
   EMBED_IFRAME_ATTRS,
   isAllowedEmbedUrl,
+  isYouTubeEmbedUrl,
+  parseYouTubeEmbed,
+  YOUTUBE_PLAYER_ORIGIN,
+  youTubeThumbnailUrl,
+  type YouTubeEmbed,
 } from './embeds'
 
 /**
@@ -43,10 +48,107 @@ function installEmbedOriginHook(): void {
 }
 
 /**
+ * An element of the DOM DOMPurify sanitises in: the browser's, or
+ * jsdom's on the server. Named through DOMPurify's own hook type
+ * because ``shared/`` is also compiled for the server, where no DOM
+ * library is loaded.
+ */
+type PurifiedElement = Parameters<ElementHook>[0]
+
+export interface RichHtmlOptions {
+  /**
+   * Accessible name of a YouTube facade's play button, in the page's
+   * language. Supplied by ``useHtmlContent().sanitize``.
+   */
+  videoPlayLabel: string
+}
+
+/**
+ * The CSS length an iframe's ``width`` / ``height`` attribute stands
+ * for: a bare number is pixels, a percentage stays one. Anything else
+ * is dropped, and the facade falls back to the iframe's default size.
+ */
+function embedLength(value: string | null): string | null {
+  if (!value) return null
+  const match = /^(\d+(?:\.\d+)?)(%?)$/.exec(value.trim())
+  if (!match) return null
+  return `${match[1]}${match[2] || 'px'}`
+}
+
+/**
+ * The facade a YouTube iframe is replaced with: a button the size of
+ * the iframe, showing the video's poster, that loads the player only
+ * when pressed (``app/plugins/youtube-facade.client.ts``).
+ *
+ * The box is carried as ``--embed-w`` / ``--embed-h`` beside the
+ * author's own ``style`` and ``class``, and ``.rich-embed``
+ * (``app/assets/css/main.css``) sizes the facade and the player from
+ * them, so the video lands exactly where its poster was. The poster is
+ * a background, not an ``<img>``: every renderer styles the images in a
+ * body (radius, margins, ``height: auto``), and none of that may reach
+ * the poster.
+ */
+function buildYouTubeFacade(
+  frame: PurifiedElement,
+  video: YouTubeEmbed,
+  options: RichHtmlOptions,
+) {
+  const button = frame.ownerDocument.createElement('button')
+  button.type = 'button'
+  button.className = ['rich-embed', 'youtube-facade', frame.getAttribute('class')]
+    .filter(Boolean)
+    .join(' ')
+  button.dataset.youtubeId = video.id
+  if (video.start > 0) button.dataset.youtubeStart = String(video.start)
+  const title = frame.getAttribute('title')
+  if (title) button.dataset.youtubeTitle = title
+  button.setAttribute('aria-label', options.videoPlayLabel)
+
+  const width = embedLength(frame.getAttribute('width'))
+  const height = embedLength(frame.getAttribute('height'))
+  button.setAttribute('style', [
+    width && `--embed-w: ${width}`,
+    height && `--embed-h: ${height}`,
+    `background-image: url("${youTubeThumbnailUrl(video.id)}")`,
+    frame.getAttribute('style'),
+  ].filter(Boolean).join('; '))
+
+  const icon = frame.ownerDocument.createElement('span')
+  icon.className = 'youtube-facade__play'
+  icon.setAttribute('aria-hidden', 'true')
+  button.append(icon)
+
+  return button
+}
+
+/**
+ * Turn every YouTube iframe under ``root`` into a facade. One whose
+ * video cannot be read (a playlist) keeps its iframe, moved to the
+ * privacy-enhanced host and loaded lazily, since ``frame-src`` allows
+ * no other YouTube host.
+ */
+function replaceYouTubeEmbeds(root: PurifiedElement, options: RichHtmlOptions): void {
+  for (const frame of root.querySelectorAll('iframe')) {
+    const src = frame.getAttribute('src')
+    const video = parseYouTubeEmbed(src)
+    if (video) {
+      frame.replaceWith(buildYouTubeFacade(frame, video, options))
+      continue
+    }
+    if (src && isYouTubeEmbedUrl(src)) {
+      const url = new URL(src)
+      frame.setAttribute('src', new URL(`${url.pathname}${url.search}`, YOUTUBE_PLAYER_ORIGIN).href)
+      frame.setAttribute('loading', 'lazy')
+    }
+  }
+}
+
+/**
  * Sanitise admin-authored rich text for rendering with ``v-html``.
  *
  * Use this for EVERY WYSIWYG field — blog bodies, product
- * descriptions, CMS rich-text sections. A bare
+ * descriptions, CMS rich-text sections — through
+ * ``useHtmlContent().sanitize``, which supplies ``options``. A bare
  * ``DOMPurify.sanitize(html)`` silently drops embedded video, because
  * ``iframe`` is not in DOMPurify's default allow-list; that is why
  * videos rendered in the Django admin's TinyMCE editor and vanished on
@@ -55,21 +157,34 @@ function installEmbedOriginHook(): void {
  * Video embeds are permitted, but only from
  * ``EMBED_IFRAME_ORIGINS`` and never with ``srcdoc`` — an iframe from
  * an arbitrary origin, or one carrying its own inline document, is the
- * reason DOMPurify forbids the tag by default.
+ * reason DOMPurify forbids the tag by default. A YouTube video becomes
+ * a click-to-load facade: the player weighs 0.5 MB of script per
+ * video and sets YouTube and DoubleClick cookies the moment it loads,
+ * before the visitor has answered the cookie banner.
  */
-export function sanitizeRichHtml(html: string | null | undefined): string {
+export function sanitizeRichHtml(
+  html: string | null | undefined,
+  options: RichHtmlOptions,
+): string {
   if (!html) return ''
 
   installEmbedOriginHook()
 
-  return DOMPurify.sanitize(html, {
+  // ``RETURN_DOM`` hands back the sanitised ``<body>``, so the facades
+  // are built on the clean tree, after every hook has run, rather than
+  // by swapping nodes inside a hook while DOMPurify is walking them.
+  // DOMPurify types that ``<body>`` only as a ``Node``.
+  const body = DOMPurify.sanitize(html, {
     ADD_TAGS: ['iframe'],
     ADD_ATTR: [...EMBED_IFRAME_ATTRS],
     // Belt and braces: ``srcdoc`` is not in the default allow-list and
     // is not added above, but forbidding it explicitly means a future
     // widening of ADD_ATTR cannot quietly let it back in.
     FORBID_ATTR: ['srcdoc'],
-  })
+    RETURN_DOM: true,
+  }) as PurifiedElement
+  replaceYouTubeEmbeds(body, options)
+  return body.innerHTML
 }
 
 /**

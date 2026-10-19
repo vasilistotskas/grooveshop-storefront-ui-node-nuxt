@@ -16,7 +16,9 @@ const props = defineProps<{
   html: string
 }>()
 
-const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
+const { sanitize } = useHtmlContent()
+
+const sanitizedHtml = computed(() => sanitize(props.html))
 </script>
 
 <template>
@@ -217,7 +219,8 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
   margin-top: 0.5rem;
 }
 
-.blog-article :deep(iframe) {
+.blog-article :deep(iframe),
+.blog-article :deep(.rich-embed) {
   aspect-ratio: 16 / 9;
   border-radius: 0.875rem;
   height: auto;

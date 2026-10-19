@@ -34,9 +34,16 @@ describe('Blog/Article', () => {
 
   it('keeps an embedded video from a listed host and drops one from any other', async () => {
     const wrapper = await render(
-      '<iframe src="https://www.youtube.com/embed/abc"></iframe><iframe src="https://evil.example/embed"></iframe>',
+      '<iframe src="https://player.vimeo.com/video/76979871"></iframe><iframe src="https://evil.example/embed"></iframe>',
     )
 
-    expect(wrapper.findAll('iframe').map(frame => frame.attributes('src'))).toEqual(['https://www.youtube.com/embed/abc'])
+    expect(wrapper.findAll('iframe').map(frame => frame.attributes('src'))).toEqual(['https://player.vimeo.com/video/76979871'])
+  })
+
+  it('shows a YouTube video as a play button named in the page\'s language', async () => {
+    const wrapper = await render('<iframe src="https://www.youtube.com/embed/eIiZ-JHL5aw"></iframe>')
+
+    expect(wrapper.find('iframe').exists()).toBe(false)
+    expect(wrapper.get('button.rich-embed').attributes('aria-label')).toBe(useNuxtApp().$i18n.t('a11y.play_video'))
   })
 })

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { Window } from 'happy-dom'
 import {
   buildMediaStreamUrl,
   decodeHtmlEntities,
@@ -9,6 +10,8 @@ import {
   stripCloudflareImagePrefix,
   transformHtmlImages,
 } from '~~/shared/utils/html'
+
+const OPTIONS = { videoPlayLabel: 'Αναπαραγωγή βίντεο' }
 
 describe('stripCloudflareImagePrefix', () => {
   it('recovers the source path from a Cloudflare Image Resizing URL', () => {
@@ -126,6 +129,8 @@ describe('htmlToPlainText', () => {
 })
 
 describe('sanitizeRichHtml', () => {
+  const sanitize = (html: string | null | undefined) => sanitizeRichHtml(html, OPTIONS)
+
   it('keeps an FAQ item exactly as the editor saves it', () => {
     // What the editor saves, measured on staging: closed, the answer as
     // the element's own children. `.article` styles it as the mobile
@@ -136,26 +141,26 @@ describe('sanitizeRichHtml', () => {
         + '<p>Περίπου <strong>2 μέρες</strong> σε κανονική χρήση.</p>\n'
         + '</details>'
 
-    expect(sanitizeRichHtml(html)).toBe(html)
+    expect(sanitize(html)).toBe(html)
   })
 
   it('keeps an allow-listed video embed', () => {
     const html
       = '<p>before</p>'
-        + '<iframe src="https://www.youtube.com/embed/abc" '
+        + '<iframe src="https://player.vimeo.com/video/76979871" '
         + 'allowfullscreen title="v"></iframe>'
         + '<p>after</p>'
 
-    const out = sanitizeRichHtml(html)
+    const out = sanitize(html)
 
     expect(out).toContain('<iframe')
-    expect(out).toContain('https://www.youtube.com/embed/abc')
+    expect(out).toContain('https://player.vimeo.com/video/76979871')
     expect(out).toContain('before')
     expect(out).toContain('after')
   })
 
   it('strips an iframe from a non-allow-listed origin', () => {
-    const out = sanitizeRichHtml(
+    const out = sanitize(
       '<iframe src="https://evil.example/x"></iframe><p>kept</p>',
     )
 
@@ -167,7 +172,7 @@ describe('sanitizeRichHtml', () => {
   it('never permits srcdoc, even on an allow-listed origin', () => {
     // srcdoc opens a full nested document with no origin of its own —
     // DOMPurify's stated reason for forbidding iframe by default.
-    const out = sanitizeRichHtml(
+    const out = sanitize(
       '<iframe src="https://www.youtube.com/embed/a" '
       + 'srcdoc="<script>alert(1)</script>"></iframe>',
     )
@@ -177,7 +182,7 @@ describe('sanitizeRichHtml', () => {
   })
 
   it('still removes scripts and event handlers', () => {
-    const out = sanitizeRichHtml(
+    const out = sanitize(
       '<script>alert(1)</script>'
       + '<img src=x onerror="alert(2)">'
       + '<a href="javascript:alert(3)">x</a>',
@@ -193,7 +198,7 @@ describe('sanitizeRichHtml', () => {
     // ALLOWED_URI_REGEXP to the video hosts would have satisfied the
     // iframe requirement while stripping every normal href/src out of
     // a blog post.
-    const out = sanitizeRichHtml(
+    const out = sanitize(
       '<p><a href="https://example.com/a">link</a>'
       + '<img src="https://cdn.example.com/i.png" alt="i"></p>',
     )
@@ -203,9 +208,105 @@ describe('sanitizeRichHtml', () => {
   })
 
   it('returns an empty string for empty input', () => {
-    expect(sanitizeRichHtml('')).toBe('')
-    expect(sanitizeRichHtml(null)).toBe('')
-    expect(sanitizeRichHtml(undefined)).toBe('')
+    expect(sanitize('')).toBe('')
+    expect(sanitize(null)).toBe('')
+    expect(sanitize(undefined)).toBe('')
+  })
+})
+
+describe('sanitizeRichHtml: YouTube facades', () => {
+  /** The sanitised HTML in a detached element, to query like a page. */
+  function render(html: string) {
+    const document = new Window().document
+    const root = document.createElement('div')
+    root.innerHTML = sanitizeRichHtml(html, OPTIONS)
+    return root
+  }
+
+  // As the store's editor saves a YouTube Short (measured on webside.gr).
+  const SHORT
+    = '<p style="text-align: center;"><iframe title="YouTube video player" '
+      + 'src="https://www.youtube.com/embed/eIiZ-JHL5aw?feature=shared" width="315" height="560" '
+      + 'frameborder="0" allowfullscreen="allowfullscreen"></iframe></p>'
+
+  it('replaces the iframe with a named play button: no player, no YouTube frame', () => {
+    const root = render(SHORT)
+
+    expect(root.querySelector('iframe')).toBeNull()
+    const button = root.querySelector('button')
+    expect(button?.getAttribute('type')).toBe('button')
+    expect(button?.getAttribute('aria-label')).toBe(OPTIONS.videoPlayLabel)
+    expect(button?.dataset.youtubeId).toBe('eIiZ-JHL5aw')
+    expect(button?.dataset.youtubeTitle).toBe('YouTube video player')
+  })
+
+  it('gives the facade the iframe\'s box and the video\'s poster', () => {
+    const style = render(SHORT).querySelector('button')?.getAttribute('style')
+
+    expect(style).toContain('--embed-w: 315px')
+    expect(style).toContain('--embed-h: 560px')
+    expect(style).toContain('url("https://i.ytimg.com/vi/eIiZ-JHL5aw/hqdefault.jpg")')
+  })
+
+  it('keeps the author\'s own style and class on the facade', () => {
+    const button = render(
+      '<iframe class="aligncenter" style="display: table; margin-left: auto; margin-right: auto;" '
+      + 'src="https://www.youtube.com/embed/vrd010OWYBg" width="315" height="560"></iframe>',
+    ).querySelector('button')
+
+    expect(button?.getAttribute('style')).toContain('display: table; margin-left: auto; margin-right: auto;')
+    expect(button?.classList.contains('aligncenter')).toBe(true)
+    expect(button?.classList.contains('rich-embed')).toBe(true)
+  })
+
+  it('treats a privacy-enhanced embed the same way', () => {
+    const root = render('<iframe src="https://www.youtube-nocookie.com/embed/frC_MO1lVaE"></iframe>')
+
+    expect(root.querySelector('iframe')).toBeNull()
+    expect(root.querySelector('button')?.dataset.youtubeId).toBe('frC_MO1lVaE')
+  })
+
+  it('carries the start time, from `start` or a share link\'s `t`', () => {
+    expect(render('<iframe src="https://www.youtube.com/embed/frC_MO1lVaE?start=42"></iframe>')
+      .querySelector('button')?.dataset.youtubeStart).toBe('42')
+    expect(render('<iframe src="https://www.youtube.com/embed/frC_MO1lVaE?t=1m5s"></iframe>')
+      .querySelector('button')?.dataset.youtubeStart).toBe('65')
+    expect(render('<iframe src="https://www.youtube.com/embed/frC_MO1lVaE"></iframe>')
+      .querySelector('button')?.dataset.youtubeStart).toBeUndefined()
+  })
+
+  it('moves a YouTube embed it cannot read to the privacy-enhanced host, loaded lazily', () => {
+    const frame = render('<iframe src="https://www.youtube.com/embed/videoseries?list=PL123"></iframe>')
+      .querySelector('iframe')
+
+    expect(frame?.getAttribute('src')).toBe('https://www.youtube-nocookie.com/embed/videoseries?list=PL123')
+    expect(frame?.getAttribute('loading')).toBe('lazy')
+  })
+
+  it('leaves a Vimeo embed as it was', () => {
+    const frame = render('<iframe src="https://player.vimeo.com/video/76979871" width="640" height="360"></iframe>')
+      .querySelector('iframe')
+
+    expect(frame?.getAttribute('src')).toBe('https://player.vimeo.com/video/76979871')
+    expect(frame?.getAttribute('width')).toBe('640')
+  })
+
+  it('still strips a look-alike host instead of building a facade for it', () => {
+    const root = render('<iframe src="https://youtube.com.evil.example/embed/eIiZ-JHL5aw"></iframe>')
+
+    expect(root.querySelector('iframe')).toBeNull()
+    expect(root.querySelector('button')).toBeNull()
+  })
+
+  it('escapes the author\'s title and style rather than letting them out of their attribute', () => {
+    const root = render(
+      '<iframe src="https://www.youtube.com/embed/eIiZ-JHL5aw" '
+      + 'title="&quot;><img src=x onerror=alert(1)>" '
+      + 'style="color: red&quot;><script>alert(2)</script>"></iframe>',
+    )
+
+    expect(root.querySelectorAll('img, script')).toHaveLength(0)
+    expect(root.querySelector('button')?.dataset.youtubeTitle).toBe('"><img src=x onerror=alert(1)>')
   })
 })
 

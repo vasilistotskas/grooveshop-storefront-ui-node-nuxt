@@ -681,6 +681,52 @@ button:disabled:active,
   }
 }
 
+/* A video embedded in rich text, as a facade and once it plays.
+   ------------------------------------------------------------------
+   `sanitizeRichHtml` (shared/utils/html.ts) swaps a YouTube iframe for
+   a button carrying the iframe's own box as `--embed-w` / `--embed-h`
+   (its width/height attributes) and its own `style`; the player that
+   replaces the button on a press (app/plugins/youtube-facade.client.ts)
+   carries the same. So both take exactly the box the authored iframe
+   took: block (Tailwind's preflight makes every iframe a block), the
+   authored size, the browser's 300x150 when none was given. A renderer
+   that sizes its iframes itself (`Blog/Article.vue`, fyteia
+   `Blog/Prose.vue`) sizes `.rich-embed` with them. */
+.rich-embed {
+  display: block;
+  width: var(--embed-w, 300px);
+  height: var(--embed-h, 150px);
+}
+
+.youtube-facade {
+  @apply relative cursor-pointer overflow-hidden bg-black bg-cover bg-center
+    outline-primary focus-visible:outline-3 focus-visible:outline-offset-2;
+
+  /* The play badge: YouTube's rounded-rectangle shape, the cue visitors
+     know for "this plays a video", in neutral ink over any poster. */
+  & > .youtube-facade__play {
+    @apply absolute top-1/2 left-1/2 h-12 w-17 -translate-1/2 rounded-xl
+      bg-black/70 transition-colors duration-200;
+
+    &::after {
+      @apply absolute inset-0 m-auto size-5 bg-white;
+      content: "";
+      clip-path: polygon(15% 0, 100% 50%, 15% 100%);
+    }
+  }
+
+  &:hover > .youtube-facade__play,
+  &:focus-visible > .youtube-facade__play {
+    @apply bg-black/90;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    & > .youtube-facade__play {
+      transition: none;
+    }
+  }
+}
+
 .article-lg {
   @apply text-lg md:text-xl;
 
