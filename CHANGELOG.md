@@ -1,3 +1,10 @@
+## [3.255.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.12...v3.255.13) (2026-10-19)
+
+
+### Bug Fixes
+
+* **errors:** read an allauth body only from under allauth's own wrapper ([#190](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/190)) ([cb75608](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cb7560835b03078fc0616f37e8d87ffc8a6c2c1e))
+
 ## [3.255.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.11...v3.255.12) (2026-10-19)
 
 
