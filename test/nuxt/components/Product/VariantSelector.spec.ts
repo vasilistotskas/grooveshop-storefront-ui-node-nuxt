@@ -260,8 +260,8 @@ describe('default Product/VariantSelector', () => {
     try {
       const wrapper = await mountForProduct()
 
-      // No English name on the variant: the value names the swatch.
-      await radio(wrapper, 'Μαύρο').trigger('click')
+      // No English name on the variant: the swatch keeps its Greek one.
+      await radio(wrapper, 'Προϊόν 6').trigger('click')
 
       expect(navigateToMock).toHaveBeenCalledWith('/en/products/6/black-256')
     }

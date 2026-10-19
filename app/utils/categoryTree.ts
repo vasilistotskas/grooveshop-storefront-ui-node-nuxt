@@ -33,7 +33,7 @@ export interface CategoryNode {
  */
 export function buildCategoryForest(
   categories: readonly ProductCategory[],
-  locale: string,
+  translate: Translator,
   directCounts: Readonly<Record<string, number>> | undefined,
   currentId?: number,
 ): CategoryNode[] {
@@ -61,7 +61,7 @@ export function buildCategoryForest(
     return {
       id: category.id,
       slug: category.slug,
-      label: extractTranslated(category, 'name', locale) ?? category.slug,
+      label: translate(category, 'name') ?? category.slug,
       to: categoryUrl(category.id, category.slug),
       count,
       children,

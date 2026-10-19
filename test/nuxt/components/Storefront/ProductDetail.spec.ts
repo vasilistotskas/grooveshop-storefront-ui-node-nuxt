@@ -132,6 +132,43 @@ describe.each([
 })
 
 /**
+ * A product the store has not translated into the page's language (here
+ * Greek, on a store authored in English) shows the store's language,
+ * never a blank heading or an empty description (`extractTranslated`).
+ */
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail of a product not written in the page\'s language (%s tree)', (_tree, Component) => {
+  beforeEach(() => {
+    clearNuxtData()
+    setTenant({ defaultLocale: 'en', availableLocales: ['el', 'en'] })
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': makeProduct({
+        id: 123,
+        translations: {
+          en: { name: 'Travel charger', description: '<p>Charges two phones at once.</p>', seoTitle: '', seoDescription: '', seoKeywords: '' },
+        },
+      }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+  })
+
+  it('names it and describes it in the store\'s language', async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(wrapper.get('h1').text()).toBe('Travel charger')
+    expect(wrapper.text()).toContain('Charges two phones at once.')
+    wrapper.unmount()
+  })
+})
+
+/**
  * The Groove Volt product page: the category trail, the buy box's stock
  * line, the review list and the alerts dialog.
  */

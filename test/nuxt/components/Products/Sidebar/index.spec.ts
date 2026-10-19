@@ -5,6 +5,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import Sidebar from '~/components/Products/Sidebar/index.vue'
 import type { Brand, PaginatedAttributeList, PaginatedAttributeValueList } from '~~/shared/openapi/types.gen'
 import { makeAttribute, makeAttributeValue, makeBrand, makeCategory } from '~~/test/fixtures/productFilters'
+import { translatorFor } from '~/utils/translate'
 import { buildCategoryForest } from '~/utils/categoryTree'
 
 /**
@@ -68,7 +69,7 @@ const mountSidebar = (totalResults = 28) =>
 describe('Products/Sidebar', () => {
   beforeEach(() => {
     pf.reset()
-    tree.forest.value = buildCategoryForest([makeCategory({ id: 2 })], 'el', { 2: 5 })
+    tree.forest.value = buildCategoryForest([makeCategory({ id: 2 })], translatorFor('el'), { 2: 5 })
     data.priceStats.value = { min: 5, max: 120 }
     data.isPriceStatsLoaded.value = true
     data.allAttributes.value = page([

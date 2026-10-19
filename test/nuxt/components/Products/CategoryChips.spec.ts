@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import CategoryChips from '~/components/Products/CategoryChips.vue'
+import { translatorFor } from '~/utils/translate'
 import { buildCategoryForest, categoryTrail } from '~/utils/categoryTree'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 
@@ -29,7 +30,7 @@ const CATEGORIES = [
 
 /** `counts: null` is a facet that has not answered yet. */
 function showPage(currentId?: number, counts: Record<string, number> | null = { 3: 10, 4: 6, 5: 9 }) {
-  tree.forest.value = buildCategoryForest(CATEGORIES, 'el', counts ?? undefined, currentId)
+  tree.forest.value = buildCategoryForest(CATEGORIES, translatorFor('el'), counts ?? undefined, currentId)
   tree.trail.value = currentId === undefined ? [] : categoryTrail(tree.forest.value, currentId)
 }
 

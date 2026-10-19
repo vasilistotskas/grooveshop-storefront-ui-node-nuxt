@@ -201,6 +201,19 @@ describe('Product/Card', () => {
     expect(link.find('h3').text()).toBe('Προϊόν 7')
   })
 
+  it('names a product the store has not translated into the page\'s language in the store\'s', async () => {
+    setTenant({ defaultLocale: 'en', availableLocales: ['el', 'en'] })
+    const product = makeProduct({
+      id: 7,
+      slug: 'glastra',
+      translations: { en: { name: 'Planter', description: '', seoTitle: '', seoDescription: '', seoKeywords: '' } },
+    })
+
+    const wrapper = await mountCard(product)
+
+    expect(wrapper.get('a h3').text()).toBe('Planter')
+  })
+
   it('links a search result by its master product id', async () => {
     const hit = { ...makeProduct({ id: 900, slug: 'glastra' }), master: 7 } as Product
 

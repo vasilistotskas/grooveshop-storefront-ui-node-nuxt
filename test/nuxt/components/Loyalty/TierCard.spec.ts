@@ -73,14 +73,15 @@ describe('Loyalty/TierCard', () => {
     expect(wrapper.find('ul').exists()).toBe(false)
   })
 
-  it('shows no name or perks rather than another language\'s', async () => {
+  // Named and described in the language it is written in
+  // (`extractTranslated`), rather than a card with no heading.
+  it('names a tier not written in the page\'s language, and its perks, in the one it is', async () => {
     const wrapper = await mountCard({
       tier: makeTier({ translations: { en: { name: 'Silver', description: 'Free shipping' } } }),
     })
 
-    // An empty heading is an accessibility error: it is left out.
-    expect(wrapper.find('h3').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('Free shipping')
+    expect(wrapper.get('h3').text()).toBe('Silver')
+    expect(wrapper.text()).toContain('Free shipping')
   })
 
   it('draws the featured tier in ink, with its start in a volt chip', async () => {

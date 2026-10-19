@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { buildAttributeGroups } from '~/utils/attributeGroups'
+import { translationIn } from '~/utils/translate'
+import type { Translator } from '~/utils/translate'
 import { makeAttribute, makeAttributeValue } from '~~/test/fixtures/productFilters'
+
+/** The row's text in exactly `locale`: the fallback is `extractTranslated`'s, and its own spec's. */
+const inLocale = (locale: string): Translator => (object, field) => translationIn(object, field, locale)
 
 const POWER = makeAttribute({ id: 1, name: { el: 'Ισχύς', en: 'Power output' } })
 const COLOUR = makeAttribute({ id: 2, name: { el: 'Χρώμα', en: 'Colour' } })
@@ -14,7 +19,7 @@ const labels = (groups: ReturnType<typeof buildAttributeGroups>) =>
 
 describe('buildAttributeGroups', () => {
   it('groups values under their attribute, in the merchant\'s order whatever the counts', () => {
-    const groups = buildAttributeGroups([POWER, COLOUR], [W65, BLACK, W20, W30], { 10: 1, 11: 9, 12: 4, 20: 2 }, ['12'], 'en')
+    const groups = buildAttributeGroups([POWER, COLOUR], [W65, BLACK, W20, W30], { 10: 1, 11: 9, 12: 4, 20: 2 }, ['12'], inLocale('en'))
 
     expect(labels(groups)).toEqual([
       ['Power output', [['20W', 1, false], ['30W', 9, false], ['65W', 4, true]]],
@@ -23,13 +28,13 @@ describe('buildAttributeGroups', () => {
   })
 
   it('names attributes and values in the requested locale', () => {
-    const [group] = buildAttributeGroups([COLOUR], [BLACK], { 20: 2 }, [], 'el')
+    const [group] = buildAttributeGroups([COLOUR], [BLACK], { 20: 2 }, [], inLocale('el'))
 
     expect([group!.label, group!.options[0]!.label]).toEqual(['Χρώμα', 'Μαύρο'])
   })
 
   it('leaves out a value no listed product carries, unless it is selected', () => {
-    const groups = buildAttributeGroups([POWER], [W20, W30, W65], { 10: 3 }, ['11'], 'en')
+    const groups = buildAttributeGroups([POWER], [W20, W30, W65], { 10: 3 }, ['11'], inLocale('en'))
 
     expect(groups[0]!.options.map(option => option.id)).toEqual(['10', '11'])
   })
@@ -40,10 +45,10 @@ describe('buildAttributeGroups', () => {
       [W20, { ...W30, active: false }, BLACK],
       { 10: 1, 11: 5, 20: 4 },
       [],
-      'en',
+      inLocale('en'),
     )
 
     expect(labels(groups)).toEqual([['Power output', [['20W', 1, false]]]])
-    expect(buildAttributeGroups([POWER], [W20], {}, [], 'en')).toEqual([])
+    expect(buildAttributeGroups([POWER], [W20], {}, [], inLocale('en'))).toEqual([])
   })
 })

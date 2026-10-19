@@ -33,7 +33,7 @@ export function buildAttributeGroups(
   values: readonly AttributeValue[],
   counts: Readonly<Record<string, number>>,
   selected: readonly string[],
-  locale: string,
+  translate: Translator,
 ): AttributeGroup[] {
   const valuesByAttribute = new Map<number, AttributeValue[]>()
   for (const value of values) {
@@ -47,12 +47,12 @@ export function buildAttributeGroups(
     .filter(attribute => attribute.active !== false)
     .map(attribute => ({
       id: attribute.id,
-      label: extractTranslated(attribute, 'name', locale) ?? '',
+      label: translate(attribute, 'name') ?? '',
       options: (valuesByAttribute.get(attribute.id) ?? [])
         .toSorted((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
         .map(value => ({
           id: String(value.id),
-          label: extractTranslated(value, 'value', locale) ?? '',
+          label: translate(value, 'value') ?? '',
           count: counts[value.id] ?? 0,
           selected: selected.includes(String(value.id)),
         }))
