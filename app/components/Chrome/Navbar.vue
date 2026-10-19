@@ -36,7 +36,7 @@ const { $routeBaseName } = useNuxtApp()
 const { loggedIn } = useUserSession()
 const tenantStore = useTenantStore()
 
-const { headerItems } = useNavigation()
+const { headerItems, mobileLinks } = useNavigation()
 const { categories, hasCategories } = useCategoryMenu()
 
 // Not a store feature yet (`shared/utils/storePreference.ts`).
@@ -92,6 +92,19 @@ const shopItem = computed<NavigationMenuItem>(() => ({
     : undefined,
 }))
 
+/** An operator's menu rows as navigation items; the listing stays the Shop entry. */
+const fromLinks = (configured: NavLink[]): NavigationMenuItem[] =>
+  configured.map(item => item.to === CATALOGUE_PATH
+    ? { ...shopItem.value, label: item.label, icon: item.icon }
+    : {
+        label: item.label,
+        icon: item.icon,
+        to: item.to ? localePath(pathLocation(item.to)) : undefined,
+        href: item.to ? undefined : item.href,
+        target: item.href ? '_blank' : undefined,
+        active: isPathActive(item.to),
+      })
+
 const items = computed<NavigationMenuItem[]>(() => {
   // An operator-configured header REPLACES the code menu — same
   // contract the mobile menu and the footer follow — except that its
@@ -100,18 +113,7 @@ const items = computed<NavigationMenuItem[]>(() => {
   // panel here, or the category tree that replaces the entry in the
   // phone menu.
   const configured = headerItems.value
-  if (configured) {
-    return configured.map(item => item.to === CATALOGUE_PATH
-      ? { ...shopItem.value, label: item.label, icon: item.icon }
-      : {
-          label: item.label,
-          icon: item.icon,
-          to: item.to ? localePath(pathLocation(item.to)) : undefined,
-          href: item.to ? undefined : item.href,
-          target: item.href ? '_blank' : undefined,
-          active: isPathActive(item.to),
-        })
-  }
+  if (configured) return fromLinks(configured)
 
   const base: NavigationMenuItem[] = [shopItem.value]
   if (promotionsEnabled.value) {
@@ -144,6 +146,14 @@ const items = computed<NavigationMenuItem[]>(() => {
   }
   return base
 })
+
+/**
+ * What the phone menu lists: the store's Mobile menu, else its Header
+ * menu, else the code menu above.
+ */
+const mobileMenuItems = computed(() =>
+  mobileLinks.value ? fromLinks(mobileLinks.value) : items.value,
+)
 
 /** The open dropdown's value — the catalogue panel dims the page below it. */
 const openItem = ref<string>()
@@ -326,7 +336,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
     <ClientOnly>
       <LazyChromeMobileMenu
         v-model:open="mobileMenuOpen"
-        :items="items"
+        :items="mobileMenuItems"
       />
     </ClientOnly>
   </div>

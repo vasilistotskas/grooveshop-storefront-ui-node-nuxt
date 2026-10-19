@@ -6,6 +6,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import type { NavLink } from '~/composables/useNavigation'
 import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
 import ChromeNavbar from '~/components/Chrome/Navbar.vue'
+import MobileMenu from '~/components/Chrome/MobileMenu.vue'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
@@ -16,6 +17,8 @@ mockNuxtImport('$fetch', () => api)
 const { state } = vi.hoisted(() => ({
   state: {
     header: null as NavLink[] | null,
+    /** `useNavigation().mobileLinks`: the Mobile menu, else the Header menu (that composable's spec). */
+    phoneLinks: null as NavLink[] | null,
     /** The preferences still read from the settings (the cart); a missing key takes the preference's default. */
     flags: {} as Record<string, boolean>,
   },
@@ -25,7 +28,7 @@ const session = vi.hoisted(() => ({ loggedIn: undefined as any }))
 mockNuxtImport('useNavigation', () => () => ({
   headerItems: computed(() => state.header),
   footerColumns: computed(() => null),
-  mobileItems: computed(() => null),
+  mobileLinks: computed(() => state.phoneLinks),
 }))
 const categories = ref<CategoryMenuEntry[]>([])
 mockNuxtImport('useCategoryMenu', () => () => ({
@@ -63,7 +66,7 @@ const stubs = {
 vi.mock('~/components/Search/Input.vue', () => ({ default: { template: '<div />' } }))
 vi.mock('~/components/Language/Switcher.vue', () => ({ default: { template: '<div data-test="languages" />' } }))
 vi.mock('~/components/User/NotificationsBell.vue', () => ({ default: { template: '<div />' } }))
-vi.mock('~/components/Chrome/MobileMenu.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('~/components/Chrome/MobileMenu.vue', () => ({ default: { props: ['items', 'open'], template: '<div />' } }))
 
 const mountNavbar = (route: string | false = false) => mountSuspended(ChromeNavbar, { route, global: { stubs } })
 
@@ -86,6 +89,7 @@ const t = (key: string) => useNuxtApp().$i18n.t(key)
 describe('Chrome/Navbar', () => {
   beforeEach(() => {
     state.header = null
+    state.phoneLinks = null
     state.flags = {}
     categories.value = []
     if (session.loggedIn) session.loggedIn.value = false
@@ -145,6 +149,33 @@ describe('Chrome/Navbar', () => {
       ['Δωροκάρτες', '/gift-cards', undefined, undefined, true],
       ['Εργαστήριο', undefined, 'https://workshop.example', '_blank', false],
     ])
+  })
+
+  /** The bar's entries and the phone menu's, as `[label, to]`. */
+  const menus = async () => {
+    const wrapper = await mountNavbar()
+    await vi.waitFor(() => expect(wrapper.findComponent(MobileMenu).exists()).toBe(true))
+    const entries = (items: NavigationMenuItem[]) => items.map(item => [item.label, item.to])
+    return {
+      bar: entries(wrapper.findComponent({ name: 'UNavigationMenu' }).props('items')),
+      phone: entries(wrapper.findComponent(MobileMenu).props('items')),
+    }
+  }
+
+  it('hands the phone menu the phone links, while the bar keeps the Header menu', async () => {
+    state.header = [{ label: 'Σχετικά', to: '/about' }]
+    state.phoneLinks = [{ label: 'Επικοινωνία', to: '/contact' }]
+
+    const { bar, phone } = await menus()
+
+    expect(bar).toEqual([['Σχετικά', '/about']])
+    expect(phone).toEqual([['Επικοινωνία', '/contact']])
+  })
+
+  it('hands the phone menu the bar\'s own menu while the store configured no links at all', async () => {
+    const { bar, phone } = await menus()
+
+    expect(phone).toEqual(bar)
   })
 
   it('keeps the catalogue on the operator\'s entry for the listing', async () => {

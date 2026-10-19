@@ -36,7 +36,7 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  */
 const { locale, t } = useI18n()
 const route = useRoute()
-const { headerItems } = useNavigation()
+const { headerItems, mobileLinks } = useNavigation()
 const { setLanguage } = useUserLanguage()
 const tenantStore = useTenantStore()
 
@@ -45,6 +45,14 @@ const CONTACT_PATH = '/contact'
 /** Nav links, contact removed — it is the CTA in this design. */
 const links = computed(() =>
   (headerItems.value ?? []).filter(item => item.to !== CONTACT_PATH),
+)
+
+/** The phone menu's links and CTA: the Mobile menu when the store set one. */
+const mobileNavLinks = computed(() =>
+  (mobileLinks.value ?? []).filter(item => item.to !== CONTACT_PATH),
+)
+const mobileCta = computed(() =>
+  (mobileLinks.value ?? []).find(item => item.to === CONTACT_PATH),
 )
 
 /** The CTA, from the menu when present so its label stays translated. */
@@ -235,7 +243,7 @@ async function pick(code: string) {
           {{ t('home') }}
         </NuxtLinkLocale>
         <NuxtLinkLocale
-          v-for="item in links"
+          v-for="item in mobileNavLinks"
           :key="item.label"
           :to="(item.to ?? '/') as RouteLocationNamedI18n"
           class="py-2 text-[15px] text-default"
@@ -244,15 +252,15 @@ async function pick(code: string) {
           {{ item.label }}
         </NuxtLinkLocale>
         <NuxtLinkLocale
-          v-if="cta"
-          :to="(cta.to ?? CONTACT_PATH) as RouteLocationNamedI18n"
+          v-if="mobileCta"
+          :to="(mobileCta.to ?? CONTACT_PATH) as RouteLocationNamedI18n"
           class="
             mt-3 flex items-center justify-center gap-1.5 rounded-md
             bg-primary px-4 py-3 text-[15px] font-semibold text-inverted
           "
           @click="mobileOpen = false"
         >
-          {{ cta.label }}
+          {{ mobileCta.label }}
           <UIcon
             name="i-lucide:arrow-right"
             class="size-4"
