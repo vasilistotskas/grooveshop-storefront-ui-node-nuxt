@@ -1,6 +1,6 @@
 ---
 name: zod-coverage-reviewer
-description: Audit changed server API routes for Zod input/response validation coverage. Flags routes that accept request input via raw getQuery/readBody/getRouterParams without a Zod schema, or that return $fetch results without parseDataAs. Use after editing anything under server/api/ or before opening a PR.
+description: Audit changed server API routes for Zod input/response validation coverage. Flags routes that accept request input via raw getQuery/readBody/getRouterParams without a Zod schema, or that return useBackendFetch results without parseDataAs. Use after editing anything under server/api/ or before opening a PR.
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -9,8 +9,10 @@ tools: Read, Grep, Glob, Bash
 Reviews the diff (or a specific file list) and reports server routes that miss the project's mandatory Zod validation envelope:
 
 ```
-input → schema.parse → $fetch → parseDataAs(response, schema) → handleError
+input (getValidatedQuery / readValidatedBody / parseRouterParams) → useBackendFetch(event) → parseDataAs(response, schema) → handleError(event, error)
 ```
+
+`.claude/rules/server-routes.md` and `.claude/rules/multi-tenant.md` are the source of truth; where this checklist and they disagree, they win.
 
 ## Scope
 
@@ -31,43 +33,55 @@ Out: files under `server/utils/`, `server/middleware/`, `server/plugins/`, `serv
 
 ### Input validation
 
-- **GET / DELETE with query string**: must use `getValidatedQuery(event, zSchema.parse)` — flag any `getQuery(event)` whose result is forwarded to `$fetch` (the `query` of the `$fetch` call or interpolated into the URL).
-- **GET / DELETE with route params**: must use `getValidatedRouterParams(event, zSchema.parse)` — flag any `getRouterParams(event)` or `event.context.params` access that lands in the Django URL.
-- **POST / PUT / PATCH**: must use `readValidatedBody(event, zSchema.parse)` — flag any `readBody(event)` whose result is forwarded.
-- A schema imported only by name and used as `.parse` is fine. The schema may live in either `shared/openapi/zod.gen.ts` (auto-generated `z*` lowercase) or `shared/schemas/**` (hand-written `Zod*` PascalCase). Both are valid; do not flag based on naming.
+- **GET / DELETE with query string**: must use `getValidatedQuery(event, zSchema)` (from `nuxt/server`, given the schema itself) — flag any `getQuery(event)` whose result is forwarded to Django (the `query` of the `useBackendFetch(event)(…)` call or interpolated into the URL). `getQuery` inside a cached route's `getKey` is correct: that callback gets h3's event.
+- **Route params**: must use `parseRouterParams(event, zSchema)` (`server/utils/routerParams.ts`) — flag any `getRouterParam(s)(event)` or `event.context.params` access that lands in the Django URL.
+- **POST / PUT / PATCH**: must use `readValidatedBody(event, zSchema)` — flag any `readBody(event)` whose result is forwarded.
+- The schema may live in either `shared/openapi/zod.gen.ts` (auto-generated `z*` lowercase) or `shared/schemas/**` (hand-written `Zod*` PascalCase). Both are valid; do not flag based on naming.
+
+### Imports
+
+- h3 and Nitro helpers are imported explicitly, from `nuxt/server` (or `nitropack/runtime` for Nitro-only APIs); `server/utils` and `shared` exports stay auto-imported. Flag a helper used without an import (`test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on it too).
+
+### Django call
+
+- Every Django call goes through `useBackendFetch(event)`. Flag a global `$fetch` or an `ofetch` call to Django: it drops the store's `X-Forwarded-Host`, `X-Language` and the visitor's identity.
+- The URL starts with `config.apiBaseUrl` (`config.djangoUrl` under `_allauth/**`).
+- The Django call's method matches the route's file suffix (`.get.ts` → GET, `.post.ts` → POST, …). The one deliberate mismatch is `server/api/websocket/user/ticket.get.ts`, which mints the ticket with Django's `POST /websocket/ticket`.
+- A route that needs the signed-in user takes the token from `requireAllAuthAccessToken(event)` (401 without one) and forwards it as the `Authorization` bearer, directly or through `createHeaders(event, …)`.
+- A route that acts on the visitor's session cart goes through `server/utils/cartSession.ts` (`useCartSession(event)` for the `X-Cart-Id` header and the response's cart id). Flag a hand-built `X-Cart-Id`.
 
 ### Response validation
 
-- Every `$fetch` result that is returned to the client must pass through `parseDataAs(response, zSchema)`. Flag patterns like `return await $fetch(...)` or `const x = await $fetch(...); return x` without an intermediate `parseDataAs`.
+- Every `useBackendFetch(event)(…)` result that is returned to the client must pass through `parseDataAs(response, zSchema)`. Flag patterns like `return await useBackendFetch(event)(...)` or `const x = await useBackendFetch(event)(...); return x` without an intermediate `parseDataAs`.
 - Allowed exception: routes that return `null` early (cart 401/403 fallbacks, no-content branches).
 - Flag responses that use `parseDataAs(response, ZodAny)` or similar permissive schemas — that defeats the point.
 
 ### Error handling
 
 - `try/catch` is mandatory. Flag missing catches.
-- Catch must call `await handleError(error)` (general routes) or `await handleAllAuthError(error)` (`_allauth/**`). Flag the wrong helper for the route's namespace.
-- Flag any code after `handleError(error)` / `handleAllAuthError(error)` in the catch — both always throw, so it's dead code (or worse, a bypass).
+- Catch must call `handleError(event, error)` (general routes) or `await handleAllAuthError(event, error)` (`_allauth/**`). Flag the wrong helper for the route's namespace. A route whose 4xx body the client must read may instead `return forwardUpstreamClientError(event, error)` (general) or `return await forwardAllAuthFlow(event, error)` (`_allauth/**`); both fall through to `handleError` for everything else, so do not flag them.
+- Flag any code after `handleError(event, error)` / `handleAllAuthError(event, error)` in the catch — both always throw, so it's dead code (or worse, a bypass).
 - Flag any `return createError(...)` — must be `throw createError(...)`.
 
 ### `_allauth` namespace specifics
 
-- Auth endpoints (under `server/api/_allauth/app/v1/auth/...`) that return successful auth state must call `await processAllAuthSession(response)` after `parseDataAs`.
-- Account endpoints (`server/api/_allauth/app/v1/account/...`) must **not** call `processAllAuthSession` — they don't change auth state. Flag misplaced calls.
-- Both must use `getAllAuthHeaders()` for the outbound `$fetch` headers, not raw `createHeaders()`.
-- Both must use `handleAllAuthError` in catch (not `handleError`).
+- Call `processAllAuthSession(event, response)` wherever the response can carry new session/access tokens (auth endpoints, and account endpoints such as password change).
+- Both must use `getAllAuthHeaders(event)` for the outbound headers, not raw `createHeaders(event, …)`.
+- Both must use `handleAllAuthError` (or `forwardAllAuthFlow`) in catch, not `handleError`.
 
 ### Caching
 
-- `defineCachedEventHandler` is forbidden on per-user data: cart, orders, user account, notifications, favourites, sessions list, authenticators, addresses, reviews-by-user. Flag any cached handler whose Django URL contains `/user/`, `/cart`, `/order`, `/notification`. (`/blog/post`, `/product`, `/category`, `/contact-info` are fine to cache.)
-- Cached handlers must have a `name`, `getKey`, and reasonable `maxAge` + `staleMaxAge` + `swr: true`.
+- Cached GETs use `defineCachedRoute` (`server/utils/cachedRoute.ts`) with `getKey` built on `tenantCacheKey(event, …)`; a key without it serves one tenant's data to another. Flag a bare `defineCachedEventHandler` in `server/api/` and any `getKey` that does not return `tenantCacheKey(event, …)`.
+- Caching is forbidden on per-user data: cart, orders, user account, notifications, favourites, sessions list, authenticators, addresses, reviews-by-user. Flag any cached route whose Django URL contains `/user/`, `/cart`, `/order`, `/notification`, or whose key is built on per-user data. (`/blog/post`, `/product`, `/category`, `/contact-info` are fine to cache.)
+- Cached routes must have a `name`, `getKey`, and reasonable `maxAge` + `staleMaxAge` + `swr: true`.
 
 ## Known exceptions (DO NOT flag)
 
-These are documented in `MEMORY.md` and `.claude/agents/api-route-validator.md`:
+These are the known exceptions:
 
-- `server/api/products/categories/index.get.ts` — uses `getQuery` with manual sanitization (deferred I15).
-- `server/api/products/attributes/` — uses `getQuery` with manual query building (deferred I16).
 - `server/api/auth/oauth-params.get.ts` — reads OAuth params from session, not a Django proxy.
+- `server/api/__sitemap__/urls.ts` — the `@nuxtjs/sitemap` source (`defineSitemapEventHandler`); it fetches through `createCachedFetcher` (`backendFetchFor` inside a cached function), not the per-request envelope.
+- `server/routes/rss.xml.get.ts` — out of scope (`server/routes/`): the RSS feed, built in cached functions with `backendFetchFor` + `parseDataAs`.
 
 If new routes match these *exact* paths, skip them with a note in the report. Otherwise treat the rule as binding.
 

@@ -1,12 +1,12 @@
 ---
 name: gen-server-route
-description: Scaffold a new Nitro server API route under server/api/ following the project's strict 4-step pattern (Zod input → $fetch to Django → parseDataAs response → handleError catch). Use when adding a new endpoint that proxies the Django backend. Pick the right variant — cached GET, mutating POST/PUT/PATCH, cart-aware, allauth-protected, or dynamic-param.
+description: Scaffold a new server API route under server/api/ following the project's strict 4-step pattern (Zod input → `useBackendFetch(event)` to Django → parseDataAs response → handleError(event, error) catch). Use when adding a new endpoint that proxies the Django backend. Pick the right variant — cached GET, mutating POST/PUT/PATCH, cart-aware, allauth-protected, or dynamic-param.
 disable-model-invocation: true
 ---
 
 # Generate Server Route
 
-Creates a new server route file under `server/api/...` (or `server/api/_allauth/app/v1/...` for auth) following the conventions enforced by the `api-route-validator` agent. Always uses Nitro auto-imports — do **not** add explicit imports for `$fetch`, `defineEventHandler`, `defineCachedEventHandler`, `getValidatedQuery`, `readValidatedBody`, `getValidatedRouterParams`, `useRuntimeConfig`, `useCartSession`, `useLogger`, `getAllAuthHeaders`, `requireAllAuthAccessToken`, `getAllAuthAccessToken`, `processAllAuthSession`, `parseDataAs`, `handleError`, `handleAllAuthError`, `createError`, or any `z*` Zod schema. The only explicit imports needed are third-party types like `FetchError` from `ofetch`.
+Creates a new server route file under `server/api/...` (or `server/api/_allauth/app/v1/...` for auth) following the conventions the `zod-coverage-reviewer` agent checks. Import h3 and Nitro helpers explicitly, from `nuxt/server` (routes) or `nitropack/runtime` (Nitro-only APIs), as `.claude/rules/server-routes.md` describes. `server/utils` and `shared` exports stay auto-imported: `useBackendFetch`, `defineCachedRoute`, `tenantCacheKey`, `parseRouterParams`, `parseDataAs`, `handleError`, `handleAllAuthError`, `forwardAllAuthFlow`, `useCartSession`, `getAllAuthHeaders`, `getAllAuthAccessToken`, `requireAllAuthAccessToken`, `processAllAuthSession`, `createHeaders`, and every `z*` / `Zod*` schema. `test/unit/source-rules/server-imports-are-explicit.spec.ts` fails on an h3 or Nitro name used without an import.
 
 ## Inputs to ask for
 
@@ -25,19 +25,27 @@ If the user can't name a schema, scan `shared/openapi/zod.gen.ts` for one matchi
 
 ### 1. `cached-list` — paginated GET with SWR caching
 
+Modelled on `server/api/blog/posts/index.get.ts`.
+
 ```ts
-export default defineCachedEventHandler(async (event) => {
+import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
+import { getQuery } from 'h3'
+
+// Every query parameter the route accepts is a dimension of the answer.
+const QUERY_PARAMS = Object.keys({{INPUT_SCHEMA}}.shape)
+
+export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, {{INPUT_SCHEMA}}.parse)
-    const response = await $fetch(`${config.apiBaseUrl}{{DJANGO_PATH}}`, {
+    const query = await getValidatedQuery(event, {{INPUT_SCHEMA}})
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}{{DJANGO_PATH}}`, {
       method: 'GET',
       query,
     })
     return await parseDataAs(response, {{RESPONSE_SCHEMA}})
   }
   catch (error) {
-    await handleError(error)
+    handleError(event, error)
   }
 }, {
   name: '{{CACHE_NAME}}',
@@ -46,51 +54,62 @@ export default defineCachedEventHandler(async (event) => {
   swr: true,
   getKey: (event) => {
     const query = getQuery(event)
-    const keyParts = [
-      query.pageSize || '10',
-      query.languageCode || 'el',
-      query.paginationType || 'pageNumber',
-      query.page || '1',
-      query.ordering || '',
-      query.cursor || '',
-    ]
-    return `{{CACHE_NAME_KEBAB}}:${keyParts.join(':')}`
+    const parts = QUERY_PARAMS.flatMap((name) => {
+      const value = query[name]
+      return value === undefined
+        ? []
+        : [`${name}=${[value].flat().map(item => encodeURIComponent(String(item))).join(',')}`]
+    })
+    return tenantCacheKey(event, `{{CACHE_NAME_KEBAB}}:${parts.join('&')}`)
   },
 })
 ```
+
+`getKey` gets h3's event, so it reads the query with h3's `getQuery` (and params with `getRouterParams(event, { decode: true })` from `nuxt/server`). The key MUST go through `tenantCacheKey(event, …)`, which adds the store, the locale and the tenant-config epoch: a key without it serves one tenant's data to another (see `.claude/rules/multi-tenant.md`). For a cached detail route, see `server/api/blog/posts/[id]/index.get.ts`.
 
 **Never use this variant for per-user data** (cart, orders, user account, notifications, favourites) — caching leaks across users.
 
 ### 2. `mutating` — POST/PUT/PATCH/DELETE with body validation
 
+Modelled on `server/api/blog/comments/index.post.ts`.
+
 ```ts
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const body = await readValidatedBody(event, {{INPUT_SCHEMA}}.parse)
-    const response = await $fetch(`${config.apiBaseUrl}{{DJANGO_PATH}}`, {
+    const body = await readValidatedBody(event, {{INPUT_SCHEMA}})
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}{{DJANGO_PATH}}`, {
       method: '{{METHOD}}',
       body,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     })
     return await parseDataAs(response, {{RESPONSE_SCHEMA}})
   }
   catch (error) {
-    await handleError(error)
+    handleError(event, error)
   }
 })
 ```
 
-For DELETE without a body, drop `readValidatedBody` and use `getValidatedRouterParams` if the URL carries an id.
+For a public Django endpoint, drop `requireAllAuthAccessToken` and the `Authorization` header (`server/api/search/click.post.ts`). For DELETE without a body, drop `readValidatedBody` and use `parseRouterParams` if the URL carries an id.
 
 ### 3. `cart` — uses cart session + may need auth fallback
 
+Modelled on `server/api/cart/index.get.ts`.
+
 ```ts
 import { FetchError } from 'ofetch'
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig(event)
+  const config = useRuntimeConfig()
   const cartSession = useCartSession(event)
-  const wideLog = useLogger(event)
+  const wideLog = event.context.log
   try {
     const sessionData = await cartSession.getSession()
     const accessToken = await getAllAuthAccessToken(event)
@@ -99,11 +118,11 @@ export default defineEventHandler(async (event) => {
       return null
     }
     if (sessionData.cartId) {
-      wideLog.set({ cart: { id: sessionData.cartId } })
+      wideLog?.set({ cart: { id: sessionData.cartId } })
     }
 
     const headers = await cartSession.getCartHeaders()
-    const response = await $fetch(`${config.apiBaseUrl}{{DJANGO_PATH}}`, {
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}{{DJANGO_PATH}}`, {
       method: '{{METHOD}}',
       headers,
       // body or query as needed
@@ -117,48 +136,52 @@ export default defineEventHandler(async (event) => {
       log.info('cart', `Auth expired (${error.statusCode}), returning empty cart`)
       return null
     }
-    await handleError(error)
+    handleError(event, error)
   }
 })
 ```
 
 ### 4. `allauth-auth` — endpoints under `server/api/_allauth/app/v1/auth/...`
 
-Use `config.djangoUrl` (the full `_allauth` namespace lives off the django root, not `apiBaseUrl`). Use `getAllAuthHeaders()` and `handleAllAuthError`. Call `processAllAuthSession` on success when the response carries `meta.session_token` / `meta.access_token` / `meta.is_authenticated`.
+Modelled on `server/api/_allauth/app/v1/auth/login.post.ts`. Use `config.djangoUrl` (the full `_allauth` namespace lives off the django root, not `apiBaseUrl`) and `getAllAuthHeaders(event)`. Call `processAllAuthSession(event, response)` on success when the response carries `meta.session_token` / `meta.access_token` / `meta.is_authenticated`. A flow route whose 4xx body the client must read (a pending 2FA step, an `errors` array) returns `forwardAllAuthFlow(event, error)`; a plain read uses `await handleAllAuthError(event, error)` instead.
 
 ```ts
+import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const wideLog = useLogger(event)
-  wideLog.set({ auth: { method: '{{METHOD_LABEL}}' } })
+  const wideLog = event.context.log
+  wideLog?.set({ auth: { method: '{{METHOD_LABEL}}' } })
   try {
-    const headers = await getAllAuthHeaders()
-    const body = await readValidatedBody(event, {{INPUT_SCHEMA}}.parse)
-    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1{{DJANGO_PATH}}`, {
+    const headers = await getAllAuthHeaders(event)
+    const body = await readValidatedBody(event, {{INPUT_SCHEMA}})
+    const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1{{DJANGO_PATH}}`, {
       method: '{{METHOD}}',
       body,
       headers,
     })
     const parsed = await parseDataAs(response, {{RESPONSE_SCHEMA}})
-    await processAllAuthSession(parsed)
+    await processAllAuthSession(event, parsed)
     return parsed
   }
   catch (error) {
-    await handleAllAuthError(error)
+    return await forwardAllAuthFlow(event, error)
   }
 })
 ```
 
 ### 5. `allauth-account` — endpoints under `server/api/_allauth/app/v1/account/...`
 
-Same as `allauth-auth` but **never** call `processAllAuthSession` (account endpoints don't change auth state — they manage email/password/providers/authenticators).
+Modelled on `server/api/_allauth/app/v1/account/email/index.get.ts`. Same as `allauth-auth`. Call `processAllAuthSession(event, response)` wherever the response can carry new session/access tokens (auth endpoints, and account endpoints such as password change — `account/password/change.post.ts`). A mutation whose 4xx payload the client must show returns `forwardAllAuthFlow(event, error)` as in `allauth-auth`.
 
 ```ts
-export default defineEventHandler(async () => {
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const headers = await getAllAuthHeaders()
-    const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1{{DJANGO_PATH}}`, {
+    const headers = await getAllAuthHeaders(event)
+    const response = await useBackendFetch(event)(`${config.djangoUrl}/_allauth/app/v1{{DJANGO_PATH}}`, {
       method: '{{METHOD}}',
       headers,
       // body if PUT/POST/PATCH
@@ -166,20 +189,24 @@ export default defineEventHandler(async () => {
     return await parseDataAs(response, {{RESPONSE_SCHEMA}})
   }
   catch (error) {
-    await handleAllAuthError(error)
+    await handleAllAuthError(event, error)
   }
 })
 ```
 
 ### 6. `dynamic-param` — protected route with `[id]` style segment
 
+Modelled on `server/api/blog/comments/[id]/index.put.ts`.
+
 ```ts
+import { defineEventHandler, useRuntimeConfig } from 'nuxt/server'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await requireAllAuthAccessToken()
+  const accessToken = await requireAllAuthAccessToken(event)
   try {
-    const params = await getValidatedRouterParams(event, {{PARAMS_SCHEMA}}.parse)
-    const response = await $fetch(`${config.apiBaseUrl}{{DJANGO_PATH_WITH_PARAM}}`, {
+    const params = await parseRouterParams(event, {{PARAMS_SCHEMA}})
+    const response = await useBackendFetch(event)(`${config.apiBaseUrl}{{DJANGO_PATH_WITH_PARAM}}`, {
       method: '{{METHOD}}',
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -188,29 +215,30 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, {{RESPONSE_SCHEMA}})
   }
   catch (error) {
-    await handleError(error)
+    handleError(event, error)
   }
 })
 ```
 
-`requireAllAuthAccessToken()` is intentionally **outside** the try — it throws a clean 401 before any Django call when there's no session.
+`requireAllAuthAccessToken(event)` is intentionally **outside** the try — it throws a clean 401 before any Django call when there's no session.
 
 ## Hard rules
 
-- `useRuntimeConfig()` is called inside the try block (before any `$fetch`).
-- `handleError` / `handleAllAuthError` always throw — never write code after them in the catch.
+- Every Django call goes through `useBackendFetch(event)`; there is no global `$fetch` on the server.
+- Input: `getValidatedQuery(event, zSchema)` / `readValidatedBody(event, zSchema)` (pass the schema itself, not `.parse`) and `parseRouterParams(event, zSchema)` for route params.
+- `handleError(event, error)` / `handleAllAuthError(event, error)` always throw — never write code after them in the catch. Every auth helper takes `event`.
+- Cached GETs use `defineCachedRoute` with a `getKey` built on `tenantCacheKey(event, …)`, never on per-user data.
 - `createError(...)` must be `throw`n, never `return`ed.
 - File naming: `index.get.ts`, `index.post.ts`, etc. inside the route directory; method must match suffix.
 - Route under `_allauth/` → use `config.djangoUrl` and `_allauth/app/v1/...`. Everything else → `config.apiBaseUrl`.
-- Paginated responses wrap the item schema with `ZodPagination(itemSchema)` (not the OpenAPI flat list).
 - For cart-only (no auth fallback) variants, just drop the `getAllAuthAccessToken` line.
 
 ## Checklist before writing the file
 
 - [ ] Confirmed both schemas exist (grep `shared/openapi/zod.gen.ts` and `shared/schemas/**`).
 - [ ] Picked the right `apiBaseUrl` vs `djangoUrl`.
-- [ ] Cache variant only if the response is not user-scoped.
+- [ ] Cache variant only if the response is not user-scoped, and its key goes through `tenantCacheKey`.
 - [ ] File path matches HTTP method suffix.
-- [ ] No explicit imports added for auto-imported helpers.
+- [ ] Every h3 / Nitro helper is imported explicitly (`nuxt/server`, `h3` in `getKey`, `nitropack/runtime`); nothing from `server/utils` or `shared` is.
 
 After writing, suggest the user re-run `pnpm exec eslint --fix <path>` (the `auto-lint` PostToolUse hook will do this automatically on Edit/Write).

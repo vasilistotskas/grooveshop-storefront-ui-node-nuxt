@@ -45,15 +45,15 @@ Review code changes for security vulnerabilities specific to this Nuxt 4 SSR e-c
 - **OAuth flows**: Provider redirect uses form submission — verify CSRF token is included
 
 ### WebSocket Security
-- **Authentication**: WebSocket at `/ws/notifications/` must include session_token and access_token in URL params
+- **Authentication**: WebSocket at `/ws/notifications/` authenticates with a single-use `?ticket=` minted by `/api/websocket/user/ticket`. Flag any Knox/session token in the URL.
 - **Origin verification**: Ensure WebSocket connections validate origin
 
 ### Sensitive Data Exposure
-- **Console logging**: `server/utils/auth.ts` and `server/utils/error.ts` use `console.info`/`console.error` with session info — verify no tokens are logged
+- **Logging**: verify no token (`sessionToken`, `accessToken`, `oauthParams`) reaches `log.*`, `event.context.log?.set`, or a response header.
 - **Response headers**: `handleAllAuthError()` clears `X-Session-Token` and `Authorization` from response headers — verify this always happens on auth errors
 - **Error responses**: Ensure Zod validation errors don't leak internal schema details to clients
 
 ## What NOT to Flag
 - `vue/no-v-html` being disabled (project convention)
 - `no-explicit-any` being off (project convention)
-- Using `$fetch` directly in stores (intended pattern — `useFetch` is a composable, not for store actions)
+- Store actions calling `$api` (not `useApi`, which is setup-scope).

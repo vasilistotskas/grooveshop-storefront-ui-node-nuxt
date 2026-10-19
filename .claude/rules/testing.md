@@ -68,8 +68,7 @@ and fake timers for debounce, polling and timeouts
 - **Fail when the behaviour breaks.** No `toBeDefined()` / `exists()` /
   `typeof === 'function'` smoke tests, no assertions on the test's own
   literals or on a mock echoing itself, no `>= 0`, no conditional `expect`.
-  A spec that re-implements the logic it claims to test tests nothing — 26
-  such files (8.6k lines) were deleted on 2026-09-30.
+  A spec that re-implements the logic it claims to test tests nothing.
 - **Prove new tests** by breaking the guarded source line, watching the test
   fail, and reverting — in ONE command, so no other run ever sees the
   mutated file.

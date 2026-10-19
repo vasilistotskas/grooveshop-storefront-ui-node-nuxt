@@ -24,7 +24,7 @@ Browser ──(encrypted cookie)──► Nuxt SSR ──(X-Session-Token / Bear
 
 **Two token types** (both created per allauth session):
 - `sessionToken` — allauth headless session token (`X-Session-Token` header to Django)
-- `accessToken` — Knox token (`Authorization: Bearer` to Django REST API + WebSocket query param)
+- `accessToken` — Knox token (`Authorization: Bearer` to Django REST API)
 
 ## Key Files
 
@@ -36,26 +36,25 @@ the workspace root. Symptom triage that stays on the Nuxt side works either way.
 ### Django
 | Purpose | File |
 |---|---|
-| allauth + Knox config | `settings.py` (lines ~230–400, ~892–907) |
+| allauth + Knox config | `settings.py` (grep `ACCOUNT_`, `MFA_`, `REST_KNOX`) |
 | Custom token strategy | `core/api/tokens.py` |
 | MFA adapter (WebAuthn RP ID) | `core/adapter.py` |
 | Social + account adapter | `user/adapter.py` |
 | Password change Knox revoke | `user/signals.py` |
 | Rate limiting middleware | `core/middleware/allauth_ratelimit.py` |
-| WebSocket token auth | `core/middleware/channels.py` |
+| WebSocket ticket auth | `core/middleware/channels.py` |
 
 ### Nuxt
 | Purpose | File |
 |---|---|
 | Header creation + token storage | `server/utils/auth.ts` |
 | AllAuth error handling | `server/utils/error.ts` |
-| Auth state hooks | `server/utils/hooks.ts` |
 | Session GET (token refresh) | `server/api/_allauth/app/v1/auth/session.get.ts` |
 | Session DELETE (logout) | `server/api/_allauth/app/v1/auth/session.delete.ts` |
 | OAuth Google handler | `server/routes/auth/google.get.ts` |
 | OAuth Facebook handler | `server/routes/auth/facebook.get.ts` |
 | OAuth params retrieval | `server/api/auth/oauth-params.get.ts` |
-| WebSocket token endpoint | `server/api/websocket/user/tokens.get.ts` |
+| WebSocket ticket endpoint | `server/api/websocket/user/ticket.get.ts` |
 | Startup env validation | `server/plugins/startup-validation.ts` |
 | Auth state machine | `app/utils/auth.ts` |
 | Auth store (Pinia) | `app/stores/auth.ts` |
@@ -91,15 +90,13 @@ the workspace root. Symptom triage that stays on the Nuxt side works either way.
 
 **"2FA / WebAuthn not working"**
 - TOTP: `MFA_TOTP_PERIOD=30`, `MFA_TOTP_DIGITS=6` — standard RFC 6238.
-- WebAuthn RP ID: set via `APP_MAIN_HOST_NAME` env var in Django. Must match the domain exactly.
+- WebAuthn RP ID: per tenant (`_webauthn_rp_id()` in `core/adapter.py`, the request's tenant's primary domain); `APP_MAIN_HOST_NAME` is only the platform fallback.
 - `MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN = DEBUG` — must be False in production.
 - WebAuthn credential creation: `GET /_allauth/app/v1/account/authenticators/webauthn` → `POST`.
 
 **"WebSocket auth fails"**
-- WebSocket URL: `wss://api.webside.gr/ws/notifications/?user_id=X&session_token=Y&access_token=Z`
-- Tokens fetched from `GET /api/websocket/user/tokens` (requires valid Nuxt session).
-- Django: `AllowedHostsOriginValidator` checks `ALLOWED_HOSTS`, then `TokenAuthMiddleware` validates Knox token.
-- Knox token must not be expired (7-day TTL). If expired, user needs to re-login.
+- URL: `wss://<tenant apiDomain>/ws/notifications/?ticket=<single-use ticket>` from `GET /api/websocket/user/ticket` (requires a valid Nuxt session; 60 s, consumed on first read by `core/middleware/channels.py`).
+- Ticket rejected → check it was minted under the same tenant and used once.
 
 **"Flow navigation broken (stuck after signup/email verify)"**
 - `onAllAuthResponse` fires `auth:change` hook for ALL 200 responses.
@@ -165,7 +162,7 @@ grep "NUXT_SESSION_PASSWORD\|NUXT_OAUTH" .env
 ### 5. Fix checklist
 
 - [ ] `NUXT_SESSION_PASSWORD` ≥ 32 chars and consistent across restarts
-- [ ] `APP_MAIN_HOST_NAME` matches production domain (WebAuthn RP ID)
+- [ ] Each tenant's primary domain is set (WebAuthn RP ID, `_webauthn_rp_id()` in `core/adapter.py`; `APP_MAIN_HOST_NAME` is only the platform fallback)
 - [ ] `ALLOWED_HOSTS` set in production (not wildcarded)
 - [ ] `DEBUG=False` in production (enables SSL, CSRF, CORS restrictions)
 - [ ] `MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN=False` in production

@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash
 
 # Auth Flow Reviewer
 
-Specialist reviewer for the auth subsystem. Knows the architecture (django-allauth headless API mirrored under `server/api/_allauth/app/v1/...`, encrypted server session via `nuxt-auth-utils`, Knox + session-token dual auth, MFA / TOTP / WebAuthn / recovery codes, OAuth provider redirect via Google + Facebook + GSI one-tap, WebSocket Knox auth) and the recurring bugs the project has hit.
+Specialist reviewer for the auth subsystem. Knows the architecture (django-allauth headless API mirrored under `server/api/_allauth/app/v1/...`, encrypted server session via `nuxt-auth-utils`, Knox + session-token dual auth, MFA / TOTP / WebAuthn / recovery codes, OAuth provider redirect via Google + Facebook + GSI one-tap, WebSocket ticket auth) and the recurring bugs the project has hit.
 
 ## Files in scope
 
@@ -44,7 +44,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 ### Headers / forwarding
 
-8. **`X-Forwarded-Host` source**. Always sourced from `config.public.djangoHostName`, never from `getRequestHost(event)` directly (the raw request host fails Django `ALLOWED_HOSTS` for internal cluster calls). The fallback to `getRequestHost(event, { xForwardedHost: false })` exists only for missing config. Flag custom header builders that skip the config.
+8. **`X-Forwarded-Host` source**. Always `requestTenantHost(event)` (the store resolved by `server/middleware/0.tenant.ts`), never a client-sent `X-Forwarded-Host`, raw `getRequestHost`, or `config.public.djangoHostName`. A cached function, which has no request, passes the store it is keyed by to `backendFetchFor({ tenantHost, locale })`. Flag custom header builders that bypass `createHeaders(event, …)` / `useBackendFetch(event)`.
 9. **`X-Real-IP` chain**. Real client IP must read `cf-connecting-ip` → `true-client-ip` → `getRequestIP(event, { xForwardedFor: true })` in that order. Skipping CF headers surfaces the Traefik pod's address in production. Django trusts the relayed value only with the `X-Origin-Verify` proof, so never add a Django-side limit that reads `X-Real-IP` bare.
 10. **`X-Language` header**. Must be sourced from `event.context.locale` (set by `server/middleware/1.locale.ts`) with fallback to `DEFAULT_LOCALE` from `i18n/locales.ts`. Flag hardcoded `'el'` or `'en'`.
 11. **`X-Forwarded-Proto`**. Must be set to ensure Django's `SECURE_SSL_REDIRECT` doesn't 301 to the external domain (which exits the cluster → Cloudflare 403). Flag header builders that omit it.
@@ -76,7 +76,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 ### WebSocket
 
-25. **WebSocket auth params in URL**. The Django consumer at `/ws/notifications/` reads `session_token` and `access_token` from URL query (Knox tokens). Don't move them to headers — Django Channels can't read custom WebSocket headers from browsers reliably.
+25. **WebSocket auth is a single-use ticket.** The client fetches `GET /api/websocket/user/ticket` (`server/api/websocket/user/ticket.get.ts`, which mints it from Django; 60 s, consumed on first read by Django's `core/middleware/channels.py`) and connects with `?ticket=`. Flag any Knox/session token placed in the socket URL.
 26. **Origin validation**. Don't relax WebSocket origin checks.
 
 ## Hot zones requiring extra attention
