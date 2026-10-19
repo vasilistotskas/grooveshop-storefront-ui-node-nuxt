@@ -92,6 +92,54 @@ describe('Chrome/AssistantPanel', () => {
     expect(wrapper.find('a[href="/cart"]').text()).toBe(own(wrapper, 'viewCart'))
   })
 
+  it('marks a failed step as failed', async () => {
+    stubReply(
+      'event: tool\ndata: {"name":"add_to_cart","status":"running"}\n\n'
+      + 'event: tool\ndata: {"name":"add_to_cart","status":"error"}\n\n'
+      + 'event: delta\ndata: {"text":"Υπάρχουν μόνο 2."}\n\n'
+      + 'event: done\ndata: {"conversationId":"c1","cartMutated":false}\n\n',
+    )
+    const wrapper = await mountPanel()
+
+    await useShopChat().send('βάλε 5')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Υπάρχουν μόνο 2.'))
+
+    expect(wrapper.text()).toContain(own(wrapper, 'tools.failed'))
+  })
+
+  it('offers to send a failed message again, and sends it with its turn id', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(encoder.encode('event: error\ndata: {"message":"Η συνομιλία διακόπηκε."}\n\n'), { status: 200 }))
+      .mockResolvedValueOnce(new Response(encoder.encode(
+        'event: delta\ndata: {"text":"Έγινε."}\n\n'
+        + 'event: done\ndata: {"conversationId":"c1","cartMutated":false}\n\n',
+      ), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = await mountPanel()
+
+    await useShopChat().send('βάλε το στο καλάθι')
+    await vi.waitFor(() => expect(button(wrapper, own(wrapper, 'retry'))?.text()).toBe(own(wrapper, 'retry')))
+    expect(button(wrapper, own(wrapper, 'new'))?.text()).toBe(own(wrapper, 'new'))
+    await button(wrapper, own(wrapper, 'retry'))!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Έγινε.'))
+
+    const [first, second] = fetchMock.mock.calls.map(c => bodyOf(c as [string, RequestInit]))
+    expect(second.turnId).toBe(first.turnId)
+    expect(button(wrapper, own(wrapper, 'retry'))).toBeUndefined()
+  })
+
+  it('offers only a new conversation once the conversation is over', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(
+      JSON.stringify({ error: 'finished' }), { status: 409 },
+    ))))
+    const wrapper = await mountPanel()
+
+    await useShopChat().send('γεια')
+    await vi.waitFor(() => expect(button(wrapper, own(wrapper, 'new'))?.text()).toBe(own(wrapper, 'new')))
+
+    expect(button(wrapper, own(wrapper, 'retry'))).toBeUndefined()
+  })
+
   it('does not claim the assistant never places orders', async () => {
     const wrapper = await mountPanel()
 

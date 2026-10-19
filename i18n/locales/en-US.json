@@ -31,7 +31,9 @@
   "chat": {
     "error": {
       "generic": "The conversation was interrupted — please try again.",
-      "conversationFull": "This conversation has ended — start a new one."
+      "conversationFull": "This conversation has ended — start a new one.",
+      "rateLimited": "The assistant is handling a lot of questions right now — please try again {when}.",
+      "rateLimitedSoon": "The assistant is handling a lot of questions right now — please try again in a little while."
     }
   },
   "subscription_notifications": {
