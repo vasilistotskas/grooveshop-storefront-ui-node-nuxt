@@ -25,7 +25,7 @@ export function useSignOut() {
   const { $routeBaseName } = useNuxtApp()
   const localePath = useLocalePath()
   const { deleteSession } = useAllAuthAuthentication()
-  const toast = useToast()
+  const { notify } = useApiError()
   const { $i18n } = useNuxtApp()
   const userInitiatedLogout = useState<boolean>('auth:userInitiatedLogout', () => false)
 
@@ -47,7 +47,7 @@ export function useSignOut() {
       if (status === 401 || status === 410) return
       userInitiatedLogout.value = false
       log.error({ action: 'auth:logout', error })
-      toast.add({ title: $i18n.t('account_nav.sign_out_error'), color: 'error' })
+      notify('auth:sign-out', error, { title: $i18n.t('account_nav.sign_out_error') })
     }
     finally {
       signingOut.value = false

@@ -289,7 +289,7 @@ describe('Account/SettingsForm saving', () => {
     await expect(onSubmit({ data: { languageCode: 'el' } })).resolves.toBeUndefined()
 
     expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Σφάλμα', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Σφάλμα', color: 'error' }))
     expect(fetchSession).not.toHaveBeenCalled()
     await flushPromises()
     expect(buttonLabelled(wrapper, 'Αποθήκευση αλλαγών')!.attributes('disabled')).toBeUndefined()
@@ -380,7 +380,7 @@ describe('Account/SettingsForm username', () => {
     await controlOf(wrapper, 'Όνομα χρήστη').setValue('taken')
     await submit(wrapper)
 
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Username already taken.', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ description: 'Username already taken.', color: 'error' }))
     expect(api.callsTo(ACCOUNT)).toEqual([])
     expect(fetchSession).not.toHaveBeenCalled()
   })
@@ -418,7 +418,7 @@ describe('Account/SettingsForm photo', () => {
     await chooseFile(wrapper, new File(['x'], 'me.gif', { type: 'image/gif' }))
 
     expect(avatarCalls()).toEqual([])
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Επιτρέπονται μόνο αρχεία JPG και PNG', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Επιτρέπονται μόνο αρχεία JPG και PNG', color: 'error' }))
   })
 
   it('says so when the upload fails, and does not refresh the session', async () => {
@@ -427,7 +427,7 @@ describe('Account/SettingsForm photo', () => {
 
     await chooseFile(wrapper, new File(['x'], 'me.jpg', { type: 'image/jpeg' }))
 
-    expect(toastAdd).toHaveBeenCalledWith({ title: 'Η φωτογραφία δεν ενημερώθηκε', color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Η φωτογραφία δεν ενημερώθηκε', color: 'error' }))
     expect(fetchSession).not.toHaveBeenCalled()
   })
 

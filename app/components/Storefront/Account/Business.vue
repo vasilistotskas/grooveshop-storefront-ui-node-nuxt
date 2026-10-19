@@ -17,6 +17,8 @@ const { t, locale } = useI18n()
 useHead({ title: () => t('title') })
 const toast = useToast()
 
+const form = useTemplateRef('form')
+const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
 // The generated contract schema, tightened with the client-side ΑΦΜ
 // checksum (mirror of Django's b2b/validators.py) so the shopper gets an
 // inline error instead of a 400 round trip.
@@ -94,8 +96,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     toast.add({ title: t('submit.success'), color: 'success' })
     await refresh()
   }
-  catch {
-    toast.add({ title: t('submit.error'), color: 'error' })
+  catch (error) {
+    await reportFailure('business:update', error, { title: t('submit.error') })
   }
   finally {
     isSubmitting.value = false
@@ -136,6 +138,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
       <UForm
         v-if="profile?.status !== 'SUSPENDED'"
+        ref="form"
         :schema="schema"
         :state="state"
         class="

@@ -279,7 +279,7 @@ const startPurchase = async () => {
   }
   catch (error: any) {
     purchaseError.value
-      = error?.data?.detail || t('errors.purchase_failed')
+      = describeApiError(error, { fallback: t('errors.purchase_failed') }).description
   }
   finally {
     submitting.value = false

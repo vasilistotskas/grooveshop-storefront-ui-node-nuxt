@@ -18,6 +18,7 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const localePath = useLocalePath()
 
 const busy = ref<'default' | 'delete' | null>(null)
@@ -47,7 +48,7 @@ async function makeDefault() {
   }
   catch (error) {
     log.error({ action: 'address:set-main', error })
-    toast.add({ title: t('default_error'), color: 'error' })
+    notify('Card:1', error, { title: t('default_error') })
   }
   finally {
     busy.value = null
@@ -63,7 +64,7 @@ async function remove() {
   }
   catch (error) {
     log.error({ action: 'address:delete', error })
-    toast.add({ title: t('delete_error'), color: 'error' })
+    notify('Card:2', error, { title: t('delete_error') })
   }
   finally {
     busy.value = null

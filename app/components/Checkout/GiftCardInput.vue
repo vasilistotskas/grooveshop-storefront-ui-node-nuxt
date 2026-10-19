@@ -69,7 +69,7 @@ const applyCard = async () => {
     formState.code = ''
   }
   catch (error: any) {
-    cardError.value = error?.data?.detail || t('errors.invalid')
+    cardError.value = describeApiError(error, { fallback: t('errors.invalid') }).description
   }
   finally {
     submitting.value = false

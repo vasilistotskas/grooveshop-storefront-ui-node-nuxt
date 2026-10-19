@@ -162,7 +162,7 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     await loadMore(wrapper)!.trigger('click')
     await flushPromises()
 
-    expect(toastAdd).toHaveBeenCalledWith({ title: expect.any(String), color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: expect.any(String), color: 'error' }))
     expect(renderedIds(wrapper)).toEqual([1])
   })
 
@@ -272,7 +272,7 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
 
     expect(wrapper.emitted('reply-add')).toBeUndefined()
     expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: expect.any(String), color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: expect.any(String), color: 'error' }))
     expect(api.callsTo(PROXY_URL)).toHaveLength(fetchesBefore)
   })
 

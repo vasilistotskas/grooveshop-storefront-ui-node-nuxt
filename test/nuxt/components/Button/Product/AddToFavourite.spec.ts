@@ -89,7 +89,11 @@ describe.each(trees(ButtonProductAddToFavourite, WebsideButtonProductAddToFavour
     await expect(click(wrapper)).resolves.toBeUndefined()
 
     expect(toastAdd).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith({ title: detail ?? useNuxtApp().$i18n.t('error_occurred'), color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      title: useNuxtApp().$i18n.t('error_occurred'),
+      color: 'error',
+      ...(detail ? { description: detail } : {}),
+    }))
     expect(useUserStore().favouriteProductIds).toEqual({})
     expect(control(wrapper).props('loading')).toBe(false)
   })

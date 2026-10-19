@@ -371,14 +371,14 @@ describe('delta_sigma ContactPanel', () => {
 
   it.each([
     { name: 'field errors', data: { email: ['Enter a valid email address.'] }, description: expect.stringContaining('Enter a valid email address.') },
-    { name: 'a plain failure', data: 'Bad Gateway', description: undefined },
+    { name: 'a plain failure', data: 'Bad Gateway', description: expect.any(String) },
   ])('says the enquiry failed on $name, keeping what was typed', async ({ data, description }) => {
     api.routes({ [CONTACT_URL]: failWith(400, data) })
     const wrapper = await mountSuspended(ContactPanel, { route: false, props: PROPS })
 
     await fillAndSubmit(wrapper)
 
-    expect(toastAdd).toHaveBeenCalledWith({ title: COPY.failed, description, color: 'error' })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: COPY.failed, description, color: 'error' }))
     expect((wrapper.find('input[type="email"]').element as HTMLInputElement).value).toBe('kostas@deya.gr')
   })
 

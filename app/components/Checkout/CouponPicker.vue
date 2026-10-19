@@ -21,6 +21,7 @@ const emit = defineEmits<{ applied: [code: string] }>()
 const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const toast = useToast()
+const { notify, describe } = useApiError()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const { conditions, rejectionMessage } = usePromotionOffer()
@@ -99,11 +100,9 @@ async function applyCoupon(row: CartCoupon) {
     // Django answers 400 with { detail, reason } from the ACP discount
     // vocabulary. Reaching here means the cart moved between the
     // verdict and the click, so re-read rather than just complaining.
-    toast.add({
+    notify('coupon:apply', error, {
       title: t('apply_failed'),
-      description: rejectionMessage(error?.data?.reason),
-      color: 'error',
-      icon: 'i-lucide-triangle-alert',
+      reason: rejectionMessage(describe(error).code),
     })
     await refreshCoupons()
   }

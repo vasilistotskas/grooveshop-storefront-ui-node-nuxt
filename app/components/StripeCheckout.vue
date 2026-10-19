@@ -58,7 +58,7 @@ const createCheckoutSession = async () => {
   }
   catch (err: unknown) {
     log.error({ action: 'stripe:checkoutSession', error: err })
-    error.value = getErrorDetail(err) || t('checkout_session_error')
+    error.value = describeApiError(err, { fallback: t('checkout_session_error') }).description
     emit('error', error.value)
   }
   finally {

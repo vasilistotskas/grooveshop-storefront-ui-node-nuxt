@@ -34,6 +34,7 @@ const { error } = storeToRefs(cartStore)
 const { product, quantity, text } = toRefs(props)
 const { t, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 
 const productName = computed(() => {
   if ('name' in product.value && typeof product.value.name === 'string') {
@@ -95,21 +96,6 @@ const addToCartEvent = async () => {
     failed = true
   }
 
-  // Forwarded upstream bodies sit at .data; the legacy thrown-error
-  // wrapper nested them at .data.data — accept both.
-  const rawData = error.value?.data as Record<string, unknown> | undefined
-  const errorData = (rawData?.nonFieldErrors ? rawData : rawData?.data) as Record<string, unknown> | undefined
-  const nonFieldErrors = errorData?.nonFieldErrors as string[] | undefined
-  if (nonFieldErrors && nonFieldErrors.length > 0) {
-    nonFieldErrors.forEach((error: string) => {
-      toast.add({
-        title: error,
-        color: 'error',
-      })
-    })
-    return
-  }
-
   // A swallowed failure is worse than an error: the shopper clicks
   // Buy, the cart badge does not move, and nothing at all says why.
   // Measured on staging — an add that never reached the API produced
@@ -117,12 +103,7 @@ const addToCartEvent = async () => {
   // messages are surfaced above; this is the fallback for everything
   // else, including a network that simply was not there.
   if (failed) {
-    toast.add({
-      title: t('toast.failed_title'),
-      description: t('toast.failed_description'),
-      color: 'error',
-      icon: 'i-heroicons-exclamation-triangle',
-    })
+    notify('webside-account-cart:add', error.value, { title: t('toast.failed_title'), fallback: t('toast.failed_description') })
     return
   }
 

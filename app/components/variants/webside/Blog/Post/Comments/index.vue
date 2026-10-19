@@ -48,6 +48,7 @@ const { blogPostId, paginationType, pageSize }
 
 const { t, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const route = useRoute()
 const { loggedIn, user } = useUserSession()
 const { loadLikedComments } = useUserStore()
@@ -141,10 +142,7 @@ const loadMoreComments = async () => {
   }
   catch (error) {
     log.error({ action: 'comments:loadMore', error })
-    toast.add({
-      title: t('load.error'),
-      color: 'error',
-    })
+    notify('webside-index:1', error, { title: t('load.error') })
   }
   finally {
     isLoadingMore.value = false
@@ -213,10 +211,7 @@ async function onAddCommentSubmit(values: Record<string, any>) {
   }
   catch (error) {
     log.error({ action: 'comments:add', error })
-    toast.add({
-      title: t('add.error'),
-      color: 'error',
-    })
+    notify('webside-index:2', error, { title: t('add.error') })
     return
   }
   // A refetch never rejects: `useApi` keeps its error in `error`.

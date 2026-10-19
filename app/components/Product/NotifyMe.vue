@@ -39,6 +39,7 @@ const kind = defineModel<ProductAlertKindEnum>('kind', { required: true })
 
 const { t, n } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const { loggedIn, user } = useUserSession()
 
 const submitting = ref(false)
@@ -123,12 +124,14 @@ async function onSubmit() {
     const status = (error as { statusCode?: number })?.statusCode
     const isConflict = status === 409
     log.warn({ tag: 'product:notify-me', message: 'create failed', kind: kind.value, status, error })
-    toast.add({
-      title: isConflict ? t('conflict') : t('error'),
-      color: isConflict ? 'warning' : 'error',
-    })
     // Django says the alert exists — read it so the dialog shows it.
-    if (isConflict) await refreshAlerts()
+    if (isConflict) {
+      toast.add({ title: t('conflict'), color: 'warning' })
+      await refreshAlerts()
+    }
+    else {
+      notify('notify-me:create', error, { title: t('error') })
+    }
   }
   finally {
     submitting.value = false
@@ -146,7 +149,7 @@ async function cancelAlert() {
   }
   catch (error) {
     log.warn({ tag: 'product:notify-me', message: 'cancel failed', kind: kind.value, error })
-    toast.add({ title: t('cancel_error'), color: 'error' })
+    notify('notify-me:cancel', error, { title: t('cancel_error') })
   }
   finally {
     canceling.value = false

@@ -76,6 +76,7 @@ const {
   giftCards,
   giftCardBalanceTotal,
   stockError,
+  submitError,
   isStripePayment,
   isVivaWalletPayment,
   isOnlinePayment,
@@ -238,6 +239,8 @@ useSeoMeta({
       <!-- Main Content -->
       <div class="flex-1">
         <!-- Stock Error Alert -->
+        <ApiErrorAlert :error="submitError" />
+
         <WebsideCheckoutStockErrorAlert
           v-if="stockError?.show"
           :stock-error="stockError"

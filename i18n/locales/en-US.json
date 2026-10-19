@@ -21,7 +21,12 @@
       "not": {
         "found": "Page not found"
       }
-    }
+    },
+    "server": "Something went wrong on our side. Please try again shortly.",
+    "rejected": "The request was not accepted.",
+    "details": "Details",
+    "code_label": "Code",
+    "request_id_label": "Request ID"
   },
   "chat": {
     "error": {
@@ -460,5 +465,10 @@
     "empty_description": "The products on this order are no longer sold.",
     "error_title": "Not added to your cart",
     "error_description": "We could not put those products in your cart. Please try again."
+  },
+  "errors": {
+    "codes": {
+      "must_have_purchased": "You can only review products you have bought."
+    }
   }
 }

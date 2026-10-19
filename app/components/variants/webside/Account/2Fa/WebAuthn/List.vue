@@ -4,6 +4,7 @@ import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
 const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
 const localePath = useLocalePath()
 const toast = useToast()
+const { notify } = useApiError()
 const { t, locale } = useI18n()
 
 const authStore = useAuthStore()
@@ -76,8 +77,8 @@ async function onSave(id: number) {
     }
     toast.add({ title: ok ? t('success.title') : t('error.default'), color: ok ? 'success' : 'error' })
   }
-  catch {
-    toast.add({ title: t('error.default'), color: 'error' })
+  catch (error) {
+    notify('webside-webauthn:rename', error, { title: t('error.default') })
   }
   finally {
     loading.value = false

@@ -116,6 +116,17 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const giftCardBalanceTotal = computed(() =>
     giftCards.value.reduce((sum, card) => sum + card.balance, 0))
 
+  // A failure that stops the checkout stays on the page until the shopper
+  // acts again: a toast times out, and a shopper who looked away would not
+  // know why «Pay» did nothing (`<ApiErrorAlert>` on the checkout page).
+  const submitError = ref<DescribedApiError | null>(null)
+  const failCheckout = (failure: { title: string, description?: string }) => {
+    submitError.value = { title: failure.title, description: failure.description ?? '', fieldErrors: [], serverFault: false }
+  }
+  const failCheckoutWith = (error: unknown, options: DescribeApiErrorOptions) => {
+    submitError.value = describeApiError(error, options)
+  }
+
   // Stock error state
   const stockError = ref<{
     show: boolean
@@ -173,7 +184,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   const buildOrderValues = () => {
     if (!formState.payWayId) {
-      toast.add({ title: t('form.submit.error.general'), color: 'error' })
+      failCheckout({ title: t('form.submit.error.general') })
       return
     }
 
@@ -244,10 +255,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   const handleRetryableError = (errorInfo: { title: string, description?: string, shouldRetry: boolean }) => {
     if (errorInfo.shouldRetry) {
       if (retryCount.value >= MAX_RETRIES) {
-        toast.add({
+        failCheckout({
           title: t('form.submit.error.general'),
           description: t('form.submit.error.max_retries'),
-          color: 'error',
         })
         return
       }
@@ -265,10 +275,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       }, 500)
     }
     else {
-      toast.add({
+      failCheckout({
         title: errorInfo.title,
         description: errorInfo.description,
-        color: 'error',
       })
     }
   }
@@ -288,7 +297,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   const handleOnlinePaymentFlow = async () => {
     if (!formState.payWayId) {
-      toast.add({ title: t('form.submit.error.general'), color: 'error' })
+      failCheckout({ title: t('form.submit.error.general') })
       return
     }
     const orderValues = buildOrderValues()
@@ -354,9 +363,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
             giftCardsCoverTotal = true
           }
           else if (piReason === 'loyalty_requires_authentication') {
-            toast.add({
+            failCheckout({
               title: t('form.submit.error.loyalty_requires_authentication'),
-              color: 'error',
             })
             return
           }
@@ -365,10 +373,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
             // changed…) — drop the local redemption so the next
             // attempt prices without it.
             loyaltyDiscount.value = null
-            toast.add({
+            failCheckout({
               title: t('form.submit.error.loyalty_redemption_invalid'),
-              description: piError?.data?.detail,
-              color: 'error',
+              description: describeApiError(piError).description,
             })
             return
           }
@@ -444,11 +451,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       log.error({ action: 'checkout:orderCreation', error })
       if (!handledByResponseError) {
         idempotencyKey.value = null
-        toast.add({
-          title: t('payment_intent_error'),
-          description: getErrorDetail(error) || t('payment_intent_error_description'),
-          color: 'error',
-        })
+        failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
       }
     }
   }
@@ -484,11 +487,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     catch (error: unknown) {
       log.error({ action: 'checkout:vivaWalletOrderCreation', error })
       if (!handledByResponseError) {
-        toast.add({
-          title: t('payment_intent_error'),
-          description: getErrorDetail(error) || t('payment_intent_error_description'),
-          color: 'error',
-        })
+        failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
         // Release any stock reservations held for this checkout attempt
         if (reservationIds.value.length > 0) {
           releaseReservations(reservationIds.value)
@@ -559,6 +558,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // submit resets the retry counter, an automatic retry preserves it.
     const wasRetry = isRetryReentry.value
     isRetryReentry.value = false
+    // A new attempt starts clean: the last failure no longer applies.
+    submitError.value = null
 
     // Cancel any pending retry before checking isSubmitting — this
     // manual submit supersedes the scheduled automatic one. The retry
@@ -620,11 +621,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
           }
 
           // Handle other reservation errors
-          toast.add({
-            title: t('form.submit.error.stock_reservation'),
-            description: getErrorDetail(error) || t('form.submit.error.stock_reservation_description'),
-            color: 'error',
-          })
+          failCheckoutWith(error, { title: t('form.submit.error.stock_reservation'), fallback: t('form.submit.error.stock_reservation_description') })
           return
         }
       }
@@ -644,16 +641,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         // A cart no method can carry is the shopper's to fix (fewer
         // items), not a pricing hiccup to retry — say which it is.
         const overWeight = shippingOverWeight?.value
-        toast.add(overWeight
+        failCheckout(overWeight
           ? {
               title: t('form.submit.error.shipping_over_weight'),
               description: t('shipping.method.over_weight_description', overWeight),
-              color: 'error',
             }
           : {
               title: t('form.submit.error.shipping_unavailable'),
               description: t('form.submit.error.shipping_unavailable_description'),
-              color: 'error',
             })
         currentStep.value = 1
         return
@@ -681,11 +676,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       const e = error && typeof error === 'object' ? error as Record<string, unknown> : null
       if (e && !('response' in e) && !('data' in e)) {
         log.error({ action: 'checkout:submit', error })
-        toast.add({
-          title: t('form.submit.error.general'),
-          description: getErrorDetail(error) || t('error_occurred'),
-          color: 'error',
-        })
+        failCheckoutWith(error, { title: t('form.submit.error.general'), fallback: t('error_occurred') })
       }
     }
     finally {
@@ -726,10 +717,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   }
 
   const onPaymentError = async (error: string) => {
-    toast.add({
+    failCheckout({
       title: t('payment_failed'),
       description: error,
-      color: 'error',
     })
 
     // Release reservations on payment failure
@@ -921,6 +911,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   return {
     currentStep,
     addressStepErrors,
+    submitError,
     checkoutMode,
     useHostedCheckout,
     createdOrder,

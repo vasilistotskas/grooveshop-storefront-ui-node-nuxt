@@ -25,7 +25,7 @@ const { statusClass, paymentStatusClass, cancelOrder } = useOrder()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
-const toast = useToast()
+const { notify } = useApiError()
 const isCanceling = ref(false)
 
 async function handleCancel() {
@@ -45,13 +45,9 @@ async function handleCancel() {
     const status = (error as { statusCode?: number })?.statusCode
     log.error({ action: 'order:cancel:card', status, error })
     const isConflict = status === 409 || status === 400
-    toast.add({
+    notify('webside-order-card:cancel', error, {
       title: t('cancel_error_title'),
-      description: isConflict
-        ? t('cancel_error_conflict')
-        : t('cancel_error_description'),
-      color: 'error',
-      icon: 'i-heroicons-x-circle',
+      fallback: isConflict ? t('cancel_error_conflict') : t('cancel_error_description'),
     })
     // Ask the parent to refetch so the stale ``canBeCanceled`` flag
     // updates (e.g. someone already canceled in another tab).

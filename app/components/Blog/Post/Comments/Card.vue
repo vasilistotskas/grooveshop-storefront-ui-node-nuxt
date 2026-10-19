@@ -42,6 +42,8 @@ const emit = defineEmits<{
 }>()
 
 const toast = useToast()
+
+const { notify } = useApiError()
 const { t, locale } = useI18n()
 const { user, loggedIn } = useUserSession()
 const { loadLikedComments } = useUserStore()
@@ -125,10 +127,7 @@ const fetchReplies = async (cursorValue: string): Promise<boolean> => {
   }
   catch (error) {
     log.error({ action: 'comments:replies', error })
-    toast.add({
-      title: t('load.error'),
-      color: 'error',
-    })
+    notify('Card:1', error, { title: t('load.error') })
     showReplies.value = false
     return false
   }
@@ -163,10 +162,7 @@ async function onReplySubmit(values: Record<string, any>) {
   }
   catch (error) {
     log.error({ action: 'comments:reply', error })
-    toast.add({
-      title: t('add.error'),
-      color: 'error',
-    })
+    notify('Card:2', error, { title: t('add.error') })
     return
   }
   if (await fetchReplies(cursor.value)) showReplies.value = true

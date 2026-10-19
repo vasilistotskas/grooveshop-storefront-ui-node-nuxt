@@ -57,6 +57,7 @@ const emit = defineEmits([
 
 const { t, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const { isMobile } = useDevice()
 
 // Nuxt resolves these literal names to the components at build time.
@@ -138,14 +139,6 @@ const reviewBody = (event: Schema) => ({
   rate: event.rate,
 })
 
-/** Django refuses a review of a product the customer never bought. */
-const isPurchaseRequired = (error: unknown) => {
-  const body = (error as { data?: { product?: unknown, data?: { product?: unknown } } }).data
-  const productError = body?.data?.product ?? body?.product
-  return productError === 'must_have_purchased'
-    || (Array.isArray(productError) && productError.includes('must_have_purchased'))
-}
-
 const createReview = async (event: Schema) => {
   try {
     const created = await $api('/api/products/reviews', {
@@ -158,10 +151,9 @@ const createReview = async (event: Schema) => {
   }
   catch (error) {
     log.error({ action: 'review:create', error, requestId: requestIdOf(error) })
-    toast.add({
-      title: isPurchaseRequired(error) ? t('add.must_purchase_first') : t('add.error'),
-      color: 'error',
-    })
+    // A refusal for a product never bought carries the code
+    // `must_have_purchased`; the reason is mapped from it, not from text.
+    notify('review:create', error, { title: t('add.error') })
   }
 }
 
@@ -182,7 +174,7 @@ const updateReview = async (event: Schema) => {
   }
   catch (error) {
     log.error({ action: 'review:update', error, requestId: requestIdOf(error) })
-    toast.add({ title: t('update.error'), color: 'error' })
+    notify('review:update', error, { title: t('update.error') })
   }
 }
 
@@ -200,7 +192,7 @@ const deleteReview = async () => {
   }
   catch (error) {
     log.error({ action: 'review:delete', error, requestId: requestIdOf(error) })
-    toast.add({ title: t('delete.error'), color: 'error' })
+    notify('review:delete', error, { title: t('delete.error') })
   }
   finally {
     submitting.value = false
@@ -396,7 +388,6 @@ el:
   moderated_edit: Αν την αλλάξεις, η κριτική θα ελεγχθεί ξανά πριν εμφανιστεί.
   add:
     error: Η κριτική δεν δημιουργήθηκε
-    must_purchase_first: Μπορείς να γράψεις κριτική μόνο για προϊόντα που έχεις αγοράσει
     success: Η κριτική σου στάλθηκε και θα εμφανιστεί μόλις εγκριθεί
   update:
     error: Η κριτική δεν ενημερώθηκε
@@ -430,7 +421,6 @@ en:
   moderated_edit: If you change it, the review is checked again before it appears.
   add:
     error: The review could not be created
-    must_purchase_first: You can only review products you have bought
     success: Your review was sent and will appear once approved
   update:
     error: The review could not be updated

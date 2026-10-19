@@ -12,6 +12,8 @@ export interface SerializedError {
   statusCode?: number
   statusMessage?: string
   data?: Record<string, unknown>
+  /** The failed `/api` response's request id (`requestIdOf`), which a stored error would otherwise lose. */
+  requestId?: string
 }
 
 export function serializeError(err: unknown): SerializedError {
@@ -22,6 +24,7 @@ export function serializeError(err: unknown): SerializedError {
       statusCode: typeof e.statusCode === 'number' ? e.statusCode : undefined,
       statusMessage: typeof e.statusMessage === 'string' ? e.statusMessage : undefined,
       data: e.data != null && typeof e.data === 'object' ? e.data as Record<string, unknown> : undefined,
+      requestId: requestIdOf(err),
     }
   }
   return { message: String(err) }

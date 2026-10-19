@@ -120,7 +120,7 @@ describe('Cart/ItemCard (default)', () => {
     await removeButton(wrapper).trigger('click')
     await flushPromises()
 
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith({ title: 'Δεν αφαιρέθηκε από το καλάθι. Δοκίμασε ξανά.', color: 'error' })
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ title: 'Δεν αφαιρέθηκε από το καλάθι. Δοκίμασε ξανά.', color: 'error' }))
   })
 })
 
@@ -211,7 +211,7 @@ describe('Cart/ItemCard (frozen webside)', () => {
 
     await clickUndo()
 
-    expect(toast.add).toHaveBeenLastCalledWith({ title: 'Η αναίρεση απέτυχε', color: 'error' })
+    expect(toast.add).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'Η αναίρεση απέτυχε', color: 'error' }))
   })
 
   it('reports a failed removal and offers no Undo', async () => {

@@ -124,7 +124,7 @@ describe.each(trees(QuantitySelector, WebsideQuantitySelector))('$tree Quantity/
     await flushPromises()
 
     expect(spinbutton().attributes('aria-valuenow')).toBe('2')
-    expect(toast.add).toHaveBeenCalledWith({ title: 'Διαθέσιμα μόνο 3 τεμάχια', color: 'error' })
+    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ description: 'Διαθέσιμα μόνο 3 τεμάχια', color: 'error' }))
   })
 
   it('never has two writes in flight, and sends the newest value once the first lands', async () => {

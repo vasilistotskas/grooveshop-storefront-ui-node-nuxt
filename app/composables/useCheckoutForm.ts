@@ -6,6 +6,7 @@ export async function useCheckoutForm() {
   const n = $i18n.n.bind($i18n)
   const locale = computed(() => $i18n.locale.value)
   const toast = useToast()
+  const { notify } = useApiError()
   const { getPaymentMethodName } = usePaymentMethod()
 
   const cartStore = useCartStore()
@@ -160,13 +161,9 @@ export async function useCheckoutForm() {
       regions.value = result
       return true
     }
-    catch {
+    catch (error) {
       if (request !== regionsRequest) return false
-      toast.add({
-        title: t('error.default'),
-        description: t('error_occurred'),
-        color: 'error',
-      })
+      notify('checkout:regions', error, { title: t('error.default') })
       return false
     }
   }

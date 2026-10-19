@@ -13,6 +13,9 @@ const { user, fetch } = useUserSession()
 const { t, locale } = useI18n()
 const { setLanguage } = useUserLanguage()
 const toast = useToast()
+const { notify } = useApiError()
+const form = useTemplateRef('form')
+const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
 const img = useMediaStreamImage()
 
 const regions = ref<Pagination<Region> | null>(null)
@@ -215,12 +218,8 @@ const fetchRegions = async () => {
       },
     })
   }
-  catch {
-    toast.add({
-      title: t('error.default'),
-      description: t('error_occurred'),
-      color: 'error',
-    })
+  catch (error) {
+    notify('SettingsForm:1', error, { title: t('error.default') })
   }
 }
 
@@ -275,7 +274,7 @@ const patchAvatar = async (image: File | '', successTitle: string) => {
   }
   catch (error) {
     log.error({ action: 'account:avatarUpdate', error })
-    toast.add({ title: t('avatar.error'), color: 'error' })
+    notify('SettingsForm:2', error, { title: t('avatar.error') })
   }
   finally {
     isAvatarBusy.value = false
@@ -331,7 +330,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     }
     catch (error) {
       // The reason (409 "Username already taken.") is Django's own text.
-      toast.add({ title: getErrorDetail(error) || t('form.error'), color: 'error' })
+      notify('SettingsForm:3', error, { title: t('form.error') })
       isSubmitting.value = false
       return
     }
@@ -361,10 +360,10 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       },
     })
   }
-  catch {
+  catch (error) {
     // ofetch rejects on a 4xx/5xx; rethrown, UForm would hand it to
     // Vue's error handler as an app error.
-    toast.add({ title: t('form.error'), color: 'error' })
+    await reportFailure('account:update', error, { title: t('form.error') })
     isSubmitting.value = false
     return
   }
@@ -397,6 +396,7 @@ watch(calendarDate, (newVal) => {
 <template>
   <UForm
     id="accountSettingsForm"
+    ref="form"
     :aria-label="t('form.label')"
     :schema="schema"
     :state="state"

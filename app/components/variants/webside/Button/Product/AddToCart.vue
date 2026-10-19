@@ -24,6 +24,7 @@ const { error } = storeToRefs(cartStore)
 const { product, quantity, text } = toRefs(props)
 const { t, locale } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 
 const productName = computed(() => {
   if ('name' in product.value && typeof product.value.name === 'string') {
@@ -85,22 +86,10 @@ const addToCartEvent = async () => {
     failed = true
   }
 
-  // Forwarded upstream bodies sit at .data; the legacy thrown-error
-  // wrapper nested them at .data.data — accept both.
-  const rawData = error.value?.data as Record<string, unknown> | undefined
-  const errorData = (rawData?.nonFieldErrors ? rawData : rawData?.data) as Record<string, unknown> | undefined
-  const nonFieldErrors = errorData?.nonFieldErrors as string[] | undefined
-  if (nonFieldErrors && nonFieldErrors.length > 0) {
-    nonFieldErrors.forEach((error: string) => {
-      toast.add({
-        title: error,
-        color: 'error',
-      })
-    })
+  if (failed) {
+    notify('webside-cart:add', error.value, { title: t('toast.failed_title'), fallback: t('toast.failed_description') })
     return
   }
-
-  if (failed) return
 
   // One toast, updated in place, however many times the shopper adds.
   showOrUpdateToast(toast, ADDED_TO_CART_TOAST_ID, {
@@ -148,9 +137,13 @@ el:
   toast:
     added_title: Προστέθηκε στο καλάθι
     added_description: Το προϊόν "{name}" προστέθηκε στο καλάθι.
+    failed_title: Δεν προστέθηκε στο καλάθι
+    failed_description: Κάτι πήγε στραβά. Δοκίμασε ξανά σε λίγο.
 en:
   unavailable: Unavailable
   toast:
     added_title: Added to your basket
     added_description: '"{name}" was added to your basket.'
+    failed_title: Not added to your basket
+    failed_description: Something went wrong. Try again in a moment.
 </i18n>

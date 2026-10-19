@@ -43,6 +43,7 @@ const emit = defineEmits<{
 const attrs = useAttrs()
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const { blogCommentLiked, addLikedComment, removeLikedComment } = userStore
@@ -73,10 +74,7 @@ const toggleFavourite = async () => {
   }
   catch (error) {
     log.error({ action: 'blog:commentLike', error })
-    toast.add({
-      title: getErrorDetail(error) || t('error_occurred'),
-      color: 'error',
-    })
+    notify('Comment-Like', error, { title: t('error_occurred') })
     return
   }
 

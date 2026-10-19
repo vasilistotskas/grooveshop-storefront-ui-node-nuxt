@@ -3,6 +3,7 @@ import * as z from 'zod'
 
 const { t } = useI18n()
 const toast = useToast()
+const { notify } = useApiError()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const { $i18n } = useNuxtApp()
@@ -86,9 +87,8 @@ const applyCoupon = async () => {
     // The same vocabulary drives the picker's per-coupon verdicts, so
     // both read from one translated map (``usePromotionOffer``) and a
     // refusal says the same thing wherever the shopper meets it.
-    couponError.value = error?.data?.reason
-      ? rejectionMessage(error.data.reason)
-      : error?.data?.detail || rejectionMessage(null)
+    const described = describeApiError(error, { fallback: rejectionMessage(null) })
+    couponError.value = described.code ? rejectionMessage(described.code) : described.description
   }
   finally {
     submitting.value = false
@@ -103,7 +103,8 @@ const removeCoupon = async () => {
     couponError.value = null
   }
   catch (error) {
-    log.error({ action: 'checkout:removeCoupon', error })
+    log.error({ action: 'checkout:removeCoupon', error, requestId: requestIdOf(error) })
+    notify('coupon:remove', error, { title: t('remove_failed') })
   }
   finally {
     submitting.value = false
@@ -206,6 +207,7 @@ el:
   label: "Κωδικός κουπονιού"
   applied: "εφαρμόστηκε"
   remove: "Αφαίρεση"
+  remove_failed: "Το κουπόνι δεν αφαιρέθηκε"
   apply: "Εφαρμογή"
   applied_title: "Το κουπόνι εφαρμόστηκε"
   applied_description: "Έκπτωση {amount}"
@@ -219,6 +221,7 @@ en:
   label: "Coupon code"
   applied: "applied"
   remove: "Remove"
+  remove_failed: "The coupon was not removed"
   apply: "Apply"
   applied_title: "Coupon applied"
   applied_description: "Discount {amount}"

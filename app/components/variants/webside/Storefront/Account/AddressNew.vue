@@ -11,6 +11,8 @@ const { t, locale } = useI18n()
 useHead({ title: () => t('title') })
 const toast = useToast()
 
+const form = useTemplateRef('form')
+const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
 const isSubmitting = ref(false)
 
 // Every dial code, for the phone field's country picker, and the country
@@ -170,11 +172,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     await navigateTo(localePath('account-addresses'))
   }
-  catch {
-    toast.add({
-      title: t('error'),
-      color: 'error',
-    })
+  catch (error) {
+    await reportFailure('webside-address:create', error, { title: t('error') })
   }
   finally {
     isSubmitting.value = false
@@ -199,7 +198,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </div>
 
     <UCard>
-      <UForm :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
+      <UForm ref="form" :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
         <!-- Title -->
         <UFormField :label="t('form.title')" name="title" required>
           <UInput

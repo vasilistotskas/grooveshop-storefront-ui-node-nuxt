@@ -100,13 +100,17 @@ function makeFormState(overrides: Record<string, any> = {}): Record<string, any>
   }
 }
 
+/** The checkout the last `setup()` built, to read the failure it is showing. */
+let current: ReturnType<typeof useCheckoutSubmit>
+const lastFailure = () => current.submitError.value!
+
 function setup(payWay: PayWay, options: {
   formState?: Record<string, any>
   selectedCountry?: Country
   refetchShippingOptions?: () => Promise<boolean>
   shippingOverWeight?: Ref<ShippingOverWeight | null>
 } = {}) {
-  return useCheckoutSubmit({
+  current = useCheckoutSubmit({
     formState: options.formState ?? makeFormState(),
     selectedPayWay: ref<PayWay | null>(payWay),
     payWays: ref<Pagination<PayWay>>({ count: 1, results: [payWay] }),
@@ -114,6 +118,7 @@ function setup(payWay: PayWay, options: {
     refetchShippingOptions: options.refetchShippingOptions,
     shippingOverWeight: options.shippingOverWeight,
   })
+  return current
 }
 
 /** Django accepted the order: ofetch awaits `onResponse` before resolving. */
@@ -243,7 +248,7 @@ describe('useCheckoutSubmit', () => {
 
       await onSubmit()
 
-      expect(lastToast()).toEqual({ title: t('form.submit.error.loyalty_requires_authentication'), color: 'error' })
+      expect(lastFailure()).toMatchObject({ title: t('form.submit.error.loyalty_requires_authentication') })
       expect(orderBodies()).toEqual([])
     })
 
@@ -257,10 +262,9 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(loyaltyDiscount.value).toBeNull()
-      expect(lastToast()).toEqual({
+      expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.loyalty_redemption_invalid'),
         description: 'Not enough points.',
-        color: 'error',
       })
       expect(orderBodies()).toEqual([])
     })
@@ -273,7 +277,7 @@ describe('useCheckoutSubmit', () => {
 
       await onSubmit()
 
-      expect(lastToast()).toEqual({ title: t('payment_intent_error'), description: 'Stripe is unavailable.', color: 'error' })
+      expect(lastFailure()).toMatchObject({ title: t('payment_intent_error'), description: 'Stripe is unavailable.' })
       expect(orderBodies()).toEqual([])
     })
 
@@ -394,7 +398,7 @@ describe('useCheckoutSubmit', () => {
 
       await onSubmit()
 
-      expect(lastToast()).toMatchObject({ title: t('payment_intent_error'), color: 'error' })
+      expect(lastFailure()).toMatchObject({ title: t('payment_intent_error') })
       expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
     })
   })
@@ -420,6 +424,16 @@ describe('useCheckoutSubmit', () => {
       expect(m.releaseReservations).not.toHaveBeenCalled()
       // The success page is the confirmation: no toast beside it.
       expect(m.toastAdd).not.toHaveBeenCalled()
+    })
+
+    it('clears the failure of the last attempt when a new one starts', async () => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-cod' }) })
+      const { onSubmit, submitError } = setup(COD)
+      submitError.value = { title: 'Η προηγούμενη προσπάθεια απέτυχε', description: 'x', fieldErrors: [], serverFault: false }
+
+      await onSubmit()
+
+      expect(submitError.value).toBeNull()
     })
 
     it('stays put when the created order has no uuid to land on', async () => {
@@ -649,7 +663,7 @@ describe('useCheckoutSubmit', () => {
 
       await onPaymentError('Your card was declined.')
 
-      expect(lastToast()).toEqual({ title: t('payment_failed'), description: 'Your card was declined.', color: 'error' })
+      expect(lastFailure()).toMatchObject({ title: t('payment_failed'), description: 'Your card was declined.' })
       expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
       expect(cart.cart).not.toBeNull()
     })
@@ -682,10 +696,9 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(m.reserveStock).not.toHaveBeenCalled()
-      expect(lastToast()).toEqual({
+      expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.stock_reservation'),
         description: t('form.submit.error.stock_reservation_description'),
-        color: 'error',
       })
       expect(orderBodies()).toEqual([])
     })
@@ -709,7 +722,7 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(stockError.value).toBeNull()
-      expect(lastToast()).toMatchObject({ title: t('form.submit.error.stock_reservation'), color: 'error' })
+      expect(lastFailure()).toMatchObject({ title: t('form.submit.error.stock_reservation') })
     })
 
     it('goes back to the shipping step when the shipping price cannot be confirmed', async () => {
@@ -719,7 +732,7 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(currentStep.value).toBe(1)
-      expect(lastToast()).toMatchObject({ title: t('form.submit.error.shipping_unavailable') })
+      expect(lastFailure()).toMatchObject({ title: t('form.submit.error.shipping_unavailable') })
       expect(orderBodies()).toEqual([])
       // No order will follow: the holds are let go.
       expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
@@ -736,10 +749,9 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(currentStep.value).toBe(1)
-      expect(lastToast()).toEqual({
+      expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.shipping_over_weight'),
         description: useNuxtApp().$i18n.t('shipping.method.over_weight_description', overWeight),
-        color: 'error',
       })
       expect(orderBodies()).toEqual([])
     })
@@ -800,10 +812,9 @@ describe('useCheckoutSubmit', () => {
 
       expect(api.callsTo('/api/cart/clear-session')).toEqual([])
       expect(cart.cart).not.toBeNull()
-      expect(lastToast()).toEqual({
+      expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.invalid_order_data'),
         description: 'invalid data',
-        color: 'error',
       })
       expect(m.releaseReservations).toHaveBeenCalledExactlyOnceWith([42])
       expect(isSubmitting.value).toBe(false)
@@ -827,7 +838,7 @@ describe('useCheckoutSubmit', () => {
 
       await setup(COD).onSubmit()
 
-      expect(lastToast()).toMatchObject({ title: t('form.submit.error.insufficient_stock'), description: message })
+      expect(lastFailure()).toMatchObject({ title: t('form.submit.error.insufficient_stock'), description: message })
     })
 
     it('sends the shopper back to the address step, one error per input', async () => {
@@ -847,7 +858,7 @@ describe('useCheckoutSubmit', () => {
         { name: 'zipcode', message: 'Enter a valid postcode, e.g. 151 24.' },
         { name: 'country', message: 'Select a valid country.' },
       ])
-      expect(lastToast().description).toContain('Enter a valid postcode, e.g. 151 24.')
+      expect(lastFailure().description).toContain('Enter a valid postcode, e.g. 151 24.')
 
       // Passing the address step again answers them.
       await nextStep()
@@ -928,10 +939,9 @@ describe('useCheckoutSubmit', () => {
 
       expect(api.callsTo('/api/orders')).toHaveLength(4)
       expect(vi.getTimerCount()).toBe(0)
-      expect(lastToast()).toEqual({
+      expect(lastFailure()).toMatchObject({
         title: t('form.submit.error.general'),
         description: t('form.submit.error.max_retries'),
-        color: 'error',
       })
 
       // A fresh submit gets a fresh retry budget: its expired hold is
