@@ -14,6 +14,8 @@ const KEPT_NUMBER_KEYS = new Set(['status', 'statusCode'])
 /** A code is an identifier, never prose; anything longer or odder is dropped. */
 const IDENTIFIER = /^[\w.-]{1,64}$/
 const MAX_DEPTH = 6
+/** What replaces a body that is not an object: its content is never logged. */
+const REDACTED_BODY = '<redacted:body>'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -49,7 +51,14 @@ export function redactBody(value: unknown, depth = 0): unknown {
  */
 export function redactClientEventError(event: Record<string, unknown>): void {
   const error = event.error
-  if (!isRecord(error)) return
+  if (error === undefined || error === null) return
+  if (!isRecord(error)) {
+    // A site that logs `error: error.data` where the body is a page or a
+    // text echo (a string), or a list: the content may be customer input.
+    // Only the fact that there was one survives.
+    event.error = typeof error === 'string' || Array.isArray(error) ? REDACTED_BODY : error
+    return
+  }
   const isSerializedError = typeof error.stack === 'string' || typeof error.name === 'string'
   if (!isSerializedError) {
     event.error = redactBody(error)

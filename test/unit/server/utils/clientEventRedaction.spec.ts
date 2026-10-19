@@ -82,6 +82,27 @@ describe('redactClientEventError', () => {
     expect(event.error).toEqual({ status: 400, errors: [{ code: 'email_taken', param: 'email' }] })
   })
 
+  it.each([
+    ['a plain-text echo', 'Unknown user x@y.z, call +30 6912345678'],
+    ['an HTML error page', '<html><body>No account for x@y.z</body></html>'],
+    ['a list of messages', ['x@y.z is taken']],
+  ])('replaces %s logged as the error with a marker, never its content', (_label, body) => {
+    const event: Record<string, unknown> = { action: 'a', error: body }
+
+    redactClientEventError(event)
+
+    expect(event.error).toBe('<redacted:body>')
+    expect(JSON.stringify(event)).not.toMatch(/x@y\.z|6912345678/)
+  })
+
+  it('redacts a string `data` on a serialized error', () => {
+    const event: Record<string, unknown> = { error: { name: 'FetchError', message: 'm', data: 'Unknown user x@y.z' } }
+
+    redactClientEventError(event)
+
+    expect(JSON.stringify(event)).not.toContain('x@y.z')
+  })
+
   it('leaves an event with no error, and an error with no data, alone', () => {
     const plain: Record<string, unknown> = { tag: 'cart', message: 'ok' }
     const noData: Record<string, unknown> = { error: { name: 'TypeError', message: 'cart is undefined', stack: 'x' } }
