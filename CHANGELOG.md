@@ -1,3 +1,10 @@
+## [3.255.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.7...v3.255.8) (2026-10-19)
+
+
+### Bug Fixes
+
+* **seo:** hreflang lists only self-canonical locale versions ([#185](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/185)) ([fd2426a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fd2426a736a4990cc60b44ee4fd337bc6e0f5033))
+
 ## [3.255.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.6...v3.255.7) (2026-10-19)
 
 
