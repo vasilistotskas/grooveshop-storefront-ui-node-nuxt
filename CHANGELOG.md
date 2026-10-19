@@ -1,3 +1,10 @@
+## [3.255.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.8...v3.255.9) (2026-10-19)
+
+
+### Bug Fixes
+
+* **loyalty:** never request loyalty data on a store that has it switched off ([#187](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/187)) ([1190d56](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1190d56a528d52d2fc3b319d773bf4463011883b))
+
 ## [3.255.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.7...v3.255.8) (2026-10-19)
 
 
