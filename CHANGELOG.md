@@ -1,3 +1,10 @@
+## [3.255.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.6...v3.255.7) (2026-10-19)
+
+
+### Bug Fixes
+
+* **errors:** show the server's reason everywhere, with field errors inline ([#183](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/183)) ([9752dda](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9752dda1454814f4e962fe1678e46fd0c74ee46a))
+
 ## [3.255.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.5...v3.255.6) (2026-10-19)
 
 
