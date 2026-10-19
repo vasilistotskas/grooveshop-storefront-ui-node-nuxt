@@ -1,3 +1,10 @@
+## [3.255.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.13...v3.255.14) (2026-10-19)
+
+
+### Bug Fixes
+
+* **i18n:** untranslated products show the store's default language, never a blank name ([#192](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/192)) ([cdaff44](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cdaff44a2b053e25cc69a56a4b536e0947098e56))
+
 ## [3.255.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.12...v3.255.13) (2026-10-19)
 
 
