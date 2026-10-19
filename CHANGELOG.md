@@ -1,3 +1,10 @@
+## [3.255.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.11...v3.255.12) (2026-10-19)
+
+
+### Bug Fixes
+
+* **recommendations:** empty-cart suggestions and client-side impressions ([#191](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/191)) ([8ab3f54](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8ab3f549e85f11614b4f468421c3db32860fd768))
+
 ## [3.255.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.10...v3.255.11) (2026-10-19)
 
 
