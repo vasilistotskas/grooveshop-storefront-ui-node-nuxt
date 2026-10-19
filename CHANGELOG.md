@@ -1,3 +1,10 @@
+## [3.255.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.10...v3.255.11) (2026-10-19)
+
+
+### Bug Fixes
+
+* **navigation:** the phone menu lists the store's Mobile menu ([#189](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/189)) ([df3ebc6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/df3ebc65ab7e91c1ab828629ecfe69c7d570d747))
+
 ## [3.255.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.9...v3.255.10) (2026-10-19)
 
 
