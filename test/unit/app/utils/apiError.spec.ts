@@ -85,6 +85,26 @@ describe('describeApiErrorWith', () => {
     expect(described.fieldErrors).toEqual([{ name: 'items.1.quantity', message: 'Πολύ μικρή.', code: 'min_value' }])
   })
 
+  it('flattens every shape ApiFieldErrors allows: rows by position, a list of rows, nesting inside nesting', () => {
+    const message = (text: string) => ({ message: text, code: 'invalid' })
+    const described = describe_(forwarded(400, {
+      code: 'invalid',
+      fields: {
+        items: { 0: { quantity: [message('A')] }, 2: { options: { 1: { value: [message('B')] } } } },
+        lines: [[message('C')], { sku: [message('D')] }],
+        email: [message('E')],
+      },
+    }))
+
+    expect(described.fieldErrors.map(entry => [entry.name, entry.message])).toEqual([
+      ['items.0.quantity', 'A'],
+      ['items.2.options.1.value', 'B'],
+      ['lines', 'C'],
+      ['lines.sku', 'D'],
+      ['email', 'E'],
+    ])
+  })
+
   it('reads a legacy field map that has no `fields`', () => {
     const described = describe_(forwarded(400, { phone: ['Άκυρο τηλέφωνο.'], nonFieldErrors: ['Δεν γίνεται.'] }))
 

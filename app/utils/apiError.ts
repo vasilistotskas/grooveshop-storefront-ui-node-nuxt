@@ -97,7 +97,7 @@ function fieldLeaves(value: unknown, path: string[], out: ApiFieldError[]): void
       if (isRecord(item) && typeof item.message === 'string') {
         out.push({ name: path.join('.'), message: item.message, ...(stringOf(item.code) ? { code: String(item.code) } : {}) })
       }
-      else if (isRecord(item)) {
+      else if (isRecord(item) || Array.isArray(item)) {
         fieldLeaves(item, path, out)
       }
     }

@@ -41,6 +41,26 @@ describe('useApiFormErrors().reportFailure', () => {
     expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ description: 'Υπάρχει ήδη.' }))
   })
 
+  it('puts a nested row error under the input that carries its full path', async () => {
+    const { form, reportFailure } = setup(['items.1.quantity'])
+    const body = { code: 'invalid', fields: { items: { 1: { quantity: [{ message: 'Πολύ μικρή.', code: 'min_value' }] } } } }
+
+    await reportFailure('cart:update', failure(body), { title: 'Σφάλμα' })
+
+    expect(form.setErrors).toHaveBeenCalledWith([{ name: 'items.1.quantity', message: 'Πολύ μικρή.' }])
+    expect(toast.add).not.toHaveBeenCalled()
+  })
+
+  it('toasts a nested row error when the form has no input of that path', async () => {
+    const { form, reportFailure } = setup(['items'])
+    const body = { code: 'invalid', fields: { items: { 1: { quantity: [{ message: 'Πολύ μικρή.', code: 'min_value' }] } } } }
+
+    await reportFailure('cart:update', failure(body), { title: 'Σφάλμα' })
+
+    expect(form.setErrors).not.toHaveBeenCalled()
+    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ description: 'Πολύ μικρή.' }))
+  })
+
   it('does both when the body has fields the form has and fields it lacks', async () => {
     const { form, reportFailure } = setup(['email'])
     const body = { fields: { email: [{ message: 'Υπάρχει ήδη.', code: 'unique' }], taxId: [{ message: 'Άκυρο.', code: 'invalid' }] } }
