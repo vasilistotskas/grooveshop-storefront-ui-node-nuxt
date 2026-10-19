@@ -29,9 +29,11 @@ describe('apiErrorBodyOf', () => {
     expect(apiErrorBodyOf(allAuthThrown(400, body))).toEqual(body)
   })
 
-  it('does not unwrap a body that merely has a `data` key', () => {
-    const body = { detail: 'No.', data: { status: 'x' } }
-
+  it.each([
+    ['a `data` key', { detail: 'No.', data: { status: 'x' } }],
+    // Shaped like an allauth body inside, but Django's: no wrapper around it.
+    ['a `data` object with a numeric `status`', { detail: 'No.', code: 'nope', data: { status: 400 } }],
+  ])('does not unwrap a Django body that merely has %s', (_case, body) => {
     expect(apiErrorBodyOf(forwarded(400, body))).toEqual(body)
   })
 
