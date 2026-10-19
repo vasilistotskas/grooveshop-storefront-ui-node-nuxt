@@ -24,6 +24,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateCartAgentTokenResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

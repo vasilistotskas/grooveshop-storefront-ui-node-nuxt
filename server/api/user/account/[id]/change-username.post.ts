@@ -29,9 +29,6 @@ export default defineEventHandler(async (event) => {
     return data
   }
   catch (error) {
-    // Return Django 4xx bodies (409 "Username already taken." detail)
-    // so the client toast can show the reason — thrown
-    // createError({data}) is sent in a second, nested shape in production (data.data).
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

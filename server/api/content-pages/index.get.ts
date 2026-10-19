@@ -14,7 +14,7 @@ export default defineCachedRoute(async (event) => {
     return await parseDataAs(response, zListContentPageResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'ContentPageViewSet',

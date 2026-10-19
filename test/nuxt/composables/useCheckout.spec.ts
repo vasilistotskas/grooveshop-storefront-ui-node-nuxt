@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { failWith } from '~~/test/helpers/api'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -24,9 +25,7 @@ describe('useCheckout', () => {
     it('rethrows a 409 shortfall as an error naming the failed lines', async () => {
       const failedItems = [{ productId: 1, productName: 'Shirt', available: 0, requested: 1 }]
       api.routes({
-        '/api/cart/reserve-stock': () => {
-          throw Object.assign(new Error('409'), { data: { data: { code: 'insufficient_stock', failedItems, detail: 'No stock' } } })
-        },
+        '/api/cart/reserve-stock': failWith(409, { code: 'insufficient_stock', failedItems, detail: 'No stock' }),
       })
 
       await expect(useCheckout().reserveStock(1)).rejects.toMatchObject({

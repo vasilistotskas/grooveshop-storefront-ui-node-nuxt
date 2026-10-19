@@ -40,6 +40,6 @@ export default defineEventHandler(async (event) => {
     return Buffer.from(response._data)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

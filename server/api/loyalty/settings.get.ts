@@ -38,7 +38,7 @@ export default defineCachedRoute(
       return await parseDataAs(record, zLoyaltySettingsResponse)
     }
     catch (error) {
-      handleError(event, error)
+      return handleError(event, error)
     }
   },
   {

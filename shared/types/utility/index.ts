@@ -15,11 +15,3 @@ export type TranslationObject<T = Record<string, any>> = {
 } & Omit<T, 'translations'>
 
 export type ImageLoading = 'lazy' | 'eager' | undefined
-
-export type ErrorWithDetail = {
-  data: {
-    data: {
-      detail: string
-    }
-  }
-}

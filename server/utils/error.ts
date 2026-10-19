@@ -68,7 +68,14 @@ function issueDigest(issues: readonly ValidationIssue[]) {
   }))
 }
 
-export function handleError(
+/**
+ * Throw `error` as the response, mapped: a malformed request, a drifted
+ * response, an upstream failure, anything else. The error handler of Nitro
+ * puts a thrown error's `data` one level down (`error.data.data`), so this
+ * is the path for failures that carry no body worth forwarding, and for the
+ * allauth flows, whose client reads that wrapper.
+ */
+function rejectError(
   event: RequestEvent,
   error: unknown,
 ): never {
@@ -147,25 +154,29 @@ export function handleError(
   })
 }
 
-// DRF validation errors (and other upstream 4xx bodies) carry the
-// field → messages payload the client turns into specific toasts and
-// inline errors (e.g. checkout's ``{"phone": ["Enter a valid phone
-// number."]}``). Like the allauth flows below, those payloads travel in
-// ``createError``'s ``data``. Nitro DOES send a handled error's ``data`` on
-// an ``/api`` JSON response in production (verified on a production build,
-// 2026-10-19: ``{url, status, statusCode, statusText, statusMessage,
-// message, error, data}``); only an unhandled or fatal error loses it
-// (``isSensitive`` in nitropack's ``error/prod``). But that wraps Django's
-// body one level down (``error.data.data``), so a thrown error and a
-// forwarded one give the client two shapes. For upstream 4xx we therefore
-// RETURN the body verbatim with the upstream status; the client's
-// ``onResponseError`` reads it as ``response._data`` in the exact shape
-// Django produced, whatever the route. Everything else keeps the throw
-// path.
-// Same `undefined` return-type trick as ``forwardAllAuthFlow``: the
-// 4xx status makes `$fetch` reject, so callers never see this value as
-// a resolved result and the route's success type stays clean.
-export function forwardUpstreamClientError(event: RequestEvent, error: unknown): undefined {
+/**
+ * Answer a failed route. Every server route ends its `catch` with
+ * `return handleError(event, error)`, so the client sees ONE shape.
+ *
+ * An upstream 4xx that carries a body (DRF field errors, `{ detail, code }`,
+ * a documented 409) is RETURNED verbatim with Django's status, so the
+ * client's `error.data` is exactly Django's body: the `code`, the
+ * per-field `fields`, the sentence. (A thrown `createError` would be sent
+ * as an envelope with that body one level down, `error.data.data`; Nitro
+ * does send a handled error's `data` on an `/api` response, verified on a
+ * production build 2026-10-19.) Anything else is thrown through
+ * `rejectError`: a 5xx never forwards its body, since it can leak a
+ * dependency's diagnostics (dj-stripe, allauth, a stack trace).
+ *
+ * The return type is `never` on purpose, although a forwarded body IS
+ * returned: the 4xx status makes `$fetch` reject, so the body is never a
+ * resolved result and must stay out of the route's success type (typed
+ * `undefined` it joined every route's result, `T | undefined`, in every
+ * typed `$api` call). Because the type cannot say "returns" the call must
+ * be `return handleError(...)`: the source rule
+ * `test/unit/source-rules/handle-error-is-returned.spec.ts` fails a bare one.
+ */
+export function handleError(event: RequestEvent, error: unknown): never {
   if (
     error instanceof FetchError
     && isClientError(error)
@@ -177,9 +188,9 @@ export function forwardUpstreamClientError(event: RequestEvent, error: unknown):
       data: error.data,
     })
     setResponseStatus(event, error.status ?? 400)
-    return error.data as unknown as undefined
+    return error.data as never
   }
-  handleError(event, error)
+  rejectError(event, error)
 }
 
 // A few routes document a 5xx answer of their own, such as the cancel
@@ -201,7 +212,7 @@ export function forwardUpstreamDocumentedError(event: RequestEvent, error: unkno
       return documented.data as undefined
     }
   }
-  return forwardUpstreamClientError(event, error)
+  return handleError(event, error)
 }
 
 function pendingFlowOf(error: AllAuthError) {
@@ -267,7 +278,7 @@ export async function handleAllAuthError(
   error: unknown,
 ) {
   await syncAllAuthSessionFromError(event, error)
-  handleError(event, error)
+  rejectError(event, error)
 }
 
 // One reason phrase per status an allauth error can carry, keyed by that

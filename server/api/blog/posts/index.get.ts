@@ -37,7 +37,7 @@ export default defineCachedRoute(async (event) => {
     }
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'BlogPostViewSet',

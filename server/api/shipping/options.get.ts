@@ -42,7 +42,7 @@ export default defineCachedRoute(
       return await parseDataAs(raw, zListShippingOptionsResponse)
     }
     catch (error) {
-      handleError(event, error)
+      return handleError(event, error)
     }
   },
   {

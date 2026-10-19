@@ -22,7 +22,7 @@ export default defineCachedRoute(async (event) => {
     )
   }
   catch (error) {
-    await handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'pageConfigNavigation',

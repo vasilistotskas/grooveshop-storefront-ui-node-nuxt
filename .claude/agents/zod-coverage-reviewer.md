@@ -59,8 +59,8 @@ Out: files under `server/utils/`, `server/middleware/`, `server/plugins/`, `serv
 ### Error handling
 
 - `try/catch` is mandatory. Flag missing catches.
-- Catch must call `handleError(event, error)` (general routes) or `await handleAllAuthError(event, error)` (`_allauth/**`). Flag the wrong helper for the route's namespace. A route whose 4xx body the client must read may instead `return forwardUpstreamClientError(event, error)` (general) or `return await forwardAllAuthFlow(event, error)` (`_allauth/**`); both fall through to `handleError` for everything else, so do not flag them.
-- Flag any code after `handleError(event, error)` / `handleAllAuthError(event, error)` in the catch — both always throw, so it's dead code (or worse, a bypass).
+- Catch must `return handleError(event, error)` (general routes; a bare call resolves the route empty on a forwarded 4xx) or `await handleAllAuthError(event, error)` (`_allauth/**`). Flag the wrong helper for the route's namespace. An allauth flow whose 4xx body the client must read may instead `return await forwardAllAuthFlow(event, error)` (`_allauth/**`); it falls through to `handleAllAuthError` for everything else, so do not flag it.
+- Flag any code after `return handleError(event, error)` / `handleAllAuthError(event, error)` in the catch — nothing after them runs, so it's dead code (or worse, a bypass).
 - Flag any `return createError(...)` — must be `throw createError(...)`.
 
 ### `_allauth` namespace specifics

@@ -27,6 +27,6 @@ export default defineEventHandler(async (event) => {
     if (error instanceof FetchError && error.statusCode === 404) {
       return null
     }
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

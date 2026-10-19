@@ -1,39 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getErrorDetail, requestIdOf, serializeError } from '~~/shared/utils/error'
-
-describe('getErrorDetail', () => {
-  it('reads detail from a forwarded upstream body (error.data.detail)', () => {
-    expect(getErrorDetail({ data: { detail: 'Username already taken.' } }))
-      .toBe('Username already taken.')
-  })
-
-  it('reads detail from the thrown-route wrapper (error.data.data.detail)', () => {
-    expect(getErrorDetail({ data: { statusCode: 400, data: { detail: 'Bad cart.' } } }))
-      .toBe('Bad cart.')
-  })
-
-  it('prefers the forwarded body when both carry a detail', () => {
-    expect(getErrorDetail({ data: { detail: 'outer', data: { detail: 'inner' } } })).toBe('outer')
-  })
-
-  it('never falls back to the raw fetch message', () => {
-    // ofetch messages like `[POST] "/api/orders": 400 Bad Request` are
-    // always truthy — returning them made every `|| t('fallback')`
-    // dead code and leaked request lines into customer-facing toasts.
-    expect(getErrorDetail({
-      message: '[POST] "/api/orders": 400 Bad Request',
-      data: { statusCode: 400 },
-    })).toBeUndefined()
-    expect(getErrorDetail(new Error('boom'))).toBeUndefined()
-    expect(getErrorDetail(undefined)).toBeUndefined()
-    expect(getErrorDetail('nope')).toBeUndefined()
-  })
-
-  it('ignores empty or non-string detail values', () => {
-    expect(getErrorDetail({ data: { detail: '' } })).toBeUndefined()
-    expect(getErrorDetail({ data: { detail: 42 } })).toBeUndefined()
-  })
-})
+import { requestIdOf, serializeError } from '~~/shared/utils/error'
 
 describe('serializeError', () => {
   it('keeps what a log line needs from an H3-style error', () => {

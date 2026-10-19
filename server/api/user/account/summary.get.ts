@@ -59,7 +59,7 @@ export default defineEventHandler(async (event): Promise<AccountSummary> => {
     }
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })
 

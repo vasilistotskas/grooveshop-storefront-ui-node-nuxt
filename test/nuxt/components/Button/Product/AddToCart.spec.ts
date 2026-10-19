@@ -260,11 +260,11 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     expect(api.callsTo('/api/cart/items')[0]!.options.body).toEqual({ product: 4, quantity: 1 })
   })
 
-  it.each([
-    { shape: 'the forwarded body', data: { nonFieldErrors: ['Εξαντλήθηκε', 'Όριο 2 τεμαχίων'] } },
-    { shape: 'the legacy nested body', data: { data: { nonFieldErrors: ['Εξαντλήθηκε', 'Όριο 2 τεμαχίων'] } } },
-  ])('shows Django\'s reasons from $shape in one toast, and nothing else', async ({ data }) => {
-    api.routes({ '/api/cart': makeCart({ items: [] }), '/api/cart/items': failWith(400, data) })
+  it('shows Django\'s reasons in one toast, and nothing else', async () => {
+    api.routes({
+      '/api/cart': makeCart({ items: [] }),
+      '/api/cart/items': failWith(400, { nonFieldErrors: ['Εξαντλήθηκε', 'Όριο 2 τεμαχίων'] }),
+    })
     const wrapper = await mount({ product: makeProduct() })
 
     await click(wrapper)

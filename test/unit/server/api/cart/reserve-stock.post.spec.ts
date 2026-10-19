@@ -41,11 +41,7 @@ describe('POST /api/cart/reserve-stock', () => {
 
     expect(response.status).toBe(409)
     expect(response.error).toBeUndefined()
-    expect(response.body).toEqual({
-      statusCode: 409,
-      statusMessage: 'Insufficient stock',
-      data: { code: 'insufficient_stock', detail: 'Not enough stock', failedItems: [{ product_id: 1 }] },
-    })
+    expect(response.body).toEqual({ code: 'insufficient_stock', detail: 'Not enough stock', failedItems: [{ product_id: 1 }] })
   })
 
   it('forwards another 4xx body with its status', async () => {

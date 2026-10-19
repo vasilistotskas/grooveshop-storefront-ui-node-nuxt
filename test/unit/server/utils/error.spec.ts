@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest'
 import { z, ZodError } from 'zod'
 import {
   forwardAllAuthFlow,
-  forwardUpstreamClientError,
   handleAllAuthError,
   handleError,
   isAllAuthError,
@@ -188,13 +187,14 @@ describe('handleError', () => {
       [400, { phone: ['Enter a valid phone number.'] }],
       [429, { detail: 'Request was throttled.' }],
     ])('forwards a %i with its body, logged as a warning', async (status, body) => {
-      const error = await upstreamError(status, body)
+      backend.replyOnce(jsonResponse(body, status))
 
-      const thrown = thrownBy(() => handleError(probe(), error))
+      const response = await callRoute(routeCatching(handleError), { method: 'POST', url: '/api/x' })
 
-      expect(thrown.status).toBe(status)
-      expect(thrown.data).toEqual(body)
-      expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      // The body is the response, not a `data` one level down.
+      expect(response.status).toBe(status)
+      expect(response.body).toEqual(body)
+      expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch', data: body }))
       expect(log.error).not.toHaveBeenCalled()
     })
 
@@ -264,34 +264,43 @@ function routeCatching(onError: (event: RequestEvent, error: unknown) => unknown
   })
 }
 
-describe('forwardUpstreamClientError', () => {
-  it('returns an upstream 4xx body verbatim with its status (thrown data is stripped in production)', async () => {
-    backend.replyOnce(jsonResponse({ phone: ['Enter a valid phone number.'] }, 400))
+describe('handleError at route level', () => {
+  it('returns an upstream 4xx body verbatim with its status (a thrown error would nest it one level down)', async () => {
+    backend.replyOnce(jsonResponse({ code: 'invalid', fields: { phone: [{ message: 'Enter a valid phone number.', code: 'invalid' }] } }, 400))
 
-    const response = await callRoute(routeCatching(forwardUpstreamClientError), { method: 'POST', url: '/api/x' })
+    const response = await callRoute(routeCatching(handleError), { method: 'POST', url: '/api/x' })
 
     expect(response.status).toBe(400)
-    expect(response.body).toEqual({ phone: ['Enter a valid phone number.'] })
-    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch', data: { phone: ['Enter a valid phone number.'] } }))
+    expect(response.body).toEqual({ code: 'invalid', fields: { phone: [{ message: 'Enter a valid phone number.', code: 'invalid' }] } })
   })
 
-  it('throws through handleError when the 4xx has no body', async () => {
+  it('throws the 4xx when it has no body', async () => {
     backend.replyOnce(new Response(null, { status: 404, statusText: 'Not Found' }))
 
-    const response = await callRoute(routeCatching(forwardUpstreamClientError), { method: 'POST', url: '/api/x' })
+    const response = await callRoute(routeCatching(handleError), { method: 'POST', url: '/api/x' })
 
     expect(response.status).toBe(404)
     // handleError's message, not h3's "Cannot find any route" for an empty return.
     expect(response.error?.statusMessage).toBe('Not Found')
   })
 
-  it('throws a 5xx through handleError, body dropped', async () => {
+  it('throws a 5xx, body dropped', async () => {
     backend.replyOnce(jsonResponse({ traceback: 'internal' }, 500))
 
-    const response = await callRoute(routeCatching(forwardUpstreamClientError), { method: 'POST', url: '/api/x' })
+    const response = await callRoute(routeCatching(handleError), { method: 'POST', url: '/api/x' })
 
     expect(response.status).toBe(500)
     expect(response.body.data).toBeUndefined()
+    expect(JSON.stringify(response.body)).not.toContain('internal')
+  })
+
+  it('still wraps an allauth 4xx as a thrown error, which the allauth client reads at error.data.data', async () => {
+    backend.replyOnce(jsonResponse(allauth.bad, 400))
+
+    const response = await callRoute(routeCatching(handleAllAuthError), { method: 'POST', url: '/api/x' })
+
+    expect(response.status).toBe(400)
+    expect(response.body.data).toEqual(allauth.bad)
   })
 })
 

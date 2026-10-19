@@ -20,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zDestroyUserSubscriptionResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

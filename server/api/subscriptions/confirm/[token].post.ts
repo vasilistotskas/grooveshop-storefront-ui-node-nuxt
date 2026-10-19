@@ -28,6 +28,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zConfirmSubscriptionByTokenResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

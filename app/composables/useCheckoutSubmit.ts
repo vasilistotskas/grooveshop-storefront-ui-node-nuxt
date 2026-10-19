@@ -120,8 +120,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // acts again: a toast times out, and a shopper who looked away would not
   // know why «Pay» did nothing (`<ApiErrorAlert>` on the checkout page).
   const submitError = ref<DescribedApiError | null>(null)
-  const failCheckout = (failure: { title: string, description?: string }) => {
-    submitError.value = { title: failure.title, description: failure.description ?? '', fieldErrors: [], serverFault: false }
+  const failCheckout = (failure: { title: string, description?: string, code?: string, requestId?: string }) => {
+    submitError.value = {
+      title: failure.title,
+      description: failure.description ?? '',
+      code: failure.code,
+      requestId: failure.requestId,
+      fieldErrors: [],
+      serverFault: false,
+    }
   }
   const failCheckoutWith = (error: unknown, options: DescribeApiErrorOptions) => {
     submitError.value = describeApiError(error, options)
@@ -179,7 +186,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       addressStepErrors.value = errorInfo.addressStepErrors
       currentStep.value = 0
     }
-    return errorInfo
+    // What the shopper quotes to support: the refusal's stable code and
+    // the request's id (`describeApiError` reads both).
+    const { code, requestId } = describeApiError({ status: response?.status, data: errorData, response }, {})
+    return { ...errorInfo, code, requestId }
   }
 
   const buildOrderValues = () => {
@@ -252,7 +262,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       })
   }
 
-  const handleRetryableError = (errorInfo: { title: string, description?: string, shouldRetry: boolean }) => {
+  const handleRetryableError = (errorInfo: { title: string, description?: string, shouldRetry: boolean, code?: string, requestId?: string }) => {
     if (errorInfo.shouldRetry) {
       if (retryCount.value >= MAX_RETRIES) {
         failCheckout({
@@ -278,6 +288,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       failCheckout({
         title: errorInfo.title,
         description: errorInfo.description,
+        code: errorInfo.code,
+        requestId: errorInfo.requestId,
       })
     }
   }

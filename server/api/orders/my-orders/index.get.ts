@@ -13,6 +13,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zListMyOrdersResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

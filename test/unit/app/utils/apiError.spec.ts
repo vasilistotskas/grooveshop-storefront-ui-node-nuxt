@@ -13,19 +13,30 @@ const describe_ = (error: unknown, title?: string) => describeApiErrorWith(error
 
 /** A forwarded Django body: `error.data` is the body. */
 const forwarded = (status: number, data: unknown) => ({ status, data })
-/** A thrown route error: `error.data` wraps the body one level down. */
-const thrown = (status: number, data: unknown) => ({ status, data: { statusCode: status, statusMessage: 'Bad Request', data } })
+/** An allauth flow's error: its body sits under the wrapper the allauth routes throw. */
+const allAuthThrown = (status: number, data: unknown) => ({ status, data: { statusCode: status, statusMessage: 'Bad Request', data } })
 
 describe('apiErrorBodyOf', () => {
-  it('reads Django\'s body from both client shapes', () => {
+  it('reads Django\'s body at error.data', () => {
     const body = { detail: 'No.', code: 'nope' }
 
     expect(apiErrorBodyOf(forwarded(400, body))).toEqual(body)
-    expect(apiErrorBodyOf(thrown(400, body))).toEqual(body)
+  })
+
+  it('reads an allauth body from under the wrapper its routes throw', () => {
+    const body = { status: 400, errors: [{ code: 'invalid', message: 'No.', param: 'email' }] }
+
+    expect(apiErrorBodyOf(allAuthThrown(400, body))).toEqual(body)
+  })
+
+  it('does not unwrap a body that merely has a `data` key', () => {
+    const body = { detail: 'No.', data: { status: 'x' } }
+
+    expect(apiErrorBodyOf(forwarded(400, body))).toEqual(body)
   })
 
   it.each([
-    ['a thrown error with no body', { status: 502, data: { statusCode: 502, statusMessage: 'Bad Gateway' } }],
+    ['an error with no body', { status: 502, data: undefined }],
     ['an HTML error page', { status: 502, data: '<html>Bad gateway</html>' }],
     ['a network failure', new TypeError('Failed to fetch')],
     ['null', null],
@@ -35,8 +46,8 @@ describe('apiErrorBodyOf', () => {
 })
 
 describe('describeApiErrorWith', () => {
-  it.each([['forwarded', forwarded], ['thrown', thrown]])('takes Django\'s message and code from the %s shape', (_name, shape) => {
-    const described = describe_(shape(400, { detail: 'Το καλάθι είναι άδειο.', code: 'cart_empty' }), 'Η παραγγελία δεν δημιουργήθηκε')
+  it('takes the message and code of Django from the body', () => {
+    const described = describe_(forwarded(400, { detail: 'Το καλάθι είναι άδειο.', code: 'cart_empty' }), 'Η παραγγελία δεν δημιουργήθηκε')
 
     expect(described).toMatchObject({
       title: 'Η παραγγελία δεν δημιουργήθηκε',
@@ -113,7 +124,7 @@ describe('describeApiErrorWith', () => {
   })
 
   it('reads allauth\'s errors: the param is the field, the code the code', () => {
-    const described = describe_(thrown(400, { status: 400, errors: [{ code: 'email_taken', message: 'Το email υπάρχει.', param: 'email' }] }))
+    const described = describe_(allAuthThrown(400, { status: 400, errors: [{ code: 'email_taken', message: 'Το email υπάρχει.', param: 'email' }] }))
 
     expect(described).toMatchObject({ code: 'email_taken', description: 'Το email υπάρχει.' })
     expect(described.fieldErrors).toEqual([{ name: 'email', message: 'Το email υπάρχει.', code: 'email_taken' }])
@@ -144,7 +155,7 @@ describe('describeApiErrorWith', () => {
   })
 
   it('never shows transport text: error.message and statusMessage', () => {
-    const error = Object.assign(new Error('[POST] "/api/x": 400 Bad Request'), thrown(400, undefined))
+    const error = Object.assign(new Error('[POST] "/api/x": 400 Bad Request'), { ...forwarded(400, undefined), statusMessage: 'Bad Request' })
 
     expect(describe_(error).description).not.toMatch(/POST|Bad Request/)
   })

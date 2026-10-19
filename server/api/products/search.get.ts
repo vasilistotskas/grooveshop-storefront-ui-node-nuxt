@@ -73,7 +73,7 @@ export default defineCachedRoute(async (event) => {
     return validatedResponse as ProductMeiliSearchResponse
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'SearchProductViewSet',

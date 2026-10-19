@@ -156,7 +156,7 @@ export default defineCachedRoute(
       return rows
     }
     catch (error) {
-      handleError(event, error)
+      return handleError(event, error)
     }
   },
   {

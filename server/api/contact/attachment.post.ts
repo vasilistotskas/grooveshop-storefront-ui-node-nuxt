@@ -23,7 +23,7 @@ import { useRuntimeConfig } from 'nuxt/server'
  * * The reply is NOT parsed with Zod, because `sendProxy` pipes
  *   Django's response body straight to the client. Django's 400s and
  *   its 404-when-disabled therefore reach the browser verbatim, which
- *   is what `forwardUpstreamClientError` achieves for the other
+ *   is what `handleError` achieves for the other
  *   routes by hand.
  * * The tenant headers are set explicitly. `useBackendFetch` cannot
  *   be used — `sendProxy` needs a real `fetch`, not an ofetch

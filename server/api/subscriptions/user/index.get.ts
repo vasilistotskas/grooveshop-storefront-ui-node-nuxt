@@ -15,6 +15,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zListUserSubscriptionResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

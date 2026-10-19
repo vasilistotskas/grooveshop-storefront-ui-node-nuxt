@@ -14,9 +14,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateContactResponse)
   }
   catch (error) {
-    // Return Django 4xx bodies (DRF validation detail) so the client
-    // can show WHAT was rejected — thrown createError({data}) is
-    // sent in a second, nested shape in production (data.data). See forwardUpstreamClientError.
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

@@ -37,7 +37,7 @@ export default defineCachedRoute(async (event) => {
     return await parseDataAs(response, zListAttributeResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'ProductAttributeViewSet',

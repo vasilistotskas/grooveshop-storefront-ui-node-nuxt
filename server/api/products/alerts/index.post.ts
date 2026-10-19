@@ -23,6 +23,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateProductAlertResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

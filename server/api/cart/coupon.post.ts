@@ -33,6 +33,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zApplyCartCouponResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

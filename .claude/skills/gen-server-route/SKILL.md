@@ -45,7 +45,7 @@ export default defineCachedRoute(async (event) => {
     return await parseDataAs(response, {{RESPONSE_SCHEMA}})
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: '{{CACHE_NAME}}',
@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, {{RESPONSE_SCHEMA}})
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })
 ```
@@ -136,7 +136,7 @@ export default defineEventHandler(async (event) => {
       log.info('cart', `Auth expired (${error.statusCode}), returning empty cart`)
       return null
     }
-    handleError(event, error)
+    return handleError(event, error)
   }
 })
 ```
@@ -215,7 +215,7 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, {{RESPONSE_SCHEMA}})
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })
 ```
@@ -226,7 +226,7 @@ export default defineEventHandler(async (event) => {
 
 - Every Django call goes through `useBackendFetch(event)`; there is no global `$fetch` on the server.
 - Input: `getValidatedQuery(event, zSchema)` / `readValidatedBody(event, zSchema)` (pass the schema itself, not `.parse`) and `parseRouterParams(event, zSchema)` for route params.
-- `handleError(event, error)` / `handleAllAuthError(event, error)` always throw — never write code after them in the catch. Every auth helper takes `event`.
+- `return handleError(event, error)` (it returns an upstream 4xx body verbatim, or throws) / `handleAllAuthError(event, error)` (always throws) — never write code after them in the catch, and always `return` the first. Every auth helper takes `event`.
 - Cached GETs use `defineCachedRoute` with a `getKey` built on `tenantCacheKey(event, …)`, never on per-user data.
 - `createError(...)` must be `throw`n, never `return`ed.
 - File naming: `index.get.ts`, `index.post.ts`, etc. inside the route directory; method must match suffix.

@@ -24,6 +24,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zRemoveCartCouponResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

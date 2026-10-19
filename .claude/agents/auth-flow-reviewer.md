@@ -37,9 +37,9 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 
 ### Error handling
 
-4. **`handleError` and `handleAllAuthError` always throw**. Code after them in a catch block is dead or a bypass. Flag every such instance.
+4. **`return handleError(...)` and `handleAllAuthError` end the catch**. `handleError` returns an upstream 4xx body or throws; `handleAllAuthError` always throws. Code after them in a catch block is dead or a bypass. Flag every such instance, and a `handleError` call that is not returned.
 5. **`createError` must be thrown, not returned**. `return createError(...)` sends a 200 response with the error as JSON body.
-6. **AllAuth namespace uses `handleAllAuthError`**. Routes under `server/api/_allauth/**` must use `handleAllAuthError` (which clears session on 410, updates tokens on 401/invalid-session, then delegates to `handleError`). Flag mismatched usage.
+6. **AllAuth namespace uses `handleAllAuthError`**. Routes under `server/api/_allauth/**` must use `handleAllAuthError` (which clears session on 410, updates tokens on 401/invalid-session, then throws the mapped error). Flag mismatched usage.
 7. **Status 410 = session torn down**. The error helper clears the session on 410 Gone. Any custom branch that handles 410 *without* clearing the session (or that clears on 401 *with* `meta.is_authenticated = true`) is wrong.
 
 ### Headers / forwarding
