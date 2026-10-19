@@ -45,6 +45,6 @@ export default defineEventHandler(async (event) => {
     return await fetchLoyaltySummary(host, requestLocale(event))
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

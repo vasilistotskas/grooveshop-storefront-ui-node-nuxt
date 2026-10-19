@@ -1,8 +1,7 @@
 /**
  * allauth error-response type guards — zod ``safeParse`` against the
  * upstream body shapes. Kept OUT of shared/utils/error.ts so the
- * universally-imported ``getErrorDetail``/``serializeError`` stay
- * zod-free (see the note there). shared/utils is auto-imported by
+ * universally-imported ``serializeError`` stays zod-free (see the note there). shared/utils is auto-imported by
  * symbol, so the split is invisible to call sites.
  */
 // Common shape: ofetch's ``FetchError`` has a ``data`` property that

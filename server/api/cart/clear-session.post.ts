@@ -14,6 +14,6 @@ export default defineEventHandler(async (event) => {
     return { success: true }
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

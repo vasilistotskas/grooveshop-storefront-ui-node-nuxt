@@ -42,10 +42,9 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zReserveCartStockResponse)
   }
   catch (error) {
-    // Surface structured stock failure data where the client reads it
-    // (``error.data.data`` in useCheckout.reserveStock). RETURN the
-    // wrapper with the 409 status, mirroring forwardAllAuthFlow's shape
-    // contract, so every route gives the client the same shape.
+    // A 409 names the lines that could not be held; the client turns it
+    // into the per-line alert (`parseInsufficientStockError`). Returned with
+    // its status like every upstream 4xx, so the body is `error.data`.
     if (error instanceof FetchError && error.statusCode === 409) {
       const errorData = error.data as Record<string, unknown> | undefined
       log.warn({
@@ -54,17 +53,12 @@ export default defineEventHandler(async (event) => {
       })
       setResponseStatus(event, 409)
       return {
-        statusCode: 409,
-        statusMessage: 'Insufficient stock',
-        data: {
-          code: 'insufficient_stock',
-          detail: errorData?.detail,
-          failedItems: errorData?.failed_items ?? errorData?.failedItems,
-        },
-      } as unknown as undefined
+        code: 'insufficient_stock',
+        detail: errorData?.detail,
+        failedItems: errorData?.failed_items ?? errorData?.failedItems,
+      } as never
     }
-    // Non-409 upstream 4xx (bad cart, expired session): forward the
-    // body so getErrorDetail can surface Django's reason.
-    return forwardUpstreamClientError(event, error)
+    // Any other upstream 4xx (bad cart, expired session) is forwarded as is.
+    return handleError(event, error)
   }
 })

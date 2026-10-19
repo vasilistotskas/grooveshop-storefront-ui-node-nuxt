@@ -23,9 +23,6 @@ export default defineEventHandler(async (event) => {
     return parsedData
   }
   catch (error) {
-    // Return Django 4xx bodies (DRF detail / field errors) so clients
-    // can show the reason — a thrown createError({data}) reaches the client in
-    // a second, nested shape (data.data). See forwardUpstreamClientError.
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

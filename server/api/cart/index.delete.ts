@@ -25,6 +25,6 @@ export default defineEventHandler(async (event) => {
     return null
   }
   catch (error) {
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

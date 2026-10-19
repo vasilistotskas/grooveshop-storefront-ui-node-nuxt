@@ -73,9 +73,6 @@ export default defineEventHandler(async (event) => {
     return parsedData
   }
   catch (error) {
-    // Django 4xx bodies (DRF field errors) are returned, not thrown —
-    // a thrown `createError({ data })` would nest it one level down and
-    // the checkout toast reads the field detail. See forwardUpstreamClientError.
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

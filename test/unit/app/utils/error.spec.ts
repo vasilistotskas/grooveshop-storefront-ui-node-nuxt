@@ -4,7 +4,6 @@ import {
   isAllAuthClientError,
   isDrfFieldErrorMap,
   isConflictClientError,
-  isErrorWithDetail,
   isRateLimitedClientError,
 } from '~/utils/error'
 
@@ -14,25 +13,6 @@ import {
  * from `shared/utils/allAuthErrorGuards.ts`); `handleAllAuthClientError`,
  * which toasts, is `test/nuxt/utils/error.spec.ts`.
  */
-describe('isErrorWithDetail', () => {
-  it('recognises a detail string under the thrown-route wrapper', () => {
-    expect(isErrorWithDetail({ data: { data: { detail: 'Error message' } } })).toBe(true)
-  })
-
-  it.each([
-    ['no detail', { data: { data: { message: 'Error message' } } }],
-    ['a non-string detail', { data: { data: { detail: 123 } } }],
-    ['a detail one level up only', { data: { detail: 'Error message' } }],
-    ['no nested data', { data: 'error' }],
-    ['null', null],
-    ['undefined', undefined],
-    ['a string', 'error'],
-    ['a number', 123],
-  ])('rejects %s', (_case, error) => {
-    expect(isErrorWithDetail(error)).toBe(false)
-  })
-})
-
 describe('isAllAuthClientError', () => {
   // `$fetch` rejects with Nitro's wrapper at `error.data`; the allauth
   // body sits under it, which is where the guards look.

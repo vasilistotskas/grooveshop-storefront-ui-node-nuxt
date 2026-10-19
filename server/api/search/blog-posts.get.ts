@@ -34,7 +34,7 @@ export default defineCachedRoute(async (event) => {
     return validatedResponse
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'SearchBlogPostViewSet',

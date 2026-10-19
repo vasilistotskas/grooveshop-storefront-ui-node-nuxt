@@ -161,18 +161,16 @@ describe('Product/Review', () => {
 
   // Django refuses with a stable code beside a sentence in the page's
   // language; the shopper is told by the code, never by comparing text. The
-  // refusal reaches the component forwarded (`error.data` is the body) or
-  // thrown by the route (`error.data.data` is).
+  // route forwards the refusal: `error.data` is Django's body.
   const REFUSAL = (sentence: string) => ({
     product: sentence,
     code: 'must_have_purchased',
     fields: { product: [{ message: sentence, code: 'must_have_purchased' }] },
   })
   it.each([
-    ['forwarded, in Greek', REFUSAL('Πρέπει να έχετε αγοράσει το προϊόν για να το αξιολογήσετε.')],
-    ['forwarded, in English', REFUSAL('You must have bought the product to review it.')],
-    ['thrown by the route', { statusCode: 400, statusMessage: 'Bad Request', data: REFUSAL('You must have bought the product.') }],
-  ])('tells a shopper who has not bought the product why the review was refused (%s)', async (_shape, body) => {
+    ['in Greek', REFUSAL('Πρέπει να έχετε αγοράσει το προϊόν για να το αξιολογήσετε.')],
+    ['in English', REFUSAL('You must have bought the product to review it.')],
+  ])('tells a shopper who has not bought the product why the review was refused (%s)', async (_language, body) => {
     api.routes({ '/api/products/reviews': refused(body) })
     const wrapper = await mountSheet()
 

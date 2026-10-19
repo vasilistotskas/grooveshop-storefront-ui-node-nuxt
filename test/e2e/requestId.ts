@@ -50,7 +50,8 @@ export function describeRequestId(): void {
 
       expect(response.statusCode).toBe(400)
       expect(response.headers['x-request-id']).toMatch(UUID)
-      expect(JSON.parse(response.body)).toMatchObject({ data: { detail: 'No views today.' } })
+      // Django's body is the response itself, not nested under `data`.
+      expect(JSON.parse(response.body)).toEqual({ detail: 'No views today.' })
     })
 
     it('gives each visitor of a cached API answer their own id, never the one that filled the cache', async () => {

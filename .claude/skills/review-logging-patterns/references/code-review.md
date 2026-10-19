@@ -266,7 +266,7 @@ export default defineEventHandler(async (event) => {
 ### Frontend Error Handling
 
 - [ ] API errors are caught and displayed with full context (message, why, fix)
-- [ ] Toasts or error components use the structured data from `error.data.data`
+- [ ] Toasts or error components use the structured data from `error.data` (Django's body, forwarded by `handleError`)
 - [ ] Links to documentation are actionable (buttons/links in toasts)
 
 ### Context

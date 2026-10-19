@@ -5,10 +5,8 @@
  * Django's error body is the source (`docs/error-contract.md` in the Django
  * repo): `detail` or the field keys, a stable `code`, and for validation
  * `fields` (`{ field: [{ message, code }] }`, nested like the serializer).
- * The storefront reaches that body two ways until every route forwards it
- * the same way: a forwarded body is `error.data`, a thrown route error wraps
- * it as `error.data.data` (`{ statusCode, statusMessage, data }`). Both are
- * read here, so a component never knows which route it called.
+ * That body is `error.data`, whichever route was called (allauth's flows
+ * wrap theirs, see `apiErrorBodyOf`).
  *
  * Text, in priority: an i18n entry for the code (`errors.codes.<code>`),
  * then Django's own message (already in the page's language), then a
@@ -75,19 +73,20 @@ function statusOf(error: unknown): number | undefined {
 }
 
 /**
- * Django's body out of either client shape: `error.data` when the route
- * forwarded it, `error.data.data` when it threw (the wrapper carries
- * `statusCode`/`statusMessage` beside it). A string body (an error page, a
- * text echo) is no body.
+ * The body of a failed call: `error.data`. Every `/api` route forwards
+ * Django's body as it came (`handleError`), so a component never knows
+ * which route it called. The one exception is allauth's flows, which answer
+ * `{ statusCode, statusMessage, data: <allauth body> }` (`forwardAllAuthFlow`,
+ * `handleAllAuthError`): its body carries a numeric `status`, and is read
+ * from under that wrapper. A string body (an error page, a text echo) is no
+ * body.
  */
 export function apiErrorBodyOf(error: unknown): Record<string, unknown> | undefined {
   if (!isRecord(error)) return undefined
   const data = error.data
   if (!isRecord(data)) return undefined
-  const keys = Object.keys(data)
-  const isThrownWrapper = ('statusCode' in data || 'statusMessage' in data || (keys.length === 1 && keys[0] === 'data'))
-    && !('detail' in data) && !('fields' in data)
-  if (isThrownWrapper) return isRecord(data.data) ? data.data : undefined
+  const allAuthBody = data.data
+  if (isRecord(allAuthBody) && typeof allAuthBody.status === 'number') return allAuthBody
   return data
 }
 

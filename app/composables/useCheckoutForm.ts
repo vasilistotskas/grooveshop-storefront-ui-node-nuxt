@@ -665,8 +665,7 @@ export async function useCheckoutForm() {
       log.warn({
         tag: 'checkout/shippingOptions',
         message: 'Failed to fetch live shipping options',
-        // Whole error object — getErrorDetail is user-facing copy and
-        // returns undefined for transport errors, which starved this log.
+        // The whole error object: a transport error has no body to name it.
         error,
       })
       shippingOptions.value = []

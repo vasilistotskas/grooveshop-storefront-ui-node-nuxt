@@ -12,7 +12,7 @@ export default defineCachedRoute(async (event) => {
     return await parseDataAs(response, zListBlogAuthorResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'BlogAuthorViewSet',

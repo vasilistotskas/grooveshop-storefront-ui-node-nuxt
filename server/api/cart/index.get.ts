@@ -76,6 +76,6 @@ export default defineEventHandler(async (event) => {
       report({ ...identity, outcome: 'auth-rejected' })
       return null
     }
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

@@ -23,6 +23,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCheckGiftCardResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

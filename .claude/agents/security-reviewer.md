@@ -22,9 +22,9 @@ Review code changes for security vulnerabilities specific to this Nuxt 4 SSR e-c
 - **Access token guards**: Protected routes must use `requireAllAuthAccessToken()` which throws 401 if missing
 
 ### Error Handling
-- **`handleError()` always throws**: No code after `handleError()` or `handleAllAuthError()` is reachable. If code follows, it's dead code or a potential bypass
+- **`return handleError()` ends the handler**: it returns an upstream 4xx body or throws (never a 5xx body), and `handleAllAuthError()` always throws, so no code after either is reachable. If code follows, it's dead code or a potential bypass
 - **`createError()` must be thrown**: Using `return createError(...)` sends a 200 response with the error as JSON body — always use `throw createError(...)`
-- **AllAuth error recovery**: `handleAllAuthError()` clears sessions on 410 Gone and updates tokens from error metadata. Verify it always calls `handleError()` at end (which throws)
+- **AllAuth error recovery**: `handleAllAuthError()` clears sessions on 410 Gone and updates tokens from error metadata. Verify it always ends by throwing the mapped error
 
 ### Input Validation
 - **Server routes**: Every route must validate input with `getValidatedQuery()` or `readValidatedBody()` using Zod schemas before proxying to Django

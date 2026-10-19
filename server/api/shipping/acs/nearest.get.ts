@@ -45,7 +45,7 @@ export default defineCachedRoute(
       return await parseDataAs(raw, zFindNearestAcsStationsResponse)
     }
     catch (error) {
-      handleError(event, error)
+      return handleError(event, error)
     }
   },
   {

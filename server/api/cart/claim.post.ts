@@ -17,6 +17,6 @@ export default defineEventHandler(async (event) => {
     return await claimCart(event, uuid)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 })

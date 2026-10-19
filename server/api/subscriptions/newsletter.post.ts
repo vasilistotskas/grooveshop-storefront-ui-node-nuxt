@@ -20,7 +20,7 @@ import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/se
  *
  * Django answers 202 for every accepted address (it never says whether
  * one is known). Its 400/404/429 bodies are RETURNED with their status
- * (`forwardUpstreamClientError`), as the contact form does, so the band
+ * (`handleError`), as the contact form does, so the band
  * can say what went wrong.
  */
 const zNewsletterFormBody = zSubscribeToNewsletterBody.omit({ consentText: true })
@@ -40,6 +40,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zSubscribeToNewsletterResponse)
   }
   catch (error) {
-    return forwardUpstreamClientError(event, error)
+    return handleError(event, error)
   }
 })

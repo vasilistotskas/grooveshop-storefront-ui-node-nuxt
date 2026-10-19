@@ -3,8 +3,8 @@ import { parseInsufficientStockError } from '~/utils/stockError'
 
 const FAILED_ITEMS = [{ productId: 1, productName: 'Shirt', available: 0, requested: 2 }]
 
-/** The ofetch error the reserve-stock proxy rejects with: Django's body at `data.data`. */
-const fetchError = (data: unknown) => Object.assign(new Error('409'), { data: { data } })
+/** The ofetch error the reserve-stock proxy rejects with: the 409 body at `data`. */
+const fetchError = (data: unknown) => Object.assign(new Error('409'), { data })
 
 describe('parseInsufficientStockError', () => {
   it('carries the code, the failed lines and the detail on the error', () => {
@@ -33,8 +33,8 @@ describe('parseInsufficientStockError', () => {
   it.each([
     ['another code', fetchError({ code: 'cart_invalid', failedItems: FAILED_ITEMS })],
     ['no failedItems key', fetchError({ code: 'insufficient_stock', detail: 'x' })],
-    ['an unnested body', Object.assign(new Error('409'), { data: { code: 'insufficient_stock', failedItems: [] } })],
-    ['a null inner body', fetchError(null)],
+    ['a body nested one level down', Object.assign(new Error('409'), { data: { data: { code: 'insufficient_stock', failedItems: [] } } })],
+    ['a null body', fetchError(null)],
     ['a network error', new TypeError('fetch failed')],
     ['a thrown string', 'boom'],
     ['null', null],

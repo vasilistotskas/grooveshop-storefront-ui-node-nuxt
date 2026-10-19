@@ -21,7 +21,7 @@ export default defineCachedRoute(async (event) => {
     return await parseDataAs(response, zListCountryResponse)
   }
   catch (error) {
-    handleError(event, error)
+    return handleError(event, error)
   }
 }, {
   name: 'CountryViewSet',
