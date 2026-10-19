@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     // Account-management 4xx payloads (wrong password, duplicate email,
     // bad TOTP code, …) must reach the client toast layer — thrown
-    // createError({data}) is stripped in production. Same forward
+    // createError({data}) is sent in a second, nested shape in production (data.data). Same forward
     // contract as the auth flow routes.
     return await forwardAllAuthFlow(event, error)
   }

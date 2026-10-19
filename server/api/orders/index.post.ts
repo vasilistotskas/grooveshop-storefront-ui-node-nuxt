@@ -74,8 +74,8 @@ export default defineEventHandler(async (event) => {
   }
   catch (error) {
     // Django 4xx bodies (DRF field errors) are returned, not thrown —
-    // Nitro strips `createError({ data })` in production and the
-    // checkout toast needs the field detail. See forwardUpstreamClientError.
+    // a thrown `createError({ data })` would nest it one level down and
+    // the checkout toast reads the field detail. See forwardUpstreamClientError.
     return forwardUpstreamClientError(event, error)
   }
 })

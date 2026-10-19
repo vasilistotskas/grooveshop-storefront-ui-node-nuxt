@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     // WebAuthn removal 4xx payloads (e.g. reauthentication required)
     // must reach the client toast layer — thrown createError({data})
-    // is stripped in production. Same forward contract as the other
+    // is sent in a second, nested shape in production (data.data). Same forward contract as the other
     // authenticator routes.
     return await forwardAllAuthFlow(event, error)
   }

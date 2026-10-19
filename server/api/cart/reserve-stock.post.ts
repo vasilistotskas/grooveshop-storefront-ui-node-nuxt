@@ -43,13 +43,9 @@ export default defineEventHandler(async (event) => {
   }
   catch (error) {
     // Surface structured stock failure data where the client reads it
-    // (``error.data.data`` in useCheckout.reserveStock). A thrown
-    // ``createError({data})`` loses its payload in production — Nitro
-    // strips ``data`` from thrown-error responses (same incident class
-    // as the allauth flows) — which silently disabled the per-item
-    // stock-error UI in prod. RETURN the wrapper with the 409 status
-    // instead (returned bodies are not stripped), mirroring
-    // forwardAllAuthFlow's shape contract.
+    // (``error.data.data`` in useCheckout.reserveStock). RETURN the
+    // wrapper with the 409 status, mirroring forwardAllAuthFlow's shape
+    // contract, so every route gives the client the same shape.
     if (error instanceof FetchError && error.statusCode === 409) {
       const errorData = error.data as Record<string, unknown> | undefined
       log.warn({

@@ -60,7 +60,7 @@
     "@pinia/nuxt": "1.0.2",
     "@vueuse/nuxt": "15.0.0",
     "defu": "6.1.7",
-    "evlog": "2.31.0",
+    "evlog": "2.33.1",
     "h3": "1.15.11",
     "isomorphic-dompurify": "4.5.0",
     "leaflet": "1.9.4",

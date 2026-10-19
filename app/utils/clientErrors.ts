@@ -15,6 +15,8 @@ export type SerializedClientError = {
   stack?: string
   statusCode?: number
   statusMessage?: string
+  /** The failed `/api` response's request id, to join this report to the server and Django lines. */
+  requestId?: string
 }
 
 /**
@@ -102,7 +104,8 @@ function stringOf(value: unknown): string {
 
 /**
  * Turn whatever a browser hook received into plain, bounded, JSON-safe data:
- * name, message, the first stack frames and a NuxtError's status. Query
+ * name, message, the first stack frames, a NuxtError's status and the
+ * request id of a failed `/api` response. Query
  * strings and fragments are dropped from every URL in it.
  */
 export function serializeClientError(error: unknown): SerializedClientError {
@@ -114,6 +117,8 @@ export function serializeClientError(error: unknown): SerializedClientError {
   if (typeof error.stack === 'string') serialized.stack = boundedStack(error.stack)
   if (typeof error.statusCode === 'number') serialized.statusCode = error.statusCode
   if (typeof error.statusMessage === 'string') serialized.statusMessage = redact(error.statusMessage).slice(0, MAX_ERROR_MESSAGE_LENGTH)
+  const requestId = requestIdOf(error)
+  if (requestId) serialized.requestId = requestId.slice(0, MAX_ERROR_MESSAGE_LENGTH)
   return serialized
 }
 

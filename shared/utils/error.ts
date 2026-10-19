@@ -54,3 +54,26 @@ export function getErrorDetail(err: unknown): string | undefined {
   }
   return undefined
 }
+
+/**
+ * The response header that carries the request's id from the server to the
+ * browser (`server/middleware/0.request-id.ts`): the id evlog gives the
+ * request and Django receives as `X-Correlation-ID`.
+ */
+export const REQUEST_ID_HEADER = 'x-request-id'
+
+/**
+ * The request id of a failed `/api` call, from its response headers
+ * (ofetch's `FetchError.response`), so a browser report can be joined to the
+ * server and Django lines of the same request. `undefined` for an error that
+ * is not a failed response, or one whose response carried none.
+ */
+export function requestIdOf(err: unknown): string | undefined {
+  if (typeof err !== 'object' || err === null || !('response' in err)) return undefined
+  const response = err.response
+  if (typeof response !== 'object' || response === null || !('headers' in response)) return undefined
+  const headers = response.headers
+  if (typeof headers !== 'object' || headers === null || !('get' in headers) || typeof headers.get !== 'function') return undefined
+  const id: unknown = headers.get(REQUEST_ID_HEADER)
+  return typeof id === 'string' && id ? id : undefined
+}

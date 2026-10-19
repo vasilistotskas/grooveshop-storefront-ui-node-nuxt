@@ -17,7 +17,7 @@ import { createError } from 'nuxt/server'
  * is a 4xx.
  *
  * A symbol rather than a field on `data`: `data` is the `ZodError`
- * itself (callers read it, and Nitro strips it from thrown responses in
+ * itself (callers read it, and Nitro sends it on thrown responses in
  * production), so a non-enumerable symbol cannot collide with it or
  * leak onto the wire.
  */

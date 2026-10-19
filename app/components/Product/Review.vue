@@ -157,7 +157,7 @@ const createReview = async (event: Schema) => {
     open.value = false
   }
   catch (error) {
-    log.error({ action: 'review:create', error })
+    log.error({ action: 'review:create', error, requestId: requestIdOf(error) })
     toast.add({
       title: isPurchaseRequired(error) ? t('add.must_purchase_first') : t('add.error'),
       color: 'error',
@@ -181,7 +181,7 @@ const updateReview = async (event: Schema) => {
     open.value = false
   }
   catch (error) {
-    log.error({ action: 'review:update', error })
+    log.error({ action: 'review:update', error, requestId: requestIdOf(error) })
     toast.add({ title: t('update.error'), color: 'error' })
   }
 }
@@ -199,7 +199,7 @@ const deleteReview = async () => {
     open.value = false
   }
   catch (error) {
-    log.error({ action: 'review:delete', error })
+    log.error({ action: 'review:delete', error, requestId: requestIdOf(error) })
     toast.add({ title: t('delete.error'), color: 'error' })
   }
   finally {

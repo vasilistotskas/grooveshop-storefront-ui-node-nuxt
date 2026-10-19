@@ -16,8 +16,8 @@ export default defineEventHandler(async (event) => {
   }
   catch (error) {
     // Return Django 4xx bodies (DRF validation detail) so the client can
-    // show WHAT was rejected — thrown createError({data}) is stripped in
-    // production. See forwardUpstreamClientError.
+    // show WHAT was rejected — a thrown createError({data}) reaches the client in
+    // a second, nested shape (data.data). See forwardUpstreamClientError.
     return forwardUpstreamClientError(event, error)
   }
 })
