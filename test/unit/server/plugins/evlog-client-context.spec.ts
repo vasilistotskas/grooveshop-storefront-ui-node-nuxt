@@ -42,7 +42,7 @@ describe('server/plugins/evlog-client-context', () => {
     const client = await enrich({ source: 'client', error: { name: 'FetchError', message: 'm', data: body } })
     const server = await enrich({ source: 'server', error: { name: 'FetchError', message: 'm', data: { email: ['x@y.z is taken'] } } })
 
-    expect(client.error).toMatchObject({ data: { email: [] } })
+    expect(client.error).toMatchObject({ data: { email: ['<redacted:body>'] } })
     expect(JSON.stringify(client)).not.toContain('x@y.z')
     expect(server.error).toMatchObject({ data: { email: ['x@y.z is taken'] } })
   })
