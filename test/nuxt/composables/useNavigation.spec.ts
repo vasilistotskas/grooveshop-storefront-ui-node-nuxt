@@ -13,16 +13,22 @@ import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
+/** Whether the store configured a Mobile menu; a store with none gets no `mobile` key. */
+let withMobileSlot = true
 registerEndpoint('/api/page-config/navigation', () => ({
   header: [
     { label: 'Προϊόντα', to: '/products' },
     { label: 'Προσφορές', to: '/offers' },
     { label: 'Επικοινωνία', to: '/contact' },
   ],
-  mobile: [
-    { label: 'Αρχική', to: '/' },
-    { label: 'Loyalty', to: '/en/loyalty-program' },
-  ],
+  ...(withMobileSlot
+    ? {
+        mobile: [
+          { label: 'Αρχική', to: '/' },
+          { label: 'Loyalty', to: '/en/loyalty-program' },
+        ],
+      }
+    : {}),
   footer: [
     {
       label: 'Κατάστημα',
@@ -47,11 +53,11 @@ registerEndpoint('/api/settings/public', () => ({ settings: publicSettings }))
 
 const Probe = defineComponent({
   setup() {
-    const { headerItems, mobileItems, footerColumns } = useNavigation()
+    const { headerItems, mobileLinks, footerColumns } = useNavigation()
     return () =>
       h('div', [
         h('ul', { id: 'header' }, (headerItems.value ?? []).map(i => h('li', i.to))),
-        h('ul', { id: 'mobile' }, (mobileItems.value ?? []).map(i => h('li', i.to))),
+        h('ul', { id: 'phone' }, (mobileLinks.value ?? []).map(i => h('li', i.to))),
         h(
           'ul',
           { id: 'footer' },
@@ -106,6 +112,7 @@ describe('useNavigation — feature gate on operator links', () => {
   beforeEach(() => {
     setTenant()
     publicSettings = {}
+    withMobileSlot = true
   })
 
   afterEach(() => {
@@ -122,7 +129,16 @@ describe('useNavigation — feature gate on operator links', () => {
 
     expect(texts('#header')).toEqual(['/products', '/contact'])
     // The locale prefix is looked through, like the sitemap does.
-    expect(texts('#mobile')).toEqual(['/'])
+    expect(texts('#phone')).toEqual(['/'])
+  })
+
+  it('lists the Mobile menu on a phone, and the Header menu when the store set none', async () => {
+    const withSlot = await render()
+    expect(withSlot.texts('#phone')).toEqual(['/'])
+
+    withMobileSlot = false
+    const without = await render()
+    expect(without.texts('#phone')).toEqual(['/products', '/contact'])
   })
 
   it('drops a column left with nothing to link', async () => {

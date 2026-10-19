@@ -27,7 +27,7 @@ const { state } = vi.hoisted(() => ({
 mockNuxtImport('useNavigation', () => () => ({
   headerItems: computed(() => null),
   footerColumns: computed(() => state.footer),
-  mobileItems: computed(() => null),
+  mobileLinks: computed(() => null),
 }))
 mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
   computed(() => state.flags[key] ?? options.fallback))

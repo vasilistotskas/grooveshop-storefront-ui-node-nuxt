@@ -25,7 +25,7 @@ let contentPages: Array<{ slug: string, translations: Record<string, { title: st
 
 mockNuxtImport('useNavigation', () => () => ({
   headerItems: computed(() => null),
-  mobileItems: computed(() => null),
+  mobileLinks: computed(() => null),
   footerColumns: computed(() => configuredColumns),
 }))
 

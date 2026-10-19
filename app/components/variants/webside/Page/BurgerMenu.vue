@@ -36,12 +36,13 @@ const greetingName = computed(() => {
     || ''
 })
 
-const { headerItems } = useNavigation()
+const { mobileLinks } = useNavigation()
 
 const primaryItems = computed(() => {
-  // Operator-configured header menu wins; the code list below keeps
-  // the platform chrome for unconfigured tenants.
-  const configured = headerItems.value
+  // Operator-configured menu wins (the Mobile menu, else the Header
+  // menu); the code list below keeps the platform chrome for
+  // unconfigured tenants.
+  const configured = mobileLinks.value
   if (configured) {
     return configured.map(item => ({
       label: item.label,

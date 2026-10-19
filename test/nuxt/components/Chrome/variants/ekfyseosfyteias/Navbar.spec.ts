@@ -20,6 +20,8 @@ import { setTenant } from '~~/test/helpers/tenant'
  */
 const state = vi.hoisted(() => ({
   header: [] as { label: string, to?: string }[] | null,
+  /** `useNavigation().mobileLinks`: the Mobile menu, else the Header menu (that composable's spec). */
+  phoneLinks: [] as { label: string, to?: string }[] | null,
   phone: '',
   logo: '/media/seal.png',
   route: null as unknown as { path: string, fullPath: string },
@@ -28,7 +30,7 @@ const state = vi.hoisted(() => ({
 mockNuxtImport('useNavigation', () => () => ({
   headerItems: computed(() => state.header),
   footerColumns: computed(() => null),
-  mobileItems: computed(() => null),
+  mobileLinks: computed(() => state.phoneLinks),
 }))
 mockNuxtImport('useMerchantIdentity', () => () => ({
   identity: computed(() => ({ phone: state.phone })),
@@ -58,6 +60,7 @@ const menuButton = (wrapper: VueWrapper) => wrapper.find(`button[aria-label="${C
 describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
   beforeEach(() => {
     state.header = PAGES
+    state.phoneLinks = PAGES
     state.phone = '698 162 7561'
     state.logo = '/media/seal.png'
     state.route = reactive({ path: '/', fullPath: '/' })
@@ -76,6 +79,17 @@ describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
     expect(desktopNav(wrapper).attributes('aria-label')).toBe(COPY.navigation)
   })
 
+  it('lists the phone links in the phone panel, and keeps the Header menu on the bar', async () => {
+    state.phoneLinks = [{ label: 'Μενού κινητού', to: '/about' }]
+
+    const wrapper = await mountNavbar()
+
+    expect(mobilePanel(wrapper).findAll('a').map(link => link.attributes('href')).slice(0, 1))
+      .toEqual(['/about'])
+    expect(desktopNav(wrapper).findAll('a').map(link => link.attributes('href')))
+      .toEqual(['/products', '/contact'])
+  })
+
   it('marks only the page the visitor is on', async () => {
     state.route = reactive({ path: '/products/category/3/jams', fullPath: '/products/category/3/jams' })
 
@@ -88,6 +102,7 @@ describe('Chrome/variants/ekfyseosfyteias/Navbar', () => {
 
   it('renders no navigation when the store configured no header links', async () => {
     state.header = null
+    state.phoneLinks = null
 
     const wrapper = await mountNavbar()
 

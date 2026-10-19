@@ -41,7 +41,7 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 const { t } = useI18n()
 const route = useRoute()
 const tenantStore = useTenantStore()
-const { headerItems } = useNavigation()
+const { headerItems, mobileLinks } = useNavigation()
 const { identity } = useMerchantIdentity()
 const { logoLightUrl } = useTenantBranding()
 
@@ -51,6 +51,7 @@ const open = ref(false)
 const menuButton = useTemplateRef<HTMLButtonElement>('menuButton')
 
 const links = computed(() => headerItems.value ?? [])
+const mobileNavLinks = computed(() => mobileLinks.value ?? [])
 
 const phone = computed(() => identity.value?.phone?.trim() ?? '')
 const telHref = computed(() => `tel:${phone.value.replace(/\s+/g, '')}`)
@@ -227,7 +228,7 @@ onKeyStroke('Escape', () => {
       "
     >
       <NuxtLinkLocale
-        v-for="item in links"
+        v-for="item in mobileNavLinks"
         :key="item.label"
         :to="(item.to ?? '/') as RouteLocationNamedI18n"
         class="

@@ -68,6 +68,13 @@ export function useNavigation() {
 
   const headerItems = flatSlot('header')
   const mobileItems = flatSlot('mobile')
+  // What a phone's menu lists: the store's Mobile menu when it set one,
+  // else the Header menu it already follows. Every phone menu reads this
+  // and none reads the slot alone, so the slot cannot be saved and then
+  // shown by none of them.
+  const mobileLinks = computed<NavLink[] | null>(
+    () => mobileItems.value ?? headerItems.value,
+  )
 
   const footerColumns = computed<NavColumn[] | null>(() => {
     const items = data.value?.footer
@@ -83,5 +90,5 @@ export function useNavigation() {
     return kept.length > 0 ? kept : null
   })
 
-  return { headerItems, footerColumns, mobileItems }
+  return { headerItems, footerColumns, mobileLinks }
 }
