@@ -161,6 +161,33 @@ describe('POST /api/orders', () => {
     expect(backend.lastRequest.body).toMatchObject({ payWayId: 1, email: 'maria@example.com' })
   })
 
+  describe('the Idempotency-Key header', () => {
+    const KEY = '3f2b8c1e-9d4a-4e6b-8a7c-1d2e3f4a5b6c'
+
+    it('forwards the attempt\'s key to Django, which replays the first order for a repeat', async () => {
+      backend.reply(createdOrder)
+
+      await placeOrder({ headers: { 'idempotency-key': KEY } })
+
+      expect(backend.lastRequest.headers.get('idempotency-key')).toBe(KEY)
+    })
+
+    it('sends none when the browser sent none', async () => {
+      backend.reply(createdOrder)
+
+      await placeOrder()
+
+      expect(backend.lastRequest.headers.has('idempotency-key')).toBe(false)
+    })
+
+    it.each(['not-a-uuid', '0000-idem-key'])('refuses the malformed key %j without creating an order', async (key) => {
+      const response = await placeOrder({ headers: { 'idempotency-key': key } })
+
+      expect(response.status).toBe(400)
+      expect(backend.requests).toEqual([])
+    })
+  })
+
   it('rejects a body the order schema refuses without calling the backend', async () => {
     const response = await placeOrder({ body: { ...orderBody, email: 'not-an-email' } })
 
