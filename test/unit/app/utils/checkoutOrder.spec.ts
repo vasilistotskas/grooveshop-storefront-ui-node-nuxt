@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildOrderCreateBody, classifyOrderError } from '~/utils/checkoutOrder'
+import { buildOrderCreateBody, classifyOrderError, failedStatusOf, rejectionSettlesAttempt } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
 import { makeCountry } from '~~/test/fixtures/country'
 
@@ -250,5 +250,32 @@ describe('buildOrderCreateBody', () => {
     const bare = buildOrderCreateBody(form(), ctx())
     expect(bare).not.toHaveProperty('meta')
     expect(bare).not.toHaveProperty('attribution')
+  })
+})
+
+describe('failedStatusOf', () => {
+  it.each([
+    ['an ofetch error', Object.assign(new Error('x'), { status: 422 }), 422],
+    ['an error carrying its response', Object.assign(new Error('x'), { response: { status: 503 } }), 503],
+    ['a dropped connection', new TypeError('fetch failed'), undefined],
+    ['something that is no error', 'boom', undefined],
+    ['nothing', null, undefined],
+  ])('reads the status of %s', (_label, error, status) => {
+    expect(failedStatusOf(error)).toBe(status)
+  })
+})
+
+describe('rejectionSettlesAttempt', () => {
+  it.each([400, 401, 404, 422, 429])('settles the attempt on a %i, which Django replays for the same key', (status) => {
+    expect(rejectionSettlesAttempt(status)).toBe(true)
+  })
+
+  it.each([
+    ['no response', undefined],
+    ['a 500', 500],
+    ['a 503', 503],
+    ['a 409 (the same key is still being processed)', 409],
+  ])('leaves the attempt open on %s, because the order may exist', (_label, status) => {
+    expect(rejectionSettlesAttempt(status)).toBe(false)
   })
 })

@@ -47,11 +47,16 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // reused only while that is unchanged.
   const intentPricedFrom = ref<string | null>(null)
   const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
-  // Idempotency key: generated once per checkout attempt, preserved
-  // across retries so duplicate network submissions never double-charge.
-  // Cleared on success or on non-retryable errors so a fresh attempt
-  // (e.g. user corrects a validation error) gets a new key.
-  const idempotencyKey = ref<string | null>(null)
+  // The idempotency key of the current checkout attempt, with the
+  // fingerprint of the inputs it was minted for (`orderFingerprint`).
+  // Django replays the first outcome for a repeated key, so every submit
+  // of the same attempt (double click, retry after a dropped connection)
+  // carries the same key and can never create a second order. It is
+  // replaced when the order inputs or the cart change, and dropped once
+  // the outcome is final: the order was placed, or Django rejected it
+  // (it caches a 4xx under the key too, so a repeat would replay the
+  // rejection).
+  const orderAttempt = ref<{ key: string, fingerprint: string } | null>(null)
   // Django field errors for the address step, handed to its ``UForm``
   // (``setErrors``) when a rejected order sends the shopper back there.
   const addressStepErrors = ref<FormError[]>([])
@@ -299,13 +304,50 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
    * body (pay way, shipping, destination, email, gift cards, loyalty)
    * and the cart it prices — its lines, total, coupons and promotion.
    */
-  const intentPricing = (body: Parameters<typeof createPaymentIntentFromCart>[0]) => JSON.stringify({
-    body,
+  const cartPricedFrom = () => ({
     lines: cart.value?.items?.map(item => [item.product.id, item.quantity]) ?? [],
     total: cart.value?.totalPrice ?? null,
     coupons: cart.value?.appliedCouponCodes ?? [],
     promotion: cart.value?.promotionDiscount ?? null,
   })
+
+  const intentPricing = (body: Parameters<typeof createPaymentIntentFromCart>[0]) => JSON.stringify({
+    body,
+    ...cartPricedFrom(),
+  })
+
+  /**
+   * What an order submit is made of: the order body and the cart it is
+   * priced from. The Meta ``meta`` ids are left out — a fresh Purchase
+   * id is minted per submit, and a retry must still count as the same
+   * attempt.
+   */
+  const orderFingerprint = (orderValues: OrderCreateFromCartRequest) => JSON.stringify({
+    order: { ...orderValues, meta: undefined },
+    ...cartPricedFrom(),
+  })
+
+  /**
+   * The idempotency key for this order submit: the current attempt's
+   * while its inputs are unchanged, else a fresh one.
+   */
+  const orderIdempotencyKey = (fingerprint: string) => {
+    if (orderAttempt.value?.fingerprint !== fingerprint) {
+      orderAttempt.value = { key: crypto.randomUUID(), fingerprint }
+    }
+    return orderAttempt.value.key
+  }
+
+  /** The headers of an order request: the shopper's own and the attempt's key. */
+  const orderRequestHeaders = (fingerprint: string) => ({
+    ...useRequestHeaders(),
+    [IDEMPOTENCY_KEY_HEADER]: orderIdempotencyKey(fingerprint),
+  })
+
+  /** Ends the attempt when ``error`` settles it (see ``rejectionSettlesAttempt``). */
+  const settleAttemptOnFailure = (error: unknown) => {
+    if (rejectionSettlesAttempt(failedStatusOf(error))) orderAttempt.value = null
+  }
 
   const handleOnlinePaymentFlow = async () => {
     if (!formState.payWayId) {
@@ -338,17 +380,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // An intent is priced once. If anything it was priced from changed
     // since — a deduction, the cart, the address, the shipping or the
     // pay way — order-create would reject it on the amount, so price a
-    // fresh one under a fresh idempotency key. A cart refresh that
-    // changes none of it keeps both, as does a plain retry.
+    // fresh one. Those inputs also change the attempt's fingerprint, so
+    // the new intent and order go out under a fresh idempotency key. A
+    // cart refresh that changes none of it keeps both, as does a plain
+    // retry.
     if (paymentIntentId.value && pricing !== intentPricedFrom.value) {
       paymentIntentId.value = null
-      idempotencyKey.value = null
     }
     let handledByResponseError = false
-    // Generate an idempotency key on first attempt; reuse on retries
-    if (!idempotencyKey.value) {
-      idempotencyKey.value = crypto.randomUUID()
-    }
+    const fingerprint = orderFingerprint(orderValues)
     try {
       // Create a payment intent from the cart unless a current one exists.
       // Its amount MUST be computed against the per-carrier free-shipping
@@ -358,7 +398,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       let giftCardsCoverTotal = false
       if (!paymentIntentId.value) {
         try {
-          const paymentIntent = await createPaymentIntentFromCart(intentBody, idempotencyKey.value)
+          const paymentIntent = await createPaymentIntentFromCart(intentBody, orderIdempotencyKey(fingerprint))
           paymentIntentId.value = paymentIntent.paymentIntentId
           intentPricedFrom.value = pricing
         }
@@ -375,6 +415,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
             giftCardsCoverTotal = true
           }
           else if (piReason === 'loyalty_requires_authentication') {
+            // The shopper signs in and submits the same inputs again; a
+            // key that replayed this refusal would never let them through.
+            settleAttemptOnFailure(piError)
             failCheckout({
               title: t('form.submit.error.loyalty_requires_authentication'),
             })
@@ -408,18 +451,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
       await $api('/api/orders', {
         method: 'POST',
-        headers: {
-          ...useRequestHeaders(),
-          'Idempotency-Key': idempotencyKey.value,
-        },
+        headers: orderRequestHeaders(fingerprint),
         body: submitValues,
         async onResponse({ response }) {
           if (!response.ok) return
 
           createdOrder.value = response._data
           maybeSaveDeliveryAddress()
-          // Clear idempotency key on success so a future checkout starts fresh
-          idempotencyKey.value = null
+          // The order exists: the next checkout starts a new attempt.
+          orderAttempt.value = null
 
           if (giftCardsCoverTotal) {
             // The order is already settled from the gift-card balance —
@@ -450,11 +490,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
           paymentIntentId.value = null
           handledByResponseError = true
           const errorInfo = handleOrderError(response)
-          // Clear idempotency key on non-retryable errors so the next
-          // fresh attempt doesn't reuse a key that maps to a failed intent
-          if (!errorInfo.shouldRetry) {
-            idempotencyKey.value = null
-          }
+          settleAttemptOnFailure({ response })
           handleRetryableError(errorInfo)
         },
       })
@@ -462,7 +498,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
       if (!handledByResponseError) {
-        idempotencyKey.value = null
+        // Reached by the intent request too: a 4xx there is cached under
+        // the key like the order's.
+        settleAttemptOnFailure(error)
         failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
       }
     }
@@ -476,13 +514,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     try {
       await $api('/api/orders', {
         method: 'POST',
-        headers: useRequestHeaders(),
+        headers: orderRequestHeaders(orderFingerprint(orderBody)),
         body: orderBody,
         async onResponse({ response }) {
           if (!response.ok) return
 
           createdOrder.value = response._data
           maybeSaveDeliveryAddress()
+          orderAttempt.value = null
 
           toast.add({
             title: t('order_created_payment_required'),
@@ -492,6 +531,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         },
         onResponseError({ response }) {
           handledByResponseError = true
+          settleAttemptOnFailure({ response })
           handleRetryableError(handleOrderError(response))
         },
       })
@@ -517,13 +557,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     try {
       await $api('/api/orders', {
         method: 'POST',
-        headers: useRequestHeaders(),
+        headers: orderRequestHeaders(orderFingerprint(orderBody)),
         body: orderBody,
         async onResponse({ response }) {
           if (!response.ok) return
 
           createdOrder.value = response._data
           maybeSaveDeliveryAddress()
+          orderAttempt.value = null
 
           // Reset retry counter on success
           retryCount.value = 0
@@ -556,6 +597,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
           }))
         },
         onResponseError({ response }) {
+          settleAttemptOnFailure({ response })
           handleRetryableError(handleOrderError(response))
         },
       })
@@ -761,7 +803,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // abandoned attempt left behind. The abandoned PENDING order is
     // reaped by auto_cancel_stuck_pending_orders.
     paymentIntentId.value = null
-    idempotencyKey.value = null
+    orderAttempt.value = null
     if (reservationIds.value.length > 0) {
       try {
         await releaseReservations(reservationIds.value)

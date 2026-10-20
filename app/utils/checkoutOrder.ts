@@ -234,3 +234,26 @@ export function buildOrderCreateBody(
     ...(ctx.attribution ? { attribution: ctx.attribution } : {}),
   } as OrderCreateFromCartRequest
 }
+
+/** The HTTP status a failed `$api` call carries, `undefined` when no response came back. */
+export function failedStatusOf(error: unknown): number | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  const { status, response } = error as { status?: unknown, response?: { status?: unknown } }
+  const code = status ?? response?.status
+  return typeof code === 'number' ? code : undefined
+}
+
+/**
+ * Whether a failed order request settles the checkout attempt, so the
+ * next submit needs a new idempotency key.
+ *
+ * Django caches every 4xx under the key for 24 hours and replays it, so a
+ * rejection is final for that key: a repeat would only be answered with
+ * the same rejection. Three outcomes leave the question open and keep
+ * the key, because the repeat must find the order if it was created: no
+ * response at all (a dropped connection), a 5xx (never cached), and the
+ * 409 Django answers while the same key is still being processed.
+ */
+export function rejectionSettlesAttempt(status: number | undefined): boolean {
+  return status !== undefined && status < 500 && status !== 409
+}

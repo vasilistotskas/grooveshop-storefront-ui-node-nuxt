@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
   try {
     wideLog?.set({ order: { created: false } })
     const body = await readValidatedBody(event, zCreateOrderBody)
+    const idempotencyHeaders = idempotencyKeyHeaders(event)
     const cartHeaders = await cartSession.getCartHeaders()
 
     // Inject Meta Pixel context server-side. We DO NOT trust the
@@ -64,7 +65,9 @@ export default defineEventHandler(async (event) => {
       // The shopper's identity (User-Agent, X-Real-IP, proof of edge),
       // not the Nuxt pod's: Django's order attribution reads the
       // User-Agent for in-app browsers. No key overlaps cartHeaders.
-      headers: { ...cartHeaders, ...clientIdentityHeaders(event) },
+      // The attempt's Idempotency-Key makes a retried submit return the
+      // first order instead of creating a second.
+      headers: { ...cartHeaders, ...clientIdentityHeaders(event), ...idempotencyHeaders },
     })
 
     const parsedData = await parseDataAs(response, zCreateOrderResponse)

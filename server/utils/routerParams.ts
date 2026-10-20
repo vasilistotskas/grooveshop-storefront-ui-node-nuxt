@@ -5,6 +5,19 @@ import type { RequestEvent } from 'nuxt/server'
 const VALIDATION_FAILED = 'Validation failed'
 
 /**
+ * The 400 for a malformed request, in the shape `nuxt/server`'s own
+ * validators throw and `handleError` recognises by its `data.issues`.
+ */
+export function requestValidationError(issues: readonly unknown[]) {
+  return createError({
+    status: 400,
+    statusText: VALIDATION_FAILED,
+    message: VALIDATION_FAILED,
+    data: { issues, message: VALIDATION_FAILED },
+  })
+}
+
+/**
  * The route's dynamic segments, decoded and parsed by `schema`.
  *
  * `nuxt/server` validates the query and the body (`getValidatedQuery`,
@@ -19,13 +32,6 @@ export async function parseRouterParams<Schema extends ZodType>(
   schema: Schema,
 ): Promise<output<Schema>> {
   const result = await schema.safeParseAsync(getRouterParams(event, { decode: true }))
-  if (!result.success) {
-    throw createError({
-      status: 400,
-      statusText: VALIDATION_FAILED,
-      message: VALIDATION_FAILED,
-      data: { issues: result.error.issues, message: VALIDATION_FAILED },
-    })
-  }
+  if (!result.success) throw requestValidationError(result.error.issues)
   return result.data
 }

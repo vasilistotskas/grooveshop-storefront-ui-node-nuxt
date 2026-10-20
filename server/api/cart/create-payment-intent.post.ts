@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
   try {
     wideLog?.set({ payment: { method: 'stripe' } })
     const body = await readValidatedBody(event, bodySchema)
+    const idempotencyHeaders = idempotencyKeyHeaders(event)
 
     const cartHeaders = await cartSession.getCartHeaders()
 
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers: {
         ...cartHeaders,
+        ...idempotencyHeaders,
         ...(accessToken && {
           Authorization: `Bearer ${accessToken}`,
         }),

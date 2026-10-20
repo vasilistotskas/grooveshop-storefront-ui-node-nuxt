@@ -377,13 +377,13 @@ describe('useCheckoutSubmit', () => {
   })
 
   describe('Viva Wallet', () => {
-    it('posts the order without an Idempotency-Key (documented gap) and asks for payment', async () => {
+    it('posts the order under an Idempotency-Key and asks for payment', async () => {
       api.routes({ '/api/orders': orderCreated({ uuid: 'order-viva' }) })
       const { onSubmit, createdOrder } = setup(VIVA)
 
       await onSubmit()
 
-      expect(api.callsTo('/api/orders')[0]!.options.headers['Idempotency-Key']).toBeUndefined()
+      expect(api.callsTo('/api/orders')[0]!.options.headers['Idempotency-Key']).toBe('0000-idem-key')
       expect(createdOrder.value).toEqual({ uuid: 'order-viva' })
       expect(lastToast()).toMatchObject({ title: t('order_created_payment_required') })
     })
@@ -410,7 +410,7 @@ describe('useCheckoutSubmit', () => {
 
       await onSubmit()
 
-      expect(api.callsTo('/api/orders')[0]!.options.headers).not.toHaveProperty('Idempotency-Key')
+      expect(api.callsTo('/api/orders')[0]!.options.headers['Idempotency-Key']).toBe('0000-idem-key')
       expect(api.callsTo('/api/cart/clear-session')).toEqual([{ url: '/api/cart/clear-session', options: { method: 'POST' } }])
       expect(cart.cart).toBeNull()
       expect(m.sessionFetch).toHaveBeenCalled()
@@ -878,6 +878,114 @@ describe('useCheckoutSubmit', () => {
   })
 
   /**
+   * One key per checkout attempt, so a retried submit can never create a
+   * second order. Django replays the first outcome for a repeated key —
+   * including a cached 4xx — so the key is kept while the outcome is
+   * unknown and replaced once it is final or the inputs change.
+   */
+  describe('the idempotency key of an attempt', () => {
+    type Uuid = `${string}-${string}-${string}-${string}-${string}`
+    const mintKeys = (...keys: string[]) => {
+      const spy = vi.mocked(crypto.randomUUID)
+      for (const key of keys) spy.mockReturnValueOnce(key as Uuid)
+    }
+    const orderKeys = () => api.callsTo('/api/orders').map(call => call.options.headers['Idempotency-Key'])
+    const droppedConnection = () => {
+      throw new TypeError('fetch failed')
+    }
+    /** Answers the n-th order request with the n-th step, then keeps repeating the last. */
+    const inSequence = (...steps: Array<(url: string, opts: any) => unknown>) => {
+      let calls = 0
+      return (url: string, opts: any) => steps[Math.min(calls++, steps.length - 1)]!(url, opts)
+    }
+
+    beforeEach(() => {
+      mintKeys('0000-idem-key', '1111-idem-key', '2222-idem-key')
+    })
+
+    it.each([
+      ['a dropped connection', droppedConnection],
+      ['a server error', orderRejected(503, { detail: 'Service unavailable.' })],
+      ['a duplicate still being processed', orderRejected(409, { detail: 'A duplicate request is already in progress.' })],
+    ])('is reused when the submit ends in %s, because the order may exist', async (_outcome, failure) => {
+      api.routes({ '/api/orders': inSequence(failure, orderCreated()) })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+      await onSubmit()
+
+      expect(orderKeys()).toEqual(['0000-idem-key', '0000-idem-key'])
+    })
+
+    it('is replaced once Django has rejected the order, which it would otherwise replay', async () => {
+      api.routes({ '/api/orders': inSequence(orderRejected(422, { detail: 'invalid data' }), orderCreated()) })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+      await onSubmit()
+
+      expect(orderKeys()).toEqual(['0000-idem-key', '1111-idem-key'])
+    })
+
+    it('is replaced when the cart changed between the submits', async () => {
+      api.routes({ '/api/orders': inSequence(droppedConnection, orderCreated()) })
+      const { onSubmit } = setup(COD)
+      await onSubmit()
+
+      const [line, ...rest] = cart.cart!.items
+      cart.cart = { ...cart.cart!, items: [{ ...line!, quantity: 99 }, ...rest] }
+      await onSubmit()
+
+      expect(orderKeys()).toEqual(['0000-idem-key', '1111-idem-key'])
+    })
+
+    it('is replaced when the shopper changed the order between the submits', async () => {
+      api.routes({ '/api/orders': inSequence(droppedConnection, orderCreated()) })
+      const formState = makeFormState()
+      const { onSubmit } = setup(COD, { formState })
+      await onSubmit()
+
+      formState.email = 'other@example.com'
+      await onSubmit()
+
+      expect(orderKeys()).toEqual(['0000-idem-key', '1111-idem-key'])
+    })
+
+    it('is kept although every submit mints a fresh Meta Purchase id', async () => {
+      m.consent.value = ['ad_storage']
+      m.meta.newEventId.mockReturnValueOnce('purchase-1').mockReturnValueOnce('purchase-2')
+      api.routes({ '/api/orders': inSequence(droppedConnection, orderCreated()) })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+      await onSubmit()
+
+      expect(orderBodies().map(body => body.meta.event_ids.purchase)).toEqual(['purchase-1', 'purchase-2'])
+      expect(orderKeys()).toEqual(['0000-idem-key', '0000-idem-key'])
+    })
+
+    it('is dropped once the order is placed, so the next checkout starts a new attempt', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit } = setup(VIVA)
+
+      await onSubmit()
+      await onSubmit()
+
+      expect(orderKeys()).toEqual(['0000-idem-key', '1111-idem-key'])
+    })
+
+    it('goes to the payment intent request as well, under the same key as the order', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit } = setup(STRIPE)
+
+      await onSubmit()
+
+      expect(m.createPaymentIntentFromCart.mock.calls[0]![1]).toBe('0000-idem-key')
+      expect(orderKeys()).toEqual(['0000-idem-key'])
+    })
+  })
+
+  /**
    * The path that shipped broken and was fixed in 59355197: a retryable
    * order error (an expired stock hold) schedules an automatic
    * re-submit 500 ms later, and the isSubmitting guard must not
@@ -902,12 +1010,13 @@ describe('useCheckoutSubmit', () => {
       })
     }
 
-    it('re-enters after the delay with fresh holds and the same key, and releases the guard', async () => {
+    it('re-enters after the delay with fresh holds and a new key, and releases the guard', async () => {
       rejectFirst(1)
-      // A second key minted by mistake would show up as this one.
+      // Django caches the refusal under the first key and would replay
+      // it, so the retry has to come under another.
       vi.mocked(crypto.randomUUID)
         .mockReturnValueOnce('0000-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
-        .mockReturnValue('9999-wrong-key' as `${string}-${string}-${string}-${string}-${string}`)
+        .mockReturnValue('1111-idem-key' as `${string}-${string}-${string}-${string}-${string}`)
       const { onSubmit, isSubmitting, createdOrder } = setup(STRIPE)
 
       await onSubmit()
@@ -925,7 +1034,7 @@ describe('useCheckoutSubmit', () => {
       // The dead holds were dropped, so the retry reserved again.
       expect(m.reserveStock).toHaveBeenCalledTimes(2)
       expect(api.callsTo('/api/orders').map(call => call.options.headers['Idempotency-Key']))
-        .toEqual(['0000-idem-key', '0000-idem-key'])
+        .toEqual(['0000-idem-key', '1111-idem-key'])
       expect(lastToast().title).toBe(t('order_created_payment_required'))
     })
 

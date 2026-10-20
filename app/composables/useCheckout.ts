@@ -60,7 +60,7 @@ export const useCheckout = () => {
       }>('/api/cart/create-payment-intent', {
         method: 'POST',
         body: args,
-        headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
+        headers: idempotencyKey ? { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } : undefined,
       })
       return {
         clientSecret: response.clientSecret,
