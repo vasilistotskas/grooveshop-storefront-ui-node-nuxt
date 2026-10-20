@@ -1,3 +1,10 @@
+## [3.255.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.17...v3.255.18) (2026-10-20)
+
+
+### Bug Fixes
+
+* **checkout:** a retried order submit can never create a second order ([#201](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/201)) ([3253940](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3253940c8b9537c04d78c5440cd10a5a8f9193f3))
+
 ## [3.255.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.16...v3.255.17) (2026-10-20)
 
 
