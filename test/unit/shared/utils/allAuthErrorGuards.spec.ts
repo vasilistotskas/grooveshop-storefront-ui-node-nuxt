@@ -6,6 +6,7 @@ import {
   isInvalidSessionResponseError,
   isNotAuthenticatedResponseError,
   isNotFoundResponseError,
+  isTooManyRequestsResponseError,
 } from '~~/shared/utils/allAuthErrorGuards'
 
 /**
@@ -25,6 +26,7 @@ const BODIES = {
   404: { status: 404, meta: { secret: 's' } },
   409: { status: 409 },
   410: { status: 410, data: { flows: [] }, meta: unauthenticated },
+  429: { status: 429 },
 } as const
 
 const GUARDS = [
@@ -34,6 +36,7 @@ const GUARDS = [
   ['isNotFoundResponseError', isNotFoundResponseError, 404],
   ['isConflictResponseError', isConflictResponseError, 409],
   ['isInvalidSessionResponseError', isInvalidSessionResponseError, 410],
+  ['isTooManyRequestsResponseError', isTooManyRequestsResponseError, 429],
 ] as const
 
 describe.each(GUARDS)('%s', (_name, guard, status) => {
@@ -56,9 +59,9 @@ describe.each(GUARDS)('%s', (_name, guard, status) => {
   })
 })
 
-// 403 and 409 are nothing but a status, so a bare `{ status }` IS their
+// 403, 409 and 429 are nothing but a status, so a bare `{ status }` IS their
 // shape; every other guard must insist on the rest of its body.
-describe.each(GUARDS.filter(([, , status]) => status !== 403 && status !== 409))('%s', (_name, guard, status) => {
+describe.each(GUARDS.filter(([, , status]) => status !== 403 && status !== 409 && status !== 429))('%s', (_name, guard, status) => {
   it('rejects a body that has the status but not the rest of the shape', () => {
     expect(guard({ data: { status } })).toBe(false)
   })

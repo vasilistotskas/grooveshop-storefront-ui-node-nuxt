@@ -50,3 +50,9 @@ export const isConflictResponseError = (error: unknown): error is {
   const result = ZodConflictResponse.safeParse(readData(error))
   return result.success
 }
+export const isTooManyRequestsResponseError = (error: unknown): error is {
+  data: TooManyRequestsResponse
+} => {
+  const result = ZodTooManyRequestsResponse.safeParse(readData(error))
+  return result.success
+}
