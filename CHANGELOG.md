@@ -1,3 +1,11 @@
+## [3.255.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.16...v3.255.17) (2026-10-20)
+
+
+### Performance Improvements
+
+* **fonts:** send each store only its own font faces, without layout shift ([#197](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/197)) ([917b12b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/917b12b5937531ecc658a5dfaa3841c2641b6a5a))
+* reusable media preconnect, layout-sized gallery photos, WebP funding banner ([#196](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/196)) ([ff91c6f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ff91c6fe384a0b629d34f4a0ba42f23203ce8a14))
+
 ## [3.255.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.15...v3.255.16) (2026-10-20)
 
 
