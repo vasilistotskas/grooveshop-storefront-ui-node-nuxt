@@ -1,3 +1,17 @@
+## [3.255.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.14...v3.255.15) (2026-10-20)
+
+
+### Bug Fixes
+
+* **chat:** show a failed step as failed and let the shopper retry a failed message ([#186](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/186)) ([90bb30d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/90bb30da372340511974d0e7f0b88039d4c157fd))
+
+
+### Performance Improvements
+
+* **cache:** anonymous pages are cacheable at the edge, personal pages never ([#194](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/194)) ([243e8ec](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/243e8ec4f35156890f830c69a88ac0cff013c0dd))
+* **inp:** report slow interactions, load gtag off the tap and premount the phone menu ([#198](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/198)) ([9c3397a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9c3397af605c59fe5bd01c20f3eb51ff7f8b70a2))
+* **media:** YouTube embeds load on click and set no cookies before consent ([#195](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/195)) ([290b8cf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/290b8cfeb23021d9be7e4f6e0353c11c2cca72e1))
+
 ## [3.255.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.13...v3.255.14) (2026-10-19)
 
 
