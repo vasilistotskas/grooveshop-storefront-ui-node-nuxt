@@ -1,3 +1,10 @@
+## [3.255.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.18...v3.255.19) (2026-10-20)
+
+
+### Bug Fixes
+
+* **api:** regenerate the client from the API without German ([#202](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/202)) ([8267877](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8267877c7c32e81e0fe337d5420c9f480e8a6660)), closes [django#297](https://github.com/django/issues/297)
+
 ## [3.255.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.17...v3.255.18) (2026-10-20)
 
 
