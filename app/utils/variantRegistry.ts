@@ -316,33 +316,6 @@ const variants: Record<string, Component> = {
 }
 
 /**
- * The design system a storefront is drawn in.
- *
- * `volt` is the platform default. Its tokens live under
- * `[data-design="volt"]` in `main.css` and its component theme is
- * merged into the request's app config by `app/plugins/design.ts` —
- * never written into `app.config.ts` or the `:root` tokens, because
- * those are what the frozen webside tree renders with.
- */
-export type StorefrontDesign = 'volt'
-
-/**
- * Tenants that keep the stylesheet and app config as they were before
- * the redesign: the ones frozen under `app/components/variants/<schema>/`.
- */
-const FROZEN_DESIGN_SCHEMAS = new Set(['webside'])
-
-/**
- * The design for `tenantSchema`, or `null` to leave the base stylesheet
- * and app config untouched — a frozen tenant, or a request that
- * resolved no tenant at all (the "store not found" page).
- */
-export function resolveDesign(tenantSchema?: string | null): StorefrontDesign | null {
-  if (!tenantSchema || FROZEN_DESIGN_SCHEMAS.has(tenantSchema)) return null
-  return 'volt'
-}
-
-/**
  * Pages only the redesign has, by route name. A store drawn without a
  * design (frozen in the previous one) has no body for them and never
  * links to them, so `middleware/01.design-only.global.ts` answers 404

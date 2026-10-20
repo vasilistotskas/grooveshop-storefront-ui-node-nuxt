@@ -233,12 +233,12 @@
    the sunken tone; every status colour is at least 5.4:1 on its tint.
    Dimmed text is still text — Nuxt UI paints every input and select
    placeholder with it — so it holds AA too: 5.44:1 on white, 5.07:1
-   on the ground, 4.72:1 on the sunken tone. */
-[data-design="volt"] {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Geologica", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+   on the ground, 4.72:1 on the sunken tone.
 
+   Its faces are not here: they are `DESIGN_FONTS.volt`
+   (`shared/theme/design.ts`), emitted per request with the tenant's
+   own tokens so the server knows which families a page declares. */
+[data-design="volt"] {
   --ui-radius: 0.75rem;
   --ui-container: 82rem;
   --ui-header-height: 3.75rem;

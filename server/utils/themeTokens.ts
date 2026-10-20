@@ -1,16 +1,20 @@
-// Values (CONTAINER_MAP, FONT_ALLOWLIST, HEX_COLOR_RE, RADIUS_ALLOWLIST,
-// THEME_PRESETS, zThemeMetadata, readableTextOn) come from shared/
+// Values (CONTAINER_MAP, DESIGN_FONTS, HEX_COLOR_RE, RADIUS_ALLOWLIST,
+// THEME_PRESETS, fontStackValue, resolveDesign, zThemeMetadata,
+// readableTextOn) come from shared/
 // auto-imports — a relative runtime import into shared/ breaks Nitro's
-// server-bundle resolution in production builds. The type-only import
-// below is fully erased before bundling, so its path never reaches rollup.
+// server-bundle resolution in production builds. The type-only imports
+// below are fully erased before bundling, so their paths never reach rollup.
 import type { ThemeMetadata } from '../../shared/theme/metadataSchema'
+import type { ThemePresetTokens } from '../../shared/theme/presets'
 
 /**
  * Pure per-request compiler for the tenant ``<style id="tenant-theme">``
  * block (consumed by ``server/plugins/tenant-theme.ts``).
  *
  * Resolution order, rightmost wins:
- *   THEME_PRESETS[themePreset]  ⊕  dedicated Tenant fields (hexes)
+ *   DESIGN_FONTS[design] (faces only)
+ *                               ⊕  THEME_PRESETS[themePreset]
+ *                               ⊕  dedicated Tenant fields (hexes)
  *                               ⊕  sanitized theme_metadata overrides
  *
  * Sanitization contract: every emitted value is either enum-mapped
@@ -22,6 +26,8 @@ import type { ThemeMetadata } from '../../shared/theme/metadataSchema'
  */
 
 interface ThemeTenant {
+  /** Picks the design (`resolveDesign`), whose faces underlie the tenant's. */
+  schemaName?: string | null
   themePreset?: string | null
   themeMetadata?: unknown
   accentHex?: string | null
@@ -42,29 +48,67 @@ const SHADES = [
   '500', '600', '700', '800', '900', '950',
 ] as const
 
+/**
+ * The tenant's ``theme_metadata`` validated, or ``{}`` with the reason
+ * when it does not validate.
+ */
+function parseThemeMetadata(
+  tenant: ThemeTenant,
+): { metadata: ThemeMetadata, metadataError?: string } {
+  if (
+    !tenant.themeMetadata
+    || typeof tenant.themeMetadata !== 'object'
+    || Object.keys(tenant.themeMetadata).length === 0
+  ) {
+    return { metadata: {} }
+  }
+  const parsed = zThemeMetadata.safeParse(tenant.themeMetadata)
+  if (parsed.success) return { metadata: parsed.data }
+  return {
+    metadata: {},
+    metadataError: parsed.error.issues
+      .map(issue => `${issue.path.join('.')}: ${issue.message}`)
+      .join('; '),
+  }
+}
+
+function presetFor(tenant: ThemeTenant): ThemePresetTokens {
+  return THEME_PRESETS[tenant.themePreset || 'default'] ?? THEME_PRESETS.default!
+}
+
+/**
+ * ``FONT_ALLOWLIST`` keys of the faces the tenant's pages set, per role;
+ * an absent role keeps the stylesheet's own stack (the system faces).
+ *
+ * Rightmost wins: design faces (``DESIGN_FONTS``) ⊕ preset body face ⊕
+ * ``theme_metadata``. ``system`` from the preset or metadata means "no
+ * choice" for the body, as it always has, so the design's face stays.
+ */
+export function resolveTenantFonts(
+  tenant: ThemeTenant,
+  metadata: ThemeMetadata = parseThemeMetadata(tenant).metadata,
+): TenantFonts {
+  const design = resolveDesign(tenant.schemaName)
+  const designFonts = design ? DESIGN_FONTS[design] : undefined
+  const chosenSans = metadata.fontSans ?? presetFor(tenant).fontSans
+  return {
+    sans: chosenSans !== 'system' ? chosenSans : designFonts?.sans,
+    display: metadata.fontDisplay ?? designFonts?.display,
+    mono: metadata.fontMono ?? designFonts?.mono,
+  }
+}
+
+export interface TenantFonts {
+  sans?: string
+  display?: string
+  mono?: string
+}
+
 export function buildTenantThemeCss(
   tenant: ThemeTenant,
 ): CompiledTenantTheme {
-  const preset
-    = THEME_PRESETS[tenant.themePreset || 'default'] ?? THEME_PRESETS.default!
-
-  let metadata: ThemeMetadata = {}
-  let metadataError: string | undefined
-  if (
-    tenant.themeMetadata
-    && typeof tenant.themeMetadata === 'object'
-    && Object.keys(tenant.themeMetadata).length > 0
-  ) {
-    const parsed = zThemeMetadata.safeParse(tenant.themeMetadata)
-    if (parsed.success) {
-      metadata = parsed.data
-    }
-    else {
-      metadataError = parsed.error.issues
-        .map(issue => `${issue.path.join('.')}: ${issue.message}`)
-        .join('; ')
-    }
-  }
+  const preset = presetFor(tenant)
+  const { metadata, metadataError } = parseThemeMetadata(tenant)
 
   const shared: string[] = []
   // Tokens that differ in dark mode, appended after the shared block
@@ -165,28 +209,19 @@ export function buildTenantThemeCss(
     shared.push(`--ui-container: ${container}`)
   }
 
-  const fontKey = metadata.fontSans ?? preset.fontSans
-  const fontStack = FONT_ALLOWLIST[fontKey]
-  if (fontStack && fontKey !== 'system') {
-    shared.push(`--font-sans: ${fontStack}`)
-  }
-
-  // Heading face — metadata-only (no preset carries one). main.css
-  // defaults --font-display to var(--font-sans), so absence emits
-  // nothing and headings follow the body face.
-  if (metadata.fontDisplay) {
-    const displayStack = FONT_ALLOWLIST[metadata.fontDisplay]
-    if (displayStack) {
-      shared.push(`--font-display: ${displayStack}`)
-    }
-  }
-
-  // Monospace face — metadata-only, same contract as fontDisplay.
-  // main.css leaves --font-mono on Tailwind's stack when unset.
-  if (metadata.fontMono) {
-    const monoStack = FONT_ALLOWLIST[metadata.fontMono]
-    if (monoStack) {
-      shared.push(`--font-mono: ${monoStack}`)
+  // Faces: each role's stack, by key. A web font's stack is the compiled
+  // ``--font-stack-<key>`` carrying its fallback faces (fontStackValue).
+  // main.css defaults --font-display to var(--font-sans) and leaves
+  // --font-mono on Tailwind's stack, so an absent role emits nothing.
+  const fonts = resolveTenantFonts(tenant, metadata)
+  for (const [role, key] of [
+    ['--font-sans', fonts.sans],
+    ['--font-display', fonts.display],
+    ['--font-mono', fonts.mono],
+  ] as const) {
+    const stack = key ? fontStackValue(key) : undefined
+    if (stack) {
+      shared.push(`${role}: ${stack}`)
     }
   }
 

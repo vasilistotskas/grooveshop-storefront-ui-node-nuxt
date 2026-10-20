@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildTenantThemeCss } from '~~/server/utils/themeTokens'
+import { buildTenantThemeCss, resolveTenantFonts } from '~~/server/utils/themeTokens'
 
 describe('buildTenantThemeCss', () => {
   it('emits nothing for an unthemed tenant (platform stays byte-identical)', () => {
@@ -65,7 +65,7 @@ describe('buildTenantThemeCss', () => {
   it('resolves non-color tokens from the preset', () => {
     const { css } = buildTenantThemeCss({ themePreset: 'bold' })
     expect(css).toContain('--ui-radius: 0.625rem')
-    expect(css).toContain('--font-sans: "Poppins"')
+    expect(css).toContain('--font-sans: var(--font-stack-poppins)')
   })
 
   it('default preset emits no non-color tokens (stock values omitted)', () => {
@@ -79,9 +79,9 @@ describe('buildTenantThemeCss', () => {
       themeMetadata: { radius: '0', fontSans: 'inter', container: 'narrow' },
     })
     expect(css).toContain('--ui-radius: 0')
-    expect(css).toContain('--font-sans: "Inter"')
+    expect(css).toContain('--font-sans: var(--font-stack-inter)')
     expect(css).toContain('--ui-container: 64rem')
-    expect(css).not.toContain('Poppins')
+    expect(css).not.toContain('poppins')
   })
 
   it('invalid metadata degrades to the preset and reports the error', () => {
@@ -92,7 +92,7 @@ describe('buildTenantThemeCss', () => {
     // `<path>: <message>` per issue, joined — names the offending field.
     expect(metadataError).toMatch(/^fontSans: /)
     expect(css).toContain('--ui-radius: 0.625rem')
-    expect(css).toContain('Poppins')
+    expect(css).toContain('--font-stack-poppins')
   })
 
   it('emits custom scale overrides shade by shade', () => {
@@ -214,8 +214,8 @@ describe('buildTenantThemeCss', () => {
     const { css } = buildTenantThemeCss({
       themeMetadata: { fontSans: 'manrope', fontDisplay: 'source-serif-4' },
     })
-    expect(css).toContain('--font-sans: "Manrope"')
-    expect(css).toContain('--font-display: "Source Serif 4"')
+    expect(css).toContain('--font-sans: var(--font-stack-manrope)')
+    expect(css).toContain('--font-display: var(--font-stack-source-serif-4)')
   })
 
   it('resolves the Vollkorn display face and the Commissioner body face', () => {
@@ -223,8 +223,8 @@ describe('buildTenantThemeCss', () => {
       themeMetadata: { fontSans: 'commissioner', fontDisplay: 'vollkorn' },
     })
     expect(metadataError).toBeUndefined()
-    expect(css).toContain('--font-sans: "Commissioner"')
-    expect(css).toContain('--font-display: "Vollkorn"')
+    expect(css).toContain('--font-sans: var(--font-stack-commissioner)')
+    expect(css).toContain('--font-display: var(--font-stack-vollkorn)')
   })
 
   it('emits --font-mono only when fontMono is set', () => {
@@ -232,8 +232,8 @@ describe('buildTenantThemeCss', () => {
     const { css } = buildTenantThemeCss({
       themeMetadata: { fontSans: 'ibm-plex-sans', fontMono: 'jetbrains-mono' },
     })
-    expect(css).toContain('--font-sans: "IBM Plex Sans"')
-    expect(css).toContain('--font-mono: "JetBrains Mono"')
+    expect(css).toContain('--font-sans: var(--font-stack-ibm-plex-sans)')
+    expect(css).toContain('--font-mono: var(--font-stack-jetbrains-mono)')
   })
 
   it('drops an unknown fontMono without dropping the rest', () => {
@@ -253,5 +253,47 @@ describe('buildTenantThemeCss', () => {
     const { root, dark } = splitBlocks(css)
     expect(root).toContain('--ui-liked: #b3694b')
     expect(dark).toContain('--ui-liked: #b3694b')
+  })
+})
+
+describe('resolveTenantFonts', () => {
+  it('sets the Volt faces for a store drawn in Volt', () => {
+    expect(resolveTenantFonts({ schemaName: 'demo' }))
+      .toEqual({ sans: 'manrope', display: 'geologica', mono: 'jetbrains-mono' })
+  })
+
+  it('lets the store\'s own faces win over the design\'s', () => {
+    expect(resolveTenantFonts({
+      schemaName: 'ekfyseosfyteias',
+      themeMetadata: { fontSans: 'commissioner', fontDisplay: 'vollkorn' },
+    })).toEqual({ sans: 'commissioner', display: 'vollkorn', mono: 'jetbrains-mono' })
+  })
+
+  it('reads a preset body face, and a system one as no choice', () => {
+    expect(resolveTenantFonts({ schemaName: 'demo', themePreset: 'bold' }).sans).toBe('poppins')
+    expect(resolveTenantFonts({ schemaName: 'demo', themePreset: 'default' }).sans).toBe('manrope')
+  })
+
+  it('sets no face for the frozen webside or a request without a store', () => {
+    expect(resolveTenantFonts({ schemaName: 'webside' })).toEqual({})
+    expect(resolveTenantFonts({})).toEqual({})
+  })
+})
+
+describe('buildTenantThemeCss faces', () => {
+  it('emits the design\'s faces as compiled stacks', () => {
+    const { css } = buildTenantThemeCss({ schemaName: 'demo' })
+    expect(css).toContain('--font-sans: var(--font-stack-manrope)')
+    expect(css).toContain('--font-display: var(--font-stack-geologica)')
+    expect(css).toContain('--font-mono: var(--font-stack-jetbrains-mono)')
+  })
+
+  it('keeps the system stack literal: it has no web font to stand in for', () => {
+    const { css } = buildTenantThemeCss({ themeMetadata: { fontDisplay: 'system' } })
+    expect(css).toContain('--font-display: ui-sans-serif, system-ui, sans-serif')
+  })
+
+  it('emits nothing for the frozen webside', () => {
+    expect(buildTenantThemeCss({ schemaName: 'webside' }).css).toBe('')
   })
 })

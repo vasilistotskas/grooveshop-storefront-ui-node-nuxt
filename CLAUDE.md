@@ -60,7 +60,7 @@ touching its files, read the rule file directly.
 - `app/` — Client-side: components, pages, composables, stores, plugins, middleware, layouts, utils, providers, assets
 - `server/` — Nitro server: API proxy routes, middleware, plugins, utils
 - `shared/` — Auto-imported in both app and server: types, constants, schemas (Zod), utils, OpenAPI generated code
-- `modules/` — Custom Nuxt modules (`cookies.ts` for cookie consent, `purge-comments.ts` removes HTML comments in prod)
+- `modules/` — Custom Nuxt modules (`cookies.ts` for cookie consent, `purge-comments.ts` removes HTML comments in prod, `font-stacks.ts` compiles the tenant-selectable font stacks)
 - `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
 - `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES = ['el', 'en']` and `DEFAULT_LOCALE = 'el'`), i18n config, and a translation file set per locale (`el-GR.json` / `en-US.json`, plus domain-specific: auth, breadcrumb, checkout, cookies, validation). Routes for **both** locales are generated at build time for every tenant; whether one is *reachable* is per-tenant (`Tenant.available_locales`), enforced by `app/middleware/locale-available.global.ts`, which 404s a prefix the tenant does not list
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
@@ -115,6 +115,7 @@ Conditionally pushed (NOT active in production):
 Custom local modules:
 - `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
 - `modules/purge-comments.ts` — Removes HTML comments in production
+- `modules/font-stacks.ts` — Compiles each selectable font stack into the global CSS as `--font-stack-<key>`, where `@nuxt/fonts` adds its metric-matched fallback faces; tenant tokens point at it (`fontStackValue`), and `server/plugins/tenant-fonts.ts` drops the `@font-face` rules of every family the store does not set
 
 ### CI/CD
 
