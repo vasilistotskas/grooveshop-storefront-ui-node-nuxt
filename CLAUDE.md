@@ -151,9 +151,9 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_PUBLIC_CARTO_BASEMAPS_KEY` — one platform key for CARTO's basemap tiles (checkout locker map, store-location section; `shared/utils/carto-basemaps.ts`). Public by design (CARTO restricts it by Referer, not secrecy), never per-tenant. Empty means no map renders — CARTO serves a watermarked tile for a keyless request, so there is no fallback.
 - `NUXT_CACHE_PURGE_TOKEN` — shared secret for the `/api/admin/cache/purge` route (`runtimeConfig.cachePurgeToken`); Django's Cache Management admin sends it to invalidate the Nitro SSR cache
 - `NUXT_CACHE_BASE` — `redis` or `memory`
-- `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` — Redis config
+- `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` / `NUXT_REDIS_PASSWORD` / `NUXT_REDIS_DB` — Redis config
 - `NUXT_SESSION_PASSWORD` — Session encryption password
-- OAuth secrets for Google, Facebook, GitHub, Discord
+- `NUXT_OAUTH_GOOGLE_*` / `NUXT_OAUTH_FACEBOOK_*` — the two providers the storefront signs in itself (`server/routes/auth/`), read from `process.env` at request time so no build bakes them into `.output`. GitHub and Discord sign-in is Django's alone: the browser is redirected through allauth, which holds their credentials (`tenant/allauth_adapter.py`), and the storefront has none
 - `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
 
 Google Analytics tracking id, Meta/TikTok Pixel ids, social media links, the Stripe publishable key, and the BoxNow partner id are **tenant-only** (`TenantConfig.gaTrackingId`/`metaPixelId`/`tiktokPixelId`/`socials*`/`stripePublishableKey`/`boxNowPartnerId` via `useTenantStore()`) — no platform/env fallback. Each merchant provisions its own; there is deliberately no `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID`/`NUXT_PUBLIC_META_PIXEL_ID`/`NUXT_PUBLIC_TIKTOK_PIXEL_ID`/`NUXT_PUBLIC_SOCIALS_*`/`NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`/`NUXT_PUBLIC_BOXNOW_PARTNER_ID` env var. Stripe-unconfigured tenants never reach the payment UI (pay-way gating hides it); `StripePayment.vue` still degrades gracefully (shows `stripe_init_error`) if it ever runs with an empty key.
