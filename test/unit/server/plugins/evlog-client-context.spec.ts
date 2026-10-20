@@ -47,6 +47,16 @@ describe('server/plugins/evlog-client-context', () => {
     expect(server.error).toMatchObject({ data: { email: ['x@y.z is taken'] } })
   })
 
+  it('cuts a browser\'s INP report back to the report\'s own fields', async () => {
+    const event = await enrich({
+      source: 'client',
+      action: 'client:inp',
+      inp: { value: 412, rating: 'poor', loadState: 'complete', inputDelay: 10, processingDuration: 360, presentationDelay: 42, longAnimationFrames: 1, email: 'x@y.z' },
+    })
+
+    expect(event.inp).toEqual({ value: 412, rating: 'poor', loadState: 'complete', inputDelay: 10, processingDuration: 360, presentationDelay: 42, longAnimationFrames: 1 })
+  })
+
   it('names the browser it came from, as server events do, never the raw User-Agent', async () => {
     const event = await enrich({ level: 'error', source: 'client' }, { 'host': 'shop.test', 'user-agent': SAFARI_15, 'cf-ipcountry': 'GR' })
 

@@ -204,42 +204,25 @@ export function setupGoogleAnalyticsConsent() {
     id: tagId,
     scriptOptions: {
       // gtag is 173KB of transfer that loads for EVERY visitor before
-      // any consent (Consent Mode v2 pings), and it was the
-      // third-largest resource on the homepage (2026-08-29 trace).
-      // 'onNuxtReady' fired right after hydration — still inside
-      // Lighthouse's simulated pre-LCP window on throttled mobile — and
-      // the default warmup emitted a rel=preload for the script in the
-      // HTML head, so the 173KB downloaded at preload-scan time
-      // regardless of the trigger. Now: load on the FIRST user
-      // interaction, or after 5s for passive sessions — any engaged
-      // session still gets its consent-mode pings and page_view (gtag
-      // calls queue in the dataLayer stub until the script lands), only
-      // sub-5s no-interaction bounces go unmeasured. No warmup at all:
-      // a preconnect would open the connection to Google at page load,
-      // before the visitor has done or decided anything.
-      trigger: import.meta.client
-        ? new Promise<void>((resolve) => {
-            const events = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'] as const
-            let settled = false
-            const done = () => {
-              if (settled) return
-              settled = true
-              clearTimeout(timer)
-              for (const event of events) {
-                window.removeEventListener(event, done)
-              }
-              resolve()
-            }
-            const timer = setTimeout(done, 5000)
-            for (const event of events) {
-              window.addEventListener(event, done, { once: true, passive: true })
-            }
-          })
-        : 'onNuxtReady',
+      // any consent (Consent Mode v2 pings), and its evaluation is one
+      // ~180 ms task on a phone-class CPU (4x slowdown), followed by
+      // ~50-150 ms timer tasks of its own. It used to load on the
+      // visitor's first pointerdown/keydown/scroll, which put that work
+      // ~0.4 s after the first tap: a second tap in that window cost
+      // 176-320 ms of INP against 16 ms with gtag blocked (webside blog
+      // post, 2026-10-19), and webside fails INP in the field. It now
+      // loads once the page has fully loaded (the LCP image included)
+      // and the main thread is next idle, which is when a visitor is
+      // reading rather than tapping. 'onNuxtReady' fired right after
+      // hydration, inside the LCP window. No warmup at all: the default
+      // warmup emitted a rel=preload for the script, and a preconnect
+      // would open the connection to Google at page load, before the
+      // visitor has done or decided anything.
+      trigger: import.meta.client ? afterLoadWhenIdle() : 'onNuxtReady',
       warmupStrategy: false,
     },
     defaultConsent: GOOGLE_TAG_DEFAULT_CONSENT,
-  }) as any
+  })
 
   // The second product on the same tag. Pushed onto the dataLayer right
   // after registration, so it lands after the module's own

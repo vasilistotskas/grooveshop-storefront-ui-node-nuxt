@@ -34,8 +34,10 @@ export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('evlog:enrich', async ({ event, headers }: EnrichContext) => {
     if (event.source !== 'client') return
     // The one place every browser event passes: no customer input from a
-    // failed response's body reaches the logs (`redactClientEventError`).
+    // failed response's body reaches the logs (`redactClientEventError`),
+    // and an INP report keeps only the `InpReport` fields (`redactClientInpReport`).
     redactClientEventError(event)
+    redactClientInpReport(event)
     const userAgent = headers?.['user-agent']
     if (userAgent) event.client = clientFacts(userAgent, headers?.['cf-ipcountry'])
     if (!headers?.host) return

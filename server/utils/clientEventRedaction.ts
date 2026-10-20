@@ -87,3 +87,108 @@ function redactErrorData(error: Record<string, unknown>, depth: number): void {
   if ('data' in error) error.data = redactBody(error.data)
   if (isRecord(error.cause) && depth < MAX_DEPTH) redactErrorData(error.cause, depth + 1)
 }
+
+const INP_RATINGS = new Set(['good', 'needs-improvement', 'poor'])
+const INP_LOAD_STATES = new Set(['loading', 'dom-interactive', 'dom-content-loaded', 'complete'])
+const INP_INTERACTION_TYPES = new Set(['pointer', 'keyboard'])
+const INP_SUBPARTS = new Set(['input-delay', 'processing-duration', 'presentation-delay'])
+const INP_DURATIONS = [
+  'inputDelay',
+  'processingDuration',
+  'presentationDelay',
+  'totalScriptDuration',
+  'totalStyleAndLayoutDuration',
+  'totalPaintDuration',
+  'totalUnattributedDuration',
+] as const
+/** A page's INP can only be so long before the page is gone; anything over this is not a measurement. */
+const MAX_INP_MS = 600_000
+/** web-vitals' own bound on a selector (`getSelector`'s `MAX_LEN`). */
+const MAX_SELECTOR_LENGTH = 100
+const MAX_SCRIPT_TEXT_LENGTH = 300
+/**
+ * A selector: tag names, `#id`s and classes joined by `>`. Tailwind's
+ * classes carry most of ASCII (`[&>svg]:size-4`, `w-1/2`, `bg-(--x)`), so
+ * the rule is printable ASCII with no space or quote: never prose.
+ */
+const SELECTOR = /^[!#-&(-~]+$/
+/** A Vue route name (`blog-post-id-slug___el`). */
+const ROUTE_NAME = /^[\w-]{1,128}$/
+/** A script's file as `scriptSource` gives it: a `/_nuxt/` path, an origin and path with no query, or `document`. */
+const SCRIPT_SOURCE = /^(?:\/_nuxt\/[^\s?#]*|https?:\/\/[^\s?#]+|document)$/
+/** What called a script: `BUTTON#id.onclick`, `Window.setTimeout`, `Response.json.then`, or a script's file. */
+const SCRIPT_INVOKER = /^(?:[\w#.:[\]-]+|\/_nuxt\/[^\s?#]*|https?:\/\/[^\s?#]+)$/
+const IDENTIFIER_TEXT = /^[\w$.-]{1,128}$/
+
+function isDuration(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAX_INP_MS
+}
+
+function keptString(value: unknown, pattern: RegExp, maxLength: number): string | undefined {
+  return typeof value === 'string' && value.length <= maxLength && pattern.test(value) ? value : undefined
+}
+
+function keptLongestScript(value: unknown): InpLongestScript | undefined {
+  if (!isRecord(value)) return undefined
+  const source = value.source === '' ? '' : keptString(value.source, SCRIPT_SOURCE, MAX_SCRIPT_TEXT_LENGTH)
+  const invoker = keptString(value.invoker, SCRIPT_INVOKER, MAX_SCRIPT_TEXT_LENGTH)
+  const invokerType = keptString(value.invokerType, IDENTIFIER_TEXT, MAX_KEY_LENGTH)
+  const subpart = typeof value.subpart === 'string' && INP_SUBPARTS.has(value.subpart)
+    ? value.subpart as InpLongestScript['subpart']
+    : undefined
+  if (source === undefined || invoker === undefined || invokerType === undefined || !subpart) return undefined
+  if (!isDuration(value.duration) || !isDuration(value.forcedStyleAndLayout)) return undefined
+  const functionName = keptString(value.functionName, IDENTIFIER_TEXT, MAX_KEY_LENGTH)
+  return {
+    source,
+    invoker,
+    invokerType,
+    ...(functionName ? { functionName } : {}),
+    subpart,
+    duration: value.duration,
+    forcedStyleAndLayout: value.forcedStyleAndLayout,
+  }
+}
+
+/**
+ * Rebuild a browser's INP report (`action: 'client:inp'`) from the fields
+ * an `InpReport` has, each checked against the shape `buildInpReport`
+ * gives it, in place. The ingest route takes whatever a client posts, so
+ * this is an allowlist too: an unknown field is dropped, and a known one
+ * that does not have its shape (free text where a selector belongs, a
+ * query string on a script URL) is dropped with it. A report without its
+ * value, rating, load state or phase timings is replaced by `REDACTED_BODY`.
+ */
+export function redactClientInpReport(event: Record<string, unknown>): void {
+  if (event.action !== 'client:inp' || event.inp === undefined) return
+  const inp = event.inp
+  if (
+    !isRecord(inp)
+    || !isDuration(inp.value)
+    || typeof inp.rating !== 'string' || !INP_RATINGS.has(inp.rating)
+    || typeof inp.loadState !== 'string' || !INP_LOAD_STATES.has(inp.loadState)
+    || !isDuration(inp.inputDelay) || !isDuration(inp.processingDuration) || !isDuration(inp.presentationDelay)
+    || !isDuration(inp.longAnimationFrames)
+  ) {
+    event.inp = REDACTED_BODY
+    return
+  }
+
+  const kept: Record<string, unknown> = {
+    value: inp.value,
+    rating: inp.rating,
+    loadState: inp.loadState,
+    longAnimationFrames: inp.longAnimationFrames,
+  }
+  for (const key of INP_DURATIONS) {
+    if (isDuration(inp[key])) kept[key] = inp[key]
+  }
+  const route = keptString(inp.route, ROUTE_NAME, 128)
+  if (route) kept.route = route
+  if (typeof inp.interactionType === 'string' && INP_INTERACTION_TYPES.has(inp.interactionType)) kept.interactionType = inp.interactionType
+  const target = keptString(inp.target, SELECTOR, MAX_SELECTOR_LENGTH)
+  if (target) kept.target = target
+  const longestScript = keptLongestScript(inp.longestScript)
+  if (longestScript) kept.longestScript = longestScript
+  event.inp = kept
+}

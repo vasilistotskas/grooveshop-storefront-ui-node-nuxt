@@ -25,6 +25,9 @@ const giftCardsEnabled = computed(
 
 const open = ref(false)
 
+// Mounted ahead of the first tap, so opening it only shows it (INP).
+const premount = useOverlayPremount()
+
 watch(() => route.fullPath, () => {
   open.value = false
 })
@@ -135,6 +138,7 @@ const onClickCookieSettings = () => {
 <template>
   <USlideover
     v-model:open="open"
+    :unmount-on-hide="!premount"
     side="left"
     :title="t('menu')"
     :ui="{

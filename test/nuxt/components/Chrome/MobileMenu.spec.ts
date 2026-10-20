@@ -18,6 +18,8 @@ const { navigate, session } = vi.hoisted(() => ({
 }))
 
 mockNuxtImport('navigateTo', () => navigate)
+// The page is idle at once, as it is a moment after a real page has loaded.
+mockNuxtImport('onNuxtReady', () => (callback: () => void) => callback())
 mockNuxtImport('useUserSession', () => () => {
   session.loggedIn ??= ref(false)
   return {
@@ -117,6 +119,29 @@ describe('Chrome/MobileMenu', () => {
 
     const links = body().findAll('nav a').map(link => link.attributes('href'))
     expect(links).toEqual(['/offers', '/blog'])
+  })
+
+  // Mounting the panel in the tap's own task was most of the ~400 ms a tap
+  // on the menu cost on a phone-class CPU (2026-10-19).
+  it('mounts the panel, hidden, before it is first opened', async () => {
+    await mountSuspended(ChromeMobileMenu, { route: false, props: { open: false, items: ITEMS }, global: { stubs } })
+    await flushPromises()
+
+    const dialog = body().find<HTMLElement>('[role="dialog"]')
+    expect(dialog.findAll('nav a').map(link => link.attributes('href'))).toEqual(['/offers', '/blog'])
+    expect(dialog.element.style.display).toBe('none')
+  })
+
+  it('asks for a member\'s account card only once the menu is opened', async () => {
+    session.loggedIn.value = true
+    const wrapper = await mountSuspended(ChromeMobileMenu, { route: false, props: { open: false, items: ITEMS }, global: { stubs } })
+    await flushPromises()
+    expect(body().find('[data-test="account"]').exists()).toBe(false)
+
+    await wrapper.setProps({ open: true })
+    await flushPromises()
+
+    expect(body().find('[data-test="account"]').exists()).toBe(true)
   })
 
   it('draws no catalogue for a store without categories', async () => {
