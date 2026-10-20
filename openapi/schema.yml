@@ -341,11 +341,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: lastName
           schema:
@@ -555,11 +554,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Authors
       requestBody:
@@ -632,11 +630,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Authors
       security:
@@ -691,11 +688,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Authors
       requestBody:
@@ -767,11 +763,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Authors
       requestBody:
@@ -999,11 +994,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: minComments
           schema:
@@ -1375,11 +1369,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: level
           schema:
@@ -1685,11 +1678,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Categories
       requestBody:
@@ -1762,11 +1754,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Categories
       security:
@@ -1821,11 +1812,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Categories
       requestBody:
@@ -1897,11 +1887,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Categories
       requestBody:
@@ -2016,11 +2005,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -2128,11 +2116,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -2240,11 +2227,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -2707,11 +2693,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -2869,11 +2854,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -3120,11 +3104,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: level
           schema:
@@ -3498,11 +3481,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Comments
       requestBody:
@@ -3575,11 +3557,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Comments
       security:
@@ -3633,11 +3614,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Comments
       requestBody:
@@ -3709,11 +3689,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Comments
       requestBody:
@@ -4030,11 +4009,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: level
           schema:
@@ -4561,11 +4539,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: level
           schema:
@@ -5197,11 +5174,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: level
           schema:
@@ -5686,11 +5662,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: minComments
           schema:
@@ -5935,11 +5910,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Post
       requestBody:
@@ -6012,11 +5986,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Post
       security:
@@ -6071,11 +6044,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Post
       requestBody:
@@ -6147,11 +6119,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Post
       requestBody:
@@ -6901,11 +6872,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: minComments
           schema:
@@ -7319,11 +7289,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: minComments
           schema:
@@ -7996,11 +7965,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: maxPosts
           schema:
@@ -8272,11 +8240,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Tags
       requestBody:
@@ -8349,11 +8316,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Tags
       security:
@@ -8408,11 +8374,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Tags
       requestBody:
@@ -8484,11 +8449,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Blog Tags
       requestBody:
@@ -9568,11 +9532,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Cart Items
       security:
@@ -9715,11 +9678,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Cart Items
       requestBody:
@@ -9971,11 +9933,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: lastActivity
           schema:
@@ -10225,7 +10186,7 @@ paths:
   /api/v1/cart/release-reservations:
     post:
       operationId: releaseCartReservations
-      description: Απελευθέρωση δεσμεύσεων αποθέματος όταν το checkout εγκαταλείπεται ή η πληρωμή αποτυγχάνει. Αυτό καθιστά το δεσμευμένο απόθεμα διαθέσιμο για άλλους πελάτες.
+      description: Απελευθέρωση δεσμεύσεων αποθέματος όταν η ολοκλήρωση αγοράς εγκαταλείπεται ή η πληρωμή αποτυγχάνει. Αυτό καθιστά το δεσμευμένο απόθεμα διαθέσιμο για άλλους πελάτες.
       summary: Αποδέσμευση δεσμεύσεων αποθέματος
       parameters:
         - in: header
@@ -10291,7 +10252,7 @@ paths:
   /api/v1/cart/reserve-stock:
     post:
       operationId: reserveCartStock
-      description: Δέσμευση αποθέματος για όλα τα είδη του καλαθιού κατά το checkout. Δημιουργεί προσωρινές δεσμεύσεις αποθέματος με διάρκεια ζωής 15 λεπτών. Επιστρέφει λίστα ID δεσμεύσεων για χρήση κατά τη δημιουργία της παραγγελίας.
+      description: Δέσμευση αποθέματος για όλα τα είδη του καλαθιού κατά την ολοκλήρωση αγοράς. Δημιουργεί προσωρινές δεσμεύσεις αποθέματος με διάρκεια ζωής 15 λεπτών. Επιστρέφει λίστα ID δεσμεύσεων για χρήση κατά τη δημιουργία της παραγγελίας.
       summary: Δέσμευση αποθέματος για αντικείμενα καλαθιού
       parameters:
         - in: header
@@ -10444,11 +10405,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -10550,11 +10510,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Content Page
       requestBody:
@@ -10619,11 +10578,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: path
           name: slug
           schema:
@@ -10675,11 +10633,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: path
           name: slug
           schema:
@@ -10748,11 +10705,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: path
           name: slug
           schema:
@@ -11084,11 +11040,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: multipleCodes
           schema:
@@ -11343,11 +11298,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Countries
       requestBody:
@@ -11419,11 +11373,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Countries
       security:
@@ -11477,11 +11430,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Countries
       requestBody:
@@ -11552,11 +11504,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Countries
       requestBody:
@@ -11755,11 +11706,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -12135,11 +12085,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: page
           required: false
           in: query
@@ -12222,11 +12171,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -12438,11 +12386,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: notification
           schema:
@@ -12786,11 +12733,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Notification Users
       security:
@@ -12841,11 +12787,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Notification Users
       requestBody:
@@ -12913,11 +12858,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Notification Users
       requestBody:
@@ -13451,7 +13395,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Φίλτρο παραγγελιών με χρονοσήμανση ενημέρωσης κατάστασης
+          description: Φίλτρο παραγγελιών με ημερομηνία και ώρα ενημέρωσης κατάστασης
         - in: query
           name: hasTracking
           schema:
@@ -13536,11 +13480,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: lastName
           schema:
@@ -13673,7 +13616,7 @@ paths:
             * `PROCESSING` - Σε επεξεργασία
             * `COMPLETED` - Ολοκληρώθηκε
             * `FAILED` - Απέτυχε
-            * `REFUNDED` - Επιστροφή Χρημάτων
+            * `REFUNDED` - Επιστράφηκαν τα χρήματα
             * `PARTIALLY_REFUNDED` - Μερική επιστροφή
             * `CANCELED` - Ακυρώθηκε
         - in: query
@@ -13825,7 +13768,7 @@ paths:
             * `COMPLETED` - Ολοκληρώθηκε
             * `CANCELED` - Ακυρώθηκε
             * `RETURNED` - Επιστράφηκε
-            * `REFUNDED` - Επιστροφή Χρημάτων
+            * `REFUNDED` - Επιστράφηκαν τα χρήματα
         - in: query
           name: status_In
           schema:
@@ -14026,11 +13969,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Orders
       requestBody:
@@ -14230,11 +14172,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: notes
           schema:
@@ -14292,7 +14233,7 @@ paths:
             * `PROCESSING` - Σε επεξεργασία
             * `COMPLETED` - Ολοκληρώθηκε
             * `FAILED` - Απέτυχε
-            * `REFUNDED` - Επιστροφή Χρημάτων
+            * `REFUNDED` - Επιστράφηκαν τα χρήματα
             * `PARTIALLY_REFUNDED` - Μερική επιστροφή
             * `CANCELED` - Ακυρώθηκε
         - in: query
@@ -14324,7 +14265,7 @@ paths:
             * `COMPLETED` - Ολοκληρώθηκε
             * `CANCELED` - Ακυρώθηκε
             * `RETURNED` - Επιστράφηκε
-            * `REFUNDED` - Επιστροφή Χρημάτων
+            * `REFUNDED` - Επιστράφηκαν τα χρήματα
         - in: query
           name: order_User
           schema:
@@ -14726,11 +14667,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Order Items
       requestBody:
@@ -14803,11 +14743,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Order Items
       security:
@@ -14861,11 +14800,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Order Items
       requestBody:
@@ -14937,11 +14875,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Order Items
       requestBody:
@@ -15117,11 +15054,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Orders
       security:
@@ -15175,11 +15111,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Orders
       requestBody:
@@ -15251,11 +15186,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Orders
       requestBody:
@@ -15777,8 +15711,8 @@ paths:
   /api/v1/order/{id}/create_checkout_session:
     post:
       operationId: createOrderCheckoutSession
-      description: Δημιουργία φιλοξενούμενης συνεδρίας checkout (Stripe ή Viva Wallet). Ο πελάτης θα ανακατευθυνθεί στη σελίδα πληρωμής του παρόχου για να ολοκληρώσει την πληρωμή.
-      summary: Δημιουργία φιλοξενούμενης συνεδρίας checkout για παραγγελία
+      description: Δημιουργία φιλοξενούμενης συνεδρίας ολοκλήρωσης αγοράς (Stripe ή Viva Wallet). Ο πελάτης θα ανακατευθυνθεί στη σελίδα πληρωμής του παρόχου για να ολοκληρώσει την πληρωμή.
+      summary: Δημιουργία φιλοξενούμενης συνεδρίας ολοκλήρωσης αγοράς για παραγγελία
       parameters:
         - in: path
           name: id
@@ -16674,7 +16608,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Φίλτρο παραγγελιών με χρονοσήμανση ενημέρωσης κατάστασης
+          description: Φίλτρο παραγγελιών με ημερομηνία και ώρα ενημέρωσης κατάστασης
         - in: query
           name: hasTracking
           schema:
@@ -16759,11 +16693,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: lastName
           schema:
@@ -16895,7 +16828,7 @@ paths:
             * `PROCESSING` - Σε επεξεργασία
             * `COMPLETED` - Ολοκληρώθηκε
             * `FAILED` - Απέτυχε
-            * `REFUNDED` - Επιστροφή Χρημάτων
+            * `REFUNDED` - Επιστράφηκαν τα χρήματα
             * `PARTIALLY_REFUNDED` - Μερική επιστροφή
             * `CANCELED` - Ακυρώθηκε
         - in: query
@@ -17047,7 +16980,7 @@ paths:
             * `COMPLETED` - Ολοκληρώθηκε
             * `CANCELED` - Ακυρώθηκε
             * `RETURNED` - Επιστράφηκε
-            * `REFUNDED` - Επιστροφή Χρημάτων
+            * `REFUNDED` - Επιστράφηκαν τα χρήματα
         - in: query
           name: status_In
           schema:
@@ -17389,11 +17322,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: page
           required: false
           in: query
@@ -17455,11 +17387,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       requestBody:
@@ -17500,11 +17431,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       security:
@@ -17532,11 +17462,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       requestBody:
@@ -17576,11 +17505,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       requestBody:
@@ -17669,11 +17597,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: page
           required: false
           in: query
@@ -17735,11 +17662,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       requestBody:
@@ -17780,11 +17706,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       security:
@@ -17812,11 +17737,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       requestBody:
@@ -17856,11 +17780,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - api
       requestBody:
@@ -18072,11 +17995,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -18160,7 +18082,7 @@ paths:
           description: |-
             Φίλτρο ανά τρόπο καταβολής των χρημάτων
 
-            * `online` - Πληρωμή online κατά το checkout
+            * `online` - Πληρωμή online κατά την ολοκλήρωση αγοράς
             * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
             * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
             * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
@@ -18168,7 +18090,7 @@ paths:
           name: shippingKind
           schema:
             type: string
-          description: Φίλτρο τρόπων πληρωμής ανά είδος αποστολής. Συνδυάστε το με ``shippingProviderCode`` για τους κανόνες ενός μεταφορέα· από μόνο του επιστρέφει μόνο τους τρόπους πληρωμής που δέχεται κάθε μεταφορέας που εξυπηρετεί αυτό το είδος, κάτι που χρειάζεται ένα checkout ``home_delivery`` ανεξάρτητο από πάροχο.
+          description: Φίλτρο τρόπων πληρωμής ανά είδος αποστολής. Συνδυάστε το με ``shippingProviderCode`` για τους κανόνες ενός μεταφορέα· από μόνο του επιστρέφει μόνο τους τρόπους πληρωμής που δέχεται κάθε μεταφορέας που εξυπηρετεί αυτό το είδος, κάτι που χρειάζεται μια ολοκλήρωση αγοράς ``home_delivery`` ανεξάρτητο από πάροχο.
         - in: query
           name: shippingProviderCode
           schema:
@@ -18282,11 +18204,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Payment methods
       requestBody:
@@ -18356,11 +18277,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Payment methods
       security:
@@ -18412,11 +18332,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Payment methods
       requestBody:
@@ -18485,11 +18404,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Payment methods
       requestBody:
@@ -18764,11 +18682,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: maxDiscount
           schema:
@@ -19172,11 +19089,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Products
       requestBody:
@@ -19249,11 +19165,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Products
       security:
@@ -19308,11 +19223,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Products
       requestBody:
@@ -19384,11 +19298,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Products
       requestBody:
@@ -19499,11 +19412,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: search
           required: false
           in: query
@@ -19801,11 +19713,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Products
       security:
@@ -19886,11 +19797,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -19998,11 +19908,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Alerts
       requestBody:
@@ -20076,11 +19985,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Alerts
       security:
@@ -20236,11 +20144,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: name
           schema:
@@ -20402,11 +20309,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -20467,11 +20373,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -20525,11 +20430,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -20589,11 +20493,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -20766,11 +20669,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -20932,11 +20834,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -20997,11 +20898,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -21055,11 +20955,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -21119,11 +21018,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Attributes
       security:
@@ -21219,11 +21117,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -21334,11 +21231,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Brands
       security:
@@ -21561,11 +21457,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: level
           schema:
@@ -21807,11 +21702,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Categories
       requestBody:
@@ -21884,11 +21778,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Categories
       security:
@@ -21943,11 +21836,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Categories
       requestBody:
@@ -22019,11 +21911,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Categories
       requestBody:
@@ -22231,11 +22122,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -22337,11 +22227,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Category Images
       requestBody:
@@ -22414,11 +22303,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Category Images
       security:
@@ -22473,11 +22361,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Category Images
       requestBody:
@@ -22549,11 +22436,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Category Images
       requestBody:
@@ -22764,11 +22650,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: search
           required: false
           in: query
@@ -22882,11 +22767,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: search
           required: false
           in: query
@@ -22972,11 +22856,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -23146,11 +23029,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Favourites
       requestBody:
@@ -23220,11 +23102,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Favourites
       security:
@@ -23275,11 +23156,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Favourites
       requestBody:
@@ -23348,11 +23228,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Favourites
       requestBody:
@@ -23686,11 +23565,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -23811,11 +23689,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Images
       requestBody:
@@ -23888,11 +23765,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Images
       security:
@@ -23947,11 +23823,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Images
       requestBody:
@@ -24023,11 +23898,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Images
       requestBody:
@@ -24210,11 +24084,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: maxRate
           schema:
@@ -24581,11 +24454,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Reviews
       requestBody:
@@ -24658,11 +24530,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Reviews
       security:
@@ -24717,11 +24588,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Reviews
       requestBody:
@@ -24793,11 +24663,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Product Reviews
       requestBody:
@@ -25004,11 +24873,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Promotions
       security:
@@ -25040,11 +24908,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: path
           name: productId
           schema:
@@ -25242,11 +25109,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: name
           schema:
@@ -25409,11 +25275,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Regions
       requestBody:
@@ -25485,11 +25350,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Regions
       security:
@@ -25543,11 +25407,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Regions
       requestBody:
@@ -25618,11 +25481,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Regions
       requestBody:
@@ -25766,11 +25628,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: name
           schema:
@@ -25946,7 +25807,7 @@ paths:
           name: languageCode
           schema:
             type: string
-          description: Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el', 'de'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
+          description: Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
         - in: query
           name: limit
           schema:
@@ -26031,7 +25892,7 @@ paths:
           name: languageCode
           schema:
             type: string
-          description: Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el', 'de'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
+          description: Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
         - in: query
           name: limit
           schema:
@@ -26114,7 +25975,7 @@ paths:
           name: languageCode
           schema:
             type: string
-          description: Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el', 'de'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
+          description: Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
         - in: query
           name: likesMin
           schema:
@@ -26603,11 +26464,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -26715,11 +26575,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - BoxNow lockers
       security:
@@ -27088,11 +26947,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: maxUsageCount
           schema:
@@ -27313,11 +27171,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tags
       requestBody:
@@ -27390,11 +27247,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tags
       security:
@@ -27449,11 +27305,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tags
       requestBody:
@@ -27525,11 +27380,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tags
       requestBody:
@@ -27692,11 +27546,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: objectId
           schema:
@@ -27879,11 +27732,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tagged Items
       requestBody:
@@ -27956,11 +27808,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tagged Items
       security:
@@ -28015,11 +27866,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tagged Items
       requestBody:
@@ -28091,11 +27941,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Tagged Items
       requestBody:
@@ -28242,7 +28091,6 @@ paths:
                     role:
                       type: string
                       enum:
-                        - member
                         - staff
                         - admin
                         - owner
@@ -28284,11 +28132,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -28398,11 +28245,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Accounts
       security:
@@ -28456,11 +28302,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Accounts
       requestBody:
@@ -28531,11 +28376,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Accounts
       requestBody:
@@ -28612,11 +28456,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -28730,11 +28573,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -28915,11 +28757,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: page
           schema:
@@ -29093,11 +28934,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -29211,11 +29051,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -29427,11 +29266,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -29545,11 +29383,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -29834,11 +29671,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: lastName
           schema:
@@ -30059,11 +29895,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Addresses
       requestBody:
@@ -30136,11 +29971,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Addresses
       security:
@@ -30194,11 +30028,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Addresses
       requestBody:
@@ -30270,11 +30103,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Addresses
       requestBody:
@@ -30528,11 +30360,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - name: ordering
           in: query
           required: false
@@ -30597,7 +30428,7 @@ paths:
 
             * `ACTIVE` - Ενεργή
             * `PENDING` - Εκκρεμεί Επιβεβαίωση
-            * `UNSUBSCRIBED` - Απεγγραφή
+            * `UNSUBSCRIBED` - Απεγγράφηκε
             * `BOUNCED` - Επιστράφηκε
         - in: query
           name: subscribedAfter
@@ -30682,7 +30513,7 @@ paths:
           schema:
             type: string
             format: date-time
-          description: Φίλτρο εγγραφών με διαγραφή μετά από αυτή την ημερομηνία
+          description: Φίλτρο εγγραφών με απεγγραφή μετά από αυτή την ημερομηνία
         - in: query
           name: unsubscribedAt_Date
           schema:
@@ -30703,7 +30534,7 @@ paths:
           schema:
             type: string
             format: date-time
-          description: Φίλτρο εγγραφών με διαγραφή πριν από αυτή την ημερομηνία
+          description: Φίλτρο εγγραφών με απεγγραφή πριν από αυτή την ημερομηνία
         - in: query
           name: updatedAfter
           schema:
@@ -30788,11 +30619,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Subscription
       requestBody:
@@ -30865,11 +30695,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Subscription
       security:
@@ -30923,11 +30752,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Subscription
       requestBody:
@@ -30999,11 +30827,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - User Subscription
       requestBody:
@@ -31158,7 +30985,7 @@ paths:
   /api/v1/user/subscription/bulk_update:
     post:
       operationId: bulkUpdateUserSubscriptions
-      description: Εγγραφή ή διαγραφή από πολλαπλά θέματα ταυτόχρονα.
+      description: Εγγραφή ή απεγγραφή από πολλαπλά θέματα ταυτόχρονα.
       summary: Μαζική ενημέρωση συνδρομών χρήστη
       tags:
         - User Subscriptions
@@ -31455,11 +31282,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
         - in: query
           name: name
           schema:
@@ -31624,11 +31450,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Subscription Topics
       requestBody:
@@ -31701,11 +31526,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Subscription Topics
       security:
@@ -31759,11 +31583,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Subscription Topics
       requestBody:
@@ -31835,11 +31658,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Subscription Topics
       requestBody:
@@ -31994,8 +31816,8 @@ paths:
   /api/v1/user/subscription/topic/{id}/unsubscribe:
     post:
       operationId: unsubscribeFromTopic
-      description: Διαγραφή του τρέχοντος χρήστη από συγκεκριμένο θέμα εγγραφής.
-      summary: Διαγραφή από θέμα
+      description: Απεγγραφή του τρέχοντος χρήστη από συγκεκριμένο θέμα εγγραφής.
+      summary: Απεγγραφή από θέμα
       parameters:
         - in: path
           name: id
@@ -32057,11 +31879,10 @@ paths:
           schema:
             type: string
             enum:
-              - de
               - el
               - en
             default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en)
       tags:
         - Subscription Topics
       security:
@@ -32120,7 +31941,7 @@ paths:
 
         Unsubscribes from ALL active subscriptions — used by emails without a
         topic binding such as re-engagement and abandoned-cart.
-      summary: Διαγραφή από όλα τα θέματα μέσω συνδέσμου email (GET)
+      summary: Απεγγραφή από όλα τα θέματα μέσω συνδέσμου email (GET)
       parameters:
         - in: path
           name: token
@@ -32145,7 +31966,7 @@ paths:
     post:
       operationId: unsubscribeFromAllOneClick
       description: Καλείται από προγράμματα email που τηρούν το List-Unsubscribe-Post=One-Click. Επιστρέφει 200 OK ανεξάρτητα από την εγκυρότητα του token (σιωπηλά, κατά RFC 8058).
-      summary: Διαγραφή με ένα κλικ από όλα τα θέματα κατά RFC 8058
+      summary: Απεγγραφή με ένα κλικ από όλα τα θέματα κατά RFC 8058
       parameters:
         - in: path
           name: token
@@ -32164,7 +31985,7 @@ paths:
         Topic-scoped unsubscribe: `/unsubscribe/<token>/<topic_slug>`.
 
         Used by marketing emails with a specific List-ID (newsletter etc.).
-      summary: Διαγραφή από θέμα μέσω συνδέσμου email (GET)
+      summary: Απεγγραφή από θέμα μέσω συνδέσμου email (GET)
       parameters:
         - in: path
           name: token
@@ -32194,7 +32015,7 @@ paths:
     post:
       operationId: unsubscribeFromTopicOneClick
       description: Καλείται από προγράμματα email που τηρούν το List-Unsubscribe-Post=One-Click. Επιστρέφει 200 OK ανεξάρτητα από την εγκυρότητα του token (σιωπηλά, κατά RFC 8058).
-      summary: Διαγραφή με ένα κλικ από θέμα κατά RFC 8058
+      summary: Απεγγραφή με ένα κλικ από θέμα κατά RFC 8058
       parameters:
         - in: path
           name: token
@@ -32345,7 +32166,7 @@ components:
           readOnly: true
           nullable: true
           title: Εκδόθηκε από
-          description: Διαχειριστής που ενεργοποίησε τη χειροκίνητη έκδοση. Null όταν η λίστα εκδόθηκε από την καθημερινή εργασία Celery beat. Αποθηκεύει ID χρήστη του schema της ΠΛΑΤΦΟΡΜΑΣ· δεν επιβάλλεται ως FK (δείτε το db_constraint παραπάνω).
+          description: Διαχειριστής που ενεργοποίησε την χειροκίνητη έκδοση· κενό όταν τη λίστα εξέδωσε η ημερήσια προγραμματισμένη εργασία. Αναγνωριστικό λογαριασμού προσωπικού της πλατφόρμας (public schema), όχι χρήστη του καταστήματος.
         issuedByUsername:
           type: string
           nullable: true
@@ -32934,11 +32755,6 @@ components:
               properties:
                 name:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
         active:
           type: boolean
           title: Ενεργή
@@ -32998,11 +32814,6 @@ components:
                 value:
                   type: string
             en:
-              type: object
-              properties:
-                value:
-                  type: string
-            de:
               type: object
               properties:
                 value:
@@ -33119,11 +32930,6 @@ components:
               properties:
                 bio:
                   type: string
-            de:
-              type: object
-              properties:
-                bio:
-                  type: string
         id:
           type: integer
           readOnly: true
@@ -33179,11 +32985,6 @@ components:
                 bio:
                   type: string
             en:
-              type: object
-              properties:
-                bio:
-                  type: string
-            de:
               type: object
               properties:
                 bio:
@@ -33260,11 +33061,6 @@ components:
               properties:
                 bio:
                   type: string
-            de:
-              type: object
-              properties:
-                bio:
-                  type: string
         user:
           type: integer
           title: Χρήστης
@@ -33297,13 +33093,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -33382,13 +33171,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -33541,13 +33323,6 @@ components:
                   type: string
                 description:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
         slug:
           type: string
           minLength: 1
@@ -33581,11 +33356,6 @@ components:
                 content:
                   type: string
             en:
-              type: object
-              properties:
-                content:
-                  type: string
-            de:
               type: object
               properties:
                 content:
@@ -33676,11 +33446,6 @@ components:
                 content:
                   type: string
             en:
-              type: object
-              properties:
-                content:
-                  type: string
-            de:
               type: object
               properties:
                 content:
@@ -33863,11 +33628,6 @@ components:
               properties:
                 content:
                   type: string
-            de:
-              type: object
-              properties:
-                content:
-                  type: string
         post:
           type: integer
         parent:
@@ -33914,21 +33674,6 @@ components:
                 body:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                subtitle:
-                  type: string
-                body:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -34056,21 +33801,6 @@ components:
                 body:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                subtitle:
-                  type: string
-                body:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -34300,21 +34030,6 @@ components:
                   type: string
                 body:
                   type: string
-            de:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                subtitle:
-                  type: string
-                body:
-                  type: string
         slug:
           type: string
           minLength: 1
@@ -34355,11 +34070,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -34418,11 +34128,6 @@ components:
               properties:
                 name:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
         active:
           type: boolean
           title: Ενεργή
@@ -34470,11 +34175,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -34591,7 +34291,7 @@ components:
           readOnly: true
           nullable: true
           title: Τελευταίος συγχρονισμός
-          description: Χρονοσήμανση του πιο πρόσφατου συγχρονισμού από το API του BoxNow
+          description: Ημερομηνία και ώρα του πιο πρόσφατου συγχρονισμού από το API του BoxNow
         createdAt:
           type: string
           format: date-time
@@ -34709,7 +34409,7 @@ components:
           readOnly: true
           nullable: true
           title: Τελευταίος συγχρονισμός
-          description: Χρονοσήμανση του πιο πρόσφατου συγχρονισμού από το API του BoxNow
+          description: Ημερομηνία και ώρα του πιο πρόσφατου συγχρονισμού από το API του BoxNow
         createdAt:
           type: string
           format: date-time
@@ -34914,7 +34614,7 @@ components:
           format: date-time
           readOnly: true
           title: Ώρα συμβάντος
-          description: Χρονοσήμανση από το 'data.time' στο payload του webhook
+          description: Ημερομηνία και ώρα από το 'data.time' στο payload του webhook
         displayName:
           type: string
           readOnly: true
@@ -34934,7 +34634,7 @@ components:
           format: date-time
           readOnly: true
           title: Παραλήφθηκε στις
-          description: Χρονοσήμανση λήψης του webhook από το GrooveShop (διαφορετική από το event_time)
+          description: Ημερομηνία και ώρα λήψης του webhook από το GrooveShop (διαφορετική από το event_time)
         createdAt:
           type: string
           format: date-time
@@ -35089,7 +34789,7 @@ components:
         allowReturn:
           type: boolean
           readOnly: true
-          title: Επιτρέπεται επιστροφή
+          title: Επιτρέπεται επιστροφή προϊόντων
         cancelRequestedAt:
           type: string
           format: date-time
@@ -35162,7 +34862,7 @@ components:
         time:
           type: string
           format: date-time
-          description: Χρονοσήμανση όταν συνέβη το συμβάν στο BoxNow
+          description: Ημερομηνία και ώρα όταν συνέβη το συμβάν στο BoxNow
       required:
         - event
         - orderNumber
@@ -35203,7 +34903,7 @@ components:
         time:
           type: string
           format: date-time
-          description: Χρονοσήμανση δημιουργίας του φακέλου
+          description: Ημερομηνία και ώρα δημιουργίας του φακέλου
         datacontenttype:
           type: string
           minLength: 1
@@ -35258,7 +34958,7 @@ components:
           type: array
           items:
             type: integer
-          description: Λίστα ID θεμάτων για εγγραφή/διαγραφή
+          description: Λίστα ID θεμάτων για εγγραφή/απεγγραφή
         action:
           allOf:
             - $ref: '#/components/schemas/ActionEnum'
@@ -35491,7 +35191,7 @@ components:
           type: number
           format: double
           readOnly: true
-          description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
+          description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
         totalItems:
           oneOf:
             - type: integer
@@ -35515,7 +35215,7 @@ components:
         totalWeightGrams:
           type: integer
           readOnly: true
-          description: Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά το checkout ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
+          description: Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά την ολοκλήρωση αγοράς ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
         currency:
           type: string
           readOnly: true
@@ -35888,7 +35588,7 @@ components:
           type: number
           format: double
           readOnly: true
-          description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι επιβράβευσης εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
+          description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
         totalItems:
           oneOf:
             - type: integer
@@ -35912,7 +35612,7 @@ components:
         totalWeightGrams:
           type: integer
           readOnly: true
-          description: Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά το checkout ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
+          description: Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά την ολοκλήρωση αγοράς ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
         currency:
           type: string
           readOnly: true
@@ -36522,7 +36222,7 @@ components:
         * `why_microlearning` - Γιατί μικρομάθηση
         * `spacer` - Κενό διάστημα
         * `divider` - Διαχωριστικό
-        * `loyalty_hero` - Κεντρική ενότητα προγράμματος επιβράβευσης
+        * `loyalty_hero` - Κεντρική ενότητα προγράμματος πιστότητας
         * `search_bar` - Γραμμή αναζήτησης
         * `business_hours` - Ωράριο λειτουργίας
         * `location_map` - Χάρτης τοποθεσίας
@@ -36761,19 +36461,6 @@ components:
                   type: string
                 body:
                   type: string
-            de:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                body:
-                  type: string
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -36835,19 +36522,6 @@ components:
                 body:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                body:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -36932,19 +36606,6 @@ components:
                   type: string
                 body:
                   type: string
-            de:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                body:
-                  type: string
         slug:
           type: string
           minLength: 1
@@ -36969,11 +36630,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -37066,11 +36722,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -37170,11 +36821,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -37749,7 +37395,7 @@ components:
         countryCode:
           type: string
           nullable: true
-          description: Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα του checkout. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
+          description: Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα της ολοκλήρωσης αγοράς. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
           maxLength: 2
       required:
         - countryCode
@@ -38247,18 +37893,11 @@ components:
                   type: string
                 description:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
         requiredLevel:
           type: integer
           readOnly: true
           title: Απαιτούμενο επίπεδο
-          description: Ελάχιστο επίπεδο για την επίτευξη αυτού του tier
+          description: Ελάχιστο επίπεδο για την επίτευξη αυτής της βαθμίδας
         pointsMultiplier:
           type: number
           format: double
@@ -38268,7 +37907,7 @@ components:
           exclusiveMinimum: true
           readOnly: true
           title: Πολλαπλασιαστής πόντων
-          description: Πολλαπλασιαστής που εφαρμόζεται στους πόντους που κερδίζουν οι χρήστες σε αυτό το tier
+          description: Πολλαπλασιαστής που εφαρμόζεται στους πόντους που κερδίζουν οι χρήστες σε αυτή τη βαθμίδα
         icon:
           type: string
           format: uri
@@ -38452,13 +38091,6 @@ components:
                   type: string
                 message:
                   type: string
-            de:
-              type: object
-              properties:
-                title:
-                  type: string
-                message:
-                  type: string
         id:
           type: integer
           readOnly: true
@@ -38491,7 +38123,7 @@ components:
             * `order_delivered` - Η παραγγελία παραδόθηκε
             * `order_completed` - Η παραγγελία ολοκληρώθηκε
             * `order_canceled` - Η παραγγελία ακυρώθηκε
-            * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
+            * `order_refunded` - Επιστράφηκαν τα χρήματα της παραγγελίας
             * `shipment_dispatched` - Αποστολή απεστάλη
             * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
             * `payment_failed` - Η πληρωμή απέτυχε
@@ -38627,7 +38259,7 @@ components:
         * `order_delivered` - Η παραγγελία παραδόθηκε
         * `order_completed` - Η παραγγελία ολοκληρώθηκε
         * `order_canceled` - Η παραγγελία ακυρώθηκε
-        * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
+        * `order_refunded` - Επιστράφηκαν τα χρήματα της παραγγελίας
         * `shipment_dispatched` - Αποστολή απεστάλη
         * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
         * `payment_failed` - Η πληρωμή απέτυχε
@@ -39217,7 +38849,7 @@ components:
             Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.
 
             * `insufficient_stock` - Ανεπαρκές απόθεμα
-            * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+            * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς
             * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
             * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
             * `invalid_coupon` - Μη έγκυρο κουπόνι
@@ -39258,7 +38890,7 @@ components:
       type: string
       description: |-
         * `insufficient_stock` - Ανεπαρκές απόθεμα
-        * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+        * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς
         * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
         * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
         * `invalid_coupon` - Μη έγκυρο κουπόνι
@@ -40224,7 +39856,7 @@ components:
         reason:
           type: string
           description: Προαιρετικός λόγος επιστροφής
-          maxLength: 255
+          maxLength: 150
     OrderItemRestockResponse:
       type: object
       properties:
@@ -40292,7 +39924,7 @@ components:
         * `COMPLETED` - Ολοκληρώθηκε
         * `CANCELED` - Ακυρώθηκε
         * `RETURNED` - Επιστράφηκε
-        * `REFUNDED` - Επιστροφή Χρημάτων
+        * `REFUNDED` - Επιστράφηκαν τα χρήματα
     OrderWriteRequest:
       type: object
       properties:
@@ -40466,15 +40098,6 @@ components:
                   type: string
                 seoKeywords:
                   type: string
-            de:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -40521,15 +40144,6 @@ components:
                 seoKeywords:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -42099,11 +41713,6 @@ components:
               properties:
                 bio:
                   type: string
-            de:
-              type: object
-              properties:
-                bio:
-                  type: string
         user:
           type: integer
           title: Χρήστης
@@ -42130,13 +41739,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -42170,11 +41772,6 @@ components:
                 content:
                   type: string
             en:
-              type: object
-              properties:
-                content:
-                  type: string
-            de:
               type: object
               properties:
                 content:
@@ -42221,21 +41818,6 @@ components:
                   type: string
                 body:
                   type: string
-            de:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                subtitle:
-                  type: string
-                body:
-                  type: string
         slug:
           type: string
           minLength: 1
@@ -42268,11 +41850,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -42338,19 +41915,6 @@ components:
                   type: string
                 body:
                   type: string
-            de:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                title:
-                  type: string
-                body:
-                  type: string
         slug:
           type: string
           minLength: 1
@@ -42372,11 +41936,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -42556,15 +42115,6 @@ components:
                   type: string
                 seoKeywords:
                   type: string
-            de:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -42585,13 +42135,6 @@ components:
                 instructions:
                   type: string
             en:
-              type: object
-              properties:
-                description:
-                  type: string
-                instructions:
-                  type: string
-            de:
               type: object
               properties:
                 description:
@@ -42649,7 +42192,7 @@ components:
           description: |-
             Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
 
-            * `online` - Πληρωμή online κατά το checkout
+            * `online` - Πληρωμή online κατά την ολοκλήρωση αγοράς
             * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
             * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
             * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
@@ -42699,13 +42242,6 @@ components:
                   type: string
                 altText:
                   type: string
-            de:
-              type: object
-              properties:
-                title:
-                  type: string
-                altText:
-                  type: string
     PatchedProductCategoryWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -42727,19 +42263,6 @@ components:
                 seoKeywords:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -42795,11 +42318,6 @@ components:
               properties:
                 title:
                   type: string
-            de:
-              type: object
-              properties:
-                title:
-                  type: string
     PatchedProductReviewWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -42825,11 +42343,6 @@ components:
               properties:
                 comment:
                   type: string
-            de:
-              type: object
-              properties:
-                comment:
-                  type: string
     PatchedProductWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -42851,19 +42364,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -42940,11 +42440,6 @@ components:
               properties:
                 name:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
         alpha:
           type: string
           minLength: 1
@@ -42969,13 +42464,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -43027,11 +42515,6 @@ components:
                 label:
                   type: string
             en:
-              type: object
-              properties:
-                label:
-                  type: string
-            de:
               type: object
               properties:
                 label:
@@ -43275,13 +42758,6 @@ components:
                   type: string
                 instructions:
                   type: string
-            de:
-              type: object
-              properties:
-                description:
-                  type: string
-                instructions:
-                  type: string
         id:
           type: integer
           readOnly: true
@@ -43362,7 +42838,7 @@ components:
           description: |-
             Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
 
-            * `online` - Πληρωμή online κατά το checkout
+            * `online` - Πληρωμή online κατά την ολοκλήρωση αγοράς
             * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
             * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
             * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
@@ -43431,13 +42907,6 @@ components:
                   type: string
                 instructions:
                   type: string
-            de:
-              type: object
-              properties:
-                description:
-                  type: string
-                instructions:
-                  type: string
         key:
           allOf:
             - $ref: '#/components/schemas/PayWayKeyEnum'
@@ -43489,7 +42958,7 @@ components:
           description: |-
             Ο τρόπος καταβολής των χρημάτων. Αυτό είναι το καθοριστικό κριτήριο διάκρισης για το επίπεδο αποστολών: ένας μεταφορέας δηλώνει ποιους διακανονισμούς μπορεί να εκτελέσει φυσικά, και ο τρόπος πληρωμής του voucher προκύπτει από αυτό. Μην τον εξάγετε ξανά από τα παρωχημένα booleans παρακάτω.
 
-            * `online` - Πληρωμή online κατά το checkout
+            * `online` - Πληρωμή online κατά την ολοκλήρωση αγοράς
             * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
             * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
             * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
@@ -43528,7 +42997,7 @@ components:
         * `PROCESSING` - Σε επεξεργασία
         * `COMPLETED` - Ολοκληρώθηκε
         * `FAILED` - Απέτυχε
-        * `REFUNDED` - Επιστροφή Χρημάτων
+        * `REFUNDED` - Επιστράφηκαν τα χρήματα
         * `PARTIALLY_REFUNDED` - Μερική επιστροφή
         * `CANCELED` - Ακυρώθηκε
     PaymentStatusResponse:
@@ -43685,19 +43154,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -44067,19 +43523,6 @@ components:
                   type: string
                 seoKeywords:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
         slug:
           type: string
           maxLength: 255
@@ -44152,19 +43595,6 @@ components:
                 seoKeywords:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -44277,13 +43707,6 @@ components:
                   type: string
                 altText:
                   type: string
-            de:
-              type: object
-              properties:
-                title:
-                  type: string
-                altText:
-                  type: string
         imagePath:
           type: string
           readOnly: true
@@ -44371,13 +43794,6 @@ components:
                   type: string
                 altText:
                   type: string
-            de:
-              type: object
-              properties:
-                title:
-                  type: string
-                altText:
-                  type: string
         imagePath:
           type: string
           readOnly: true
@@ -44441,13 +43857,6 @@ components:
                   type: string
                 altText:
                   type: string
-            de:
-              type: object
-              properties:
-                title:
-                  type: string
-                altText:
-                  type: string
       required:
         - category
         - image
@@ -44473,19 +43882,6 @@ components:
                 seoKeywords:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -44537,19 +43933,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -44758,19 +44141,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -45124,11 +44494,6 @@ components:
               properties:
                 title:
                   type: string
-            de:
-              type: object
-              properties:
-                title:
-                  type: string
         mainImagePath:
           type: string
           readOnly: true
@@ -45191,11 +44556,6 @@ components:
                 title:
                   type: string
             en:
-              type: object
-              properties:
-                title:
-                  type: string
-            de:
               type: object
               properties:
                 title:
@@ -45275,11 +44635,6 @@ components:
                 title:
                   type: string
             en:
-              type: object
-              properties:
-                title:
-                  type: string
-            de:
               type: object
               properties:
                 title:
@@ -45571,7 +44926,7 @@ components:
           type: boolean
           readOnly: true
           title: Μόνο για την πρώτη παραγγελία
-          description: Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email του checkout και είναι κατά προσέγγιση.
+          description: Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email ολοκλήρωσης αγοράς και είναι κατά προσέγγιση.
         stackable:
           type: boolean
           readOnly: true
@@ -45665,19 +45020,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -45932,11 +45274,6 @@ components:
               properties:
                 comment:
                   type: string
-            de:
-              type: object
-              properties:
-                comment:
-                  type: string
       required:
         - createdAt
         - id
@@ -46012,11 +45349,6 @@ components:
               properties:
                 comment:
                   type: string
-            de:
-              type: object
-              properties:
-                comment:
-                  type: string
       required:
         - createdAt
         - id
@@ -46049,11 +45381,6 @@ components:
                 comment:
                   type: string
             en:
-              type: object
-              properties:
-                comment:
-                  type: string
-            de:
               type: object
               properties:
                 comment:
@@ -46091,19 +45418,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -46235,19 +45549,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 seoTitle:
@@ -46455,7 +45756,7 @@ components:
           type: boolean
           readOnly: true
           title: Μόνο για την πρώτη παραγγελία
-          description: Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email του checkout και είναι κατά προσέγγιση.
+          description: Εφαρμογή μόνο σε πελάτες χωρίς προηγούμενες παραγγελίες. Για επισκέπτες ελέγχεται με βάση το email ολοκλήρωσης αγοράς και είναι κατά προσέγγιση.
         stackable:
           type: boolean
           readOnly: true
@@ -46752,11 +46053,6 @@ components:
               properties:
                 name:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
         alpha:
           type: string
           title: Κωδικός περιφέρειας
@@ -46808,11 +46104,6 @@ components:
               properties:
                 name:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
         alpha:
           type: string
           title: Κωδικός περιφέρειας
@@ -46860,11 +46151,6 @@ components:
                 name:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -47146,7 +46432,7 @@ components:
         - offline_transfer
       type: string
       description: |-
-        * `online` - Πληρωμή online κατά το checkout
+        * `online` - Πληρωμή online κατά την ολοκλήρωση αγοράς
         * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
         * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
         * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
@@ -47235,7 +46521,7 @@ components:
         logoPath:
           type: string
           nullable: true
-          description: Σχετική διαδρομή πολυμέσων (``media/{schema}/uploads/shipping/…``) του λογότυπου μάρκας που ανέβασε ο χειριστής, υπολογισμένη ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες· το storefront την εμφανίζει μέσω του media-stream στο μέγεθος που χρειάζεται. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το storefront τότε επιστρέφει στην ενσωματωμένη προεπιλογή του.
+          description: Σχετική διαδρομή πολυμέσων (``media/{schema}/uploads/shipping/…``) του λογότυπου που ανέβασε ο διαχειριστής, ορισμένη ανά (πάροχο, είδος), ώστε η γραμμή παράδοσης στο σπίτι και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες· το κατάστημα την εμφανίζει μέσω του media-stream στο μέγεθος που χρειάζεται. Κενό όταν δεν έχει ανέβει λογότυπο — τότε το κατάστημα χρησιμοποιεί την ενσωματωμένη προεπιλογή του.
         metadata:
           type: object
           additionalProperties: {}
@@ -47243,7 +46529,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ShippingOptionPayWay'
-          description: 'Ενεργές μέθοδοι πληρωμής που μπορεί να εξοφλήσει αυτός ο συνδυασμός (provider, kind), με τους ίδιους κανόνες που εφαρμόζει το checkout όταν τον επιλέγει ο αγοραστής. Δηλώνεται ως γεγονός ανά επιλογή και όχι ως ''αποκλειστικό σε αυτή τη γραμμή'': το storefront συγχωνεύει πολλούς μεταφορείς σε μία κάρτα παράδοσης στο σπίτι, οπότε μόνο αυτό γνωρίζει ποιες γραμμές εμφανίζει πραγματικά και μπορεί να υπολογίσει τι ξεκλειδώνει αποκλειστικά μια συγκεκριμένη επιλογή. Επιτρέπει στο βήμα παράδοσης να προβάλλει ένα προϊόν αποκλειστικό του μεταφορέα — η BOX NOW Αντικαταβολή είναι διαθέσιμη ΜΟΝΟ μέσω locker BoxNow, και ένας αγοραστής που δεν επιλέγει ποτέ locker δεν έχει τρόπο να ανακαλύψει ότι υπάρχει.'
+          description: 'Ενεργές μέθοδοι πληρωμής που μπορεί να εξοφλήσει αυτός ο συνδυασμός (provider, kind), με τους ίδιους κανόνες που εφαρμόζει η ολοκλήρωση αγοράς όταν τον επιλέγει ο αγοραστής. Δηλώνεται ως γεγονός ανά επιλογή και όχι ως ''αποκλειστικό σε αυτή τη γραμμή'': το storefront συγχωνεύει πολλούς μεταφορείς σε μία κάρτα παράδοσης στο σπίτι, οπότε μόνο αυτό γνωρίζει ποιες γραμμές εμφανίζει πραγματικά και μπορεί να υπολογίσει τι ξεκλειδώνει αποκλειστικά μια συγκεκριμένη επιλογή. Επιτρέπει στο βήμα παράδοσης να προβάλλει ένα προϊόν αποκλειστικό του μεταφορέα — η BOX NOW Αντικαταβολή είναι διαθέσιμη ΜΟΝΟ μέσω locker BoxNow, και ένας αγοραστής που δεν επιλέγει ποτέ locker δεν έχει τρόπο να ανακαλύψει ότι υπάρχει.'
       required:
         - countryCode
         - currency
@@ -47297,7 +46583,7 @@ components:
           type: boolean
           readOnly: true
           title: Ενεργό
-          description: Κύριος διακόπτης — όταν είναι False, ο πάροχος αποκρύπτεται από το checkout ανεξάρτητα από τις σημαίες δυνατοτήτων.
+          description: Κύριος διακόπτης — όταν είναι False, ο πάροχος αποκρύπτεται από την ολοκλήρωση αγοράς ανεξάρτητα από τις σημαίες δυνατοτήτων.
         supportsHomeDelivery:
           type: boolean
           readOnly: true
@@ -47314,7 +46600,7 @@ components:
           type: integer
           readOnly: true
           title: Προτεραιότητα
-          description: Σειρά ταξινόμησης στο checkout — οι μικρότεροι αριθμοί εμφανίζονται πρώτοι.
+          description: Σειρά ταξινόμησης στην ολοκλήρωση αγοράς — οι μικρότεροι αριθμοί εμφανίζονται πρώτοι.
         logo:
           type: string
           format: uri
@@ -47492,7 +46778,7 @@ components:
       description: |-
         * `ACTIVE` - Ενεργή
         * `PENDING` - Εκκρεμεί Επιβεβαίωση
-        * `UNSUBSCRIBED` - Απεγγραφή
+        * `UNSUBSCRIBED` - Απεγγράφηκε
         * `BOUNCED` - Επιστράφηκε
     SubscriptionTopic:
       type: object
@@ -47509,13 +46795,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -47584,13 +46863,6 @@ components:
                 description:
                   type: string
             en:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-            de:
               type: object
               properties:
                 name:
@@ -47677,13 +46949,6 @@ components:
                   type: string
                 description:
                   type: string
-            de:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
         slug:
           type: string
           minLength: 1
@@ -47753,11 +47018,6 @@ components:
               properties:
                 label:
                   type: string
-            de:
-              type: object
-              properties:
-                label:
-                  type: string
         active:
           type: boolean
           title: Ενεργή
@@ -47808,11 +47068,6 @@ components:
                 label:
                   type: string
             en:
-              type: object
-              properties:
-                label:
-                  type: string
-            de:
               type: object
               properties:
                 label:
@@ -47869,11 +47124,6 @@ components:
                 label:
                   type: string
             en:
-              type: object
-              properties:
-                label:
-                  type: string
-            de:
               type: object
               properties:
                 label:
@@ -48985,7 +48235,7 @@ components:
           format: date-time
           readOnly: true
           nullable: true
-          title: Διαγραφή στις
+          title: Απεγγραφή στις
         metadata:
           title: Μεταδεδομένα
           description: Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
@@ -49039,7 +48289,7 @@ components:
           format: date-time
           readOnly: true
           nullable: true
-          title: Διαγραφή στις
+          title: Απεγγραφή στις
         metadata:
           title: Μεταδεδομένα
           description: Επιπλέον προτιμήσεις ή δεδομένα εγγραφής

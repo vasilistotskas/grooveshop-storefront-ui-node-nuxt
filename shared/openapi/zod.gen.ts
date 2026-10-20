@@ -114,9 +114,6 @@ export const zAttribute = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
@@ -139,9 +136,6 @@ export const zAttributeValue = z.object({
       value: z.string().optional(),
     }).optional(),
     en: z.object({
-      value: z.string().optional(),
-    }).optional(),
-    de: z.object({
       value: z.string().optional(),
     }).optional(),
   }),
@@ -193,9 +187,6 @@ export const zBlogAuthor = z.object({
     en: z.object({
       bio: z.string().optional(),
     }).optional(),
-    de: z.object({
-      bio: z.string().optional(),
-    }).optional(),
   }),
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
@@ -218,9 +209,6 @@ export const zBlogAuthorWriteRequest = z.object({
     en: z.object({
       bio: z.string().optional(),
     }).optional(),
-    de: z.object({
-      bio: z.string().optional(),
-    }).optional(),
   }),
   user: z.int(),
   website: z.union([
@@ -240,10 +228,6 @@ export const zBlogCategory = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -270,10 +254,6 @@ export const zBlogCategoryDetail = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -324,10 +304,6 @@ export const zBlogCategoryWriteRequest = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   parent: z.int().nullish(),
@@ -353,9 +329,6 @@ export const zBlogCommentWriteRequest = z.object({
     en: z.object({
       content: z.string().optional(),
     }).optional(),
-    de: z.object({
-      content: z.string().optional(),
-    }).optional(),
   }),
   post: z.int(),
   parent: z.int().nullish(),
@@ -379,14 +352,6 @@ export const zBlogPost = z.object({
       body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -473,14 +438,6 @@ export const zBlogPostWriteRequest = z.object({
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
@@ -500,9 +457,6 @@ export const zBlogTag = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -526,9 +480,6 @@ export const zBlogTagDetail = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
@@ -547,9 +498,6 @@ export const zBlogTagWriteRequest = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -871,7 +819,7 @@ export const zCompartmentSizeEnum = z.union([
  * * `why_microlearning` - Γιατί μικρομάθηση
  * * `spacer` - Κενό διάστημα
  * * `divider` - Διαχωριστικό
- * * `loyalty_hero` - Κεντρική ενότητα προγράμματος επιβράβευσης
+ * * `loyalty_hero` - Κεντρική ενότητα προγράμματος πιστότητας
  * * `search_bar` - Γραμμή αναζήτησης
  * * `business_hours` - Ωράριο λειτουργίας
  * * `location_map` - Χάρτης τοποθεσίας
@@ -1003,13 +951,6 @@ export const zContentPage = z.object({
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }),
   isPublished: z.boolean().optional(),
   publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
@@ -1034,13 +975,6 @@ export const zContentPageDetail = z.object({
       body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -1084,13 +1018,6 @@ export const zContentPageWriteRequest = z.object({
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   isPublished: z.boolean().optional(),
@@ -1105,9 +1032,6 @@ export const zCountryWriteRequest = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -1463,10 +1387,6 @@ export const zLoyaltyTier = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }),
   requiredLevel: z.int().readonly(),
   pointsMultiplier: z.number().gt(-1000).lt(1000).readonly(),
@@ -1601,7 +1521,7 @@ export const zNotificationSuccessResponse = z.object({
  * * `order_delivered` - Η παραγγελία παραδόθηκε
  * * `order_completed` - Η παραγγελία ολοκληρώθηκε
  * * `order_canceled` - Η παραγγελία ακυρώθηκε
- * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
+ * * `order_refunded` - Επιστράφηκαν τα χρήματα της παραγγελίας
  * * `shipment_dispatched` - Αποστολή απεστάλη
  * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
  * * `payment_failed` - Η πληρωμή απέτυχε
@@ -1766,7 +1686,7 @@ export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE'])
 
 /**
  * * `insufficient_stock` - Ανεπαρκές απόθεμα
- * * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για checkout
+ * * `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς
  * * `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον
  * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
@@ -1853,7 +1773,7 @@ export const zOrderItemCreateRequest = z.object({
 
 export const zOrderItemRestockRequest = z.object({
   quantity: z.int().gte(1).optional(),
-  reason: z.string().max(255).optional(),
+  reason: z.string().max(150).optional(),
 })
 
 export const zOrderItemRestockResponse = z.object({
@@ -1905,7 +1825,7 @@ export const zOrderAttribution = z.object({
  * * `COMPLETED` - Ολοκληρώθηκε
  * * `CANCELED` - Ακυρώθηκε
  * * `RETURNED` - Επιστράφηκε
- * * `REFUNDED` - Επιστροφή Χρημάτων
+ * * `REFUNDED` - Επιστράφηκαν τα χρήματα
  */
 export const zOrderStatus = z.enum([
   'PENDING',
@@ -1954,11 +1874,6 @@ export const zPageLayoutAdminDetailRequest = z.object({
       seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -2013,11 +1928,6 @@ export const zPageLayoutAdminDetail = z.object({
       seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -2215,9 +2125,6 @@ export const zPatchedBlogAuthorWriteRequest = z.object({
     en: z.object({
       bio: z.string().optional(),
     }).optional(),
-    de: z.object({
-      bio: z.string().optional(),
-    }).optional(),
   }).optional(),
   user: z.int().optional(),
   website: z.union([
@@ -2239,10 +2146,6 @@ export const zPatchedBlogCategoryWriteRequest = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   parent: z.int().nullish(),
@@ -2258,9 +2161,6 @@ export const zPatchedBlogCommentWriteRequest = z.object({
       content: z.string().optional(),
     }).optional(),
     en: z.object({
-      content: z.string().optional(),
-    }).optional(),
-    de: z.object({
       content: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -2289,14 +2189,6 @@ export const zPatchedBlogPostWriteRequest = z.object({
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   category: z.int().optional(),
@@ -2315,9 +2207,6 @@ export const zPatchedBlogTagWriteRequest = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -2359,13 +2248,6 @@ export const zPatchedContentPageWriteRequest = z.object({
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   isPublished: z.boolean().optional(),
@@ -2380,9 +2262,6 @@ export const zPatchedCountryWriteRequest = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -2445,11 +2324,6 @@ export const zPatchedPageLayoutAdminDetailRequest = z.object({
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
   }).optional(),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
@@ -2478,10 +2352,6 @@ export const zPatchedProductCategoryImageWriteRequest = z.object({
       title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-      altText: z.string().optional(),
-    }).optional(),
   }).optional(),
 })
 
@@ -2498,13 +2368,6 @@ export const zPatchedProductCategoryWriteRequest = z.object({
       seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
       seoTitle: z.string().optional(),
@@ -2535,9 +2398,6 @@ export const zPatchedProductImageWriteRequest = z.object({
     en: z.object({
       title: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-    }).optional(),
   }).optional(),
 })
 
@@ -2554,13 +2414,6 @@ export const zPatchedProductWriteRequest = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -2593,9 +2446,6 @@ export const zPatchedRegionWriteRequest = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }).optional(),
   alpha: z.string().min(1).max(10).optional(),
   country: z.string().min(1).optional(),
@@ -2610,9 +2460,6 @@ export const zPatchedTagWriteRequest = z.object({
       label: z.string().optional(),
     }).optional(),
     en: z.object({
-      label: z.string().optional(),
-    }).optional(),
-    de: z.object({
       label: z.string().optional(),
     }).optional(),
   }).optional(),
@@ -2756,7 +2603,7 @@ export const zGiftCardPurchaseRequestRequest = z.object({
  * * `PROCESSING` - Σε επεξεργασία
  * * `COMPLETED` - Ολοκληρώθηκε
  * * `FAILED` - Απέτυχε
- * * `REFUNDED` - Επιστροφή Χρημάτων
+ * * `REFUNDED` - Επιστράφηκαν τα χρήματα
  * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
  * * `CANCELED` - Ακυρώθηκε
  */
@@ -2816,9 +2663,6 @@ export const zCountry = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   alpha2: z.string().max(2).regex(/^[A-Z]{2}$/),
   alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
@@ -2844,9 +2688,6 @@ export const zCountryDetail = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -2904,10 +2745,6 @@ export const zNotification = z.object({
       message: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
-      message: z.string().optional(),
-    }).optional(),
-    de: z.object({
       title: z.string().optional(),
       message: z.string().optional(),
     }).optional(),
@@ -2993,13 +2830,6 @@ export const zProduct = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -3167,13 +2997,6 @@ export const zProductCategory = z.object({
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   active: z.boolean().optional(),
@@ -3220,13 +3043,6 @@ export const zProductCategoryDetail = z.object({
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   active: z.boolean().optional(),
@@ -3258,10 +3074,6 @@ export const zProductCategoryImage = z.object({
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
-      altText: z.string().optional(),
-    }).optional(),
-    de: z.object({
       title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
@@ -3311,10 +3123,6 @@ export const zProductCategoryImageDetail = z.object({
       title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-      altText: z.string().optional(),
-    }).optional(),
   }),
   imagePath: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -3339,10 +3147,6 @@ export const zProductCategoryImageWriteRequest = z.object({
       title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-      altText: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -3359,13 +3163,6 @@ export const zProductCategoryWriteRequest = z.object({
       seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
       seoTitle: z.string().optional(),
@@ -3392,13 +3189,6 @@ export const zProductDetail = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -3456,13 +3246,6 @@ export const zProductDetailResponse = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -3578,9 +3361,6 @@ export const zProductImage = z.object({
     en: z.object({
       title: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-    }).optional(),
   }),
   mainImagePath: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -3618,9 +3398,6 @@ export const zProductImageDetail = z.object({
     en: z.object({
       title: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-    }).optional(),
   }),
   mainImagePath: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -3651,9 +3428,6 @@ export const zProductImageWriteRequest = z.object({
       title: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
-    }).optional(),
-    de: z.object({
       title: z.string().optional(),
     }).optional(),
   }),
@@ -3744,13 +3518,6 @@ export const zProductVariant = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
   active: z.boolean().readonly(),
@@ -3778,13 +3545,6 @@ export const zProductWriteRequest = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -4042,9 +3802,6 @@ export const zPatchedProductReviewWriteRequest = z.object({
     en: z.object({
       comment: z.string().optional(),
     }).optional(),
-    de: z.object({
-      comment: z.string().optional(),
-    }).optional(),
   }).optional(),
 })
 
@@ -4059,9 +3816,6 @@ export const zProductReviewWriteRequest = z.object({
       comment: z.string().optional(),
     }).optional(),
     en: z.object({
-      comment: z.string().optional(),
-    }).optional(),
-    de: z.object({
       comment: z.string().optional(),
     }).optional(),
   }),
@@ -4090,13 +3844,6 @@ export const zProductRetrieve = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -4181,9 +3928,6 @@ export const zRegion = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   alpha: z.string().max(10),
   country: z.string(),
@@ -4217,9 +3961,6 @@ export const zRegionDetail = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   alpha: z.string().max(10),
   country: z.string(),
@@ -4238,9 +3979,6 @@ export const zRegionWriteRequest = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -4392,7 +4130,7 @@ export const zSettingDetail = z.object({
 })
 
 /**
- * * `online` - Πληρωμή online κατά το checkout
+ * * `online` - Πληρωμή online κατά την ολοκλήρωση αγοράς
  * * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
  * * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
  * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
@@ -4417,10 +4155,6 @@ export const zPatchedPayWayWriteRequest = z.object({
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
-    de: z.object({
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
   }).optional(),
   key: zPayWayKeyEnum.optional(),
   active: z.boolean().optional(),
@@ -4441,10 +4175,6 @@ export const zPayWay = z.object({
       instructions: z.string().optional(),
     }).optional(),
     en: z.object({
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
@@ -4490,10 +4220,6 @@ export const zPayWayWriteRequest = z.object({
       instructions: z.string().optional(),
     }).optional(),
     en: z.object({
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
@@ -4999,7 +4725,7 @@ export const zRecommendationItem = z.object({
 /**
  * * `ACTIVE` - Ενεργή
  * * `PENDING` - Εκκρεμεί Επιβεβαίωση
- * * `UNSUBSCRIBED` - Απεγγραφή
+ * * `UNSUBSCRIBED` - Απεγγράφηκε
  * * `BOUNCED` - Επιστράφηκε
  */
 export const zSubscriptionStatus = z.enum([
@@ -5050,9 +4776,6 @@ export const zTag = z.object({
     en: z.object({
       label: z.string().optional(),
     }).optional(),
-    de: z.object({
-      label: z.string().optional(),
-    }).optional(),
   }),
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
@@ -5087,9 +4810,6 @@ export const zTagDetail = z.object({
     en: z.object({
       label: z.string().optional(),
     }).optional(),
-    de: z.object({
-      label: z.string().optional(),
-    }).optional(),
   }),
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
@@ -5109,9 +4829,6 @@ export const zTagWriteRequest = z.object({
       label: z.string().optional(),
     }).optional(),
     en: z.object({
-      label: z.string().optional(),
-    }).optional(),
-    de: z.object({
       label: z.string().optional(),
     }).optional(),
   }),
@@ -5308,10 +5025,6 @@ export const zPatchedSubscriptionTopicWriteRequest = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }).optional(),
   slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   category: zTopicCategory.optional(),
@@ -5330,10 +5043,6 @@ export const zSubscriptionTopic = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -5374,10 +5083,6 @@ export const zSubscriptionTopicDetail = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }),
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
@@ -5401,10 +5106,6 @@ export const zSubscriptionTopicWriteRequest = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -6035,9 +5736,6 @@ export const zBlogAuthorDetail = z.object({
     en: z.object({
       bio: z.string().optional(),
     }).optional(),
-    de: z.object({
-      bio: z.string().optional(),
-    }).optional(),
   }),
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
@@ -6061,9 +5759,6 @@ export const zBlogComment = z.object({
       content: z.string().optional(),
     }).optional(),
     en: z.object({
-      content: z.string().optional(),
-    }).optional(),
-    de: z.object({
       content: z.string().optional(),
     }).optional(),
   }),
@@ -6092,9 +5787,6 @@ export const zBlogCommentDetail = z.object({
       content: z.string().optional(),
     }).optional(),
     en: z.object({
-      content: z.string().optional(),
-    }).optional(),
-    de: z.object({
       content: z.string().optional(),
     }).optional(),
   }),
@@ -6157,14 +5849,6 @@ export const zBlogPostDetail = z.object({
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }),
   author: zBlogAuthorDetail,
   category: zBlogCategoryDetail,
@@ -6219,9 +5903,6 @@ export const zProductReview = z.object({
     en: z.object({
       comment: z.string().optional(),
     }).optional(),
-    de: z.object({
-      comment: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -6258,9 +5939,6 @@ export const zProductReviewDetail = z.object({
       comment: z.string().optional(),
     }).optional(),
     en: z.object({
-      comment: z.string().optional(),
-    }).optional(),
-    de: z.object({
       comment: z.string().optional(),
     }).optional(),
   }),
@@ -7054,9 +6732,6 @@ export const zAttributeWritable = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   active: z.boolean().optional(),
 })
@@ -7071,9 +6746,6 @@ export const zAttributeValueWritable = z.object({
       value: z.string().optional(),
     }).optional(),
     en: z.object({
-      value: z.string().optional(),
-    }).optional(),
-    de: z.object({
       value: z.string().optional(),
     }).optional(),
   }),
@@ -7091,9 +6763,6 @@ export const zBlogAuthorWritable = z.object({
     en: z.object({
       bio: z.string().optional(),
     }).optional(),
-    de: z.object({
-      bio: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -7106,9 +6775,6 @@ export const zBlogAuthorDetailWritable = z.object({
       bio: z.string().optional(),
     }).optional(),
     en: z.object({
-      bio: z.string().optional(),
-    }).optional(),
-    de: z.object({
       bio: z.string().optional(),
     }).optional(),
   }),
@@ -7124,10 +6790,6 @@ export const zBlogCategoryWritable = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -7149,10 +6811,6 @@ export const zBlogCategoryDetailWritable = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   parent: z.int().nullish(),
@@ -7169,9 +6827,6 @@ export const zBlogCommentWritable = z.object({
     en: z.object({
       content: z.string().optional(),
     }).optional(),
-    de: z.object({
-      content: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -7184,9 +6839,6 @@ export const zBlogCommentDetailWritable = z.object({
       content: z.string().optional(),
     }).optional(),
     en: z.object({
-      content: z.string().optional(),
-    }).optional(),
-    de: z.object({
       content: z.string().optional(),
     }).optional(),
   }),
@@ -7208,14 +6860,6 @@ export const zBlogPostWritable = z.object({
       body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -7253,14 +6897,6 @@ export const zBlogPostDetailWritable = z.object({
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }),
   featured: z.boolean().optional(),
   isPublished: z.boolean().optional(),
@@ -7277,9 +6913,6 @@ export const zBlogTagWritable = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   active: z.boolean().optional(),
 })
@@ -7293,9 +6926,6 @@ export const zBlogTagDetailWritable = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -7364,13 +6994,6 @@ export const zContentPageWritable = z.object({
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }),
   isPublished: z.boolean().optional(),
 })
@@ -7396,13 +7019,6 @@ export const zContentPageDetailWritable = z.object({
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
-    de: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      title: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
   }),
   isPublished: z.boolean().optional(),
 })
@@ -7416,9 +7032,6 @@ export const zCountryWritable = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -7439,9 +7052,6 @@ export const zCountryDetailWritable = z.object({
       name: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
     }).optional(),
   }),
@@ -7484,10 +7094,6 @@ export const zLoyaltyTierWritable = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }),
   icon: z.url().nullish(),
 })
@@ -7502,10 +7108,6 @@ export const zNotificationWritable = z.object({
       message: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
-      message: z.string().optional(),
-    }).optional(),
-    de: z.object({
       title: z.string().optional(),
       message: z.string().optional(),
     }).optional(),
@@ -7702,11 +7304,6 @@ export const zPageLayoutAdminDetailWritable = z.object({
       seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -8041,10 +7638,6 @@ export const zPayWayWritable = z.object({
       description: z.string().optional(),
       instructions: z.string().optional(),
     }).optional(),
-    de: z.object({
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
   }),
   active: z.boolean().optional(),
   cost: z.number().gt(-1000000000).lt(1000000000),
@@ -8082,13 +7675,6 @@ export const zProductWritable = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -8178,13 +7764,6 @@ export const zProductCategoryWritable = z.object({
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   active: z.boolean().optional(),
@@ -8223,13 +7802,6 @@ export const zProductCategoryDetailWritable = z.object({
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   active: z.boolean().optional(),
@@ -8250,10 +7822,6 @@ export const zProductCategoryImageWritable = z.object({
       altText: z.string().optional(),
     }).optional(),
     en: z.object({
-      title: z.string().optional(),
-      altText: z.string().optional(),
-    }).optional(),
-    de: z.object({
       title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
@@ -8290,10 +7858,6 @@ export const zProductCategoryImageDetailWritable = z.object({
       title: z.string().optional(),
       altText: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-      altText: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -8310,13 +7874,6 @@ export const zProductDetailWritable = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -8353,13 +7910,6 @@ export const zProductDetailResponseWritable = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -8417,9 +7967,6 @@ export const zProductImageWritable = z.object({
     en: z.object({
       title: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -8449,9 +7996,6 @@ export const zProductImageDetailWritable = z.object({
     en: z.object({
       title: z.string().optional(),
     }).optional(),
-    de: z.object({
-      title: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -8472,13 +8016,6 @@ export const zProductRetrieveWritable = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -8516,9 +8053,6 @@ export const zProductReviewWritable = z.object({
     en: z.object({
       comment: z.string().optional(),
     }).optional(),
-    de: z.object({
-      comment: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -8549,9 +8083,6 @@ export const zProductReviewDetailWritable = z.object({
     en: z.object({
       comment: z.string().optional(),
     }).optional(),
-    de: z.object({
-      comment: z.string().optional(),
-    }).optional(),
   }),
 })
 
@@ -8572,13 +8103,6 @@ export const zProductVariantWritable = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
       seoKeywords: z.string().optional(),
@@ -8628,9 +8152,6 @@ export const zRegionWritable = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   alpha: z.string().max(10),
   country: z.string(),
@@ -8660,9 +8181,6 @@ export const zRegionDetailWritable = z.object({
     en: z.object({
       name: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
   }),
   alpha: z.string().max(10),
   country: z.string(),
@@ -8678,10 +8196,6 @@ export const zSubscriptionTopicWritable = z.object({
       description: z.string().optional(),
     }).optional(),
     en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
-    de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -8719,10 +8233,6 @@ export const zSubscriptionTopicDetailWritable = z.object({
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-    }).optional(),
   }),
   slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/),
   category: zTopicCategory.optional(),
@@ -8740,9 +8250,6 @@ export const zTagWritable = z.object({
       label: z.string().optional(),
     }).optional(),
     en: z.object({
-      label: z.string().optional(),
-    }).optional(),
-    de: z.object({
       label: z.string().optional(),
     }).optional(),
   }),
@@ -8771,9 +8278,6 @@ export const zTagDetailWritable = z.object({
       label: z.string().optional(),
     }).optional(),
     en: z.object({
-      label: z.string().optional(),
-    }).optional(),
-    de: z.object({
       label: z.string().optional(),
     }).optional(),
   }),
@@ -9019,11 +8523,7 @@ export const zListBlogAuthorQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   lastName: z.string().optional(),
   maxPosts: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -9079,11 +8579,7 @@ export const zListBlogAuthorResponse = zPaginatedBlogAuthorList
 export const zCreateBlogAuthorBody = zBlogAuthorWriteRequest
 
 export const zCreateBlogAuthorQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateBlogAuthorResponse = zBlogAuthorDetail
@@ -9108,11 +8604,7 @@ export const zRetrieveBlogAuthorPath = z.object({
 })
 
 export const zRetrieveBlogAuthorQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveBlogAuthorResponse = zBlogAuthorDetail
@@ -9127,11 +8619,7 @@ export const zPartialUpdateBlogAuthorPath = z.object({
 })
 
 export const zPartialUpdateBlogAuthorQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateBlogAuthorResponse = zBlogAuthorDetail
@@ -9146,11 +8634,7 @@ export const zUpdateBlogAuthorPath = z.object({
 })
 
 export const zUpdateBlogAuthorQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateBlogAuthorResponse = zBlogAuthorDetail
@@ -9209,11 +8693,7 @@ export const zGetBlogAuthorPostsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   minComments: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -9339,11 +8819,7 @@ export const zListBlogCategoryQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9459,11 +8935,7 @@ export const zListBlogCategoryResponse = zPaginatedBlogCategoryList
 export const zCreateBlogCategoryBody = zBlogCategoryWriteRequest
 
 export const zCreateBlogCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateBlogCategoryResponse = zBlogCategoryDetail
@@ -9488,11 +8960,7 @@ export const zRetrieveBlogCategoryPath = z.object({
 })
 
 export const zRetrieveBlogCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveBlogCategoryResponse = zBlogCategoryDetail
@@ -9507,11 +8975,7 @@ export const zPartialUpdateBlogCategoryPath = z.object({
 })
 
 export const zPartialUpdateBlogCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateBlogCategoryResponse = zBlogCategoryDetail
@@ -9526,11 +8990,7 @@ export const zUpdateBlogCategoryPath = z.object({
 })
 
 export const zUpdateBlogCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateBlogCategoryResponse = zBlogCategoryDetail
@@ -9544,11 +9004,7 @@ export const zListBlogCategoryAncestorsPath = z.object({
 
 export const zListBlogCategoryAncestorsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9577,11 +9033,7 @@ export const zListBlogCategoryChildrenPath = z.object({
 
 export const zListBlogCategoryChildrenQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9610,11 +9062,7 @@ export const zListBlogCategoryDescendantsPath = z.object({
 
 export const zListBlogCategoryDescendantsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9764,11 +9212,7 @@ export const zListBlogCategorySiblingsPath = z.object({
 
 export const zListBlogCategorySiblingsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9794,11 +9238,7 @@ export const zReorderBlogCategoriesResponse = zBlogCategoryReorderResponse
 
 export const zGetBlogCategoryTreeQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9888,11 +9328,7 @@ export const zListBlogCommentQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10042,11 +9478,7 @@ export const zListBlogCommentResponse = zPaginatedBlogCommentList
 export const zCreateBlogCommentBody = zBlogCommentWriteRequest
 
 export const zCreateBlogCommentQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateBlogCommentResponse = zBlogCommentDetail
@@ -10071,11 +9503,7 @@ export const zRetrieveBlogCommentPath = z.object({
 })
 
 export const zRetrieveBlogCommentQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveBlogCommentResponse = zBlogCommentDetail
@@ -10090,11 +9518,7 @@ export const zPartialUpdateBlogCommentPath = z.object({
 })
 
 export const zPartialUpdateBlogCommentQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateBlogCommentResponse = zBlogCommentDetail
@@ -10109,11 +9533,7 @@ export const zUpdateBlogCommentPath = z.object({
 })
 
 export const zUpdateBlogCommentQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateBlogCommentResponse = zBlogCommentDetail
@@ -10204,11 +9624,7 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10431,11 +9847,7 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10664,11 +10076,7 @@ export const zListMyBlogCommentsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10861,11 +10269,7 @@ export const zListBlogPostQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   minComments: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -10936,11 +10340,7 @@ export const zListBlogPostResponse = zPaginatedBlogPostList
 export const zCreateBlogPostBody = zBlogPostWriteRequest
 
 export const zCreateBlogPostQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateBlogPostResponse = zBlogPostDetail
@@ -10965,11 +10365,7 @@ export const zRetrieveBlogPostPath = z.object({
 })
 
 export const zRetrieveBlogPostQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveBlogPostResponse = zBlogPostDetail
@@ -10984,11 +10380,7 @@ export const zPartialUpdateBlogPostPath = z.object({
 })
 
 export const zPartialUpdateBlogPostQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateBlogPostResponse = zBlogPostDetail
@@ -11003,11 +10395,7 @@ export const zUpdateBlogPostPath = z.object({
 })
 
 export const zUpdateBlogPostQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateBlogPostResponse = zBlogPostDetail
@@ -11211,11 +10599,7 @@ export const zListFeaturedBlogPostsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   minComments: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -11333,11 +10717,7 @@ export const zListPopularBlogPostsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   minComments: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -11557,11 +10937,7 @@ export const zListBlogTagQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   maxPosts: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -11655,11 +11031,7 @@ export const zListBlogTagResponse = zPaginatedBlogTagList
 export const zCreateBlogTagBody = zBlogTagWriteRequest
 
 export const zCreateBlogTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateBlogTagResponse = zBlogTagDetail
@@ -11684,11 +11056,7 @@ export const zRetrieveBlogTagPath = z.object({
 })
 
 export const zRetrieveBlogTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveBlogTagResponse = zBlogTagDetail
@@ -11703,11 +11071,7 @@ export const zPartialUpdateBlogTagPath = z.object({
 })
 
 export const zPartialUpdateBlogTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateBlogTagResponse = zBlogTagDetail
@@ -11722,11 +11086,7 @@ export const zUpdateBlogTagPath = z.object({
 })
 
 export const zUpdateBlogTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateBlogTagResponse = zBlogTagDetail
@@ -11964,11 +11324,7 @@ export const zRetrieveCartItemPath = z.object({
 })
 
 export const zRetrieveCartItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveCartItemResponse = zCartItemDetail
@@ -11988,11 +11344,7 @@ export const zPartialUpdateCartItemPath = z.object({
 })
 
 export const zPartialUpdateCartItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateCartItemResponse = zCartItemDetail
@@ -12076,11 +11428,7 @@ export const zListCartQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   lastActivity: z.iso.datetime({ offset: true }).optional(),
   lastActivity_Date: z.iso.date().optional(),
   lastActivity_Gte: z.iso.datetime({ offset: true }).optional(),
@@ -12183,11 +11531,7 @@ export const zCreateContactAttachmentResponse = zContactAttachment
 
 export const zListContentPageQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:slug|\-slug|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt)(?:,(?:slug|\-slug|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -12211,11 +11555,7 @@ export const zListContentPageResponse = zPaginatedContentPageList
 export const zCreateContentPageBody = zContentPageWriteRequest
 
 export const zCreateContentPageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateContentPageResponse = zContentPageDetail
@@ -12234,11 +11574,7 @@ export const zRetrieveContentPagePath = z.object({
 })
 
 export const zRetrieveContentPageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveContentPageResponse = zContentPageDetail
@@ -12250,11 +11586,7 @@ export const zPartialUpdateContentPagePath = z.object({
 })
 
 export const zPartialUpdateContentPageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateContentPageResponse = zContentPageDetail
@@ -12266,11 +11598,7 @@ export const zUpdateContentPagePath = z.object({
 })
 
 export const zUpdateContentPageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateContentPageResponse = zContentPageDetail
@@ -12371,11 +11699,7 @@ export const zListCountryQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   multipleCodes: z.string().optional(),
   name: z.string().optional(),
   name_Exact: z.string().optional(),
@@ -12460,11 +11784,7 @@ export const zListCountryResponse = zPaginatedCountryList
 export const zCreateCountryBody = zCountryWriteRequest
 
 export const zCreateCountryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateCountryResponse = zCountryDetail
@@ -12483,11 +11803,7 @@ export const zRetrieveCountryPath = z.object({
 })
 
 export const zRetrieveCountryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveCountryResponse = zCountryDetail
@@ -12499,11 +11815,7 @@ export const zPartialUpdateCountryPath = z.object({
 })
 
 export const zPartialUpdateCountryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateCountryResponse = zCountryDetail
@@ -12515,11 +11827,7 @@ export const zUpdateCountryPath = z.object({
 })
 
 export const zUpdateCountryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateCountryResponse = zCountryDetail
@@ -12534,11 +11842,7 @@ export const zCheckGiftCardResponse = zGiftCardCheckResponse
 
 export const zListMyGiftCardsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -12582,11 +11886,7 @@ export const zRedeemLoyaltyPointsResponse = zRedeemPointsResponse
 export const zGetLoyaltySummaryResponse = zLoyaltySummary
 
 export const zListLoyaltyTiersQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -12602,11 +11902,7 @@ export const zListLoyaltyTiersResponse = zPaginatedLoyaltyTierList
 
 export const zListLoyaltyTransactionsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -12669,11 +11965,7 @@ export const zListNotificationUserQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   notification: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -12791,11 +12083,7 @@ export const zRetrieveNotificationUserPath = z.object({
 })
 
 export const zRetrieveNotificationUserQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveNotificationUserResponse = zNotificationUserDetail
@@ -12807,11 +12095,7 @@ export const zPartialUpdateNotificationUserPath = z.object({
 })
 
 export const zPartialUpdateNotificationUserQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateNotificationUserResponse = zNotificationUserDetail
@@ -12823,11 +12107,7 @@ export const zUpdateNotificationUserPath = z.object({
 })
 
 export const zUpdateNotificationUserQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateNotificationUserResponse = zNotificationUserDetail
@@ -12961,11 +12241,7 @@ export const zListOrderQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   lastName: z.string().optional(),
   lastName_Icontains: z.string().optional(),
   locationType: z.string().optional(),
@@ -13117,11 +12393,7 @@ export const zListOrderResponse = zPaginatedOrderList
 export const zCreateOrderBody = zOrderCreateFromCartRequestWritable
 
 export const zCreateOrderQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateOrderResponse = zOrderDetail
@@ -13190,11 +12462,7 @@ export const zListOrderItemQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   notes: z.string().optional(),
   notes_Icontains: z.string().optional(),
   order: z.union([
@@ -13387,11 +12655,7 @@ export const zListOrderItemResponse = zPaginatedOrderItemList
 export const zCreateOrderItemBody = zOrderItemWriteRequest
 
 export const zCreateOrderItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateOrderItemResponse = zOrderItemDetail
@@ -13416,11 +12680,7 @@ export const zRetrieveOrderItemPath = z.object({
 })
 
 export const zRetrieveOrderItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveOrderItemResponse = zOrderItemDetail
@@ -13435,11 +12695,7 @@ export const zPartialUpdateOrderItemPath = z.object({
 })
 
 export const zPartialUpdateOrderItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateOrderItemResponse = zOrderItemDetail
@@ -13454,11 +12710,7 @@ export const zUpdateOrderItemPath = z.object({
 })
 
 export const zUpdateOrderItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateOrderItemResponse = zOrderItemDetail
@@ -13494,11 +12746,7 @@ export const zRetrieveOrderPath = z.object({
 })
 
 export const zRetrieveOrderQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveOrderResponse = zOrderDetail
@@ -13513,11 +12761,7 @@ export const zPartialUpdateOrderPath = z.object({
 })
 
 export const zPartialUpdateOrderQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateOrderResponse = zOrderDetail
@@ -13532,11 +12776,7 @@ export const zUpdateOrderPath = z.object({
 })
 
 export const zUpdateOrderQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateOrderResponse = zOrderDetail
@@ -13864,11 +13104,7 @@ export const zListMyOrdersQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   lastName: z.string().optional(),
   lastName_Icontains: z.string().optional(),
   locationType: z.string().optional(),
@@ -14044,11 +13280,7 @@ export const zApiV1PageConfigRetrieveResponse = zPageLayout
 
 export const zApiV1PageConfigAdminListQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -14071,11 +13303,7 @@ export const zApiV1PageConfigAdminListResponse = zPaginatedPageLayoutAdminDetail
 export const zApiV1PageConfigAdminCreateBody = zPageLayoutAdminDetailRequest
 
 export const zApiV1PageConfigAdminCreateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigAdminCreateResponse = zPageLayoutAdminDetail
@@ -14100,11 +13328,7 @@ export const zApiV1PageConfigAdminRetrievePath = z.object({
 })
 
 export const zApiV1PageConfigAdminRetrieveQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigAdminRetrieveResponse = zPageLayoutAdminDetail
@@ -14119,11 +13343,7 @@ export const zApiV1PageConfigAdminPartialUpdatePath = z.object({
 })
 
 export const zApiV1PageConfigAdminPartialUpdateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigAdminPartialUpdateResponse = zPageLayoutAdminDetail
@@ -14138,11 +13358,7 @@ export const zApiV1PageConfigAdminUpdatePath = z.object({
 })
 
 export const zApiV1PageConfigAdminUpdateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigAdminUpdateResponse = zPageLayoutAdminDetail
@@ -14158,11 +13374,7 @@ export const zApiV1PageConfigNavigationRetrieveResponse = z.record(z.string(), z
 
 export const zApiV1PageConfigNavigationAdminListQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -14185,11 +13397,7 @@ export const zApiV1PageConfigNavigationAdminListResponse = zPaginatedNavigationM
 export const zApiV1PageConfigNavigationAdminCreateBody = zNavigationMenuRequest
 
 export const zApiV1PageConfigNavigationAdminCreateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigNavigationAdminCreateResponse = zNavigationMenu
@@ -14214,11 +13422,7 @@ export const zApiV1PageConfigNavigationAdminRetrievePath = z.object({
 })
 
 export const zApiV1PageConfigNavigationAdminRetrieveQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigNavigationAdminRetrieveResponse = zNavigationMenu
@@ -14233,11 +13437,7 @@ export const zApiV1PageConfigNavigationAdminPartialUpdatePath = z.object({
 })
 
 export const zApiV1PageConfigNavigationAdminPartialUpdateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigNavigationAdminPartialUpdateResponse = zNavigationMenu
@@ -14252,11 +13452,7 @@ export const zApiV1PageConfigNavigationAdminUpdatePath = z.object({
 })
 
 export const zApiV1PageConfigNavigationAdminUpdateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zApiV1PageConfigNavigationAdminUpdateResponse = zNavigationMenu
@@ -14336,11 +13532,7 @@ export const zListPayWayQuery = z.object({
     'STRIPE',
     'VIVA_WALLET',
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14404,11 +13596,7 @@ export const zListPayWayResponse = zPaginatedPayWayList
 export const zCreatePayWayBody = zPayWayWriteRequest
 
 export const zCreatePayWayQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreatePayWayResponse = zPayWay
@@ -14427,11 +13615,7 @@ export const zRetrievePayWayPath = z.object({
 })
 
 export const zRetrievePayWayQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrievePayWayResponse = zPayWay
@@ -14443,11 +13627,7 @@ export const zPartialUpdatePayWayPath = z.object({
 })
 
 export const zPartialUpdatePayWayQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdatePayWayResponse = zPayWay
@@ -14459,11 +13639,7 @@ export const zUpdatePayWayPath = z.object({
 })
 
 export const zUpdatePayWayQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdatePayWayResponse = zPayWay
@@ -14543,11 +13719,7 @@ export const zListProductQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   maxDiscount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -14708,11 +13880,7 @@ export const zListProductResponse = zPaginatedProductList
 export const zCreateProductBody = zProductWriteRequest
 
 export const zCreateProductQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateProductResponse = zProductRetrieve
@@ -14737,11 +13905,7 @@ export const zRetrieveProductPath = z.object({
 })
 
 export const zRetrieveProductQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveProductResponse = zProductRetrieve
@@ -14756,11 +13920,7 @@ export const zPartialUpdateProductPath = z.object({
 })
 
 export const zPartialUpdateProductQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateProductResponse = zProductRetrieve
@@ -14775,11 +13935,7 @@ export const zUpdateProductPath = z.object({
 })
 
 export const zUpdateProductQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateProductResponse = zProductRetrieve
@@ -14792,11 +13948,7 @@ export const zListProductImagesPath = z.object({
 })
 
 export const zListProductImagesQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   search: z.string().optional(),
 })
 
@@ -14860,11 +14012,7 @@ export const zListProductVariantsPath = z.object({
 })
 
 export const zListProductVariantsQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zListProductVariantsResponse = zProductVariantsResponse
@@ -14879,11 +14027,7 @@ export const zListProductAlertQuery = z.object({
     z.boolean(),
   ]).optional(),
   kind: z.enum(['price_drop', 'restock']).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt)(?:,(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14911,11 +14055,7 @@ export const zListProductAlertResponse = zPaginatedProductAlertList
 export const zCreateProductAlertBody = zProductAlertRequest
 
 export const zCreateProductAlertQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateProductAlertResponse = zProductAlert
@@ -14935,11 +14075,7 @@ export const zRetrieveProductAlertPath = z.object({
 })
 
 export const zRetrieveProductAlertQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveProductAlertResponse = zProductAlert
@@ -14973,11 +14109,7 @@ export const zListAttributeQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   name: z.string().optional(),
   ordering: z.string().regex(/^(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).optional(),
   page: z.union([
@@ -15018,11 +14150,7 @@ export const zListAttributeQuery = z.object({
 export const zListAttributeResponse = zPaginatedAttributeList
 
 export const zCreateAttributeQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateAttributeResponse = zAttribute
@@ -15047,11 +14175,7 @@ export const zRetrieveAttributePath = z.object({
 })
 
 export const zRetrieveAttributeQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveAttributeResponse = zAttribute
@@ -15064,11 +14188,7 @@ export const zPartialUpdateAttributePath = z.object({
 })
 
 export const zPartialUpdateAttributeQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateAttributeResponse = zAttribute
@@ -15081,11 +14201,7 @@ export const zUpdateAttributePath = z.object({
 })
 
 export const zUpdateAttributeQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateAttributeResponse = zAttribute
@@ -15120,11 +14236,7 @@ export const zListAttributeValueQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15165,11 +14277,7 @@ export const zListAttributeValueQuery = z.object({
 export const zListAttributeValueResponse = zPaginatedAttributeValueList
 
 export const zCreateAttributeValueQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateAttributeValueResponse = zAttributeValue
@@ -15194,11 +14302,7 @@ export const zRetrieveAttributeValuePath = z.object({
 })
 
 export const zRetrieveAttributeValueQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveAttributeValueResponse = zAttributeValue
@@ -15211,11 +14315,7 @@ export const zPartialUpdateAttributeValuePath = z.object({
 })
 
 export const zPartialUpdateAttributeValueQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateAttributeValueResponse = zAttributeValue
@@ -15228,22 +14328,14 @@ export const zUpdateAttributeValuePath = z.object({
 })
 
 export const zUpdateAttributeValueQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateAttributeValueResponse = zAttributeValue
 
 export const zListBrandQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|name|\-name)(?:,(?:id|\-id|name|\-name))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15272,11 +14364,7 @@ export const zRetrieveBrandPath = z.object({
 })
 
 export const zRetrieveBrandQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveBrandResponse = zBrand
@@ -15341,11 +14429,7 @@ export const zListProductCategoryQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -15426,11 +14510,7 @@ export const zListProductCategoryResponse = zPaginatedProductCategoryList
 export const zCreateProductCategoryBody = zProductCategoryWriteRequest
 
 export const zCreateProductCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateProductCategoryResponse = zProductCategoryDetail
@@ -15455,11 +14535,7 @@ export const zRetrieveProductCategoryPath = z.object({
 })
 
 export const zRetrieveProductCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveProductCategoryResponse = zProductCategoryDetail
@@ -15474,11 +14550,7 @@ export const zPartialUpdateProductCategoryPath = z.object({
 })
 
 export const zPartialUpdateProductCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateProductCategoryResponse = zProductCategoryDetail
@@ -15493,11 +14565,7 @@ export const zUpdateProductCategoryPath = z.object({
 })
 
 export const zUpdateProductCategoryQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateProductCategoryResponse = zProductCategoryDetail
@@ -15533,11 +14601,7 @@ export const zListProductCategoryImageQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15561,11 +14625,7 @@ export const zListProductCategoryImageResponse = zPaginatedProductCategoryImageL
 export const zCreateProductCategoryImageBody = zProductCategoryImageWriteRequest
 
 export const zCreateProductCategoryImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateProductCategoryImageResponse = zProductCategoryImageDetail
@@ -15590,11 +14650,7 @@ export const zRetrieveProductCategoryImagePath = z.object({
 })
 
 export const zRetrieveProductCategoryImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveProductCategoryImageResponse = zProductCategoryImageDetail
@@ -15609,11 +14665,7 @@ export const zPartialUpdateProductCategoryImagePath = z.object({
 })
 
 export const zPartialUpdateProductCategoryImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateProductCategoryImageResponse = zProductCategoryImageDetail
@@ -15628,11 +14680,7 @@ export const zUpdateProductCategoryImagePath = z.object({
 })
 
 export const zUpdateProductCategoryImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateProductCategoryImageResponse = zProductCategoryImageDetail
@@ -15669,11 +14717,7 @@ export const zGetProductCategoryImagesByCategoryQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   search: z.string().optional(),
 })
 
@@ -15707,11 +14751,7 @@ export const zGetProductCategoryImagesByTypeQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   search: z.string().optional(),
 })
 
@@ -15725,11 +14765,7 @@ export const zListProductFavouriteQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15784,11 +14820,7 @@ export const zListProductFavouriteResponse = zPaginatedProductFavouriteList
 export const zCreateProductFavouriteBody = zProductFavouriteWriteRequest
 
 export const zCreateProductFavouriteQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateProductFavouriteResponse = zProductFavouriteWrite
@@ -15807,11 +14839,7 @@ export const zRetrieveProductFavouritePath = z.object({
 })
 
 export const zRetrieveProductFavouriteQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveProductFavouriteResponse = zProductFavouriteDetail
@@ -15823,11 +14851,7 @@ export const zPartialUpdateProductFavouritePath = z.object({
 })
 
 export const zPartialUpdateProductFavouriteQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateProductFavouriteResponse = zProductFavouriteWrite
@@ -15839,11 +14863,7 @@ export const zUpdateProductFavouritePath = z.object({
 })
 
 export const zUpdateProductFavouriteQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateProductFavouriteResponse = zProductFavouriteWrite
@@ -15913,11 +14933,7 @@ export const zListProductImageQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15950,11 +14966,7 @@ export const zListProductImageResponse = zPaginatedProductImageList
 export const zCreateProductImageBody = zProductImageWriteRequest
 
 export const zCreateProductImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateProductImageResponse = zProductImageDetail
@@ -15979,11 +14991,7 @@ export const zRetrieveProductImagePath = z.object({
 })
 
 export const zRetrieveProductImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveProductImageResponse = zProductImageDetail
@@ -15998,11 +15006,7 @@ export const zPartialUpdateProductImagePath = z.object({
 })
 
 export const zPartialUpdateProductImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateProductImageResponse = zProductImageDetail
@@ -16017,11 +15021,7 @@ export const zUpdateProductImagePath = z.object({
 })
 
 export const zUpdateProductImageQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateProductImageResponse = zProductImageDetail
@@ -16059,11 +15059,7 @@ export const zListProductReviewQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   maxRate: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -16189,11 +15185,7 @@ export const zListProductReviewResponse = zPaginatedProductReviewList
 export const zCreateProductReviewBody = zProductReviewWriteRequest
 
 export const zCreateProductReviewQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateProductReviewResponse = zProductReviewDetail
@@ -16218,11 +15210,7 @@ export const zRetrieveProductReviewPath = z.object({
 })
 
 export const zRetrieveProductReviewQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveProductReviewResponse = zProductReviewDetail
@@ -16237,11 +15225,7 @@ export const zPartialUpdateProductReviewPath = z.object({
 })
 
 export const zPartialUpdateProductReviewQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateProductReviewResponse = zProductReviewDetail
@@ -16256,11 +15240,7 @@ export const zUpdateProductReviewPath = z.object({
 })
 
 export const zUpdateProductReviewQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateProductReviewResponse = zProductReviewDetail
@@ -16278,11 +15258,7 @@ export const zGetUserProductReviewPath = z.object({
 export const zGetUserProductReviewResponse = zProductReviewDetail
 
 export const zListPublicPromotionsQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zListPublicPromotionsResponse = z.array(zPublicPromotion)
@@ -16295,11 +15271,7 @@ export const zListProductPromotionsPath = z.object({
 })
 
 export const zListProductPromotionsQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zListProductPromotionsResponse = z.array(zProductPromotion)
@@ -16339,11 +15311,7 @@ export const zListRegionQuery = z.object({
   createdAfter: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).optional(),
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   name: z.string().optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$/).optional(),
   page: z.union([
@@ -16391,11 +15359,7 @@ export const zListRegionResponse = zPaginatedRegionList
 export const zCreateRegionBody = zRegionWriteRequest
 
 export const zCreateRegionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateRegionResponse = zRegionDetail
@@ -16414,11 +15378,7 @@ export const zRetrieveRegionPath = z.object({
 })
 
 export const zRetrieveRegionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveRegionResponse = zRegionDetail
@@ -16430,11 +15390,7 @@ export const zPartialUpdateRegionPath = z.object({
 })
 
 export const zPartialUpdateRegionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateRegionResponse = zRegionDetail
@@ -16446,11 +15402,7 @@ export const zUpdateRegionPath = z.object({
 })
 
 export const zUpdateRegionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateRegionResponse = zRegionDetail
@@ -16467,11 +15419,7 @@ export const zListRegionsByCountryQuery = z.object({
   countryName: z.string().optional(),
   createdAfter: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   name: z.string().optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16691,11 +15639,7 @@ export const zFindNearestAcsStationsResponse = z.array(zAcsStation)
 
 export const zListBoxNowLockerQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt)(?:,(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16721,11 +15665,7 @@ export const zRetrieveBoxNowLockerPath = z.object({
 })
 
 export const zRetrieveBoxNowLockerQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveBoxNowLockerResponse = zBoxNowLockerDetail
@@ -16813,11 +15753,7 @@ export const zListTagQuery = z.object({
   label: z.string().optional(),
   label_Exact: z.string().optional(),
   label_Startswith: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   maxUsageCount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -16889,11 +15825,7 @@ export const zListTagResponse = zPaginatedTagList
 export const zCreateTagBody = zTagWriteRequest
 
 export const zCreateTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateTagResponse = zTagDetail
@@ -16918,11 +15850,7 @@ export const zRetrieveTagPath = z.object({
 })
 
 export const zRetrieveTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveTagResponse = zTagDetail
@@ -16937,11 +15865,7 @@ export const zPartialUpdateTagPath = z.object({
 })
 
 export const zPartialUpdateTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateTagResponse = zTagDetail
@@ -16956,11 +15880,7 @@ export const zUpdateTagPath = z.object({
 })
 
 export const zUpdateTagQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateTagResponse = zTagDetail
@@ -16982,11 +15902,7 @@ export const zListTaggedItemQuery = z.object({
     z.string(),
     z.array(z.int()),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   objectId: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -17036,11 +15952,7 @@ export const zListTaggedItemResponse = zPaginatedTaggedItemList
 export const zCreateTaggedItemBody = zTaggedItemWriteRequestWritable
 
 export const zCreateTaggedItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateTaggedItemResponse = zTaggedItemDetail
@@ -17065,11 +15977,7 @@ export const zRetrieveTaggedItemPath = z.object({
 })
 
 export const zRetrieveTaggedItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveTaggedItemResponse = zTaggedItemDetail
@@ -17084,11 +15992,7 @@ export const zPartialUpdateTaggedItemPath = z.object({
 })
 
 export const zPartialUpdateTaggedItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateTaggedItemResponse = zTaggedItemDetail
@@ -17103,11 +16007,7 @@ export const zUpdateTaggedItemPath = z.object({
 })
 
 export const zUpdateTaggedItemQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
@@ -17120,7 +16020,6 @@ export const zApiV1TenantMembershipsMineRetrieveResponse = z.array(z.object({
   storeName: z.string().optional(),
   primaryDomain: z.string().optional(),
   role: z.enum([
-    'member',
     'staff',
     'admin',
     'owner',
@@ -17135,11 +16034,7 @@ export const zApiV1TenantResolveRetrieveResponse = zTenantConfig
 
 export const zListUserAccountQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17168,11 +16063,7 @@ export const zRetrieveUserAccountPath = z.object({
 })
 
 export const zRetrieveUserAccountQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveUserAccountResponse = zUserDetails
@@ -17187,11 +16078,7 @@ export const zPartialUpdateUserAccountPath = z.object({
 })
 
 export const zPartialUpdateUserAccountQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateUserAccountResponse = zUserDetails
@@ -17206,11 +16093,7 @@ export const zUpdateUserAccountPath = z.object({
 })
 
 export const zUpdateUserAccountQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateUserAccountResponse = zUserDetails
@@ -17224,11 +16107,7 @@ export const zGetUserAccountAddressesPath = z.object({
 
 export const zGetUserAccountAddressesQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17258,11 +16137,7 @@ export const zGetUserAccountBlogPostCommentsPath = z.object({
 
 export const zGetUserAccountBlogPostCommentsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17303,11 +16178,7 @@ export const zListUserAccountDataExportsPath = z.object({
 
 export const zListUserAccountDataExportsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -17347,11 +16218,7 @@ export const zGetUserAccountFavouriteProductsPath = z.object({
 
 export const zGetUserAccountFavouriteProductsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17381,11 +16248,7 @@ export const zGetUserAccountLikedBlogPostsPath = z.object({
 
 export const zGetUserAccountLikedBlogPostsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17444,11 +16307,7 @@ export const zGetUserAccountOrdersPath = z.object({
 
 export const zGetUserAccountOrdersQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|amountDue|\-amountDue)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|amountDue|\-amountDue))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17478,11 +16337,7 @@ export const zGetUserAccountProductReviewsPath = z.object({
 
 export const zGetUserAccountProductReviewsQuery = z.object({
   cursor: z.string().optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|rate|\-rate)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|rate|\-rate))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17560,11 +16415,7 @@ export const zListUserAddressQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   lastName: z.string().optional(),
   lastName_Icontains: z.string().optional(),
   locationType: z.string().optional(),
@@ -17613,11 +16464,7 @@ export const zListUserAddressResponse = zPaginatedUserAddressList
 export const zCreateUserAddressBody = zUserAddressWriteRequest
 
 export const zCreateUserAddressQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateUserAddressResponse = zUserAddressDetail
@@ -17642,11 +16489,7 @@ export const zRetrieveUserAddressPath = z.object({
 })
 
 export const zRetrieveUserAddressQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveUserAddressResponse = zUserAddressDetail
@@ -17661,11 +16504,7 @@ export const zPartialUpdateUserAddressPath = z.object({
 })
 
 export const zPartialUpdateUserAddressQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateUserAddressResponse = zUserAddressDetail
@@ -17680,11 +16519,7 @@ export const zUpdateUserAddressPath = z.object({
 })
 
 export const zUpdateUserAddressQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateUserAddressResponse = zUserAddressDetail
@@ -17731,11 +16566,7 @@ export const zListUserSubscriptionQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   ordering: z.string().regex(/^(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category)(?:,(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -17798,11 +16629,7 @@ export const zListUserSubscriptionResponse = zPaginatedUserSubscriptionList
 export const zCreateUserSubscriptionBody = zUserSubscriptionWriteRequest
 
 export const zCreateUserSubscriptionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateUserSubscriptionResponse = zUserSubscriptionDetail
@@ -17827,11 +16654,7 @@ export const zRetrieveUserSubscriptionPath = z.object({
 })
 
 export const zRetrieveUserSubscriptionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveUserSubscriptionResponse = zUserSubscriptionDetail
@@ -17846,11 +16669,7 @@ export const zPartialUpdateUserSubscriptionPath = z.object({
 })
 
 export const zPartialUpdateUserSubscriptionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateUserSubscriptionResponse = zUserSubscriptionDetail
@@ -17865,11 +16684,7 @@ export const zUpdateUserSubscriptionPath = z.object({
 })
 
 export const zUpdateUserSubscriptionQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateUserSubscriptionResponse = zUserSubscriptionDetail
@@ -17945,11 +16760,7 @@ export const zListSubscriptionTopicQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
   name: z.string().optional(),
   ordering: z.string().regex(/^(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug)(?:,(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug))*$/).optional(),
   page: z.union([
@@ -17990,11 +16801,7 @@ export const zListSubscriptionTopicResponse = zPaginatedSubscriptionTopicList
 export const zCreateSubscriptionTopicBody = zSubscriptionTopicWriteRequest
 
 export const zCreateSubscriptionTopicQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zCreateSubscriptionTopicResponse = zSubscriptionTopicDetail
@@ -18019,11 +16826,7 @@ export const zRetrieveSubscriptionTopicPath = z.object({
 })
 
 export const zRetrieveSubscriptionTopicQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zRetrieveSubscriptionTopicResponse = zSubscriptionTopicDetail
@@ -18038,11 +16841,7 @@ export const zPartialUpdateSubscriptionTopicPath = z.object({
 })
 
 export const zPartialUpdateSubscriptionTopicQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zPartialUpdateSubscriptionTopicResponse = zSubscriptionTopicDetail
@@ -18057,11 +16856,7 @@ export const zUpdateSubscriptionTopicPath = z.object({
 })
 
 export const zUpdateSubscriptionTopicQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zUpdateSubscriptionTopicResponse = zSubscriptionTopicDetail
@@ -18085,11 +16880,7 @@ export const zUnsubscribeFromTopicPath = z.object({
 export const zUnsubscribeFromTopicResponse = zDetail
 
 export const zGetMySubscriptionTopicsQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).optional().default('el'),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
 export const zGetMySubscriptionTopicsResponse = z.object({
