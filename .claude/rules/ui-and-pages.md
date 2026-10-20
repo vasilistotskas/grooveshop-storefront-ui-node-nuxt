@@ -12,7 +12,7 @@ Component categories, styling, images, routing and the SEO/performance constrain
 
 ## Image Handling
 
-Custom `mediaStream` provider (`app/providers/media-stream.ts`) generates URLs for an external media processing service. URL pattern: `/{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}`. Handles Unicode URL encoding for social media crawlers. Also uses `@nuxt/image` with IPX for local images (AVIF, WebP formats). Image screens configured: xs(320), sm(640), md(768), lg(1024), xl(1280), xxl/2xl(1536).
+Custom `mediaStream` provider (`app/providers/media-stream.ts`) generates URLs for an external media processing service. URL pattern: `/{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}`. Handles Unicode URL encoding for social media crawlers. Also uses `@nuxt/image` with IPX for local images. `image.format` applies to `<NuxtPicture>` only: a `<NuxtImg>` with no `format` is served in its source format, so pass one where it pays (measure first: flat PNG logos are SMALLER than their WebP/AVIF). Image screens configured: xs(320), sm(640), md(768), lg(1024), xl(1280), xxl/2xl(1536).
 
 The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_PATH` at build time) — @nuxt/image has no per-request/per-tenant hook. Per-tenant asset origins (`TenantConfig.assetsDomain`) are instead resolved by `useMediaStreamBaseUrl`/`useMediaStreamImage` (`app/composables/useMediaStreamImage.ts`), which absolutize the relative `src` BEFORE it reaches `$img()`/`NuxtImg`; the provider skips its own `baseURL` whenever `src` already carries a protocol. `ImgWithFallback.vue` does the same absolutization for `media/{schema}/uploads/...` and `static/images/...` paths.
 
@@ -162,5 +162,5 @@ Components in `app/components/` organized by domain:
 - **Experimental features**: `typedPages`, `asyncContext`, `inlineRouteRules`, `crossOriginPrefetch`, `nitroAutoImports` (kept until evlog's `log` works without it), `emitRouteChunkError: 'automatic-immediate'`.
 - **Build-time version injection**: `runtimeConfig.public.version` is set from `process.env.npm_package_version` in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.
 - **Nitro**: ESBuild target `esnext`, gzip + brotli compression, minification, async context. Prerendered routes for critical above-the-fold images.
-- **Resource hints**: per-tenant media-stream/static origin hints rendered at runtime by `setupPageHeader`; none in the build-time head and no Google hints.
+- **Resource hints**: one `dns-prefetch` + `preconnect` to the tenant's media origin, rendered at runtime by `setupPageHeader`, with no `crossorigin` (images load no-cors and only reuse a socket opened in the same mode). None for the static origin, which the browser never fetches from, none in the build-time head and no Google hints.
 - **Source maps**: Client-side only (server disabled for smaller production bundles)

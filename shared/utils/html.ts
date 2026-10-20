@@ -687,8 +687,15 @@ export function transformImgTag(
   // rendered size. Without it, a source narrower than the bound comes back
   // at its own pixels for both candidates (media stream never upscales), and
   // a retina screen picking "2x" would draw it at half its natural size.
+  // A lazy image leads its `sizes` with `auto`: the browser then picks the
+  // candidate for the width the image is really laid out at, which this
+  // string cannot know. A two-column gallery drew a 352px-wide image in a
+  // 176px column, so the declared 352px fetched the 704px candidate on
+  // every phone (Lighthouse 2026-10-19, F10). `auto` applies to lazy
+  // images only, and a browser without it reads the declared list after it.
+  const lazy = attrs.loading ? attrs.loading.toLowerCase() === 'lazy' : config.addLazyLoading
   const srcset = attrs.width
-    ? ` srcset="${candidates.map(({ url, width: w }) => `${url} ${w}w`).join(', ')}" sizes="(max-width: ${width}px) 100vw, ${width}px"`
+    ? ` srcset="${candidates.map(({ url, width: w }) => `${url} ${w}w`).join(', ')}" sizes="${lazy ? 'auto, ' : ''}(max-width: ${width}px) 100vw, ${width}px"`
     : ''
   newTag = newTag.replace(/src=["'][^"']*["']/i, `src="${candidates[0]?.url}"${srcset}`)
 

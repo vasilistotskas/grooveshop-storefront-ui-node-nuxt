@@ -403,7 +403,18 @@ describe('transformHtmlImages', () => {
 
     expect(out).toContain(`src="${url(300, 150)}"`)
     expect(out).toContain(`${url(600, 300)} 600w`)
-    expect(out).toContain('sizes="(max-width: 300px) 100vw, 300px"')
+    expect(out).toContain('sizes="auto, (max-width: 300px) 100vw, 300px"')
+  })
+
+  it('lets the layout pick the candidate only for a lazy image', () => {
+    // A two-column gallery draws a 352px image in a 176px column; only
+    // `auto` reaches the real width, and a browser honours it on a lazy
+    // image alone, so an eager one keeps the declared list.
+    const tag = (loading: string) =>
+      transformHtmlImages(`<img src="https://api.example.gr${key}" width="352" height="198" loading="${loading}">`, config)
+
+    expect(tag('lazy')).toContain('sizes="auto, (max-width: 352px) 100vw, 352px"')
+    expect(tag('eager')).toContain('sizes="(max-width: 352px) 100vw, 352px"')
   })
 
   it('keeps a percentage width, draws it across that share of the column and replaces an editor srcset', () => {
