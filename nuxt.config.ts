@@ -190,24 +190,6 @@ export default defineNuxtConfig({
       name: 'nuxt-session',
       password: process.env.NUXT_SESSION_PASSWORD || '',
     },
-    oauth: {
-      discord: {
-        clientId: process.env.NUXT_OAUTH_DISCORD_CLIENT_ID,
-        clientSecret: process.env.NUXT_OAUTH_DISCORD_CLIENT_SECRET,
-      },
-      facebook: {
-        clientId: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID,
-        clientSecret: process.env.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET,
-      },
-      github: {
-        clientId: process.env.NUXT_OAUTH_GITHUB_CLIENT_ID,
-        clientSecret: process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET,
-      },
-      google: {
-        clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID,
-        clientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET,
-      },
-    },
     cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN,
     // Upper bound on ONE contact-attachment upload streamed through
     // `server/api/contact/attachment.post.ts`. It bounds the SSR hop,
