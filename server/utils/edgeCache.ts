@@ -4,10 +4,10 @@
  * Only a response Nitro itself served from its page cache (an SWR route
  * rule, see ``shared/constants/prerender.ts``) may be cached at the edge:
  * those renders are anonymous by construction, carry no per-request CSP
- * nonce, and are already replayed to every visitor. Every other response
- * keeps the default of not being cached — the Cloudflare Cache Rule makes
- * storefront pages *eligible* and uses the origin's headers, so a response
- * without them is never stored.
+ * nonce, and are already replayed to every visitor, signed in or not, so
+ * the edge needs no cookie rule. Every other page says ``private`` — the
+ * Cloudflare Cache Rule makes storefront pages *eligible* and uses the
+ * origin's headers, so such a response is never stored.
  *
  * The edge directive travels in ``Cloudflare-CDN-Cache-Control``, which
  * Cloudflare consumes and strips, so browsers get their own
@@ -35,7 +35,26 @@ export function edgeCacheTenantTag(schemaName: string): string {
   return `${EDGE_CACHE_TAG}-${schemaName}`
 }
 
+/**
+ * Every other page response: a page rendered with the visitor's session
+ * (account, cart, checkout), and an error on any route. ``private`` keeps
+ * it out of every shared cache, Cloudflare included, and ``no-store``
+ * keeps a signed-in page off the browser's disk.
+ *
+ * It also replaces the header Nitro puts on an error from a cached route.
+ * Nitro never keeps a status of 400 or more itself, but it still stamps
+ * ``s-maxage`` on the response, and Cloudflare kept that 404 at the edge
+ * for ten minutes with no ``Cache-Tag``, so no purge could reach it.
+ */
+export const PRIVATE_PAGE_CACHE_CONTROL = 'private, no-store'
+
 const EDGE_CACHEABLE_TYPES = ['text/html', 'application/json']
+
+const PAYLOAD_SUFFIX = /\/_payload\.json$/
+
+function requestPath(event: H3Event): string {
+  return event.path.split('?')[0] ?? ''
+}
 
 /**
  * Whether this response may be stored at the edge. The ``s-maxage``
@@ -49,9 +68,23 @@ export function isEdgeCacheableResponse(event: H3Event): boolean {
   if (status !== 200 && status !== 304) return false
   if (!event.context.tenant) return false
   if (!/(?:^|[\s,])s-maxage=\d+/.test(String(getResponseHeader(event, 'cache-control') ?? ''))) return false
-  const path = event.path.split('?')[0] ?? ''
-  if (!isCachedSsrRoute(path.replace(/\/_payload\.json$/, '') || '/')) return false
+  if (!isCachedSsrRoute(requestPath(event).replace(PAYLOAD_SUFFIX, '') || '/')) return false
   if (status === 304) return true
   const type = String(getResponseHeader(event, 'content-type') ?? '')
   return EDGE_CACHEABLE_TYPES.some(allowed => type.startsWith(allowed))
+}
+
+/**
+ * Whether this response is a page (an HTML document or the payload a
+ * client-side navigation fetches) that ``isEdgeCacheableResponse``
+ * refused, and so gets ``PRIVATE_PAGE_CACHE_CONTROL``. Redirects and
+ * revalidations keep their own headers.
+ */
+export function isPrivatePageResponse(event: H3Event): boolean {
+  const method = event.method
+  if (method !== 'GET' && method !== 'HEAD') return false
+  const status = getResponseStatus(event)
+  if (status >= 300 && status < 400) return false
+  if (PAYLOAD_SUFFIX.test(requestPath(event))) return true
+  return String(getResponseHeader(event, 'content-type') ?? '').startsWith('text/html')
 }

@@ -2,8 +2,8 @@ import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
  * Mark the pages Nitro served from its page cache as cacheable at the
- * Cloudflare edge, and tag them for purging. The rules and the reasons
- * are in ``server/utils/edgeCache.ts``.
+ * Cloudflare edge, and tag them for purging; mark every other page
+ * private. The rules and the reasons are in ``server/utils/edgeCache.ts``.
  *
  * The headers are set as the response ends, on the request's own
  * response object, because that is the one seam both answers pass
@@ -21,10 +21,15 @@ export default defineNitroPlugin((nitroApp) => {
     if (!res || (event.method !== 'GET' && event.method !== 'HEAD')) return
     const end = res.end.bind(res) as (...args: unknown[]) => typeof res
     res.end = ((...args: unknown[]) => {
-      if (!res.headersSent && isEdgeCacheableResponse(event)) {
-        res.setHeader('cache-control', 'no-cache')
-        res.setHeader('cloudflare-cdn-cache-control', EDGE_CACHE_CONTROL)
-        res.setHeader('cache-tag', `${EDGE_CACHE_TAG},${edgeCacheTenantTag(event.context.tenant!.schemaName)}`)
+      if (!res.headersSent) {
+        if (isEdgeCacheableResponse(event)) {
+          res.setHeader('cache-control', 'no-cache')
+          res.setHeader('cloudflare-cdn-cache-control', EDGE_CACHE_CONTROL)
+          res.setHeader('cache-tag', `${EDGE_CACHE_TAG},${edgeCacheTenantTag(event.context.tenant!.schemaName)}`)
+        }
+        else if (isPrivatePageResponse(event)) {
+          res.setHeader('cache-control', PRIVATE_PAGE_CACHE_CONTROL)
+        }
       }
       return end(...args)
     }) as typeof res.end
