@@ -24,6 +24,7 @@
 export function useHtmlContent() {
   const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
+  const { $i18n } = useNuxtApp()
 
   /**
    * Get the default configuration for image optimization
@@ -123,6 +124,14 @@ export function useHtmlContent() {
   }
 
   /**
+   * Sanitise admin-authored rich text for ``v-html`` (``sanitizeRichHtml``),
+   * naming a video facade's play button in the page's language.
+   */
+  const sanitize = (html: string | null | undefined): string => {
+    return sanitizeRichHtml(html, { videoPlayLabel: $i18n.t('a11y.play_video') })
+  }
+
+  /**
    * Extract image sources from HTML for preloading
    */
   const getImageSources = (html: string): string[] => {
@@ -155,6 +164,7 @@ export function useHtmlContent() {
   }
 
   return {
+    sanitize,
     transformImages,
     optimizedHtml,
     transformImagesFromDomains,

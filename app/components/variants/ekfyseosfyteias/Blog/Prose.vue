@@ -16,7 +16,9 @@ const props = defineProps<{
   html: string
 }>()
 
-const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
+const { sanitize } = useHtmlContent()
+
+const sanitizedHtml = computed(() => sanitize(props.html))
 </script>
 
 <template>
@@ -135,7 +137,8 @@ const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
   margin-block-start: 0.625rem;
 }
 
-.fy-prose :deep(iframe) {
+.fy-prose :deep(iframe),
+.fy-prose :deep(.rich-embed) {
   aspect-ratio: 16 / 9;
   border-radius: 1.5rem;
   height: auto;

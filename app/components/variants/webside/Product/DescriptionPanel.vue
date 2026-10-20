@@ -5,10 +5,12 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
+const { sanitize } = useHtmlContent()
+
 // Shares the blog body's sanitiser: product descriptions are the
 // same admin-authored TinyMCE HTML and had the same silent
 // iframe-stripping bug.
-const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
+const sanitizedHtml = computed(() => sanitize(props.html))
 
 const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
 </script>

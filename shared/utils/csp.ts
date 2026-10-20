@@ -17,7 +17,7 @@
  * property intact for the build-time consumer.
  */
 
-import { EMBED_IFRAME_ORIGINS } from './embeds'
+import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from './embeds'
 import { BOXNOW_FRAME_ORIGINS } from './boxnow-widget'
 
 export interface CspOptions {
@@ -164,10 +164,13 @@ export function buildCspDirectives(options: CspOptions): string[] {
   // unlike the pixel origins below: whether a post contains a video is
   // decided by an editor at write time, so there is nothing to switch
   // on at request time, and gating it would reintroduce the
-  // silent-blank-box failure for any deploy with the flag off.
-  const embedFrameSrc = EMBED_IFRAME_ORIGINS.length
-    ? ` ${EMBED_IFRAME_ORIGINS.join(' ')}`
+  // silent-blank-box failure for any deploy with the flag off. A
+  // YouTube video is shown as a facade until it is played, and the
+  // facade's poster comes from YouTube's image host.
+  const embedFrameSrc = EMBED_FRAME_ORIGINS.length
+    ? ` ${EMBED_FRAME_ORIGINS.join(' ')}`
     : ''
+  const embedImgSrc = ` ${YOUTUBE_THUMBNAIL_ORIGIN}`
 
   // Meta Pixel runtime origins: the script comes from
   // ``connect.facebook.net``; pixel beacons are sent to
@@ -280,7 +283,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `default-src 'self'`,
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
+    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins} ${tileOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
     `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins — one per verified live market
@@ -296,7 +299,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // never ships that overlay so the scheme stays out of prod CSP.
     // ``embedFrameSrc`` carries the video-embed origins. They are NOT
     // inlined here: the sanitiser that decides which iframes survive
-    // (``sanitizeRichHtml``) reads the same list, and a video allowed by
+    // (``sanitizeRichHtml``) reads the same module, and a video allowed by
     // one layer but not the other fails silently — blank box plus a
     // console line, or stripped from the DOM before CSP is consulted.
     // Both halves were broken at once; see ``shared/utils/embeds.ts``.

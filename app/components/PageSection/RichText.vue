@@ -17,7 +17,9 @@ const props = defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
-const sanitizedContent = computed(() => sanitizeRichHtml(props.content))
+const { sanitize } = useHtmlContent()
+
+const sanitizedContent = computed(() => sanitize(props.content))
 </script>
 
 <template>

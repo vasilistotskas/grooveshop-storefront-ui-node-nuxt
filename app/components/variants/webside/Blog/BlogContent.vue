@@ -16,10 +16,12 @@ const props = defineProps<{
   html: string
 }>()
 
+const { sanitize } = useHtmlContent()
+
 // ``sanitizeRichHtml``, not a bare ``DOMPurify.sanitize``: the bare
 // call drops embedded video, because ``iframe`` is not in
 // DOMPurify's default allow-list. See shared/utils/embeds.ts.
-const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
+const sanitizedHtml = computed(() => sanitize(props.html))
 </script>
 
 <template>

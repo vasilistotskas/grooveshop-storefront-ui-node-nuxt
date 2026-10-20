@@ -32,8 +32,10 @@ const selectedPayWay = computed(() =>
   props.payWayOptions.find(option => option.value === formState.value.payWay),
 )
 
+const { sanitize } = useHtmlContent()
+
 const selectedInstructions = computed(() =>
-  sanitizeRichHtml(selectedPayWay.value?.instructions),
+  sanitize(selectedPayWay.value?.instructions),
 )
 
 const hasInstructions = computed(() =>
@@ -133,7 +135,7 @@ defineExpose({
             <div
               v-if="item.description"
               class="pay-way-description text-sm"
-              v-html="sanitizeRichHtml(item.description)"
+              v-html="sanitize(item.description)"
             />
             <p
               v-if="item.freeThresholdHint"
