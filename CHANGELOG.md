@@ -1,3 +1,10 @@
+## [3.255.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.15...v3.255.16) (2026-10-20)
+
+
+### Bug Fixes
+
+* **auth:** treat allauth's 429 as a known response, not an unexpected failure ([#199](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/199)) ([b20f944](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b20f944e7289dad9c1263ec59e9d1c18cc319c65))
+
 ## [3.255.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.14...v3.255.15) (2026-10-20)
 
 
