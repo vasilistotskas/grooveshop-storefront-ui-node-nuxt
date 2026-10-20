@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chatSegments } from '~/utils/chat'
+import { chatSegments, retryWhen } from '~/utils/chat'
 
 const list = (at: number, ids: number[] = [1]) => ({ tool: 'search_products', ids, at })
 
@@ -44,5 +44,19 @@ describe('chatSegments', () => {
       { type: 'text', text: 'ok' },
       { type: 'products', event },
     ])
+  })
+})
+
+describe('retryWhen', () => {
+  it.each([
+    [1, 'en', 'in 1 second'],
+    [42, 'en', 'in 42 seconds'],
+    [61, 'en', 'in 2 minutes'],
+    [3599, 'en', 'in 60 minutes'],
+    [3601, 'en', 'in 2 hours'],
+    [300, 'el', 'σε 5 λεπτά'],
+    [7200, 'el', 'σε 2 ώρες'],
+  ])('says %i seconds as the %s page does', (seconds, locale, expected) => {
+    expect(retryWhen(seconds, locale)).toBe(expected)
   })
 })

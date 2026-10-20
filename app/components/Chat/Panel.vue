@@ -8,7 +8,7 @@ const emit = defineEmits<{ close: [] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const { messages, status, errorMessage, cartMutated, send, stop, reset }
+const { messages, status, errorMessage, cartMutated, canRetry, send, retry, stop, reset }
   = useShopChat()
 
 const input = ref('')
@@ -81,6 +81,32 @@ const TOOL_META: Record<string, { icon: string, key: string }> = {
 function toolMeta(name: string) {
   return TOOL_META[name] ?? { icon: 'i-lucide-cog', key: 'generic' }
 }
+
+// A failed step says so; the model explains why in its reply.
+function toolIcon(tool: ShopChatTool) {
+  return tool.status === 'error' ? 'i-lucide-circle-alert' : toolMeta(tool.name).icon
+}
+
+// After a failure the shopper can send the same message again, unless the
+// conversation itself is over; a new conversation is always on offer.
+const errorActions = computed(() => [
+  ...(canRetry.value
+    ? [{
+        label: t('chat.retry'),
+        color: 'neutral' as const,
+        variant: 'solid' as const,
+        size: 'xs' as const,
+        onClick: () => retry(),
+      }]
+    : []),
+  {
+    label: t('chat.new'),
+    color: 'neutral' as const,
+    variant: 'outline' as const,
+    size: 'xs' as const,
+    onClick: () => reset(),
+  },
+])
 
 const uiStatus = computed(() => {
   if (status.value === 'streaming') {
@@ -218,9 +244,10 @@ function onSubmit() {
             <UChatTool
               v-for="(tool, index) in (message as any).tools"
               :key="`${message.id}-tool-${index}`"
-              :icon="toolMeta(tool.name).icon"
+              :icon="toolIcon(tool)"
               :text="t(`chat.tools.${toolMeta(tool.name).key}`)"
               :streaming="tool.status === 'running'"
+              :suffix="tool.status === 'error' ? t('chat.tools.failed') : undefined"
             />
             <Markdown
               v-if="message.parts[0]?.text"
@@ -251,15 +278,7 @@ function onSubmit() {
         variant="soft"
         class="mx-3 mb-2 w-auto"
         :description="errorMessage"
-        :actions="[
-          {
-            label: t('chat.new'),
-            color: 'neutral',
-            variant: 'outline',
-            size: 'xs',
-            onClick: () => reset(),
-          },
-        ]"
+        :actions="errorActions"
       />
 
       <div
@@ -358,8 +377,10 @@ el:
       alert: Ρύθμιση ειδοποίησης
       checkout: Προετοιμασία παραγγελίας
       generic: Επεξεργασία αιτήματος
+      failed: απέτυχε
     placeholder: Ρώτησέ με για προϊόντα…
     new: Νέα συνομιλία
+    retry: Δοκίμασε ξανά
     disclaimer: Ο βοηθός μπορεί να κάνει λάθη — έλεγξε το καλάθι πριν την
       παραγγελία.
 en:
@@ -394,8 +415,10 @@ en:
       alert: Setting an alert
       checkout: Preparing the order
       generic: Processing the request
+      failed: failed
     placeholder: Ask me about products…
     new: New conversation
+    retry: Try again
     disclaimer: The assistant can make mistakes — check your basket before
       you order.
 </i18n>

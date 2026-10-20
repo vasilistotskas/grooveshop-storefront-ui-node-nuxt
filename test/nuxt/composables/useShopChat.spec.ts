@@ -102,8 +102,8 @@ describe('useShopChat', () => {
     await chat.send('δεύτερο')
 
     expect(fetchMock.mock.calls.map(bodyOf)).toEqual([
-      { message: 'πρώτο' },
-      { conversationId: 'c2', message: 'δεύτερο' },
+      { message: 'πρώτο', turnId: expect.any(String) },
+      { conversationId: 'c2', message: 'δεύτερο', turnId: expect.any(String) },
     ])
   })
 
@@ -183,6 +183,136 @@ describe('useShopChat', () => {
     ])
   })
 
+  it('keeps a failed step as failed', async () => {
+    stubStream(
+      'event: tool\ndata: {"name":"add_to_cart","status":"running"}\n\n'
+      + 'event: tool\ndata: {"name":"add_to_cart","status":"error"}\n\n'
+      + 'event: delta\ndata: {"text":"Υπάρχουν μόνο 2."}\n\n'
+      + DONE,
+    )
+
+    const chat = useShopChat()
+    await chat.send('βάλε 5')
+
+    expect(chat.messages.value[1]!.tools).toEqual([
+      { name: 'add_to_cart', status: 'error' },
+    ])
+  })
+
+  it('marks a step still running when the turn died as failed, and keeps it on screen', async () => {
+    stubStream(
+      'event: tool\ndata: {"name":"add_to_cart","status":"running"}\n\n'
+      + 'event: error\ndata: {"message":"Η συνομιλία διακόπηκε."}\n\n',
+    )
+
+    const chat = useShopChat()
+    await chat.send('βάλε το')
+
+    expect(chat.messages.value.map(m => m.role)).toEqual(['user', 'assistant'])
+    expect(chat.messages.value[1]!.tools).toEqual([
+      { name: 'add_to_cart', status: 'error' },
+    ])
+  })
+
+  describe('rate limits', () => {
+    it('says when to try again from the Retry-After of a 429, in the page language', async () => {
+      const { $i18n } = useNuxtApp()
+      vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(
+        'Too Many Requests', { status: 429, headers: { 'Retry-After': '300' } },
+      ))))
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(chat.errorMessage.value).toBe($i18n.t('chat.error.rateLimited', {
+        when: retryWhen(300, $i18n.locale.value),
+      }))
+      expect(chat.errorMessage.value).toContain('5')
+      expect(chat.canRetry.value).toBe(true)
+    })
+
+    it('says "in a little while" for a 429 without a wait, whatever its body', async () => {
+      const { $i18n } = useNuxtApp()
+      vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(
+        JSON.stringify({ error: 'rate limited, retry later' }), { status: 429 },
+      ))))
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(chat.errorMessage.value).toBe($i18n.t('chat.error.rateLimitedSoon'))
+    })
+
+    it('says when to try again when the model was throttled mid-turn', async () => {
+      const { $i18n } = useNuxtApp()
+      stubStream('event: error\ndata: {"message":"busy","code":"rate_limited","retryAfter":42}\n\n')
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(chat.errorMessage.value).toBe($i18n.t('chat.error.rateLimited', {
+        when: retryWhen(42, $i18n.locale.value),
+      }))
+    })
+  })
+
+  describe('retry', () => {
+    it('sends the failed message again with its turn id, in place of the failed attempt', async () => {
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce(sseResponse('event: error\ndata: {"message":"Η συνομιλία διακόπηκε."}\n\n'))
+        .mockResolvedValueOnce(sseResponse('event: delta\ndata: {"text":"Έγινε."}\n\n' + DONE))
+      vi.stubGlobal('fetch', fetchMock)
+
+      const chat = useShopChat()
+      await chat.send('βάλε το στο καλάθι')
+      expect(chat.canRetry.value).toBe(true)
+      await chat.retry()
+
+      const [first, second] = fetchMock.mock.calls.map(c => bodyOf(c as [string, RequestInit]))
+      expect(second.message).toBe('βάλε το στο καλάθι')
+      expect(second.turnId).toBe(first.turnId)
+      expect(chat.messages.value.map(m => [m.role, m.text])).toEqual([
+        ['user', 'βάλε το στο καλάθι'],
+        ['assistant', 'Έγινε.'],
+      ])
+      expect(chat.status.value).toBe('ready')
+      expect(chat.errorMessage.value).toBe('')
+      expect(chat.canRetry.value).toBe(false)
+    })
+
+    it('gives every new message its own turn id', async () => {
+      const fetchMock = stubStream(DONE)
+
+      const chat = useShopChat()
+      await chat.send('πρώτο')
+      await chat.send('δεύτερο')
+
+      const [first, second] = fetchMock.mock.calls.map(bodyOf)
+      expect(first.turnId).not.toBe(second.turnId)
+    })
+
+    it('is not offered once the conversation is over', async () => {
+      vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(
+        JSON.stringify({ error: 'finished' }), { status: 409 },
+      ))))
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+
+      expect(chat.canRetry.value).toBe(false)
+    })
+
+    it('is forgotten by reset', async () => {
+      stubStream('event: error\ndata: {"message":"x"}\n\n')
+
+      const chat = useShopChat()
+      await chat.send('γεια')
+      chat.reset()
+
+      expect(chat.canRetry.value).toBe(false)
+    })
+  })
+
   it.each([
     [409, { error: 'this conversation is finished' }, 'chat.error.conversationFull'],
     [500, { error: 'Ο βοηθός δεν είναι διαθέσιμος.' }, null],
@@ -222,6 +352,17 @@ describe('useShopChat', () => {
 
     expect(chat.status.value).toBe('error')
     expect(chat.errorMessage.value).toBe(useNuxtApp().$i18n.t('chat.error.generic'))
+  })
+
+  it('fails a turn whose stream was cut off before done, and offers to send it again', async () => {
+    stubStream('event: delta\ndata: {"text":"Το προσθέτω"}\n\n')
+
+    const chat = useShopChat()
+    await chat.send('βάλε το')
+
+    expect(chat.status.value).toBe('error')
+    expect(chat.errorMessage.value).toBe(useNuxtApp().$i18n.t('chat.error.generic'))
+    expect(chat.canRetry.value).toBe(true)
   })
 
   it('ignores blank input', async () => {
@@ -267,6 +408,46 @@ describe('useShopChat', () => {
     expect(chat.status.value).toBe('ready')
     expect(chat.errorMessage.value).toBe('')
     expect(chat.messages.value[1]!.text).toBe('Μισή απάντ')
+  })
+
+  it('reset() during a stream leaves a fresh conversation, not a failed turn', async () => {
+    const stream = openStream()
+    vi.stubGlobal('fetch', stream.fetchMock)
+
+    const chat = useShopChat()
+    const turn = chat.send('γεια')
+    await vi.waitFor(() => expect(stream.fetchMock).toHaveBeenCalledTimes(1), { interval: 1 })
+
+    chat.reset()
+    await turn
+
+    expect(chat.status.value).toBe('ready')
+    expect(chat.errorMessage.value).toBe('')
+    expect(chat.canRetry.value).toBe(false)
+    expect(chat.messages.value).toEqual([])
+  })
+
+  it('a run reset() aborted leaves the next conversation streaming', async () => {
+    const first = openStream()
+    const second = openStream()
+    vi.stubGlobal('fetch', vi.fn()
+      .mockImplementationOnce(first.fetchMock)
+      .mockImplementationOnce(second.fetchMock))
+
+    const chat = useShopChat()
+    const aborted = chat.send('γεια')
+    await vi.waitFor(() => expect(first.fetchMock).toHaveBeenCalledTimes(1), { interval: 1 })
+    chat.reset()
+    const next = chat.send('νέα ερώτηση')
+    await aborted
+    await vi.waitFor(() => expect(second.fetchMock).toHaveBeenCalledTimes(1), { interval: 1 })
+
+    expect(chat.status.value).toBe('streaming')
+
+    second.push('done', { conversationId: 'c2', cartMutated: false })
+    second.close()
+    await next
+    expect(chat.status.value).toBe('ready')
   })
 
   it('shares whether the assistant is open between every caller', () => {
@@ -328,8 +509,8 @@ describe('useShopChat', () => {
       await chat.send('δεύτερο')
 
       expect(chatCalls(fetchMock).map(bodyOf)).toEqual([
-        { message: 'πρώτο', cartToken: 'pass-1' },
-        { conversationId: 'c1', message: 'δεύτερο', cartToken: 'pass-1' },
+        { message: 'πρώτο', cartToken: 'pass-1', turnId: expect.any(String) },
+        { conversationId: 'c1', message: 'δεύτερο', cartToken: 'pass-1', turnId: expect.any(String) },
       ])
       expect(tokenCalls()).toHaveLength(1)
       expect(tokenCalls()[0]!.options).toMatchObject({ method: 'POST' })
@@ -412,7 +593,7 @@ describe('useShopChat', () => {
       await useShopChat().send('γεια')
 
       expect(tokenCalls()).toEqual([])
-      expect(bodyOf(chatCalls(fetchMock)[0]!)).toEqual({ message: 'γεια', cartId: cart.uuid })
+      expect(bodyOf(chatCalls(fetchMock)[0]!)).toEqual({ message: 'γεια', cartId: cart.uuid, turnId: expect.any(String) })
     })
 
     it('adopts done.cartId on an anonymous turn', async () => {

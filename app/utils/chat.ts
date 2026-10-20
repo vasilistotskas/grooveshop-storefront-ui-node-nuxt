@@ -26,3 +26,16 @@ export function chatSegments(text: string, products: ShopChatProducts[] = []): C
   pushText(text.length)
   return segments
 }
+
+/**
+ * When to try again, as the page's language says it ("in 5 minutes",
+ * "σε 5 λεπτά"), from a wait in seconds: seconds under a minute, then
+ * minutes, then hours, each rounded up so the shopper never comes back
+ * too early.
+ */
+export function retryWhen(seconds: number, locale: string): string {
+  const format = new Intl.RelativeTimeFormat(locale, { numeric: 'always' })
+  if (seconds < 60) return format.format(Math.ceil(seconds), 'second')
+  if (seconds < 3600) return format.format(Math.ceil(seconds / 60), 'minute')
+  return format.format(Math.ceil(seconds / 3600), 'hour')
+}

@@ -1,6 +1,6 @@
 export interface ShopChatTool {
   name: string
-  status: 'running' | 'done'
+  status: 'running' | 'done' | 'error'
 }
 
 /**
@@ -26,6 +26,18 @@ export interface ShopChatMessage {
 
 export type ShopChatStatus = 'ready' | 'streaming' | 'error'
 
+/** The turn a shopper can send again: the message and the turn id it went with. */
+interface ShopChatFailedTurn {
+  text: string
+  turnId: string
+}
+
+interface ChatErrorEvent {
+  message: string
+  code?: string
+  retryAfter?: number
+}
+
 interface ChatDoneEvent {
   conversationId: string
   cartId?: string
@@ -40,11 +52,18 @@ interface ChatDoneEvent {
  * (Traefik path-routes it to the gateway in production; a Nitro dev
  * proxy covers local dev). Contract: `delta` events stream assistant
  * text, `tool` events report tool activity as `{name, status}`
- * (running|done), `products` lists the ids a product tool surfaced
- * (`zChatProductsEvent`), `error` carries a localized message, `done`
- * closes the turn with `{conversationId, cartId?, cartMutated,
- * cartTokenRefused}`. Pre-stream failures are plain JSON `{error}` — 409 means the conversation hit
- * its turn cap and a fresh one must be started.
+ * (running|done|error), `products` lists the ids a product tool surfaced
+ * (`zChatProductsEvent`), `error` carries a localized message (and
+ * `code: rate_limited` with `retryAfter` seconds when the model was
+ * throttled), `done` closes the turn with `{conversationId, cartId?,
+ * cartMutated, cartTokenRefused}`. Pre-stream failures are plain JSON
+ * `{error}` — 409 means the conversation hit its turn cap and a fresh
+ * one must be started; a 429 (from any layer) carries `Retry-After`.
+ *
+ * Each message goes with a `turnId`. A failed turn can be sent again
+ * (`retry`) with the same id, and the gateway then keys the turn's cart
+ * changes as the first attempt's: an item the first attempt did add is
+ * not added twice.
  *
  * A signed-in shopper's turns carry a `cartToken`, the pass the assistant
  * edits THAT shopper's cart with (`POST /api/cart/agent-token`). One is
@@ -68,6 +87,8 @@ export const useShopChat = () => {
   const status = useState<ShopChatStatus>('shop-chat-status', () => 'ready')
   const errorMessage = useState<string>('shop-chat-error', () => '')
   const cartMutated = useState<boolean>('shop-chat-cart-mutated', () => false)
+  // The turn that failed and can be sent again; null when there is none.
+  const failedTurn = useState<ShopChatFailedTurn | null>('shop-chat-failed-turn', () => null)
   // Whether the assistant is on screen: the launcher and its panel share it.
   const open = useState<boolean>('shop-chat-open', () => false)
   // Never persisted or rendered server-side: it is set from a client turn.
@@ -83,6 +104,7 @@ export const useShopChat = () => {
     status.value = 'ready'
     errorMessage.value = ''
     cartMutated.value = false
+    failedTurn.value = null
     cartPass.value = null
   }
 
@@ -100,13 +122,15 @@ export const useShopChat = () => {
     return cartPass.value.token
   }
 
-  const send = async (text: string) => {
-    const message = text.trim()
-    if (!message || status.value === 'streaming') {
-      return
-    }
+  /** "Try again in 5 minutes", in the page's language, from a wait in seconds. */
+  const rateLimitedMessage = (seconds: number | undefined) =>
+    seconds && seconds > 0
+      ? $i18n.t('chat.error.rateLimited', { when: retryWhen(seconds, $i18n.locale.value) })
+      : $i18n.t('chat.error.rateLimitedSoon')
 
+  const run = async (message: string, turnId: string) => {
     errorMessage.value = ''
+    failedTurn.value = null
     status.value = 'streaming'
     cartMutated.value = false
     messages.value = [
@@ -133,12 +157,13 @@ export const useShopChat = () => {
           tools.push({ name, status: 'running' })
         }
         else {
-          // Close the most recent running entry for this tool — the
-          // model may call the same tool more than once per turn.
+          // Close the most recent running entry for this tool, as done or
+          // failed — the model may call the same tool more than once per
+          // turn.
           for (let i = tools.length - 1; i >= 0; i--) {
             const tool = tools[i]
             if (tool && tool.name === name && tool.status === 'running') {
-              tools[i] = { name, status: 'done' }
+              tools[i] = { name, status: toolStatus }
               break
             }
           }
@@ -167,16 +192,23 @@ export const useShopChat = () => {
       )
     }
 
-    const failTurn = (msg: string) => {
-      // Drop the empty assistant bubble so the error state is clean.
-      messages.value = messages.value.filter(
-        m => m.id !== assistantId || m.text !== '',
-      )
+    const failTurn = (msg: string, retryable = true) => {
+      // A step still running when the turn died never finished. Drop an
+      // assistant bubble left with nothing in it so the error state is
+      // clean.
+      messages.value = messages.value
+        .map(m => m.id === assistantId && m.tools
+          ? { ...m, tools: m.tools.map(tool => tool.status === 'running' ? { ...tool, status: 'error' as const } : tool) }
+          : m)
+        .filter(m => m.id !== assistantId || m.text !== '' || (m.tools?.length ?? 0) > 0)
       errorMessage.value = msg
+      failedTurn.value = retryable ? { text: message, turnId } : null
       status.value = 'error'
     }
 
-    controller = new AbortController()
+    // This run's own: reset() drops the shared one when it aborts.
+    const runController = new AbortController()
+    controller = runController
     try {
       const cartToken = await cartTokenFor()
       // A turn with a token acts on the shopper's own cart: the id is
@@ -190,8 +222,9 @@ export const useShopChat = () => {
           message,
           cartId: sentCartId,
           cartToken,
+          turnId,
         }),
-        signal: controller.signal,
+        signal: runController.signal,
       })
 
       if (!response.ok || !response.body) {
@@ -204,7 +237,13 @@ export const useShopChat = () => {
           // Non-JSON error body — fall through to the generic message.
         }
         if (response.status === 409) {
-          failTurn($i18n.t('chat.error.conversationFull'))
+          failTurn($i18n.t('chat.error.conversationFull'), false)
+        }
+        else if (response.status === 429) {
+          // Traefik, the gateway's limiter and its turn quota all answer
+          // 429, not all in the page's language, and not all with a
+          // Retry-After (Traefik's burst refusal has none).
+          failTurn(rateLimitedMessage(Number(response.headers.get('Retry-After')) || undefined))
         }
         else {
           failTurn(detail || $i18n.t('chat.error.generic'))
@@ -213,7 +252,7 @@ export const useShopChat = () => {
       }
 
       let done: ChatDoneEvent | null = null
-      let streamError = ''
+      let streamError: ChatErrorEvent | null = null
       const parser = createSSEParser(({ event, data }) => {
         if (event === 'delta') {
           const payload = JSON.parse(data) as { text: string }
@@ -239,8 +278,7 @@ export const useShopChat = () => {
           }
         }
         else if (event === 'error') {
-          const payload = JSON.parse(data) as { message: string }
-          streamError = payload.message
+          streamError = JSON.parse(data) as ChatErrorEvent
         }
         else if (event === 'done') {
           done = JSON.parse(data) as ChatDoneEvent
@@ -257,36 +295,69 @@ export const useShopChat = () => {
         parser.feed(decoder.decode(value, { stream: true }))
       }
 
-      if (streamError) {
-        failTurn(streamError)
+      if (streamError !== null) {
+        const failure = streamError as ChatErrorEvent
+        failTurn(failure.code === 'rate_limited'
+          ? rateLimitedMessage(failure.retryAfter)
+          : failure.message)
         return
       }
-      if (done !== null) {
-        const turn = done as ChatDoneEvent
-        conversationId.value = turn.conversationId
-        if (turn.cartTokenRefused) cartPass.value = null
-        if (turn.cartMutated) {
-          cartMutated.value = true
-          // A browser that had no cart takes the one the assistant
-          // created: refreshing would reload its own, still none, and the
-          // assistant reported an add the shopper's cart never showed.
-          if (!cartToken && !sentCartId && turn.cartId) await cartStore.claimCart(turn.cartId)
-          else await cartStore.refreshCart()
-        }
+      // Every turn the gateway finishes ends with `done`: a stream that
+      // closed without one was cut off.
+      if (done === null) {
+        failTurn($i18n.t('chat.error.generic'))
+        return
+      }
+      const turn = done as ChatDoneEvent
+      conversationId.value = turn.conversationId
+      if (turn.cartTokenRefused) cartPass.value = null
+      if (turn.cartMutated) {
+        cartMutated.value = true
+        // A browser that had no cart takes the one the assistant
+        // created: refreshing would reload its own, still none, and the
+        // assistant reported an add the shopper's cart never showed.
+        if (!cartToken && !sentCartId && turn.cartId) await cartStore.claimCart(turn.cartId)
+        else await cartStore.refreshCart()
       }
       status.value = 'ready'
     }
     catch (error) {
-      if (controller?.signal.aborted) {
-        status.value = 'ready'
+      if (runController.signal.aborted) {
+        // stop() leaves the conversation as it was; reset() already
+        // started a new one, which this run must not touch.
+        if (controller === runController) status.value = 'ready'
         return
       }
       log.error({ action: 'shopChat:send', error })
       failTurn($i18n.t('chat.error.generic'))
     }
     finally {
-      controller = null
+      if (controller === runController) controller = null
     }
+  }
+
+  const send = async (text: string) => {
+    const message = text.trim()
+    if (!message || status.value === 'streaming') {
+      return
+    }
+    await run(message, crypto.randomUUID())
+  }
+
+  /**
+   * Sends the failed turn again, with its turn id, in place of the
+   * attempt that failed.
+   */
+  const retry = async () => {
+    const turn = failedTurn.value
+    if (!turn || status.value === 'streaming') {
+      return
+    }
+    const lastUser = messages.value.findLastIndex(m => m.role === 'user')
+    if (lastUser >= 0) {
+      messages.value = messages.value.slice(0, lastUser)
+    }
+    await run(turn.text, turn.turnId)
   }
 
   const stop = () => {
@@ -299,8 +370,10 @@ export const useShopChat = () => {
     status,
     errorMessage,
     cartMutated,
+    canRetry: computed(() => failedTurn.value !== null),
     open,
     send,
+    retry,
     stop,
     reset,
   }
