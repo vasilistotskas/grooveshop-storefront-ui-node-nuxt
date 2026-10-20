@@ -34,6 +34,7 @@ const allauth = {
   forbidden: { status: 403 },
   notFound: { status: 404, meta: { secret: 's' } },
   conflict: { status: 409 },
+  tooManyRequests: { status: 429 },
   expired: { status: 410, data: { flows: [{ id: 'login' }] }, meta: { is_authenticated: false } },
 }
 
@@ -359,6 +360,18 @@ describe('handleAllAuthError', () => {
     expect(response.headers.has('authorization')).toBe(false)
   })
 
+  it('throws an allauth 429 with its status, as a warning, not an unexpected failure', async () => {
+    testSession.set(stored)
+    backend.replyOnce(jsonResponse(allauth.tooManyRequests, 429))
+
+    const response = await callRoute(routeCatching(handleAllAuthError), { method: 'POST', url: '/api/_allauth/login' })
+
+    expect(response.status).toBe(429)
+    expect(testSession.data).toEqual(stored)
+    expect(log.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+    expect(log.error).not.toHaveBeenCalled()
+  })
+
   it('leaves the session alone and reports a non-allauth failure, then throws it', async () => {
     testSession.set(stored)
     backend.replyOnce(jsonResponse({ detail: 'Server Error' }, 500))
@@ -379,6 +392,7 @@ describe('forwardAllAuthFlow', () => {
     ['404', allauth.notFound, 404, 'Not Found'],
     ['409', allauth.conflict, 409, 'Conflict'],
     ['410', allauth.expired, 410, 'Gone'],
+    ['429', allauth.tooManyRequests, 429, 'Too Many Requests'],
   ])('returns an allauth %s as the body the client reads, with its status', async (_label, payload, status, text) => {
     backend.replyOnce(jsonResponse(payload, status))
 

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     // 409 (nothing pending, or the resend quota is spent) is forwarded so the
     // client can send the shopper back to the request step; a 429 cooldown
-    // is thrown with its status for the toast.
+    // is forwarded with its status for the "wait" toast.
     return await forwardAllAuthFlow(event, error)
   }
 })

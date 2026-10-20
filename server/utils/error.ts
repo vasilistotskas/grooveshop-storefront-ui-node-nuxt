@@ -12,6 +12,7 @@ export function isAllAuthError(error: unknown): error is AllAuthError {
   return isBadResponseError(error) || isNotAuthenticatedResponseError(error)
     || isInvalidSessionResponseError(error) || isForbiddenResponseError(error)
     || isNotFoundResponseError(error) || isConflictResponseError(error)
+    || isTooManyRequestsResponseError(error)
 }
 
 /** A validation issue as Standard Schema reports it: what `nuxt/server`'s validators put in `data.issues`. */
@@ -291,6 +292,7 @@ const HTTP_STATUS_TEXT: Record<AllAuthError['data']['status'], string> = {
   404: 'Not Found',
   409: 'Conflict',
   410: 'Gone',
+  429: 'Too Many Requests',
 }
 
 // allauth 4xx bodies ARE the API contract, not incidental error noise: a 401

@@ -6,8 +6,8 @@ import { backend, callRoute, jsonResponse, testSession } from '~~/test/helpers/n
  * POST /api/_allauth/app/v1/auth/code/resend: sends the emailed code again for
  * the flow the stored session is pending on. A 409 (nothing pending, or the
  * resend quota spent) is RETURNED with its status so the page can send the
- * shopper back to the request step; a 429 cooldown or rate limit is thrown
- * with its status for the "wait" toast.
+ * shopper back to the request step; a 429 cooldown or rate limit is
+ * returned the same way, for the "wait" toast.
  */
 
 const route = '/api/_allauth/app/v1/auth/code/resend'
@@ -53,5 +53,6 @@ describe('POST /api/_allauth/app/v1/auth/code/resend', () => {
     const response = await resend()
 
     expect(response.status).toBe(429)
+    expect(response.body).toEqual({ statusCode: 429, statusMessage: 'Too Many Requests', data: { status: 429 } })
   })
 })
