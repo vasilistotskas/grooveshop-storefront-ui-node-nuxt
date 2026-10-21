@@ -1,5 +1,14 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales.ts'
 import { splitLocale } from '../i18n/localeFromPath.ts'
+import { isCustomPageSlug } from '../utils/customPageSlug.ts'
+
+/**
+ * What a cached page's key varies on: the store, the device class the
+ * markup depends on (`1.device-class.ts`) and the store's tenant-config
+ * epoch (`1.tenant-epoch.ts`), so a page rendered from features a purge
+ * has since changed is never served to a pod that has seen the purge.
+ */
+export const CACHED_PAGE_VARIES = ['host', 'x-device-class', 'x-tenant-epoch']
 
 /**
  * Brand-bearing static routes cached per tenant host (see ``routeRules``
@@ -121,6 +130,28 @@ export const SWR_ROUTE_PATTERN_RULES: Readonly<Record<string, number>> = {
 }
 
 /**
+ * A merchant's custom pages: `app/pages/[slug].vue` serves each published
+ * layout whose page type passes `isCustomPageSlug` at `/<slug>`
+ * (`/kelari`, `/poies-eimaste`). Which slugs exist is tenant data, so no
+ * route rule can list them, and a `/*` rule cannot stand in: Nitro matches
+ * a rule by path, not by the page that renders it, so it would cache
+ * `/cart`, `/checkout` and every other one-segment page too.
+ *
+ * `server/handlers/custom-page.ts` answers these routes instead and lets
+ * only a custom page into its cache (`isCachedSsrRoute`). Same
+ * anonymous-render contract and TTL as `/info/**`, the other merchant CMS
+ * pages.
+ */
+export const CUSTOM_PAGE_ROUTES: readonly string[] = withLocalePrefixes('/*')
+export const CUSTOM_PAGE_SWR_TTL = CONTENT_SWR_TTL
+
+/** Whether a locale-stripped, slash-trimmed path is a custom page. */
+function isCustomPageRoute(clean: string): boolean {
+  const segments = clean.split('/').filter(Boolean)
+  return segments.length === 1 && isCustomPageSlug(segments[0])
+}
+
+/**
  * Path prefixes implied by ``SWR_ROUTE_PATTERN_RULES``, for callers that
  * need to answer "is this response cached?" without a glob matcher.
  */
@@ -166,7 +197,7 @@ export function isCachedSsrRoute(path: string): boolean {
   const clean = locale === DEFAULT_LOCALE
     ? path.replace(/\/+$/, '') || '/'
     : route
-  if (CACHED_SSR_ROUTES_SET.has(clean)) return true
+  if (CACHED_SSR_ROUTES_SET.has(clean) || isCustomPageRoute(clean)) return true
   return SWR_PATTERN_PREFIXES.some(
     prefix => clean === prefix || clean.startsWith(`${prefix}/`),
   )

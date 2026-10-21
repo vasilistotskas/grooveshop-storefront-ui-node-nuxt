@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   CACHED_SSR_ROUTES_SET,
+  CUSTOM_PAGE_ROUTES,
   SWR_ROUTE_PATTERN_RULES,
   isCachedSsrRoute,
   withLocalePrefixes,
@@ -33,9 +34,10 @@ describe('isCachedSsrRoute', () => {
   })
 
   it('does not bleed into sibling paths that share a prefix', () => {
+    // One segment deeper than a custom page (`/blogging` is one).
     for (const path of [
-      '/blogging',
-      '/productsxyz',
+      '/blogging/2026',
+      '/productsxyz/1',
       '/cart',
       '/checkout',
       '/search',
@@ -63,6 +65,31 @@ describe('isCachedSsrRoute', () => {
       expect(SWR_ROUTE_PATTERN_RULES, bare).toHaveProperty(bare)
       expect(CACHED_SSR_ROUTES_SET.has(bare), bare).toBe(true)
     }
+  })
+})
+
+describe('custom pages', () => {
+  it('caches a merchant page at /<slug>, in every locale', () => {
+    for (const path of ['/kelari', '/poies-eimaste', '/chrimatodotisi/', '/en/kelari']) {
+      expect(isCachedSsrRoute(path), path).toBe(true)
+    }
+  })
+
+  it('keeps every one-segment page that is not a custom page uncached', () => {
+    // The custom-page handler answers `/*`, so these reach it too; each
+    // is refused by `isCustomPageSlug` (a static route, a locale, a slug
+    // the catch-all rejects), and so bypasses the cache.
+    for (const path of ['/cart', '/checkout', '/search', '/account', '/feedback', '/gift-cards', '/newsletter', '/en/cart', '/el', '/Our-Story', '/rss.xml']) {
+      expect(isCachedSsrRoute(path), path).toBe(false)
+    }
+  })
+
+  it('is not a two-segment path under the default locale prefix', () => {
+    expect(isCachedSsrRoute('/el/kelari')).toBe(false)
+  })
+
+  it('answers on the one-segment route of every locale', () => {
+    expect(CUSTOM_PAGE_ROUTES).toEqual(['/*', '/en/*'])
   })
 })
 

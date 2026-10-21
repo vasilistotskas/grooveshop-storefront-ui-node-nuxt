@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { getRequestHeader } from 'h3'
 import middleware from '~~/server/middleware/1.tenant-epoch'
 import { getTenantConfig, invalidateTenantConfigs } from '~~/server/utils/tenant'
+import { CACHED_PAGE_VARIES } from '~~/shared/constants/prerender'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callHandler, createTestEvent } from '~~/test/helpers/nitro'
 import { readSource } from '~~/test/helpers/sourceText'
@@ -36,20 +37,24 @@ describe('server/middleware/1.tenant-epoch', () => {
   })
 })
 
-describe('nuxt.config cached routes', () => {
+describe('cached page routes', () => {
   // Code lines only: the comments above the rules quote the old vary list.
-  const config = readSource('nuxt.config.ts')
+  const codeOf = (path: string) => readSource(path)
     .split(String.fromCharCode(10))
     .filter(line => !/^\s*(\/\/|\*|\/\*)/.test(line))
     .join(String.fromCharCode(10))
+  const variesIn = (path: string) => [...codeOf(path).matchAll(/varies: (\[[^\]]*\]|[A-Z_]+)/g)].map(match => match[1]!)
 
   it('vary every page cache on the epoch, beside the store and the device class', () => {
-    expect(config).toMatch(/const CACHED_PAGE_VARIES = \['host', 'x-device-class', 'x-tenant-epoch'\]/)
-    const uses = [...config.matchAll(/varies: (\[[^\]]*\]|[A-Z_]+)/g)].map(match => match[1]!)
+    expect(CACHED_PAGE_VARIES).toEqual(['host', 'x-device-class', 'x-tenant-epoch'])
+    // nuxt.config.ts: the pages (three rule groups) and the sitemap; the
+    // custom pages' own cached renderer.
+    const config = variesIn('nuxt.config.ts')
+    const customPages = variesIn('server/handlers/custom-page.ts')
 
-    // The pages (three rule groups) and the sitemap.
-    expect(uses).toHaveLength(4)
-    for (const use of uses) {
+    expect(config).toHaveLength(4)
+    expect(customPages).toEqual(['CACHED_PAGE_VARIES'])
+    for (const use of config) {
       expect(use === 'CACHED_PAGE_VARIES' || use.includes('x-tenant-epoch'), use).toBe(true)
     }
   })
