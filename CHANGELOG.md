@@ -1,3 +1,10 @@
+# [3.256.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.19...v3.256.0) (2026-10-21)
+
+
+### Features
+
+* **checkout:** disable delivery options the cart is too large for; cache custom pages ([#203](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/203)) ([9eeb75f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9eeb75f7cd4d6f24e31b3125ba10bd87f00911c3))
+
 ## [3.255.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.18...v3.255.19) (2026-10-20)
 
 
