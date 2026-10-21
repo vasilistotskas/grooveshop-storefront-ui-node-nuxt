@@ -189,6 +189,8 @@
         "invalid_order_data_description": "The order data is not valid. Please check your details.",
         "reservation_expired": "The reservation expired",
         "reservation_expired_description": "The stock reservation expired. Please try again.",
+        "order_in_progress": "Your order is already being placed",
+        "order_in_progress_description": "Wait a few seconds and submit again: you will see the same order, and no second one is created.",
         "shipping_unavailable": "Shipping is unavailable",
         "shipping_unavailable_description": "We could not confirm the shipping cost for your choice. Check the delivery method and try again.",
         "shipping_over_weight": "Your cart is over the shipping weight limit",

@@ -16,6 +16,17 @@ describe('classifyOrderError', () => {
     })
   })
 
+  // Django's idempotency middleware, while the same key is still being
+  // processed: its English `detail` must not reach the shopper.
+  it('tells the shopper an order with this key is already being placed', () => {
+    expect(classifyOrderError({ detail: 'A duplicate request is already in progress.', code: 'idempotency_in_flight' }, t)).toEqual({
+      title: 'form.submit.error.order_in_progress',
+      description: 'form.submit.error.order_in_progress_description',
+      shouldRetry: false,
+      addressStepErrors: [],
+    })
+  })
+
   /**
    * Each `OrderCreateErrorType`: its title, Django's `detail` when sent,
    * else the type's own description.

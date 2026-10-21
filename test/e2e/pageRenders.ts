@@ -52,6 +52,10 @@ const GREEK_ONLY_HOST = 'el-only-smoke.localhost'
 // that serves nuxt-ai-ready's `/llms.txt` and `.md` mirrors.
 const PLATFORM_STORE_HOST = 'platform-smoke.localhost'
 
+// A merchant's custom page: the one layout the stub publishes, served by
+// the catch-all `[slug]` page.
+const CUSTOM_PAGE_SLUG = 'our-story'
+
 // Content that fails upstream, for the 5xx → 503 mapping.
 const OUTAGE_CONTENT_SLUG = 'outage'
 const OUTAGE_LAYOUT_SLUG = 'outage-page'
@@ -101,6 +105,21 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
 
   if (reqUrl.pathname.endsWith(`/page-config/${OUTAGE_LAYOUT_SLUG}`)) {
     sendJson(res, { detail: 'Internal server error.' }, 500)
+    return
+  }
+
+  if (reqUrl.pathname.endsWith(`/page-config/${CUSTOM_PAGE_SLUG}`)) {
+    sendJson(res, {
+      id: 1,
+      uuid: '00000000-0000-4000-8000-000000000001',
+      pageType: CUSTOM_PAGE_SLUG,
+      title: 'Η ιστορία μας',
+      seoTitle: 'Η ιστορία μας',
+      seoDescription: '',
+      seoKeywords: '',
+      isPublished: true,
+      sections: [],
+    })
     return
   }
 
@@ -295,6 +314,40 @@ export function describePageRenders(): void {
       // The control: an uncached render does bootstrap.
       expect(configRequestHosts).toContain(freshHost)
       expect(configRequestHosts).not.toContain(cachedHost)
+    }, 60000)
+
+    // A merchant's custom page (`/our-story`) has no route rule — its slug
+    // is tenant data — yet it is as public as `/about`, so Nitro caches it
+    // and the edge may keep it (server/handlers/custom-page.ts). The
+    // one-segment pages that are personal answer on the same route
+    // pattern and must stay out of both.
+    it.each([
+      [`/${CUSTOM_PAGE_SLUG}`, 'custom-page-el-smoke.localhost', 'el-GR'],
+      [`/en/${CUSTOM_PAGE_SLUG}`, 'custom-page-en-smoke.localhost', 'en-US'],
+    ])('caches the custom page %s for everyone, at the edge too', async (path, host, lang) => {
+      const { statusCode, body, headers } = await request(path, host)
+
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+      expect(body).toContain(`lang="${lang}"`)
+      // Rendered for the cache, so without the visitor's bootstrap, and
+      // stamped by it.
+      expect(configRequestHosts).not.toContain(host)
+      expect(headers.etag).toBeTruthy()
+      expect(headers['cloudflare-cdn-cache-control']).toBeTruthy()
+      expect(headers['cache-tag']).toContain('storefront-html')
+      expect(headers['cache-control']).toBe('no-cache')
+    }, 60000)
+
+    it.each([['/cart'], ['/en/cart'], ['/search']])('keeps %s private on the custom-page route', async (path) => {
+      const { statusCode, body, headers } = await request(path)
+
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+      // Not a replay of Nitro's cache, which stamps an `etag` on every
+      // entry it stores (nitropack `runtime/internal/cache`)...
+      expect(headers.etag).toBeUndefined()
+      // ...nor marked for the edge (server/utils/edgeCache.ts).
+      expect(headers['cloudflare-cdn-cache-control']).toBeUndefined()
+      expect(headers['cache-control']).toBe('private, no-store')
     }, 60000)
 
     // The consent banner is a per-visitor decision, and the cached routes

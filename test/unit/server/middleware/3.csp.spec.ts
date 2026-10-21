@@ -232,8 +232,15 @@ describe('server/middleware/3.csp', () => {
   })
 
   it('still nonces sibling paths that merely share a prefix', () => {
-    for (const path of ['/blogging', '/productsxyz', '/cart']) {
+    // One segment deeper than a custom page, which is cached (`/blogging`).
+    for (const path of ['/blogging/2026', '/productsxyz/1', '/cart']) {
       expect(runWith(path).event.context.cspNonce, path).toEqual(expect.any(String))
+    }
+  })
+
+  it('serves a custom page, which Nitro caches, no nonce', () => {
+    for (const path of ['/kelari', '/en/kelari']) {
+      expect(runWith(path).event.context.cspNonce, path).toBeUndefined()
     }
   })
 

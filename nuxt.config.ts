@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
-import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
+import { CACHED_PAGE_VARIES, CUSTOM_PAGE_ROUTES, PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
 import { FONT_FAMILY_NAMES, FONT_STYLES, FONT_WEIGHTS } from './shared/theme/constants.ts'
 import { STATIC_LAYOUT_ROUTES } from './shared/utils/staticLayoutRoutes.ts'
 
@@ -42,12 +42,6 @@ function isStyleModuleId(id: string): boolean {
  */
 const CLIENT_BUILD_TAG = randomUUID().slice(0, 8)
 const clientJsFileNames = `_nuxt/[hash]-${CLIENT_BUILD_TAG}.js`
-
-// What a cached page's key varies on: the store, the device class the markup
-// depends on (`1.device-class.ts`) and the store's tenant-config epoch
-// (`1.tenant-epoch.ts`), so a page rendered from features a purge has since
-// changed is never served to a pod that has seen the purge.
-const CACHED_PAGE_VARIES = ['host', 'x-device-class', 'x-tenant-epoch']
 
 const modules: (string | NuxtModule)[] = [
   'evlog/nuxt',
@@ -425,6 +419,14 @@ export default defineNuxtConfig({
     // append to this list, scanned server/plugins/ come after both). Only
     // what must see a request first belongs here; see the file.
     plugins: ['~~/server/early-plugins/runtime-config'],
+    // The renderer, cached for a merchant's custom pages
+    // (`CUSTOM_PAGE_ROUTES` in shared/constants/prerender.ts says why no
+    // route rule can do it). Not scanned: it answers exactly these routes.
+    handlers: CUSTOM_PAGE_ROUTES.map(route => ({
+      route,
+      lazy: true,
+      handler: '~~/server/handlers/custom-page',
+    })),
     // Dev only (ignored in production builds): same-origin `/chat` is
     // served by the agent gateway — Traefik path-routes it on the
     // storefront host in production — so proxy it to a locally running
@@ -649,6 +651,16 @@ export default defineNuxtConfig({
         if (!eagerKeys.has(key)) {
           entry.preload = false
         }
+      }
+    },
+    // The renderer the custom-page handler (`nitro.handlers` above) wraps:
+    // the one Nuxt has configured by now, re-exported from a virtual
+    // module so its own path goes through Nitro's externals rules.
+    'nitro:config': (nitroConfig) => {
+      if (!nitroConfig.renderer) throw new Error('Nuxt configured no page renderer for the custom-page handler')
+      nitroConfig.virtual = {
+        ...nitroConfig.virtual,
+        '#page-renderer': `export { default } from ${JSON.stringify(nitroConfig.renderer)}`,
       }
     },
   },
