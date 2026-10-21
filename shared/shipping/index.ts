@@ -75,6 +75,17 @@ export function methodKeyForOption(option: {
 }
 
 /**
+ * Whether the cart can ship by an option: within its carrier's weight
+ * cap (``exceedsMaxWeight``) and in its parcels (``exceedsParcelSize``,
+ * a locker's largest compartment). Django still returns an option the
+ * cart does not fit, so checkout shows it disabled with the reason
+ * rather than one method fewer.
+ */
+export function optionFitsCart(option: { exceedsMaxWeight?: boolean, exceedsParcelSize?: boolean }): boolean {
+  return !option.exceedsMaxWeight && !option.exceedsParcelSize
+}
+
+/**
  * The shipping method checkout should open on, given what the store
  * actually offers.
  *
@@ -86,23 +97,23 @@ export function methodKeyForOption(option: {
  * ways: cash on delivery, pre-selected, for a locker order that can
  * never settle in cash.
  *
- * Options over the carrier's weight cap (``exceedsMaxWeight``) are
- * excluded from "available" here — they still render in the picker
- * (disabled, with a reason), but auto-selecting a method the current
- * cart can't actually use would silently strand the shopper on a
- * step they can't advance past.
+ * Options the cart does not fit (``optionFitsCart``: over the weight
+ * cap or too large for the parcels) are excluded from "available"
+ * here — they still render in the picker (disabled, with a reason),
+ * but auto-selecting a method the current cart can't actually use
+ * would silently strand the shopper on a step they can't advance past.
  *
  * Returns ``null`` when the current choice is already on offer (or
  * nothing is on offer yet, e.g. a transient options failure — the
  * previously selected method stands).
  */
 export function resolveShippingMethod(
-  options: ReadonlyArray<{ providerCode: string, kind: string, exceedsMaxWeight?: boolean }>,
+  options: ReadonlyArray<{ providerCode: string, kind: string, exceedsMaxWeight?: boolean, exceedsParcelSize?: boolean }>,
   current: string,
 ): string | null {
   const available: string[] = []
   for (const option of options) {
-    if (option.exceedsMaxWeight) continue
+    if (!optionFitsCart(option)) continue
     const key = methodKeyForOption(option)
     if (key && !available.includes(key)) available.push(key)
   }

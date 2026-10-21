@@ -45147,6 +45147,17 @@
                 "operationId": "nearestBoxNowLocker",
                 "description": "Accepts a delivery address and returns the closest available BoxNow locker by calling the BoxNow address-delivery-check API.",
                 "summary": "Find nearest BoxNow locker",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
+                    }
+                ],
                 "tags": [
                     "BoxNow lockers"
                 ],
@@ -45375,6 +45386,15 @@
                 "description": "Returns one row per (active provider × supported kind) combination. The frontend renders one radio card per row.",
                 "summary": "List checkout shipping options",
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``."
+                    },
                     {
                         "in": "query",
                         "name": "countryCode",
@@ -57177,7 +57197,7 @@
             },
             "BoxNowNearestLockerRequestRequest": {
                 "type": "object",
-                "description": "Request body for ``POST /lockers/nearest``.\n\nMaps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``\nendpoint parameters.",
+                "description": "Request body for ``POST /lockers/nearest``.\n\nMaps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``\nendpoint parameters. The compartment size is not an input: the server\nderives it from the caller's cart (``X-Cart-Id``).",
                 "properties": {
                     "city": {
                         "type": "string",
@@ -57203,13 +57223,6 @@
                         "default": "el-GR",
                         "description": "Ετικέτα γλώσσας IETF / κωδικός περιφέρειας (προεπιλογή: el-GR)",
                         "maxLength": 8
-                    },
-                    "compartmentSize": {
-                        "type": "integer",
-                        "maximum": 3,
-                        "minimum": 1,
-                        "default": 1,
-                        "description": "Απαιτούμενο μέγεθος θυρίδας: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο"
                     }
                 },
                 "required": [
@@ -62687,13 +62700,6 @@
                         "type": "string",
                         "description": "ID locker APM BoxNow από το widget",
                         "maxLength": 64
-                    },
-                    "boxnowCompartmentSize": {
-                        "type": "integer",
-                        "maximum": 3,
-                        "minimum": 1,
-                        "default": 1,
-                        "description": "Μέγεθος θυρίδας BoxNow: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο"
                     },
                     "shippingProviderCode": {
                         "description": "Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').",
@@ -72444,6 +72450,10 @@
                         "type": "boolean",
                         "description": "True όταν το ``weight_grams`` του αιτήματος ξεπερνά το ``max_weight_grams``. Η επιλογή επιστρέφεται κανονικά αντί να κρύβεται — το κατάστημα τη δείχνει απενεργοποιημένη με την αιτία, ώστε ένα βαρύ καλάθι να μη βλέπει ποτέ μια επιλογή λιγότερη χωρίς εξήγηση."
                     },
+                    "exceedsParcelSize": {
+                        "type": "boolean",
+                        "description": "Αληθές όταν το καλάθι του καλούντος (που αναγνωρίζεται με την ίδια κεφαλίδα ``X-Cart-Id`` όπως σε κάθε endpoint του καλαθιού) περιέχει προϊόντα που δεν χωρούν στα δέματα αυτού του μεταφορέα. Πάντα ψευδές όταν δεν αναγνωρίζεται καλάθι. Η επιλογή εξακολουθεί να επιστρέφεται, όπως το ``exceeds_max_weight``, ώστε το storefront να την εμφανίζει απενεργοποιημένη με αιτιολογία."
+                    },
                     "deliveryDaysMin": {
                         "type": "integer",
                         "nullable": true,
@@ -72477,6 +72487,7 @@
                     "deliveryDaysMax",
                     "deliveryDaysMin",
                     "exceedsMaxWeight",
+                    "exceedsParcelSize",
                     "kind",
                     "liveMode",
                     "maxWeightGrams",

@@ -23,6 +23,7 @@ export function makeShippingOption(overrides: Partial<ShippingOption> = {}): Shi
     countryCode: 'GR',
     maxWeightGrams: null,
     exceedsMaxWeight: false,
+    exceedsParcelSize: false,
     deliveryDaysMin: null,
     deliveryDaysMax: null,
     metadata: {},

@@ -42,7 +42,6 @@ export async function useCheckoutForm() {
     shippingMethod: 'home_delivery' as ShippingMethodKey,
     boxnowLockerId: '' as string,
     boxnowLocker: null as BoxNowSelectedLocker | null,
-    boxnowCompartmentSize: 1 as 1 | 2 | 3,
     // ACS Smartpoint locker pickup (Phase 2). Picker UI is server-side
     // — we hold both the externalId and the AcsStation row so the
     // selected-locker card can render without a follow-up fetch.
@@ -978,7 +977,6 @@ export async function useCheckoutForm() {
   const step2Schema = z.object({
     shippingMethod: z.enum(['home_delivery', 'box_now_locker', 'acs_smartpoint']),
     boxnowLockerId: z.string().optional(),
-    boxnowCompartmentSize: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
     acsStationExternalId: z.string().optional(),
   }).superRefine((data, ctx) => {
     if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
@@ -1220,7 +1218,7 @@ export async function useCheckoutForm() {
     const option = matchedShippingOption.value
     return !shippingOptionsError.value
       && option !== undefined
-      && !option.exceedsMaxWeight
+      && optionFitsCart(option)
   }
 
   return {

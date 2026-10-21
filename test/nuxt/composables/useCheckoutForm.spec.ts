@@ -124,6 +124,7 @@ function shippingOption(overrides: Record<string, unknown> = {}) {
     countryCode: 'GR',
     maxWeightGrams: null,
     exceedsMaxWeight: false,
+    exceedsParcelSize: false,
     metadata: {},
     payWays: [],
     ...overrides,
@@ -339,6 +340,19 @@ describe('useCheckoutForm', () => {
       expect(await refetchShippingOptions()).toBe(false)
     })
 
+    it('refetchShippingOptions refuses a locker the cart has become too large for', async () => {
+      const { formState, refetchShippingOptions } = await setup()
+      formState.shippingMethod = 'box_now_locker'
+      await nextTick()
+
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [shippingOption({ exceedsParcelSize: true })],
+      })
+
+      expect(await refetchShippingOptions()).toBe(false)
+    })
+
     it('is null (not 0) when the live options fetch fails, and sets shippingOptionsError', async () => {
       api.routes({
         ...defaultRoutes(),
@@ -418,6 +432,17 @@ describe('useCheckoutForm', () => {
       expect(payWayQuery().at(-1)).toMatchObject({ shippingProviderCode: 'boxnow', shippingKind: 'pickup_point' })
       expect(formState.payWayId).toBe(CARD.id)
       expect(selectedPayWay.value?.id).toBe(CARD.id)
+    })
+
+    it('keeps a locker-only store on home delivery when the cart is too large for the lockers', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [shippingOption({ exceedsParcelSize: true })],
+      })
+
+      const { formState } = await setup()
+
+      expect(formState.shippingMethod).toBe('home_delivery')
     })
 
     it('keeps home delivery and the first pay way when the store offers home delivery', async () => {

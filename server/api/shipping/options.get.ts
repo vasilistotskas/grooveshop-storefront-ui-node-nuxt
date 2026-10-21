@@ -10,10 +10,16 @@ import { getValidatedQuery, useRuntimeConfig } from 'nuxt/server'
  * cart's actual weight bracket so the displayed Μεταφορικά match what
  * the voucher mint will charge.
  *
+ * Django also says, per option, whether the visitor's cart fits that
+ * carrier's parcels (``exceedsParcelSize``), so the request names the
+ * cart the way every cart route does (``getCartIdentityHeaders``).
+ *
  * Cached briefly per (country, total, currency, weight) tuple — the
  * upstream ACS quote is already cached 5 min on the backend, but a
  * thin Nitro layer keeps duplicate calls during reactive dep churn
- * cheap.
+ * cheap. Only a request that names no cart is cached: its answer is
+ * the same for every cart-less visitor, while one cart's fit is that
+ * visitor's alone.
  */
 
 const zQuery = zListShippingOptionsQuery
@@ -21,9 +27,12 @@ const zQuery = zListShippingOptionsQuery
 export default defineCachedRoute(
   async (event) => {
     const config = useRuntimeConfig()
-    const headers = createHeaders(event)
     try {
       const query = await getValidatedQuery(event, zQuery)
+      const headers = {
+        ...createHeaders(event),
+        ...await getCartIdentityHeaders(event),
+      }
 
       const raw = await useBackendFetch(event)(
         `${config.apiBaseUrl}/shipping/options`,
@@ -54,6 +63,11 @@ export default defineCachedRoute(
     maxAge: 60,
     staleMaxAge: 60 * 5,
     name: 'shipping.options',
+    shouldBypassCache: async event => Object.keys(await getCartIdentityHeaders(event)).length > 0,
+    // Nitro hands a cached handler only the headers named here. The
+    // handler reads the cart session from the cookies; the entry is
+    // still keyed by ``getKey`` alone, which never reads them.
+    varies: ['cookie'],
     getKey: (event) => {
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const p = url.searchParams
