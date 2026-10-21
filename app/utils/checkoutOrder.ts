@@ -43,6 +43,13 @@ const ADDRESS_STEP_FIELDS: Record<string, string> = {
   billingZipcode: 'billingZipcode',
 }
 
+/**
+ * The `code` of the 409 Django answers while a request with the same
+ * idempotency key is still being processed (`core/middleware/idempotency.py`).
+ * Not part of the OpenAPI contract: the middleware answers before any view.
+ */
+const IDEMPOTENCY_IN_FLIGHT = 'idempotency_in_flight'
+
 type Translate = (key: string, params?: Record<string, unknown>) => string
 
 export interface OrderErrorInfo {
@@ -61,7 +68,8 @@ export interface OrderErrorInfo {
  * What to tell the shopper about a rejected `POST /api/orders`, from the
  * error body Django sent (`response._data`).
  *
- * Branches on Django's stable `error.type` (`OrderCreateErrorType` in
+ * First an order still being placed under the same idempotency key.
+ * Then branches on Django's stable `error.type` (`OrderCreateErrorType` in
  * the OpenAPI contract), never on `detail` / `cart` TEXT: Django answers
  * in the page's language, so a message match works in one language at
  * most. Then a `cart` field error (a missing or empty cart), then a DRF
@@ -76,6 +84,17 @@ export function classifyOrderError(errorData: any, t: Translate): OrderErrorInfo
   const errorType = errorData?.error?.type as OrderCreateErrorType | undefined
   const cartMessages = Array.isArray(errorData?.cart) ? errorData.cart.join('. ') : ''
 
+  // The first submit with this key is still being placed. Its answer
+  // is not known yet, so nothing is wrong with the order: the key is
+  // kept (`rejectionSettlesAttempt`), and a later submit replays it.
+  if (errorData?.code === IDEMPOTENCY_IN_FLIGHT) {
+    return {
+      title: t('form.submit.error.order_in_progress'),
+      description: t('form.submit.error.order_in_progress_description'),
+      shouldRetry: false,
+      addressStepErrors,
+    }
+  }
   if (errorType === 'reservation_unavailable') {
     return {
       title: t('form.submit.error.reservation_expired'),
