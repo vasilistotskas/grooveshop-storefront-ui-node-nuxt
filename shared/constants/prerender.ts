@@ -137,6 +137,15 @@ export const SWR_ROUTE_PATTERN_RULES: Readonly<Record<string, number>> = {
  * a rule by path, not by the page that renders it, so it would cache
  * `/cart`, `/checkout` and every other one-segment page too.
  *
+ * Nor can `/*` plus `cache: false` on the app's own pages. Nitro 2 wraps a
+ * HANDLER in the cache once, at start-up, from the rules of the handler's
+ * route (nitropack `runtime/internal/app.mjs`), and gives a more specific
+ * rule a handler of its own only when it sits under a cached `/**` rule
+ * (`extendMiddlewareWithRuleOverlaps`, `WILDCARD_PATH_RE = /\/\*\*.*$/`
+ * in `dist/rollup/index.mjs`). So `/search` with `cache: false` is still
+ * answered by the cached `/*` handler: tried 2026-10-21, `/cart`,
+ * `/en/cart` and `/search` all came back as cache replays.
+ *
  * `server/handlers/custom-page.ts` answers these routes instead and lets
  * only a custom page into its cache (`isCachedSsrRoute`). Same
  * anonymous-render contract and TTL as `/info/**`, the other merchant CMS
