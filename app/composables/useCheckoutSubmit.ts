@@ -683,9 +683,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       // Step 2a: Refetch live shipping options so the total reflects
       // the latest server-side cost before order creation. Without a
       // live price for the selected method (the fetch failed, the
-      // method is no longer offered, the cart is over its cap) the
-      // order would be charged a shipping cost the shopper never saw,
-      // so send them back to the shipping step instead.
+      // method is no longer offered, the cart is over its cap or too
+      // large for its parcels) the order would be charged a shipping
+      // cost the shopper never saw, or refused, so send them back to
+      // the shipping step instead.
       if (refetchShippingOptions && !(await refetchShippingOptions())) {
         log.warn({
           tag: 'checkout',

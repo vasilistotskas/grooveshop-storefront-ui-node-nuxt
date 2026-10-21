@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defineCachedRoute } from '~~/server/utils/cachedRoute'
-import { cacheOptionsOf, callRoute } from '~~/test/helpers/nitro'
+import { cacheOptionsOf, callRoute, createTestEvent } from '~~/test/helpers/nitro'
 
 /**
  * `defineCachedRoute` asserts one thing about types: that a `nuxt/server`
@@ -32,6 +32,18 @@ describe('defineCachedRoute', () => {
       store: 'webside.gr',
       isRequest: true,
     })
+  })
+
+  it('gives shouldBypassCache the portable event too, as Nitro calls it with h3\'s', async () => {
+    const route = defineCachedRoute(() => ({}), {
+      name: 'probe',
+      shouldBypassCache: event => event.url.searchParams.get('fresh') === '1' && event.req.headers.get('x-probe') === 'yes',
+    })
+
+    const { shouldBypassCache } = cacheOptionsOf(route)
+
+    expect(await shouldBypassCache!(createTestEvent({ url: '/api/probe?fresh=1', headers: { 'x-probe': 'yes' } }))).toBe(true)
+    expect(await shouldBypassCache!(createTestEvent({ url: '/api/probe', headers: { 'x-probe': 'yes' } }))).toBe(false)
   })
 
   it('hands Nitro\'s cache the options as written', () => {

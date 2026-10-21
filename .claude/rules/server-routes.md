@@ -43,9 +43,14 @@ Nuxt 5 runs Nitro v3, which has no server auto-imports and no global
   helpers on the h3 event Nitro gives their hooks.
 - **Cached routes use `defineCachedRoute(handler, options)`**
   (`server/utils/cachedRoute.ts`): Nitro's cache around a `nuxt/server`
-  handler. Its `getKey`/`shouldBypassCache` get h3's event: read the query
+  handler. Its `getKey` gets h3's event: read the query
   with h3's `getQuery`, params with `nuxt/server`'s `getRouterParam(s)`,
-  and the store and locale from the context (`tenantCacheKey`).
+  and the store and locale from the context (`tenantCacheKey`). Its
+  `shouldBypassCache` gets the portable event, like the handler, so it can
+  ask the same `server/utils` the handler does (`shipping/options.get.ts`
+  skips the cache for a request that names a cart). A cached handler sees
+  only the request headers its `varies` names, even on a bypassed request;
+  with a custom `getKey`, `varies` does not key the entry.
 - **evlog's wide-event logger is `event.context.log`** (typed in
   `shared/types/request-context.d.ts`); evlog's `useLogger` is typed on h3's
   event only.

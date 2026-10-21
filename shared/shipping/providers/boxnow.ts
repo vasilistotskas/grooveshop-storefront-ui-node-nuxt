@@ -54,14 +54,6 @@ const boxnowCarrier: ShippingCarrier = {
     if (typeof lockerId === 'string' && lockerId.length > 0) {
       payload.boxnowLockerId = lockerId
     }
-    const compartmentSize = formState.boxnowCompartmentSize
-    if (
-      compartmentSize === 1
-      || compartmentSize === 2
-      || compartmentSize === 3
-    ) {
-      payload.boxnowCompartmentSize = compartmentSize
-    }
     return payload
   },
 

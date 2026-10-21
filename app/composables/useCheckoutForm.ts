@@ -42,7 +42,6 @@ export async function useCheckoutForm() {
     shippingMethod: 'home_delivery' as ShippingMethodKey,
     boxnowLockerId: '' as string,
     boxnowLocker: null as BoxNowSelectedLocker | null,
-    boxnowCompartmentSize: 1 as 1 | 2 | 3,
     // ACS Smartpoint locker pickup (Phase 2). Picker UI is server-side
     // — we hold both the externalId and the AcsStation row so the
     // selected-locker card can render without a follow-up fetch.
@@ -675,14 +674,21 @@ export async function useCheckoutForm() {
   }
   const retryShippingOptions = () => fetchShippingOptions()
 
-  // Re-fetch whenever a dep that affects the price changes. The threshold
-  // value (which a coupon or an offer moves) and the weight cover line
-  // and discount edits; country covers the address step.
+  // Re-fetch whenever a dep that affects the options changes. The
+  // threshold value (which a coupon or an offer moves) and the weight
+  // price them; country covers the address step. Whether the cart fits a
+  // carrier's parcels depends on which products it holds and how many,
+  // which a swap can change at the same value and weight. Cart has no
+  // field that moves with its lines alone (`updatedAt` does not, and
+  // `lastActivity` moves on every read), so the lines' ids and quantities
+  // are the source, compared as a value: every reload replaces the cart
+  // object, and a watched array would refetch on each one.
   watch(
-    () => [
-      cart.value?.freeThresholdValue,
-      cart.value?.totalWeightGrams,
-      formState.countryId,
+    [
+      () => cart.value?.freeThresholdValue,
+      () => cart.value?.totalWeightGrams,
+      () => formState.countryId,
+      () => cart.value?.items.map(item => `${item.id}:${item.quantity}`).join(),
     ],
     async () => {
       // A superseded response left the options to a newer request,
@@ -978,7 +984,6 @@ export async function useCheckoutForm() {
   const step2Schema = z.object({
     shippingMethod: z.enum(['home_delivery', 'box_now_locker', 'acs_smartpoint']),
     boxnowLockerId: z.string().optional(),
-    boxnowCompartmentSize: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
     acsStationExternalId: z.string().optional(),
   }).superRefine((data, ctx) => {
     if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
@@ -1220,7 +1225,7 @@ export async function useCheckoutForm() {
     const option = matchedShippingOption.value
     return !shippingOptionsError.value
       && option !== undefined
-      && !option.exceedsMaxWeight
+      && optionFitsCart(option)
   }
 
   return {

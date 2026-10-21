@@ -227,6 +227,9 @@ const shippingOptions = computed(() => {
       o => methodKeyForOption(o) === key,
     )
     const overCap = sameMethod.every(o => o.exceedsMaxWeight)
+    // The same rule for the parcels: the row is too large only when no
+    // carrier behind it fits the cart, and not for its weight alone.
+    const tooLarge = !overCap && !sameMethod.some(optionFitsCart)
     const boxNowCountryUnsupported = key === 'box_now_locker'
       && isBoxNowConfigured.value
       && !isBoxNowCountrySupported.value
@@ -238,14 +241,16 @@ const shippingOptions = computed(() => {
       exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
         .filter(name => name.length > 0)
         .map(name => getPaymentMethodName(name)),
-      disabled: baseItem.disabled || overCap,
+      disabled: baseItem.disabled || overCap || tooLarge,
       disabledReason: overCap
         ? t('shipping.method.exceeds_max_weight', {
             maxWeight: n(Math.max(...sameMethod.map(o => o.maxWeightGrams ?? 0)) / 1000, 'weight'),
           })
-        : boxNowCountryUnsupported
-          ? t('shipping.method.boxnow.country_unsupported')
-          : undefined,
+        : tooLarge
+          ? t('shipping.method.exceeds_parcel_size')
+          : boxNowCountryUnsupported
+            ? t('shipping.method.boxnow.country_unsupported')
+            : undefined,
     })
   }
   return ordered

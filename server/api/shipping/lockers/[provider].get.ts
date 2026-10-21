@@ -167,10 +167,7 @@ export default defineCachedRoute(
     // Useful when ops needs to evict a stale empty cache from prod
     // without rolling the SSR replicas — curl the URL once and the
     // next non-bypass request fills with the fresh data.
-    shouldBypassCache: (event) => {
-      const url = new URL(event.node.req.url ?? '/', 'http://internal')
-      return url.searchParams.get('refresh') === '1'
-    },
+    shouldBypassCache: event => event.url.searchParams.get('refresh') === '1',
     getKey: (event) => {
       const provider = getRouterParam(event, 'provider', { decode: true }) ?? 'unknown'
       const url = new URL(event.node.req.url ?? '/', 'http://internal')

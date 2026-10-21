@@ -1508,7 +1508,8 @@ export type BoxNowLockerDetail = {
  * Request body for ``POST /lockers/nearest``.
  *
  * Maps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``
- * endpoint parameters.
+ * endpoint parameters. The compartment size is not an input: the server
+ * derives it from the caller's cart (``X-Cart-Id``).
  */
 export type BoxNowNearestLockerRequestRequest = {
   /**
@@ -1527,10 +1528,6 @@ export type BoxNowNearestLockerRequestRequest = {
      * Ετικέτα γλώσσας IETF / κωδικός περιφέρειας (προεπιλογή: el-GR)
      */
   region?: string
-  /**
-     * Απαιτούμενο μέγεθος θυρίδας: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο
-     */
-  compartmentSize?: number
 }
 
 /**
@@ -4502,10 +4499,6 @@ export type OrderCreateFromCartRequest = {
      * ID locker APM BoxNow από το widget
      */
   boxnowLockerId?: string
-  /**
-     * Μέγεθος θυρίδας BoxNow: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο
-     */
-  boxnowCompartmentSize?: number
   /**
      * Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').
      */
@@ -8696,6 +8689,10 @@ export type ShippingOption = {
      */
   exceedsMaxWeight: boolean
   /**
+     * Αληθές όταν το καλάθι του καλούντος (που αναγνωρίζεται με την ίδια κεφαλίδα ``X-Cart-Id`` όπως σε κάθε endpoint του καλαθιού) περιέχει προϊόντα που δεν χωρούν στα δέματα αυτού του μεταφορέα. Πάντα ψευδές όταν δεν αναγνωρίζεται καλάθι. Η επιλογή εξακολουθεί να επιστρέφεται, όπως το ``exceeds_max_weight``, ώστε το storefront να την εμφανίζει απενεργοποιημένη με αιτιολογία.
+     */
+  exceedsParcelSize: boolean
+  /**
      * Η ταχύτερη παράδοση σε εργάσιμες ημέρες μετά την αποστολή, ή null όταν η τιμή αποστολής δεν διαφημίζει εκτίμηση. Συνδυάστε με τη δημόσια ρύθμιση ``DISPATCH_CUTOFF`` για τη γραμμή «παραγγείλτε πριν τις ΩΩ:ΛΛ». Μόνο αριθμοί ημερών, ποτέ ημερομηνίες, ώστε η απάντηση να μπορεί να αποθηκεύεται στην cache.
      */
   deliveryDaysMin: number | null
@@ -11363,10 +11360,6 @@ export type OrderCreateFromCartRequestWritable = {
      * ID locker APM BoxNow από το widget
      */
   boxnowLockerId?: string
-  /**
-     * Μέγεθος θυρίδας BoxNow: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο
-     */
-  boxnowCompartmentSize?: number
   /**
      * Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').
      */
@@ -25735,6 +25728,12 @@ export type RetrieveBoxNowLockerResponse = RetrieveBoxNowLockerResponses[keyof R
 
 export type NearestBoxNowLockerData = {
   body: BoxNowNearestLockerRequestRequest
+  headers?: {
+    /**
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
+         */
+    'X-Cart-Id'?: string
+  }
   path?: never
   query?: never
   url: '/api/v1/shipping/boxnow/lockers/nearest'
@@ -25837,6 +25836,12 @@ export type GetFreeShippingInfoResponse = GetFreeShippingInfoResponses[keyof Get
 
 export type ListShippingOptionsData = {
   body?: never
+  headers?: {
+    /**
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
+         */
+    'X-Cart-Id'?: string
+  }
   path?: never
   query: {
     /**

@@ -525,14 +525,14 @@ export const zBoxNowEventLocationRequest = z.object({
  * Request body for ``POST /lockers/nearest``.
  *
  * Maps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``
- * endpoint parameters.
+ * endpoint parameters. The compartment size is not an input: the server
+ * derives it from the caller's cart (``X-Cart-Id``).
  */
 export const zBoxNowNearestLockerRequestRequest = z.object({
   city: z.string().min(1).max(128),
   street: z.string().min(1).max(255),
   postalCode: z.string().min(1).max(16),
   region: z.string().min(1).max(8).optional().default('el-GR'),
-  compartmentSize: z.int().gte(1).lte(3).optional().default(1),
 })
 
 /**
@@ -4331,7 +4331,6 @@ export const zOrderCreateFromCartRequest = z.object({
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).optional(),
   boxnowLockerId: z.string().max(64).optional(),
-  boxnowCompartmentSize: z.int().gte(1).lte(3).optional().default(1),
   shippingProviderCode: z.union([
     z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
     z.string().max(0),
@@ -4463,6 +4462,7 @@ export const zShippingOption = z.object({
   countryCode: z.string().max(2),
   maxWeightGrams: z.int().nullable(),
   exceedsMaxWeight: z.boolean(),
+  exceedsParcelSize: z.boolean(),
   deliveryDaysMin: z.int().nullable(),
   deliveryDaysMax: z.int().nullable(),
   logoPath: z.string().nullish(),
@@ -7177,7 +7177,6 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).optional(),
   boxnowLockerId: z.string().max(64).optional(),
-  boxnowCompartmentSize: z.int().gte(1).lte(3).optional().default(1),
   shippingProviderCode: z.union([
     z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
     z.string().max(0),
@@ -15672,6 +15671,10 @@ export const zRetrieveBoxNowLockerResponse = zBoxNowLockerDetail
 
 export const zNearestBoxNowLockerBody = zBoxNowNearestLockerRequestRequest
 
+export const zNearestBoxNowLockerHeaders = z.object({
+  'X-Cart-Id': z.uuid().optional(),
+})
+
 export const zNearestBoxNowLockerResponse = zBoxNowNearestLockerResponse
 
 export const zCancelBoxNowShipmentPath = z.object({
@@ -15690,6 +15693,10 @@ export const zGetFreeShippingInfoQuery = z.object({
 })
 
 export const zGetFreeShippingInfoResponse = zFreeShippingInfo
+
+export const zListShippingOptionsHeaders = z.object({
+  'X-Cart-Id': z.uuid().optional(),
+})
 
 export const zListShippingOptionsQuery = z.object({
   countryCode: z.string(),

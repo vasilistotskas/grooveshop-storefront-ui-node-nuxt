@@ -229,7 +229,7 @@ describe('buildOrderCreateBody', () => {
   })
 
   it.each([
-    ['box_now_locker', { boxnowLockerId: 'L-42', boxnowCompartmentSize: 2 }, { shippingProviderCode: 'boxnow', boxnowLockerId: 'L-42', boxnowCompartmentSize: 2 }],
+    ['box_now_locker', { boxnowLockerId: 'L-42' }, { shippingProviderCode: 'boxnow', boxnowLockerId: 'L-42' }],
     ['acs_smartpoint', { acsStationExternalId: 'ACS-7', acsStationBranch: 'ATH' }, { shippingProviderCode: 'acs', acsStationExternalId: 'ACS-7', acsStationBranch: 'ATH' }],
   ])('lets the %s carrier add its own pickup-point fields', (shippingMethod, fields, expected) => {
     const body = buildOrderCreateBody(form({ shippingMethod, ...fields }), ctx())

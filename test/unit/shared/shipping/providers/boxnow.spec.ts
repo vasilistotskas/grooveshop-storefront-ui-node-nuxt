@@ -99,9 +99,8 @@ describe('the BoxNow adapter', () => {
   })
 
   it.each([
-    ['the locker and a valid compartment size', { boxnowLockerId: '4', boxnowCompartmentSize: 2 }, { boxnowLockerId: '4', boxnowCompartmentSize: 2 }],
-    ['the locker alone for a size BoxNow does not have', { boxnowLockerId: '4', boxnowCompartmentSize: 4 }, { boxnowLockerId: '4' }],
-    ['nothing without a locker', { boxnowLockerId: '', boxnowCompartmentSize: '2' }, {}],
+    ['the locker', { boxnowLockerId: '4' }, { boxnowLockerId: '4' }],
+    ['nothing without a locker', { boxnowLockerId: '' }, {}],
   ])('sends %s with the order', (_case, form, payload) => {
     expect(boxnowCarrier.buildOrderPayload!(form)).toEqual(payload)
   })

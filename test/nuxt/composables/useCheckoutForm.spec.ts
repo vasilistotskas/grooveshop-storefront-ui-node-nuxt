@@ -124,6 +124,7 @@ function shippingOption(overrides: Record<string, unknown> = {}) {
     countryCode: 'GR',
     maxWeightGrams: null,
     exceedsMaxWeight: false,
+    exceedsParcelSize: false,
     metadata: {},
     payWays: [],
     ...overrides,
@@ -339,6 +340,61 @@ describe('useCheckoutForm', () => {
       expect(await refetchShippingOptions()).toBe(false)
     })
 
+    describe('refetching when the cart changes', () => {
+      // Whether the cart fits a carrier's parcels depends on its lines,
+      // which a swap can change while its value and weight stay put.
+      const optionCalls = () => api.callsTo('/api/shipping/options').length
+
+      it('refetches when the lines change, even at the same value and weight', async () => {
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await setup()
+        await flushPromises()
+        const before = optionCalls()
+
+        setCart(makeCart({ items: [{ id: 2, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await flushPromises()
+
+        expect(optionCalls()).toBe(before + 1)
+      })
+
+      it('refetches when a line\'s quantity changes', async () => {
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await setup()
+        await flushPromises()
+        const before = optionCalls()
+
+        setCart(makeCart({ items: [{ id: 1, quantity: 2 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await flushPromises()
+
+        expect(optionCalls()).toBe(before + 1)
+      })
+
+      it('does not refetch when a reloaded cart is the same', async () => {
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await setup()
+        await flushPromises()
+        const before = optionCalls()
+
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await flushPromises()
+
+        expect(optionCalls()).toBe(before)
+      })
+    })
+
+    it('refetchShippingOptions refuses a locker the cart has become too large for', async () => {
+      const { formState, refetchShippingOptions } = await setup()
+      formState.shippingMethod = 'box_now_locker'
+      await nextTick()
+
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [shippingOption({ exceedsParcelSize: true })],
+      })
+
+      expect(await refetchShippingOptions()).toBe(false)
+    })
+
     it('is null (not 0) when the live options fetch fails, and sets shippingOptionsError', async () => {
       api.routes({
         ...defaultRoutes(),
@@ -418,6 +474,17 @@ describe('useCheckoutForm', () => {
       expect(payWayQuery().at(-1)).toMatchObject({ shippingProviderCode: 'boxnow', shippingKind: 'pickup_point' })
       expect(formState.payWayId).toBe(CARD.id)
       expect(selectedPayWay.value?.id).toBe(CARD.id)
+    })
+
+    it('keeps a locker-only store on home delivery when the cart is too large for the lockers', async () => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/shipping/options': [shippingOption({ exceedsParcelSize: true })],
+      })
+
+      const { formState } = await setup()
+
+      expect(formState.shippingMethod).toBe('home_delivery')
     })
 
     it('keeps home delivery and the first pay way when the store offers home delivery', async () => {

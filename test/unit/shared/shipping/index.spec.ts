@@ -4,6 +4,7 @@ import {
   exceededWeightCapGrams,
   methodForCarrier,
   methodKeyForOption,
+  optionFitsCart,
   resolveShippingMethod,
 } from '~~/shared/shipping/index'
 
@@ -39,6 +40,17 @@ describe('methodKeyForOption', () => {
     [{ providerCode: 'acs', kind: 'teleport' }, null],
   ])('keys %o as %j', (option, key) => {
     expect(methodKeyForOption(option)).toBe(key)
+  })
+})
+
+describe('optionFitsCart', () => {
+  it.each([
+    [{ exceedsMaxWeight: false, exceedsParcelSize: false }, true],
+    [{ exceedsMaxWeight: true, exceedsParcelSize: false }, false],
+    [{ exceedsMaxWeight: false, exceedsParcelSize: true }, false],
+    [{ exceedsMaxWeight: true, exceedsParcelSize: true }, false],
+  ])('judges %o as fitting: %j', (option, fits) => {
+    expect(optionFitsCart(option)).toBe(fits)
   })
 })
 
@@ -93,6 +105,14 @@ describe('resolveShippingMethod', () => {
     // is over the limit, so the current home-delivery choice stands.
     expect(resolveShippingMethod([capped(BOXNOW_LOCKER)], 'home_delivery')).toBeNull()
     expect(resolveShippingMethod([capped(BOXNOW_LOCKER), ACS_SMARTPOINT], 'home_delivery')).toBe('acs_smartpoint')
+  })
+
+  it('never auto-selects a locker the cart is too large for', () => {
+    const tooLarge = { ...BOXNOW_LOCKER, exceedsParcelSize: true }
+
+    expect(resolveShippingMethod([tooLarge], 'home_delivery')).toBeNull()
+    expect(resolveShippingMethod([tooLarge, ACS_SMARTPOINT], 'home_delivery')).toBe('acs_smartpoint')
+    expect(resolveShippingMethod([tooLarge, HOME], 'box_now_locker')).toBe('home_delivery')
   })
 
   it.each([
