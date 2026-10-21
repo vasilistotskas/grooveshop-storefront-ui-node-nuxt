@@ -64,9 +64,10 @@ export default defineCachedRoute(
     staleMaxAge: 60 * 5,
     name: 'shipping.options',
     shouldBypassCache: async event => Object.keys(await getCartIdentityHeaders(event)).length > 0,
-    // Nitro hands a cached handler only the headers named here. The
-    // handler reads the cart session from the cookies; the entry is
-    // still keyed by ``getKey`` alone, which never reads them.
+    // Nitro hands a cached handler only the headers named here, so the
+    // handler reads the cart from its own request's cookies rather than
+    // from whatever session the shared ``event.context`` already holds.
+    // The entry is still keyed by ``getKey`` alone, which never reads them.
     varies: ['cookie'],
     getKey: (event) => {
       const url = new URL(event.node.req.url ?? '/', 'http://internal')

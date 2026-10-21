@@ -340,6 +340,48 @@ describe('useCheckoutForm', () => {
       expect(await refetchShippingOptions()).toBe(false)
     })
 
+    describe('refetching when the cart changes', () => {
+      // Whether the cart fits a carrier's parcels depends on its lines,
+      // which a swap can change while its value and weight stay put.
+      const optionCalls = () => api.callsTo('/api/shipping/options').length
+
+      it('refetches when the lines change, even at the same value and weight', async () => {
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await setup()
+        await flushPromises()
+        const before = optionCalls()
+
+        setCart(makeCart({ items: [{ id: 2, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await flushPromises()
+
+        expect(optionCalls()).toBe(before + 1)
+      })
+
+      it('refetches when a line\'s quantity changes', async () => {
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await setup()
+        await flushPromises()
+        const before = optionCalls()
+
+        setCart(makeCart({ items: [{ id: 1, quantity: 2 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await flushPromises()
+
+        expect(optionCalls()).toBe(before + 1)
+      })
+
+      it('does not refetch when a reloaded cart is the same', async () => {
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await setup()
+        await flushPromises()
+        const before = optionCalls()
+
+        setCart(makeCart({ items: [{ id: 1, quantity: 1 }], freeThresholdValue: 20, totalWeightGrams: 1000 }))
+        await flushPromises()
+
+        expect(optionCalls()).toBe(before)
+      })
+    })
+
     it('refetchShippingOptions refuses a locker the cart has become too large for', async () => {
       const { formState, refetchShippingOptions } = await setup()
       formState.shippingMethod = 'box_now_locker'

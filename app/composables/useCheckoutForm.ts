@@ -674,14 +674,21 @@ export async function useCheckoutForm() {
   }
   const retryShippingOptions = () => fetchShippingOptions()
 
-  // Re-fetch whenever a dep that affects the price changes. The threshold
-  // value (which a coupon or an offer moves) and the weight cover line
-  // and discount edits; country covers the address step.
+  // Re-fetch whenever a dep that affects the options changes. The
+  // threshold value (which a coupon or an offer moves) and the weight
+  // price them; country covers the address step. Whether the cart fits a
+  // carrier's parcels depends on which products it holds and how many,
+  // which a swap can change at the same value and weight. Cart has no
+  // field that moves with its lines alone (`updatedAt` does not, and
+  // `lastActivity` moves on every read), so the lines' ids and quantities
+  // are the source, compared as a value: every reload replaces the cart
+  // object, and a watched array would refetch on each one.
   watch(
-    () => [
-      cart.value?.freeThresholdValue,
-      cart.value?.totalWeightGrams,
-      formState.countryId,
+    [
+      () => cart.value?.freeThresholdValue,
+      () => cart.value?.totalWeightGrams,
+      () => formState.countryId,
+      () => cart.value?.items.map(item => `${item.id}:${item.quantity}`).join(),
     ],
     async () => {
       // A superseded response left the options to a newer request,
