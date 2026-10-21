@@ -41,6 +41,16 @@
  * (`WARM_STATE_CONFIGMAP`), after a run completes, so a run that died
  * midway is repeated by the next sync.
  *
+ * A run that completed is recorded only when it warmed every store
+ * (`warmedEveryStore`): every sitemap it asked for was served, and each
+ * store whose sitemap listed pages rendered at least one of them. A
+ * sitemap that failed (a 503 while Django restarts after the deploy)
+ * leaves that store unknown, and a store with nothing rendered is as cold
+ * as before, so either leaves the build unrecorded and the next sync warms
+ * it again. A page that fails among others that render is not a reason: a
+ * sitemap can list a few URLs that no longer render, and a rule that
+ * demanded all of them would re-warm on every sync.
+ *
  * Exit 1 only when the warm-up cannot run at all (no Ingress access, no
  * storefront host, no build id) or when this image's build is not the one
  * being served, which means the hook's image tag drifted from the
@@ -152,6 +162,20 @@ export function payloadPath(pathname, buildId) {
  */
 export function isCachedResponse(headers) {
   return Boolean(headers['cloudflare-cdn-cache-control'])
+}
+
+/**
+ * Whether a completed run warmed every store, and so may be recorded as
+ * this build's warm-up (the rule is in the header): no sitemap failed, at
+ * least one store listed pages, and each such store rendered one or more.
+ *
+ * `failedSitemaps`: the sitemap URLs that were not served; `stores`: the
+ * hosts the sitemaps listed pages for; `rendered`: pages rendered, by host.
+ */
+export function warmedEveryStore({ failedSitemaps, stores, rendered }) {
+  return failedSitemaps.length === 0
+    && stores.length > 0
+    && stores.every(store => (rendered.get(store) ?? 0) > 0)
 }
 
 /**
@@ -281,16 +305,26 @@ async function main() {
   const pages = new Map()
   const prefixesByHost = new Map()
   const redirectingHosts = []
+  const failedSitemaps = []
   for (const host of candidates) {
     const queue = ['/sitemap.xml']
     while (queue.length) {
       const path = queue.shift()
-      const response = await get(path, host, 'application/xml')
+      let response
+      try {
+        response = await get(path, host, 'application/xml')
+      }
+      catch (error) {
+        failedSitemaps.push(`${host}${path}`)
+        log('warn', 'sitemap request failed', { host, path, error: String(error?.message ?? error) })
+        continue
+      }
       if (response.status >= 300 && response.status < 400) {
         redirectingHosts.push(host)
         continue
       }
       if (response.status !== 200) {
+        failedSitemaps.push(`${host}${path}`)
         log('warn', 'sitemap not served', { host, path, status: response.status })
         continue
       }
@@ -315,6 +349,8 @@ async function main() {
     }
   }
 
+  const stores = [...new Set([...pages.values()].map(page => page.host))]
+  const renderedByStore = new Map()
   const started = performance.now()
   const summary = { pages: pages.size, rendered: 0, payloads: 0, uncached: 0, failed: 0 }
   const queue = warmOrder([...pages.values()])
@@ -329,6 +365,7 @@ async function main() {
             break
           }
           summary.rendered++
+          renderedByStore.set(page.host, (renderedByStore.get(page.host) ?? 0) + 1)
           if (!isCachedResponse(html.headers)) {
             summary.uncached++
             break
@@ -348,12 +385,16 @@ async function main() {
     }
   }
   await Promise.all(Array.from({ length: concurrency }, worker))
-  await recordWarmedBuild(kube, stateConfigMap, ownBuild)
 
-  log('info', 'cache warmed', {
+  const complete = warmedEveryStore({ failedSitemaps, stores, rendered: renderedByStore })
+  if (complete) await recordWarmedBuild(kube, stateConfigMap, ownBuild)
+
+  log(complete ? 'info' : 'warn', complete ? 'cache warmed' : 'cache partly warmed, build not recorded', {
     namespace,
     build: ownBuild,
-    hosts: [...new Set([...pages.values()].map(page => page.host))],
+    hosts: stores,
+    storesWithoutRenders: stores.filter(store => !renderedByStore.has(store)),
+    failedSitemaps,
     redirectingHosts,
     ...summary,
     seconds: Math.round((performance.now() - started) / 1000),

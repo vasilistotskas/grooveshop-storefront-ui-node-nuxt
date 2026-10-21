@@ -17,6 +17,7 @@ import {
   sitemapLocations,
   storefrontHosts,
   warmedBuild,
+  warmedEveryStore,
   warmOrder,
 } from '~~/scripts/warm-cache.mjs'
 
@@ -110,6 +111,51 @@ describe('localePrefixes', () => {
   it('finds none for a store that serves one locale', () => {
     const xml = `<urlset>${entry('https://webside.gr/')}${entry('https://webside.gr/about')}</urlset>`
     expect(localePrefixes(xml)).toEqual([])
+  })
+})
+
+describe('warmedEveryStore', () => {
+  const rendered = (counts: Record<string, number>) => new Map(Object.entries(counts))
+
+  it('does not record a run whose sitemaps all failed (Django restarting after the deploy)', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: ['webside.gr/sitemap.xml', 'demo.grooveshop.space/sitemap.xml'],
+      stores: [],
+      rendered: rendered({}),
+    })).toBe(false)
+  })
+
+  it('does not record a run in which no page rendered', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: [],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({}),
+    })).toBe(false)
+  })
+
+  it('records a run that rendered every store, a few stale URLs failing among them', () => {
+    // 282 pages listed, three of them no longer render: counted, not a reason.
+    expect(warmedEveryStore({
+      failedSitemaps: [],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({ 'webside.gr': 106, 'demo.grooveshop.space': 120 }),
+    })).toBe(true)
+  })
+
+  it('does not record a run in which one store\'s sitemap failed, the others warm', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: ['ekfyseosfyteias.com/sitemap.xml'],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({ 'webside.gr': 106, 'demo.grooveshop.space': 120 }),
+    })).toBe(false)
+  })
+
+  it('does not record a run in which one store rendered nothing', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: [],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({ 'webside.gr': 106 }),
+    })).toBe(false)
   })
 })
 
