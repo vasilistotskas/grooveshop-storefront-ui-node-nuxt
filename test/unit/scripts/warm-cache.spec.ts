@@ -9,9 +9,15 @@ import { deviceClassFromUserAgent } from '~~/shared/utils/deviceClass'
 import {
   DEVICE_USER_AGENTS,
   isCachedResponse,
+  localeOf,
+  localePrefixes,
+  localeTwin,
   payloadPath,
+  recordWarmedBuild,
   sitemapLocations,
   storefrontHosts,
+  warmedBuild,
+  warmedEveryStore,
   warmOrder,
 } from '~~/scripts/warm-cache.mjs'
 
@@ -83,5 +89,139 @@ describe('warmOrder', () => {
     const page = (pathname: string) => ({ host: 'webside.gr', pathname })
     expect(warmOrder([page('/blog/post/1/a'), page('/blog'), page('/'), page('/products'), page('/blog/category/1/x')]).map((p: { pathname: string }) => p.pathname))
       .toEqual(['/', '/blog', '/products', '/blog/post/1/a', '/blog/category/1/x'])
+  })
+
+  it('ranks a page in another locale with its default-locale twin', () => {
+    const page = (pathname: string, locale = '') => ({ host: 'demo.grooveshop.space', pathname, locale })
+    expect(warmOrder([page('/products/1/a'), page('/en/products/1/a', '/en'), page('/en/products', '/en'), page('/en', '/en')]).map((p: { pathname: string }) => p.pathname))
+      .toEqual(['/en', '/en/products', '/products/1/a', '/en/products/1/a'])
+  })
+})
+
+describe('localePrefixes', () => {
+  // The shape @nuxtjs/sitemap serves (demo.grooveshop.space, 2026-10-21).
+  const entry = (loc: string, alternates: string[] = []) =>
+    `<url><loc>${loc}</loc>${alternates.map(href => `<xhtml:link rel="alternate" hreflang="x" href="${href}" />`).join('')}</url>`
+
+  it('reads the other locales a store serves from its home page alternates', () => {
+    const xml = `<urlset>${entry('https://demo.grooveshop.space/about', ['https://demo.grooveshop.space/en/about'])}${entry('https://demo.grooveshop.space/', ['https://demo.grooveshop.space/', 'https://demo.grooveshop.space/en', 'https://demo.grooveshop.space/'])}</urlset>`
+    expect(localePrefixes(xml)).toEqual(['/en'])
+  })
+
+  it('finds none for a store that serves one locale', () => {
+    const xml = `<urlset>${entry('https://webside.gr/')}${entry('https://webside.gr/about')}</urlset>`
+    expect(localePrefixes(xml)).toEqual([])
+  })
+})
+
+describe('warmedEveryStore', () => {
+  const rendered = (counts: Record<string, number>) => new Map(Object.entries(counts))
+
+  it('does not record a run whose sitemaps all failed (Django restarting after the deploy)', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: ['webside.gr/sitemap.xml', 'demo.grooveshop.space/sitemap.xml'],
+      stores: [],
+      rendered: rendered({}),
+    })).toBe(false)
+  })
+
+  it('does not record a run in which no page rendered', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: [],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({}),
+    })).toBe(false)
+  })
+
+  it('records a run that rendered every store, a few stale URLs failing among them', () => {
+    // 282 pages listed, three of them no longer render: counted, not a reason.
+    expect(warmedEveryStore({
+      failedSitemaps: [],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({ 'webside.gr': 106, 'demo.grooveshop.space': 120 }),
+    })).toBe(true)
+  })
+
+  it('does not record a run in which one store\'s sitemap failed, the others warm', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: ['ekfyseosfyteias.com/sitemap.xml'],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({ 'webside.gr': 106, 'demo.grooveshop.space': 120 }),
+    })).toBe(false)
+  })
+
+  it('does not record a run in which one store rendered nothing', () => {
+    expect(warmedEveryStore({
+      failedSitemaps: [],
+      stores: ['webside.gr', 'demo.grooveshop.space'],
+      rendered: rendered({ 'webside.gr': 106 }),
+    })).toBe(false)
+  })
+})
+
+describe('the build last warmed', () => {
+  type Call = { path: string, method: string, contentType?: string, body?: unknown }
+  // The Kubernetes API as `kubernetes()` exposes it, answering from a
+  // script and recording what it was asked.
+  function fakeKube(...answers: Array<{ status: number, body?: unknown }>) {
+    const calls: Call[] = []
+    return {
+      calls,
+      kube: {
+        namespace: 'grooveshop',
+        call: async (path: string, { method = 'GET', contentType, body }: Omit<Call, 'path'> = { method: 'GET' }) => {
+          calls.push({ path, method, contentType, body })
+          const answer = answers.shift() ?? { status: 500 }
+          return { status: answer.status, headers: {}, body: JSON.stringify(answer.body ?? {}), ms: 0 }
+        },
+      },
+    }
+  }
+
+  it('reads the build from the ConfigMap, and none before the first run', async () => {
+    const recorded = fakeKube({ status: 200, body: { data: { warmedBuild: 'b1' } } })
+    expect(await warmedBuild(recorded.kube, 'storefront-warm-state')).toBe('b1')
+    expect(recorded.calls[0]?.path).toBe('/api/v1/namespaces/{namespace}/configmaps/storefront-warm-state')
+
+    expect(await warmedBuild(fakeKube({ status: 404 }).kube, 'storefront-warm-state')).toBeUndefined()
+  })
+
+  it('refuses to guess when the ConfigMap cannot be read', async () => {
+    await expect(warmedBuild(fakeKube({ status: 403 }).kube, 'storefront-warm-state')).rejects.toThrow('403')
+  })
+
+  it('records the build in the ConfigMap, creating it on the first run', async () => {
+    const existing = fakeKube({ status: 200 })
+    await recordWarmedBuild(existing.kube, 'storefront-warm-state', 'b2')
+    expect(existing.calls).toEqual([{
+      path: '/api/v1/namespaces/{namespace}/configmaps/storefront-warm-state',
+      method: 'PATCH',
+      contentType: 'application/merge-patch+json',
+      body: { data: { warmedBuild: 'b2' } },
+    }])
+
+    const absent = fakeKube({ status: 404 }, { status: 201 })
+    await recordWarmedBuild(absent.kube, 'storefront-warm-state', 'b2')
+    expect(absent.calls[1]).toEqual({
+      path: '/api/v1/namespaces/{namespace}/configmaps',
+      method: 'POST',
+      contentType: 'application/json',
+      body: { apiVersion: 'v1', kind: 'ConfigMap', metadata: { name: 'storefront-warm-state' }, data: { warmedBuild: 'b2' } },
+    })
+  })
+})
+
+describe('localeOf and localeTwin', () => {
+  it('names the locale prefix a page is under, and none for the default locale', () => {
+    expect(localeOf('/en', ['/en'])).toBe('/en')
+    expect(localeOf('/en/products/1/a', ['/en'])).toBe('/en')
+    expect(localeOf('/products/1/a', ['/en'])).toBe('')
+    // A first segment that merely starts with the prefix is not under it.
+    expect(localeOf('/energy', ['/en'])).toBe('')
+  })
+
+  it('places a default-locale page under a prefix, the home page as the bare prefix', () => {
+    expect(localeTwin('/', '/en')).toBe('/en')
+    expect(localeTwin('/products/1/a', '/en')).toBe('/en/products/1/a')
   })
 })

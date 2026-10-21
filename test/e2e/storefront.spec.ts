@@ -3,6 +3,7 @@ import { setupDevServer, startFakeDjango } from '../helpers/e2e'
 import { anonymousVisitorUpstream, describeAnonymousVisitor } from './anonymousVisitor'
 import { describePageRenders, pageRenderUpstream } from './pageRenders'
 import { describeRequestId, requestIdUpstream } from './requestId'
+import { describeShippingOptionsCache, shippingOptionsUpstream } from './shippingOptionsCache'
 import { describeSignOut, signOutUpstream } from './signOut'
 import { PLATFORM_FALLBACK_HOST, describeSwrHostPropagation, swrProbeUpstream } from './swrHostPropagation'
 import { describeTrackingParams, trackingParamsUpstream } from './trackingParams'
@@ -26,6 +27,7 @@ describe('storefront on a real dev server', async () => {
     if (anonymousVisitorUpstream(req, res, url)) return
     if (signOutUpstream(req, res, url)) return
     if (requestIdUpstream(req, res, url)) return
+    if (shippingOptionsUpstream(req, res, url)) return
     // Only counts; the page-render stub below still answers.
     trackingParamsUpstream(req, res, url)
     pageRenderUpstream(req, res, url)
@@ -41,4 +43,5 @@ describe('storefront on a real dev server', async () => {
   describeTrackingParams()
   describeSignOut()
   describeRequestId()
+  describeShippingOptionsCache()
 })

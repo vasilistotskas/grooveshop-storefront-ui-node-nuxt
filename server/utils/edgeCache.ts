@@ -2,7 +2,8 @@
  * Cloudflare edge caching of storefront pages.
  *
  * Only a response Nitro itself served from its page cache (an SWR route
- * rule, see ``shared/constants/prerender.ts``) may be cached at the edge:
+ * rule or a custom page, see ``shared/constants/prerender.ts``) may be
+ * cached at the edge:
  * those renders are anonymous by construction, carry no per-request CSP
  * nonce, and are already replayed to every visitor, signed in or not, so
  * the edge needs no cookie rule. Every other page says ``private`` — the

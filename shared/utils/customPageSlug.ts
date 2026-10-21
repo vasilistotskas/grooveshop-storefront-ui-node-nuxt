@@ -1,5 +1,5 @@
-import { SUPPORTED_LOCALES } from '~~/i18n/locales'
-import { isStaticLayoutPageType } from '~~/shared/utils/staticLayoutRoutes'
+import { SUPPORTED_LOCALES } from '../../i18n/locales.ts'
+import { isStaticLayoutPageType } from './staticLayoutRoutes.ts'
 
 /**
  * First path segments that something other than a custom page answers on

@@ -536,6 +536,45 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     })
   })
 
+  describe('a card the cart is too large for', () => {
+    it('stays visible but disabled, saying the cart does not fit the lockers', async () => {
+      const wrapper = await mount({
+        apiOptions: [
+          boxNowLockerOption({ exceedsParcelSize: true }),
+          acsHomeDeliveryOption(),
+        ],
+      })
+
+      expect(radio(wrapper, 'box_now_locker').attributes()).toHaveProperty('data-disabled')
+      expect(card(wrapper, 'box_now_locker').text()).toContain(t('shipping.method.exceeds_parcel_size'))
+      expect(radio(wrapper, 'home_delivery').attributes()).not.toHaveProperty('data-disabled')
+    })
+
+    it('names the weight cap when the cart is both too heavy and too large', async () => {
+      const wrapper = await mount({
+        apiOptions: [
+          boxNowLockerOption({ maxWeightGrams: 4000, exceedsMaxWeight: true, exceedsParcelSize: true }),
+          acsHomeDeliveryOption(),
+        ],
+      })
+
+      expect(card(wrapper, 'box_now_locker').text())
+        .toContain(t('shipping.method.exceeds_max_weight', { maxWeight: '4 κιλά' }))
+      expect(card(wrapper, 'box_now_locker').text()).not.toContain(t('shipping.method.exceeds_parcel_size'))
+    })
+
+    it('does not advance on it', async () => {
+      const wrapper = await mount({
+        apiOptions: [boxNowLockerOption({ exceedsParcelSize: true }), acsHomeDeliveryOption()],
+        formState: makeFormState({ shippingMethod: 'box_now_locker', boxnowLockerId: '4' }),
+      })
+
+      submitStep(wrapper)
+
+      expect(wrapper.emitted('next')).toBeUndefined()
+    })
+  })
+
   describe('BoxNow where it cannot run', () => {
     it('disables BoxNow for a delivery country it has no map for, and says why', async () => {
       const wrapper = await mount({

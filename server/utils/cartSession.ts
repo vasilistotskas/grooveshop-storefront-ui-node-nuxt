@@ -88,21 +88,20 @@ export async function updateCartSession(event: RequestEvent, updates: Partial<Ca
   }
 }
 
-export async function getCartHeaders(event: RequestEvent, cartIdOverride?: string): Promise<Record<string, string>> {
+/**
+ * What names the visitor's cart to Django: the guest cart's UUID
+ * (`X-Cart-Id`) and the signed-in shopper's access token
+ * (`Authorization`), whichever the request has. Empty for a visitor with
+ * neither, whose request Django answers without a cart.
+ */
+export async function getCartIdentityHeaders(event: RequestEvent, cartIdOverride?: string): Promise<Record<string, string>> {
   const { cartId } = await getCartSession(event)
   // Callers that need to address a cart other than the current session's
   // (e.g. the /cart/claim handoff, which must probe an agent-issued UUID
   // before ever writing it to the session) pass an explicit override.
   const effectiveCartId = cartIdOverride ?? cartId
   const accessToken = await getAllAuthAccessToken(event)
-  const headers: Record<string, string> = {
-    'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
-    // Tenant resolution — prefer the actual request host so cart
-    // operations hit the caller's tenant schema. Falls back to the
-    // configured Django hostname outside request context.
-    'X-Forwarded-Host': requestTenantHost(event),
-    'X-Language': requestLocale(event),
-  }
+  const headers: Record<string, string> = {}
 
   if (effectiveCartId) {
     headers['X-Cart-Id'] = String(effectiveCartId)
@@ -113,6 +112,18 @@ export async function getCartHeaders(event: RequestEvent, cartIdOverride?: strin
   }
 
   return headers
+}
+
+export async function getCartHeaders(event: RequestEvent, cartIdOverride?: string): Promise<Record<string, string>> {
+  return {
+    'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+    // Tenant resolution — prefer the actual request host so cart
+    // operations hit the caller's tenant schema. Falls back to the
+    // configured Django hostname outside request context.
+    'X-Forwarded-Host': requestTenantHost(event),
+    'X-Language': requestLocale(event),
+    ...await getCartIdentityHeaders(event, cartIdOverride),
+  }
 }
 
 export async function handleCartResponse(event: RequestEvent, response: unknown): Promise<void> {
