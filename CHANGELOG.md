@@ -1,3 +1,10 @@
+## [3.256.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.0...v3.256.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* **api:** read the pay way's settlement, not its deprecated online mirror ([#205](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/205)) ([3d5a6ca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3d5a6ca252bb8102391edad674a366132992882d)), closes [#305](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/305)
+
 # [3.256.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.255.19...v3.256.0) (2026-10-21)
 
 
