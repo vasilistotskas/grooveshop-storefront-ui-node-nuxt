@@ -109,26 +109,35 @@ export function formatAttachmentSize(bytes: number, locale: string): string {
   }).format(small ? bytes / 1024 : megabytes)
 }
 
-/** Numeric merchant setting, defaulting when absent or unparsable. */
-function settingNumber(raw: string | undefined, fallback: number): number {
-  const parsed = Number.parseInt((raw ?? '').trim(), 10)
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+/** A positive whole-number setting, or `null` when it is unreadable. */
+function settingCount(raw: string): number | null {
+  const parsed = Number.parseInt(raw.trim(), 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null
 }
 
 export function useContactAttachments() {
-  const enabled = useStoreFeature('contactAttachments')
+  const featureOn = useStoreFeature('contactAttachments')
 
   const countSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_COUNT')
   const sizeSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_MB')
   const typesSetting = useSettingValue('CONTACT_ATTACHMENTS_TYPES')
+
+  // Django sends every public setting, the store's value or the declared
+  // one, so a limit is unreadable only when the settings could not be
+  // fetched. The control is then not offered rather than shown with
+  // limits the store never set; Django enforces the real ones anyway.
+  const countLimit = computed(() => settingCount(countSetting.value))
+  const sizeLimit = computed(() => settingCount(sizeSetting.value))
+  const enabled = computed(() =>
+    featureOn.value && countLimit.value !== null && sizeLimit.value !== null)
 
   // The enquiry can carry only as many ids as the contact API takes
   // (Django's own ceiling, in the generated schema). A store that sets
   // more would have its visitors upload files the enquiry then cannot
   // claim, and the whole message refused for it.
   const maxCount = computed(() =>
-    Math.min(settingNumber(countSetting.value, 3), CONTACT_ATTACHMENT_IDS_MAX))
-  const maxMegabytes = computed(() => settingNumber(sizeSetting.value, 10))
+    Math.min(countLimit.value ?? 0, CONTACT_ATTACHMENT_IDS_MAX))
+  const maxMegabytes = computed(() => sizeLimit.value ?? 0)
   const maxBytes = computed(() => maxMegabytes.value * 1024 * 1024)
   const allowedTypes = computed(() =>
     typesSetting.value
@@ -153,7 +162,8 @@ export function useContactAttachments() {
   const isUploading = computed(() =>
     uploads.value.some(upload => upload.status === 'uploading'),
   )
-  const canAddMore = computed(() => uploads.value.length < maxCount.value)
+  const canAddMore = computed(() =>
+    enabled.value && uploads.value.length < maxCount.value)
 
   function send(upload: PendingUpload) {
     upload.status = 'uploading'

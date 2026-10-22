@@ -5,7 +5,8 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 /**
  * The contact form's upload step. What matters:
  *
- * - the store's own limits are what bind, not this file's defaults;
+ * - the store's own limits are what bind, and the control is not offered
+ *   when they cannot be read;
  * - a file too large or one too many never leaves the browser, and the
  *   caller is told why;
  * - a 2xx yields the id the enquiry will spend, and NOTHING else does
@@ -97,8 +98,7 @@ async function policy() {
     attachments = useContactAttachments()
     loaded = useStoreSettings().settings
   })
-  // Assert on the store's limits only once its row has landed — before
-  // that every reader is on its fallback.
+  // Assert on the store's limits only once its row has landed.
   await vi.waitFor(() => expect(loaded.value).toEqual(settings), { interval: 1 })
   return attachments
 }
@@ -362,17 +362,16 @@ describe('useContactAttachments', () => {
     expect(attachments.canAddMore.value).toBe(false)
   })
 
-  it('falls back to the platform defaults when a setting is unusable', async () => {
-    settings.CONTACT_ATTACHMENTS_MAX_COUNT = 'not a number'
-    settings.CONTACT_ATTACHMENTS_MAX_MB = '0'
-    settings.CONTACT_ATTACHMENTS_TYPES = '  '
+  it.each([
+    ['the file count', 'CONTACT_ATTACHMENTS_MAX_COUNT', 'not a number'],
+    ['the size', 'CONTACT_ATTACHMENTS_MAX_MB', '0'],
+  ])('is not offered when %s cannot be read, rather than guessing a limit', async (_, key, value) => {
+    settings[key] = value
 
     const attachments = await policy()
 
-    expect(attachments.maxCount.value).toBe(3)
-    expect(attachments.maxMegabytes.value).toBe(10)
-    expect(attachments.allowedTypes.value).toEqual([])
-    expect(attachments.accept.value).toBe('')
+    expect(attachments.enabled.value).toBe(false)
+    expect(attachments.canAddMore.value).toBe(false)
   })
 })
 

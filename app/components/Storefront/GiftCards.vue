@@ -15,12 +15,13 @@ useSeoMeta({
 
 const breadcrumb = computed(() => [{ label: t('title') }])
 
-// Purchase bounds are merchant-tunable (extra_settings); an unset
-// bound keeps the platform default.
+// Purchase bounds are the store's settings, as Django resolves them. A
+// bound that could not be read is left to Django, which validates the
+// amount anyway.
 const minSetting = useSettingValue('GIFT_CARD_MIN_AMOUNT')
 const maxSetting = useSettingValue('GIFT_CARD_MAX_AMOUNT')
-const minAmount = computed(() => Number(minSetting.value || 10))
-const maxAmount = computed(() => Number(maxSetting.value || 500))
+const minAmount = computed(() => giftCardAmountBound(minSetting.value))
+const maxAmount = computed(() => giftCardAmountBound(maxSetting.value))
 const validitySetting = useSettingValue('GIFT_CARD_VALIDITY_DAYS')
 const validityDays = computed(() => giftCardValidityDays(validitySetting.value))
 
@@ -108,7 +109,8 @@ const STEP_FIELDS: Record<WizardStep, string[]> = {
 const SUGGESTED_AMOUNTS = [25, 50, 100]
 const suggestedAmounts = computed(() =>
   SUGGESTED_AMOUNTS.filter(
-    amount => amount >= minAmount.value && amount <= maxAmount.value,
+    amount => (minAmount.value === null || amount >= minAmount.value)
+      && (maxAmount.value === null || amount <= maxAmount.value),
   ))
 
 // One radio card per suggested amount, then "Other" for a typed one.
@@ -138,15 +140,23 @@ const minDeliverDate = computed(() => {
   return `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`
 })
 
-const purchaseSchema = computed(() => z.object({
-  amount: z
-    .number({ error: t('validation.amount_required') })
-    .min(minAmount.value, {
+const amountSchema = computed(() => {
+  let schema = z.number({ error: t('validation.amount_required') })
+  if (minAmount.value !== null) {
+    schema = schema.min(minAmount.value, {
       error: t('validation.amount_min', { min: minAmount.value }),
     })
-    .max(maxAmount.value, {
+  }
+  if (maxAmount.value !== null) {
+    schema = schema.max(maxAmount.value, {
       error: t('validation.amount_max', { max: maxAmount.value }),
-    }),
+    })
+  }
+  return schema
+})
+
+const purchaseSchema = computed(() => z.object({
+  amount: amountSchema.value,
   buyerEmail: z
     .string({ error: t('validation.required') })
     .email({ error: t('validation.email') }),
@@ -518,12 +528,15 @@ const confirmPayment = async () => {
                   <UInputNumber
                     v-if="amountChoice === OTHER"
                     v-model="formState.amount"
-                    :min="minAmount"
-                    :max="maxAmount"
+                    :min="minAmount ?? undefined"
+                    :max="maxAmount ?? undefined"
                     :step="5"
                     :aria-label="t('fields.amount_other')"
                   />
-                  <p class="text-xs text-toned">
+                  <p
+                    v-if="minAmount !== null && maxAmount !== null"
+                    class="text-xs text-toned"
+                  >
                     {{ t('fields.amount_hint', { min: $i18n.n(minAmount, 'currency'), max: $i18n.n(maxAmount, 'currency') }) }}
                   </p>
                 </div>

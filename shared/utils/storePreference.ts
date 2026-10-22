@@ -1,6 +1,6 @@
 /**
  * The merchant settings that are NOT store features, and what each one
- * means while the store has no row for it.
+ * reads as while the settings cannot be fetched.
  *
  * `TenantConfig.features` carries every store feature (Django's
  * docs/store-features.md, class (a)). What is left are two kinds of
@@ -16,8 +16,9 @@
  *   (grooveshop-agent-gateway issue 27). Until then they are read here;
  *   when they move, their rows leave this table.
  *
- * The value is the answer for a missing row (the setting's seeded
- * default), never a guess about an unreachable endpoint.
+ * Django sends every public key, the store's value or the declared one,
+ * so the value here is used only while the settings cannot be fetched:
+ * what the page shows during that outage, chosen per preference.
  */
 export const STORE_PREFERENCES = {
   MOBILE_BOTTOM_NAV_ENABLED: true,

@@ -28,8 +28,9 @@ export default defineCachedRoute(
         { method: 'GET' },
       )
 
-      // A key without a row answers '' — the client's parsers treat an
-      // empty string as "not configured", exactly as before.
+      // Django sends every public key, with the store's value or the
+      // declared one. A requested key that is not public answers '',
+      // which the client's parsers read as "not configured".
       const record: Record<string, string> = {}
       for (const key of keyList) {
         record[key] = settings[key] ?? ''

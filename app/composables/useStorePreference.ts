@@ -1,7 +1,8 @@
 /**
  * Boolean merchant preference that is not a store feature — the typed
  * reader of `STORE_PREFERENCES` (`shared/utils/storePreference.ts`),
- * which also says what a missing row means. A store FEATURE is read
+ * which also says what each one reads as while the settings cannot be
+ * fetched. A store FEATURE is read
  * with `useStoreFeature`, never here.
  */
 export function useStorePreference(name: StorePreferenceName) {
