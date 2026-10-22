@@ -1,3 +1,10 @@
+## [3.256.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.1...v3.256.2) (2026-10-22)
+
+
+### Performance Improvements
+
+* **ui:** stop switches, checkboxes and radios forcing a layout as they render ([#206](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/206)) ([104af07](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/104af07c605fca7a2ab2622fcc744f55c7487566)), closes [#156](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/156)
+
 ## [3.256.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.0...v3.256.1) (2026-10-22)
 
 
