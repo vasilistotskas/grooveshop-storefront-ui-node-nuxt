@@ -10,15 +10,11 @@ import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
  * provider `cash_on_delivery`, settled with the courier). `uuid` follows
  * `id`.
  *
- * `settlement` is the authoritative discriminator; the deprecated
- * `isOnlinePayment` / `requiresConfirmation` mirrors are derived from it
- * as Django derives them, so an online pay way is
- * `makePayWay({ providerCode: 'stripe', settlement: 'online' })`. An
- * explicit override of a mirror wins.
+ * `settlement` says how the money changes hands, so an online pay way
+ * is `makePayWay({ providerCode: 'stripe', settlement: 'online' })`.
  */
 export function makePayWay(overrides: Partial<PayWay> = {}): PayWay {
   const id = overrides.id ?? 1
-  const settlement = overrides.settlement ?? 'courier_cash'
 
   return {
     translations: {
@@ -38,9 +34,7 @@ export function makePayWay(overrides: Partial<PayWay> = {}): PayWay {
     uuid: fixtureUuid(4, id),
     iconFilename: '',
     providerCode: 'cash_on_delivery',
-    settlement,
-    isOnlinePayment: settlement === 'online',
-    requiresConfirmation: settlement === 'offline_transfer',
+    settlement: 'courier_cash',
     ...overrides,
   }
 }

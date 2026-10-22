@@ -4193,8 +4193,6 @@ export const zPayWay = z.object({
   iconFilename: z.string().readonly(),
   providerCode: z.string().max(50).optional(),
   settlement: zSettlementEnum.optional(),
-  isOnlinePayment: z.boolean().optional(),
-  requiresConfirmation: z.boolean().optional(),
 })
 
 export const zPaginatedPayWayList = z.object({
@@ -7644,8 +7642,6 @@ export const zPayWayWritable = z.object({
   icon: z.url().nullish(),
   providerCode: z.string().max(50).optional(),
   settlement: zSettlementEnum.optional(),
-  isOnlinePayment: z.boolean().optional(),
-  requiresConfirmation: z.boolean().optional(),
 })
 
 export const zPaginatedPayWayListWritable = z.object({
@@ -12270,13 +12266,6 @@ export const zListOrderQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  payWay_IsOnlinePayment: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   payWay_Key: z.string().optional(),
   paymentId: z.string().optional(),
   paymentId_Icontains: z.string().optional(),
@@ -13133,13 +13122,6 @@ export const zListMyOrdersQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  payWay_IsOnlinePayment: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   payWay_Key: z.string().optional(),
   paymentId: z.string().optional(),
   paymentId_Icontains: z.string().optional(),
@@ -13512,13 +13494,6 @@ export const zListPayWayQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  isOnlinePayment: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   key: z.enum([
     'APPLE_PAY',
     'BANK_TRANSFER',
@@ -13532,7 +13507,7 @@ export const zListPayWayQuery = z.object({
     'VIVA_WALLET',
   ]).optional(),
   languageCode: z.enum(['el', 'en']).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder))*$/).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|sortOrder|\-sortOrder))*$/).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -13549,13 +13524,6 @@ export const zListPayWayQuery = z.object({
   ]).optional().default('pageNumber'),
   providerCode: z.string().optional(),
   providerCode_Icontains: z.string().optional(),
-  requiresConfirmation: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   search: z.string().optional(),
   settlement: z.enum([
     'carrier_terminal',
@@ -15673,6 +15641,7 @@ export const zNearestBoxNowLockerBody = zBoxNowNearestLockerRequestRequest
 
 export const zNearestBoxNowLockerHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zNearestBoxNowLockerResponse = zBoxNowNearestLockerResponse
@@ -15696,6 +15665,7 @@ export const zGetFreeShippingInfoResponse = zFreeShippingInfo
 
 export const zListShippingOptionsHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
+  'X-Cart-Token': z.string().optional(),
 })
 
 export const zListShippingOptionsQuery = z.object({

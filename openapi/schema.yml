@@ -13562,18 +13562,6 @@ paths:
               - type: integer
           description: Φίλτρο ανά ID μεθόδου πληρωμής
         - in: query
-          name: payWay_IsOnlinePayment
-          schema:
-            oneOf:
-              - type: string
-                enum:
-                  - 'true'
-                  - 'false'
-                  - '1'
-                  - '0'
-              - type: boolean
-          description: Φίλτρο ανά online μεθόδους πληρωμής
-        - in: query
           name: payWay_Key
           schema:
             type: string
@@ -16774,18 +16762,6 @@ paths:
               - type: integer
           description: Φίλτρο ανά ID μεθόδου πληρωμής
         - in: query
-          name: payWay_IsOnlinePayment
-          schema:
-            oneOf:
-              - type: string
-                enum:
-                  - 'true'
-                  - 'false'
-                  - '1'
-                  - '0'
-              - type: boolean
-          description: Φίλτρο ανά online μεθόδους πληρωμής
-        - in: query
           name: payWay_Key
           schema:
             type: string
@@ -17950,18 +17926,6 @@ paths:
               - type: integer
           description: Φίλτρο ανά ID μεθόδου πληρωμής
         - in: query
-          name: isOnlinePayment
-          schema:
-            oneOf:
-              - type: string
-                enum:
-                  - 'true'
-                  - 'false'
-                  - '1'
-                  - '0'
-              - type: boolean
-          description: Παρωχημένο — χρησιμοποιήστε ``settlement=online``. Αφαιρείται μαζί με τη στήλη στην έκδοση μετά την εισαγωγή του settlement.
-        - in: query
           name: key
           schema:
             type: string
@@ -18002,10 +17966,10 @@ paths:
         - name: ordering
           in: query
           required: false
-          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, isOnlinePayment, -isOnlinePayment, requiresConfirmation, -requiresConfirmation, sortOrder, -sortOrder'
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, sortOrder, -sortOrder'
           schema:
             type: string
-            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder))*$
+            pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|sortOrder|\-sortOrder))*$
         - name: page
           required: false
           in: query
@@ -18051,18 +18015,6 @@ paths:
           name: providerCode_Icontains
           schema:
             type: string
-        - in: query
-          name: requiresConfirmation
-          schema:
-            oneOf:
-              - type: string
-                enum:
-                  - 'true'
-                  - 'false'
-                  - '1'
-                  - '0'
-              - type: boolean
-          description: Φίλτρο ανά απαίτηση επιβεβαίωσης
         - name: search
           required: false
           in: query
@@ -26627,6 +26579,11 @@ paths:
             type: string
             format: uuid
           description: Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
+        - in: header
+          name: X-Cart-Token
+          schema:
+            type: string
+          description: 'Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper''s own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.'
       tags:
         - BoxNow lockers
       requestBody:
@@ -26772,6 +26729,11 @@ paths:
             type: string
             format: uuid
           description: Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
+        - in: header
+          name: X-Cart-Token
+          schema:
+            type: string
+          description: 'Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper''s own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.'
         - in: query
           name: countryCode
           schema:
@@ -26812,6 +26774,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ShippingOption'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
   /api/v1/shipping/providers:
     get:
@@ -42844,14 +42818,6 @@ components:
             * `courier_cash` - Μετρητά ή κάρτα στον κούριερ κατά την παράδοση
             * `carrier_terminal` - Πληρωμή στον μεταφορέα πριν από την παραλαβή
             * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
-        isOnlinePayment:
-          type: boolean
-          title: Είναι online πληρωμή
-          description: Παρωχημένο αντίγραφο του ``settlement == ONLINE``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
-        requiresConfirmation:
-          type: boolean
-          title: Απαιτείται Επιβεβαίωση
-          description: Παρωχημένο αντίγραφο του ``settlement == OFFLINE_TRANSFER``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
       required:
         - cost
         - createdAt

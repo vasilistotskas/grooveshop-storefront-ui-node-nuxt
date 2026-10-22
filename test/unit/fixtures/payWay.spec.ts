@@ -16,13 +16,11 @@ describe('makePayWay', () => {
   })
 
   it.each([
-    { settlement: 'online', isOnlinePayment: true, requiresConfirmation: false },
-    { settlement: 'courier_cash', isOnlinePayment: false, requiresConfirmation: false },
-    { settlement: 'offline_transfer', isOnlinePayment: false, requiresConfirmation: true },
-  ] as const)('derives the deprecated mirrors from a $settlement settlement', (expected) => {
-    const payWay = makePayWay({ id: 2, providerCode: 'stripe', settlement: expected.settlement })
-
-    expect(problems(zPayWay, payWay)).toEqual([])
-    expect(payWay).toMatchObject(expected)
+    'online',
+    'courier_cash',
+    'carrier_terminal',
+    'offline_transfer',
+  ] as const)('builds a %s pay way that parses through zPayWay', (settlement) => {
+    expect(problems(zPayWay, makePayWay({ id: 2, providerCode: 'stripe', settlement }))).toEqual([])
   })
 })

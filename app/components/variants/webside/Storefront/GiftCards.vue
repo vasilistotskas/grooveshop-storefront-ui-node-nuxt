@@ -34,7 +34,7 @@ const { data: payWays } = useLazyAsyncData(
 const availableProviders = computed(() => {
   const codes = new Set(
     (payWays.value?.results ?? [])
-      .filter(payWay => payWay.isOnlinePayment && payWay.active)
+      .filter(payWay => payWay.settlement === 'online' && payWay.active)
       .map(payWay => payWay.providerCode ?? ''),
   )
   if (!tenantStore.stripePublishableKey) {
