@@ -183,10 +183,18 @@ minimumReleaseAgeExclude:
 # half-step with opacity 1 and the client expected 0 — a hydration style
 # mismatch on every product card and testimonial that draws stars with
 # `step: 0.5` (44 warnings on the demo homepage, 2026-09-22). Fixed
-# upstream in reka-ui 2.11.0 (unovue/reka-ui#2965), but @nuxt/ui pins
-# reka-ui exactly and still ships 2.10.5. Drop the patch with the @nuxt/ui
-# release that moves to reka-ui >= 2.11; pnpm refuses to install if the
-# pinned version moves without the patch moving with it.
+# upstream in reka-ui 2.11.0 (unovue/reka-ui#2965).
+#
+# The same patch makes SwitchRoot, CheckboxRoot and Radio read their
+# `<label for>` text with `textContent` instead of `innerText`. They
+# compute an aria-label from it while rendering, and `innerText` forces a
+# synchronous style and layout pass for every such control: opening the
+# cookie preferences, a dialog of switches, spent 35-50 ms more per tap on
+# an emulated phone at 4x CPU (storefront #156). Still `innerText` in
+# reka-ui 2.11.0, so moving to 2.11 keeps this half of the patch.
+#
+# @nuxt/ui pins reka-ui exactly and still ships 2.10.5; pnpm refuses to
+# install if the pinned version moves without the patch moving with it.
 patchedDependencies:
   reka-ui@2.10.5: patches/reka-ui@2.10.5.patch
 permissions:
