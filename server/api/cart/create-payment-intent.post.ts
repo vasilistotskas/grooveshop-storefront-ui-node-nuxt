@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const wideLog = event.context.log
 
   try {
-    wideLog?.set({ payment: { method: 'stripe' } })
+    wideLog?.set({ payment: { method: zPaymentProviderEnum.enum.stripe } })
     const body = await readValidatedBody(event, bodySchema)
     const idempotencyHeaders = idempotencyKeyHeaders(event)
 

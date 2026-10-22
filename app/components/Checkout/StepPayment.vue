@@ -47,8 +47,6 @@ const { t, n } = useI18n()
 const paymentHeadingId = useId()
 const reviewHeadingId = useId()
 
-// Card methods are the ones that settle online through a card processor.
-const CARD_PROVIDERS = ['viva_wallet', 'stripe']
 const CARD_BRANDS = ['VISA', 'MC', 'AMEX']
 
 const SETTLEMENT_ICONS = {
@@ -85,7 +83,9 @@ const items = computed(() => props.payWayOptions.map(option => ({
   // one per locale): fall back to the label rather than an empty title.
   title: option.name || option.label,
   icon: SETTLEMENT_ICONS[option.settlement ?? 'online'],
-  isCard: CARD_PROVIDERS.includes(option.providerCode ?? ''),
+  // Every provider in Django's payment registry (the generated enum) is
+  // a card processor; the other pay ways settle off-card.
+  isCard: zPaymentProviderEnum.safeParse(option.providerCode).success,
   hasCost: (option.cost ?? 0) > 0,
 })))
 
@@ -101,8 +101,8 @@ const selectedPayWay = computed(() =>
 // take them somewhere. The others say nothing beyond their description.
 const finishLine = computed(() => {
   const code = selectedPayWay.value?.providerCode
-  if (code === 'viva_wallet') return t('finish.viva')
-  if (code === 'stripe') return props.useHostedCheckout ? t('finish.stripe_hosted') : t('finish.stripe_inline')
+  if (code === zPaymentProviderEnum.enum.viva_wallet) return t('finish.viva')
+  if (code === zPaymentProviderEnum.enum.stripe) return props.useHostedCheckout ? t('finish.stripe_hosted') : t('finish.stripe_inline')
   return ''
 })
 

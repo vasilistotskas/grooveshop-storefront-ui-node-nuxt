@@ -24,9 +24,16 @@ const maxAmount = computed(() => Number(maxSetting.value || 500))
 const validitySetting = useSettingValue('GIFT_CARD_VALIDITY_DAYS')
 const validityDays = computed(() => giftCardValidityDays(validitySetting.value))
 
-// Online providers the merchant has configured — Viva Wallet is the
-// primary provider, Stripe secondary. Derived from the pay-way list
-// so a merchant who disables a provider hides it here too.
+// The card processors this page can take a payment through, primary
+// first. Typed by the generated enum (Django's payment registry), so a
+// provider Django drops fails the build here instead of matching nothing.
+const GIFT_CARD_PROVIDERS: readonly PaymentProviderEnum[] = [
+  zPaymentProviderEnum.enum.viva_wallet,
+  zPaymentProviderEnum.enum.stripe,
+]
+
+// Which of them the store offers comes from its pay-way list, so a
+// merchant who disables a provider hides it here too.
 const { data: payWays } = useLazyAsyncData(
   'gift-cards:pay-ways',
   () => $api<Pagination<PayWay>>('/api/pay-way', {
@@ -42,12 +49,11 @@ const availableProviders = computed(() => {
       .map(payWay => payWay.providerCode ?? ''),
   )
   if (!tenantStore.stripePublishableKey) {
-    codes.delete('stripe')
+    codes.delete(zPaymentProviderEnum.enum.stripe)
   }
-  return (['viva_wallet', 'stripe'] as const).filter(code =>
-    codes.has(code))
+  return GIFT_CARD_PROVIDERS.filter(code => codes.has(code))
 })
-const selectedProvider = ref<'viva_wallet' | 'stripe' | undefined>(undefined)
+const selectedProvider = ref<PaymentProviderEnum | undefined>(undefined)
 watch(availableProviders, (providers) => {
   if (!selectedProvider.value || !providers.includes(selectedProvider.value)) {
     selectedProvider.value = providers[0]

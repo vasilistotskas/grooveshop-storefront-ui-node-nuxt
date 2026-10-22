@@ -147,11 +147,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
 
   // Computed
   const isStripePayment = computed(() => {
-    return selectedPayWay.value?.providerCode === 'stripe'
+    return selectedPayWay.value?.providerCode === zPaymentProviderEnum.enum.stripe
   })
 
   const isVivaWalletPayment = computed(() => {
-    return selectedPayWay.value?.providerCode === 'viva_wallet'
+    return selectedPayWay.value?.providerCode === zPaymentProviderEnum.enum.viva_wallet
   })
 
   const isOnlinePayment = computed(() => {
