@@ -185,13 +185,15 @@ minimumReleaseAgeExclude:
 # `step: 0.5` (44 warnings on the demo homepage, 2026-09-22). Fixed
 # upstream in reka-ui 2.11.0 (unovue/reka-ui#2965).
 #
-# The same patch makes SwitchRoot, CheckboxRoot and Radio read their
-# `<label for>` text with `textContent` instead of `innerText`. They
-# compute an aria-label from it while rendering, and `innerText` forces a
-# synchronous style and layout pass for every such control: opening the
-# cookie preferences, a dialog of switches, spent 35-50 ms more per tap on
-# an emulated phone at 4x CPU (storefront #156). Still `innerText` in
-# reka-ui 2.11.0, so moving to 2.11 keeps this half of the patch.
+# The same patch stops SwitchRoot, CheckboxRoot and Radio copying their
+# `<label for>` into an aria-label when the control already has a native
+# label (`el.labels`). They read it with `innerText` while rendering, which
+# forces a synchronous style and layout pass for every such control:
+# opening the cookie preferences, a dialog of switches, spent 35-50 ms more
+# per tap on an emulated phone at 4x CPU (storefront #156). The control is a
+# `<button>`, so the browser already names it from that label, hidden
+# content handled; a control with no native label keeps the copy. Still
+# `innerText` in reka-ui 2.11.0, so moving to 2.11 keeps this half.
 #
 # @nuxt/ui pins reka-ui exactly and still ships 2.10.5; pnpm refuses to
 # install if the pinned version moves without the patch moving with it.

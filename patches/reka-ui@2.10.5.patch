@@ -1,5 +1,5 @@
 diff --git a/dist/Checkbox/CheckboxRoot.cjs b/dist/Checkbox/CheckboxRoot.cjs
-index 3cc14b865954d07d5090d70795667bf01bd0da4f..68aca94713d43d2bfac03ec40caa61e2fd747db7 100644
+index 3cc14b865954d07d5090d70795667bf01bd0da4f..c157490b93d19cc4793441c2baf00f9726082451 100644
 --- a/dist/Checkbox/CheckboxRoot.cjs
 +++ b/dist/Checkbox/CheckboxRoot.cjs
 @@ -105,7 +105,7 @@ var CheckboxRoot_vue_vue_type_script_setup_true_lang_default = /* @__PURE__ */ (
@@ -7,12 +7,12 @@ index 3cc14b865954d07d5090d70795667bf01bd0da4f..68aca94713d43d2bfac03ec40caa61e2
  		const ariaLabel = (0, vue.computed)(() => {
  			if (attrs["aria-label"]) return void 0;
 -			return props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0;
-+			return props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.textContent.trim() : void 0;
++			return props.id && currentElement.value && !currentElement.value.labels?.length ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0;
  		});
  		provideCheckboxRootContext({
  			disabled,
 diff --git a/dist/Checkbox/CheckboxRoot.js b/dist/Checkbox/CheckboxRoot.js
-index 35fb62a5e6c866510a9cb226e72b9ca78c02d3e5..af5e0d4768be942e746839b84179fb5d26175b30 100644
+index 35fb62a5e6c866510a9cb226e72b9ca78c02d3e5..84b69391752bac22c3b78e6d2fb73dbd21291e6f 100644
 --- a/dist/Checkbox/CheckboxRoot.js
 +++ b/dist/Checkbox/CheckboxRoot.js
 @@ -104,7 +104,7 @@ var CheckboxRoot_vue_vue_type_script_setup_true_lang_default = /* @__PURE__ */ d
@@ -20,12 +20,12 @@ index 35fb62a5e6c866510a9cb226e72b9ca78c02d3e5..af5e0d4768be942e746839b84179fb5d
  		const ariaLabel = computed(() => {
  			if (attrs["aria-label"]) return void 0;
 -			return props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0;
-+			return props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.textContent.trim() : void 0;
++			return props.id && currentElement.value && !currentElement.value.labels?.length ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0;
  		});
  		provideCheckboxRootContext({
  			disabled,
 diff --git a/dist/RadioGroup/Radio.cjs b/dist/RadioGroup/Radio.cjs
-index cf94fba478ebc1d5a64f555e721662f5b791cf09..bcf72ce5ed8781fe7b4dbbe2f17a3f650f88a63d 100644
+index cf94fba478ebc1d5a64f555e721662f5b791cf09..34c3967ecf7bfa558cd5f7c382eacf5a52ea4601 100644
 --- a/dist/RadioGroup/Radio.cjs
 +++ b/dist/RadioGroup/Radio.cjs
 @@ -58,7 +58,7 @@ var Radio_vue_vue_type_script_setup_true_lang_default = /* @__PURE__ */ (0, vue.
@@ -33,12 +33,12 @@ index cf94fba478ebc1d5a64f555e721662f5b791cf09..bcf72ce5ed8781fe7b4dbbe2f17a3f65
  		const isFormControl = require_shared_useFormControl.useFormControl(triggerElement);
  		const scopeIdAttrs = require_shared_useForwardScopeId.useForwardScopeId();
 -		const ariaLabel = (0, vue.computed)(() => props.id && triggerElement.value ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
-+		const ariaLabel = (0, vue.computed)(() => props.id && triggerElement.value ? document.querySelector(`[for="${props.id}"]`)?.textContent.trim() : void 0);
++		const ariaLabel = (0, vue.computed)(() => props.id && triggerElement.value && !triggerElement.value.labels?.length ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
  		function handleClick(event) {
  			if (props.disabled) return;
  			require_RadioGroup_utils.handleSelect(event, props.value, (ev) => {
 diff --git a/dist/RadioGroup/Radio.js b/dist/RadioGroup/Radio.js
-index 9def8cb2dfb1eba0ab9397528b5a90b7694f70dd..1ae93829dcc169680b174b547b89a5f3c0ba5ce2 100644
+index 9def8cb2dfb1eba0ab9397528b5a90b7694f70dd..0103e8ff6c4c6a5fc0dfc5173aae19dfefd69a38 100644
 --- a/dist/RadioGroup/Radio.js
 +++ b/dist/RadioGroup/Radio.js
 @@ -57,7 +57,7 @@ var Radio_vue_vue_type_script_setup_true_lang_default = /* @__PURE__ */ defineCo
@@ -46,7 +46,7 @@ index 9def8cb2dfb1eba0ab9397528b5a90b7694f70dd..1ae93829dcc169680b174b547b89a5f3
  		const isFormControl = useFormControl(triggerElement);
  		const scopeIdAttrs = useForwardScopeId();
 -		const ariaLabel = computed(() => props.id && triggerElement.value ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
-+		const ariaLabel = computed(() => props.id && triggerElement.value ? document.querySelector(`[for="${props.id}"]`)?.textContent.trim() : void 0);
++		const ariaLabel = computed(() => props.id && triggerElement.value && !triggerElement.value.labels?.length ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
  		function handleClick(event) {
  			if (props.disabled) return;
  			handleSelect(event, props.value, (ev) => {
@@ -77,7 +77,7 @@ index c7437f4b60e0c422cb3fdaac2db02298eb3d5996..6a6e2d71e392a6cd45cba368c41c7934
  		function handleMouseEnter() {
  			rootContext.changeHoveredRating(props.step);
 diff --git a/dist/Switch/SwitchRoot.cjs b/dist/Switch/SwitchRoot.cjs
-index 50ffe3b81b6f0530a52eb830c49db25a0d6eba11..9378c70b356dcbb44fff5acf364eb34f885f31d5 100644
+index 50ffe3b81b6f0530a52eb830c49db25a0d6eba11..118fb3dacf0c634a6028c71891aebe7ba40faa50 100644
 --- a/dist/Switch/SwitchRoot.cjs
 +++ b/dist/Switch/SwitchRoot.cjs
 @@ -81,7 +81,7 @@ var SwitchRoot_vue_vue_type_script_setup_true_lang_default = /* @__PURE__ */ (0,
@@ -85,12 +85,12 @@ index 50ffe3b81b6f0530a52eb830c49db25a0d6eba11..9378c70b356dcbb44fff5acf364eb34f
  		const isFormControl = require_shared_useFormControl.useFormControl(currentElement);
  		const scopeIdAttrs = require_shared_useForwardScopeId.useForwardScopeId();
 -		const ariaLabel = (0, vue.computed)(() => props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
-+		const ariaLabel = (0, vue.computed)(() => props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.textContent.trim() : void 0);
++		const ariaLabel = (0, vue.computed)(() => props.id && currentElement.value && !currentElement.value.labels?.length ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
  		provideSwitchRootContext({
  			checked,
  			toggleCheck,
 diff --git a/dist/Switch/SwitchRoot.js b/dist/Switch/SwitchRoot.js
-index 198fab93699cc2030a7cdb14d67554592c397aea..c251370a6508472e87bcfe462c737c03300fd2d1 100644
+index 198fab93699cc2030a7cdb14d67554592c397aea..bc9bc50999402040afd5e32c2dcc8ebeb68b8bd0 100644
 --- a/dist/Switch/SwitchRoot.js
 +++ b/dist/Switch/SwitchRoot.js
 @@ -80,7 +80,7 @@ var SwitchRoot_vue_vue_type_script_setup_true_lang_default = /* @__PURE__ */ def
@@ -98,7 +98,7 @@ index 198fab93699cc2030a7cdb14d67554592c397aea..c251370a6508472e87bcfe462c737c03
  		const isFormControl = useFormControl(currentElement);
  		const scopeIdAttrs = useForwardScopeId();
 -		const ariaLabel = computed(() => props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
-+		const ariaLabel = computed(() => props.id && currentElement.value ? document.querySelector(`[for="${props.id}"]`)?.textContent.trim() : void 0);
++		const ariaLabel = computed(() => props.id && currentElement.value && !currentElement.value.labels?.length ? document.querySelector(`[for="${props.id}"]`)?.innerText : void 0);
  		provideSwitchRootContext({
  			checked,
  			toggleCheck,
