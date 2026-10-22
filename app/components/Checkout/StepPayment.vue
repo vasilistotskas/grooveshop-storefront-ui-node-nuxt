@@ -24,9 +24,8 @@ const props = withDefaults(defineProps<{
     /** The surcharge actually charged now (0 once waived); shown beside the name. */
     cost?: number
     providerCode?: string
-    settlement?: 'online' | 'courier_cash' | 'carrier_terminal' | 'offline_transfer'
+    settlement?: SettlementEnum
     mainImagePath?: string
-    isOnlinePayment?: boolean
     /** Operator-authored TinyMCE HTML from Django admin. */
     description?: string
     instructions?: string
@@ -57,7 +56,7 @@ const SETTLEMENT_ICONS = {
   courier_cash: 'i-lucide-banknote',
   carrier_terminal: 'i-lucide-package',
   offline_transfer: 'i-lucide-landmark',
-} as const
+} as const satisfies Record<SettlementEnum, string>
 
 // The selected card takes the accent: a ring and the soft accent tint.
 const PAY_WAY_UI = {

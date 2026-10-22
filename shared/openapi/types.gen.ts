@@ -6619,18 +6619,6 @@ export type PayWay = {
      * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
      */
   settlement?: SettlementEnum
-  /**
-     * Είναι online πληρωμή
-     *
-     * Παρωχημένο αντίγραφο του ``settlement == ONLINE``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
-     */
-  isOnlinePayment?: boolean
-  /**
-     * Απαιτείται Επιβεβαίωση
-     *
-     * Παρωχημένο αντίγραφο του ``settlement == OFFLINE_TRANSFER``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
-     */
-  requiresConfirmation?: boolean
 }
 
 /**
@@ -12159,18 +12147,6 @@ export type PayWayWritable = {
      * * `offline_transfer` - Διακανονισμός εκτός πλατφόρμας (π.χ. τραπεζική μεταφορά)
      */
   settlement?: SettlementEnum
-  /**
-     * Είναι online πληρωμή
-     *
-     * Παρωχημένο αντίγραφο του ``settlement == ONLINE``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
-     */
-  isOnlinePayment?: boolean
-  /**
-     * Απαιτείται Επιβεβαίωση
-     *
-     * Παρωχημένο αντίγραφο του ``settlement == OFFLINE_TRANSFER``. Αφαιρείται στην έκδοση μετά την εισαγωγή του settlement.
-     */
-  requiresConfirmation?: boolean
 }
 
 /**
@@ -19371,10 +19347,6 @@ export type ListOrderData = {
          */
     payWay?: string | number
     /**
-         * Φίλτρο ανά online μεθόδους πληρωμής
-         */
-    payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)
          */
     payWay_Key?: string
@@ -20816,10 +20788,6 @@ export type ListMyOrdersData = {
          */
     payWay?: string | number
     /**
-         * Φίλτρο ανά online μεθόδους πληρωμής
-         */
-    payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Φίλτρο ανά κλειδί τρόπου πληρωμής (χωρίς διάκριση πεζών-κεφαλαίων)
          */
     payWay_Key?: string
@@ -21469,10 +21437,6 @@ export type ListPayWayData = {
          */
     id?: string | number
     /**
-         * Παρωχημένο — χρησιμοποιήστε ``settlement=online``. Αφαιρείται μαζί με τη στήλη στην έκδοση μετά την εισαγωγή του settlement.
-         */
-    isOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
-    /**
          * Κλειδί
          *
          * Φίλτρο ανά κλειδί τρόπου πληρωμής
@@ -21494,7 +21458,7 @@ export type ListPayWayData = {
          */
     languageCode?: 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, isOnlinePayment, -isOnlinePayment, requiresConfirmation, -requiresConfirmation, sortOrder, -sortOrder
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, sortOrder, -sortOrder
          */
     ordering?: string
     /**
@@ -21518,10 +21482,6 @@ export type ListPayWayData = {
          */
     providerCode?: string
     providerCode_Icontains?: string
-    /**
-         * Φίλτρο ανά απαίτηση επιβεβαίωσης
-         */
-    requiresConfirmation?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * A search term.
          */
@@ -25733,6 +25693,10 @@ export type NearestBoxNowLockerData = {
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query?: never
@@ -25841,6 +25805,10 @@ export type ListShippingOptionsData = {
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
+    /**
+         * Cart token from ``POST /api/v1/cart/agent-token``: acts on the signed-in shopper's own cart, for the shopping assistant. When sent, ``X-Cart-Id`` is ignored. An unknown, expired or revoked token is refused with 401, never answered with another cart; an endpoint that does not accept it refuses it with 403.
+         */
+    'X-Cart-Token'?: string
   }
   path?: never
   query: {
@@ -25863,6 +25831,13 @@ export type ListShippingOptionsData = {
   }
   url: '/api/v1/shipping/options'
 }
+
+export type ListShippingOptionsErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+}
+
+export type ListShippingOptionsError = ListShippingOptionsErrors[keyof ListShippingOptionsErrors]
 
 export type ListShippingOptionsResponses = {
   200: Array<ShippingOption>
