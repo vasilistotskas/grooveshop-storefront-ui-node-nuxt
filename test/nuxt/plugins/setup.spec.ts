@@ -8,6 +8,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useCartStore } from '~/stores/cart'
 import { useUserStore } from '~/stores/user'
 import { useUserNotificationStore } from '~/stores/user-notification'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 /**
  * The client half of the session bootstrap.
@@ -78,8 +79,10 @@ function spyStores() {
   }
 }
 
-function cartSetting(value: string | undefined) {
-  api.routes({ '/api/settings/public': { settings: value === undefined ? {} : { CART_ENABLED: value } } })
+/** The store's `cart` preference, in the tenant state the plugin reads. */
+function storeWithCart(cart: boolean) {
+  const config = validTenantConfig('test.local')
+  useTenant().value = { ...config, preferences: { ...config.preferences, cart } }
 }
 
 const FRESH = { serverRendered: true }
@@ -93,7 +96,7 @@ describe('setup plugin', () => {
     clearNuxtData()
     session.loggedIn = ref(false)
     stores = spyStores()
-    cartSetting(undefined)
+    storeWithCart(true)
   })
 
   describe('on a freshly rendered page', () => {
@@ -120,7 +123,7 @@ describe('setup plugin', () => {
     })
 
     it('skips the cart on a store that has it switched off', async () => {
-      cartSetting('False')
+      storeWithCart(false)
 
       await run(FRESH)
 
@@ -178,7 +181,7 @@ describe('setup plugin', () => {
     })
 
     it('restores no cart on a store that has it switched off', async () => {
-      cartSetting('False')
+      storeWithCart(false)
       const hooks = await run(payload)
 
       await hooks['app:suspense:resolve']!()

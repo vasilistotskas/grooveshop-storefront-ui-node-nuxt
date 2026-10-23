@@ -48,8 +48,8 @@ import { useRuntimeConfig } from 'nuxt/server'
  * needs.
  *
  * The dynamic half of the sitemap (`server/api/__sitemap__/urls.ts`)
- * gates blog URLs on the `blog` feature and product URLs on
- * `CATALOGUE_ENABLED`; this closes the same hole for the static routes
+ * gates blog URLs on the `blog` feature and product URLs on the
+ * `catalogue` preference; this closes the same hole for the static routes
  * that head each of those surfaces.
  */
 interface GatedRoute extends FeatureGatedRoute {
@@ -146,19 +146,6 @@ export default defineNitroPlugin((nitroApp) => {
     const featureAllows = (route: GatedRoute) =>
       !route.feature || storeFeatureOn(tenant, route.feature)
 
-    // One bulk read of the store's public settings for every route
-    // whose feature is on and that a preference gates (the catalogue),
-    // and none at all when no route needs one. `null` means the lookup
-    // itself failed, and the shared rule then ALLOWS, because the route
-    // middleware renders on that failure. What a missing KEY means is
-    // the preference's own default.
-    const needsSettings = GATED_ROUTES.some(
-      route => featureAllows(route) && route.preference,
-    )
-    const settings = needsSettings
-      ? await publicSettingsForHost(host, apiBaseUrl)
-      : null
-
     // `/info/<slug>` renders a ContentPage just as a legal route does,
     // and 404s one written in no language: the same document gate, for
     // the content pages the sitemap source lists.
@@ -192,7 +179,7 @@ export default defineNitroPlugin((nitroApp) => {
     )
 
     const allowed = GATED_ROUTES.map((route) => {
-      if (!featureRouteAllowed(route, tenant, settings)) return false
+      if (!featureRouteAllowed(route, tenant)) return false
       if (route.contentSlug) {
         return contentLocales?.has(route.contentSlug) ?? false
       }

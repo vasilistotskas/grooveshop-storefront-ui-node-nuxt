@@ -5,7 +5,7 @@ const { t, locale, n } = useI18n()
 const route = useRoute(`products-id-slug___${locale.value}`)
 
 const { isMobileOrTablet } = useDevice()
-const stickyAddToCartEnabled = useStorePreference('STICKY_ADD_TO_CART_ENABLED')
+const stickyAddToCartEnabled = useStorePreference('stickyAddToCart')
 const productReviewsEnabled = useStoreFeature('productReviews')
 const productAlertsEnabled = useStoreFeature('productAlerts')
 const suggestionsEnabled = useStoreFeature('productSuggestions')

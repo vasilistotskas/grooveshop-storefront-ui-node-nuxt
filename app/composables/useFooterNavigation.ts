@@ -31,7 +31,7 @@ export function useFooterNavigation() {
   const { footerColumns } = useNavigation()
   const { links: contentPageLinks } = useFooterContentPages()
 
-  const catalogueEnabled = useStorePreference('CATALOGUE_ENABLED')
+  const catalogueEnabled = useStorePreference('catalogue')
   const feedbackEnabled = useStoreFeature('feedback')
   const promotionsEnabled = useStoreFeature('promotions')
   const giftCardsEnabled = useStoreFeature('giftCards')

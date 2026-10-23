@@ -1,57 +1,21 @@
 import { z } from 'zod'
 
-/**
- * Read a tenant's public merchant `extra_settings` from a Nitro route
- * that has no tenant context of its own.
+/*
+ * Readers for Nitro routes that have no tenant context of their own.
  *
  * The sitemap and feed routes are bypassed in
  * `server/middleware/0.tenant.ts` (@nuxtjs/sitemap hits them at
  * build/SWR time with no real Host), so they resolve the tenant
  * themselves and cannot use the request-scoped readers — hence the
- * explicit `host`, forwarded as `X-Forwarded-Host` (`backendFetchFor`) so Django resolves
- * the right schema instead of answering from the public one.
+ * explicit `host`, forwarded as `X-Forwarded-Host` (`backendFetchFor`)
+ * so Django resolves the right schema instead of answering from the
+ * public one. Feature and preference gates need no read here: they are
+ * in the tenant payload those routes already resolve.
  *
- * One bulk read (`settings/public`) rather than one round trip per
- * key: a sitemap resolve consults several gates, and the storefront's
- * per-key reads are what saturated it under a crawler (2026-09-11).
- *
- * Fails CLOSED, unlike `app/utils/settingEnabled.ts`, which route
- * middleware uses and which fails OPEN. The asymmetry is deliberate:
- * a middleware that fails open costs one rendered page, while a feed
- * that fails open PUBLISHES a URL the same gate then 404s — the
- * defect these callers exist to prevent. `null` is the closed signal.
+ * They fail CLOSED: a feed that fails open PUBLISHES a URL the page's
+ * own gate then 404s, the defect these callers exist to prevent. `null`
+ * is the closed signal.
  */
-export async function publicSettingsForHost(
-  host: string,
-  apiBaseUrl: string,
-): Promise<Readonly<Record<string, string>> | null> {
-  try {
-    const { settings } = await backendFetchFor({ tenantHost: host })<PublicSettings>(
-      `${apiBaseUrl}/settings/public`,
-      {
-        method: 'GET',
-      },
-    )
-    return settings
-  }
-  catch {
-    return null
-  }
-}
-
-/**
- * Whether ONE boolean setting is on for the host — the same
- * `parseSettingFlag` rule every other reader applies. A missing row
- * and an unreadable endpoint both read as off (see above).
- */
-export async function settingEnabledForHost(
-  host: string,
-  apiBaseUrl: string,
-  key: string,
-): Promise<boolean> {
-  const settings = await publicSettingsForHost(host, apiBaseUrl)
-  return settings ? parseSettingFlag(settings[key], false) : false
-}
 
 /**
  * Every page-config layout this tenant has PUBLISHED, with when its page
@@ -63,8 +27,8 @@ export async function settingEnabledForHost(
  * the store has not published, which answer 404. One read for both,
  * where the gate used to ask Django once per page type.
  *
- * Fails CLOSED like {@link publicSettingsForHost}: `null` when the read
- * fails or the answer is not the contract, so neither caller lists a
+ * Fails CLOSED (see the top of this file): `null` when the read fails
+ * or the answer is not the contract, so neither caller lists a
  * page it could not confirm. Unlike a route, nothing downstream reports
  * the failure, so it is logged here: a drifted contract is our defect.
  */
@@ -114,9 +78,7 @@ export async function publishedLayoutsForHost(
  * this locale". `pageSize` is explicit because the endpoint's default
  * page is 12.
  *
- * Fails CLOSED like {@link publicSettingsForHost}, and for the same
- * reason — a feed that fails open publishes a URL its own gate then
- * 404s. `null` is the closed signal.
+ * Fails CLOSED (see the top of this file). `null` is the closed signal.
  */
 export async function publishedContentLocalesForHost(
   host: string,

@@ -13,15 +13,14 @@ import loyaltyEnabled from '~/middleware/loyalty-enabled'
 import newsletterEnabled from '~/middleware/newsletter-enabled'
 import promotionsEnabled from '~/middleware/promotions-enabled'
 import { createFeatureGate, createPreferenceGate } from '~/utils/routeGate'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
-import { failWith } from '~~/test/helpers/api'
 
 /**
  * The gates in front of a page. A feature gate decides from
- * `TenantConfig.features` alone, synchronously, and never reads the
- * settings; the cart and catalogue gates are the documented exception
- * (`shared/utils/storePreference.ts`) and still read their setting.
+ * `TenantConfig.features`, a preference gate (cart, catalogue) from
+ * `TenantConfig.preferences`: both synchronously, and neither reads the
+ * settings.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -97,45 +96,31 @@ describe('createFeatureGate', () => {
 
 describe('preference-gate middlewares (cart, catalogue: not store features yet)', () => {
   beforeEach(() => {
-    clearNuxtData()
-    setTenant({ features: ALL_OFF })
+    setTenant()
   })
 
   describe.each([
-    ['cart-enabled', cartEnabled, 'CART_ENABLED'],
-    ['catalogue-enabled', catalogueEnabled, 'CATALOGUE_ENABLED'],
-  ] as const)('%s', (_name, gate, key) => {
-    it(`404s when ${key} is off`, async () => {
-      api.routes({ [SETTINGS]: { settings: { [key]: 'False' } } })
+    ['cart-enabled', cartEnabled, 'cart'],
+    ['catalogue-enabled', catalogueEnabled, 'catalogue'],
+  ] as const)('%s', (_name, gate, preference) => {
+    it(`404s when ${preference} is off`, async () => {
+      setTenantPreferences({ [preference]: false })
 
       await expect(run(gate)).rejects.toMatchObject({ statusCode: 404 })
     })
 
-    it(`serves the page when ${key} is on`, async () => {
-      api.routes({ [SETTINGS]: { settings: { [key]: 'True' } } })
-
-      await expect(run(gate)).resolves.toBeUndefined()
-    })
-
-    it('serves a store with no row, which ships on, and ignores the features', async () => {
-      api.routes({ [SETTINGS]: { settings: {} } })
+    it(`serves the page when ${preference} is on, whatever the features say`, async () => {
+      setTenant({ features: ALL_OFF })
+      setTenantPreferences({ [preference]: true })
 
       await expect(run(gate)).resolves.toBeUndefined()
     })
   })
 
-  it('fails open when the settings endpoint cannot be read', async () => {
-    api.routes({ [SETTINGS]: failWith(502) })
+  it('decides from the tenant payload, asking the settings endpoint for nothing', async () => {
+    await run(createPreferenceGate('cart'))
+    await run(createPreferenceGate('catalogue'))
 
-    await expect(run(createPreferenceGate('CATALOGUE_ENABLED'))).resolves.toBeUndefined()
-  })
-
-  it('reads the settings once per render, however many gates run', async () => {
-    api.routes({ [SETTINGS]: { settings: {} } })
-
-    await run(createPreferenceGate('CART_ENABLED'))
-    await run(createPreferenceGate('CATALOGUE_ENABLED'))
-
-    expect(api.callsTo(SETTINGS)).toHaveLength(1)
+    expect(api.callsTo(SETTINGS)).toEqual([])
   })
 })

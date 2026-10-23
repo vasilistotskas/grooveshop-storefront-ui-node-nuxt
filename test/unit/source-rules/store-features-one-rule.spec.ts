@@ -5,14 +5,15 @@ import { FROZEN, REPO, readSource, withoutComments } from '../../helpers/sourceT
 
 /**
  * A store feature has ONE answer: `TenantConfig.features`, read through
- * `useStoreFeature` / `eventStoreFeature` / `storeFeatureOn`.
+ * `useStoreFeature` / `eventStoreFeature` / `storeFeatureOn`. A store
+ * preference likewise: `TenantConfig.preferences`, read through
+ * `useStorePreference` / `storePreferenceOn`.
  *
- * What this forbids outside the frozen webside tree: reading a feature
- * the old way — a literal `*_ENABLED` key through `useSettingFlag` /
- * `settingEnabled` (the settings that are not features go through the
- * typed `useStorePreference`, whose names the type checks), or a tenant
- * plan flag (`tenantStore.loyaltyEnabled` and friends) combined with a
- * setting. Each one is a second answer that can disagree with the API.
+ * What this forbids outside the frozen webside tree: reading either the
+ * old way — a literal `*_ENABLED` key through `useSettingFlag` /
+ * `settingEnabled` — or a tenant plan flag (`tenantStore.loyaltyEnabled`
+ * and friends) combined with a setting. Each one is a second answer that
+ * can disagree with Django's.
  */
 const PLAN_FLAGS = ['loyaltyEnabled', 'blogEnabled', 'promotionsEnabled', 'giftCardsEnabled', 'b2bEnabled', 'recommendationsEnabled']
 
@@ -27,7 +28,7 @@ const files = [...sources('app'), ...sources('server'), ...sources('shared').fil
 const text = (file: string) => withoutComments(readSource(file))
 const label = (file: string) => file.replace(`${REPO}\\`, '').replace(`${REPO}/`, '').replaceAll('\\', '/')
 
-describe('store features are read from TenantConfig.features alone', () => {
+describe('store features and preferences are read from the tenant payload alone', () => {
   it('reads no feature through a literal setting key', () => {
     const offenders = files.filter(file => /\b(useSettingFlag|settingEnabled)\(\s*'[A-Z_]+_ENABLED'/.test(text(file)))
 
@@ -49,5 +50,11 @@ describe('store features are read from TenantConfig.features alone', () => {
     const reads = files.reduce((sum, file) => sum + (text(file).match(/\b(useStoreFeature|eventStoreFeature|storeFeatureOn)\(/g)?.length ?? 0), 0)
 
     expect(reads).toBeGreaterThan(40)
+  })
+
+  it('is still reading preferences in many places (a canary, so the rule cannot go blind)', () => {
+    const reads = files.reduce((sum, file) => sum + (text(file).match(/\b(useStorePreference|storePreferenceOn|createPreferenceGate)\(/g)?.length ?? 0), 0)
+
+    expect(reads).toBeGreaterThan(15)
   })
 })

@@ -46724,6 +46724,38 @@ components:
         - productSuggestions
         - promotions
         - wholesale
+    StorePreferences:
+      type: object
+      description: |-
+        Each store preference's state (``tenant/features.py``): a switch the
+        API does not refuse on, served here so a client learns it from the
+        tenant payload instead of a settings read that can fail.
+      properties:
+        mobileBottomNav:
+          type: boolean
+          readOnly: true
+        stickyAddToCart:
+          type: boolean
+          readOnly: true
+        recentlyViewed:
+          type: boolean
+          readOnly: true
+        demoAccount:
+          type: boolean
+          readOnly: true
+        cart:
+          type: boolean
+          readOnly: true
+        catalogue:
+          type: boolean
+          readOnly: true
+      required:
+        - cart
+        - catalogue
+        - demoAccount
+        - mobileBottomNav
+        - recentlyViewed
+        - stickyAddToCart
     StrategyEnum:
       enum:
         - curated
@@ -47366,6 +47398,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/StoreFeatures'
           readOnly: true
+        preferences:
+          allOf:
+            - $ref: '#/components/schemas/StorePreferences'
+          readOnly: true
         loyaltyEnabled:
           type: boolean
           readOnly: true
@@ -47502,6 +47538,7 @@ components:
         - metaPixelId
         - name
         - neutralColor
+        - preferences
         - primaryColor
         - primaryDomain
         - productFeedsEnabled

@@ -1,18 +1,14 @@
 /**
- * Boolean merchant preference that is not a store feature — the typed
- * reader of `STORE_PREFERENCES` (`shared/utils/storePreference.ts`),
- * which also says what each one reads as while the settings cannot be
- * fetched. A store FEATURE is read
+ * Whether a store preference is on, the ONE reader of
+ * `TenantConfig.preferences` for components, composables and route
+ * middleware (`shared/utils/storePreference.ts`). A store FEATURE is read
  * with `useStoreFeature`, never here.
+ *
+ * Synchronous and never fetched, like `useStoreFeature`. A plugin, which
+ * runs before the tenant store is filled, reads the tenant state instead:
+ * `storePreferenceOn(useTenant().value, name)`.
  */
 export function useStorePreference(name: StorePreferenceName) {
-  return useSettingFlag(name, { fallback: STORE_PREFERENCES[name] })
-}
-
-/**
- * The awaitable form for a plugin or route middleware, which needs the
- * value before it can decide anything (see `settingEnabled`).
- */
-export function storePreferenceEnabled(name: StorePreferenceName): Promise<boolean> {
-  return settingEnabled(name, { fallback: STORE_PREFERENCES[name] })
+  const tenantStore = useTenantStore()
+  return computed(() => storePreferenceOn(tenantStore.config, name))
 }

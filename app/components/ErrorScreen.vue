@@ -24,7 +24,7 @@ const { ogImageUrl } = useTenantBranding()
 const navbar = computed(() => resolveChrome('navbar', tenantStore.schemaName))
 const footer = computed(() => resolveChrome('footer', tenantStore.schemaName))
 const mobileNav = computed(() => resolveChrome('mobile_nav', tenantStore.schemaName))
-const mobileBottomNavEnabled = useStorePreference('MOBILE_BOTTOM_NAV_ENABLED')
+const mobileBottomNavEnabled = useStorePreference('mobileBottomNav')
 
 const showDebug = import.meta.dev || Boolean((config.public as Record<string, unknown>).debug)
 

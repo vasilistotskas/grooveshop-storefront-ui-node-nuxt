@@ -3,12 +3,15 @@ import { defineComponent, ref } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import type { ProductCategory } from '~~/shared/openapi/types.gen'
 import { makeCategory } from '~~/test/fixtures/productFilters'
+import { setTenant } from '~~/test/helpers/tenant'
 
 const categories = ref<ProductCategory[]>([])
 mockNuxtImport('useAllCategories', () => () => ({ data: categories }))
 
 describe('useCategoryMenu', () => {
   it('carries each category\'s recursive product count into its entry', async () => {
+    // A store whose catalogue preference is on, as the fixture's is.
+    setTenant()
     categories.value = [
       makeCategory({ id: 1, recursiveProductCount: 28 }),
       makeCategory({ id: 2, parent: 1, level: 1, recursiveProductCount: 7 }),

@@ -12,13 +12,13 @@
  * Stored only on a store that can take an order: the value travels with
  * the order and nothing else reads it, so on a store with the cart off
  * it was storage on the visitor's device with no use at all. The gate
- * is the cart's own (`CART_ENABLED`, failing open like `cart-enabled`),
- * read in parallel so it holds up nothing.
+ * is the cart's own (`TenantConfig.preferences.cart`), read from the
+ * tenant state: this plugin runs before the tenant store is filled.
  */
 export default defineNuxtPlugin({
   name: 'attribution',
   parallel: true,
-  async setup() {
+  setup() {
     const { capture } = useOrderAttribution()
     const { location } = window
     const landing = {
@@ -28,6 +28,6 @@ export default defineNuxtPlugin({
       ownOrigin: location.origin,
     }
 
-    if (await storePreferenceEnabled('CART_ENABLED')) capture(landing)
+    if (storePreferenceOn(useTenant().value, 'cart')) capture(landing)
   },
 })

@@ -30,7 +30,7 @@ export interface CategoryMenuEntry {
 
 export function useCategoryMenu() {
   const { locale } = useI18n()
-  const catalogueEnabled = useStorePreference('CATALOGUE_ENABLED')
+  const catalogueEnabled = useStorePreference('catalogue')
 
   const { data } = useAllCategories()
 

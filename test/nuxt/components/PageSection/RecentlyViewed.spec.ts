@@ -1,17 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import RecentlyViewed from '~/components/PageSection/RecentlyViewed.vue'
+import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
 
 const { state } = vi.hoisted(() => ({
   state: {
-    /** Merchant runtime settings; a missing key takes the caller's fallback. */
-    flags: {} as Record<string, boolean>,
     items: [] as { id: number }[],
   },
 }))
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => state.flags[key] ?? options.fallback))
 mockNuxtImport('useRecentlyViewed', () => () => ({ items: ref(state.items) }))
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
@@ -30,7 +27,8 @@ const mountBand = (props: Record<string, unknown> = {}) => mountSuspended(Recent
  */
 describe('PageSection/RecentlyViewed', () => {
   beforeEach(() => {
-    state.flags = { RECENTLY_VIEWED_ENABLED: true }
+    setTenant()
+    setTenantPreferences({ recentlyViewed: true })
     state.items = [{ id: 1 }, { id: 2 }]
   })
 
@@ -47,11 +45,11 @@ describe('PageSection/RecentlyViewed', () => {
     expect(wrapper.find('h2').text()).toBe('Ξαναδές τα')
   })
 
-  it.each<{ name: string, flags: Record<string, boolean>, items: { id: number }[] }>([
-    { name: 'the visitor has viewed nothing yet', flags: { RECENTLY_VIEWED_ENABLED: true }, items: [] },
-    { name: 'the merchant setting is missing', flags: {}, items: [{ id: 1 }] },
-  ])('renders nothing when $name', async ({ flags, items }) => {
-    state.flags = flags
+  it.each<{ name: string, on: boolean, items: { id: number }[] }>([
+    { name: 'the visitor has viewed nothing yet', on: true, items: [] },
+    { name: 'the store turned the rail off', on: false, items: [{ id: 1 }] },
+  ])('renders nothing when $name', async ({ on, items }) => {
+    setTenantPreferences({ recentlyViewed: on })
     state.items = items
 
     const wrapper = await mountBand()

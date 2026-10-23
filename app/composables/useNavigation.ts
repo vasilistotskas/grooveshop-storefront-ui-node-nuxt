@@ -37,13 +37,7 @@ export function useNavigation() {
   // touched — the operator's menu stays as they built it, and the link
   // reappears the moment the feature is switched on.
   const tenantStore = useTenantStore()
-  const { settings, unavailable } = useStoreSettings()
-  const blocked = computed(() =>
-    blockedFeaturePaths(
-      tenantStore.config,
-      unavailable.value ? null : settings.value,
-    ),
-  )
+  const blocked = computed(() => blockedFeaturePaths(tenantStore.config))
   const serving = (link: NavLink) =>
     !link.to || !isFeaturePathBlocked(link.to, blocked.value)
 

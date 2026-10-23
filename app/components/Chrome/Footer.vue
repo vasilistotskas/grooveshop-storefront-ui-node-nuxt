@@ -35,7 +35,7 @@ const { identity } = useMerchantIdentity()
 const { isModalActive } = useCookieControl()
 const { getPaymentMethodName } = usePaymentMethod()
 
-const mobileBottomNavEnabled = useStorePreference('MOBILE_BOTTOM_NAV_ENABLED')
+const mobileBottomNavEnabled = useStorePreference('mobileBottomNav')
 const giftCardsEnabled = useStoreFeature('giftCards')
 
 /**

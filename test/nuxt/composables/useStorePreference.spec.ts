@@ -1,75 +1,47 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { failWith } from '~~/test/helpers/api'
+import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
+import { useTenantStore } from '~/stores/tenant'
 
+/**
+ * A store preference is Django's answer in `TenantConfig.preferences`,
+ * read like a store feature: from the tenant payload, with no request of
+ * its own and no default the storefront keeps.
+ */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const SETTINGS = '/api/settings/public'
-const POLL = { interval: 1 }
-
-function read<T>(readers: () => T) {
-  let out!: ReturnType<typeof useStoreSettings> & { result: T }
-  useNuxtApp().runWithContext(() => {
-    out = { ...useStoreSettings(), result: readers() }
-  })
-  return out
-}
-
 describe('useStorePreference', () => {
   beforeEach(() => {
-    clearNuxtData()
+    setTenant()
   })
 
-  it('reads the stored value, whichever way the row is spelled', async () => {
-    api.routes({ [SETTINGS]: { settings: { MOBILE_BOTTOM_NAV_ENABLED: 'False', RECENTLY_VIEWED_ENABLED: 'yes' } } })
+  it('reads each preference from the tenant payload', () => {
+    setTenantPreferences({ cart: false, mobileBottomNav: true })
 
-    const { result: [nav, recent] } = read(() => [
-      useStorePreference('MOBILE_BOTTOM_NAV_ENABLED'),
-      useStorePreference('RECENTLY_VIEWED_ENABLED'),
-    ])
-
-    await vi.waitFor(() => expect(recent!.value).toBe(true), POLL)
-    expect(nav!.value).toBe(false)
+    expect(useStorePreference('cart').value).toBe(false)
+    expect(useStorePreference('mobileBottomNav').value).toBe(true)
   })
 
-  it('answers each preference\'s own default for a missing row', async () => {
-    api.routes({ [SETTINGS]: { settings: { UNRELATED: 'x' } } })
+  it('follows the payload when the store changes it', () => {
+    const catalogue = useStorePreference('catalogue')
+    expect(catalogue.value).toBe(true)
 
-    const { settings, result } = read(() => ({
-      cart: useStorePreference('CART_ENABLED'),
-      catalogue: useStorePreference('CATALOGUE_ENABLED'),
-      recent: useStorePreference('RECENTLY_VIEWED_ENABLED'),
-      demo: useStorePreference('DEMO_ACCOUNT_ENABLED'),
-    }))
-    await vi.waitFor(() => expect(settings.value).toEqual({ UNRELATED: 'x' }), POLL)
+    setTenantPreferences({ catalogue: false })
 
-    expect(result.cart.value).toBe(STORE_PREFERENCES.CART_ENABLED)
-    expect(result.catalogue.value).toBe(true)
-    expect(result.recent.value).toBe(false)
-    expect(result.demo.value).toBe(false)
-  })
-})
-
-describe('storePreferenceEnabled', () => {
-  beforeEach(() => {
-    clearNuxtData()
+    expect(catalogue.value).toBe(false)
   })
 
-  it('reads the stored value for a plugin or a gate', async () => {
-    api.routes({ [SETTINGS]: { settings: { CART_ENABLED: 'False' } } })
+  it('asks the settings endpoint for nothing', () => {
+    useStorePreference('demoAccount')
 
-    expect(await storePreferenceEnabled('CART_ENABLED')).toBe(false)
+    expect(api.callsTo('/api/settings/public')).toEqual([])
   })
 
-  it('uses the preference default for a missing row and for an unreadable endpoint', async () => {
-    api.routes({ [SETTINGS]: { settings: {} } })
-    expect(await storePreferenceEnabled('CATALOGUE_ENABLED')).toBe(true)
-    expect(await storePreferenceEnabled('RECENTLY_VIEWED_ENABLED')).toBe(false)
+  it('has none of them without a resolved store', () => {
+    useTenantStore().setConfig(null)
 
-    clearNuxtData()
-    api.routes({ [SETTINGS]: failWith(503) })
-    expect(await storePreferenceEnabled('CART_ENABLED')).toBe(true)
+    expect(useStorePreference('cart').value).toBe(false)
   })
 })

@@ -3,7 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { injectHead } from '#imports'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
 import ErrorScreen from '~/components/ErrorScreen.vue'
 
 /**
@@ -12,11 +12,9 @@ import ErrorScreen from '~/components/ErrorScreen.vue'
  * that renders outside every layout, so this body draws the header,
  * footer and tab bar itself — here as stand-ins that name their slot.
  */
-const state = vi.hoisted(() => ({ mobileNav: true }))
 const { clearError } = vi.hoisted(() => ({ clearError: vi.fn(() => Promise.resolve()) }))
 
 mockNuxtImport('clearError', () => clearError)
-mockNuxtImport('useSettingFlag', () => () => computed(() => state.mobileNav))
 mockNuxtImport('resolveChrome', () => (key: string) => defineComponent({
   name: `Chrome-${key}`,
   setup: () => () => h('div', { 'data-chrome': key }),
@@ -31,7 +29,7 @@ const mountScreen = async (statusCode = 404) => {
 }
 
 beforeEach(() => {
-  state.mobileNav = true
+  setTenant()
 })
 
 describe('ErrorScreen', () => {
@@ -43,7 +41,7 @@ describe('ErrorScreen', () => {
   })
 
   it('leaves the tab bar out when the store switched it off', async () => {
-    state.mobileNav = false
+    setTenantPreferences({ mobileBottomNav: false })
 
     const wrapper = await mountScreen()
 

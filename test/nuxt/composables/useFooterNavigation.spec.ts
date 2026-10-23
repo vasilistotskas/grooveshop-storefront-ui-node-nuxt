@@ -3,7 +3,7 @@ import { computed, effectScope, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavColumn } from '~/composables/useNavigation'
-import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
  * The default footer's links in its two weights: the primary columns a
@@ -19,7 +19,6 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 const { state } = vi.hoisted(() => ({
   state: {
     footer: null as NavColumn[] | null,
-    flags: {} as Record<string, boolean>,
     pages: [] as { slug: string, title: string }[],
   },
 }))
@@ -29,8 +28,6 @@ mockNuxtImport('useNavigation', () => () => ({
   footerColumns: computed(() => state.footer),
   mobileLinks: computed(() => null),
 }))
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => state.flags[key] ?? options.fallback))
 mockNuxtImport('useFooterContentPages', () => () => ({
   links: computed(() => state.pages.map(page => ({ label: page.title, to: `/info/${page.slug}` }))),
 }))
@@ -60,7 +57,6 @@ const paths = (links: { to: string }[]) => links.map(link => link.to)
 describe('useFooterNavigation', () => {
   beforeEach(() => {
     state.footer = null
-    state.flags = {}
     state.pages = []
     setTenant()
   })
@@ -92,9 +88,8 @@ describe('useFooterNavigation', () => {
   })
 
   it('links offers, gift cards and rewards only for the features the store has', () => {
-    // Plan flags and settings on: only `features` counts.
+    // Plan flags on: only `features` counts.
     setTenant({ promotionsEnabled: true, giftCardsEnabled: true, loyaltyEnabled: true })
-    state.flags = { PROMOTIONS_ENABLED: true, GIFT_CARDS_ENABLED: true, LOYALTY_ENABLED: true }
     const none = navigation()
     expect(paths(none.primary[0]!.children)).toEqual(['/products'])
 
@@ -104,7 +99,7 @@ describe('useFooterNavigation', () => {
   })
 
   it('drops a column with nothing to link', () => {
-    state.flags = { CATALOGUE_ENABLED: false }
+    setTenantPreferences({ catalogue: false })
 
     expect(navigation().primary.map(column => column.label)).toEqual([t('footer.help')])
   })

@@ -4684,6 +4684,20 @@ export const zStoreFeatures = z.object({
 })
 
 /**
+ * Each store preference's state (``tenant/features.py``): a switch the
+ * API does not refuse on, served here so a client learns it from the
+ * tenant payload instead of a settings read that can fail.
+ */
+export const zStorePreferences = z.object({
+  mobileBottomNav: z.boolean().readonly(),
+  stickyAddToCart: z.boolean().readonly(),
+  recentlyViewed: z.boolean().readonly(),
+  demoAccount: z.boolean().readonly(),
+  cart: z.boolean().readonly(),
+  catalogue: z.boolean().readonly(),
+})
+
+/**
  * * `curated` - Επιλογή εμπόρου
  * * `variant_group` - Ίδια ομάδα παραλλαγών
  * * `category` - Ίδια κατηγορία
@@ -4944,6 +4958,7 @@ export const zTenantConfig = z.object({
   assetsDomain: z.string().readonly(),
   staticDomain: z.string().readonly(),
   features: zStoreFeatures,
+  preferences: zStorePreferences,
   loyaltyEnabled: z.boolean().readonly(),
   blogEnabled: z.boolean().readonly(),
   promotionsEnabled: z.boolean().readonly(),

@@ -8,7 +8,7 @@ import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
 import ChromeNavbar from '~/components/Chrome/Navbar.vue'
 import MobileMenu from '~/components/Chrome/MobileMenu.vue'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
-import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -19,8 +19,6 @@ const { state } = vi.hoisted(() => ({
     header: null as NavLink[] | null,
     /** `useNavigation().mobileLinks`: the Mobile menu, else the Header menu (that composable's spec). */
     phoneLinks: null as NavLink[] | null,
-    /** The preferences still read from the settings (the cart); a missing key takes the preference's default. */
-    flags: {} as Record<string, boolean>,
   },
 }))
 const session = vi.hoisted(() => ({ loggedIn: undefined as any }))
@@ -35,8 +33,6 @@ mockNuxtImport('useCategoryMenu', () => () => ({
   categories,
   hasCategories: computed(() => categories.value.length > 0),
 }))
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => state.flags[key] ?? options.fallback))
 mockNuxtImport('useUserSession', () => () => {
   session.loggedIn ??= ref(false)
   return {
@@ -90,7 +86,6 @@ describe('Chrome/Navbar', () => {
   beforeEach(() => {
     state.header = null
     state.phoneLinks = null
-    state.flags = {}
     categories.value = []
     if (session.loggedIn) session.loggedIn.value = false
     setTenant({ availableLocales: ['el'] })
@@ -118,8 +113,6 @@ describe('Chrome/Navbar', () => {
   ])('gates the platform menu with $name', async ({ tenant, features, links }) => {
     setTenant({ availableLocales: ['el'], ...tenant })
     setTenantFeatures(features)
-    // Every setting reads on: none of them can open an entry.
-    state.flags = { PROMOTIONS_ENABLED: true, GIFT_CARDS_ENABLED: true, LOYALTY_ENABLED: true }
 
     const wrapper = await mountNavbar()
 
@@ -194,11 +187,11 @@ describe('Chrome/Navbar', () => {
     ])
   })
 
-  it('shows the cart unless the merchant turned it off (fails open)', async () => {
+  it('shows the cart unless the store turned the cart preference off', async () => {
     const shown = await mountNavbar()
     expect(shown.find('[data-test="cart"]').exists()).toBe(true)
 
-    state.flags = { CART_ENABLED: false }
+    setTenantPreferences({ cart: false })
     const hidden = await mountNavbar()
     expect(hidden.find('[data-test="cart"]').exists()).toBe(false)
   })

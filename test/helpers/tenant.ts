@@ -58,3 +58,20 @@ export function setTenantFeatures(features: Partial<TenantConfig['features']>): 
   store.setConfig(config)
   return config
 }
+
+/**
+ * Switch store preferences on or off for the tenant already in the
+ * store, as `setTenantFeatures` does for features
+ * (`TenantConfig.preferences`, read by `useStorePreference`).
+ *
+ * ```ts
+ * setTenantPreferences({ cart: false })
+ * ```
+ */
+export function setTenantPreferences(preferences: Partial<TenantConfig['preferences']>): TenantConfig {
+  const store = useTenantStore()
+  const current = store.config ?? validTenantConfig(TEST_TENANT_DOMAIN) as TenantConfig
+  const config: TenantConfig = { ...current, preferences: { ...current.preferences, ...preferences } }
+  store.setConfig(config)
+  return config
+}

@@ -94,6 +94,16 @@ export function validTenantConfig(
       contactAttachments: true,
       chatWidget: true,
     },
+    // The store's preferences as Django resolves them: each one's
+    // declared value (`settings.EXTRA_SETTINGS_DEFAULTS`).
+    preferences: {
+      mobileBottomNav: true,
+      stickyAddToCart: true,
+      recentlyViewed: true,
+      demoAccount: false,
+      cart: true,
+      catalogue: true,
+    },
     // Spread last so a caller can turn on the flags its own scenario
     // needs (a second locale, the blog) without restating the other
     // ~50 fields the schema requires.

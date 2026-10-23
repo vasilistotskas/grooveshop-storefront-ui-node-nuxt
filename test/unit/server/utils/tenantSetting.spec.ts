@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   publishedLayoutsForHost,
-  publicSettingsForHost,
   publishedContentLocalesForHost,
-  settingEnabledForHost,
 } from '~~/server/utils/tenantSetting'
 import { backend, jsonResponse } from '~~/test/helpers/nitro'
 
@@ -14,51 +12,6 @@ import { backend, jsonResponse } from '~~/test/helpers/nitro'
  * CLOSED — a feed that fails open publishes a URL its own gate 404s.
  */
 const API = 'http://backend.test/api/v1'
-
-describe('publicSettingsForHost', () => {
-  it('reads the bulk public settings as the given store', async () => {
-    backend.reply({ settings: { BLOG_ENABLED: 'True' } })
-
-    await expect(publicSettingsForHost('webside.gr', API)).resolves.toEqual({ BLOG_ENABLED: 'True' })
-    expect(backend.lastRequest.path).toBe(`${API}/settings/public`)
-    expect(backend.lastRequest.method).toBe('GET')
-    expect(backend.lastRequest.headers.get('x-forwarded-host')).toBe('webside.gr')
-  })
-
-  it.each([
-    ['a 5xx', () => backend.reply(jsonResponse({ detail: 'x' }, 503))],
-    ['a network failure', () => backend.reply(() => {
-      throw new TypeError('fetch failed')
-    })],
-  ])('fails closed (null) on %s', async (_label, arrange) => {
-    arrange()
-
-    await expect(publicSettingsForHost('webside.gr', API)).resolves.toBeNull()
-  })
-})
-
-describe('settingEnabledForHost', () => {
-  it.each([
-    ['True', true],
-    [' yes ', true],
-    ['1', true],
-    ['False', false],
-    ['0', false],
-    ['', false],
-  ])('reads %j as %s', async (raw, enabled) => {
-    backend.reply({ settings: { GIFT_CARDS: raw } })
-
-    await expect(settingEnabledForHost('webside.gr', API, 'GIFT_CARDS')).resolves.toBe(enabled)
-  })
-
-  it('is off for a missing row and for an unreadable endpoint', async () => {
-    backend.replyOnce({ settings: {} })
-    await expect(settingEnabledForHost('webside.gr', API, 'GIFT_CARDS')).resolves.toBe(false)
-
-    backend.reply(jsonResponse({ detail: 'x' }, 500))
-    await expect(settingEnabledForHost('webside.gr', API, 'GIFT_CARDS')).resolves.toBe(false)
-  })
-})
 
 describe('publishedLayoutsForHost', () => {
   it('reads every published layout once, as the store', async () => {

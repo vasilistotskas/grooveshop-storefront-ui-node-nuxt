@@ -3,12 +3,13 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
 import DemoAccountCard from '~/components/Account/DemoAccountCard.vue'
+import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
  * The strip publishes a working password to every visitor of the store
  * that turns it on, so the first thing to pin is when it refuses to
- * render: it fails CLOSED — the flag must be on AND both of an
- * account's credentials must be present. Then that each row's "Sign in"
+ * render: it fails CLOSED — the store's `demoAccount` preference must be
+ * on AND both of an account's credentials must be present. Then that each row's "Sign in"
  * hands up the pair it stands for, and that the password is masked and
  * copyable, never printed.
  */
@@ -20,7 +21,6 @@ const { copy } = vi.hoisted(() => ({ copy: vi.fn((_text: string) => Promise.reso
 mockNuxtImport('useClipboard', () => () => ({ copy, copied }))
 
 const ARMED = {
-  DEMO_ACCOUNT_ENABLED: 'true',
   DEMO_ACCOUNT_EMAIL: 'demo@grooveshop.space',
   DEMO_ACCOUNT_PASSWORD: 'GrooveDemo-2026',
 }
@@ -30,6 +30,8 @@ const WHOLESALE = {
 }
 
 beforeEach(() => {
+  setTenant()
+  setTenantPreferences({ demoAccount: true })
   settings.value = { ...ARMED }
   copied.value = false
   copy.mockImplementation(() => {
@@ -43,8 +45,15 @@ const signInButtons = (wrapper: VueWrapper) => wrapper.findAll('button').filter(
 const rowNames = (wrapper: VueWrapper) => wrapper.findAll('strong').map(name => name.text())
 
 describe('Account/DemoAccountCard', () => {
+  it('renders nothing when the store has not turned it on', async () => {
+    setTenantPreferences({ demoAccount: false })
+
+    const wrapper = await mountStrip()
+
+    expect(wrapper.text()).toBe('')
+  })
+
   it.each([
-    ['the store has not turned it on', { DEMO_ACCOUNT_ENABLED: 'false' }],
     // Half-configured is not configured: the button would sign in with an
     // empty address and promise an account that is not there.
     ['the email is missing', { DEMO_ACCOUNT_EMAIL: '' }],
@@ -83,7 +92,7 @@ describe('Account/DemoAccountCard', () => {
   })
 
   it('offers a wholesale-only store its wholesale row', async () => {
-    settings.value = { DEMO_ACCOUNT_ENABLED: 'true', ...WHOLESALE }
+    settings.value = { ...WHOLESALE }
 
     const wrapper = await mountStrip()
 
