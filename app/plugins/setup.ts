@@ -28,11 +28,11 @@ export default defineNuxtPlugin({
     // `setupCart` forwards cookies to an endpoint that answers for a
     // feature it does not have — a guaranteed failed request on every
     // page of every such tenant, which the visual audit found on all
-    // 19 routes of the one this pack exists for. Fails OPEN, matching
-    // `cart-enabled` and the navbar's own read of the same flag, and
-    // resolved in PARALLEL with the config/session pair below so it
-    // costs no wall-clock on the stores that do have a cart.
-    const cartEnabledPromise = storePreferenceEnabled('CART_ENABLED')
+    // 19 routes of the one this pack exists for. Read from the tenant
+    // state, which this plugin can reach before the tenant store is
+    // filled: the ref is taken here, its value read when needed.
+    const tenant = useTenant()
+    const cartEnabled = () => storePreferenceOn(tenant.value, 'cart')
 
     const { loggedIn } = useUserSession()
     const userStore = useUserStore()
@@ -68,7 +68,7 @@ export default defineNuxtPlugin({
             setupAuthenticators(),
             setupNotifications(),
           ])
-          if (await cartEnabledPromise) {
+          if (cartEnabled()) {
             await setupCart()
           }
           await syncLanguageFromUser()
@@ -85,7 +85,7 @@ export default defineNuxtPlugin({
       nuxtApp.hook('app:suspense:resolve', async () => {
         try {
           await setupConfig()
-          if (!loggedIn.value && await cartEnabledPromise) {
+          if (!loggedIn.value && cartEnabled()) {
             await setupCart()
           }
         }
@@ -108,7 +108,7 @@ export default defineNuxtPlugin({
       // Cart and account needed for header UI during SSR
       await Promise.all([
         setupAccount(),
-        cartEnabledPromise.then(enabled => enabled ? setupCart() : undefined),
+        cartEnabled() ? setupCart() : undefined,
       ])
 
       // Backend is the source of truth for the user's language. Reconcile

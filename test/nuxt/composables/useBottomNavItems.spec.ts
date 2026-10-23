@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, effectScope, ref } from 'vue'
+import { effectScope, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
-import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
  * The phone tab bar's entries. What matters:
@@ -18,14 +18,11 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  * - the cart carries its item count, and only while there is one;
  * - signed out, Saved and Account lead to sign-in with a way back.
  */
-const { route, loggedIn, flags } = vi.hoisted(() => ({
+const { route, loggedIn } = vi.hoisted(() => ({
   route: { name: 'index___el', path: '/', fullPath: '/', query: {} as Record<string, string>, params: {}, hash: '', matched: [], meta: {} },
   loggedIn: { value: false },
-  flags: {} as Record<string, boolean>,
 }))
 mockNuxtImport('useRoute', () => () => route)
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => flags[key] ?? options.fallback))
 // The full surface: the app's auth plugin reads it at boot.
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(loggedIn.value),
@@ -55,7 +52,6 @@ const nextOf = (to: unknown) => new URL(String(to), 'https://shop.test').searchP
 describe('useBottomNavItems', () => {
   beforeEach(async () => {
     loggedIn.value = false
-    for (const key of Object.keys(flags)) Reflect.deleteProperty(flags, key)
     setTenant()
     setTenantFeatures({ favourites: true })
     Object.assign(route, { name: 'index___el', path: '/', fullPath: '/', query: {} })
@@ -78,7 +74,7 @@ describe('useBottomNavItems', () => {
   })
 
   it('drops the cart when the cart preference is off', () => {
-    flags.CART_ENABLED = false
+    setTenantPreferences({ cart: false })
 
     expect(labels(items())).not.toContain(t('cart.title'))
   })

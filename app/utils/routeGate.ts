@@ -18,17 +18,14 @@ export function createFeatureGate(name: StoreFeatureName) {
 }
 
 /**
- * Gate a page behind a merchant preference (`CART_ENABLED`,
- * `CATALOGUE_ENABLED`: not store features yet, see
- * `shared/utils/storePreference.ts`).
- *
- * Fails OPEN when the settings endpoint cannot be read: an outage must
- * not take the shop down for the stores that sell. What a missing row
- * means is the preference's own default.
+ * Gate a page behind a store preference (`cart`, `catalogue`: not store
+ * features yet, see `shared/utils/storePreference.ts`). Synchronous like
+ * the feature gate: the decision is `TenantConfig.preferences`, already
+ * on the render.
  */
 export function createPreferenceGate(name: StorePreferenceName) {
-  return defineNuxtRouteMiddleware(async () => {
-    if (await storePreferenceEnabled(name)) return
+  return defineNuxtRouteMiddleware(() => {
+    if (useStorePreference(name).value) return
 
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   })

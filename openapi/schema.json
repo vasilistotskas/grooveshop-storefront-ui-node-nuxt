@@ -72675,6 +72675,44 @@
                     "wholesale"
                 ]
             },
+            "StorePreferences": {
+                "type": "object",
+                "description": "Each store preference's state (``tenant/features.py``): a switch the\nAPI does not refuse on, served here so a client learns it from the\ntenant payload instead of a settings read that can fail.",
+                "properties": {
+                    "mobileBottomNav": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "stickyAddToCart": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "recentlyViewed": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "demoAccount": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "cart": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "catalogue": {
+                        "type": "boolean",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "cart",
+                    "catalogue",
+                    "demoAccount",
+                    "mobileBottomNav",
+                    "recentlyViewed",
+                    "stickyAddToCart"
+                ]
+            },
             "StrategyEnum": {
                 "enum": [
                     "curated",
@@ -73479,6 +73517,14 @@
                         ],
                         "readOnly": true
                     },
+                    "preferences": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/StorePreferences"
+                            }
+                        ],
+                        "readOnly": true
+                    },
                     "loyaltyEnabled": {
                         "type": "boolean",
                         "readOnly": true
@@ -73653,6 +73699,7 @@
                     "metaPixelId",
                     "name",
                     "neutralColor",
+                    "preferences",
                     "primaryColor",
                     "primaryDomain",
                     "productFeedsEnabled",

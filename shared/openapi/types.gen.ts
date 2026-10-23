@@ -8830,6 +8830,20 @@ export type StoreFeatures = {
 }
 
 /**
+ * Each store preference's state (``tenant/features.py``): a switch the
+ * API does not refuse on, served here so a client learns it from the
+ * tenant payload instead of a settings read that can fail.
+ */
+export type StorePreferences = {
+  readonly mobileBottomNav: boolean
+  readonly stickyAddToCart: boolean
+  readonly recentlyViewed: boolean
+  readonly demoAccount: boolean
+  readonly cart: boolean
+  readonly catalogue: boolean
+}
+
+/**
  * * `curated` - Επιλογή εμπόρου
  * * `variant_group` - Ίδια ομάδα παραλλαγών
  * * `category` - Ίδια κατηγορία
@@ -9252,6 +9266,7 @@ export type TenantConfig = {
   readonly assetsDomain: string
   readonly staticDomain: string
   features: StoreFeatures
+  preferences: StorePreferences
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
   readonly promotionsEnabled: boolean

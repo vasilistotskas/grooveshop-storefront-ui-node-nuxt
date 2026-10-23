@@ -5,6 +5,7 @@ import { effectScope, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import type { ProductFilters } from '~~/shared/types/product-filters'
 import { makeBrand, makeProductFilters } from '~~/test/fixtures/productFilters'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The brand filter's data: the brand facet is asked with every OTHER
@@ -34,6 +35,8 @@ function setup(categoryId?: number) {
 }
 
 beforeEach(() => {
+  // The brand list is read only on a store whose catalogue is on.
+  setTenant()
   clearNuxtData()
   filters.value = makeProductFilters()
 })

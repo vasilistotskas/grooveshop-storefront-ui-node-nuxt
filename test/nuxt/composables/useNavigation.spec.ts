@@ -11,7 +11,7 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
-import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /** Whether the store configured a Mobile menu; a store with none gets no `mobile` key. */
 let withMobileSlot = true
@@ -48,9 +48,6 @@ registerEndpoint('/api/page-config/navigation', () => ({
   ],
 }))
 
-let publicSettings: Record<string, string> = {}
-registerEndpoint('/api/settings/public', () => ({ settings: publicSettings }))
-
 const Probe = defineComponent({
   setup() {
     const { headerItems, mobileLinks, footerColumns } = useNavigation()
@@ -80,29 +77,22 @@ async function render() {
   // The composable's useFetch calls are keyed and shared, so a second
   // render in the same test reads the FIRST render's asyncData — and a
   // component left mounted keeps that instance (and its watchers)
-  // alive through clearNuxtData. Unmount first, clear, then wait until
-  // the settings data IS what the endpoint serves now: the menus can
-  // land before the settings, and waiting for "something arrived" once
-  // judged the gate on an empty settings map.
+  // alive through clearNuxtData. Unmount first, clear, then wait for the
+  // menus. The gate reads the tenant payload, which is set before render.
   //
-  // The keys are named, not left to a bare `clearNuxtData()`: that walks
+  // The key is named, not left to a bare `clearNuxtData()`: that walks
   // only the keys already in the payload (nuxt asyncData.ts
-  // `clearNuxtData`), so a `store-settings` request the app issued at
-  // boot and that is still in flight survives it — and, `dedupe: 'defer'`,
-  // the probe then joins that request and gets the settings of before the
-  // test. A named key also drops its pending promise
-  // (`clearNuxtDataByKey`), so the probe asks afresh.
+  // `clearNuxtData`), so a request still in flight survives it. A named
+  // key also drops its pending promise (`clearNuxtDataByKey`), so the
+  // probe asks afresh.
   mounted?.unmount()
-  clearNuxtData([STORE_SETTINGS_KEY, NAVIGATION_KEY])
+  clearNuxtData([NAVIGATION_KEY])
   const wrapper = await mountSuspended(Probe, { route: false })
   mounted = wrapper
   const texts = (selector: string) =>
     wrapper.findAll(`${selector} > li`).map(li => li.text())
   await vi.waitFor(() => {
     expect(useNuxtData(NAVIGATION_KEY).data.value).toBeTruthy()
-    expect(
-      (useNuxtData(STORE_SETTINGS_KEY).data.value as { settings?: unknown })?.settings,
-    ).toEqual(publicSettings)
   }, { interval: 1 })
   await wrapper.vm.$nextTick()
   return { wrapper, texts }
@@ -111,7 +101,6 @@ async function render() {
 describe('useNavigation — feature gate on operator links', () => {
   beforeEach(() => {
     setTenant()
-    publicSettings = {}
     withMobileSlot = true
   })
 
@@ -120,10 +109,9 @@ describe('useNavigation — feature gate on operator links', () => {
     mounted = null
   })
 
-  it('drops links to features the store does not have, whatever the plan flags and settings say', async () => {
+  it('drops links to features the store does not have, whatever the plan flags say', async () => {
     setTenant({ promotionsEnabled: true, giftCardsEnabled: true, loyaltyEnabled: true })
     setTenantFeatures({ promotions: false, giftCards: false, loyalty: false })
-    publicSettings = { PROMOTIONS_ENABLED: 'True', GIFT_CARDS_ENABLED: 'True', LOYALTY_ENABLED: 'True' }
 
     const { texts } = await render()
 
@@ -150,12 +138,12 @@ describe('useNavigation — feature gate on operator links', () => {
     expect(wrapper.text()).toContain('Εξωτερικά')
   })
 
-  it('keeps the catalogue (a preference, not a feature yet) when its setting was never set, and drops it when off', async () => {
+  it('keeps the catalogue (a preference, not a feature yet) while it is on, and drops it when off', async () => {
     setTenant({})
     let { texts } = await render()
     expect(texts('#header')).toContain('/products')
 
-    publicSettings = { CATALOGUE_ENABLED: 'False' }
+    setTenantPreferences({ catalogue: false })
     ;({ texts } = await render())
     expect(texts('#header')).not.toContain('/products')
   })

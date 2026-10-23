@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PageBreadcrumb from '~/components/Page/Breadcrumb.vue'
 import WebsidePageBreadcrumb from '~/components/variants/webside/Page/Breadcrumb.vue'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Labels come from the real `i18n/locales/breadcrumb` catalogue, so the
@@ -16,6 +17,11 @@ function label(key: string) {
 }
 
 describe.each(trees(PageBreadcrumb, WebsidePageBreadcrumb))('$tree PageBreadcrumb', ({ tree, C }) => {
+  // A trail may name a category, read only on a store whose catalogue is on.
+  beforeEach(() => {
+    setTenant()
+  })
+
   it('links Home to the index and marks the current page', async () => {
     const wrapper = await mountSuspended(C, { route: '/about', props: { routeName: 'about' } })
 

@@ -2,9 +2,9 @@
  * The dynamic sitemap source. What it must keep true:
  *
  * - a gated surface is left out — blog URLs when the tenant has
- *   no `blog` feature, catalogue URLs when the merchant setting
- *   `CATALOGUE_ENABLED` is off — so the sitemap never advertises a URL
- *   its own route middleware answers with a 404;
+ *   no `blog` feature, catalogue URLs when its `catalogue` preference
+ *   is off — so the sitemap never advertises a URL its own route
+ *   middleware answers with a 404;
  * - it resolves the tenant ITSELF (the route is bypassed in
  *   `0.tenant.ts`) and every backend read names the request's store;
  * - URLs and images point at the tenant's own domains.
@@ -22,7 +22,6 @@ const UPDATED = '2026-01-01T00:00:00Z'
 
 interface Catalogue {
   tenant?: Record<string, unknown> | null
-  catalogueEnabled?: string
   posts?: unknown[]
   blogCategories?: unknown[]
   products?: unknown[]
@@ -38,7 +37,6 @@ const page = (results: unknown[] = []) => ({ count: results.length, links: { nex
 function serve(catalogue: Catalogue = {}) {
   const {
     tenant = null,
-    catalogueEnabled = 'true',
     posts = [{ id: 1, slug: 'my-post', updatedAt: UPDATED }],
     blogCategories = [{ id: 10, slug: 'tech', updatedAt: UPDATED }],
     products = [makeProduct({ id: 100, slug: 'my-product' })],
@@ -50,8 +48,6 @@ function serve(catalogue: Catalogue = {}) {
     switch (url.pathname.replace('/api/v1', '')) {
       case '/tenant/resolve':
         return tenant ?? jsonResponse({ detail: 'Not found.' }, 404)
-      case '/settings/public':
-        return { settings: { CATALOGUE_ENABLED: catalogueEnabled } }
       case '/blog/post': return page(posts)
       case '/blog/category': return page(blogCategories)
       case '/product': return page(products)
@@ -110,33 +106,35 @@ describe('server/api/__sitemap__/urls — blog feature gating', () => {
 })
 
 describe('server/api/__sitemap__/urls — catalogue gating', () => {
-  it('reads CATALOGUE_ENABLED from the requesting store', async () => {
-    serve()
-
-    await sitemap(tenantContext())
-
-    const settings = backend.requests.find(request => request.url.pathname.endsWith('/settings/public'))
-    expect(settings?.headers.get('x-forwarded-host')).toBe(HOST)
+  const withCatalogue = (catalogue: boolean) => ({
+    preferences: { ...validTenantConfig(HOST).preferences, catalogue },
   })
 
-  it.each(['false', ''])('excludes product and category URLs when CATALOGUE_ENABLED is %j', async (catalogueEnabled) => {
-    serve({ catalogueEnabled })
+  it('lists product and category URLs while the catalogue preference is on', async () => {
+    serve()
 
-    const urls = locs(await sitemap(tenantContext()))
+    const urls = locs(await sitemap(tenantContext(withCatalogue(true))))
+
+    expect(urls).toContain('https://acme.test/products/100/my-product')
+  })
+
+  it('excludes product and category URLs when the catalogue preference is off', async () => {
+    serve()
+
+    const urls = locs(await sitemap(tenantContext(withCatalogue(false))))
 
     expect(urls.some(loc => loc.includes('/products/'))).toBe(false)
     // The two surfaces are gated independently.
     expect(urls).toContain('https://acme.test/blog/post/1/my-post')
+    expect(backend.requests.some(request => request.url.pathname.endsWith('/product'))).toBe(false)
   })
 
-  it('fails closed when the settings endpoint is unreachable', async () => {
-    backend.reply(({ url }: BackendRequest) => url.pathname.endsWith('/settings/public')
-      ? jsonResponse({ detail: 'down' }, 503)
-      : page([makeProduct({ id: 100, slug: 'my-product' })]))
+  it('decides from the tenant payload, asking the settings endpoint for nothing', async () => {
+    serve()
 
-    const urls = locs(await sitemap(tenantContext()))
+    await sitemap(tenantContext())
 
-    expect(urls.some(loc => loc.includes('/products/'))).toBe(false)
+    expect(backend.requests.some(request => request.url.pathname.endsWith('/settings/public'))).toBe(false)
   })
 })
 
@@ -162,13 +160,13 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
     expect(urls.every(loc => loc.startsWith('https://www.acme.gr/'))).toBe(true)
   })
 
-  it('falls back to the request host, and lists no blog, when resolution fails: no store, no features', async () => {
+  it('lists no blog and no catalogue when resolution fails: no store, no features, no preferences', async () => {
     serve({ tenant: null })
 
     const urls = locs(await sitemap())
 
     expect(urls.some(loc => loc.includes('/blog/'))).toBe(false)
-    expect(urls).toContain('https://acme.test/products/100/my-product')
+    expect(urls.some(loc => loc.includes('/products/'))).toBe(false)
   })
 
   it('sends the request host and locale on every catalogue read, header and query alike', async () => {
@@ -176,9 +174,9 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
 
     await sitemap({ ...tenantContext(), locale: 'en' })
 
-    // The store's settings and layouts are not per language.
+    // The store's layouts are not per language.
     const reads = backend.requests.filter(request =>
-      !['/settings/public', '/page-config'].some(path => request.url.pathname.endsWith(path)))
+      !request.url.pathname.endsWith('/page-config'))
     expect(reads).toHaveLength(5)
     for (const read of reads) {
       expect(read.headers.get('x-forwarded-host')).toBe(HOST)

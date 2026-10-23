@@ -40,7 +40,7 @@ const { headerItems, mobileLinks } = useNavigation()
 const { categories, hasCategories } = useCategoryMenu()
 
 // Not a store feature yet (`shared/utils/storePreference.ts`).
-const cartEnabled = useStorePreference('CART_ENABLED')
+const cartEnabled = useStorePreference('cart')
 
 // The cart drawer is loaded the first time it is opened, then kept.
 const { open: cartDrawerOpen } = useCartDrawer()
