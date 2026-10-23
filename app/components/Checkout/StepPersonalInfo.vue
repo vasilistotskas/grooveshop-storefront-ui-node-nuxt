@@ -18,10 +18,10 @@ const props = defineProps<{
    */
   mode?: 'saved' | 'new'
   /**
-   * Mirrors the ``B2B_INVOICING_ENABLED`` extra setting. When false, the
-   * Τιμολόγιο (INVOICE) choice is hidden and orders ship as RECEIPT only.
+   * The store's ``b2bInvoicing`` feature. When false, the Τιμολόγιο
+   * (INVOICE) choice is hidden and orders ship as RECEIPT only.
    */
-  b2bInvoicingEnabled?: boolean
+  b2bInvoicingEnabled: boolean
   /**
    * The selected country's ``postalCodeExample`` (e.g. ``151 24``),
    * shown as the postcode placeholder.
@@ -393,12 +393,12 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
     </section>
 
     <!-- Receipt (retail Α.Λ.Π., no VAT needed) or invoice. Gated by
-         ``B2B_INVOICING_ENABLED`` so the owner can hide the whole
+         the ``b2bInvoicing`` feature so the owner can hide the whole
          invoice flow without a deploy; Django also rejects ``INVOICE``
-         when the setting is off. Cross-field validation on step1Schema
+         when it is off. Cross-field validation on step1Schema
          requires a valid 9-digit ΑΦΜ before an invoice can advance. -->
     <section
-      v-if="b2bInvoicingEnabled !== false"
+      v-if="b2bInvoicingEnabled"
       aria-labelledby="checkout-document-title"
       :class="CARD"
     >

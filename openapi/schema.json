@@ -58372,7 +58372,7 @@
                                 "$ref": "#/components/schemas/CartCreatePaymentIntentRequestShippingKindEnum"
                             }
                         ],
-                        "description": "Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους σημαίες λειτουργίας (π.χ. ACS_SMARTPOINT_ENABLED) και ο έλεγχος PICKUP_POINT του BoxNow.\n\n* `home_delivery` - home_delivery\n* `pickup_point` - pickup_point"
+                        "description": "Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους έλεγχοι διαθεσιμότητας (οι θυρίδες ACS χρειάζονται συγχρονισμένους σταθμούς) και ο έλεγχος PICKUP_POINT του BoxNow.\n\n* `home_delivery` - home_delivery\n* `pickup_point` - pickup_point"
                     },
                     "shippingProviderCode": {
                         "type": "string",
@@ -72640,6 +72640,10 @@
                         "type": "boolean",
                         "readOnly": true
                     },
+                    "b2bInvoicing": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
                     "productSuggestions": {
                         "type": "boolean",
                         "readOnly": true
@@ -72659,6 +72663,7 @@
                 },
                 "required": [
                     "accountReviews",
+                    "b2bInvoicing",
                     "blog",
                     "blogComments",
                     "chatWidget",

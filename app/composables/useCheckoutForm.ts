@@ -109,8 +109,11 @@ export async function useCheckoutForm() {
   const regions = ref<Pagination<Region> | null>(null)
   const selectedPayWay = useState<PayWay | null>('selectedPayWay', () => null)
 
+  // Whether checkout offers an invoice (Τιμολόγιο); Django refuses
+  // ``document_type=INVOICE`` on the same feature.
+  const b2bInvoicingEnabled = useStoreFeature('b2bInvoicing')
+
   // Declare refs for fetched data (populated after await)
-  const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
 
@@ -1007,22 +1010,10 @@ export async function useCheckoutForm() {
   // meant the server rendered the guest UI and the client then flipped
   // to the picker on hydration, causing a visible ~1s flash.
   const [
-    storeSettingsResult,
     b2bProfileResult,
     countriesResult,
     savedAddressesResult,
   ] = await Promise.all([
-    // The eight checkout settings (shipping prices, free-shipping
-    // thresholds, ACS Smartpoint, B2B invoicing) in ONE read of the
-    // store's public settings — the tenant-cached Nitro route behind
-    // it answers from memory, so this is not a Django round trip.
-    useAsyncData<PublicSettings | null>(
-      'checkout:store-settings',
-      () => $api<PublicSettings>('/api/settings/public', {
-        method: 'GET',
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
     useAsyncData<BusinessProfile | null>(
       'checkout:b2b-profile',
       // Prefill source for the invoice fields. Gated on the `wholesale`
@@ -1076,15 +1067,8 @@ export async function useCheckoutForm() {
     ),
   ])
 
-  // Populate reactive refs with fetched data. A key without a row (or
-  // an unreachable settings endpoint) reads as ``null``.
-  const storeSetting = (key: string): { value: string } | null => {
-    const raw = storeSettingsResult.data.value?.settings[key]
-    return raw === undefined ? null : { value: raw }
-  }
-  // B2B defaults to ``true`` if the endpoint is unreachable so a
-  // transient settings-API failure doesn't silently hide the option.
-  b2bInvoicingEnabled.value = storeSetting('B2B_INVOICING_ENABLED')?.value !== 'False'
+  // Populate reactive refs with fetched data. A store without invoicing
+  // never carries invoice requisites into the order.
   if (!b2bInvoicingEnabled.value) {
     formState.documentType = zOrderCreateDocumentType.enum.RECEIPT
     formState.billingVatId = ''

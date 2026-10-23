@@ -192,7 +192,7 @@ function setCart(next: CartDetail) {
 
 beforeEach(async () => {
   // useCheckoutForm's useAsyncData calls use fixed keys
-  // (checkout:countries:*, checkout:store-settings, …) and the pay-way
+  // (checkout:countries:*, checkout:b2b-profile, …) and the pay-way
   // selection lives in useState — both outlive a test.
   clearNuxtData()
   clearNuxtState('selectedPayWay')
@@ -1152,9 +1152,9 @@ describe('useCheckoutForm', () => {
     })
 
     it('does not prefill when the store switched B2B invoicing off', async () => {
+      setTenantFeatures({ b2bInvoicing: false })
       api.routes({
         ...defaultRoutes(),
-        '/api/settings/public': { settings: { B2B_INVOICING_ENABLED: 'False' } },
         '/api/b2b/profile': profile,
       })
 
