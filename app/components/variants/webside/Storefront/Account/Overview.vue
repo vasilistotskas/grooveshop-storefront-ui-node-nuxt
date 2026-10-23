@@ -9,11 +9,7 @@ useHead({ title: () => t('title') })
 const { user } = useUserSession()
 const localePath = useLocalePath()
 
-const tenantStore = useTenantStore()
-const { data: loyaltySettings } = useLoyalty().fetchSettings()
-// Both the tenant plan flag (commercial gate) and the runtime toggle
-// (operational gate) must be true for loyalty widgets to render.
-const loyaltyEnabled = computed(() => tenantStore.loyaltyEnabled && (loyaltySettings.value?.enabled ?? false))
+const loyaltyEnabled = useStoreFeature('loyalty')
 
 const quickStats = computed(() => [
   {

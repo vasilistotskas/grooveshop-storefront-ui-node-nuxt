@@ -3,15 +3,9 @@ defineProps<{
   title?: string
 }>()
 
-// Admin-toggleable rail — extra-setting RECENTLY_VIEWED_ENABLED.
-// Fails CLOSED: a rail that pops in beats one that flashes and
-// vanishes when an admin has disabled it. The flag rides the one
-// per-render settings payload, so reading it on the server no longer
-// costs a round trip of its own; the rail it gates
+// The store's recently-viewed preference. The rail it gates
 // (``ProductRecentlyViewed``) reads localStorage and stays client-only.
-const recentlyViewedEnabled = useSettingFlag('RECENTLY_VIEWED_ENABLED', {
-  fallback: false,
-})
+const recentlyViewedEnabled = useStorePreference('recentlyViewed')
 </script>
 
 <template>

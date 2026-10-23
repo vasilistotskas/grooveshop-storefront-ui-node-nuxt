@@ -78,8 +78,8 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
     clearNuxtData()
     useToast().clear()
     flags.promotionsSetting = 'true'
-    // The default tree decides from the feature; the frozen webside tree
-    // from the plan flag and the setting, so every one starts on.
+    // Both trees decide from the feature: the plan flag below is on only
+    // to show it plays no part.
     setTenant({ promotionsEnabled: true })
     setTenantFeatures({ promotions: true })
     useCartStore().cart = makeCart()
@@ -89,7 +89,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
 
   async function mount() {
     const wrapper = await mountSuspended(C, { route: false })
-    // `useSettingFlag` reads an un-awaited `useApi`; the mock answers at once.
+    // The coupon picker reads an un-awaited `useApi`; the mock answers at once.
     await flushPromises()
     return wrapper
   }
@@ -298,7 +298,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
     })
   })
 
-  describe.runIf(tree === 'default')('the promotions feature', () => {
+  describe('the promotions feature', () => {
     it('renders nothing when the store lacks it, plan flag and setting on', async () => {
       setTenantFeatures({ promotions: false })
       const wrapper = await mount()
@@ -315,32 +315,6 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       const wrapper = await mount()
 
       expect(wrapper.find('form').exists()).toBe(true)
-    })
-  })
-
-  describe.runIf(tree === 'webside')('the gates of the frozen tree (fail closed)', () => {
-    it('renders nothing on a plan without promotions', async () => {
-      setTenant({ promotionsEnabled: false })
-      const wrapper = await mount()
-
-      expect(wrapper.find('form').exists()).toBe(false)
-    })
-
-    it.each([
-      ['turned the setting off', 'false'],
-      ['never set it', ''],
-    ])('renders nothing when the merchant %s', async (_case, setting) => {
-      flags.promotionsSetting = setting
-      const wrapper = await mount()
-
-      expect(wrapper.find('form').exists()).toBe(false)
-    })
-
-    it('renders nothing when the settings lookup fails', async () => {
-      flags.promotionsSetting = null
-      const wrapper = await mount()
-
-      expect(wrapper.find('form').exists()).toBe(false)
     })
   })
 

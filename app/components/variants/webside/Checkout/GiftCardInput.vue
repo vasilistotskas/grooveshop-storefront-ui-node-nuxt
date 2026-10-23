@@ -22,17 +22,9 @@ const emit = defineEmits<Emits>()
 const MAX_CARDS = 3
 
 const { t } = useI18n()
-const tenantStore = useTenantStore()
 const { $i18n } = useNuxtApp()
 
-// Two-tier gate: tenant plan flag + merchant runtime setting.
-// Fails CLOSED — a disabled commercial feature must not leak.
-const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-  fallback: false,
-})
-const giftCardsEnabled = computed(
-  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
-)
+const giftCardsEnabled = useStoreFeature('giftCards')
 
 const cardSchema = z.object({
   code: z

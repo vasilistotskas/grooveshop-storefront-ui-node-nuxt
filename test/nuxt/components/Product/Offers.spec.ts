@@ -77,8 +77,8 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     // Both the store settings and the offers are cached by key on the
     // shared Nuxt app.
     clearNuxtData()
-    // The default tree decides from the feature; the frozen webside tree
-    // from the plan flag and the setting, so every one starts on.
+    // Both trees decide from the feature: the plan flag below is on only
+    // to show it plays no part.
     setTenant({ promotionsEnabled: true })
     setTenantFeatures({ promotions: true })
     offers = []
@@ -103,7 +103,7 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  it.runIf(tree === 'default')('decides from the feature alone: no plan flag or setting can stop the request', async () => {
+  it('decides from the feature alone: no plan flag or setting can stop the request', async () => {
     setTenant({ promotionsEnabled: false })
     setTenantFeatures({ promotions: true })
     settings = failWith(502)
@@ -115,7 +115,7 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     expect(wrapper.find('section').exists()).toBe(true)
   })
 
-  it.runIf(tree === 'default')('no setting can open it either: off in features, on in the settings', async () => {
+  it('no setting can open it either: off in features, on in the settings', async () => {
     setTenantFeatures({ promotions: false })
     offers = [offer({ relation: 'PRODUCT' })]
 
@@ -124,32 +124,12 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
   })
 
-  it.runIf(tree === 'webside')('the frozen copy also stays silent when the setting is off or unreadable', async () => {
-    offers = [offer({ relation: 'PRODUCT' })]
-    settings = () => ({ settings: { PROMOTIONS_ENABLED: 'false' } })
-    expect(await mountPanel().then(wrapper => wrapper.find('section').exists())).toBe(false)
-    expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
-
-    clearNuxtData()
-    settings = failWith(502)
-    expect(await mountPanel().then(wrapper => wrapper.find('section').exists())).toBe(false)
-    expect(api.callsTo(OFFERS_URL)).toHaveLength(0)
-  })
-
-  it.runIf(tree === 'default')('asks in the page language, since Django translates the offers', async () => {
+  it('asks in the page language, since Django translates the offers', async () => {
     await mountPanel()
 
     const calls = api.callsTo(OFFERS_URL)
     expect(calls).toHaveLength(1)
     expect(calls[0]!.options.query).toEqual({ languageCode: 'el' })
-  })
-
-  it.runIf(tree === 'webside')('asks without a language (the frozen copy predates the translated offers)', async () => {
-    await mountPanel()
-
-    const calls = api.callsTo(OFFERS_URL)
-    expect(calls).toHaveLength(1)
-    expect(calls[0]!.options.query).toBeUndefined()
   })
 
   it('renders nothing when no offer touches the product', async () => {

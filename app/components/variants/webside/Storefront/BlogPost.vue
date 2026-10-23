@@ -256,11 +256,9 @@ const startShare = async () => {
   }
 }
 
-// Merchant feature toggle — hides the comments-count button; the
-// comments section itself self-gates inside BlogPostComments.
-const blogCommentsEnabled = useSettingFlag('BLOG_COMMENTS_ENABLED', {
-  fallback: true,
-})
+// Hides the comments-count button; the comments section itself
+// self-gates inside BlogPostComments.
+const blogCommentsEnabled = useStoreFeature('blogComments')
 
 const likeClicked = async () => {
   await refresh()

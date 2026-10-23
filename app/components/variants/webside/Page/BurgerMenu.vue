@@ -12,16 +12,9 @@ const { deleteSession } = useAllAuthAuthentication()
 const { isModalActive: isCookieModalActive } = useCookieControl()
 const { $routeBaseName } = useNuxtApp()
 
-const tenantStore = useTenantStore()
-
-// Gift-card purchase page discoverability — two-tier gate, matching
-// the desktop navbar.
-const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-  fallback: false,
-})
-const giftCardsEnabled = computed(
-  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
-)
+// Gift-card purchase page discoverability, matching the desktop navbar.
+const giftCardsEnabled = useStoreFeature('giftCards')
+const blogEnabled = useStoreFeature('blog')
 
 const open = ref(false)
 
@@ -66,7 +59,7 @@ const primaryItems = computed(() => {
     },
   ]
 
-  if (tenantStore.blogEnabled) {
+  if (blogEnabled.value) {
     base.push({
       label: t('blog'),
       icon: 'i-heroicons-newspaper',

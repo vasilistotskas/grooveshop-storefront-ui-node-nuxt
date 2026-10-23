@@ -12,31 +12,17 @@ const localePath = useLocalePath()
 const { $routeBaseName } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 
-const tenantStore = useTenantStore()
-
-// Gift-card purchase page discoverability — two-tier gate (tenant
-// plan flag AND merchant runtime setting), fail-closed like every
-// commercial feature.
-const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
-  fallback: false,
-})
+// Gift-card purchase page discoverability.
+const giftCardsEnabled = useStoreFeature('giftCards')
 
 // Cart chrome for shop-dark tenants (content site now, eshop later).
-// Shopper-facing chrome fails OPEN.
-const cartEnabled = useSettingFlag('CART_ENABLED', { fallback: true })
-const giftCardsEnabled = computed(
-  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
-)
+const cartEnabled = useStorePreference('cart')
 
-// Offers page discoverability. Same two-tier, fail-closed shape as
-// gift cards: without it the store's automatic promotions stay
-// invisible until a shopper has already built a qualifying cart.
-const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
-  fallback: false,
-})
-const promotionsEnabled = computed(
-  () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
-)
+// Offers page discoverability: without it the store's automatic
+// promotions stay invisible until a shopper has already built a
+// qualifying cart.
+const promotionsEnabled = useStoreFeature('promotions')
+const blogEnabled = useStoreFeature('blog')
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -94,7 +80,7 @@ const navItems = computed<DesktopNavItem[]>(() => {
       active: isRouteActive('products'),
     },
   ]
-  if (tenantStore.blogEnabled) {
+  if (blogEnabled.value) {
     base.push({
       key: 'blog',
       label: t('blog'),
@@ -247,7 +233,7 @@ const items = computed(() => [
               <LazyWebsideLanguageSwitcher />
             </li>
             <li
-              v-if="tenantStore.blogEnabled"
+              v-if="blogEnabled"
               class="
                   relative grid max-w-6 items-center justify-center
                   justify-items-center

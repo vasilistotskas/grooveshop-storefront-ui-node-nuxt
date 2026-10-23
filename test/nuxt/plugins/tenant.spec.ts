@@ -20,13 +20,13 @@ describe('tenant plugin', () => {
   })
 
   it('hydrates the tenant store from the rendered tenant state', () => {
-    const config = validTenantConfig('shop.example', { storeName: 'Shop Example', blogEnabled: true })
+    const config = validTenantConfig('shop.example', { storeName: 'Shop Example' })
     useState('tenant').value = config
 
     hooks['app:created']()
 
     expect(useTenantStore().config).toEqual(config)
-    expect(useTenantStore().blogEnabled).toBe(true)
+    expect(useTenantStore().storeName).toBe('Shop Example')
   })
 
   it('leaves the store unresolved when no tenant was rendered', () => {

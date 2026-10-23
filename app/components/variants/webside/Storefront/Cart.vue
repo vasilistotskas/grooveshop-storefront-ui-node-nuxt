@@ -10,18 +10,12 @@ const {
 const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
-// Cross-sell strip: plan flag AND merchant setting, fails CLOSED. The
-// cart payload already carries ``recommendations`` seeded with every
-// basket line, so the strip renders from the store — no extra fetch.
-// An empty cart has no line to seed from: its strip fetches the
-// store-wide ``empty_cart`` answer itself.
-const tenantStore = useTenantStore()
-const productSuggestionsEnabled = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', {
-  fallback: false,
-})
-const suggestionsEnabled = computed(
-  () => tenantStore.recommendationsEnabled && productSuggestionsEnabled.value,
-)
+// Cross-sell strip. The cart payload already carries
+// ``recommendations`` seeded with every basket line, so the strip
+// renders from the store — no extra fetch. An empty cart has no line
+// to seed from: its strip fetches the store-wide ``empty_cart`` answer
+// itself.
+const suggestionsEnabled = useStoreFeature('productSuggestions')
 const ga4 = useGA4()
 const viewCartFired = ref(false)
 

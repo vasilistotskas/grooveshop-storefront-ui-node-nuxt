@@ -110,13 +110,6 @@ export async function useCheckoutForm() {
   const selectedPayWay = useState<PayWay | null>('selectedPayWay', () => null)
 
   // Declare refs for fetched data (populated after await)
-  // Per-kind toggle for ACS Smartpoint pickup. Backend returns the
-  // ACS_SMARTPOINT_ENABLED Setting value as a string ("True"/"False");
-  // the StepShipping component coerces to boolean before gating the
-  // radio row. (Pricing itself is no longer a Setting — see
-  // ``shippingPrice`` below, which reads the live ``ShippingRate`` the
-  // options endpoint already resolved.)
-  const acsSmartpointEnabled = ref(false)
   const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
@@ -1089,13 +1082,6 @@ export async function useCheckoutForm() {
     const raw = storeSettingsResult.data.value?.settings[key]
     return raw === undefined ? null : { value: raw }
   }
-  // ACS Smartpoint defaults disabled (Phase 2 progressive rollout):
-  // ops flips the Setting to True after the AcsStation cache has been
-  // synced and the picker is verified end-to-end.
-  acsSmartpointEnabled.value = parseSettingFlag(
-    storeSetting('ACS_SMARTPOINT_ENABLED')?.value,
-    false,
-  )
   // B2B defaults to ``true`` if the endpoint is unreachable so a
   // transient settings-API failure doesn't silently hide the option.
   b2bInvoicingEnabled.value = storeSetting('B2B_INVOICING_ENABLED')?.value !== 'False'
@@ -1258,7 +1244,6 @@ export async function useCheckoutForm() {
     b2bInvoicingEnabled,
     boxnowEnabled,
     acsEnabled,
-    acsSmartpointEnabled,
     refetchShippingOptions,
     // Set when the live options fetch fails; StepShipping renders a
     // full error + retry in its place and blocks advancing.

@@ -6,12 +6,10 @@ const props = defineProps<{
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const tenantStore = useTenantStore()
 const loyalty = useLoyalty()
 const { data: settings } = loyalty.fetchSettings()
 
-// Tenant plan flag is the primary gate; runtime toggle is the operational lever.
-const enabled = computed(() => tenantStore.loyaltyEnabled && (settings.value?.enabled ?? false))
+const enabled = useStoreFeature('loyalty')
 
 const estimatedPoints = computed(() => {
   if (!settings.value || !props.productPrice) return 0

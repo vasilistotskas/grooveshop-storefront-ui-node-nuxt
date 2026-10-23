@@ -11,8 +11,8 @@ import { failWith } from '~~/test/helpers/api'
 /**
  * The gift-card field at checkout. A code is checked with Django (`POST
  * /api/giftcard/check`) and handed to the page with its balance; the
- * page owns the list of applied cards. Like coupons it is a commercial
- * feature behind the plan flag and a runtime setting, failing CLOSED.
+ * page owns the list of applied cards. Like coupons it is a store
+ * feature (`TenantConfig.features.giftCards`), read by both trees.
  *
  * One `createApiMock` answers `$api` (the check) and `$fetch` (the
  * `useApi` settings payload). The trees share the logic; the default
@@ -51,8 +51,8 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
   beforeEach(() => {
     clearNuxtData()
     flags.giftCardsSetting = 'true'
-    // The default tree decides from the feature; the frozen webside tree
-    // from the plan flag and the setting, so every one starts on.
+    // Both trees decide from the feature: the plan flag below is on only
+    // to show it plays no part.
     setTenant({ giftCardsEnabled: true })
     setTenantFeatures({ giftCards: true })
     routes()
@@ -60,7 +60,6 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
 
   async function mount(appliedCards: Array<{ code: string, balance: number }> = []) {
     const wrapper = await mountSuspended(C, { route: false, props: { appliedCards } })
-    // `useSettingFlag` reads an un-awaited `useApi`; the mock answers at once.
     await flushPromises()
     return wrapper
   }
@@ -176,7 +175,7 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
     })
   })
 
-  describe.runIf(tree === 'default')('the giftCards feature', () => {
+  describe('the giftCards feature', () => {
     it('renders nothing when the store lacks it, plan flag and setting on', async () => {
       setTenantFeatures({ giftCards: false })
       const wrapper = await mount()
@@ -189,35 +188,6 @@ describe.each(trees(GiftCardInput, WebsideGiftCardInput))('$tree Checkout/GiftCa
       ['the settings lookup fails', null],
     ])('decides from the feature alone: still renders when %s', async (_case, setting) => {
       flags.giftCardsSetting = setting
-      const wrapper = await mount()
-
-      expect(wrapper.find('form').exists()).toBe(true)
-    })
-  })
-
-  describe.runIf(tree === 'webside')('the gates of the frozen tree (fail closed)', () => {
-    it('renders nothing on a plan without gift cards', async () => {
-      setTenant({ giftCardsEnabled: false })
-      const wrapper = await mount()
-
-      expect(wrapper.find('form').exists()).toBe(false)
-    })
-
-    it('renders nothing when the merchant turned the setting off', async () => {
-      flags.giftCardsSetting = 'false'
-      const wrapper = await mount()
-
-      expect(wrapper.find('form').exists()).toBe(false)
-    })
-
-    it('renders nothing when the settings lookup fails', async () => {
-      flags.giftCardsSetting = null
-      const wrapper = await mount()
-
-      expect(wrapper.find('form').exists()).toBe(false)
-    })
-
-    it('renders the field when both gates are open', async () => {
       const wrapper = await mount()
 
       expect(wrapper.find('form').exists()).toBe(true)

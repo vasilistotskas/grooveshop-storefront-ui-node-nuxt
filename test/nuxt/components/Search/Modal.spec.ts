@@ -14,7 +14,7 @@ import {
   makeProductSearchHit,
   makeProductSearchResponse,
 } from '~~/test/fixtures/productFilters'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The default modal is a command palette (the second suite below); the
@@ -103,7 +103,8 @@ describe('Webside Search/Modal', () => {
     clearNuxtData()
     localStorage.clear()
     sent.length = 0
-    setTenant({ blogEnabled: true })
+    setTenant()
+    setTenantFeatures({ blog: true })
     api.routes({
       '/api/search': answering(() => searchResponse()),
       '/api/search/trending': { windowHours: 24, contentType: 'product', languageCode: 'el', results: [] },
@@ -166,8 +167,8 @@ describe('Webside Search/Modal', () => {
       expect(optionTitles().map(title => title.match(/(Προϊόν|Άρθρο) \d/)?.[0])).toEqual(expected)
     })
 
-    it('offers no articles tab, and lists the products alone, when the store\'s plan has no blog', async () => {
-      setTenant({ blogEnabled: false })
+    it('offers no articles tab, and lists the products alone, when the store has no blog', async () => {
+      setTenantFeatures({ blog: false })
       api.routes({
         '/api/search': answering(() => ({ ...searchResponse(), blogPosts: null })),
       })

@@ -54,8 +54,8 @@ const allLoadedResults = ref<{
 const limit = ref(3)
 const offset = ref(0)
 const activeTab = ref<'all' | 'products' | 'blogPosts'>('all')
-// Without the blog plan the search has no posts to show: no Blog tab.
-const tenantStore = useTenantStore()
+// Without the blog the search has no posts to show: no Blog tab.
+const blogEnabled = useStoreFeature('blog')
 
 const {
   data: searchResults,
@@ -295,7 +295,7 @@ if (localQuery.value && localQuery.value.length >= 2) {
           @click="() => { activeTab = 'products' }"
         />
         <UButton
-          v-if="tenantStore.blogEnabled"
+          v-if="blogEnabled"
           :label="
             t('search.tabs.blog_posts', {
               count: searchResults.blogPosts?.estimatedTotalHits || 0,

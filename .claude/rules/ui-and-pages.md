@@ -48,7 +48,7 @@ A failed `$api` call tells the shopper why, in the page's language, from Django'
 
 `TenantConfig.features` is Django's effective state of each optional feature (its plan flag AND its store settings; Django's `docs/store-features.md`). **The storefront reads it and nothing else**: `useStoreFeature('loyalty')` in a component, composable or route middleware, `eventStoreFeature(event, 'blog')` in a Nitro route, `storeFeatureOn(tenant, name)` where there is only a tenant (`shared/utils/storeFeature.ts`). The feature names come from the generated `StoreFeatures` type. Never combine a plan flag with a setting, copy a setting's default, or keep a fail-open or fail-closed fallback for a feature: the answer is already in the tenant payload, so it is known on the server, costs no request and cannot be "unreadable". Gate a feature's request with `enabled: useStoreFeature(...)`, never `immediate` (see "Gate the request" in `CLAUDE.md`).
 
-Store PREFERENCES are read the same way, from `TenantConfig.preferences`: `useStorePreference('cart')` in a component, composable or route middleware, `storePreferenceOn(tenant, name)` where there is only a tenant (the sitemap) or in a plugin, which runs before the tenant store is filled (`storePreferenceOn(useTenant().value, name)`; `shared/utils/storePreference.ts`). They are the presentation preferences (`mobileBottomNav`, `stickyAddToCart`, `recentlyViewed`, `demoAccount`) and `cart` / `catalogue`, which Django's API does not gate yet (gateway-first follow-up, grooveshop-agent-gateway issue 27; then they move to `features`). Synchronous, no request, no fallback. `app/components/variants/webside/**` is frozen and keeps its own `useSettingFlag` / plan-flag reads; `shared/utils/gatedRoutes.ts` is the one table the sitemap and the menus read.
+Store PREFERENCES are read the same way, from `TenantConfig.preferences`: `useStorePreference('cart')` in a component, composable or route middleware, `storePreferenceOn(tenant, name)` where there is only a tenant (the sitemap) or in a plugin, which runs before the tenant store is filled (`storePreferenceOn(useTenant().value, name)`; `shared/utils/storePreference.ts`). They are the presentation preferences (`mobileBottomNav`, `stickyAddToCart`, `recentlyViewed`, `demoAccount`) and `cart` / `catalogue`, which Django's API does not gate yet (gateway-first follow-up, grooveshop-agent-gateway issue 27; then they move to `features`). Synchronous, no request, no fallback. Both component trees read them this way, the frozen webside tree included; `test/unit/source-rules/store-features-one-rule.spec.ts` fails a feature or preference read from settings or a tenant plan flag anywhere. `shared/utils/gatedRoutes.ts` is the one table the sitemap and the menus read.
 
 (Page/layout transitions are disabled globally in `nuxt.config.ts` via `app.pageTransition: false` / `layoutTransition: false` — no middleware needed.)
 
@@ -115,10 +115,14 @@ day a webside file draws its own stars or a review component returns.
 
 Rules:
 
-- **Never edit a file in that tree** except to fix a webside-only bug, and never
-  to restyle, translate or refactor it. Its output is pinned by
-  `test/nuxt/variants/webside/frozen-render.spec.ts`, whose snapshots were
-  captured before the freeze.
+- **The freeze covers its look, not its behaviour** (owner decision 2026-10-23).
+  Never restyle, translate or re-lay-out a file in that tree; its output is
+  pinned by `test/nuxt/variants/webside/frozen-render.spec.ts`, whose snapshots
+  were captured before the freeze. Its business logic follows the platform: a
+  fix to what a component does, which data it reads or which gate it applies
+  lands in both trees (one `trees()` spec body covers both), and the webside
+  render must stay byte-identical (`scripts/capture-ssr.mjs` +
+  `scripts/diff-ssr.mjs` against the staging baselines).
 - Its Greek-only `<i18n>` blocks are excluded from the translation debt list on
   purpose (`test/unit/source-rules/inline-blocks.spec.ts`): adding a locale would change
   that store's render.

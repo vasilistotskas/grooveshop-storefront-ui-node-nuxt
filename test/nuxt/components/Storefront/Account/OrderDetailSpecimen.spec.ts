@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import OrderDetailPage from '~/components/Storefront/Account/OrderDetail.vue'
 import { makeOrder } from '~~/test/fixtures/order'
 
@@ -18,7 +18,6 @@ mockNuxtImport('$api', () => api)
 mockNuxtImport('useRoute', () => () => ({ name: 'account-orders-id___el', params: { id: '3' }, query: {}, path: '/account/orders/3', fullPath: '/account/orders/3', hash: '', meta: {}, matched: [] }))
 mockNuxtImport('useOrder', () => () => ({ cancelOrder: vi.fn() }))
 mockNuxtImport('useReorder', () => () => ({ reorder: vi.fn(), reordering: ref(null) }))
-mockNuxtImport('useSettingFlag', () => () => computed(() => true))
 
 beforeEach(() => {
   clearNuxtData('order3')

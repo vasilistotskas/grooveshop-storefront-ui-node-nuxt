@@ -8,8 +8,8 @@ import type { TenantConfig } from '~~/shared/openapi/types.gen'
  * The store's getters expose `TenantConfig` fields with a fallback for
  * when there is no config (probes, prerender, an unknown host) or the
  * payload omits an optional field. Most fall back to `''` — callers
- * substitute their own platform-level default — but the theme, the
- * currency and `blogEnabled` fall back to real values.
+ * substitute their own platform-level default — but the theme and the
+ * currency fall back to real values.
  *
  * Each test gets a fresh Pinia: the store is called directly, never
  * through a mounted component.
@@ -19,7 +19,7 @@ const config = (overrides: Partial<TenantConfig> = {}): TenantConfig =>
   validTenantConfig('store.example', overrides)
 
 /** The fields `zTenantConfig` lets a payload leave out. */
-type OptionalKey = 'seoAuthor' | 'googleSiteVerification' | 'pinterestDomainVerify' | 'recommendationsEnabled' | 'openaiPixelId'
+type OptionalKey = 'seoAuthor' | 'googleSiteVerification' | 'pinterestDomainVerify' | 'openaiPixelId'
 
 /** A valid payload that leaves out the optional `key`. */
 function configWithout(key: OptionalKey): TenantConfig {
@@ -30,7 +30,7 @@ function configWithout(key: OptionalKey): TenantConfig {
 type Store = ReturnType<typeof useTenantStore>
 type GetterRow = [keyof Store, keyof TenantConfig, unknown, unknown]
 
-const OPTIONAL_KEYS: OptionalKey[] = ['seoAuthor', 'googleSiteVerification', 'pinterestDomainVerify', 'recommendationsEnabled', 'openaiPixelId']
+const OPTIONAL_KEYS: OptionalKey[] = ['seoAuthor', 'googleSiteVerification', 'pinterestDomainVerify', 'openaiPixelId']
 
 /** [getter, config field, fallback, a value the config can carry] */
 const GETTERS: GetterRow[] = [
@@ -65,12 +65,6 @@ const GETTERS: GetterRow[] = [
   ['seoAuthor', 'seoAuthor', '', 'Store Owner'],
   ['googleSiteVerification', 'googleSiteVerification', '', 'gsv-token'],
   ['pinterestDomainVerify', 'pinterestDomainVerify', '', 'pin-token'],
-  ['loyaltyEnabled', 'loyaltyEnabled', false, true],
-  ['blogEnabled', 'blogEnabled', true, false],
-  ['promotionsEnabled', 'promotionsEnabled', false, true],
-  ['giftCardsEnabled', 'giftCardsEnabled', false, true],
-  ['b2bEnabled', 'b2bEnabled', false, true],
-  ['recommendationsEnabled', 'recommendationsEnabled', false, true],
   ['agentCommerceEnabled', 'agentCommerceEnabled', false, true],
 ]
 

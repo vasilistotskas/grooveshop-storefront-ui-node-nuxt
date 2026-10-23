@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
@@ -14,17 +14,11 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const { state, toastAdd } = vi.hoisted(() => ({
-  state: {
-    /** The frozen webside tree still reads the merchant setting; a missing key takes the caller's fallback. */
-    flags: {} as Record<string, boolean>,
-  },
+const { toastAdd } = vi.hoisted(() => ({
   toastAdd: vi.fn(),
 }))
 const session = vi.hoisted(() => ({ loggedIn: undefined as any, user: undefined as any }))
 
-mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolean }) =>
-  computed(() => state.flags[key] ?? options.fallback))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 mockNuxtImport('useUserSession', () => () => {
   session.loggedIn ??= ref(false)
@@ -39,9 +33,8 @@ mockNuxtImport('useUserSession', () => () => {
   }
 })
 
-/** Comments off: Django's feature for the default tree, the setting the frozen webside tree reads. */
+/** Comments off: Django's feature, which both trees read. */
 function commentsOff() {
-  state.flags = { BLOG_COMMENTS_ENABLED: false }
   setTenantFeatures({ blogComments: false })
 }
 
@@ -111,7 +104,6 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
     clearNuxtData()
     useState<CursorState>('cursor-state').value = generateInitialCursorState()
     useUserStore().blogLikedComments = []
-    state.flags = {}
     setTenant()
     setTenantFeatures({ blogComments: true })
     if (session.loggedIn) session.loggedIn.value = false
@@ -289,8 +281,6 @@ describe.each(trees(BlogPostComments, WebsideBlogPostComments))('$tree BlogPostC
   it('renders nothing, and asks for no comments, when the merchant turned comments off', async () => {
     commentsOff()
     api.routes({
-      // The frozen webside tree decides from the store's settings, awaited.
-      '/api/settings/public': { settings: { BLOG_COMMENTS_ENABLED: 'False' } },
       [PROXY_URL]: page([comment(1, '2026-08-01T00:00:00Z')]),
     })
 

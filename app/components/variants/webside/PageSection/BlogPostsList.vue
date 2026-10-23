@@ -4,7 +4,7 @@ const props = defineProps<{
   pageSize?: number
 }>()
 
-const tenantStore = useTenantStore()
+const blogEnabled = useStoreFeature('blog')
 const { isMobileOrTablet } = useDevice()
 
 // Mobile shows 6 articles up front (2 columns of 3 cards on tablet,
@@ -18,7 +18,7 @@ const effectivePageSize = computed(
 
 <template>
   <LazyWebsideBlogPostsList
-    v-if="tenantStore.blogEnabled"
+    v-if="blogEnabled"
     :page-size="effectivePageSize"
     :show-ordering="false"
     :eager-first-images="false"
