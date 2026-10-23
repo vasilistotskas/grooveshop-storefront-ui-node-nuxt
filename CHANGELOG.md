@@ -1,3 +1,10 @@
+## [3.257.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.2...v3.257.3) (2026-10-23)
+
+
+### Bug Fixes
+
+* **checkout:** offer the invoice from the b2bInvoicing store feature ([#211](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/211)) ([ecedfd4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ecedfd473c68e00581097315f73454f30c10f997))
+
 ## [3.257.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.1...v3.257.2) (2026-10-23)
 
 
