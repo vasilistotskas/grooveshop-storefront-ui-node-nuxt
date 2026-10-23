@@ -1,3 +1,10 @@
+## [3.257.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.0...v3.257.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* **webside:** read store features and preferences like the default tree ([#209](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/209)) ([f52abae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f52abaedffbdaad42ce993d30776f6a3bc143447))
+
 # [3.257.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.3...v3.257.0) (2026-10-23)
 
 
