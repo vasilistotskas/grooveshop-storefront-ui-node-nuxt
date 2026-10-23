@@ -1,3 +1,10 @@
+# [3.257.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.3...v3.257.0) (2026-10-23)
+
+
+### Features
+
+* **preferences:** read the store preferences from TenantConfig ([#208](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/208)) ([79e4617](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/79e46173613f766a5ed80ed62886b48a2ed68b79))
+
 ## [3.256.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.2...v3.256.3) (2026-10-23)
 
 
