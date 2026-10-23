@@ -1,3 +1,10 @@
+## [3.256.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.2...v3.256.3) (2026-10-23)
+
+
+### Bug Fixes
+
+* **settings:** keep no default for a store setting the API sends ([#207](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/207)) ([4d6390c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4d6390cea7c5536c122a3285d4edf2db09ee8469))
+
 ## [3.256.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.256.1...v3.256.2) (2026-10-22)
 
 
