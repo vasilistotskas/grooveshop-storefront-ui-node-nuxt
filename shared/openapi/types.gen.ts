@@ -2234,7 +2234,7 @@ export type CartCreatePaymentIntentRequestRequest = {
      */
   payWayId: number
   /**
-     * Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους σημαίες λειτουργίας (π.χ. ACS_SMARTPOINT_ENABLED) και ο έλεγχος PICKUP_POINT του BoxNow.
+     * Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους έλεγχοι διαθεσιμότητας (οι θυρίδες ACS χρειάζονται συγχρονισμένους σταθμούς) και ο έλεγχος PICKUP_POINT του BoxNow.
      *
      * * `home_delivery` - home_delivery
      * * `pickup_point` - pickup_point
@@ -8823,6 +8823,7 @@ export type StoreFeatures = {
   readonly promotions: boolean
   readonly giftCards: boolean
   readonly wholesale: boolean
+  readonly b2bInvoicing: boolean
   readonly productSuggestions: boolean
   readonly productAlerts: boolean
   readonly contactAttachments: boolean

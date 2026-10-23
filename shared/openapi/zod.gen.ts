@@ -4677,6 +4677,7 @@ export const zStoreFeatures = z.object({
   promotions: z.boolean().readonly(),
   giftCards: z.boolean().readonly(),
   wholesale: z.boolean().readonly(),
+  b2bInvoicing: z.boolean().readonly(),
   productSuggestions: z.boolean().readonly(),
   productAlerts: z.boolean().readonly(),
   contactAttachments: z.boolean().readonly(),

@@ -91,6 +91,7 @@ export function validTenantConfig(
       wholesale: false,
       productSuggestions: true,
       productAlerts: true,
+      b2bInvoicing: true,
       contactAttachments: true,
       chatWidget: true,
     },

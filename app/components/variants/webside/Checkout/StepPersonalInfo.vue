@@ -16,10 +16,10 @@ const props = defineProps<{
    */
   mode?: 'saved' | 'new'
   /**
-   * Mirrors the ``B2B_INVOICING_ENABLED`` extra setting. When false, the
-   * Τιμολόγιο (INVOICE) toggle is hidden and orders ship as RECEIPT only.
+   * The store's ``b2bInvoicing`` feature. When false, the Τιμολόγιο
+   * (INVOICE) toggle is hidden and orders ship as RECEIPT only.
    */
-  b2bInvoicingEnabled?: boolean
+  b2bInvoicingEnabled: boolean
   /**
    * The selected country's ``postalCodeExample`` (e.g. ``151 24``),
    * shown as the postcode placeholder.
@@ -293,11 +293,11 @@ watch(() => props.serverErrors, applyServerErrors)
              on step1Schema enforces that INVOICE requires a valid
              9-digit ΑΦΜ before the step can advance.
 
-             Gated by ``B2B_INVOICING_ENABLED`` so the owner can hide
-             the entire Τιμολόγιο flow from admin without a deploy.
-             The Django serializer also rejects ``INVOICE`` when the
-             setting is off, so a direct API call can't bypass the UI. -->
-        <template v-if="b2bInvoicingEnabled !== false">
+             Gated by the ``b2bInvoicing`` feature so the owner can
+             hide the entire Τιμολόγιο flow from admin without a deploy.
+             The Django serializer also rejects ``INVOICE`` when it is
+             off, so a direct API call can't bypass the UI. -->
+        <template v-if="b2bInvoicingEnabled">
           <USeparator />
           <UCheckbox
             :model-value="formState.documentType === 'INVOICE'"
