@@ -69,6 +69,7 @@ const COPY = {
   failed: 'Το αίτημα δεν στάλθηκε.',
   fileNotAdded: 'Το αρχείο δεν προστέθηκε.',
   fileTooLarge: 'Το αρχείο ξεπερνά το όριο των 25 MB.',
+  fileTooLargeUnknown: 'Το αρχείο είναι πολύ μεγάλο.',
   filesPrompt: 'Επισυνάψτε τεύχη δημοπράτησης ή σχέδια.',
   filesLimit: 'Έως 3 αρχεία, 25 MB το καθένα',
   filesUploading: 'Περιμένετε να ολοκληρωθεί η αποστολή των αρχείων.',
@@ -100,12 +101,14 @@ const attachmentStub = vi.hoisted(() => ({
   /** What `add` refuses, as the composable reports it. */
   refusals: [] as Array<{ code: string, data?: unknown }>,
   resets: { count: 0 },
+  /** The store's size limit; `null` while the settings cannot be read. */
+  megabytes: 25 as number | null,
 }))
 mockNuxtImport('useContactAttachments', () => () => ({
   enabled: computed(() => attachmentStub.enabled),
   maxCount: computed(() => 3),
-  maxMegabytes: computed(() => 25),
-  maxBytes: computed(() => 25 * 1024 * 1024),
+  maxMegabytes: computed(() => attachmentStub.megabytes),
+  maxBytes: computed(() => attachmentStub.megabytes === null ? null : attachmentStub.megabytes * 1024 * 1024),
   allowedTypes: computed(() => ['application/pdf', 'application/zip']),
   accept: computed(() => 'application/pdf,application/zip'),
   uploads: computed(() => attachmentStub.uploads),
@@ -144,6 +147,7 @@ describe('delta_sigma ContactPanel', () => {
     attachmentStub.isUploading = false
     attachmentStub.added.length = 0
     attachmentStub.resets.count = 0
+    attachmentStub.megabytes = 25
   })
 
   it('reads the offices from the setting, with each one role and phones', async () => {
@@ -357,6 +361,23 @@ describe('delta_sigma ContactPanel', () => {
     await picker.trigger('change')
 
     expect(toastAdd).toHaveBeenCalledWith({ title: COPY.fileNotAdded, description: COPY.fileTooLarge, color: 'error' })
+  })
+
+  it('says a file is too large without naming a limit it could not read', async () => {
+    attachmentStub.enabled = true
+    attachmentStub.megabytes = null
+    attachmentStub.refusals = [{ code: 'too-large' }]
+    const wrapper = await mountSuspended(ContactPanel, { route: false, props: PROPS })
+    const picker = wrapper.find('input[type="file"]')
+    Object.defineProperty(picker.element, 'files', {
+      value: [new File([new Uint8Array(8)], 'huge.pdf', { type: 'application/pdf' })],
+      configurable: true,
+    })
+
+    await picker.trigger('change')
+
+    expect(toastAdd).toHaveBeenCalledWith({ title: COPY.fileNotAdded, description: COPY.fileTooLargeUnknown, color: 'error' })
+    expect(wrapper.text()).not.toContain('MB το καθένα')
   })
 
   it('thanks the visitor and clears the form once the enquiry is sent', async () => {

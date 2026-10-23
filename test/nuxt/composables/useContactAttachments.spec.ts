@@ -5,8 +5,8 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 /**
  * The contact form's upload step. What matters:
  *
- * - the store's own limits are what bind, and the control is not offered
- *   when they cannot be read;
+ * - the store's own limits are what bind; one that cannot be read is
+ *   left to Django, never replaced by a guess;
  * - a file too large or one too many never leaves the browser, and the
  *   caller is told why;
  * - a 2xx yields the id the enquiry will spend, and NOTHING else does
@@ -74,6 +74,16 @@ class FakeXhr {
   /** A transport failure: no status, no body. */
   fail() {
     this.handlers.error?.()
+  }
+}
+
+/** A contact body carrying `count` attachment ids, for the API's own ceiling. */
+function enquiry(count: number) {
+  return {
+    name: 'A',
+    email: 'a@example.com',
+    message: 'm',
+    attachmentIds: Array.from({ length: count }, (_, i) => `0a0a0a0a-0000-4000-8000-${String(i).padStart(12, '0')}`),
   }
 }
 
@@ -339,15 +349,9 @@ describe('useContactAttachments', () => {
   it('never offers more files than one enquiry can carry, whatever the store sets', async () => {
     settings.CONTACT_ATTACHMENTS_MAX_COUNT = '500'
     const attachments = await policy()
-    const body = (count: number) => ({
-      name: 'A',
-      email: 'a@example.com',
-      message: 'm',
-      attachmentIds: Array.from({ length: count }, (_, i) => `0a0a0a0a-0000-4000-8000-${String(i).padStart(12, '0')}`),
-    })
 
-    expect(zCreateContactBody.safeParse(body(attachments.maxCount.value)).success).toBe(true)
-    expect(zCreateContactBody.safeParse(body(attachments.maxCount.value + 1)).success).toBe(false)
+    expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value)).success).toBe(true)
+    expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value + 1)).success).toBe(false)
   })
 
   it('refuses the file past that limit', async () => {
@@ -362,17 +366,32 @@ describe('useContactAttachments', () => {
     expect(attachments.canAddMore.value).toBe(false)
   })
 
-  it.each([
-    ['the file count', 'CONTACT_ATTACHMENTS_MAX_COUNT', 'not a number'],
-    ['the size', 'CONTACT_ATTACHMENTS_MAX_MB', '0'],
-  ])('is not offered when %s cannot be read, rather than guessing a limit', async (_, key, value) => {
-    settings[key] = value
+  it.each(['not a number', '0', '3files', ''])(
+    'keeps the control when the count reads %j, bounded only by what one enquiry carries',
+    async (value) => {
+      settings.CONTACT_ATTACHMENTS_MAX_COUNT = value
 
-    const attachments = await policy()
+      const attachments = await policy()
 
-    expect(attachments.enabled.value).toBe(false)
-    expect(attachments.canAddMore.value).toBe(false)
-  })
+      expect(attachments.enabled.value).toBe(true)
+      expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value)).success).toBe(true)
+      expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value + 1)).success).toBe(false)
+    },
+  )
+
+  it.each(['not a number', '0', '3MB', ''])(
+    'leaves the size to Django when it reads %j, instead of guessing one',
+    async (value) => {
+      settings.CONTACT_ATTACHMENTS_MAX_MB = value
+
+      const attachments = await policy()
+      const refused = attachments.add([file('drawing.pdf', 50 * 1024 * 1024)])
+
+      expect(attachments.maxMegabytes.value).toBeNull()
+      expect(refused).toEqual([])
+      expect(attachments.uploads.value).toHaveLength(1)
+    },
+  )
 })
 
 describe('formatAttachmentSize', () => {

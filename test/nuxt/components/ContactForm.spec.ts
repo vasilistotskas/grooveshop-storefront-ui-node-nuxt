@@ -28,12 +28,14 @@ const attachmentStub = vi.hoisted(() => ({
   added: [] as File[][],
   refusals: [] as Array<{ code: string, data?: unknown }>,
   resets: { count: 0 },
+  // The store's size limit; `null` while the settings cannot be read.
+  megabytes: 5 as number | null,
 }))
 mockNuxtImport('useContactAttachments', () => () => ({
   enabled: computed(() => attachmentStub.enabled),
   maxCount: computed(() => 3),
-  maxMegabytes: computed(() => 5),
-  maxBytes: computed(() => 5 * 1024 * 1024),
+  maxMegabytes: computed(() => attachmentStub.megabytes),
+  maxBytes: computed(() => attachmentStub.megabytes === null ? null : attachmentStub.megabytes * 1024 * 1024),
   allowedTypes: computed(() => ['application/pdf']),
   accept: computed(() => 'application/pdf'),
   uploads: computed(() => []),
@@ -64,6 +66,7 @@ beforeEach(() => {
   attachmentStub.added = []
   attachmentStub.refusals = []
   attachmentStub.resets.count = 0
+  attachmentStub.megabytes = 5
 })
 
 async function mount() {
@@ -240,6 +243,23 @@ describe('ContactForm', () => {
         title: 'Το αρχείο δεν προστέθηκε',
         description: 'Το αρχείο ξεπερνά τα 5 MB.',
       }))
+    })
+
+    it('says a file is too large without naming a limit it could not read', async () => {
+      attachmentStub.enabled = true
+      attachmentStub.megabytes = null
+      attachmentStub.refusals = [{ code: 'too-large' }]
+      const wrapper = await mount()
+      const file = new File(['x'], 'photo.pdf', { type: 'application/pdf' })
+      const input = wrapper.find<HTMLInputElement>('input[type="file"]')
+      Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+
+      await input.trigger('change')
+
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+        description: 'Το αρχείο είναι πολύ μεγάλο.',
+      }))
+      expect(wrapper.text()).not.toContain('MB το καθένα')
     })
 
     it('sends the ids of the uploaded files with the enquiry, and spends them', async () => {

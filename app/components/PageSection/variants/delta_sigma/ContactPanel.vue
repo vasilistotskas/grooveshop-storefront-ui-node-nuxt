@@ -179,7 +179,9 @@ const isSubmitting = ref(false)
  */
 function attachmentMessage(error: AttachmentError): string {
   if (error.code === 'too-large') {
-    return t('panel.fileTooLarge', { mb: attachments.maxMegabytes.value })
+    // Django's own refusal can arrive while the store's limit is unreadable.
+    const mb = attachments.maxMegabytes.value
+    return mb === null ? t('panel.fileTooLargeUnknown') : t('panel.fileTooLarge', { mb })
   }
   if (error.code === 'too-many') {
     return t('panel.fileTooMany', { count: attachments.maxCount.value })
@@ -655,12 +657,15 @@ const FIELD_UI = {
                 <span>
                   {{ t('panel.filesPrompt') }}
                   <span class="mt-0.5 block text-[12px] text-dimmed">
-                    {{ t('panel.filesLimit', {
-                      count: attachments.maxCount.value,
-                      mb: attachments.maxMegabytes.value,
-                    }) }}
+                    <template v-if="attachments.maxMegabytes.value !== null">
+                      {{ t('panel.filesLimit', {
+                        count: attachments.maxCount.value,
+                        mb: attachments.maxMegabytes.value,
+                      }) }}
+                    </template>
                     <template v-if="attachments.allowedTypes.value.length">
-                      · {{ attachments.allowedTypes.value.join(', ') }}
+                      <template v-if="attachments.maxMegabytes.value !== null">·</template>
+                      {{ attachments.allowedTypes.value.join(', ') }}
                     </template>
                   </span>
                 </span>
@@ -835,6 +840,7 @@ el:
     fileUploading: "Αποστολή {name}"
     fileNotAdded: Το αρχείο δεν προστέθηκε.
     fileTooLarge: Το αρχείο ξεπερνά το όριο των {mb} MB.
+    fileTooLargeUnknown: Το αρχείο είναι πολύ μεγάλο.
     fileTooMany: Έως {count} αρχεία ανά αίτημα.
     fileThrottled: Πολλές αποστολές αρχείων. Δοκιμάστε σε λίγο.
     fileBusy: Δεν μπορούμε να δεχτούμε αρχεία αυτή τη στιγμή. Δοκιμάστε σε λίγα λεπτά.
@@ -871,6 +877,7 @@ en:
     fileUploading: "Uploading {name}"
     fileNotAdded: The file was not added.
     fileTooLarge: The file is larger than the {mb} MB limit.
+    fileTooLargeUnknown: The file is too large.
     fileTooMany: Up to {count} files per enquiry.
     fileThrottled: Too many uploads. Try again shortly.
     fileBusy: Files cannot be accepted right now. Try again in a few minutes.
