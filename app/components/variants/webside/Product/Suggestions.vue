@@ -32,7 +32,7 @@ const props = defineProps<{
 const { t, locale } = useI18n()
 const { productUrl } = useUrls()
 // Off, reviews are gone everywhere — the stars on a card with them.
-const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
+const productReviewsEnabled = useStoreFeature('productReviews')
 const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const { getFavouriteIdByProductId } = useUserStore()

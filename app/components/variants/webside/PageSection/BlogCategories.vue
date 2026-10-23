@@ -3,13 +3,13 @@ defineProps<{
   title?: string
 }>()
 
-const tenantStore = useTenantStore()
+const blogEnabled = useStoreFeature('blog')
 const { isMobileOrTablet } = useDevice()
 </script>
 
 <template>
   <WebsideBlogCategoriesSlider
-    v-if="tenantStore.blogEnabled"
+    v-if="blogEnabled"
     :class="[
       'w-full',
       isMobileOrTablet ? 'py-0!' : 'md:p-0!',

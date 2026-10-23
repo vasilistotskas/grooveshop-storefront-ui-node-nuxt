@@ -8,10 +8,8 @@
  * padding around an empty rail is a blank screenful on every
  * first-time visitor.
  *
- * Gated by the `RECENTLY_VIEWED_ENABLED` merchant setting, which fails
- * CLOSED: a rail that pops in beats one that flashes and vanishes when
- * an admin has switched it off. The flag rides the one per-render
- * settings payload, so reading it costs no round trip of its own.
+ * Gated by the store's `recentlyViewed` preference
+ * (`TenantConfig.preferences`), which every render already has.
  */
 const props = defineProps<{
   /** The operator's section title; `heading` wins when both are set. */

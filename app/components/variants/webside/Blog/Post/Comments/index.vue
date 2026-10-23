@@ -3,12 +3,9 @@ import type { PropType } from 'vue'
 
 import * as z from 'zod'
 
-// Merchant feature toggle — one gate here covers the whole comments
-// surface under every post. Fails OPEN (the endpoints are also gated
-// server-side).
-const blogCommentsEnabled = useSettingFlag('BLOG_COMMENTS_ENABLED', {
-  fallback: true,
-})
+// One gate here covers the whole comments surface under every post, and
+// the request below: a store without comments is not asked for any.
+const blogCommentsEnabled = useStoreFeature('blogComments')
 
 const props = defineProps({
   blogPostId: {
@@ -62,11 +59,6 @@ const isOpen = ref(false)
 const allComments = ref<BlogComment[]>([])
 const isLoadingMore = ref(false)
 
-// Awaited, not the computed: the settings may still be loading at setup,
-// and the computed would read its fallback (on) and fetch the comments of
-// a store that has them off. Fails open like the section itself.
-const commentsOn = await settingEnabled('BLOG_COMMENTS_ENABLED', { fallback: true })
-
 const {
   data: comments,
   status,
@@ -86,8 +78,10 @@ const {
       approved: true,
     },
     // Off, the comments are gone: none fetched, so none reach the page
-    // payload behind the hidden section (Django answers 404 too).
-    immediate: commentsOn,
+    // payload behind the hidden section (Django answers 404 too). Not
+    // `immediate`, which skips only the first fetch: a change to the
+    // query's refs (the locale, the cursor) still refetched.
+    enabled: blogCommentsEnabled,
   },
 )
 
@@ -232,7 +226,7 @@ const scrollToComments = () => {
 watch(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
   async () => {
-    if (commentsOn) await refresh()
+    if (blogCommentsEnabled.value) await refresh()
   },
 )
 
@@ -254,7 +248,7 @@ watch(
 watch(
   () => route.query.comment_page,
   async () => {
-    if (commentsOn) await refresh()
+    if (blogCommentsEnabled.value) await refresh()
   },
 )
 

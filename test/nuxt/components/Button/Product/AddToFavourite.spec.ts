@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import ButtonProductAddToFavourite from '~/components/Button/Product/AddToFavourite.vue'
@@ -30,8 +30,6 @@ mockNuxtImport('useUserSession', () => () => ({
   fetch: () => Promise.resolve(),
   clear: () => Promise.resolve(),
 }))
-// The frozen webside tree reads the merchant setting; the default tree reads the feature.
-mockNuxtImport('useSettingFlag', () => () => computed(() => true))
 
 const FAVOURITE: ProductFavouriteWrite = { id: 11, product: 5 }
 

@@ -27,19 +27,8 @@ export const useTenantStore = defineStore('tenant', () => {
   )
   const isMultilingual = computed(() => availableLocales.value.length > 1)
   const defaultCurrency = computed(() => config.value?.defaultCurrency ?? 'EUR')
-  // The plan flags below (loyalty, blog, promotions, gift cards, b2b,
-  // recommendations) are read only by the frozen webside tree
-  // (`app/components/variants/webside/**`). Everything else asks
-  // `useStoreFeature`, Django's effective state, and never reads a plan
-  // flag beside it. They go when webside moves to `useStoreFeature`.
-  const loyaltyEnabled = computed(() => config.value?.loyaltyEnabled ?? false)
-  const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
-  const promotionsEnabled = computed(() => config.value?.promotionsEnabled ?? false)
-  const giftCardsEnabled = computed(() => config.value?.giftCardsEnabled ?? false)
   // The carriers the store ships with, as the footer's "Delivered by" marks
   const shippingCarriers = computed(() => config.value?.shippingCarriers ?? [])
-  const b2bEnabled = computed(() => config.value?.b2bEnabled ?? false)
-  const recommendationsEnabled = computed(() => config.value?.recommendationsEnabled ?? false)
   // Whether this store answers AI agents (MCP/UCP/ACP through the
   // gateway). Read by the trust-badges band, which must not let a
   // store advertise a surface it does not serve.
@@ -154,13 +143,7 @@ export const useTenantStore = defineStore('tenant', () => {
     availableLocales,
     isMultilingual,
     defaultCurrency,
-    loyaltyEnabled,
-    blogEnabled,
-    promotionsEnabled,
-    giftCardsEnabled,
     shippingCarriers,
-    b2bEnabled,
-    recommendationsEnabled,
     agentCommerceEnabled,
     themePreset,
     stripePublishableKey,

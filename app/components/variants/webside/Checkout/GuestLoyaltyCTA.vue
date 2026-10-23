@@ -5,12 +5,10 @@ const localePath = useLocalePath()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 
-const tenantStore = useTenantStore()
 const loyalty = useLoyalty()
 const { data: settings } = loyalty.fetchSettings()
 
-// Tenant plan flag is the primary gate; runtime toggle is the operational lever.
-const enabled = computed(() => tenantStore.loyaltyEnabled && (settings.value?.enabled ?? false))
+const enabled = useStoreFeature('loyalty')
 
 // Estimate points the guest could earn: floor(cartTotal * pointsFactor)
 const estimatedPoints = computed(() => {

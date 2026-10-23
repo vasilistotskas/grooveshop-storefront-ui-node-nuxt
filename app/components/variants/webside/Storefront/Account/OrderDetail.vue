@@ -2,7 +2,7 @@
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
 // Off, reviews are gone everywhere — the stars on a card with them.
-const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', { fallback: true })
+const productReviewsEnabled = useStoreFeature('productReviews')
 const route = useRoute(`account-orders-id___${locale.value}`)
 const orderId = 'id' in route.params
   ? route.params.id

@@ -41,7 +41,7 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 - `defaultCurrency` — ISO 4217 code (e.g. `'EUR'`), used in RSS and checkout
 - `accentHex` — CSS hex for PWA theme_color
 - `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
-- `features` — Django's effective state of each store feature (`useStoreFeature`, `eventStoreFeature`; see `.claude/rules/ui-and-pages.md`, "Store features"). `loyaltyEnabled`, `blogEnabled` and the other plan flags still arrive but only the frozen webside tree reads them
+- `features` — Django's effective state of each store feature (`useStoreFeature`, `eventStoreFeature`; see `.claude/rules/ui-and-pages.md`, "Store features"). `loyaltyEnabled`, `blogEnabled` and the other plan flags still arrive but nothing in the storefront reads them
 - `preferences` — each store preference's state, the switches the API does not refuse on (`useStorePreference`, `storePreferenceOn`; same section)
 - `metaPixelId`, `tiktokPixelId`, `gaTrackingId` — tenant-only analytics/pixel ids, no platform/env fallback (see Environment)
 

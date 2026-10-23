@@ -6,28 +6,10 @@ const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
 const { isMobileOrTablet } = useDevice()
-// Merchant UI toggle — fails OPEN so the purchase CTA never
-// disappears on a settings hiccup.
-const stickyAddToCartEnabled = useSettingFlag('STICKY_ADD_TO_CART_ENABLED', {
-  fallback: true,
-})
-// Merchant feature toggles (endpoints are also gated server-side).
-const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', {
-  fallback: true,
-})
-const productAlertsEnabled = useSettingFlag('PRODUCT_ALERTS_ENABLED', {
-  fallback: true,
-})
-// Suggestion strips: plan flag AND merchant setting, fails CLOSED —
-// a commercial surface that flashes and vanishes is worse than one
-// that appears a beat late.
-const productSuggestionsEnabled = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', {
-  fallback: false,
-})
-const tenantStore = useTenantStore()
-const suggestionsEnabled = computed(
-  () => tenantStore.recommendationsEnabled && productSuggestionsEnabled.value,
-)
+const stickyAddToCartEnabled = useStorePreference('stickyAddToCart')
+const productReviewsEnabled = useStoreFeature('productReviews')
+const productAlertsEnabled = useStoreFeature('productAlerts')
+const suggestionsEnabled = useStoreFeature('productSuggestions')
 
 const { user, loggedIn } = useUserSession()
 
@@ -92,12 +74,6 @@ if (!product.value) {
   )
 }
 
-// Awaited, not the computed: at this point the store settings may still
-// be loading, and the computed would read its fallback (on) and fetch the
-// reviews, and put them in the structured data, for a store with reviews
-// off. Fails open on a settings outage, like the review section.
-const reviewsOn = await settingEnabled('PRODUCT_REVIEWS_ENABLED', { fallback: true })
-
 // Fetch images and reviews in parallel (both needed for SSR/Schema.org)
 const [
   { data: productImages },
@@ -120,7 +96,7 @@ const [
       key: `productReviewsSchema${productId}`,
       // With reviews off none are fetched, so none reach the page or its
       // structured data (Django answers 404 for them too).
-      enabled: reviewsOn,
+      enabled: productReviewsEnabled,
       method: 'GET',
       headers: useRequestHeaders(),
       query: {
@@ -635,7 +611,7 @@ useSchemaOrg([
         },
       },
 
-      aggregateRating: reviewsOn && product.value?.reviewCount && product.value.reviewCount > 0
+      aggregateRating: productReviewsEnabled.value && product.value?.reviewCount && product.value.reviewCount > 0
         ? {
             '@type': 'AggregateRating' as const,
             'ratingValue': product.value.reviewAverage || 0,

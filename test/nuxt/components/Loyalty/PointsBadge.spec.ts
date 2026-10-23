@@ -40,7 +40,8 @@ mockNuxtImport('useLoyalty', () => () => ({
 describe('webside Loyalty/PointsBadge', () => {
   const C = WebsideLoyaltyPointsBadge
   beforeEach(() => {
-    setTenant({ loyaltyEnabled: true })
+    setTenant()
+    setTenantFeatures({ loyalty: true })
     settings.reset()
     points.reset()
     loggedIn.value = true
@@ -64,9 +65,7 @@ describe('webside Loyalty/PointsBadge', () => {
   // answers 404 on a store without loyalty.
   it.each([
     ['a guest', () => { loggedIn.value = false }],
-    ['a store with loyalty off', () => { settings.data.value = makeLoyaltySettings({ enabled: false }) }],
-    ['a store whose plan has no loyalty', () => { setTenant({ loyaltyEnabled: false }) }],
-    ['settings that have not arrived', () => { settings.data.value = undefined }],
+    ['a store without loyalty', () => { setTenantFeatures({ loyalty: false }) }],
   ])('renders nothing and asks for no points for %s', async (_case, arrange) => {
     arrange()
 

@@ -16,8 +16,7 @@ const tenantStore = useTenantStore()
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
 // Cart chrome for shop-dark tenants — mirrors Page/Navbar's gate.
-// Shopper-facing chrome fails OPEN.
-const cartEnabled = useSettingFlag('CART_ENABLED', { fallback: true })
+const cartEnabled = useStorePreference('cart')
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0

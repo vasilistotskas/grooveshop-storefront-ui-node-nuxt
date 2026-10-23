@@ -378,10 +378,10 @@ describe('Storefront/Cart', () => {
  * 1,00 € short of a 40,00 € threshold, not past it.
  */
 describe('Storefront/Cart (frozen webside)', () => {
-  // The frozen tree decides from the plan flag AND the merchant setting.
-  const showSuggestions = (setting: 'True' | 'False') => {
+  // Both trees decide from the productSuggestions feature.
+  const showSuggestions = (on: boolean) => {
     clearNuxtData()
-    api.routes({ '/api/settings/public': () => ({ settings: { PRODUCT_SUGGESTIONS_ENABLED: setting } }) })
+    setTenantFeatures({ productSuggestions: on })
   }
   const mountWebside = async () => {
     const wrapper = await mountSuspended(WebsideCart, { route: false })
@@ -390,7 +390,7 @@ describe('Storefront/Cart (frozen webside)', () => {
   }
 
   it('fills an empty cart with the store-wide empty_cart strip', async () => {
-    showSuggestions('True')
+    showSuggestions(true)
     useCartStore().cart = makeCart({ items: [] })
 
     const wrapper = await mountWebside()
@@ -400,7 +400,7 @@ describe('Storefront/Cart (frozen webside)', () => {
   })
 
   it('shows no empty-cart strip while the store has suggestions off', async () => {
-    showSuggestions('False')
+    showSuggestions(false)
     useCartStore().cart = makeCart({ items: [] })
 
     const wrapper = await mountWebside()
@@ -410,7 +410,7 @@ describe('Storefront/Cart (frozen webside)', () => {
   })
 
   it('keeps the cross-sell strip, not the empty-cart one, on a cart with lines', async () => {
-    showSuggestions('True')
+    showSuggestions(true)
     useCartStore().cart = makeCart({
       items: [{ id: 1, quantity: 1 }],
       recommendations: [makeProduct({ id: 9 })],

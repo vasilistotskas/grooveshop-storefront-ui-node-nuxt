@@ -13,18 +13,11 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const { loggedIn } = useUserSession()
-const tenantStore = useTenantStore()
 const loyalty = useLoyalty()
 
-// Awaited so the server knows, before it registers the points fetch,
-// whether there are points to ask for. Shared with the navbar and the
-// CTAs, so it costs no extra request.
-const { data: settings } = await loyalty.fetchSettings()
-
-// The store's plan AND the merchant's setting, as every loyalty surface
-// gates; Django refuses the points of a store without either.
-const shouldFetch = computed(() =>
-  loggedIn.value && tenantStore.loyaltyEnabled && (settings.value?.enabled ?? false))
+// Django refuses the points of a store without loyalty.
+const loyaltyEnabled = useStoreFeature('loyalty')
+const shouldFetch = computed(() => loggedIn.value && loyaltyEnabled.value)
 const { data: productPoints, status } = loyalty.fetchProductPoints(props.productId, shouldFetch)
 
 const loading = computed(() => status.value === 'pending')

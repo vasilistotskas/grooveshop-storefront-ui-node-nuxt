@@ -4,7 +4,7 @@ import type { TableColumn } from '#ui/types'
 const UAvatar = resolveComponent('UAvatar')
 
 const { t, locale } = useI18n()
-const tenantStore = useTenantStore()
+const blogEnabled = useStoreFeature('blog')
 const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
@@ -126,7 +126,7 @@ const openTracking = () => {
 const requestFetch = useRequestApi()
 const { data: recommendedPosts } = useLazyAsyncData(
   `success-recommended-posts:${locale.value}`,
-  () => tenantStore.blogEnabled
+  () => blogEnabled.value
     ? requestFetch('/api/blog/posts', {
         query: {
           languageCode: locale.value,
@@ -139,7 +139,7 @@ const { data: recommendedPosts } = useLazyAsyncData(
   { default: () => null },
 )
 const recommendedPostsList = computed(() =>
-  tenantStore.blogEnabled ? (recommendedPosts.value?.results ?? []) : [],
+  blogEnabled.value ? (recommendedPosts.value?.results ?? []) : [],
 )
 
 onBeforeUnmount(() => {

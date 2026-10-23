@@ -8,8 +8,8 @@
  * event loop under a crawler (Ahrefs 2026-09-11: 2–28 s TTFB, the
  * liveness probe timing out) while Django itself stayed at 0.2 s.
  *
- * Now every reader — ``useSettingFlag``, ``useSettingValue`` and the
- * composables built on them — shares this single ``useFetch`` under the
+ * Now every reader — ``useSettingValue`` and the composables built on
+ * it — shares this single ``useFetch`` under the
  * ``store-settings`` key: one request per render, one payload entry
  * per page, and the Nitro route behind it (``server/api/settings/
  * public.get.ts``) caches per tenant so Django answers once a minute
@@ -23,8 +23,7 @@
  *
  * Every public key arrives, with the store's value or the one Django
  * declares, so no reader keeps a default of its own. Fail-soft: a fetch
- * problem yields an empty map, and a flag reader applies its outage
- * answer (see ``parseSettingFlag``). Never a per-key
+ * problem yields an empty map. Never a per-key
  * ``server: false`` any more — with a single shared request there is
  * no per-flag cost to keep off the SSR path, and rendering the real
  * value on the server beats a client-side pop-in.
