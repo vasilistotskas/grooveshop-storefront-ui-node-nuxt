@@ -26,7 +26,6 @@ const PLAN_FLAGS = ['loyaltyEnabled', 'blogEnabled', 'promotionsEnabled', 'giftC
  */
 const PLAIN_BOOLEAN_SETTINGS: Record<string, string> = {
   B2B_INVOICING_ENABLED: 'the checkout invoice option (useCheckoutForm)',
-  LOYALTY_ENABLED: 'read into the loyalty settings (app/utils/loyalty.ts)',
   LOYALTY_TIER_MULTIPLIER_ENABLED: 'a loyalty programme rule (app/utils/loyalty.ts)',
   LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: 'a loyalty programme rule (app/utils/loyalty.ts)',
 }

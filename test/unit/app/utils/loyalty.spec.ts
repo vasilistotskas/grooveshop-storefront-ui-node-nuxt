@@ -1,16 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import {
   buildLoyaltyTransactionsQuery,
-  defaultLoyaltySettings,
-  LOYALTY_SETTING_KEYS,
   parseLoyaltySettings,
   tierProgress,
   tierStartXp,
 } from '~/utils/loyalty'
+import { makeLoyaltyPublicSettings } from '~~/test/fixtures/loyalty'
 
 /** Every setting present and valid, as a correctly configured tenant returns them. */
-const CONFIGURED = {
-  LOYALTY_ENABLED: 'true',
+const CONFIGURED = makeLoyaltyPublicSettings({
   LOYALTY_REDEMPTION_RATIO_EUR: '50.5',
   LOYALTY_POINTS_FACTOR: '1.5',
   LOYALTY_TIER_MULTIPLIER_ENABLED: 'True',
@@ -18,27 +16,20 @@ const CONFIGURED = {
   LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: 'TRUE',
   LOYALTY_NEW_CUSTOMER_BONUS_POINTS: '200',
   LOYALTY_XP_PER_LEVEL: '2500',
-}
-
-describe('defaultLoyaltySettings', () => {
-  it('is loyalty off with the documented fallbacks', () => {
-    expect(defaultLoyaltySettings()).toEqual({
-      enabled: false,
-      redemptionRatioEur: 100,
-      pointsFactor: 1.0,
-      tierMultiplierEnabled: false,
-      pointsExpirationDays: 0,
-      newCustomerBonusEnabled: false,
-      newCustomerBonusPoints: 0,
-      xpPerLevel: 1000,
-    })
-  })
 })
+
+const NUMERIC_KEYS = [
+  'LOYALTY_REDEMPTION_RATIO_EUR',
+  'LOYALTY_POINTS_FACTOR',
+  'LOYALTY_POINTS_EXPIRATION_DAYS',
+  'LOYALTY_NEW_CUSTOMER_BONUS_POINTS',
+  'LOYALTY_XP_PER_LEVEL',
+] as const
+const FLAG_KEYS = ['LOYALTY_TIER_MULTIPLIER_ENABLED', 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED'] as const
 
 describe('parseLoyaltySettings', () => {
   it('reads every configured setting, booleans case-insensitively', () => {
     expect(parseLoyaltySettings(CONFIGURED)).toEqual({
-      enabled: true,
       redemptionRatioEur: 50.5,
       pointsFactor: 1.5,
       tierMultiplierEnabled: true,
@@ -49,72 +40,55 @@ describe('parseLoyaltySettings', () => {
     })
   })
 
-  it('falls back to the defaults for an empty response', () => {
-    expect(parseLoyaltySettings({})).toEqual(defaultLoyaltySettings())
+  it('ignores the keys of the rest of the payload, the programme switch included', () => {
+    expect(parseLoyaltySettings({ ...CONFIGURED, LOYALTY_ENABLED: 'false', CART_ENABLED: 'true' })).toEqual(parseLoyaltySettings(CONFIGURED))
   })
 
-  // The endpoint answers `''` for a key whose Django fetch failed; a NaN
-  // here would reach checkout's redemption maths.
-  it.each(['', 'abc', 'NaN', 'Infinity'])('falls back to the defaults for every numeric setting set to %j', (bad) => {
-    const parsed = parseLoyaltySettings({
-      ...CONFIGURED,
-      LOYALTY_REDEMPTION_RATIO_EUR: bad,
-      LOYALTY_POINTS_FACTOR: bad,
-      LOYALTY_POINTS_EXPIRATION_DAYS: bad,
-      LOYALTY_NEW_CUSTOMER_BONUS_POINTS: bad,
-      LOYALTY_XP_PER_LEVEL: bad,
-    })
-    expect(parsed).toMatchObject({
-      redemptionRatioEur: 100,
-      pointsFactor: 1.0,
-      pointsExpirationDays: 0,
-      newCustomerBonusPoints: 0,
-      xpPerLevel: 1000,
-    })
+  it('answers null, not defaults, for an empty payload', () => {
+    expect(parseLoyaltySettings({})).toBeNull()
   })
 
-  it('keeps an explicit zero rather than taking the default', () => {
-    expect(parseLoyaltySettings({ LOYALTY_XP_PER_LEVEL: '0', LOYALTY_REDEMPTION_RATIO_EUR: '0' }))
+  it.each([...NUMERIC_KEYS, ...FLAG_KEYS])('answers null when %s is missing', (key) => {
+    const { [key]: _missing, ...rest } = CONFIGURED
+
+    expect(parseLoyaltySettings(rest)).toBeNull()
+  })
+
+  // A number that cannot be read must never reach checkout's redemption
+  // maths as NaN, nor as a guess.
+  it.each(['', ' ', 'abc', 'NaN', 'Infinity', '12abc'])('answers null for a numeric setting set to %j', (bad) => {
+    for (const key of NUMERIC_KEYS) {
+      expect(parseLoyaltySettings({ ...CONFIGURED, [key]: bad }), key).toBeNull()
+    }
+  })
+
+  it.each(['30.9', '1e2x'])('answers null for an integer setting that is not an integer: %j', (bad) => {
+    for (const key of ['LOYALTY_POINTS_EXPIRATION_DAYS', 'LOYALTY_NEW_CUSTOMER_BONUS_POINTS', 'LOYALTY_XP_PER_LEVEL']) {
+      expect(parseLoyaltySettings({ ...CONFIGURED, [key]: bad }), key).toBeNull()
+    }
+  })
+
+  it('keeps an explicit zero', () => {
+    expect(parseLoyaltySettings({ ...CONFIGURED, LOYALTY_XP_PER_LEVEL: '0', LOYALTY_REDEMPTION_RATIO_EUR: '0' }))
       .toMatchObject({ xpPerLevel: 0, redemptionRatioEur: 0 })
   })
 
-  it('truncates the integer settings and keeps the decimals of the ratio and factor', () => {
-    expect(parseLoyaltySettings({
-      LOYALTY_POINTS_EXPIRATION_DAYS: '30.9',
-      LOYALTY_NEW_CUSTOMER_BONUS_POINTS: '99.5',
-      LOYALTY_XP_PER_LEVEL: '1000.7',
-      LOYALTY_REDEMPTION_RATIO_EUR: '12.25',
-      LOYALTY_POINTS_FACTOR: '0.75',
-    })).toMatchObject({
-      pointsExpirationDays: 30,
-      newCustomerBonusPoints: 99,
-      xpPerLevel: 1000,
-      redemptionRatioEur: 12.25,
-      pointsFactor: 0.75,
-    })
+  it('keeps the decimals of the ratio and factor', () => {
+    expect(parseLoyaltySettings({ ...CONFIGURED, LOYALTY_REDEMPTION_RATIO_EUR: '12.25', LOYALTY_POINTS_FACTOR: '0.75' }))
+      .toMatchObject({ redemptionRatioEur: 12.25, pointsFactor: 0.75 })
   })
 
   // The same truthiness every other merchant setting follows
   // (`parseSettingFlag`): the sitemap, the menus and the route gate read
-  // `1` / `yes` as on, so the loyalty numbers must too.
+  // `1` / `yes` as on, so the loyalty flags must too.
   it.each(['True', 'true', '1', 'yes', ' YES '])('treats %j as an enabled flag', (value) => {
-    expect(parseLoyaltySettings({
-      LOYALTY_ENABLED: value,
-      LOYALTY_TIER_MULTIPLIER_ENABLED: value,
-      LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: value,
-    })).toMatchObject({ enabled: true, tierMultiplierEnabled: true, newCustomerBonusEnabled: true })
+    expect(parseLoyaltySettings({ ...CONFIGURED, LOYALTY_TIER_MULTIPLIER_ENABLED: value, LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: value }))
+      .toMatchObject({ tierMultiplierEnabled: true, newCustomerBonusEnabled: true })
   })
 
   it.each(['False', 'false', '0', 'no', ''])('treats %j as a disabled flag', (value) => {
-    expect(parseLoyaltySettings({
-      LOYALTY_ENABLED: value,
-      LOYALTY_TIER_MULTIPLIER_ENABLED: value,
-      LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: value,
-    })).toMatchObject({ enabled: false, tierMultiplierEnabled: false, newCustomerBonusEnabled: false })
-  })
-
-  it('requests exactly the keys it parses', () => {
-    expect(Object.keys(CONFIGURED).sort()).toEqual([...LOYALTY_SETTING_KEYS].sort())
+    expect(parseLoyaltySettings({ ...CONFIGURED, LOYALTY_TIER_MULTIPLIER_ENABLED: value, LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: value }))
+      .toMatchObject({ tierMultiplierEnabled: false, newCustomerBonusEnabled: false })
   })
 })
 

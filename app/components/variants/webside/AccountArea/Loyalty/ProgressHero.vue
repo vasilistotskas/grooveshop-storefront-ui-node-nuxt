@@ -4,21 +4,22 @@ const loyalty = useLoyalty()
 
 const { data: summary, status: summaryStatus } = loyalty.fetchSummary()
 const { data: tiers, status: tiersStatus } = loyalty.fetchTiers()
-const { data: settings, status: settingsStatus } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 
 const loading = computed(() =>
   summaryStatus.value === 'pending'
-  || tiersStatus.value === 'pending'
-  || settingsStatus.value === 'pending',
+  || tiersStatus.value === 'pending',
 )
 
+// Unknown settings are an error: the tier progress cannot be drawn
+// without the store's XP per level, and none is guessed.
 const error = computed(() =>
   summaryStatus.value === 'error'
   || tiersStatus.value === 'error'
-  || settingsStatus.value === 'error',
+  || settings.value === null,
 )
 
-const xpPerLevel = computed(() => settings.value?.xpPerLevel || 1000)
+const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
 const currentTierIndex = computed(() => {
   if (!summary.value?.tier || !tiers.value) return 0
@@ -31,22 +32,24 @@ const currentTierName = computed(() => {
 })
 
 const xpProgress = computed(() => {
-  if (!summary.value || !tiers.value || currentTierIndex.value === -1) return 0
+  const perLevel = xpPerLevel.value
+  if (!summary.value || !tiers.value || currentTierIndex.value === -1 || perLevel === null) return 0
   const currentTier = tiers.value[currentTierIndex.value]
   const nextTier = tiers.value[currentTierIndex.value + 1]
   if (!currentTier || !nextTier) return 100
-  const currentTierMinXp = (currentTier.requiredLevel - 1) * xpPerLevel.value
-  const nextTierMinXp = (nextTier.requiredLevel - 1) * xpPerLevel.value
+  const currentTierMinXp = (currentTier.requiredLevel - 1) * perLevel
+  const nextTierMinXp = (nextTier.requiredLevel - 1) * perLevel
   const xpInCurrentTier = summary.value.totalXp - currentTierMinXp
   const xpNeededForNextTier = nextTierMinXp - currentTierMinXp
   return Math.min(100, Math.max(0, (xpInCurrentTier / xpNeededForNextTier) * 100))
 })
 
 const nextTierXp = computed(() => {
-  if (!tiers.value || currentTierIndex.value === -1) return 0
+  const perLevel = xpPerLevel.value
+  if (!tiers.value || currentTierIndex.value === -1 || perLevel === null) return 0
   const nextTier = tiers.value[currentTierIndex.value + 1]
   if (!nextTier) return summary.value?.totalXp || 0
-  return (nextTier.requiredLevel - 1) * xpPerLevel.value
+  return (nextTier.requiredLevel - 1) * perLevel
 })
 
 /**

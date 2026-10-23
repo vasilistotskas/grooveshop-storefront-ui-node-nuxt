@@ -13,12 +13,12 @@ import { trees } from '~~/test/helpers/trees'
  * "Θα κερδίσεις N πόντους" beside the checkout total: the points the
  * cart earns, summed from one `/api/loyalty/product/:id/points` request
  * per distinct product. It must never promise a reward the backend will
- * not grant — a guest, a plan or setting without loyalty, and a
+ * not grant — a guest, a store without the loyalty feature, and a
  * wholesale cart outside the programme all get nothing, and fetch
  * nothing.
  *
- * `$api` (the per-product points), `useRequestApi` (the loyalty
- * settings) and `$fetch` share one `createApiMock`; the cart is the real
+ * `$api` and `useRequestApi` (the per-product points) and `$fetch` share
+ * one `createApiMock`; the cart is the real
  * Pinia store. The two trees share the logic; the default prints a line
  * ("Θα κερδίσεις 24 πόντους"), the frozen webside copy a "+24" badge.
  */
@@ -40,7 +40,7 @@ mockNuxtImport('useUserSession', () => () => ({
   clear: () => Promise.resolve(),
 }))
 
-const loyalty = vi.hoisted(() => ({ setting: 'true', points: {} as Record<number, number | Error> }))
+const loyalty = vi.hoisted(() => ({ points: {} as Record<number, number | Error> }))
 
 function lines(...items: CartItemOverrides[]) {
   useCartStore().cart = makeCart({ items })
@@ -49,7 +49,6 @@ function lines(...items: CartItemOverrides[]) {
 describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEarned', ({ tree, C }) => {
   beforeEach(async () => {
     clearNuxtData()
-    loyalty.setting = 'true'
     loyalty.points = { 3: 12, 4: 5 }
     setTenant({ loyaltyEnabled: true })
     setTenantFeatures({ loyalty: true })
@@ -58,7 +57,6 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
       // cart, a sign-out clears it. Answer with the cart the test set, so
       // those reactions never swap it for an empty one.
       '/api/cart': () => useCartStore().cart,
-      '/api/loyalty/settings': () => ({ LOYALTY_ENABLED: loyalty.setting }),
       '/api/loyalty/product/*': (url: string) => {
         const points = loyalty.points[Number(url.split('/')[4])]
         if (points instanceof Error) throw points
@@ -149,13 +147,8 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     expect(promised(wrapper)).toBe(36)
   })
 
-  // Off for the default tree is the feature; the frozen tree reads the setting.
   function storeWithoutLoyalty() {
     setTenant({ loyaltyEnabled: false })
-    setTenantFeatures({ loyalty: false })
-  }
-  function merchantTurnsLoyaltyOff() {
-    loyalty.setting = 'false'
     setTenantFeatures({ loyalty: false })
   }
 
@@ -163,7 +156,6 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     it.each([
       ['a guest', () => { session.loggedIn.value = false }],
       ['a store without loyalty', storeWithoutLoyalty],
-      ['a merchant who turned loyalty off', merchantTurnsLoyaltyOff],
     ])('for %s', async (_case, arrange) => {
       arrange()
       // A sign-out empties the cart (app/plugins/setup.ts); put the line

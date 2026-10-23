@@ -10,8 +10,7 @@ const localePath = useLocalePath()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 
-const loyalty = useLoyalty()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 
 const enabled = useStoreFeature('loyalty')
 

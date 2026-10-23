@@ -22,10 +22,7 @@ const { t } = useI18n()
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
 
-// Awaited so the server knows, before it registers the points fetch,
-// whether there are points to ask for. Shared with the navbar and the
-// checkout, so it costs no extra request.
-const { data: settings } = await loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 
 const enabled = useStoreFeature('loyalty')
 const { data: productPoints } = loyalty.fetchProductPoints(props.productId, loggedIn)
@@ -33,7 +30,8 @@ const { data: productPoints } = loyalty.fetchProductPoints(props.productId, logg
 const points = computed(() => {
   if (!enabled.value) return 0
   if (loggedIn.value && productPoints.value) return productPoints.value.potentialPoints
-  return Math.floor(props.productPrice * (settings.value?.pointsFactor ?? 0))
+  if (!settings.value) return 0
+  return Math.floor(props.productPrice * settings.value.pointsFactor)
 })
 </script>
 

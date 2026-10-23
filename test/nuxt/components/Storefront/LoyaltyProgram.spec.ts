@@ -5,9 +5,9 @@ import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LoyaltyProgram from '~/components/Storefront/LoyaltyProgram.vue'
 import WebsideLoyaltyProgram from '~/components/variants/webside/Storefront/LoyaltyProgram.vue'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { LoyaltyTier } from '~~/shared/openapi/types.gen'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { makeLoyaltySettings, makeTier } from '~~/test/fixtures/loyalty'
 
 /**
@@ -15,9 +15,10 @@ import { makeLoyaltySettings, makeTier } from '~~/test/fixtures/loyalty'
  * volt hero, steps, the tier ladder, questions); the frozen webside copy
  * keeps its original body, run on its own below.
  */
-const settings = createAsyncDataMock<LoyaltySettings>()
+const settings = createLoyaltySettingsMock()
 const tiers = createAsyncDataMock<LoyaltyTier[]>()
-mockNuxtImport('useLoyalty', () => () => ({ fetchSettings: () => settings, fetchTiers: () => tiers }))
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
+mockNuxtImport('useLoyalty', () => () => ({ fetchTiers: () => tiers }))
 
 const session = await vi.hoisted(async () => ({ loggedIn: (await import('vue')).ref(false) }))
 mockNuxtImport('useUserSession', () => () => ({
@@ -32,7 +33,6 @@ mockNuxtImport('useUserSession', () => () => ({
 describe('Webside Storefront/LoyaltyProgram', () => {
   beforeEach(() => {
     settings.reset()
-    settings.status.value = 'success'
   })
 
   const mount = () => mountSuspended(WebsideLoyaltyProgram, { route: false })
@@ -52,6 +52,16 @@ describe('Webside Storefront/LoyaltyProgram', () => {
     const text = (await mount()).text()
 
     expect(text).not.toContain('πόντοι ισούνται με')
+  })
+
+  it('shows skeletons, and no guessed rate, while the settings cannot be read', async () => {
+    settings.data.value = null
+
+    const wrapper = await mount()
+
+    expect(wrapper.findComponent({ name: 'USkeleton' }).exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('ισούνται με')
+    expect(wrapper.text()).not.toContain('πόντοι = ')
   })
 })
 
@@ -73,7 +83,6 @@ describe('Storefront/LoyaltyProgram', () => {
     settings.reset()
     tiers.reset()
     session.loggedIn.value = false
-    settings.status.value = 'success'
     settings.data.value = makeLoyaltySettings({ xpPerLevel: 1000, redemptionRatioEur: 100, pointsFactor: 1.5 })
     tiers.data.value = [...LADDER].reverse()
   })
@@ -148,6 +157,16 @@ describe('Storefront/LoyaltyProgram', () => {
       const wrapper = await mountPage()
 
       expect(steps(wrapper).map(heading)).toEqual(['Εγγραφή', 'Κέρδος'])
+    })
+
+    it('leaves out the earn and climb steps, and every figure, when the settings cannot be read', async () => {
+      settings.data.value = null
+
+      const wrapper = await mountPage()
+
+      expect(steps(wrapper).map(heading)).toEqual(['Εγγραφή'])
+      expect(wrapper.find('ol[aria-label="Βαθμίδες"]').exists()).toBe(false)
+      expect(wrapper.get('h1').element.parentElement!.textContent).not.toMatch(/\d/)
     })
 
     it('mentions the welcome bonus only where the store gives one', async () => {
@@ -238,6 +257,13 @@ describe('Storefront/LoyaltyProgram', () => {
       expect(wrapper.text()).toContain('Οι πόντοι δεν λήγουν')
       // Django has no inactivity rule: nothing but the expiry setting ends points.
       expect(wrapper.text()).not.toContain('ενεργός')
+    })
+
+    it('asks nothing about expiry when the settings cannot be read', async () => {
+      settings.data.value = null
+      const wrapper = await mountPage()
+
+      expect(wrapper.findAll('button').map(button => button.text())).not.toContain('Λήγουν οι πόντοι μου;')
     })
 
     it('says how long points last when the store sets an expiry', async () => {

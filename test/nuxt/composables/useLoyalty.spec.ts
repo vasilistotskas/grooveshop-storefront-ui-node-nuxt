@@ -3,7 +3,6 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import { useLoyalty } from '~/composables/useLoyalty'
-import { defaultLoyaltySettings } from '~/utils/loyalty'
 import { setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
@@ -18,60 +17,15 @@ import { setTenantFeatures } from '~~/test/helpers/tenant'
  */
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-const { mockLog } = vi.hoisted(() => ({
-  mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
-}))
 
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 mockNuxtImport('useRequestApi', () => () => api)
-mockNuxtImport('log', () => mockLog)
 
 describe('useLoyalty', () => {
   beforeEach(() => {
     clearNuxtData()
     setTenantFeatures({ loyalty: true })
-  })
-
-  describe('fetchSettings', () => {
-    it('requests the eight loyalty keys in one call and parses the answer', async () => {
-      api.routes({
-        '/api/loyalty/settings': {
-          LOYALTY_ENABLED: 'true',
-          LOYALTY_REDEMPTION_RATIO_EUR: '',
-          LOYALTY_XP_PER_LEVEL: '2500',
-        },
-      })
-
-      const { data } = await useLoyalty().fetchSettings()
-
-      expect(api.callsTo('/api/loyalty/settings')).toEqual([{
-        url: '/api/loyalty/settings',
-        options: {
-          query: {
-            keys: 'LOYALTY_ENABLED,LOYALTY_REDEMPTION_RATIO_EUR,LOYALTY_POINTS_FACTOR,'
-              + 'LOYALTY_TIER_MULTIPLIER_ENABLED,LOYALTY_POINTS_EXPIRATION_DAYS,'
-              + 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED,LOYALTY_NEW_CUSTOMER_BONUS_POINTS,LOYALTY_XP_PER_LEVEL',
-          },
-        },
-      }])
-      expect(data.value).toMatchObject({ enabled: true, redemptionRatioEur: 100, xpPerLevel: 2500 })
-    })
-
-    it('answers the defaults and logs when the request fails', async () => {
-      const failure = new Error('Network error')
-      api.routes({
-        '/api/loyalty/settings': () => {
-          throw failure
-        },
-      })
-
-      const { data, error } = await useLoyalty().fetchSettings()
-
-      expect(error.value).toBeUndefined()
-      expect(data.value).toEqual(defaultLoyaltySettings())
-      expect(mockLog.error).toHaveBeenCalledWith({ action: 'loyalty:fetchSettings', error: failure })
-    })
   })
 
   describe('fetchTransactions', () => {
@@ -170,7 +124,6 @@ describe('useLoyalty', () => {
     // One entry per method: the completeness test below fails on a new
     // fetch that is not listed, so none can join ungated.
     const FETCHES: Record<keyof Loyalty, (loyalty: Loyalty) => Promise<unknown>> = {
-      fetchSettings: async loyalty => (await loyalty.fetchSettings()).data.value,
       fetchSummary: async loyalty => (await loyalty.fetchSummary()).data.value,
       fetchTransactions: async loyalty => (await loyalty.fetchTransactions({ page: 1 })).data.value,
       fetchTiers: async loyalty => (await loyalty.fetchTiers()).data.value,

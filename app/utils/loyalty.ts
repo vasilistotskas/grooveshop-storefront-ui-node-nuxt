@@ -1,60 +1,51 @@
-/** The site settings `useLoyalty().fetchSettings` asks `/api/loyalty/settings` for. */
-export const LOYALTY_SETTING_KEYS = [
-  'LOYALTY_ENABLED',
-  'LOYALTY_REDEMPTION_RATIO_EUR',
-  'LOYALTY_POINTS_FACTOR',
-  'LOYALTY_TIER_MULTIPLIER_ENABLED',
-  'LOYALTY_POINTS_EXPIRATION_DAYS',
-  'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED',
-  'LOYALTY_NEW_CUSTOMER_BONUS_POINTS',
-  'LOYALTY_XP_PER_LEVEL',
-] as const
-
-/** What the storefront assumes when a loyalty setting is missing or unreadable. */
-export function defaultLoyaltySettings(): LoyaltySettings {
-  return {
-    enabled: false,
-    redemptionRatioEur: 100,
-    pointsFactor: 1.0,
-    tierMultiplierEnabled: false,
-    pointsExpirationDays: 0,
-    newCustomerBonusEnabled: false,
-    newCustomerBonusPoints: 0,
-    xpPerLevel: 1000,
-  }
-}
-
 /**
- * The typed loyalty settings from the settings endpoint's key → string map.
+ * The typed loyalty settings from the store's public settings payload
+ * (`useStoreSettings`), or `null` when any of them cannot be read.
  *
- * The endpoint returns `value: ''` (not undefined) for a key whose Django
- * fetch failed, so `?? default` never fires and a bare parseFloat/parseInt
- * would yield NaN and poison checkout's redemption math. Guard on
- * Number.isFinite so empty/missing/bad values all fall back to the default.
+ * Django sends every public key with the store's value or the one it
+ * declares, so an absent or unparseable key means the lookup failed, and
+ * no number is guessed in its place: the caller renders nothing for a
+ * figure it does not know. Whether the programme is on is a store
+ * feature (`useStoreFeature('loyalty')`), not a field here.
  */
-export function parseLoyaltySettings(settings: Record<string, string | undefined>): LoyaltySettings {
-  const defaults = defaultLoyaltySettings()
-  const num = (v: string | undefined, fallback: number) => {
-    const n = Number.parseFloat(v ?? '')
-    return Number.isFinite(n) ? n : fallback
+export function parseLoyaltySettings(settings: Readonly<Record<string, string>>): LoyaltySettings | null {
+  const number = (key: string) => {
+    const raw = settings[key]?.trim()
+    return raw ? Number(raw) : Number.NaN
   }
-  const int = (v: string | undefined, fallback: number) => {
-    const n = Number.parseInt(v ?? '', 10)
-    return Number.isFinite(n) ? n : fallback
+  const flag = (key: string) => {
+    const raw = settings[key]
+    return raw === undefined ? null : parseSettingFlag(raw, false)
   }
-  // The one truthiness rule every merchant flag follows; an absent or
-  // empty row is off, as the defaults are.
-  const bool = (v: string | undefined) => parseSettingFlag(v, false)
+
+  const redemptionRatioEur = number('LOYALTY_REDEMPTION_RATIO_EUR')
+  const pointsFactor = number('LOYALTY_POINTS_FACTOR')
+  const pointsExpirationDays = number('LOYALTY_POINTS_EXPIRATION_DAYS')
+  const newCustomerBonusPoints = number('LOYALTY_NEW_CUSTOMER_BONUS_POINTS')
+  const xpPerLevel = number('LOYALTY_XP_PER_LEVEL')
+  const tierMultiplierEnabled = flag('LOYALTY_TIER_MULTIPLIER_ENABLED')
+  const newCustomerBonusEnabled = flag('LOYALTY_NEW_CUSTOMER_BONUS_ENABLED')
+
+  if (
+    !Number.isFinite(redemptionRatioEur)
+    || !Number.isFinite(pointsFactor)
+    || !Number.isInteger(pointsExpirationDays)
+    || !Number.isInteger(newCustomerBonusPoints)
+    || !Number.isInteger(xpPerLevel)
+    || tierMultiplierEnabled === null
+    || newCustomerBonusEnabled === null
+  ) {
+    return null
+  }
 
   return {
-    enabled: bool(settings['LOYALTY_ENABLED']),
-    redemptionRatioEur: num(settings['LOYALTY_REDEMPTION_RATIO_EUR'], defaults.redemptionRatioEur),
-    pointsFactor: num(settings['LOYALTY_POINTS_FACTOR'], defaults.pointsFactor),
-    tierMultiplierEnabled: bool(settings['LOYALTY_TIER_MULTIPLIER_ENABLED']),
-    pointsExpirationDays: int(settings['LOYALTY_POINTS_EXPIRATION_DAYS'], defaults.pointsExpirationDays),
-    newCustomerBonusEnabled: bool(settings['LOYALTY_NEW_CUSTOMER_BONUS_ENABLED']),
-    newCustomerBonusPoints: int(settings['LOYALTY_NEW_CUSTOMER_BONUS_POINTS'], defaults.newCustomerBonusPoints),
-    xpPerLevel: int(settings['LOYALTY_XP_PER_LEVEL'], defaults.xpPerLevel),
+    redemptionRatioEur,
+    pointsFactor,
+    tierMultiplierEnabled,
+    pointsExpirationDays,
+    newCustomerBonusEnabled,
+    newCustomerBonusPoints,
+    xpPerLevel,
   }
 }
 

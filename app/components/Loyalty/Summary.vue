@@ -10,21 +10,23 @@
  * when the ladder establishes it: an empty ladder, or one without their
  * tier, shows no ladder rather than a "top tier" it cannot know. A
  * multiplier is quoted only while the store has tier multipliers on, and
- * the balance's worth only while the programme is on — a settings read
- * that failed falls back to defaults whose ratio the store never set.
+ * the balance's worth only while the programme is on. A figure the
+ * settings cannot give (the XP per level, the ratio) is left out, never
+ * replaced by a default.
  */
 const { t, n, locale } = useI18n()
 const loyalty = useLoyalty()
 
 const { data: summary, status, error, refresh } = loyalty.fetchSummary()
 const { data: tiers } = loyalty.fetchTiers()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
+const loyaltyOn = useStoreFeature('loyalty')
 
 const loading = computed(() => status.value === 'pending')
 
 const headingId = useId()
 
-const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? defaultLoyaltySettings().xpPerLevel)
+const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
 // The tiers in the order a shopper climbs them.
 const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
@@ -36,9 +38,9 @@ const currentRank = computed(() => {
   return currentId ? ladder.value.findIndex(tier => tier.id === currentId) : -1
 })
 
-/** The tier after the shopper's; `null` at the top; `undefined` when the ladder cannot say. */
+/** The tier after the shopper's; `null` at the top; `undefined` when the ladder, or the XP per level it is measured in, cannot say. */
 const nextTier = computed<LoyaltyTier | null | undefined>(() => {
-  if (!ladder.value.length) return undefined
+  if (!ladder.value.length || xpPerLevel.value === null) return undefined
   if (summary.value?.tier && currentRank.value === -1) return undefined
   return ladder.value[currentRank.value + 1] ?? null
 })
@@ -46,8 +48,9 @@ const nextTier = computed<LoyaltyTier | null | undefined>(() => {
 const toNext = computed(() => {
   const value = summary.value
   const next = nextTier.value
-  if (!value || !next) return 0
-  return Math.max(0, tierStartXp(next, xpPerLevel.value) - value.totalXp)
+  const perLevel = xpPerLevel.value
+  if (!value || !next || perLevel === null) return 0
+  return Math.max(0, tierStartXp(next, perLevel) - value.totalXp)
 })
 
 const nextMultiplier = computed(() => {
@@ -56,7 +59,7 @@ const nextMultiplier = computed(() => {
 })
 
 const worth = computed(() => {
-  const ratio = settings.value?.enabled ? settings.value.redemptionRatioEur : undefined
+  const ratio = loyaltyOn.value ? settings.value?.redemptionRatioEur : undefined
   const value = summary.value
   return value && ratio && ratio > 0 ? n(value.pointsBalance / ratio, 'currency') : null
 })
@@ -140,7 +143,10 @@ const tierName = (tier: LoyaltyTier) => extractTranslated(tier, 'name', locale.v
               class="sr-only"
             >({{ t('current') }})</span>
           </span>
-          <span class="font-mono text-xs text-muted">
+          <span
+            v-if="xpPerLevel !== null"
+            class="font-mono text-xs text-muted"
+          >
             {{ n(tierStartXp(tier, xpPerLevel)) }}
           </span>
         </li>

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const loyaltyEnabled = useStoreFeature('loyalty')
-const { data: loyaltySettings } = await useLoyalty().fetchSettings()
+const loyaltySettings = useLoyaltySettings()
 
 useSeoMeta({
   title: t('seo_title'),

@@ -7,7 +7,7 @@ const localePath = useLocalePath()
 const loyalty = useLoyalty()
 const { data: summary, status, error, refresh } = loyalty.fetchSummary()
 const { data: tiers } = loyalty.fetchTiers()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 
 // Computed for loading state (compatible with existing template)
 const loading = computed(() => status.value === 'pending')

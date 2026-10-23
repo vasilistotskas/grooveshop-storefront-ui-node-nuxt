@@ -23,7 +23,7 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { makeUserDetails } from '~~/test/fixtures/user'
 import { makeOrderListItem } from '~~/test/fixtures/order'
 import { makeProduct } from '~~/test/fixtures/product'
-import { makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import { makeLoyaltyPublicSettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
 import PageNavbar from '~/components/variants/webside/Page/Navbar.vue'
@@ -458,12 +458,11 @@ describe('webside frozen render', () => {
     })
 
     it('account overview', async () => {
-      // This test serves `LOYALTY_ENABLED`, so Django would resolve the
-      // feature (plan AND setting) as on.
+      // The store runs the programme: the feature is on.
       const tenant = useTenantStore()
       tenant.setConfig({ ...tenant.config!, features: { ...tenant.config!.features, loyalty: true } })
       api.routes({
-        '/api/loyalty/settings': { LOYALTY_ENABLED: 'true' },
+        '/api/settings/public': { settings: makeLoyaltyPublicSettings() },
         '/api/loyalty/summary': makeSummary(),
         '/api/loyalty/tiers': [makeTier()],
       })
