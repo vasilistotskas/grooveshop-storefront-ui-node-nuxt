@@ -31,6 +31,9 @@ const PLAIN_BOOLEAN_SETTINGS: Record<string, string> = {
   LOYALTY_NEW_CUSTOMER_BONUS_ENABLED: 'a loyalty programme rule (app/utils/loyalty.ts)',
 }
 
+/** A `*_ENABLED` key in any string literal: single, double or template quotes. */
+const SETTING_KEY = /['"`]([A-Z0-9_]+_ENABLED)['"`]/g
+
 function sources(dir: string): string[] {
   const root = resolve(REPO, dir)
   return (readdirSync(root, { recursive: true }) as string[])
@@ -45,7 +48,7 @@ const label = (file: string) => file.replace(`${REPO}\\`, '').replace(`${REPO}/`
 describe('store features and preferences are read from the tenant payload alone', () => {
   it('reads no setting key that is not a plain boolean setting', () => {
     const offenders = files.flatMap(file =>
-      [...text(file).matchAll(/'([A-Z0-9_]+_ENABLED)'/g)]
+      [...text(file).matchAll(SETTING_KEY)]
         .map(match => match[1]!)
         .filter(key => !(key in PLAIN_BOOLEAN_SETTINGS))
         .map(key => `${label(file)}: ${key}`))
@@ -81,7 +84,7 @@ describe('store features and preferences are read from the tenant payload alone'
   })
 
   it('still finds the plain boolean settings it allows (a canary for the key pattern)', () => {
-    const found = new Set(files.flatMap(file => [...text(file).matchAll(/'([A-Z0-9_]+_ENABLED)'/g)].map(match => match[1]!)))
+    const found = new Set(files.flatMap(file => [...text(file).matchAll(SETTING_KEY)].map(match => match[1]!)))
 
     expect([...found].sort()).toEqual(Object.keys(PLAIN_BOOLEAN_SETTINGS).sort())
   })
