@@ -37,7 +37,7 @@ const emit = defineEmits<{
 
 const { t, n } = useI18n()
 const loyalty = useLoyalty()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 const { data: summary, status } = loyalty.fetchSummary()
 const { cart } = storeToRefs(useCartStore())
 const loyaltyEnabled = useStoreFeature('loyalty')

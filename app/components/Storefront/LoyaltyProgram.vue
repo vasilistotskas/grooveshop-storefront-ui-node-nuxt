@@ -20,10 +20,8 @@ const localePath = useLocalePath()
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
 
-const [{ data: settings }, { data: tiers }] = await Promise.all([
-  loyalty.fetchSettings(),
-  loyalty.fetchTiers(),
-])
+const settings = useLoyaltySettings()
+const { data: tiers } = await loyalty.fetchTiers()
 
 const EXAMPLE_ORDER_EUR = 100
 
@@ -38,7 +36,7 @@ const member = computed(() => mounted.value && loggedIn.value)
 
 const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
 
-const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? defaultLoyaltySettings().xpPerLevel)
+const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
 const multipliers = computed(() => !!settings.value?.tierMultiplierEnabled && ladder.value.length > 1)
 
@@ -48,11 +46,12 @@ const ratio = computed(() => {
   return value && value > 0 ? value : null
 })
 
-const factor = computed(() => settings.value?.pointsFactor ?? 0)
+// What an order earns per euro; `null` when the store's figure cannot be read.
+const factor = computed(() => settings.value?.pointsFactor ?? null)
 
 const bonus = computed(() => {
-  const points = settings.value?.newCustomerBonusPoints ?? 0
-  return settings.value?.newCustomerBonusEnabled && points > 0 ? points : null
+  const points = settings.value?.newCustomerBonusPoints
+  return settings.value?.newCustomerBonusEnabled && points && points > 0 ? points : null
 })
 
 const euro = (value: number) => n(value, { key: 'currency', minimumFractionDigits: 0 })
@@ -60,14 +59,14 @@ const euro = (value: number) => n(value, { key: 'currency', minimumFractionDigit
 const tierName = (tier: LoyaltyTier) => extractTranslated(tier, 'name', locale.value) ?? ''
 
 const lead = computed(() => [
-  factor.value > 0 ? t('lead.earn', { n: n(factor.value, { maximumFractionDigits: 2 }) }, factor.value === 1 ? 1 : 2) : '',
+  factor.value !== null && factor.value > 0 ? t('lead.earn', { n: n(factor.value, { maximumFractionDigits: 2 }) }, factor.value === 1 ? 1 : 2) : '',
   multipliers.value ? t('lead.climb') : '',
   ratio.value ? t('lead.spend', { ratio: n(ratio.value), amount: euro(1) }) : '',
 ].filter(Boolean).join(' '))
 
 // What a 100 € order earns at the base rate, and what that is worth.
 const example = computed(() => {
-  if (factor.value <= 0) return null
+  if (factor.value === null || factor.value <= 0) return null
   const points = EXAMPLE_ORDER_EUR * factor.value
   const topTier = ladder.value.at(-1)
   const top = multipliers.value && topTier ? Number(topTier.pointsMultiplier) : 0
@@ -86,17 +85,20 @@ const steps = computed(() => {
       icon: 'i-lucide-user',
       text: bonus.value ? t('steps.join.text_bonus', { points: n(bonus.value) }) : t('steps.join.text'),
     },
-    {
+  ]
+  if (factor.value !== null) {
+    list.push({
       key: 'earn',
       icon: 'i-lucide-shopping-bag',
       text: [
         t('steps.earn.text', { n: n(factor.value, { maximumFractionDigits: 2 }) }, factor.value === 1 ? 1 : 2),
         multipliers.value ? t('steps.earn.tier') : '',
       ].filter(Boolean).join(' '),
-    },
-  ]
-  if (ladder.value.length > 1) {
-    const rungs = ladder.value.slice(1).map(tier => t('steps.climb.rung', { name: tierName(tier), points: n(tierStartXp(tier, xpPerLevel.value)) }))
+    })
+  }
+  const perLevel = xpPerLevel.value
+  if (ladder.value.length > 1 && perLevel !== null) {
+    const rungs = ladder.value.slice(1).map(tier => t('steps.climb.rung', { name: tierName(tier), points: n(tierStartXp(tier, perLevel)) }))
     list.push({
       key: 'climb',
       icon: 'i-lucide-trophy',
@@ -114,12 +116,14 @@ const steps = computed(() => {
 })
 
 const faq = computed(() => {
-  const days = settings.value?.pointsExpirationDays ?? 0
+  const days = settings.value?.pointsExpirationDays
   return [
-    {
-      label: t('faq.expire.question'),
-      content: days > 0 ? t('faq.expire.answer_days', { days }) : t('faq.expire.answer_never'),
-    },
+    ...(days === undefined
+      ? []
+      : [{
+          label: t('faq.expire.question'),
+          content: days > 0 ? t('faq.expire.answer_days', { days }) : t('faq.expire.answer_never'),
+        }]),
     { label: t('faq.combine.question'), content: t('faq.combine.answer') },
     { label: t('faq.balance.question'), content: t('faq.balance.answer') },
     { label: t('faq.return.question'), content: t('faq.return.answer') },
@@ -297,7 +301,7 @@ useHead({
     </PageSectionBand>
 
     <PageSectionBand
-      v-if="ladder.length"
+      v-if="ladder.length && xpPerLevel !== null"
       :heading="t('tiers.title')"
       :subheading="t('tiers.lead')"
     >

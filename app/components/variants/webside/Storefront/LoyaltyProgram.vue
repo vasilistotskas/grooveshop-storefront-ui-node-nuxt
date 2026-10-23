@@ -2,11 +2,11 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-// Fetch loyalty settings using new API
-const { data: settings, status } = useLoyalty().fetchSettings()
+const settings = useLoyaltySettings()
 
-// Computed for loading state (compatible with template)
-const loading = computed(() => status.value === 'pending')
+// Every figure here is the store's own: until the settings are known the
+// page shows its skeletons rather than a guessed number.
+const loading = computed(() => settings.value === null)
 
 // Computed values for dynamic content
 // The store's redemption ratio (points per 1 EUR), or null for a store
@@ -21,33 +21,22 @@ const redemptionExample = computed(() => redemptionRate.value && {
   exampleEuros: 5,
 })
 
-const earningRate = computed(() => {
-  if (!settings.value) return { euros: 1, points: 1 }
-  return {
-    euros: 1,
-    points: settings.value.pointsFactor,
-  }
+const earningRate = computed(() => settings.value && {
+  euros: 1,
+  points: settings.value.pointsFactor,
 })
 
-const showExpiration = computed(() => {
-  return settings.value && settings.value.pointsExpirationDays > 0
-})
-
+// The days points last, or null when they never expire.
 const expirationDays = computed(() => {
-  return settings.value?.pointsExpirationDays || 0
+  const days = settings.value?.pointsExpirationDays
+  return days && days > 0 ? days : null
 })
 
-const showNewCustomerBonus = computed(() => {
-  return settings.value && settings.value.newCustomerBonusEnabled
-})
+const showNewCustomerBonus = computed(() => settings.value?.newCustomerBonusEnabled === true)
 
-const newCustomerBonusPoints = computed(() => {
-  return settings.value?.newCustomerBonusPoints || 0
-})
+const newCustomerBonusPoints = computed(() => settings.value?.newCustomerBonusPoints)
 
-const showTierBenefits = computed(() => {
-  return settings.value && settings.value.tierMultiplierEnabled
-})
+const showTierBenefits = computed(() => settings.value?.tierMultiplierEnabled === true)
 
 const items = computed(() => [
   {
@@ -67,7 +56,7 @@ const items = computed(() => [
 const faqItems = computed(() => [
   {
     label: t('faq.q1.question'),
-    content: showExpiration.value
+    content: expirationDays.value !== null
       ? t('faq.q1.answer_with_expiration', { days: expirationDays.value })
       : t('faq.q1.answer_no_expiration'),
     defaultOpen: false,
@@ -234,7 +223,7 @@ useHead({
             <USkeleton class="h-20 w-full" />
             <USkeleton class="h-20 w-full" />
           </div>
-          <div v-else class="space-y-4">
+          <div v-else-if="earningRate" class="space-y-4">
             <div class="flex items-start gap-4">
               <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-success-100 dark:bg-success-900">
                 <UIcon name="i-heroicons-currency-euro" class="size-5 text-success-600 dark:text-success-400" />

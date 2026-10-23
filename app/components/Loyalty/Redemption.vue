@@ -19,7 +19,7 @@ const toast = useToast()
 
 // Loyalty composable with new API
 const loyalty = useLoyalty()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 const { data: summary, status } = loyalty.fetchSummary()
 
 // Self-gate on the loyalty feature so parents don't have to. Other loyalty

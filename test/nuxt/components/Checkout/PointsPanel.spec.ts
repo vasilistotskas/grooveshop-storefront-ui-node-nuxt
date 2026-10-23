@@ -4,9 +4,9 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import PointsPanel from '~/components/Checkout/PointsPanel.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { CartDetail, LoyaltySummary } from '~~/shared/openapi/types.gen'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
@@ -17,11 +17,11 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  * the store's points-per-euro ratio, and shows the redemption the page
  * holds.
  */
-const settings = createAsyncDataMock<LoyaltySettings>()
+const settings = createLoyaltySettingsMock()
 const summary = createAsyncDataMock<LoyaltySummary>()
 
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
-  fetchSettings: () => settings,
   fetchSummary: () => summary,
 }))
 
@@ -119,7 +119,7 @@ describe('Checkout/PointsPanel', () => {
   describe('self-gating', () => {
     it.each([
       ['the store lacks the loyalty feature', () => { setTenantFeatures({ loyalty: false }) }],
-      ['the settings have not arrived', () => { settings.data.value = undefined }],
+      ['the settings have not arrived', () => { settings.data.value = null }],
       // A ratio of 0 redeems nothing; dividing by it offered unbounded
       // points at an infinite discount.
       ['the store redeems no points (a ratio of 0)', () => { settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 0 }) }],
@@ -131,10 +131,9 @@ describe('Checkout/PointsPanel', () => {
       expect(wrapper.text()).toBe('')
     })
 
-    it('decides from the feature alone: offered while the plan flag and the loyalty setting read off', async () => {
+    it('decides from the feature alone: offered while the plan flag reads off', async () => {
       setTenant({ loyaltyEnabled: false })
       setTenantFeatures({ loyalty: true })
-      settings.data.value = makeLoyaltySettings({ enabled: false })
 
       const wrapper = await mount()
 

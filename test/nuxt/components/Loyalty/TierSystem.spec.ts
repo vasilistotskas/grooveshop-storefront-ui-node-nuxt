@@ -4,9 +4,9 @@ import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LoyaltyTierSystem from '~/components/Loyalty/TierSystem.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { makeLoyaltySettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
 import type { LoyaltySummary, LoyaltyTier } from '~~/shared/openapi/types.gen'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 
 /**
  * The tier card's "Tier details" slideover: every tier the API returns,
@@ -20,11 +20,11 @@ import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
  */
 const summary = createAsyncDataMock<LoyaltySummary>()
 const tiers = createAsyncDataMock<LoyaltyTier[]>()
-const settings = createAsyncDataMock<LoyaltySettings>()
+const settings = createLoyaltySettingsMock()
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
   fetchSummary: () => summary,
   fetchTiers: () => tiers,
-  fetchSettings: () => settings,
 }))
 
 const tier = (id: number, requiredLevel: number, el: string, description: string, pointsMultiplier = 1) => makeTier({
@@ -115,6 +115,14 @@ describe('Loyalty/TierSystem', () => {
       expect.stringContaining(`×${useNuxtApp().$i18n.n(1.5)} πόντοι`),
       expect.stringContaining(`×${useNuxtApp().$i18n.n(2)} πόντοι`),
     ])
+  })
+
+  it('shows nothing, guessing no tier starts, while the XP per level cannot be read', async () => {
+    settings.data.value = null
+
+    const wrapper = await mountSuspended(LoyaltyTierSystem, { route: false })
+
+    expect(wrapper.find('button').exists()).toBe(false)
   })
 
   it('lists no multiplier at all when the store has them off', async () => {

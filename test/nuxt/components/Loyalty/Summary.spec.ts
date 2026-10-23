@@ -3,8 +3,9 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { DOMWrapper, VueWrapper } from '@vue/test-utils'
 import LoyaltySummary from '~/components/Loyalty/Summary.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { makeLoyaltySettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
+import { setTenantFeatures } from '~~/test/helpers/tenant'
 import type { LoyaltySummary as Summary, LoyaltyTier } from '~~/shared/openapi/types.gen'
 
 /**
@@ -14,11 +15,11 @@ import type { LoyaltySummary as Summary, LoyaltyTier } from '~~/shared/openapi/t
 
 const summary = createAsyncDataMock<Summary>()
 const tiers = createAsyncDataMock<LoyaltyTier[]>()
-const settings = createAsyncDataMock<LoyaltySettings>()
+const settings = createLoyaltySettingsMock()
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
   fetchSummary: () => summary,
   fetchTiers: () => tiers,
-  fetchSettings: () => settings,
 }))
 
 const tier = (id: number, requiredLevel: number, el: string, pointsMultiplier = 1) => makeTier({
@@ -35,6 +36,7 @@ beforeEach(() => {
   summary.reset()
   tiers.reset()
   settings.reset()
+  setTenantFeatures({ loyalty: true })
   settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 100, xpPerLevel: 1000 })
   summary.data.value = makeSummary({ pointsBalance: 2340, totalXp: 5000, level: 5, tier: SILVER })
   summary.status.value = 'success'
@@ -66,11 +68,11 @@ describe('Loyalty/Summary balance', () => {
   })
 
   it.each([
-    ['before the settings arrive', undefined],
-    ['for a ratio that redeems nothing', makeLoyaltySettings({ redemptionRatioEur: 0 })],
-    ['while the programme is off', makeLoyaltySettings({ enabled: false, redemptionRatioEur: 100 })],
-  ])('quotes no value %s', async (_case, value) => {
-    settings.data.value = value
+    ['when the settings cannot be read', () => { settings.data.value = null }],
+    ['for a ratio that redeems nothing', () => { settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 0 }) }],
+    ['while the programme is off', () => { setTenantFeatures({ loyalty: false }) }],
+  ])('quotes no value %s', async (_case, arrange) => {
+    arrange()
 
     const wrapper = await mountSummary()
 
@@ -88,6 +90,16 @@ describe('Loyalty/Summary tier ladder', () => {
       [expect.stringContaining('Ασημένιο'), n(4000)],
       ['Χρυσό', n(9000)],
     ])
+  })
+
+  it('prints no tier start and claims no distance while the XP per level cannot be read', async () => {
+    settings.data.value = null
+
+    const wrapper = await mountSummary()
+
+    expect(steps(wrapper)).toHaveLength(3)
+    expect(wrapper.find('ol').text()).not.toMatch(/\d/)
+    expect(wrapper.text()).not.toContain('Κέρδισε άλλους')
   })
 
   it('does not assume four tiers', async () => {

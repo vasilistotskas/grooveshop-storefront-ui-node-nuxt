@@ -3,6 +3,8 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import LoyaltyRewardsCard from '~/components/Loyalty/RewardsCard.vue'
 import { makeLoyaltySettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
+import { setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The overview's rewards card: the spendable balance, what it is worth at
@@ -12,12 +14,12 @@ import { makeLoyaltySettings, makeSummary, makeTier } from '~~/test/fixtures/loy
 const data = vi.hoisted(() => ({
   summary: null as unknown,
   tiers: [] as unknown[],
-  settings: null as unknown,
 }))
+const settings = createLoyaltySettingsMock()
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
   fetchSummary: () => ({ data: ref(data.summary) }),
   fetchTiers: () => ({ data: ref(data.tiers) }),
-  fetchSettings: () => ({ data: ref(data.settings) }),
 }))
 
 const BRONZE = makeTier({ id: 1, requiredLevel: 1 })
@@ -26,7 +28,9 @@ const GOLD = makeTier({ id: 3, requiredLevel: 11 })
 
 beforeEach(() => {
   data.tiers = [GOLD, BRONZE, SILVER]
-  data.settings = makeLoyaltySettings({ redemptionRatioEur: 100, xpPerLevel: 1000 })
+  settings.reset()
+  setTenantFeatures({ loyalty: true })
+  settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 100, xpPerLevel: 1000 })
   data.summary = makeSummary({ pointsBalance: 2340, totalXp: 2340, tier: SILVER })
 })
 
@@ -77,17 +81,28 @@ describe('Loyalty/RewardsCard', () => {
   })
 
   it('quotes no value while the store redeems no points', async () => {
-    data.settings = makeLoyaltySettings({ redemptionRatioEur: 0 })
+    settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 0 })
 
     const wrapper = await mountSuspended(LoyaltyRewardsCard)
 
     expect(wrapper.text()).not.toContain('Αξίζουν')
   })
 
-  it('quotes no value at checkout from settings that say the programme is off', async () => {
-    data.settings = makeLoyaltySettings({ enabled: false, redemptionRatioEur: 100 })
+  it('quotes no value at checkout while the programme is off', async () => {
+    setTenantFeatures({ loyalty: false })
 
     expect((await mountSuspended(LoyaltyRewardsCard)).text()).not.toContain('Αξίζουν')
+  })
+
+  it('quotes no value and claims no distance while the settings cannot be read', async () => {
+    settings.data.value = null
+
+    const wrapper = await mountSuspended(LoyaltyRewardsCard)
+
+    expect(wrapper.text()).not.toContain('Αξίζουν')
+    expect(wrapper.find('[role="progressbar"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('XP')
+    expect(wrapper.text()).toContain('2.340 πόντοι')
   })
 
   it.each([

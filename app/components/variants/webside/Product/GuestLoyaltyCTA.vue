@@ -6,8 +6,7 @@ const props = defineProps<{
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const loyalty = useLoyalty()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 
 const enabled = useStoreFeature('loyalty')
 

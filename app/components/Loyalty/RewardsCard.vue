@@ -9,8 +9,8 @@
  * the shopper stands is said only when the ladder establishes it: an
  * empty ladder, or one without their tier, shows no progress rather than
  * a "top tier" it cannot know. The value at checkout is quoted only while
- * the programme is on — a settings read that failed falls back to
- * defaults whose ratio the store never set.
+ * the programme is on and the store's ratio is known; the XP figures
+ * need the store's XP per level and are left out without it.
  */
 const { t, n, locale } = useI18n()
 const localePath = useLocalePath()
@@ -18,17 +18,18 @@ const loyalty = useLoyalty()
 
 const { data: summary } = await loyalty.fetchSummary()
 const { data: tiers } = await loyalty.fetchTiers()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
+const loyaltyOn = useStoreFeature('loyalty')
 
-const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? defaultLoyaltySettings().xpPerLevel)
+const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
 const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
 
 const currentTier = computed(() => summary.value?.tier ?? null)
 
-/** The tier after the shopper's; `null` at the top; `undefined` when the ladder cannot say. */
+/** The tier after the shopper's; `null` at the top; `undefined` when the ladder, or the XP per level it is measured in, cannot say. */
 const nextTier = computed<LoyaltyTier | null | undefined>(() => {
-  if (!ladder.value.length) return undefined
+  if (!ladder.value.length || xpPerLevel.value === null) return undefined
   const current = currentTier.value
   if (!current) return ladder.value[0]
   const index = ladder.value.findIndex(tier => tier.id === current.id)
@@ -39,20 +40,22 @@ const nextTier = computed<LoyaltyTier | null | undefined>(() => {
 const progress = computed(() => {
   const value = summary.value
   const next = nextTier.value
-  if (!value || !next) return 100
-  const from = currentTier.value ? tierStartXp(currentTier.value, xpPerLevel.value) : 0
-  return tierProgress(value.totalXp, from, tierStartXp(next, xpPerLevel.value))
+  const perLevel = xpPerLevel.value
+  if (!value || !next || perLevel === null) return 100
+  const from = currentTier.value ? tierStartXp(currentTier.value, perLevel) : 0
+  return tierProgress(value.totalXp, from, tierStartXp(next, perLevel))
 })
 
 const xpToNext = computed(() => {
   const value = summary.value
   const next = nextTier.value
-  if (!value || !next) return 0
-  return Math.max(0, tierStartXp(next, xpPerLevel.value) - value.totalXp)
+  const perLevel = xpPerLevel.value
+  if (!value || !next || perLevel === null) return 0
+  return Math.max(0, tierStartXp(next, perLevel) - value.totalXp)
 })
 
 const worth = computed(() => {
-  const ratio = settings.value?.enabled ? settings.value.redemptionRatioEur : undefined
+  const ratio = loyaltyOn.value ? settings.value?.redemptionRatioEur : undefined
   const value = summary.value
   return value && ratio && ratio > 0 ? n(value.pointsBalance / ratio, 'currency') : null
 })

@@ -6,28 +6,32 @@ const open = ref(false)
 
 const { data: summary, status: summaryStatus } = loyalty.fetchSummary()
 const { data: tiers, status: tiersStatus } = loyalty.fetchTiers()
-const { data: settings, status: settingsStatus } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 
 const loading = computed(() =>
   summaryStatus.value === 'pending'
-  || tiersStatus.value === 'pending'
-  || settingsStatus.value === 'pending',
+  || tiersStatus.value === 'pending',
 )
 
+// Unknown settings are an error: the tiers' XP ranges cannot be drawn
+// without the store's XP per level, and none is guessed.
 const error = computed(() =>
   summaryStatus.value === 'error'
   || tiersStatus.value === 'error'
-  || settingsStatus.value === 'error',
+  || settings.value === null,
 )
 
-const xpPerLevel = computed(() => settings.value?.xpPerLevel || 1000)
+const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
+const xpPerLevelText = computed(() => xpPerLevel.value?.toLocaleString(locale.value) ?? '')
+const xpPerFiveLevelsText = computed(() => xpPerLevel.value === null ? '' : (xpPerLevel.value * 5).toLocaleString(locale.value))
 
 const tiersWithXpRange = computed(() => {
-  if (!tiers.value) return []
+  const perLevel = xpPerLevel.value
+  if (!tiers.value || perLevel === null) return []
   return tiers.value.map((lt: LoyaltyTier, index: number) => {
     const nextTier = tiers.value?.[index + 1]
-    const minXp = (lt.requiredLevel - 1) * xpPerLevel.value
-    const maxXp = nextTier ? (nextTier.requiredLevel - 1) * xpPerLevel.value - 1 : null
+    const minXp = (lt.requiredLevel - 1) * perLevel
+    const maxXp = nextTier ? (nextTier.requiredLevel - 1) * perLevel - 1 : null
     return { ...lt, minXp, maxXp, minLevel: lt.requiredLevel, maxLevel: nextTier ? nextTier.requiredLevel - 1 : null }
   })
 })
@@ -289,7 +293,7 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
           <ul class="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
             <li class="flex items-start gap-2">
               <UIcon name="i-heroicons-check" class="mt-0.5 size-4 shrink-0 text-primary-600 dark:text-primary-400" />
-              <span>{{ t('how_it_works_1', { xp: xpPerLevel.toLocaleString(locale) }) }}</span>
+              <span>{{ t('how_it_works_1', { xp: xpPerLevelText }) }}</span>
             </li>
             <li class="flex items-start gap-2">
               <UIcon name="i-heroicons-check" class="mt-0.5 size-4 shrink-0 text-primary-600 dark:text-primary-400" />
@@ -307,12 +311,12 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
               {{ t('formula') }}:
             </p>
             <code class="block rounded bg-neutral-900 p-2 text-xs text-neutral-100 dark:bg-neutral-800">
-              Level = 1 + (Total XP / {{ xpPerLevel.toLocaleString(locale) }})
+              Level = 1 + (Total XP / {{ xpPerLevelText }})
             </code>
             <div class="mt-3 space-y-1 text-xs text-neutral-600 dark:text-neutral-300">
               <div>0 XP = {{ t('level_value', { level: 1 }) }}</div>
-              <div>{{ xpPerLevel.toLocaleString(locale) }} XP = {{ t('level_value', { level: 2 }) }}</div>
-              <div>{{ (xpPerLevel * 5).toLocaleString(locale) }} XP = {{ t('level_value', { level: 6 }) }}</div>
+              <div>{{ xpPerLevelText }} XP = {{ t('level_value', { level: 2 }) }}</div>
+              <div>{{ xpPerFiveLevelsText }} XP = {{ t('level_value', { level: 6 }) }}</div>
             </div>
           </div>
         </div>

@@ -4,10 +4,10 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import LoyaltyRedemption from '~/components/Loyalty/Redemption.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { CartDetail, LoyaltySummary } from '~~/shared/openapi/types.gen'
 
 /**
@@ -16,12 +16,12 @@ import type { CartDetail, LoyaltySummary } from '~~/shared/openapi/types.gen'
  * capped by BOTH the balance and what the products are worth at the
  * store's points-per-euro ratio.
  */
-const settings = createAsyncDataMock<LoyaltySettings>()
+const settings = createLoyaltySettingsMock()
 const summary = createAsyncDataMock<LoyaltySummary>()
 const { toastAdd } = vi.hoisted(() => ({ toastAdd: vi.fn() }))
 
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
-  fetchSettings: () => settings,
   fetchSummary: () => summary,
 }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
@@ -195,7 +195,7 @@ describe('Loyalty/Redemption', () => {
   describe('self-gating', () => {
     it.each([
       ['the store lacks the loyalty feature', () => { setTenantFeatures({ loyalty: false }) }],
-      ['the settings have not arrived', () => { settings.data.value = undefined }],
+      ['the settings have not arrived', () => { settings.data.value = null }],
       // A ratio of 0 redeems nothing; dividing by it offered unbounded
       // points at an infinite discount.
       ['the store redeems no points (a ratio of 0)', () => { settings.data.value = makeLoyaltySettings({ redemptionRatioEur: 0 }) }],

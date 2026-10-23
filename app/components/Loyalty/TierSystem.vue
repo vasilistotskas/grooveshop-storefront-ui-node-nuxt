@@ -6,7 +6,8 @@
  *
  * The benefits are the tier's own `description` and nothing else; a
  * multiplier is listed only while the store has tier multipliers on.
- * Shows nothing until the ladder is known, and nothing for an empty one.
+ * Shows nothing until the ladder and the store's XP per level are known,
+ * and nothing for an empty ladder.
  */
 const { t, n, locale } = useI18n()
 const localePath = useLocalePath()
@@ -14,9 +15,9 @@ const loyalty = useLoyalty()
 
 const { data: summary } = loyalty.fetchSummary()
 const { data: tiers } = loyalty.fetchTiers()
-const { data: settings } = loyalty.fetchSettings()
+const settings = useLoyaltySettings()
 
-const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? defaultLoyaltySettings().xpPerLevel)
+const xpPerLevel = computed(() => settings.value?.xpPerLevel ?? null)
 
 const ladder = computed(() => [...(tiers.value ?? [])].sort((a, b) => a.requiredLevel - b.requiredLevel))
 
@@ -25,17 +26,21 @@ const currentRank = computed(() => {
   return currentId ? ladder.value.findIndex(tier => tier.id === currentId) : -1
 })
 
-const rows = computed(() => ladder.value.map((tier, index) => {
-  const multiplier = Number(tier.pointsMultiplier)
-  return {
-    id: tier.id,
-    name: extractTranslated(tier, 'name', locale.value) ?? '',
-    description: extractTranslated(tier, 'description', locale.value) ?? '',
-    from: n(tierStartXp(tier, xpPerLevel.value)),
-    multiplier: settings.value?.tierMultiplierEnabled && Number.isFinite(multiplier) && multiplier > 1 ? n(multiplier) : null,
-    status: index === currentRank.value ? 'current' : index < currentRank.value ? 'unlocked' : 'locked',
-  } as const
-}))
+const rows = computed(() => {
+  const perLevel = xpPerLevel.value
+  if (perLevel === null) return []
+  return ladder.value.map((tier, index) => {
+    const multiplier = Number(tier.pointsMultiplier)
+    return {
+      id: tier.id,
+      name: extractTranslated(tier, 'name', locale.value) ?? '',
+      description: extractTranslated(tier, 'description', locale.value) ?? '',
+      from: n(tierStartXp(tier, perLevel)),
+      multiplier: settings.value?.tierMultiplierEnabled && Number.isFinite(multiplier) && multiplier > 1 ? n(multiplier) : null,
+      status: index === currentRank.value ? 'current' : index < currentRank.value ? 'unlocked' : 'locked',
+    } as const
+  })
+})
 
 const STATUS_BADGES = {
   current: { color: 'neutral', variant: 'solid' },

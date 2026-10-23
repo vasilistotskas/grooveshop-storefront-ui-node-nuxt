@@ -3,23 +3,21 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import CheckoutGuestLoyaltyCTA from '~/components/Checkout/GuestLoyaltyCTA.vue'
 import WebsideCheckoutGuestLoyaltyCTA from '~/components/variants/webside/Checkout/GuestLoyaltyCTA.vue'
 import { useCartStore } from '~/stores/cart'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings } from '~~/test/fixtures/loyalty'
-import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
 /**
  * A guest's nudge to sign up: "earn N points on this order", with
  * N = floor(cart total × points factor). Shown only when the store has
- * the loyalty feature (the frozen webside tree: plan AND setting), and only
- * for a positive estimate. The trees share the logic; the default reads
+ * the loyalty feature, and only for a positive estimate. The trees share the logic; the default reads
  * as a line of copy, the frozen webside copy carries a "+N" badge.
  */
-const settings = createAsyncDataMock<LoyaltySettings>(makeLoyaltySettings({ pointsFactor: 0.5 }))
+const settings = createLoyaltySettingsMock(makeLoyaltySettings({ pointsFactor: 0.5 }))
 
-mockNuxtImport('useLoyalty', () => () => ({ fetchSettings: () => settings }))
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 
 describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$tree Checkout/GuestLoyaltyCTA', ({ tree, C }) => {
   beforeEach(() => {
@@ -41,16 +39,10 @@ describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$
     expect(wrapper.find('a').attributes('href')).toBe('/account/signup')
   })
 
-  // Off for the default tree is the feature; the frozen tree reads the setting.
-  function switchOff() {
-    settings.data.value = makeLoyaltySettings({ enabled: false, pointsFactor: 0.5 })
-    setTenantFeatures({ loyalty: false })
-  }
-
   it.each([
     { case: 'the store has no loyalty', arrange: () => { setTenant({ loyaltyEnabled: false, features: { ...useTenantStore().config!.features, loyalty: false } }) } },
-    { case: 'the merchant switched it off', arrange: switchOff },
-    { case: 'the settings have not loaded', arrange: () => { settings.data.value = undefined } },
+    { case: 'the merchant switched it off', arrange: () => { setTenantFeatures({ loyalty: false }) } },
+    { case: 'the settings cannot be read', arrange: () => { settings.data.value = null } },
     { case: 'the estimate rounds to zero', arrange: () => { useCartStore().cart = makeCart({ totalPrice: 1.5 }) } },
     { case: 'there is no cart', arrange: () => { useCartStore().cart = null } },
   ])('renders nothing when $case', async ({ arrange }) => {
@@ -61,10 +53,9 @@ describe.each(trees(CheckoutGuestLoyaltyCTA, WebsideCheckoutGuestLoyaltyCTA))('$
     expect(wrapper.text()).toBe('')
   })
 
-  it.runIf(tree === 'default')('decides from the feature alone: shown while the loyalty setting reads off and the plan flag is off', async () => {
+  it('decides from the feature alone: shown while the plan flag is off', async () => {
     setTenant({ loyaltyEnabled: false })
     setTenantFeatures({ loyalty: true })
-    settings.data.value = makeLoyaltySettings({ enabled: false, pointsFactor: 0.5 })
 
     const wrapper = await mount()
 

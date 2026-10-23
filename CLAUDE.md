@@ -83,7 +83,7 @@ Pinia stores in `app/stores/`:
 - `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
 - `useCheckout.ts` — Stock reservation and release, cart payment intent (payment-status polling lives in `Storefront/CheckoutSuccess.vue`)
 - `useProductFilters.ts` — Product filtering with URL state
-- `useLoyalty.ts` — Loyalty program data (settings, transactions, tiers, redemption)
+- `useLoyalty.ts` — Loyalty program data (summary, transactions, tiers, product points); `useLoyaltySettings.ts` — the programme's figures (ratio, points factor, expiry, bonus, XP per level) parsed from the one `useStoreSettings` payload, `null` when unreadable (no request, no default); whether it is on is `useStoreFeature('loyalty')`
 - `useCookieControl.ts` — GDPR cookie consent management
 
 ### App Utilities (`app/utils/`)

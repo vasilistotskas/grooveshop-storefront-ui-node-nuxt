@@ -2,12 +2,10 @@
  * Loyalty system configuration settings
  *
  * These settings control the behavior of the loyalty points system
- * and are fetched from the backend Django extra_settings.
+ * and are read from the store's public settings (`useLoyaltySettings`).
+ * Whether the programme is on is a store feature, never a field here.
  */
 export interface LoyaltySettings {
-  /** Whether the loyalty system is enabled */
-  enabled: boolean
-
   /** Points needed per 1 EUR discount (e.g., 100 points = 1 EUR) */
   redemptionRatioEur: number
 

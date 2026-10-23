@@ -5,9 +5,9 @@ import type { MaybeRefOrGetter } from 'vue'
 import LoyaltyPointsBadge from '~/components/Loyalty/PointsBadge.vue'
 import WebsideLoyaltyPointsBadge from '~/components/variants/webside/Loyalty/PointsBadge.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeLoyaltySettings, makeProductPoints } from '~~/test/fixtures/loyalty'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 import type { ProductPoints } from '~~/shared/openapi/types.gen'
 
 /**
@@ -16,7 +16,7 @@ import type { ProductPoints } from '~~/shared/openapi/types.gen'
  * renders for everyone, a guest at the store's base rate.
  */
 const loggedIn = ref(false)
-const settings = createAsyncDataMock<LoyaltySettings>()
+const settings = createLoyaltySettingsMock()
 const points = createAsyncDataMock<ProductPoints | null>()
 const fetchProductPoints = vi.fn((_productId: number, _enabled: MaybeRefOrGetter<boolean>) => points)
 /** Whether the badge let the points request go out (its `enabled` gate). */
@@ -31,8 +31,8 @@ mockNuxtImport('useUserSession', () => () => ({
   fetch: () => Promise.resolve(),
   clear: () => Promise.resolve(),
 }))
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
-  fetchSettings: () => settings,
   fetchProductPoints,
 }))
 
@@ -46,7 +46,6 @@ describe('webside Loyalty/PointsBadge', () => {
     points.reset()
     loggedIn.value = true
     settings.data.value = makeLoyaltySettings()
-    settings.status.value = 'success'
     points.data.value = makeProductPoints({ productId: 7, potentialPoints: 24 })
     points.status.value = 'success'
   })
@@ -111,7 +110,6 @@ describe('default Loyalty/PointsBadge', () => {
     points.reset()
     loggedIn.value = true
     settings.data.value = makeLoyaltySettings({ pointsFactor: 1.5 })
-    settings.status.value = 'success'
     points.data.value = makeProductPoints({ productId: 7, potentialPoints: 36, tierMultiplierApplied: true })
     points.status.value = 'success'
   })
@@ -156,10 +154,9 @@ describe('default Loyalty/PointsBadge', () => {
     expect(wrapper.text()).toBe('')
   })
 
-  it('decides from the feature alone: on while the plan flag and the loyalty setting read off', async () => {
+  it('decides from the feature alone: on while the plan flag reads off', async () => {
     setTenant({ loyaltyEnabled: false })
     setTenantFeatures({ loyalty: true })
-    settings.data.value = makeLoyaltySettings({ pointsFactor: 1.5, enabled: false })
 
     const wrapper = await mountBadge()
 
@@ -171,6 +168,15 @@ describe('default Loyalty/PointsBadge', () => {
     loggedIn.value = false
 
     const wrapper = await mountBadge(0.5)
+
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('promises no base rate it cannot read, to a guest', async () => {
+    loggedIn.value = false
+    settings.data.value = null
+
+    const wrapper = await mountBadge(41.5)
 
     expect(wrapper.text()).toBe('')
   })

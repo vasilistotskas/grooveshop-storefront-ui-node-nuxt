@@ -17,7 +17,9 @@
  * Every number comes from the store: the earn and redeem rates and the
  * bonus from its loyalty settings, the ladder from its tiers; the tier
  * multipliers print only where the store turns them on. Nothing renders
- * where the programme is off, and nothing is requested there either.
+ * where the programme is off, and nothing is requested there either; a
+ * guest card whose figures cannot be read (`useLoyaltySettings` is
+ * `null`) is left out rather than printed with guessed ones.
  *
  * The guest card's wording and its two routes are the programme's own
  * unless the operator sets them: `eyebrow`, `ctaText`/`ctaLink` (the way
@@ -43,7 +45,8 @@ const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
 
 const offered = useStoreFeature('loyalty')
-const [{ data: settings }, { data: tiers }] = await Promise.all([loyalty.fetchSettings(), loyalty.fetchTiers()])
+const settings = useLoyaltySettings()
+const { data: tiers } = await loyalty.fetchTiers()
 
 const mounted = ref(false)
 onMounted(() => {
@@ -56,18 +59,18 @@ const ladder = computed(() => tiers.value ?? [])
 const number = (value: number) => $i18n.n(value, { maximumFractionDigits: 2 })
 
 const headline = computed(() => {
-  const factor = settings.value?.pointsFactor ?? 0
-  return `${t('earn', { n: number(factor) }, factor === 1 ? 1 : 2)} ${t('redeem', {
-    ratio: number(settings.value?.redemptionRatioEur ?? 0),
+  if (!settings.value) return ''
+  const { pointsFactor, redemptionRatioEur } = settings.value
+  return `${t('earn', { n: number(pointsFactor) }, pointsFactor === 1 ? 1 : 2)} ${t('redeem', {
+    ratio: number(redemptionRatioEur),
     amount: $i18n.n(1, { key: 'currency', minimumFractionDigits: 0 }),
   })}`
 })
 
 const pitch = computed(() => {
   const lines = [t('join')]
-  const bonus = settings.value?.newCustomerBonusPoints ?? 0
-  if (settings.value?.newCustomerBonusEnabled && bonus > 0) {
-    lines.push(t('bonus', { points: number(bonus) }))
+  if (settings.value?.newCustomerBonusEnabled && settings.value.newCustomerBonusPoints > 0) {
+    lines.push(t('bonus', { points: number(settings.value.newCustomerBonusPoints) }))
   }
   if (settings.value?.tierMultiplierEnabled) lines.push(t('climb'))
   return lines.join(' ')
@@ -94,7 +97,7 @@ const tierTerms = (tier: LoyaltyTier) =>
     </PageSectionBand>
 
     <section
-      v-else
+      v-else-if="settings"
       class="
         py-6
         lg:py-10

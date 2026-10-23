@@ -5,7 +5,7 @@
  * deduplication, and payload forwarding from server to client.
  *
  * Provides centralized access to loyalty summary, transactions, redemption,
- * product points preview, tiers list, and settings functionality.
+ * product points preview and tiers list (the programme's figures are `useLoyaltySettings`).
  *
  * Nothing is requested on a store without the `loyalty` feature: every
  * fetch here passes it as `enabled`, so a caller that renders behind its
@@ -29,37 +29,6 @@ export const useLoyalty = () => {
   // (range, if-none-match) and the hop-by-hop ones.
   const requestFetch = useRequestApi()
   const loyaltyOn = useStoreFeature('loyalty')
-
-  /**
-   * Fetch loyalty system configuration settings
-   *
-   * Fetches all loyalty-related settings from the backend in one request
-   * and parses them into a single settings object (`parseLoyaltySettings`).
-   *
-   * Uses useAsyncData for SSR support and automatic caching.
-   */
-  const fetchSettings = () => {
-    return useAsyncData<LoyaltySettings>(
-      'loyalty-settings',
-      async () => {
-        try {
-          const settings = await requestFetch<Record<string, string>>('/api/loyalty/settings', {
-            query: { keys: LOYALTY_SETTING_KEYS.join(',') },
-          })
-          return parseLoyaltySettings(settings)
-        }
-        catch (err) {
-          log.error({ action: 'loyalty:fetchSettings', error: err })
-          return defaultLoyaltySettings()
-        }
-      },
-      // Read by the navbar badge, the account menu, the product and
-      // checkout CTAs in one render: 'defer' lets the later readers
-      // wait on the pending request instead of re-issuing it (the
-      // default 'cancel'). See useStoreSettings.
-      { dedupe: 'defer', enabled: loyaltyOn },
-    )
-  }
 
   /**
    * Fetch the user's loyalty summary (balance, level, tier, XP progress)
@@ -171,7 +140,6 @@ export const useLoyalty = () => {
     // Data fetching methods (return useAsyncData results)
     fetchSummary,
     fetchTransactions,
-    fetchSettings,
     fetchTiers,
     fetchProductPoints,
     fetchPointsPerProduct,

@@ -4,10 +4,10 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoyaltyProgressHero from '~/components/Loyalty/ProgressHero.vue'
 import WebsideLoyaltyProgressHero from '~/components/variants/webside/Loyalty/ProgressHero.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
+import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { trees } from '~~/test/helpers/trees'
 import { makeLoyaltySettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
 import type { LoyaltySummary, LoyaltyTier } from '~~/shared/openapi/types.gen'
-import type { LoyaltySettings } from '~~/shared/types/LoyaltySettings'
 
 /**
  * The loyalty hero band (the `loyalty_hero` page section): the current
@@ -30,11 +30,11 @@ const COPY = {
 
 const summary = createAsyncDataMock<LoyaltySummary>()
 const tiers = createAsyncDataMock<LoyaltyTier[]>()
-const settings = createAsyncDataMock<LoyaltySettings>()
+const settings = createLoyaltySettingsMock()
+mockNuxtImport('useLoyaltySettings', () => () => settings.use)
 mockNuxtImport('useLoyalty', () => () => ({
   fetchSummary: () => summary,
   fetchTiers: () => tiers,
-  fetchSettings: () => settings,
 }))
 
 const BRONZE = makeTier({ id: 1, requiredLevel: 1 })
@@ -67,7 +67,6 @@ describe.each(trees(LoyaltyProgressHero, WebsideLoyaltyProgressHero))('$tree Loy
     tiers.data.value = [BRONZE, SILVER, GOLD]
     tiers.status.value = 'success'
     settings.data.value = makeLoyaltySettings({ xpPerLevel: 1000 })
-    settings.status.value = 'success'
   })
 
   const mountHero = () => mountSuspended(C, { route: false })
@@ -100,12 +99,14 @@ describe.each(trees(LoyaltyProgressHero, WebsideLoyaltyProgressHero))('$tree Loy
     expect(wrapper.text()).toContain(`${el(3000)} / ${el(4500)} XP`)
   })
 
-  it('falls back to 1000 XP per level while the settings say nothing', async () => {
-    settings.data.value = undefined
+  it('renders nothing, guessing no XP per level, when the settings cannot be read', async () => {
+    settings.data.value = null
 
     const wrapper = await mountHero()
 
-    expect(progress(wrapper).attributes('aria-valuenow')).toBe('50')
+    expect(wrapper.find('h3').exists()).toBe(false)
+    expect(progress(wrapper).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'USkeleton' }).exists()).toBe(false)
   })
 
   it('shows a full bar and the top-tier note on the last tier', async () => {
@@ -172,8 +173,8 @@ describe.each(trees(LoyaltyProgressHero, WebsideLoyaltyProgressHero))('$tree Loy
     expect(wrapper.find('h3').exists()).toBe(false)
   })
 
-  it.each(['summary', 'tiers', 'settings'] as const)('renders nothing when the %s lookup fails', async (which) => {
-    ({ summary, tiers, settings })[which].status.value = 'error'
+  it.each(['summary', 'tiers'] as const)('renders nothing when the %s lookup fails', async (which) => {
+    ({ summary, tiers })[which].status.value = 'error'
 
     const wrapper = await mountHero()
 
