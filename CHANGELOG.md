@@ -1,3 +1,10 @@
+## [3.257.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.1...v3.257.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* **loyalty:** read the programme's figures from the one public settings payload ([#210](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/210)) ([efde7e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/efde7e187d65c49f52d3c49539a33b7ed822d879))
+
 ## [3.257.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.0...v3.257.1) (2026-10-23)
 
 
