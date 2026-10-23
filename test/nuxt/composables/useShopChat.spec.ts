@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { makeCart } from '~~/test/fixtures/cart'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -71,6 +72,8 @@ const DONE = 'event: done\ndata: {"conversationId":"c1","cartMutated":false}\n\n
 
 describe('useShopChat', () => {
   beforeEach(() => {
+    // A store with the cart on, whose cart a chat mutation refreshes.
+    setTenant()
     useShopChat().reset()
     useCartStore().cart = null
   })

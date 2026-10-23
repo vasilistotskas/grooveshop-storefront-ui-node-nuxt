@@ -1,5 +1,6 @@
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
 import { useTenantStore } from '~/stores/tenant'
+import { useTenant } from '~/composables/useTenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 /** The domain every field of the default tenant is derived from. */
@@ -36,7 +37,17 @@ export const TEST_TENANT_DOMAIN = 'test.local'
  * for this helper.
  */
 export function setTenant(overrides: Partial<TenantConfig> = {}): TenantConfig {
-  const config: TenantConfig = validTenantConfig(TEST_TENANT_DOMAIN, overrides)
+  return resolveTenant(validTenantConfig(TEST_TENANT_DOMAIN, overrides))
+}
+
+/**
+ * Hydrate the tenant the way the `tenant` plugin does in production: the
+ * `tenant` state, which plugins read before Pinia is filled, and the store
+ * every component reads. Both hold the same config, so code on either side
+ * sees one store.
+ */
+function resolveTenant(config: TenantConfig): TenantConfig {
+  useTenant().value = config
   useTenantStore().setConfig(config)
   return config
 }
@@ -54,9 +65,7 @@ export function setTenant(overrides: Partial<TenantConfig> = {}): TenantConfig {
 export function setTenantFeatures(features: Partial<TenantConfig['features']>): TenantConfig {
   const store = useTenantStore()
   const current = store.config ?? validTenantConfig(TEST_TENANT_DOMAIN) as TenantConfig
-  const config: TenantConfig = { ...current, features: { ...current.features, ...features } }
-  store.setConfig(config)
-  return config
+  return resolveTenant({ ...current, features: { ...current.features, ...features } })
 }
 
 /**
@@ -71,7 +80,5 @@ export function setTenantFeatures(features: Partial<TenantConfig['features']>): 
 export function setTenantPreferences(preferences: Partial<TenantConfig['preferences']>): TenantConfig {
   const store = useTenantStore()
   const current = store.config ?? validTenantConfig(TEST_TENANT_DOMAIN) as TenantConfig
-  const config: TenantConfig = { ...current, preferences: { ...current.preferences, ...preferences } }
-  store.setConfig(config)
-  return config
+  return resolveTenant({ ...current, preferences: { ...current.preferences, ...preferences } })
 }

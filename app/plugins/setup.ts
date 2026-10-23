@@ -29,8 +29,10 @@ export default defineNuxtPlugin({
     // feature it does not have — a guaranteed failed request on every
     // page of every such tenant, which the visual audit found on all
     // 19 routes of the one this pack exists for. Read from the tenant
-    // state: this plugin runs before the tenant store is filled.
-    const cartEnabled = storePreferenceOn(useTenant().value, 'cart')
+    // state, which this plugin can reach before the tenant store is
+    // filled: the ref is taken here, its value read when needed.
+    const tenant = useTenant()
+    const cartEnabled = () => storePreferenceOn(tenant.value, 'cart')
 
     const { loggedIn } = useUserSession()
     const userStore = useUserStore()
@@ -66,7 +68,7 @@ export default defineNuxtPlugin({
             setupAuthenticators(),
             setupNotifications(),
           ])
-          if (cartEnabled) {
+          if (cartEnabled()) {
             await setupCart()
           }
           await syncLanguageFromUser()
@@ -83,7 +85,7 @@ export default defineNuxtPlugin({
       nuxtApp.hook('app:suspense:resolve', async () => {
         try {
           await setupConfig()
-          if (!loggedIn.value && cartEnabled) {
+          if (!loggedIn.value && cartEnabled()) {
             await setupCart()
           }
         }
@@ -106,7 +108,7 @@ export default defineNuxtPlugin({
       // Cart and account needed for header UI during SSR
       await Promise.all([
         setupAccount(),
-        cartEnabled ? setupCart() : undefined,
+        cartEnabled() ? setupCart() : undefined,
       ])
 
       // Backend is the source of truth for the user's language. Reconcile
