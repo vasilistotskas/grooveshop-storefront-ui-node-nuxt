@@ -9,7 +9,9 @@
  * off the single per-render settings payload (``useStoreSettings``) —
  * no request of its own, however many components ask.
  *
- * ``fallback`` is what a missing row means. The truthiness rule is
+ * ``fallback`` is the answer when the settings could not be fetched:
+ * Django sends every public key, the store's value or the declared one,
+ * so a key is absent only then. The truthiness rule is
  * ``parseSettingFlag`` — shared with the route gates and the server.
  */
 export function useSettingFlag(key: string, options: { fallback: boolean }) {

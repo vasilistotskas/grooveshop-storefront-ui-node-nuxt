@@ -5,7 +5,8 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 /**
  * The contact form's upload step. What matters:
  *
- * - the store's own limits are what bind, not this file's defaults;
+ * - the store's own limits are what bind; one that cannot be read is
+ *   left to Django, never replaced by a guess;
  * - a file too large or one too many never leaves the browser, and the
  *   caller is told why;
  * - a 2xx yields the id the enquiry will spend, and NOTHING else does
@@ -76,6 +77,16 @@ class FakeXhr {
   }
 }
 
+/** A contact body carrying `count` attachment ids, for the API's own ceiling. */
+function enquiry(count: number) {
+  return {
+    name: 'A',
+    email: 'a@example.com',
+    message: 'm',
+    attachmentIds: Array.from({ length: count }, (_, i) => `0a0a0a0a-0000-4000-8000-${String(i).padStart(12, '0')}`),
+  }
+}
+
 function file(name: string, size: number): File {
   const blob = new Blob([new Uint8Array(size)], { type: 'application/pdf' })
   return new File([blob], name, { type: 'application/pdf' })
@@ -97,8 +108,7 @@ async function policy() {
     attachments = useContactAttachments()
     loaded = useStoreSettings().settings
   })
-  // Assert on the store's limits only once its row has landed — before
-  // that every reader is on its fallback.
+  // Assert on the store's limits only once its row has landed.
   await vi.waitFor(() => expect(loaded.value).toEqual(settings), { interval: 1 })
   return attachments
 }
@@ -339,15 +349,9 @@ describe('useContactAttachments', () => {
   it('never offers more files than one enquiry can carry, whatever the store sets', async () => {
     settings.CONTACT_ATTACHMENTS_MAX_COUNT = '500'
     const attachments = await policy()
-    const body = (count: number) => ({
-      name: 'A',
-      email: 'a@example.com',
-      message: 'm',
-      attachmentIds: Array.from({ length: count }, (_, i) => `0a0a0a0a-0000-4000-8000-${String(i).padStart(12, '0')}`),
-    })
 
-    expect(zCreateContactBody.safeParse(body(attachments.maxCount.value)).success).toBe(true)
-    expect(zCreateContactBody.safeParse(body(attachments.maxCount.value + 1)).success).toBe(false)
+    expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value)).success).toBe(true)
+    expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value + 1)).success).toBe(false)
   })
 
   it('refuses the file past that limit', async () => {
@@ -362,18 +366,32 @@ describe('useContactAttachments', () => {
     expect(attachments.canAddMore.value).toBe(false)
   })
 
-  it('falls back to the platform defaults when a setting is unusable', async () => {
-    settings.CONTACT_ATTACHMENTS_MAX_COUNT = 'not a number'
-    settings.CONTACT_ATTACHMENTS_MAX_MB = '0'
-    settings.CONTACT_ATTACHMENTS_TYPES = '  '
+  it.each(['not a number', '0', '3files', ''])(
+    'keeps the control when the count reads %j, bounded only by what one enquiry carries',
+    async (value) => {
+      settings.CONTACT_ATTACHMENTS_MAX_COUNT = value
 
-    const attachments = await policy()
+      const attachments = await policy()
 
-    expect(attachments.maxCount.value).toBe(3)
-    expect(attachments.maxMegabytes.value).toBe(10)
-    expect(attachments.allowedTypes.value).toEqual([])
-    expect(attachments.accept.value).toBe('')
-  })
+      expect(attachments.enabled.value).toBe(true)
+      expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value)).success).toBe(true)
+      expect(zCreateContactBody.safeParse(enquiry(attachments.maxCount.value + 1)).success).toBe(false)
+    },
+  )
+
+  it.each(['not a number', '0', '3MB', ''])(
+    'leaves the size to Django when it reads %j, instead of guessing one',
+    async (value) => {
+      settings.CONTACT_ATTACHMENTS_MAX_MB = value
+
+      const attachments = await policy()
+      const refused = attachments.add([file('drawing.pdf', 50 * 1024 * 1024)])
+
+      expect(attachments.maxMegabytes.value).toBeNull()
+      expect(refused).toEqual([])
+      expect(attachments.uploads.value).toHaveLength(1)
+    },
+  )
 })
 
 describe('formatAttachmentSize', () => {

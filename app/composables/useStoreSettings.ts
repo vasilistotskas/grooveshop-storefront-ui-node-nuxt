@@ -21,8 +21,10 @@
  * register a ``useFetch``; they read the same payload through
  * ``fetchStoreSettings`` below.
  *
- * Fail-soft: a fetch problem yields an empty map and every reader
- * applies its own fallback (see ``parseSettingFlag``). Never a per-key
+ * Every public key arrives, with the store's value or the one Django
+ * declares, so no reader keeps a default of its own. Fail-soft: a fetch
+ * problem yields an empty map, and a flag reader applies its outage
+ * answer (see ``parseSettingFlag``). Never a per-key
  * ``server: false`` any more — with a single shared request there is
  * no per-flag cost to keep off the SSR path, and rendering the real
  * value on the server beats a client-side pop-in.
@@ -53,11 +55,10 @@ export function useStoreSettings() {
     () => data.value?.settings ?? EMPTY.settings,
   )
 
-  // "The lookup failed" is a different state from "the key is unset":
-  // every route gate renders on the former and applies its own fallback
-  // on the latter, and a menu that hides links on a failed lookup would
-  // disagree with the pages it links. `settings` alone cannot tell the
-  // two apart because the default is an empty map.
+  // Django sends every public key, so an empty map means the lookup
+  // failed. Callers that must tell that apart (a route gate renders on
+  // it; a menu that hid links would disagree with the pages it links)
+  // read `unavailable`.
   const unavailable = computed(() => !!error.value)
   return { settings, unavailable }
 }

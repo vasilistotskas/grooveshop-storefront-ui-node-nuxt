@@ -84,7 +84,11 @@ const isDropTarget = ref(false)
  * visitor's language. A rejection carries Django's own wording.
  */
 function attachmentMessage(error: AttachmentError): string {
-  if (error.code === 'too-large') return t('files.too_large', { mb: attachments.maxMegabytes.value })
+  if (error.code === 'too-large') {
+    // Django's own refusal can arrive while the store's limit is unreadable.
+    const mb = attachments.maxMegabytes.value
+    return mb === null ? t('files.too_large_unknown') : t('files.too_large', { mb })
+  }
   if (error.code === 'too-many') return t('files.too_many', { count: attachments.maxCount.value })
   if (error.code === 'throttled') return t('files.throttled')
   if (error.code === 'busy') return t('files.busy')
@@ -270,7 +274,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <p class="text-sm font-medium text-highlighted">
             {{ t('files.prompt') }}
           </p>
-          <p class="text-xs text-toned">
+          <p
+            v-if="attachments.maxMegabytes.value !== null"
+            class="text-xs text-toned"
+          >
             {{ t('files.limit', { count: attachments.maxCount.value, mb: attachments.maxMegabytes.value }) }}
           </p>
         </div>
@@ -418,6 +425,7 @@ el:
     uploading_name: Ανεβαίνει το {name}
     not_added: Το αρχείο δεν προστέθηκε
     too_large: 'Το αρχείο ξεπερνά τα {mb} MB.'
+    too_large_unknown: 'Το αρχείο είναι πολύ μεγάλο.'
     too_many: 'Μπορείς να προσθέσεις έως {count} αρχεία.'
     throttled: Πολλές προσπάθειες. Δοκίμασε σε λίγο.
     busy: Η υπηρεσία είναι απασχολημένη. Δοκίμασε σε λίγο.
@@ -454,6 +462,7 @@ en:
     uploading_name: Uploading {name}
     not_added: The file was not added
     too_large: 'The file is over {mb} MB.'
+    too_large_unknown: 'The file is too large.'
     too_many: 'You can add up to {count} files.'
     throttled: Too many tries. Please wait a moment.
     busy: The service is busy. Please wait a moment.

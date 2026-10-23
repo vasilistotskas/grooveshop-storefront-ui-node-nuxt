@@ -144,6 +144,27 @@ describe('Storefront/GiftCards', () => {
       expect(wrapper.findAll('input[type="email"]')).toHaveLength(0)
     })
 
+    it('states the store\'s range', async () => {
+      settings.values = { GIFT_CARD_MIN_AMOUNT: '10.00', GIFT_CARD_MAX_AMOUNT: '500.00' }
+      const wrapper = await mount()
+
+      expect(text(wrapper)).toContain('Οποιοδήποτε ποσό από 10,00 € έως 500,00 €')
+    })
+
+    it('claims no range it could not read, and leaves the amount to Django', async () => {
+      // Django sends every public setting, so empty settings mean the
+      // fetch failed: no invented bounds, no amount refused here.
+      const wrapper = await mount()
+
+      expect(text(wrapper)).not.toContain('Οποιοδήποτε ποσό')
+      await radio(wrapper, 'Άλλο').trigger('click')
+      await flushPromises()
+      await wrapper.get('input[inputmode]').setValue('2000')
+      await toRecipient(wrapper)
+
+      expect(wrapper.findAll('input[type="email"]')).toHaveLength(2)
+    })
+
     it('moves on to the recipient with Continue', async () => {
       const wrapper = await mount()
 

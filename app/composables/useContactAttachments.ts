@@ -109,10 +109,12 @@ export function formatAttachmentSize(bytes: number, locale: string): string {
   }).format(small ? bytes / 1024 : megabytes)
 }
 
-/** Numeric merchant setting, defaulting when absent or unparsable. */
-function settingNumber(raw: string | undefined, fallback: number): number {
-  const parsed = Number.parseInt((raw ?? '').trim(), 10)
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+/** A whole setting that is a positive integer, or `null` when it is not. */
+function settingCount(raw: string): number | null {
+  const value = raw.trim()
+  if (!/^\d+$/.test(value)) return null
+  const parsed = Number(value)
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null
 }
 
 export function useContactAttachments() {
@@ -122,14 +124,23 @@ export function useContactAttachments() {
   const sizeSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_MB')
   const typesSetting = useSettingValue('CONTACT_ATTACHMENTS_TYPES')
 
+  // Django sends every public setting, the store's value or the declared
+  // one, so a limit is unreadable only when the settings could not be
+  // fetched. The browser then checks only what it still knows and leaves
+  // the rest to Django, which enforces the store's real limits anyway.
+  const countLimit = computed(() => settingCount(countSetting.value))
+
   // The enquiry can carry only as many ids as the contact API takes
   // (Django's own ceiling, in the generated schema). A store that sets
   // more would have its visitors upload files the enquiry then cannot
-  // claim, and the whole message refused for it.
+  // claim, and the whole message refused for it. That ceiling is also
+  // all the browser knows while the store's own count is unreadable.
   const maxCount = computed(() =>
-    Math.min(settingNumber(countSetting.value, 3), CONTACT_ATTACHMENT_IDS_MAX))
-  const maxMegabytes = computed(() => settingNumber(sizeSetting.value, 10))
-  const maxBytes = computed(() => maxMegabytes.value * 1024 * 1024)
+    Math.min(countLimit.value ?? CONTACT_ATTACHMENT_IDS_MAX, CONTACT_ATTACHMENT_IDS_MAX))
+  /** The store's size limit, `null` while it cannot be read. */
+  const maxMegabytes = computed(() => settingCount(sizeSetting.value))
+  const maxBytes = computed(() =>
+    maxMegabytes.value === null ? null : maxMegabytes.value * 1024 * 1024)
   const allowedTypes = computed(() =>
     typesSetting.value
       .split(',')
@@ -153,7 +164,8 @@ export function useContactAttachments() {
   const isUploading = computed(() =>
     uploads.value.some(upload => upload.status === 'uploading'),
   )
-  const canAddMore = computed(() => uploads.value.length < maxCount.value)
+  const canAddMore = computed(() =>
+    enabled.value && uploads.value.length < maxCount.value)
 
   function send(upload: PendingUpload) {
     upload.status = 'uploading'
@@ -237,7 +249,7 @@ export function useContactAttachments() {
         refused.push({ code: 'too-many' })
         break
       }
-      if (file.size > maxBytes.value) {
+      if (maxBytes.value !== null && file.size > maxBytes.value) {
         refused.push({ code: 'too-large' })
         continue
       }
