@@ -36,6 +36,8 @@ export default defineNitroPlugin((nitroApp) => {
     // The one place every browser event passes: no customer input from a
     // failed response's body reaches the logs (`redactClientEventError`),
     // and an INP report keeps only the `InpReport` fields (`redactClientInpReport`).
+    // A failed connection is `warn` from every site (`warnOnConnectionFailure`).
+    warnOnConnectionFailure(event)
     redactClientEventError(event)
     redactClientInpReport(event)
     const userAgent = headers?.['user-agent']
