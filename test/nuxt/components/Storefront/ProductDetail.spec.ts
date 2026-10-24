@@ -286,10 +286,6 @@ describe('default ProductDetail', () => {
     })
   }
 
-  /** The button that opens the price trend: it draws the trend icon. */
-  const priceTrendButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
-    wrapper.findAllComponents({ name: 'UButton' }).find(b => b.props('icon') === 'i-lucide-chart-line')
-
   const mountPage = async () => {
     const wrapper = await mountSuspended(ProductDetail, { route: false })
     await flushPromises()
@@ -314,30 +310,6 @@ describe('default ProductDetail', () => {
     const wrapper = await mountPage()
 
     expect(wrapper.text()).not.toContain('αποστέλλεται την ίδια εργάσιμη')
-  })
-
-  it('opens the price trend from a button beside the rating, loading nothing before', async () => {
-    serve(makeProduct({ id: 123 }))
-    setTenantFeatures({ priceHistory: true })
-    const wrapper = await mountPage()
-
-    expect(wrapper.find('[data-testid="price-trend"]').exists()).toBe(false)
-    expect(api.callsTo('/api/products/123/price-history')).toEqual([])
-    const button = priceTrendButton(wrapper)
-    expect(button?.attributes('aria-haspopup')).toBe('dialog')
-    await button!.trigger('click')
-    await vi.waitFor(() => expect(wrapper.find('[data-testid="price-trend"]').attributes()).toMatchObject({
-      'data-product-id': '123',
-      'data-open': 'true',
-    }))
-  })
-
-  it('offers no price trend for a store with it off', async () => {
-    serve(makeProduct({ id: 123 }))
-    setTenantFeatures({ priceHistory: false })
-    const wrapper = await mountPage()
-
-    expect(priceTrendButton(wrapper)).toBeUndefined()
   })
 
   it('places the product under its category trail', async () => {
@@ -514,5 +486,64 @@ describe.each([
     expect(api.callsTo('/api/products/123/reviews')).toEqual([])
     expect(wrapper.find('#reviews').exists()).toBe(false)
     expect(wrapper.find('a[href="#reviews"]').exists()).toBe(false)
+  })
+})
+
+/**
+ * The price trend follows the store's setting in both trees: a store with
+ * it on gets the button beside the rating, one with it off renders as if
+ * the feature did not exist.
+ */
+describe.each([
+  ['default', ProductDetail],
+  ['webside', WebsideProductDetail],
+])('ProductDetail price trend (%s tree)', (_tree, Component) => {
+  const empty = { count: 0, next: null, previous: null, results: [] }
+
+  function serve() {
+    clearNuxtData()
+    setTenant()
+    api.routes({
+      '/api/products/123': { ...makeProduct({ id: 123 }), ratingDistribution: [] },
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/settings/public': { settings: {} },
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+  }
+
+  const mountPage = async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  /** The button that opens the price trend: it draws the trend icon. */
+  const priceTrendButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
+    wrapper.findAllComponents({ name: 'UButton' }).find(b => b.props('icon') === 'i-lucide-chart-line')
+
+  it('opens the price trend from a button beside the rating, loading nothing before', async () => {
+    serve()
+    setTenantFeatures({ priceHistory: true })
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('[data-testid="price-trend"]').exists()).toBe(false)
+    expect(api.callsTo('/api/products/123/price-history')).toEqual([])
+    const button = priceTrendButton(wrapper)
+    expect(button?.attributes('aria-haspopup')).toBe('dialog')
+    await button!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('[data-testid="price-trend"]').attributes()).toMatchObject({
+      'data-product-id': '123',
+      'data-open': 'true',
+    }))
+  })
+
+  it('offers no price trend for a store with it off', async () => {
+    serve()
+    setTenantFeatures({ priceHistory: false })
+    const wrapper = await mountPage()
+
+    expect(priceTrendButton(wrapper)).toBeUndefined()
   })
 })

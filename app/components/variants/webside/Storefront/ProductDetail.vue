@@ -10,7 +10,16 @@ const stickyAddToCartEnabled = useStorePreference('stickyAddToCart')
 const productReviewsEnabled = useStoreFeature('productReviews')
 const productAlertsEnabled = useStoreFeature('productAlerts')
 const suggestionsEnabled = useStoreFeature('productSuggestions')
+const priceHistoryEnabled = useStoreFeature('priceHistory')
 const tenantStore = useTenantStore()
+
+// The price trend dialog mounts on the first open, and only then asks
+// for the history.
+const priceTrend = reactive({ mounted: false, open: false })
+function openPriceTrend() {
+  priceTrend.mounted = true
+  priceTrend.open = true
+}
 
 const { user, loggedIn } = useUserSession()
 
@@ -621,6 +630,18 @@ useSchemaOrg([
                 class="mt-2"
               />
 
+              <UButton
+                v-if="priceHistoryEnabled"
+                :label="t('price_trend')"
+                icon="i-lucide-chart-line"
+                color="neutral"
+                variant="link"
+                size="sm"
+                class="mt-2 p-0"
+                aria-haspopup="dialog"
+                @click="openPriceTrend"
+              />
+
               <div class="mt-3 flex items-center gap-2">
                 <UBadge
                   :color="stockStatus.color"
@@ -967,6 +988,13 @@ useSchemaOrg([
         </div>
       </div>
     </section>
+
+    <LazyProductPriceTrendDialog
+      v-if="priceTrend.mounted && product"
+      v-model:open="priceTrend.open"
+      :product-id="product.id"
+      :product-name="extractTranslated(product, 'name', locale) ?? ''"
+    />
   </WebsidePageWrapper>
 </template>
 
@@ -992,6 +1020,7 @@ el:
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
   vat_included: Περιλαμβάνει ΦΠΑ
+  price_trend: Εξέλιξη τιμής
 en:
   breadcrumb:
     items:
@@ -1013,4 +1042,5 @@ en:
   low_stock: Low stock ({count})
   in_stock: In stock
   vat_included: VAT included
+  price_trend: Price history
 </i18n>
