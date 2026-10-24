@@ -199,15 +199,38 @@ export const CACHED_SSR_ROUTES_SET: ReadonlySet<string>
  * policy while every uncached SSR route gets nonce + ``strict-dynamic``.
  */
 export function isCachedSsrRoute(path: string): boolean {
-  // `/en/products` is the same cached page as `/products`, in English.
-  // Only a NON-default prefix is stripped: `prefix_except_default` never
-  // emits `/el/...`, so that path is not a page this list describes.
-  const { locale, route } = splitLocale(path)
-  const clean = locale === DEFAULT_LOCALE
-    ? path.replace(/\/+$/, '') || '/'
-    : route
-  if (CACHED_SSR_ROUTES_SET.has(clean) || isCustomPageRoute(clean)) return true
+  return hasExtractedPayload(path) || isCustomPageRoute(cleanRoute(path))
+}
+
+/**
+ * Whether Nuxt extracts ``path``'s payload into a ``_payload.json``, the
+ * file a client-side navigation to the page fetches.
+ *
+ * Nuxt renders a payload only for a route whose route rule caches it
+ * (``routeOptions.isr || routeOptions.cache`` in its renderer), and the
+ * client asks for one only where its own copy of the rules says so. Those
+ * rules are the lists above (``nuxt.config.ts`` builds them from these
+ * constants). A custom page is cached by ``server/handlers/custom-page.ts``
+ * instead, with no rule, so its payload stays inline in the HTML and its
+ * ``_payload.json`` is a 404 nobody asks for.
+ */
+export function hasExtractedPayload(path: string): boolean {
+  const clean = cleanRoute(path)
+  if (CACHED_SSR_ROUTES_SET.has(clean)) return true
   return SWR_PATTERN_PREFIXES.some(
     prefix => clean === prefix || clean.startsWith(`${prefix}/`),
   )
+}
+
+/**
+ * ``path`` as the route lists above name it: ``/en/products`` is the
+ * same cached page as ``/products``, in English. Only a NON-default
+ * prefix is stripped: ``prefix_except_default`` never emits ``/el/...``,
+ * so that path is not a page these lists describe.
+ */
+function cleanRoute(path: string): string {
+  const { locale, route } = splitLocale(path)
+  return locale === DEFAULT_LOCALE
+    ? path.replace(/\/+$/, '') || '/'
+    : route
 }

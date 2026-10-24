@@ -25,7 +25,10 @@
  *    on `host` + `x-device-class`, and then its `_payload.json`, which Nuxt
  *    caches separately and fetches on client-side navigation. A page whose
  *    response carries no `s-maxage` is not cached (`/cart`), so its other
- *    variants are skipped.
+ *    variants are skipped. Only a page whose payload Nuxt extracts has one
+ *    (`hasExtractedPayload`): a custom page (`/kelari`) is cached without
+ *    a route rule, its payload stays inline, and asking for its
+ *    `_payload.json` rendered a 404 on every deploy.
  *
  * Requests go straight to the Service with only Host, User-Agent and
  * Accept. Verified 2026-09-25: such a render is byte-identical to one that
@@ -63,6 +66,10 @@ import { readFileSync } from 'node:fs'
 import http from 'node:http'
 import https from 'node:https'
 import { pathToFileURL } from 'node:url'
+// The route lists `nuxt.config.ts` builds its page-cache rules from. Node
+// runs the TypeScript as is (type stripping); the image ships this module
+// and the files it imports beside the script (`docker/Dockerfile`).
+import { hasExtractedPayload } from '../shared/constants/prerender.ts'
 
 /**
  * One User-Agent per device class, each classified by
@@ -370,6 +377,7 @@ async function main() {
             summary.uncached++
             break
           }
+          if (!hasExtractedPayload(page.pathname)) continue
           const payload = await get(payloadPath(page.pathname, ownBuild), page.host, 'application/json', userAgent)
           if (payload.status === 200) summary.payloads++
           else {
