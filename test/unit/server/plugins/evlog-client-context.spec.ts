@@ -47,6 +47,14 @@ describe('server/plugins/evlog-client-context', () => {
     expect(server.error).toMatchObject({ data: { email: ['x@y.z is taken'] } })
   })
 
+  it('prints a store site\'s fetch that got no response at warn, a real failure at error', async () => {
+    const offline = await enrich({ level: 'error', source: 'client', action: 'cart:setup', error: { name: 'FetchError', message: '[GET] "/api/cart": <no response> Load failed', cause: { name: 'TypeError', message: 'Load failed' } } })
+    const failed = await enrich({ level: 'error', source: 'client', action: 'cart:setup', error: { name: 'FetchError', message: '[GET] "/api/cart": 500', statusCode: 500, status: 500, data: { detail: 'boom' } } })
+
+    expect(offline.level).toBe('warn')
+    expect(failed.level).toBe('error')
+  })
+
   it('cuts a browser\'s INP report back to the report\'s own fields', async () => {
     const event = await enrich({
       source: 'client',

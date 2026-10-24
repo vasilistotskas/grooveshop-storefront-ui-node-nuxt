@@ -46,26 +46,6 @@ export const MAX_ERROR_STACK_FRAMES = 8
 export const MAX_ERROR_STACK_LENGTH = 2000
 
 /**
- * What a browser says when a script chunk cannot be downloaded, whatever
- * the cause (offline, blocker, flaky network): Chrome "Failed to fetch
- * dynamically imported module", Firefox "error loading dynamically
- * imported module", Safari "Importing a module script failed.", Vite's
- * "Unable to preload CSS", webpack's `ChunkLoadError` / "Loading chunk N
- * failed". The visitor's connection failed, not our code, and Nuxt
- * (`experimental.emitRouteChunkError`) already reloads the page.
- */
-const CHUNK_LOAD_MESSAGE = /failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|unable to preload css|loading (?:css )?chunk [\w-]+ failed/i
-
-/**
- * What a browser's `fetch` rejects with when the request got no response
- * at all (offline, the page left mid-request, a blocker): Chrome "Failed to
- * fetch", Firefox "NetworkError when attempting to fetch resource.", Safari
- * "Load failed" and "A network error occurred.". The whole message, not a
- * substring: an error that merely mentions one is not one.
- */
-const NO_RESPONSE_MESSAGE = /^(?:failed to fetch|networkerror when attempting to fetch resource\.?|load failed|a network error occurred\.?)$/i
-
-/**
  * Browser notices that say nothing about our code, reported by no one who
  * can act on them, so they are not reported at all:
  * - "ResizeObserver loop completed with undelivered notifications" (and
@@ -124,12 +104,12 @@ export function serializeClientError(error: unknown): SerializedClientError {
 
 /** Whether the error is a chunk download failure in the visitor's browser. */
 export function isChunkLoadError(error: SerializedClientError): boolean {
-  return error.name === 'ChunkLoadError' || CHUNK_LOAD_MESSAGE.test(error.message)
+  return error.name === 'ChunkLoadError' || isChunkLoadMessage(error.message)
 }
 
 /** Whether the error is a `fetch` that got no response in the visitor's browser. */
 export function isNoResponseError(error: SerializedClientError): boolean {
-  return NO_RESPONSE_MESSAGE.test(error.message.trim())
+  return isNoResponseMessage(error.message)
 }
 
 /** Whether the error is a browser notice that is not reported at all. */
