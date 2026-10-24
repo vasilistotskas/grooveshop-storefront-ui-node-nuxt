@@ -20,11 +20,22 @@ export function storeTitle(title: string | undefined, storeName: string | undefi
 }
 
 function endsWithName(title: string, name: string): boolean {
-  const lowerTitle = title.toLocaleLowerCase()
-  const lowerName = name.toLocaleLowerCase()
-  if (!lowerTitle.endsWith(lowerName)) return false
+  const foldedTitle = folded(title)
+  const foldedName = folded(name)
+  if (!foldedTitle.endsWith(foldedName)) return false
   // The name must stand on its own: "Webside" ends "Τα νέα του Webside"
   // only as a word, never as the tail of "Superwebside".
-  const before = lowerTitle.slice(0, lowerTitle.length - lowerName.length)
+  const before = foldedTitle.slice(0, foldedTitle.length - foldedName.length)
   return before === '' || /[\s\p{P}\p{S}]$/u.test(before)
+}
+
+/**
+ * Text compared without case or accents. Greek capitals drop the tonos
+ * ("ΑΓΡΟΣ" is "Αγρός" in capitals), so a case-only fold would miss a name
+ * a merchant typed in capitals. `toLowerCase`, not `toLocaleLowerCase`:
+ * the server and the browser must reach the same answer, and a fold that
+ * follows the runtime's locale could differ between them.
+ */
+function folded(text: string): string {
+  return text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
 }

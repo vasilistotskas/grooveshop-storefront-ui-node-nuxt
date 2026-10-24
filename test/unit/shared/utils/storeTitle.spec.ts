@@ -14,6 +14,15 @@ describe('storeTitle', () => {
     expect(storeTitle('Τα νέα του Webside', 'Webside', '|')).toBe('Τα νέα του Webside')
   })
 
+  // Greek capitals drop the tonos, and the final sigma folds the same way
+  // on the server and in the browser.
+  it('recognises a Greek store name in capitals, without its accents, final sigma included', () => {
+    expect(storeTitle('Βότανα | ΕΚ ΦΥΣΕΩΣ ΦΥΤΕΙΑΣ', 'Εκ Φύσεως Φυτειάς', '|')).toBe('Βότανα | ΕΚ ΦΥΣΕΩΣ ΦΥΤΕΙΑΣ')
+    expect(storeTitle('Βότανα | Εκ Φύσεως Φυτειάς', 'Εκ Φύσεως Φυτειάς', '|')).toBe('Βότανα | Εκ Φύσεως Φυτειάς')
+    expect(storeTitle('Βότανα | ΑΓΡΟΣ', 'Αγρός', '|')).toBe('Βότανα | ΑΓΡΟΣ')
+    expect(storeTitle('Βότανα', 'Αγρός', '|')).toBe('Βότανα | Αγρός')
+  })
+
   it('still adds the name when the title only contains it, or ends with a longer word', () => {
     expect(storeTitle('Webside Mini Power Bank', 'Webside', '|')).toBe('Webside Mini Power Bank | Webside')
     expect(storeTitle('Superwebside', 'Webside', '|')).toBe('Superwebside | Webside')
