@@ -824,6 +824,9 @@ export function decodeHtmlEntities(html: string): string {
   })
 }
 
+/** An opening or closing tag of an element that breaks a line, and `<br>` / `<hr>`. */
+const BLOCK_BOUNDARY = /<\/?(?:address|article|aside|blockquote|br|dd|details|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|li|main|nav|ol|p|pre|section|summary|table|tbody|td|tfoot|th|thead|tr|ul)\b[^>]*>/gi
+
 /**
  * Reduce HTML content to the text a human would read — tags removed,
  * character references decoded, whitespace collapsed.
@@ -831,11 +834,17 @@ export function decodeHtmlEntities(html: string): string {
  * Tags are stripped BEFORE entities are decoded. The other order lets
  * an escaped `&lt;div&gt;` in the copy become a real tag that the
  * stripper then eats, silently deleting text the author wrote.
+ *
+ * A block element ends a line where the reader sees one, so its tags
+ * leave a space: `<p>Γραφείο.</p><ul><li>Δύο θύρες</li></ul>` reads
+ * "Γραφείο. Δύο θύρες", where a bare strip glued it into
+ * "Γραφείο.Δύο θύρες". An inline tag (`<b>`, `<a>`, `<span>`) sits inside
+ * a word as often as between two, so it leaves nothing.
  */
 export function htmlToPlainText(html: string): string {
   if (!html) return ''
 
-  return decodeHtmlEntities(stripHtmlTags(html)).replace(/\s+/g, ' ').trim()
+  return decodeHtmlEntities(stripHtmlTags(html.replace(BLOCK_BOUNDARY, ' '))).replace(/\s+/g, ' ').trim()
 }
 
 /**

@@ -127,6 +127,19 @@ describe('htmlToPlainText', () => {
     expect(htmlToPlainText('')).toBe('')
     expect(htmlToPlainText('<p></p>')).toBe('')
   })
+
+  // A product description written with no whitespace between its tags
+  // read "σπίτι.Συμβατό" in the page's meta description and JSON-LD.
+  it('keeps the words of adjacent blocks apart', () => {
+    expect(htmlToPlainText('<p>Για το σπίτι.</p><ul><li>Συμβατό</li><li>Ανθεκτικό</li></ul>'))
+      .toBe('Για το σπίτι. Συμβατό Ανθεκτικό')
+    expect(htmlToPlainText('Πρώτη<br>Δεύτερη<br/>Τρίτη')).toBe('Πρώτη Δεύτερη Τρίτη')
+    expect(htmlToPlainText('<div class="x"><h2>Τίτλος</h2><p>Κείμενο</p></div>')).toBe('Τίτλος Κείμενο')
+  })
+
+  it('joins text across inline tags, which can sit inside a word', () => {
+    expect(htmlToPlainText('<p>w<b>or</b>d and <a href="/x">a link</a></p>')).toBe('word and a link')
+  })
 })
 
 describe('sanitizeRichHtml', () => {
