@@ -1,3 +1,10 @@
+## [3.260.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.1...v3.260.2) (2026-10-24)
+
+
+### Bug Fixes
+
+* **logging:** a browser fetch that got no response is a warning from every site ([#227](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/227)) ([e7279a0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e7279a097ebe3279b3185a7da3b8857cc3f861c7))
+
 ## [3.260.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.0...v3.260.1) (2026-10-24)
 
 
