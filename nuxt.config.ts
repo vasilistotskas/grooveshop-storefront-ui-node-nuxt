@@ -125,7 +125,6 @@ export default defineNuxtConfig({
   app: {
     head: {
       viewport: 'width=device-width,initial-scale=1,viewport-fit=cover',
-      titleTemplate: '%s %separator %siteName',
       link: [
         // Icon links are PER-TENANT and rendered by ``setupPageHeader``
         // (platform tenant → the platform set; branded tenant → its
