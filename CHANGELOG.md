@@ -1,3 +1,10 @@
+## [3.257.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.6...v3.257.7) (2026-10-24)
+
+
+### Bug Fixes
+
+* **seo:** product structured data names the category and describes in plain text ([#215](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/215)) ([f45e97f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f45e97f61920979fbe39059f3b3d68d52f90c82a))
+
 ## [3.257.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.5...v3.257.6) (2026-10-24)
 
 
