@@ -1,3 +1,10 @@
+## [3.257.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.9...v3.257.10) (2026-10-24)
+
+
+### Bug Fixes
+
+* **seo:** the title takes the separator the head resolves ([#218](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/218)) ([d4d83b3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d4d83b3f193fb4420b1fdb8699ab790af01e0e24))
+
 ## [3.257.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.8...v3.257.9) (2026-10-24)
 
 
