@@ -1,5 +1,6 @@
 /**
- * A page's `<title>`: the page's own title, then the store's name, once.
+ * A page's `<title>` template: the page's own title, then the store's
+ * name, once.
  *
  * Merchants write their own SEO titles, and many end them with the store's
  * name ("Mini Power Bank – Μαύρο | Webside"). Appending the name to those
@@ -8,15 +9,19 @@
  * with it (after an optional separator), and is the whole title when the
  * page has none. Ending, not containing: a product named after the brand
  * ("Webside Mini Power Bank") still gets the store's name after it.
+ *
+ * It decides only WHETHER the name follows, and leaves the name and the
+ * separator to unhead's template params (`%separator`, `%siteName`):
+ * several head entries set them (nuxt-seo-utils resolves the separator
+ * from the site config), and the one unhead picks is the one every other
+ * title, meta and link on the page uses too.
  */
-export function storeTitle(title: string | undefined, storeName: string | undefined, separator: string | undefined): string {
+export function storeTitle(title: string | undefined, storeName: string | undefined): string {
   const own = title?.trim() ?? ''
   const name = storeName?.trim() ?? ''
-  if (!name) return own
-  if (!own) return name
-  if (endsWithName(own, name)) return own
-  const between = separator?.trim()
-  return between ? `${own} ${between} ${name}` : `${own} ${name}`
+  if (!own) return name ? '%siteName' : ''
+  if (!name || endsWithName(own, name)) return own
+  return `${own} %separator %siteName`
 }
 
 function endsWithName(title: string, name: string): boolean {
