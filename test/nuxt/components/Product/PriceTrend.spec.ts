@@ -91,6 +91,7 @@ describe('Product/PriceTrend', () => {
     const wrapper = await mountTrend()
 
     expect(api.callsTo(HISTORY)).toEqual([])
-    expect(wrapper.find('section').exists()).toBe(false)
+    expect(wrapper.find('dl').exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'UChart' }).exists()).toBe(false)
   })
 })

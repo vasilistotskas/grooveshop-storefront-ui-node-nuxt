@@ -28,11 +28,11 @@ vi.mock('~/components/Product/NotifyMe.vue', () => ({
     template: '<div data-testid="notify" :data-kind="kind" :data-sold-out="String(soldOut)" />',
   },
 }))
-// The price trend loads its own history; its own spec covers it.
-vi.mock('~/components/Product/PriceTrend.vue', () => ({
+// The price trend dialog loads its own history; its own spec covers it.
+vi.mock('~/components/Product/PriceTrendDialog.vue', () => ({
   default: {
-    props: { productId: Number, productName: String },
-    template: '<div data-testid="price-trend" :data-product-id="productId" />',
+    props: { productId: Number, productName: String, open: Boolean },
+    template: '<div data-testid="price-trend" :data-product-id="productId" :data-open="String(open)" />',
   },
 }))
 
@@ -286,6 +286,10 @@ describe('default ProductDetail', () => {
     })
   }
 
+  /** The button that opens the price trend: it draws the trend icon. */
+  const priceTrendButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
+    wrapper.findAllComponents({ name: 'UButton' }).find(b => b.props('icon') === 'i-lucide-chart-line')
+
   const mountPage = async () => {
     const wrapper = await mountSuspended(ProductDetail, { route: false })
     await flushPromises()
@@ -310,6 +314,30 @@ describe('default ProductDetail', () => {
     const wrapper = await mountPage()
 
     expect(wrapper.text()).not.toContain('αποστέλλεται την ίδια εργάσιμη')
+  })
+
+  it('opens the price trend from a button beside the rating, loading nothing before', async () => {
+    serve(makeProduct({ id: 123 }))
+    setTenantFeatures({ priceHistory: true })
+    const wrapper = await mountPage()
+
+    expect(wrapper.find('[data-testid="price-trend"]').exists()).toBe(false)
+    expect(api.callsTo('/api/products/123/price-history')).toEqual([])
+    const button = priceTrendButton(wrapper)
+    expect(button?.attributes('aria-haspopup')).toBe('dialog')
+    await button!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.find('[data-testid="price-trend"]').attributes()).toMatchObject({
+      'data-product-id': '123',
+      'data-open': 'true',
+    }))
+  })
+
+  it('offers no price trend for a store with it off', async () => {
+    serve(makeProduct({ id: 123 }))
+    setTenantFeatures({ priceHistory: false })
+    const wrapper = await mountPage()
+
+    expect(priceTrendButton(wrapper)).toBeUndefined()
   })
 
   it('places the product under its category trail', async () => {

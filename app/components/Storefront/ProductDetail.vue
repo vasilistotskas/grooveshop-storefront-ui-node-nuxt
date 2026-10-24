@@ -409,6 +409,15 @@ const priceDropOffered = computed(() =>
  * are looked up only for a shopper who asked.
  */
 const notify = reactive({ mounted: false, open: false, kind: 'restock' as ProductAlertKindEnum })
+
+// The price trend dialog, mounted on its first open like the alerts one:
+// its body asks for the history only then.
+const priceHistoryEnabled = useStoreFeature('priceHistory')
+const priceTrend = reactive({ mounted: false, open: false })
+function openPriceTrend() {
+  priceTrend.mounted = true
+  priceTrend.open = true
+}
 function openNotify(kind: ProductAlertKindEnum) {
   notify.kind = kind
   notify.mounted = true
@@ -590,13 +599,29 @@ useSchemaOrg([
               {{ productName }}
             </h1>
 
-            <ProductRating
-              v-if="productReviewsEnabled"
-              :average="product.reviewAverage"
-              :count="product.reviewCount"
-              href="#reviews"
-              verbose
-            />
+            <div
+              v-if="productReviewsEnabled || priceHistoryEnabled"
+              class="flex flex-wrap items-center gap-x-4 gap-y-1"
+            >
+              <ProductRating
+                v-if="productReviewsEnabled"
+                :average="product.reviewAverage"
+                :count="product.reviewCount"
+                href="#reviews"
+                verbose
+              />
+              <UButton
+                v-if="priceHistoryEnabled"
+                :label="t('price_trend')"
+                icon="i-lucide-chart-line"
+                color="neutral"
+                variant="link"
+                size="sm"
+                class="p-0"
+                aria-haspopup="dialog"
+                @click="openPriceTrend"
+              />
+            </div>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -822,12 +847,6 @@ useSchemaOrg([
       </UAccordion>
     </UContainer>
 
-    <LazyProductPriceTrend
-      :product-id="product.id"
-      :product-name="productName"
-      hydrate-on-visible
-    />
-
     <PageSectionBand
       v-if="productReviewsEnabled"
       surface="muted"
@@ -848,6 +867,13 @@ useSchemaOrg([
       :surface="productStock === 0 ? 'out_of_stock' : 'pdp'"
       :seed-id="product.id"
       hydrate-on-visible
+    />
+
+    <LazyProductPriceTrendDialog
+      v-if="priceTrend.mounted"
+      v-model:open="priceTrend.open"
+      :product-id="product.id"
+      :product-name="productName"
     />
 
     <LazyProductNotifyMe
@@ -942,6 +968,7 @@ el:
   low_stock: "Έμεινε μόνο {count} | Έμειναν μόνο {count}"
   in_stock: Διαθέσιμο
   dispatch_before: "Παράγγειλε πριν τις {time} (ώρα Ελλάδας) και αποστέλλεται την ίδια εργάσιμη"
+  price_trend: Εξέλιξη τιμής
   vat_included: Με ΦΠΑ
 en:
   breadcrumb:
@@ -963,5 +990,6 @@ en:
   low_stock: "Only {count} left | Only {count} left"
   in_stock: In stock
   dispatch_before: "Order before {time} Greek time and it ships the same business day"
+  price_trend: Price history
   vat_included: VAT included
 </i18n>

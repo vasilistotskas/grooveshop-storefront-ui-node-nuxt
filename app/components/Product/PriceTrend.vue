@@ -9,9 +9,10 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
  * The product's price over time, from the periods its consumer price
  * held (Django's price spells): a stepped area chart over a range the
  * shopper picks, with the range's lowest and highest price and the
- * change over it. Rendered only for a store with `priceHistory` on and a
- * recorded price. A price that never changed still gets its chart: a
- * flat line says the price has been stable, which is worth knowing.
+ * change over it. The body of `PriceTrendDialog`, mounted when the
+ * shopper opens it, so the history is fetched only then. A price that
+ * never changed still gets its chart: a flat line says the price has
+ * been stable, which is worth knowing.
  *
  * No "lowest of the last 30 days": the struck-through price beside the
  * buy button already names the prior price the EU Omnibus rule requires
@@ -30,7 +31,7 @@ const { dateLocale } = useDateLocale()
 const enabled = useStoreFeature('priceHistory')
 const { isMobile } = useDevice()
 
-const { data: history } = useLazyApi(`/api/products/${props.productId}/price-history`, {
+const { data: history, status, refresh } = useLazyApi(`/api/products/${props.productId}/price-history`, {
   key: `product-price-history-${props.productId}`,
   enabled,
 })
@@ -41,7 +42,7 @@ const TIME_TICKS = 6
  * Width over height: a phone's chart is as wide as the screen, and at
  * the desktop ratio it would be a strip a hundred-odd pixels tall.
  */
-const ASPECT_RATIO = { phone: 1.5, wide: 2.6 } as const
+const ASPECT_RATIO = { phone: 1.5, wide: 2.2 } as const
 const DAY_MS = 24 * 60 * 60 * 1000
 /**
  * The store's accent: the platform's primary is neutral, which in dark
@@ -49,19 +50,17 @@ const DAY_MS = 24 * 60 * 60 * 1000
  */
 const TREND_COLOR = 'var(--ui-secondary)'
 
-const headingId = useId()
 const gradientId = `price-trend-${useId()}`
-// The moment the page reads the history: one value for the server
-// render and the hydration, so both draw the same window.
-const now = useState(`price-trend-now-${props.productId}`, () => Date.now())
+// The window ends when the shopper opened the dialog.
+const now = Date.now()
 
-const ranges = computed(() => history.value ? priceTrendRanges(history.value.spells, now.value) : [])
+const ranges = computed(() => history.value ? priceTrendRanges(history.value.spells, now) : [])
 const range = ref<PriceTrendRange>('all')
 watch(ranges, (available) => {
   if (!available.includes(range.value)) range.value = available[0] ?? 'all'
 }, { immediate: true })
 
-const trend = computed(() => history.value ? priceTrend(history.value.spells, range.value, now.value) : null)
+const trend = computed(() => history.value ? priceTrend(history.value.spells, range.value, now) : null)
 
 const rangeItems = computed<TabsItem[]>(() => ranges.value.map(value => ({ label: t(`ranges.${value}`), value })))
 
@@ -173,130 +172,146 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
 </script>
 
 <template>
-  <PageSectionBand
-    v-if="enabled && trend"
-    surface="default"
+  <div
+    v-if="trend"
+    class="@container flex flex-col gap-5"
   >
-    <section
-      id="price-history"
-      :aria-labelledby="headingId"
-      class="@container scroll-mt-24"
+    <div
+      class="
+        flex flex-col gap-3
+        @xl:flex-row @xl:items-center @xl:justify-between
+      "
+    >
+      <p class="text-sm text-muted">
+        {{ t('since', { date: fullDateFormat.format(trend.currentSince), price: formatPrice(trend.current) }) }}
+      </p>
+      <UTabs
+        v-if="rangeItems.length > 1"
+        v-model="range"
+        :items="rangeItems"
+        :content="false"
+        variant="pill"
+        size="sm"
+        color="neutral"
+        :aria-label="t('range_label')"
+        class="
+          w-full
+          @xl:w-auto
+        "
+      />
+    </div>
+
+    <dl
+      class="
+          grid grid-cols-3 gap-2
+          @2xl:gap-3
+        "
     >
       <div
         class="
-          flex flex-col gap-4
-          @2xl:flex-row @2xl:items-end @2xl:justify-between
-        "
-      >
-        <div class="flex flex-col gap-1">
-          <h2
-            :id="headingId"
-            class="
-              font-display text-[1.625rem] font-bold tracking-[-0.02em]
-              text-highlighted
-              @3xl:text-[2rem]
-            "
-          >
-            {{ t('title') }}
-          </h2>
-          <p class="text-sm text-muted">
-            {{ t('since', { date: fullDateFormat.format(trend.currentSince), price: formatPrice(trend.current) }) }}
-          </p>
-        </div>
-        <UTabs
-          v-if="rangeItems.length > 1"
-          v-model="range"
-          :items="rangeItems"
-          :content="false"
-          variant="pill"
-          size="sm"
-          color="neutral"
-          :aria-label="t('range_label')"
-          class="w-full @2xl:w-auto"
-        />
-      </div>
-
-      <dl
-        class="
-            mt-6 grid grid-cols-3 gap-2
-            @2xl:gap-3
+            rounded-lg bg-elevated/60 px-3 py-2.5
+            @2xl:px-4 @2xl:py-3
           "
       >
-        <div
-          class="
-              rounded-lg bg-elevated/60 px-3 py-2.5
-              @2xl:px-4 @2xl:py-3
-            "
-        >
-          <dt class="text-xs font-medium text-muted">
-            {{ t('stats.change') }}
-          </dt>
-          <dd class="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span
-              class="
-                  text-base font-semibold text-highlighted tabular-nums
-                  @2xl:text-lg
-                "
-            >
-              {{ trend.change === 0 ? formatPrice(0) : `${trend.change > 0 ? '+' : '−'}${formatPrice(Math.abs(trend.change))}` }}
-            </span>
-            <UBadge
-              :color="changeColor"
-              variant="subtle"
-              size="sm"
-              :label="percentFormat.format(trend.changeRatio)"
-              class="tabular-nums"
-            />
-          </dd>
-        </div>
-        <div
-          v-for="stat in stats"
-          :key="stat.key"
-          class="
-              rounded-lg bg-elevated/60 px-3 py-2.5
-              @2xl:px-4 @2xl:py-3
-            "
-        >
-          <dt class="text-xs font-medium text-muted">
-            {{ stat.label }}
-          </dt>
-          <dd
+        <dt class="text-xs font-medium text-muted">
+          {{ t('stats.change') }}
+        </dt>
+        <dd class="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span
             class="
-                mt-1 text-base font-semibold text-highlighted tabular-nums
+                text-base font-semibold text-highlighted tabular-nums
                 @2xl:text-lg
               "
           >
-            {{ stat.value }}
-          </dd>
-        </div>
-      </dl>
-
-      <UChart
-        v-if="definition"
-        :definition="definition"
-        :aspect-ratio="isMobile ? ASPECT_RATIO.phone : ASPECT_RATIO.wide"
-        :aria-label="t('aria_label', { product: productName })"
-        :aria-description="ariaDescription"
-        class="mt-6"
+            {{ trend.change === 0 ? formatPrice(0) : `${trend.change > 0 ? '+' : '−'}${formatPrice(Math.abs(trend.change))}` }}
+          </span>
+          <UBadge
+            :color="changeColor"
+            variant="subtle"
+            size="sm"
+            :label="percentFormat.format(trend.changeRatio)"
+            class="tabular-nums"
+          />
+        </dd>
+      </div>
+      <div
+        v-for="stat in stats"
+        :key="stat.key"
+        class="
+            rounded-lg bg-elevated/60 px-3 py-2.5
+            @2xl:px-4 @2xl:py-3
+          "
       >
-        <template #tooltip="{ points }">
-          <template v-if="pointOf(points)">
-            <p class="font-medium text-highlighted">
-              {{ fullDateFormat.format(pointOf(points)!.time) }}
-            </p>
-            <p class="text-highlighted tabular-nums">
-              {{ formatPrice(pointOf(points)!.price) }}
-            </p>
-          </template>
+        <dt class="text-xs font-medium text-muted">
+          {{ stat.label }}
+        </dt>
+        <dd
+          class="
+              mt-1 text-base font-semibold text-highlighted tabular-nums
+              @2xl:text-lg
+            "
+        >
+          {{ stat.value }}
+        </dd>
+      </div>
+    </dl>
+
+    <UChart
+      v-if="definition"
+      :definition="definition"
+      :aspect-ratio="isMobile ? ASPECT_RATIO.phone : ASPECT_RATIO.wide"
+      :aria-label="t('aria_label', { product: productName })"
+      :aria-description="ariaDescription"
+    >
+      <template #tooltip="{ points }">
+        <template v-if="pointOf(points)">
+          <p class="font-medium text-highlighted">
+            {{ fullDateFormat.format(pointOf(points)!.time) }}
+          </p>
+          <p class="text-highlighted tabular-nums">
+            {{ formatPrice(pointOf(points)!.price) }}
+          </p>
         </template>
-      </UChart>
-    </section>
-  </PageSectionBand>
+      </template>
+    </UChart>
+  </div>
+  <div
+    v-else-if="status === 'error'"
+    class="flex flex-col items-start gap-3"
+  >
+    <p class="text-sm text-default">
+      {{ t('failed') }}
+    </p>
+    <UButton
+      :label="t('retry')"
+      color="neutral"
+      variant="outline"
+      size="sm"
+      @click="() => { refresh() }"
+    />
+  </div>
+  <div
+    v-else
+    class="flex flex-col gap-5"
+    :aria-busy="true"
+  >
+    <USkeleton class="h-5 w-48" />
+    <div class="grid grid-cols-3 gap-2">
+      <USkeleton
+        v-for="tile in 3"
+        :key="tile"
+        class="h-16 rounded-lg"
+      />
+    </div>
+    <USkeleton
+      class="w-full rounded-lg"
+      :class="isMobile ? 'aspect-3/2' : 'aspect-11/5'"
+    />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  title: Εξέλιξη τιμής
   since: '{price} από {date}'
   range_label: Χρονικό διάστημα
   ranges:
@@ -311,8 +326,9 @@ el:
     highest: Υψηλότερη
   aria_label: Εξέλιξη τιμής για {product}
   aria_description: Από {from}, χαμηλότερη τιμή {lowest}, υψηλότερη {highest}, τρέχουσα {current}.
+  failed: Δεν φορτώθηκε η εξέλιξη της τιμής.
+  retry: Δοκίμασε ξανά
 en:
-  title: Price history
   since: '{price} since {date}'
   range_label: Time range
   ranges:
@@ -327,4 +343,6 @@ en:
     highest: Highest
   aria_label: Price history of {product}
   aria_description: Since {from}, lowest {lowest}, highest {highest}, now {current}.
+  failed: The price history could not be loaded.
+  retry: Try again
 </i18n>

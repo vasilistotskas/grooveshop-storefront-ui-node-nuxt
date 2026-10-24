@@ -32,7 +32,7 @@ mockNuxtImport('$fetch', () => api)
 mockNuxtImport('useRequestApi', () => () => api)
 mockComponent('UTooltip', { template: '<div><slot /></div>' })
 // The product page's price trend loads its own history; its own spec covers it.
-vi.mock('~/components/Product/PriceTrend.vue', () => ({ default: { template: '<div />' } }))
+vi.mock('~/components/Product/PriceTrendDialog.vue', () => ({ default: { template: '<div />' } }))
 
 const route = vi.hoisted(() => ({ path: '', params: {} as Record<string, string>, name: '' }))
 mockNuxtImport('useRoute', () => () => ({
