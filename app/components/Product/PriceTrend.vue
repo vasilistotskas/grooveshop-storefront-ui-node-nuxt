@@ -27,6 +27,7 @@ const { t } = useI18n()
 const { formatPrice } = usePriceFormat()
 const { dateLocale } = useDateLocale()
 const enabled = useStoreFeature('priceHistory')
+const { isMobile } = useDevice()
 
 const { data: history } = useLazyApi(`/api/products/${props.productId}/price-history`, {
   key: `product-price-history-${props.productId}`,
@@ -35,6 +36,11 @@ const { data: history } = useLazyApi(`/api/products/${props.productId}/price-his
 
 /** Shown ticks on the time axis. */
 const TIME_TICKS = 6
+/**
+ * Width over height: a phone's chart is as wide as the screen, and at
+ * the desktop ratio it would be a strip a hundred-odd pixels tall.
+ */
+const ASPECT_RATIO = { phone: 1.5, wide: 2.6 } as const
 const DAY_MS = 24 * 60 * 60 * 1000
 /**
  * The store's accent: the platform's primary is neutral, which in dark
@@ -220,16 +226,26 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
       <template v-else>
         <dl
           class="
-            mt-6 grid grid-cols-2 gap-3
-            @3xl:grid-cols-3
+            mt-6 grid grid-cols-3 gap-2
+            @2xl:gap-3
           "
         >
-          <div class="rounded-lg bg-elevated/60 px-4 py-3">
+          <div
+            class="
+              rounded-lg bg-elevated/60 px-3 py-2.5
+              @2xl:px-4 @2xl:py-3
+            "
+          >
             <dt class="text-xs font-medium text-muted">
               {{ t('stats.change') }}
             </dt>
             <dd class="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <span class="text-lg font-semibold text-highlighted tabular-nums">
+              <span
+                class="
+                  text-base font-semibold text-highlighted tabular-nums
+                  @2xl:text-lg
+                "
+              >
                 {{ trend.change === 0 ? formatPrice(0) : `${trend.change > 0 ? '+' : '−'}${formatPrice(Math.abs(trend.change))}` }}
               </span>
               <UBadge
@@ -244,12 +260,20 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
           <div
             v-for="stat in stats"
             :key="stat.key"
-            class="rounded-lg bg-elevated/60 px-4 py-3"
+            class="
+              rounded-lg bg-elevated/60 px-3 py-2.5
+              @2xl:px-4 @2xl:py-3
+            "
           >
             <dt class="text-xs font-medium text-muted">
               {{ stat.label }}
             </dt>
-            <dd class="mt-1 text-lg font-semibold text-highlighted tabular-nums">
+            <dd
+              class="
+                mt-1 text-base font-semibold text-highlighted tabular-nums
+                @2xl:text-lg
+              "
+            >
               {{ stat.value }}
             </dd>
           </div>
@@ -258,7 +282,7 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
         <UChart
           v-if="definition"
           :definition="definition"
-          :aspect-ratio="2.6"
+          :aspect-ratio="isMobile ? ASPECT_RATIO.phone : ASPECT_RATIO.wide"
           :aria-label="t('aria_label', { product: productName })"
           :aria-description="ariaDescription"
           class="mt-6"
