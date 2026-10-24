@@ -1,3 +1,10 @@
+# [3.258.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.11...v3.258.0) (2026-10-24)
+
+
+### Features
+
+* **seo:** merchant policies in the Organization node, product sku matches the feed ([#220](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/220)) ([ae497cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ae497cd75734153a63b09053209a243a1e2509fe))
+
 ## [3.257.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.10...v3.257.11) (2026-10-24)
 
 
