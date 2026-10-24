@@ -1,3 +1,10 @@
+## [3.257.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.7...v3.257.8) (2026-10-24)
+
+
+### Bug Fixes
+
+* **seo:** plain text keeps the words of adjacent HTML blocks apart ([#216](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/216)) ([0d3a199](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0d3a1993b20ad0a7e5a17d1b8bcdd8c537b3488b))
+
 ## [3.257.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.6...v3.257.7) (2026-10-24)
 
 
