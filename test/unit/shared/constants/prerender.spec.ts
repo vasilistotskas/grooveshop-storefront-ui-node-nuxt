@@ -3,6 +3,7 @@ import {
   CACHED_SSR_ROUTES_SET,
   CUSTOM_PAGE_ROUTES,
   SWR_ROUTE_PATTERN_RULES,
+  hasExtractedPayload,
   isCachedSsrRoute,
   withLocalePrefixes,
 } from '~~/shared/constants/prerender'
@@ -120,5 +121,28 @@ describe('cached routes in a prefixed locale', () => {
     expect(withLocalePrefixes('/')).toEqual(['/', '/en'])
     expect(withLocalePrefixes('/about')).toEqual(['/about', '/en/about'])
     expect(withLocalePrefixes('/blog/**')).toEqual(['/blog/**', '/en/blog/**'])
+  })
+})
+
+describe('hasExtractedPayload', () => {
+  it('holds for every page a route rule caches, in every locale', () => {
+    for (const path of ['/', '/en', '/about', '/en/about', '/products', '/products/2/mini-power-bank', '/en/blog/post/82/slug', '/info/faq']) {
+      expect(hasExtractedPayload(path), path).toBe(true)
+    }
+  })
+
+  // The custom-page handler caches them with no route rule, so Nuxt keeps
+  // their payload inline and `/<slug>/_payload.json` renders a 404.
+  it('does not hold for a custom page, cached though it is', () => {
+    for (const path of ['/kelari', '/en/kelari', '/poies-eimaste']) {
+      expect(isCachedSsrRoute(path), path).toBe(true)
+      expect(hasExtractedPayload(path), path).toBe(false)
+    }
+  })
+
+  it('does not hold for a page that is not cached at all', () => {
+    for (const path of ['/cart', '/en/checkout', '/search', '/account/orders']) {
+      expect(hasExtractedPayload(path), path).toBe(false)
+    }
   })
 })

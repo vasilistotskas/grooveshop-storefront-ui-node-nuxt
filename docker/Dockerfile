@@ -60,6 +60,14 @@ COPY --from=build --chown=node:node /app/.output .
 # from THIS image so it warms the build it belongs to (it reads
 # public/_nuxt/builds/latest.json next to it).
 COPY --from=build --chown=node:node /app/scripts/warm-cache.mjs ./scripts/warm-cache.mjs
+# The route lists it imports (`hasExtractedPayload`) and their imports, at
+# the paths the script names; Node runs them as TypeScript.
+# `test/unit/scripts/warm-cache-image.spec.ts` fails if one is missing.
+COPY --from=build --chown=node:node /app/shared/constants/prerender.ts ./shared/constants/prerender.ts
+COPY --from=build --chown=node:node /app/shared/i18n/localeFromPath.ts ./shared/i18n/localeFromPath.ts
+COPY --from=build --chown=node:node /app/shared/utils/customPageSlug.ts ./shared/utils/customPageSlug.ts
+COPY --from=build --chown=node:node /app/shared/utils/staticLayoutRoutes.ts ./shared/utils/staticLayoutRoutes.ts
+COPY --from=build --chown=node:node /app/i18n/locales.ts ./i18n/locales.ts
 
 USER node
 
