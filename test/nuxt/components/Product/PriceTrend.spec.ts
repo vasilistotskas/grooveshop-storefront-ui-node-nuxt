@@ -74,12 +74,16 @@ describe('Product/PriceTrend', () => {
     expect(wrapper.find('[aria-label*="Powerbank"]').exists()).toBe(true)
   })
 
-  it('says the price is unchanged instead of drawing a flat line', async () => {
+  // Most products never change price; their trend is a flat line, still
+  // drawn, with no change over the range.
+  it('draws a price that never changed as a stable line, with its figures', async () => {
     api.routes({ [HISTORY]: { currency: 'EUR', spells: [{ validFrom: '2026-10-10T10:00:00Z', validTo: null, price: 20 }] } })
     const wrapper = await mountTrend()
 
-    expect(wrapper.find('dl').exists()).toBe(false)
-    expect(wrapper.text()).toContain('2026')
+    expect(wrapper.findComponent({ name: 'UChart' }).exists()).toBe(true)
+    const stats = wrapper.findAll('dl > div').map(tile => tile.find('dd').text().replace(/\s+/g, ' '))
+    expect(stats.slice(1)).toEqual(['20,00 €', '20,00 €'])
+    expect(wrapper.findAll('[role="tab"]')).toHaveLength(0)
   })
 
   it('asks for nothing and renders nothing with the store\'s price history off', async () => {
@@ -87,6 +91,7 @@ describe('Product/PriceTrend', () => {
     const wrapper = await mountTrend()
 
     expect(api.callsTo(HISTORY)).toEqual([])
-    expect(wrapper.find('section').exists()).toBe(false)
+    expect(wrapper.find('dl').exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'UChart' }).exists()).toBe(false)
   })
 })
