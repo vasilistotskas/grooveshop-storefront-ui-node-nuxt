@@ -1,3 +1,10 @@
+## [3.259.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.1...v3.259.2) (2026-10-24)
+
+
+### Bug Fixes
+
+* **product:** the price trend sized for a phone ([#223](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/223)) ([9c9fab7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9c9fab740056bebb514b1c869b652971c47e3da4))
+
 ## [3.259.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.0...v3.259.1) (2026-10-24)
 
 
