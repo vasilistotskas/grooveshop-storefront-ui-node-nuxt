@@ -50,7 +50,7 @@
     "@intlify/message-compiler": "11.4.16",
     "@intlify/shared": "11.4.16",
     "@nuxt/fonts": "1.1.0",
-    "@nuxt/icon": "2.5.1",
+    "@nuxt/icon": "2.6.0",
     "@nuxt/image": "2.2.0",
     "@nuxt/scripts": "1.3.12",
     "@nuxt/ui": "4.12.0",
@@ -159,5 +159,5 @@
       "@semantic-release/github"
     ]
   },
-  "packageManager": "pnpm@12.11.2"
+  "packageManager": "pnpm@12.15.0"
 }
