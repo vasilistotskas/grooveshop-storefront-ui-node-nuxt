@@ -98,7 +98,7 @@ exports[`webside frozen render > default layout with the webside schema 1`] = `
                           <!--v-if-->
                           <!--v-if-->
                         </a></li>
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Switch to dark mode" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
+                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
                           <!--v-if-->
                           <!--v-if-->
                         </button></li>
@@ -394,7 +394,7 @@ exports[`webside frozen render > login form 1`] = `
           <div class="grid content-evenly items-center justify-center gap-1"><img width="140" height="140" data-nuxt-img="" srcset="/_ipx/q_90&amp;s_140x140/img/logo-border.png 1x, /_ipx/q_90&amp;s_280x280/img/logo-border.png 2x" alt="" src="/_ipx/q_90&amp;s_140x140/img/logo-border.png"><span class="sr-only">Λογότυπο Webside</span></div>
           <div data-orientation="vertical" data-slot="root" class="text-base">
             <div data-slot="wrapper" class="">
-              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Email</label>
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Email</label>
                 <!--v-if-->
               </div>
               <!--v-if-->
@@ -408,7 +408,7 @@ exports[`webside frozen render > login form 1`] = `
           </div>
           <div data-orientation="vertical" data-slot="root" class="text-base">
             <div data-slot="wrapper" class="">
-              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός πρόσβασης</label>
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός πρόσβασης</label>
                 <!--v-if-->
               </div>
               <!--v-if-->
@@ -545,7 +545,7 @@ exports[`webside frozen render > navbar 1`] = `
                   <!--v-if-->
                   <!--v-if-->
                 </a></li>
-              <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Switch to dark mode" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
+              <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
                   <!--v-if-->
                   <!--v-if-->
                 </button></li>
@@ -591,7 +591,7 @@ exports[`webside frozen render > newsletter confirmation 1`] = `
 `;
 
 exports[`webside frozen render > page breadcrumb 1`] = `
-"<nav aria-label="breadcrumb" data-slot="root" class="text-xs md:text-base relative mb-5 min-w-0">
+"<nav aria-label="διαδρομή πλοήγησης" data-slot="root" class="text-xs md:text-base relative mb-5 min-w-0">
   <ol data-slot="list" class="flex items-center gap-1.5">
     <li data-slot="item" class="flex min-w-0 text-primary-950 dark:text-primary-50"><a href="/" data-slot="link" class="group relative flex items-center gap-1.5 text-sm min-w-0 rounded-md text-muted font-medium outline-primary/25 focus-visible:outline-3 hover:text-default transition-colors"><span class="iconify i-heroicons:home shrink-0 size-5" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Αρχική</span></a></li>
     <li role="presentation" aria-hidden="true" data-slot="separator" class="flex"><span class="iconify i-lucide:chevron-right shrink-0 size-5 text-muted" aria-hidden="true" data-slot="separatorIcon"></span></li>
@@ -609,31 +609,31 @@ exports[`webside frozen render > page title 1`] = `
 
 exports[`webside frozen render > pagination page number 1`] = `
 "<nav data-slot="root" max="3">
-  <div data-slot="list" class="flex items-center gap-1"><button type="button" data-slot="first" aria-label="First Page" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevrons-left shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+  <div data-slot="list" class="flex items-center gap-1"><button type="button" data-slot="first" aria-label="Πρώτη σελίδα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevrons-left shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
       <!--v-if-->
       <!--v-if-->
-    </button><button type="button" data-slot="prev" aria-label="Previous Page" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevron-left shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+    </button><button type="button" data-slot="prev" aria-label="Προηγούμενη σελίδα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevron-left shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
       <!--v-if-->
       <!--v-if-->
-    </button><button type="button" data-slot="item" data-type="page" aria-label="Page 1" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="1">
+    </button><button type="button" data-slot="item" data-type="page" aria-label="Σελίδα 1" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="1">
       <!--v-if--><span data-slot="label" class="truncate min-w-5 text-center w-full">1</span>
       <!--v-if-->
-    </button><button type="button" data-slot="item" data-type="page" aria-label="Page 2" aria-current="page" data-selected="true" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 text-inverted bg-primary hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary outline-primary/25 focus-visible:outline-3 p-1.5" value="2">
+    </button><button type="button" data-slot="item" data-type="page" aria-label="Σελίδα 2" aria-current="page" data-selected="true" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 text-inverted bg-primary hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary outline-primary/25 focus-visible:outline-3 p-1.5" value="2">
       <!--v-if--><span data-slot="label" class="truncate min-w-5 text-center w-full">2</span>
       <!--v-if-->
-    </button><button type="button" data-slot="item" data-type="page" aria-label="Page 3" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="3">
+    </button><button type="button" data-slot="item" data-type="page" aria-label="Σελίδα 3" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="3">
       <!--v-if--><span data-slot="label" class="truncate min-w-5 text-center w-full">3</span>
       <!--v-if-->
-    </button><button type="button" data-slot="item" data-type="page" aria-label="Page 4" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="4">
+    </button><button type="button" data-slot="item" data-type="page" aria-label="Σελίδα 4" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="4">
       <!--v-if--><span data-slot="label" class="truncate min-w-5 text-center w-full">4</span>
       <!--v-if-->
-    </button><button type="button" data-slot="item" data-type="page" aria-label="Page 5" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="5">
+    </button><button type="button" data-slot="item" data-type="page" aria-label="Σελίδα 5" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5" value="5">
       <!--v-if--><span data-slot="label" class="truncate min-w-5 text-center w-full">5</span>
       <!--v-if-->
-    </button><button type="button" data-slot="next" aria-label="Next Page" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevron-right shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+    </button><button type="button" data-slot="next" aria-label="Επόμενη σελίδα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevron-right shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
       <!--v-if-->
       <!--v-if-->
-    </button><button type="button" data-slot="last" aria-label="Last Page" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevrons-right shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
+    </button><button type="button" data-slot="last" aria-label="Τελευταία σελίδα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevrons-right shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
       <!--v-if-->
       <!--v-if-->
     </button></div>
@@ -661,19 +661,19 @@ exports[`webside frozen render > product card 1`] = `
         <h3 data-v-X="" class="line-clamp-2 text-lg leading-snug font-bold text-neutral-950 min-h-12 transition-colors group-hover/link:text-primary-600 dark:text-neutral-50 dark:group-hover/link:text-primary-400">Mini Power Bank 5000mAh</h3>
       </a>
       <!--v-if-->
-      <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 h-5"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><div data-slot="root" aria-hidden="true" aria-readonly="true" class="inline-flex items-center gap-0.5 cursor-default" tabindex="-1" data-orientation="horizontal" dir="ltr" style="outline-color: none; outline-style: none; outline-width: initial;" role="radiogroup" data-disabled="" aria-orientation="horizontal" aria-required="false"><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Rate 0.5 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="0.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
-        <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Rate 1 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="1"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
-        <!--v-if--></label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Rate 1.5 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="1.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
-          <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Rate 2 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="2"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+      <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 h-5"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><div data-slot="root" aria-hidden="true" aria-readonly="true" class="inline-flex items-center gap-0.5 cursor-default" tabindex="-1" data-orientation="horizontal" dir="ltr" style="outline-color: none; outline-style: none; outline-width: initial;" role="radiogroup" data-disabled="" aria-orientation="horizontal" aria-required="false"><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 0.5 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="0.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+        <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 1 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="1"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+        <!--v-if--></label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 1.5 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="1.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+          <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 2 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="2"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
           <!--v-if-->
-        </label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Rate 2.5 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="2.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
-          <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Rate 3 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="3"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+        </label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 2.5 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="2.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+          <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 3 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="3"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
           <!--v-if-->
-        </label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Rate 3.5 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="3.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
-          <!--v-if--><button role="radio" type="button" aria-checked="true" aria-label="Rate 4 out of 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" data-active="" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="4"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="checked" data-disabled="" data-slot="icon"></span></button>
+        </label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 3.5 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="3.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+          <!--v-if--><button role="radio" type="button" aria-checked="true" aria-label="Βαθμολόγηση 4 από 5" disabled="" data-state="active" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" data-active="" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="4"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="checked" data-disabled="" data-slot="icon"></span></button>
           <!--v-if-->
-        </label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Rate 4.5 out of 5" disabled="" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="4.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
-          <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Rate 5 out of 5" disabled="" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+        </label><label data-slot="item" class="relative inline-block select-none rounded-sm has-focus-visible:outline-3 transition outline-primary/25 cursor-default size-3.5"><span class="iconify i-heroicons:star-solid block w-full h-full pointer-events-none text-(--ui-border-accented)" aria-hidden="true" data-slot="emptyIcon"></span><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 4.5 από 5" disabled="" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 50%; --reka-rating-item-step-opacity: 0; --reka-rating-item-step-z-index: 2;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="4.5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
+          <!--v-if--><button role="radio" type="button" aria-checked="false" aria-label="Βαθμολόγηση 5 από 5" disabled="" data-disabled="" required="false" data-reka-collection-item="" tabindex="-1" data-orientation="horizontal" style="--reka-rating-item-step-width: 100%; --reka-rating-item-step-opacity: 1; --reka-rating-item-step-z-index: 1;" data-slot="indicator" class="absolute inset-0 overflow-hidden outline-none text-transparent w-(--reka-rating-item-step-width) opacity-(--reka-rating-item-step-opacity) z-(--reka-rating-item-step-z-index) data-[state=active]:text-(--ui-rating)" value="5"><span class="iconify i-heroicons:star-solid block size-3.5" aria-hidden="true" data-state="unchecked" data-disabled="" data-slot="icon"></span></button>
           <!--v-if-->
         </label>
         <!--v-if-->
@@ -699,40 +699,40 @@ exports[`webside frozen render > product card skeleton 1`] = `
   <div data-slot="body" class="p-0 sm:p-0">
     <div data-v-X="" class="relative overflow-hidden bg-neutral-100 dark:bg-neutral-800">
       <div data-v-X="" class="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-6 w-16 rounded-md"></div>
+        <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-6 w-16 rounded-md"></div>
       </div>
       <div data-v-X="" class="absolute top-4 right-4 z-10 flex gap-2">
-        <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-8 rounded-md"></div>
-        <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-8 rounded-md"></div>
+        <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-8 rounded-md"></div>
+        <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-8 rounded-md"></div>
       </div>
       <div data-v-X="" class="aspect-[4/3] max-w-full">
-        <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-full"></div>
+        <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-full"></div>
       </div>
     </div>
     <div data-v-X="" class="flex flex-col gap-4 p-6">
       <div data-v-X="" class="flex flex-col gap-2">
-        <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-5 w-full"></div>
-        <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-5 w-3/4"></div>
+        <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-5 w-full"></div>
+        <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-5 w-3/4"></div>
       </div>
       <div data-v-X="" class="flex items-center gap-2">
         <div data-v-X="" class="flex items-center gap-1">
-          <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
-          <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
-          <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
-          <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
-          <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
+          <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
+          <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
+          <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
+          <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
+          <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) size-4 rounded-sm"></div>
         </div>
-        <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-4 w-16"></div>
+        <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-4 w-16"></div>
       </div>
       <div data-v-X="" class="flex flex-col gap-2">
         <div data-v-X="" class="flex items-baseline justify-between">
           <div data-v-X="" class="flex flex-col gap-1">
-            <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-3 w-20"></div>
-            <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-8 w-24"></div>
+            <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-3 w-20"></div>
+            <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse rounded-md bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-8 w-24"></div>
           </div>
         </div>
       </div>
-      <div data-v-X="" aria-busy="true" aria-label="loading" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-10 w-full rounded-md"></div>
+      <div data-v-X="" aria-busy="true" aria-label="φόρτωση" aria-live="polite" role="alert" class="animate-pulse bg-(--ui-color-primary-300) dark:bg-(--ui-color-primary-700) h-10 w-full rounded-md"></div>
     </div>
   </div>
   <!--v-if-->
@@ -741,10 +741,10 @@ exports[`webside frozen render > product card skeleton 1`] = `
 
 exports[`webside frozen render > section blog_categories 1`] = `
 "<div class="grid min-w-0 gap-2 md:flex w-full md:p-0!">
-  <div role="region" aria-roledescription="carousel" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none overflow-hidden md:w-full" aria-label="Κατηγορίες">
+  <div role="region" aria-roledescription="καρουζέλ" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none overflow-hidden md:w-full" aria-label="Κατηγορίες">
     <div data-slot="viewport" class="overflow-hidden">
       <div data-slot="container" class="flex items-start flex-row -ms-4" style="transform: translate3d(0px,0px,0px);">
-        <div role="group" aria-roledescription="slide" data-slot="item" class="min-w-0 shrink-0 ps-4 flex basis-[33%] md:basis-[17%]"><a href="/blog/category/1/asfaleia" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-base gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) w-full !px-2 !py-2 font-bold"><img width="25" height="25" data-nuxt-img="" srcset="/_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_25x25/img/placeholder.png 1x, /_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_50x50/img/placeholder.png 2x" class="aspect-square" alt="Ασφάλεια" style="aspect-ratio: 25 / 25;" src="/_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_25x25/img/placeholder.png"><span>Ασφάλεια</span>
+        <div role="group" aria-roledescription="διαφάνεια" data-slot="item" class="min-w-0 shrink-0 ps-4 flex basis-[33%] md:basis-[17%]"><a href="/blog/category/1/asfaleia" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-base gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary) w-full !px-2 !py-2 font-bold"><img width="25" height="25" data-nuxt-img="" srcset="/_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_25x25/img/placeholder.png 1x, /_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_50x50/img/placeholder.png 2x" class="aspect-square" alt="Ασφάλεια" style="aspect-ratio: 25 / 25;" src="/_ipx/pos_entropy&amp;f_svg&amp;q_80&amp;b_ffffff&amp;fit_fill&amp;s_25x25/img/placeholder.png"><span>Ασφάλεια</span>
             <!--v-if-->
           </a></div>
       </div>
@@ -792,10 +792,10 @@ exports[`webside frozen render > section blog_posts_list 1`] = `
 `;
 
 exports[`webside frozen render > section hero_carousel 1`] = `
-"<div role="region" aria-roledescription="carousel" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none w-full md:p-0!" aria-label="Κύριο banner" indicators="">
+"<div role="region" aria-roledescription="καρουζέλ" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none w-full md:p-0!" aria-label="Κύριο banner" indicators="">
   <div data-slot="viewport" class="overflow-hidden">
     <div data-slot="container" class="flex items-start flex-row -ms-4" style="transform: translate3d(0px,0px,0px);">
-      <div role="group" aria-roledescription="slide" data-slot="item" class="min-w-0 shrink-0 ps-4 basis-full place-items-center justify-center"><a href="/products/2/mini-power-bank-5000mah" aria-label="Άνοιγμα συνδέσμου banner" class="block"><img width="1194" height="418" data-nuxt-img="" srcset="/_ipx/f_webp&amp;q_80&amp;fit_cover&amp;s_1194x418/img/main-banner.png 1x" alt="Webside" class="rounded-lg" style="object-fit: contain; content-visibility: auto;" loading="eager" fetchpriority="high" decoding="async" src="/_ipx/f_webp&amp;q_80&amp;fit_cover&amp;s_1194x418/img/main-banner.png"></a></div>
+      <div role="group" aria-roledescription="διαφάνεια" data-slot="item" class="min-w-0 shrink-0 ps-4 basis-full place-items-center justify-center"><a href="/products/2/mini-power-bank-5000mah" aria-label="Άνοιγμα συνδέσμου banner" class="block"><img width="1194" height="418" data-nuxt-img="" srcset="/_ipx/f_webp&amp;q_80&amp;fit_cover&amp;s_1194x418/img/main-banner.png 1x" alt="Webside" class="rounded-lg" style="object-fit: contain; content-visibility: auto;" loading="eager" fetchpriority="high" decoding="async" src="/_ipx/f_webp&amp;q_80&amp;fit_cover&amp;s_1194x418/img/main-banner.png"></a></div>
     </div>
   </div>
   <!--v-if-->
@@ -807,10 +807,10 @@ exports[`webside frozen render > section recently_viewed 1`] = `
   <header class="flex items-center justify-between gap-3">
     <h2 id="recently-viewed-title" class="text-xl font-semibold text-primary-950 dark:text-primary-50">Είδες Πρόσφατα</h2>
   </header>
-  <div role="region" aria-roledescription="carousel" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none w-full max-w-full md:mx-auto">
+  <div role="region" aria-roledescription="καρουζέλ" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none w-full max-w-full md:mx-auto">
     <div data-slot="viewport" class="overflow-hidden w-full">
       <div data-slot="container" class="items-start flex-row -ms-4 flex w-full" style="transform: translate3d(0px,0px,0px);">
-        <div role="group" aria-roledescription="slide" data-slot="item" class="ps-4 min-w-0 shrink-0 grow-0 basis-1/2 md:basis-1/3 lg:basis-1/5"><a href="/products/2/mini-power-bank-5000mah" class="group flex h-full flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-3 transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary-500 dark:border-neutral-800 dark:bg-neutral-900">
+        <div role="group" aria-roledescription="διαφάνεια" data-slot="item" class="ps-4 min-w-0 shrink-0 grow-0 basis-1/2 md:basis-1/3 lg:basis-1/5"><a href="/products/2/mini-power-bank-5000mah" class="group flex h-full flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-3 transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary-500 dark:border-neutral-800 dark:bg-neutral-900">
             <div class="relative aspect-square overflow-hidden rounded-md bg-neutral-50 dark:bg-neutral-800"><img width="280" height="280" data-nuxt-img="" sizes="200px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/200/200/contain/entropy/ffffff/0/80.avif 200w, https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/80.avif 400w" alt="Mini Power Bank 5000mAh" loading="lazy" class="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105" style="aspect-ratio: 280 / 280;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/80.avif"></div>
             <p class="line-clamp-2 text-sm font-medium text-primary-950 dark:text-primary-50">Mini Power Bank 5000mAh</p>
             <p class="text-sm font-semibold text-secondary-600 dark:text-secondary-400">16,63&nbsp;€</p>
@@ -913,7 +913,7 @@ exports[`webside frozen render > signed in > account chrome 1`] = `
                           <!--v-if-->
                           <!--v-if-->
                         </a></li>
-                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Switch to dark mode" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
+                      <li class="relative grid max-w-6 items-center justify-center justify-items-center"><button type="button" data-slot="base" aria-label="Αλλαγή σε σκοτεινή λειτουργία" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-sm gap-1.5 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer p-0 hover:bg-transparent w-6"><span class="iconify i-lucide:moon shrink-0 size-6 hidden dark:inline-block" aria-hidden="true"></span><span class="iconify i-lucide:sun shrink-0 size-6 dark:hidden" aria-hidden="true"></span>
                           <!--v-if-->
                           <!--v-if-->
                         </button></li>
@@ -1237,7 +1237,7 @@ exports[`webside frozen render > signed in > account orders 1`] = `
               </div>
             </div>
             <!---->
-            <div data-orientation="horizontal" role="separator" data-slot="root" class="flex items-center align-center text-center w-full flex-row">
+            <div data-orientation="horizontal" role="separator" data-slot="root" class="flex items-center text-center w-full flex-row">
               <!--v-if-->
               <div data-slot="border" class="border-default w-full border-solid border-t"></div>
               <!--v-if-->
@@ -1272,7 +1272,7 @@ exports[`webside frozen render > signed in > account orders 1`] = `
               <!--v-if-->
             </div>
             <!---->
-            <div data-orientation="horizontal" role="separator" data-slot="root" class="flex items-center align-center text-center w-full flex-row">
+            <div data-orientation="horizontal" role="separator" data-slot="root" class="flex items-center text-center w-full flex-row">
               <!--v-if-->
               <div data-slot="border" class="border-default w-full border-solid border-t"></div>
               <!--v-if-->
@@ -1610,7 +1610,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
     <form id="accountSettingsForm" method="post" class="flex w-full flex-col gap-4 rounded bg-primary-100 p-4 md:grid md:grid-cols-2 dark:bg-primary-900">
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Όνομα</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Όνομα</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1624,7 +1624,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Επώνυμο</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Επώνυμο</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1638,7 +1638,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Τηλέφωνο</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Τηλέφωνο</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1646,7 +1646,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
         <div class="relative mt-1">
           <div data-orientation="horizontal" class="relative inline-flex -space-x-px w-full">
             <!---->
-            <!----><button type="button" tabindex="0" aria-label="Κωδικός χώρας τηλεφώνου:  ()" aria-haspopup="listbox" aria-expanded="false" aria-controls="" data-state="closed" aria-disabled="false" dir="ltr" id="ID" data-slot="base" class="relative group rounded-md inline-flex items-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors not-only:first:rounded-e-none not-only:last:rounded-s-none not-last:not-first:rounded-none focus-visible:z-[1] px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented hover:bg-elevated disabled:bg-default outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary w-auto shrink-0 pe-8" aria-invalid="false">
+            <!----><button type="button" tabindex="0" aria-label="Κωδικός χώρας τηλεφώνου:  ()" aria-haspopup="listbox" aria-expanded="false" aria-controls="select-menu-listbox-v-0-0-0-5" data-state="closed" aria-disabled="false" dir="ltr" id="ID" data-slot="base" class="relative group rounded-md inline-flex items-center disabled:cursor-not-allowed disabled:opacity-75 transition-colors not-only:first:rounded-e-none not-only:last:rounded-s-none not-last:not-first:rounded-none focus-visible:z-[1] px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented hover:bg-elevated disabled:bg-default outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary w-auto shrink-0 pe-8" aria-invalid="false">
               <!--v-if--><span data-slot="placeholder" class="truncate text-muted hidden">&nbsp;</span><span data-slot="trailing" class="absolute inset-y-0 end-0 flex items-center pe-3"><span class="iconify i-lucide:chevron-down shrink-0 text-dimmed size-6" aria-hidden="true" data-slot="trailingIcon"></span></span>
             </button>
             <!--teleport start-->
@@ -1662,7 +1662,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Πόλη</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Πόλη</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1676,7 +1676,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Ταχυδρομικός κώδικας</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Ταχυδρομικός κώδικας</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1691,7 +1691,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Διεύθυνση</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Διεύθυνση</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1705,7 +1705,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Τοποθεσία</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Τοποθεσία</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1719,7 +1719,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Ημερομηνία γέννησης</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Ημερομηνία γέννησης</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1735,7 +1735,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Χώρα</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Χώρα</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1753,7 +1753,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Περιοχή</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Περιοχή</label>
             <!--v-if-->
           </div>
           <!--v-if-->
@@ -1771,7 +1771,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
       </div>
       <div data-orientation="vertical" data-slot="root" class="text-sm">
         <div data-slot="wrapper" class="">
-          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default">Γλώσσα</label>
+          <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default">Γλώσσα</label>
             <!--v-if-->
           </div>
           <p id="ID" data-slot="description" class="text-toned">Χρησιμοποιείται για email και μηνύματα διεπαφής.</p>
@@ -1812,7 +1812,7 @@ exports[`webside frozen render > signed in > re-authenticate 1`] = `
         <form class="space-y-4">
           <div data-orientation="vertical" data-slot="root" class="text-sm">
             <div data-slot="wrapper" class="">
-              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός Πρόσβασης</label>
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός Πρόσβασης</label>
                 <!--v-if-->
               </div>
               <!--v-if-->
@@ -1855,7 +1855,7 @@ exports[`webside frozen render > signup form 1`] = `
           <div class="grid content-evenly items-center justify-center gap-1"><img width="140" height="140" data-nuxt-img="" srcset="/_ipx/q_90&amp;s_140x140/img/logo-border.png 1x, /_ipx/q_90&amp;s_280x280/img/logo-border.png 2x" alt="" src="/_ipx/q_90&amp;s_140x140/img/logo-border.png"><span class="sr-only">Λογότυπο Webside</span></div>
           <div data-orientation="vertical" data-slot="root" class="text-base">
             <div data-slot="wrapper" class="">
-              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Email</label>
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Email</label>
                 <!--v-if-->
               </div>
               <!--v-if-->
@@ -1869,7 +1869,7 @@ exports[`webside frozen render > signup form 1`] = `
           </div>
           <div data-orientation="vertical" data-slot="root" class="text-base">
             <div data-slot="wrapper" class="">
-              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός πρόσβασης</label>
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός πρόσβασης</label>
                 <!--v-if-->
               </div>
               <!--v-if-->
@@ -1885,7 +1885,7 @@ exports[`webside frozen render > signup form 1`] = `
           </div>
           <div data-orientation="vertical" data-slot="root" class="text-base">
             <div data-slot="wrapper" class="">
-              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Επιβεβαίωση κωδικού πρόσβασης</label>
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Επιβεβαίωση κωδικού πρόσβασης</label>
                 <!--v-if-->
               </div>
               <!--v-if-->

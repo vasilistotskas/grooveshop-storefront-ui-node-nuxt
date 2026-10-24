@@ -51,7 +51,7 @@ const nitroShim = path('./test/helpers/nitro/runtime.ts')
 const serverAlias = [
   ...Object.entries(alias).map(([find, replacement]) => ({ find, replacement })),
   { find: /^nuxt\/server$/, replacement: nitroServerRuntime },
-  { find: /^nitropack\/runtime(?:\/internal\/route-rules)?$/, replacement: nitroShim },
+  { find: /^(?:nitropack\/runtime|#internal\/nuxt\/route-rules\.mjs)$/, replacement: nitroShim },
 ]
 
 /**
