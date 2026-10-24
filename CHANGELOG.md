@@ -1,3 +1,10 @@
+## [3.257.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.3...v3.257.4) (2026-10-24)
+
+
+### Bug Fixes
+
+* **warm-cache:** ask for a payload only where Nuxt extracts one ([#212](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/212)) ([1bb10a6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1bb10a6d8c9756944bd42d093e1cee3422d89ba9))
+
 ## [3.257.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.2...v3.257.3) (2026-10-23)
 
 
