@@ -28,6 +28,13 @@ vi.mock('~/components/Product/NotifyMe.vue', () => ({
     template: '<div data-testid="notify" :data-kind="kind" :data-sold-out="String(soldOut)" />',
   },
 }))
+// The price trend loads its own history; its own spec covers it.
+vi.mock('~/components/Product/PriceTrend.vue', () => ({
+  default: {
+    props: { productId: Number, productName: String },
+    template: '<div data-testid="price-trend" :data-product-id="productId" />',
+  },
+}))
 
 const { route } = vi.hoisted(() => ({ route: { params: { id: '123', slug: 'bluetooth-speaker' } } }))
 mockNuxtImport('useRoute', () => () => ({
