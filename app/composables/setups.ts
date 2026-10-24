@@ -135,6 +135,10 @@ export function setupPageHeader() {
 
   useHead(() => ({
     title: title.value,
+    // The store's name once, never after a title that already ends with
+    // it (`storeTitle`). A page that wants its bare title sets its own
+    // `titleTemplate: '%s'`, which wins over this one.
+    titleTemplate: (pageTitle?: string) => storeTitle(pageTitle, siteConfig.name, publicConfig.titleSeparator),
     templateParams: {
       siteName: siteConfig.name,
       separator: publicConfig.titleSeparator,
