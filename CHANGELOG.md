@@ -1,3 +1,10 @@
+## [3.259.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.0...v3.259.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* **product:** the price trend in the store's accent, its axis from the lowest price ([#222](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/222)) ([aa599f4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aa599f4c912316690ffdc016e6a7fb355955db59))
+
 # [3.259.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.258.0...v3.259.0) (2026-10-24)
 
 
