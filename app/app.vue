@@ -205,9 +205,10 @@ useSchemaOrg([
   websiteNode,
   organizationNode,
 ])
+const shareImage = computed(() => shareImageMeta(siteLogo.value, siteName.value))
 useSeoMeta({
-  ogImage: siteLogo,
-  ogImageAlt: siteName,
+  ogImage: () => shareImage.value.ogImage,
+  ogImageAlt: () => shareImage.value.ogImageAlt,
 })
 
 // Per-tenant theme-color: matches manifest.webmanifest.get.ts which
