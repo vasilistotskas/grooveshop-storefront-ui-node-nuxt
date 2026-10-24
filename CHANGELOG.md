@@ -1,3 +1,10 @@
+# [3.259.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.258.0...v3.259.0) (2026-10-24)
+
+
+### Features
+
+* **product:** a price trend on the product page ([#221](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/221)) ([edbc311](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/edbc311af16ffdcfcabb64fa64643199f0079cfe))
+
 # [3.258.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.11...v3.258.0) (2026-10-24)
 
 
