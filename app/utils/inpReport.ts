@@ -59,6 +59,83 @@ function scriptInvoker(invoker: string, pageOrigin: string): string {
   return /^https?:\/\//.test(invoker) ? scriptSource(invoker, pageOrigin) : invoker
 }
 
+/** web-vitals' bound on a selector (its `getSelector`'s `MAX_LEN`), which the ingest enforces too. */
+const MAX_SELECTOR_LENGTH = 100
+
+/** The controls a press is meant for, so a tap on a label inside one names the control. */
+const CONTROL = 'button, a, summary, input, select, textarea, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"], [role="checkbox"], [role="radio"]'
+
+/**
+ * An element as web-vitals' selectors describe one: tag names, `#id`s and
+ * classes joined by `>`, nearest element last, at most 100 characters, up
+ * to the first ancestor with an id. Never text or an attribute value.
+ *
+ * The 100 are a hard limit here, unlike in web-vitals: the ingest drops a
+ * longer target, so a nearest element whose classes alone pass it keeps
+ * its tag and the classes that fit.
+ */
+export function elementSelector(element: Element): string {
+  let selector = ''
+  let node: Element | null = element
+  while (node) {
+    const part = node.id
+      ? `#${node.id}`
+      : [node.nodeName.toLowerCase(), ...[...node.classList].sort()].join('.')
+    if (selector.length + part.length > MAX_SELECTOR_LENGTH - 1) return selector || fitted(part)
+    selector = selector ? `${part}>${selector}` : part
+    if (node.id) break
+    node = node.parentElement
+  }
+  return selector
+}
+
+/** A selector part cut to the limit at a class boundary: `button.a.b` loses `.b` before `.a`. */
+function fitted(part: string): string {
+  let out = ''
+  for (const piece of part.split('.')) {
+    const next = out ? `${out}.${piece}` : piece
+    if (next.length > MAX_SELECTOR_LENGTH) break
+    out = next
+  }
+  return out
+}
+
+/** A press long before an interaction's first event is not what started it. */
+const PRESS_MATCH_MS = 2000
+
+/**
+ * The element each recent press landed on, noted while it is still in the
+ * page.
+ *
+ * Chrome gives an interaction's event entries a `target` only while that
+ * element is connected, so a tap that replaces its own button (a favourite
+ * toggle swapping its icon, a link that navigates, an overlay that remounts)
+ * reaches web-vitals with no element and reports no `interactionTarget`.
+ * Those were most of webside's slow product-page taps (storefront #156).
+ * Noting the control at `pointerdown` / `keydown`, when it is still there,
+ * lets the report name it anyway.
+ */
+export function createPressLog(size = 20) {
+  const presses: { time: number, target: string }[] = []
+  return {
+    /** A capture-phase `pointerdown` / `keydown` listener. */
+    record(event: Event) {
+      if (!(event.target instanceof Element)) return
+      presses.push({ time: event.timeStamp, target: elementSelector(event.target.closest(CONTROL) ?? event.target) })
+      if (presses.length > size) presses.shift()
+    },
+    /** The last press at or before `time` (an interaction's start), if it was recent. */
+    targetAt(time: number | undefined): string | undefined {
+      if (time === undefined) return undefined
+      for (let i = presses.length - 1; i >= 0; i--) {
+        const press = presses[i]!
+        if (press.time <= time + 1) return time - press.time <= PRESS_MATCH_MS ? press.target : undefined
+      }
+      return undefined
+    },
+  }
+}
+
 const ms = (value: number) => Math.round(value)
 const optionalMs = (value: number | undefined) => value === undefined ? undefined : ms(value)
 
@@ -66,20 +143,24 @@ const optionalMs = (value: number | undefined) => value === undefined ? undefine
  * The report for one page's INP, built from web-vitals' attribution. The
  * phase timings are rounded to whole milliseconds; the long-animation-frame
  * fields are absent where the browser has no LoAF API (Safari, Firefox).
+ * `pressedTarget` (`createPressLog`) names the element when web-vitals
+ * could not, because it had left the page.
  */
 export function buildInpReport(
   metric: INPMetricWithAttribution,
   route: string | undefined,
   pageOrigin: string,
+  pressedTarget?: string,
 ): InpReport {
   const { attribution } = metric
   const longest = attribution.longestScript
+  const target = attribution.interactionTarget || pressedTarget
   return {
     value: ms(metric.value),
     rating: metric.rating,
     ...(route ? { route } : {}),
     ...(attribution.interactionType ? { interactionType: attribution.interactionType } : {}),
-    ...(attribution.interactionTarget ? { target: attribution.interactionTarget } : {}),
+    ...(target ? { target } : {}),
     loadState: attribution.loadState,
     inputDelay: ms(attribution.inputDelay),
     processingDuration: ms(attribution.processingDuration),
