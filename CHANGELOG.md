@@ -1,3 +1,10 @@
+## [3.260.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.0...v3.260.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* **product:** the prior price names the 30 days before the reduction ([#226](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/226)) ([77b862d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/77b862d472885039919099d059d3b8cdff6d92e8))
+
 # [3.260.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.3...v3.260.0) (2026-10-24)
 
 
