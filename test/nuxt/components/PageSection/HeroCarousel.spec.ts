@@ -101,7 +101,7 @@ describe('PageSectionHeroCarousel', () => {
       const chip = wrapper.get('a[href="/products/7/power-bank"]')
       expect(chip.text()).toContain(n(44, 'currency'))
       expect(chip.get('s').text()).toBe(n(60, 'currency'))
-      expect(chip.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+      expect(chip.text()).toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
     })
 
     it('strikes nothing on a markdown that has no prior price', async () => {

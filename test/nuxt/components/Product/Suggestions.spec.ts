@@ -134,7 +134,7 @@ describe('webside Product/Suggestions', () => {
 
     const [pot, soil] = wrapper.findAll('article')
     expect(soil!.find('s').text()).toBe(money(80))
-    expect(soil!.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(soil!.text()).toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
     expect(soil!.find('.font-bold').text()).toBe(money(62))
     expect(pot!.find('s').exists()).toBe(false)
     expect(pot!.find('.font-bold').text()).toBe(money(POT.finalPrice))

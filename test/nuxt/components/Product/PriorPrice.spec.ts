@@ -3,7 +3,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PriorPrice from '~/components/Product/PriorPrice.vue'
 
 describe('Product/PriorPrice', () => {
-  it('strikes the price and names it as the lowest of the last 30 days', async () => {
+  it('strikes the price and names it as the lowest of the 30 days before the reduction', async () => {
     const wrapper = await mountSuspended(PriorPrice, {
       props: { price: 80 },
       attrs: { class: 'text-muted' },
@@ -12,6 +12,6 @@ describe('Product/PriorPrice', () => {
 
     expect(wrapper.get('s').text()).toBe(useNuxtApp().$i18n.n(80, 'currency'))
     expect(wrapper.get('s').classes()).toContain('text-muted')
-    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
   })
 })

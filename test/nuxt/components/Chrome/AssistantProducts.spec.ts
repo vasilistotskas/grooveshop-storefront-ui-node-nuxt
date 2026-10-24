@@ -79,7 +79,7 @@ describe('Chrome/AssistantProducts', () => {
 
     expect(wrapper.get('li s').text()).toBe(money(124))
     expect(wrapper.text()).toContain(money(90))
-    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
   })
 
   it('strikes the prior price of an announced reduction, named as the lowest of 30 days', async () => {
@@ -89,7 +89,7 @@ describe('Chrome/AssistantProducts', () => {
     await vi.waitFor(() => expect(wrapper.find('li h4').exists()).toBe(true))
 
     expect(wrapper.get('li s').text()).toBe(money(150))
-    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
   })
 
   it('strikes nothing on a markdown that has no prior price', async () => {

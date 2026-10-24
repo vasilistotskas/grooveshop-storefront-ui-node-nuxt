@@ -148,7 +148,7 @@ describe('Product/Card', () => {
     expect(pricesOf(wrapper)).toEqual([money(124), money(150)])
     // The strike-through IS the contract: it is what says "was".
     expect(wrapper.get('s').text()).toBe(money(150))
-    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
   })
 
   it('shows the effective price, which counts an unconditional promotion finalPrice ignores', async () => {
@@ -163,7 +163,7 @@ describe('Product/Card', () => {
 
     expect(pricesOf(wrapper)).toEqual([money(114)])
     expect(wrapper.find('s').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
   })
 
   it('strikes nothing through on an undiscounted product', async () => {
@@ -180,7 +180,7 @@ describe('Product/Card', () => {
 
     expect(pricesOf(wrapper)).toEqual([money(40), money(62)])
     expect(wrapper.get('s').text()).toBe(money(62))
-    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
   })
 
   it('ignores a wholesale price that is not lower than retail', async () => {

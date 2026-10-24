@@ -23,7 +23,7 @@ const { t, n } = useI18n()
 
 <i18n lang="yaml">
 el:
-  label: Χαμηλότερη τιμή 30 ημερών
+  label: Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση
 en:
-  label: Lowest price in the last 30 days
+  label: Lowest price in the 30 days before the reduction
 </i18n>

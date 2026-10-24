@@ -103,7 +103,7 @@ describe.each([
     await flushPromises()
 
     expect(wrapper.findAll('s').map(node => node.text())).toEqual([money(80)])
-    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
     expect(wrapper.text()).toContain(money(62))
     wrapper.unmount()
   })
@@ -124,7 +124,7 @@ describe.each([
     await flushPromises()
 
     expect(wrapper.find('s').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών')
+    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
     expect(wrapper.text()).toContain(money(57))
     wrapper.unmount()
   })
