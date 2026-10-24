@@ -154,3 +154,23 @@ describe('buildInpReport', () => {
     expect(JSON.stringify(report)).not.toContain('G-GGKMZ8YLNN')
   })
 })
+
+describe('a target web-vitals could not see', () => {
+  it('takes the pressed control when the element had left the page', () => {
+    const report = buildInpReport(metric({ attribution: { interactionTarget: '' } }), undefined, ORIGIN, 'div>button.fav')
+
+    expect(report.target).toBe('div>button.fav')
+  })
+
+  it('keeps web-vitals\' own target whenever it has one', () => {
+    const report = buildInpReport(metric(), undefined, ORIGIN, 'div>button.fav')
+
+    expect(report.target).toBe('div.justify-between>button.rounded-md')
+  })
+
+  it('reports no target when neither knows one', () => {
+    const report = buildInpReport(metric({ attribution: { interactionTarget: '' } }), undefined, ORIGIN)
+
+    expect(report).not.toHaveProperty('target')
+  })
+})

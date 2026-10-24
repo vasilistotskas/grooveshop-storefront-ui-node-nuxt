@@ -19,7 +19,9 @@
  * The library loads once the app is ready, in a chunk of its own, so it
  * adds nothing to the entry chunk the page parses before hydrating. It
  * reads the browser's buffered event and long-animation-frame entries, so
- * a slow interaction from before it loaded is still seen.
+ * a slow interaction from before it loaded is still seen. Presses are noted
+ * from the start (`createPressLog`), for an interaction whose element is
+ * gone by the time web-vitals reads it.
  */
 export default defineNuxtPlugin(() => {
   const router = useRouter()
@@ -27,13 +29,16 @@ export default defineNuxtPlugin(() => {
   router.afterEach((to) => {
     spans.push({ since: performance.now(), name: String(to.name ?? '') })
   })
+  const presses = createPressLog()
+  useEventListener(window, ['pointerdown', 'keydown'], presses.record, { capture: true, passive: true })
 
   onNuxtReady(async () => {
     const { onINP } = await import('web-vitals/attribution')
     onINP((metric) => {
       if (!INP_REPORTED_RATINGS.has(metric.rating)) return
       const route = routeAt(spans, metric.attribution.interactionTime)
-      log.warn({ action: 'client:inp', inp: buildInpReport(metric, route, window.location.origin) })
+      const pressed = presses.targetAt(metric.attribution.interactionTime)
+      log.warn({ action: 'client:inp', inp: buildInpReport(metric, route, window.location.origin, pressed) })
     })
   })
 })
