@@ -23,6 +23,7 @@ const attr = (attributeId: number, attributeValueId: number) => ({
   id: attributeId * 100 + attributeValueId,
   attributeId,
   attributeName: attributeId === COLOUR ? 'Χρώμα' : 'Μνήμη',
+  isVariant: true,
   attributeValueId,
   value: valueName[attributeValueId]!,
   createdAt: FIXTURE_TIMESTAMP,
@@ -40,6 +41,7 @@ const variant = (id: number, slug: string, finalPrice: number, colour: number, m
   effectivePrice: finalPrice,
   priorPrice: null,
   announcedDiscountPercent: null,
+  reductionStartedAt: null,
   mainImagePath: `media/test-tenant/uploads/${colour === WHITE ? 'white' : 'black'}.jpg`,
   attributeValues: [attr(COLOUR, colour), attr(MEMORY, memory)],
 })

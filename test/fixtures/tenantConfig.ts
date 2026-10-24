@@ -94,6 +94,7 @@ export function validTenantConfig(
       b2bInvoicing: true,
       contactAttachments: true,
       chatWidget: true,
+      priceHistory: true,
     },
     // The store's preferences as Django resolves them: each one's
     // declared value (`settings.EXTRA_SETTINGS_DEFAULTS`).

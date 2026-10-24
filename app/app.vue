@@ -124,6 +124,24 @@ const organizationType = computed(() =>
     : 'Organization',
 )
 
+const localePath = useLocalePath()
+const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true, withBase: true })
+
+// The store's shipping and return policies, from what it really offers
+// (Google's organization-level merchant policies). The return policy is
+// linked only once the store has published it.
+const { published: publishedContentPages } = useFooterContentPages()
+const { data: shippingPolicy } = useApi('/api/shipping/policy', { key: 'shipping-policy' })
+const shippingServices = computed(() => {
+  const services = shippingServicesSchema(shippingPolicy.value ?? [])
+  return services.length > 0 ? services : undefined
+})
+const merchantReturnPolicy = computed(() => merchantReturnPolicySchema(
+  publishedContentPages.value.has(LEGAL_ROUTE_SLUGS['return-policy'])
+    ? resolveSitePath(localePath('return-policy')).value
+    : undefined,
+))
+
 // The physical-store extras attach AFTER defineOrganization: their
 // values are refs of objects, which unhead's deep resolve unwraps at
 // render but the definer's input type only admits at leaf positions.
@@ -143,6 +161,8 @@ const organizationNode = {
   'address': postalAddress,
   'geo': geo,
   'openingHoursSpecification': openingHoursSpecification,
+  'hasShippingService': shippingServices,
+  'hasMerchantReturnPolicy': merchantReturnPolicy,
 }
 
 // The WebSite and WebPage nodes are ours, not nuxt-schema-org's
@@ -154,8 +174,6 @@ const organizationNode = {
 // module's shape), related to the others in the languages THIS store
 // serves. A non-default WebSite is not the `#website` unhead links
 // pages and publishers to by default, so both links are explicit.
-const localePath = useLocalePath()
-const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true, withBase: true })
 const websiteIdFor = (code: SupportedLocale) =>
   `${resolveSitePath(localePath('index', code)).value}#website`
 const currentLocale = computed(() => locale.value as SupportedLocale)

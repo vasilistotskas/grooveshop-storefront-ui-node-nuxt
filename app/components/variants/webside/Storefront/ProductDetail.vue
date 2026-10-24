@@ -352,15 +352,6 @@ const ogImage = computed(() => {
   })
 })
 
-const productAvailability = computed(() => {
-  const stock = productStock.value
-  if (stock === 0) return 'https://schema.org/OutOfStock'
-  if (stock <= 5) return 'https://schema.org/LimitedAvailability'
-  return 'https://schema.org/InStock'
-})
-
-const productCondition = computed(() => 'https://schema.org/NewCondition')
-
 const favouriteId = computed(() => {
   if (!product.value) return
   const favourite = getFavouriteIdByProductId(product.value?.id)
@@ -523,87 +514,23 @@ useSchemaOrg([
   // review) may no longer be per-property getters since the
   // @unhead/schema-org v3 definer-type rewrite — reactive nodes must be
   // a single computed() over plain values instead.
-  defineProduct(computed(() => {
+  defineProduct(computed(() => productSchemaOrg({
+    product: product.value!,
+    name: extractTranslated(product.value, 'name', locale.value) || '',
+    description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
+    url: canonicalUrl.value,
     // The catalogue feeds' variant (SEARCH_IMAGE_VARIANT): one URL per image
     // across the structured data, the sitemap and the Google / Meta feeds.
-    const images = (productImages.value ?? [])
+    imageUrls: (productImages.value ?? [])
       .map(img => img.mainImagePath)
       .filter((path): path is string => Boolean(path))
-      .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT))
-
-    const priceValidUntilDate = new Date()
-    priceValidUntilDate.setDate(priceValidUntilDate.getDate() + 30)
-
-    const reviews = productReviews.value?.results ?? []
-
-    return {
-      name: extractTranslated(product.value, 'name', locale.value) || '',
-      description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
-      sku: product.value?.uuid || '',
-      productID: product.value?.id?.toString() || '',
-
-      image: images.length > 0 ? images : undefined,
-
-      url: canonicalUrl.value,
-
-      brand: {
-        '@type': 'Brand',
-        'name': siteConfig.name,
-      },
-
-      offers: {
-        '@type': 'Offer' as const,
-        'price': (product.value ? productCurrentPrice(product.value) : 0).toFixed(2),
-        'priceCurrency': tenantStore.defaultCurrency,
-        // A strikethrough price is an announcement: only the prior price
-        // of a reduction that may be announced.
-        'priceSpecification': product.value && productAnnouncement(product.value)
-          ? [{
-              '@type': 'UnitPriceSpecification' as const,
-              'priceType': 'https://schema.org/StrikethroughPrice',
-              'price': productAnnouncement(product.value)!.priorPrice.toFixed(2),
-              'priceCurrency': tenantStore.defaultCurrency,
-            }]
-          : undefined,
-        'availability': productAvailability.value,
-        'itemCondition': productCondition.value,
-        'url': canonicalUrl.value,
-        'priceValidUntil': priceValidUntilDate.toISOString().split('T')[0],
-        'seller': {
-          '@type': 'Organization',
-          'name': siteConfig.name,
-        },
-      },
-
-      aggregateRating: productReviewsEnabled.value && product.value?.reviewCount && product.value.reviewCount > 0
-        ? {
-            '@type': 'AggregateRating' as const,
-            'ratingValue': product.value.reviewAverage || 0,
-            'reviewCount': product.value.reviewCount,
-            'bestRating': 10,
-            'worstRating': 1,
-          }
-        : undefined,
-
-      review: reviews.length > 0
-        ? reviews.slice(0, 5).map(r => ({
-            '@type': 'Review' as const,
-            'author': {
-              '@type': 'Person' as const,
-              'name': reviewerName(r.user) ?? t('reviews.anonymous'),
-            },
-            'reviewRating': {
-              '@type': 'Rating' as const,
-              'ratingValue': r.rate,
-              'bestRating': 10,
-              'worstRating': 1,
-            },
-            'datePublished': r.publishedAt || r.createdAt,
-            'reviewBody': extractTranslated(r, 'comment', locale.value) || undefined,
-          }))
-        : undefined,
-    }
-  })),
+      .map(path => buildMediaStreamImageUrl(mediaStreamBaseUrl.value, path, SEARCH_IMAGE_VARIANT)),
+    storeName: siteConfig.name,
+    currency: tenantStore.defaultCurrency,
+    reviews: productReviewsEnabled.value ? (productReviews.value?.results ?? []) : null,
+    anonymousReviewer: t('reviews.anonymous'),
+    reviewComment: review => extractTranslated(review, 'comment', locale.value),
+  }))),
 
   defineBreadcrumb(computed(() => ({
     itemListElement: [

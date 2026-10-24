@@ -33090,6 +33090,103 @@
                 }
             }
         },
+        "/api/v1/product/{id}/price-history": {
+            "get": {
+                "operationId": "listProductPriceHistory",
+                "description": "Κάθε περίοδος κατά την οποία η τιμή του προϊόντος για τον καταναλωτή (με ΦΠΑ, με εκπτώσεις που δεν απαιτούν τίποτα από το καλάθι) ήταν σταθερή, από την παλαιότερη. Η ισχύουσα περίοδος δεν έχει ημερομηνία λήξης.",
+                "summary": "Λήψη ιστορικού τιμών προϊόντος",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Product ID",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductPriceHistory"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/product/{id}/reviews": {
             "get": {
                 "operationId": "listProductReviews",
@@ -45423,6 +45520,37 @@
                 }
             }
         },
+        "/api/v1/shipping/policy": {
+            "get": {
+                "operationId": "getShippingPolicy",
+                "description": "One row per (provider, kind, country) the store actually ships: the rate's price, free-shipping threshold, delivery estimate and weight cap. Eligibility is the checkout's own, so a row appears here exactly when checkout would offer it to that country.",
+                "summary": "The store's shipping policy",
+                "tags": [
+                    "Shipping"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ShippingPolicyEntry"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/shipping/providers": {
             "get": {
                 "operationId": "api_v1_shipping_providers_list",
@@ -54822,6 +54950,12 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "reductionStartedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "productId": {
                         "type": "integer",
                         "description": "ID προϊόντος"
@@ -54858,7 +54992,8 @@
                     "inStock",
                     "name",
                     "priorPrice",
-                    "productId"
+                    "productId",
+                    "reductionStartedAt"
                 ]
             },
             "AgentProfile": {
@@ -68197,8 +68332,21 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "reductionStartedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "mainImagePath": {
                         "type": "string",
+                        "readOnly": true
+                    },
+                    "imagePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "readOnly": true
                     },
                     "reviewAverage": {
@@ -68251,6 +68399,11 @@
                                 "$ref": "#/components/schemas/NullEnum"
                             }
                         ]
+                    },
+                    "variantGroupTitle": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
                     }
                 },
                 "required": [
@@ -68263,11 +68416,13 @@
                     "effectivePrice",
                     "finalPrice",
                     "id",
+                    "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
                     "price",
                     "priorPrice",
+                    "reductionStartedAt",
                     "reviewAverage",
                     "reviewCount",
                     "slug",
@@ -68275,6 +68430,7 @@
                     "updatedAt",
                     "uuid",
                     "variantGroup",
+                    "variantGroupTitle",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -68424,6 +68580,10 @@
                         "description": "Return translated attribute name.",
                         "readOnly": true
                     },
+                    "isVariant": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
                     "attributeValueId": {
                         "type": "integer"
                     },
@@ -68445,6 +68605,7 @@
                     "attributeValueId",
                     "createdAt",
                     "id",
+                    "isVariant",
                     "value"
                 ]
             },
@@ -69240,8 +69401,21 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "reductionStartedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "mainImagePath": {
                         "type": "string",
+                        "readOnly": true
+                    },
+                    "imagePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "readOnly": true
                     },
                     "reviewAverage": {
@@ -69295,6 +69469,11 @@
                             }
                         ]
                     },
+                    "variantGroupTitle": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
                     "priceDropAlertsEnabled": {
                         "type": "boolean",
                         "readOnly": true,
@@ -69312,12 +69491,14 @@
                     "effectivePrice",
                     "finalPrice",
                     "id",
+                    "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
+                    "reductionStartedAt",
                     "reviewAverage",
                     "reviewCount",
                     "slug",
@@ -69325,6 +69506,7 @@
                     "updatedAt",
                     "uuid",
                     "variantGroup",
+                    "variantGroupTitle",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -69506,8 +69688,21 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "reductionStartedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "mainImagePath": {
                         "type": "string",
+                        "readOnly": true
+                    },
+                    "imagePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "readOnly": true
                     },
                     "reviewAverage": {
@@ -69561,6 +69756,11 @@
                             }
                         ]
                     },
+                    "variantGroupTitle": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
                     "priceDropAlertsEnabled": {
                         "type": "boolean",
                         "readOnly": true,
@@ -69578,12 +69778,14 @@
                     "effectivePrice",
                     "finalPrice",
                     "id",
+                    "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
                     "price",
                     "priceDropAlertsEnabled",
                     "priorPrice",
+                    "reductionStartedAt",
                     "reviewAverage",
                     "reviewCount",
                     "slug",
@@ -69591,6 +69793,7 @@
                     "updatedAt",
                     "uuid",
                     "variantGroup",
+                    "variantGroupTitle",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -70254,6 +70457,61 @@
                     "tierMultiplierApplied"
                 ]
             },
+            "ProductPriceHistory": {
+                "type": "object",
+                "description": "Payload for ``GET /product/{id}/price-history``: every spell,\noldest first, so a client filters its own ranges.",
+                "properties": {
+                    "currency": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "spells": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductPriceSpell"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "currency",
+                    "spells"
+                ]
+            },
+            "ProductPriceSpell": {
+                "type": "object",
+                "description": "One period the consumer gross unit price was constant; ``valid_to``\nis ``null`` for the price in force now.",
+                "properties": {
+                    "validFrom": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Ισχύει από"
+                    },
+                    "validTo": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Ισχύει έως",
+                        "description": "Κενό όσο αυτή είναι η τρέχουσα τιμή."
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "price",
+                    "validFrom",
+                    "validTo"
+                ]
+            },
             "ProductPromotion": {
                 "type": "object",
                 "description": "A public offer, plus why it is relevant to one product.\n\nEverything the ``/offers`` card renders, so the storefront has ONE\noffer shape and one headline/conditions formatter across the offers\npage, the product panel and the checkout picker — plus ``relation``,\nwhich the product panel needs to phrase the claim (\"this product is\n20% off\" vs \"buy two and this one is your gift\").",
@@ -70631,8 +70889,21 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "reductionStartedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "mainImagePath": {
                         "type": "string",
+                        "readOnly": true
+                    },
+                    "imagePaths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "readOnly": true
                     },
                     "reviewAverage": {
@@ -70686,6 +70957,11 @@
                             }
                         ]
                     },
+                    "variantGroupTitle": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
                     "priceDropAlertsEnabled": {
                         "type": "boolean",
                         "readOnly": true,
@@ -70710,6 +70986,7 @@
                     "effectivePrice",
                     "finalPrice",
                     "id",
+                    "imagePaths",
                     "likesCount",
                     "lowStockThreshold",
                     "mainImagePath",
@@ -70717,6 +70994,7 @@
                     "priceDropAlertsEnabled",
                     "priorPrice",
                     "ratingDistribution",
+                    "reductionStartedAt",
                     "reviewAverage",
                     "reviewCount",
                     "slug",
@@ -70724,6 +71002,7 @@
                     "updatedAt",
                     "uuid",
                     "variantGroup",
+                    "variantGroupTitle",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -71113,6 +71392,12 @@
                         "readOnly": true,
                         "nullable": true
                     },
+                    "reductionStartedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "mainImagePath": {
                         "type": "string",
                         "readOnly": true
@@ -71136,6 +71421,7 @@
                     "mainImagePath",
                     "price",
                     "priorPrice",
+                    "reductionStartedAt",
                     "slug",
                     "stock",
                     "translations"
@@ -72457,6 +72743,77 @@
                     "key"
                 ]
             },
+            "ShippingPolicyEntry": {
+                "type": "object",
+                "description": "One (provider, kind, country) the store ships.",
+                "properties": {
+                    "countryCode": {
+                        "type": "string",
+                        "description": "Χώρα προορισμού (ISO 3166-1 alpha-2).",
+                        "maxLength": 2
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/ShippingKind"
+                    },
+                    "providerCode": {
+                        "type": "string"
+                    },
+                    "providerName": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "description": "Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, χώρα, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Νόμισμα των ``price`` και ``free_shipping_threshold``.",
+                        "maxLength": 3
+                    },
+                    "freeShippingThreshold": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true,
+                        "description": "Υποσύνολο προϊόντων, μετά τις εκπτώσεις και χωρίς τα μεταφορικά, από το οποίο ο συνδυασμός αποστέλλεται δωρεάν. Null όταν δεν γίνεται ποτέ δωρεάν."
+                    },
+                    "deliveryDaysMin": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "Η ταχύτερη παράδοση σε εργάσιμες ημέρες μετά την αποστολή, ή null όταν η τιμή αποστολής δεν διαφημίζει εκτίμηση."
+                    },
+                    "deliveryDaysMax": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "Η πιο αργή παράδοση σε εργάσιμες ημέρες μετά την αποστολή· null ακριβώς όταν είναι και το ``delivery_days_min``."
+                    },
+                    "maxWeightGrams": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "Το βαρύτερο δέμα που μεταφέρει η τιμή αποστολής, ή null όταν δεν υπάρχει όριο."
+                    }
+                },
+                "required": [
+                    "countryCode",
+                    "currency",
+                    "deliveryDaysMax",
+                    "deliveryDaysMin",
+                    "freeShippingThreshold",
+                    "kind",
+                    "maxWeightGrams",
+                    "price",
+                    "providerCode",
+                    "providerName"
+                ]
+            },
             "ShippingProvider": {
                 "type": "object",
                 "properties": {
@@ -72652,6 +73009,10 @@
                         "type": "boolean",
                         "readOnly": true
                     },
+                    "priceHistory": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
                     "contactAttachments": {
                         "type": "boolean",
                         "readOnly": true
@@ -72673,6 +73034,7 @@
                     "giftCards",
                     "loyalty",
                     "newsletter",
+                    "priceHistory",
                     "productAlerts",
                     "productReviews",
                     "productSuggestions",
