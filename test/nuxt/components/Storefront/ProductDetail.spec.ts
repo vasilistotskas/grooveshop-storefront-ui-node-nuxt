@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
+import { el as uiLocale } from '@nuxt/ui/locale'
 import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
@@ -308,7 +309,7 @@ describe('default ProductDetail', () => {
     serve(makeProduct({ id: 123, category: 2 }))
     const wrapper = await mountPage()
 
-    const crumbs = wrapper.get('nav[aria-label="breadcrumb"]').findAll('li').map(li => li.text()).filter(Boolean)
+    const crumbs = wrapper.get(`nav[aria-label="${uiLocale.messages.breadcrumb.label}"]`).findAll('li').map(li => li.text()).filter(Boolean)
     expect(crumbs).toEqual(['Αρχική', 'Φόρτιση', 'Power banks', 'Προϊόν 123'])
   })
 
@@ -316,7 +317,7 @@ describe('default ProductDetail', () => {
     serve(makeProduct({ id: 123, category: 99 }))
     const wrapper = await mountPage()
 
-    const crumbs = wrapper.get('nav[aria-label="breadcrumb"]').findAll('li').map(li => li.text()).filter(Boolean)
+    const crumbs = wrapper.get(`nav[aria-label="${uiLocale.messages.breadcrumb.label}"]`).findAll('li').map(li => li.text()).filter(Boolean)
     expect(crumbs).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
   })
 

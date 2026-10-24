@@ -7,8 +7,10 @@ import { el, en } from '@nuxt/ui/locale'
  *
  * These are `@nuxt/ui` `Locale` objects (`{ name, code, dir, messages }`)
  * — a different shape from the `@nuxtjs/i18n` locale objects returned by
- * `useI18n().locales` (`{ code, name, files, language, flag }`). They
- * drive `UApp`'s `:locale` and `ULocaleSelect`'s `:locales`.
+ * `useI18n().locales` (`{ code, name, files, language, flag }`): each
+ * carries the language's own name, which the language switchers show.
+ * `UApp` needs none of this: it follows the i18n locale itself and
+ * bundles only the Nuxt UI locales `i18n.locales` lists.
  *
  * Imported by NAME, never as a namespace: `import * as locales` pulled
  * all 63 of @nuxt/ui's locale files into the entry chunk of every page
@@ -16,11 +18,9 @@ import { el, en } from '@nuxt/ui/locale'
  * sourcemap audit).
  *
  * **Activating a new platform locale means adding its import here — and
- * nowhere else.** Both consumers read this map.
+ * nowhere else** — for the switchers.
  */
-export const UI_LOCALES = { el, en } as const
-
-export type UiLocaleCode = keyof typeof UI_LOCALES
+const UI_LOCALES = { el, en } as const
 
 /** Narrow an arbitrary locale code to one Nuxt UI actually ships. */
 export function toUiLocales(codes: readonly string[]): Locale<unknown>[] {

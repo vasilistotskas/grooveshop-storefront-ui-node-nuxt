@@ -3,6 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { CalendarDate } from '@internationalized/date'
+import { el as uiLocale } from '@nuxt/ui/locale'
 import LoyaltyTransactions from '~/components/Loyalty/Transactions.vue'
 import { makeTransactionPage } from '~~/test/fixtures/loyalty'
 import { failWith } from '~~/test/helpers/api'
@@ -168,7 +169,7 @@ describe('Loyalty/Transactions', () => {
       api.routes({ [LEDGER]: makeTransactionPage([{}], { count: 30 }) })
     })
 
-    const pageButton = (wrapper: VueWrapper, page: number) => wrapper.find(`nav button[aria-label="Page ${page}"]`)
+    const pageButton = (wrapper: VueWrapper, page: number) => wrapper.find(`nav button[aria-label="${uiLocale.messages.pagination.page.replace('{page}', String(page))}"]`)
 
     it('asks for the page clicked', async () => {
       const wrapper = await mountLedger()

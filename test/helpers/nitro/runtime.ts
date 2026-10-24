@@ -207,20 +207,33 @@ export function defineNitroPlugin(plugin: NitroTestPlugin): NitroTestPlugin {
   return plugin
 }
 
-// ── getRouteRules, useNitroApp (nitropack/runtime) ────────────────────
+// ── normalizeRouteRulePath, useNitroApp ───────────────────────────────
 //
 // What `nuxt/server`'s Nitro 2 implementation (@nuxt/nitro-server
-// `runtime/server.mjs`) imports from the Nitro runtime. No route rules
-// are configured in a unit test, and no server answers `localFetch`.
+// `runtime/server.mjs` and `runtime/utils/route-rules.mjs`) imports from
+// the build: the route-rules path normaliser Nuxt generates as
+// `#internal/nuxt/route-rules.mjs`, and Nitro's app. No route rules are
+// configured in a unit test, and no server answers `localFetch`.
 
-/** nitropack's `getRouteRules`: the rules matched for the request. */
-export function getRouteRules(event: H3Event): Record<string, unknown> {
-  return event.context._nitro?.routeRules ?? {}
-}
-
-/** nitropack's `getRouteRulesForPath` (runtime/internal/route-rules). */
-export function getRouteRulesForPath(_path: string): Record<string, unknown> {
-  return {}
+/**
+ * `#internal/nuxt/route-rules.mjs` as @nuxt/nitro-server's `index.mjs`
+ * generates it for this app: the path decoded (`decodeRoutePath`), then
+ * case-folded, because the router is not `sensitive`.
+ */
+export function normalizeRouteRulePath(path: string): string {
+  if (typeof path !== 'string') return path
+  let decoded = path
+  if (path.includes('%')) {
+    const queryIndex = path.indexOf('?')
+    const pathname = queryIndex === -1 ? path : path.slice(0, queryIndex)
+    try {
+      decoded = queryIndex === -1 ? decodeURI(pathname) : decodeURI(pathname) + path.slice(queryIndex)
+    }
+    catch {
+      decoded = path
+    }
+  }
+  return decoded.toLowerCase()
 }
 
 /**
