@@ -1,3 +1,10 @@
+# [3.261.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.3...v3.261.0) (2026-10-24)
+
+
+### Features
+
+* **demo:** the demo store's logo, light and dark ([#229](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/229)) ([0c0f7c1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0c0f7c138a4a40ff6c032af0770966549b204477))
+
 ## [3.260.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.2...v3.260.3) (2026-10-24)
 
 
