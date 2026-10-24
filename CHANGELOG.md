@@ -1,3 +1,10 @@
+## [3.257.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.5...v3.257.6) (2026-10-24)
+
+
+### Bug Fixes
+
+* **webside:** product page reports the store's currency and no invented shipping terms ([#214](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/214)) ([21db43d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/21db43d7a229a09bd964959588d920daa470d36b)), closes [#107](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/107)
+
 ## [3.257.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.4...v3.257.5) (2026-10-24)
 
 
