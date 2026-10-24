@@ -8,10 +8,14 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
 /**
  * The product's price over time, from the periods its consumer price
  * held (Django's price spells): a stepped area chart over a range the
- * shopper picks, with the range's lowest and highest price, the change
- * over it and the lowest price of the last 30 days (the EU Omnibus
- * reference). Rendered only for a store with `priceHistory` on and a
+ * shopper picks, with the range's lowest and highest price and the
+ * change over it. Rendered only for a store with `priceHistory` on and a
  * recorded price; a price that never changed is one line instead.
+ *
+ * No "lowest of the last 30 days": the struck-through price beside the
+ * buy button already names the prior price the EU Omnibus rule requires
+ * (the lowest of the 30 days BEFORE the reduction began), and a rolling
+ * 30-day figure here would contradict it on the same page.
  */
 
 const props = defineProps<{
@@ -72,7 +76,6 @@ const stats = computed(() => {
   return [
     { key: 'lowest', label: t('stats.lowest'), value: formatPrice(value.lowest) },
     { key: 'highest', label: t('stats.highest'), value: formatPrice(value.highest) },
-    { key: 'reference', label: t('stats.reference'), value: formatPrice(value.lowestLast30Days), hint: t('stats.reference_hint') },
   ]
 })
 
@@ -197,7 +200,7 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
         <dl
           class="
             mt-6 grid grid-cols-2 gap-3
-            @3xl:grid-cols-4
+            @3xl:grid-cols-3
           "
         >
           <div class="rounded-lg bg-elevated/60 px-4 py-3">
@@ -222,18 +225,8 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
             :key="stat.key"
             class="rounded-lg bg-elevated/60 px-4 py-3"
           >
-            <dt class="flex items-center gap-1 text-xs font-medium text-muted">
+            <dt class="text-xs font-medium text-muted">
               {{ stat.label }}
-              <UTooltip
-                v-if="stat.hint"
-                :text="stat.hint"
-              >
-                <UIcon
-                  name="i-lucide-info"
-                  class="size-3.5"
-                  :aria-label="stat.hint"
-                />
-              </UTooltip>
             </dt>
             <dd class="mt-1 text-lg font-semibold text-highlighted tabular-nums">
               {{ stat.value }}
@@ -281,8 +274,6 @@ el:
     change: Μεταβολή
     lowest: Χαμηλότερη
     highest: Υψηλότερη
-    reference: Χαμηλότερη 30 ημερών
-    reference_hint: Η χαμηλότερη τιμή του προϊόντος τις τελευταίες 30 ημέρες.
   aria_label: Εξέλιξη τιμής για {product}
   aria_description: Από {from}, χαμηλότερη τιμή {lowest}, υψηλότερη {highest}, τρέχουσα {current}.
 en:
@@ -300,8 +291,6 @@ en:
     change: Change
     lowest: Lowest
     highest: Highest
-    reference: Lowest in 30 days
-    reference_hint: The product's lowest price over the last 30 days.
   aria_label: Price history of {product}
   aria_description: Since {from}, lowest {lowest}, highest {highest}, now {current}.
 </i18n>

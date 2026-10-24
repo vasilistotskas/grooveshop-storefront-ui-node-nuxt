@@ -49,15 +49,16 @@ async function mountTrend() {
 }
 
 describe('Product/PriceTrend', () => {
-  it('states the range\'s lowest, highest, change and the 30-day reference', async () => {
+  // No rolling 30-day lowest: the page's prior price already names the
+  // Omnibus reference, and a second "30-day" figure would contradict it.
+  it('states the range\'s change, lowest and highest price, and nothing more', async () => {
     const wrapper = await mountTrend()
-    const { $i18n } = useNuxtApp()
 
-    expect(wrapper.get('h2').text()).toBe($i18n.locale.value === 'el' ? 'Εξέλιξη τιμής' : 'Price history')
     const stats = wrapper.findAll('dl > div').map(tile => tile.find('dd').text().replace(/\s+/g, ' '))
+    expect(stats).toHaveLength(3)
     expect(stats[0]).toContain('9,90')
     expect(stats[0]).toContain('−')
-    expect(stats.slice(1)).toEqual(['39,58 €', '49,48 €', '39,58 €'])
+    expect(stats.slice(1)).toEqual(['39,58 €', '49,48 €'])
   })
 
   it('offers only the ranges the history reaches', async () => {

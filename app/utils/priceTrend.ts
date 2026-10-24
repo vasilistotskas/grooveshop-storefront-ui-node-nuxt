@@ -18,9 +18,6 @@ const RANGE_DAYS: Record<Exclude<PriceTrendRange, 'all'>, number> = {
   '1y': 365,
 }
 
-/** The Omnibus window: the lowest price of the last 30 days. */
-const REFERENCE_DAYS = 30
-
 /** Above this many days, the curve is sampled weekly instead of daily. */
 const DAILY_SAMPLES_MAX = 400
 
@@ -42,8 +39,6 @@ export interface PriceTrend {
   change: number
   /** `change` as a fraction of the start price, `0` when the start was `0`. */
   changeRatio: number
-  /** The lowest price of the last 30 days (EU Omnibus reference). */
-  lowestLast30Days: number
   /** How many times the price changed inside the window. */
   changes: number
   /** When the price in force began. */
@@ -141,7 +136,6 @@ export function priceTrend(
   const prices = inWindow.map(spell => spell.price)
   const current = all.at(-1)!.price
   const startPrice = priceAt(inWindow, start) ?? current
-  const reference = all.filter(spell => spell.to > now - REFERENCE_DAYS * DAY_MS)
 
   return {
     points,
@@ -152,7 +146,6 @@ export function priceTrend(
     highest: Math.max(...prices),
     change: current - startPrice,
     changeRatio: startPrice === 0 ? 0 : (current - startPrice) / startPrice,
-    lowestLast30Days: Math.min(...reference.map(spell => spell.price)),
     changes: changesInWindow.length,
     currentSince: all.at(-1)!.from,
   }

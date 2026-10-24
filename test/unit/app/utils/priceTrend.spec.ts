@@ -54,7 +54,7 @@ describe('priceTrend', () => {
     expect(trend.points.length).toBeLessThan(130)
   })
 
-  it('states the range\'s lowest, highest, change and the 30-day reference', () => {
+  it('states the range\'s lowest, highest and change', () => {
     const trend = priceTrend(spells, 'all', NOW)!
 
     expect(trend.current).toBe(39.58)
@@ -64,8 +64,6 @@ describe('priceTrend', () => {
     expect(trend.changeRatio).toBeCloseTo(-0.2001, 3)
     expect(trend.changes).toBe(1)
     expect(trend.currentSince).toBe(Date.parse('2026-09-21T15:20:28Z'))
-    // The old price ended 33 days ago, outside the 30-day window.
-    expect(trend.lowestLast30Days).toBe(39.58)
   })
 
   it('reads a range from its own start: within the last month the price did not change', () => {
@@ -86,17 +84,6 @@ describe('priceTrend', () => {
 
     expect(trend.changes).toBe(0)
     expect(trend.currentSince).toBe(NOW - 20 * DAY)
-  })
-
-  it('includes a higher price of the last 30 days in nothing but the highest', () => {
-    const recent: ProductPriceSpell[] = [
-      { validFrom: iso(NOW - 40 * DAY), validTo: iso(NOW - 5 * DAY), price: 30 },
-      { validFrom: iso(NOW - 5 * DAY), validTo: null, price: 25 },
-    ]
-    const trend = priceTrend(recent, 'all', NOW)!
-
-    expect(trend.lowestLast30Days).toBe(25)
-    expect(trend.highest).toBe(30)
   })
 
   it('is nothing without a recorded price', () => {
