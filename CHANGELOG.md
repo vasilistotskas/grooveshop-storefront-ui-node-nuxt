@@ -1,3 +1,10 @@
+# [3.260.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.3...v3.260.0) (2026-10-24)
+
+
+### Features
+
+* **product:** the price trend opens in a dialog from beside the rating ([#225](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/225)) ([3200cdd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3200cdd38364c3632569b329ab6b22328fc735ce))
+
 ## [3.259.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.2...v3.259.3) (2026-10-24)
 
 
