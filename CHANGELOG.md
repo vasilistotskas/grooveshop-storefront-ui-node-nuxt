@@ -1,3 +1,10 @@
+## [3.257.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.4...v3.257.5) (2026-10-24)
+
+
+### Performance Improvements
+
+* **inp:** name the control of a slow interaction whose element is gone ([#213](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/213)) ([6bb141a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6bb141ab20f9026ab577439e155372d1afcd193e)), closes [#156](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/156)
+
 ## [3.257.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.3...v3.257.4) (2026-10-24)
 
 
