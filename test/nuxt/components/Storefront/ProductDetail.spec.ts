@@ -183,13 +183,11 @@ describe.each([
   ['default', ProductDetail],
   ['webside', WebsideProductDetail],
 ])('ProductDetail structured data (%s tree)', (_tree, Component) => {
-  beforeEach(() => {
-    clearNuxtData()
-    setTenant({ assetsDomain: 'assets.shop.test' })
-    schemaNodes.length = 0
+  /** `api.routes` replaces the whole table, so a case's product goes through here. */
+  function serve(product = makeProduct({ id: 123 })) {
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
-      '/api/products/123': makeProduct({ id: 123 }),
+      '/api/products/123': product,
       '/api/products/123/images': [
         { id: 1, mainImagePath: 'media/acme/uploads/products/a.jpg', image: 'https://static.platform.test/media/acme/uploads/products/a.jpg' },
         { id: 2, mainImagePath: 'media/acme/uploads/products/b.png', image: 'https://static.platform.test/media/acme/uploads/products/b.png' },
@@ -198,6 +196,13 @@ describe.each([
       '/api/products/123/*': empty,
       '/api/*': empty,
     })
+  }
+
+  beforeEach(() => {
+    clearNuxtData()
+    setTenant({ assetsDomain: 'assets.shop.test' })
+    schemaNodes.length = 0
+    serve()
   })
 
   // The catalogue feeds' variant, so search engines see one URL per image
@@ -212,6 +217,37 @@ describe.each([
       'https://assets.shop.test/media_stream-image/media/acme/uploads/products/a.jpg/1000/1000/contain/center/FFFFFF/5/85.jpeg',
       'https://assets.shop.test/media_stream-image/media/acme/uploads/products/b.png/1000/1000/contain/center/FFFFFF/5/85.jpeg',
     ])
+  })
+
+  type ProductNode = { product: { value: { description?: string, offers: Record<string, unknown> } } }
+  const productNode = () => schemaNodes.find(n => (n as { product?: unknown }).product) as ProductNode
+
+  // A rich-text description reaches the structured data as the text a
+  // reader sees: no tags, no entities, no line breaks of the HTML.
+  it('describes the product in plain text', async () => {
+    serve(makeProduct({
+      id: 123,
+      translations: { el: { name: 'Φορτιστής', description: '\n&nbsp;\n<p>Δύο&nbsp;θύρες</p>\n<ul><li>USB-C &amp; Lightning</li></ul>', seoTitle: '', seoDescription: '', seoKeywords: '' } },
+    }))
+
+    await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(productNode().product.value.description).toBe('Δύο θύρες USB-C & Lightning')
+  })
+
+  // The offer states the store's currency and nothing the store has not
+  // set: no shipping rate, delivery time or return policy of its own.
+  it('prices the offer in the store\'s currency, with no invented shipping or return terms', async () => {
+    setTenant({ assetsDomain: 'assets.shop.test', defaultCurrency: 'USD' })
+
+    await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    const { offers } = productNode().product.value
+    expect(offers.priceCurrency).toBe('USD')
+    expect(offers).not.toHaveProperty('shippingDetails')
+    expect(offers).not.toHaveProperty('hasMerchantReturnPolicy')
   })
 })
 
@@ -282,6 +318,21 @@ describe('default ProductDetail', () => {
 
     const crumbs = wrapper.get('nav[aria-label="breadcrumb"]').findAll('li').map(li => li.text()).filter(Boolean)
     expect(crumbs).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
+  })
+
+  // Google reads a category as its trail by name; the id said nothing.
+  it('names the category trail in the structured data, and no category outside the tree', async () => {
+    const category = () => (schemaNodes.find(n => (n as { product?: unknown }).product) as { product: { value: { category?: string } } }).product.value.category
+
+    schemaNodes.length = 0
+    serve(makeProduct({ id: 123, category: 2 }))
+    await mountPage()
+    expect(category()).toBe('Φόρτιση > Power banks')
+
+    schemaNodes.length = 0
+    serve(makeProduct({ id: 123, category: 99 }))
+    await mountPage()
+    expect(category()).toBeUndefined()
   })
 
   it.each([

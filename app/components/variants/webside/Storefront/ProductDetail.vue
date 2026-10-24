@@ -305,7 +305,7 @@ const productDescription = computed(() => {
   if (seoDesc) return seoDesc
 
   const rawDescription = extractTranslated(product?.value, 'description', locale.value) || ''
-  return stripHtmlTags(rawDescription).slice(0, 160)
+  return htmlToPlainText(rawDescription).slice(0, 160)
 })
 
 const productStock = computed(() => product.value?.stock || 0)
@@ -538,15 +538,13 @@ useSchemaOrg([
 
     return {
       name: extractTranslated(product.value, 'name', locale.value) || '',
-      description: stripHtmlTags(extractTranslated(product.value, 'description', locale.value) || ''),
+      description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
       sku: product.value?.uuid || '',
       productID: product.value?.id?.toString() || '',
 
       image: images.length > 0 ? images : undefined,
 
       url: canonicalUrl.value,
-
-      category: product.value?.category?.toString() || undefined,
 
       brand: {
         '@type': 'Brand',
