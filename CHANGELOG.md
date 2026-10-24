@@ -1,3 +1,10 @@
+## [3.257.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.8...v3.257.9) (2026-10-24)
+
+
+### Bug Fixes
+
+* **seo:** a page title carries the store's name once ([#217](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/217)) ([50c3af8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/50c3af85395e41a241471a63e38afe0120c451ff))
+
 ## [3.257.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.257.7...v3.257.8) (2026-10-24)
 
 
