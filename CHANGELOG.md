@@ -1,3 +1,10 @@
+## [3.259.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.2...v3.259.3) (2026-10-24)
+
+
+### Bug Fixes
+
+* **deps:** @nuxt/icon 2.6.0 and pnpm 12.15.0 ([#224](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/224)) ([793e158](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/793e1582f6276a9f1d81bc213a5c7fffd8b5f522))
+
 ## [3.259.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.259.1...v3.259.2) (2026-10-24)
 
 
