@@ -36,8 +36,14 @@ const { data: history } = useLazyApi(`/api/products/${props.productId}/price-his
 /** Shown ticks on the time axis. */
 const TIME_TICKS = 6
 const DAY_MS = 24 * 60 * 60 * 1000
+/**
+ * The store's accent: the platform's primary is neutral, which in dark
+ * mode is white, while every store sets its own accent.
+ */
+const TREND_COLOR = 'var(--ui-secondary)'
 
 const headingId = useId()
+const gradientId = `price-trend-${useId()}`
 // The moment the page reads the history: one value for the server
 // render and the hydration, so both draw the same window.
 const now = useState(`price-trend-now-${props.productId}`, () => Date.now())
@@ -83,10 +89,14 @@ const definition = computed(() => {
   const value = trend.value
   if (!value) return undefined
 
-  // The area fills down to a floor just under the lowest price, not to
-  // zero: a 20% drop on a 0-based axis reads as a flat line.
+  // The axis starts just under the lowest price, not at zero: a 20% drop
+  // on a 0-based axis reads as a flat line. The area fills down to that
+  // floor, and the domain is set explicitly because the area is
+  // decorative and so does not size the scale.
   const spread = value.highest - value.lowest
-  const floor = Math.max(0, value.lowest - Math.max(spread * 0.6, value.lowest * 0.04))
+  const padding = Math.max(spread * 0.5, value.highest * 0.04)
+  const floor = Math.max(0, value.lowest - padding)
+  const ceiling = value.highest + padding * 0.5
   const rows = value.points.map(point => ({ ...point, floor }))
   const last = rows.at(-1)!
 
@@ -103,11 +113,11 @@ const definition = computed(() => {
         x: 'time',
         y1: 'floor',
         y2: 'price',
-        fill: 'var(--ui-primary)',
-        fillOpacity: 0.12,
+        fill: `url(#${gradientId})`,
+        fillOpacity: 1,
       })),
-      lineY(rows, { x: 'time', y: 'price', stroke: 'var(--ui-primary)', strokeWidth: 2 }),
-      decorative(dot([last], { x: 'time', y: 'price', r: 4, fill: 'var(--ui-primary)', stroke: 'var(--ui-bg)', strokeWidth: 2 })),
+      lineY(rows, { x: 'time', y: 'price', stroke: TREND_COLOR, strokeWidth: 2 }),
+      decorative(dot([last], { x: 'time', y: 'price', r: 4, fill: TREND_COLOR, stroke: 'var(--ui-bg)', strokeWidth: 2 })),
       crosshair({ x: true, y: false }),
     ],
     scales: {
@@ -118,12 +128,23 @@ const definition = computed(() => {
         },
       },
       y: {
-        scale: scaleLinear,
+        scale: () => scaleLinear().domain([floor, ceiling]),
         nice: true,
         grid: true,
         axis: { ticks: { count: 4, format: (price: number) => formatPrice(price) } },
       },
     },
+    gradients: [{
+      id: gradientId,
+      x1: 0,
+      y1: 0,
+      x2: 0,
+      y2: 1,
+      stops: [
+        { offset: 0, color: TREND_COLOR, opacity: 0.32 },
+        { offset: 1, color: TREND_COLOR, opacity: 0.02 },
+      ],
+    }],
     focus: 'group-x',
     maxFocusDistance: Number.POSITIVE_INFINITY,
   })
