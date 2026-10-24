@@ -40,6 +40,15 @@ describe('productSchemaOrg', () => {
     expect(plain.offers.priceSpecification).toBeUndefined()
   })
 
+  it('dates an announced sale price from when the reduction started', () => {
+    const startedAt = '2026-09-21T18:20:28+03:00'
+    const announced = productSchemaOrg({ ...base, product: makeProduct({ priorPrice: 49.48, announcedDiscountPercent: 20, reductionStartedAt: startedAt }) })
+    const unannounced = productSchemaOrg({ ...base, product: makeProduct({ priorPrice: null, announcedDiscountPercent: null, reductionStartedAt: startedAt }) })
+
+    expect(announced.offers.validFrom).toBe(startedAt)
+    expect(unannounced.offers.validFrom).toBeUndefined()
+  })
+
   it('reads availability from the stock', () => {
     expect(productSchemaOrg({ ...base, product: makeProduct({ stock: 0 }) }).offers.availability)
       .toBe('https://schema.org/OutOfStock')
@@ -58,7 +67,7 @@ describe('productSchemaOrg', () => {
 
   it('rates and lists at most five reviews, an unnamed reviewer as the page calls them', () => {
     const reviews = Array.from({ length: 7 }, (_, i) => makeProductReview({ id: i + 1, rate: 8 }))
-    reviews[0] = makeProductReview({ id: 1, rate: 8, user: null })
+    reviews[0] = makeProductReview({ id: 1, rate: 8, user: undefined })
     const node = productSchemaOrg({ ...base, reviews, product: makeProduct({ reviewCount: 7, reviewAverage: 8 }) })
 
     expect(node.aggregateRating?.reviewCount).toBe(7)

@@ -1,7 +1,7 @@
 type SchemaProduct = Pick<
   ProductRetrieve,
   'id' | 'stock' | 'finalPrice' | 'effectivePrice' | 'priorPrice'
-  | 'announcedDiscountPercent' | 'reviewCount' | 'reviewAverage'
+  | 'announcedDiscountPercent' | 'reductionStartedAt' | 'reviewCount' | 'reviewAverage'
 >
 
 interface ProductSchemaInput {
@@ -75,7 +75,10 @@ export function productSchemaOrg(input: ProductSchemaInput) {
             'priceCurrency': input.currency,
           }]
         : undefined,
-      'availability': availability(product.stock),
+      // The sale price holds from when the reduction started: never an
+      // invented end date, and nothing for a price that is not a sale.
+      'validFrom': announcement ? product.reductionStartedAt ?? undefined : undefined,
+      'availability': availability(product.stock ?? 0),
       'itemCondition': 'https://schema.org/NewCondition',
       'url': input.url,
       'seller': {

@@ -88,7 +88,9 @@ export function makeProduct(overrides: ProductOverrides = {}): Product {
     effectivePrice: cents(price + vatValue - discountValue),
     priorPrice: null,
     announcedDiscountPercent: null,
+    reductionStartedAt: null,
     mainImagePath: '',
+    imagePaths: [],
     reviewAverage: 0,
     reviewCount: 0,
     likesCount: 0,
@@ -96,6 +98,7 @@ export function makeProduct(overrides: ProductOverrides = {}): Product {
     updatedAt: FIXTURE_TIMESTAMP,
     uuid: fixtureUuid(1, id),
     attributes: [],
+    variantGroupTitle: null,
     ...fields,
   }
 }

@@ -352,15 +352,6 @@ const ogImage = computed(() => {
   })
 })
 
-const productAvailability = computed(() => {
-  const stock = productStock.value
-  if (stock === 0) return 'https://schema.org/OutOfStock'
-  if (stock <= 5) return 'https://schema.org/LimitedAvailability'
-  return 'https://schema.org/InStock'
-})
-
-const productCondition = computed(() => 'https://schema.org/NewCondition')
-
 const favouriteId = computed(() => {
   if (!product.value) return
   const favourite = getFavouriteIdByProductId(product.value?.id)

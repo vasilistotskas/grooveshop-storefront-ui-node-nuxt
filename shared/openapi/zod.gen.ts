@@ -80,6 +80,7 @@ export const zAgentFavourite = z.object({
   effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   productId: z.int(),
   name: z.string(),
   finalPrice: z.string(),
@@ -2811,6 +2812,7 @@ export const zProductAttribute = z.object({
   id: z.int().readonly(),
   attributeId: z.int().readonly(),
   attributeName: z.string().readonly(),
+  isVariant: z.boolean().readonly(),
   attributeValueId: z.int(),
   value: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -2858,7 +2860,9 @@ export const zProduct = z.object({
   effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
   likesCount: z.int().readonly(),
@@ -2870,6 +2874,7 @@ export const zProduct = z.object({
     zOfferKindEnum,
     zNullEnum,
   ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
 })
 
 export const zCartItem = z.object({
@@ -3217,7 +3222,9 @@ export const zProductDetail = z.object({
   effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
   likesCount: z.int().readonly(),
@@ -3229,6 +3236,7 @@ export const zProductDetail = z.object({
     zOfferKindEnum,
     zNullEnum,
   ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
 })
 
@@ -3274,7 +3282,9 @@ export const zProductDetailResponse = z.object({
   effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
   likesCount: z.int().readonly(),
@@ -3286,6 +3296,7 @@ export const zProductDetailResponse = z.object({
     zOfferKindEnum,
     zNullEnum,
   ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
 })
 
@@ -3495,6 +3506,25 @@ export const zProductPoints = z.object({
 })
 
 /**
+ * One period the consumer gross unit price was constant; ``valid_to``
+ * is ``null`` for the price in force now.
+ */
+export const zProductPriceSpell = z.object({
+  validFrom: z.iso.datetime({ offset: true }).readonly(),
+  validTo: z.iso.datetime({ offset: true }).readonly().nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+})
+
+/**
+ * Payload for ``GET /product/{id}/price-history``: every spell,
+ * oldest first, so a client filters its own ranges.
+ */
+export const zProductPriceHistory = z.object({
+  currency: z.string().readonly(),
+  spells: z.array(zProductPriceSpell).readonly(),
+})
+
+/**
  * A single sibling product within a variant group, trimmed to what a
  * storefront swatch card needs: identity, image, price and its
  * variant-axis attribute values (Colour, Memory, …). Its price fields
@@ -3528,6 +3558,7 @@ export const zProductVariant = z.object({
   effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   mainImagePath: z.string().readonly(),
   attributeValues: z.array(zProductAttribute).readonly(),
 })
@@ -3872,7 +3903,9 @@ export const zProductRetrieve = z.object({
   effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
   announcedDiscountPercent: z.int().readonly().nullable(),
+  reductionStartedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   mainImagePath: z.string().readonly(),
+  imagePaths: z.array(z.string()).readonly(),
   reviewAverage: z.number().readonly(),
   reviewCount: z.int().readonly(),
   likesCount: z.int().readonly(),
@@ -3884,6 +3917,7 @@ export const zProductRetrieve = z.object({
     zOfferKindEnum,
     zNullEnum,
   ]).nullish(),
+  variantGroupTitle: z.string().readonly().nullable(),
   priceDropAlertsEnabled: z.boolean().readonly(),
   ratingDistribution: z.array(zRatingDistribution).readonly(),
 })
@@ -4468,6 +4502,22 @@ export const zShippingOption = z.object({
   payWays: z.array(zShippingOptionPayWay),
 })
 
+/**
+ * One (provider, kind, country) the store ships.
+ */
+export const zShippingPolicyEntry = z.object({
+  countryCode: z.string().max(2),
+  kind: zShippingKind,
+  providerCode: z.string(),
+  providerName: z.string(),
+  price: z.number().gt(-1000000000).lt(1000000000),
+  currency: z.string().max(3),
+  freeShippingThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  deliveryDaysMin: z.int().nullable(),
+  deliveryDaysMax: z.int().nullable(),
+  maxWeightGrams: z.int().nullable(),
+})
+
 export const zShippingProvider = z.object({
   id: z.int().readonly(),
   code: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
@@ -4680,6 +4730,7 @@ export const zStoreFeatures = z.object({
   b2bInvoicing: z.boolean().readonly(),
   productSuggestions: z.boolean().readonly(),
   productAlerts: z.boolean().readonly(),
+  priceHistory: z.boolean().readonly(),
   contactAttachments: z.boolean().readonly(),
   chatWidget: z.boolean().readonly(),
 })
@@ -13937,6 +13988,15 @@ export const zListProductImagesQuery = z.object({
 
 export const zListProductImagesResponse = z.array(zProductImage)
 
+export const zListProductPriceHistoryPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zListProductPriceHistoryResponse = zProductPriceHistory
+
 export const zListProductReviewsPath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15698,6 +15758,8 @@ export const zListShippingOptionsQuery = z.object({
 })
 
 export const zListShippingOptionsResponse = z.array(zShippingOption)
+
+export const zGetShippingPolicyResponse = z.array(zShippingPolicyEntry)
 
 export const zApiV1ShippingProvidersListQuery = z.object({
   search: z.string().optional(),

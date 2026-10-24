@@ -412,6 +412,7 @@ export type AgentFavourite = {
   readonly effectivePrice: number | null
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
   /**
      * ID προϊόντος
      */
@@ -6873,7 +6874,9 @@ export type Product = {
   readonly effectivePrice: number | null
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
   readonly mainImagePath: string
+  readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
      */
@@ -6897,6 +6900,7 @@ export type Product = {
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
+  readonly variantGroupTitle: string | null
 }
 
 export type ProductAlert = {
@@ -6963,6 +6967,7 @@ export type ProductAttribute = {
      * Return translated attribute name.
      */
   readonly attributeName: string
+  readonly isVariant: boolean
   attributeValueId: number
   /**
      * Return translated attribute value.
@@ -7295,7 +7300,9 @@ export type ProductDetail = {
   readonly effectivePrice: number | null
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
   readonly mainImagePath: string
+  readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
      */
@@ -7319,6 +7326,7 @@ export type ProductDetail = {
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
+  readonly variantGroupTitle: string | null
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
@@ -7391,7 +7399,9 @@ export type ProductDetailResponse = {
   readonly effectivePrice: number | null
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
   readonly mainImagePath: string
+  readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
      */
@@ -7415,6 +7425,7 @@ export type ProductDetailResponse = {
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
+  readonly variantGroupTitle: string | null
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
@@ -7670,6 +7681,33 @@ export type ProductPoints = {
 }
 
 /**
+ * Payload for ``GET /product/{id}/price-history``: every spell,
+ * oldest first, so a client filters its own ranges.
+ */
+export type ProductPriceHistory = {
+  readonly currency: string
+  readonly spells: Array<ProductPriceSpell>
+}
+
+/**
+ * One period the consumer gross unit price was constant; ``valid_to``
+ * is ``null`` for the price in force now.
+ */
+export type ProductPriceSpell = {
+  /**
+     * Ισχύει από
+     */
+  readonly validFrom: string
+  /**
+     * Ισχύει έως
+     *
+     * Κενό όσο αυτή είναι η τρέχουσα τιμή.
+     */
+  readonly validTo: string | null
+  readonly price: number
+}
+
+/**
  * A public offer, plus why it is relevant to one product.
  *
  * Everything the ``/offers`` card renders, so the storefront has ONE
@@ -7846,7 +7884,9 @@ export type ProductRetrieve = {
   readonly effectivePrice: number | null
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
   readonly mainImagePath: string
+  readonly imagePaths: Array<string>
   /**
      * Return the average review rating for this product.
      */
@@ -7870,6 +7910,7 @@ export type ProductRetrieve = {
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
   offerKind?: OfferKindEnum | NullEnum | null
+  readonly variantGroupTitle: string | null
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
@@ -8027,6 +8068,7 @@ export type ProductVariant = {
   readonly effectivePrice: number | null
   readonly priorPrice: number | null
   readonly announcedDiscountPercent: number | null
+  readonly reductionStartedAt: string | null
   readonly mainImagePath: string
   readonly attributeValues: Array<ProductAttribute>
 }
@@ -8714,6 +8756,43 @@ export type ShippingOptionPayWay = {
   key: string
 }
 
+/**
+ * One (provider, kind, country) the store ships.
+ */
+export type ShippingPolicyEntry = {
+  /**
+     * Χώρα προορισμού (ISO 3166-1 alpha-2).
+     */
+  countryCode: string
+  kind: ShippingKind
+  providerCode: string
+  providerName: string
+  /**
+     * Η ίδια η τιμή αποστολής για αυτόν τον συνδυασμό (πάροχος, χώρα, τρόπος αποστολής), πριν το όριο δωρεάν αποστολής ή μια ζωντανή τιμή του courier αλλάξει όσα πληρώνει ένα συγκεκριμένο καλάθι.
+     */
+  price: number
+  /**
+     * Νόμισμα των ``price`` και ``free_shipping_threshold``.
+     */
+  currency: string
+  /**
+     * Υποσύνολο προϊόντων, μετά τις εκπτώσεις και χωρίς τα μεταφορικά, από το οποίο ο συνδυασμός αποστέλλεται δωρεάν. Null όταν δεν γίνεται ποτέ δωρεάν.
+     */
+  freeShippingThreshold: number | null
+  /**
+     * Η ταχύτερη παράδοση σε εργάσιμες ημέρες μετά την αποστολή, ή null όταν η τιμή αποστολής δεν διαφημίζει εκτίμηση.
+     */
+  deliveryDaysMin: number | null
+  /**
+     * Η πιο αργή παράδοση σε εργάσιμες ημέρες μετά την αποστολή· null ακριβώς όταν είναι και το ``delivery_days_min``.
+     */
+  deliveryDaysMax: number | null
+  /**
+     * Το βαρύτερο δέμα που μεταφέρει η τιμή αποστολής, ή null όταν δεν υπάρχει όριο.
+     */
+  maxWeightGrams: number | null
+}
+
 export type ShippingProvider = {
   readonly id: number
   /**
@@ -8826,6 +8905,7 @@ export type StoreFeatures = {
   readonly b2bInvoicing: boolean
   readonly productSuggestions: boolean
   readonly productAlerts: boolean
+  readonly priceHistory: boolean
   readonly contactAttachments: boolean
   readonly chatWidget: boolean
 }
@@ -22123,6 +22203,34 @@ export type ListProductImagesResponses = {
 
 export type ListProductImagesResponse = ListProductImagesResponses[keyof ListProductImagesResponses]
 
+export type ListProductPriceHistoryData = {
+  body?: never
+  path: {
+    /**
+         * Product ID
+         */
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/product/{id}/price-history'
+}
+
+export type ListProductPriceHistoryErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListProductPriceHistoryError = ListProductPriceHistoryErrors[keyof ListProductPriceHistoryErrors]
+
+export type ListProductPriceHistoryResponses = {
+  200: ProductPriceHistory
+}
+
+export type ListProductPriceHistoryResponse = ListProductPriceHistoryResponses[keyof ListProductPriceHistoryResponses]
+
 export type ListProductReviewsData = {
   body?: never
   path: {
@@ -25860,6 +25968,19 @@ export type ListShippingOptionsResponses = {
 }
 
 export type ListShippingOptionsResponse = ListShippingOptionsResponses[keyof ListShippingOptionsResponses]
+
+export type GetShippingPolicyData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/shipping/policy'
+}
+
+export type GetShippingPolicyResponses = {
+  200: Array<ShippingPolicyEntry>
+}
+
+export type GetShippingPolicyResponse = GetShippingPolicyResponses[keyof GetShippingPolicyResponses]
 
 export type ApiV1ShippingProvidersListData = {
   body?: never
