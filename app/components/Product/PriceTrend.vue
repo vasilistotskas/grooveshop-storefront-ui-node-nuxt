@@ -10,7 +10,8 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
  * held (Django's price spells): a stepped area chart over a range the
  * shopper picks, with the range's lowest and highest price and the
  * change over it. Rendered only for a store with `priceHistory` on and a
- * recorded price; a price that never changed is one line instead.
+ * recorded price. A price that never changed still gets its chart: a
+ * flat line says the price has been stable, which is worth knowing.
  *
  * No "lowest of the last 30 days": the struck-through price beside the
  * buy button already names the prior price the EU Omnibus rule requires
@@ -61,7 +62,6 @@ watch(ranges, (available) => {
 }, { immediate: true })
 
 const trend = computed(() => history.value ? priceTrend(history.value.spells, range.value, now.value) : null)
-const unchanged = computed(() => trend.value !== null && ranges.value.length <= 1 && trend.value.changes === 0)
 
 const rangeItems = computed<TabsItem[]>(() => ranges.value.map(value => ({ label: t(`ranges.${value}`), value })))
 
@@ -216,89 +216,80 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
         />
       </div>
 
-      <p
-        v-if="unchanged"
-        class="mt-6 text-base text-default"
-      >
-        {{ t('unchanged', { date: fullDateFormat.format(trend.currentSince) }) }}
-      </p>
-
-      <template v-else>
-        <dl
-          class="
+      <dl
+        class="
             mt-6 grid grid-cols-3 gap-2
             @2xl:gap-3
           "
-        >
-          <div
-            class="
+      >
+        <div
+          class="
               rounded-lg bg-elevated/60 px-3 py-2.5
               @2xl:px-4 @2xl:py-3
             "
-          >
-            <dt class="text-xs font-medium text-muted">
-              {{ t('stats.change') }}
-            </dt>
-            <dd class="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <span
-                class="
+        >
+          <dt class="text-xs font-medium text-muted">
+            {{ t('stats.change') }}
+          </dt>
+          <dd class="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span
+              class="
                   text-base font-semibold text-highlighted tabular-nums
                   @2xl:text-lg
                 "
-              >
-                {{ trend.change === 0 ? formatPrice(0) : `${trend.change > 0 ? '+' : '−'}${formatPrice(Math.abs(trend.change))}` }}
-              </span>
-              <UBadge
-                :color="changeColor"
-                variant="subtle"
-                size="sm"
-                :label="percentFormat.format(trend.changeRatio)"
-                class="tabular-nums"
-              />
-            </dd>
-          </div>
-          <div
-            v-for="stat in stats"
-            :key="stat.key"
-            class="
+            >
+              {{ trend.change === 0 ? formatPrice(0) : `${trend.change > 0 ? '+' : '−'}${formatPrice(Math.abs(trend.change))}` }}
+            </span>
+            <UBadge
+              :color="changeColor"
+              variant="subtle"
+              size="sm"
+              :label="percentFormat.format(trend.changeRatio)"
+              class="tabular-nums"
+            />
+          </dd>
+        </div>
+        <div
+          v-for="stat in stats"
+          :key="stat.key"
+          class="
               rounded-lg bg-elevated/60 px-3 py-2.5
               @2xl:px-4 @2xl:py-3
             "
-          >
-            <dt class="text-xs font-medium text-muted">
-              {{ stat.label }}
-            </dt>
-            <dd
-              class="
+        >
+          <dt class="text-xs font-medium text-muted">
+            {{ stat.label }}
+          </dt>
+          <dd
+            class="
                 mt-1 text-base font-semibold text-highlighted tabular-nums
                 @2xl:text-lg
               "
-            >
-              {{ stat.value }}
-            </dd>
-          </div>
-        </dl>
+          >
+            {{ stat.value }}
+          </dd>
+        </div>
+      </dl>
 
-        <UChart
-          v-if="definition"
-          :definition="definition"
-          :aspect-ratio="isMobile ? ASPECT_RATIO.phone : ASPECT_RATIO.wide"
-          :aria-label="t('aria_label', { product: productName })"
-          :aria-description="ariaDescription"
-          class="mt-6"
-        >
-          <template #tooltip="{ points }">
-            <template v-if="pointOf(points)">
-              <p class="font-medium text-highlighted">
-                {{ fullDateFormat.format(pointOf(points)!.time) }}
-              </p>
-              <p class="text-highlighted tabular-nums">
-                {{ formatPrice(pointOf(points)!.price) }}
-              </p>
-            </template>
+      <UChart
+        v-if="definition"
+        :definition="definition"
+        :aspect-ratio="isMobile ? ASPECT_RATIO.phone : ASPECT_RATIO.wide"
+        :aria-label="t('aria_label', { product: productName })"
+        :aria-description="ariaDescription"
+        class="mt-6"
+      >
+        <template #tooltip="{ points }">
+          <template v-if="pointOf(points)">
+            <p class="font-medium text-highlighted">
+              {{ fullDateFormat.format(pointOf(points)!.time) }}
+            </p>
+            <p class="text-highlighted tabular-nums">
+              {{ formatPrice(pointOf(points)!.price) }}
+            </p>
           </template>
-        </UChart>
-      </template>
+        </template>
+      </UChart>
     </section>
   </PageSectionBand>
 </template>
@@ -307,7 +298,6 @@ function pointOf(points: readonly { datum: unknown }[]): PriceTrendPoint | undef
 el:
   title: Εξέλιξη τιμής
   since: '{price} από {date}'
-  unchanged: Η τιμή δεν έχει αλλάξει από {date}.
   range_label: Χρονικό διάστημα
   ranges:
     1m: 1 μήνας
@@ -324,7 +314,6 @@ el:
 en:
   title: Price history
   since: '{price} since {date}'
-  unchanged: The price has not changed since {date}.
   range_label: Time range
   ranges:
     1m: 1 month
