@@ -1,3 +1,10 @@
+## [3.260.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.2...v3.260.3) (2026-10-24)
+
+
+### Bug Fixes
+
+* **seo:** a store without a logo prints no empty share image ([#228](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/228)) ([b78b250](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b78b250a37dc2bba5ec2ae5ecce6b81b84abc1af))
+
 ## [3.260.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.1...v3.260.2) (2026-10-24)
 
 
