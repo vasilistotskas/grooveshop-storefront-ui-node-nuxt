@@ -822,6 +822,12 @@ useSchemaOrg([
       </UAccordion>
     </UContainer>
 
+    <LazyProductPriceTrend
+      :product-id="product.id"
+      :product-name="productName"
+      hydrate-on-visible
+    />
+
     <PageSectionBand
       v-if="productReviewsEnabled"
       surface="muted"
