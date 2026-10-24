@@ -42,6 +42,19 @@ describe('elementSelector', () => {
     expect(selector.startsWith('button.')).toBe(true)
   })
 
+  // The ingest drops a target over 100 characters, so a heavily classed
+  // control would otherwise report nothing at all.
+  it('fits a control whose own classes pass the limit, keeping its tag and the classes that fit', () => {
+    const classes = Array.from({ length: 12 }, (_, i) => `utility-class-${i}`).join(' ')
+    const root = mount(`<button class="${classes}">x</button>`)
+
+    const selector = elementSelector(root.querySelector('button')!)
+
+    expect(selector.length).toBeLessThanOrEqual(100)
+    expect(selector).toMatch(/^button\.utility-class-0\./)
+    expect(selector).not.toMatch(/\.$/)
+  })
+
   it('never carries text or an attribute value', () => {
     const root = mount('<button class="fav" aria-label="Αγαπημένα: Mini power bank" data-product="5">Mini power bank</button>')
 

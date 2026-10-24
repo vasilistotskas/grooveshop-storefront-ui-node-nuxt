@@ -69,6 +69,10 @@ const CONTROL = 'button, a, summary, input, select, textarea, label, [role="butt
  * An element as web-vitals' selectors describe one: tag names, `#id`s and
  * classes joined by `>`, nearest element last, at most 100 characters, up
  * to the first ancestor with an id. Never text or an attribute value.
+ *
+ * The 100 are a hard limit here, unlike in web-vitals: the ingest drops a
+ * longer target, so a nearest element whose classes alone pass it keeps
+ * its tag and the classes that fit.
  */
 export function elementSelector(element: Element): string {
   let selector = ''
@@ -77,12 +81,23 @@ export function elementSelector(element: Element): string {
     const part = node.id
       ? `#${node.id}`
       : [node.nodeName.toLowerCase(), ...[...node.classList].sort()].join('.')
-    if (selector.length + part.length > MAX_SELECTOR_LENGTH - 1) return selector || part
+    if (selector.length + part.length > MAX_SELECTOR_LENGTH - 1) return selector || fitted(part)
     selector = selector ? `${part}>${selector}` : part
     if (node.id) break
     node = node.parentElement
   }
   return selector
+}
+
+/** A selector part cut to the limit at a class boundary: `button.a.b` loses `.b` before `.a`. */
+function fitted(part: string): string {
+  let out = ''
+  for (const piece of part.split('.')) {
+    const next = out ? `${out}.${piece}` : piece
+    if (next.length > MAX_SELECTOR_LENGTH) break
+    out = next
+  }
+  return out
 }
 
 /** A press long before an interaction's first event is not what started it. */
