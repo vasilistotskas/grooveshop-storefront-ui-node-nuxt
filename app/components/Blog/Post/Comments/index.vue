@@ -1,12 +1,6 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import * as z from 'zod'
-
-// One gate here covers the whole comments surface under every post, and
-// the request below: a store without comments is not asked for any.
-const blogCommentsEnabled = useStoreFeature('blogComments')
-
 const props = defineProps({
   blogPostId: {
     type: String,
@@ -43,217 +37,29 @@ const emit = defineEmits<{
 const { blogPostId, paginationType, pageSize }
   = toRefs(props)
 
-const { t, locale } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
-const route = useRoute()
-const { loggedIn, user } = useUserSession()
-const { loadLikedComments } = useUserStore()
-const cursorState = useState<CursorState>('cursor-state')
-
-const cursor = computed(
-  () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
-)
-
-const isOpen = ref(false)
-const allComments = ref<BlogComment[]>([])
-const isLoadingMore = ref(false)
+const { t } = useI18n()
 
 const {
-  data: comments,
-  status,
-  refresh,
-} = await useApi(
-  `/api/blog/posts/${blogPostId.value}/comments`,
-  {
-    key: `comments${blogPostId.value}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      cursor: cursor,
-      parent_Isnull: true,
-      paginationType: paginationType,
-      pageSize: pageSize,
-      languageCode: locale,
-      approved: true,
-    },
-    // Off, the comments are gone: none fetched, so none reach the page
-    // payload behind the hidden section (Django answers 404 too). Not
-    // `immediate`, which skips only the first fetch: a change to the
-    // query's refs (the locale, the cursor) still refetched.
-    enabled: blogCommentsEnabled,
-  },
-)
-
-const pagination = computed(() => {
-  if (!comments.value?.count) return
-  return usePagination<BlogComment>(comments.value)
-})
-
-const isLoading = computed(() => status.value === 'pending')
-const hasComments = computed(() => allComments.value.length > 0)
-const showCommentsList = computed(() => !isLoading.value && hasComments.value)
-const showEmptyState = computed(() => !isLoading.value && !hasComments.value)
-
-const hasNextPage = computed(() => {
-  return comments.value?.links?.next && !isLoading.value
-})
-
-const showLoadMoreButton = computed(() => {
-  return hasNextPage.value && hasComments.value
-})
-
-const loadMoreComments = async () => {
-  if (!hasNextPage.value || isLoadingMore.value) return
-
-  const nextUrl = comments.value?.links?.next
-  if (!nextUrl) return
-
-  isLoadingMore.value = true
-
-  try {
-    // `nextUrl` is an absolute Django URL (DRF's build_absolute_uri()) — only
-    // its pagination query params are reusable; the request itself must go
-    // through the Nuxt proxy route, never straight to Django.
-    const query = Object.fromEntries(new URL(nextUrl).searchParams)
-    const response = await $api<PaginatedBlogCommentList>(
-      `/api/blog/posts/${blogPostId.value}/comments`,
-      { query },
-    )
-
-    if (response?.results?.length) {
-      const newComments = response.results.filter(
-        (newComment: BlogComment) => !allComments.value.some(existingComment => existingComment.id === newComment.id),
-      )
-
-      allComments.value = [...allComments.value, ...newComments].sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      })
-
-      // The `commentIds` watcher loads this page's like state.
-      comments.value = response
-    }
-  }
-  catch (error) {
-    log.error({ action: 'comments:loadMore', error })
-    notify('index:1', error, { title: t('load.error') })
-  }
-  finally {
-    isLoadingMore.value = false
-  }
-}
-
-const commentIds = computed(() => {
-  if (!comments.value) return []
-  return comments.value?.results?.map(comment => comment.id) || []
-})
-
-// Load the like state of every page of comments as it arrives — the first
-// one, a loaded next page, a refetch. `commentIds` is empty during setup
-// (allComments is filled by the `comments` watcher below), so this must
-// react to the ids rather than run once — otherwise the first page never
-// gets its like state and toggling silently removes an existing like.
-watch(commentIds, ids => loadLikedComments(ids), { immediate: import.meta.client })
-
-const onReplyAdd = async (data: BlogComment) => {
-  emit('reply-add', data)
-}
-
-const addCommentFormSchema: DynamicFormSchema = {
-  fields: [
-    {
-      label: '',
-      id: `content-${blogPostId.value}`,
-      name: 'content',
-      as: 'textarea',
-      rules: z.string({
-        error: issue => issue.input === undefined ? t('validation.required') : undefined,
-      }).max(1000),
-      autocomplete: 'on',
-      condition: null,
-      disabledCondition: null,
-      readonly: false,
-      required: true,
-      placeholder: t('reply.placeholder'),
-      type: 'text',
-      ui: {
-        root: 'w-full',
-      },
-    },
-  ],
-}
-
-async function onAddCommentSubmit(values: Record<string, any>) {
-  try {
-    const created = await $api('/api/blog/comments', {
-      method: 'POST',
-      body: {
-        post: Number(blogPostId.value),
-        user: Number(user?.value?.id),
-        translations: {
-          [locale.value]: {
-            content: values.content,
-          },
-        },
-      },
-    })
-    emit('reply-add', created)
-    toast.add({
-      title: t('add.success'),
-      color: 'success',
-    })
-  }
-  catch (error) {
-    log.error({ action: 'comments:add', error })
-    notify('index:2', error, { title: t('add.error') })
-    return
-  }
-  // A refetch never rejects: `useApi` keeps its error in `error`.
-  await refresh()
-}
-
-const scrollToComments = () => {
-  if (window.location.hash === `#${BLOG_POST_COMMENTS_ID}`) {
-    nextTick(() => {
-      const commentsElement = document.getElementById(BLOG_POST_COMMENTS_ID)
-      if (commentsElement) {
-        commentsElement.scrollIntoView({ behavior: 'smooth' })
-      }
-    })
-  }
-}
-
-watch(
-  () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
-  async () => {
-    await refresh()
-  },
-)
-
-watch(
-  comments,
-  (newValue) => {
-    if (newValue && newValue.results?.length) {
-      const newComments = newValue.results.filter(
-        newComment => !allComments.value.some(existingComment => existingComment.id === newComment.id),
-      )
-      allComments.value = [...allComments.value, ...newComments].sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      })
-    }
-  },
-  { deep: true, immediate: true },
-)
-
-watch(
-  () => route.query.comment_page,
-  async () => {
-    if (blogCommentsEnabled.value) await refresh()
-  },
-)
-
-onMounted(() => {
-  scrollToComments()
+  blogCommentsEnabled,
+  loggedIn,
+  isOpen,
+  allComments,
+  isLoading,
+  isLoadingMore,
+  pagination,
+  showCommentsList,
+  showEmptyState,
+  showLoadMoreButton,
+  loadMoreComments,
+  onReplyAdd,
+  addCommentFormSchema,
+  onAddCommentSubmit,
+} = await useBlogPostComments({
+  blogPostId,
+  paginationType,
+  pageSize,
+  t,
+  onReplyAdd: comment => emit('reply-add', comment),
 })
 </script>
 
