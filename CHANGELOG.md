@@ -1,3 +1,10 @@
+## [3.261.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.261.0...v3.261.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **search:** webside's search page runs the platform's searches ([#230](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/230)) ([cbe88a0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cbe88a00671ee3bc3858009dc6719c327d27dadb))
+
 # [3.261.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.260.3...v3.261.0) (2026-10-24)
 
 
