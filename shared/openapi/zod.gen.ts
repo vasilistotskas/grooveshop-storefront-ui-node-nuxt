@@ -1163,15 +1163,6 @@ export const zFacetStats = z.object({
 })
 
 /**
- * Serializer for federation metadata from Meilisearch.
- */
-export const zFederationMetadata = z.object({
-  indexUid: z.string(),
-  queriesPosition: z.int(),
-  weightedRankingScore: z.number(),
-})
-
-/**
  * * `general` - Γενικά
  * * `website` - Ιστότοπος & UX
  * * `products` - Προϊόντα
@@ -1580,61 +1571,6 @@ export const zNullEnum = z.unknown()
  * * `PROMOTION` - Ενεργή προσφορά
  */
 export const zOfferKindEnum = z.enum(['MARKDOWN', 'PROMOTION'])
-
-/**
- * Serializer for individual federated search result.
- *
- * This combines fields from both ProductTranslation and BlogPostTranslation
- * with federation metadata.
- */
-export const zFederatedSearchResult = z.object({
-  id: z.int(),
-  languageCode: z.string(),
-  contentType: z.string(),
-  slug: z.string().optional(),
-  mainImagePath: z.string().optional(),
-  matchesPosition: z.unknown(),
-  rankingScore: z.number().nullable(),
-  formatted: z.unknown(),
-  name: z.string().optional(),
-  description: z.string().optional(),
-  finalPrice: z.number().nullish(),
-  price: z.number().nullish(),
-  effectivePrice: z.number().nullish(),
-  priorPrice: z.number().nullish(),
-  announcedDiscountPercent: z.int().nullish(),
-  offerKind: z.union([
-    zOfferKindEnum,
-    zNullEnum,
-  ]).nullish(),
-  stock: z.int().optional(),
-  likesCount: z.int().optional(),
-  viewCount: z.int().optional(),
-  reviewAverage: z.number().nullish(),
-  vatPercent: z.number().nullish(),
-  categoryName: z.string().nullish(),
-  brandName: z.string().nullish(),
-  reviewCount: z.int().optional(),
-  createdAt: z.iso.datetime({ offset: true }).nullish(),
-  lowStockThreshold: z.int().nullish(),
-  title: z.string().optional(),
-  subtitle: z.string().optional(),
-  body: z.string().optional(),
-  master: z.int().optional(),
-  federation: zFederationMetadata,
-})
-
-/**
- * Serializer for federated search response.
- */
-export const zFederatedSearchResponse = z.object({
-  queryId: z.uuid(),
-  relaxedQuery: z.string().nullable(),
-  limit: z.int(),
-  offset: z.int(),
-  estimatedTotalHits: z.int(),
-  results: z.array(zFederatedSearchResult),
-})
 
 /**
  * The acquisition signals the storefront captured for this tab.
@@ -15526,21 +15462,6 @@ export const zApiV1SearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse
 export const zApiV1SearchClickCreateBody = zSearchClickRequestRequest
 
 export const zApiV1SearchClickCreateResponse = zSearchClickResponse
-
-export const zApiV1SearchFederatedRetrieveQuery = z.object({
-  languageCode: z.string().optional(),
-  limit: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  offset: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  query: z.string(),
-})
-
-export const zApiV1SearchFederatedRetrieveResponse = zFederatedSearchResponse
 
 export const zApiV1SearchProductRetrieveQuery = z.object({
   attributeValues: z.string().optional(),
