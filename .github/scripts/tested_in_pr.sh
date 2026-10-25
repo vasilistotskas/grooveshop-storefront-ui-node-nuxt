@@ -49,7 +49,7 @@ tree() { gh api "repos/$GITHUB_REPOSITORY/commits/$1" --jq .commit.tree.sha; }
   || untested "the merged tree differs from PR head $head"
 
 run=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$head&event=pull_request&status=success" \
-  --jq "[.workflow_runs[] | select(.path == \"$workflow_path\")][0].html_url // empty")
+  --jq "[.workflow_runs[] | select((.path | split(\"@\")[0]) == \"$workflow_path\")][0].html_url // empty")
 [[ -n $run ]] || untested "no successful $workflow_path run for PR head $head"
 
 echo "tested in $run (PR head $head, same tree)" >&2

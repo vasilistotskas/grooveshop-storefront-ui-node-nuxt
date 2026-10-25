@@ -395,15 +395,21 @@ jobs:
 
   release:
     name: Release
-    needs: [security-scan, quality, test, e2e, build, schema-freshness]
-    # Skipped needs are the tested-in-pr path; a failed or cancelled one
-    # still blocks. ``!cancelled()`` replaces the implicit ``success()``,
-    # which would treat a skipped need as a reason not to run.
+    needs: [tested-in-pr, security-scan, quality, test, e2e, build, schema-freshness]
+    # ``!cancelled()`` replaces the implicit ``success()``, which would
+    # treat the skipped gates of an already-tested push as a reason not to
+    # run. A gate may be skipped only when tested-in-pr itself succeeded
+    # and said ``tested``: if that job fails before its check, its
+    # dependents skip too, and that must block the release.
     if: >-
       !cancelled() && github.ref == 'refs/heads/main'
       && github.event_name == 'push'
+      && needs.tested-in-pr.result == 'success'
+      && needs.security-scan.result == 'success'
       && !contains(needs.*.result, 'failure')
       && !contains(needs.*.result, 'cancelled')
+      && (needs.tested-in-pr.outputs.tested == 'true'
+          || !contains(needs.*.result, 'skipped'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency: release
