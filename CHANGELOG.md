@@ -1,3 +1,10 @@
+## [3.262.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.1...v3.262.2) (2026-10-25)
+
+
+### Bug Fixes
+
+* **blog:** webside's post, category and author pages run the shared page logic ([#233](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/233)) ([26fe3ef](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/26fe3efcfe509eede11c75f26fd3d87a0bcf2f2b))
+
 ## [3.262.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.0...v3.262.1) (2026-10-25)
 
 
