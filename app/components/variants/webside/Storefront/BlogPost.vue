@@ -1,16 +1,16 @@
 <script lang="ts" setup>
+// Webside's drawing of the post page. The post, its category and author,
+// the 404/503, the head and the view count are `useBlogPostPage`'s, the
+// same as the default page's; only webside's own column width differs.
 const { t, locale } = useI18n()
-const route = useRoute(`blog-post-id-slug___${locale.value}`)
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
-const siteConfig = useSiteConfig()
 const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
-const { blogAuthorUrl, blogPostUrl } = useUrls()
+const { blogAuthorUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
-const img = useMediaStreamImage()
 
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
@@ -26,64 +26,18 @@ const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
 const bannerLink = '/products/2/mini-powerbank-5000mah'
 
-const blogPostId = computed(() => Number(route.params.id) || null)
-
-if (!blogPostId.value) {
-  throw createError({
-    statusCode: 404,
-    message: t('error.page.not.found'),
-  })
-}
-
-const { data: blogPost, refresh, error: blogPostError } = await useApi(
-  `/api/blog/posts/${blogPostId.value}`,
-  {
-    key: `blogPost${blogPostId.value}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  },
-)
-
-if (blogPostError.value || !blogPost.value) {
-  // Normalize upstream 5xx to 503 (see products/[id]/[slug].vue):
-  // temporary for crawlers + retryable by error.vue's one-shot reload.
-  const upstreamStatus = blogPostError.value?.statusCode ?? 404
-  throw createError(
-    upstreamStatus >= 500
-      ? { statusCode: 503, message: t('error.service.unavailable') }
-      : {
-          statusCode: upstreamStatus,
-          message: blogPostError.value?.message || t('error.page.not.found'),
-        },
-  )
-}
-
-// Critical data: category and author (needed for initial render)
-const [
-  { data: blogPostCategory },
-  { data: blogPostAuthor },
-] = await Promise.all([
-  useApi(`/api/blog/categories/${blogPost.value.category.id}`, {
-    key: `blogCategory-${blogPost.value.category.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-    pick: ['id', 'translations'],
-  }),
-  useApi(`/api/blog/authors/${blogPost.value.author.id}`, {
-    key: `blogAuthor${blogPost.value.author.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  }),
-])
+const {
+  blogPostId,
+  blogPost,
+  refresh,
+  blogPostAuthor,
+  blogAuthorFullName,
+  blogPostTitle,
+  blogPostSubtitle,
+  blogPostBody,
+  relatedPosts,
+  relatedPostsStatus,
+} = await useBlogPostPage({ articleMaxWidth: WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH })
 
 // Non-critical data: defer to client-side (doesn't block FCP/LCP)
 const { data: likedPostsData } = await useApi('/api/blog/posts/liked-posts', {
@@ -92,14 +46,8 @@ const { data: likedPostsData } = await useApi('/api/blog/posts/liked-posts', {
   body: {
     postIds: [blogPostId.value],
   },
-  immediate: loggedIn.value,
+  enabled: loggedIn,
   server: false, // Client-side only - not needed for initial render
-})
-
-// Below-the-fold content: use useLazyFetch to not block navigation
-const { data: relatedPosts, status: relatedPostsStatus } = useLazyApi(`/api/blog/posts/${blogPostId.value}/related-posts`, {
-  key: `relatedPosts${blogPostId.value}`,
-  method: 'GET',
 })
 
 // `likedPostsData` resolves client-side only (server: false), so it is null
@@ -127,94 +75,6 @@ const hasBeenUpdatedSincePublish = computed(() => {
   if (Number.isNaN(published) || Number.isNaN(updated)) return false
 
   return updated - published > UPDATED_AFTER_PUBLISH_THRESHOLD_MS
-})
-
-const { transformImages } = useHtmlContent()
-
-const blogPostBody = computed(() => {
-  const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
-  return transformImages(rawBody, { maxWidth: WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH })
-})
-
-const blogPostTitle = computed(() =>
-  extractTranslated(blogPost.value, 'title', locale.value) ?? '',
-)
-
-const blogPostSubtitle = computed(() =>
-  extractTranslated(blogPost.value, 'subtitle', locale.value) ?? '',
-)
-
-const blogPostSeoTitle = computed(() => {
-  const post = blogPost.value
-  return extractTranslated(post, 'seoTitle', locale.value) || blogPostTitle.value || ''
-})
-
-// Google appends the site name to a SHORT title and leaves a long one
-// alone — which is exactly why only the three shortest posts were
-// reported as "Page and SERP titles do not match". Mirroring that rule
-// makes the page title agree with the SERP in both directions.
-//
-// A blanket suffix would trade one mismatch for another: 34 of 79 posts
-// would land past the ~60 character display budget (15 already are),
-// where the brand is truncated away again and the extra characters buy
-// nothing. Only append it when it actually fits.
-const TITLE_DISPLAY_BUDGET = 60
-
-const blogPostDocumentTitle = computed(() => {
-  const title = blogPostSeoTitle.value
-  const suffix = ` | ${siteConfig.name}`
-  return title.length + suffix.length <= TITLE_DISPLAY_BUDGET
-    ? `${title}${suffix}`
-    : title
-})
-
-// The operator's own `seo_description` wins untouched. Failing that the
-// subtitle leads — but it is editorial copy written as a strapline, and
-// 63 of the 79 live posts have one under 110 characters, the length
-// every site-audit tool reports as "meta description too short". So a
-// short subtitle is EXTENDED with the article's opening text instead of
-// standing alone: the hand-written words stay, and the snippet fills the
-// space Google is willing to give it.
-//
-// Derived from the BODY, not `contentPreview`: the preview is the first
-// 200 characters of raw HTML, so markup and character references eat an
-// unpredictable share of it and what survives stripping can be almost
-// nothing. `undefined` (not '') as the last resort so the tag is omitted
-// rather than emitted empty — Google cannot fall back to generating a
-// snippet when the attribute is present but blank.
-const blogPostDescription = computed(() => {
-  const post = blogPost.value
-  const seoDescription = extractTranslated(post, 'seoDescription', locale.value)
-  if (seoDescription) return seoDescription
-
-  const bodyText = htmlToPlainText(
-    extractTranslated(post, 'body', locale.value) ?? '',
-  )
-  return composeMetaDescription([blogPostSubtitle.value, bodyText])
-})
-
-const blogPostCategoryName = computed(() =>
-  extractTranslated(blogPostCategory.value, 'name', locale.value) || '',
-)
-
-const blogAuthorFullName = computed(() => {
-  const author = blogPostAuthor.value
-  if (!author?.user) return ''
-  return `${author.user.firstName || ''} ${author.user.lastName || ''}`.trim()
-})
-
-const ogImage = computed(() => {
-  const post = blogPost.value
-  if (!post?.mainImagePath) return ''
-
-  return img(post.mainImagePath, {
-    width: 1200,
-    height: 630,
-    fit: 'cover',
-    format: 'png',
-  }, {
-    provider: 'mediaStream',
-  })
 })
 
 const items = computed(() => [
@@ -265,75 +125,18 @@ const likeClicked = async () => {
 }
 
 const scrollToComments = () => {
-  const comments = document.getElementById('blog-post-comments')
+  const comments = document.getElementById(BLOG_POST_COMMENTS_ID)
   if (comments) {
-    if (!window.location.hash.includes('#blog-post-comments')) {
-      window.location.hash = '#blog-post-comments'
+    if (window.location.hash !== `#${BLOG_POST_COMMENTS_ID}`) {
+      window.location.hash = `#${BLOG_POST_COMMENTS_ID}`
     }
     comments.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 }
 
-// Track view count using composable (client-side only, fire-and-forget)
-const { trackView } = useViewCount()
-onMounted(() => {
-  trackView('blog', blogPostId.value!)
-})
-
 onReactivated(async () => {
   await refresh()
 })
-
-// The canonical and the hreflang set are built from the entity's OWN
-// id+slug, never from route.path: the [slug] segment is decorative (the
-// id resolves the record), so /{id}/anything renders the same page and —
-// self-canonicalising — every variant became its own indexable URL.
-// Declaring the document (useDocumentLocales) hands that to
-// setupPageHeader, which names the locale each version really exists in;
-// a page writing its own canonical or hreflang is what pointed every
-// /en/** page at the Greek URL.
-const { declare, canonicalUrl } = useDocumentLocales()
-declare(
-  translatedLocales(blogPost.value?.translations, 'body'),
-  blogPostUrl(blogPost.value!.id, blogPost.value!.slug),
-)
-
-useSeoMeta({
-  // '%s' because the brand suffix is applied conditionally above; the
-  // global template would append it unconditionally.
-  titleTemplate: '%s',
-  title: () => blogPostDocumentTitle.value,
-  description: () => blogPostDescription.value,
-  ogDescription: () => blogPostDescription.value,
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
-  ogImage: () => ogImage.value,
-  ogType: 'article',
-  ogUrl: () => canonicalUrl.value,
-  twitterTitle: () => extractTranslated(blogPost.value, 'seoTitle', locale.value) || blogPostTitle.value,
-  twitterDescription: () => blogPostDescription.value,
-  twitterImage: () => ogImage.value,
-  twitterCard: 'summary_large_image',
-})
-
-useSchemaOrg([
-  definePerson({
-    '@id': '#author',
-    'name': blogAuthorFullName.value || undefined,
-    'url': blogPostAuthor.value?.website || undefined,
-    'image': blogPostAuthor.value?.user?.mainImagePath || undefined,
-  }),
-  defineArticle({
-    author: { '@id': '#author' },
-    keywords: extractTranslated(blogPost.value, 'seoKeywords', locale.value) ? [extractTranslated(blogPost.value, 'seoKeywords', locale.value)] : undefined,
-    headline: () => extractTranslated(blogPost.value, 'seoTitle', locale.value) || blogPostTitle.value,
-    description: () => blogPostDescription.value,
-    image: () => ogImage.value || undefined,
-    datePublished: () => blogPost.value?.publishedAt || undefined,
-    dateModified: () => blogPost.value?.updatedAt || undefined,
-    articleSection: blogPostCategoryName.value ? [blogPostCategoryName.value] : undefined,
-  }),
-])
 </script>
 
 <template>

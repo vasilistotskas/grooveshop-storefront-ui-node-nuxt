@@ -24,7 +24,7 @@ const {
   blogPostSubtitle,
   blogPostBody,
   relatedPosts,
-} = await useBlogPostPage()
+} = await useBlogPostPage({ articleMaxWidth: ARTICLE_COLUMN_MAX_WIDTH })
 
 onReactivated(async () => {
   await refresh()

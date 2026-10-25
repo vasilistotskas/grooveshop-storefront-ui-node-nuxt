@@ -9,7 +9,10 @@
  * tenants' own), so the request, its keys and the SEO are decided once.
  * Call it from a body's `<script setup>`, before the first `await`.
  */
-export async function useBlogPostPage() {
+export async function useBlogPostPage(options: {
+  /** The article column's width: inline images are requested no wider. */
+  articleMaxWidth: number
+}) {
   const { t, locale } = useI18n()
   const route = useRoute(`blog-post-id-slug___${locale.value}`)
   const siteConfig = useSiteConfig()
@@ -97,7 +100,7 @@ export async function useBlogPostPage() {
 
   const blogPostBody = computed(() => {
     const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
-    return transformImages(rawBody, { maxWidth: ARTICLE_COLUMN_MAX_WIDTH })
+    return transformImages(rawBody, { maxWidth: options.articleMaxWidth })
   })
 
   const blogPostTitle = computed(() =>
