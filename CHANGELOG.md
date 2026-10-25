@@ -1,3 +1,10 @@
+## [3.262.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.2...v3.262.3) (2026-10-25)
+
+
+### Bug Fixes
+
+* **orders:** a failed invoice request says Django's reason, on every order page ([#234](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/234)) ([3ded3a3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3ded3a376c2ed257dd516a3b674d17944e2eab75))
+
 ## [3.262.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.1...v3.262.2) (2026-10-25)
 
 
