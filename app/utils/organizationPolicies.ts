@@ -66,16 +66,52 @@ export function shippingServicesSchema(entries: readonly ShippingPolicyEntry[]) 
   }))
 }
 
+/** Who pays to send a return back (`RETURN_FEES`), as schema.org names it. */
+const RETURN_FEES = {
+  free: 'https://schema.org/FreeReturn',
+  customer: 'https://schema.org/ReturnFeesCustomerResponsibility',
+} as const
+
+export type ReturnFees = keyof typeof RETURN_FEES
+
+/** `RETURN_WINDOW_DAYS` as days; `null` when unset, 0 (not stated) or not a whole number. */
+export function returnWindowDays(raw: string): number | null {
+  const value = Number(raw)
+  if (!raw.trim() || !Number.isInteger(value) || value <= 0) return null
+  return value
+}
+
+/** `RETURN_FEES`; `null` when the store has not said. */
+export function returnFees(raw: string): ReturnFees | null {
+  return raw === 'free' || raw === 'customer' ? raw : null
+}
+
 /**
- * The return policy as a link to the store's own page, Google's minimal
- * form: the page states the window, fees and conditions, so nothing is
- * restated here that could drift from it. `undefined` when the store has
- * published no return policy.
+ * The store's return policy, Google's organization-level form. With a
+ * return window and the countries the store ships to, the terms
+ * themselves (a finite window of so many days, and who pays the return
+ * shipping when the store has said), beside the link to its own page.
+ * Without them, the link alone, Google's minimal form. `undefined` when
+ * the store states neither.
  */
-export function merchantReturnPolicySchema(returnPolicyUrl: string | undefined) {
-  if (!returnPolicyUrl) return undefined
+export function merchantReturnPolicySchema(policy: {
+  link: string | undefined
+  windowDays: number | null
+  fees: ReturnFees | null
+  countries: readonly string[]
+}) {
+  const terms = policy.windowDays && policy.countries.length > 0
+    ? {
+        applicableCountry: [...policy.countries],
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: policy.windowDays,
+        ...(policy.fees ? { returnFees: RETURN_FEES[policy.fees] } : {}),
+      }
+    : undefined
+  if (!terms && !policy.link) return undefined
   return {
     '@type': 'MerchantReturnPolicy' as const,
-    'merchantReturnLink': returnPolicyUrl,
+    ...terms,
+    ...(policy.link ? { merchantReturnLink: policy.link } : {}),
   }
 }

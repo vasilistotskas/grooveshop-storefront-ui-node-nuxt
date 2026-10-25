@@ -129,18 +129,25 @@ const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true
 
 // The store's shipping and return policies, from what it really offers
 // (Google's organization-level merchant policies). The return policy is
-// linked only once the store has published it.
+// linked only once the store has published it; its terms (window, fees)
+// are stated for the countries the store ships to once the store has set
+// them (RETURN_WINDOW_DAYS, RETURN_FEES).
 const { published: publishedContentPages } = useFooterContentPages()
 const { data: shippingPolicy } = useApi('/api/shipping/policy', { key: 'shipping-policy' })
+const returnWindowSetting = useSettingValue('RETURN_WINDOW_DAYS')
+const returnFeesSetting = useSettingValue('RETURN_FEES')
 const shippingServices = computed(() => {
   const services = shippingServicesSchema(shippingPolicy.value ?? [])
   return services.length > 0 ? services : undefined
 })
-const merchantReturnPolicy = computed(() => merchantReturnPolicySchema(
-  publishedContentPages.value.has(LEGAL_ROUTE_SLUGS['return-policy'])
+const merchantReturnPolicy = computed(() => merchantReturnPolicySchema({
+  link: publishedContentPages.value.has(LEGAL_ROUTE_SLUGS['return-policy'])
     ? resolveSitePath(localePath('return-policy')).value
     : undefined,
-))
+  windowDays: returnWindowDays(returnWindowSetting.value),
+  fees: returnFees(returnFeesSetting.value),
+  countries: [...new Set((shippingPolicy.value ?? []).map(entry => entry.countryCode))],
+}))
 
 // The physical-store extras attach AFTER defineOrganization: their
 // values are refs of objects, which unhead's deep resolve unwraps at
