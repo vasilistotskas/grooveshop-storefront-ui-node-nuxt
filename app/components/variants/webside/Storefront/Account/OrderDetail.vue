@@ -360,36 +360,21 @@ async function handleTrackOrder() {
   }
 }
 
-const isFetchingInvoice = ref(false)
+const { fetching: isFetchingInvoice, open: openOrderInvoice } = useOrderInvoice()
 
 async function handleDownloadInvoice() {
-  if (!order.value?.id || isFetchingInvoice.value) return
-  isFetchingInvoice.value = true
-  try {
-    const data = await $api(`/api/orders/${order.value.id}/invoice`, {
-      method: 'GET',
-      headers: useRequestHeaders(),
+  if (!order.value?.id) return
+  const outcome = await openOrderInvoice(order.value.id)
+  if (outcome.kind === 'missing') {
+    toast.add({
+      title: t('invoice.error_title'),
+      description: t('invoice.error_missing'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
     })
-    const downloadUrl = data?.downloadUrl
-    if (!downloadUrl) {
-      toast.add({
-        title: t('invoice.error_title'),
-        description: t('invoice.error_missing'),
-        color: 'error',
-        icon: 'i-heroicons-x-circle',
-      })
-      return
-    }
-    // Opening in a new tab keeps the order page context; the URL is a
-    // short-lived signed link so there's no value in deep-linking.
-    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
   }
-  catch (error) {
-    log.error({ action: 'order:invoice:download', error })
-    notify('webside-order:invoice', error, { title: t('invoice.error_title'), fallback: t('invoice.error_description') })
-  }
-  finally {
-    isFetchingInvoice.value = false
+  else if (outcome.kind === 'failed') {
+    notify('webside-order:invoice', outcome.error, { title: t('invoice.error_title'), fallback: t('invoice.error_description') })
   }
 }
 

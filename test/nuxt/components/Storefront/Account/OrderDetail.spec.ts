@@ -8,6 +8,7 @@ import { makeAcsShipment, makeAcsStation, makeAcsTrackingEvent } from '~~/test/f
 import { makeBoxNowLocker, makeBoxNowParcelEvent, makeBoxNowShipment } from '~~/test/fixtures/boxnow'
 import { makeOrder, makeOrderItem } from '~~/test/fixtures/order'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
 
 /**
  * One order: its progress, one timeline of the store's steps and the
@@ -303,6 +304,23 @@ describe('Storefront/Account/OrderDetail', () => {
 
     expect(tab.close).toHaveBeenCalled()
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+  })
+
+  it('says the reason Django gives when the invoice cannot be had, and closes the tab', async () => {
+    state.order = makeOrder({ id: 3, hasInvoice: true })
+    api.routes({ '/api/orders/3/invoice': failWith(409, { detail: 'Το παραστατικό εκδίδεται ακόμη.' }) })
+    const tab = fakeTab()
+    vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window)
+
+    const wrapper = await mountPage()
+    await button(wrapper, 'Απόδειξη')!.trigger('click')
+    await flushPromises()
+
+    expect(tab.close).toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      color: 'error',
+      description: expect.stringContaining('Το παραστατικό εκδίδεται ακόμη.'),
+    }))
   })
 
   it('offers no invoice before one exists', async () => {

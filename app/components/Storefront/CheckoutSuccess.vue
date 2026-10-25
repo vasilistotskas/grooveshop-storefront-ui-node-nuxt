@@ -463,15 +463,16 @@ const totals = computed(() => {
 const nameOf = (item: OrderItemDetail) => extractTranslated(item.product, 'name', locale.value) ?? ''
 
 const { fetching: fetchingInvoice, open: openOrderInvoice } = useOrderInvoice()
+const { notify } = useApiError()
 
 async function openInvoice() {
   if (!order.value?.id) return
   const outcome = await openOrderInvoice(order.value.id, orderUUID)
-  if (outcome === 'missing') {
+  if (outcome.kind === 'missing') {
     toast.add({ title: t('invoice.error_title'), description: t('invoice.error_missing'), color: 'error' })
   }
-  else if (outcome === 'failed') {
-    toast.add({ title: t('invoice.error_title'), description: t('invoice.error_description'), color: 'error' })
+  else if (outcome.kind === 'failed') {
+    notify('checkout-success:invoice', outcome.error, { title: t('invoice.error_title'), fallback: t('invoice.error_description') })
   }
 }
 </script>

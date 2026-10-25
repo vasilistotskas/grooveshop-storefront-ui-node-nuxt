@@ -10,14 +10,21 @@
  * A guest's order is identified by its `uuid` (the confirmation link's),
  * which the invoice route forwards to Django; a signed-in shopper's by
  * their session. The caller says what went wrong in its own words:
- * `open` resolves to `'missing'` when Django has no invoice yet and to
- * `'failed'` when the request failed.
+ * `open` resolves to `missing` when Django has no invoice yet, and to
+ * `failed` with the error when the request failed, for the caller to tell
+ * the shopper Django's reason (`useApiError().notify`).
  */
+export type OrderInvoiceOutcome
+  = | { kind: 'opened' }
+    | { kind: 'missing' }
+    | { kind: 'busy' }
+    | { kind: 'failed', error: unknown }
+
 export function useOrderInvoice() {
   const fetching = ref(false)
 
-  async function open(orderId: number, uuid?: string): Promise<'opened' | 'missing' | 'failed' | 'busy'> {
-    if (fetching.value) return 'busy'
+  async function open(orderId: number, uuid?: string): Promise<OrderInvoiceOutcome> {
+    if (fetching.value) return { kind: 'busy' }
     fetching.value = true
     const tab = window.open('', '_blank')
     if (tab) tab.opener = null
@@ -28,16 +35,16 @@ export function useOrderInvoice() {
       })
       if (!data?.downloadUrl) {
         tab?.close()
-        return 'missing'
+        return { kind: 'missing' }
       }
       if (tab) tab.location.href = data.downloadUrl
       else window.location.assign(data.downloadUrl)
-      return 'opened'
+      return { kind: 'opened' }
     }
     catch (error) {
       tab?.close()
       log.error({ action: 'order:invoice:download', error })
-      return 'failed'
+      return { kind: 'failed', error }
     }
     finally {
       fetching.value = false
