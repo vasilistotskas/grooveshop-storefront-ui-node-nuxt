@@ -2,135 +2,50 @@
 /**
  * The search page: one big field, what others search for under it, then
  * the products found — with the guides that match beside them — or the
- * guides alone on their own tab.
- *
- * The URL is the state (`?query=`, `?tab=guides`, `?page=`), so a search
- * can be shared, reloaded and walked back. Products and guides are two
- * searches, each paged on its own (`/api/products/search`,
- * `/api/search/blog-posts`): one request for both made the guides follow
- * whatever page of products was open.
+ * guides alone on their own tab. The searches and the URL state are
+ * `useStorefrontSearch`'s.
  */
 const { t, locale } = useI18n()
-const route = useRoute(`search___${locale.value}`)
-const { trackResultClick } = useSearchClickTracking()
-// Without the blog plan there are no guides: no tab, no aside, and no
-// request (Django answers 404 for the blog search).
-const blogEnabled = useStoreFeature('blog')
 
 /** How many guides sit beside the products. */
 const ASIDE_GUIDES = 3
 
-type Tab = 'products' | 'guides'
-
-const firstOf = (value: unknown): string =>
-  typeof value === 'string' ? value : Array.isArray(value) && typeof value[0] === 'string' ? value[0] : ''
-
-const query = computed(() => firstOf(route.query.query).trim())
-const tab = computed<Tab>(() => route.query.tab === 'guides' && blogEnabled.value ? 'guides' : 'products')
-const page = computed(() => Math.max(1, Number(firstOf(route.query.page)) || 1))
-const limit = ref(12)
-const offset = computed(() => (page.value - 1) * limit.value)
-
-/** The URL for a state change; `page` drops back to the first unless given. */
-function stateQuery(change: { query?: string, tab?: Tab, page?: number }) {
-  const next = { query: change.query ?? query.value, tab: change.tab ?? tab.value, page: change.page ?? 1 }
-  return {
-    ...(next.query ? { query: next.query } : {}),
-    ...(next.tab === 'guides' ? { tab: 'guides' } : {}),
-    ...(next.page > 1 ? { page: String(next.page) } : {}),
-  }
-}
-
-// The field types freely; the URL — and the searches — follow a beat
-// later, replacing the entry rather than stacking one per keystroke.
-const draft = ref(query.value)
-watch(query, (value) => {
-  if (value !== draft.value.trim()) draft.value = value
-})
-const commitDraft = useDebounceFn(() => {
-  if (draft.value.trim() === query.value) return
-  navigateTo({ query: stateQuery({ query: draft.value.trim() }) }, { replace: true })
-}, 300)
-
-function search(value: string) {
-  draft.value = value
-  navigateTo({ query: stateQuery({ query: value }) })
-}
-
-const hasQuery = computed(() => query.value.length > 0)
-
-// Each search runs only with something to search for: an empty query
-// would list the whole catalogue. Both run on either tab, for the
-// counts on the tabs; the open tab's search is the one that pages.
-const productsOffset = computed(() => tab.value === 'products' ? offset.value : 0)
 const {
-  data: products,
-  status: productsStatus,
-} = await useApi<ProductMeiliSearchResponse>('/api/products/search', {
-  query: { query, languageCode: locale, limit, offset: productsOffset, facets: 'category' },
-  enabled: hasQuery,
-})
-
-const guidesLimit = computed(() => tab.value === 'guides' ? limit.value : ASIDE_GUIDES)
-const guidesOffset = computed(() => tab.value === 'guides' ? offset.value : 0)
-const {
-  data: guides,
-  status: guidesStatus,
-} = await useApi<BlogPostMeiliSearchResponse>('/api/search/blog-posts', {
-  query: { query, languageCode: locale, limit: guidesLimit, offset: guidesOffset },
-  enabled: () => hasQuery.value && blogEnabled.value,
-})
+  blogEnabled,
+  query,
+  tab,
+  page,
+  limit,
+  draft,
+  commitDraft,
+  search,
+  linkTo,
+  hasQuery,
+  products,
+  guides,
+  productCount,
+  guideCount,
+  openCount,
+  pending,
+  relaxedQuery,
+  selectTab,
+  pageLink,
+  changeLimit,
+  onProductClick,
+  onGuideClick,
+} = await useStorefrontSearch({ asideGuides: ASIDE_GUIDES })
 
 const trending = useLazyApi<TrendingSearchResponse>('/api/search/trending', {
   query: { languageCode: locale, contentType: 'product', limit: 4 },
 })
 const trendingQueries = computed(() => (trending.data.value?.results ?? []).map(result => result.query))
 
-const productCount = computed(() => products.value?.estimatedTotalHits ?? 0)
-const guideCount = computed(() => guides.value?.estimatedTotalHits ?? 0)
-const openCount = computed(() => tab.value === 'guides' ? guideCount.value : productCount.value)
-const pending = computed(() => (tab.value === 'guides' ? guidesStatus : productsStatus).value === 'pending')
-// The engine widened the query when nothing matched it: say so, the
-// results are not the ones that were asked for.
-const relaxedQuery = computed(() => (tab.value === 'guides' ? guides : products).value?.relaxedQuery ?? null)
-
 const tabItems = computed(() => [
   { value: 'products', label: t('tabs.products'), badge: productCount.value },
   ...(blogEnabled.value ? [{ value: 'guides', label: t('tabs.guides'), badge: guideCount.value }] : []),
 ])
 
-function selectTab(value: string | number) {
-  navigateTo({ query: stateQuery({ tab: value === 'guides' ? 'guides' : 'products' }) })
-}
-
-const pageLink = (target: number) => ({ path: route.path, query: stateQuery({ page: target }) })
-
-function changeLimit(value: unknown) {
-  const next = Number(value)
-  if (!Number.isFinite(next) || next <= 0) return
-  limit.value = next
-  navigateTo({ query: stateQuery({}) }, { replace: true })
-}
-
 const limitOptions = computed(() => [12, 24, 48].map(value => ({ label: t('per_page', { n: value }), value })))
-
-function onProductClick(product: ProductMeiliSearchResult, index: number) {
-  trackResultClick({
-    queryId: products.value?.queryId,
-    resultId: product.master,
-    resultType: 'product',
-    position: productsOffset.value + index,
-  })
-}
-
-function onGuideClick(post: BlogPostMeiliSearchResult, index: number) {
-  trackResultClick({
-    queryId: guides.value?.queryId,
-    resultId: post.master,
-    resultType: 'blog_post',
-    position: guidesOffset.value + index,
-  })
-}
 
 useHead({
   title: () => query.value ? t('title_query', { query: query.value }) : t('title'),
@@ -191,7 +106,7 @@ useHead({
       <UButton
         v-for="term in trendingQueries"
         :key="term"
-        :to="{ path: route.path, query: stateQuery({ query: term }) }"
+        :to="linkTo({ query: term })"
         color="neutral"
         variant="outline"
         size="xs"

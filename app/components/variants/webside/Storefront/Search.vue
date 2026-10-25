@@ -1,165 +1,60 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
-const route = useRoute(`search___${locale.value}`)
-// Without the blog the search has no posts to show: no Blog tab.
-const blogEnabled = useStoreFeature('blog')
-
-const query = ref(
-  Array.isArray(route.query.query)
-    ? route.query.query[0] ?? ''
-    : route.query.query ?? '',
-)
-const limit = ref(12)
-const page = ref(1)
-const activeTab = ref<'all' | 'products' | 'blogPosts'>('all')
-
-const offset = computed(() => (page.value - 1) * limit.value)
-
-// Two fetch lanes with genuinely different pagination semantics:
-//
-// - The per-type request drives the Products/Blog tabs (offset/limit
-//   map 1:1 onto each type's own list) and always supplies the tab
-//   badge counts.
-// - The "All" tab uses the FEDERATED endpoint: one relevance-merged,
-//   correctly paginated list. Concatenating the two per-type lists
-//   here used to render up to 2x the page size, advertise phantom
-//   trailing pages (summed totals over a single limit), and always
-//   rank products above blog posts regardless of relevance.
-const {
-  data: searchResults,
-  status,
-} = await useApi<SearchResponse>('/api/search', {
-  key: computed(() => `search-${query.value}-${limit.value}-${offset.value}`),
-  query: {
-    query,
-    languageCode: locale,
-    limit,
-    offset,
-  },
-  watch: [query, limit, offset],
-})
-
-const isAllTab = computed(() => activeTab.value === 'all')
+// Webside's drawing of the search page; the searches and the URL state
+// are `useStorefrontSearch`'s, the same as the default page's.
+const { t } = useI18n()
 
 const {
-  data: federatedResults,
-  status: federatedStatus,
-} = await useApi<FederatedSearchResponse>('/api/search/federated', {
-  key: computed(
-    () => `search-federated-${query.value}-${limit.value}-${offset.value}`,
-  ),
-  query: {
-    query,
-    languageCode: locale,
-    limit,
-    offset,
-  },
-  watch: [query, limit, offset],
-  immediate: !!query.value,
-})
+  blogEnabled,
+  query,
+  tab,
+  page,
+  limit,
+  draft,
+  commitDraft,
+  search,
+  hasQuery,
+  products,
+  guides,
+  productCount,
+  guideCount,
+  openCount,
+  pending,
+  relaxedQuery,
+  selectTab,
+  pageLink,
+  changeLimit,
+  onProductClick,
+  onGuideClick,
+} = await useStorefrontSearch({ asideGuides: 0 })
 
-const displayResults = computed<SearchResult[]>(() => {
-  if (activeTab.value === 'products') {
-    return searchResults.value?.products?.results || []
-  }
-  if (activeTab.value === 'blogPosts') {
-    return searchResults.value?.blogPosts?.results || []
-  }
-  // Safe refinement: the backend always emits master/slug on enriched
-  // federated hits (see EnrichedFederatedSearchResult).
-  return (federatedResults.value?.results || []) as SearchResult[]
-})
-
-const totalResults = computed(() => {
-  if (activeTab.value === 'products') {
-    return searchResults.value?.products?.estimatedTotalHits || 0
-  }
-  if (activeTab.value === 'blogPosts') {
-    return searchResults.value?.blogPosts?.estimatedTotalHits || 0
-  }
-  return federatedResults.value?.estimatedTotalHits || 0
-})
-
-const totalPages = computed(() => Math.ceil(totalResults.value / limit.value))
-
-const isSearching = computed(() =>
-  isAllTab.value
-    ? federatedStatus.value === 'pending'
-    : status.value === 'pending',
+const displayResults = computed<SearchResult[]>(() =>
+  tab.value === 'guides' ? guides.value?.results ?? [] : products.value?.results ?? [],
 )
 
-// The disclosure must describe the result set actually on screen —
-// product and blog relaxation are computed independently backend-side.
-const relaxedQuery = computed(() => {
-  if (activeTab.value === 'products') {
-    return searchResults.value?.products?.relaxedQuery ?? null
-  }
-  if (activeTab.value === 'blogPosts') {
-    return searchResults.value?.blogPosts?.relaxedQuery ?? null
-  }
-  return federatedResults.value?.relaxedQuery ?? null
-})
+const totalPages = computed(() => Math.ceil(openCount.value / limit.value))
 
-const { trackResultClick } = useSearchClickTracking()
-
-function onResultClick(result: SearchResult, index: number) {
-  // Federated hits type master as optional - without it the click
-  // cannot be attributed to a rankable entity, so skip tracking.
-  if (result.master == null) return
-  const isProduct = result.contentType === 'product'
-  trackResultClick({
-    queryId: isAllTab.value
-      ? federatedResults.value?.queryId
-      : isProduct
-        ? searchResults.value?.products?.queryId
-        : searchResults.value?.blogPosts?.queryId,
-    resultId: result.master,
-    resultType: isProduct ? 'product' : 'blog_post',
-    position: offset.value + index,
-  })
+// The open tab names the list a result came from.
+function onResultClick(index: number) {
+  const post = tab.value === 'guides' ? guides.value?.results[index] : undefined
+  const product = tab.value === 'products' ? products.value?.results[index] : undefined
+  if (post) onGuideClick(post, index)
+  if (product) onProductClick(product, index)
 }
 
-const tabItems = computed(() => {
-  const productsCount = searchResults.value?.products?.estimatedTotalHits || 0
-  const blogPostsCount = searchResults.value?.blogPosts?.estimatedTotalHits || 0
-
-  return [
-    {
-      value: 'all',
-      label: t('page.tabs.all'),
-      badge: productsCount + blogPostsCount,
-    },
-    {
-      value: 'products',
-      label: t('page.tabs.products_label'),
-      badge: productsCount,
-    },
-    ...(blogEnabled.value
-      ? [{
-          value: 'blogPosts',
-          label: t('page.tabs.blog_posts_label'),
-          badge: blogPostsCount,
-        }]
-      : []),
-  ]
-})
-
-watch([activeTab, query], () => {
-  page.value = 1
-})
-
-watch(query, (newQuery) => {
-  if (newQuery) {
-    navigateTo({
-      query: { query: newQuery },
-    })
-  }
-  else {
-    navigateTo({
-      query: {},
-    })
-  }
-})
+const tabItems = computed(() => [
+  {
+    value: 'products',
+    label: t('page.tabs.products_label'),
+    badge: productCount.value,
+  },
+  ...(blogEnabled.value
+    ? [{
+        value: 'guides',
+        label: t('page.tabs.blog_posts_label'),
+        badge: guideCount.value,
+      }]
+    : []),
+])
 
 const shortcuts = computed(() => [
   {
@@ -183,7 +78,7 @@ const handleKeydown = (e: KeyboardEvent) => {
     inputRef.value?.$el?.querySelector('input')?.focus()
   }
   if (e.key === 'Escape' && (activeTag === 'INPUT' || activeTag === 'TEXTAREA')) {
-    query.value = ''
+    search('')
   }
 }
 
@@ -239,7 +134,7 @@ useHead({
           <div class="relative">
             <UInput
               ref="inputRef"
-              v-model="query"
+              v-model="draft"
               icon="i-heroicons-magnifying-glass"
               size="xl"
               :placeholder="t('page.search_placeholder')"
@@ -248,11 +143,12 @@ useHead({
               :ui="{
                 root: 'w-full',
               }"
+              @update:model-value="commitDraft"
             >
               <template #trailing>
                 <div class="flex items-center gap-2">
                   <UKbd
-                    v-if="!query"
+                    v-if="!draft"
                     value="/"
                     size="sm"
                   />
@@ -262,7 +158,7 @@ useHead({
                     color="neutral"
                     variant="ghost"
                     size="sm"
-                    @click="() => { query = '' }"
+                    @click="() => search('')"
                   />
                 </div>
               </template>
@@ -271,7 +167,7 @@ useHead({
         </div>
 
         <div
-          v-if="query && searchResults"
+          v-if="hasQuery"
           class="
             flex flex-col gap-4
             md:flex-row md:items-center md:justify-between
@@ -290,7 +186,7 @@ useHead({
             <span>
               {{
                 t('page.results_count', {
-                  count: totalResults,
+                  count: openCount,
                   query: query,
                 })
               }}
@@ -306,9 +202,10 @@ useHead({
 
           <div class="flex items-center gap-4">
             <UTabs
-              v-model="activeTab"
+              :model-value="tab"
               :items="tabItems"
               color="neutral"
+              @update:model-value="selectTab"
             >
               <template #default="{ item }">
                 <div class="flex cursor-pointer items-center gap-2">
@@ -323,7 +220,7 @@ useHead({
 
     <UContainer class="flex-1 py-8">
       <div
-        v-if="isSearching && displayResults.length === 0"
+        v-if="pending && displayResults.length === 0"
         class="space-y-4"
       >
         <UCard
@@ -347,7 +244,7 @@ useHead({
       </div>
 
       <div
-        v-else-if="!query"
+        v-else-if="!hasQuery"
         class="
           flex min-h-[400px] flex-col items-center justify-center py-16
           text-center
@@ -402,9 +299,8 @@ useHead({
 
       <div
         v-else-if="
-          searchResults
-            && displayResults.length === 0
-            && !isSearching
+          displayResults.length === 0
+            && !pending
         "
         class="
           flex min-h-[400px] flex-col items-center justify-center py-16
@@ -444,7 +340,7 @@ useHead({
         <UButton
           icon="i-heroicons-arrow-path"
           color="neutral"
-          @click="() => { query = '' }"
+          @click="() => search('')"
         >
           {{ t('page.no_results.clear_search') }}
         </UButton>
@@ -473,7 +369,7 @@ useHead({
           >
             <WebsideSearchResult
               :result="result"
-              @click="onResultClick(result, index)"
+              @click="onResultClick(index)"
             />
           </UCard>
         </div>
@@ -483,8 +379,9 @@ useHead({
           class="flex justify-center pt-6"
         >
           <UPagination
-            v-model:page="page"
-            :total="totalResults"
+            :page="page"
+            :to="pageLink"
+            :total="openCount"
             :items-per-page="limit"
             show-edges
             :ui="{
@@ -503,11 +400,11 @@ useHead({
             {{ t('page.per_page') }}
           </span>
           <USelectMenu
-            v-model="limit"
+            :model-value="limit"
             :items="[12, 24, 48, 96]"
             size="sm"
             class="w-20"
-            @change="page = 1"
+            @update:model-value="changeLimit"
           />
         </div>
       </div>
