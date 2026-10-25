@@ -1,3 +1,10 @@
+## [3.262.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.0...v3.262.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **openapi:** the generated client no longer knows the federated search ([#232](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/232)) ([b5e0095](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b5e00953ad8e00a197e63da2e8550900a67787e1)), closes [#324](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/324)
+
 # [3.262.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.261.1...v3.262.0) (2026-10-25)
 
 
