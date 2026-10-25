@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { merchantReturnPolicySchema, shippingServicesSchema } from '~/utils/organizationPolicies'
+import { merchantReturnPolicySchema, returnFees, returnWindowDays, shippingServicesSchema } from '~/utils/organizationPolicies'
 
 function entry(overrides: Partial<ShippingPolicyEntry> = {}): ShippingPolicyEntry {
   return {
@@ -69,14 +69,75 @@ describe('shippingServicesSchema', () => {
 })
 
 describe('merchantReturnPolicySchema', () => {
-  it('links the store\'s own return policy page', () => {
-    expect(merchantReturnPolicySchema('https://store.test/return-policy')).toEqual({
+  const LINK = 'https://store.test/return-policy'
+  const unstated = { link: LINK, windowDays: null, fees: null, countries: ['GR', 'CY'] }
+
+  it('links the store\'s own return policy page while the store states no terms', () => {
+    expect(merchantReturnPolicySchema(unstated)).toEqual({
       '@type': 'MerchantReturnPolicy',
-      'merchantReturnLink': 'https://store.test/return-policy',
+      'merchantReturnLink': LINK,
     })
   })
 
-  it('is nothing for a store without a published return policy', () => {
-    expect(merchantReturnPolicySchema(undefined)).toBeUndefined()
+  it('states the window and who pays, for every country the store ships to, beside the link', () => {
+    expect(merchantReturnPolicySchema({ ...unstated, windowDays: 14, fees: 'customer' })).toEqual({
+      '@type': 'MerchantReturnPolicy',
+      'applicableCountry': ['GR', 'CY'],
+      'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      'merchantReturnDays': 14,
+      'returnFees': 'https://schema.org/ReturnFeesCustomerResponsibility',
+      'merchantReturnLink': LINK,
+    })
+  })
+
+  it('states a free return as one', () => {
+    expect(merchantReturnPolicySchema({ ...unstated, windowDays: 30, fees: 'free' })?.returnFees)
+      .toBe('https://schema.org/FreeReturn')
+  })
+
+  it('says nothing of fees the store has not stated', () => {
+    expect(merchantReturnPolicySchema({ ...unstated, windowDays: 14 })).not.toHaveProperty('returnFees')
+  })
+
+  it('states the terms without a page to link to', () => {
+    expect(merchantReturnPolicySchema({ ...unstated, link: undefined, windowDays: 14 })).toEqual({
+      '@type': 'MerchantReturnPolicy',
+      'applicableCountry': ['GR', 'CY'],
+      'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      'merchantReturnDays': 14,
+    })
+  })
+
+  it('states no terms for a store that ships nowhere: they name no country', () => {
+    expect(merchantReturnPolicySchema({ ...unstated, windowDays: 14, countries: [] })).toEqual({
+      '@type': 'MerchantReturnPolicy',
+      'merchantReturnLink': LINK,
+    })
+  })
+
+  it('is nothing for a store with neither a published page nor terms', () => {
+    expect(merchantReturnPolicySchema({ ...unstated, link: undefined })).toBeUndefined()
+  })
+})
+
+describe('returnWindowDays', () => {
+  it('reads a whole number of days', () => {
+    expect(returnWindowDays('14')).toBe(14)
+  })
+
+  it('is null for not stated (0), empty, or anything but a whole positive number', () => {
+    expect(['0', '', ' ', '-3', '14.5', 'abc'].map(returnWindowDays)).toEqual([null, null, null, null, null, null])
+  })
+})
+
+describe('returnFees', () => {
+  it('reads the two terms a store can state', () => {
+    expect(returnFees('free')).toBe('free')
+    expect(returnFees('customer')).toBe('customer')
+  })
+
+  it('is null when the store has not said', () => {
+    expect(returnFees('')).toBeNull()
+    expect(returnFees('Free')).toBeNull()
   })
 })
