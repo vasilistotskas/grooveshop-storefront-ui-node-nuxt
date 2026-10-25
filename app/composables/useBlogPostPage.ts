@@ -9,7 +9,10 @@
  * tenants' own), so the request, its keys and the SEO are decided once.
  * Call it from a body's `<script setup>`, before the first `await`.
  */
-export async function useBlogPostPage() {
+export async function useBlogPostPage(options: {
+  /** The article column's width: inline images are requested no wider. */
+  articleMaxWidth: number
+}) {
   const { t, locale } = useI18n()
   const route = useRoute(`blog-post-id-slug___${locale.value}`)
   const siteConfig = useSiteConfig()
@@ -37,6 +40,14 @@ export async function useBlogPostPage() {
   const { trackView } = useViewCount()
   onMounted(() => {
     trackView('blog', blogPostId.value!)
+  })
+
+  // Below-the-fold content, lazy so it never blocks navigation. Started
+  // before the first await: it needs only the id, and a request a composable
+  // starts after an await has no component instance, so it outlives the page.
+  const { data: relatedPosts, status: relatedPostsStatus } = useLazyApi(`/api/blog/posts/${blogPostId.value}/related-posts`, {
+    key: `relatedPosts${blogPostId.value}`,
+    method: 'GET',
   })
 
   const { data: blogPost, refresh, error: blogPostError } = await useApi(
@@ -89,15 +100,9 @@ export async function useBlogPostPage() {
     }),
   ])
 
-  // Below-the-fold content: use useLazyFetch to not block navigation
-  const { data: relatedPosts, status: relatedPostsStatus } = useLazyApi(`/api/blog/posts/${blogPostId.value}/related-posts`, {
-    key: `relatedPosts${blogPostId.value}`,
-    method: 'GET',
-  })
-
   const blogPostBody = computed(() => {
     const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
-    return transformImages(rawBody, { maxWidth: ARTICLE_COLUMN_MAX_WIDTH })
+    return transformImages(rawBody, { maxWidth: options.articleMaxWidth })
   })
 
   const blogPostTitle = computed(() =>

@@ -19,7 +19,7 @@ const {
   blogPostBody,
   relatedPosts,
   relatedPostsStatus,
-} = await useBlogPostPage()
+} = await useBlogPostPage({ articleMaxWidth: ARTICLE_COLUMN_MAX_WIDTH })
 
 // Non-critical data: defer to client-side (doesn't block FCP/LCP)
 const { data: likedPostsData } = await useApi('/api/blog/posts/liked-posts', {
