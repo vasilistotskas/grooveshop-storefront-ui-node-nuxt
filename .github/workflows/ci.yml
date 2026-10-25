@@ -28,6 +28,38 @@ env:
   SYSTEM_ENV: ci
 
 jobs:
+  tested-in-pr:
+    name: Already tested in its PR
+    # A push to main whose tree is exactly what a green pull_request run
+    # tested (the PR branch was up to date with main when it merged) skips
+    # quality, tests, e2e, build and schema freshness, and goes straight to
+    # release. The rule and its proof: .github/scripts/tested_in_pr.sh. Any
+    # other push, a PR or a dispatch runs everything. The Trivy scan always
+    # runs: its database moves daily, not with the code.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    outputs:
+      tested: ${{ steps.check.outputs.tested }}
+    steps:
+      - name: Checkout
+        if: github.event_name == 'push'
+        uses: actions/checkout@v7
+
+      - name: Same tree as a green PR run
+        id: check
+        if: github.event_name == 'push'
+        # An API error leaves ``tested`` unset, which runs everything: the
+        # cost of a failed check is time, never an untested release.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+        run: bash .github/scripts/tested_in_pr.sh "$GITHUB_SHA" "$BEFORE" >> "$GITHUB_OUTPUT"
+
   security-scan:
     name: Security Scan (Trivy)
     runs-on: ubuntu-latest
@@ -67,6 +99,8 @@ jobs:
   # parallelism buys back several times over.
   quality:
     name: Typecheck & Lint
+    needs: tested-in-pr
+    if: needs.tested-in-pr.outputs.tested != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -109,6 +143,8 @@ jobs:
 
   test:
     name: Unit & Nuxt Tests
+    needs: tested-in-pr
+    if: needs.tested-in-pr.outputs.tested != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -152,7 +188,7 @@ jobs:
         if: always()
         run: |
           if [ -f coverage/coverage-summary.json ]; then
-            echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+            echo "## Coverage Report" >> "$GITHUB_STEP_SUMMARY"
             node -e "
               const fs = require('fs');
               const s = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8')).total;
@@ -162,7 +198,7 @@ jobs:
               console.log(\`| Branches   | \${s.branches.pct}% | \${s.branches.covered} / \${s.branches.total} |\`);
               console.log(\`| Functions  | \${s.functions.pct}% | \${s.functions.covered} / \${s.functions.total} |\`);
               console.log(\`| Lines      | \${s.lines.pct}% | \${s.lines.covered} / \${s.lines.total} |\`);
-            " >> $GITHUB_STEP_SUMMARY
+            " >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload coverage artifacts
@@ -175,6 +211,8 @@ jobs:
 
   e2e:
     name: E2E Regression Tests
+    needs: tested-in-pr
+    if: needs.tested-in-pr.outputs.tested != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -214,6 +252,8 @@ jobs:
 
   build:
     name: Build
+    needs: tested-in-pr
+    if: needs.tested-in-pr.outputs.tested != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -265,13 +305,15 @@ jobs:
         env:
           ALL_VARS: ${{ toJSON(vars) }}
         run: |
-          # GitHub *variables* (not secrets) — non-sensitive NUXT_* build/public config only.
-          echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
-          echo "NUXT_REDIS_HOST=localhost" >> .env
-          echo "NUXT_REDIS_PORT=6379" >> .env
-          # Build-only placeholder so the prerender-time startup-validation
-          # Nitro plugin passes (session password >=32 chars).
-          echo "NUXT_SESSION_PASSWORD=build-only-placeholder-overridden-at-runtime-00" >> .env
+          {
+            # GitHub *variables* (not secrets) — non-sensitive NUXT_* build/public config only.
+            echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"'
+            echo "NUXT_REDIS_HOST=localhost"
+            echo "NUXT_REDIS_PORT=6379"
+            # Build-only placeholder so the prerender-time startup-validation
+            # Nitro plugin passes (session password >=32 chars).
+            echo "NUXT_SESSION_PASSWORD=build-only-placeholder-overridden-at-runtime-00"
+          } > .env
 
       # The built ``.output`` is deliberately NOT uploaded anywhere: the
       # deployable is the Docker image built by docker.yml, which builds
@@ -295,6 +337,8 @@ jobs:
 
   schema-freshness:
     name: OpenAPI Schema Freshness
+    needs: tested-in-pr
+    if: needs.tested-in-pr.outputs.tested != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -352,7 +396,14 @@ jobs:
   release:
     name: Release
     needs: [security-scan, quality, test, e2e, build, schema-freshness]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Skipped needs are the tested-in-pr path; a failed or cancelled one
+    # still blocks. ``!cancelled()`` replaces the implicit ``success()``,
+    # which would treat a skipped need as a reason not to run.
+    if: >-
+      !cancelled() && github.ref == 'refs/heads/main'
+      && github.event_name == 'push'
+      && !contains(needs.*.result, 'failure')
+      && !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency: release
