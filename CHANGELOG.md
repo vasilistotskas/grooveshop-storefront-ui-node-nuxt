@@ -1,3 +1,10 @@
+# [3.262.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.261.1...v3.262.0) (2026-10-25)
+
+
+### Features
+
+* **seo:** the Organization states the store's return terms ([#231](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/231)) ([9d52061](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9d5206147f550bc935a051b88d5da13a084f2317))
+
 ## [3.261.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.261.0...v3.261.1) (2026-10-25)
 
 
