@@ -1,106 +1,26 @@
 <script lang="ts" setup>
-const { locale, t } = useI18n()
+// Webside's drawing of the category page; the category, its posts and the
+// head are useBlogCategoryPage's, the same as the default page's.
+const { t } = useI18n()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
-const img = useMediaStreamImage()
 const localePath = useLocalePath()
 
-const paginationType = PaginationTypeEnum.PAGE_NUMBER
-const categoryId = 'id' in route.params
-  ? route.params.id
-  : undefined
-
-const page = computed(() => route.query.page)
-const ordering = computed(() => route.query.ordering || '-createdAt')
 const BlogPostCard = computed(() =>
   isMobileOrTablet.value ? resolveComponent('WebsideBlogPostCardMobile') : resolveComponent('WebsideBlogPostCardDesktop'),
 )
 
-const pageSize = ref(15)
-const entityOrdering = ref<EntityOrdering<any>>([
-  {
-    value: 'createdAt',
-    label: t('ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-])
-
-const { data: category, status: categoryStatus, error } = await useApi(
-  `/api/blog/categories/${categoryId}`,
-  {
-    key: `blogCategory${categoryId}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  },
-)
-
-if (error.value || !category.value) {
-  throw createError({
-    statusCode: 404,
-    message: t('error.page.not.found'),
-  })
-}
-
 const {
-  data: posts,
-  status: postStatus,
-} = useLazyApi(
-  `/api/blog/categories/${categoryId}/posts`,
-  {
-    key: `blogCategoryPosts${categoryId}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      pageSize: pageSize,
-      page: page,
-      ordering: ordering,
-      paginationType: paginationType,
-      languageCode: locale,
-    },
-  },
-)
-
-const categoryTitle = computed(() => {
-  return extractTranslated(category?.value, 'name', locale.value) || ''
-})
-
-// `undefined`, never '': an empty value still emits
-// `<meta name="description" content>`, which is strictly worse than no
-// tag at all — Google cannot fall back to generating a snippet, and
-// Ahrefs reports it as "Meta description tag missing or empty".
-// Omitting it lets the site-level description apply instead.
-const categoryDescription = computed(() => {
-  return extractTranslated(category?.value, 'description', locale.value)
-    || undefined
-})
-
-const totalPosts = computed(() => category.value?.postCount || 0)
-
-const pagination = computed(() => {
-  if (!posts.value?.count) return
-  return usePagination<BlogPost>(posts.value)
-})
-
-const orderingOptions = computed(() => {
-  return useOrdering(entityOrdering.value)
-})
-
-const ogImage = computed(() => {
-  if (!category || !category.value || !category.value.mainImagePath) {
-    return ''
-  }
-
-  return img(category.value.mainImagePath, {
-    ...OG_IMAGE_SIZE,
-    format: 'png',
-    fit: 'cover',
-  }, {
-    provider: 'mediaStream',
-  })
-})
+  categoryStatus,
+  posts,
+  postStatus,
+  categoryTitle,
+  totalPosts,
+  pagination,
+  ordering,
+  orderingOptions,
+  paginationType,
+} = await useBlogCategoryPage({ documentTitle: name => t('page.title', { name }) })
 
 const items = computed(() => [
   {
@@ -118,42 +38,6 @@ const items = computed(() => [
     current: true,
   },
 ])
-
-// The canonical and the hreflang set are built from the entity's OWN
-// id+slug, never from route.path: the [slug] segment is decorative (the
-// id resolves the record), so /{id}/anything renders the same page and —
-// self-canonicalising — every variant became its own indexable URL.
-// Declaring the document (useDocumentLocales) hands that to
-// setupPageHeader, which names the locale each version really exists in;
-// a page writing its own canonical or hreflang is what pointed every
-// /en/** page at the Greek URL.
-const { declare, canonicalUrl } = useDocumentLocales()
-declare(
-  translatedLocales(category.value?.translations, 'name'),
-  `/blog/category/${category.value?.id}/${category.value?.slug}`,
-)
-
-// A bare category name ("PC", "AI") is a 2-3 character title that tells
-// a searcher nothing about the page. The name still drives the H1 and
-// breadcrumb; only the document title gets the qualifier.
-const categoryDocumentTitle = computed(() =>
-  categoryTitle.value ? t('page.title', { name: categoryTitle.value }) : '',
-)
-
-useSeoMeta({
-  title: () => categoryDocumentTitle.value,
-  ogUrl: () => canonicalUrl.value,
-  description: () => categoryDescription.value,
-  ogDescription: () => categoryDescription.value,
-  ogImage: ogImage.value,
-  ogImageWidth: () => ogImage.value ? OG_IMAGE_SIZE.width : undefined,
-  ogImageHeight: () => ogImage.value ? OG_IMAGE_SIZE.height : undefined,
-  twitterImage: ogImage.value,
-})
-
-useHead({
-  title: categoryDocumentTitle,
-})
 </script>
 
 <template>

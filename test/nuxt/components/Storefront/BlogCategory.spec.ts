@@ -6,6 +6,7 @@ import { resolve } from 'node:path'
 import YAML from 'yaml'
 import { injectHead } from '#imports'
 import BlogCategory from '~/components/Storefront/BlogCategory.vue'
+import WebsideBlogCategory from '~/components/variants/webside/Storefront/BlogCategory.vue'
 import type { BlogCategory as BlogCategory_, BlogPost } from '~~/shared/openapi/types.gen'
 import { makeBlogCategory, makeBlogPost } from '~~/test/fixtures/blog'
 import { failWith } from '~~/test/helpers/api'
@@ -171,5 +172,40 @@ describe('Storefront/BlogCategory', () => {
       expect(og.width).toBeNull()
       expect(og.height).toBeNull()
     })
+  })
+})
+
+/**
+ * Webside draws the same page its own way over the same
+ * `useBlogCategoryPage`: the request is the page's behaviour, so it is
+ * pinned for that tree too.
+ */
+describe('webside Storefront/BlogCategory', () => {
+  it('asks for the page, the sort and the language from the posts route', async () => {
+    state.query = { page: '2', ordering: 'createdAt' }
+
+    await mountSuspended(WebsideBlogCategory, { route: false })
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/categories/4/posts')[0]!.options.query).toMatchObject({ page: '2', ordering: 'createdAt', languageCode: 'el' })
+  })
+
+  it('is a 404 for a category that does not exist', async () => {
+    api.routes({ '/api/blog/categories/4': failWith(404) })
+    let captured: unknown
+    const Parent = defineComponent({
+      setup() {
+        onErrorCaptured((error) => {
+          captured ??= error
+          return false
+        })
+        return () => h(WebsideBlogCategory)
+      },
+    })
+
+    await mountSuspended(Parent, { route: false })
+    await flushPromises()
+
+    expect(captured).toMatchObject({ statusCode: 404 })
   })
 })

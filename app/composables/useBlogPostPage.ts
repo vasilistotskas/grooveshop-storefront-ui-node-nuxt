@@ -42,6 +42,14 @@ export async function useBlogPostPage(options: {
     trackView('blog', blogPostId.value!)
   })
 
+  // Below-the-fold content, lazy so it never blocks navigation. Started
+  // before the first await: it needs only the id, and a request a composable
+  // starts after an await has no component instance, so it outlives the page.
+  const { data: relatedPosts, status: relatedPostsStatus } = useLazyApi(`/api/blog/posts/${blogPostId.value}/related-posts`, {
+    key: `relatedPosts${blogPostId.value}`,
+    method: 'GET',
+  })
+
   const { data: blogPost, refresh, error: blogPostError } = await useApi(
     `/api/blog/posts/${blogPostId.value}`,
     {
@@ -91,12 +99,6 @@ export async function useBlogPostPage(options: {
       },
     }),
   ])
-
-  // Below-the-fold content: use useLazyFetch to not block navigation
-  const { data: relatedPosts, status: relatedPostsStatus } = useLazyApi(`/api/blog/posts/${blogPostId.value}/related-posts`, {
-    key: `relatedPosts${blogPostId.value}`,
-    method: 'GET',
-  })
 
   const blogPostBody = computed(() => {
     const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''
