@@ -1,3 +1,10 @@
+# [3.265.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.264.0...v3.265.0) (2026-10-26)
+
+
+### Features
+
+* **products:** filter search, expand/collapse all and a way back to all products ([#245](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/245)) ([75b385a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/75b385ae432c64b9feec6dc58724f344bfdc0c79))
+
 # [3.264.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.263.1...v3.264.0) (2026-10-26)
 
 
