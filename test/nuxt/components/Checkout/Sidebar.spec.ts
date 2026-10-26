@@ -14,10 +14,11 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
  * The checkout's order summary is the only place the shopper sees what
- * they will pay before they pay it. The default tree prints the figures
- * `useCheckoutTotals` computes (its own suite holds the arithmetic); the
- * frozen webside copy still computes them inline, so its suite keeps the
- * arithmetic cases.
+ * they will pay before they pay it. Both trees print the figures
+ * `useCheckoutTotals` computes (its own suite holds the arithmetic). The
+ * frozen webside copy counts the delivery only on the payment step, where
+ * it recaps the chosen method, so its suite keeps the cases that pin how
+ * it feeds the composable.
  */
 
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
