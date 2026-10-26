@@ -10,10 +10,7 @@ const { t, n, locale } = useI18n()
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 
-const { data, status, refresh } = await useApi('/api/giftcard/mine', {
-  key: 'account-gift-cards',
-  method: 'GET',
-})
+const { data, status, refresh } = await useMyGiftCards()
 
 const cards = computed(() => data.value?.results ?? [])
 
