@@ -10,7 +10,10 @@ const { t, n, locale } = useI18n()
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 
-const { data, status, refresh } = await useMyGiftCards()
+const { data, status, error, refresh } = await useMyGiftCards()
+
+// Why the list did not load: Django's reason when it gave one.
+const loadError = computed(() => describeApiError(error.value, { fallback: t('load_error') }).description)
 
 const cards = computed(() => data.value?.results ?? [])
 
@@ -47,7 +50,7 @@ function stateOf(card: GiftCard): CardState {
 
     <AccountLoadError
       v-else-if="status === 'error'"
-      :message="t('load_error')"
+      :message="loadError"
       @retry="() => refresh()"
     />
 

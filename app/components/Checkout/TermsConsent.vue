@@ -25,6 +25,7 @@ const errorId = useId()
       name="terms"
       color="secondary"
       :aria-describedby="invalid ? errorId : undefined"
+      :aria-invalid="invalid || undefined"
     >
       <template #label>
         {{ t('before') }}<ULink
