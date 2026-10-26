@@ -1,94 +1,15 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { getUnseenCount, markAsSeen } = useUserNotification()
 const { presentationFor } = useNotificationPresentation()
-const userNotificationStore = useUserNotificationStore()
-const { notifications } = storeToRefs(userNotificationStore)
-const { setupNotifications } = userNotificationStore
-const { loggedIn } = useUserSession()
-
-// Defensive bootstrap — if the ``setup`` plugin's idle-callback couldn't
-// populate the store (one of its sibling calls rejected, idle callback
-// never fired, etc.) the bell would show "no notifications" even when
-// the unseen-count endpoint returns a positive number. Loading here as
-// a no-op when already populated keeps the bell self-consistent.
-onMounted(() => {
-  if (!loggedIn.value) return
-  if (notifications.value && notifications.value.results?.length) return
-  setupNotifications().catch(err => log.warn({ tag: 'notifications:bell', message: 'self-bootstrap failed', error: err }))
-})
 
 const isDropdownVisible = ref(false)
 const dropdown = ref<HTMLDivElement>()
 const toggleButton = ref<HTMLButtonElement>()
 
-// Unseen count is an aggregate over the *whole* history (paginated
-// list only covers page 1), so it has its own endpoint.
-const { data: unseen, status: unseenStatus } = useAsyncData(
-  'unseenNotificationsCount',
-  () => getUnseenCount(),
-  {
-    immediate: loggedIn.value,
-    watch: [notifications],
-    server: false,
-    lazy: true,
-  },
-)
-
-const pending = computed(() => unseenStatus.value === 'pending')
-
-const show = computed(() => {
-  if (!unseen.value || !('count' in unseen.value)) return false
-  return unseen.value.count > 0
+const { userNotifications, show, pending, onNotificationClick } = useNotificationsBell({
+  close: () => { isDropdownVisible.value = false },
 })
-
-// Drop directly into the store's detail-serialised rows instead of
-// fetching Notification objects by ID (that path returned plain
-// ``Notification`` rows keyed by Notification.id, which broke the
-// ``markAsSeen`` call below — that endpoint expects
-// ``NotificationUser`` ids). Using the store rows gives us both the
-// nested Notification content to render AND the correct
-// ``NotificationUser.id`` for mark-as-seen.
-const userNotifications = computed(() => {
-  return notifications.value?.results ?? []
-})
-
-type ResolvedLink = { to: string, external: boolean } | null
-
-const resolveLink = (link?: string | null): ResolvedLink => {
-  if (!link) return null
-  if (link.startsWith('http://') || link.startsWith('https://')) {
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    if (origin && link.startsWith(origin)) {
-      return { to: link.slice(origin.length) || '/', external: false }
-    }
-    return { to: link, external: true }
-  }
-  return { to: link, external: false }
-}
-
-const onNotificationClick = async (
-  notificationUserId: number,
-  link?: string | null,
-) => {
-  isDropdownVisible.value = false
-  const resolved = resolveLink(link)
-  if (resolved?.external) {
-    markAsSeen([notificationUserId]).catch(() => {})
-    setupNotifications().catch(() => {})
-    window.open(resolved.to, '_blank', 'noopener,noreferrer')
-    return
-  }
-  if (resolved) {
-    markAsSeen([notificationUserId]).catch(() => {})
-    setupNotifications().catch(() => {})
-    await navigateTo(resolved.to)
-    return
-  }
-  await markAsSeen([notificationUserId])
-  await setupNotifications()
-}
 
 const toggleDropdown = () => {
   isDropdownVisible.value = !isDropdownVisible.value

@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-const authStore = useAuthStore()
-const { config } = storeToRefs(authStore)
-
 defineProps({
   loading: {
     type: Boolean,
@@ -9,42 +6,7 @@ defineProps({
   },
 })
 
-const {
-  providerRedirect,
-  browserProviderRedirect,
-} = useAllAuthAuthentication()
-
-const providers = computed(() => {
-  return config.value?.socialaccount?.providers
-})
-
-const availableProviders = computed(() => {
-  return providers.value?.filter((provider: Provider) => {
-    return provider.client_id !== ''
-  })
-})
-
-const loginWithProvider = async (provider: Provider) => {
-  let webOnly = false
-
-  if (provider.flows.includes('provider_token')) {
-    webOnly = false
-  }
-  else if (provider.flows.includes('provider_redirect')) {
-    webOnly = true
-  }
-
-  if (webOnly) {
-    return await browserProviderRedirect({
-      provider: String(provider.id),
-      callback_url: '/account/provider/callback',
-      process: 'login',
-    })
-  }
-  else {
-    return providerRedirect(provider)
-  }
-}
+const { providers: availableProviders, signIn: loginWithProvider } = useSocialProviders()
 
 const providerColor = (provider: string) => {
   switch (provider) {

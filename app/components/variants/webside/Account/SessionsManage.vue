@@ -3,42 +3,19 @@ import type { TableColumn, DropdownMenuItem } from '#ui/types'
 
 const emit = defineEmits(['deleteSession'])
 
-const { deleteSession } = useAllAuthSessions()
-const toast = useToast()
 const { locale, t } = useI18n()
 const { contentShorten } = useText()
 
-const loading = ref(false)
-
-const authStore = useAuthStore()
-const { sessions, otherSessions } = storeToRefs(authStore)
-const { setupSessions } = authStore
-
-onMounted(() => {
-  setupSessions()
+const { sessions, otherSessions, busy, signOut } = useSessionsManage({
+  // Worded for what was ended: one session, or every other one.
+  signedOut: count => ({ title: t('session.logged_out', count), color: 'success' }),
 })
 
-const logout = async (fromSessions: Session[]) => {
-  try {
-    loading.value = true
-    const newSessions = await deleteSession({
-      sessions: fromSessions?.map(session => session.id),
-    })
-    if (newSessions) {
-      sessions.value = newSessions.data
-    }
-    // Worded for what was ended: one session, or every other one.
-    toast.add({
-      title: t('session.logged_out', fromSessions.length),
-      color: 'success',
-    })
+const loading = computed(() => busy.value !== null)
+
+const logout = async (fromSessions: Session[], key: number | 'others') => {
+  if (await signOut(fromSessions, key)) {
     emit('deleteSession')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
   }
 }
 
@@ -98,7 +75,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
       disabled: session.is_current,
       onSelect: () => {
         if (!session.is_current) {
-          logout([session])
+          logout([session], session.id)
         }
       },
     },
@@ -263,7 +240,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
             color="error"
             variant="subtle"
             size="md"
-            @click="logout(otherSessions)"
+            @click="logout(otherSessions, 'others')"
           >
             {{ t('logout_all_other_sessions') }}
           </UButton>

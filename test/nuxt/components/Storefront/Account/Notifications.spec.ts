@@ -6,15 +6,20 @@ import { createError, getQuery, readBody } from 'h3'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import Notifications from '~/components/Storefront/Account/Notifications.vue'
+import WebsideNotifications from '~/components/variants/webside/Storefront/Account/Notifications.vue'
 import { makeNotificationUserDetail } from '~~/test/fixtures/user'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The account's Notifications page: the shopper's notifications newest
  * first, filtered by read state from the URL, opened (marking an unread
  * one read), flipped read/unread, or all marked read — each followed by a
- * refetch so the list and the unread count stay true. A list that could
- * not load says so rather than "no notifications".
+ * refetch so the list and the unread count stay true
+ * (`useAccountNotifications`, shared by both trees). The default also shows
+ * the unread count on its tab and says a list that could not load did not,
+ * rather than "no notifications"; the frozen page draws neither.
  */
 const state = vi.hoisted(() => ({ query: {} as Record<string, string>, rows: [] as unknown[], unseen: 0, fail: false, failMark: false }))
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn((_to: string) => Promise.resolve()) }))
@@ -33,9 +38,10 @@ mockNuxtImport('useUserSession', () => () => ({
 // UTooltip needs UApp's TooltipProvider, which a bare mount does not have.
 mockComponent('UTooltip', { template: '<div><slot /></div>' })
 
-const messages = YAML.parse(
-  parseSfc(resolve(REPO, 'app/components/Storefront/Account/Notifications.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
-).el
+const COPY = {
+  default: inlineCopy('app/components/Storefront/Account/Notifications.vue'),
+  webside: inlineCopy('app/components/variants/webside/Storefront/Account/Notifications.vue'),
+}
 const itemMessages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Account/Notifications/Item.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
@@ -74,17 +80,30 @@ beforeEach(() => {
   for (const path of ['mark-as-seen', 'mark-as-unseen', 'mark-all-as-seen']) mark(path)
 })
 
-async function mountPage() {
-  const wrapper = await mountSuspended(Notifications)
-  await flushPromises()
-  return wrapper
-}
-
 const rowOf = (wrapper: VueWrapper, title: string) => wrapper.findAll('ol > li').find(item => item.text().includes(title))!
-const openButton = (wrapper: VueWrapper, title: string) => rowOf(wrapper, title).findAll('button').find(button => button.text().includes(title))!
 const tabs = (wrapper: VueWrapper) => wrapper.findAll('[role="tab"]')
 
-describe('Storefront/Account/Notifications', () => {
+describe.each(trees(Notifications, WebsideNotifications))('$tree Storefront/Account/Notifications', ({ tree, C }) => {
+  const messages = COPY[tree]
+  /** The row's marker for an unread notification. */
+  const UNREAD = tree === 'default' ? itemMessages.unread : messages.badge.new
+  const toggle = (wrapper: VueWrapper, title: string, to: 'seen' | 'unseen') => rowOf(wrapper, title).get(
+    tree === 'default'
+      ? `button[aria-label^="${to === 'seen' ? itemMessages.mark_seen : itemMessages.mark_unseen}:"]`
+      : `button[aria-label="${to === 'seen' ? messages.actions.mark_seen : messages.actions.mark_unseen}"]`,
+  )
+
+  /** The row's button that opens the notification: named by its text in the default, by the title in the frozen row. */
+  const openButton = (wrapper: VueWrapper, title: string) => tree === 'default'
+    ? rowOf(wrapper, title).findAll('button').find(button => button.text().includes(title))!
+    : rowOf(wrapper, title).get(`button[aria-label="${title}"]`)
+
+  async function mountPage() {
+    const wrapper = await mountSuspended(C)
+    await flushPromises()
+    return wrapper
+  }
+
   it('asks for the newest ten notifications of every read state first', async () => {
     await mountPage()
 
@@ -111,11 +130,11 @@ describe('Storefront/Account/Notifications', () => {
     expect(items).toHaveLength(2)
     expect(items[0]!.text()).toContain('Η παραγγελία στάλθηκε')
     expect(items[0]!.text()).toContain('Το δέμα έφυγε')
-    expect(items[0]!.text()).toContain(itemMessages.unread)
-    expect(items[1]!.text()).not.toContain(itemMessages.unread)
+    expect(items[0]!.text()).toContain(UNREAD)
+    expect(items[1]!.text()).not.toContain(UNREAD)
   })
 
-  it('shows how many are unread on the Unread tab', async () => {
+  it.runIf(tree === 'default')('shows how many are unread on the Unread tab', async () => {
     state.unseen = 3
 
     const wrapper = await mountPage()
@@ -160,9 +179,9 @@ describe('Storefront/Account/Notifications', () => {
   it('flips an unread row to read, and a read row to unread, without opening it', async () => {
     const wrapper = await mountPage()
 
-    await rowOf(wrapper, 'Η παραγγελία στάλθηκε').get(`button[aria-label^="${itemMessages.mark_seen}:"]`).trigger('click')
+    await toggle(wrapper, 'Η παραγγελία στάλθηκε', 'seen').trigger('click')
     await flushPromises()
-    await rowOf(wrapper, 'Ξανά σε απόθεμα').get(`button[aria-label^="${itemMessages.mark_unseen}:"]`).trigger('click')
+    await toggle(wrapper, 'Ξανά σε απόθεμα', 'unseen').trigger('click')
     await flushPromises()
 
     expect(posted['mark-as-seen']).toEqual([{ notificationUserIds: [1] }])
@@ -192,14 +211,14 @@ describe('Storefront/Account/Notifications', () => {
     const wrapper = await mountPage()
     state.failMark = true
 
-    await rowOf(wrapper, 'Η παραγγελία στάλθηκε').get(`button[aria-label^="${itemMessages.mark_seen}:"]`).trigger('click')
+    await toggle(wrapper, 'Η παραγγελία στάλθηκε', 'seen').trigger('click')
     await flushPromises()
 
     expect(asked).toHaveLength(1)
-    expect(rowOf(wrapper, 'Η παραγγελία στάλθηκε').text()).toContain(itemMessages.unread)
+    expect(rowOf(wrapper, 'Η παραγγελία στάλθηκε').text()).toContain(UNREAD)
   })
 
-  it('says the list did not load, not that it is empty, and tries again', async () => {
+  it.runIf(tree === 'default')('says the list did not load, not that it is empty, and tries again', async () => {
     state.fail = true
 
     const wrapper = await mountPage()

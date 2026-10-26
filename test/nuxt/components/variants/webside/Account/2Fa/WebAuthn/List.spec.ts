@@ -13,8 +13,9 @@ import { makeAuthenticator } from '~~/test/fixtures/allauth'
  * through a small check icon, and had no way back (owner review,
  * 2026-10-16). It now opens a bordered input on a draft, with Save and
  * Cancel; Enter saves, Escape cancels, and the row shows the new name
- * once the API kept it. Webside-only: the frozen tree changes for its own
- * bugs.
+ * once the API kept it: the change goes through `useWebAuthnKeys`, which
+ * reads the keys from allauth again afterwards (the auth store). Webside-only:
+ * the frozen tree changes for its own bugs.
  */
 const { updateWebAuthnCredential, deleteWebAuthnCredential, getAuthenticators, toastAdd } = vi.hoisted(() => ({
   updateWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),
@@ -71,6 +72,11 @@ describe('webside Account/2Fa/WebAuthn/List', () => {
   })
 
   it('saves on Enter and shows the new name once the API kept it', async () => {
+    const auth = useAuthStore()
+    // Allauth's answer to the read after the rename: the key under its new name.
+    vi.spyOn(auth, 'setupAuthenticators').mockImplementation(async () => {
+      auth.authenticators = [{ ...KEY, name: 'Κλειδί γραφείου' }]
+    })
     const wrapper = await mountList()
     await chooseEdit(wrapper)
 

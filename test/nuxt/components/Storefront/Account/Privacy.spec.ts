@@ -2,18 +2,20 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import { resolve } from 'node:path'
-import YAML from 'yaml'
 import Privacy from '~/components/Storefront/Account/Privacy.vue'
+import WebsidePrivacy from '~/components/variants/webside/Storefront/Account/Privacy.vue'
 import { failWith } from '~~/test/helpers/api'
-import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import type { InlineCopy } from '~~/test/helpers/inlineCopy'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The account's "Your data" page: the data export with its latest status
  * (polled while it is being built), and the account deletion behind a typed
  * confirmation, with a warning when the shopper would lose points or a
- * gift-card balance. Copy is read through the app's own i18n, so the specs
- * pin what the shopper reads, not the Greek string.
+ * gift-card balance (`useAccountPrivacy`, shared by both trees; the warning
+ * is the default's alone). Copy is read from each tree's own `<i18n>`
+ * block, so the specs pin what the shopper reads, not the Greek string.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -34,9 +36,13 @@ const REQUEST = '/api/user/account/7/request-data-export'
 const DELETE = '/api/user/account/7/delete-account'
 const SUMMARY = '/api/user/account/summary'
 
-const messages = YAML.parse(
-  parseSfc(resolve(REPO, 'app/components/Storefront/Account/Privacy.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
-).el
+const COPY = {
+  default: inlineCopy('app/components/Storefront/Account/Privacy.vue'),
+  webside: inlineCopy('app/components/variants/webside/Storefront/Account/Privacy.vue'),
+}
+
+/** The copy of the tree under test, set before each test. */
+let messages: InlineCopy
 
 /**
  * The page's Greek copy at `key`, with `{name}` placeholders filled; for
@@ -44,7 +50,7 @@ const messages = YAML.parse(
  * rule: 1 is the first, anything else the second).
  */
 const text = (key: string, params: Record<string, string> = {}, count?: number): string => {
-  const copy = key.split('.').reduce((node, part) => node[part], messages) as string
+  const copy = String(key.split('.').reduce((node, part) => node[part], messages))
   const forms = copy.split(' | ')
   const chosen = count === undefined || forms.length === 1 ? copy : forms[count === 1 ? 0 : 1]!
   return Object.entries(params).reduce((filled, [name, value]) => filled.replace(`{${name}}`, value), chosen)
@@ -80,12 +86,6 @@ function given({ exports = [] as UserDataExport[], summary = makeSummary() } = {
   })
 }
 
-const mountPage = async () => {
-  const wrapper = await mountSuspended(Privacy, { route: false })
-  await flushPromises()
-  return wrapper
-}
-
 const buttonByText = (root: ParentNode, label: string) =>
   [...root.querySelectorAll('button')].find(button => button.textContent?.trim() === label)
 
@@ -101,8 +101,18 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('Storefront/Account/Privacy', () => {
-  it('draws the heading and states that the export is a JSON file', async () => {
+describe.each(trees(Privacy, WebsidePrivacy))('$tree Storefront/Account/Privacy', ({ tree, C }) => {
+  beforeEach(() => {
+    messages = COPY[tree]
+  })
+
+  const mountPage = async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  it.runIf(tree === 'default')('draws the heading and states that the export is a JSON file', async () => {
     const wrapper = await mountPage()
 
     expect(wrapper.get('h1').text()).toBe(text('title'))
@@ -154,9 +164,8 @@ describe('Storefront/Account/Privacy', () => {
     expect(api.callsTo(EXPORTS)).toHaveLength(2)
   })
 
-  it('shows a ready export with its date, expiry, size and a download that opens the file', async () => {
+  it.runIf(tree === 'default')('shows a ready export with its date, expiry and size', async () => {
     given({ exports: [makeExport()] })
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
     const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain(text('export.status.ready'))
@@ -165,6 +174,15 @@ describe('Storefront/Account/Privacy', () => {
     expect(wrapper.findAll('time').map(time => time.attributes('datetime'))).toEqual(['2026-10-04T10:00:00.000Z', '2026-10-11T10:00:00.000Z'])
     expect(wrapper.text()).toContain('2 KB')
     expect(buttonByText(wrapper.element, text('export.request_again'))).toBeTruthy()
+  })
+
+  it('shows a ready export with a download that opens the file', async () => {
+    given({ exports: [makeExport()] })
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain(text('export.status.ready'))
+    expect(wrapper.text()).toContain('2 KB')
 
     await wrapper.findAll('button').find(button => button.text() === text('export.download'))!.trigger('click')
 
@@ -177,9 +195,16 @@ describe('Storefront/Account/Privacy', () => {
     const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain(text('export.status.failed'))
-    expect(wrapper.get('[role="alert"]').text()).toBe(text('export.failed_description'))
     expect(buttonByText(wrapper.element, text('export.request'))!.hasAttribute('disabled')).toBe(false)
     expect(buttonByText(wrapper.element, text('export.download'))).toBeUndefined()
+  })
+
+  it.runIf(tree === 'default')('explains a failed export in an alert', async () => {
+    given({ exports: [makeExport({ status: 'failed', downloadUrl: null, fileSize: null, expiresAt: null })] })
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.get('[role="alert"]').text()).toBe(text('export.failed_description'))
   })
 
   it('says an expired export expired and offers no download', async () => {
@@ -192,7 +217,7 @@ describe('Storefront/Account/Privacy', () => {
     expect(buttonByText(wrapper.element, text('export.request'))!.hasAttribute('disabled')).toBe(false)
   })
 
-  describe('the deletion warning', () => {
+  describe.runIf(tree === 'default')('the deletion warning', () => {
     it('names the points and the gift-card balance the shopper would lose', async () => {
       given({ summary: makeSummary({ loyalty: { pointsBalance: 2340, tier: null }, giftCardBalance: 42 }) })
       const { $i18n } = useNuxtApp()

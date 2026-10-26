@@ -10,9 +10,10 @@ import { asProxiedError, makePendingFlowResponse } from '~~/test/fixtures/allaut
 /**
  * The first step of a passkey sign-up: the email allauth starts the
  * `mfa_webauthn_signup` flow for. Mocked at `useAllAuthAuthentication`.
- * The two trees share the request; the default no longer toasts a
- * "passkey created" it has not created, and moves on when allauth
- * answers with the next step pending.
+ * The two trees share the request (`useSignUpByPasskey`) and move on when
+ * allauth answers with the next step pending; the default no longer toasts
+ * a "passkey created" it has not created, the frozen tree still does when
+ * the request goes through.
  */
 const { signUpByPasskey, toastAdd, navigateToMock } = vi.hoisted(() => ({
   signUpByPasskey: vi.fn((_body: unknown) => Promise.resolve({ status: 200 })),
@@ -66,7 +67,7 @@ describe.each(trees(PasskeyForm, WebsidePasskeyForm))('$tree Account/Signup/Pass
     expect(toastAdd).not.toHaveBeenCalled()
   })
 
-  it.runIf(tree === 'default')('moves on to creating the passkey when allauth asks for it', async () => {
+  it('moves on to creating the passkey when allauth asks for it', async () => {
     signUpByPasskey.mockRejectedValue(asProxiedError(makePendingFlowResponse('mfa_signup_webauthn')))
     const wrapper = await mountForm()
 

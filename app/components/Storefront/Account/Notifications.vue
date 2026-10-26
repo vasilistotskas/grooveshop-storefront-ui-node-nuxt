@@ -1,150 +1,34 @@
 <script lang="ts" setup>
-type SeenFilter = 'all' | 'unseen' | 'seen'
-
-const { t, locale } = useI18n()
+const { t } = useI18n()
+const localePath = useLocalePath()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const route = useRoute(`account-notifications___${locale.value}`)
-const router = useRouter()
-const { user } = useUserSession()
-const localePath = useLocalePath()
-const toast = useToast()
-const { notify } = useApiError()
-const { markAsSeen, markAsUnseen, markAllSeen } = useUserNotification()
-const userNotificationStore = useUserNotificationStore()
-const { setupNotifications } = userNotificationStore
-const { count: unseenCount } = useUnseenNotificationsCount()
 
-const pageSize = ref(10)
-const page = computed(() => Number(route.query.page) || 1)
-const ordering = computed(() => String(route.query.ordering || '-createdAt'))
-
-const filter = computed<SeenFilter>(() => {
-  const raw = route.query.filter
-  return raw === 'unseen' || raw === 'seen' ? raw : 'all'
-})
-
-const seenQuery = computed<boolean | undefined>(() => {
-  if (filter.value === 'unseen') return false
-  if (filter.value === 'seen') return true
-  return undefined
+const {
+  unseenCount, filter, ordering, pageSize, status, error, refresh, orderingOptions, pagination, rows,
+  hasUnseenInView, onFilterChange, onRowClick, onToggleSeen, isMarkingAllSeen, onMarkAllSeen,
+} = await useAccountNotifications({
+  toasts: {
+    allSeen: () => ({ title: t('mark_all.success_title'), color: 'success', icon: 'i-lucide-circle-check' }),
+  },
+  titles: {
+    toggle: () => t('error.toggle_title'),
+    markAll: () => t('mark_all.error_title'),
+  },
 })
 
 const filterItems = computed(() => [
-  { label: t('filters.all'), value: 'all' satisfies SeenFilter },
+  { label: t('filters.all'), value: 'all' satisfies NotificationSeenFilter },
   {
     label: t('filters.unseen'),
-    value: 'unseen' satisfies SeenFilter,
+    value: 'unseen' satisfies NotificationSeenFilter,
     ...(unseenCount.value > 0 ? { badge: unseenCount.value } : {}),
   },
-  { label: t('filters.seen'), value: 'seen' satisfies SeenFilter },
+  { label: t('filters.seen'), value: 'seen' satisfies NotificationSeenFilter },
 ])
-
-const entityOrdering = ref<EntityOrdering<any>>([
-  {
-    value: 'createdAt',
-    label: t('ordering.created_at'),
-    options: ['ascending', 'descending'],
-  },
-])
-
-// ``useFetch`` tracks reactive query params when they're refs or
-// computeds — passing a plain object (as ``buildQuery()`` would)
-// snapshots values once at setup time and tab/page switches wouldn't
-// re-fetch. Each field goes in as a computed so switching seen filter
-// or page number refetches automatically without an explicit refresh().
-const query = computed(() => ({
-  page: page.value,
-  ordering: ordering.value,
-  pageSize: pageSize.value,
-  ...(seenQuery.value !== undefined ? { seen: seenQuery.value } : {}),
-}))
-
-const { data: notifications, status, error, refresh } = await useApi(
-  `/api/user/account/${user.value?.id}/notifications`,
-  {
-    key: `userNotifications${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query,
-  },
-)
-
-const orderingOptions = computed(() => useOrdering<any>(entityOrdering.value))
-
-const pagination = computed(() => {
-  if (!notifications.value?.count) return
-  return usePagination<NotificationUserDetail>(notifications.value)
-})
-
-const rows = computed(() => notifications.value?.results ?? [])
-
-const hasUnseenInView = computed(() =>
-  rows.value.some(row => !row.seen),
-)
-
-async function onFilterChange(value: SeenFilter) {
-  await router.replace({
-    query: {
-      ...route.query,
-      filter: value === 'all' ? undefined : value,
-      page: undefined,
-    },
-  })
-}
-
-const onRowClick = async (row: NotificationUserDetail) => {
-  if (!row.seen) {
-    await markAsSeen([row.id])
-    await Promise.all([refresh(), setupNotifications()])
-  }
-  // A locale-neutral storefront path; open it in the viewer's locale.
-  const link = row.notification?.link ?? ''
-  if (!link) return
-  await navigateTo(localePath(pathLocation(link)))
-}
-
-const onToggleSeen = async (row: NotificationUserDetail) => {
-  try {
-    if (row.seen) {
-      await markAsUnseen([row.id])
-    }
-    else {
-      await markAsSeen([row.id])
-    }
-    await Promise.all([refresh(), setupNotifications()])
-  }
-  catch (err) {
-    log.error({ action: 'notifications:toggle-seen', error: err })
-    notify('Notifications:1', err, { title: t('error.toggle_title') })
-  }
-}
-
-const isMarkingAllSeen = ref(false)
-
-async function onMarkAllSeen() {
-  if (isMarkingAllSeen.value) return
-  isMarkingAllSeen.value = true
-  try {
-    await markAllSeen()
-    await Promise.all([refresh(), setupNotifications()])
-    toast.add({
-      title: t('mark_all.success_title'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    })
-  }
-  catch (err) {
-    log.error({ action: 'notifications:mark-all-seen', error: err })
-    notify('Notifications:2', err, { title: t('mark_all.error_title') })
-  }
-  finally {
-    isMarkingAllSeen.value = false
-  }
-}
 </script>
 
 <template>
@@ -159,7 +43,7 @@ async function onMarkAllSeen() {
         variant="link"
         :content="false"
         :ui="{ root: 'w-auto' }"
-        @update:model-value="(value: string | number) => onFilterChange(value as SeenFilter)"
+        @update:model-value="(value: string | number) => onFilterChange(value as NotificationSeenFilter)"
       />
 
       <UButton

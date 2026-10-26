@@ -19,21 +19,14 @@
  * reads the shopper's linked accounts back, says which it was, and
  * returns them to the Security page either way.
  */
-const { providerToken } = useAllAuthAuthentication()
-const { connectedThirdPartyProviderAccounts } = useAllAuthAccount()
-const { loggedIn } = useUserSession()
-const toast = useToast()
+const { t } = useI18n()
 
-const { t, locale } = useI18n()
+const { connecting, error, loading } = useProviderCallback({
+  returnRoute: 'account-security',
+  outcome: outcome => t(`connect.${outcome}`),
+})
 
-const route = useRoute(`account-provider-callback___${locale.value}`)
 const localePath = useLocalePath()
-
-const { error: apiError, provider, process } = route.query
-const connecting = loggedIn.value
-
-const error = ref(false)
-const loading = ref(true)
 
 const title = computed(() => {
   if (error.value) return t('title.error')
@@ -44,62 +37,6 @@ const title = computed(() => {
 // is conditional (still connecting, or failed), and the tab should say
 // the same thing rather than the store name twice.
 useHead({ title: () => title.value })
-
-/**
- * Whether the account is linked now. Security offers "Connect" only for
- * a provider with no linked account, so one being there means this link
- * made it.
- */
-async function isLinked(providerId: string) {
-  const accounts = await connectedThirdPartyProviderAccounts()
-  return accounts?.data.some(account => account.provider.id === providerId) ?? false
-}
-
-async function returnToSecurity(outcome: 'done' | 'taken' | 'cancelled' | 'failed') {
-  toast.add({ title: t(`connect.${outcome}`), color: outcome === 'done' ? 'success' : 'error' })
-  await navigateTo(localePath('account-security'), { replace: true })
-}
-
-onMounted(async () => {
-  if (apiError || !(provider && process)) {
-    if (connecting) return returnToSecurity(apiError ? 'cancelled' : 'failed')
-    error.value = true
-    loading.value = false
-    return
-  }
-
-  try {
-    const oauthParams = await $api('/api/auth/oauth-params')
-    const token: ProviderToken = { client_id: String(oauthParams.client_id) }
-    if (oauthParams.id_token) {
-      Object.assign(token, { id_token: String(oauthParams.id_token) })
-    }
-    if (oauthParams.access_token) {
-      Object.assign(token, { access_token: String(oauthParams.access_token) })
-    }
-    await providerToken({
-      provider: String(oauthParams.provider),
-      token,
-      process: oauthParams.process === 'login' ? 'login' : 'connect',
-    })
-    if (connecting) return await returnToSecurity(await isLinked(String(oauthParams.provider)) ? 'done' : 'taken')
-  }
-  catch (err) {
-    if (connecting) {
-      log.error({ action: 'provider:connect', error: err })
-      return returnToSecurity('failed')
-    }
-    // A first-time OAuth user gets a 401 with `provider_signup` pending —
-    // the expected "complete your signup" hand-off, not a failure. The
-    // auth:change hook usually navigates there first; this guard makes the
-    // hand-off explicit and keeps the error page for genuine errors only.
-    if (await tryAdvanceToPendingFlow(err, { fromPath: route.path })) return
-    error.value = true
-  }
-  finally {
-    loading.value = false
-  }
-})
 </script>
 
 <template>

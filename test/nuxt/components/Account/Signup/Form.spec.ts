@@ -231,6 +231,17 @@ describe.each(trees(SignupForm, WebsideSignupForm))('$tree Account/Signup/Form',
     expect(wrapper.text()).toContain(WEBSIDE_MISMATCH)
   })
 
+  // allauth lists a provider the store has no credentials for; it cannot sign anyone in
+  // (`useSocialProviders`), so neither tree draws a block for it.
+  it('draws no provider block for a provider the store has no credentials for', async () => {
+    const auth = useAuthStore()
+    auth.config = CONFIG_WITH_UNUSABLE_GOOGLE
+    auth.status.config = 'success'
+    const wrapper = await mountForm()
+
+    expect(wrapper.find('[data-testid="providers"]').exists()).toBe(false)
+  })
+
   describe.runIf(tree === 'webside')('social sign-up', () => {
     it('offers it once the allauth config lists a provider', async () => {
       const auth = useAuthStore()
@@ -250,6 +261,15 @@ describe.each(trees(SignupForm, WebsideSignupForm))('$tree Account/Signup/Form',
 
       expect(wrapper.find('[data-testid="providers"]').exists()).toBe(false)
       expect(wrapper.findAllComponents({ name: 'USkeleton' })).toHaveLength(2)
+    })
+
+    it('draws no heading over a provider the store has no credentials for', async () => {
+      const auth = useAuthStore()
+      auth.config = CONFIG_WITH_UNUSABLE_GOOGLE
+      auth.status.config = 'success'
+      const wrapper = await mountForm()
+
+      expect(wrapper.text()).not.toContain(WEBSIDE_SOCIAL_TITLE)
     })
 
     it('offers none without a provider', async () => {
@@ -297,15 +317,6 @@ describe.each(trees(SignupForm, WebsideSignupForm))('$tree Account/Signup/Form',
       const wrapper = await mountForm()
 
       expect(wrapper.find('[data-testid="providers"]').exists()).toBe(true)
-    })
-
-    it('draws no provider block for a provider the store has no credentials for', async () => {
-      const auth = useAuthStore()
-      auth.config = CONFIG_WITH_UNUSABLE_GOOGLE
-      auth.status.config = 'success'
-      const wrapper = await mountForm()
-
-      expect(wrapper.find('[data-testid="providers"]').exists()).toBe(false)
     })
   })
 

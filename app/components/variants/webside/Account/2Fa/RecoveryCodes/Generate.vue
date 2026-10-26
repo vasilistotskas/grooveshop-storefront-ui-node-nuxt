@@ -1,68 +1,32 @@
 <script lang="ts" setup>
 const emit = defineEmits(['generateRecoveryCodes'])
 
-const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const toast = useToast()
 
-const { data, refresh, error } = await useAsyncData(
-  'recoveryCodes',
-  () => getRecoveryCodes(),
-)
-
-if (error.value) {
-  toast.add({
-    title: t('auth.mfa.required'),
-    color: 'error',
-  })
-  navigateTo(localePath('account-settings'))
-}
-
-const hasCodes = computed(() => {
-  if (!data.value?.data?.unused_code_count) {
-    return false
-  }
-  return data.value?.data?.unused_code_count > 0
+const {
+  unused: unusedCodeCount,
+  hasCodes,
+  loading,
+  confirmed,
+  generate,
+} = await useRecoveryCodesRegeneration({
+  securityRoute: 'account-settings',
+  generated: () => ({
+    title: t('toast.success.title'),
+    description: t('toast.success.description'),
+    color: 'success',
+    icon: 'i-heroicons-check-circle',
+  }),
 })
 
-const unusedCodeCount = computed(() => data.value?.data?.unused_code_count ?? 0)
-
-const loading = ref(false)
-const confirmed = ref(false)
-
 async function onSubmit() {
-  if (!confirmed.value && hasCodes.value) {
-    return
-  }
-
-  try {
-    loading.value = true
-    await generateRecoveryCodes()
-    toast.add({
-      title: t('toast.success.title'),
-      description: t('toast.success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-    emit('generateRecoveryCodes')
-    await navigateTo(localePath('account-2fa-recovery-codes'))
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
+  if (await generate()) emit('generateRecoveryCodes')
 }
 
 function onCancel() {
   navigateTo(localePath('account-2fa-recovery-codes'))
 }
-
-onReactivated(async () => {
-  await refresh()
-})
 </script>
 
 <template>

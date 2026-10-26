@@ -9,58 +9,14 @@
  */
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { markAsSeen, markAllSeen } = useUserNotification()
-const userNotificationStore = useUserNotificationStore()
-const { notifications } = storeToRefs(userNotificationStore)
-const { setupNotifications } = userNotificationStore
-const { loggedIn } = useUserSession()
-
-// Defensive bootstrap — if the ``setup`` plugin's idle-callback couldn't
-// populate the store (one of its sibling calls rejected, idle callback
-// never fired, etc.) the bell would show "no notifications" even when
-// the unseen-count endpoint returns a positive number. Loading here as
-// a no-op when already populated keeps the bell self-consistent.
-onMounted(() => {
-  if (!loggedIn.value) return
-  if (notifications.value && notifications.value.results?.length) return
-  setupNotifications().catch(err => log.warn({ tag: 'notifications:bell', message: 'self-bootstrap failed', error: err }))
-})
 
 const open = ref(false)
 
 const POPOVER_UI = { content: 'w-[min(24rem,calc(100vw-1.5rem))] overflow-hidden rounded-[1.25rem] p-0' }
 
-const { count: unseenCount, pending } = useUnseenNotificationsCount()
-
-const show = computed(() => unseenCount.value > 0)
-
-// The store's detail-serialised rows, not Notification objects fetched by
-// id: ``markAsSeen`` takes ``NotificationUser`` ids, which these rows
-// carry beside the nested Notification content to render.
-const userNotifications = computed(() => notifications.value?.results ?? [])
-
-// ``link`` is a locale-neutral storefront path (``/account/orders/42``):
-// the API stores no host and no locale prefix, so the viewer's current
-// locale is applied here.
-const onNotificationClick = async (
-  notificationUserId: number,
-  link?: string | null,
-) => {
-  open.value = false
-  if (link) {
-    markAsSeen([notificationUserId]).catch(() => {})
-    setupNotifications().catch(() => {})
-    await navigateTo(localePath(pathLocation(link)))
-    return
-  }
-  await markAsSeen([notificationUserId])
-  await setupNotifications()
-}
-
-const onMarkAllRead = async () => {
-  await markAllSeen()
-  await setupNotifications()
-}
+const { userNotifications, show, pending, onNotificationClick, onMarkAllRead } = useNotificationsBell({
+  close: () => { open.value = false },
+})
 </script>
 
 <template>

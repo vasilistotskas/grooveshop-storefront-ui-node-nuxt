@@ -4,6 +4,16 @@ import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import NotificationsBell from '~/components/User/NotificationsBell.vue'
+import WebsideNotificationsBell from '~/components/variants/webside/User/NotificationsBell.vue'
+import { trees } from '~~/test/helpers/trees'
+
+/**
+ * The header bell (`useNotificationsBell`, shared by both trees): the rows
+ * in the store, opened to mark a notification seen and follow its link in
+ * the viewer's locale. The default also offers "mark all read", titles
+ * unread rows and shows an unseen dot; the frozen bell draws a plain
+ * dropdown with none of them.
+ */
 
 const { mockNavigateTo, mockMarkAsSeen, mockMarkAllSeen, mockGetUnseenCount } = vi.hoisted(() => ({
   mockNavigateTo: vi.fn(),
@@ -62,24 +72,25 @@ function seedNotifications(...rows: ReturnType<typeof row>[]) {
   } as any
 }
 
-/** The bell, opened: its popover is teleported, so rows are read from the document. */
-async function mountOpenBell() {
-  const wrapper = await mountSuspended(NotificationsBell, { route: false })
-  await flushPromises()
-  await wrapper.get('button[aria-haspopup="dialog"]').trigger('click')
-  await flushPromises()
-  return wrapper
-}
-
 const rowButton = (id: number) => document.getElementById(String(id))!
+const buttonTitled = (title: string) => [...document.querySelectorAll('button')].find(button => button.textContent?.includes(title))!
 const rowTitles = () => [...document.querySelectorAll('ul button')].map(button => button.querySelector('span.font-semibold')?.textContent)
 const bodyButton = (label: string) =>
   [...document.querySelectorAll('button')].find(button => button.textContent?.trim() === label)
 
-/** The unseen dot on the bell: UChip renders its dot (`data-slot="base"`) only while `show` is true. */
-const unseenDot = (wrapper: Awaited<ReturnType<typeof mountOpenBell>>) => wrapper.find('span[data-slot="base"]')
+describe.each(trees(NotificationsBell, WebsideNotificationsBell))('$tree NotificationsBell', ({ tree, C }) => {
+  /** The bell, opened: the default's popover is teleported, so rows are read from the document. */
+  async function mountOpenBell() {
+    const wrapper = await mountSuspended(C, { route: false, attachTo: document.body })
+    await flushPromises()
+    await wrapper.get(tree === 'default' ? 'button[aria-haspopup="dialog"]' : 'button[aria-expanded]').trigger('click')
+    await flushPromises()
+    return wrapper
+  }
 
-describe('NotificationsBell', () => {
+  /** The unseen dot on the bell: UChip renders its dot (`data-slot="base"`) only while `show` is true. */
+  const unseenDot = (wrapper: Awaited<ReturnType<typeof mountOpenBell>>) => wrapper.find('span[data-slot="base"]')
+
   beforeEach(async () => {
     if (session.loggedIn) session.loggedIn.value = true
     const store = useUserNotificationStore()
@@ -136,16 +147,24 @@ describe('NotificationsBell', () => {
   })
 
   describe('the list', () => {
-    it('shows each notification\'s title in the page language, with a dot only while it is unread', async () => {
+    it('shows each notification\'s title in the page language', async () => {
+      seedNotifications(row(5, { seen: false, title: 'Η παραγγελία στάλθηκε' }), row(6, { seen: true, title: 'Πίσω στο απόθεμα' }))
+      await mountOpenBell()
+
+      expect(document.body.textContent).toContain('Η παραγγελία στάλθηκε')
+      expect(document.body.textContent).toContain('Πίσω στο απόθεμα')
+    })
+
+    it.runIf(tree === 'default')('marks a notification with a dot only while it is unread', async () => {
       seedNotifications(row(5, { seen: false, title: 'Η παραγγελία στάλθηκε' }), row(6, { seen: true, title: 'Πίσω στο απόθεμα' }))
       await mountOpenBell()
 
       expect(rowTitles()).toEqual(['Η παραγγελία στάλθηκε', 'Πίσω στο απόθεμα'])
-      expect(rowButton(5).textContent).toContain('Μη αναγνωσμένη')
-      expect(rowButton(6).textContent).not.toContain('Μη αναγνωσμένη')
+      expect(buttonTitled('Η παραγγελία στάλθηκε').textContent).toContain('Μη αναγνωσμένη')
+      expect(buttonTitled('Πίσω στο απόθεμα').textContent).not.toContain('Μη αναγνωσμένη')
     })
 
-    it('says so when there are no notifications', async () => {
+    it.runIf(tree === 'default')('says so when there are no notifications', async () => {
       seedNotifications()
       await mountOpenBell()
 
@@ -153,7 +172,7 @@ describe('NotificationsBell', () => {
       expect(document.querySelectorAll('ul button')).toHaveLength(0)
     })
 
-    it('leads to the full list of notifications', async () => {
+    it.runIf(tree === 'default')('leads to the full list of notifications', async () => {
       await mountOpenBell()
 
       const link = [...document.querySelectorAll('a')].find(anchor => anchor.textContent?.trim() === 'Δες όλες τις ειδοποιήσεις')
@@ -161,7 +180,7 @@ describe('NotificationsBell', () => {
     })
   })
 
-  describe('mark all read', () => {
+  describe.runIf(tree === 'default')('mark all read', () => {
     it('marks everything read and reloads the list', async () => {
       await mountOpenBell()
 
@@ -180,13 +199,13 @@ describe('NotificationsBell', () => {
     })
   })
 
-  it('shows the unseen dot while the unseen count is positive', async () => {
+  it.runIf(tree === 'default')('shows the unseen dot while the unseen count is positive', async () => {
     const wrapper = await mountOpenBell()
 
     expect(unseenDot(wrapper).exists()).toBe(true)
   })
 
-  it('hides the unseen dot when everything has been seen', async () => {
+  it.runIf(tree === 'default')('hides the unseen dot when everything has been seen', async () => {
     mockGetUnseenCount.mockResolvedValue({ count: 0 })
 
     const wrapper = await mountOpenBell()
@@ -196,7 +215,7 @@ describe('NotificationsBell', () => {
 
   // Call counts are not asserted: the auth plugins react to the session
   // flag this spec flips and ask the same (mocked) composable.
-  it('shows no unseen dot to a signed-out visitor', async () => {
+  it.runIf(tree === 'default')('shows no unseen dot to a signed-out visitor', async () => {
     session.loggedIn.value = false
 
     const wrapper = await mountOpenBell()

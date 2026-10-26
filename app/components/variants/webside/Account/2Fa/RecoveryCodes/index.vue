@@ -1,28 +1,44 @@
 <script lang="ts" setup>
-const { getRecoveryCodes } = useAllAuthAccount()
-const toast = useToast()
-const localePath = useLocalePath()
 const { t, locale } = useI18n()
-const { copy } = useClipboard()
+const localePath = useLocalePath()
 
-const { data, refresh, error } = await useAsyncData(
-  'recoveryCodes',
-  () => getRecoveryCodes(),
-)
-
-if (error.value) {
-  toast.add({
-    title: t('auth.mfa.required'),
-    color: 'error',
-  })
-  navigateTo(localePath('account-settings'))
-}
-
-const unused_codes = computed(() => data.value?.data.unused_codes ?? [])
-const created_at = computed(() => data.value?.data.created_at ?? null)
-const last_used_at = computed(() => data.value?.data.last_used_at ?? null)
-const total_code_count = computed(() => data.value?.data.total_code_count ?? 0)
-const unused_code_count = computed(() => data.value?.data.unused_code_count ?? 0)
+const {
+  codes: unused_codes,
+  unused: unused_code_count,
+  total: total_code_count,
+  createdAt: created_at,
+  lastUsedAt: last_used_at,
+  copyAll: copyAllCodes,
+  copyCode,
+  download: downloadCodes,
+  print: printCodes,
+} = await useRecoveryCodes({
+  securityRoute: 'account-settings',
+  toasts: {
+    copiedAll: () => ({
+      title: t('toast.copy_all.title'),
+      description: t('toast.copy_all.description'),
+      color: 'success',
+      icon: 'i-heroicons-clipboard-document-check',
+    }),
+    copiedOne: code => ({
+      title: t('toast.copy_single.title'),
+      description: code,
+      color: 'success',
+      icon: 'i-heroicons-clipboard-document-check',
+    }),
+    downloaded: () => ({
+      title: t('toast.download.title'),
+      color: 'success',
+      icon: 'i-heroicons-arrow-down-tray',
+    }),
+  },
+  document: {
+    title: () => t('print.title'),
+    made: date => `${t('print.generated')}: ${date}`,
+    keepSafe: () => t('print.keep_safe'),
+  },
+})
 
 const usedCount = computed(() => total_code_count.value - unused_code_count.value)
 const usagePercentage = computed(() => ((unused_code_count.value / total_code_count.value) * 100) || 0)
@@ -35,103 +51,6 @@ const statusColor = computed(() => {
 
 const createdDateMs = computed(() => (created_at.value ? created_at.value * 1000 : null))
 const lastUsedDateMs = computed(() => (last_used_at.value ? last_used_at.value * 1000 : null))
-
-// String form is only used for the print/download Blob payloads —
-// the in-DOM display uses <NuxtTime> below.
-const createdDate = computed(() => {
-  if (!created_at.value) return ''
-  return new Date(created_at.value * 1000).toLocaleDateString(locale.value)
-})
-
-async function copyAllCodes() {
-  const allCodes = unused_codes.value.join('\n')
-  await copy(allCodes)
-  toast.add({
-    title: t('toast.copy_all.title'),
-    description: t('toast.copy_all.description'),
-    color: 'success',
-    icon: 'i-heroicons-clipboard-document-check',
-  })
-}
-
-async function copyCode(code: string) {
-  await copy(code)
-  toast.add({
-    title: t('toast.copy_single.title'),
-    description: code,
-    color: 'success',
-    icon: 'i-heroicons-clipboard-document-check',
-  })
-}
-
-function downloadCodes() {
-  if (!unused_codes.value) return
-  const allCodes = unused_codes.value.join('\n')
-  const blob = new Blob([`${t('print.title')} - ${t('print.generated')}: ${createdDate.value}\n\n${allCodes}\n\n${t('print.keep_safe')}`], { type: 'text/plain' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `recovery-codes-${Date.now()}.txt`
-  a.click()
-  URL.revokeObjectURL(url)
-
-  toast.add({
-    title: t('toast.download.title'),
-    color: 'success',
-    icon: 'i-heroicons-arrow-down-tray',
-  })
-}
-
-function printCodes() {
-  const printWindow = window.open('', '_blank')
-  if (printWindow) {
-    const doc = printWindow.document
-    doc.write(`
-      <html>
-        <head>
-          <title>${t('print.title')}</title>
-          <style>
-            body { font-family: monospace; padding: 40px; }
-            h1 { font-size: 24px; margin-bottom: 20px; }
-            .codes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; }
-            .code { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-            .warning { margin-top: 30px; padding: 20px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; }
-          </style>
-        </head>
-        <body>
-          <h1></h1>
-          <p></p>
-          <div class="codes"></div>
-          <div class="warning">
-            <strong></strong> <span></span>
-          </div>
-        </body>
-      </html>
-    `)
-    doc.close()
-
-    // Use textContent to safely insert user-facing strings (no HTML injection)
-    doc.querySelector('h1')!.textContent = t('print.title')
-    doc.querySelector('p')!.textContent = `${t('print.generated')}: ${createdDate.value}`
-
-    const codesContainer = doc.querySelector('.codes')!
-    for (const code of unused_codes.value) {
-      const div = doc.createElement('div')
-      div.className = 'code'
-      div.textContent = code
-      codesContainer.appendChild(div)
-    }
-
-    doc.querySelector('.warning strong')!.textContent = t('print.important')
-    doc.querySelector('.warning span')!.textContent = t('print.keep_safe')
-
-    printWindow.print()
-  }
-}
-
-onReactivated(async () => {
-  await refresh()
-})
 </script>
 
 <template>

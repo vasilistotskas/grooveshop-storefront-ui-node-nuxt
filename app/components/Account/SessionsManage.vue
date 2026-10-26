@@ -9,33 +9,11 @@
  * says when the session signed in. No location: allauth records none
  * (PLAN B44). The sessions are the auth store's, refreshed on mount.
  */
-const { deleteSession } = useAllAuthSessions()
-const toast = useToast()
 const { t, locale } = useI18n()
-const authStore = useAuthStore()
-const { sessions, otherSessions } = storeToRefs(authStore)
 
-onMounted(() => {
-  authStore.setupSessions()
+const { sessions, otherSessions, busy, signOut } = useSessionsManage({
+  signedOut: count => ({ title: t('signed_out', count), color: 'success' }),
 })
-
-const busy = ref<number | 'others' | null>(null)
-
-/** One sign-out at a time: every button is disabled while one is in flight. */
-async function signOut(targets: Session[], key: number | 'others') {
-  busy.value = key
-  try {
-    const remaining = await deleteSession({ sessions: targets.map(session => session.id) })
-    if (remaining) sessions.value = remaining.data
-    toast.add({ title: t('signed_out', targets.length), color: 'success' })
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    busy.value = null
-  }
-}
 
 const DEVICE_ICON: Readonly<Record<DeviceClass, string>> = {
   mobile: 'i-lucide-smartphone',

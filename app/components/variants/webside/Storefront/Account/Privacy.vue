@@ -5,26 +5,30 @@ const { t, d, n } = useI18n()
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const toast = useToast()
-const { notify } = useApiError()
-const router = useRouter()
-const localePath = useLocalePath()
-const { user, loggedIn, clear: clearSession } = useUserSession()
 
-const uid = computed(() => user.value?.id)
-
-const exports = ref<UserDataExport[]>([])
-const fetchingExports = ref(false)
-const requesting = ref(false)
-
-const latest = computed(() => exports.value[0] ?? null)
-
-const isProcessing = computed(() =>
-  latest.value?.status === 'pending'
-  || latest.value?.status === 'processing',
-)
-
-const isReady = computed(() => latest.value?.status === 'ready')
+const {
+  latest, isProcessing, isReady, requesting, requestExport, openDownload,
+  isDeleteModalOpen, confirmText, deleting, canConfirmDelete, onOpenModal, onConfirmDelete,
+} = useAccountPrivacy({
+  toasts: {
+    exportRequested: () => ({
+      title: t('export.requested_title'),
+      description: t('export.requested_description'),
+      color: 'info',
+      icon: 'i-heroicons-envelope',
+    }),
+    deletionScheduled: () => ({
+      title: t('delete.scheduled_title'),
+      description: t('delete.scheduled_description'),
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
+    }),
+  },
+  titles: {
+    exportFailed: () => t('export.error_title'),
+    deleteFailed: () => t('delete.error_title'),
+  },
+})
 
 const statusColor = computed(() => {
   switch (latest.value?.status) {
@@ -56,117 +60,6 @@ const fileSizeLabel = computed(() => {
     ? `${n(kb, { maximumFractionDigits: 1 })} KB`
     : `${n(kb / 1024, { maximumFractionDigits: 2 })} MB`
 })
-
-const loadExports = async () => {
-  if (!uid.value) return
-  fetchingExports.value = true
-  try {
-    const res = await $api(`/api/user/account/${uid.value}/data-exports`)
-    exports.value = (res?.results ?? []) as UserDataExport[]
-  }
-  catch (error) {
-    log.error({ action: 'privacy:loadExports', error })
-  }
-  finally {
-    fetchingExports.value = false
-  }
-}
-
-let pollHandle: ReturnType<typeof setTimeout> | null = null
-const stopPolling = () => {
-  if (pollHandle) {
-    clearTimeout(pollHandle)
-    pollHandle = null
-  }
-}
-const pollExports = () => {
-  stopPolling()
-  if (!isProcessing.value) return
-  pollHandle = setTimeout(async () => {
-    await loadExports()
-    if (isProcessing.value) pollExports()
-  }, 3000)
-}
-
-const requestExport = async () => {
-  if (!uid.value || requesting.value) return
-  requesting.value = true
-  try {
-    await $api(`/api/user/account/${uid.value}/request-data-export`, {
-      method: 'POST',
-    })
-    toast.add({
-      title: t('export.requested_title'),
-      description: t('export.requested_description'),
-      color: 'info',
-      icon: 'i-heroicons-envelope',
-    })
-    await loadExports()
-    pollExports()
-  }
-  catch (error) {
-    log.error({ action: 'privacy:requestExport', error })
-    notify('webside-Privacy:1', error, { title: t('export.error_title') })
-  }
-  finally {
-    requesting.value = false
-  }
-}
-
-const openDownload = () => {
-  const url = latest.value?.downloadUrl
-  if (!url) return
-  window.open(url, '_blank', 'noopener,noreferrer')
-}
-
-// Deletion modal state
-const isDeleteModalOpen = ref(false)
-const confirmText = ref('')
-const deleting = ref(false)
-
-const canConfirmDelete = computed(() =>
-  confirmText.value === 'DELETE' && !deleting.value,
-)
-
-const onOpenModal = () => {
-  confirmText.value = ''
-  isDeleteModalOpen.value = true
-}
-
-const onConfirmDelete = async () => {
-  if (!uid.value || !canConfirmDelete.value) return
-  deleting.value = true
-  try {
-    await $api(`/api/user/account/${uid.value}/delete-account`, {
-      method: 'POST',
-      body: { confirmation: 'DELETE' },
-    })
-    toast.add({
-      title: t('delete.scheduled_title'),
-      description: t('delete.scheduled_description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-    isDeleteModalOpen.value = false
-    await clearSession()
-    await router.push(localePath('index'))
-  }
-  catch (error) {
-    log.error({ action: 'privacy:deleteAccount', error })
-    notify('webside-Privacy:2', error, { title: t('delete.error_title') })
-  }
-  finally {
-    deleting.value = false
-  }
-}
-
-onMounted(async () => {
-  if (!loggedIn.value) return
-  await loadExports()
-  if (isProcessing.value) pollExports()
-})
-
-onBeforeUnmount(stopPolling)
 </script>
 
 <template>

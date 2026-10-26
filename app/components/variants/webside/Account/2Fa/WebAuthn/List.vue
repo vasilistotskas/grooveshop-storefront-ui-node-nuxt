@@ -1,54 +1,17 @@
 <script lang="ts" setup>
 import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
 
-const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
 const localePath = useLocalePath()
-const toast = useToast()
-const { notify } = useApiError()
 const { t, locale } = useI18n()
 
-const authStore = useAuthStore()
-const { authenticators } = storeToRefs(authStore)
+const { keys, busy, rename, remove } = useWebAuthnKeys({
+  renamed: () => ({ title: t('success.title'), color: 'success' }),
+  removed: () => ({ title: t('success.title'), color: 'success' }),
+  failed: () => t('error.default'),
+})
 
 const editId = ref<number | null>(null)
-const loading = ref(false)
-const keys = ref(authenticators.value?.filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN))
-
-async function optimisticSetKeys(newKeys: any[], op: () => Promise<boolean>) {
-  loading.value = true
-  const oldKeys = keys.value
-  editId.value = null
-  keys.value = newKeys
-  try {
-    const ok = await op()
-    if (!ok) {
-      keys.value = oldKeys
-    }
-    toast.add({
-      title: ok ? t('success.title') : t('error.default'),
-      color: ok ? 'success' : 'error',
-    })
-  }
-  catch {
-    keys.value = oldKeys
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-async function deleteKey(key: any) {
-  const newKeys = keys.value?.filter(k => k.id !== key.id)
-  if (!newKeys) {
-    return
-  }
-  await optimisticSetKeys(newKeys, async () => {
-    const resp = await deleteWebAuthnCredential({
-      authenticators: [key.id],
-    })
-    return (resp?.status === 200)
-  })
-}
+const loading = computed(() => busy.value !== null)
 
 // Renaming edits a draft, not the row: "Edit" used to enable a borderless
 // input that looked like the plain name, with a small check icon as the
@@ -66,23 +29,7 @@ function cancelRename() {
 
 /** The row shows the new name once the API has kept it. */
 async function onSave(id: number) {
-  const name = draftName.value.trim()
-  if (!name) return
-  loading.value = true
-  try {
-    const ok = (await updateWebAuthnCredential({ id, name }))?.status === 200
-    if (ok) {
-      keys.value = keys.value?.map(k => (k.id === id ? { ...k, name } : k))
-      editId.value = null
-    }
-    toast.add({ title: ok ? t('success.title') : t('error.default'), color: ok ? 'success' : 'error' })
-  }
-  catch (error) {
-    notify('webside-webauthn:rename', error, { title: t('error.default') })
-  }
-  finally {
-    loading.value = false
-  }
+  if (await rename(id, draftName.value)) editId.value = null
 }
 
 function getTypeColor(type: string) {
@@ -127,7 +74,7 @@ const columns: TableColumn<any>[] = [
 ]
 
 const rows = computed(() => {
-  return keys.value?.map((key) => {
+  return keys.value.map((key) => {
     return {
       id: key.id,
       name: key.name,
@@ -136,12 +83,11 @@ const rows = computed(() => {
       last_used_at: key.last_used_at,
       is_passwordless: key.is_passwordless ?? false,
     }
-  }) ?? []
+  })
 })
 
 const actionItems = (row: { id: number, name: string, type: string, created_at: number, last_used_at?: number }) => {
   const items: DropdownMenuItem[] = []
-  const key = keys.value?.find(k => k.id === row.id)
 
   items.push({
     label: t('edit.title'),
@@ -160,20 +106,19 @@ const actionItems = (row: { id: number, name: string, type: string, created_at: 
     ui: {
       itemLeadingIcon: 'text-red-500 dark:text-red-500 hover:text-red-500 hover:dark:text-red-500',
     },
-    onSelect: async () => await deleteKey(key),
+    onSelect: async () => {
+      editId.value = null
+      await remove(row.id)
+    },
   })
 
   return items.length ? [items] : []
 }
 
 watchEffect(async () => {
-  if (!keys.value?.length && !loading.value) {
+  if (!keys.value.length && !loading.value) {
     await navigateTo(localePath('account-2fa'))
   }
-})
-
-onReactivated(async () => {
-  keys.value = (await getAuthenticators())?.data.filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN)
 })
 </script>
 

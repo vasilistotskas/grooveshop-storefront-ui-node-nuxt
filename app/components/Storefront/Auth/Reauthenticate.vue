@@ -1,42 +1,24 @@
 <script lang="ts" setup>
 const emit = defineEmits(['reauthenticate'])
 
-const { reauthenticate } = useAllAuthAuthentication()
-const toast = useToast()
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 useHead({ title: () => t('title') })
 
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const localePath = useLocalePath()
+await useAuthEventGuard(AuthChangeEvent.REAUTHENTICATION_REQUIRED)
 
-const loading = ref(false)
 const password = ref('')
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('index'))
-}
+const { loading, submit } = usePasswordReauthentication(() => ({
+  title: t('success'),
+  color: 'success',
+  icon: 'i-lucide-circle-check',
+}))
 
 async function onSubmit() {
   if (!password.value) return
-  try {
-    loading.value = true
-    await reauthenticate({
-      password: password.value,
-    })
-    toast.add({
-      title: t('success'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    })
-    emit('reauthenticate')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
+  if (await submit(password.value)) emit('reauthenticate')
 }
 </script>
 

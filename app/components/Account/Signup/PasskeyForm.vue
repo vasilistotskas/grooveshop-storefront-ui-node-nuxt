@@ -1,51 +1,12 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 const emit = defineEmits(['signUpByPasskey'])
 
-const { signUpByPasskey } = useAllAuthAuthentication()
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const loading = ref(false)
-const hasError = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
+const { schema, state, loading, hasError, onSubmit } = useSignUpByPasskey({
+  onSignedUp: () => emit('signUpByPasskey'),
 })
-
-type Schema = z.output<typeof schema>
-
-const state = reactive<Partial<Schema>>({ email: undefined })
-
-// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
-const formPath = useRoute().path
-
-async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
-  try {
-    loading.value = true
-    hasError.value = false
-
-    await signUpByPasskey(event.data)
-
-    emit('signUpByPasskey')
-  }
-  catch (error) {
-    // allauth answers with the next step pending — creating the passkey,
-    // or confirming the email first. That is progress, not a failure.
-    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
-    hasError.value = true
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
 </script>
 
 <template>

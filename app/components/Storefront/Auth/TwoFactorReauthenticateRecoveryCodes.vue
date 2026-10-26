@@ -1,40 +1,23 @@
 <script lang="ts" setup>
-const { twoFaReauthenticate } = useAllAuthAuthentication()
-const toast = useToast()
 const { t } = useI18n()
 
 useHead({ title: () => t('title') })
 
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const localePath = useLocalePath()
+await useAuthEventGuard(AuthChangeEvent.REAUTHENTICATION_REQUIRED)
 
 const recoveryCode = ref('')
-const submitting = ref(false)
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('index'))
-}
+const { submitting, submit } = useCodeReauthentication(() => ({
+  title: t('success'),
+  color: 'success',
+  icon: 'i-lucide-circle-check',
+}))
 
 // Recovery codes are 8 digits (allauth MFA_RECOVERY_CODE_DIGITS default).
 async function onSubmit() {
   const code = recoveryCode.value.trim()
-  if (code.length < 8 || submitting.value) return
-  submitting.value = true
-  try {
-    await twoFaReauthenticate({ code })
-    toast.add({
-      title: t('success'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    })
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-    recoveryCode.value = ''
-  }
-  finally {
-    submitting.value = false
-  }
+  if (code.length < 8) return
+  if (!await submit(code)) recoveryCode.value = ''
 }
 </script>
 

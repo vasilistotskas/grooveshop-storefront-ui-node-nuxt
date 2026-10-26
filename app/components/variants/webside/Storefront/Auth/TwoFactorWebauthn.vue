@@ -1,11 +1,6 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
 
-const toast = useToast()
-const { notify } = useApiError()
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const authStore = useAuthStore()
-const { session } = storeToRefs(authStore)
 const { t } = useI18n()
 const localePath = useLocalePath()
 
@@ -28,53 +23,20 @@ const items = computed(() => [
   },
 ])
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-  await navigateTo(localePath('index'))
-}
+await useAuthEventGuard(AuthChangeEvent.FLOW_UPDATED)
 
-const loading = ref(false)
-const hasError = ref(false)
-
-const { getWebAuthnRequestOptionsForAuthentication, authenticateUsingWebAuthn } = useAllAuthAuthentication()
-
-async function onSubmit(): Promise<void> {
-  try {
-    loading.value = true
-    hasError.value = false
-
-    const optResp = await getWebAuthnRequestOptionsForAuthentication()
-    const jsonOptions = optResp?.data.request_options.publicKey
-
-    if (!jsonOptions) {
-      throw new Error('No creation options')
-    }
-
-    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
-    const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
-    const response = await authenticateUsingWebAuthn({
-      credential: credential.toJSON(),
-    })
-
-    session.value = response?.data
-
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-
+const { loading, failed: hasError, submit: onSubmit } = useWebAuthnChallenge('authenticate', {
+  success: () => ({
+    title: t('success.title'),
+    description: t('success.description'),
+    color: 'success',
+    icon: 'i-heroicons-check-circle',
+  }),
+  onDone: () => {
     emit('getWebAuthnRequestOptionsForAuthentication')
     emit('authenticateUsingWebAuthn')
-  }
-  catch (error) {
-    hasError.value = true
-    notify('webside-webauthn:authenticate', error, { title: t('error.default') })
-  }
-  finally {
-    loading.value = false
-  }
-}
+  },
+})
 </script>
 
 <template>

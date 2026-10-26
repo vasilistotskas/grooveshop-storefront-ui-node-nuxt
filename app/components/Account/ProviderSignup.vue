@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 /**
@@ -11,41 +10,15 @@ const emit = defineEmits(['providerSignup'])
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { providerSignup } = useAllAuthAuthentication()
-const toast = useToast()
 
-const loading = ref(false)
 const acceptedTerms = ref(false)
 
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
+const { schema, state, loading, submit } = useProviderSignup({
+  success: () => ({ title: t('success'), color: 'success' }),
+  onSignedUp: () => emit('providerSignup'),
 })
 
-type Schema = z.output<typeof schema>
-
-const state = reactive<Partial<Schema>>({ email: undefined })
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  try {
-    loading.value = true
-    await providerSignup(event.data)
-    toast.add({
-      title: t('success'),
-      color: 'success',
-    })
-    emit('providerSignup')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
+const onSubmit = (event: FormSubmitEvent<{ email: string }>) => submit(event.data)
 </script>
 
 <template>

@@ -10,74 +10,23 @@
  * verification has no codes (allauth answers 404) and goes back to the
  * Security page, where it is set up.
  */
-const { getRecoveryCodes } = useAllAuthAccount()
-const toast = useToast()
-const localePath = useLocalePath()
 const { t, locale } = useI18n()
-const { copy } = useClipboard()
+const localePath = useLocalePath()
 
-const { data, error } = await useAsyncData('recoveryCodes', () => getRecoveryCodes())
-
-if (error.value) {
-  toast.add({ title: t('auth.mfa.required'), color: 'error' })
-  await navigateTo(localePath('account-security'))
-}
-
-const codes = computed(() => data.value?.data.unused_codes ?? [])
-const unused = computed(() => data.value?.data.unused_code_count ?? 0)
-const total = computed(() => data.value?.data.total_code_count ?? 0)
-const createdAt = computed(() => data.value?.data.created_at)
-const lastUsedAt = computed(() => data.value?.data.last_used_at)
+const { codes, unused, total, createdAt, lastUsedAt, copyAll, copyCode, download, print } = await useRecoveryCodes({
+  securityRoute: 'account-security',
+  toasts: {
+    copiedAll: () => ({ title: t('copied_all'), color: 'success' }),
+    copiedOne: code => ({ title: t('copied_one'), description: code, color: 'success' }),
+  },
+  document: {
+    title: () => t('print.title'),
+    made: date => t('print.made', { date }),
+    keepSafe: () => t('keep_safe'),
+  },
+})
 
 const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
-
-/** The date the set was made, as the downloaded and printed copies state it. */
-const madeOn = computed(() => createdAt.value ? new Date(createdAt.value * 1000).toLocaleDateString(locale.value) : '')
-
-async function copyAll() {
-  await copy(codes.value.join('\n'))
-  toast.add({ title: t('copied_all'), color: 'success' })
-}
-
-async function copyCode(code: string) {
-  await copy(code)
-  toast.add({ title: t('copied_one'), description: code, color: 'success' })
-}
-
-function download() {
-  const text = `${t('print.title')} — ${t('print.made', { date: madeOn.value })}\n\n${codes.value.join('\n')}\n\n${t('keep_safe')}`
-  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `recovery-codes-${Date.now()}.txt`
-  link.click()
-  URL.revokeObjectURL(url)
-}
-
-function print() {
-  const printWindow = window.open('', '_blank')
-  if (!printWindow) return
-  const doc = printWindow.document
-  doc.write(`<html><head><title></title><style>
-    body { font-family: monospace; padding: 40px; }
-    h1 { font-size: 24px; margin-bottom: 8px; }
-    .codes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 24px 0; }
-    .code { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
-  </style></head><body><h1></h1><p class="made"></p><div class="codes"></div><p class="keep"></p></body></html>`)
-  doc.close()
-  doc.title = t('print.title')
-  doc.querySelector('h1')!.textContent = t('print.title')
-  doc.querySelector('.made')!.textContent = t('print.made', { date: madeOn.value })
-  const list = doc.querySelector('.codes')!
-  for (const code of codes.value) {
-    const item = doc.createElement('div')
-    item.className = 'code'
-    item.textContent = code
-    list.appendChild(item)
-  }
-  doc.querySelector('.keep')!.textContent = t('keep_safe')
-  printWindow.print()
-}
 </script>
 
 <template>

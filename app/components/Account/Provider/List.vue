@@ -11,24 +11,7 @@ defineProps({
   },
 })
 
-const { providers } = useSocialProviders()
-const {
-  providerRedirect,
-  browserProviderRedirect,
-} = useAllAuthAuthentication()
-
-const loginWithProvider = async (provider: Provider) => {
-  // A provider that can hand the browser a token signs in in place;
-  // one that only redirects sends the browser through its own page.
-  if (!provider.flows.includes('provider_token') && provider.flows.includes('provider_redirect')) {
-    return await browserProviderRedirect({
-      provider: String(provider.id),
-      callback_url: '/account/provider/callback',
-      process: 'login',
-    })
-  }
-  return providerRedirect(provider)
-}
+const { providers, signIn: loginWithProvider } = useSocialProviders()
 </script>
 
 <template>

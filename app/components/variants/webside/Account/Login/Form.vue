@@ -1,79 +1,16 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 const config = useRuntimeConfig()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { login } = useAllAuthAuthentication()
-const router = useRouter()
-const cartStore = useCartStore()
-const { refreshCart } = cartStore
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const tenantStore = useTenantStore()
 const isPlatform = useIsPlatformTenant()
 
-const authStore = useAuthStore()
-const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
+const { status } = storeToRefs(useAuthStore())
+const { hasProviders } = useSocialProviders()
 
-// Captured at setup — the race-free reference point for
-// tryAdvanceToPendingFlow (the auth:change hook may navigate before our
-// catch runs, so the live route is not trustworthy there).
-const formPath = router.currentRoute.value.path
-
-const isSubmitting = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
-  password: z.string({ error: issue => issue.input === undefined
-    ? t('validation.required')
-    : t('validation.string.invalid') }).min(1, {
-    error: t('validation.required'),
-  }),
-})
-
-type Schema = z.output<typeof schema>
-
-const state = reactive<Partial<Schema>>({
-  email: undefined,
-  password: undefined,
-})
-
-const onSubmit = async (event: FormSubmitEvent<Schema>) => {
-  isSubmitting.value = true
-  try {
-    const currentPath = router.currentRoute.value.path
-    const currentQuery = router.currentRoute.value.query
-
-    if (!currentQuery.next) {
-      await router.replace({ query: { next: currentPath } })
-    }
-
-    const response = await login({
-      email: event.data.email,
-      password: event.data.password,
-    })
-
-    session.value = response?.data
-  }
-  catch (error) {
-    // A correct password on a 2FA-enabled account does not sign the user in
-    // outright — allauth replies 401 with `mfa_authenticate` pending. That is
-    // not a login failure: route to the second-factor challenge instead of
-    // leaving the form silent.
-    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
-    handleAllAuthClientError(error)
-  }
-  finally {
-    await refreshCart()
-    isSubmitting.value = false
-  }
-}
+const { schema, state, isSubmitting, onSubmit } = useLogin()
 
 const backgroundImage = computed(() => {
   return img(
@@ -251,7 +188,7 @@ const backgroundImage = computed(() => {
                 </div>
               </div>
               <div
-                v-if="hasSocialAccountProviders"
+                v-if="hasProviders"
                 class="grid items-center justify-center gap-4"
               >
                 <p

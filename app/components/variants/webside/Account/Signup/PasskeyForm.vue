@@ -1,26 +1,20 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent, AuthFormField } from '#ui/types'
+import type { AuthFormField } from '#ui/types'
 
 const emit = defineEmits(['signUpByPasskey'])
 
-const { signUpByPasskey } = useAllAuthAuthentication()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const toast = useToast()
 
-const loading = ref(false)
-const hasError = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
+const { schema, loading, hasError, onSubmit } = useSignUpByPasskey({
+  created: () => ({
+    title: t('success.title'),
+    description: t('success.description'),
+    color: 'success',
+    icon: 'i-heroicons-check-circle',
   }),
+  onSignedUp: () => emit('signUpByPasskey'),
 })
-
-type Schema = z.output<typeof schema>
 
 const fields: AuthFormField[] = [
   {
@@ -31,31 +25,6 @@ const fields: AuthFormField[] = [
     required: true,
   },
 ]
-
-async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
-  try {
-    loading.value = true
-    hasError.value = false
-
-    await signUpByPasskey(event.data)
-
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-
-    emit('signUpByPasskey')
-  }
-  catch (error) {
-    hasError.value = true
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
 </script>
 
 <template>

@@ -193,6 +193,15 @@ export const pickPreferredAuthenticatorType = (
   return preferred ?? types[0]
 }
 
+/** The authenticator types in the order the shopper is offered them; unknown ones last. */
+export const sortAuthenticatorTypes = <T extends string>(types: readonly T[] | undefined | null): T[] => {
+  const rank = (type: T) => {
+    const index = AUTHENTICATOR_TYPE_PRIORITY.findIndex(priority => priority === type)
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index
+  }
+  return [...(types ?? [])].sort((a, b) => rank(a) - rank(b))
+}
+
 export const pathForFlow = (flow: Flow, authenticatorType?: string) => {
   // provider_redirect is an external OAuth redirect, not a Nuxt page.
   // Return null so navigateToPendingFlow skips navigation.

@@ -1,14 +1,9 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
 const isOpen = defineModel<boolean>()
 
-watch(loggedIn, () => {
-  if (loggedIn.value) {
-    isOpen.value = false
-  }
-})
+useCloseOnSignIn(isOpen)
 </script>
 
 <template>

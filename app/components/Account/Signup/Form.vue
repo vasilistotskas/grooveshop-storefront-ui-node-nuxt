@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
 
 /**
  * Making an account, in the board's order: a passkey, then email and
@@ -15,7 +14,6 @@ import type { FormSubmitEvent } from '#ui/types'
  * requested once the account exists — a failure there never undoes the
  * account.
  */
-const { signup } = useAllAuthAuthentication()
 const authStore = useAuthStore()
 const { config, status } = storeToRefs(authStore)
 const { hasProviders } = useSocialProviders()
@@ -26,37 +24,8 @@ const localePath = useLocalePath()
 
 const newsletter = await useNewsletterAvailability()
 
-const formPath = useRoute().path
-
 const acceptedTerms = ref(false)
 const wantsNewsletter = ref(false)
-const isSubmitting = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
-  // Django's MinimumLength (8) and NumericPassword; the common-password
-  // and similarity checks answer from the server.
-  password: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : undefined,
-  }).min(8, {
-    error: issue => t('validation.min', { min: issue.minimum }),
-  }).refine(value => !/^\d+$/.test(value), {
-    error: t('validation.password.entirely_numeric'),
-  }),
-})
-
-type Schema = z.output<typeof schema>
-
-const state = reactive<Partial<Schema>>({
-  email: undefined,
-  password: undefined,
-})
 
 async function subscribeIfAsked(email: string) {
   if (!wantsNewsletter.value || !newsletter.available.value) return
@@ -68,29 +37,24 @@ async function subscribeIfAsked(email: string) {
   }
 }
 
-const onSubmit = async (event: FormSubmitEvent<Schema>) => {
-  isSubmitting.value = true
-  try {
-    await signup({ email: event.data.email, password: event.data.password })
-    await subscribeIfAsked(event.data.email)
-    toast.add({
-      title: t('auth.signup.success'),
-      color: 'success',
-    })
-  }
-  catch (error) {
-    // A signup that needs the email confirmed answers with a pending
-    // flow: the account exists, the next step is the code.
-    if (pendingFlowRouteNameFromError(error)) {
-      await subscribeIfAsked(event.data.email)
-    }
-    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
-    handleAllAuthClientError(error)
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
+const { email, password, isSubmitting, signup } = useSignup({
+  messages: {
+    email: () => t('validation.email.valid'),
+    minimum: min => t('validation.min', { min }),
+  },
+  onCreated: subscribeIfAsked,
+})
+
+const schema = z.object({ email, password })
+
+type Schema = z.output<typeof schema>
+
+const state = reactive<Partial<Schema>>({
+  email: undefined,
+  password: undefined,
+})
+
+const onSubmit = (event: { data: Schema }) => signup(event.data)
 </script>
 
 <template>

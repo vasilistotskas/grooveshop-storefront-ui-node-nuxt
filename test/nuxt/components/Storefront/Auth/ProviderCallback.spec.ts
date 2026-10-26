@@ -19,9 +19,10 @@ import { failWith } from '~~/test/helpers/api'
  * pending `provider_signup` flow is the "finish signing up" hand-off,
  * not a failure.
  *
- * The default tree also finishes linking an account: a signed-in shopper
- * arrives only from Security's "Connect", and goes back there told
- * whether the account is now theirs.
+ * A signed-in shopper is linking an account (the default tree's Security
+ * page offers "Connect"): the page finishes it and sends them back, told
+ * whether the account is now theirs: to Security, or on a store frozen in
+ * the previous design to its providers page.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -112,17 +113,15 @@ describe.each([
       expect(wrapper.find('[role="status"]').exists()).toBe(false)
     })
 
-    // The frozen copy titles itself with a `?messages=` no route sends.
-    it.runIf(tree === 'webside')('titles the page with the message the provider flow sent back', async () => {
+    // The frozen copy once titled itself with a `?messages=` query no route
+    // sends: any link could put its own text in the heading.
+    it('does not title the page with a message from the URL', async () => {
       api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', process: 'connect' } })
 
       const wrapper = await mount({ provider: 'google', process: 'connect', messages: 'Ο λογαριασμός συνδέθηκε' })
 
-      // The heading follows the end of the onMounted exchange; waited on
-      // rather than assumed settled after one flush.
       await vi.waitFor(() => expect(providerToken).toHaveBeenCalledTimes(1))
-      await vi.waitFor(() => expect(wrapper.find('h1').text()).toBe('Ο λογαριασμός συνδέθηκε'))
-      expect(wrapper.text()).not.toContain(messages.title.loading)
+      expect(wrapper.text()).not.toContain('Ο λογαριασμός συνδέθηκε')
     })
 
     it('omits the tokens the provider did not issue', async () => {
@@ -173,8 +172,8 @@ describe.each([
     })
   })
 
-  describe.runIf(tree === 'default')('linking an account, signed in', () => {
-    const SECURITY = '/account/security'
+  describe('linking an account, signed in', () => {
+    const SECURITY = tree === 'default' ? '/account/security' : '/account/providers'
 
     beforeEach(() => {
       session.loggedIn = true
@@ -227,7 +226,7 @@ describe.each([
       expectNoFailure(wrapper)
     })
 
-    it('says it is connecting the account while it works', async () => {
+    it.runIf(tree === 'default')('says it is connecting the account while it works', async () => {
       api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', process: 'connect' } })
       providerToken.mockReturnValue(new Promise(() => {}))
 

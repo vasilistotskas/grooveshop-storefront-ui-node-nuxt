@@ -1,39 +1,22 @@
 <script lang="ts" setup>
-const { twoFaReauthenticate } = useAllAuthAuthentication()
-const toast = useToast()
 const { t } = useI18n()
 
 useHead({ title: () => t('title') })
 
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const localePath = useLocalePath()
+await useAuthEventGuard(AuthChangeEvent.REAUTHENTICATION_REQUIRED)
 
 const code = ref<string[]>([])
-const submitting = ref(false)
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('index'))
-}
+const { submitting, submit } = useCodeReauthentication(() => ({
+  title: t('success'),
+  color: 'success',
+  icon: 'i-lucide-circle-check',
+}))
 
 async function onSubmit() {
   const codeValue = code.value.join('')
-  if (codeValue.length !== 6 || submitting.value) return
-  submitting.value = true
-  try {
-    await twoFaReauthenticate({ code: codeValue })
-    toast.add({
-      title: t('success'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    })
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-    code.value = []
-  }
-  finally {
-    submitting.value = false
-  }
+  if (codeValue.length !== 6) return
+  if (!await submit(codeValue)) code.value = []
 }
 </script>
 
