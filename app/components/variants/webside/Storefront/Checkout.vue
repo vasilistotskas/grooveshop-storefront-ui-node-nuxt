@@ -60,6 +60,7 @@ const {
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
+  acsEnabled,
   refetchShippingOptions,
   shippingOptionsError,
   shippingOverWeight,
@@ -296,6 +297,7 @@ useSeoMeta({
             :selected-saved-address-id="selectedSavedAddressId"
             :mode="addressEntryMode"
             :b2b-invoicing-enabled="b2bInvoicingEnabled"
+            :acs-enabled="acsEnabled"
             @next="nextStep"
             @select-saved-address="selectSavedAddress"
             @use-new-address="useNewAddress"

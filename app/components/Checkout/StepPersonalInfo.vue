@@ -42,7 +42,7 @@ const props = defineProps<{
    * ``/api/v1/shipping/options`` returned an ``acs`` row. Without it
    * the address-validation proxy can only answer 503.
    */
-  acsEnabled?: boolean
+  acsEnabled: boolean
 }>()
 
 const emit = defineEmits<{
@@ -292,7 +292,7 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
              provider must never block the form. -->
         <CheckoutAcsAddressSuggestion
           v-model:form-state="formState"
-          :enabled="formState.country === 'GR' && props.acsEnabled !== false"
+          :enabled="formState.country === 'GR' && acsEnabled"
         />
 
         <div

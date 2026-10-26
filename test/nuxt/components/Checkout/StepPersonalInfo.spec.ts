@@ -19,10 +19,9 @@ import { trees } from '~~/test/helpers/trees'
  * postcode placeholder shows the selected country's format, and Django's
  * field errors from a rejected order land under their own inputs.
  *
- * The frozen webside copy shares the logic except for one prop: the
- * default gates the ACS address chip on `acsEnabled` (a tenant without
- * an ACS contract only ever gets 503s from the proxy); webside gates it
- * on the country alone.
+ * The frozen webside copy shares the logic: both gate the ACS address
+ * chip on Greece and on `acsEnabled` (a tenant without an ACS contract
+ * only ever gets 503s from the proxy).
  */
 
 // The phone field recognises a typed `+code` against every dial code.
@@ -108,9 +107,8 @@ function makeProps(overrides: Record<string, unknown> = {}) {
     regionOptions: [],
     mode: 'new' as const,
     postcodeExample: '151 24',
-    // Boolean props: absent means `false` to Vue, and the checkout page
-    // always passes both (`useCheckoutForm`). The webside copy has no
-    // `acsEnabled` prop and ignores it.
+    // Boolean props: absent means `false` to Vue, and both checkout
+    // pages always pass both (`useCheckoutForm`).
     b2bInvoicingEnabled: true,
     acsEnabled: true,
     ...overrides,
@@ -644,12 +642,8 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
       expect(await chipEnabled({ formState: makeFormState({ country: 'CY' }) })).toBe(false)
     })
 
-    it('honours the store\'s ACS contract; the frozen copy gates on the country alone', async () => {
-      // Webside predates the `acsEnabled` prop, so it still asks the
-      // proxy for a store without ACS — which answers 503.
-      const enabled = await chipEnabled({ formState: makeFormState({ country: 'GR' }), acsEnabled: false })
-
-      expect(enabled).toBe(tree === 'webside')
+    it('stays off for a store without an ACS contract, whose proxy only answers 503', async () => {
+      expect(await chipEnabled({ formState: makeFormState({ country: 'GR' }), acsEnabled: false })).toBe(false)
     })
   })
 
