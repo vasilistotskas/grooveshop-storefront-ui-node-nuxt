@@ -1658,7 +1658,10 @@ export const zOrderCreateErrorDetail = z.object({
 })
 
 /**
- * The 400 body of ``POST /order``.
+ * The 400 or 409 body of ``POST /order``.
+ *
+ * 409 is ``legal_document_unavailable``: a checkout legal text the
+ * store cannot show in the order's language.
  *
  * A refusal the order service understands carries ``error.type``; a
  * malformed payload is DRF's field-error map instead (``{field:

@@ -23924,6 +23924,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderCreateError"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -62243,7 +62253,7 @@
             },
             "OrderCreateError": {
                 "type": "object",
-                "description": "The 400 body of ``POST /order``.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
+                "description": "The 400 or 409 body of ``POST /order``.\n\n409 is ``legal_document_unavailable``: a checkout legal text the\nstore cannot show in the order's language.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
                 "properties": {
                     "detail": {
                         "type": "string"
