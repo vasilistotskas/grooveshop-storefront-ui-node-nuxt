@@ -123,17 +123,17 @@ const startShare = async () => {
   }
 }
 
+// Low stock is the product's own threshold (lowStockLeft), as on every
+// store; webside draws it as its badge (owner decision 2026-10-26).
 const stockStatus = computed(() => {
-  const stock = productStock.value
-  if (stock === 0) {
+  if (productStock.value <= 0) {
     return { label: t('out_of_stock'), color: 'error', icon: 'i-heroicons-x-circle' } as { label: string, color: ButtonProps['color'], icon: string }
   }
-  else if (stock <= 5) {
-    return { label: t('low_stock', { count: stock }), color: 'warning', icon: 'i-heroicons-exclamation-triangle' } as { label: string, color: ButtonProps['color'], icon: string }
+  const left = product.value ? lowStockLeft(product.value) : null
+  if (left) {
+    return { label: t('low_stock', { count: left }), color: 'warning', icon: 'i-heroicons-exclamation-triangle' } as { label: string, color: ButtonProps['color'], icon: string }
   }
-  else {
-    return { label: t('in_stock'), color: 'success', icon: 'i-heroicons-check-circle' } as { label: string, color: ButtonProps['color'], icon: string }
-  }
+  return { label: t('in_stock'), color: 'success', icon: 'i-heroicons-check-circle' } as { label: string, color: ButtonProps['color'], icon: string }
 })
 
 const productTabs = computed<TabsItem[]>(() => [
@@ -190,21 +190,10 @@ useSeoMeta({
 // Set via useHead because @unhead/vue's UseSeoMetaInput union omits 'product'.
 useHead({ meta: [{ property: 'og:type', content: 'product' }] })
 
+// No preload of the 1200x630 social card: no element on the page shows
+// it, so it only competed with the gallery's own photograph, which asks
+// for itself at fetchpriority=high (owner decision 2026-10-26).
 useHead({
-  link: () => {
-    // Preload the hero image so it's in flight before render — cuts
-    // ~200-400ms off LCP on cold product detail pages.
-    const heroHref = ogImage.value
-    if (!heroHref) return []
-    return [
-      {
-        rel: 'preload' as const,
-        as: 'image' as const,
-        href: heroHref,
-        fetchpriority: 'high' as const,
-      },
-    ]
-  },
   meta: [
     {
       name: 'keywords',

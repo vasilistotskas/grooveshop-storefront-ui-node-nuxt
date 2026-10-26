@@ -641,3 +641,43 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail n
     wrapper.unmount()
   })
 })
+
+// Low stock is the product's own threshold on every store (lowStockLeft);
+// each drawing words it in its own copy.
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail stock', ({ tree, C }) => {
+  const lowStockOf = (count: number) => (tree === 'default' ? `Έμειναν μόνο ${count}` : `Χαμηλό απόθεμα (${count})`)
+
+  function serve(product: ReturnType<typeof makeProduct>) {
+    clearNuxtData()
+    setTenant()
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': product,
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+  }
+
+  it('reads low stock at or under the product\'s own threshold', async () => {
+    serve(makeProduct({ id: 123, stock: 8, lowStockThreshold: 10 }))
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain(lowStockOf(8))
+    wrapper.unmount()
+  })
+
+  it('reads in stock above it', async () => {
+    serve(makeProduct({ id: 123, stock: 12, lowStockThreshold: 10 }))
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain(lowStockOf(12))
+    expect(wrapper.text()).toContain('Διαθέσιμο')
+    wrapper.unmount()
+  })
+})
