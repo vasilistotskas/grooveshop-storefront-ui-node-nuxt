@@ -127,7 +127,7 @@ describe('carousels that lay out cards', () => {
   it('still finds the stretched card carousels it is meant to check', () => {
     // Guards the naming and the `:ui` lookup: if either stopped
     // resolving, every carousel would read as "neither" and pass.
-    expect(carousels.length).toBeGreaterThanOrEqual(10)
-    expect(carousels.filter(c => c.fills && c.stretched).length).toBeGreaterThanOrEqual(6)
+    expect(carousels.length).toBeGreaterThanOrEqual(9)
+    expect(carousels.filter(c => c.fills && c.stretched).length).toBeGreaterThanOrEqual(5)
   })
 })

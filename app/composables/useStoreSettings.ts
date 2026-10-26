@@ -17,10 +17,6 @@
  * entry (Nuxt shares ``data`` across same-key calls only when the
  * options agree).
  *
- * Route middleware and plugins run before any component and cannot
- * register a ``useFetch``; they read the same payload through
- * ``fetchStoreSettings`` below.
- *
  * Every public key arrives, with the store's value or the one Django
  * declares, so no reader keeps a default of its own. Fail-soft: a fetch
  * problem yields an empty map. Never a per-key
@@ -60,23 +56,4 @@ export function useStoreSettings() {
   // read `unavailable`.
   const unavailable = computed(() => !!error.value)
   return { settings, unavailable }
-}
-
-/**
- * The same payload for code that runs OUTSIDE a component — a route
- * middleware deciding a 404, a plugin priming a store.
- *
- * It registers the same entry as the components (Nuxt supports this
- * outside a component, in plugins and route middleware), so the first
- * reader of a render issues the one request and every later reader, a
- * middleware or the components after it, reuses its answer. It used to
- * issue its own request each call without storing it, which is how the
- * gates in front of a page each cost one. On the client the entry is
- * already there from the server render. Throws when the lookup failed,
- * so each gate applies its own `onError`.
- */
-export async function fetchStoreSettings(): Promise<PublicSettings> {
-  const { data, error } = await useStoreSettingsFetch()
-  if (error.value) throw error.value
-  return data.value
 }

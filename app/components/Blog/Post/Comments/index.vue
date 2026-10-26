@@ -192,9 +192,6 @@ const {
 
 <i18n lang="yaml">
 el:
-  title: Σχόλια
-  summary:
-    comments: Κανένα σχόλιο | 1 σχόλιο | {count} Σχόλια
   empty:
     title: Γράψε ένα σχόλιο
     title_guest: Συνδέσου για να γράψεις ένα σχόλιο
@@ -211,9 +208,6 @@ el:
     error: Σφάλμα φόρτωσης σχολίων
   submit: Υποβολή
 en:
-  title: Comments
-  summary:
-    comments: No comments | 1 comment | {count} comments
   empty:
     title: Write a comment
     title_guest: Sign in to write a comment
