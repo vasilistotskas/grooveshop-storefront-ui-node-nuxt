@@ -1,3 +1,10 @@
+## [3.262.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.5...v3.262.6) (2026-10-26)
+
+
+### Bug Fixes
+
+* **gift-cards:** webside reads the store's amount limits; checkout and gift-card logic shared by both trees ([#241](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/241)) ([12c2838](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12c2838c2e2f3acb11e130840ec82945c99d860d))
+
 ## [3.262.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.4...v3.262.5) (2026-10-26)
 
 
