@@ -9,7 +9,10 @@ const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 // Not awaited: the page shows its own loading state meanwhile.
-const { data, status, refresh } = useMyGiftCards()
+const { data, status, error, refresh } = useMyGiftCards()
+
+// Why the list did not load: Django's reason when it gave one.
+const loadError = computed(() => describeApiError(error.value, { fallback: t('load_error') }).description)
 
 const cards = computed(() => data.value?.results ?? [])
 const loading = computed(() => status.value === 'pending')
@@ -41,7 +44,7 @@ const loading = computed(() => status.value === 'pending')
           class="mx-auto size-10 text-error"
         />
         <p class="text-muted">
-          {{ t('load_error') }}
+          {{ loadError }}
         </p>
         <UButton
           color="neutral"

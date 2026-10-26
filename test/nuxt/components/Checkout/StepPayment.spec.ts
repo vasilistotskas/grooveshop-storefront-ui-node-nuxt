@@ -432,6 +432,7 @@ describe.each(trees(StepPayment, WebsideStepPayment))('$tree Checkout/StepPaymen
 
     expect(wrapper.emitted('submit')).toBeUndefined()
     expect(wrapper.get('[role="alert"]').text()).toBe(required)
+    expect(wrapper.get('[role="checkbox"]').attributes('aria-invalid')).toBe('true')
   })
 
   it('links the terms of use and the privacy policy, each in a new tab', async () => {
@@ -449,6 +450,7 @@ describe.each(trees(StepPayment, WebsideStepPayment))('$tree Checkout/StepPaymen
     await acceptTerms(wrapper)
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.get('[role="checkbox"]').attributes('aria-invalid')).toBeUndefined()
   })
 
   it('emits submit once the terms are accepted', async () => {

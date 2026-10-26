@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { createError } from 'h3'
+import { createError, setResponseStatus } from 'h3'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import WebsideGiftCards from '~/components/variants/webside/Storefront/Account/GiftCards.vue'
@@ -21,15 +21,22 @@ const messages = YAML.parse(
 
 let cards: GiftCard[] = []
 let failing = false
+/** Django's refusal, answered as the app's route forwards it; none = a bare 502. */
+let refusal: { status: number, body: Record<string, unknown> } | null = null
 let calls = 0
 
 beforeEach(() => {
   cards = [makeGiftCard()]
   failing = false
+  refusal = null
   calls = 0
   clearNuxtData(['account-gift-cards'])
-  registerEndpoint('/api/giftcard/mine', () => {
+  registerEndpoint('/api/giftcard/mine', (event) => {
     calls++
+    if (failing && refusal) {
+      setResponseStatus(event, refusal.status)
+      return refusal.body
+    }
     if (failing) throw createError({ statusCode: 502 })
     return { count: cards.length, next: null, previous: null, results: cards }
   })
@@ -68,6 +75,15 @@ describe('webside Storefront/Account/GiftCards', () => {
 
     expect(wrapper.get('[role="alert"]').text()).toContain(messages.load_error)
     expect(wrapper.text()).not.toContain(messages.empty)
+  })
+
+  it('says why, when Django gave a reason', async () => {
+    failing = true
+    refusal = { status: 403, body: { detail: 'Ο λογαριασμός σας δεν έχει πρόσβαση σε δωροκάρτες.' } }
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.get('[role="alert"]').text()).toContain('Ο λογαριασμός σας δεν έχει πρόσβαση σε δωροκάρτες.')
   })
 
   it('asks again on "try again", and shows the cards once they load', async () => {

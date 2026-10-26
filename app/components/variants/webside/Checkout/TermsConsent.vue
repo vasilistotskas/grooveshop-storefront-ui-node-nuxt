@@ -26,6 +26,7 @@ const errorId = useId()
       name="terms"
       color="primary"
       :aria-describedby="invalid ? errorId : undefined"
+      :aria-invalid="invalid || undefined"
       :ui="{ label: 'text-sm' }"
     >
       <template #label>

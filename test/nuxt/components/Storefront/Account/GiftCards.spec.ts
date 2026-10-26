@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import { createError } from 'h3'
+import { createError, setResponseStatus } from 'h3'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import GiftCards from '~/components/Storefront/Account/GiftCards.vue'
@@ -22,16 +22,22 @@ const messages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Storefront/Account/GiftCards.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
-const answer = vi.hoisted(() => ({ cards: [] as GiftCard[], status: 200, settings: {} as Record<string, string> }))
+const answer = vi.hoisted(() => ({ cards: [] as GiftCard[], status: 200, data: undefined as Record<string, unknown> | undefined, settings: {} as Record<string, string> }))
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(FIXTURE_TIMESTAMP))
   answer.cards = [makeGiftCard()]
   answer.status = 200
+  answer.data = undefined
   answer.settings = {}
   clearNuxtData(['account-gift-cards', 'store-settings'])
-  registerEndpoint('/api/giftcard/mine', () => {
+  registerEndpoint('/api/giftcard/mine', (event) => {
+    // A Django refusal arrives as the app's route forwards it: its body verbatim.
+    if (answer.data) {
+      setResponseStatus(event, answer.status)
+      return answer.data
+    }
     if (answer.status !== 200) throw createError({ statusCode: answer.status })
     return { count: answer.cards.length, next: null, previous: null, results: answer.cards }
   })
@@ -115,6 +121,15 @@ describe('Storefront/Account/GiftCards', () => {
 
     expect(wrapper.get('[role="alert"]').text()).toContain(messages.load_error)
     expect(wrapper.text()).not.toContain(messages.empty)
+  })
+
+  it('says why, when Django gave a reason', async () => {
+    answer.status = 403
+    answer.data = { detail: 'Ο λογαριασμός σου δεν έχει πρόσβαση σε δωροκάρτες.' }
+
+    const wrapper = await mountPage()
+
+    expect(wrapper.get('[role="alert"]').text()).toContain('Ο λογαριασμός σου δεν έχει πρόσβαση σε δωροκάρτες.')
   })
 
   it('names the amounts the store sells when it states both', async () => {
