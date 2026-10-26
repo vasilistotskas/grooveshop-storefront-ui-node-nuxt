@@ -18,6 +18,18 @@ const { b2bPrice } = vi.hoisted(() => ({
 }))
 mockNuxtImport('useB2BPricing', () => () => ({ register: vi.fn(), priceFor: b2bPrice }))
 
+// Webside shows its sticky buy bar once the window has scrolled past
+// 350px (the default watches its own buy row instead).
+const { windowScrollY } = await vi.hoisted(async () => {
+  const { ref } = await import('vue')
+  return { windowScrollY: ref(0) }
+})
+mockNuxtImport('useWindowScroll', () => () => ({ y: windowScrollY }))
+
+// The product's own requests, by key: a request still in flight survives
+// a bare clearNuxtData(), and the next mount would join it.
+const clearProductData = () => clearNuxtData(['product123', 'productImages123', 'productReviewsSchema123'])
+
 /**
  * A product page counts one view of the product in its route, on the
  * client (`useViewCount` posts nothing during SSR).
@@ -573,6 +585,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
 
   function serve(product: ReturnType<typeof makeProduct>) {
     clearNuxtData()
+    clearProductData()
     setTenant()
     api.routes({
       '/api/products/123': product,
@@ -618,6 +631,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
 describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail name', ({ C }) => {
   it('heads the page with another language\'s name where the page\'s row has none', async () => {
     clearNuxtData()
+    clearProductData()
     setTenant({ defaultLocale: 'en', availableLocales: ['el', 'en'] })
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
@@ -649,6 +663,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
 
   function serve(product: ReturnType<typeof makeProduct>) {
     clearNuxtData()
+    clearProductData()
     setTenant()
     const empty = { count: 0, next: null, previous: null, results: [] }
     api.routes({
@@ -679,5 +694,50 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
     expect(wrapper.text()).not.toContain(lowStockOf(12))
     expect(wrapper.text()).toContain('Διαθέσιμο')
     wrapper.unmount()
+  })
+})
+
+// Webside's sticky bar repeats the buy box: the same low-stock reading
+// and the price this shopper pays.
+describe('webside ProductDetail sticky bar', () => {
+  const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+  const empty = { count: 0, next: null, previous: null, results: [] }
+
+  async function mountScrolled(product: ReturnType<typeof makeProduct>) {
+    clearNuxtData()
+    clearProductData()
+    setTenant()
+    api.routes({
+      '/api/products/123': product,
+      '/api/products/123/images': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+    windowScrollY.value = 1000
+    const wrapper = await mountSuspended(WebsideProductDetail, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  /** The bar: the fixed band that holds the product's name as an h3. */
+  const stickyBar = (wrapper: Awaited<ReturnType<typeof mountScrolled>>) =>
+    wrapper.findAll('h3').map(h3 => h3.element.closest('.fixed')).find(Boolean)
+
+  it('marks low stock at the product\'s own threshold', async () => {
+    const wrapper = await mountScrolled(makeProduct({ id: 123, stock: 8, lowStockThreshold: 10 }))
+
+    expect(stickyBar(wrapper)?.textContent).toContain('Χαμηλό απόθεμα (8)')
+    wrapper.unmount()
+    windowScrollY.value = 0
+  })
+
+  it('shows the price this shopper pays, the wholesale one included', async () => {
+    b2bPrice.mockImplementation(id => (id === 123 ? { finalPrice: '40' } : undefined))
+    const wrapper = await mountScrolled(makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 0 }))
+
+    expect(stickyBar(wrapper)?.textContent).toContain(money(40))
+    expect(stickyBar(wrapper)?.textContent).not.toContain(money(62))
+    wrapper.unmount()
+    windowScrollY.value = 0
   })
 })

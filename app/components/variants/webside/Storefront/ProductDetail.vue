@@ -124,14 +124,15 @@ const startShare = async () => {
 }
 
 // Low stock is the product's own threshold (lowStockLeft), as on every
-// store; webside draws it as its badge (owner decision 2026-10-26).
+// store; webside draws it as its badge, in the buy box and in the sticky
+// bar alike (owner decision 2026-10-26).
+const lowStockCount = computed(() => (product.value ? lowStockLeft(product.value) : null))
 const stockStatus = computed(() => {
   if (productStock.value <= 0) {
     return { label: t('out_of_stock'), color: 'error', icon: 'i-heroicons-x-circle' } as { label: string, color: ButtonProps['color'], icon: string }
   }
-  const left = product.value ? lowStockLeft(product.value) : null
-  if (left) {
-    return { label: t('low_stock', { count: left }), color: 'warning', icon: 'i-heroicons-exclamation-triangle' } as { label: string, color: ButtonProps['color'], icon: string }
+  if (lowStockCount.value) {
+    return { label: t('low_stock', { count: lowStockCount.value }), color: 'warning', icon: 'i-heroicons-exclamation-triangle' } as { label: string, color: ButtonProps['color'], icon: string }
   }
   return { label: t('in_stock'), color: 'success', icon: 'i-heroicons-check-circle' } as { label: string, color: ButtonProps['color'], icon: string }
 })
@@ -620,10 +621,10 @@ useSchemaOrg([
                     dark:text-primary-400
                   "
                 >
-                  {{ formatProductPrice(product ? productCurrentPrice(product) : undefined) }}
+                  {{ formatProductPrice(displayFinalPrice) }}
                 </span>
                 <UBadge
-                  v-if="productStock <= 5 && productStock > 0"
+                  v-if="lowStockCount"
                   :color="stockStatus.color"
                   size="sm"
                   variant="soft"
