@@ -347,6 +347,27 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
       })
     })
 
+    it.runIf(tree === 'webside')('wipes every billing field when the shopper turns the invoice off', async () => {
+      const formState = makeFormState({ documentType: 'INVOICE', ...BILLING })
+      const wrapper = await mount({ formState })
+
+      await checkbox(wrapper, t('form.invoice.toggle_label')).trigger('click')
+
+      expect(formState).toMatchObject({
+        documentType: 'RECEIPT',
+        billingVatId: '',
+        billingCountry: '',
+        billingCompanyName: '',
+        billingTaxOffice: '',
+        billingActivity: '',
+        billingSameAsShipping: true,
+        billingStreet: '',
+        billingStreetNumber: '',
+        billingCity: '',
+        billingZipcode: '',
+      })
+    })
+
     it.runIf(tree === 'default')('offers no receipt-or-invoice choice when the store turned B2B invoicing off', async () => {
       const wrapper = await mount({ b2bInvoicingEnabled: false })
 

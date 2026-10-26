@@ -276,3 +276,25 @@ export function failedStatusOf(error: unknown): number | undefined {
 export function rejectionSettlesAttempt(status: number | undefined): boolean {
   return status !== undefined && status < 500 && status !== 409
 }
+
+/**
+ * Receipt or invoice. Anything but an invoice wipes every billing field:
+ * a VAT id left behind would still reach Django, and an invoice would be
+ * issued to a company the shopper un-picked.
+ */
+export function setDocumentType(form: Record<string, unknown>, type: OrderCreateDocumentType): void {
+  form.documentType = type
+  if (type === zOrderCreateDocumentType.enum.INVOICE) return
+  Object.assign(form, {
+    billingVatId: '',
+    billingCountry: '',
+    billingCompanyName: '',
+    billingTaxOffice: '',
+    billingActivity: '',
+    billingSameAsShipping: true,
+    billingStreet: '',
+    billingStreetNumber: '',
+    billingCity: '',
+    billingZipcode: '',
+  })
+}
