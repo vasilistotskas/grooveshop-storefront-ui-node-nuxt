@@ -21,6 +21,12 @@ const props = defineProps<{
    */
   b2bInvoicingEnabled: boolean
   /**
+   * Whether this tenant actually has an ACS contract — i.e. whether
+   * ``/api/v1/shipping/options`` returned an ``acs`` row. Without it
+   * the address-validation proxy can only answer 503.
+   */
+  acsEnabled: boolean
+  /**
    * The selected country's ``postalCodeExample`` (e.g. ``151 24``),
    * shown as the postcode placeholder.
    */
@@ -258,12 +264,13 @@ watch(() => props.serverErrors, applyServerErrors)
           </UFormField>
 
           <!-- ACS address-validation chip (Phase 4b polish).
-               Greece-only because ACS only services GR; failures
-               are silent so a misconfigured / disabled provider
-               never blocks the form. -->
+               Greece-only because ACS only services GR, and only for
+               a store with an ACS contract (the proxy answers 503
+               otherwise); failures are silent so a misconfigured
+               provider never blocks the form. -->
           <WebsideCheckoutAcsAddressSuggestion
             v-model:formState="formState"
-            :enabled="formState.country === 'GR'"
+            :enabled="formState.country === 'GR' && acsEnabled"
           />
         </div>
       </template>
