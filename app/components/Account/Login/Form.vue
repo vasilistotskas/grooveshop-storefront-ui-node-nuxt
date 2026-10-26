@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 /**
  * Signing in, every way the store offers, in the board's order: a
  * passkey, then email and password (with the one-time code beside it),
@@ -12,79 +9,12 @@ import type { FormSubmitEvent } from '#ui/types'
  */
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { login } = useAllAuthAuthentication()
-const router = useRouter()
-const cartStore = useCartStore()
-const { refreshCart } = cartStore
 
 const authStore = useAuthStore()
-const { config, session, status } = storeToRefs(authStore)
+const { config, status } = storeToRefs(authStore)
 const { hasProviders } = useSocialProviders()
 
-// Captured at setup — the race-free reference point for
-// tryAdvanceToPendingFlow (the auth:change hook may navigate before our
-// catch runs, so the live route is not trustworthy there).
-const formPath = router.currentRoute.value.path
-
-const isSubmitting = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
-  password: z.string({ error: issue => issue.input === undefined
-    ? t('validation.required')
-    : t('validation.string.invalid') }).min(1, {
-    error: t('validation.required'),
-  }),
-})
-
-type Schema = z.output<typeof schema>
-
-const state = reactive<Partial<Schema>>({
-  email: undefined,
-  password: undefined,
-})
-
-/**
- * The one login path.
- *
- * Exposed so a caller can drive it with credentials it already has —
- * the demo-account strip on the sign-in page — without a second copy of
- * the pending-flow handling, the cart refresh and the `next` bookkeeping.
- */
-const performLogin = async (email: string, password: string) => {
-  isSubmitting.value = true
-  try {
-    const currentPath = router.currentRoute.value.path
-    const currentQuery = router.currentRoute.value.query
-
-    if (!currentQuery.next) {
-      await router.replace({ query: { next: currentPath } })
-    }
-
-    const response = await login({ email, password })
-
-    session.value = response?.data
-  }
-  catch (error) {
-    // A correct password on a 2FA-enabled account does not sign the user in
-    // outright — allauth replies 401 with `mfa_authenticate` pending. That is
-    // not a login failure: route to the second-factor challenge instead of
-    // leaving the form silent.
-    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
-    handleAllAuthClientError(error)
-  }
-  finally {
-    await refreshCart()
-    isSubmitting.value = false
-  }
-}
-
-const onSubmit = async (event: FormSubmitEvent<Schema>) =>
-  performLogin(event.data.email, event.data.password)
+const { schema, state, isSubmitting, performLogin, onSubmit } = useLogin()
 
 defineExpose({ performLogin, isSubmitting })
 </script>

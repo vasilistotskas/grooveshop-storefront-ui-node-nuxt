@@ -1,62 +1,17 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 const emit = defineEmits(['confirmLoginCode'])
 
-const { confirmLoginCode } = useAllAuthAuthentication()
-const toast = useToast()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const router = useRouter()
 
-// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
-const formPath = router.currentRoute.value.path
-
-const hasError = ref(false)
-const code = ref<string[]>([])
-
-const codeString = computed(() => code.value.join(''))
-
-const schema = z.object({
-  code: z.string()
-    .min(1, t('validation.required'))
-    .length(6, t('validation.code.length')),
-})
-
-type Schema = z.output<typeof schema>
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  try {
-    hasError.value = false
-
-    await confirmLoginCode({ code: event.data.code })
-
-    toast.add({
-      title: t('logged_in'),
-      description: t('welcome_back'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-
-    emit('confirmLoginCode')
-
-    await router.push(localePath('index'))
-  }
-  catch (err) {
-    // A valid code on a 2FA-enabled account doesn't finish login — allauth
-    // consumes login_by_code and replies 401 with mfa_authenticate pending.
-    // That is not an invalid code: advance to the second-factor challenge.
-    if (await tryAdvanceToPendingFlow(err, { fromPath: formPath })) return
-    hasError.value = true
-    handleAllAuthClientError(err)
-  }
-}
-
-watch(codeString, (newCode) => {
-  if (newCode.length === 6) {
-    onSubmit({ data: { code: newCode } } as FormSubmitEvent<Schema>)
-  }
+const { code, codeString, hasError, schema, onSubmit } = useLoginCodeConfirm({
+  welcome: () => ({
+    title: t('logged_in'),
+    description: t('welcome_back'),
+    color: 'success',
+    icon: 'i-heroicons-check-circle',
+  }),
+  onConfirmed: () => emit('confirmLoginCode'),
 })
 </script>
 

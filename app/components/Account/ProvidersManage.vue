@@ -11,66 +11,11 @@
  * provider callback page brings the shopper back here; providers it
  * cannot link are not offered (`canConnectSocialProvider`).
  */
-const { connectedThirdPartyProviderAccounts, disconnectThirdPartyProviderAccount } = useAllAuthAccount()
-const { providerRedirect } = useAllAuthAuthentication()
-const { providers } = useSocialProviders()
-const toast = useToast()
 const { t } = useI18n()
 
-const { data: linked } = await useAsyncData(
-  'providerAccounts',
-  () => connectedThirdPartyProviderAccounts(),
-)
-
-type Card
-  = | { kind: 'linked', key: string, providerId: string, name: string, account: ProviderAccount }
-    | { kind: 'connect', key: string, providerId: string, name: string, provider: Provider }
-
-const cards = computed<Card[]>(() => {
-  const accounts = linked.value?.data ?? []
-  const linkedCard = (account: ProviderAccount): Card => ({
-    kind: 'linked',
-    key: `${account.provider.id}:${account.uid}`,
-    providerId: account.provider.id,
-    name: account.provider.name,
-    account,
-  })
-  const offered = providers.value.flatMap((provider): Card[] => {
-    const own = accounts.filter(account => account.provider.id === provider.id)
-    if (own.length) return own.map(linkedCard)
-    return canConnectSocialProvider(provider)
-      ? [{ kind: 'connect', key: provider.id, providerId: provider.id, name: provider.name, provider }]
-      : []
-  })
-  const offeredIds = new Set(providers.value.map(provider => provider.id))
-  const withdrawn = accounts.filter(account => !offeredIds.has(account.provider.id)).map(linkedCard)
-  return [...offered, ...withdrawn]
+const { cards, busy, disconnect, connect } = await useProviderAccounts({
+  disconnected: account => ({ title: t('disconnected', { provider: account.provider.name }), color: 'success' }),
 })
-
-const busy = ref<string | null>(null)
-
-/** One change at a time: every card's button is disabled while one is in flight. */
-async function disconnect(account: ProviderAccount) {
-  busy.value = `${account.provider.id}:${account.uid}`
-  try {
-    linked.value = await disconnectThirdPartyProviderAccount({
-      provider: account.provider.id,
-      account: account.uid,
-    })
-    toast.add({ title: t('disconnected', { provider: account.provider.name }), color: 'success' })
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    busy.value = null
-  }
-}
-
-function connect(provider: Provider) {
-  busy.value = provider.id
-  providerRedirect(provider, 'connect')
-}
 </script>
 
 <template>

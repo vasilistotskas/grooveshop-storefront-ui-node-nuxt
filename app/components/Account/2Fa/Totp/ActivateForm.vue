@@ -1,116 +1,26 @@
 <script lang="ts" setup>
-import DOMPurify from 'isomorphic-dompurify'
-import * as z from 'zod'
-
 const emit = defineEmits(['activateTotp'])
 
-const nuxtApp = useNuxtApp()
-const { activateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
-
 const { t } = useI18n()
-const toast = useToast()
 const localePath = useLocalePath()
 
-const loading = ref(false)
-const code = ref<number[]>([])
-
-const { data, error, status } = await useAsyncData(
-  'totpAuthenticatorStatus',
-  () => totpAuthenticatorStatus(),
-  {
-    getCachedData(key) {
-      return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
-    },
+const { status, isSupported, totpSecret, totpSvg, code, loading, isCodeComplete, copySecret: onSecretClick, activate } = await useTotpActivation({
+  settledRoute: 'account-security',
+  messages: {
+    codeLength: () => t('error.code_length'),
+    codeNumeric: () => t('error.code_numeric'),
+    invalidTitle: () => t('error.validation'),
+    copied: () => t('copied'),
+    activated: () => ({ title: t('success.title'), description: t('success.totp_activated'), color: 'success' }),
   },
-)
-
-const totpSecret = computed(() => {
-  if (!data.value) {
-    return ''
-  }
-  if (!('meta' in data.value)) {
-    return ''
-  }
-  return data.value?.meta.secret ?? ''
-})
-
-const totpSvg = computed(() => {
-  if (!data.value) {
-    return ''
-  }
-  if (!('meta' in data.value)) {
-    return ''
-  }
-  return DOMPurify.sanitize(data.value?.meta.totp_svg ?? '', { USE_PROFILES: { svg: true } })
 })
 
 // Four characters a group reads and compares against the app far more
 // easily than sixteen in a row; the copy button still copies the raw key.
 const groupedSecret = computed(() => totpSecret.value.replace(/(.{4})(?=.)/g, '$1 '))
 
-watchEffect(async () => {
-  if (error.value) {
-    await navigateTo(localePath('account-security'))
-  }
-})
-
-const { copy, isSupported } = useClipboard({ source: totpSecret.value })
-
-// Six filled cells, by reka-ui's own rule: in number mode the digit zero
-// is the number 0, a filled cell — a "falsy is empty" test kept the
-// button disabled for every code containing a zero.
-const isCodeComplete = computed(() =>
-  code.value.filter(digit => digit === 0 || !!digit).length === 6,
-)
-
-const codeSchema = computed(() => z.string()
-  .min(6, { message: t('error.code_length') })
-  .max(6, { message: t('error.code_length') })
-  .regex(/^\d+$/, { message: t('error.code_numeric') }),
-)
-
-const onSecretClick = () => {
-  if (isSupported.value) {
-    copy(totpSecret.value)
-    toast.add({
-      title: t('copied'),
-      color: 'success',
-    })
-  }
-}
-
 async function onSubmit() {
-  try {
-    const codeString = code.value.join('')
-    const validation = codeSchema.value.safeParse(codeString)
-
-    if (!validation.success) {
-      toast.add({
-        title: t('error.validation'),
-        description: validation.error?.issues[0]?.message,
-        color: 'error',
-      })
-      return
-    }
-
-    loading.value = true
-    await activateTotp({ code: codeString })
-
-    toast.add({
-      title: t('success.title'),
-      description: t('success.totp_activated'),
-      color: 'success',
-    })
-
-    emit('activateTotp')
-    await navigateTo(localePath('account-security'))
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
+  if (await activate()) emit('activateTotp')
 }
 </script>
 

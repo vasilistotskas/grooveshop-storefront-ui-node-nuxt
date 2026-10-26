@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 /**
@@ -15,52 +14,19 @@ import type { FormSubmitEvent } from '#ui/types'
  * by the two it names (cancelled or timed out; a key already here) —
  * never the browser's English message.
  */
-const { getWebAuthnCreateOptions, addWebAuthnCredential } = useAllAuthAccount()
-const { config } = storeToRefs(useAuthStore())
-
 const { t } = useI18n()
-const toast = useToast()
 const localePath = useLocalePath()
 
-const passkeyLogin = computed(() => config.value?.mfa?.passkey_login_enabled ?? false)
-
-function failureOf(error: unknown): 'cancelled' | 'registered' | 'other' {
-  if (error instanceof DOMException && error.name === 'NotAllowedError') return 'cancelled'
-  if (error instanceof DOMException && error.name === 'InvalidStateError') return 'registered'
-  return 'other'
-}
-
-const schema = z.object({
-  name: z.string().trim().min(1, t('validation.required')).max(255, t('validation.max', { max: 255 })),
-  passwordless: z.boolean(),
+const { schema, passkeyLogin, loading, add } = useAddWebAuthnKey({
+  listRoute: { name: 'account-security', hash: '#passkeys' },
+  added: () => ({ title: t('added'), color: 'success' }),
+  failed: failure => t(`failed.${failure}`),
 })
-type Schema = z.output<typeof schema>
 
-const state = reactive<Schema>({ name: '', passwordless: false })
-const loading = ref(false)
+const state = reactive({ name: '', passwordless: false })
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  loading.value = true
-  try {
-    const options = await getWebAuthnCreateOptions(event.data.passwordless)
-    const json = options?.data.creation_options.publicKey
-    if (!json) throw new Error('allauth sent no creation options')
-    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(json)
-    const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
-    const response = await addWebAuthnCredential({ name: event.data.name, credential: credential.toJSON() })
-    toast.add({ title: t('added'), color: 'success' })
-    await navigateTo(response?.meta.recovery_codes_generated
-      ? localePath('account-2fa-recovery-codes')
-      : localePath({ name: 'account-security', hash: '#passkeys' }))
-  }
-  catch (error) {
-    if (isAllAuthClientError(error)) return handleAllAuthClientError(error)
-    log.error({ action: 'webauthn:add', error })
-    toast.add({ title: t(`failed.${failureOf(error)}`), color: 'error' })
-  }
-  finally {
-    loading.value = false
-  }
+const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
+  await add(event.data)
 }
 </script>
 

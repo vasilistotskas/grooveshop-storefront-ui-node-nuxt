@@ -1,55 +1,18 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 const emit = defineEmits(['getWebAuthnCreateOptions', 'addWebAuthnCredential'])
 
-const { getWebAuthnCreateOptions, addWebAuthnCredential } = useAllAuthAccount()
-
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
-const localePath = useLocalePath()
 
-const loading = ref(false)
-
-const webAuthnFormZodSchema = z.object({
-  name: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  }),
-  passwordless: z.boolean(),
+const { schema, passkeyLogin, loading, add } = useAddWebAuthnKey({
+  listRoute: 'account-2fa-webauthn',
+  added: () => ({ title: t('success.title'), color: 'success' }),
+  failed: failure => t(`failed.${failure}`),
 })
 
-async function onSubmit(values: z.infer<typeof webAuthnFormZodSchema>) {
-  try {
-    loading.value = true
-    const optResp = await getWebAuthnCreateOptions(values.passwordless)
-    const jsonOptions = optResp?.data.creation_options.publicKey
-    if (!jsonOptions) {
-      throw new Error('No creation options')
-    }
-    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(jsonOptions)
-    const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
-    const response = await addWebAuthnCredential({
-      name: values.name,
-      credential: credential.toJSON(),
-    })
-    toast.add({
-      title: t('success.title'),
-      color: 'success',
-    })
-    emit('getWebAuthnCreateOptions')
-    emit('addWebAuthnCredential')
-    const to = response?.meta.recovery_codes_generated ? 'account-2fa-recovery-codes' : 'account-2fa-webauthn'
-    await navigateTo(localePath(to))
-  }
-  catch (error) {
-    notify('webside-webauthn:add', error, { title: t('error.default'), fallback: t('error.webauthn_failed') })
-  }
-  finally {
-    loading.value = false
-  }
+async function onSubmit(values: { name: string, passwordless: boolean }) {
+  if (!await add(values)) return
+  emit('getWebAuthnCreateOptions')
+  emit('addWebAuthnCredential')
 }
 
 const formSchema = computed(() => ({
@@ -58,7 +21,7 @@ const formSchema = computed(() => ({
       label: t('name'),
       name: 'name',
       as: 'input',
-      rules: webAuthnFormZodSchema.shape.name,
+      rules: schema.shape.name,
       ui: {
         root: 'w-full',
       },
@@ -74,14 +37,14 @@ const formSchema = computed(() => ({
       label: t('passwordless'),
       name: 'passwordless',
       as: 'checkbox',
-      rules: webAuthnFormZodSchema.shape.passwordless,
+      rules: schema.shape.passwordless,
       autocomplete: 'passwordless',
       readonly: false,
       required: false,
       placeholder: t('passwordless'),
       type: 'checkbox',
       initialValue: false,
-      condition: () => true,
+      condition: () => passkeyLogin.value,
       disabledCondition: () => false,
     },
   ],
@@ -160,8 +123,10 @@ el:
     browser: Βεβαιώσου ότι το πρόγραμμα περιήγησής σου υποστηρίζει WebAuthn
     device: Έχεις έτοιμο το κλειδί ασφαλείας ή τη συσκευή σου
     passwordless: Η επιλογή "Χωρίς κωδικό" σου επιτρέπει να συνδεθείς χωρίς κωδικό πρόσβασης
-  error:
-    webauthn_failed: Η διαδικασία WebAuthn απέτυχε. Δοκίμασε ξανά.
+  failed:
+    cancelled: Η προσθήκη ακυρώθηκε ή έληξε ο χρόνος. Δοκίμασε ξανά.
+    registered: Αυτό το κλειδί είναι ήδη καταχωρημένο στον λογαριασμό σου.
+    other: Το κλειδί δεν προστέθηκε. Δοκίμασε ξανά.
 en:
   name_placeholder: e.g. "My YubiKey" or "Work phone"
   add_key_title: Add a new security key
@@ -175,6 +140,8 @@ en:
     browser: Check that your browser supports WebAuthn
     device: Have your security key or device to hand
     passwordless: Choosing passwordless lets you sign in without a password at all
-  error:
-    webauthn_failed: The WebAuthn step failed. Please try again.
+  failed:
+    cancelled: Adding the key was cancelled or timed out. Please try again.
+    registered: That key is already registered on your account.
+    other: The key was not added. Please try again.
 </i18n>

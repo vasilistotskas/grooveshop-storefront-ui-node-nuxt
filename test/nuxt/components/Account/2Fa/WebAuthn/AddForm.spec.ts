@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import { resolve } from 'node:path'
-import YAML from 'yaml'
 import AddForm from '~/components/Account/2Fa/WebAuthn/AddForm.vue'
+import WebsideAddForm from '~/components/variants/webside/Account/2Fa/WebAuthn/AddForm.vue'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse } from '~~/test/fixtures/allauth'
-import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * Adding a passkey or security key: allauth's creation options go to the
@@ -14,8 +14,10 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
  * without a password" is offered only where the store lets passkeys sign
  * in. When the key is the account's first factor allauth also generates
  * recovery codes, and the shopper is sent to see them; otherwise back to
- * the passkeys on Security. Failures are said in the shopper's language.
- * Mocked at `useAllAuthAccount`; the browser's WebAuthn API is stubbed.
+ * the passkeys on Security (the tree frozen in the previous design has no
+ * such page and goes to its keys list). Failures are said in the shopper's
+ * language (`useAddWebAuthnKey`, shared by both trees). Mocked at
+ * `useAllAuthAccount`; the browser's WebAuthn API is stubbed.
  */
 const { getWebAuthnCreateOptions, addWebAuthnCredential, navigateToMock, toastAdd, credentialsCreate } = vi.hoisted(() => ({
   getWebAuthnCreateOptions: vi.fn(),
@@ -32,9 +34,10 @@ const CREATION_OPTIONS = { challenge: 'Y2hhbGxlbmdl', rp: { id: 'test.local' } }
 const CREDENTIAL_JSON = { id: 'cred-1', type: 'public-key' }
 const added = (recoveryCodesGenerated: boolean) => ({ status: 200, data: {}, meta: { recovery_codes_generated: recoveryCodesGenerated } })
 
-const messages = YAML.parse(
-  parseSfc(resolve(REPO, 'app/components/Account/2Fa/WebAuthn/AddForm.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
-).el
+const COPY = {
+  default: inlineCopy('app/components/Account/2Fa/WebAuthn/AddForm.vue'),
+  webside: inlineCopy('app/components/variants/webside/Account/2Fa/WebAuthn/AddForm.vue'),
+}
 
 function allowPasskeyLogin(allowed: boolean) {
   useAuthStore().config = makeAllAuthConfig({ mfa: { supported_types: ['totp', 'recovery_codes', 'webauthn'], passkey_login_enabled: allowed } }).data
@@ -51,16 +54,21 @@ beforeEach(() => {
   vi.spyOn(window.navigator, 'credentials', 'get').mockReturnValue({ create: credentialsCreate } as Partial<CredentialsContainer> as CredentialsContainer)
 })
 
-async function submit(wrapper: VueWrapper, name: string, passwordless = false) {
-  await wrapper.find('input').setValue(name)
-  if (passwordless) await wrapper.get('button[role="switch"]').trigger('click')
-  await wrapper.find('form').trigger('submit')
-  await flushPromises()
-}
+describe.each(trees(AddForm, WebsideAddForm))('$tree Account/2Fa/WebAuthn/AddForm', ({ tree, C }) => {
+  const messages = COPY[tree]
+  /** The passwordless choice: a switch in the default, a checkbox in the frozen tree. */
+  const PASSWORDLESS = tree === 'default' ? 'button[role="switch"]' : 'button[role="checkbox"]'
+  const LIST = tree === 'default' ? '/account/security#passkeys' : '/account/2fa/webauthn'
 
-const mountForm = () => mountSuspended(AddForm, { route: false })
+  async function submit(wrapper: VueWrapper, name: string, passwordless = false) {
+    await wrapper.find('input').setValue(name)
+    if (passwordless) await wrapper.get(PASSWORDLESS).trigger('click')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+  }
 
-describe('Account/2Fa/WebAuthn/AddForm', () => {
+  const mountForm = () => mountSuspended(C, { route: false })
+
   it.each([false, true])('registers the key (passwordless: %s) under its name', async (passwordless) => {
     const wrapper = await mountForm()
 
@@ -69,23 +77,26 @@ describe('Account/2Fa/WebAuthn/AddForm', () => {
     expect(getWebAuthnCreateOptions).toHaveBeenCalledExactlyOnceWith(passwordless)
     expect(credentialsCreate).toHaveBeenCalledWith({ publicKey: { parsed: CREATION_OPTIONS } })
     expect(addWebAuthnCredential).toHaveBeenCalledExactlyOnceWith({ name: 'YubiKey', credential: CREDENTIAL_JSON })
-    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.added, color: 'success' })
+    expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: tree === 'default' ? messages.added : useNuxtApp().$i18n.t('success.title'), color: 'success' })
   })
 
   it('offers no passwordless key where passkeys cannot sign in', async () => {
     allowPasskeyLogin(false)
     const wrapper = await mountForm()
 
-    expect(wrapper.find('button[role="switch"]').exists()).toBe(false)
+    // The frozen form's dynamic fields stay in the DOM under a `hidden` class.
+    const choice = wrapper.find(PASSWORDLESS)
+    expect(choice.exists() && !choice.element.closest('.hidden')).toBe(false)
     await submit(wrapper, 'YubiKey')
 
     expect(getWebAuthnCreateOptions).toHaveBeenCalledExactlyOnceWith(false)
   })
 
   it.each([
-    [false, '/account/security#passkeys'],
+    [false, 'LIST'],
     [true, '/account/2fa/recovery-codes'],
-  ] as const)('with recovery codes generated: %s, goes on to %s', async (generated, path) => {
+  ] as const)('with recovery codes generated: %s, goes on to %s', async (generated, target) => {
+    const path = target === 'LIST' ? LIST : target
     addWebAuthnCredential.mockResolvedValue(added(generated))
     const wrapper = await mountForm()
 
@@ -128,7 +139,7 @@ describe('Account/2Fa/WebAuthn/AddForm', () => {
     expect(getWebAuthnCreateOptions).not.toHaveBeenCalled()
   })
 
-  it('cancels back to the passkeys on Security', async () => {
+  it.runIf(tree === 'default')('cancels back to the passkeys on Security', async () => {
     const wrapper = await mountForm()
 
     expect(wrapper.findAll('a').find(link => link.text() === messages.cancel)!.attributes('href')).toBe('/account/security#passkeys')

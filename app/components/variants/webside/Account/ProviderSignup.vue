@@ -1,36 +1,13 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 const { t } = useI18n()
 const emit = defineEmits(['providerSignup'])
 
-const { providerSignup } = useAllAuthAuthentication()
-const toast = useToast()
-
-const loading = ref(false)
-
-const providerSignupZodSchema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
+const { schema, submit } = useProviderSignup({
+  success: () => ({ title: t('success.title'), color: 'success' }),
+  onSignedUp: () => emit('providerSignup'),
 })
 
-async function onSubmit(values: z.infer<typeof providerSignupZodSchema>) {
-  try {
-    loading.value = true
-    await providerSignup(values) // Properly typed as { email: string }
-    toast.add({
-      title: t('success.title'),
-      color: 'success',
-    })
-    emit('providerSignup')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-}
+const onSubmit = (values: { email: string }) => submit(values)
 
 const formSchema = computed(() => ({
   fields: [
@@ -38,7 +15,7 @@ const formSchema = computed(() => ({
       label: t('email.title'),
       name: 'email',
       as: 'input',
-      rules: providerSignupZodSchema.shape.email,
+      rules: schema.shape.email,
       ui: {
         root: 'w-full',
       },

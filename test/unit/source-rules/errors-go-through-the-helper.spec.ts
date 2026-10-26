@@ -20,7 +20,7 @@ import { APP, readSource, withoutComments } from '../../helpers/sourceText'
  */
 const EXEMPT = new Set([
   'composables/usePasswordResetConfirm.ts',
-  'components/Account/2Fa/WebAuthn/AddForm.vue',
+  'composables/useAddWebAuthnKey.ts',
 ])
 
 function walk(dir: string): string[] {

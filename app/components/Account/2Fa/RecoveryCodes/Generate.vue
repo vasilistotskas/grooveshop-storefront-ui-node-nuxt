@@ -8,40 +8,13 @@
  * A shopper without two-step verification has no codes to replace
  * (allauth answers 404) and goes back to the Security page.
  */
-const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const toast = useToast()
 
-const { data, error } = await useAsyncData('recoveryCodes', () => getRecoveryCodes())
-
-if (error.value) {
-  toast.add({ title: t('auth.mfa.required'), color: 'error' })
-  await navigateTo(localePath('account-security'))
-}
-
-const unused = computed(() => data.value?.data.unused_code_count ?? 0)
-
-const confirmed = ref(false)
-const loading = ref(false)
-
-const ready = computed(() => unused.value === 0 || confirmed.value)
-
-async function generate() {
-  if (!ready.value) return
-  loading.value = true
-  try {
-    await generateRecoveryCodes()
-    toast.add({ title: t('generated'), color: 'success' })
-    await navigateTo(localePath('account-2fa-recovery-codes'))
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
+const { unused, confirmed, loading, ready, generate } = await useRecoveryCodesRegeneration({
+  securityRoute: 'account-security',
+  generated: () => ({ title: t('generated'), color: 'success' }),
+})
 </script>
 
 <template>

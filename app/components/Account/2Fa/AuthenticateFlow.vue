@@ -9,18 +9,12 @@ defineSlots<{
   default(props: object): any
 }>()
 
-const router = useRouter()
 const { t } = useI18n()
-const authInfo = useAuthInfo()
 const localePath = useLocalePath()
-const localeRoute = useLocaleRoute()
 
-const flow = computed(() => authInfo?.pendingFlow)
-const next = router.currentRoute.value.query.next as string | undefined
+await usePendingFlowGuard(Flows.MFA_AUTHENTICATE)
 
-if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
-  await navigateTo(localePath('index'))
-}
+const { next, alternatives } = useMfaAuthenticateMethods()
 
 const labels = {
   [AuthenticatorType.TOTP]: t('mfa_reauthenticate.totp'),
@@ -34,29 +28,13 @@ const icons = {
   [AuthenticatorType.WEBAUTHN]: 'i-lucide-key-round',
 }
 
-const isCurrentPath = (path: FlowPathValue) => {
-  const targetRoute = localeRoute(path)
-  return targetRoute?.path === router.currentRoute.value.path
-}
-
 // The OTHER factors: the one in use is this page.
-const filteredFlows = computed(() => {
-  if (!flow.value || !flow.value.types) return []
-  const sortedTypes = [...flow.value.types].sort((a, b) => {
-    const ai = AUTHENTICATOR_TYPE_PRIORITY.indexOf(a)
-    const bi = AUTHENTICATOR_TYPE_PRIORITY.indexOf(b)
-    return (ai === -1 ? Number.MAX_SAFE_INTEGER : ai) - (bi === -1 ? Number.MAX_SAFE_INTEGER : bi)
-  })
-  return sortedTypes.map((type) => {
-    return {
-      label: labels[type],
-      id: type,
-      icon: icons[type],
-      path: flow.value ? pathForFlow(flow.value, type)! : 'index' as FlowPathValue,
-    }
-  })
-    .filter(f => !isCurrentPath(f.path))
-})
+const filteredFlows = computed(() => alternatives.value.map(method => ({
+  label: labels[method.type],
+  id: method.type,
+  icon: icons[method.type],
+  path: method.path,
+})))
 </script>
 
 <template>

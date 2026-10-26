@@ -6,7 +6,8 @@ import type { VueWrapper } from '@vue/test-utils'
 import LoginForm from '~/components/Account/Login/Form.vue'
 import WebsideLoginForm from '~/components/variants/webside/Account/Login/Form.vue'
 import { trees } from '~~/test/helpers/trees'
-import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
+import type { Provider } from '~~/shared/types/model/all-auth'
+import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse, makeSessionResponse, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 /**
  * The email + password sign-in. Mocked at `useAllAuthAuthentication`
@@ -49,8 +50,34 @@ async function fillAndSubmit(wrapper: VueWrapper, email = 'shopper@example.com',
   await flushPromises()
 }
 
-describe.each(trees(LoginForm, WebsideLoginForm))('$tree Account/Login/Form', ({ C }) => {
+describe.each(trees(LoginForm, WebsideLoginForm))('$tree Account/Login/Form', ({ C, own }) => {
   const mountForm = (route = '/') => mountSuspended(C, { route })
+
+  // allauth lists a provider the store has no credentials for; it cannot sign
+  // anyone in (`useSocialProviders`), so neither tree draws a block for it.
+  describe('the social providers', () => {
+    const mountWithProviders = (providers: Provider[]) => {
+      const auth = useAuthStore()
+      auth.config = makeAllAuthConfig({ socialaccount: { providers } }).data
+      auth.status.config = 'success'
+      return mountSuspended(C, {
+        route: false,
+        global: { stubs: { [own('AccountProviderList')]: { template: '<div data-testid="providers" />' } } },
+      })
+    }
+
+    it('draws the block for a provider that can sign someone in', async () => {
+      const wrapper = await mountWithProviders([makeSocialProvider()])
+
+      expect(wrapper.find('[data-testid="providers"]').exists()).toBe(true)
+    })
+
+    it('draws no block for a provider the store has no credentials for', async () => {
+      const wrapper = await mountWithProviders([makeSocialProvider({ client_id: '' })])
+
+      expect(wrapper.find('[data-testid="providers"]').exists()).toBe(false)
+    })
+  })
 
   it('signs in with the credentials typed, stores the session and refreshes the cart', async () => {
     const wrapper = await mountForm()

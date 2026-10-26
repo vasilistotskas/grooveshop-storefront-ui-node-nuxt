@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const emit = defineEmits(['reauthenticate'])
 
-const { reauthenticate } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
 // Every account route rendered with the document title left at the
@@ -9,15 +8,17 @@ const { t } = useI18n()
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const localePath = useLocalePath()
 
-const loading = ref(false)
+await useAuthEventGuard(AuthChangeEvent.REAUTHENTICATION_REQUIRED)
+
 const password = ref('')
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('index'))
-}
+const { loading, submit } = usePasswordReauthentication(() => ({
+  title: t('success.title'),
+  description: t('success.description'),
+  color: 'success',
+  icon: 'i-heroicons-check-circle',
+}))
 
 async function onSubmit() {
   if (!password.value) {
@@ -28,25 +29,7 @@ async function onSubmit() {
     return
   }
 
-  try {
-    loading.value = true
-    await reauthenticate({
-      password: password.value,
-    })
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-    emit('reauthenticate')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
+  if (await submit(password.value)) emit('reauthenticate')
 }
 </script>
 

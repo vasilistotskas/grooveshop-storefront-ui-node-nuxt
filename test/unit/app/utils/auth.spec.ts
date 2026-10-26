@@ -12,6 +12,7 @@ import {
   pathForPendingFlow,
   pendingFlowRouteNameFromError,
   pickPreferredAuthenticatorType,
+  sortAuthenticatorTypes,
 } from '~/utils/auth'
 import { FIXTURE_EPOCH, makeBadResponse, makePendingFlowResponse, makeSessionResponse } from '~~/test/fixtures/allauth'
 
@@ -323,6 +324,24 @@ describe('Utils - Auth', () => {
 
     it.each([[[]], [null], [undefined]])('has no preference among %j', (types) => {
       expect(pickPreferredAuthenticatorType(types)).toBeUndefined()
+    })
+  })
+
+  describe('sortAuthenticatorTypes', () => {
+    it('lists the factors strongest first, and the ones it does not know last', () => {
+      expect(sortAuthenticatorTypes(['recovery_codes', 'sms', 'totp', 'webauthn'])).toEqual(['webauthn', 'totp', 'recovery_codes', 'sms'])
+    })
+
+    it('leaves the list it was given alone', () => {
+      const types = ['recovery_codes', 'webauthn']
+
+      sortAuthenticatorTypes(types)
+
+      expect(types).toEqual(['recovery_codes', 'webauthn'])
+    })
+
+    it.each([[[]], [null], [undefined]])('has nothing to sort in %j', (types) => {
+      expect(sortAuthenticatorTypes(types)).toEqual([])
     })
   })
 

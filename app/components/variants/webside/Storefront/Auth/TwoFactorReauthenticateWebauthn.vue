@@ -1,63 +1,29 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reauthenticateUsingWebAuthn'])
 
-const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
-const toast = useToast()
-const { notify } = useApiError()
 const { t } = useI18n()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const localePath = useLocalePath()
-const authStore = useAuthStore()
-const { session } = storeToRefs(authStore)
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('index'))
-}
+await useAuthEventGuard(AuthChangeEvent.REAUTHENTICATION_REQUIRED)
 
-const loading = ref(false)
-const error = ref<string | null>(null)
-
-async function onSubmit() {
-  error.value = null
-
-  try {
-    loading.value = true
-    const optResp = await getWebAuthnRequestOptionsForReauthentication()
-    const jsonOptions = optResp?.data.request_options.publicKey
-
-    if (!jsonOptions) {
-      throw new Error('No creation options')
-    }
-
-    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
-    const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
-    const response = await reauthenticateUsingWebAuthn({
-      credential: credential.toJSON(),
-    })
-
-    session.value = response?.data
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
+const { loading, failed, submit: onSubmit } = useWebAuthnChallenge('reauthenticate', {
+  success: () => ({
+    title: t('success.title'),
+    description: t('success.description'),
+    color: 'success',
+    icon: 'i-heroicons-check-circle',
+  }),
+  onDone: () => {
     emit('getWebAuthnRequestOptionsForReauthentication')
     emit('reauthenticateUsingWebAuthn')
-  }
-  catch (failure) {
-    error.value = t('error.failed')
-    notify('webside-webauthn:reauthenticate', failure, { title: t('error.default'), fallback: t('error.description') })
-  }
-  finally {
-    loading.value = false
-  }
-}
+  },
+})
+
+const error = computed(() => failed.value ? t('error.failed') : null)
 </script>
 
 <template>

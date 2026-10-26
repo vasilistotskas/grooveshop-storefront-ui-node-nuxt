@@ -86,15 +86,6 @@ describe('useAuthStore', () => {
 
   describe('getters', () => {
     it.each([
-      ['a listed provider', CONFIG.data, true],
-      ['an empty provider list', { ...CONFIG.data, socialaccount: { providers: [] } }, false],
-      ['no config', undefined, false],
-    ])('hasSocialAccountProviders is %s → %s', (_case, config, expected) => {
-      store.config = config
-      expect(store.hasSocialAccountProviders).toBe(expected)
-    })
-
-    it.each([
       ['a usable password', SESSION.data, true],
       ['no usable password', { ...SESSION.data, user: { ...SESSION.data.user, has_usable_password: false } }, false],
       ['no session', undefined, false],

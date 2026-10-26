@@ -1,23 +1,26 @@
 <script lang="ts" setup>
-const { twoFaReauthenticate } = useAllAuthAuthentication()
-const toast = useToast()
 const { t } = useI18n()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const localePath = useLocalePath()
 
+await useAuthEventGuard(AuthChangeEvent.REAUTHENTICATION_REQUIRED)
+
+const toast = useToast()
 const recoveryCode = ref('')
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('index'))
-}
+const { submit } = useCodeReauthentication(() => ({
+  title: t('success.title'),
+  description: t('success.description'),
+  color: 'success',
+  icon: 'i-heroicons-check-circle',
+}))
 
 async function onSubmit() {
-  if (!recoveryCode.value || recoveryCode.value.length < 8) {
+  const code = recoveryCode.value.trim()
+  if (code.length < 8) {
     toast.add({
       title: t('error.invalid_code'),
       color: 'error',
@@ -26,19 +29,7 @@ async function onSubmit() {
     return
   }
 
-  try {
-    await twoFaReauthenticate({ code: recoveryCode.value })
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-    recoveryCode.value = ''
-  }
+  if (!await submit(code)) recoveryCode.value = ''
 }
 </script>
 

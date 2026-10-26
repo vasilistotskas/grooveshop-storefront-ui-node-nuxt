@@ -1,65 +1,28 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
 
-const toast = useToast()
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const authStore = useAuthStore()
-const { session } = storeToRefs(authStore)
 const { t } = useI18n()
-const localePath = useLocalePath()
 
 useHead({ title: () => t('title') })
 
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-  await navigateTo(localePath('index'))
-}
-
-const loading = ref(false)
-const hasError = ref(false)
-
-const { getWebAuthnRequestOptionsForAuthentication, authenticateUsingWebAuthn } = useAllAuthAuthentication()
+await useAuthEventGuard(AuthChangeEvent.FLOW_UPDATED)
 
 /**
  * Asks the browser for the key. Started by the shopper's click, not on
  * load: Safari refuses a WebAuthn request without a user gesture.
  */
-async function onSubmit(): Promise<void> {
-  try {
-    loading.value = true
-    hasError.value = false
-
-    const optResp = await getWebAuthnRequestOptionsForAuthentication()
-    const jsonOptions = optResp?.data.request_options.publicKey
-
-    if (!jsonOptions) {
-      throw new Error('No creation options')
-    }
-
-    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
-    const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
-    const response = await authenticateUsingWebAuthn({
-      credential: credential.toJSON(),
-    })
-
-    session.value = response?.data
-
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    })
-
+const { loading, failed: hasError, submit: onSubmit } = useWebAuthnChallenge('authenticate', {
+  success: () => ({
+    title: t('success.title'),
+    description: t('success.description'),
+    color: 'success',
+    icon: 'i-lucide-circle-check',
+  }),
+  onDone: () => {
     emit('getWebAuthnRequestOptionsForAuthentication')
     emit('authenticateUsingWebAuthn')
-  }
-  catch {
-    hasError.value = true
-  }
-  finally {
-    loading.value = false
-  }
-}
+  },
+})
 </script>
 
 <template>

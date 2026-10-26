@@ -1,55 +1,20 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reauthenticateUsingWebAuthn'])
 
-const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
-const toast = useToast()
 const { t } = useI18n()
 
 useHead({ title: () => t('title') })
 
-const authEvent = useState<AuthChangeEventType>('authEvent')
-const localePath = useLocalePath()
-const authStore = useAuthStore()
-const { session } = storeToRefs(authStore)
-
-if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
-  await navigateTo(localePath('index'))
-}
-
-const loading = ref(false)
-const failed = ref(false)
+await useAuthEventGuard(AuthChangeEvent.REAUTHENTICATION_REQUIRED)
 
 /** Started by the shopper's click: Safari refuses WebAuthn without a user gesture. */
-async function onSubmit() {
-  failed.value = false
-  try {
-    loading.value = true
-    const optResp = await getWebAuthnRequestOptionsForReauthentication()
-    const jsonOptions = optResp?.data.request_options.publicKey
-    if (!jsonOptions) {
-      throw new Error('No creation options')
-    }
-    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(jsonOptions)
-    const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential
-    const response = await reauthenticateUsingWebAuthn({
-      credential: credential.toJSON(),
-    })
-    session.value = response?.data
-    toast.add({
-      title: t('success'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    })
+const { loading, failed, submit: onSubmit } = useWebAuthnChallenge('reauthenticate', {
+  success: () => ({ title: t('success'), color: 'success', icon: 'i-lucide-circle-check' }),
+  onDone: () => {
     emit('getWebAuthnRequestOptionsForReauthentication')
     emit('reauthenticateUsingWebAuthn')
-  }
-  catch {
-    failed.value = true
-  }
-  finally {
-    loading.value = false
-  }
-}
+  },
+})
 </script>
 
 <template>

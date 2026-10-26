@@ -4,13 +4,18 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import type { VueWrapper } from '@vue/test-utils'
 import ActivateForm from '~/components/Account/2Fa/Totp/ActivateForm.vue'
+import WebsideActivateForm from '~/components/variants/webside/Account/2Fa/Totp/ActivateForm.vue'
+import { trees } from '~~/test/helpers/trees'
 import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
 
 /**
  * Turning on TOTP: allauth hands back a secret and a QR code SVG (as a
  * 404 meta, before activation), the shopper confirms one code from their
- * app. The SVG is rendered with `v-html`, so it goes through DOMPurify.
- * Mocked at `useAllAuthAccount`.
+ * app. The SVG is rendered with `v-html`, so it goes through DOMPurify
+ * (`useTotpActivation`, shared by both trees). The tree frozen in the
+ * previous design has no Security page and goes to its settings; it also
+ * shows the secret as one string, where the default groups it. Mocked at
+ * `useAllAuthAccount`.
  */
 const { totpAuthenticatorStatus, activateTotp, navigateToMock, toastAdd, copy } = vi.hoisted(() => ({
   totpAuthenticatorStatus: vi.fn(),
@@ -32,16 +37,10 @@ beforeEach(() => {
   totpAuthenticatorStatus.mockResolvedValue(setup('<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>'))
 })
 
-async function mountForm() {
-  const wrapper = await mountSuspended(ActivateForm, { route: false })
-  await flushPromises()
-  return wrapper
-}
-
 const WRONG_CODE = asProxiedError(makeBadResponse({ code: 'incorrect_code', param: 'code', message: 'Incorrect code.' }))
 
-const activateButton = (wrapper: VueWrapper) =>
-  wrapper.findAll('button').find(button => button.text() === 'Ενεργοποίηση')!
+/** The page's last button is the one that activates. */
+const activateButton = (wrapper: VueWrapper) => wrapper.findAll('button').at(-1)!
 
 async function enterCode(wrapper: VueWrapper, digits: number[]) {
   await wrapper.findComponent({ name: 'UPinInput' }).setValue(digits)
@@ -49,12 +48,21 @@ async function enterCode(wrapper: VueWrapper, digits: number[]) {
   await flushPromises()
 }
 
-describe('Account/2Fa/Totp/ActivateForm', () => {
+describe.each(trees(ActivateForm, WebsideActivateForm))('$tree Account/2Fa/Totp/ActivateForm', ({ tree, C }) => {
+  const SETTLED = tree === 'default' ? 'account-security' : 'account-settings'
+
+  async function mountForm() {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
   it('shows the QR code and the secret to set the app up with', async () => {
     const wrapper = await mountForm()
 
     expect(wrapper.find('[role="img"] svg rect').exists()).toBe(true)
-    expect(wrapper.text()).toContain('JBSW Y3DP EHPK 3PXP')
+    const shown = tree === 'default' ? wrapper.text() : (wrapper.find('input[readonly]').element as HTMLInputElement).value
+    expect(shown).toContain(tree === 'default' ? 'JBSW Y3DP EHPK 3PXP' : SECRET)
   })
 
   it('strips script and event handlers out of the QR code SVG', async () => {
@@ -73,7 +81,7 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
   it('copies the raw secret, without the grouping spaces, from the copy button', async () => {
     const wrapper = await mountForm()
 
-    await wrapper.find('button[aria-label="Αντιγραφή κλειδιού"]').trigger('click')
+    await wrapper.find(tree === 'default' ? 'button[aria-label="Αντιγραφή κλειδιού"]' : 'input[readonly]').trigger('click')
 
     expect(copy).toHaveBeenCalledWith(SECRET)
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Αντιγράφηκε στο πρόχειρο', color: 'success' })
@@ -87,7 +95,7 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     expect(activateTotp).toHaveBeenCalledWith({ code: '123456' })
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success', description: 'Ο έλεγχος ταυτότητας δύο παραγόντων ενεργοποιήθηκε επιτυχώς' }))
     expect(wrapper.emitted('activateTotp')).toHaveLength(1)
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(SETTLED))
   })
 
   it('lets the shopper retry a code containing a zero', async () => {
@@ -124,11 +132,11 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
     expect(activateButton(wrapper).attributes('disabled')).toBeUndefined()
   })
 
-  it('offers Cancel as a link back to the security page', async () => {
+  it.runIf(tree === 'default')('offers Cancel as a link back to the security page', async () => {
     const wrapper = await mountForm()
 
     const cancel = wrapper.findAll('a').find(link => link.text() === 'Ακύρωση')!
-    expect(cancel.attributes('href')).toBe(useLocalePath()('account-security'))
+    expect(cancel.attributes('href')).toBe(useLocalePath()(SETTLED))
   })
 
   it('keeps the shopper on the form when allauth rejects the code', async () => {
@@ -147,6 +155,6 @@ describe('Account/2Fa/Totp/ActivateForm', () => {
 
     await mountForm()
 
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(SETTLED))
   })
 })

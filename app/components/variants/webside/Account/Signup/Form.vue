@@ -1,44 +1,29 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
 
-const config = useRuntimeConfig()
-const { signup } = useAllAuthAuthentication()
-const authStore = useAuthStore()
-const { hasSocialAccountProviders, status } = storeToRefs(authStore)
+const { status } = storeToRefs(useAuthStore())
+const { hasProviders } = useSocialProviders()
 
 const { t } = useI18n()
-const toast = useToast()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const tenantStore = useTenantStore()
 const isPlatform = useIsPlatformTenant()
-
-// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
-const formPath = useRoute().path
+const config = useRuntimeConfig()
 
 const selected = ref(false)
-const isSubmitting = ref(false)
+
+const { email, password, isSubmitting, signup } = useSignup({
+  messages: {
+    email: () => t('email.validation.email'),
+    minimum: min => t('password1.validation.min', { min }),
+  },
+})
 
 const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('email.validation.email'),
-  }),
-  password: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : undefined,
-  }).min(8, {
-    error: issue => t('password1.validation.min', { min: issue.minimum }),
-  })
-    // Mirrors Django's NumericPasswordValidator; CommonPassword and
-    // UserAttributeSimilarity stay server-side (allauth error codes).
-    .refine(value => !/^\d+$/.test(value), {
-      error: t('validation.password.entirely_numeric'),
-    }),
+  email,
+  password,
   password2: z.string({
     error: issue => issue.input === undefined
       ? t('validation.required')
@@ -57,26 +42,7 @@ const state = reactive<Partial<Schema>>({
   password2: undefined,
 })
 
-const onSubmit = async (event: FormSubmitEvent<Schema>) => {
-  isSubmitting.value = true
-  try {
-    await signup({ email: event.data.email, password: event.data.password })
-    toast.add({
-      title: t('auth.signup.success'),
-      color: 'success',
-    })
-  }
-  catch (error) {
-    // Signup with mandatory email verification replies 401 with a pending
-    // verify_email flow — the account was created; route to the verification
-    // step instead of surfacing an error.
-    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
-    handleAllAuthClientError(error)
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
+const onSubmit = (event: { data: Schema }) => signup(event.data)
 
 const backgroundImage = computed(() => {
   return img(
@@ -265,7 +231,7 @@ const backgroundImage = computed(() => {
           </div>
           <div class="grid gap-4">
             <div
-              v-if="hasSocialAccountProviders && status.config === 'success'"
+              v-if="hasProviders && status.config === 'success'"
               class="grid gap-4"
             >
               <div

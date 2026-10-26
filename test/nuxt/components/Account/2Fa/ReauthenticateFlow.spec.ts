@@ -3,13 +3,18 @@ import { ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import ReauthenticateFlow from '~/components/Account/2Fa/ReauthenticateFlow.vue'
+import WebsideReauthenticateFlow from '~/components/variants/webside/Account/2Fa/ReauthenticateFlow.vue'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 import { makeSessionResponse } from '~~/test/fixtures/allauth'
 
 /**
  * The frame of a re-authentication step (a sensitive account change):
  * the OTHER ways allauth offers to confirm it is you — the password,
  * then each second factor strongest first — the page on screen being
- * the one left out. Driven by the `auth-state` the auth plugin keeps.
+ * the one left out (`useMfaReauthenticationMethods`, shared by both trees).
+ * The frozen tree lists every way, the page on screen included and marked
+ * as the current one. Driven by the `auth-state` the auth plugin keeps.
  *
  * Re-authentication confirms a shopper who is already signed in, and its
  * routes are behind sign-in (`auth.global`), so the shopper here is
@@ -40,14 +45,16 @@ beforeEach(() => {
   useState('auth-state').value = REAUTH_REQUIRED
 })
 
-const mountFlow = () => mountSuspended(ReauthenticateFlow, {
-  route: '/account/2fa/reauthenticate/totp?next=/account/settings',
-})
+const COPY = inlineCopy('app/components/variants/webside/Account/2Fa/ReauthenticateFlow.vue')
 
 const methods = (wrapper: VueWrapper) => wrapper.findAll('a[href]').map(method => method.text())
 
-describe('Account/2Fa/ReauthenticateFlow', () => {
-  it('offers the password, then each other factor strongest first', async () => {
+describe.each(trees(ReauthenticateFlow, WebsideReauthenticateFlow))('$tree Account/2Fa/ReauthenticateFlow', ({ tree, C }) => {
+  const mountFlow = () => mountSuspended(C, {
+    route: '/account/2fa/reauthenticate/totp?next=/account/settings',
+  })
+
+  it.runIf(tree === 'default')('offers the password, then each other factor strongest first', async () => {
     const wrapper = await mountFlow()
 
     // The authenticator app is this page, so it is not offered.
@@ -56,6 +63,16 @@ describe('Account/2Fa/ReauthenticateFlow', () => {
       'Χρησιμοποίησε passkey ή κλειδί ασφαλείας',
       'Χρησιμοποίησε κωδικό ανάκτησης',
     ])
+  })
+
+  it.runIf(tree === 'webside')('lists the password, then each factor strongest first, marking this page', async () => {
+    const wrapper = await mountFlow()
+
+    const text = wrapper.text()
+    const order = [COPY.reauthenticate.title, COPY.mfa_reauthenticate.webauthn, COPY.mfa_reauthenticate.totp, COPY.mfa_reauthenticate.recovery_codes]
+    expect(order.map(label => text.indexOf(label))).toEqual([...order.map(label => text.indexOf(label))].sort((a, b) => a - b))
+    expect(order.every(label => text.includes(label))).toBe(true)
+    expect(text).toContain(COPY.current_method)
   })
 
   it('links every other method, keeping `next`', async () => {
@@ -76,5 +93,6 @@ describe('Account/2Fa/ReauthenticateFlow', () => {
     const wrapper = await mountFlow()
 
     expect(wrapper.text()).not.toContain('Εναλλακτικές μέθοδοι')
+    expect(wrapper.findAll('a[href]')).toHaveLength(0)
   })
 })

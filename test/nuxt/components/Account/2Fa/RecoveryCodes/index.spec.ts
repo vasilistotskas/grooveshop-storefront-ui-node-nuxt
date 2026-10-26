@@ -3,12 +3,18 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import RecoveryCodes from '~/components/Account/2Fa/RecoveryCodes/index.vue'
+import WebsideRecoveryCodes from '~/components/variants/webside/Account/2Fa/RecoveryCodes/index.vue'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
- * The shopper's unused recovery codes, with copy, download and print,
- * and a warning when they run low. The print window is written with
- * `textContent`, never as HTML, so a code can never inject markup
- * there. Mocked at `useAllAuthAccount`.
+ * The shopper's unused recovery codes, with copy, download and print
+ * (`useRecoveryCodes`, shared by both trees). The print window is written
+ * with `textContent`, never as HTML, so a code can never inject markup
+ * there. A shopper without two-factor goes back to the Security page; the
+ * tree frozen in the previous design has none and goes to its settings.
+ * The default also warns when the codes run low, which the frozen page
+ * does not draw. Mocked at `useAllAuthAccount`.
  */
 const { getRecoveryCodes, navigateToMock, toastAdd, copy } = vi.hoisted(() => ({
   getRecoveryCodes: vi.fn(),
@@ -39,32 +45,34 @@ beforeEach(() => {
   getRecoveryCodes.mockResolvedValue(recovery(CODES))
 })
 
-async function mountCodes() {
-  const wrapper = await mountSuspended(RecoveryCodes, { route: false })
-  await flushPromises()
-  return wrapper
+const COPY = {
+  default: inlineCopy('app/components/Account/2Fa/RecoveryCodes/index.vue'),
+  webside: inlineCopy('app/components/variants/webside/Account/2Fa/RecoveryCodes/index.vue'),
 }
 
 const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button').find(b => b.text() === label)!
-/** The codes are the list's buttons, each copying its own code. */
-const codeButtons = (wrapper: VueWrapper) => wrapper.findAll('ol button')
+/** The codes are the page's buttons that show a code, each copying its own. */
+const codeButtons = (wrapper: VueWrapper) => wrapper.findAll('button').filter(b => /\d{8}|<img/.test(b.text()))
 
-describe('Account/2Fa/RecoveryCodes', () => {
+describe.each(trees(RecoveryCodes, WebsideRecoveryCodes))('$tree Account/2Fa/RecoveryCodes', ({ tree, C }) => {
+  const copyOf = COPY[tree]
+
+  async function mountCodes() {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
   it('lists the unused codes in order', async () => {
     const wrapper = await mountCodes()
 
-    expect(codeButtons(wrapper).map(code => code.findAll('span').map(part => part.text()))).toEqual([
-      ['1', '12345678'],
-      ['2', '23456789'],
-      ['3', '34567890'],
-    ])
-    expect(codeButtons(wrapper)[0]!.attributes('aria-label')).toBe('Αντιγραφή του κωδικού 12345678')
+    expect(codeButtons(wrapper).map(code => code.text().slice(-8))).toEqual(CODES)
   })
 
   it('copies every code, one per line', async () => {
     const wrapper = await mountCodes()
 
-    await button(wrapper, 'Αντιγραφή όλων').trigger('click')
+    await button(wrapper, copyOf.actions.copy_all).trigger('click')
     await flushPromises()
 
     expect(copy).toHaveBeenCalledWith('12345678\n23456789\n34567890')
@@ -87,11 +95,12 @@ describe('Account/2Fa/RecoveryCodes', () => {
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     const wrapper = await mountCodes()
 
-    await button(wrapper, 'Λήψη').trigger('click')
+    await button(wrapper, copyOf.actions.download).trigger('click')
 
     expect(click).toHaveBeenCalledTimes(1)
     const text = await createObjectURL.mock.calls[0]![0].text()
     expect(text).toContain('12345678\n23456789\n34567890')
+    expect(text).toContain(copyOf.print.title)
   })
 
   it('prints the codes as text, never as markup', async () => {
@@ -101,28 +110,29 @@ describe('Account/2Fa/RecoveryCodes', () => {
     vi.spyOn(window, 'open').mockReturnValue({ document: printDocument, print } as unknown as Window)
     const wrapper = await mountCodes()
 
-    await button(wrapper, 'Εκτύπωση').trigger('click')
+    await button(wrapper, copyOf.actions.print).trigger('click')
 
     const printed = [...printDocument.querySelectorAll('.codes .code')].map(code => code.textContent)
     expect(printed).toEqual(['<img src=x onerror=alert(1)>', ...CODES])
     expect(printDocument.querySelector('.codes img')).toBeNull()
+    expect(printDocument.querySelector('h1')!.textContent).toBe(copyOf.print.title)
     expect(print).toHaveBeenCalledTimes(1)
   })
 
-  it('says how many of the set are left, and that none was used yet', async () => {
+  it.runIf(tree === 'default')('says how many of the set are left, and that none was used yet', async () => {
     const wrapper = await mountCodes()
 
     expect(wrapper.text()).toContain('3 από 10 αχρησιμοποίητοι')
     expect(wrapper.text()).toContain('Δεν έχει χρησιμοποιηθεί κανένας')
   })
 
-  it('warns once three codes or fewer are left', async () => {
+  it.runIf(tree === 'default')('warns once three codes or fewer are left', async () => {
     const wrapper = await mountCodes()
 
     expect(wrapper.findComponent({ name: 'UAlert' }).text()).toContain('Απομένουν μόνο 3 κωδικοί')
   })
 
-  it('does not warn while plenty are left', async () => {
+  it.runIf(tree === 'default')('does not warn while plenty are left', async () => {
     getRecoveryCodes.mockResolvedValue(recovery([...CODES, '45678901']))
 
     const wrapper = await mountCodes()
@@ -136,12 +146,12 @@ describe('Account/2Fa/RecoveryCodes', () => {
     expect(wrapper.find(`a[href="${useLocalePath()('account-2fa-recovery-codes-generate')}"]`).exists()).toBe(true)
   })
 
-  it('sends a shopper without two-factor set up back to Security', async () => {
+  it('sends a shopper without two-factor set up back to where it is set up', async () => {
     getRecoveryCodes.mockRejectedValue(new Error('Not Found'))
 
     await mountCodes()
 
     expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('auth.mfa.required'), color: 'error' })
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(tree === 'default' ? 'account-security' : 'account-settings'))
   })
 })

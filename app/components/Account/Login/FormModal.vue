@@ -5,14 +5,9 @@
  * dialog frame; it closes itself once the session arrives.
  */
 const { t } = useI18n()
-const { loggedIn } = useUserSession()
 const isOpen = defineModel<boolean>()
 
-watch(loggedIn, () => {
-  if (loggedIn.value) {
-    isOpen.value = false
-  }
-})
+useCloseOnSignIn(isOpen)
 </script>
 
 <template>

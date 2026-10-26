@@ -1,40 +1,13 @@
 <script lang="ts" setup>
 import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
 
-const emit = defineEmits(['disconnectThirdPartyProviderAccount'])
-
-const {
-  connectedThirdPartyProviderAccounts,
-  disconnectThirdPartyProviderAccount,
-} = useAllAuthAccount()
-const toast = useToast()
 const { t } = useI18n()
 
-const loading = ref(false)
+const { accounts, busy, disconnect } = await useProviderAccounts({
+  disconnected: () => ({ title: t('success.title'), color: 'success' }),
+})
 
-const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData(
-  'providerAccounts',
-  () => connectedThirdPartyProviderAccounts(),
-)
-
-async function disconnect(values: ProvidersDeleteBody) {
-  try {
-    loading.value = true
-    await disconnectThirdPartyProviderAccount(values)
-    await refreshProviderAccounts()
-    toast.add({
-      title: t('success.title'),
-      color: 'success',
-    })
-    emit('disconnectThirdPartyProviderAccount')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
+const loading = computed(() => busy.value !== null)
 
 function getProviderIcon(providerName: string): string {
   const icons: Record<string, string> = {
@@ -84,14 +57,14 @@ const columns: TableColumn<any>[] = [
 ]
 
 const data = computed(() => {
-  return providerAccounts.value?.data.map((account) => {
+  return accounts.value.map((account) => {
     return {
       uid: account.uid,
       display: account.display,
       name: account.provider.name,
       providerId: account.provider.id,
     }
-  }) || []
+  })
 })
 
 const actionItems = (row: { uid: string, display: string, name: string, providerId: string }): DropdownMenuItem[][] => {
@@ -104,20 +77,13 @@ const actionItems = (row: { uid: string, display: string, name: string, provider
       itemLeadingIcon: 'text-red-500 dark:text-red-500 hover:text-red-500 hover:dark:text-red-500',
     },
     onSelect: async () => {
-      const account = providerAccounts.value?.data.find(item => item.uid === row.uid)
+      const account = accounts.value.find(item => item.uid === row.uid)
       if (!account) return
-      return await disconnect({
-        provider: account.provider.id,
-        account: account.uid,
-      })
+      return await disconnect(account)
     },
   })
   return [items]
 }
-
-onReactivated(async () => {
-  await refreshProviderAccounts()
-})
 </script>
 
 <template>

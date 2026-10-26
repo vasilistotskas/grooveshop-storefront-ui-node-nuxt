@@ -24,10 +24,6 @@ export const useAuthStore = defineStore('auth', () => {
   const status = ref<StatusRecord>(statusFactory())
   const error = ref<ErrorRecord>(errorsFactory())
 
-  const hasSocialAccountProviders = computed(() => {
-    return (config.value?.socialaccount?.providers?.length ?? 0) > 0
-  })
-
   const hasCurrentPassword = computed(() => {
     return session.value?.user?.has_usable_password ?? false
   })
@@ -146,7 +142,6 @@ export const useAuthStore = defineStore('auth', () => {
     config,
     status,
     error,
-    hasSocialAccountProviders,
     hasCurrentPassword,
     otherSessions,
     totpAuthenticator,

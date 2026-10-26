@@ -13,20 +13,16 @@
  * plugin routes that, and the store refresh afterwards shows the result.
  */
 const { t, locale } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
 const localePath = useLocalePath()
-const { deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
-const authStore = useAuthStore()
-const { authenticators } = storeToRefs(authStore)
 
-const keys = computed(() =>
-  (authenticators.value ?? []).filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN),
-)
+const { keys, busy, rename: renameKey, remove: removeKey } = useWebAuthnKeys({
+  renamed: () => ({ title: t('renamed'), color: 'success' }),
+  removed: () => ({ title: t('removed'), color: 'success' }),
+  failed: () => t('error'),
+})
 
 const renaming = ref<number | null>(null)
 const draftName = ref('')
-const busy = ref<number | null>(null)
 const confirming = ref<number | null>(null)
 
 const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
@@ -36,32 +32,15 @@ function startRename(id: number, name: string | undefined) {
   draftName.value = name ?? ''
 }
 
-async function change(id: number, request: () => Promise<{ status?: number } | undefined>, done: string) {
-  busy.value = id
-  try {
-    const response = await request()
-    if (response?.status !== 200) throw new Error(`status ${response?.status}`)
-    toast.add({ title: done, color: 'success' })
-    renaming.value = null
-  }
-  catch (error) {
-    log.error({ action: 'webauthn:change', error })
-    notify('webauthn:change', error, { title: t('error') })
-  }
-  finally {
-    busy.value = null
-    confirming.value = null
-    await authStore.setupAuthenticators()
-  }
+async function rename(id: number) {
+  if (await renameKey(id, draftName.value)) renaming.value = null
+  confirming.value = null
 }
 
-const rename = (id: number) => {
-  const name = draftName.value.trim()
-  if (!name) return
-  return change(id, () => updateWebAuthnCredential({ id, name }), t('renamed'))
+async function remove(id: number) {
+  await removeKey(id)
+  confirming.value = null
 }
-
-const remove = (id: number) => change(id, () => deleteWebAuthnCredential({ authenticators: [id] }), t('removed'))
 </script>
 
 <template>
