@@ -4,9 +4,19 @@ import { flushPromises } from '@vue/test-utils'
 import { el as uiLocale } from '@nuxt/ui/locale'
 import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
+import PriorPrice from '~/components/Product/PriorPrice.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { trees } from '~~/test/helpers/trees'
+
+// The wholesale price is hydrated on the client for a signed-in business
+// customer (useB2BPricing's own spec covers how); here it is what the
+// page is told.
+const { b2bPrice } = vi.hoisted(() => ({
+  b2bPrice: vi.fn((_id: number): { finalPrice: string } | undefined => undefined),
+}))
+mockNuxtImport('useB2BPricing', () => () => ({ register: vi.fn(), priceFor: b2bPrice }))
 
 /**
  * A product page counts one view of the product in its route, on the
@@ -124,7 +134,8 @@ describe.each([
     await flushPromises()
 
     expect(wrapper.find('s').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
+    // No announced reduction: the prior-price line (its own spec covers its copy) is not drawn.
+    expect(wrapper.findComponent(PriorPrice).exists()).toBe(false)
     expect(wrapper.text()).toContain(money(57))
     wrapper.unmount()
   })
@@ -545,5 +556,88 @@ describe.each([
     const wrapper = await mountPage()
 
     expect(priceTrendButton(wrapper)).toBeUndefined()
+  })
+})
+
+/**
+ * Both drawings take the product and the price this shopper pays from
+ * useProductDetail (whose own spec covers the 404/503): one
+ * implementation, so a row that fails here is a drawing that drifted.
+ */
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail shopper price', ({ tree, C }) => {
+  const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+  const empty = { count: 0, next: null, previous: null, results: [] }
+  // The drawings strike a price differently: the default with <s>, the
+  // frozen webside copy with a line-through span.
+  const struck = tree === 'default' ? 's' : '.line-through'
+
+  function serve(product: ReturnType<typeof makeProduct>) {
+    clearNuxtData()
+    setTenant()
+    api.routes({
+      '/api/products/123': product,
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+  }
+
+  // Net 50 at 24 % VAT is 62 retail, announced as a 22 % reduction from 80.
+  it('swaps in a lower wholesale price, strikes the retail one and announces no reduction', async () => {
+    b2bPrice.mockImplementation(id => (id === 123 ? { finalPrice: '40' } : undefined))
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, priorPrice: 80, announcedDiscountPercent: 22 }))
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain(money(40))
+    expect(wrapper.findAll(struck).map(node => node.text())).toEqual([money(62)])
+    // No announced reduction: the prior-price line (its own spec covers its copy) is not drawn.
+    expect(wrapper.findComponent(PriorPrice).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('ignores a wholesale price that is not lower than retail', async () => {
+    b2bPrice.mockImplementation(() => ({ finalPrice: '70' }))
+    serve(makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 0 }))
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain(money(62))
+    expect(wrapper.text()).not.toContain(money(70))
+    expect(wrapper.findAll(struck)).toHaveLength(0)
+    wrapper.unmount()
+  })
+})
+
+// The Greek row is written (its description) but its name was left empty:
+// every place that names the product reads useProductDetail's per-field
+// name, so the heading is never blank.
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail name', ({ C }) => {
+  it('heads the page with another language\'s name where the page\'s row has none', async () => {
+    clearNuxtData()
+    setTenant({ defaultLocale: 'en', availableLocales: ['el', 'en'] })
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': makeProduct({
+        id: 123,
+        translations: {
+          el: { name: '', description: '<p>Φορτιστής ταξιδιού</p>', seoTitle: '', seoDescription: '', seoKeywords: '' },
+          en: { name: 'Travel charger', description: '', seoTitle: '', seoDescription: '', seoKeywords: '' },
+        },
+      }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.get('h1').text()).toBe('Travel charger')
+    wrapper.unmount()
   })
 })

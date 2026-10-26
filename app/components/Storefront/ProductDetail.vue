@@ -6,9 +6,9 @@ const route = useRoute(`products-id-slug___${locale.value}`)
 
 const { isMobileOrTablet } = useDevice()
 const stickyAddToCartEnabled = useStorePreference('stickyAddToCart')
-const productReviewsEnabled = useStoreFeature('productReviews')
 const productAlertsEnabled = useStoreFeature('productAlerts')
 const suggestionsEnabled = useStoreFeature('productSuggestions')
+const priceHistoryEnabled = useStoreFeature('priceHistory')
 // "Order before 15:00, ships the same business day": the store's cutoff
 // is one cached public setting, so it renders on the server like the
 // rest of the page. No "today"/"tomorrow": that needs the visitor's
@@ -17,278 +17,19 @@ const dispatchCutoffSetting = useSettingValue('DISPATCH_CUTOFF')
 const dispatchCutoff = computed(() => parseDispatchCutoff(dispatchCutoffSetting.value))
 const tenantStore = useTenantStore()
 
-const { user, loggedIn } = useUserSession()
+const { user } = useUserSession()
 
 const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
-const img = useMediaStreamImage()
 const mediaStreamBaseUrl = useMediaStreamBaseUrl()
-
-const userStore = useUserStore()
-const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore
+const { productUrl } = useUrls()
+const { declare, canonicalUrl } = useDocumentLocales()
 const cartStore = useCartStore()
 
 const selectorQuantity = ref(1)
 
-const productId = 'id' in route.params ? route.params.id : undefined
-
-// Track product view count (client-side only, fire-and-forget)
-const { trackView } = useViewCount()
-if (productId) {
-  trackView('product', Number(productId))
-}
-
-// Meta/TikTok Pixel — ViewContent / GA4 — view_item, all fire once
-// per product detail load on the client. SSR-safe via ``onMounted``
-// so the prerender pass never produces a phantom event. Browser-only
-// (no server-side leg for any of them).
-const metaPixel = useMetaPixel()
-const tiktokPixel = useTikTokPixel()
-const openaiPixel = useOpenAIPixel()
-const ga4 = useGA4()
-const viewContentFired = ref(false)
-
-// Client-side recently-viewed rail. We record the visit once the product
-// detail lands (below) so we have the translated name + image to show
-// without re-fetching on homepage/PDP rails.
-const recentlyViewed = useRecentlyViewed()
-
-const { data: product, error: productError, refresh: refreshProduct } = await useApi<ProductRetrieve>(
-  `/api/products/${productId}`,
-  {
-    key: `product${productId}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  },
-)
-
-if (!product.value) {
-  // Distinguish "row really absent" (404) from "backend unavailable"
-  // (5xx / timeout): a transient upstream failure must surface as 503
-  // so crawlers treat it as temporary — a 404 here de-indexes live
-  // products during backend blips — and so error.vue's one-shot
-  // reload can self-heal the visit.
-  const upstreamStatus = productError.value?.statusCode ?? 404
-  throw createError(
-    upstreamStatus >= 500
-      ? { statusCode: 503, message: t('error.service.unavailable') }
-      : { statusCode: 404, message: t('error.page.not.found') },
-  )
-}
-
-// Images, reviews and the category list in parallel — all three are
-// needed for SSR (the gallery, the review section, Schema.org and the
-// breadcrumb). The category list is the header menu's, already fetched.
-const [
-  { data: productImages },
-  { data: productReviews, refresh: refreshProductReviews },
-  { data: allCategories },
-] = await Promise.all([
-  useApi(
-    `/api/products/${product.value?.id}/images`,
-    {
-      key: `productImages${product.value?.id}`,
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        languageCode: locale,
-      },
-    },
-  ),
-  useApi<ListProductReviewsResponse>(
-    `/api/products/${productId}/reviews`,
-    {
-      key: `productReviewsSchema${productId}`,
-      // With reviews off none are fetched, so none reach the page or its
-      // structured data (Django answers 404 for them too).
-      enabled: productReviewsEnabled,
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        languageCode: locale,
-        ordering: REVIEW_SORTS[DEFAULT_REVIEW_SORT],
-      },
-    },
-  ),
-  useAllCategories(),
-])
-
-const { transformImages } = useHtmlContent()
-
-const sanitizedDescription = computed(() =>
-  transformImages(extractTranslated(product.value, 'description', locale.value) ?? ''),
-)
-
-const shouldFetchFavouriteProducts = computed(() => {
-  return loggedIn.value
-})
-
-// User-specific data: client-side only. The trigger is deferred to
-// ``onMounted`` — not called during setup — because Nuxt's payload
-// cache can resolve this synchronously during hydration (same key from
-// a prior navigation), which would populate the store before the heart
-// button hydrates and produce a ``Hydration mismatch`` that Vue **does
-// not rectify in production**. Triggering after mount keeps SSR and the
-// initial client render identical, so the subsequent store update
-// flows through the normal reactive patch path.
-const { execute: fetchFavourites } = useLazyApi('/api/products/favourites/favourites-by-products', {
-  key: `favouritesByProducts${user.value?.id}`,
-  method: 'POST',
-  body: {
-    productIds: [Number(productId)],
-  },
-  // `watch: false` for the same reason as Products/List.vue: nothing
-  // here is reactive today, but that is one edit away from refetching
-  // an auth-required endpoint for anonymous visitors.
-  watch: false,
-  server: false,
-  immediate: false,
-  onResponse({ response }) {
-    if (!response.ok) {
-      return
-    }
-    const favourites = response._data
-    if (favourites) {
-      updateFavouriteProducts(favourites)
-    }
-  },
-})
-
-onMounted(() => {
-  watchEffect(() => {
-    if (shouldFetchFavouriteProducts.value) fetchFavourites()
-  })
-
-  // Meta Pixel: ViewContent. Browser-only event; no server-side
-  // dedup, so the eventID is a fresh UUID minted by the composable.
-  // Fires once per page mount — guard prevents duplicate fires when
-  // the product reactive ref re-resolves on hydration with the same
-  // payload. Uses the translated name + the cheapest active price
-  // so reporting matches what the customer saw.
-  if (viewContentFired.value || !product.value) return
-  try {
-    const productData = product.value
-    const pid = productData.id != null ? String(productData.id) : ''
-    const price = Number(
-      productCurrentPrice(productData) ?? productData.price ?? 0,
-    )
-    // The same name the page shows, so what the pixels report and
-    // what the shopper saw are one string.
-    const reportedName = productName.value
-    metaPixel.trackViewContent({
-      currency: tenantStore.defaultCurrency,
-      value: price,
-      contentType: 'product',
-      contentIds: pid ? [pid] : [],
-      contents: pid
-        ? [
-            {
-              id: pid,
-              quantity: 1,
-              itemPrice: price,
-            },
-          ]
-        : [],
-      contentName: reportedName,
-    })
-    openaiPixel.trackContentsViewed({
-      currency: tenantStore.defaultCurrency,
-      amount: price,
-      contents: pid
-        ? [{ id: pid, name: reportedName, contentType: 'product', quantity: 1 }]
-        : [],
-    })
-    tiktokPixel.trackViewContent({
-      currency: tenantStore.defaultCurrency,
-      value: price,
-      contentType: 'product',
-      contentName: reportedName,
-      contents: pid
-        ? [
-            {
-              contentId: pid,
-              contentName: reportedName,
-              quantity: 1,
-              price,
-            },
-          ]
-        : [],
-    })
-    ga4.trackViewItem({
-      currency: tenantStore.defaultCurrency,
-      value: price,
-      items: pid
-        ? [
-            {
-              item_id: pid,
-              item_name: reportedName,
-              price,
-              quantity: 1,
-            },
-          ]
-        : [],
-    })
-    viewContentFired.value = true
-  }
-  catch (pixelErr) {
-    log.warn(
-      'product:metaPixelViewContent',
-      String((pixelErr as Error)?.message ?? pixelErr),
-    )
-  }
-})
-
-// The reviews' own sheet reports a change; the list on THIS page and the
-// product's average are what must move.
-const onReviewChanged = () => Promise.all([
-  refreshProduct(),
-  refreshProductReviews(),
-])
-
-const formatProductPrice = (price?: number) => {
-  return n(price || 0, 'currency')
-}
-
-// What this shopper pays and what to strike through: retail renders
-// first, the wholesale price swaps in after hydration (see useShopperPrice).
-const { displayFinalPrice, wasPrice, announcement } = useShopperPrice(() => product.value?.id, product)
-
-/**
- * The product's name in the best language it EXISTS in.
- *
- * Per field rather than per row (`extractTranslated` picks the row's
- * language): the page's `<h1>` stays filled even where the page's
- * language has a translation whose name was left empty.
- */
-const productName = computed(() =>
-  resolveTranslated(product.value, 'name', locale.value, [
-    tenantStore.defaultLocale,
-  ])?.value
-  || extractTranslated(product.value, 'seoTitle', locale.value)
-  || '',
-)
-
-const productTitle = computed(() => {
-  return capitalize(
-    extractTranslated(product.value, 'seoTitle', locale.value)
-    || extractTranslated(product?.value, 'name', locale.value)
-    || '',
-  )
-})
-
-const productDescription = computed(() => {
-  const seoDesc = extractTranslated(product.value, 'seoDescription', locale.value)
-  if (seoDesc) return seoDesc
-
-  const rawDescription = extractTranslated(product?.value, 'description', locale.value) || ''
-  return htmlToPlainText(rawDescription).slice(0, 160)
-})
-
-const productStock = computed(() => product.value?.stock || 0)
+const productId = String(route.params.id)
 
 // The sticky bar takes over once the buy row has scrolled up out of
 // view — not merely off-screen: on a phone the row starts below the
@@ -297,51 +38,42 @@ const buyRow = useTemplateRef<HTMLElement>('buyRow')
 const { bottom: buyRowBottom } = useElementBounding(buyRow)
 const showStickyAddToCart = computed(() => buyRowBottom.value < 0)
 
-// Record this PDP visit in the recently-viewed history once we have
-// translated data to cache. `onMounted` guarantees we're on the client
-// (localStorage is unavailable during SSR) and re-triggers when the
-// user navigates between PDPs without a full reload.
-onMounted(() => {
-  if (!product.value?.id) return
-  recentlyViewed.add({
-    id: product.value.id,
-    slug: product.value.slug ?? null,
-    name: extractTranslated(product.value, 'name', locale.value) || '',
-    mainImagePath: product.value.mainImagePath ?? null,
-    finalPrice: typeof product.value.finalPrice === 'number'
-      ? productCurrentPrice(product.value)
-      : null,
-    addedAt: Date.now(),
-  })
-})
+// The category list is the header menu's, already fetched; it draws the
+// breadcrumb and names the category in the structured data. Started
+// beside the product's own requests.
+const categoriesRequest = useAllCategories()
+
+const {
+  product,
+  productImages,
+  productReviews,
+  productReviewsEnabled,
+  onReviewChanged,
+  productName,
+  productTitle,
+  productDescription,
+  sanitizedDescription,
+  productStock,
+  productSpecifications,
+  displayFinalPrice,
+  wasPrice,
+  announcement,
+  favouriteId,
+  ogImage,
+} = await useProductDetail(productId)
+const { data: allCategories } = await categoriesRequest
+
+const formatProductPrice = (price?: number) => {
+  return n(price || 0, 'currency')
+}
 
 // The canonical and the hreflang set are built from the product's OWN
 // id+slug (useDocumentLocales -> setupPageHeader), in the tenant's own
 // origin, and name only the locales the product is written in.
-const { productUrl } = useUrls()
-const { declare, canonicalUrl } = useDocumentLocales()
 declare(
   translatedLocales(product.value?.translations, 'name'),
   productUrl(product.value!.id, product.value!.slug),
 )
-
-const ogImage = computed(() => {
-  if (!product.value?.mainImagePath) return ''
-
-  return img(product.value.mainImagePath, {
-    ...OG_IMAGE_SIZE,
-    fit: 'cover',
-    format: 'png',
-  }, {
-    provider: 'mediaStream',
-  })
-})
-
-const favouriteId = computed(() => {
-  if (!product.value) return
-  const favourite = getFavouriteIdByProductId(product.value?.id)
-  return favourite
-})
 
 /**
  * Where the product sits in the catalogue: its category's trail from the
@@ -361,7 +93,7 @@ const parentCrumbs = computed(() =>
 const breadcrumb = computed(() => [...parentCrumbs.value, { label: productName.value }])
 
 const shareOptions = reactive({
-  title: extractTranslated(product.value, 'name', locale.value) || '',
+  title: productName.value,
   text: extractTranslated(product.value, 'description', locale.value) || '',
   url: import.meta.client
     ? `/products/${product.value?.id}/${product.value?.slug}`
@@ -412,7 +144,6 @@ const notify = reactive({ mounted: false, open: false, kind: 'restock' as Produc
 
 // The price trend dialog, mounted on its first open like the alerts one:
 // its body asks for the history only then.
-const priceHistoryEnabled = useStoreFeature('priceHistory')
 const priceTrend = reactive({ mounted: false, open: false })
 function openPriceTrend() {
   priceTrend.mounted = true
@@ -433,29 +164,6 @@ const productAccordionItems = computed<AccordionItem[]>(() => [
   { label: t('description'), value: 'description' },
   { label: t('specifications'), value: 'specifications' },
 ])
-
-const productSpecifications = computed(() => {
-  const specs = []
-
-  if (product.value?.weight) {
-    specs.push({
-      label: t('weight'),
-      value: `${product.value.weight.value} ${product.value.weight.unit || 'kg'}`,
-    })
-  }
-
-  // Add product attributes
-  if (product.value?.attributes && product.value.attributes.length > 0) {
-    product.value.attributes.forEach((attr) => {
-      specs.push({
-        label: attr.attributeName,
-        value: attr.value,
-      })
-    })
-  }
-
-  return specs
-})
 
 useSeoMeta({
   title: () => productTitle.value,
@@ -502,7 +210,7 @@ useSchemaOrg([
   // a single computed() over plain values instead.
   defineProduct(computed(() => productSchemaOrg({
     product: product.value!,
-    name: extractTranslated(product.value, 'name', locale.value) || '',
+    name: productName.value,
     description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
     url: canonicalUrl.value,
     // The catalogue feeds' variant (SEARCH_IMAGE_VARIANT): one URL per image
