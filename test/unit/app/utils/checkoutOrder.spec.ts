@@ -137,6 +137,7 @@ describe('buildOrderCreateBody', () => {
     billingVatId: '',
     billingCountry: '',
     shippingMethod: 'home_delivery',
+    termsAccepted: true,
     ...overrides,
   })
 
@@ -166,11 +167,16 @@ describe('buildOrderCreateBody', () => {
       documentType: 'RECEIPT',
       billingVatId: undefined,
       billingCountry: undefined,
+      termsAccepted: true,
       loyaltyPointsToRedeem: undefined,
       giftCardCodes: undefined,
       shippingProviderCode: undefined,
       shippingKind: 'home_delivery',
     })
+  })
+
+  it('sends the terms consent as the shopper left it, for Django to record', () => {
+    expect(buildOrderCreateBody(form({ termsAccepted: false }), ctx()).termsAccepted).toBe(false)
   })
 
   it('drops company requisites a receipt order was left holding', () => {

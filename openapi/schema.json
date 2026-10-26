@@ -23924,6 +23924,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderCreateError"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -62243,7 +62253,7 @@
             },
             "OrderCreateError": {
                 "type": "object",
-                "description": "The 400 body of ``POST /order``.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
+                "description": "The 400 or 409 body of ``POST /order``.\n\n409 is ``legal_document_unavailable``: a checkout legal text the\nstore cannot show in the order's language.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
                 "properties": {
                     "detail": {
                         "type": "string"
@@ -62282,7 +62292,7 @@
                                 "$ref": "#/components/schemas/OrderCreateErrorType"
                             }
                         ],
-                        "description": "Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.\n\n* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής\n* `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής"
+                        "description": "Σταθερός κωδικός για τον λόγο απόρριψης της παραγγελίας. Διακλαδώστε με βάση αυτόν, ποτέ με βάση το ``detail`` ή το ``cart``, που είναι στη γλώσσα του αιτήματος.\n\n* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `legal_document_unavailable` - Legal document unavailable\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής\n* `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής"
                     },
                     "productId": {
                         "type": "integer",
@@ -62317,13 +62327,14 @@
                     "invalid_order_data",
                     "invalid_coupon",
                     "invalid_gift_card",
+                    "legal_document_unavailable",
                     "payment_not_found",
                     "payment_verification",
                     "payment_amount_mismatch",
                     "payment_currency_mismatch"
                 ],
                 "type": "string",
-                "description": "* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής\n* `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής"
+                "description": "* `insufficient_stock` - Ανεπαρκές απόθεμα\n* `cart_invalid` - Το καλάθι δεν είναι έτοιμο για ολοκλήρωση αγοράς\n* `reservation_unavailable` - Η δέσμευση αποθέματος δεν ισχύει πλέον\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Μη έγκυρο κουπόνι\n* `invalid_gift_card` - Μη έγκυρη δωροκάρτα\n* `legal_document_unavailable` - Legal document unavailable\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής\n* `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής"
             },
             "OrderCreateFromCartRequest": {
                 "type": "object",
@@ -62554,6 +62565,11 @@
                             }
                         ],
                         "writeOnly": true
+                    },
+                    "termsAccepted": {
+                        "type": "boolean",
+                        "writeOnly": true,
+                        "description": "The buyer accepts the store's terms of use and privacy policy. Must be true."
                     }
                 },
                 "required": [

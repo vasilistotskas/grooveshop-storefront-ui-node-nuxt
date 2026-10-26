@@ -14008,6 +14008,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreateError'
+          description: ''
         '500':
           content:
             application/json:
@@ -38675,7 +38681,10 @@ components:
     OrderCreateError:
       type: object
       description: |-
-        The 400 body of ``POST /order``.
+        The 400 or 409 body of ``POST /order``.
+
+        409 is ``legal_document_unavailable``: a checkout legal text the
+        store cannot show in the order's language.
 
         A refusal the order service understands carries ``error.type``; a
         malformed payload is DRF's field-error map instead (``{field:
@@ -38714,6 +38723,7 @@ components:
             * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
             * `invalid_coupon` - Μη έγκυρο κουπόνι
             * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
+            * `legal_document_unavailable` - Legal document unavailable
             * `payment_not_found` - Δεν βρέθηκε πληρωμή
             * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
             * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -38743,6 +38753,7 @@ components:
         - invalid_order_data
         - invalid_coupon
         - invalid_gift_card
+        - legal_document_unavailable
         - payment_not_found
         - payment_verification
         - payment_amount_mismatch
@@ -38755,6 +38766,7 @@ components:
         * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
         * `invalid_coupon` - Μη έγκυρο κουπόνι
         * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
+        * `legal_document_unavailable` - Legal document unavailable
         * `payment_not_found` - Δεν βρέθηκε πληρωμή
         * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
         * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -38960,6 +38972,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/OrderAttributionInputRequest'
           writeOnly: true
+        termsAccepted:
+          type: boolean
+          writeOnly: true
+          description: The buyer accepts the store's terms of use and privacy policy. Must be true.
       required:
         - city
         - countryId

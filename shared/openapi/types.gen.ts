@@ -4202,7 +4202,10 @@ export type OrderCancelErrorType = 'parcel_with_courier' | 'courier_unreachable'
 export type OrderCreateDocumentType = 'RECEIPT' | 'INVOICE'
 
 /**
- * The 400 body of ``POST /order``.
+ * The 400 or 409 body of ``POST /order``.
+ *
+ * 409 is ``legal_document_unavailable``: a checkout legal text the
+ * store cannot show in the order's language.
  *
  * A refusal the order service understands carries ``error.type``; a
  * malformed payload is DRF's field-error map instead (``{field:
@@ -4234,6 +4237,7 @@ export type OrderCreateErrorDetail = {
      * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
      * * `invalid_coupon` - Μη έγκυρο κουπόνι
      * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
+     * * `legal_document_unavailable` - Legal document unavailable
      * * `payment_not_found` - Δεν βρέθηκε πληρωμή
      * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
      * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -4269,12 +4273,13 @@ export type OrderCreateErrorDetail = {
  * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
  * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
+ * * `legal_document_unavailable` - Legal document unavailable
  * * `payment_not_found` - Δεν βρέθηκε πληρωμή
  * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
  * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
  * * `payment_currency_mismatch` - Ασυμφωνία νομίσματος πληρωμής
  */
-export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'payment_not_found' | 'payment_verification' | 'payment_amount_mismatch' | 'payment_currency_mismatch'
+export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'legal_document_unavailable' | 'payment_not_found' | 'payment_verification' | 'payment_amount_mismatch' | 'payment_currency_mismatch'
 
 /**
  * Serializer for creating orders from cart (dual-flow payment architecture).
@@ -11387,6 +11392,10 @@ export type OrderCreateFromCartRequestWritable = {
     [key: string]: unknown
   } | null
   attribution?: OrderAttributionInputRequest
+  /**
+     * The buyer accepts the store's terms of use and privacy policy. Must be true.
+     */
+  termsAccepted?: boolean
 }
 
 export type OrderDetailWritable = {
@@ -19568,6 +19577,7 @@ export type CreateOrderErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  409: OrderCreateError
   500: ErrorResponse
 }
 

@@ -96,6 +96,10 @@ export async function useCheckoutForm() {
     // step1Schema).
     saveAddress: false,
     addressTitle: '',
+    // The payment step's terms consent. It travels with the order as
+    // ``termsAccepted``, and Django records the terms and privacy texts
+    // it was placed under (``OrderLegalAcceptance``).
+    termsAccepted: false,
   })
 
   // Sync cart items with form state
