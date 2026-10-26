@@ -35,7 +35,8 @@ jobs:
     # quality, tests, e2e, build and schema freshness, and goes straight to
     # release. The rule and its proof: .github/scripts/tested_in_pr.sh. Any
     # other push, a PR or a dispatch runs everything. The Trivy scan always
-    # runs: its database moves daily, not with the code.
+    # runs: its database moves daily, not with the code. Build also runs
+    # when main has no fonts cache for this tree (the step below).
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -44,10 +45,25 @@ jobs:
       actions: read
     outputs:
       tested: ${{ steps.check.outputs.tested }}
+      fonts-cached: ${{ steps.fonts.outputs.cache-hit }}
     steps:
       - name: Checkout
-        if: github.event_name == 'push'
         uses: actions/checkout@v7
+
+      # Build is the only job that saves the fonts cache docker.yml's image
+      # build restores (`fonts.cache` in nuxt.config.ts); the release-tag
+      # build cannot save one itself. So an already-tested push still runs
+      # Build when main holds no cache under this tree's exact key, which
+      # happens only when a merge changed the files the key hashes. Same
+      # key as Build's "Cache fonts" step. A failed lookup reads as a miss.
+      - name: Fonts cache exists on main
+        id: fonts
+        continue-on-error: true
+        uses: actions/cache/restore@v6
+        with:
+          path: .cache/nuxt-fonts
+          key: nuxt-fonts-${{ hashFiles('nuxt.config.ts', 'shared/theme/constants.ts', 'app/assets/css/**/*.css') }}
+          lookup-only: true
 
       - name: Same tree as a green PR run
         id: check
@@ -253,7 +269,9 @@ jobs:
   build:
     name: Build
     needs: tested-in-pr
-    if: needs.tested-in-pr.outputs.tested != 'true'
+    if: >-
+      needs.tested-in-pr.outputs.tested != 'true'
+      || needs.tested-in-pr.outputs.fonts-cached != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
