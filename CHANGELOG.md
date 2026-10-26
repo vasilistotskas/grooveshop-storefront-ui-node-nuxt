@@ -1,3 +1,10 @@
+# [3.264.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.263.1...v3.264.0) (2026-10-26)
+
+
+### Features
+
+* **checkout:** send the shopper's terms consent with the order ([#244](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/244)) ([7c0e278](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7c0e278f74afecedd6b5b2cad44e8e862db5aaa2))
+
 ## [3.263.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.263.0...v3.263.1) (2026-10-26)
 
 
