@@ -40,32 +40,37 @@ mockNuxtImport('useUserSession', () => () => ({
   clear: () => Promise.resolve(),
 }))
 
-mockNuxtImport('useCheckoutForm', () => () => ({
-  formState: reactive({ shippingMethod: '', payWay: state.payWay }),
-  selectedPayWay: ref(null),
-  selectedCountry: ref(null),
-  payWays: ref([]),
-  shippingPrice: ref(0),
-  countryOptions: ref([]),
-  postcodeExample: ref(''),
-  regionOptions: ref([]),
-  payWayOptions: ref([]),
-  step1Schema: {},
-  step2Schema: {},
-  step3Schema: {},
-  savedAddresses: ref([]),
-  selectedSavedAddressId: ref(null),
-  selectSavedAddress: vi.fn(),
-  addressEntryMode: ref('new'),
-  useNewAddress: vi.fn(),
-  b2bInvoicingEnabled: ref(false),
-  acsEnabled: ref(false),
-  refetchShippingOptions: vi.fn(),
-  shippingOptionsError: ref(null),
-  shippingOverWeight: ref(false),
-  retryShippingOptions: vi.fn(),
-  shippingOptions: ref([]),
-}))
+// The checkout form of the latest mount, which the order carries.
+let form = reactive<Record<string, unknown>>({})
+mockNuxtImport('useCheckoutForm', () => () => {
+  form = reactive({ shippingMethod: '', payWay: state.payWay, termsAccepted: false })
+  return {
+    formState: form,
+    selectedPayWay: ref(null),
+    selectedCountry: ref(null),
+    payWays: ref([]),
+    shippingPrice: ref(0),
+    countryOptions: ref([]),
+    postcodeExample: ref(''),
+    regionOptions: ref([]),
+    payWayOptions: ref([]),
+    step1Schema: {},
+    step2Schema: {},
+    step3Schema: {},
+    savedAddresses: ref([]),
+    selectedSavedAddressId: ref(null),
+    selectSavedAddress: vi.fn(),
+    addressEntryMode: ref('new'),
+    useNewAddress: vi.fn(),
+    b2bInvoicingEnabled: ref(false),
+    acsEnabled: ref(false),
+    refetchShippingOptions: vi.fn(),
+    shippingOptionsError: ref(null),
+    shippingOverWeight: ref(false),
+    retryShippingOptions: vi.fn(),
+    shippingOptions: ref([]),
+  }
+})
 
 // A real ref, created per mount so each test starts on its own step.
 let step = ref(0)
@@ -339,5 +344,76 @@ describe('Checkout stepper headers (frozen webside)', () => {
 
     expect(submit).not.toHaveBeenCalled()
     expect(step.value).toBe(1)
+  })
+})
+
+/**
+ * Webside places the order from its sidebar, and the terms consent sits
+ * right above that button: the page gates on it, then the payment step
+ * validates its pay way (`useCheckoutPaymentSubmit`).
+ */
+describe('Place order (frozen webside)', () => {
+  /** The summary renders its slots, so the button and the consent show. */
+  const SidebarStub = defineComponent({
+    name: 'WebsideCheckoutSidebar',
+    setup: (_props, { slots }) => () => h('div', { 'data-sidebar': '' }, slots.button?.()),
+  })
+
+  async function mountOnStep(index: number) {
+    Object.assign(state, { step: index, payWay: 3 })
+    const wrapper = await mountSuspended(WebsideCheckout, {
+      route: false,
+      global: {
+        stubs: {
+          ...Object.fromEntries(STEPS.map(name => [`Webside${name}`, StepStub(name)])),
+          ...Object.fromEntries(PARTS.flatMap(name => [[name, true], [`Webside${name}`, true]])),
+          WebsideCheckoutSidebar: SidebarStub,
+        },
+      },
+    })
+    await flushPromises()
+    return wrapper
+  }
+
+  const cta = (wrapper: VueWrapper) => wrapper.get('[data-testid="checkout-sidebar-cta"]')
+  const consent = (wrapper: VueWrapper) => wrapper.find('[data-sidebar] [role="checkbox"]')
+
+  it('draws the terms consent right above Place order', async () => {
+    const wrapper = await mountOnStep(2)
+
+    const sidebar = wrapper.get('[data-sidebar]').element
+    const checkbox = consent(wrapper).element
+    expect(sidebar.contains(checkbox)).toBe(true)
+    // The checkbox comes before the button in the document.
+    expect(checkbox.compareDocumentPosition(cta(wrapper).element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it.each([0, 1])('asks for no consent before the payment step (step %i)', async (index) => {
+    const wrapper = await mountOnStep(index)
+
+    expect(consent(wrapper).exists()).toBe(false)
+  })
+
+  it('refuses until the terms are accepted, and says why', async () => {
+    const wrapper = await mountOnStep(2)
+
+    await cta(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(submit).not.toHaveBeenCalled()
+    expect(wrapper.find('[data-sidebar] [role="alert"]').exists()).toBe(true)
+    expect(consent(wrapper).attributes('aria-invalid')).toBe('true')
+  })
+
+  it('places the order through the payment step once they are, and records the consent', async () => {
+    const wrapper = await mountOnStep(2)
+
+    await consent(wrapper).trigger('click')
+    await flushPromises()
+    await cta(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(form.termsAccepted).toBe(true)
+    expect(submit).toHaveBeenCalledTimes(1)
   })
 })

@@ -10,7 +10,6 @@ import StepPayment from '~/components/Checkout/StepPayment.vue'
 import WebsideStepPayment from '~/components/variants/webside/Checkout/StepPayment.vue'
 import { makePayWay } from '~~/test/fixtures/payWay'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
-import { trees } from '~~/test/helpers/trees'
 
 /**
  * The payment step. Two operator-authored HTML fields reach it from
@@ -24,8 +23,10 @@ import { trees } from '~~/test/helpers/trees'
  *
  * The default tree was redesigned (radio cards, a Review card); the
  * frozen webside copy keeps the original body below, run on its own, and
- * the redesign has its own suite after it. Placing the order is one rule
- * for both (`useCheckoutPaymentSubmit`): the terms gate comes last.
+ * the redesign has its own suite after it. Placing the order gates on the
+ * terms (`useCheckoutPaymentSubmit`): inside the default step, and on
+ * webside in the page's sidebar above Place order, so the webside step
+ * only validates its pay way.
  */
 
 const CARD_INSTRUCTIONS
@@ -65,7 +66,6 @@ function makeProps(overrides: Record<string, unknown> = {}) {
     formState: reactive<Record<string, any>>({ payWay: 6 }),
     schema: null,
     payWayOptions: makePayWayOptions(),
-    isSubmitting: false,
     ...overrides,
   }
 }
@@ -163,6 +163,38 @@ describe('Webside Checkout/StepPayment', () => {
     await buttonByText(wrapper, 'Πίσω')!.trigger('click')
 
     expect(wrapper.emitted('back')).toHaveLength(1)
+  })
+
+  describe('submit()', () => {
+    const submit = (wrapper: VueWrapper) =>
+      (wrapper.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
+    const mountValidated = (formState: Record<string, any>) =>
+      mount({ formState: reactive(formState), schema: z.object({ payWay: z.number().min(1) }) })
+
+    // The terms consent sits above the sidebar's Place order, which gates
+    // on it before calling this.
+    it('draws no terms consent of its own', async () => {
+      const wrapper = await mount()
+
+      expect(wrapper.find('[role="checkbox"]').exists()).toBe(false)
+    })
+
+    it('emits submit for a valid pay way', async () => {
+      const wrapper = await mountValidated({ payWay: 6 })
+
+      await submit(wrapper)
+
+      await vi.waitFor(() => expect(wrapper.emitted('submit')).toHaveLength(1))
+    })
+
+    it('refuses without a pay way', async () => {
+      const wrapper = await mountValidated({ payWay: undefined })
+
+      await submit(wrapper)
+      await flushPromises()
+
+      expect(wrapper.emitted('submit')).toBeUndefined()
+    })
   })
 })
 
@@ -394,15 +426,13 @@ describe('Checkout/StepPayment (redesign)', () => {
 })
 
 /**
- * Placing the order: the page's Pay button (the default) and the sidebar's
- * "Place order" (webside) call the exposed `submit()`. It refuses until
- * the terms are accepted, places nothing twice, and still validates the
- * pay way. Each tree says what is missing in its own words.
+ * Placing the order: the page's Pay button calls the exposed `submit()`.
+ * It refuses until the terms are accepted, places nothing twice, and
+ * still validates the pay way.
  */
-describe.each(trees(StepPayment, WebsideStepPayment))('$tree Checkout/StepPayment submit()', ({ tree, C }) => {
-  const required = YAML.parse(parseSfc(resolve(REPO, tree === 'default'
-    ? 'app/components/Checkout/TermsConsent.vue'
-    : 'app/components/variants/webside/Checkout/TermsConsent.vue')).customBlocks.find(block => block.type === 'i18n')!.content).el.required
+describe('Checkout/StepPayment submit()', () => {
+  const C = StepPayment
+  const required = YAML.parse(parseSfc(resolve(REPO, 'app/components/Checkout/TermsConsent.vue')).customBlocks.find(block => block.type === 'i18n')!.content).el.required
 
   const mountStep = (overrides: Record<string, unknown> = {}, form: Record<string, unknown> = {}) =>
     mountSuspended(C, {
@@ -410,7 +440,7 @@ describe.each(trees(StepPayment, WebsideStepPayment))('$tree Checkout/StepPaymen
       props: {
         formState: reactive<Record<string, any>>({ ...FORM, ...form }),
         schema: z.object({ payWay: z.number().min(1) }),
-        payWayOptions: tree === 'default' ? [VIVA, STRIPE, COD, TRANSFER] : makePayWayOptions(),
+        payWayOptions: [VIVA, STRIPE, COD, TRANSFER],
         isSubmitting: false,
         ...overrides,
       },
@@ -449,7 +479,7 @@ describe.each(trees(StepPayment, WebsideStepPayment))('$tree Checkout/StepPaymen
       props: {
         formState,
         schema: z.object({ payWay: z.number().min(1) }),
-        payWayOptions: tree === 'default' ? [VIVA, STRIPE, COD, TRANSFER] : makePayWayOptions(),
+        payWayOptions: [VIVA, STRIPE, COD, TRANSFER],
         isSubmitting: false,
       },
     })

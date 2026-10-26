@@ -63,6 +63,7 @@ describe('Products/CategoryChips', () => {
     const wrapper = await mountSuspended(CategoryChips, { route: false })
 
     expect(chips(wrapper)).toEqual([
+      [own(wrapper, 'all_products'), '/products', null],
       [`${own(wrapper, 'all_in', { name: 'Φόρτιση' })} 16`, '/products/category/2/category-2', 'page'],
       ['Καλώδια 10', '/products/category/3/category-3', null],
       ['Φορτιστές 6', '/products/category/4/category-4', null],
@@ -74,11 +75,49 @@ describe('Products/CategoryChips', () => {
 
     const wrapper = await mountSuspended(CategoryChips, { route: false })
 
+    // No back chip: the first chip already goes up to the parent.
     expect(chips(wrapper)).toEqual([
       [`${own(wrapper, 'all_in', { name: 'Φόρτιση' })} 16`, '/products/category/2/category-2', null],
       ['Καλώδια 10', '/products/category/3/category-3', null],
       ['Φορτιστές 6', '/products/category/4/category-4', 'page'],
     ])
+  })
+
+  it('leads a category with subcategories with a back chip to all products', async () => {
+    showPage(2)
+
+    const wrapper = await mountSuspended(CategoryChips, { route: false })
+
+    const back = wrapper.findAll('a')[0]!
+    expect(back.attributes('href')).toBe('/products')
+    expect(back.attributes('aria-label')).toBe(own(wrapper, 'back_to', { name: own(wrapper, 'all_products') }))
+    expect(back.find('[class*="arrow-left"]').exists()).toBe(true)
+  })
+
+  it('leads a nested category with subcategories back to its parent', async () => {
+    const withGrandchild = [...CATEGORIES, makeCategory({ id: 6, parent: 3, name: { el: 'USB-C', en: 'USB-C' } })]
+    tree.forest.value = buildCategoryForest(withGrandchild, translatorFor('el'), { 6: 4 }, 3)
+    tree.trail.value = categoryTrail(tree.forest.value, 3)
+
+    const wrapper = await mountSuspended(CategoryChips, { route: false })
+
+    const back = wrapper.findAll('a')[0]!
+    expect(back.attributes('href')).toBe('/products/category/2/category-2')
+    expect(back.attributes('aria-label')).toBe(own(wrapper, 'back_to', { name: 'Φόρτιση' }))
+  })
+
+  it.each([4, 5])('adds no back chip where the row already goes up (category %i)', async (id) => {
+    showPage(id)
+
+    const wrapper = await mountSuspended(CategoryChips, { route: false })
+
+    expect(wrapper.find('[class*="arrow-left"]').exists()).toBe(false)
+  })
+
+  it('has no back chip on the store-wide listing', async () => {
+    const wrapper = await mountSuspended(CategoryChips, { route: false })
+
+    expect(wrapper.find('[class*="arrow-left"]').exists()).toBe(false)
   })
 
   it('draws no counts while the facet is unknown', async () => {

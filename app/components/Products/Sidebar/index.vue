@@ -15,9 +15,13 @@
  *
  * Sections: the category tree, the price, the brands, then one per
  * attribute, then the availability switches — each open until a shopper folds it.
+ *
+ * A column of many sections gets a quick search on top (`filterSearch.ts`)
+ * and, always, one button that opens or folds every section.
  */
 import type { AccordionItem } from '@nuxt/ui'
 import type { AttributeGroup } from '~/utils/attributeGroups'
+import type { BrandOption } from '~/utils/brandOptions'
 
 defineOptions({
   inheritAttrs: false,
@@ -63,7 +67,7 @@ const attributeGroups = computed(() => buildAttributeGroups(
 type SectionItem
   = | (AccordionItem & { value: string, slot: 'category' })
     | (AccordionItem & { value: string, slot: 'price' })
-    | (AccordionItem & { value: string, slot: 'brand' })
+    | (AccordionItem & { value: string, slot: 'brand', options: BrandOption[] })
     | (AccordionItem & { value: string, slot: 'availability' })
     | (AccordionItem & { value: string, slot: 'attribute', group: AttributeGroup })
 
@@ -75,7 +79,7 @@ const sections = computed<SectionItem[]>(() => [
     ? [{ label: t('price'), value: 'price', slot: 'price' as const }]
     : []),
   ...(brandOptions.value.length
-    ? [{ label: t('brand'), value: 'brand', slot: 'brand' as const }]
+    ? [{ label: t('brand'), value: 'brand', slot: 'brand' as const, options: brandOptions.value }]
     : []),
   ...attributeGroups.value.map(group => ({
     label: group.label,
@@ -86,15 +90,52 @@ const sections = computed<SectionItem[]>(() => [
   { label: t('availability'), value: 'availability', slot: 'availability' as const },
 ])
 
+// The quick search. Matching ignores case and accents (`foldText`). A
+// section whose own label matches stays whole; a brand or attribute section
+// with a matching option stays with those options (and any selected one);
+// the rest drop out.
+const query = ref('')
+const searchOffered = computed(() => sections.value.length >= FILTER_SEARCH_MIN_SECTIONS)
+const foldedQuery = computed(() => searchOffered.value ? foldText(query.value.trim()) : '')
+const searching = computed(() => foldedQuery.value !== '')
+
+const shownSections = computed<SectionItem[]>(() => {
+  const needle = foldedQuery.value
+  if (!needle) return sections.value
+  return sections.value.flatMap((section): SectionItem[] => {
+    if (labelMatches(section.label ?? '', needle)) return [section]
+    if (section.slot === 'brand') {
+      const options = narrowOptions(section.options, needle)
+      return options ? [{ ...section, options }] : []
+    }
+    if (section.slot === 'attribute') {
+      const options = narrowOptions(section.group.options, needle)
+      return options ? [{ ...section, group: { ...section.group, options } }] : []
+    }
+    return []
+  })
+})
+
 // Every section starts open, a section that appears later (attributes
 // arriving with the data) included: what is stored is what was folded.
+// While a query is set every section it leaves is open, and folding is
+// not stored: the query is what a shopper is working with.
 const folded = ref<string[]>([])
 const openSections = computed({
-  get: () => sections.value.map(section => section.value).filter(value => !folded.value.includes(value)),
+  get: () => (searching.value ? shownSections.value : sections.value)
+    .map(section => section.value)
+    .filter(value => searching.value || !folded.value.includes(value)),
   set: (open: string[]) => {
+    if (searching.value) return
     folded.value = sections.value.map(section => section.value).filter(value => !open.includes(value))
   },
 })
+
+const allOpen = computed(() => folded.value.length === 0)
+
+function toggleAll() {
+  folded.value = allOpen.value ? sections.value.map(section => section.value) : []
+}
 
 const accordionUi = {
   item: 'border-b border-default',
@@ -116,10 +157,58 @@ defineExpose({
 
 <template>
   <DefineFiltersTemplate>
+    <UInput
+      v-if="searchOffered"
+      v-model="query"
+      icon="i-lucide-search"
+      :placeholder="t('search_placeholder')"
+      :aria-label="t('search_label')"
+      :ui="{ trailing: 'pe-1' }"
+      class="mb-2"
+    >
+      <template
+        v-if="query.length"
+        #trailing
+      >
+        <UButton
+          color="neutral"
+          variant="link"
+          size="sm"
+          icon="i-lucide-circle-x"
+          :aria-label="t('search_clear')"
+          @click="() => { query = '' }"
+        />
+      </template>
+    </UInput>
+
+    <div
+      v-if="!searching"
+      class="flex justify-end"
+    >
+      <UButton
+        color="neutral"
+        variant="link"
+        size="sm"
+        :icon="allOpen ? 'i-lucide-chevrons-down-up' : 'i-lucide-chevrons-up-down'"
+        :label="allOpen ? t('collapse_all') : t('expand_all')"
+        :aria-label="allOpen ? t('collapse_all_label') : t('expand_all_label')"
+        @click="toggleAll"
+      />
+    </div>
+
+    <p
+      v-if="searching && !shownSections.length"
+      role="status"
+      class="py-6 text-center text-sm text-muted"
+    >
+      {{ t('no_match', { query: query.trim() }) }}
+    </p>
+
     <UAccordion
+      v-else
       v-model="openSections"
       type="multiple"
-      :items="sections"
+      :items="shownSections"
       :ui="accordionUi"
     >
       <template #category>
@@ -128,8 +217,8 @@ defineExpose({
       <template #price>
         <ProductsFiltersPriceRange />
       </template>
-      <template #brand>
-        <ProductsFiltersBrandValues :options="brandOptions" />
+      <template #brand="{ item }">
+        <ProductsFiltersBrandValues :options="item.options" />
       </template>
       <template #attribute="{ item }">
         <ProductsFiltersAttributeValues :group="item.group" />
@@ -144,7 +233,11 @@ defineExpose({
   <aside
     v-bind="attrs"
     :aria-label="t('title')"
-    class="hidden lg:block"
+    class="
+      hidden
+      lg:sticky lg:top-[calc(var(--ui-header-height)+1.5rem)] lg:block
+      lg:max-h-[calc(100dvh-var(--ui-header-height)-3rem)] lg:overflow-y-auto
+    "
   >
     <ReuseFiltersTemplate />
   </aside>
@@ -204,6 +297,14 @@ el:
   availability: Διαθεσιμότητα
   clear: Καθαρισμός
   show_results: 'Δείτε {count} προϊόν | Δείτε {count} προϊόντα'
+  search_label: Αναζήτηση στα φίλτρα
+  search_placeholder: Αναζήτηση φίλτρων
+  search_clear: Καθαρισμός αναζήτησης
+  no_match: 'Κανένα φίλτρο δεν ταιριάζει με «{query}»'
+  expand_all: Άνοιγμα όλων
+  collapse_all: Κλείσιμο όλων
+  expand_all_label: Άνοιγμα όλων των ενοτήτων φίλτρων
+  collapse_all_label: Κλείσιμο όλων των ενοτήτων φίλτρων
 en:
   title: Filters
   description: Narrow the products by category, price, brand, attributes and availability
@@ -213,4 +314,12 @@ en:
   availability: Availability
   clear: Clear
   show_results: 'Show {count} product | Show {count} products'
+  search_label: Search the filters
+  search_placeholder: Search filters
+  search_clear: Clear search
+  no_match: 'No filter matches "{query}"'
+  expand_all: Expand all
+  collapse_all: Collapse all
+  expand_all_label: Expand all filter sections
+  collapse_all_label: Collapse all filter sections
 </i18n>

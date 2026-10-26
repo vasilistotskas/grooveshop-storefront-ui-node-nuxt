@@ -161,6 +161,26 @@ const handleStockRetry = () => {
 // button.
 const stepRef = ref<{ submit: () => void | Promise<void> } | null>(null)
 
+// The payment step, and the terms consent drawn right above Place order
+// in the sidebar: what the shopper agrees to sits beside the button that
+// commits them to it. The consent is the checkout form's own field, so
+// the order carries what the shopper ticked; the gate runs before the
+// step validates its pay way.
+const paymentStep = useTemplateRef<{ submit: () => Promise<void> }>('paymentStep')
+const consentRef = useTemplateRef<HTMLElement>('consentRef')
+const acceptedTerms = computed({
+  get: () => formState.termsAccepted === true,
+  set: (accepted: boolean) => {
+    formState.termsAccepted = accepted
+  },
+})
+const { termsMissing, submit: placeOrder } = useCheckoutPaymentSubmit({
+  accepted: acceptedTerms,
+  isSubmitting,
+  form: paymentStep,
+  consent: consentRef,
+})
+
 const sidebarCtaLabel = computed(() =>
   currentStep.value === 2 ? t('place_order') : t('continue'),
 )
@@ -175,6 +195,10 @@ const sidebarCtaDisabled = computed(() =>
 const showSidebarCta = computed(() => !(createdOrder.value && isOnlinePayment.value))
 
 const onSidebarCta = async () => {
+  if (currentStep.value === 2) {
+    await placeOrder()
+    return
+  }
   await stepRef.value?.submit()
 }
 
@@ -322,11 +346,10 @@ useSeoMeta({
           <!-- Step 2: Payment -->
           <WebsideCheckoutStepPayment
             v-else-if="currentStep === 2"
-            ref="stepRef"
+            ref="paymentStep"
             v-model:form-state="formState"
             :schema="step3Schema"
             :pay-way-options="payWayOptions"
-            :is-submitting="isSubmitting"
             @submit="onSubmit"
             @back="prevStep"
           />
@@ -397,6 +420,15 @@ useSeoMeta({
             </template>
 
             <template #button>
+              <div
+                v-if="showSidebarCta && currentStep === 2"
+                ref="consentRef"
+              >
+                <WebsideCheckoutTermsConsent
+                  v-model="acceptedTerms"
+                  :invalid="termsMissing"
+                />
+              </div>
               <UButton
                 v-if="showSidebarCta"
                 size="lg"

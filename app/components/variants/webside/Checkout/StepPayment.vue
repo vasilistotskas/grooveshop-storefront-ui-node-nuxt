@@ -14,7 +14,6 @@ const props = defineProps<{
     /** "Free above X" — only set while the fee is actually charged. */
     freeThresholdHint?: string
   }>
-  isSubmitting: boolean
 }>()
 
 const emit = defineEmits<{
@@ -56,25 +55,14 @@ watch(() => formState.value.payWay, () => {
   instructionsOpen.value = false
 })
 
-const consentRef = useTemplateRef<HTMLElement>('consentRef')
 const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
 
-// The place-order CTA (in the checkout sidebar) calls submit(): the
-// consent gate, then Zod validation and the `submit` emit.
-// The terms consent is the checkout form's own field, so the order
-// carries what the shopper ticked.
-const acceptedTerms = computed({
-  get: () => formState.value.termsAccepted === true,
-  set: (accepted: boolean) => {
-    formState.value.termsAccepted = accepted
-  },
-})
-const { termsMissing, submit } = useCheckoutPaymentSubmit({
-  accepted: acceptedTerms,
-  isSubmitting: () => props.isSubmitting,
-  form: formRef,
-  consent: consentRef,
-})
+// The page's place-order button (in the checkout sidebar, under the
+// terms consent it gates on) calls submit(): Zod validation of the pay
+// way, then the `submit` emit.
+async function submit() {
+  await formRef.value?.submit()
+}
 defineExpose({ submit })
 </script>
 
@@ -191,13 +179,6 @@ defineExpose({ submit })
           />
         </template>
       </UCollapsible>
-
-      <div ref="consentRef">
-        <WebsideCheckoutTermsConsent
-          v-model="acceptedTerms"
-          :invalid="termsMissing"
-        />
-      </div>
 
       <!-- Place-order CTA lives in the checkout sidebar so it sits
            next to the order total. -->
