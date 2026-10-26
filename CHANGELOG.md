@@ -1,3 +1,10 @@
+## [3.262.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.4...v3.262.5) (2026-10-26)
+
+
+### Bug Fixes
+
+* **product:** webside reads low stock at the product's own threshold, everywhere, and preloads no unseen image ([#240](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/240)) ([f3d90d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f3d90d93c47b176198824e4f02fbe9181dee0cb0))
+
 ## [3.262.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.3...v3.262.4) (2026-10-26)
 
 
