@@ -5,10 +5,14 @@
  * order), and only past the step's own validation.
  *
  * Shared by every drawing of the payment step (`Checkout/StepPayment.vue`
- * and the frozen webside copy); each draws its own consent checkbox and
- * exposes `submit` to the page's Pay / Place order button.
+ * and the frozen webside copy); each draws its own consent checkbox,
+ * bound to `accepted`, and exposes `submit` to the page's Pay / Place
+ * order button. The consent is the checkout form's `termsAccepted`,
+ * which the order carries to Django.
  */
 export interface CheckoutPaymentSubmitInputs {
+  /** The shopper accepted the terms (the checkout form's `termsAccepted`). */
+  accepted: Ref<boolean>
   /** The order is being placed. */
   isSubmitting: MaybeRefOrGetter<boolean>
   /** The step's `UForm`: validates the pay way and emits the step's `submit`. */
@@ -18,17 +22,16 @@ export interface CheckoutPaymentSubmitInputs {
 }
 
 export function useCheckoutPaymentSubmit(inputs: CheckoutPaymentSubmitInputs) {
-  const acceptedTerms = ref(false)
   /** Pay was tried without the terms accepted: the checkbox says so. */
   const termsMissing = ref(false)
 
-  watch(acceptedTerms, (accepted) => {
+  watch(inputs.accepted, (accepted) => {
     if (accepted) termsMissing.value = false
   })
 
   async function submit() {
     if (toValue(inputs.isSubmitting)) return
-    if (!acceptedTerms.value) {
+    if (!inputs.accepted.value) {
       termsMissing.value = true
       inputs.consent.value?.scrollIntoView({ block: 'center' })
       return
@@ -36,5 +39,5 @@ export function useCheckoutPaymentSubmit(inputs: CheckoutPaymentSubmitInputs) {
     await inputs.form.value?.submit()
   }
 
-  return { acceptedTerms, termsMissing, submit }
+  return { termsMissing, submit }
 }

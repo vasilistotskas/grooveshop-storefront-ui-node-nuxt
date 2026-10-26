@@ -187,7 +187,7 @@ export interface OrderCreateBodyContext {
 export function buildOrderCreateBody(
   formState: Record<string, any>,
   ctx: OrderCreateBodyContext,
-): OrderCreateFromCartRequest {
+): OrderCreateFromCartRequestWritable {
   const carrier = carrierForMethod(formState.shippingMethod)
   const shippingKind = formState.shippingMethod === 'home_delivery'
     ? 'home_delivery'
@@ -242,6 +242,9 @@ export function buildOrderCreateBody(
             : formState.billingZipcode) || undefined,
         }
       : {}),
+    // What the shopper ticked on the payment step; Django records the
+    // texts in force with the order.
+    termsAccepted: formState.termsAccepted,
     loyaltyPointsToRedeem: ctx.loyaltyDiscount?.points ?? undefined,
     giftCardCodes: ctx.giftCards.length
       ? ctx.giftCards.map(card => card.code)
@@ -251,7 +254,7 @@ export function buildOrderCreateBody(
     ...carrierPayload,
     ...(ctx.meta ? { meta: ctx.meta } : {}),
     ...(ctx.attribution ? { attribution: ctx.attribution } : {}),
-  } as OrderCreateFromCartRequest
+  }
 }
 
 /** The HTTP status a failed `$api` call carries, `undefined` when no response came back. */

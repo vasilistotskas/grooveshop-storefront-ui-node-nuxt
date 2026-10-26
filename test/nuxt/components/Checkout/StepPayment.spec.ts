@@ -442,6 +442,23 @@ describe.each(trees(StepPayment, WebsideStepPayment))('$tree Checkout/StepPaymen
     expect(links).toEqual(['/terms-of-use', '/privacy-policy'])
   })
 
+  it('writes the consent into the checkout form, which the order carries', async () => {
+    const formState = reactive<Record<string, any>>({ ...FORM, termsAccepted: false })
+    const wrapper = await mountSuspended(C, {
+      route: false,
+      props: {
+        formState,
+        schema: z.object({ payWay: z.number().min(1) }),
+        payWayOptions: tree === 'default' ? [VIVA, STRIPE, COD, TRANSFER] : makePayWayOptions(),
+        isSubmitting: false,
+      },
+    })
+
+    await acceptTerms(wrapper)
+
+    expect(formState.termsAccepted).toBe(true)
+  })
+
   it('clears the message once the terms are accepted', async () => {
     const wrapper = await mountStep()
     await submit(wrapper)

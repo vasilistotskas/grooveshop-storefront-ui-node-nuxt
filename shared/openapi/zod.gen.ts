@@ -1628,6 +1628,7 @@ export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE'])
  * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
  * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
+ * * `legal_document_unavailable` - Legal document unavailable
  * * `payment_not_found` - Δεν βρέθηκε πληρωμή
  * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
  * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -1640,6 +1641,7 @@ export const zOrderCreateErrorType = z.enum([
   'invalid_order_data',
   'invalid_coupon',
   'invalid_gift_card',
+  'legal_document_unavailable',
   'payment_not_found',
   'payment_verification',
   'payment_amount_mismatch',
@@ -7189,6 +7191,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   acsItemQuantity: z.int().gte(1).lte(20).optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
   attribution: zOrderAttributionInputRequest.optional(),
+  termsAccepted: z.boolean().optional(),
 })
 
 export const zOrderItemWritable = z.object({

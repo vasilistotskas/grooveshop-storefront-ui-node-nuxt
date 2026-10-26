@@ -322,7 +322,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
    * id is minted per submit, and a retry must still count as the same
    * attempt.
    */
-  const orderFingerprint = (orderValues: OrderCreateFromCartRequest) => JSON.stringify({
+  const orderFingerprint = (orderValues: OrderCreateFromCartRequestWritable) => JSON.stringify({
     order: { ...orderValues, meta: undefined },
     ...cartPricedFrom(),
   })
@@ -447,7 +447,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         ...(paymentIntentId.value
           ? { paymentIntentId: paymentIntentId.value }
           : {}),
-      } as OrderCreateFromCartRequest
+      }
 
       await $api('/api/orders', {
         method: 'POST',

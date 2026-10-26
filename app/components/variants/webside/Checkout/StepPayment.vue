@@ -61,7 +61,16 @@ const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
 
 // The place-order CTA (in the checkout sidebar) calls submit(): the
 // consent gate, then Zod validation and the `submit` emit.
-const { acceptedTerms, termsMissing, submit } = useCheckoutPaymentSubmit({
+// The terms consent is the checkout form's own field, so the order
+// carries what the shopper ticked.
+const acceptedTerms = computed({
+  get: () => formState.value.termsAccepted === true,
+  set: (accepted: boolean) => {
+    formState.value.termsAccepted = accepted
+  },
+})
+const { termsMissing, submit } = useCheckoutPaymentSubmit({
+  accepted: acceptedTerms,
   isSubmitting: () => props.isSubmitting,
   form: formRef,
   consent: consentRef,
