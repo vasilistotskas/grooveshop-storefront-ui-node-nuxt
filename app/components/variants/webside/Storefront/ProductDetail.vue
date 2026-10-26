@@ -105,7 +105,7 @@ const items = computed(() => [
 ])
 
 const shareOptions = reactive({
-  title: extractTranslated(product.value, 'name', locale.value) || '',
+  title: productName.value,
   text: extractTranslated(product.value, 'description', locale.value) || '',
   url: import.meta.client
     ? `/products/${product.value?.id}/${product.value?.slug}`
@@ -220,7 +220,7 @@ useSchemaOrg([
   // a single computed() over plain values instead.
   defineProduct(computed(() => productSchemaOrg({
     product: product.value!,
-    name: extractTranslated(product.value, 'name', locale.value) || '',
+    name: productName.value,
     description: htmlToPlainText(extractTranslated(product.value, 'description', locale.value) || ''),
     url: canonicalUrl.value,
     // The catalogue feeds' variant (SEARCH_IMAGE_VARIANT): one URL per image
@@ -313,7 +313,7 @@ useSchemaOrg([
                   dark:text-primary-50
                 "
               >
-                {{ extractTranslated(product, 'name', locale) }}
+                {{ productName }}
               </h1>
 
               <ProductRating
@@ -688,7 +688,7 @@ useSchemaOrg([
       v-if="priceTrend.mounted && product"
       v-model:open="priceTrend.open"
       :product-id="product.id"
-      :product-name="extractTranslated(product, 'name', locale) ?? ''"
+      :product-name="productName"
     />
   </WebsidePageWrapper>
 </template>

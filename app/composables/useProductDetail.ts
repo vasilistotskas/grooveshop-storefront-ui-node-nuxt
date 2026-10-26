@@ -86,8 +86,7 @@ export async function useProductDetail(productId: string) {
   const productTitle = computed(() =>
     capitalize(
       extractTranslated(product.value, 'seoTitle', locale.value)
-      || extractTranslated(product.value, 'name', locale.value)
-      || '',
+      || productName.value,
     ),
   )
 
@@ -245,7 +244,7 @@ export async function useProductDetail(productId: string) {
     recentlyViewed.add({
       id: product.value.id,
       slug: product.value.slug ?? null,
-      name: extractTranslated(product.value, 'name', locale.value) || '',
+      name: productName.value,
       mainImagePath: product.value.mainImagePath ?? null,
       finalPrice: typeof product.value.finalPrice === 'number'
         ? productCurrentPrice(product.value)

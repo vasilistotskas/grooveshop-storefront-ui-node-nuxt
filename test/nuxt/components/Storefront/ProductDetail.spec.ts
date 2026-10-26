@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { el as uiLocale } from '@nuxt/ui/locale'
 import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
+import PriorPrice from '~/components/Product/PriorPrice.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
 import { makeCategory } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
@@ -133,7 +134,8 @@ describe.each([
     await flushPromises()
 
     expect(wrapper.find('s').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
+    // No announced reduction: the prior-price line (its own spec covers its copy) is not drawn.
+    expect(wrapper.findComponent(PriorPrice).exists()).toBe(false)
     expect(wrapper.text()).toContain(money(57))
     wrapper.unmount()
   })
@@ -591,7 +593,8 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
 
     expect(wrapper.text()).toContain(money(40))
     expect(wrapper.findAll(struck).map(node => node.text())).toEqual([money(62)])
-    expect(wrapper.text()).not.toContain('Χαμηλότερη τιμή 30 ημερών πριν την έκπτωση')
+    // No announced reduction: the prior-price line (its own spec covers its copy) is not drawn.
+    expect(wrapper.findComponent(PriorPrice).exists()).toBe(false)
     wrapper.unmount()
   })
 
@@ -605,6 +608,36 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
     expect(wrapper.text()).toContain(money(62))
     expect(wrapper.text()).not.toContain(money(70))
     expect(wrapper.findAll(struck)).toHaveLength(0)
+    wrapper.unmount()
+  })
+})
+
+// The Greek row is written (its description) but its name was left empty:
+// every place that names the product reads useProductDetail's per-field
+// name, so the heading is never blank.
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail name', ({ C }) => {
+  it('heads the page with another language\'s name where the page\'s row has none', async () => {
+    clearNuxtData()
+    setTenant({ defaultLocale: 'en', availableLocales: ['el', 'en'] })
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': makeProduct({
+        id: 123,
+        translations: {
+          el: { name: '', description: '<p>Φορτιστής ταξιδιού</p>', seoTitle: '', seoDescription: '', seoKeywords: '' },
+          en: { name: 'Travel charger', description: '', seoTitle: '', seoDescription: '', seoKeywords: '' },
+        },
+      }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.get('h1').text()).toBe('Travel charger')
     wrapper.unmount()
   })
 })
