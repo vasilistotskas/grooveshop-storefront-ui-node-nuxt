@@ -1,3 +1,10 @@
+# [3.263.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.6...v3.263.0) (2026-10-26)
+
+
+### Features
+
+* **checkout:** webside asks the shopper to accept the terms before ordering ([#242](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/242)) ([0f6ae53](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0f6ae538d63b8b1d5f166e2c8906584406b73e5b))
+
 ## [3.262.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.5...v3.262.6) (2026-10-26)
 
 
