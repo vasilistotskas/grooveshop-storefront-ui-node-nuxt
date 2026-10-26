@@ -1,184 +1,31 @@
 <script lang="ts" setup>
-import type * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 const localePath = useLocalePath()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const toast = useToast()
 
 const form = useTemplateRef('form')
-const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
-const isSubmitting = ref(false)
 
-// Every dial code, for the phone field's country picker, and the country
-// the shopper picked there (empty while it follows the form's country).
-const { data: phoneCountries } = usePhoneCountries()
-const phonePick = ref('')
-
-// Auto-generated contract schema, tightened with the same client-side
-// phone plausibility check and delivery-address rules checkout applies
-// — the OpenAPI schema can't express either, and Django re-validates.
-// ``region`` is already ``.nullish()`` on the generated schema
-// (mirrors ``UserAddressWriteSerializer.region`` being optional); the
-// superRefine below adds it back as required only when the selected
-// country actually has regions (``Country.hasRegions``).
-const schema = zUserAddressWriteRequest.superRefine((data, ctx) => {
-  const country = selectedCountry(data.country)
-  refineAddress(ctx, country, data, t)
-  if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
-    ctx.addIssue({ path: ['region'], code: 'custom', message: t('validation.required') })
-  }
-  // The phone is E.164, built by ``FormPhoneInput`` from the country picked
-  // in the field (it follows the form's country until then).
-  const phoneCountry = resolvePhoneCountry(phoneCountries.value?.results, phonePick.value) ?? country
-  if (!isPlausiblePhone(data.phone, phoneCountry)) {
-    ctx.addIssue({
-      path: ['phone'],
-      code: 'custom',
-      message: phoneCountry?.phoneMetadata?.exampleMobile
-        ? t('validation.phone.invalid_example', { example: phoneCountry.phoneMetadata.exampleMobile })
-        : t('validation.phone.invalid'),
-    })
-  }
+const {
+  schema,
+  state,
+  isSubmitting,
+  phonePick,
+  selectedCountry,
+  countryOptions,
+  shippableCountryCodes,
+  regionOptions,
+  floorOptions,
+  locationTypeOptions,
+  onSubmit,
+} = await useAddressForm({
+  form,
+  t,
+  messages: () => ({ saved: t('success'), saveError: t('error') }),
 })
-
-type Schema = z.output<typeof schema>
-
-// Form state. ``region`` narrowed to drop ``null`` — the generated
-// schema allows it (Django's serializer accepts a blank region), but
-// this form only ever assigns it a string or leaves it undefined, and
-// USelect's v-model doesn't accept null.
-const state = reactive<Partial<Omit<Schema, 'region'>> & { region?: string }>({
-  title: undefined,
-  firstName: undefined,
-  lastName: undefined,
-  street: undefined,
-  streetNumber: undefined,
-  city: undefined,
-  zipcode: undefined,
-  phone: undefined,
-  notes: undefined,
-  isMain: false,
-  country: undefined,
-  region: undefined,
-  floor: undefined,
-  locationType: undefined,
-})
-
-// Countries data — shippable only: a country this store doesn't ship
-// to would 400 at submit either way.
-const { data: countries } = await useApi('/api/countries', {
-  key: 'countries-shippable',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    languageCode: locale,
-    shippable: true,
-  },
-})
-
-// The row carrying the country's postcode format — the one Django
-// validates the address against.
-function selectedCountry(alpha2: string | undefined) {
-  return countries.value?.results?.find(country => country.alpha2 === alpha2)
-}
-
-const countryOptions = computed(() => {
-  return (
-    countries.value?.results?.map(country => ({
-      label: extractTranslated(country, 'name', locale.value),
-      value: country.alpha2,
-    })) || []
-  )
-})
-
-// The store's shippable countries, listed first in the phone picker.
-const shippableCountryCodes = computed(() => countryOptions.value.map(option => option.value))
-
-// Regions data
-// The query is reactive, so a country change refetches by itself;
-// `enabled` holds it back until there is a country to ask about.
-const { data: regions } = await useApi<Pagination<Region>>(
-  '/api/regions',
-  {
-    enabled: computed(() => !!state.country),
-    query: computed(() => ({
-      country: state.country,
-      languageCode: locale.value,
-    })),
-  },
-)
-
-const regionOptions = computed(() => {
-  return (
-    regions.value?.results?.map(region => ({
-      label: extractTranslated(region, 'name', locale.value),
-      value: region.alpha,
-    })) || []
-  )
-})
-
-// Floor options
-const floorOptions = computed(() => [
-  { label: t('form.floor_options.BASEMENT'), value: 'BASEMENT' },
-  { label: t('form.floor_options.GROUND_FLOOR'), value: 'GROUND_FLOOR' },
-  { label: t('form.floor_options.FIRST_FLOOR'), value: 'FIRST_FLOOR' },
-  { label: t('form.floor_options.SECOND_FLOOR'), value: 'SECOND_FLOOR' },
-  { label: t('form.floor_options.THIRD_FLOOR'), value: 'THIRD_FLOOR' },
-  { label: t('form.floor_options.FOURTH_FLOOR'), value: 'FOURTH_FLOOR' },
-  { label: t('form.floor_options.FIFTH_FLOOR'), value: 'FIFTH_FLOOR' },
-  { label: t('form.floor_options.SIXTH_FLOOR_PLUS'), value: 'SIXTH_FLOOR_PLUS' },
-])
-
-// Location type options
-const locationTypeOptions = computed(() => [
-  { label: t('form.location_type_options.HOME'), value: 'HOME' },
-  { label: t('form.location_type_options.OFFICE'), value: 'OFFICE' },
-  { label: t('form.location_type_options.OTHER'), value: 'OTHER' },
-])
-
-// A new country's regions are its own: the old pick no longer applies.
-watch(
-  () => state.country,
-  (newCountry) => {
-    if (newCountry) state.region = undefined
-  },
-)
-
-// Form submission
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    await $api('/api/user/addresses', {
-      method: 'POST',
-      headers: useRequestHeaders(),
-      body: {
-        ...event.data,
-        // Canonical form, the same one Django stores.
-        zipcode: normalizePostcode(event.data.zipcode),
-      },
-    })
-
-    toast.add({
-      title: t('success'),
-      color: 'success',
-    })
-
-    await navigateTo(localePath('account-addresses'))
-  }
-  catch (error) {
-    await reportFailure('webside-address:create', error, { title: t('error') })
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
 </script>
 
 <template>

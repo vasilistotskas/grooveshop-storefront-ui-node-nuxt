@@ -3,6 +3,10 @@ const { t } = useI18n()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
+useSeoMeta({
+  title: t('title'),
+})
+
 const items = computed(() => [
   {
     to: localePath('index'),

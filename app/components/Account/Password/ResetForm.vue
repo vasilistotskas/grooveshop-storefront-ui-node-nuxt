@@ -1,23 +1,11 @@
 <script lang="ts" setup>
-import * as z from 'zod'
+import type * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-const emit = defineEmits(['passwordRequest'])
-
-const { passwordRequest } = useAllAuthAuthentication()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-const loading = ref(false)
-const hasError = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
-})
+const { schema, loading, hasError, request } = usePasswordResetRequest()
 
 type Schema = z.output<typeof schema>
 
@@ -27,25 +15,7 @@ const state = reactive<Partial<Schema>>({ email: undefined })
 const sent = ref(false)
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  try {
-    loading.value = true
-    hasError.value = false
-
-    await passwordRequest({
-      email: event.data.email,
-    })
-
-    sent.value = true
-
-    emit('passwordRequest')
-  }
-  catch (error) {
-    hasError.value = true
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
+  if (await request(event.data.email)) sent.value = true
 }
 </script>
 

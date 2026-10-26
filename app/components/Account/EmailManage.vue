@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import * as z from 'zod'
+import type * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 /**
@@ -9,61 +9,30 @@ import type { FormSubmitEvent } from '#ui/types'
  * verification, make it the primary, remove it. The primary address can
  * be neither removed nor made primary again.
  *
- * Every change is allauth's (`useAllAuthAccount`), and the list is read
+ * Every change is allauth's (`useEmailAddresses`), and the list is read
  * back from it afterwards.
  */
-const {
-  getEmailAddresses,
-  addEmailAddress,
-  requestEmailVerification,
-  removeEmailAddress,
-  changePrimaryEmailAddress,
-} = useAllAuthAccount()
-const toast = useToast()
 const { t } = useI18n()
 
-const { data: addresses, refresh } = await useAsyncData('emailAddresses', () => getEmailAddresses())
-const rows = computed(() => addresses.value?.data ?? [])
-
-const busy = ref<string | null>(null)
-const adding = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined ? t('validation.required') : t('validation.email.valid'),
+const { rows, busy, schema, add: addEmail, resend, makePrimary, remove } = await useEmailAddresses({
+  messages: () => ({
+    added: t('added'),
+    resent: t('resent'),
+    madePrimary: t('made_primary'),
+    removed: t('removed'),
   }),
 })
+
+const adding = ref(false)
+
 const state = reactive<{ email?: string }>({ email: undefined })
 
-/** One change at a time: every action is disabled while one is in flight. */
-async function run(key: string, request: () => Promise<unknown>, done: string, reload = true) {
-  busy.value = key
-  try {
-    await request()
-    if (reload) await refresh()
-    toast.add({ title: done, color: 'success' })
-    return true
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-    return false
-  }
-  finally {
-    busy.value = null
-  }
-}
-
 async function add(event: FormSubmitEvent<z.output<typeof schema>>) {
-  const ok = await run('add', () => addEmailAddress({ email: event.data.email }), t('added'))
-  if (ok) {
+  if (await addEmail(event.data.email)) {
     adding.value = false
     state.email = undefined
   }
 }
-
-const resend = (email: string) => run(`resend:${email}`, () => requestEmailVerification({ email }), t('resent'), false)
-const makePrimary = (email: string) => run(`primary:${email}`, () => changePrimaryEmailAddress({ email, primary: true }), t('made_primary'))
-const remove = (email: string) => run(`remove:${email}`, () => removeEmailAddress({ email }), t('removed'))
 </script>
 
 <template>

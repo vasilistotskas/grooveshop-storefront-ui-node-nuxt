@@ -3,14 +3,16 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import ChangeForm from '~/components/Account/Password/ChangeForm.vue'
+import WebsideChangeForm from '~/components/variants/webside/Account/Password/ChangeForm.vue'
 import type { SessionResponse } from '~~/shared/types/response/all-auth/auth/session'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * Changing — or, for an account created through a social provider,
  * first setting — the password. Whether the account has a usable
  * password is the session's `has_usable_password`, read through the auth
- * store; mocked at `useAllAuthAccount`. Done or cancelled, the shopper
- * goes back to the Security page.
+ * store; mocked at `useAllAuthAccount`. The two trees share the logic
+ * (`usePasswordChange`); each goes to its own account page afterwards.
  */
 const { changePassword, navigateToMock, toastAdd } = vi.hoisted(() => ({
   changePassword: vi.fn((_body: unknown) => Promise.resolve({ status: 200 })),
@@ -33,8 +35,6 @@ beforeEach(() => {
   signIn(true)
 })
 
-const mountForm = () => mountSuspended(ChangeForm, { route: false })
-
 async function fill(wrapper: VueWrapper, fields: { current?: string, next: string, confirm?: string }) {
   if (fields.current !== undefined) await wrapper.find('input[autocomplete="current-password"]').setValue(fields.current)
   const [next, confirm] = wrapper.findAll('input[autocomplete="new-password"]')
@@ -44,8 +44,17 @@ async function fill(wrapper: VueWrapper, fields: { current?: string, next: strin
   await flushPromises()
 }
 
-describe('Account/Password/ChangeForm', () => {
-  it('changes the password with the current one, then returns to Security', async () => {
+/** Each tree's own words (el) and destination. */
+const OWN = {
+  default: { mustMatch: { field: 'Νέος κωδικός', other: 'Επιβεβαίωση νέου κωδικού' }, set: 'Ορισμός κωδικού', destination: 'account-security' as const, icon: undefined },
+  webside: { mustMatch: { field: 'Νέος κωδικός', other: 'Επιβεβαίωση κωδικού' }, set: 'Όρισε κωδικό', destination: 'account' as const, icon: 'i-heroicons-check-circle' },
+}
+
+describe.each(trees(ChangeForm, WebsideChangeForm))('$tree Account/Password/ChangeForm', ({ tree, C }) => {
+  const own = OWN[tree]
+  const mountForm = () => mountSuspended(C, { route: false })
+
+  it('changes the password with the current one, then goes to its account page', async () => {
     const wrapper = await mountForm()
 
     await fill(wrapper, { current: 'Παλιός2023', next: 'Καλημέρα2024' })
@@ -54,16 +63,16 @@ describe('Account/Password/ChangeForm', () => {
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
       title: useNuxtApp().$i18n.t('auth.password.change.success'),
       color: 'success',
+      icon: own.icon,
     }))
-    expect(navigateToMock).toHaveBeenCalledExactlyOnceWith(useLocalePath()('account-security'))
+    expect(navigateToMock).toHaveBeenCalledExactlyOnceWith(useLocalePath()(own.destination))
   })
 
   it.each([
     ['the current password is missing', { current: '', next: 'Καλημέρα2024' }, () => useNuxtApp().$i18n.t('validation.required')],
     ['the new password is the current one', { current: 'Καλημέρα2024', next: 'Καλημέρα2024' }, () => useNuxtApp().$i18n.t('validation.password.must_not_be_same')],
-    // The field names are the form's own (its <i18n> block).
     ['the confirmation differs', { current: 'Παλιός2023', next: 'Καλημέρα2024', confirm: 'Καλημέρα2025' }, () =>
-      useNuxtApp().$i18n.t('validation.must_match', { field: 'Νέος κωδικός', other: 'Επιβεβαίωση νέου κωδικού' })],
+      useNuxtApp().$i18n.t('validation.must_match', own.mustMatch)],
     ['the new password is all digits', { current: 'Παλιός2023', next: '12345678' }, () => useNuxtApp().$i18n.t('validation.password.entirely_numeric')],
   ])('refuses when %s', async (_case, fields, message) => {
     const wrapper = await mountForm()
@@ -79,7 +88,7 @@ describe('Account/Password/ChangeForm', () => {
     const wrapper = await mountForm()
 
     expect(wrapper.find('input[autocomplete="current-password"]').exists()).toBe(false)
-    expect(wrapper.get('button[type="submit"]').text()).toBe('Ορισμός κωδικού')
+    expect(wrapper.get('button[type="submit"]').text()).toBe(own.set)
 
     await fill(wrapper, { next: 'Καλημέρα2024' })
 
@@ -103,16 +112,38 @@ describe('Account/Password/ChangeForm', () => {
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined()
   })
 
-  it('rates the new password as it is typed', async () => {
+  it('does not send a second request while one is in flight', async () => {
+    const pending = Promise.withResolvers<{ status: number }>()
+    changePassword.mockReturnValue(pending.promise)
     const wrapper = await mountForm()
 
-    expect(wrapper.find('[role="status"]').exists()).toBe(false)
-    await wrapper.findAll('input[autocomplete="new-password"]')[0]!.setValue('Καλημέρα2024')
+    await fill(wrapper, { current: 'Παλιός2023', next: 'Καλημέρα2024' })
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    pending.resolve({ status: 200 })
+    await flushPromises()
 
-    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(changePassword).toHaveBeenCalledTimes(1)
   })
 
-  it('cancels back to Security', async () => {
+  it('rates the new password as it is typed (Greek letters count)', async () => {
+    const wrapper = await mountForm()
+
+    expect(wrapper.text()).not.toContain('Ισχυρός')
+    await wrapper.findAll('input[autocomplete="new-password"]')[0]!.setValue('Καλημέρα2024')
+
+    expect(wrapper.text()).toContain('Ισχυρός')
+  })
+
+  it('rates a password that meets two rules as weak', async () => {
+    const wrapper = await mountForm()
+
+    await wrapper.findAll('input[autocomplete="new-password"]')[0]!.setValue('abcdefgh')
+
+    expect(wrapper.text()).toContain('Αδύναμος')
+  })
+
+  it.runIf(tree === 'default')('cancels back to Security', async () => {
     const wrapper = await mountForm()
 
     const cancel = wrapper.findAll('a').find(link => link.text() === 'Άκυρο')!

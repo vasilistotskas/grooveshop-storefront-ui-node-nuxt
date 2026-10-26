@@ -1,24 +1,12 @@
 <script lang="ts" setup>
-import * as z from 'zod'
+import type * as z from 'zod'
 import type { FormSubmitEvent, AuthFormField } from '#ui/types'
 
-const emit = defineEmits(['passwordRequest'])
-
-const { passwordRequest } = useAllAuthAuthentication()
 const toast = useToast()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-const loading = ref(false)
-const hasError = ref(false)
-
-const schema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }),
-})
+const { schema, loading, hasError, request } = usePasswordResetRequest()
 
 type Schema = z.output<typeof schema>
 
@@ -33,30 +21,13 @@ const fields: AuthFormField[] = [
 ]
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  try {
-    loading.value = true
-    hasError.value = false
-
-    await passwordRequest({
-      email: event.data.email,
-    })
-
-    toast.add({
-      title: t('password.reset.request.success'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-
-    emit('passwordRequest')
-  }
-  catch (error) {
-    hasError.value = true
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
+  if (!await request(event.data.email)) return
+  toast.add({
+    title: t('password.reset.request.success'),
+    description: t('success.description'),
+    color: 'success',
+    icon: 'i-heroicons-check-circle',
+  })
 }
 </script>
 

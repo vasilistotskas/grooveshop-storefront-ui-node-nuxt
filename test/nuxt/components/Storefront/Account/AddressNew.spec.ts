@@ -1,5 +1,6 @@
 /**
- * Tests for the "new address" page body (app/components/Storefront/Account/AddressNew.vue).
+ * Tests for the "new address" page body (app/components/Storefront/Account/AddressNew.vue),
+ * run over both trees: the form's logic is `useAddressForm`'s.
  *
  * Covers the address-book rules that changed for BoxNow Cyprus:
  *   - Countries are fetched with ``shippable: true`` — a country the
@@ -21,7 +22,10 @@ import { mountSuspended, registerEndpoint, mockNuxtImport } from '@nuxt/test-uti
 import { flushPromises } from '@vue/test-utils'
 import { getQuery } from 'h3'
 import NewAddressPage from '~/components/Storefront/Account/AddressNew.vue'
+import WebsideNewAddressPage from '~/components/variants/webside/Storefront/Account/AddressNew.vue'
 import { makeCountry } from '~~/test/fixtures/country'
+import { failWith } from '~~/test/helpers/api'
+import { trees } from '~~/test/helpers/trees'
 
 const GR = makeCountry()
 const CY = makeCountry({
@@ -54,7 +58,9 @@ const REGIONLESS = makeCountry({
   phoneMetadata: null,
 })
 
-const { mockApi } = vi.hoisted(() => ({ mockApi: vi.fn() }))
+const { mockApi, toastAdd, navigateToMock } = vi.hoisted(() => ({ mockApi: vi.fn(), toastAdd: vi.fn(), navigateToMock: vi.fn() }))
+mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+mockNuxtImport('navigateTo', () => navigateToMock)
 // The submit goes through `$api`; reads go through `useApi` (registerEndpoint).
 mockNuxtImport('$api', () => mockApi)
 
@@ -96,9 +102,9 @@ beforeEach(() => {
   })
 })
 
-describe('account/addresses/new', () => {
+describe.each(trees(NewAddressPage, WebsideNewAddressPage))('$tree account/addresses/new', ({ C }) => {
   it('asks for no regions before a country is picked, then once per country', async () => {
-    const wrapper = await mountSuspended(NewAddressPage)
+    const wrapper = await mountSuspended(C)
     await flushPromises()
     expect(regionRequests).toEqual([])
 
@@ -117,14 +123,14 @@ describe('account/addresses/new', () => {
       return countriesResponse
     })
 
-    await mountSuspended(NewAddressPage)
+    await mountSuspended(C)
 
     expect(capturedQuery).toMatchObject({ shippable: 'true' })
   })
 
   describe('phone flag picker', () => {
     async function mountWithCountry(alpha2 = 'GR') {
-      const wrapper = await mountSuspended(NewAddressPage)
+      const wrapper = await mountSuspended(C)
       await flushPromises()
       const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
       vm.state.country = alpha2
@@ -211,7 +217,7 @@ describe('account/addresses/new', () => {
 
   describe('country first, with autofill tokens', () => {
     it('lists the country field before the street', async () => {
-      const wrapper = await mountSuspended(NewAddressPage)
+      const wrapper = await mountSuspended(C)
       await flushPromises()
 
       const names = wrapper.findAll('[name]').map(element => element.attributes('name'))
@@ -220,7 +226,7 @@ describe('account/addresses/new', () => {
     })
 
     it('puts autocomplete="country" and "address-level1" on native selects autofill can fill', async () => {
-      const wrapper = await mountSuspended(NewAddressPage)
+      const wrapper = await mountSuspended(C)
       await flushPromises()
       const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
       vm.state.country = 'GR'
@@ -238,7 +244,7 @@ describe('account/addresses/new', () => {
     })
 
     it('renders the phone field at the same size as the other inputs', async () => {
-      const wrapper = await mountSuspended(NewAddressPage)
+      const wrapper = await mountSuspended(C)
       await flushPromises()
 
       const heightClasses = (input: { classes: () => string[] }) => input.classes().filter(name => /^(?:py|px|text)-/.test(name)).sort()
@@ -252,7 +258,7 @@ describe('account/addresses/new', () => {
 
   describe('region field follows Country.hasRegions', () => {
     it('renders, required, for a country with regions (GR)', async () => {
-      const wrapper = await mountSuspended(NewAddressPage)
+      const wrapper = await mountSuspended(C)
       await flushPromises()
       const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
       vm.state.country = 'GR'
@@ -267,7 +273,7 @@ describe('account/addresses/new', () => {
       countriesResponse = { count: 2, next: null, previous: null, results: [GR, REGIONLESS] }
       registerEndpoint('/api/countries', () => countriesResponse)
 
-      const wrapper = await mountSuspended(NewAddressPage)
+      const wrapper = await mountSuspended(C)
       await flushPromises()
 
       const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
@@ -276,6 +282,52 @@ describe('account/addresses/new', () => {
 
       const regionLabel = wrapper.findAll('label').find(l => l.text().includes('Περιφέρεια'))
       expect(regionLabel).toBeUndefined()
+    })
+  })
+  describe('saving', () => {
+    async function submitValid(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
+      const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
+      vm.state.country = 'GR'
+      await flushPromises()
+      Object.assign(vm.state, VALID, { country: 'GR', region: 'ATTIKI', zipcode: '  151   24 ' })
+      await wrapper.find('input[type="tel"]').setValue('6912345678')
+      await flushPromises()
+      await wrapper.find('form').trigger('submit')
+      await flushPromises()
+    }
+
+    it('creates the address with its postcode trimmed and its spaces collapsed, says so and goes back to the addresses', async () => {
+      mockApi.mockReset().mockResolvedValue({})
+      const wrapper = await mountSuspended(C)
+      await flushPromises()
+
+      await submitValid(wrapper)
+
+      const call = mockApi.mock.calls.find(([url]) => url === '/api/user/addresses')
+      expect(call?.[1]).toMatchObject({ method: 'POST', body: { title: 'Home', zipcode: '151 24' } })
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+      expect(navigateToMock).toHaveBeenCalledExactlyOnceWith(useLocalePath()('account-addresses'))
+    })
+
+    it('puts the field errors Django names under their inputs and stays', async () => {
+      mockApi.mockReset().mockImplementation(failWith(400, { fields: { title: [{ message: 'Ο τίτλος υπάρχει ήδη.', code: 'unique' }] } }))
+      const wrapper = await mountSuspended(C)
+      await flushPromises()
+
+      await submitValid(wrapper)
+
+      expect(wrapper.text()).toContain('Ο τίτλος υπάρχει ήδη.')
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('tells a refusal that names no field in a toast, with the reason Django gives', async () => {
+      mockApi.mockReset().mockImplementation(failWith(403, { detail: 'Πολλές διευθύνσεις.' }))
+      const wrapper = await mountSuspended(C)
+      await flushPromises()
+
+      await submitValid(wrapper)
+
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error', description: 'Πολλές διευθύνσεις.' }))
     })
   })
 })

@@ -1,53 +1,19 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
-const emit = defineEmits(['passwordReset'])
-
-const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
 const { t } = useI18n()
-const route = useRoute()
-const toast = useToast()
-const { notify } = useApiError()
-const localePath = useLocalePath()
-const router = useRouter()
 
-const key = 'key' in route.params ? route.params.key : undefined
-
-if (!key) {
-  navigateTo(localePath('account-password-reset'))
-}
-
-await useAsyncData('passwordReset', () => getPasswordReset(String(key)))
-
-const hasError = ref(false)
-const isSubmitting = ref(false)
-
-function checkStrength(str: string) {
-  // Unicode property classes — ``[a-z]`` is ASCII-only and never
-  // matches Greek letters, so «Καλημέρα2024» scored 2/4 forever.
-  const requirements = [
-    { regex: /.{8,}/, text: t('password.requirements.length') },
-    { regex: /\d/, text: t('password.requirements.number') },
-    { regex: /\p{Ll}/u, text: t('password.requirements.lowercase') },
-    { regex: /\p{Lu}/u, text: t('password.requirements.uppercase') },
-  ]
-  return requirements.map(req => ({ met: req.regex.test(str), text: req.text }))
-}
-
-const newPassword1 = ref('')
-const newPassword2 = ref('')
-
-const strength = computed(() => checkStrength(newPassword1.value))
-const score = computed(() => strength.value.filter(req => req.met).length)
-
-const color = computed(() => {
-  if (score.value === 0) return 'neutral'
-  if (score.value <= 1) return 'error'
-  if (score.value <= 2) return 'warning'
-  if (score.value === 3) return 'warning'
-  return 'success'
+const { key, hasError, isSubmitting, newPassword1, newPassword2, schema, onSubmit } = await usePasswordResetConfirm({
+  mismatch: () => t('form.newPassword2.errors.match'),
+  successDescription: () => t('success.description'),
+  successIcon: 'i-heroicons-check-circle',
 })
+
+const strength = computed(() => passwordStrength(newPassword1.value))
+const requirements = computed(() => strength.value.requirements.map(requirement => ({
+  met: requirement.met,
+  text: t(`password.requirements.${requirement.id}`),
+})))
+const score = computed(() => strength.value.score)
+const color = computed(() => strength.value.color)
 
 const strengthText = computed(() => {
   if (score.value === 0) return t('password.strength.none')
@@ -55,78 +21,6 @@ const strengthText = computed(() => {
   if (score.value === 3) return t('password.strength.medium')
   return t('password.strength.strong')
 })
-
-const schema = z.object({
-  // Mirrors Django's AUTH_PASSWORD_VALIDATORS where a pure function
-  // can: MinimumLength (8) and NumericPassword. CommonPassword and
-  // UserAttributeSimilarity stay server-side and surface via the
-  // translated allauth error codes. The strength meter is advisory
-  // only — Django has no character-class rules, so it must not gate.
-  newPassword1: z.string()
-    .min(8, t('validation.min', { min: 8 }))
-    .max(255)
-    .refine(value => !/^\d+$/.test(value), {
-      error: t('validation.password.entirely_numeric'),
-    }),
-  newPassword2: z.string()
-    .min(8, t('validation.min', { min: 8 }))
-    .max(255),
-  key: z.string(),
-}).refine(data => data.newPassword1 === data.newPassword2, {
-  message: t('form.newPassword2.errors.match'),
-  path: ['newPassword2'],
-})
-
-type Schema = z.output<typeof schema>
-
-async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    hasError.value = false
-
-    await passwordReset({
-      password: event.data.newPassword1,
-      key: event.data.key,
-    })
-
-    toast.add({
-      title: t('password.reset.success'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-
-    emit('passwordReset')
-
-    await router.push(localePath('account-login'))
-  }
-  catch (error) {
-    if (isAllAuthClientError(error)) {
-      if (error.data.data.status === 401) {
-        toast.add({
-          title: t('password.reset.success'),
-          color: 'success',
-        })
-        await navigateTo(localePath('account-login'))
-        return
-      }
-      const errors = 'errors' in error.data.data ? error.data.data.errors : []
-      errors.forEach((error) => {
-        toast.add({
-          title: error.message,
-          color: 'error',
-        })
-      })
-      return
-    }
-    hasError.value = true
-    notify('webside-password-reset:confirm', error, { title: t('error.default') })
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
 </script>
 
 <template>
@@ -177,7 +71,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
 
             <ul class="space-y-1">
               <li
-                v-for="(req, index) in strength"
+                v-for="(req, index) in requirements"
                 :key="index"
                 class="flex items-center gap-1"
                 :class="req.met ? 'text-success' : 'text-muted'"

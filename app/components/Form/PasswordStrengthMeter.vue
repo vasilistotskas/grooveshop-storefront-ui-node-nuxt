@@ -18,19 +18,11 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const score = computed(() => {
-  const value = props.password ?? ''
-  return [/.{8,}/, /\d/, /\p{Ll}/u, /\p{Lu}/u].filter(rule => rule.test(value)).length
-})
+const strength = computed(() => passwordStrength(props.password))
+const score = computed(() => strength.value.score)
+const color = computed(() => strength.value.color)
 
-const color = computed<'neutral' | 'error' | 'warning' | 'success'>(() => {
-  if (score.value === 0) return 'neutral'
-  if (score.value <= 2) return 'error'
-  if (score.value === 3) return 'warning'
-  return 'success'
-})
-
-const FILL: Record<typeof color.value, string> = {
+const FILL: Record<PasswordStrengthColor, string> = {
   neutral: 'bg-accented',
   error: 'bg-error',
   warning: 'bg-warning',

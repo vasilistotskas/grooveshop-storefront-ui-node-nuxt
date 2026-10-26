@@ -16,36 +16,20 @@ const { address } = toRefs(props)
 
 const { t } = useI18n()
 const toast = useToast()
-const { notify } = useApiError()
 const { contentShorten } = useText()
 const localePath = useLocalePath()
 
-const isDeleting = ref(false)
+const { removing: isDeleting, remove } = useAddressRemoval({
+  address: () => address.value,
+  messages: () => ({ deleted: t('success'), deleteError: t('error') }),
+  onDeleted: () => emit('address-delete', address.value.id),
+})
 
+// Webside offers the button on the main address too, and says why it
+// does nothing there.
 const submit = async () => {
-  if (address?.value && address?.value.isMain) {
-    toast.add({
-      title: t('cant_delete_main'),
-      color: 'error',
-    })
-    return
-  }
-
-  isDeleting.value = true
-  try {
-    await $api(`/api/user/addresses/${address.value.id}`, { method: 'DELETE' })
-    toast.add({
-      title: t('success'),
-      color: 'success',
-    })
-    emit('address-delete', address.value.id)
-  }
-  catch (error) {
-    log.error({ action: 'address:delete', error })
-    notify('webside-Card:1', error, { title: t('error') })
-  }
-  finally {
-    isDeleting.value = false
+  if (await remove() === 'main') {
+    toast.add({ title: t('cant_delete_main'), color: 'error' })
   }
 }
 

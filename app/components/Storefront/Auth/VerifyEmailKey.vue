@@ -1,62 +1,12 @@
 <script lang="ts" setup>
-const emit = defineEmits(['emailVerify'])
-
-const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
-const toast = useToast()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
-const route = useRoute(`account-verify-email-key___${locale.value}`)
-const router = useRouter()
 
-const loading = ref(false)
-
-const key = 'key' in route.params ? route.params.key : undefined
-
-const { data: getVerifyEmailData } = await useAsyncData(
-  'verifyEmail',
-  () => getEmailVerify(String(key)),
-)
-
-async function onSubmit(): Promise<void> {
-  try {
-    loading.value = true
-    const data = await emailVerify({ key: String(key) })
-
-    if (data && data.status === 200) {
-      toast.add({
-        title: t('auth.email.verified'),
-        description: t('success.description'),
-        color: 'success',
-        icon: 'i-lucide-circle-check',
-      })
-
-      emit('emailVerify')
-      await router.push(localePath('account'))
-    }
-  }
-  catch (error) {
-    // django-allauth returns HTTP 401 when the email was verified but the
-    // request carried no pending session — the common case of opening the
-    // link on a different device/browser. $fetch rejects on 401, so this
-    // success path only ever surfaces in catch.
-    if (isAllAuthClientError(error) && error.data.data.status === 401) {
-      toast.add({
-        title: t('auth.email.verified'),
-        description: t('success.description'),
-        color: 'success',
-        icon: 'i-lucide-circle-check',
-      })
-      emit('emailVerify')
-      await router.push(localePath('account'))
-      return
-    }
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
+const { data: getVerifyEmailData, loading, verify: onSubmit } = await useVerifyEmailKey({
+  successDescription: () => t('success.description'),
+  successIcon: 'i-lucide-circle-check',
+})
 </script>
 
 <template>

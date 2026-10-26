@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 const props = withDefaults(defineProps<{
   productId: number
   /**
@@ -27,44 +25,23 @@ const props = withDefaults(defineProps<{
 })
 
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
 const { loggedIn, user } = useUserSession()
 
 const open = ref(false)
-const submitting = ref(false)
-const canceling = ref(false)
 
-const isPriceDrop = computed(() => props.kind === 'price_drop')
-
-const schema = computed(() => {
-  const emailField = loggedIn.value
-    ? z.email({ error: t('validation.email.valid') }).optional().or(z.literal(''))
-    : z.email({ error: t('validation.email.valid') })
-
-  const base = { email: emailField }
-
-  if (isPriceDrop.value) {
-    const cap = typeof props.currentPrice === 'number' && props.currentPrice > 0
-      ? props.currentPrice
-      : Number.POSITIVE_INFINITY
-    return z.object({
-      ...base,
-      // Coerce handles the empty-string → number hop that <input
-      // type="number"> sends when the user clears the field.
-      targetPrice: z.coerce
-        .number({ error: t('price_drop.validation.required') })
-        .positive({ error: t('price_drop.validation.positive') })
-        .max(cap, { error: t('price_drop.validation.below_current') }),
-    })
-  }
-
-  return z.object(base)
-})
-
-const state = reactive<{ email: string, targetPrice: number | undefined }>({
-  email: '',
-  targetPrice: undefined,
+const { schema, state, submitting, canceling, isPriceDrop, activeAlert: existingAlert, onSubmit, cancelAlert } = await useProductAlert({
+  productId: () => props.productId,
+  kind: () => props.kind,
+  currentPrice: () => props.currentPrice,
+  t,
+  messages: () => ({
+    created: { title: t(`${props.kind}.success.title`), description: t(`${props.kind}.success.description`), icon: 'i-heroicons-bell-alert' },
+    conflict: { title: t('conflict.title'), description: t('conflict.description'), icon: 'i-heroicons-information-circle' },
+    cancelled: { title: t('cancel_success.title'), description: t('cancel_success.description'), icon: 'i-heroicons-check-circle' },
+    createError: { title: t('error.title'), fallback: t('error.description') },
+    cancelError: { title: t('cancel_error.title'), fallback: t('cancel_error.description') },
+  }),
+  onCreated: () => { open.value = false },
 })
 
 // Pre-fill the email field from the authenticated session so the modal
@@ -74,116 +51,6 @@ watchEffect(() => {
     state.email = user.value.email
   }
 })
-
-// Fetch the user's existing active alert for this product+kind so we can
-// render an "alert active" state instead of letting them open the modal
-// and hit the 409 (uniqueness is enforced at the DB level).
-// Guests get `null` by design — we can't identify guest subscribers
-// without their email, and we don't want to leak per-user info from the
-// list endpoint.
-const {
-  data: existingAlert,
-  refresh: refreshAlert,
-} = await useAsyncData<ProductAlert | null>(
-  `product-alert-${props.kind}:${props.productId}`,
-  async () => {
-    if (!loggedIn.value) return null
-    try {
-      const response = await $api('/api/products/alerts', {
-        method: 'GET',
-        headers: useRequestHeaders(),
-        query: {
-          product: props.productId,
-          kind: props.kind,
-          isActive: true,
-          pageSize: 1,
-        },
-      })
-      return response?.results?.[0] ?? null
-    }
-    catch (error) {
-      log.warn({ tag: 'product:notify-me', message: 'lookup failed', kind: props.kind, error })
-      return null
-    }
-  },
-  {
-    watch: [loggedIn],
-  },
-)
-
-async function onSubmit() {
-  if (submitting.value) return
-  submitting.value = true
-  try {
-    await $api('/api/products/alerts', {
-      method: 'POST',
-      body: {
-        kind: props.kind,
-        product: props.productId,
-        // Only send an email for guest subscribers — the backend ties
-        // the alert to request.user for authenticated callers and
-        // stores an empty string for them.
-        ...(loggedIn.value ? {} : { email: state.email }),
-        ...(isPriceDrop.value ? { targetPrice: state.targetPrice } : {}),
-      },
-    })
-    toast.add({
-      title: t(`${props.kind}.success.title`),
-      description: t(`${props.kind}.success.description`),
-      color: 'success',
-      icon: 'i-heroicons-bell-alert',
-    })
-    open.value = false
-    await refreshAlert()
-  }
-  catch (error) {
-    const status = (error as { statusCode?: number })?.statusCode
-    const isConflict = status === 409
-    log.warn({ tag: 'product:notify-me', message: 'create failed', kind: props.kind, status, error })
-    // Server says the alert already exists — sync our local state so the
-    // UI flips to the "active" card on the next render.
-    if (isConflict) {
-      toast.add({
-        title: t('conflict.title'),
-        description: t('conflict.description'),
-        color: 'warning',
-        icon: 'i-heroicons-information-circle',
-      })
-      await refreshAlert()
-    }
-    else {
-      notify('webside-notify-me:create', error, { title: t('error.title'), fallback: t('error.description') })
-    }
-  }
-  finally {
-    submitting.value = false
-  }
-}
-
-async function cancelAlert() {
-  if (!existingAlert.value?.id || canceling.value) return
-  canceling.value = true
-  try {
-    await $api(`/api/products/alerts/${existingAlert.value.id}`, {
-      method: 'DELETE',
-      headers: useRequestHeaders(),
-    })
-    toast.add({
-      title: t('cancel_success.title'),
-      description: t('cancel_success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-    await refreshAlert()
-  }
-  catch (error) {
-    log.warn({ tag: 'product:notify-me', message: 'cancel failed', kind: props.kind, error })
-    notify('webside-notify-me:cancel', error, { title: t('cancel_error.title'), fallback: t('cancel_error.description') })
-  }
-  finally {
-    canceling.value = false
-  }
-}
 </script>
 
 <template>

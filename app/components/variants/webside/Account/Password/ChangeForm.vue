@@ -1,49 +1,21 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 const emit = defineEmits(['changePassword'])
 
-const { changePassword } = useAllAuthAccount()
-const authStore = useAuthStore()
-const { hasCurrentPassword } = storeToRefs(authStore)
-
-const toast = useToast()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-const isSubmitting = ref(false)
-
-const state = reactive({
-  current_password: '',
-  new_password: '',
-  confirm_password: '',
+const { state, schema, hasCurrentPassword, isSubmitting, submit } = usePasswordChange({
+  fieldLabels: () => ({ field: t('password.new'), other: t('password.confirm') }),
+  successIcon: 'i-heroicons-check-circle',
 })
 
-function checkPasswordStrength(password: string) {
-  const requirements = [
-    { regex: /.{8,}/, text: t('password.requirements.length') },
-    { regex: /\d/, text: t('password.requirements.number') },
-    // Unicode classes — ASCII [a-z] never matches Greek letters.
-    { regex: /\p{Ll}/u, text: t('password.requirements.lowercase') },
-    { regex: /\p{Lu}/u, text: t('password.requirements.uppercase') },
-  ]
-
-  return requirements.map(req => ({
-    met: req.regex.test(password),
-    text: req.text,
-  }))
-}
-
-const passwordStrength = computed(() => checkPasswordStrength(state.new_password))
-const passwordScore = computed(() => passwordStrength.value.filter(req => req.met).length)
-
-const strengthColor = computed(() => {
-  if (passwordScore.value === 0) return 'neutral'
-  if (passwordScore.value <= 1) return 'error'
-  if (passwordScore.value <= 2) return 'warning'
-  if (passwordScore.value === 3) return 'warning'
-  return 'success'
-})
+const passwordStrengthResult = computed(() => passwordStrength(state.new_password))
+const passwordStrengthRequirements = computed(() => passwordStrengthResult.value.requirements.map(requirement => ({
+  met: requirement.met,
+  text: t(`password.requirements.${requirement.id}`),
+})))
+const passwordScore = computed(() => passwordStrengthResult.value.score)
+const strengthColor = computed(() => passwordStrengthResult.value.color)
 
 const strengthText = computed(() => {
   if (passwordScore.value === 0) return t('password.strength.none')
@@ -52,74 +24,10 @@ const strengthText = computed(() => {
   return t('password.strength.strong')
 })
 
-const schema = computed(() => {
-  return z
-    .object({
-      current_password: hasCurrentPassword.value
-        ? z.string().min(1, t('validation.required'))
-        : z.string().optional(),
-      new_password: z
-        .string({ error: issue => issue.input === undefined
-          ? t('validation.required')
-          : t('validation.string.invalid') })
-        .min(8, t('validation.min', { min: 8 }))
-        .max(255, t('validation.max', { max: 255 }))
-        // Mirrors Django's NumericPasswordValidator; CommonPassword and
-        // UserAttributeSimilarity stay server-side (allauth error codes).
-        .refine(value => !/^\d+$/.test(value), {
-          error: t('validation.password.entirely_numeric'),
-        }),
-      confirm_password: z.string({ error: issue => issue.input === undefined
-        ? t('validation.required')
-        : t('validation.string.invalid') })
-        .min(1, t('validation.required')),
-    })
-    .superRefine((val, ctx) => {
-      if (val.new_password !== val.confirm_password) {
-        ctx.addIssue({
-          code: 'custom',
-          message: t('validation.must_match', {
-            field: t('password.new'),
-            other: t('password.confirm'),
-          }),
-          path: ['confirm_password'],
-        })
-      }
-
-      if (hasCurrentPassword.value && val.current_password && val.current_password === val.new_password) {
-        ctx.addIssue({
-          code: 'custom',
-          message: t('validation.password.must_not_be_same'),
-          path: ['new_password'],
-        })
-      }
-    })
-})
-
 async function onSubmit() {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  const body = {
-    current_password: state.current_password || '',
-    new_password: state.new_password,
-  }
-
-  try {
-    await changePassword(body)
-    toast.add({
-      title: t('auth.password.change.success'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-    emit('changePassword')
-    await navigateTo(localePath('account'))
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    isSubmitting.value = false
-  }
+  if (!await submit()) return
+  emit('changePassword')
+  await navigateTo(localePath('account'))
 }
 </script>
 
@@ -212,7 +120,7 @@ async function onSubmit() {
 
               <ul class="mt-3 space-y-1.5" :aria-label="t('password.requirements.title')">
                 <li
-                  v-for="(req, index) in passwordStrength"
+                  v-for="(req, index) in passwordStrengthRequirements"
                   :key="index"
                   class="flex items-center gap-2 text-xs"
                   :class="req.met ? 'text-success' : `

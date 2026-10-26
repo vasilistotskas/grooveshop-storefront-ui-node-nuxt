@@ -1,18 +1,14 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
-const emit = defineEmits(['emailVerify'])
-
-const { emailVerify } = useAllAuthAuthentication()
 const { t } = useI18n()
-const toast = useToast()
+useHead({ title: () => t('title') })
 const localePath = useLocalePath()
-const router = useRouter()
 const { isMobileOrTablet } = useDevice()
 
-const hasError = ref(false)
-const code = ref<string[]>([])
+const { codeString, code, hasError, schema, onSubmit } = useVerifyEmail({
+  lengthMessage: () => t('validation.code.length'),
+  successDescription: () => t('success.description'),
+  successIcon: 'i-heroicons-check-circle',
+})
 
 const items = computed(() => [
   {
@@ -32,46 +28,6 @@ const items = computed(() => [
     current: true,
   },
 ])
-
-const codeString = computed(() => code.value.join(''))
-
-const schema = z.object({
-  key: z.string()
-    .min(1, t('validation.required'))
-    .length(6, t('validation.code.length')),
-})
-
-type Schema = z.output<typeof schema>
-
-async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
-  try {
-    hasError.value = false
-
-    const data = await emailVerify({ key: event.data.key })
-
-    if (data && [200, 401].includes(data.status)) {
-      toast.add({
-        title: t('auth.email.verified'),
-        description: t('success.description'),
-        color: 'success',
-        icon: 'i-heroicons-check-circle',
-      })
-
-      emit('emailVerify')
-      await router.push(localePath('account'))
-    }
-  }
-  catch (error) {
-    hasError.value = true
-    handleAllAuthClientError(error)
-  }
-}
-
-watch(codeString, (newCode) => {
-  if (newCode.length === 6) {
-    onSubmit({ data: { key: newCode } } as FormSubmitEvent<Schema>)
-  }
-})
 </script>
 
 <template>

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 /**
  * "Notify me" — the one dialog for a product's alerts, opened from the
  * product page (its stock line and its "Price-drop alert" button) and
@@ -38,123 +36,27 @@ const open = defineModel<boolean>('open', { required: true })
 const kind = defineModel<ProductAlertKindEnum>('kind', { required: true })
 
 const { t, n } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
 const { loggedIn, user } = useUserSession()
-
-const submitting = ref(false)
-const canceling = ref(false)
 
 const kinds = computed(() => [
   ...(props.soldOut ? [{ value: 'restock' as const, label: t('restock.option') }] : []),
   ...(props.priceDrop ? [{ value: 'price_drop' as const, label: t('price_drop.option') }] : []),
 ])
-const isPriceDrop = computed(() => kind.value === 'price_drop')
 
-const schema = computed(() => {
-  const email = loggedIn.value
-    ? z.email({ error: t('validation.email.valid') }).optional().or(z.literal(''))
-    : z.email({ error: t('validation.email.valid') })
-  if (!isPriceDrop.value) return z.object({ email })
-
-  const cap = typeof props.currentPrice === 'number' && props.currentPrice > 0
-    ? props.currentPrice
-    : Number.POSITIVE_INFINITY
-  return z.object({
-    email,
-    // Coerce handles the empty-string → number hop that <input
-    // type="number"> sends when the user clears the field.
-    targetPrice: z.coerce
-      .number({ error: t('price_drop.validation.required') })
-      .positive({ error: t('price_drop.validation.positive') })
-      .max(cap, { error: t('price_drop.validation.below_current') }),
-  })
+const { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit, cancelAlert } = await useProductAlert({
+  productId: () => props.productId,
+  kind: () => kind.value,
+  currentPrice: () => props.currentPrice,
+  t,
+  messages: () => ({
+    created: { title: t(`${kind.value}.success`), icon: 'i-lucide-bell-ring' },
+    conflict: { title: t('conflict') },
+    cancelled: { title: t('cancel_success') },
+    createError: { title: t('error') },
+    cancelError: { title: t('cancel_error') },
+  }),
+  onCreated: () => { open.value = false },
 })
-
-const state = reactive<{ email: string, targetPrice: number | undefined }>({
-  email: '',
-  targetPrice: undefined,
-})
-
-const { data: activeAlerts, refresh: refreshAlerts } = await useAsyncData<ProductAlert[]>(
-  `product-alerts:${props.productId}`,
-  async () => {
-    if (!loggedIn.value) return []
-    try {
-      const response = await $api('/api/products/alerts', {
-        method: 'GET',
-        query: { product: props.productId, isActive: true, pageSize: 2 },
-      })
-      return response?.results ?? []
-    }
-    catch (error) {
-      log.warn({ tag: 'product:notify-me', message: 'lookup failed', error })
-      return []
-    }
-  },
-  { watch: [loggedIn], default: () => [] },
-)
-
-const activeAlert = computed(() => activeAlerts.value.find(alert => alert.kind === kind.value))
-
-async function onSubmit() {
-  if (submitting.value) return
-  submitting.value = true
-  try {
-    await $api('/api/products/alerts', {
-      method: 'POST',
-      body: {
-        kind: kind.value,
-        product: props.productId,
-        // Only a guest sends an email — Django ties a signed-in
-        // shopper's alert to their account.
-        ...(loggedIn.value ? {} : { email: state.email }),
-        ...(isPriceDrop.value ? { targetPrice: state.targetPrice } : {}),
-      },
-    })
-    toast.add({
-      title: t(`${kind.value}.success`),
-      color: 'success',
-      icon: 'i-lucide-bell-ring',
-    })
-    open.value = false
-    await refreshAlerts()
-  }
-  catch (error) {
-    const status = (error as { statusCode?: number })?.statusCode
-    const isConflict = status === 409
-    log.warn({ tag: 'product:notify-me', message: 'create failed', kind: kind.value, status, error })
-    // Django says the alert exists — read it so the dialog shows it.
-    if (isConflict) {
-      toast.add({ title: t('conflict'), color: 'warning' })
-      await refreshAlerts()
-    }
-    else {
-      notify('notify-me:create', error, { title: t('error') })
-    }
-  }
-  finally {
-    submitting.value = false
-  }
-}
-
-async function cancelAlert() {
-  const alert = activeAlert.value
-  if (!alert || canceling.value) return
-  canceling.value = true
-  try {
-    await $api(`/api/products/alerts/${alert.id}`, { method: 'DELETE' })
-    toast.add({ title: t('cancel_success'), color: 'success' })
-    await refreshAlerts()
-  }
-  catch (error) {
-    log.warn({ tag: 'product:notify-me', message: 'cancel failed', kind: kind.value, error })
-    notify('notify-me:cancel', error, { title: t('cancel_error') })
-  }
-  finally {
-    canceling.value = false
-  }
-}
 
 // The submit button sits in the dialog's footer, outside the <form>: the
 // `form` attribute ties it to the form, so a click and Enter in a field

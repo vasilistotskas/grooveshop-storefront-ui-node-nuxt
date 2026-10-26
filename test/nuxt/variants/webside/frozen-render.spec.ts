@@ -488,7 +488,7 @@ describe('webside frozen render', () => {
     })
 
     it('account addresses', async () => {
-      api.routes({ '/api/user/account/1/addresses': page([], 10) })
+      api.routes({ '/api/user/addresses': page([], 10) })
 
       await expectSnapshot(AccountAddresses, { route: '/account/addresses' })
     })

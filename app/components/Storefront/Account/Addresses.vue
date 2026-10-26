@@ -12,10 +12,9 @@ const localePath = useLocalePath()
 const PAGE_SIZE = 50
 const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
-const { data: addresses, status, refresh } = await useApi('/api/user/addresses', {
-  key: 'account-addresses',
-  method: 'GET',
-  query: { page, pageSize: PAGE_SIZE, ordering: '-isMain,-createdAt' },
+const { data: addresses, status, refresh } = await useAccountAddresses({
+  pageSize: PAGE_SIZE,
+  ordering: '-isMain,-createdAt',
 })
 </script>
 

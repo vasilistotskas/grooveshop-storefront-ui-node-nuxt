@@ -43,7 +43,9 @@ beforeAll(() => {
 describe('`$api` in components and pages', () => {
   it('finds the calls at all', () => {
     // A guard on the guard: a renamed fetcher must not empty the scan.
-    expect(calls.length).toBeGreaterThan(50)
+    // (Lowered from 50 as the frozen tree's calls moved into the composables
+    // both trees share; those are not scanned here.)
+    expect(calls.length).toBeGreaterThan(30)
   })
 
   it('passes no request or response hooks: a failure is handled in a catch', () => {
