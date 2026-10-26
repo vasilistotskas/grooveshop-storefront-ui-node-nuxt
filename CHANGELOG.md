@@ -1,3 +1,10 @@
+## [3.265.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.0...v3.265.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* **account:** one implementation of the account forms for both trees ([#247](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/247)) ([547758f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/547758f0fa16cfbcfcf74d8cdc63e576abc2545a))
+
 # [3.265.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.264.0...v3.265.0) (2026-10-26)
 
 
