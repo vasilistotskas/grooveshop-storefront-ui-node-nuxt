@@ -130,28 +130,17 @@ watch(() => formState.value.payWay, () => {
   instructionsOpen.value = false
 })
 
-const acceptedTerms = ref(false)
-const termsMissing = ref(false)
 const consentRef = useTemplateRef<HTMLElement>('consentRef')
-
-watch(acceptedTerms, (accepted) => {
-  if (accepted) termsMissing.value = false
-})
-
-// Expose submit() so the page's Pay button can trigger the consent gate,
-// Zod validation and the `submit` emit.
 const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
-defineExpose({
-  submit: async () => {
-    if (props.isSubmitting) return
-    if (!acceptedTerms.value) {
-      termsMissing.value = true
-      consentRef.value?.scrollIntoView({ block: 'center' })
-      return
-    }
-    await formRef.value?.submit()
-  },
+
+// The page's Pay button calls submit(): the consent gate, then Zod
+// validation and the `submit` emit.
+const { acceptedTerms, termsMissing, submit } = useCheckoutPaymentSubmit({
+  isSubmitting: () => props.isSubmitting,
+  form: formRef,
+  consent: consentRef,
 })
+defineExpose({ submit })
 </script>
 
 <template>

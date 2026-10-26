@@ -56,12 +56,17 @@ watch(() => formState.value.payWay, () => {
   instructionsOpen.value = false
 })
 
-// Expose the form's submit() so the primary CTA (now living in
-// the checkout sidebar) can trigger Zod validation + emit `submit`.
+const consentRef = useTemplateRef<HTMLElement>('consentRef')
 const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
-defineExpose({
-  submit: () => formRef.value?.submit(),
+
+// The place-order CTA (in the checkout sidebar) calls submit(): the
+// consent gate, then Zod validation and the `submit` emit.
+const { acceptedTerms, termsMissing, submit } = useCheckoutPaymentSubmit({
+  isSubmitting: () => props.isSubmitting,
+  form: formRef,
+  consent: consentRef,
 })
+defineExpose({ submit })
 </script>
 
 <template>
@@ -177,6 +182,13 @@ defineExpose({
           />
         </template>
       </UCollapsible>
+
+      <div ref="consentRef">
+        <WebsideCheckoutTermsConsent
+          v-model="acceptedTerms"
+          :invalid="termsMissing"
+        />
+      </div>
 
       <!-- Place-order CTA lives in the checkout sidebar so it sits
            next to the order total. -->

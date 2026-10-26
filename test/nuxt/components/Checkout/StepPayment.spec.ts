@@ -3,10 +3,14 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { reactive } from 'vue'
+import { resolve } from 'node:path'
+import YAML from 'yaml'
 import * as z from 'zod'
 import StepPayment from '~/components/Checkout/StepPayment.vue'
 import WebsideStepPayment from '~/components/variants/webside/Checkout/StepPayment.vue'
 import { makePayWay } from '~~/test/fixtures/payWay'
+import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The payment step. Two operator-authored HTML fields reach it from
@@ -18,9 +22,10 @@ import { makePayWay } from '~~/test/fixtures/payWay'
  * collapsed again when the method changes so one method's steps never
  * show under another's name.
  *
- * The default tree was redesigned (radio cards, a Review card, a terms
- * gate); the frozen webside copy keeps the original body below, run on
- * its own, and the redesign has its own suite after it.
+ * The default tree was redesigned (radio cards, a Review card); the
+ * frozen webside copy keeps the original body below, run on its own, and
+ * the redesign has its own suite after it. Placing the order is one rule
+ * for both (`useCheckoutPaymentSubmit`): the terms gate comes last.
  */
 
 const CARD_INSTRUCTIONS
@@ -159,14 +164,6 @@ describe('Webside Checkout/StepPayment', () => {
 
     expect(wrapper.emitted('back')).toHaveLength(1)
   })
-
-  it('submits through the exposed submit() the sidebar CTA calls', async () => {
-    const wrapper = await mount()
-
-    await (wrapper.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
-
-    await vi.waitFor(() => expect(wrapper.emitted('submit')).toHaveLength(1))
-  })
 })
 
 /**
@@ -225,15 +222,9 @@ describe('Checkout/StepPayment (redesign)', () => {
     return { wrapper, formState }
   }
 
-  const submit = (wrapper: VueWrapper) =>
-    (wrapper.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
   const radios = (wrapper: VueWrapper) => wrapper.findAll('[role="radio"]')
   const card = (wrapper: VueWrapper, value: number) => wrapper.get(`[role="radio"][value="${value}"]`).element.closest('[data-slot="item"]') as HTMLElement
   const eur = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
-  const acceptTerms = async (wrapper: VueWrapper) => {
-    await wrapper.get('[role="checkbox"]').trigger('click')
-    await flushPromises()
-  }
 
   describe('payment method cards', () => {
     it('offers one radio per pay way, named without the surcharge suffix', async () => {
@@ -394,61 +385,98 @@ describe('Checkout/StepPayment (redesign)', () => {
     })
   })
 
-  describe('submit(), the page\'s Pay button', () => {
-    it('refuses until the terms are accepted: says why and emits nothing', async () => {
-      const { wrapper } = await mountStep()
-
-      await submit(wrapper)
-      await flushPromises()
-
-      expect(wrapper.emitted('submit')).toBeUndefined()
-      expect(wrapper.get('[role="alert"]').text()).toContain('αποδέξου τους όρους χρήσης')
-    })
-
-    it('clears the message once the terms are accepted', async () => {
-      const { wrapper } = await mountStep()
-      await submit(wrapper)
-      await flushPromises()
-
-      await acceptTerms(wrapper)
-
-      expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    })
-
-    it('emits submit once the terms are accepted', async () => {
-      const { wrapper } = await mountStep()
-      await acceptTerms(wrapper)
-
-      await submit(wrapper)
-
-      await vi.waitFor(() => expect(wrapper.emitted('submit')).toHaveLength(1))
-    })
-
-    it('still validates the pay way once the terms are accepted', async () => {
-      const { wrapper } = await mountStep({}, { payWay: undefined })
-      await acceptTerms(wrapper)
-
-      await submit(wrapper)
-      await flushPromises()
-
-      expect(wrapper.emitted('submit')).toBeUndefined()
-    })
-
-    it('does nothing while an order is already being placed', async () => {
-      const { wrapper } = await mountStep({ isSubmitting: true })
-      await acceptTerms(wrapper)
-
-      await submit(wrapper)
-      await flushPromises()
-
-      expect(wrapper.emitted('submit')).toBeUndefined()
-    })
-  })
-
   it('leaves Back and Pay to the page', async () => {
     const { wrapper } = await mountStep()
 
     expect(buttonByText(wrapper, 'Πίσω')).toBeUndefined()
     expect(wrapper.find('button[type="submit"]').exists()).toBe(false)
+  })
+})
+
+/**
+ * Placing the order: the page's Pay button (the default) and the sidebar's
+ * "Place order" (webside) call the exposed `submit()`. It refuses until
+ * the terms are accepted, places nothing twice, and still validates the
+ * pay way. Each tree says what is missing in its own words.
+ */
+describe.each(trees(StepPayment, WebsideStepPayment))('$tree Checkout/StepPayment submit()', ({ tree, C }) => {
+  const required = YAML.parse(parseSfc(resolve(REPO, tree === 'default'
+    ? 'app/components/Checkout/TermsConsent.vue'
+    : 'app/components/variants/webside/Checkout/TermsConsent.vue')).customBlocks.find(block => block.type === 'i18n')!.content).el.required
+
+  const mountStep = (overrides: Record<string, unknown> = {}, form: Record<string, unknown> = {}) =>
+    mountSuspended(C, {
+      route: false,
+      props: {
+        formState: reactive<Record<string, any>>({ ...FORM, ...form }),
+        schema: z.object({ payWay: z.number().min(1) }),
+        payWayOptions: tree === 'default' ? [VIVA, STRIPE, COD, TRANSFER] : makePayWayOptions(),
+        isSubmitting: false,
+        ...overrides,
+      },
+    })
+
+  const submit = (wrapper: VueWrapper) =>
+    (wrapper.vm as unknown as { $: { exposed: { submit: () => Promise<void> } } }).$.exposed.submit()
+  // The terms are the step's only checkbox.
+  const acceptTerms = async (wrapper: VueWrapper) => {
+    await wrapper.get('[role="checkbox"]').trigger('click')
+    await flushPromises()
+  }
+
+  it('refuses until the terms are accepted: says why and emits nothing', async () => {
+    const wrapper = await mountStep()
+
+    await submit(wrapper)
+    await flushPromises()
+
+    expect(wrapper.emitted('submit')).toBeUndefined()
+    expect(wrapper.get('[role="alert"]').text()).toBe(required)
+  })
+
+  it('links the terms of use and the privacy policy, each in a new tab', async () => {
+    const wrapper = await mountStep()
+
+    const links = wrapper.findAll('a[target="_blank"]').map(link => link.attributes('href'))
+    expect(links).toEqual(['/terms-of-use', '/privacy-policy'])
+  })
+
+  it('clears the message once the terms are accepted', async () => {
+    const wrapper = await mountStep()
+    await submit(wrapper)
+    await flushPromises()
+
+    await acceptTerms(wrapper)
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+  })
+
+  it('emits submit once the terms are accepted', async () => {
+    const wrapper = await mountStep()
+    await acceptTerms(wrapper)
+
+    await submit(wrapper)
+
+    await vi.waitFor(() => expect(wrapper.emitted('submit')).toHaveLength(1))
+  })
+
+  it('still validates the pay way once the terms are accepted', async () => {
+    const wrapper = await mountStep({}, { payWay: undefined })
+    await acceptTerms(wrapper)
+
+    await submit(wrapper)
+    await flushPromises()
+
+    expect(wrapper.emitted('submit')).toBeUndefined()
+  })
+
+  it('does nothing while an order is already being placed', async () => {
+    const wrapper = await mountStep({ isSubmitting: true })
+    await acceptTerms(wrapper)
+
+    await submit(wrapper)
+    await flushPromises()
+
+    expect(wrapper.emitted('submit')).toBeUndefined()
   })
 })

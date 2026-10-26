@@ -9,7 +9,7 @@ const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 // Not awaited: the page shows its own loading state meanwhile.
-const { data, status } = useMyGiftCards()
+const { data, status, refresh } = useMyGiftCards()
 
 const cards = computed(() => data.value?.results ?? [])
 const loading = computed(() => status.value === 'pending')
@@ -31,6 +31,28 @@ const loading = computed(() => status.value === 'pending')
       <USkeleton class="h-28 w-full rounded-lg" />
       <USkeleton class="h-28 w-full rounded-lg" />
     </div>
+
+    <!-- A list that could not load is said as that, never as "no
+         cards": a shopper with cards must not read that they have none. -->
+    <UCard v-else-if="status === 'error'">
+      <div role="alert" class="space-y-3 py-6 text-center">
+        <UIcon
+          name="i-heroicons-exclamation-triangle"
+          class="mx-auto size-10 text-error"
+        />
+        <p class="text-muted">
+          {{ t('load_error') }}
+        </p>
+        <UButton
+          color="neutral"
+          variant="soft"
+          icon="i-heroicons-arrow-path"
+          @click="() => refresh()"
+        >
+          {{ t('retry') }}
+        </UButton>
+      </div>
+    </UCard>
 
     <div v-else-if="cards.length" class="grid gap-4">
       <UCard
@@ -105,10 +127,14 @@ el:
   valid_until: Ισχύει έως {date}
   empty: Δεν έχετε συνδεδεμένες δωροκάρτες στον λογαριασμό σας
   buy_one: Αγορά δωροκάρτας
+  load_error: Δεν μπορέσαμε να φορτώσουμε τις δωροκάρτες σας
+  retry: Δοκιμάστε ξανά
 en:
   title: My Gift Cards
   balance: Balance
   valid_until: Valid until {date}
   empty: You have no gift cards linked to your account
   buy_one: Buy a gift card
+  load_error: We could not load your gift cards
+  retry: Try again
 </i18n>
