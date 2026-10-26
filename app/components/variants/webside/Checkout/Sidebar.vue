@@ -57,25 +57,22 @@ const shippingSummaryView = computed(() => {
   }
 })
 
-// Promotions are server-evaluated on the cart (automatic promotions +
-// the applied coupon) — the sidebar only renders what Django computed.
-const promotionDiscount = computed(() =>
-  Number(cart.value?.promotionDiscount ?? 0))
-// Per-offer breakdown of the line above; the sidebar lists each offer
-// by name rather than one opaque total.
-const appliedPromotions = computed(() => cart.value?.appliedPromotions ?? [])
-const promotionFreeShipping = computed(() =>
-  Boolean(cart.value?.promotionFreeShipping))
-
-const effectiveShippingPrice = computed<number | null>(() =>
-  promotionFreeShipping.value ? 0 : props.shippingPrice)
-
-const payWayCost = computed(() => {
-  // No cart, no value to judge the threshold on: no fee either.
-  if (!payWay?.value || !cart.value) return 0
-  // Django waives the fee on the cart's `freeThresholdValue`, the one
-  // value it judges free shipping on too; it is read, never recomputed.
-  return payWayDisplayCost(payWay.value, cart.value.freeThresholdValue).cost
+// The charges and the total, as the default summary computes them. This
+// summary counts the delivery only on the payment step, where it recaps
+// the chosen method (``shippingSummary``).
+const {
+  promotionDiscount,
+  appliedPromotions,
+  shipping: effectiveShippingPrice,
+  payWayCost,
+  giftCardApplied,
+  total: checkoutTotal,
+} = useCheckoutTotals({
+  shippingPrice: () => props.shippingPrice,
+  includeShipping: () => props.shippingSummary !== null,
+  includePaymentFee: () => props.showPaymentFee,
+  loyaltyDiscount: () => props.loyaltyDiscount,
+  giftCardBalance: () => props.giftCardBalance,
 })
 
 // A pay way may have no name in this language (parler allows a blank
@@ -84,42 +81,6 @@ const payWayName = computed(() => {
   const key = payWay.value?.key
   return key ? getPaymentMethodName(key) : t('pay_way_fee')
 })
-
-// What is due BEFORE gift cards (they are payment, applied last).
-const preGiftCardTotal = computed(() => {
-  if (!cart.value) return 0
-  const paymentFee = props.showPaymentFee ? payWayCost.value : 0
-  const shipping = shippingSummaryView.value
-    ? (effectiveShippingPrice.value ?? 0)
-    : 0
-  return Math.max(
-    0,
-    cart.value.totalPrice
-    - promotionDiscount.value
-    + shipping
-    + paymentFee
-    - props.loyaltyDiscount,
-  )
-})
-
-// Preview of the gift-card settlement, mirroring the backend plan:
-// balances cap at the amount due, and partial coverage leaves at
-// least 0.50 EUR for the provider minimum (the sliver stays on the
-// card).
-const giftCardApplied = computed(() => {
-  const balance = props.giftCardBalance
-  if (balance <= 0) return 0
-  const due = preGiftCardTotal.value
-  if (balance >= due) return due
-  const remainder = due - balance
-  if (remainder > 0 && remainder < 0.5) {
-    return Math.max(0, due - 0.5)
-  }
-  return balance
-})
-
-const checkoutTotal = computed(() =>
-  Math.max(0, preGiftCardTotal.value - giftCardApplied.value))
 
 defineSlots<{
   'pay-ways'(props: object): any

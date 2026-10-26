@@ -8,14 +8,8 @@ useHead({ title: () => t('title') })
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
-// useRequestFetch: SSR must forward the incoming host or the tenant
-// middleware resolves localhost and 404s (useLoyalty.ts precedent).
-const requestFetch = useRequestApi()
-const { data, status } = await useAsyncData(
-  'my-gift-cards',
-  () => requestFetch<PaginatedGiftCardList>('/api/giftcard/mine'),
-  { lazy: true },
-)
+// Not awaited: the page shows its own loading state meanwhile.
+const { data, status } = useMyGiftCards()
 
 const cards = computed(() => data.value?.results ?? [])
 const loading = computed(() => status.value === 'pending')

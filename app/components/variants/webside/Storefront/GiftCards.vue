@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js'
 import * as z from 'zod'
 
 const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const toast = useToast()
-const tenantStore = useTenantStore()
 const { user } = useUserSession()
 
 useSeoMeta({
@@ -13,42 +11,39 @@ useSeoMeta({
   description: () => t('description'),
 })
 
-// Purchase bounds are merchant-tunable (extra_settings); an unset
-// bound keeps the platform default.
-const minSetting = useSettingValue('GIFT_CARD_MIN_AMOUNT')
-const maxSetting = useSettingValue('GIFT_CARD_MAX_AMOUNT')
-const minAmount = computed(() => Number(minSetting.value || 10))
-const maxAmount = computed(() => Number(maxSetting.value || 500))
-
-// Online providers the merchant has configured — Viva Wallet is the
-// primary provider, Stripe secondary. Derived from the pay-way list
-// so a merchant who disables a provider hides it here too.
-const { data: payWays } = useLazyAsyncData(
-  'gift-cards:pay-ways',
-  () => $api<Pagination<PayWay>>('/api/pay-way', {
-    method: 'GET',
-    headers: useRequestHeaders(),
-  }).catch(() => null),
-  { default: () => null },
-)
-const availableProviders = computed(() => {
-  const codes = new Set(
-    (payWays.value?.results ?? [])
-      .filter(payWay => payWay.settlement === 'online' && payWay.active)
-      .map(payWay => payWay.providerCode ?? ''),
-  )
-  if (!tenantStore.stripePublishableKey) {
-    codes.delete('stripe')
-  }
-  return (['viva_wallet', 'stripe'] as const).filter(code =>
-    codes.has(code))
+const formState = reactive({
+  amount: 50 as number | undefined,
+  buyerEmail: user.value?.email ?? '',
+  recipientEmail: '',
+  recipientName: '',
+  senderName: '',
+  message: '',
 })
-const selectedProvider = ref<'viva_wallet' | 'stripe' | undefined>(undefined)
-watch(availableProviders, (providers) => {
-  if (!selectedProvider.value || !providers.includes(selectedProvider.value)) {
-    selectedProvider.value = providers[0]
-  }
-}, { immediate: true })
+
+const {
+  minAmount,
+  maxAmount,
+  availableProviders,
+  selectedProvider,
+  step,
+  submitting,
+  purchaseError,
+  purchasedAmount,
+  recipientEmailDisplay,
+  startPurchase,
+  cardElementRef,
+  isCardComplete,
+  cardError,
+  paying,
+  confirmPayment,
+} = useGiftCardPurchase({
+  form: formState,
+  onPaid: () => toast.add({
+    title: t('success.title'),
+    color: 'success',
+    icon: 'i-heroicons-gift',
+  }),
+})
 const providerOptions = computed(() =>
   availableProviders.value.map(code => ({
     label: t(`providers.${code}`),
@@ -58,7 +53,8 @@ const providerOptions = computed(() =>
 
 // Desktop value-prop aside. Every claim here is a real property of
 // the feature: email delivery (with optional scheduling), ledger-based
-// partial redemption across orders, and merchant-tunable bounds.
+// partial redemption across orders, and the store's own bounds, named
+// only when it states both.
 const benefits = computed(() => [
   {
     icon: 'i-heroicons-envelope',
@@ -70,31 +66,42 @@ const benefits = computed(() => [
     title: t('benefits.balance.title'),
     description: t('benefits.balance.description'),
   },
-  {
-    icon: 'i-heroicons-adjustments-horizontal',
-    title: t('benefits.amount.title'),
-    description: t('benefits.amount.description', {
-      min: $i18n.n(minAmount.value, 'currency'),
-      max: $i18n.n(maxAmount.value, 'currency'),
-    }),
-  },
+  ...(minAmount.value !== null && maxAmount.value !== null
+    ? [{
+        icon: 'i-heroicons-adjustments-horizontal',
+        title: t('benefits.amount.title'),
+        description: t('benefits.amount.description', {
+          min: $i18n.n(minAmount.value, 'currency'),
+          max: $i18n.n(maxAmount.value, 'currency'),
+        }),
+      }]
+    : []),
 ])
 
 const SUGGESTED_AMOUNTS = [25, 50, 100]
 const suggestedAmounts = computed(() =>
   SUGGESTED_AMOUNTS.filter(
-    amount => amount >= minAmount.value && amount <= maxAmount.value,
+    amount => (minAmount.value === null || amount >= minAmount.value)
+      && (maxAmount.value === null || amount <= maxAmount.value),
   ))
 
-const purchaseSchema = computed(() => z.object({
-  amount: z
-    .number({ error: t('validation.amount_required') })
-    .min(minAmount.value, {
+const amountSchema = computed(() => {
+  let schema = z.number({ error: t('validation.amount_required') })
+  if (minAmount.value !== null) {
+    schema = schema.min(minAmount.value, {
       error: t('validation.amount_min', { min: minAmount.value }),
     })
-    .max(maxAmount.value, {
+  }
+  if (maxAmount.value !== null) {
+    schema = schema.max(maxAmount.value, {
       error: t('validation.amount_max', { max: maxAmount.value }),
-    }),
+    })
+  }
+  return schema
+})
+
+const purchaseSchema = computed(() => z.object({
+  amount: amountSchema.value,
   buyerEmail: z
     .string({ error: t('validation.required') })
     .email({ error: t('validation.email') }),
@@ -105,151 +112,6 @@ const purchaseSchema = computed(() => z.object({
   senderName: z.string().max(255).optional(),
   message: z.string().max(2000, { error: t('validation.message_max') }).optional(),
 }))
-
-const formState = reactive({
-  amount: 50 as number | undefined,
-  buyerEmail: user.value?.email ?? '',
-  recipientEmail: '',
-  recipientName: '',
-  senderName: '',
-  message: '',
-})
-
-const step = ref<'form' | 'payment' | 'success'>('form')
-const submitting = ref(false)
-const purchaseError = ref<string | null>(null)
-const clientSecret = ref<string | null>(null)
-const purchasedAmount = ref(0)
-const recipientEmailDisplay = ref('')
-
-const startPurchase = async () => {
-  if (!selectedProvider.value) {
-    purchaseError.value = t('errors.no_provider')
-    return
-  }
-  purchaseError.value = null
-  submitting.value = true
-  try {
-    const response = await $api<{
-      purchaseUuid: string
-      provider: string
-      clientSecret?: string
-      paymentIntentId?: string
-      checkoutUrl?: string
-      amount: string | number
-      currency: string
-    }>('/api/giftcard/purchase', {
-      method: 'POST',
-      body: {
-        amount: formState.amount,
-        buyerEmail: formState.buyerEmail,
-        recipientEmail: formState.recipientEmail,
-        recipientName: formState.recipientName || undefined,
-        senderName: formState.senderName || undefined,
-        message: formState.message || undefined,
-        paymentProvider: selectedProvider.value,
-      },
-    })
-
-    // Viva Smart Checkout is a hosted redirect — the buyer pays on
-    // Viva's page and returns via /checkout/viva-return, which lands
-    // on /gift-cards/success for status polling.
-    if (response.checkoutUrl) {
-      window.location.assign(response.checkoutUrl)
-      return
-    }
-
-    clientSecret.value = response.clientSecret ?? null
-    purchasedAmount.value = Number(response.amount)
-    recipientEmailDisplay.value = formState.recipientEmail
-    step.value = 'payment'
-  }
-  catch (error: any) {
-    purchaseError.value
-      = describeApiError(error, { fallback: t('errors.purchase_failed') }).description
-  }
-  finally {
-    submitting.value = false
-  }
-}
-
-// ── Stripe card confirmation (lean clone of StripePayment.vue) ──────
-const stripe = ref<Stripe | null>(null)
-const elements = ref<StripeElements | null>(null)
-const cardElement = ref<StripeCardElement | null>(null)
-const cardElementRef = ref<HTMLElement>()
-const isCardComplete = ref(false)
-const cardError = ref('')
-const paying = ref(false)
-
-const initializeStripe = async () => {
-  if (!cardElementRef.value || stripe.value) return
-  try {
-    const { onLoaded } = useScriptStripe()
-    onLoaded(({ Stripe }) => {
-      try {
-        stripe.value = Stripe(tenantStore.stripePublishableKey)
-        elements.value = stripe.value!.elements()
-        cardElement.value = elements.value.create('card', {
-          style: { base: { fontSize: '16px' } },
-        })
-        cardElement.value.mount(cardElementRef.value!)
-        cardElement.value.on('change', (event) => {
-          isCardComplete.value = event.complete
-          cardError.value = event.error ? event.error.message : ''
-        })
-      }
-      catch (err) {
-        log.error({ action: 'giftcard:stripeInit', error: err })
-        cardError.value = t('errors.stripe_init')
-      }
-    })
-  }
-  catch (err) {
-    log.error({ action: 'giftcard:stripeSetup', error: err })
-    cardError.value = t('errors.stripe_init')
-  }
-}
-
-watch(cardElementRef, (newRef) => {
-  if (newRef && !stripe.value) {
-    nextTick(() => initializeStripe())
-  }
-})
-
-const confirmPayment = async () => {
-  if (!stripe.value || !cardElement.value || !clientSecret.value) return
-  paying.value = true
-  cardError.value = ''
-  try {
-    const result = await stripe.value.confirmCardPayment(clientSecret.value, {
-      payment_method: {
-        card: cardElement.value,
-        billing_details: {
-          name: formState.senderName || undefined,
-          email: formState.buyerEmail,
-        },
-      },
-    })
-    if (result.error) {
-      cardError.value = result.error.message || t('errors.payment_failed')
-      return
-    }
-    step.value = 'success'
-    toast.add({
-      title: t('success.title'),
-      color: 'success',
-      icon: 'i-heroicons-gift',
-    })
-  }
-  catch (error) {
-    log.error({ action: 'giftcard:confirmPayment', error })
-    cardError.value = t('errors.payment_failed')
-  }
-  finally {
-    paying.value = false
-  }
-}
 </script>
 
 <template>
@@ -396,12 +258,15 @@ const confirmPayment = async () => {
               </div>
               <UInputNumber
                 v-model="formState.amount"
-                :min="minAmount"
-                :max="maxAmount"
+                :min="minAmount ?? undefined"
+                :max="maxAmount ?? undefined"
                 :step="5"
                 :aria-label="t('fields.amount')"
               />
-              <p class="text-xs text-muted">
+              <p
+                v-if="minAmount !== null && maxAmount !== null"
+                class="text-xs text-muted"
+              >
                 {{ t('fields.amount_hint', { min: $i18n.n(minAmount, 'currency'), max: $i18n.n(maxAmount, 'currency') }) }}
               </p>
             </div>

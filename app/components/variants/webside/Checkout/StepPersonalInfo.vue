@@ -304,7 +304,7 @@ watch(() => props.serverErrors, applyServerErrors)
             :label="t('form.invoice.toggle_label')"
             :description="t('form.invoice.toggle_description')"
             color="primary"
-            @update:model-value="(v) => { formState.documentType = v ? 'INVOICE' : 'RECEIPT'; if (!v) { formState.billingVatId = ''; formState.billingCountry = ''; formState.billingCompanyName = ''; formState.billingTaxOffice = ''; formState.billingActivity = ''; formState.billingSameAsShipping = true; formState.billingStreet = ''; formState.billingStreetNumber = ''; formState.billingCity = ''; formState.billingZipcode = '' } }"
+            @update:model-value="(v) => setDocumentType(formState, v ? 'INVOICE' : 'RECEIPT')"
           />
           <template v-if="formState.documentType === 'INVOICE'">
             <UFormField

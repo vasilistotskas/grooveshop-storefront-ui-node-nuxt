@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildOrderCreateBody, classifyOrderError, failedStatusOf, rejectionSettlesAttempt } from '~/utils/checkoutOrder'
+import { buildOrderCreateBody, classifyOrderError, failedStatusOf, rejectionSettlesAttempt, setDocumentType } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
 import { makeCountry } from '~~/test/fixtures/country'
 
@@ -288,5 +288,51 @@ describe('rejectionSettlesAttempt', () => {
     ['a 409 (the same key is still being processed)', 409],
   ])('leaves the attempt open on %s, because the order may exist', (_label, status) => {
     expect(rejectionSettlesAttempt(status)).toBe(false)
+  })
+})
+
+describe('setDocumentType', () => {
+  const invoice = () => ({
+    documentType: 'INVOICE',
+    billingVatId: '094014201',
+    billingCountry: 'GR',
+    billingCompanyName: 'Ακμή ΑΕ',
+    billingTaxOffice: 'ΦΑΕ Αθηνών',
+    billingActivity: 'Λιανικό εμπόριο',
+    billingSameAsShipping: false,
+    billingStreet: 'Πανεπιστημίου',
+    billingStreetNumber: '10',
+    billingCity: 'Αθήνα',
+    billingZipcode: '10671',
+    email: 'buyer@example.com',
+  })
+
+  it('wipes every billing field for a receipt, and nothing else', () => {
+    const form = invoice()
+
+    setDocumentType(form, 'RECEIPT')
+
+    expect(form).toEqual({
+      documentType: 'RECEIPT',
+      billingVatId: '',
+      billingCountry: '',
+      billingCompanyName: '',
+      billingTaxOffice: '',
+      billingActivity: '',
+      billingSameAsShipping: true,
+      billingStreet: '',
+      billingStreetNumber: '',
+      billingCity: '',
+      billingZipcode: '',
+      email: 'buyer@example.com',
+    })
+  })
+
+  it('keeps what the shopper typed for an invoice', () => {
+    const form = invoice()
+
+    setDocumentType(form, 'INVOICE')
+
+    expect(form).toEqual(invoice())
   })
 })

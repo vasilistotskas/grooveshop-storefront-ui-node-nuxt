@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const route = useRoute()
 const localePath = useLocalePath()
 
 useSeoMeta({
@@ -12,53 +11,7 @@ const breadcrumb = computed(() => [
   { label: t('title') },
 ])
 
-const purchaseUuid = computed(() =>
-  typeof route.query.purchase === 'string' ? route.query.purchase : null)
-
-// The Viva redirect races the provider webhook — poll until the
-// purchase flips PAID/FAILED/CANCELED, then stop. After the attempt
-// budget we show the "still processing" state: the webhook WILL
-// settle it and the buyer gets the receipt + delivery emails anyway.
-const MAX_ATTEMPTS = 20
-const POLL_INTERVAL_MS = 3000
-
-const status = ref<'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'UNKNOWN'>(
-  purchaseUuid.value ? 'PENDING' : 'UNKNOWN',
-)
-const attempts = ref(0)
-const isActive = ref(true)
-const timedOut = computed(() =>
-  status.value === 'PENDING' && attempts.value >= MAX_ATTEMPTS)
-
-const poll = async () => {
-  if (!purchaseUuid.value || !isActive.value) return
-  try {
-    const response = await $api<{ purchaseUuid: string, status: string }>(
-      '/api/giftcard/purchase-status',
-      { query: { uuid: purchaseUuid.value } },
-    )
-    const next = response.status?.toUpperCase()
-    if (next === 'PAID' || next === 'FAILED' || next === 'CANCELED') {
-      status.value = next
-      return
-    }
-  }
-  catch (error) {
-    log.warn({ tag: 'giftcard', message: 'purchase-status poll failed', error })
-  }
-  attempts.value++
-  if (attempts.value < MAX_ATTEMPTS && isActive.value) {
-    setTimeout(poll, POLL_INTERVAL_MS)
-  }
-}
-
-onMounted(() => {
-  if (purchaseUuid.value) poll()
-})
-
-onBeforeUnmount(() => {
-  isActive.value = false
-})
+const { status, timedOut } = useGiftCardPurchaseStatus()
 
 // One state at a time: a tinted tile with its icon, the headline, what
 // it means, and the way on.

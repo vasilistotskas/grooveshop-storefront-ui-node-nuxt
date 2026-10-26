@@ -76,26 +76,9 @@ const documentItems = computed(() => [
   { value: 'INVOICE', label: t('document.invoice.title'), description: t('document.invoice.description') },
 ])
 
-/**
- * Receipt or invoice. Going back to a receipt wipes every billing field:
- * a VAT id left behind would still reach Django and an invoice would be
- * issued to a company the shopper un-picked.
- */
-function setDocumentType(type: string) {
-  formState.value.documentType = type
-  if (type === 'INVOICE') return
-  Object.assign(formState.value, {
-    billingVatId: '',
-    billingCountry: '',
-    billingCompanyName: '',
-    billingTaxOffice: '',
-    billingActivity: '',
-    billingSameAsShipping: true,
-    billingStreet: '',
-    billingStreetNumber: '',
-    billingCity: '',
-    billingZipcode: '',
-  })
+// Receipt or invoice; a receipt wipes the billing fields (setDocumentType).
+function chooseDocument(value: unknown) {
+  setDocumentType(formState.value, zOrderCreateDocumentType.parse(value))
 }
 
 const CARD = 'flex flex-col gap-5 rounded-[1.25rem] bg-default p-5 ring ring-default sm:p-6'
@@ -419,7 +402,7 @@ watch(editingSavedAddress, markSavedAddressErrors, { flush: 'post' })
         :ui="{ legend: 'sr-only', fieldset: 'grid grid-cols-2 gap-3', item: `
           w-full
         ` }"
-        @update:model-value="(value) => setDocumentType(String(value))"
+        @update:model-value="chooseDocument"
       />
 
       <template v-if="formState.documentType === 'INVOICE'">

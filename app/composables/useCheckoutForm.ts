@@ -1067,26 +1067,12 @@ export async function useCheckoutForm() {
     ),
   ])
 
-  // Populate reactive refs with fetched data. A store without invoicing
-  // never carries invoice requisites into the order.
-  if (!b2bInvoicingEnabled.value) {
-    formState.documentType = zOrderCreateDocumentType.enum.RECEIPT
-    formState.billingVatId = ''
-    formState.billingCountry = ''
-    formState.billingCompanyName = ''
-    formState.billingTaxOffice = ''
-    formState.billingActivity = ''
-    formState.billingStreet = ''
-    formState.billingStreetNumber = ''
-    formState.billingCity = ''
-    formState.billingZipcode = ''
-  }
-  // Prefill the invoice requisites from the shopper's business profile
-  // (any status — the requisites are valid data regardless of the
-  // wholesale review outcome). The Τιμολόγιο toggle stays a per-order
-  // choice, but APPROVED wholesale buyers get it pre-ticked: a Greek
-  // wholesaler must issue a Τιμολόγιο for wholesale sales, so RECEIPT
-  // is the exception for them, not the default.
+  // On a store that issues invoices, prefill the requisites from the
+  // shopper's business profile (any status — the requisites are valid
+  // data regardless of the wholesale review outcome). The Τιμολόγιο toggle
+  // stays a per-order choice, but APPROVED wholesale buyers get it
+  // pre-ticked: a Greek wholesaler must issue a Τιμολόγιο for wholesale
+  // sales, so RECEIPT is the exception for them, not the default.
   const b2bProfile = b2bProfileResult.data.value
   if (b2bProfile && b2bInvoicingEnabled.value) {
     if (b2bProfile.status === 'APPROVED') {
