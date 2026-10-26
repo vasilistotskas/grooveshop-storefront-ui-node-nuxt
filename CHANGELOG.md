@@ -1,3 +1,10 @@
+## [3.262.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.3...v3.262.4) (2026-10-26)
+
+
+### Performance Improvements
+
+* **product:** the product page asks for its images and reviews with the product, from one composable ([#239](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/239)) ([12efe8c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12efe8c4c2305e76484d62237de418e960d8936f))
+
 ## [3.262.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.2...v3.262.3) (2026-10-25)
 
 
