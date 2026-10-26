@@ -1,3 +1,10 @@
+## [3.265.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.1...v3.265.2) (2026-10-26)
+
+
+### Bug Fixes
+
+* **account:** one implementation of sign-in, 2FA and account security for both trees ([#248](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/248)) ([5b83618](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5b83618f88dec20426a1ba2029d282653175fe5b))
+
 ## [3.265.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.0...v3.265.1) (2026-10-26)
 
 
