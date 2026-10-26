@@ -1,3 +1,10 @@
+## [3.263.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.263.0...v3.263.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* **checkout:** webside asks ACS to check an address only when the store has ACS ([#243](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/243)) ([70b5cbe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/70b5cbec40b7edaab1e753109277009e20b05f98))
+
 # [3.263.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.262.6...v3.263.0) (2026-10-26)
 
 
