@@ -260,7 +260,6 @@ el:
     cta: "Σήμανση όλων ως αναγνωσμένες"
     success_title: "Όλες οι ειδοποιήσεις σημειώθηκαν ως αναγνωσμένες"
     error_title: "Αποτυχία"
-    error_description: "Δοκίμασε ξανά σε λίγο."
   empty:
     title: "Καμία ειδοποίηση"
     description: "Θα εμφανιστούν εδώ μόλις κάτι νέο συμβεί."
@@ -270,7 +269,6 @@ el:
   load_error: "Δεν μπορέσαμε να φορτώσουμε τις ειδοποιήσεις σου."
   error:
     toggle_title: "Αποτυχία ενέργειας"
-    toggle_description: "Δοκίμασε ξανά σε λίγο."
 en:
   title: "Notifications"
   filters:
@@ -283,7 +281,6 @@ en:
     cta: "Mark all as read"
     success_title: "All notifications marked as read"
     error_title: "That did not work"
-    error_description: "Try again in a moment."
   empty:
     title: "No notifications"
     description: "They will show up here as soon as something happens."
@@ -293,5 +290,4 @@ en:
   load_error: "We could not load your notifications."
   error:
     toggle_title: "That did not work"
-    toggle_description: "Try again in a moment."
 </i18n>

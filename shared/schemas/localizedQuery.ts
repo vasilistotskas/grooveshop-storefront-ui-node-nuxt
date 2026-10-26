@@ -25,5 +25,3 @@ import { SUPPORTED_LOCALES } from '../../i18n/locales'
 export const zLocalizedQuery = z.object({
   languageCode: z.enum(SUPPORTED_LOCALES).optional(),
 })
-
-export type LocalizedQuery = z.infer<typeof zLocalizedQuery>

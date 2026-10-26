@@ -130,10 +130,6 @@ export type DynamicFormSchemaField = z.infer<typeof ZodDynamicFormSchemaField>[n
 
 export type DynamicFormSchema = z.infer<typeof ZodDynamicFormSchema>
 
-export type DynamicFormSchemaChildren = z.infer<
-  typeof ZodDynamicFormSchemaChildren
->
-
 type ExtractFieldNames<T> = T extends { readonly fields: infer F extends any[] }
   ? F[number] extends { readonly name: infer N extends string }
     ? N

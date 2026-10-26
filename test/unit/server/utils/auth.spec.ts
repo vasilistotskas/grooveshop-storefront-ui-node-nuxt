@@ -5,7 +5,6 @@ import {
   fetchUserData,
   getAllAuthAccessToken,
   getAllAuthHeaders,
-  getAllAuthSessionToken,
   processAllAuthSession,
   readUserSession,
   requestHasSession,
@@ -190,7 +189,6 @@ describe('readUserSession', () => {
 describe('session token readers', () => {
   it('create no session for a visitor who has none', async () => {
     await inRequest(event => getAllAuthHeaders(event))
-    await inRequest(event => getAllAuthSessionToken(event))
     await inRequest(event => getAllAuthAccessToken(event))
 
     expect(testSession.minted).toBe(0)
@@ -199,12 +197,10 @@ describe('session token readers', () => {
   it('read the tokens from the encrypted session', async () => {
     testSession.set({ secure: { sessionToken: 'session-1', accessToken: 'knox-1' } })
 
-    await expect(inRequest(event => getAllAuthSessionToken(event))).resolves.toBe('session-1')
     await expect(inRequest(event => getAllAuthAccessToken(event))).resolves.toBe('knox-1')
   })
 
   it('read undefined from an anonymous session', async () => {
-    await expect(inRequest(event => getAllAuthSessionToken(event))).resolves.toBeUndefined()
     await expect(inRequest(event => getAllAuthAccessToken(event))).resolves.toBeUndefined()
   })
 

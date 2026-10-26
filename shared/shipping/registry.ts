@@ -47,11 +47,3 @@ export function getCarrier(code: string | null | undefined): ShippingCarrier | n
 export function listCarriers(): ShippingCarrier[] {
   return [..._registry.values()]
 }
-
-/** Type guard: does this string match a registered carrier? Useful
- *  in Zod refinements that need to tell `box_now_locker` (registered)
- *  apart from `home_delivery` (no carrier — ships through any
- *  ``supports_home_delivery`` provider). */
-export function isCarrierCode(value: unknown): value is string {
-  return typeof value === 'string' && getCarrier(value) !== null
-}

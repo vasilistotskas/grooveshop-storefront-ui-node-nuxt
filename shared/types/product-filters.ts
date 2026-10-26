@@ -53,5 +53,3 @@ export type ListingFilterChip
   = | FilterChip
     | (FilterChipBase & { type: 'brand', value: string })
     | (FilterChipBase & { type: 'in_stock' | 'on_offer', value: true })
-
-export type FilterChipValue = FilterChip['value']

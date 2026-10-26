@@ -146,11 +146,6 @@ export async function getAllAuthHeaders(event: RequestEvent) {
   return createHeaders(event, sessionToken, accessToken)
 }
 
-export async function getAllAuthSessionToken(event: RequestEvent) {
-  const session = await readUserSession(event)
-  return session.secure?.sessionToken
-}
-
 export async function getAllAuthAccessToken(event: RequestEvent) {
   const session = await readUserSession(event)
   return session.secure?.accessToken

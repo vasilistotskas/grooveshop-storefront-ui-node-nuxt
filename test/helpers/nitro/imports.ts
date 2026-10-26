@@ -46,5 +46,3 @@ export const NITRO_SHIM_IMPORTS = [
   'defineSitemapEventHandler',
   'asSitemapUrl',
 ] as const
-
-export type NitroShimImport = typeof NITRO_SHIM_IMPORTS[number]

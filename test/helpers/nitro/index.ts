@@ -187,11 +187,6 @@ export function loggerOf(event: { context: { log?: unknown } }): TestRequestLogg
   return logger
 }
 
-/** Run `fn` with `useEvent()` bound to `event`, as inside a Nitro request. */
-export function withEvent<T>(event: H3Event, fn: () => T): T {
-  return runWithEvent(event, fn)
-}
-
 /**
  * Call a handler or middleware directly with `event` (bound for
  * `useEvent()`), resolving to what it returns and rejecting with what it

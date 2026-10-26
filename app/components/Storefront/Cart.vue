@@ -394,7 +394,6 @@ el:
     cancel: Άκυρο
     confirm: Άδειασμα καλαθιού
     error_title: Το καλάθι δεν άδειασε
-    error_description: Δοκίμασε ξανά σε λίγο.
   stock_status:
     out_of_stock: Το προϊόν δεν είναι διαθέσιμο
     limited_stock: "Διαθέσιμα μόνο {available} τεμάχια (έχετε {requested} στο καλάθι)"
@@ -424,7 +423,6 @@ en:
     cancel: Cancel
     confirm: Empty cart
     error_title: The cart could not be emptied
-    error_description: Try again in a moment.
   stock_status:
     out_of_stock: This product is unavailable
     limited_stock: "Only {available} in stock (you have {requested} in your cart)"

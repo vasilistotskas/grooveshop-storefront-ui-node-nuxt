@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getCarrier, isCarrierCode, listCarriers } from '~~/shared/shipping/registry'
+import { getCarrier, listCarriers } from '~~/shared/shipping/registry'
 
 /**
  * The carrier registry is the dispatch table: checkout asks it which
@@ -20,14 +20,6 @@ describe('shipping/registry', () => {
 
   it.each([['elta'], [''], [null], [undefined]])('has no carrier for %j', (code) => {
     expect(getCarrier(code)).toBeNull()
-  })
-
-  it('tells a registered carrier code from anything else', () => {
-    expect(isCarrierCode('acs')).toBe(true)
-    expect(isCarrierCode('boxnow')).toBe(true)
-    // `home_delivery` ships through any provider and has no adapter.
-    expect(isCarrierCode('home_delivery')).toBe(false)
-    expect(isCarrierCode(42)).toBe(false)
   })
 })
 

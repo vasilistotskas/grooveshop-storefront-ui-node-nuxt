@@ -2,10 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import LoyaltyProgressHero from '~/components/Loyalty/ProgressHero.vue'
-import WebsideLoyaltyProgressHero from '~/components/variants/webside/Loyalty/ProgressHero.vue'
 import { createAsyncDataMock } from '~~/test/helpers/asyncData'
 import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
-import { trees } from '~~/test/helpers/trees'
 import { makeLoyaltySettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
 import type { LoyaltySummary, LoyaltyTier } from '~~/shared/openapi/types.gen'
 
@@ -15,9 +13,8 @@ import type { LoyaltySummary, LoyaltyTier } from '~~/shared/openapi/types.gen'
  *
  * The XP bounds come from the tiers' `requiredLevel` and the store's
  * `xpPerLevel`: a tier starting at level L starts at (L - 1) × xpPerLevel
- * XP. The two trees share that logic; they differ only in `ready` — the
- * default also requires the numbers the template dereferences, the
- * webside copy only an object (see the last case).
+ * XP. It renders only once the numbers the template dereferences are
+ * there (see the last case).
  *
  * The copy is the component's own `<i18n>` (el).
  */
@@ -56,7 +53,8 @@ const el = (value: number) => value.toLocaleString('el')
 
 const progress = (wrapper: VueWrapper) => wrapper.find('[role="progressbar"]')
 
-describe.each(trees(LoyaltyProgressHero, WebsideLoyaltyProgressHero))('$tree Loyalty/ProgressHero', ({ tree, C }) => {
+describe('Loyalty/ProgressHero', () => {
+  const C = LoyaltyProgressHero
   beforeEach(() => {
     summary.reset()
     tiers.reset()
@@ -182,9 +180,7 @@ describe.each(trees(LoyaltyProgressHero, WebsideLoyaltyProgressHero))('$tree Loy
     expect(wrapper.findComponent({ name: 'USkeleton' }).exists()).toBe(false)
   })
 
-  // The webside copy's `ready` only checks that an object arrived, so a
-  // partial payload throws inside its render; the default guards it.
-  it.runIf(tree === 'default').each(['totalXp', 'level', 'pointsBalance'] as const)('renders nothing for a summary without %s', async (field) => {
+  it.each(['totalXp', 'level', 'pointsBalance'] as const)('renders nothing for a summary without %s', async (field) => {
     const { [field]: _missing, ...partial } = makeSummary()
     summary.data.value = partial as LoyaltySummary
 

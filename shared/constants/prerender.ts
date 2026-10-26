@@ -59,9 +59,6 @@ export function withLocalePrefixes(route: string): string[] {
   ]
 }
 
-export const PRERENDERED_ROUTES_SET: ReadonlySet<string>
-  = new Set(PRERENDERED_ROUTES)
-
 /**
  * Runtime-SWR routes that are NOT static brand pages. The homepage is
  * the entry point for most sessions and its SSR is the single biggest

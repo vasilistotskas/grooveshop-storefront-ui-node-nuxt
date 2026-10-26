@@ -4,7 +4,6 @@ import {
   authInfo,
   determineAuthChangeEvent,
   isAllAuthResponseSuccess,
-  isAllAuthResponseError,
   safeRelativePath,
   getPendingFlows,
   getPendingFlow,
@@ -97,16 +96,6 @@ describe('Utils - Auth', () => {
 
     it('should return false for non-200 status', () => {
       expect(isAllAuthResponseSuccess(makePendingFlowResponse('login'))).toBe(false)
-    })
-  })
-
-  describe('isAllAuthResponseError', () => {
-    it('should return true for non-200 status', () => {
-      expect(isAllAuthResponseError(makeBadResponse())).toBe(true)
-    })
-
-    it('should return false for 200 status', () => {
-      expect(isAllAuthResponseError(makeSessionResponse())).toBe(false)
     })
   })
 
