@@ -42,6 +42,9 @@ const links = (wrapper: VueWrapper) => wrapper.findAll('a').map(a => [
   a.attributes('aria-current') ?? null,
 ])
 
+const allProducts = (wrapper: VueWrapper) =>
+  (wrapper.vm as unknown as { t: (key: string) => string }).t('all_products')
+
 describe('Products/Filters/CategoryTree', () => {
   beforeEach(() => showPage())
 
@@ -49,9 +52,22 @@ describe('Products/Filters/CategoryTree', () => {
     const wrapper = await mountSuspended(CategoryTree, { route: false })
 
     expect(links(wrapper)).toEqual([
+      [allProducts(wrapper), '/products', 'page'],
       ['Φόρτιση 16', '/products/category/2/category-2', null],
       ['Ήχος 9', '/products/category/5/category-5', null],
     ])
+  })
+
+  it('tops the tree with "all products", current only on the store-wide listing', async () => {
+    const index = await mountSuspended(CategoryTree, { route: false })
+    const { t } = index.vm as unknown as { t: (key: string) => string }
+    expect(index.get('a').text()).toBe(t('all_products'))
+    expect(index.get('a').attributes('aria-current')).toBe('page')
+
+    showPage(3)
+    const category = await mountSuspended(CategoryTree, { route: false })
+    expect(category.get('a').attributes('href')).toBe('/products')
+    expect(category.get('a').attributes('aria-current')).toBeUndefined()
   })
 
   it('opens the path to the current category, marks it, and shows the next step under it', async () => {
@@ -60,6 +76,7 @@ describe('Products/Filters/CategoryTree', () => {
     const wrapper = await mountSuspended(CategoryTree, { route: false })
 
     expect(links(wrapper)).toEqual([
+      [allProducts(wrapper), '/products', null],
       ['Φόρτιση 16', '/products/category/2/category-2', null],
       ['Καλώδια 10', '/products/category/3/category-3', 'page'],
       ['Πλεκτά 4', '/products/category/6/category-6', null],

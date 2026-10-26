@@ -7,13 +7,15 @@ import type { Brand, PaginatedAttributeList, PaginatedAttributeValueList } from 
 import { makeAttribute, makeAttributeValue, makeBrand, makeCategory } from '~~/test/fixtures/productFilters'
 import { translatorFor } from '~/utils/translate'
 import { buildCategoryForest } from '~/utils/categoryTree'
+import { FILTER_SEARCH_MIN_SECTIONS } from '~/utils/filterSearch'
 
 /**
  * The filter column: a section for the categories, one for the price,
  * one per attribute with something to choose — the column a wide screen
  * shows and the drawer a narrow one opens. The drawer's footer clears
  * the filters (keeping the sort) and closes on the results, saying how
- * many there are.
+ * many there are. Many sections earn a quick search on top; every column
+ * has one button that opens or folds all of them.
  */
 const pf = await vi.hoisted(async () =>
   (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
@@ -53,7 +55,7 @@ const STUBS = {
   ProductsFiltersPriceRange: { template: '<div data-test="price" />' },
   ProductsFiltersBrandValues: { props: ['options'], template: '<div data-test="brands">{{ options.map(o => o.label).join() }}</div>' },
   ProductsFiltersAvailability: { template: '<div data-test="availability" />' },
-  ProductsFiltersAttributeValues: { props: ['group'], template: '<div data-test="values">{{ group.label }}</div>' },
+  ProductsFiltersAttributeValues: { props: ['group'], template: '<div data-test="values" :data-options="group.options.map(o => o.label).join()">{{ group.label }}</div>' },
 }
 
 const own = (wrapper: VueWrapper, key: string, ...args: unknown[]) =>
@@ -128,6 +130,156 @@ describe('Products/Sidebar', () => {
     const wrapper = await mountSidebar()
 
     expect(sections(wrapper)).toEqual(['Χρώμα', own(wrapper, 'availability')])
+  })
+
+  describe('the quick search', () => {
+    /** Colour (Red, Blue) and `count - 1` more attributes of one value each. */
+    function showAttributes(count: number) {
+      const names = [['Χρώμα', 'Κόκκινο'], ['Ισχύς', '65W'], ['Υλικό', 'Νάιλον'], ['Μήκος', '2m'], ['Βύσμα', 'USB-C'], ['Ύψος', '10cm']].slice(0, count)
+      data.allAttributes.value = page(names.map(([name], index) => makeAttribute({ id: index + 1, name: { el: name!, en: name! } })))
+      data.allAttributeValues.value = page([
+        ...names.map(([, value], index) => makeAttributeValue({ id: 10 + index, attribute: index + 1, value: { el: value!, en: value! } })),
+        makeAttributeValue({ id: 99, attribute: 1, value: { el: 'Μπλε', en: 'Blue' } }),
+      ])
+      data.attributeValueFacets.value = Object.fromEntries([...names.map((_, index) => [10 + index, 3]), [99, 2]])
+    }
+
+    const searchInput = (wrapper: VueWrapper) => wrapper.find('aside input')
+    const search = async (wrapper: VueWrapper, text: string) => {
+      await searchInput(wrapper).setValue(text)
+    }
+    const optionsOf = (wrapper: VueWrapper, label: string) =>
+      wrapper.find('aside').findAll('[data-test="values"]').find(values => values.text() === label)?.attributes('data-options')
+
+    it('is offered from the threshold up, not below it', async () => {
+      // category, price, the attributes and availability: 7 below, 8 at it.
+      showAttributes(FILTER_SEARCH_MIN_SECTIONS - 4)
+      expect(searchInput(await mountSidebar()).exists()).toBe(false)
+
+      showAttributes(FILTER_SEARCH_MIN_SECTIONS - 3)
+      expect(searchInput(await mountSidebar()).exists()).toBe(true)
+    })
+
+    it('keeps a section whose own label matches, whole, ignoring case and accents', async () => {
+      showAttributes(6)
+      const wrapper = await mountSidebar()
+
+      await search(wrapper, 'ΧΡΩΜΑ')
+
+      expect(sections(wrapper)).toEqual(['Χρώμα'])
+      expect(optionsOf(wrapper, 'Χρώμα')).toBe('Κόκκινο,Μπλε')
+    })
+
+    it('matches an availability section by its label only', async () => {
+      showAttributes(6)
+      const wrapper = await mountSidebar()
+
+      await search(wrapper, 'διαθεσ')
+
+      expect(sections(wrapper)).toEqual([own(wrapper, 'availability')])
+    })
+
+    it('keeps a section with a matching option, showing that option and any selected one', async () => {
+      showAttributes(6)
+      pf.filters.value = { ...pf.filters.value, attributeValues: ['99'] }
+      const wrapper = await mountSidebar()
+
+      await search(wrapper, 'κοκκ')
+
+      expect(sections(wrapper)).toEqual(['Χρώμα'])
+      expect(optionsOf(wrapper, 'Χρώμα')).toBe('Κόκκινο,Μπλε')
+    })
+
+    it('narrows a brand section to its matching options', async () => {
+      showAttributes(6)
+      brands.allBrands.value = [makeBrand({ id: 3, name: 'Kabelo' }), makeBrand({ id: 7, name: 'Voltra' })]
+      brands.brandFacets.value = { 3: 10, 7: 14 }
+      const wrapper = await mountSidebar()
+
+      await search(wrapper, 'VOLT')
+
+      expect(sections(wrapper)).toEqual([own(wrapper, 'brand')])
+      expect(wrapper.get('[data-test="brands"]').text()).toBe('Voltra')
+    })
+
+    it('does not keep a section for a selected option the query does not name', async () => {
+      showAttributes(6)
+      pf.filters.value = { ...pf.filters.value, attributeValues: ['99'] }
+      const wrapper = await mountSidebar()
+
+      await search(wrapper, '65w')
+
+      expect(sections(wrapper)).toEqual(['Ισχύς'])
+    })
+
+    it('opens every section it leaves, however the shopper folded them', async () => {
+      showAttributes(6)
+      const wrapper = await mountSidebar()
+      await wrapper.get('aside button[aria-expanded="true"]').trigger('click')
+      expect(wrapper.find('aside').findAll('button[aria-expanded="false"]')).toHaveLength(1)
+
+      await search(wrapper, 'α')
+
+      expect(wrapper.find('aside').findAll('button[aria-expanded="false"]')).toHaveLength(0)
+    })
+
+    it('says so when nothing matches, and clears from the input\'s own button', async () => {
+      showAttributes(6)
+      const wrapper = await mountSidebar()
+
+      await search(wrapper, 'zzz')
+
+      expect(sections(wrapper)).toEqual([])
+      expect(wrapper.get('aside [role="status"]').text()).toBe(own(wrapper, 'no_match', { query: 'zzz' }))
+
+      await wrapper.get(`aside button[aria-label="${own(wrapper, 'search_clear')}"]`).trigger('click')
+
+      expect((searchInput(wrapper).element as HTMLInputElement).value).toBe('')
+      expect(wrapper.find('aside [role="status"]').exists()).toBe(false)
+      expect(sections(wrapper)).toHaveLength(9)
+    })
+  })
+
+  describe('expand / collapse all', () => {
+    const toggle = (wrapper: VueWrapper) =>
+      wrapper.get(`aside button[aria-label="${own(wrapper, 'collapse_all_label')}"], aside button[aria-label="${own(wrapper, 'expand_all_label')}"]`)
+
+    it('folds every section, then opens them again, its label saying which it will do', async () => {
+      const wrapper = await mountSidebar()
+      expect(toggle(wrapper).attributes('aria-label')).toBe(own(wrapper, 'collapse_all_label'))
+      expect(toggle(wrapper).text()).toBe(own(wrapper, 'collapse_all'))
+
+      await toggle(wrapper).trigger('click')
+
+      expect(wrapper.find('aside').findAll('button[aria-expanded="true"]')).toHaveLength(0)
+      expect(toggle(wrapper).attributes('aria-label')).toBe(own(wrapper, 'expand_all_label'))
+      expect(toggle(wrapper).text()).toBe(own(wrapper, 'expand_all'))
+
+      await toggle(wrapper).trigger('click')
+
+      expect(wrapper.find('aside').findAll('button[aria-expanded="true"]')).toHaveLength(5)
+    })
+
+    it('offers to expand once one section is folded, and opens them all', async () => {
+      const wrapper = await mountSidebar()
+      await wrapper.get('aside button[aria-expanded="true"]').trigger('click')
+
+      expect(toggle(wrapper).text()).toBe(own(wrapper, 'expand_all'))
+      await toggle(wrapper).trigger('click')
+
+      expect(wrapper.find('aside').findAll('button[aria-expanded="true"]')).toHaveLength(5)
+    })
+  })
+
+  // The classes are the contract here: happy-dom has no layout to measure.
+  it('is a sticky column with its own scroll on a wide screen', async () => {
+    const wrapper = await mountSidebar()
+
+    const classes = wrapper.get('aside').classes()
+    expect(classes).toContain('lg:sticky')
+    expect(classes).toContain('lg:top-[calc(var(--ui-header-height)+1.5rem)]')
+    expect(classes).toContain('lg:max-h-[calc(100dvh-var(--ui-header-height)-3rem)]')
+    expect(classes).toContain('lg:overflow-y-auto')
   })
 
   describe('the drawer', () => {

@@ -7,6 +7,11 @@
  * for the page itself. A category without any lists its siblings, so
  * the row still leads somewhere — and the first chip goes back up to
  * the parent. The store-wide listing lists the top-level categories.
+ *
+ * On a category page a "back" chip comes first: one level up, to the
+ * parent category or, from a top-level one, to all products. The filter
+ * tree that also leads back lives in the drawer on a phone, so this is
+ * the quick way.
  */
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -19,6 +24,17 @@ interface Chip {
   to: string
   current: boolean
 }
+
+// Only where no chip of the row already leads there: a category without
+// subcategories lists its siblings after a chip for the parent.
+const back = computed(() => {
+  if (!trail.value.length) return null
+  const parent = trail.value.at(-2)
+  const destination = parent
+    ? { label: parent.label, to: parent.to }
+    : { label: t('all_products'), to: '/products' }
+  return chips.value.some(chip => chip.to === destination.to) ? null : destination
+})
 
 const chips = computed<Chip[]>(() => {
   const current = trail.value.at(-1)
@@ -69,6 +85,21 @@ const chips = computed<Chip[]>(() => {
       "
     >
       <li
+        v-if="back"
+        class="shrink-0"
+      >
+        <UButton
+          :to="localePath(pathLocation(back.to))"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-arrow-left"
+          :aria-label="t('back_to', { name: back.label })"
+          size="sm"
+        >
+          {{ back.label }}
+        </UButton>
+      </li>
+      <li
         v-for="chip in chips"
         :key="chip.key"
         class="shrink-0"
@@ -98,8 +129,10 @@ el:
   label: Κατηγορίες
   all_products: Όλα τα προϊόντα
   all_in: Όλη η κατηγορία
+  back_to: 'Πίσω στο «{name}»'
 en:
   label: Categories
   all_products: All products
   all_in: All {name}
+  back_to: 'Back to {name}'
 </i18n>
