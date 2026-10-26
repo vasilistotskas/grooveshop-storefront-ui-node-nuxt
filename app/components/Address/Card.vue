@@ -19,9 +19,17 @@ const emit = defineEmits<{
 const { t, locale } = useI18n()
 const toast = useToast()
 const { notify } = useApiError()
-const localePath = useLocalePath()
 
-const busy = ref<'default' | 'delete' | null>(null)
+const { removing, remove } = useAddressRemoval({
+  address: () => props.address,
+  messages: () => ({ deleted: t('deleted'), deleteError: t('delete_error') }),
+  onDeleted: () => emit('changed'),
+})
+
+const settingDefault = ref(false)
+const busy = computed(() => removing.value ? 'delete' : settingDefault.value ? 'default' : null)
+
+const localePath = useLocalePath()
 
 const countryName = computed(() => {
   const code = props.address.country
@@ -40,7 +48,7 @@ const lines = computed(() => {
 })
 
 async function makeDefault() {
-  busy.value = 'default'
+  settingDefault.value = true
   try {
     await $api(`/api/user/addresses/${props.address.id}/set-main`, { method: 'POST' })
     toast.add({ title: t('default_set'), color: 'success' })
@@ -48,26 +56,10 @@ async function makeDefault() {
   }
   catch (error) {
     log.error({ action: 'address:set-main', error })
-    notify('Card:1', error, { title: t('default_error') })
+    notify('address:set-main', error, { title: t('default_error') })
   }
   finally {
-    busy.value = null
-  }
-}
-
-async function remove() {
-  busy.value = 'delete'
-  try {
-    await $api(`/api/user/addresses/${props.address.id}`, { method: 'DELETE' })
-    toast.add({ title: t('deleted'), color: 'success' })
-    emit('changed')
-  }
-  catch (error) {
-    log.error({ action: 'address:delete', error })
-    notify('Card:2', error, { title: t('delete_error') })
-  }
-  finally {
-    busy.value = null
+    settingDefault.value = false
   }
 }
 </script>

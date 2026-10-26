@@ -84,7 +84,6 @@ describe.each(trees(ResetConfirmForm, WebsideResetConfirmForm))('$tree Account/P
 
     expect(passwordReset).toHaveBeenCalledWith({ password: 'Καλημέρα2024', key: 'abc-123' })
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
-    expect(wrapper.emitted('passwordReset')).toHaveLength(1)
     await vi.waitFor(() => expect(useRouter().currentRoute.value.path).toBe(useLocalePath()('account-login')))
   })
 

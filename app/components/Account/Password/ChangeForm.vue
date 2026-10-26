@@ -1,78 +1,20 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 /**
  * Change the password, or set one on an account that signs in without
  * (social sign-in, a passkey, a code): the current password is asked
  * only when there is one. The strength meter is the sign-up form's, and
- * advisory only — the schema mirrors what Django enforces where a pure
- * function can (8+ characters, not all digits); its other refusals
- * arrive as allauth's translated error codes. Done or cancelled, the
- * shopper goes back to the Security page.
+ * advisory only. Done or cancelled, the shopper goes back to the
+ * Security page.
  */
-const { changePassword } = useAllAuthAccount()
-const authStore = useAuthStore()
-const { hasCurrentPassword } = storeToRefs(authStore)
-
-const toast = useToast()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-const isSubmitting = ref(false)
-
-const state = reactive({
-  current_password: '',
-  new_password: '',
-  confirm_password: '',
+const { state, schema, hasCurrentPassword, isSubmitting, submit } = usePasswordChange({
+  fieldLabels: () => ({ field: t('new'), other: t('confirm') }),
 })
 
-const schema = computed(() => z
-  .object({
-    current_password: hasCurrentPassword.value
-      ? z.string().min(1, t('validation.required'))
-      : z.string().optional(),
-    new_password: z.string()
-      .min(8, t('validation.min', { min: 8 }))
-      .max(255, t('validation.max', { max: 255 }))
-      .refine(value => !/^\d+$/.test(value), {
-        error: t('validation.password.entirely_numeric'),
-      }),
-    confirm_password: z.string().min(1, t('validation.required')),
-  })
-  .superRefine((value, ctx) => {
-    if (value.new_password !== value.confirm_password) {
-      ctx.addIssue({
-        code: 'custom',
-        message: t('validation.must_match', { field: t('new'), other: t('confirm') }),
-        path: ['confirm_password'],
-      })
-    }
-    if (hasCurrentPassword.value && value.current_password && value.current_password === value.new_password) {
-      ctx.addIssue({
-        code: 'custom',
-        message: t('validation.password.must_not_be_same'),
-        path: ['new_password'],
-      })
-    }
-  }))
-
 async function onSubmit() {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    await changePassword({
-      current_password: state.current_password,
-      new_password: state.new_password,
-    })
-    toast.add({ title: t('auth.password.change.success'), color: 'success' })
-    await navigateTo(localePath('account-security'))
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    isSubmitting.value = false
-  }
+  if (await submit()) await navigateTo(localePath('account-security'))
 }
 </script>
 

@@ -19,8 +19,7 @@ import { APP, readSource, withoutComments } from '../../helpers/sourceText'
  *   failure and has its own sentence per cause.
  */
 const EXEMPT = new Set([
-  'components/Account/Password/ResetConfirmForm.vue',
-  'components/variants/webside/Account/Password/ResetConfirmForm.vue',
+  'composables/usePasswordResetConfirm.ts',
   'components/Account/2Fa/WebAuthn/AddForm.vue',
 ])
 

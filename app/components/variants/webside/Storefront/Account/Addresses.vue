@@ -6,11 +6,8 @@ const { t, locale } = useI18n()
 // never applied.
 useHead({ title: () => t('title') })
 const route = useRoute(`account-addresses___${locale.value}`)
-const { user } = useUserSession()
 const localePath = useLocalePath()
 
-const pageSize = ref(8)
-const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<any>>([
@@ -26,41 +23,12 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: addresses, status, error } = await useApi(
-  `/api/user/account/${user.value?.id}/addresses`,
-  {
-    key: `userAddresses${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-  },
-)
+const { data: addresses, status, error, refresh } = await useAccountAddresses({
+  pageSize: 8,
+  ordering: () => String(ordering.value),
+})
 
-const refreshAddresses = async () => {
-  status.value = 'pending'
-  const addresses = await $api(
-    `/api/user/account/${user.value?.id}/addresses`,
-    {
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        page: page.value,
-        ordering: ordering.value,
-        pageSize: pageSize.value,
-      },
-    },
-  )
-  status.value = 'success'
-  return addresses
-}
-
-const onAddressDelete = async () => {
-  addresses.value = await refreshAddresses()
-}
+const onAddressDelete = () => refresh()
 
 const pagination = computed(() => {
   if (!addresses.value?.count) return
@@ -70,13 +38,6 @@ const pagination = computed(() => {
 const orderingOptions = computed(() => {
   return useOrdering<any>(entityOrdering.value)
 })
-
-watch(
-  () => route.query,
-  async () => {
-    addresses.value = await refreshAddresses()
-  },
-)
 </script>
 
 <template>

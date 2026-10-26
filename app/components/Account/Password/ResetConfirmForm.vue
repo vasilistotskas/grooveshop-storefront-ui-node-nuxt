@@ -1,100 +1,11 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
-const emit = defineEmits(['passwordReset'])
-
-const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
 const { t } = useI18n()
-const route = useRoute()
-const toast = useToast()
-const { notify } = useApiError()
-const localePath = useLocalePath()
-const router = useRouter()
 
-const key = 'key' in route.params ? route.params.key : undefined
-
-if (!key) {
-  navigateTo(localePath('account-password-reset'))
-}
-
-await useAsyncData('passwordReset', () => getPasswordReset(String(key)))
-
-const hasError = ref(false)
-const isSubmitting = ref(false)
-
-const newPassword1 = ref('')
-const newPassword2 = ref('')
-
-const schema = z.object({
-  // Mirrors Django's AUTH_PASSWORD_VALIDATORS where a pure function
-  // can: MinimumLength (8) and NumericPassword. CommonPassword and
-  // UserAttributeSimilarity stay server-side and surface via the
-  // translated allauth error codes. The strength meter is advisory
-  // only — Django has no character-class rules, so it must not gate.
-  newPassword1: z.string()
-    .min(8, t('validation.min', { min: 8 }))
-    .max(255)
-    .refine(value => !/^\d+$/.test(value), {
-      error: t('validation.password.entirely_numeric'),
-    }),
-  newPassword2: z.string()
-    .min(8, t('validation.min', { min: 8 }))
-    .max(255),
-  key: z.string(),
-}).refine(data => data.newPassword1 === data.newPassword2, {
-  message: t('errors.match'),
-  path: ['newPassword2'],
+const { key, hasError, isSubmitting, newPassword1, newPassword2, schema, onSubmit } = await usePasswordResetConfirm({
+  mismatch: () => t('errors.match'),
+  successDescription: () => t('success.description'),
+  successIcon: 'i-lucide-circle-check',
 })
-
-type Schema = z.output<typeof schema>
-
-async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    hasError.value = false
-    await passwordReset({
-      password: event.data.newPassword1,
-      key: event.data.key,
-    })
-    toast.add({
-      title: t('password.reset.success'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-lucide-circle-check',
-    })
-    emit('passwordReset')
-    await router.push(localePath('account-login'))
-  }
-  catch (error) {
-    if (isAllAuthClientError(error)) {
-      // allauth answers a reset that went through without signing the
-      // shopper in with a 401: the password changed, sign in with it.
-      if (error.data.data.status === 401) {
-        toast.add({
-          title: t('password.reset.success'),
-          color: 'success',
-        })
-        await navigateTo(localePath('account-login'))
-        return
-      }
-      const errors = 'errors' in error.data.data ? error.data.data.errors : []
-      errors.forEach((error) => {
-        toast.add({
-          title: error.message,
-          color: 'error',
-        })
-      })
-      return
-    }
-    hasError.value = true
-    notify('password-reset:confirm', error, { title: t('error.default') })
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
 </script>
 
 <template>

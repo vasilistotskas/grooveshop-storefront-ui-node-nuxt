@@ -1,46 +1,19 @@
 <script lang="ts" setup>
-import * as z from 'zod'
+import type * as z from 'zod'
 import type { TableColumn, DropdownMenuItem } from '#ui/types'
 
-const emit = defineEmits([
-  'addEmailAddress',
-  'requestEmailVerification',
-  'removeEmailAddress',
-  'changePrimaryEmailAddress',
-])
-
-const {
-  getEmailAddresses,
-  addEmailAddress,
-  requestEmailVerification,
-  removeEmailAddress,
-  changePrimaryEmailAddress,
-} = useAllAuthAccount()
-const toast = useToast()
 const { t } = useI18n()
 
-const loading = ref(false)
-
-const { data: emailAddresses, refresh: refreshEmailAddresses } = await useAsyncData(
-  'emailAddresses',
-  () => getEmailAddresses(),
-)
-
-const data = computed(() => {
-  return emailAddresses.value?.data.map(email => ({
-    email: email.email,
-    verified: email.verified,
-    primary: email.primary,
-  })) || []
-})
-
-const emailFormZodSchema = z.object({
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
+const { rows: data, busy, schema: emailFormZodSchema, add: addEmail, resend: emailVerificationRequest, makePrimary: markAsPrimaryEmail, remove: removeEmail } = await useEmailAddresses({
+  messages: () => ({
+    added: t('email.added'),
+    resent: t('email.verification_requested'),
+    madePrimary: t('email.marked_as_primary'),
+    removed: t('email.removed'),
   }),
 })
+
+const loading = computed(() => busy.value !== null)
 
 const formSchema = computed(() => ({
   fields: [
@@ -63,79 +36,8 @@ const formSchema = computed(() => ({
   ],
 } as const satisfies DynamicFormSchema))
 
-async function addEmail(values: z.infer<typeof emailFormZodSchema>) {
-  try {
-    loading.value = true
-    await addEmailAddress(values)
-    await refreshEmailAddresses()
-    toast.add({
-      title: t('email.added'),
-      color: 'success',
-    })
-    emit('addEmailAddress')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-async function emailVerificationRequest(values: EmailPutBody) {
-  try {
-    loading.value = true
-    await requestEmailVerification(values)
-    toast.add({
-      title: t('email.verification_requested'),
-      color: 'success',
-    })
-    emit('requestEmailVerification')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-async function removeEmail(values: EmailDeleteBody) {
-  try {
-    loading.value = true
-    await removeEmailAddress(values)
-    await refreshEmailAddresses()
-    toast.add({
-      title: t('email.removed'),
-      color: 'success',
-    })
-    emit('removeEmailAddress')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-async function markAsPrimaryEmail(values: EmailPatchBody) {
-  try {
-    loading.value = true
-    await changePrimaryEmailAddress(values)
-    await refreshEmailAddresses()
-    toast.add({
-      title: t('email.marked_as_primary'),
-      color: 'success',
-    })
-    emit('changePrimaryEmailAddress')
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
+async function onAddEmail(values: z.infer<typeof emailFormZodSchema>) {
+  await addEmail(values.email)
 }
 
 const columns: TableColumn<EmailAddress>[] = [
@@ -163,19 +65,19 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
     items.push({
       label: t('email.mark_as_primary'),
       icon: 'i-heroicons-star-20-solid',
-      onSelect: () => markAsPrimaryEmail({ email: row.email, primary: true }),
+      onSelect: () => markAsPrimaryEmail(row.email),
     })
     items.push({
       label: t('email.remove'),
       icon: 'i-heroicons-trash-20-solid',
-      onSelect: () => removeEmail({ email: row.email }),
+      onSelect: () => removeEmail(row.email),
     })
   }
   if (!row.verified) {
     items.push({
       label: t('email.request_verification'),
       icon: 'i-heroicons-mail-20-solid',
-      onSelect: () => emailVerificationRequest({ email: row.email }),
+      onSelect: () => emailVerificationRequest(row.email),
     })
   }
   return items.length ? [items] : []
@@ -276,7 +178,7 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
             :loading="loading"
             :reset-on-submit="true"
             :schema="formSchema"
-            @submit="addEmail"
+            @submit="onAddEmail"
           />
         </section>
       </div>

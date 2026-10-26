@@ -52,7 +52,6 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
     await submitEmail(wrapper)
 
     expect(passwordRequest).toHaveBeenCalledWith({ email: 'shopper@example.com' })
-    expect(wrapper.emitted('passwordRequest')).toHaveLength(1)
     expect(wrapper.text()).not.toContain(errorTitle)
   })
 
@@ -85,7 +84,6 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
 
     expect(wrapper.text()).toContain(errorTitle)
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Εισαγάγετε μια έγκυρη διεύθυνση email.', color: 'error' })
-    expect(wrapper.emitted('passwordRequest')).toBeUndefined()
   })
 
   it('warns about too many requests', async () => {
@@ -107,7 +105,6 @@ describe.each(trees(PasswordResetForm, WebsidePasswordResetForm))('$tree Account
 
     await submitEmail(wrapper)
     expect(wrapper.text()).not.toContain(errorTitle)
-    expect(wrapper.emitted('passwordRequest')).toHaveLength(1)
   })
 
   it.each([

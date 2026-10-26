@@ -2,33 +2,23 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-const emit = defineEmits(['emailVerify'])
-
-const { emailVerify, resendEmailVerificationCode } = useAllAuthAuthentication()
+const { resendEmailVerificationCode } = useAllAuthAuthentication()
 const { addEmailAddress } = useAllAuthAccount()
 const { t } = useI18n()
 useHead({ title: () => t('title') })
 const toast = useToast()
-const localePath = useLocalePath()
-const router = useRouter()
 
-const hasError = ref(false)
-const code = ref<string[]>([])
+const { code, codeString, hasError, schema, onSubmit } = useVerifyEmail({
+  lengthMessage: () => t('validation.code.length'),
+  successDescription: () => t('success.description'),
+  successIcon: 'i-lucide-circle-check',
+})
+
 const resend = useTemplateRef<{ restart: () => void }>('resend')
 
 const changing = ref(false)
 const changeSaving = ref(false)
 const newEmail = ref('')
-
-const codeString = computed(() => code.value.join(''))
-
-const schema = z.object({
-  key: z.string()
-    .min(1, t('validation.required'))
-    .length(6, t('validation.code.length')),
-})
-
-type Schema = z.output<typeof schema>
 
 const emailSchema = z.object({
   email: z.string()
@@ -65,36 +55,6 @@ async function onChangeEmail(event: FormSubmitEvent<EmailSchema>): Promise<void>
     changeSaving.value = false
   }
 }
-
-async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
-  try {
-    hasError.value = false
-
-    const data = await emailVerify({ key: event.data.key })
-
-    if (data && [200, 401].includes(data.status)) {
-      toast.add({
-        title: t('auth.email.verified'),
-        description: t('success.description'),
-        color: 'success',
-        icon: 'i-lucide-circle-check',
-      })
-
-      emit('emailVerify')
-      await router.push(localePath('account'))
-    }
-  }
-  catch (error) {
-    hasError.value = true
-    handleAllAuthClientError(error)
-  }
-}
-
-watch(codeString, (newCode) => {
-  if (newCode.length === 6) {
-    onSubmit({ data: { key: newCode } } as FormSubmitEvent<Schema>)
-  }
-})
 </script>
 
 <template>

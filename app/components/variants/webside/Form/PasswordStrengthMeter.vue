@@ -14,24 +14,13 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const requirements = computed(() => {
-  const p = props.password ?? ''
-  return [
-    { met: /.{8,}/.test(p), text: t('requirements.length') },
-    { met: /\d/.test(p), text: t('requirements.number') },
-    { met: /[a-z]/.test(p), text: t('requirements.lowercase') },
-    { met: /[A-Z]/.test(p), text: t('requirements.uppercase') },
-  ]
-})
-
-const score = computed(() => requirements.value.filter(r => r.met).length)
-
-const color = computed<'neutral' | 'error' | 'warning' | 'success'>(() => {
-  if (score.value === 0) return 'neutral'
-  if (score.value <= 2) return 'error'
-  if (score.value === 3) return 'warning'
-  return 'success'
-})
+const strength = computed(() => passwordStrength(props.password))
+const requirements = computed(() => strength.value.requirements.map(requirement => ({
+  met: requirement.met,
+  text: t(`requirements.${requirement.id}`),
+})))
+const score = computed(() => strength.value.score)
+const color = computed(() => strength.value.color)
 
 const label = computed(() => {
   if (score.value === 0) return t('strength.none')
