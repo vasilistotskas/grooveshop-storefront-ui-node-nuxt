@@ -74,7 +74,7 @@ export async function usePageConfig(pageType: string) {
   // every tenant on v3.170.1, server routes unaffected). If a caller
   // ever needs this outside a component, give it an explicit locale
   // argument rather than reaching for `$i18n`.
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const { data, status, error } = await useApi<PageConfigResponse>(
     `/api/page-config/${pageType}`,
     {

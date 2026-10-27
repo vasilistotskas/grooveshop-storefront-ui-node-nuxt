@@ -16,7 +16,7 @@ export interface CheckoutSuccessOptions {
 }
 
 export async function useCheckoutSuccess({ guideCount }: CheckoutSuccessOptions) {
-  const { t, locale } = useI18n()
+  const { t, locale } = useI18n({ useScope: 'global' })
   // Every store and composable is read, and every hook registered, before
   // the first await: after one, the server has lost the injection context
   // Pinia needs, and a hook has no component instance to belong to.

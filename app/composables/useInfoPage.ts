@@ -11,7 +11,7 @@ import { SUPPORTED_LOCALES, type SupportedLocale } from '~~/i18n/locales'
  * `await`.
  */
 export async function useInfoPage() {
-  const { t, locale } = useI18n()
+  const { t, locale } = useI18n({ useScope: 'global' })
   const route = useRoute(`info-slug___${locale.value}`)
   const siteConfig = useSiteConfig()
   const localePath = useLocalePath()

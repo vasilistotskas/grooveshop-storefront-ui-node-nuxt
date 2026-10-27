@@ -20,7 +20,7 @@ export function useBlogCommentCard(options: {
 
   const toast = useToast()
   const { notify } = useApiError()
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const { user, loggedIn } = useUserSession()
   const { loadLikedComments } = useUserStore()
 

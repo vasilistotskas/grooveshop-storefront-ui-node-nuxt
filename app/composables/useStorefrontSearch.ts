@@ -15,7 +15,7 @@ export type SearchTab = 'products' | 'guides'
  * first `await`.
  */
 export async function useStorefrontSearch(options: { asideGuides: number }) {
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const route = useRoute(`search___${locale.value}`)
   const { trackResultClick } = useSearchClickTracking()
   // Without the blog plan there are no guides: no tab and no request

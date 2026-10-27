@@ -44,7 +44,7 @@ export async function useProductRail(options: {
   ordering: MaybeRefOrGetter<ProductRailOrdering>
   categoryId?: MaybeRefOrGetter<number | undefined>
 }) {
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
 
   const pageSize = computed(() => toValue(options.pageSize))
   const ordering = computed(() => toValue(options.ordering))

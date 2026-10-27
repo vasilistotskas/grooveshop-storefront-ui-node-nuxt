@@ -32,9 +32,12 @@ function itemListNode(baseUrl: string, name: () => string, products: Ref<Product
   ])
 }
 
-/** The store-wide products page's head and structured data. */
-export async function useProductsIndexPage() {
-  const { t, locale } = useI18n()
+/**
+ * The store-wide products page's head and structured data, worded by the
+ * drawing's own `t`.
+ */
+export async function useProductsIndexPage(t: ReturnType<typeof useI18n>['t']) {
+  const { locale } = useI18n({ useScope: 'global' })
   const { ogImageUrl } = useTenantBranding()
   const baseUrl = useSiteConfig().url
 
@@ -65,7 +68,7 @@ export async function useProductsIndexPage() {
 
 /** The category an `/products/category/[id]/[slug]` route names. */
 export function useProductCategoryRouteId() {
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const route = useRoute(`products-category-id-slug___${locale.value}`)
 
   return 'id' in route.params
@@ -73,9 +76,12 @@ export function useProductCategoryRouteId() {
     : undefined
 }
 
-/** A category page's category, its head and its structured data. */
-export async function useProductCategoryPage(categoryId: string | undefined) {
-  const { t, locale } = useI18n()
+/**
+ * A category page's category, its head and its structured data, worded
+ * by the drawing's own `t`.
+ */
+export async function useProductCategoryPage(categoryId: string | undefined, t: ReturnType<typeof useI18n>['t']) {
+  const { locale } = useI18n({ useScope: 'global' })
   const img = useMediaStreamImage()
   const { ogImageUrl } = useTenantBranding()
   const baseUrl = useSiteConfig().url

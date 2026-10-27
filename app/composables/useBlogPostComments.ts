@@ -25,7 +25,7 @@ export async function useBlogPostComments(options: {
   // the request below: a store without comments is not asked for any.
   const blogCommentsEnabled = useStoreFeature('blogComments')
 
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const toast = useToast()
   const { notify } = useApiError()
   const route = useRoute()

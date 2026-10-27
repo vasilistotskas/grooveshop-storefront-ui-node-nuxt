@@ -12,7 +12,7 @@ export async function useBlogRail(options: {
   count: MaybeRefOrGetter<number>
   categoryId?: MaybeRefOrGetter<number | undefined>
 }) {
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
 
   const count = computed(() => toValue(options.count))
   const categoryId = computed(() => toValue(options.categoryId))

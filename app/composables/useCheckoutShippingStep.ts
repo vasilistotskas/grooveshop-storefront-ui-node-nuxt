@@ -87,7 +87,7 @@ function pricedOption(key: ShippingMethodKey, sameMethod: ShippingOption[], firs
 
 export function useCheckoutShippingStep(inputs: CheckoutShippingStepInputs) {
   const { formState } = inputs
-  const { t, n } = useI18n()
+  const { t, n } = useI18n({ useScope: 'global' })
   const { getPaymentMethodName } = usePaymentMethod()
   const { cart } = storeToRefs(useCartStore())
 

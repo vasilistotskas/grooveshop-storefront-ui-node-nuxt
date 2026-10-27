@@ -5,7 +5,7 @@ const { isMobileOrTablet } = useDevice()
 // Ref to control the sidebar drawer
 const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 
-await useProductsIndexPage()
+await useProductsIndexPage(t)
 
 // Handle filter toggle from Toolbar
 const handleToggleFilters = () => {

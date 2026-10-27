@@ -13,7 +13,7 @@
 export async function useBlogCategoryPage(options: {
   documentTitle: (name: string) => string
 }) {
-  const { locale, t } = useI18n()
+  const { locale, t } = useI18n({ useScope: 'global' })
   const route = useRoute()
   const img = useMediaStreamImage()
   const { declare, canonicalUrl } = useDocumentLocales()

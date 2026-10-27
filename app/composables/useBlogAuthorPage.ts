@@ -13,7 +13,7 @@
 export async function useBlogAuthorPage(options: {
   documentTitle: (name: string) => string
 }) {
-  const { locale, t } = useI18n()
+  const { locale, t } = useI18n({ useScope: 'global' })
   const route = useRoute()
   const img = useMediaStreamImage()
   const tenantStore = useTenantStore()

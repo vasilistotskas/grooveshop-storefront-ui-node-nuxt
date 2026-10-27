@@ -3,7 +3,7 @@ const { t } = useI18n()
 
 const categoryId = useProductCategoryRouteId()
 
-await useProductCategoryPage(categoryId)
+await useProductCategoryPage(categoryId, t)
 </script>
 
 <template>

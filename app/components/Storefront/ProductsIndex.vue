@@ -4,7 +4,7 @@ const { t } = useI18n()
 // The whole store: no category narrows the filters, chips or tree.
 provideListingScope({ categoryId: undefined, listingFilters: true })
 
-await useProductsIndexPage()
+await useProductsIndexPage(t)
 
 // Optional per-tenant branded band above the page content — sections
 // from the published 'products' PageLayout. The fallback is EMPTY, so a

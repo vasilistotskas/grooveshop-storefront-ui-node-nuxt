@@ -27,7 +27,7 @@
  */
 export async function useLegalPage(routeName: LegalRouteName) {
   const slug = LEGAL_ROUTE_SLUGS[routeName]
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const tenantStore = useTenantStore()
   const { transformImages } = useHtmlContent()
   const { declare } = useDocumentLocales()
