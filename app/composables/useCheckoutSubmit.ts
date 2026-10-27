@@ -159,13 +159,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   })
 
   // Functions
-  const handleOrderError = (response: any) => {
-    const errorData = response._data || response.data
+  const handleOrderError = (response: RefusedResponse) => {
+    const errorData = response._data
 
     log.info({
       tag: 'checkout',
       message: 'handleOrderError response',
-      status: response?.status,
+      status: response.status,
       errors: errorData,
     })
     // When the upstream returns a non-JSON 5xx (gateway crash, Cloudflare
@@ -173,12 +173,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     // branches below all miss — the user sees the generic toast and
     // ops has no signal in the logs. Capture the raw response shape so
     // a real outage is grep-able.
-    if (!errorData && response?.status && response.status >= 500) {
+    if (!errorData && response.status && response.status >= 500) {
       log.error({
         action: 'checkout:orderError:nonJson5xx',
         status: response.status,
-        statusText: response?.statusText,
-        contentType: response?.headers?.get?.('content-type'),
+        statusText: response.statusText,
+        contentType: response.headers?.get('content-type'),
       })
     }
     const errorInfo = classifyOrderError(errorData, t)
@@ -193,7 +193,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     }
     // What the shopper quotes to support: the refusal's stable code and
     // the request's id (`describeApiError` reads both).
-    const { code, requestId } = describeApiError({ status: response?.status, data: errorData, response }, {})
+    const { code, requestId } = describeApiError({ status: response.status, data: errorData, response }, {})
     return { ...errorInfo, code, requestId }
   }
 
@@ -349,6 +349,39 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     if (rejectionSettlesAttempt(failedStatusOf(error))) orderAttempt.value = null
   }
 
+  /**
+   * Posts the order and answers it, or `null` when Django refused it: the
+   * refusal is then classified for the shopper (`handleOrderError`), ends
+   * the attempt when it settles it, and is retried when retryable.
+   * `onRefused` runs first, for what the caller's flow drops on a refusal.
+   * A request that got no answer at all rejects, for the caller's catch.
+   *
+   * The answer is handled after the `await`, never in ofetch's hooks:
+   * ofetch runs `onResponseError` and THEN rejects, so a hook needed a
+   * flag to keep the catch from reporting the same failure twice.
+   */
+  const postOrder = async (
+    body: OrderCreateFromCartRequestWritable,
+    fingerprint: string,
+    onRefused?: () => void,
+  ): Promise<OrderDetail | null> => {
+    try {
+      return await $api<OrderDetail>('/api/orders', {
+        method: 'POST',
+        headers: orderRequestHeaders(fingerprint),
+        body,
+      })
+    }
+    catch (error: unknown) {
+      const response = refusedResponseOf(error)
+      if (!response) throw error
+      onRefused?.()
+      settleAttemptOnFailure({ response })
+      handleRetryableError(handleOrderError(response))
+      return null
+    }
+  }
+
   const handleOnlinePaymentFlow = async () => {
     if (!formState.payWayId) {
       failCheckout({ title: t('form.submit.error.general') })
@@ -387,7 +420,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     if (paymentIntentId.value && pricing !== intentPricedFrom.value) {
       paymentIntentId.value = null
     }
-    let handledByResponseError = false
     const fingerprint = orderFingerprint(orderValues)
     try {
       // Create a payment intent from the cart unless a current one exists.
@@ -449,60 +481,48 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
           : {}),
       }
 
-      await $api('/api/orders', {
-        method: 'POST',
-        headers: orderRequestHeaders(fingerprint),
-        body: submitValues,
-        async onResponse({ response }) {
-          if (!response.ok) return
+      // A refused order drops its intent, so the next retry prices a
+      // fresh one.
+      const order = await postOrder(submitValues, fingerprint, () => {
+        paymentIntentId.value = null
+      })
+      if (!order) return
 
-          createdOrder.value = response._data
-          maybeSaveDeliveryAddress()
-          // The order exists: the next checkout starts a new attempt.
-          orderAttempt.value = null
+      createdOrder.value = order
+      maybeSaveDeliveryAddress()
+      // The order exists: the next checkout starts a new attempt.
+      orderAttempt.value = null
 
-          if (giftCardsCoverTotal) {
-            // The order is already settled from the gift-card balance —
-            // no Stripe confirmation step follows, so finish like the
-            // offline flow: clear the cart and land on success.
-            retryCount.value = 0
-            // No "order created" toast here — see the offline branch below.
-            await cleanCartState()
-            await fetch()
-            if (response._data?.uuid) {
-              await navigateTo(localePath({
-                name: 'checkout-success-uuid',
-                params: { uuid: response._data.uuid },
-                query: { placed: '1' },
-              }))
-            }
-            return
-          }
+      if (giftCardsCoverTotal) {
+        // The order is already settled from the gift-card balance — no
+        // Stripe confirmation step follows, so finish like the offline
+        // flow: clear the cart and land on success.
+        retryCount.value = 0
+        // No "order created" toast here — see the offline flow below.
+        await cleanCartState()
+        await fetch()
+        if (order.uuid) {
+          await navigateTo(localePath({
+            name: 'checkout-success-uuid',
+            params: { uuid: order.uuid },
+            query: { placed: '1' },
+          }))
+        }
+        return
+      }
 
-          toast.add({
-            title: t('order_created_payment_required'),
-            description: t('complete_payment_to_finish'),
-            color: 'info',
-          })
-        },
-        onResponseError({ response }) {
-          // Clear stale payment intent so the next retry creates a fresh one
-          paymentIntentId.value = null
-          handledByResponseError = true
-          const errorInfo = handleOrderError(response)
-          settleAttemptOnFailure({ response })
-          handleRetryableError(errorInfo)
-        },
+      toast.add({
+        title: t('order_created_payment_required'),
+        description: t('complete_payment_to_finish'),
+        color: 'info',
       })
     }
     catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
-      if (!handledByResponseError) {
-        // Reached by the intent request too: a 4xx there is cached under
-        // the key like the order's.
-        settleAttemptOnFailure(error)
-        failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
-      }
+      // The intent request, or an order request that got no answer: a 4xx
+      // on the intent is cached under the key like the order's.
+      settleAttemptOnFailure(error)
+      failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
     }
   }
 
@@ -510,42 +530,28 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     const orderBody = buildOrderValues()
     if (!orderBody) return
 
-    let handledByResponseError = false
     try {
-      await $api('/api/orders', {
-        method: 'POST',
-        headers: orderRequestHeaders(orderFingerprint(orderBody)),
-        body: orderBody,
-        async onResponse({ response }) {
-          if (!response.ok) return
+      const order = await postOrder(orderBody, orderFingerprint(orderBody))
+      if (!order) return
 
-          createdOrder.value = response._data
-          maybeSaveDeliveryAddress()
-          orderAttempt.value = null
+      createdOrder.value = order
+      maybeSaveDeliveryAddress()
+      orderAttempt.value = null
 
-          toast.add({
-            title: t('order_created_payment_required'),
-            description: t('complete_payment_to_finish'),
-            color: 'info',
-          })
-        },
-        onResponseError({ response }) {
-          handledByResponseError = true
-          settleAttemptOnFailure({ response })
-          handleRetryableError(handleOrderError(response))
-        },
+      toast.add({
+        title: t('order_created_payment_required'),
+        description: t('complete_payment_to_finish'),
+        color: 'info',
       })
     }
     catch (error: unknown) {
       log.error({ action: 'checkout:vivaWalletOrderCreation', error })
-      if (!handledByResponseError) {
-        failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
-        // Release any stock reservations held for this checkout attempt
-        if (reservationIds.value.length > 0) {
-          releaseReservations(reservationIds.value)
-            .catch(err => log.error({ action: 'checkout:releaseReservations', error: err }))
-          reservationIds.value = []
-        }
+      failCheckoutWith(error, { title: t('payment_intent_error'), fallback: t('payment_intent_error_description') })
+      // Release any stock reservations held for this checkout attempt
+      if (reservationIds.value.length > 0) {
+        releaseReservations(reservationIds.value)
+          .catch(err => log.error({ action: 'checkout:releaseReservations', error: err }))
+        reservationIds.value = []
       }
     }
   }
@@ -555,55 +561,49 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     if (!orderBody) return
 
     try {
-      await $api('/api/orders', {
-        method: 'POST',
-        headers: orderRequestHeaders(orderFingerprint(orderBody)),
-        body: orderBody,
-        async onResponse({ response }) {
-          if (!response.ok) return
+      const order = await postOrder(orderBody, orderFingerprint(orderBody))
+      if (!order) return
 
-          createdOrder.value = response._data
-          maybeSaveDeliveryAddress()
-          orderAttempt.value = null
+      createdOrder.value = order
+      maybeSaveDeliveryAddress()
+      orderAttempt.value = null
 
-          // Reset retry counter on success
-          retryCount.value = 0
+      // Reset retry counter on success
+      retryCount.value = 0
 
-          // Deliberately no "order created" toast. Toasts survive the
-          // navigation that follows, so this one landed on the success
-          // page beside the page's own confirmation AND beside the
-          // backend's live notification ("Η παραγγελία #286
-          // καταχωρήθηκε", `notify_order_created_live`) — three ways of
-          // saying the same thing, reported from production
-          // 2026-09-13. The success page is the confirmation surface;
-          // the live notification is the durable record for a
-          // signed-in shopper. A guest gets no live notification
-          // (`order.user_id is None` skips it) but still lands on the
-          // success page, which states the outcome in full.
-          // Clear the cart, server-side and local, once the order is confirmed.
-          await cleanCartState()
-          await fetch()
-          if (!response._data?.uuid) {
-            log.error({ action: 'checkout:offlinePayment', error: 'No order UUID' })
-            return
-          }
-          // ``placed=1`` marks a real checkout arrival for the success
-          // page (purchase pixels + cart cleanup) — offline pay-ways
-          // have no provider redirect param (session_id / s) to key on.
-          await navigateTo(localePath({
-            name: 'checkout-success-uuid',
-            params: { uuid: response._data.uuid },
-            query: { placed: '1' },
-          }))
-        },
-        onResponseError({ response }) {
-          settleAttemptOnFailure({ response })
-          handleRetryableError(handleOrderError(response))
-        },
-      })
+      // Deliberately no "order created" toast. Toasts survive the
+      // navigation that follows, so this one landed on the success
+      // page beside the page's own confirmation AND beside the
+      // backend's live notification ("Η παραγγελία #286
+      // καταχωρήθηκε", `notify_order_created_live`) — three ways of
+      // saying the same thing, reported from production
+      // 2026-09-13. The success page is the confirmation surface;
+      // the live notification is the durable record for a
+      // signed-in shopper. A guest gets no live notification
+      // (`order.user_id is None` skips it) but still lands on the
+      // success page, which states the outcome in full.
+      // Clear the cart, server-side and local, once the order is confirmed.
+      await cleanCartState()
+      await fetch()
+      if (!order.uuid) {
+        log.error({ action: 'checkout:offlinePayment', error: 'No order UUID' })
+        return
+      }
+      // ``placed=1`` marks a real checkout arrival for the success
+      // page (purchase pixels + cart cleanup) — offline pay-ways
+      // have no provider redirect param (session_id / s) to key on.
+      await navigateTo(localePath({
+        name: 'checkout-success-uuid',
+        params: { uuid: order.uuid },
+        query: { placed: '1' },
+      }))
     }
     catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
+      // An order request that got no answer: the shopper must hear that the
+      // order was not placed, not see the button do nothing.
+      settleAttemptOnFailure(error)
+      failCheckoutWith(error, { title: t('form.submit.error.general'), fallback: t('error_occurred') })
     }
   }
 

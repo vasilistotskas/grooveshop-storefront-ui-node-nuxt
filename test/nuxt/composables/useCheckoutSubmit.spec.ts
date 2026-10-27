@@ -121,18 +121,14 @@ function setup(payWay: PayWay, options: {
   return current
 }
 
-/** Django accepted the order: ofetch awaits `onResponse` before resolving. */
+/** Django accepted the order: ofetch resolves with its body. */
 const orderCreated = (data: Record<string, unknown> = { uuid: 'order-uuid' }) =>
-  async (_url: string, opts: any) => {
-    await opts.onResponse?.({ response: { ok: true, _data: data } })
-    return data
-  }
+  () => data
 
-/** Django rejected it: ofetch runs `onResponseError`, then rejects with a FetchError. */
+/** Django refused it: ofetch rejects with a FetchError carrying the answer. */
 const orderRejected = (status: number, body: unknown) =>
-  (_url: string, opts: any) => {
+  () => {
     const response = { ok: false, status, _data: body }
-    opts.onResponseError?.({ response })
     throw Object.assign(new Error(String(status)), { response, data: body })
   }
 
@@ -434,6 +430,23 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       expect(submitError.value).toBeNull()
+    })
+
+    // The request got no answer: no hook runs, so the catch must say it,
+    // or «Place order» does nothing and the shopper is left guessing.
+    it('tells the shopper the order was not placed when the request got no answer', async () => {
+      api.routes({
+        '/api/orders': () => {
+          throw new TypeError('fetch failed')
+        },
+      })
+      const { onSubmit } = setup(COD)
+
+      await onSubmit()
+
+      expect(lastFailure()).toMatchObject({ title: t('form.submit.error.general') })
+      expect(m.navigateTo).not.toHaveBeenCalled()
+      expect(cart.cart).not.toBeNull()
     })
 
     it('stays put when the created order has no uuid to land on', async () => {
@@ -1001,11 +1014,11 @@ describe('useCheckoutSubmit', () => {
     function rejectFirst(attempts: number) {
       let calls = 0
       api.routes({
-        '/api/orders': (url: string, opts: any) => {
+        '/api/orders': () => {
           calls++
           return calls <= attempts
-            ? orderRejected(400, EXPIRED_HOLD)(url, opts)
-            : orderCreated({ uuid: 'order-after-retry' })(url, opts)
+            ? orderRejected(400, EXPIRED_HOLD)()
+            : orderCreated({ uuid: 'order-after-retry' })()
         },
       })
     }

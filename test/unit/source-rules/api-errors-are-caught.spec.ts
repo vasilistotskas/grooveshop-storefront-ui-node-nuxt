@@ -1,10 +1,11 @@
 import { describe, expect, it, beforeAll } from 'vitest'
 import type { AstNode } from '../../helpers/sourceText'
-import { APP, appLabel, callsIn, vueFiles } from '../../helpers/sourceText'
+import { APP, appLabel, callsIn, composableFiles, vueFiles } from '../../helpers/sourceText'
 
 /**
- * A component or page handles a failed `$api` call in a `catch`, never
- * in ofetch's response hooks.
+ * A failed `$api` call is handled in a `catch`, never in ofetch's response
+ * hooks — in components, pages and the composables both component trees
+ * share (which hold most of the calls since the webside consolidation).
  *
  * On a 4xx/5xx ofetch runs `onResponse`, then `onResponseError`, and THEN
  * rejects with the `FetchError`. A hook that toasts the error therefore
@@ -14,10 +15,11 @@ import { APP, appLabel, callsIn, vueFiles } from '../../helpers/sourceText'
  * never runs, leaving the control spinning. `try` / `catch` / `finally`
  * around the awaited call is the one shape that settles every path.
  *
- * Composables may still pass hooks when they RETURN the call (the allauth
- * composables fire `auth:change` from them), because their callers catch.
- * The frozen `webside` tree is held to the same rule: it renders a live
- * store, and these are bug fixes.
+ * A composable may pass hooks on a call it RETURNS (the allauth
+ * composables fire `auth:change` from them): the caller awaits it and
+ * catches. A hooked call it awaits itself is the same bug as in a
+ * component. The frozen `webside` tree is held to the same rule: it
+ * renders a live store, and these are bug fixes.
  */
 const HOOK = /^on(?:Request|Response)(?:Error)?$/
 
@@ -29,28 +31,49 @@ const hookNames = (options: AstNode | undefined): string[] =>
         .filter((name: unknown): name is string => typeof name === 'string' && HOOK.test(name))
     : []
 
-let calls: Array<{ where: string, hooks: string[] }>
+/** The call is what its function returns: `return $api(…)` or `() => $api(…)`. */
+function isReturned(call: AstNode, parents: readonly AstNode[]): boolean {
+  const parent = parents.at(-1)
+  return parent?.type === 'ReturnStatement'
+    || (parent?.type === 'ArrowFunctionExpression' && parent.body === call)
+}
+
+interface ApiCall { where: string, hooks: string[], returned: boolean }
+
+function apiCalls(files: readonly string[]): ApiCall[] {
+  return files.flatMap(file => callsIn(file, /^\$api$/).map(({ call, parents, line }) => ({
+    where: `${appLabel(file)}:${line}`,
+    hooks: hookNames(call.arguments[1]),
+    returned: isReturned(call, parents),
+  })))
+}
+
+const describeHooked = (calls: readonly ApiCall[]) =>
+  calls.map(({ where, hooks }) => `${where} ${hooks.join(', ')}`)
+
+let componentCalls: ApiCall[]
+let composableCalls: ApiCall[]
 
 beforeAll(() => {
-  calls = vueFiles(APP)
-    .filter(file => /^(?:components|pages)\//.test(appLabel(file)))
-    .flatMap(file => callsIn(file, /^\$api$/).map(({ call, line }) => ({
-      where: `${appLabel(file)}:${line}`,
-      hooks: hookNames(call.arguments[1]),
-    })))
+  componentCalls = apiCalls(vueFiles(APP).filter(file => /^(?:components|pages)\//.test(appLabel(file))))
+  composableCalls = apiCalls(composableFiles())
 })
 
-describe('`$api` in components and pages', () => {
+describe('`$api` error handling', () => {
   it('finds the calls at all', () => {
-    // A guard on the guard: a renamed fetcher must not empty the scan.
-    // (Lowered as the frozen tree's calls moved into the composables both
-    // trees share, which this scan does not read yet; 15 remain.)
-    expect(calls.length).toBeGreaterThan(10)
+    // A guard on the guard: a renamed fetcher must not empty the scan
+    // (128 calls across components, pages and composables).
+    expect(componentCalls.length + composableCalls.length).toBeGreaterThan(100)
+    // The allauth composables' returned, hooked calls: the exemption below
+    // must keep matching something, or it has gone blind.
+    expect(composableCalls.filter(call => call.hooks.length > 0 && call.returned).length).toBeGreaterThan(20)
   })
 
-  it('passes no request or response hooks: a failure is handled in a catch', () => {
-    const hooked = calls.filter(({ hooks }) => hooks.length > 0).map(({ where, hooks }) => `${where} ${hooks.join(', ')}`)
+  it('components and pages pass no request or response hooks', () => {
+    expect(describeHooked(componentCalls.filter(({ hooks }) => hooks.length > 0))).toEqual([])
+  })
 
-    expect(hooked).toEqual([])
+  it('composables pass hooks only on a call they return', () => {
+    expect(describeHooked(composableCalls.filter(({ hooks, returned }) => hooks.length > 0 && !returned))).toEqual([])
   })
 })

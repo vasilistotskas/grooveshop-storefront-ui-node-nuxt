@@ -257,6 +257,28 @@ export function buildOrderCreateBody(
   }
 }
 
+/** What a refused `$api` call got back: ofetch's `FetchError.response`. */
+export interface RefusedResponse {
+  status: number
+  statusText?: string
+  headers?: Headers
+  _data?: unknown
+}
+
+/**
+ * The answer a failed `$api` call got, `undefined` when it got none (a
+ * dropped connection, a timeout): a refusal the shopper can be told about,
+ * apart from a request that never reached a decision.
+ */
+export function refusedResponseOf(error: unknown): RefusedResponse | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  const { response } = error as { response?: unknown }
+  if (typeof response !== 'object' || response === null) return undefined
+  return typeof (response as { status?: unknown }).status === 'number'
+    ? response as RefusedResponse
+    : undefined
+}
+
 /** The HTTP status a failed `$api` call carries, `undefined` when no response came back. */
 export function failedStatusOf(error: unknown): number | undefined {
   if (typeof error !== 'object' || error === null) return undefined

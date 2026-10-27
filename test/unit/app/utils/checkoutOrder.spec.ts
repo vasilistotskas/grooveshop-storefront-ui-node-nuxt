@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildOrderCreateBody, classifyOrderError, failedStatusOf, rejectionSettlesAttempt, setDocumentType } from '~/utils/checkoutOrder'
+import { buildOrderCreateBody, classifyOrderError, failedStatusOf, refusedResponseOf, rejectionSettlesAttempt, setDocumentType } from '~/utils/checkoutOrder'
 import type { OrderCreateBodyContext } from '~/utils/checkoutOrder'
 import { makeCountry } from '~~/test/fixtures/country'
 
@@ -279,6 +279,23 @@ describe('failedStatusOf', () => {
     ['nothing', null, undefined],
   ])('reads the status of %s', (_label, error, status) => {
     expect(failedStatusOf(error)).toBe(status)
+  })
+})
+
+describe('refusedResponseOf', () => {
+  it('reads the answer a refused request got', () => {
+    const response = { status: 400, _data: { code: 'out_of_stock' } }
+
+    expect(refusedResponseOf(Object.assign(new Error('400'), { response }))).toBe(response)
+  })
+
+  it.each([
+    ['a dropped connection', new TypeError('fetch failed')],
+    ['an error whose response has no status', Object.assign(new Error('x'), { response: {} })],
+    ['something that is no error', 'boom'],
+    ['nothing', null],
+  ])('finds no answer in %s', (_label, error) => {
+    expect(refusedResponseOf(error)).toBeUndefined()
   })
 })
 

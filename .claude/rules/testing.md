@@ -155,8 +155,8 @@ of hand-building a payload in a second spec.
   route matters, `vi.mock` the page module with an empty component.
 - **Answer `$api` the way ofetch does**: resolve with the body, or reject
   through `failWith(status, data)`. Never call `options.onResponse*` from a
-  route handler — components and pages take no response hooks
-  (`test/unit/source-rules/api-errors-are-caught.spec.ts`).
+  route handler — components, pages and composables take no response hooks
+  on a call they await (`test/unit/source-rules/api-errors-are-caught.spec.ts`).
 - **i18n returns real Greek.** For exact copy assert
   `useNuxtApp().$i18n.t('key', params)` rather than hardcoding the string.
 
