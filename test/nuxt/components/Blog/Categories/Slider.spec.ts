@@ -4,6 +4,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import BlogCategoriesSlider from '~/components/Blog/Categories/Slider.vue'
 import WebsideBlogCategoriesSlider from '~/components/variants/webside/Blog/Categories/Slider.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The categories rail. The default rail renders the categories its band
@@ -25,6 +26,8 @@ const PAGE = { count: 2, next: null, previous: null, results: CATEGORIES }
 const stubs = { UCarousel: { props: ['items'], template: '<div><slot v-for="item in items" :item="item" /></div>' } }
 
 beforeEach(() => {
+  setTenant()
+  setTenantFeatures({ blog: true })
   clearNuxtData(KEY)
   api.routes({ '/api/blog/categories': PAGE })
 })
@@ -41,6 +44,23 @@ describe('Blog/Categories/Slider', () => {
 })
 
 describe('webside Blog/Categories/Slider', () => {
+  it('asks for the rail own page size in the page language', async () => {
+    await mountSuspended(WebsideBlogCategoriesSlider, { route: false, props: { max: 5 }, global: { stubs } })
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/categories').map(call => call.options.query)).toEqual([{ pageSize: 5, languageCode: 'el' }])
+  })
+
+  it('asks for nothing when the store has no blog', async () => {
+    setTenantFeatures({ blog: false })
+
+    const wrapper = await mountSuspended(WebsideBlogCategoriesSlider, { route: false, global: { stubs } })
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/categories')).toHaveLength(0)
+    expect(wrapper.text()).toBe('')
+  })
+
   it('reads the server payload when it is set up after hydration, without asking again', async () => {
     const nuxtApp = useNuxtApp()
     nuxtApp.payload.data[KEY] = PAGE

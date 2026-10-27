@@ -13,14 +13,7 @@ const { t, locale } = useI18n()
 const { filters, updateFilters } = useProductFilters()
 
 // Fetch facet stats for likes count during SSR
-const { data: searchResults } = await useApi('/api/products/search', {
-  query: {
-    facets: 'likes_count',
-    limit: 1,
-    languageCode: locale.value,
-  },
-  key: `likes-facets-${locale.value}`,
-})
+const { data: searchResults } = await useProductFacetStats('likes_count')
 
 /**
  * Get likes statistics from Meilisearch facets

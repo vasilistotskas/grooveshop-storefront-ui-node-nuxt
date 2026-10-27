@@ -11,45 +11,14 @@ const props = defineProps({
 
 const { paginationType } = toRefs(props)
 
-const route = useRoute()
 const { blogCategoryUrl } = useUrls()
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
 
-const pageSize = ref(9)
-
-const page = computed(() => route.query.page)
-
-const {
-  data: categories,
-  status,
-  refresh,
-} = await useApi(
-  '/api/blog/categories',
-  {
-    key: 'blogCategories',
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      pageSize: pageSize,
-      paginationType: paginationType,
-      languageCode: locale,
-    },
-  },
-)
-
-const pagination = computed(() => {
-  if (!categories.value?.count) return
-  return usePagination<BlogCategory>(categories.value)
+const { categories, status, pagination } = await useBlogCategoriesPage({
+  paginationType,
+  pageSize: 9,
 })
-
-watch(
-  () => route.query,
-  async () => {
-    await refresh()
-  },
-)
 </script>
 
 <template>

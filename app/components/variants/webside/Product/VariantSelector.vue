@@ -7,6 +7,7 @@ const props = defineProps<Props>()
 
 const { t, locale, n } = useI18n()
 const { productUrl } = useUrls()
+const localePath = useLocalePath()
 
 const {
   axes,
@@ -52,7 +53,7 @@ async function onSelect(axisId: number, rawValue: unknown) {
   const valueId = Number(rawValue)
   if (Number.isNaN(valueId) || isCurrentValue(axisId, valueId)) return
   const target = resolveTarget(axisId, valueId)
-  if (target) await navigateTo(productUrl(target.id, target.slug))
+  if (target) await navigateTo(localePath({ path: productUrl(target.id, target.slug) }))
 }
 </script>
 

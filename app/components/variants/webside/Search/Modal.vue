@@ -10,21 +10,8 @@ const emit = defineEmits<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
-const router = useRouter()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const history = useSearchHistory()
-
-const trending = useLazyApi<{
-  windowHours: number
-  contentType: string
-  languageCode: string | null
-  results: { query: string, count: number }[]
-}>('/api/search/trending', {
-  query: { languageCode: locale, contentType: 'product', limit: 8 },
-  immediate: true,
-  server: false,
-  default: () => ({ windowHours: 24, contentType: 'product', languageCode: null, results: [] }),
-})
 
 const localQuery = computed({
   get: () => props.query,
@@ -40,7 +27,16 @@ const localOpen = computed({
   set: value => emit('update:open', value),
 })
 
-const debouncedQuery = refDebounced(localQuery, 200)
+const {
+  limit,
+  trending,
+  debouncedQuery,
+  offset,
+  searchResults,
+  status,
+  execute,
+  goToSearchPage: openSearchPage,
+} = useQuickSearch({ query: localQuery })
 const activeResultIndex = ref(-1)
 
 const allLoadedResults = ref<{
@@ -51,26 +47,9 @@ const allLoadedResults = ref<{
   blogPosts: [],
 })
 
-const limit = ref(3)
-const offset = ref(0)
 const activeTab = ref<'all' | 'products' | 'blogPosts'>('all')
 // Without the blog the search has no posts to show: no Blog tab.
 const blogEnabled = useStoreFeature('blog')
-
-const {
-  data: searchResults,
-  status,
-  execute,
-} = useLazyApi<SearchResponse>('/api/search', {
-  query: {
-    query: debouncedQuery,
-    languageCode: locale,
-    limit,
-    offset,
-  },
-  immediate: false,
-  watch: false,
-})
 
 const filteredResults = computed(() => {
   if (!allLoadedResults.value) return []
@@ -149,13 +128,13 @@ function selectPrevResult() {
 function goToSearchPage() {
   if (localQuery.value) {
     history.add(localQuery.value)
-    router.replace({ path: '/search', query: { query: localQuery.value } })
+    openSearchPage(localQuery.value)
     localOpen.value = false
   }
 }
 
 function loadMore() {
-  offset.value += limit.value
+  offset.value += limit
   execute()
 }
 

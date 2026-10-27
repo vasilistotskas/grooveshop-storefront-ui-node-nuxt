@@ -1,8 +1,5 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
-const { loggedIn } = useUserSession()
-const userStore = useUserStore()
-const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
 const { blogAuthorUrl, blogCategoryUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
@@ -21,25 +18,7 @@ const {
   relatedPostsStatus,
 } = await useBlogPostPage({ articleMaxWidth: ARTICLE_COLUMN_MAX_WIDTH })
 
-// Non-critical data: defer to client-side (doesn't block FCP/LCP)
-const { data: likedPostsData } = await useApi('/api/blog/posts/liked-posts', {
-  key: `likedPosts${blogPostId.value}`,
-  method: 'POST',
-  body: {
-    postIds: [blogPostId.value],
-  },
-  enabled: loggedIn,
-  server: false, // Client-side only - not needed for initial render
-})
-
-// `likedPostsData` resolves client-side only (server: false), so it is null
-// during setup on a hard load — apply the liked state reactively when it
-// arrives instead of reading it once synchronously.
-watch(likedPostsData, (value) => {
-  if (value) {
-    updateLikedPosts(value.postIds)
-  }
-}, { immediate: true })
+await useLikedBlogPost(blogPostId)
 
 // An "updated" line only earns its place when the post really changed
 // after going live. `updatedAt` is set on every save, so a

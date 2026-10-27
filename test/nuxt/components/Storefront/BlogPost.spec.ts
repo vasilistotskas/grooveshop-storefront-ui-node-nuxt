@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { ref } from 'vue'
 import { mountSuspended, mockComponent, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import BlogPost from '~/components/Storefront/BlogPost.vue'
@@ -16,6 +17,17 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 mockNuxtImport('useRequestApi', () => () => api)
+
+// The full surface: the app's auth plugin reads it at boot.
+const session = vi.hoisted(() => ({ loggedIn: false }))
+mockNuxtImport('useUserSession', () => () => ({
+  loggedIn: ref(session.loggedIn),
+  user: ref(session.loggedIn ? { id: 7 } : null),
+  session: ref({}),
+  ready: ref(true),
+  fetch: () => Promise.resolve(),
+  clear: () => Promise.resolve(),
+}))
 
 // UTooltip needs UApp's TooltipProvider, which a bare mount does not have.
 mockComponent('UTooltip', { template: '<div><slot /></div>' })
@@ -123,6 +135,52 @@ describe.each([
     expect(image.attributes('src')).toContain(
       `/media/webside/uploads/tinymce/chart.png/${columnWidth}/0/`,
     )
+    wrapper.unmount()
+  })
+})
+
+/**
+ * A signed-in reader is told which posts they like, so the like button
+ * shows its state: one request for the post in the route, and none for a
+ * visitor.
+ */
+describe.each([
+  ['default', BlogPost],
+  ['webside', WebsideBlogPost],
+])('BlogPost likes (%s tree)', (_tree, Component) => {
+  beforeEach(() => {
+    clearNuxtData()
+    clearCursorState()
+    session.loggedIn = false
+    useUserStore().blogLikedPosts = []
+    setTenant({ blogEnabled: true })
+    setTenantFeatures({ blog: true, blogComments: true })
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/blog/posts/7': POST,
+      '/api/blog/categories/2': POST.category,
+      '/api/blog/authors/3': POST.author,
+      '/api/blog/posts/liked-posts': { postIds: [7] },
+      '/api/*': empty,
+    })
+  })
+
+  it('asks which of the post a signed-in reader likes, and marks it liked', async () => {
+    session.loggedIn = true
+
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/posts/liked-posts').map(call => call.options.body)).toEqual([{ postIds: [7] }])
+    expect(useUserStore().blogPostLiked(7)).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('asks a visitor nothing about likes', async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/posts/liked-posts')).toHaveLength(0)
     wrapper.unmount()
   })
 })

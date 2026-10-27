@@ -24,40 +24,12 @@ const props = defineProps<{
   productId: number
 }>()
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 
-const promotionsEnabled = useStoreFeature('promotions')
-
-const { data: offers } = await useApi(
-  () => `/api/promotions/product/${props.productId}`,
-  {
-    // Django resolves the name and description server-side, so the
-    // locale has to travel with the request and with the cache key.
-    key: () => `product-offers-${props.productId}-${locale.value}`,
-    headers: useRequestHeaders(),
-    query: { languageCode: locale },
-    // Gate the REQUEST, not just the render: Django answers 404 for a
-    // store without promotions (58 of them in six hours on webside.gr,
-    // a wasted round trip on the hot PDP path). `default` still covers
-    // the enabled-but-empty case.
-    default: () => [],
-    enabled: promotionsEnabled,
-  },
-)
-
-const rows = computed(() => (promotionsEnabled.value ? offers.value ?? [] : []))
-
-/**
- * Store-wide offers are true of every product, so they are context
- * rather than news. Split rather than dropped: "free shipping over
- * 39 €" still helps the purchase decision, it just should not be the
- * first thing read.
- */
-const specific = computed(() => rows.value.filter(o => o.relation !== 'ORDER'))
-const storeWide = computed(() => rows.value.filter(o => o.relation === 'ORDER'))
+const { rows, specific, storeWide } = await useProductPromotions(() => props.productId)
 
 async function copyCode(code: string) {
   await copy(code)

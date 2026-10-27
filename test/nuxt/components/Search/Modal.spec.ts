@@ -248,9 +248,26 @@ describe('Webside Search/Modal', () => {
     modalButton(own(wrapper, 'search.view_all_results')).click()
     await nextTick()
 
-    expect(replace).toHaveBeenCalledExactlyOnceWith({ path: '/search', query: { query: 'laptop' } })
+    expect(replace).toHaveBeenCalledExactlyOnceWith('/search?query=laptop')
     expect(wrapper.emitted('update:open')).toEqual([[false]])
     expect(JSON.parse(localStorage.getItem('search:recent:el')!)).toEqual(['laptop'])
+  })
+
+  it('keeps the language: an English search opens the English results', async () => {
+    const { $i18n } = useNuxtApp()
+    const replace = vi.spyOn(useRouter(), 'replace').mockResolvedValue(undefined)
+    $i18n.locale.value = 'en'
+    try {
+      const wrapper = await openModal(C, 'laptop')
+
+      modalButton(own(wrapper, 'search.view_all_results')).click()
+      await nextTick()
+
+      expect(replace).toHaveBeenCalledExactlyOnceWith('/en/search?query=laptop')
+    }
+    finally {
+      $i18n.locale.value = 'el'
+    }
   })
 
   it('moves the active result with the arrow keys, wrapping at both ends', async () => {

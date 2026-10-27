@@ -42,13 +42,13 @@ const emit = defineEmits<{
 
 const attrs = useAttrs()
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
-const { loggedIn } = useUserSession()
-const userStore = useUserStore()
-const { blogCommentLiked, addLikedComment, removeLikedComment } = userStore
+const { blogCommentId } = toRefs(props)
 
-const liked = computed(() => blogCommentLiked(props.blogCommentId))
+const { liked, toggle: toggleFavourite } = useBlogCommentLike({
+  blogCommentId,
+  t,
+  onToggled: payload => emit('update', payload),
+})
 
 const defaultUI = computed(() => {
   return {
@@ -59,40 +59,6 @@ const defaultUI = computed(() => {
 const mergedUI = computed(() => ({
   base: `${defaultUI.value.base} ${(ui.value as Record<string, string>)?.base || ''}`.trim(),
 }))
-
-const toggleFavourite = async () => {
-  if (!loggedIn.value) {
-    toast.add({
-      title: t('not_authenticated'),
-      color: 'error',
-    })
-    return
-  }
-
-  try {
-    await $api(`/api/blog/comments/${props.blogCommentId}/update-likes`, { method: 'POST' })
-  }
-  catch (error) {
-    log.error({ action: 'blog:commentLike', error })
-    notify('Comment-Like', error, { title: t('error_occurred') })
-    return
-  }
-
-  if (!liked.value) {
-    emit('update', {
-      blogCommentId: props.blogCommentId,
-      liked: true,
-    })
-    addLikedComment(props.blogCommentId)
-  }
-  else {
-    emit('update', {
-      blogCommentId: props.blogCommentId,
-      liked: false,
-    })
-    removeLikedComment(props.blogCommentId)
-  }
-}
 
 const buttonAreaLabel = computed(() =>
   liked.value ? t('liked') : t('like'),

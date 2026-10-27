@@ -26,37 +26,11 @@ const props = defineProps<{
   productId: number
 }>()
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 
-const promotionsEnabled = useStoreFeature('promotions')
-
-const { data: offers } = await useApi(
-  () => `/api/promotions/product/${props.productId}`,
-  {
-    // Same reason as the `/offers` page: Django resolves the name and
-    // description server-side, so the locale has to travel with the
-    // request and with the cache key.
-    key: () => `product-offers-${props.productId}-${locale.value}`,
-    headers: useRequestHeaders(),
-    query: { languageCode: locale },
-    // Gate the REQUEST, not just the render: Django answers 404 for a
-    // store without promotions (58 of them in six hours on webside.gr,
-    // a wasted round trip on the hot PDP path). `default` still covers
-    // the enabled-but-empty case.
-    default: () => [],
-    enabled: promotionsEnabled,
-  },
-)
-
-const rows = computed(() => (promotionsEnabled.value ? offers.value ?? [] : []))
-
-const specific = computed(() => rows.value.filter(o => o.relation !== 'ORDER'))
-const storeWide = computed(() => rows.value.filter(o => o.relation === 'ORDER'))
-
-/** The header counts what the card lists open. */
-const openCount = computed(() => specific.value.length || storeWide.value.length)
+const { rows, specific, storeWide, openCount } = await useProductPromotions(() => props.productId)
 
 async function copyCode(code: string) {
   await copy(code)

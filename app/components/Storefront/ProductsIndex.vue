@@ -1,53 +1,10 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
-const siteConfig = useSiteConfig()
-const { ogImageUrl } = useTenantBranding()
+const { t } = useI18n()
 
 // The whole store: no category narrows the filters, chips or tree.
 provideListingScope({ categoryId: undefined, listingFilters: true })
 
-// A small page-1 fetch for the Schema.org ItemList. It does NOT
-// duplicate the listing's own fetch — different limit, different key —
-// and exists only so the collection is machine-readable.
-const { data: seoProducts } = await useApi<ProductMeiliSearchResponse>(
-  '/api/products/search',
-  {
-    key: 'products-index-seo',
-    query: { languageCode: locale, limit: 12, offset: 0 },
-    server: true,
-    lazy: false,
-  },
-)
-
-useSeoMeta({
-  // `seo.title`, not `title`: the latter is also the page's h1.
-  title: () => t('seo.title'),
-  description: () => t('seo.description'),
-  ogTitle: () => t('seo.title'),
-  ogDescription: () => t('seo.description'),
-  ogType: 'website',
-  // The tenant's own logo, so a social preview carries its brand.
-  ogImage: ogImageUrl.value,
-  ogImageAlt: () => t('title'),
-})
-
-const baseUrl = siteConfig.url
-
-useSchemaOrg([
-  defineWebPage({ '@type': 'CollectionPage' }),
-  // `itemListElement` is object-typed, so it cannot be a getter since
-  // the @unhead/schema-org v3 definer-type rewrite — the whole node is
-  // one computed instead.
-  defineItemList(computed(() => ({
-    name: t('title'),
-    itemListElement: (seoProducts.value?.results ?? []).map((p, i) => ({
-      '@type': 'ListItem' as const,
-      'position': i + 1,
-      'url': `${baseUrl}/products/${p.master ?? p.id}/${p.slug}`,
-      'name': p.name,
-    })),
-  }))),
-])
+await useProductsIndexPage()
 
 // Optional per-tenant branded band above the page content — sections
 // from the published 'products' PageLayout. The fallback is EMPTY, so a

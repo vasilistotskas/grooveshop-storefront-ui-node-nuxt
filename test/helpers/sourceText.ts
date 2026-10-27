@@ -81,6 +81,19 @@ export function vueFiles(root: string, { exclude = [] }: { exclude?: readonly st
   return out.sort()
 }
 
+/**
+ * Every composable (`app/composables/*.ts`), sorted: where the fetches
+ * both component trees share live, so a rule about a request reads them
+ * beside the components.
+ */
+export function composableFiles(): string[] {
+  const dir = resolve(APP, 'composables')
+  return readdirSync(dir)
+    .filter(name => name.endsWith('.ts'))
+    .map(name => resolve(dir, name))
+    .sort()
+}
+
 /** `file` relative to `base`, `/`-separated on every platform. */
 export function relativeLabel(base: string, file: string): string {
   return relative(base, file).split(sep).join('/')
@@ -177,11 +190,15 @@ export function walkAst(root: AstNode, visit: (node: AstNode, parents: readonly 
 
 /**
  * Every call to a function named by `callee` in the file's scripts,
- * with its line in the `.vue` file.
+ * with its line in the file: a `.vue` file's script blocks, or a
+ * TypeScript module (a composable) as a whole.
  */
 export function callsIn(file: string, callee: RegExp): Array<{ call: AstNode, parents: readonly AstNode[], line: number }> {
   const out: Array<{ call: AstNode, parents: readonly AstNode[], line: number }> = []
-  for (const { program, lineOffset } of sfcScriptAsts(file)) {
+  const blocks = file.endsWith('.vue')
+    ? sfcScriptAsts(file)
+    : [{ program: parseScript(readSource(file)), lineOffset: 0 }]
+  for (const { program, lineOffset } of blocks) {
     walkAst(program, (node, parents) => {
       if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && callee.test(node.callee.name)) {
         out.push({ call: node, parents, line: lineOffset + (node.loc?.start.line ?? 0) })

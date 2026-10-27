@@ -5,8 +5,10 @@ import type { VueWrapper } from '@vue/test-utils'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import Offers from '~/components/Storefront/Offers.vue'
+import WebsideOffers from '~/components/variants/webside/Storefront/Offers.vue'
 import { makePromotion } from '~~/test/fixtures/promotion'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The public offers page: every live offer as a card, filtered by
@@ -113,5 +115,44 @@ describe('Storefront/Offers', () => {
 
     expect(copy).toHaveBeenCalledWith('CODE1')
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Ο κωδικός αντιγράφηκε', description: 'CODE1' }))
+  })
+})
+
+/**
+ * The offers both trees list are one request (`usePublicPromotions`):
+ * Django words an offer in the language it is asked for, and the key
+ * carries that language (`offers-request-a-language.spec.ts`).
+ */
+describe.each(trees(Offers, WebsideOffers))('$tree Storefront/Offers request', ({ C }) => {
+  const mount = async () => {
+    api.routes({ '/api/promotions': () => [code(1)] })
+    await mountSuspended(C, { route: false })
+    await flushPromises()
+  }
+
+  it('asks for the offers in the page language', async () => {
+    await mount()
+
+    expect(api.callsTo('/api/promotions').map(call => call.options.query)).toEqual([{ languageCode: 'el' }])
+  })
+
+  it('asks again, in English, once the page is English', async () => {
+    const { $i18n } = useNuxtApp()
+    // A copy at the time of the call: the recorded query is the live,
+    // reactive object the request reads.
+    const lastQuery = () => ({ ...api.callsTo('/api/promotions').at(-1)!.options.query })
+    await mount()
+    expect(lastQuery()).toEqual({ languageCode: 'el' })
+
+    $i18n.locale.value = 'en'
+    try {
+      await mount()
+
+      expect(api.callsTo('/api/promotions')).toHaveLength(2)
+      expect(lastQuery()).toEqual({ languageCode: 'en' })
+    }
+    finally {
+      $i18n.locale.value = 'el'
+    }
   })
 })

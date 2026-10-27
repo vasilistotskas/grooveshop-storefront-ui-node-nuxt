@@ -24,8 +24,7 @@ const emit = defineEmits<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
-const router = useRouter()
-const { t, n, locale } = useI18n()
+const { t, n } = useI18n()
 const localePath = useLocalePath()
 const { productUrl, blogPostUrl } = useUrls()
 const history = useSearchHistory()
@@ -34,18 +33,6 @@ const { trackResultClick } = useSearchClickTracking()
 const MIN_QUERY_LENGTH = 2
 
 const MODAL_UI = { content: 'max-w-2xl rounded-[1.25rem] max-md:rounded-none' }
-
-const trending = useLazyApi<{
-  windowHours: number
-  contentType: string
-  languageCode: string | null
-  results: { query: string, count: number }[]
-}>('/api/search/trending', {
-  query: { languageCode: locale, contentType: 'product', limit: 8 },
-  immediate: true,
-  server: false,
-  default: () => ({ windowHours: 24, contentType: 'product', languageCode: null, results: [] }),
-})
 
 const localQuery = computed({
   get: () => props.query,
@@ -57,18 +44,15 @@ const localOpen = computed({
   set: value => emit('update:open', value),
 })
 
-const debouncedQuery = refDebounced(localQuery, 200)
-
-const { data: searchResults, status, execute, clear } = useLazyApi<SearchResponse>('/api/search', {
-  query: {
-    query: debouncedQuery,
-    languageCode: locale,
-    limit: 3,
-    offset: 0,
-  },
-  immediate: false,
-  watch: false,
-})
+const {
+  trending,
+  debouncedQuery,
+  searchResults,
+  status,
+  execute,
+  clear,
+  goToSearchPage: openSearchPage,
+} = useQuickSearch({ query: localQuery })
 
 const searching = computed(() => localQuery.value.length >= MIN_QUERY_LENGTH)
 
@@ -126,10 +110,7 @@ function onResultClick(result: SearchResult, rank: number) {
 function goToSearchPage() {
   if (!localQuery.value) return
   history.add(localQuery.value)
-  // Through localePath: a bare '/search' dropped the /en prefix, so an
-  // English quick search opened the Greek results page, which found
-  // nothing for an English word.
-  router.replace(localePath({ name: 'search', query: { query: localQuery.value } }))
+  openSearchPage(localQuery.value)
   close()
 }
 

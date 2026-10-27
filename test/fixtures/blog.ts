@@ -1,4 +1,4 @@
-import type { BlogCategory, BlogComment, BlogPost } from '~~/shared/openapi/types.gen'
+import type { BlogCategory, BlogComment, BlogPost, BlogTag } from '~~/shared/openapi/types.gen'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -91,6 +91,29 @@ export function makeBlogCategory(overrides: Partial<BlogCategory> = {}): BlogCat
     mainImagePath: '',
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
+    ...overrides,
+  }
+}
+
+/**
+ * A `BlogTag` as Django serialises it, valid against the generated
+ * `zBlogTag` (proved by `test/unit/fixtures/blog.spec.ts`).
+ *
+ * Defaults: an active Greek tag with one post; the name and uuid follow
+ * `id`. An explicit override wins.
+ */
+export function makeBlogTag(overrides: Partial<BlogTag> = {}): BlogTag {
+  const id = overrides.id ?? 1
+
+  return {
+    id,
+    translations: { el: { name: `Ετικέτα ${id}` } },
+    active: true,
+    sortOrder: id,
+    postsCount: '1',
+    createdAt: FIXTURE_TIMESTAMP,
+    updatedAt: FIXTURE_TIMESTAMP,
+    uuid: fixtureUuid(31, id),
     ...overrides,
   }
 }

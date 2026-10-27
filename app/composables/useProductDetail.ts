@@ -44,14 +44,7 @@ export async function useProductDetail(productId: string) {
       languageCode: locale,
     },
   })
-  const imagesRequest = useApi(`/api/products/${Number(productId)}/images`, {
-    key: `productImages${Number(productId)}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  })
+  const imagesRequest = useProductImages(Number(productId))
   const reviewsRequest = useApi<ListProductReviewsResponse>(`/api/products/${productId}/reviews`, {
     key: `productReviewsSchema${productId}`,
     // With reviews off none are fetched, so none reach the page or its

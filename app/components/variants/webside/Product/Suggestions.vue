@@ -44,33 +44,7 @@ type Tile = { product: Product, reason: RecommendationReason | null }
 const productName = (product: Product) =>
   extractTranslated(product, 'name', locale.value) ?? ''
 
-// SSR-rendered: Nitro caches this per (seed, surface) so the page
-// pays a cache hit, not a Django round trip. Not fetched at all when
-// the parent already has the items.
-const fetches = props.items === undefined
-// Plain template literals, as the product page does: Nitro's typed
-// routes resolve the response type from them, which a URL function
-// would not. The seed is fixed for the component's lifetime — the
-// page remounts it per product. No seed: the store-wide route.
-const url = typeof props.seedId === 'number'
-  ? `/api/products/${props.seedId}/recommendations` as const
-  : '/api/recommendations' as const
-const { data: served } = useApi(url, {
-  key: `recommendations:${props.surface}:${props.seedId ?? 'store'}:${props.limit ?? ''}`,
-  query: {
-    surface: props.surface,
-    ...(typeof props.limit === 'number' ? { limit: props.limit } : {}),
-  },
-  immediate: fetches,
-  default: () => null,
-  // `hydrate-on-visible`: set up after hydration, when Nuxt's default no
-  // longer reads the payload. See app/utils/payloadCachedData.ts.
-  getCachedData: payloadCachedData,
-})
-// The route's response type comes from the generated Zod schema, where an
-// OpenAPI `NullEnum` is `unknown` (the TypeScript types have it as `never`);
-// the contract type is what the cards and the tracker are written against.
-const data = computed(() => served.value as ApiV1RecommendationsRetrieveResponse | null)
+const { data, onCardClick } = useProductSuggestions(props)
 
 const tiles = computed<Tile[]>(() => {
   if (props.items !== undefined) {
@@ -97,34 +71,14 @@ const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
 watch(tiles, (items) => {
   registerB2BPrice(items.map(tile => tile.product.id))
 }, { immediate: true })
-const displayPrice = (product: Product) => {
-  const b2b = b2bPriceFor(product.id)
-  const current = productCurrentPrice(product)
-  return b2b && Number(b2b.finalPrice) < current
-    ? Number(b2b.finalPrice)
-    : current
-}
+const displayPrice = (product: Product) =>
+  shopperFinalPrice(productCurrentPrice(product), b2bPriceFor(product.id))
 // The struck-through price: the prior price of an announced reduction, or
 // the retail price under a lower wholesale one (see productWasPrice).
 const wasPrice = (product: Product) => productWasPrice(product, displayPrice(product))
 // Only a consumer is told of a reduction: none under a wholesale price.
 const announcement = (product: Product) =>
   displayPrice(product) < productCurrentPrice(product) ? undefined : productAnnouncement(product)
-
-// Feedback loop. The impression is reported once the strip is mounted
-// with items — for a server-rendered strip under ``hydrate-on-visible``,
-// when it scrolls into view: "shown", not "served". The cart path has
-// no impressionId and reports nothing. A click is any interaction with
-// the tile — the link, the image or "add to cart" — captured on the
-// wrapper.
-const { trackImpressionWhenShown, trackClick } = useRecommendationTracking(props.surface, props.seedId)
-trackImpressionWhenShown(data)
-const onTileClick = (tile: Tile, position: number) => {
-  const impressionId = data.value?.impressionId
-  if (impressionId && tile.reason) {
-    trackClick(impressionId, { product: tile.product, reason: tile.reason }, position)
-  }
-}
 
 // Two tiles per view on a phone (as the catalogue grid), three on a
 // tablet, four on desktop, with a peek of the next; arrows only where
@@ -184,7 +138,7 @@ const arrowButton = {
     >
       <article
         class="group flex h-full flex-col gap-2"
-        @click.capture="onTileClick(item, index)"
+        @click.capture="onCardClick(index)"
       >
         <div
           class="

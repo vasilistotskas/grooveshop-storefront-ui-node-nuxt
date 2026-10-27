@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { COMPONENTS, FROZEN, appLabel, callsIn, propertyOf, staticText, vueFiles, walkAst } from '../../helpers/sourceText'
+import { COMPONENTS, appLabel, callsIn, composableFiles, propertyOf, staticText, vueFiles, walkAst } from '../../helpers/sourceText'
 import type { AstNode } from '../../helpers/sourceText'
 
 /**
@@ -12,20 +12,19 @@ import type { AstNode } from '../../helpers/sourceText'
  * demo store's `/en` carried Greek offer cards over correct English
  * rows sitting unread in the database.
  *
- * There are three callers: the `/offers` page, the product page's
- * panel, and the homepage band. Fixing the first two and missing the
- * third left exactly one Greek band on an otherwise English page, which
- * is why this is a rule and not three edits.
+ * There are three callers: the `/offers` page and the product page's
+ * panel, which every tree reads through `usePublicPromotions` and
+ * `useProductPromotions`, and the homepage band. Fixing the first two
+ * and missing the third left exactly one Greek band on an otherwise
+ * English page, which is why this is a rule and not three edits.
  *
  * The cache key has to carry the locale too, or the first locale
  * fetched is served to the other — the same defect one layer down, and
  * invisible until someone switches language.
  *
  * Read off the script AST: every call is checked, whichever fetcher it
- * uses and however its options are laid out.
- *
- * The frozen `variants/webside` tree is exempt: that store serves one
- * language, and its render is pinned.
+ * uses and however its options are laid out, in the components of every
+ * tree and in the composables they share.
  */
 const FETCHER = /^(use(Lazy)?Api|useRequestApi|\$api)$/
 const KEYED_FETCHER = /^use(Lazy)?Api$/
@@ -50,7 +49,7 @@ interface Caller { site: string, fetcher: string, languageCode: boolean, keyedBy
 let callers: Caller[]
 
 beforeAll(() => {
-  callers = vueFiles(COMPONENTS, { exclude: [FROZEN] }).flatMap(file =>
+  callers = [...vueFiles(COMPONENTS), ...composableFiles()].flatMap(file =>
     callsIn(file, FETCHER).flatMap(({ call, line }) => {
       if (!urlOf(call.arguments[0])?.startsWith('/api/promotions')) return []
       const options = call.arguments[1]

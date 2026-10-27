@@ -13,14 +13,7 @@ const { t, locale } = useI18n()
 const { filters, updateFilters } = useProductFilters()
 
 // Fetch facet stats for view count during SSR
-const { data: searchResults } = await useApi('/api/products/search', {
-  query: {
-    facets: 'view_count',
-    limit: 1,
-    languageCode: locale.value,
-  },
-  key: `views-facets-${locale.value}`,
-})
+const { data: searchResults } = await useProductFacetStats('view_count')
 
 /**
  * Get view count statistics from Meilisearch facets

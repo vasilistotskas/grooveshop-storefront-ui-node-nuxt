@@ -5,9 +5,11 @@ import type { VueWrapper } from '@vue/test-utils'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import PostsList from '~/components/Blog/Posts/List.vue'
+import WebsidePostsList from '~/components/variants/webside/Blog/Posts/List.vue'
 import type { BlogPost } from '~~/shared/openapi/types.gen'
 import { makeBlogCategory, makeBlogPost } from '~~/test/fixtures/blog'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The blog index's post list: category pills that filter by URL, the
@@ -36,8 +38,9 @@ mockNuxtImport('useRoute', () => () => ({
   meta: {},
   matched: [],
 }))
+const session = vi.hoisted(() => ({ loggedIn: false }))
 mockNuxtImport('useUserSession', () => () => ({
-  loggedIn: ref(false),
+  loggedIn: ref(session.loggedIn),
   user: ref(null),
   session: ref({}),
   ready: ref(true),
@@ -53,6 +56,18 @@ mockComponent('BlogFeaturedPost', {
   props: ['post', 'categoryName'],
   template: '<div data-stub="featured" :data-id="post.id" :data-category="categoryName" />',
 })
+mockComponent('WebsideBlogPostCardDesktop', {
+  props: ['post'],
+  template: '<li data-stub="card" :data-id="post.id" />',
+})
+mockComponent('WebsideBlogPostCardMobile', {
+  props: ['post'],
+  template: '<li data-stub="card" :data-id="post.id" />',
+})
+mockComponent('WebsidePagination', {
+  props: ['count', 'page', 'pageSize'],
+  template: '<nav data-stub="pagination" :data-count="count" />',
+})
 mockComponent('Pagination', {
   props: ['count', 'page', 'pageSize'],
   template: '<nav data-stub="pagination" :data-count="count" />',
@@ -66,6 +81,12 @@ const GUIDES = makeBlogCategory({ id: 1, translations: { el: { name: 'Οδηγο
 const CARE = makeBlogCategory({ id: 2, translations: { el: { name: 'Φροντίδα', description: '' } }, postCount: 2 })
 const EMPTY = makeBlogCategory({ id: 3, translations: { el: { name: 'Κενή', description: '' } }, postCount: 0 })
 
+const POSTS = [
+  makeBlogPost({ id: 1, category: 1, createdAt: '2026-09-01T00:00:00Z', featured: true }),
+  makeBlogPost({ id: 2, category: 2, createdAt: '2026-09-03T00:00:00Z' }),
+  makeBlogPost({ id: 3, category: 1, createdAt: '2026-09-02T00:00:00Z' }),
+]
+
 const envelope = <T>(results: T[]) => ({
   count: results.length,
   totalPages: 1,
@@ -78,8 +99,9 @@ const envelope = <T>(results: T[]) => ({
 
 const asked = () => api.callsTo('/api/blog/posts').map(call => call.options.query)
 
-function given(posts: BlogPost[]) {
+function given(posts: BlogPost[], extra: Record<string, unknown> = {}) {
   api.routes({
+    ...extra,
     '/api/blog/posts': () => envelope(posts),
     '/api/blog/categories': () => envelope([GUIDES, CARE, EMPTY]),
   })
@@ -96,13 +118,13 @@ const pills = (wrapper: VueWrapper) => wrapper.findAll('nav[aria-label] a').map(
 
 beforeEach(() => {
   state.query = {}
+  session.loggedIn = false
   useState<CursorState>('cursor-state').value = generateInitialCursorState()
   clearNuxtData(['blogPostspageNumber', 'blogCategoryFilter', 'likedBlogPostsundefined'])
-  given([
-    makeBlogPost({ id: 1, category: 1, createdAt: '2026-09-01T00:00:00Z', featured: true }),
-    makeBlogPost({ id: 2, category: 2, createdAt: '2026-09-03T00:00:00Z' }),
-    makeBlogPost({ id: 3, category: 1, createdAt: '2026-09-02T00:00:00Z' }),
-  ])
+  // clearNuxtData resets a key's data but keeps the options of its first
+  // reader, and the two trees read this key with different `enabled`.
+  delete useNuxtApp()._asyncData.blogCategoryFilter
+  given(POSTS)
 })
 
 describe('Blog/Posts/List', () => {
@@ -211,5 +233,73 @@ describe('Blog/Posts/List', () => {
     expect(wrapper.text()).toContain(messages.empty_filtered.title)
     expect(wrapper.text()).not.toContain(messages.empty.title)
     expect(wrapper.findAll('a').map(link => link.attributes('href'))).toContain('/blog')
+  })
+})
+
+/**
+ * The list's data and behaviour are shared (`useBlogListing`,
+ * `useBlogPostGrid`, `useLikedBlogPosts`): the filters in the URL, which
+ * posts are on screen, which of them the shopper likes. Only what the
+ * drawing shows differs, and the webside list shows no category names or
+ * filter pills, so it asks for no categories.
+ */
+describe.each(trees(PostsList, WebsidePostsList))('$tree Blog/Posts/List behaviour', ({ tree, C }) => {
+  const mount = async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('lists the posts, newest first', async () => {
+    const wrapper = await mount()
+
+    expect(ids(wrapper, 'card').toSorted()).toEqual(tree === 'default' ? ['2', '3'] : ['1', '2', '3'])
+    expect(ids(wrapper, 'card').filter(id => id !== '1')).toEqual(['2', '3'])
+  })
+
+  it('sends the category, the search and the page to the posts route', async () => {
+    state.query = { category: '1', search: 'gan', page: '2' }
+
+    await mount()
+
+    expect(asked()[0]).toMatchObject({ category: '1', search: 'gan', page: '2', pageSize: 10, languageCode: 'el' })
+  })
+
+  it.runIf(tree === 'webside')('asks for no categories', async () => {
+    await mount()
+
+    expect(api.callsTo('/api/blog/categories')).toHaveLength(0)
+  })
+
+  it.runIf(tree === 'default')('asks for the categories its pills and names are made of', async () => {
+    await mount()
+
+    expect(api.callsTo('/api/blog/categories')).toHaveLength(1)
+  })
+
+  it('replaces the posts with none when a filter finds nothing', async () => {
+    const wrapper = await mount()
+    expect(ids(wrapper, 'card')).not.toEqual([])
+
+    given([])
+    state.query = { search: 'zzz' }
+
+    await vi.waitFor(() => expect(ids(wrapper, 'card')).toEqual([]))
+  })
+
+  it('asks which of the posts on screen a signed-in shopper likes, and shows them liked', async () => {
+    session.loggedIn = true
+    given(POSTS, { '/api/blog/posts/liked-posts': { postIds: [2] } })
+
+    await mount()
+
+    await vi.waitFor(() => expect(useUserStore().blogPostLiked(2)).toBe(true))
+    expect(api.callsTo('/api/blog/posts/liked-posts')[0]!.options.body).toEqual({ postIds: [1, 2, 3] })
+  })
+
+  it('asks a visitor nothing about likes', async () => {
+    await mount()
+
+    expect(api.callsTo('/api/blog/posts/liked-posts')).toHaveLength(0)
   })
 })

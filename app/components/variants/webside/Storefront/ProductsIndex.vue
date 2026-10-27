@@ -1,58 +1,11 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { isMobileOrTablet } = useDevice()
-const siteConfig = useSiteConfig()
-const { ogImageUrl } = useTenantBranding()
 
 // Ref to control the sidebar drawer
 const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 
-// Lightweight first-page fetch for Schema.org ItemList.
-// Server-side only (server: true is the default) — this does NOT duplicate
-// the full ProductsList fetch; it fetches page-1 with a small limit purely
-// for structured-data purposes. When more locales activate, replace the
-// hardcoded 'el' with iteration over SUPPORTED_LOCALES.
-const { data: seoProducts } = await useApi<ProductMeiliSearchResponse>(
-  '/api/products/search',
-  {
-    key: 'products-index-seo',
-    query: { languageCode: locale, limit: 12, offset: 0 },
-    server: true,
-    lazy: false,
-  },
-)
-
-useSeoMeta({
-  // seo.title, not title: `title` is also the page's h1 (see /blog).
-  title: () => t('seo.title'),
-  description: () => t('seo.description'),
-  ogTitle: () => t('seo.title'),
-  ogDescription: () => t('seo.description'),
-  ogType: 'website',
-  // Prefer the tenant's light-mode logo for OG meta so social previews
-  // carry the tenant's brand. ``setups.ts`` uses the same pattern
-  // (H14 in MULTI_TENANT_AUDIT.md).
-  ogImage: ogImageUrl.value,
-  ogImageAlt: () => t('title'),
-})
-
-const baseUrl = siteConfig.url
-
-useSchemaOrg([
-  defineWebPage({ '@type': 'CollectionPage' }),
-  // itemListElement is object-typed, so it can no longer be a getter
-  // since the @unhead/schema-org v3 definer-type rewrite — the whole
-  // node is a single computed() instead.
-  defineItemList(computed(() => ({
-    name: t('title'),
-    itemListElement: (seoProducts.value?.results ?? []).map((p, i) => ({
-      '@type': 'ListItem' as const,
-      'position': i + 1,
-      'url': `${baseUrl}/products/${p.master ?? p.id}/${p.slug}`,
-      'name': p.name,
-    })),
-  }))),
-])
+await useProductsIndexPage()
 
 // Handle filter toggle from Toolbar
 const handleToggleFilters = () => {
