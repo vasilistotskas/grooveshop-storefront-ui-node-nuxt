@@ -1,3 +1,10 @@
+## [3.265.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.2...v3.265.3) (2026-10-27)
+
+
+### Bug Fixes
+
+* **account:** one implementation of orders, favourites, checkout codes and forms for both trees ([#249](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/249)) ([9e55609](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9e556093dfbffc332024771272c873ecb4fb8c55))
+
 ## [3.265.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.1...v3.265.2) (2026-10-26)
 
 
