@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import BurgerMenu from '~/components/variants/webside/Page/BurgerMenu.vue'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The frozen webside burger menu lists `useNavigation().mobileLinks` (the
@@ -45,6 +45,23 @@ describe('webside Page/BurgerMenu', () => {
 
     expect(hrefs).toContain('/mobile-only')
     expect(hrefs).not.toContain('/services')
+  })
+
+  it.each([
+    { name: 'gift cards and the catalogue are on', features: { giftCards: true, catalogue: true }, linked: true },
+    { name: 'the catalogue is off', features: { giftCards: true, catalogue: false }, linked: false },
+  ])('links gift cards: $linked when $name', async ({ features, linked }) => {
+    // No saved Mobile menu: the menu draws the store's own default links.
+    state.phoneLinks = null
+    setTenantFeatures(features)
+    const wrapper = await mountSuspended(BurgerMenu, { route: false, attachTo: document.body })
+    await wrapper.find('button[aria-label]').trigger('click')
+    await vi.waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
+
+    const hrefs = [...document.body.querySelectorAll('[role="dialog"] a')].map(a => a.getAttribute('href'))
+    wrapper.unmount()
+
+    expect(hrefs.includes('/gift-cards')).toBe(linked)
   })
 
   // Mounting the content in the tap's own task was most of the ~400 ms a

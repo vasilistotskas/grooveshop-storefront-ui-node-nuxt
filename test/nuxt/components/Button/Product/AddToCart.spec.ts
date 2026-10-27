@@ -11,7 +11,7 @@ import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The buy button: when it may be pressed at all (active, in stock, not
@@ -82,6 +82,24 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     await wrapper.find('button').trigger('click')
     await flushPromises()
   }
+
+  // A browse-only store takes no orders, so nothing it draws is a way to
+  // buy: every add-to-cart button routes through this component.
+  describe('a store without a cart', () => {
+    it.each([{ iconOnly: false }, { iconOnly: true }])('renders no button (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      setTenantFeatures({ cart: false })
+
+      const wrapper = await mount({ product: makeProduct(), iconOnly })
+
+      expect(wrapper.find('button').exists()).toBe(false)
+    })
+
+    it.each([{ iconOnly: false }, { iconOnly: true }])('renders the button when the store has a cart (iconOnly: $iconOnly)', async ({ iconOnly }) => {
+      const wrapper = await mount({ product: makeProduct(), iconOnly })
+
+      expect(wrapper.find('button').exists()).toBe(true)
+    })
+  })
 
   describe('availability', () => {
     it.each([

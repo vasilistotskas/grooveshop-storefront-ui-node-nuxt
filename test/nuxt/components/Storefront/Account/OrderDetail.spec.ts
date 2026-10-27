@@ -88,6 +88,13 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
     expect(wrapper.get('h1').text()).toContain('#3')
   })
 
+  it.each([{ cart: true, offered: true }, { cart: false, offered: false }])('offers "Buy again": $offered when the cart is $cart', async ({ cart, offered }) => {
+    setTenantFeatures({ cart })
+    const wrapper = await mountPage(C)
+
+    expect(button(wrapper, reorderLabel()) !== undefined).toBe(offered)
+  })
+
   it.runIf(!defaultOnly)('buys the order again with the frozen page\'s own words and toast icons', async () => {
     const wrapper = await mountPage(C)
 

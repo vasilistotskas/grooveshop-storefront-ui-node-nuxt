@@ -9,6 +9,7 @@ import WebsideOrdersPage from '~/components/variants/webside/Storefront/Account/
 import { makeOrderListItem } from '~~/test/fixtures/order'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The shopper's orders: one row each, newest first unless the query says
@@ -38,6 +39,7 @@ vi.mock('~/components/variants/webside/Order/List.vue', () => ({
 const asked: Record<string, unknown>[] = []
 
 beforeEach(() => {
+  setTenant()
   asked.length = 0
   state.query = {}
   state.fail = false
@@ -154,6 +156,13 @@ describe.each(trees(OrdersPage, WebsideOrdersPage))('$tree Storefront/Account/Or
     expect(buyAgain(0)).toBeUndefined()
     await buyAgain(1)!.trigger('click')
     expect(reorder).toHaveBeenCalledWith(2)
+  })
+
+  it.runIf(defaultOnly)('offers no "Buy again" on a store without a cart to put the order in', async () => {
+    setTenantFeatures({ cart: false })
+    const wrapper = await mountPage(C)
+
+    expect(wrapper.findAll('button').filter(button => button.text() === 'Αγόρασέ τα ξανά')).toHaveLength(0)
   })
 
   it.runIf(defaultOnly)('pages past eight orders', async () => {

@@ -48,7 +48,7 @@ export function useAccountNavigation() {
   const favouritesEnabled = useStoreFeature('favourites')
   const newsletterEnabled = useStoreFeature('newsletter')
   const loyaltyEnabled = useStoreFeature('loyalty')
-  const giftCardsEnabled = useStoreFeature('giftCards')
+  const giftCardsServing = useGatedRoute('/account/gift-cards')
   const wholesaleEnabled = useStoreFeature('wholesale')
   const { count: unseenNotifications } = useUnseenNotificationsCount()
 
@@ -69,7 +69,7 @@ export function useAccountNavigation() {
     ...(loyaltyEnabled.value
       ? [{ key: 'rewards', icon: 'i-lucide-hourglass', route: 'account-loyalty' } as const]
       : []),
-    ...(giftCardsEnabled.value
+    ...(giftCardsServing.value
       ? [{ key: 'gift_cards', icon: 'i-lucide-gift', route: 'account-gift-cards' } as const]
       : []),
     ...(wholesaleEnabled.value

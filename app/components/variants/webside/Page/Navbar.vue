@@ -13,7 +13,7 @@ const { $routeBaseName } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 
 // Gift-card purchase page discoverability.
-const giftCardsEnabled = useStoreFeature('giftCards')
+const giftCardsServing = useGatedRoute('/gift-cards')
 
 // Cart chrome for shop-dark tenants (content site now, eshop later).
 const cartEnabled = useStoreFeature('cart')
@@ -96,7 +96,7 @@ const navItems = computed<DesktopNavItem[]>(() => {
       active: isRouteActive('offers'),
     })
   }
-  if (giftCardsEnabled.value) {
+  if (giftCardsServing.value) {
     base.push({
       key: 'gift-cards',
       label: t('gift_cards'),

@@ -10,7 +10,7 @@ export const useAccountMenus = () => {
   const newsletterEnabled = useStoreFeature('newsletter')
   const blogEnabled = useStoreFeature('blog')
   const loyaltyEnabled = useStoreFeature('loyalty')
-  const giftCardsEnabled = useStoreFeature('giftCards')
+  const giftCardsServing = useGatedRoute('/account/gift-cards')
   const wholesaleEnabled = useStoreFeature('wholesale')
 
   const menus = computed(() => {
@@ -67,7 +67,7 @@ export const useAccountMenus = () => {
       })
     }
 
-    if (giftCardsEnabled.value) {
+    if (giftCardsServing.value) {
       baseMenus.push({
         label: t('gift_cards'),
         to: '/account/gift-cards',

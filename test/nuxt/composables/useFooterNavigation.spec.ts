@@ -98,6 +98,12 @@ describe('useFooterNavigation', () => {
     expect(paths(all.primary[0]!.children)).toEqual(['/products', '/offers', '/gift-cards', '/loyalty-program'])
   })
 
+  it('does not link gift cards on a store without the catalogue they are bought from', () => {
+    setTenantFeatures({ giftCards: true, catalogue: false })
+
+    expect(navigation().primary.flatMap(column => paths(column.children))).not.toContain('/gift-cards')
+  })
+
   it('drops a column with nothing to link', () => {
     setTenantFeatures({ catalogue: false })
 

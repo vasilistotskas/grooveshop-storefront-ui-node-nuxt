@@ -17,6 +17,8 @@ useHead({ title: () => t('title', { id: orderId }) })
 
 const { cancelOrder } = useOrder()
 const { reorder, reordering } = useReorder()
+// Buying an order again needs a cart: a browse-only store has none.
+const cartEnabled = useStoreFeature('cart')
 const { getPaymentMethodName } = usePaymentMethod()
 const { presentationFor: boxNowPresentation } = useBoxNowParcelState()
 
@@ -283,6 +285,7 @@ const CARD = 'rounded-[1.25rem] bg-default p-6 ring ring-default'
           variant="ghost"
         />
         <UButton
+          v-if="cartEnabled"
           :label="t('reorder.cta')"
           :loading="reordering === order.id"
           icon="i-lucide-refresh-cw"

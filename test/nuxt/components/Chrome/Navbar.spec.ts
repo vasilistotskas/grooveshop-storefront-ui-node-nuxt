@@ -119,6 +119,14 @@ describe('Chrome/Navbar', () => {
     expect(menu(wrapper).map(([, to]) => to)).toEqual(links)
   })
 
+  it('links no gift cards on a store without the catalogue they are bought from', async () => {
+    setTenantFeatures({ giftCards: true, catalogue: false })
+
+    const wrapper = await mountNavbar()
+
+    expect(menu(wrapper).map(([, to]) => to)).not.toContain('/gift-cards')
+  })
+
   it('marks the section the visitor is in', async () => {
     const wrapper = await mountNavbar('/products')
 
