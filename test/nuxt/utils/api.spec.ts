@@ -48,6 +48,28 @@ describe('pageLocaleHeader', () => {
   })
 })
 
+describe('bypassBrowserCache', () => {
+  function cacheAfter(request: string) {
+    const options: { cache?: RequestCache } = {}
+    bypassBrowserCache({ request, options } as any)
+    return options.cache
+  }
+
+  it('keeps the browser cache out of a same-origin /api request', () => {
+    // A stored 410 replayed on every sign-in signed an iPhone shopper out.
+    expect(cacheAfter('/api/_allauth/app/v1/auth/session')).toBe('no-store')
+  })
+
+  it('leaves any other request alone', () => {
+    expect(cacheAfter('https://example.com/api/x')).toBeUndefined()
+    expect(cacheAfter('/_nuxt/entry.js')).toBeUndefined()
+  })
+
+  it('is one of the hooks every app fetcher runs', () => {
+    expect(apiRequestHooks(useNuxtApp())).toContain(bypassBrowserCache)
+  })
+})
+
 describe('the app fetchers send it', () => {
   it('$api (the provided instance)', async () => {
     setLocale('en')
