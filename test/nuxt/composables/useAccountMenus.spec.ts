@@ -53,6 +53,12 @@ describe('useAccountMenus', () => {
     expect(paths).not.toContain('/account/favourites/posts')
   })
 
+  it('hides the gift-card entry on a store without the catalogue its page needs', () => {
+    setTenantFeatures({ giftCards: true, catalogue: false })
+
+    expect(pathsOf()).not.toContain('/account/gift-cards')
+  })
+
   it('never offers the deleted help page', () => {
     expect(pathsOf()).not.toContain('/account/help')
   })

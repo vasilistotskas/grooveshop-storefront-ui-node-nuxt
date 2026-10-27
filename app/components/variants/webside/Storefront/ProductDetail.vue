@@ -6,7 +6,11 @@ const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
 const { isMobileOrTablet } = useDevice()
-const stickyAddToCartEnabled = useStorePreference('stickyAddToCart')
+// A browse-only store takes no orders: no quantity, no add-to-cart, no
+// sticky buy bar. Prices and product info stay.
+const cartEnabled = useStoreFeature('cart')
+const stickyAddToCartPreferred = useStorePreference('stickyAddToCart')
+const stickyAddToCartEnabled = computed(() => cartEnabled.value && stickyAddToCartPreferred.value)
 const productAlertsEnabled = useStoreFeature('productAlerts')
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 const priceHistoryEnabled = useStoreFeature('priceHistory')
@@ -444,9 +448,10 @@ useSchemaOrg([
               />
             </div>
 
-            <USeparator />
+            <USeparator v-if="cartEnabled" />
 
             <div
+              v-if="cartEnabled"
               class="
                 flex items-center gap-4
                 sm:flex-row
@@ -485,7 +490,7 @@ useSchemaOrg([
               </div>
             </div>
 
-            <WebsideShippingFreeShippingNotice />
+            <WebsideShippingFreeShippingNotice v-if="cartEnabled" />
 
             <!-- Out-of-stock subscribers: let the shopper opt into a
                  restock email. The backend ProductAlert infra handles

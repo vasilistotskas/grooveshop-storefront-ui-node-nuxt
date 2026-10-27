@@ -5,6 +5,7 @@ import WebsideAccountAreaButtonProductAddToCart from '~/components/variants/webs
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The webside account-area buy button confirms an add in ONE toast,
@@ -27,6 +28,7 @@ mockNuxtImport('useToast', () => () => toast)
 
 describe('webside AccountArea/Button/Product/AddToCart', () => {
   beforeEach(async () => {
+    setTenant()
     await useCartStore().cleanCartState()
     const cart = makeCart({ items: [] })
     useCartStore().cart = cart
@@ -36,6 +38,22 @@ describe('webside AccountArea/Button/Product/AddToCart', () => {
       toast.toasts.value.push(added)
       return added
     })
+  })
+
+  it.each([
+    { cart: true, iconOnly: false, buttons: 1 },
+    { cart: false, iconOnly: false, buttons: 0 },
+    { cart: true, iconOnly: true, buttons: 1 },
+    { cart: false, iconOnly: true, buttons: 0 },
+  ])('renders $buttons buttons when the cart is $cart (iconOnly: $iconOnly)', async ({ cart, iconOnly, buttons }) => {
+    setTenantFeatures({ cart })
+
+    const wrapper = await mountSuspended(WebsideAccountAreaButtonProductAddToCart, {
+      route: false,
+      props: { product: makeProduct({ id: 4 }), text: 'Αγορά', iconOnly },
+    })
+
+    expect(wrapper.findAll('button')).toHaveLength(buttons)
   })
 
   it('keeps one toast for quick adds, updated in place', async () => {

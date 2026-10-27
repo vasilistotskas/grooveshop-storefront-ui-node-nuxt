@@ -64,6 +64,7 @@ describe('blockedFeaturePaths', () => {
     )
 
     expect([...blocked].sort()).toEqual([
+      '/account/gift-cards',
       '/gift-cards',
       '/loyalty-program',
       '/offers',

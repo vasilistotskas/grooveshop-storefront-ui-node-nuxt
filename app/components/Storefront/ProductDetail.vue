@@ -5,7 +5,11 @@ const { t, locale, n } = useI18n()
 const route = useRoute(`products-id-slug___${locale.value}`)
 
 const { isMobileOrTablet } = useDevice()
-const stickyAddToCartEnabled = useStorePreference('stickyAddToCart')
+// A browse-only store takes no orders: no quantity, no add-to-cart, no
+// sticky buy bar, no free-shipping meter. Prices and product info stay.
+const cartEnabled = useStoreFeature('cart')
+const stickyAddToCartPreferred = useStorePreference('stickyAddToCart')
+const stickyAddToCartEnabled = computed(() => cartEnabled.value && stickyAddToCartPreferred.value)
 const productAlertsEnabled = useStoreFeature('productAlerts')
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 const priceHistoryEnabled = useStoreFeature('priceHistory')
@@ -416,32 +420,34 @@ useSchemaOrg([
             ref="buyRow"
             class="flex items-stretch gap-2.5"
           >
-            <label
-              class="sr-only"
-              for="quantity"
-            >{{ t('qty') }}</label>
-            <UInputNumber
-              id="quantity"
-              v-model="selectorQuantity"
-              :min="1"
-              :max="product.stock || 1"
-              :disabled="productStock === 0"
-              :increment="{ color: 'neutral', variant: 'ghost', size: 'md' }"
-              :decrement="{ color: 'neutral', variant: 'ghost', size: 'md' }"
-              :ui="{
-                root: 'w-32 shrink-0',
-                base: `
-                  h-13 rounded-full bg-default text-center font-mono font-bold
-                `,
-              }"
-            />
-            <ButtonProductAddToCart
-              :product="product"
-              :quantity="selectorQuantity || 1"
-              :text="t('add_to_cart')"
-              size="lg"
-              class="min-w-0 flex-1"
-            />
+            <template v-if="cartEnabled">
+              <label
+                class="sr-only"
+                for="quantity"
+              >{{ t('qty') }}</label>
+              <UInputNumber
+                id="quantity"
+                v-model="selectorQuantity"
+                :min="1"
+                :max="product.stock || 1"
+                :disabled="productStock === 0"
+                :increment="{ color: 'neutral', variant: 'ghost', size: 'md' }"
+                :decrement="{ color: 'neutral', variant: 'ghost', size: 'md' }"
+                :ui="{
+                  root: 'w-32 shrink-0',
+                  base: `
+                    h-13 rounded-full bg-default text-center font-mono font-bold
+                  `,
+                }"
+              />
+              <ButtonProductAddToCart
+                :product="product"
+                :quantity="selectorQuantity || 1"
+                :text="t('add_to_cart')"
+                size="lg"
+                class="min-w-0 flex-1"
+              />
+            </template>
             <ButtonProductAddToFavourite
               :favourite-id="favouriteId"
               :product-id="product.id"
@@ -455,7 +461,7 @@ useSchemaOrg([
           <!-- The cart is per visitor and this page is cached. A visitor
                without a cart is 0 € into the threshold. -->
           <ClientOnly>
-            <ShippingFreeShippingNotice v-if="cartStore.loaded" />
+            <ShippingFreeShippingNotice v-if="cartEnabled && cartStore.loaded" />
           </ClientOnly>
 
           <!-- Promotions that apply to THIS product, resolved by Django

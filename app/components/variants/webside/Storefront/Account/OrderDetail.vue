@@ -371,6 +371,8 @@ const { reorder, reordering } = useReorder({
   icons: { empty: 'i-heroicons-exclamation-triangle', success: 'i-heroicons-shopping-cart' },
 })
 const isReordering = computed(() => reordering.value !== null)
+// Buying an order again needs a cart: a browse-only store has none.
+const cartEnabled = useStoreFeature('cart')
 
 async function handleReorder() {
   if (order.value?.id) await reorder(order.value.id)
@@ -506,6 +508,7 @@ async function handleReorder() {
       </UButton>
 
       <UButton
+        v-if="cartEnabled"
         color="secondary"
         variant="solid"
         icon="i-heroicons-arrow-path"

@@ -69,6 +69,12 @@ describe('useAccountNavigation', () => {
     expect(keys()).toContain(key)
   })
 
+  it('leaves out the gift-card page on a store without the catalogue it needs', () => {
+    setTenantFeatures({ giftCards: true, catalogue: false })
+
+    expect(keys()).not.toContain('gift_cards')
+  })
+
   it.each([
     ['account-orders-id___el', 'orders'],
     ['account-addresses-new___el', 'addresses'],

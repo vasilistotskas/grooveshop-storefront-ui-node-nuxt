@@ -13,7 +13,7 @@ const { isModalActive: isCookieModalActive } = useCookieControl()
 const { $routeBaseName } = useNuxtApp()
 
 // Gift-card purchase page discoverability, matching the desktop navbar.
-const giftCardsEnabled = useStoreFeature('giftCards')
+const giftCardsServing = useGatedRoute('/gift-cards')
 const blogEnabled = useStoreFeature('blog')
 
 const open = ref(false)
@@ -67,7 +67,7 @@ const primaryItems = computed(() => {
     })
   }
 
-  if (giftCardsEnabled.value) {
+  if (giftCardsServing.value) {
     base.push({
       label: t('gift_cards'),
       icon: 'i-heroicons-gift',
