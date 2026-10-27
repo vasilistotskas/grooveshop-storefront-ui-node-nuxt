@@ -1,3 +1,10 @@
+## [3.265.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.6...v3.265.7) (2026-10-27)
+
+
+### Bug Fixes
+
+* **i18n:** composables read the global composer, not the caller's ([#254](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/254)) ([d9e29e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d9e29e11265ecb8e1e4c2bcad76322cbca197fb5))
+
 ## [3.265.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.5...v3.265.6) (2026-10-27)
 
 
