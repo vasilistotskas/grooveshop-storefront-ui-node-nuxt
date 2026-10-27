@@ -1,3 +1,10 @@
+## [3.265.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.5...v3.265.6) (2026-10-27)
+
+
+### Performance Improvements
+
+* **reviews:** draw the read-only star row without an input ([#253](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/253)) ([5c3d7e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5c3d7e4245d44fa30107c220eab960107d1f91ab))
+
 ## [3.265.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.4...v3.265.5) (2026-10-27)
 
 
