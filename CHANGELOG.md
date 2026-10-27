@@ -1,3 +1,10 @@
+# [3.266.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.9...v3.266.0) (2026-10-27)
+
+
+### Features
+
+* **features:** read the cart and the catalogue as store features and gate their requests ([#257](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/257)) ([44eac33](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/44eac339140755e20872db7521cceed1758cdfb2)), closes [#337](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/337)
+
 ## [3.265.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.8...v3.265.9) (2026-10-27)
 
 
