@@ -1,3 +1,10 @@
+## [3.265.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.8...v3.265.9) (2026-10-27)
+
+
+### Bug Fixes
+
+* **auth:** keep every /api answer out of the browser's HTTP cache ([#256](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/256)) ([373febd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/373febdeb14134f54243f37ed1968481bcad0e38))
+
 ## [3.265.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.7...v3.265.8) (2026-10-27)
 
 
