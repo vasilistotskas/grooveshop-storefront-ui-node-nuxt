@@ -1,3 +1,10 @@
+## [3.265.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.7...v3.265.8) (2026-10-27)
+
+
+### Bug Fixes
+
+* **seo:** type the store's Organization node by what the store is ([#255](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/255)) ([b4dd36f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b4dd36f24a463c6a5eb80159a536884652ddc5d2))
+
 ## [3.265.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.6...v3.265.7) (2026-10-27)
 
 
