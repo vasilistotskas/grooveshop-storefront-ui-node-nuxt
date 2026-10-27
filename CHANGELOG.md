@@ -1,3 +1,10 @@
+## [3.265.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.4...v3.265.5) (2026-10-27)
+
+
+### Bug Fixes
+
+* **openapi:** the order request requires the terms consent ([#252](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/252)) ([f399cfc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f399cfc9778b70c51203a6047745d85afb972fd8))
+
 ## [3.265.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.3...v3.265.4) (2026-10-27)
 
 
