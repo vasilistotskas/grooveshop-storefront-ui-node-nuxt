@@ -72743,6 +72743,14 @@
                     "chatWidget": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "catalogue": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "cart": {
+                        "type": "boolean",
+                        "readOnly": true
                     }
                 },
                 "required": [
@@ -72750,6 +72758,8 @@
                     "b2bInvoicing",
                     "blog",
                     "blogComments",
+                    "cart",
+                    "catalogue",
                     "chatWidget",
                     "contactAttachments",
                     "favourites",
