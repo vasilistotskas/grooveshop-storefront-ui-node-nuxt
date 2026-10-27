@@ -4,16 +4,10 @@ const { t } = useI18n()
 useHead({ title: () => t('title') })
 const route = useRoute()
 const localePath = useLocalePath()
-const { user } = useUserSession()
 
 const PAGE_SIZE = 12
-const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
-const { data: posts, status, refresh } = await useApi(`/api/user/account/${user.value?.id}/liked-blog-posts`, {
-  key: `favourite-posts-${user.value?.id}`,
-  method: 'GET',
-  query: { page, pageSize: PAGE_SIZE, ordering: '-createdAt' },
-})
+const { posts, status, refresh, page } = await useFavouritePostsPage({ pageSize: PAGE_SIZE })
 </script>
 
 <template>

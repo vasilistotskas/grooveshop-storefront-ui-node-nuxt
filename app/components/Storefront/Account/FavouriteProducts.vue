@@ -11,30 +11,10 @@ const { t } = useI18n()
 useHead({ title: () => t('title') })
 const route = useRoute()
 const localePath = useLocalePath()
-const { user } = useUserSession()
-const { updateFavouriteProducts } = useUserStore()
 
 const PAGE_SIZE = 12
-const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
-const { data: favourites, status, refresh } = await useApi<GetUserAccountFavouriteProductsResponse>(`/api/user/account/${user.value?.id}/favourite-products`, {
-  key: `favourite-products-${user.value?.id}`,
-  method: 'GET',
-  query: { page, pageSize: PAGE_SIZE, ordering: '-createdAt' },
-})
-
-async function onRemoved() {
-  await Promise.all([refresh(), refreshNuxtData(favouriteCountKey('products', user.value?.id))])
-}
-
-watch(favourites, (value) => {
-  updateFavouriteProducts((value?.results ?? []).map(favourite => ({
-    id: favourite.id,
-    userId: favourite.userId,
-    productId: favourite.product.id,
-    createdAt: favourite.createdAt,
-  })))
-}, { immediate: true })
+const { favourites, status, refresh, page, onRemoved } = await useFavouriteProductsPage({ pageSize: PAGE_SIZE })
 </script>
 
 <template>

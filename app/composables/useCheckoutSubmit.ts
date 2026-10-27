@@ -117,7 +117,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   // code via /api/giftcard/check for display; Django re-validates the
   // codes under row locks at order creation — that pass is the
   // authoritative one, these balances only drive the sidebar preview.
-  const giftCards = ref<{ code: string, balance: number }[]>([])
+  const giftCards = ref<AppliedGiftCard[]>([])
   const giftCardBalanceTotal = computed(() =>
     giftCards.value.reduce((sum, card) => sum + card.balance, 0))
 
@@ -832,7 +832,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
     loyaltyDiscount.value = null
   }
 
-  const onGiftCardApplied = (card: { code: string, balance: number }) => {
+  const onGiftCardApplied = (card: AppliedGiftCard) => {
     if (giftCards.value.some(existing => existing.code === card.code)) return
     giftCards.value = [...giftCards.value, card]
   }

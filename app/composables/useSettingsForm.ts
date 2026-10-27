@@ -41,6 +41,7 @@ export async function useSettingsForm(options: {
   const { t } = options
   const { locale } = useNuxtApp().$i18n
   const { user, fetch } = useUserSession()
+  const { changeUsername } = useChangeUsername()
   const { setLanguage } = useUserLanguage()
   const toast = useToast()
   const { notify } = useApiError()
@@ -295,23 +296,13 @@ export async function useSettingsForm(options: {
     const previousLanguage = locale.value
     const nextLanguage = values.languageCode || DEFAULT_LOCALE
 
-    if (values.username && values.username !== user.value?.username) {
-      try {
-        await $api(`/api/user/account/${userId}/change-username`, {
-          method: 'POST',
-          body: { username: values.username },
-        })
-        // The username is saved now, whatever the profile save below does:
-        // read the session again, or a failed save would leave the old name
-        // and the next submit would ask for the same change (409, taken).
-        await fetch()
-      }
-      catch (error) {
-        // The reason (409 "Username already taken.") is Django's own text.
-        notify('settings:username', error, { title: t('form.error') })
-        isSubmitting.value = false
-        return
-      }
+    // The username is saved (and the session read again) whatever the
+    // profile save below does, or a failed save would leave the old name
+    // and the next submit would ask for the same change (409, taken).
+    if (values.username && values.username !== user.value?.username
+      && !await changeUsername(userId, values.username, t('form.error'))) {
+      isSubmitting.value = false
+      return
     }
 
     try {

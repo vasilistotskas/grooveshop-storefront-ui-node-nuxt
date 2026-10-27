@@ -70,7 +70,9 @@ describe('error toasts in a catch', () => {
   it('is looking at the code it claims to: the helper is used in many components (a canary)', () => {
     const users = files.filter(file => /\b(notify|reportFailure|failCheckoutWith)\(/.test(readSource(file)))
 
-    expect(users.length).toBeGreaterThan(50)
+    // Lowered from 50 as the frozen tree's copies moved into the
+    // composables both trees share: one file now where there were two.
+    expect(users.length).toBeGreaterThan(40)
   })
 
   it('finds a hand-written error toast in a catch', () => {

@@ -1,17 +1,14 @@
 <script lang="ts" setup>
 const emit = defineEmits(['deactivateTotp'])
 
-const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 const { t } = useI18n()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const toast = useToast()
 const localePath = useLocalePath()
 
-const loading = ref(false)
 const showConfirmation = ref(false)
 
 const consequences = computed(() => [
@@ -20,43 +17,22 @@ const consequences = computed(() => [
   t('info.consequence3'),
 ])
 
-const { error, refresh } = await useAsyncData(
-  'totpAuthenticatorStatus',
-  () => totpAuthenticatorStatus(),
-)
-
-watchEffect(async () => {
-  if (error.value) {
-    await navigateTo(localePath('account-security'))
-  }
-})
-
-async function onConfirm() {
-  try {
-    loading.value = true
-    await deactivateTotp()
-
-    toast.add({
+const { loading, deactivate } = await useTotpDeactivation({
+  settledRoute: 'account-security',
+  messages: {
+    deactivated: () => ({
       title: t('success.title'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-lucide-shield-check',
-    })
-
-    emit('deactivateTotp')
-    await navigateTo(localePath('account-security'))
-  }
-  catch (error) {
-    handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-onReactivated(async () => {
-  await refresh()
+    }),
+  },
+  onDeactivated: () => emit('deactivateTotp'),
 })
+
+async function onConfirm() {
+  await deactivate()
+}
 </script>
 
 <template>

@@ -6,12 +6,9 @@ const { t, locale } = useI18n()
 // never applied.
 useHead({ title: () => t('title') })
 const route = useRoute(`account-orders___${locale.value}`)
-const { user } = useUserSession()
 const localePath = useLocalePath()
 
 const pageSize = ref(8)
-const pending = ref(true)
-const page = computed(() => route.query.page || 1)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<any>>([
@@ -32,25 +29,10 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: orders, status, error, refresh: refreshOrders } = await useApi<ListMyOrdersResponse>(
-  `/api/orders/my-orders`,
-  {
-    key: `userOrders${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      pending.value = false
-    },
-  },
-)
+const { orders, status, error, refresh: refreshOrders } = await useMyOrdersPage({
+  pageSize: pageSize.value,
+  ordering: () => String(ordering.value),
+})
 
 async function onOrderCancelled() {
   await refreshOrders()
@@ -64,13 +46,6 @@ const pagination = computed(() => {
 const orderingOptions = computed(() => {
   return useOrdering<any>(entityOrdering.value)
 })
-
-watch(
-  () => route.query,
-  async () => {
-    await refreshOrders()
-  },
-)
 </script>
 
 <template>

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 /**
  * Feedback, one question at a time: what it is about, how it went, the
  * words, then optionally a name and an email. Five questions over the
@@ -8,59 +6,9 @@ import * as z from 'zod'
  * before Next lets the visitor on, and the last one sends.
  */
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
+const { schema: feedbackZodSchema, loading, send } = useFeedbackSubmit({ t })
 
-const loading = ref(false)
 const sent = ref(false)
-
-// Mirrors the Django FeedbackWriteSerializer / validate_feedback_content
-// rules so the user gets inline hints instead of an opaque 400. rating
-// is required (undefined -> required); email is optional and accepts an
-// empty string (anonymous feedback); message mirrors the contact spam
-// filter's >= 5 words rule (contact/utils.py detect_spam_patterns).
-const CATEGORY_VALUES = [
-  'general',
-  'website',
-  'products',
-  'delivery',
-  'support',
-  'other',
-] as const
-
-const feedbackZodSchema = z.object({
-  rating: z.number({
-    error: () => t('validation.required'),
-  })
-    .int({ error: () => t('validation.required') })
-    .min(1, { error: t('validation.required') })
-    .max(5, { error: t('validation.max_value', { max: 5 }) }),
-
-  category: z.enum(CATEGORY_VALUES),
-
-  message: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  })
-    .min(10, { error: t('validation.min', { min: 10 }) })
-    .max(5000, { error: t('validation.max', { max: 5000 }) })
-    .refine(
-      value => value.trim().split(/\s+/).filter(Boolean).length >= 5,
-      { error: t('validation.message.min_words', { min: 5 }) },
-    ),
-
-  name: z.string()
-    .max(100, { error: t('validation.max', { max: 100 }) })
-    .optional(),
-
-  email: z.union([
-    z.email({ error: t('validation.email.valid') }).max(254),
-    z.literal(''),
-  ]).optional(),
-})
-
-type FeedbackValues = z.output<typeof feedbackZodSchema>
 
 // One question per field, in the order they are asked.
 const STEPS = ['category', 'rating', 'message', 'name', 'email'] as const
@@ -73,7 +21,7 @@ const percent = computed(() => Math.round(((index.value + 1) / STEPS.length) * 1
 
 const state = reactive<{
   rating?: number
-  category: (typeof CATEGORY_VALUES)[number]
+  category: (typeof FEEDBACK_CATEGORIES)[number]
   message?: string
   name?: string
   email?: string
@@ -86,7 +34,7 @@ const state = reactive<{
 })
 
 const categoryItems = computed(() =>
-  CATEGORY_VALUES.map(value => ({ value, label: t(`category.${value}`) })))
+  FEEDBACK_CATEGORIES.map(value => ({ value, label: t(`category.${value}`) })))
 
 // The rating is a number in the payload and a string in the radio group.
 const ratingChoice = computed({
@@ -160,31 +108,7 @@ async function back() {
 }
 
 async function submit() {
-  if (loading.value) return
-  loading.value = true
-  try {
-    const values = feedbackZodSchema.parse(state) satisfies FeedbackValues
-    await $api('/api/feedback', {
-      method: 'POST',
-      body: values,
-    })
-
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-    })
-    sent.value = true
-  }
-  catch (error) {
-    // The proxy forwards Django's 4xx validation body — surface the
-    // field detail (spam filter, disposable email, …) instead of a
-    // blanket failure. Same handling as ContactForm.vue.
-    notify('FeedbackForm:send', error, { title: t('error.default') })
-  }
-  finally {
-    loading.value = false
-  }
+  if (await send(state)) sent.value = true
 }
 
 function again() {

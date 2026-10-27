@@ -1,80 +1,26 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
-interface AppliedCard {
-  code: string
-  balance: number
-}
-
 interface Emits {
-  (e: 'applied', card: AppliedCard): void
+  (e: 'applied', card: AppliedGiftCard): void
   (e: 'removed', code: string): void
 }
 
 const props = defineProps({
   appliedCards: {
-    type: Array as PropType<AppliedCard[]>,
+    type: Array as PropType<AppliedGiftCard[]>,
     default: () => [],
   },
 })
 const emit = defineEmits<Emits>()
 
-const MAX_CARDS = 3
-
 const { t, n } = useI18n()
 
 const giftCardsEnabled = useStoreFeature('giftCards')
 
-const cardSchema = z.object({
-  code: z
-    .string({ error: t('validation.required') })
-    .trim()
-    .min(6, { error: t('validation.too_short') })
-    .max(32, { error: t('validation.too_long') }),
+const { maxCards, cardSchema, formState, submitting, cardError, applyCard } = useGiftCardInput({
+  appliedCards: () => props.appliedCards,
+  t,
+  onApplied: card => emit('applied', card),
 })
-
-const formState = reactive({ code: '' })
-const submitting = ref(false)
-const cardError = ref<string | null>(null)
-
-const applyCard = async () => {
-  cardError.value = null
-  const code = formState.code.trim().toUpperCase()
-  if (props.appliedCards.some(card => card.code === code)) {
-    cardError.value = t('errors.already_applied')
-    return
-  }
-  if (props.appliedCards.length >= MAX_CARDS) {
-    cardError.value = t('errors.too_many', { max: MAX_CARDS })
-    return
-  }
-  submitting.value = true
-  try {
-    const check = await $api<{
-      code: string
-      balance: string | number
-      currency: string
-      expiresAt: string | null
-      isRedeemable: boolean
-    }>('/api/giftcard/check', {
-      method: 'POST',
-      body: { code },
-    })
-    const balance = Number(check.balance)
-    if (!check.isRedeemable || balance <= 0) {
-      cardError.value = t('errors.not_redeemable')
-      return
-    }
-    emit('applied', { code: check.code, balance })
-    formState.code = ''
-  }
-  catch (error: any) {
-    cardError.value = describeApiError(error, { fallback: t('errors.invalid') }).description
-  }
-  finally {
-    submitting.value = false
-  }
-}
 </script>
 
 <template>
@@ -107,7 +53,7 @@ const applyCard = async () => {
     </div>
 
     <UForm
-      v-if="appliedCards.length < MAX_CARDS"
+      v-if="appliedCards.length < maxCards"
       :state="formState"
       :schema="cardSchema"
       @error="scrollToFirstFormError"

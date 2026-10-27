@@ -1,58 +1,13 @@
 <script lang="ts" setup>
-import type * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 const { t } = useI18n()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply
 // never applied.
 useHead({ title: () => t('title') })
-const toast = useToast()
 
 const form = useTemplateRef('form')
-const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
-const isSubmitting = ref(false)
-
-// Auto-generated contract schema, tightened with the client-side ΑΦΜ
-// checksum (mirror of Django's b2b/validators.py) so the user gets an
-// inline error instead of a 400 round-trip.
-const schema = zBusinessProfileWriteRequest.extend({
-  vatId: zBusinessProfileWriteRequest.shape.vatId.refine(isValidGreekAfm, {
-    error: t('validation.billing_vat.checksum'),
-  }),
-})
-
-type Schema = z.output<typeof schema>
-
-const state = reactive<Partial<Schema>>({
-  companyName: undefined,
-  vatId: undefined,
-  taxOffice: undefined,
-  activity: undefined,
-  billingStreet: undefined,
-  billingStreetNumber: undefined,
-  billingCity: undefined,
-  billingZipcode: undefined,
-})
-
-// 404 = no profile yet — the form starts blank and the banner hides.
-const { data: profile, refresh } = await useApi('/api/b2b/profile', {
-  key: 'account:b2b-profile',
-  headers: useRequestHeaders(),
-})
-
-watch(profile, (value) => {
-  if (!value) return
-  state.companyName = value.companyName
-  state.vatId = value.vatId
-  state.taxOffice = value.taxOffice
-  state.activity = value.activity
-  state.billingStreet = value.billingStreet || undefined
-  state.billingStreetNumber = value.billingStreetNumber || undefined
-  state.billingCity = value.billingCity || undefined
-  state.billingZipcode = value.billingZipcode || undefined
-}, { immediate: true })
+const { schema, state, profile, isSubmitting, save: onSubmit } = await useBusinessProfile({ t, form })
 
 const statusColor = computed(() => {
   switch (profile.value?.status) {
@@ -64,26 +19,6 @@ const statusColor = computed(() => {
       return 'error' as const
   }
 })
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    await $api('/api/b2b/profile', {
-      method: 'PUT',
-      headers: useRequestHeaders(),
-      body: event.data,
-    })
-    toast.add({ title: t('submit.success'), color: 'success' })
-    await refresh()
-  }
-  catch (error) {
-    await reportFailure('webside-business:update', error, { title: t('submit.error') })
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
 </script>
 
 <template>

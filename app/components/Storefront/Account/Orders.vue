@@ -19,16 +19,11 @@ const PAGE_SIZE = 8
 const SORTS = ['-createdAt', 'createdAt'] as const
 type Sort = typeof SORTS[number]
 
-const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 const ordering = computed<Sort>(() =>
   SORTS.includes(route.query.ordering as Sort) ? route.query.ordering as Sort : '-createdAt',
 )
 
-const { data: orders, status, refresh } = await useApi<ListMyOrdersResponse>('/api/orders/my-orders', {
-  key: 'account-orders',
-  method: 'GET',
-  query: { page, pageSize: PAGE_SIZE, ordering },
-})
+const { orders, status, refresh, page } = await useMyOrdersPage({ pageSize: PAGE_SIZE, ordering })
 
 const sortItems = computed(() => [
   { label: t('sort.newest'), value: '-createdAt' },

@@ -25,9 +25,8 @@ const props = defineProps({
 
 const { account } = toRefs(props)
 const toast = useToast()
-const { notify } = useApiError()
 const { t } = useI18n()
-const { fetch } = useUserSession()
+const { changeUsername } = useChangeUsername()
 
 const userNameEditing = ref(false)
 const username = ref(account.value.username || account.value.email || '')
@@ -48,23 +47,15 @@ const changeUserName = async () => {
     return
   }
 
-  try {
-    const response = await $api(`/api/user/account/${account.value.id}/change-username`, {
-      method: 'POST',
-      body: { username: username.value },
-    })
+  const response = await changeUsername(account.value.id, username.value, t('unknown.error'))
+  if (!response) return
 
-    toast.add({
-      title: response?.detail || t('success.title'),
-      color: 'success',
-    })
+  toast.add({
+    title: response.detail || t('success.title'),
+    color: 'success',
+  })
 
-    account.value.username = username.value
-    await fetch()
-  }
-  catch (error) {
-    notify('webside-Account-Info', error, { title: t('unknown.error') })
-  }
+  account.value.username = username.value
 }
 </script>
 

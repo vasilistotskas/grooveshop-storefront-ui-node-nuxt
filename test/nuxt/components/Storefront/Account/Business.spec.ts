@@ -2,13 +2,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import { createError, readBody } from 'h3'
-import { resolve } from 'node:path'
-import YAML from 'yaml'
+import type { Component } from 'vue'
+import { createError, readBody, setResponseStatus } from 'h3'
 import Business from '~/components/Storefront/Account/Business.vue'
+import WebsideBusiness from '~/components/variants/webside/Storefront/Account/Business.vue'
 import type { BusinessProfile } from '~~/shared/openapi/types.gen'
 import { makeBusinessProfile } from '~~/test/fixtures/business'
-import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The wholesale profile: where the application stands, then the company
@@ -19,20 +20,22 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 const { toastAdd } = vi.hoisted(() => ({ toastAdd: vi.fn() }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
-const messages = YAML.parse(
-  parseSfc(resolve(REPO, 'app/components/Storefront/Account/Business.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
-).el
+const messages = inlineCopy('app/components/Storefront/Account/Business.vue')
+const websideMessages = inlineCopy('app/components/variants/webside/Storefront/Account/Business.vue')
 
-const answer = vi.hoisted(() => ({ profile: null as BusinessProfile | null, status: 200, saved: [] as unknown[] }))
+const answer = vi.hoisted(() => ({ profile: null as BusinessProfile | null, status: 200, saved: [] as unknown[], reads: 0, saveFailure: null as Record<string, unknown> | null }))
 
 beforeEach(() => {
   answer.profile = makeBusinessProfile({ vatId: '123456783' })
   answer.status = 200
   answer.saved = []
+  answer.reads = 0
+  answer.saveFailure = null
   clearNuxtData('account:b2b-profile')
   registerEndpoint('/api/b2b/profile', {
     method: 'GET',
     handler: () => {
+      answer.reads++
       if (answer.status !== 200) throw createError({ statusCode: answer.status })
       return answer.profile
     },
@@ -41,35 +44,41 @@ beforeEach(() => {
     method: 'PUT',
     handler: async (event) => {
       answer.saved.push(await readBody(event))
+      if (answer.saveFailure) {
+        setResponseStatus(event, 400)
+        return answer.saveFailure
+      }
       return answer.profile
     },
   })
 })
 
-async function mountPage() {
-  const wrapper = await mountSuspended(Business, { route: false })
+async function mountPage(C: Component = Business) {
+  const wrapper = await mountSuspended(C, { route: false })
   await flushPromises()
   return wrapper
 }
 
 const alert = (wrapper: VueWrapper) => wrapper.findComponent({ name: 'UAlert' })
 
-describe('Storefront/Account/Business', () => {
-  it('says the approved profile is active, with its group, and that edits go back for review', async () => {
-    const wrapper = await mountPage()
+describe.each(trees(Business, WebsideBusiness))('$tree Storefront/Account/Business', ({ tree, C }) => {
+  const words = tree === 'default' ? messages : websideMessages
+
+  it.runIf(tree === 'default')('says the approved profile is active, with its group, and that edits go back for review', async () => {
+    const wrapper = await mountPage(C)
 
     expect(alert(wrapper).props('title')).toBe('Εγκεκριμένος · Χονδρική')
     expect(alert(wrapper).props('description')).toBe(messages.status.APPROVED.description)
     expect(alert(wrapper).props('color')).toBe('success')
   })
 
-  it.each([
+  it.runIf(tree === 'default').each([
     ['PENDING', 'warning'],
     ['SUSPENDED', 'error'],
   ] as const)('says where a %s application stands', async (status, color) => {
     answer.profile = makeBusinessProfile({ status, customerGroupName: null })
 
-    const wrapper = await mountPage()
+    const wrapper = await mountPage(C)
 
     expect(alert(wrapper).props('title')).toBe(messages.status[status].title)
     expect(alert(wrapper).props('color')).toBe(color)
@@ -78,7 +87,7 @@ describe('Storefront/Account/Business', () => {
   it('gives the store\'s reason for a rejection', async () => {
     answer.profile = makeBusinessProfile({ status: 'REJECTED', rejectionReason: 'Ο ΑΦΜ δεν αντιστοιχεί στην επωνυμία.' })
 
-    const wrapper = await mountPage()
+    const wrapper = await mountPage(C)
 
     expect(alert(wrapper).props('description')).toBe('Ο ΑΦΜ δεν αντιστοιχεί στην επωνυμία.')
   })
@@ -86,7 +95,7 @@ describe('Storefront/Account/Business', () => {
   it('offers no form to a suspended profile', async () => {
     answer.profile = makeBusinessProfile({ status: 'SUSPENDED' })
 
-    const wrapper = await mountPage()
+    const wrapper = await mountPage(C)
 
     expect(wrapper.find('form').exists()).toBe(false)
   })
@@ -94,25 +103,38 @@ describe('Storefront/Account/Business', () => {
   it('invites a shopper with no profile to apply, with a blank form', async () => {
     answer.status = 404
 
-    const wrapper = await mountPage()
+    const wrapper = await mountPage(C)
 
-    expect(alert(wrapper).props('title')).toBe(messages.intro.title)
+    expect(alert(wrapper).props('title')).toBe(words.intro.title)
     expect(wrapper.find('form').exists()).toBe(true)
-    expect(wrapper.get('button[type="submit"]').text()).toBe(messages.form.submit)
+    expect(wrapper.get('button[type="submit"]').text()).toBe(words.form.submit)
     expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.findAll<HTMLInputElement>('input').every(input => input.element.value === '')).toBe(true)
   })
 
-  it('says the details could not be loaded on any other failure, instead of inviting an application', async () => {
+  it.runIf(tree === 'default')('says the details could not be loaded on any other failure, instead of inviting an application', async () => {
     answer.status = 502
 
-    const wrapper = await mountPage()
+    const wrapper = await mountPage(C)
 
     expect(wrapper.get('[role="alert"]').text()).toContain(messages.load_error)
     expect(wrapper.find('form').exists()).toBe(false)
   })
 
-  it('shows the VIES check while the VAT number is the one checked', async () => {
-    const wrapper = await mountPage()
+  it.runIf(tree === 'default')('reads the profile again when asked to retry', async () => {
+    answer.status = 502
+    const wrapper = await mountPage(C)
+    answer.status = 200
+    const readsBefore = answer.reads
+
+    await wrapper.get('[role="alert"] button').trigger('click')
+
+    await vi.waitFor(() => expect(wrapper.find('form').exists()).toBe(true))
+    expect(answer.reads).toBe(readsBefore + 1)
+  })
+
+  it.runIf(tree === 'default')('shows the VIES check while the VAT number is the one checked', async () => {
+    const wrapper = await mountPage(C)
 
     expect(wrapper.text()).toContain('Έγκυρος · ελέγχθηκε στο VIES στις')
 
@@ -122,22 +144,42 @@ describe('Storefront/Account/Business', () => {
     expect(wrapper.text()).toContain(messages.form.vat_help)
   })
 
-  it('saves the details and reads the profile again', async () => {
-    const wrapper = await mountPage()
+  it('fills the form from the saved profile', async () => {
+    const wrapper = await mountPage(C)
 
-    await wrapper.findAll('input')[0]!.setValue('Groove Office ΑΕ')
+    expect(wrapper.findAll<HTMLInputElement>('input').map(input => input.element.value)).toContain('Groove Office ΙΚΕ')
+  })
+
+  it('saves the details and reads the profile again', async () => {
+    const wrapper = await mountPage(C)
+    expect(answer.reads).toBe(1)
+
+    await wrapper.find<HTMLInputElement>('input[name="companyName"]').setValue('Groove Office ΑΕ')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
 
     expect(answer.saved).toEqual([expect.objectContaining({ companyName: 'Groove Office ΑΕ', vatId: '123456783' })])
     // The answer travels through the test server; waited on, not assumed.
-    await vi.waitFor(() => expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: messages.submit.success, color: 'success' }))
+    await vi.waitFor(() => expect(toastAdd).toHaveBeenCalledExactlyOnceWith({ title: words.submit.success, color: 'success' }))
+    expect(answer.reads).toBe(2)
+  })
+
+  it('puts a refusal of the VAT number under its field, with no toast', async () => {
+    answer.saveFailure = { fields: { vatId: [{ message: 'Ο ΑΦΜ ανήκει σε άλλη επιχείρηση.', code: 'duplicate' }] } }
+    const wrapper = await mountPage(C)
+
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Ο ΑΦΜ ανήκει σε άλλη επιχείρηση.'))
+    expect(toastAdd).not.toHaveBeenCalled()
+    expect(answer.reads).toBe(1)
   })
 
   it('refuses a VAT number that fails the ΑΦΜ checksum, without asking the server', async () => {
-    const wrapper = await mountPage()
+    const wrapper = await mountPage(C)
 
-    await wrapper.findAll('input')[2]!.setValue('123456789')
+    await wrapper.find<HTMLInputElement>('input[name="vatId"]').setValue('123456789')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
 
@@ -145,9 +187,9 @@ describe('Storefront/Account/Business', () => {
     expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('validation.billing_vat.checksum'))
   })
 
-  it('locks cancel while a save is in flight, so it cannot undo the edits being saved', async () => {
+  it.runIf(tree === 'default')('locks cancel while a save is in flight, so it cannot undo the edits being saved', async () => {
     registerEndpoint('/api/b2b/profile', { method: 'PUT', handler: () => new Promise(() => {}) })
-    const wrapper = await mountPage()
+    const wrapper = await mountPage(C)
 
     await wrapper.get('form').trigger('submit')
     await flushPromises()
@@ -155,8 +197,8 @@ describe('Storefront/Account/Business', () => {
     expect(wrapper.findAll('button').find(button => button.text() === messages.form.cancel)!.attributes('disabled')).toBeDefined()
   })
 
-  it('puts the saved details back on cancel', async () => {
-    const wrapper = await mountPage()
+  it.runIf(tree === 'default')('puts the saved details back on cancel', async () => {
+    const wrapper = await mountPage(C)
 
     await wrapper.findAll('input')[0]!.setValue('Κάτι άλλο')
     await wrapper.findAll('button').find(button => button.text() === messages.form.cancel)!.trigger('click')

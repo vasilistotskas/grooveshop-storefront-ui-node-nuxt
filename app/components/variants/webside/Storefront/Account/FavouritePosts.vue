@@ -10,10 +10,8 @@ const { t, locale } = useI18n()
 // never applied.
 useHead({ title: () => t('title') })
 const route = useRoute(`account-favourites-posts___${locale.value}`)
-const { user } = useUserSession()
 
 const pageSize = ref(4)
-const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<any>>([
@@ -29,37 +27,10 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: favourites, status } = useApi(
-  `/api/user/account/${user.value?.id}/liked-blog-posts`,
-  {
-    key: `likedBlogPosts${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-  },
-)
-
-const refreshFavourites = async () => {
-  status.value = 'pending'
-  const favourites = await $api(
-    `/api/user/account/${user.value?.id}/liked-blog-posts`,
-    {
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        page: page.value,
-        ordering: ordering.value,
-        pageSize: pageSize.value,
-      },
-    },
-  )
-  status.value = 'success'
-  return favourites
-}
+const { posts: favourites, status } = await useFavouritePostsPage({
+  pageSize: pageSize.value,
+  ordering: () => String(ordering.value),
+})
 
 const pagination = computed(() => {
   if (!favourites.value?.count) return
@@ -69,13 +40,6 @@ const pagination = computed(() => {
 const orderingOptions = computed(() => {
   return useOrdering<any>(entityOrdering.value)
 })
-
-watch(
-  () => route.query,
-  async () => {
-    favourites.value = await refreshFavourites()
-  },
-)
 </script>
 
 <template>

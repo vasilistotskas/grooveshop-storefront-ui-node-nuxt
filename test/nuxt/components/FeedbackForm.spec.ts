@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { defineComponent, h } from 'vue'
 import FeedbackForm from '~/components/FeedbackForm.vue'
+import WebsideFeedbackForm from '~/components/variants/webside/FeedbackForm.vue'
 import { failWith } from '~~/test/helpers/api'
 
 /**
@@ -313,5 +315,105 @@ describe('FeedbackForm', () => {
       }))
       expect(heading(wrapper)).toBe('Πού μπορούμε να σε βρούμε; (προαιρετικό)')
     })
+  })
+})
+
+/**
+ * The frozen webside copy asks all five fields on one `DynamicForm` and
+ * posts what it submits; the rules and the send are the shop's own
+ * (`useFeedbackSubmit`). `DynamicForm` is its own component with its own
+ * spec: here it is a button that submits a fixed answer, and exposes the
+ * schema it was handed.
+ */
+describe('webside FeedbackForm', () => {
+  const answer = { values: {} as Record<string, unknown> }
+
+  const DynamicFormStub = defineComponent({
+    props: { schema: { type: Object, required: true }, loading: Boolean, buttonLabel: { type: String, default: '' } },
+    emits: ['submit'],
+    setup(props, { emit }) {
+      return () => h('button', { 'type': 'button', 'data-submit': '', 'disabled': props.loading, 'onClick': () => emit('submit', answer.values) }, props.buttonLabel)
+    },
+  })
+
+  beforeEach(() => {
+    answer.values = { rating: 5, category: 'delivery', message: MESSAGE }
+  })
+
+  async function mountWebside() {
+    const wrapper = await mountSuspended(WebsideFeedbackForm, { route: false, global: { stubs: { DynamicForm: DynamicFormStub } } })
+    await flushPromises()
+    return wrapper
+  }
+
+  async function submitIt(wrapper: VueWrapper) {
+    await wrapper.get('[data-submit]').trigger('click')
+    await flushPromises()
+  }
+
+  it('sends what the form submits, and thanks the visitor', async () => {
+    const wrapper = await mountWebside()
+
+    await submitIt(wrapper)
+
+    expect(posted()).toEqual([{ rating: 5, category: 'delivery', message: MESSAGE }])
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+  })
+
+  it('shows the reason Django gave', async () => {
+    api.routes({ [FEEDBACK_URL]: failWith(400, { message: ['Το μήνυμα μοιάζει με spam.'] }) })
+    const wrapper = await mountWebside()
+
+    await submitIt(wrapper)
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
+      color: 'error',
+      description: expect.stringContaining('spam'),
+    }))
+  })
+
+  it('sends nothing that breaks the rules the shop asks for', async () => {
+    answer.values = { rating: 5, category: 'delivery', message: 'Πολύ μικρό μήνυμα εδώ' }
+    const wrapper = await mountWebside()
+
+    await submitIt(wrapper)
+
+    expect(posted()).toEqual([])
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+  })
+
+  it('hands the form the shop\'s rules for each field', async () => {
+    const wrapper = await mountWebside()
+    const { fields } = wrapper.getComponent(DynamicFormStub).props('schema') as { fields: Array<{ name: string, rules: { safeParse: (value: unknown) => { success: boolean } } }> }
+    const rule = (name: string) => fields.find(field => field.name === name)!.rules
+
+    expect(rule('rating').safeParse(0).success).toBe(false)
+    expect(rule('rating').safeParse(5).success).toBe(true)
+    expect(rule('message').safeParse('Πολύ μικρό μήνυμα εδώ').success).toBe(false)
+    expect(rule('message').safeParse(MESSAGE).success).toBe(true)
+    // Django counts the message and the name trimmed (DRF trims them first).
+    expect(rule('message').safeParse('α β γ δ ε      ').success).toBe(false)
+    expect(rule('name').safeParse(' Μ ').success).toBe(false)
+    expect(rule('name').safeParse('').success).toBe(true)
+    expect(rule('name').safeParse('Μα').success).toBe(true)
+    expect(rule('email').safeParse('').success).toBe(true)
+    expect(rule('email').safeParse('not-an-email').success).toBe(false)
+  })
+
+  it('sends once however often it is submitted while the request is out', async () => {
+    let settle!: (value: unknown) => void
+    api.routes({
+      [FEEDBACK_URL]: () => new Promise((resolve) => {
+        settle = resolve
+      }),
+    })
+    const wrapper = await mountWebside()
+
+    void wrapper.get('[data-submit]').trigger('click')
+    void wrapper.get('[data-submit]').trigger('click')
+    settle({ id: 1 })
+    await flushPromises()
+
+    expect(posted()).toHaveLength(1)
   })
 })

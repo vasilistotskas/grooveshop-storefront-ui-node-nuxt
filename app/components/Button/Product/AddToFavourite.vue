@@ -37,63 +37,14 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
-const { loggedIn } = useUserSession()
-const userStore = useUserStore()
-const { addFavouriteProduct, removeFavouriteProduct } = userStore
 
-const isLoading = ref(false)
-
-const toggleFavourite = async () => {
-  if (!loggedIn.value || !props.userId) {
-    toast.add({
-      title: t('not_authenticated'),
-      color: 'error',
-    })
-    return
-  }
-
-  if (isLoading.value) {
-    return
-  }
-
-  isLoading.value = true
-  try {
-    if (!props.favouriteId) {
-      const favourite = await $api(`/api/products/favourites`, {
-        method: 'POST',
-        body: {
-          product: props.productId,
-        },
-      })
-      addFavouriteProduct(favourite)
-      toast.add({
-        title: t('added'),
-        color: 'success',
-      })
-    }
-    else {
-      const id = props.favouriteId
-      await $api(`/api/products/favourites/${id}`, { method: 'DELETE' })
-      emit('favourite-delete', id)
-      removeFavouriteProduct(props.productId)
-      toast.add({
-        title: t('removed'),
-        color: 'error',
-      })
-    }
-  }
-  catch (error) {
-    // One toast for every failure: an HTTP refusal carries Django's
-    // `detail`, a network failure does not.
-    log.error({ action: 'favourite:toggle', error })
-    notify('Product-AddToFavourite', error, { title: t('error_occurred') })
-  }
-  finally {
-    isLoading.value = false
-  }
-}
+const { isLoading, toggle: toggleFavourite } = useProductFavouriteToggle({
+  productId: () => props.productId,
+  userId: () => props.userId,
+  favouriteId: () => props.favouriteId,
+  t,
+  onDeleted: id => emit('favourite-delete', id),
+})
 
 const buttonLabel = computed(() => {
   if (!props.showLabel) return undefined
