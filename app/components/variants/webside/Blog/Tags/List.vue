@@ -1,14 +1,7 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 
-const { data: blogTags } = await useApi(
-  '/api/blog/tags',
-  {
-    key: 'blogTags',
-    method: 'GET',
-    headers: useRequestHeaders(),
-  },
-)
+const { data: blogTags } = await useBlogTags()
 
 const searchQuery = ref('')
 const filteredTags = computed(() => {

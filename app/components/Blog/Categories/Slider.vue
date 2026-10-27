@@ -23,29 +23,6 @@ const { locale, t } = useI18n()
 const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
-
-const INLINED_FA6_ICONS = new Set([
-  'shield',
-  'mobile',
-  'desktop',
-  'robot',
-  'microchip',
-  'globe',
-  'network-wired',
-  'shuffle',
-])
-
-function deriveIconName(mainImagePath: string | null | undefined): string | null {
-  if (!mainImagePath) return null
-  const match = mainImagePath.match(/\/([^/]+)\.svg(?:\/|$)/i)
-  const captured = match?.[1]
-  if (!captured) return null
-  const base = captured
-    .replace(/(-solid(?:-full)?)(_\d+)?$/i, '')
-    .replace(/_\d+$/, '')
-  if (!base || !INLINED_FA6_ICONS.has(base)) return null
-  return `i-fa6-solid:${base}`
-}
 </script>
 
 <template>

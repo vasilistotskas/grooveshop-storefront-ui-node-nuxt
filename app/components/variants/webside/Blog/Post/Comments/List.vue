@@ -26,28 +26,11 @@ const emit = defineEmits<{
   (e: 'reply-add', data: BlogComment): void
 }>()
 
-const { loggedIn, user } = useUserSession()
-
-const userHasCommented = (comment: BlogComment) => {
-  if (loggedIn.value && user.value) {
-    return comment.user.id === user.value.id
-  }
-  return false
-}
+const { userHasCommented, sortedComments } = useBlogCommentList(() => props.comments)
 
 const onReplyAdd = (data: BlogComment) => {
   emit('reply-add', data)
 }
-
-const sortedComments = computed(() => {
-  if (!props.comments) return []
-  return [...props.comments].sort((a) => {
-    if (loggedIn.value && user.value && a.user.id === user.value.id) {
-      return -1
-    }
-    return 0
-  })
-})
 </script>
 
 <template>

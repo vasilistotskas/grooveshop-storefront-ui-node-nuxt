@@ -16,21 +16,7 @@ defineProps<{
   title?: string
 }>()
 
-const { locale } = useI18n()
-const enabled = useStoreFeature('blog')
-
-const { data } = await useApi('/api/blog/categories', {
-  key: 'blogCategories-slider',
-  query: { pageSize: 10, languageCode: locale },
-  dedupe: 'defer',
-  enabled,
-  // The band hydrates when it scrolls into view, after the app has
-  // finished hydrating — see app/utils/payloadCachedData.ts.
-  getCachedData: payloadCachedData,
-})
-
-const categories = computed(() => (enabled.value && data.value?.results) || [])
-const hasCategories = computed(() => categories.value.length > 0)
+const { categories, hasCategories } = await useBlogCategoryRail({ pageSize: 10 })
 </script>
 
 <template>

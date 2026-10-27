@@ -16,43 +16,7 @@ const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { data: categories } = useLazyApi(`/api/blog/categories`, {
-  key: 'blogCategories-slider',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    pageSize: max,
-    languageCode: locale,
-  },
-  // A lazily hydrated page-builder section: set up after hydration, when
-  // Nuxt's default no longer reads the payload. See
-  // app/utils/payloadCachedData.ts.
-  getCachedData: payloadCachedData,
-})
-const categoryResults = computed(() => categories.value?.results ?? [])
-
-const INLINED_FA6_ICONS = new Set([
-  'shield',
-  'mobile',
-  'desktop',
-  'robot',
-  'microchip',
-  'globe',
-  'network-wired',
-  'shuffle',
-])
-
-function deriveIconName(mainImagePath: string | null | undefined): string | null {
-  if (!mainImagePath) return null
-  const match = mainImagePath.match(/\/([^/]+)\.svg(?:\/|$)/i)
-  const captured = match?.[1]
-  if (!captured) return null
-  const base = captured
-    .replace(/(-solid(?:-full)?)(_\d+)?$/i, '')
-    .replace(/_\d+$/, '')
-  if (!base || !INLINED_FA6_ICONS.has(base)) return null
-  return `i-fa6-solid:${base}`
-}
+const { categories: categoryResults } = await useBlogCategoryRail({ pageSize: max })
 </script>
 
 <template>

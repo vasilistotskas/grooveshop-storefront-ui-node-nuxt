@@ -3,15 +3,20 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { VueWrapper } from '@vue/test-utils'
 import { isRef, nextTick, unref } from 'vue'
 import List from '~/components/Products/List.vue'
+import WebsideList from '~/components/variants/webside/Products/List.vue'
 import type { ProductFilters } from '~~/shared/types/product-filters'
 import { makeProductSearchHit, makeProductSearchResponse } from '~~/test/fixtures/productFilters'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The listing turns the URL filters into one search request, shows
  * skeletons shaped like the grid until it lands, and — when nothing
  * matches — says which filter to loosen and offers to clear them all.
- * Default tree only: the webside List has no shared grid class and no
- * page links (see `app/components/variants/webside/Products/List.vue`).
+ * The request, the page logic, the empty state's words and the favourites
+ * are one implementation (`useProductListing`) that both trees run, so the
+ * last suite below runs over both. The suites above it are the default
+ * drawing's: its shared grid class and its page links, which webside's
+ * List does not have.
  */
 const pf = await vi.hoisted(async () =>
   (await import('~~/test/fixtures/productFilters')).createProductFiltersMock())
@@ -264,5 +269,122 @@ describe('Products/List', () => {
 
       expect(favourites.execute).toHaveBeenCalledOnce()
     })
+  })
+})
+
+/**
+ * What both trees share. The one difference is the brand and availability
+ * filters: the default listing has them, webside's has none, and a link
+ * carrying them must change nothing there (`listing-filters.spec.ts`).
+ */
+describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)', ({ tree, C, own }) => {
+  beforeEach(() => {
+    pf.reset()
+    search.reset()
+    favourites.reset()
+    session.loggedIn.value = false
+    session.user.value = null
+  })
+
+  const stubs = { [own('ProductsToolbar')]: true, [own('ProductCard')]: true, [own('ProductCardSkeleton')]: true }
+  const mount = (props: { categoryId?: number } = {}) =>
+    mountSuspended(C, { route: false, props, global: { stubs } })
+
+  it('carries every URL filter, in the page locale, from the first page', async () => {
+    setFilters({ search: 'laptop', priceMin: 10, priceMax: 90, categories: ['2', '3'], attributeValues: ['7', '8'], sort: '-effectivePrice' })
+
+    await mount()
+
+    expect(searchQuery()).toMatchObject({
+      query: 'laptop',
+      priceMin: 10,
+      priceMax: 90,
+      categories: '2,3',
+      attributeValues: '7,8',
+      sort: '-effectivePrice',
+      languageCode: 'el',
+      limit: 12,
+      offset: 0,
+    })
+  })
+
+  it('scopes a category page to its own category, ahead of the URL\'s', async () => {
+    setFilters({ categories: ['2'] })
+
+    await mount({ categoryId: 5 })
+
+    expect(searchQuery().categories).toBe('5,2')
+  })
+
+  it.runIf(tree === 'default')('carries the brands as ids and the two switches as flags', async () => {
+    setFilters({ brands: ['3', '7'], inStock: true, onOffer: true })
+
+    await mount()
+
+    expect(searchQuery()).toMatchObject({ brands: '3,7', inStock: true, onOffer: true })
+  })
+
+  it.runIf(tree === 'webside')('never sends the brands or the two switches, whatever the URL says', async () => {
+    setFilters({ brands: ['3', '7'], inStock: true, onOffer: true })
+
+    await mount()
+
+    const query = searchQuery()
+    expect('brands' in query || 'inStock' in query || 'onOffer' in query).toBe(false)
+  })
+
+  it('says which filter to loosen when nothing matches, and offers to clear', async () => {
+    returns(0)
+    setFilters({ attributeValues: ['7'] })
+
+    const wrapper = await mount()
+
+    expect(emptyState(wrapper).text()).toContain(t('products.no_results.try_different_attributes'))
+    expect(emptyState(wrapper).find('button').exists()).toBe(true)
+  })
+
+  it.runIf(tree === 'webside')('suggests nothing about brands or availability it has no filter for', async () => {
+    returns(0)
+    // One active filter as far as the mock counts: only the words are in question.
+    setFilters({ brands: ['3'], inStock: true }, 1)
+
+    const wrapper = await mount()
+
+    expect(emptyState(wrapper).text()).toContain(t('products.no_results.description'))
+    expect(emptyState(wrapper).text()).not.toContain(t('products.no_results.try_different_brands'))
+    expect(emptyState(wrapper).text()).not.toContain(t('products.no_results.try_any_availability'))
+  })
+
+  it('asks for the shopper\'s favourites once mounted, for a signed-in shopper with products', async () => {
+    returns(3)
+    session.loggedIn.value = true
+    session.user.value = { id: 9 }
+
+    await mount()
+    await nextTick()
+
+    expect(favourites.execute).toHaveBeenCalledOnce()
+  })
+
+  it('asks a guest nothing about favourites', async () => {
+    returns(3)
+
+    await mount()
+    await nextTick()
+
+    expect(favourites.execute).not.toHaveBeenCalled()
+  })
+
+  it('shows the favourites the answer names', async () => {
+    returns(3)
+    session.loggedIn.value = true
+    session.user.value = { id: 9 }
+    useUserStore().favouriteProductIds = {}
+
+    await mount()
+    favourites.data.value = [{ id: 40, productId: 2 }]
+    await nextTick()
+
+    expect(useUserStore().favouriteProductIds).toEqual({ 2: 40 })
   })
 })

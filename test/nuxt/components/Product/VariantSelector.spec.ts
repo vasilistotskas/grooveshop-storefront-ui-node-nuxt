@@ -163,6 +163,24 @@ describe('webside Product/VariantSelector', () => {
     expect(navigateToMock).not.toHaveBeenCalled()
   })
 
+  // The same rule as the default selector's: a sibling opens in the
+  // shopper's language, not on the Greek page.
+  it('keeps the shopper in their language when switching variant', async () => {
+    const { $i18n } = useNuxtApp()
+    const before = $i18n.locale.value
+    $i18n.locale.value = 'en'
+    try {
+      const wrapper = await mountForProduct()
+
+      await card(wrapper, 'Μαύρο').get('[role="radio"]').trigger('click')
+
+      expect(navigateToMock).toHaveBeenCalledWith('/en/products/6/black-256')
+    }
+    finally {
+      $i18n.locale.value = before
+    }
+  })
+
   // Class strings ARE the contract here: Chromium lays <fieldset>
   // content out in an anonymous box that neither shrinks nor clips, so
   // overflow-x on the fieldset leaked and stretched the mobile page.

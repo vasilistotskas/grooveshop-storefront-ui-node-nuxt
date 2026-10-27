@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { defineComponent, h, onErrorCaptured } from 'vue'
 import Info from '~/components/Storefront/Info.vue'
 import WebsideInfo from '~/components/variants/webside/Storefront/Info.vue'
+import { injectHead } from '#imports'
 import { setTenant } from '~~/test/helpers/tenant'
 import { makeContentPage } from '~~/test/fixtures/contentPage'
 import type { ContentPageDetail } from '~~/shared/openapi/types.gen'
@@ -65,6 +66,32 @@ describe.each([
     return { error, text }
   }
 
+  /**
+   * The meta description the page paints, read off the real head (the
+   * build rewrites a `useSeoMeta` beside a `useHead` into one
+   * `useHead`, so a mock of either names an implementation detail).
+   */
+  async function description(): Promise<string | null> {
+    const head = injectHead()
+    const before = new Set(head.entries.keys())
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    try {
+      head.render()
+      vi.runOnlyPendingTimers()
+    }
+    finally {
+      vi.useRealTimers()
+    }
+    const content = document.querySelector('meta[name="description"]')?.getAttribute('content') ?? null
+    wrapper.unmount()
+    for (const key of head.entries.keys()) {
+      if (!before.has(key)) head.entries.delete(key)
+    }
+    return content
+  }
+
   beforeEach(() => {
     clearNuxtData()
     setTenant({ defaultLocale: 'el', availableLocales: ['el'] })
@@ -120,6 +147,16 @@ describe.each([
     await render()
 
     expect(declare).toHaveBeenCalledWith(['el'])
+  })
+
+  it('describes the page by its own description, else by the opening of its body', async () => {
+    const content = { el: { title: 'Αποστολές', body: '<p>Στέλνουμε σε όλη την Ελλάδα σε δύο εργάσιμες.</p>' } }
+    api.routes({ '/api/content-pages/shipping': { page: page('shipping', { el: { ...content.el, seoDescription: 'Η δική μας περιγραφή' } }) } })
+    expect(await description()).toBe('Η δική μας περιγραφή')
+
+    clearNuxtData()
+    api.routes({ '/api/content-pages/shipping': { page: page('shipping', content) } })
+    expect(await description()).toContain('Στέλνουμε σε όλη την Ελλάδα')
   })
 
   it('301s a legal slug to its dedicated route', async () => {

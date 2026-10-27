@@ -9,19 +9,9 @@ const props = defineProps({
 })
 
 const { product } = toRefs(props)
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
-const { data: images } = await useApi(
-  `/api/products/${product.value.id}/images`,
-  {
-    key: `productImages${product.value.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  },
-)
+const { data: images } = await useProductImages(product.value.id)
 
 const selectedImage = ref(images.value?.find(image => image.isMain || image.id === images.value?.[0]?.id))
 const selectedImageId = ref(selectedImage.value?.id)

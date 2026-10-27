@@ -14,6 +14,11 @@ export async function useBlogListing(options: {
   pageSize: MaybeRefOrGetter<number>
   /** The ordering when the URL names none. */
   defaultOrdering?: string
+  /**
+   * Whether the drawing shows category names or filter pills. A drawing
+   * with neither asks for no categories (default: true).
+   */
+  categories?: boolean
 }) {
   const route = useRoute()
   const localePath = useLocalePath()
@@ -65,6 +70,7 @@ export async function useBlogListing(options: {
     method: 'GET',
     headers: useRequestHeaders(),
     query: { pageSize: 50, paginationType: 'pageNumber', languageCode: locale },
+    enabled: options.categories !== false,
   })
 
   const categoryNames = computed(() => new Map(

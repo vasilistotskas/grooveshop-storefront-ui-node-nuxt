@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { APP, appLabel, callsIn, propertyOf, staticText, vueFiles } from '../../helpers/sourceText'
+import { APP, appLabel, callsIn, composableFiles, propertyOf, staticText, vueFiles } from '../../helpers/sourceText'
 import type { AstNode } from '../../helpers/sourceText'
 
 /**
@@ -69,7 +69,7 @@ interface Call { site: string, gated: boolean, reactive: boolean, watchOff: bool
 let calls: Call[]
 
 beforeAll(() => {
-  calls = vueFiles(APP).flatMap(file =>
+  calls = [...vueFiles(APP), ...composableFiles()].flatMap(file =>
     callsIn(file, WATCHING_FETCHER).flatMap(({ call, line }) => {
       const url = staticText(call.arguments[0])
       if (!url || !AUTH_REQUIRED.some(endpoint => url.includes(endpoint))) return []
@@ -99,8 +99,10 @@ describe('auth-required fetches', () => {
   })
 
   it('still covers the gated, reactive calls it is meant to watch', () => {
-    // A rule matching nothing passes forever. These are the list pages
-    // and the product page, in both the default and the frozen tree.
-    expect(calls.filter(call => call.gated && call.reactive).length).toBeGreaterThanOrEqual(4)
+    // A rule matching nothing passes forever. These are the blog list
+    // (useLikedBlogPosts), the product list (useProductListing) and the
+    // product page (useProductDetail): each tree reads them through its
+    // one composable.
+    expect(calls.filter(call => call.gated && call.reactive).length).toBeGreaterThanOrEqual(3)
   })
 })

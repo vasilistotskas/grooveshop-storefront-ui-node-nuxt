@@ -1,94 +1,14 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
-const route = useRoute(`products-category-id-slug___${locale.value}`)
-const img = useMediaStreamImage()
-const siteConfig = useSiteConfig()
-const { ogImageUrl } = useTenantBranding()
+const { t } = useI18n()
 
-const categoryId = 'id' in route.params
-  ? route.params.id
-  : undefined
+const categoryId = useProductCategoryRouteId()
 
 // The filters, chips and tree on this page are about this category.
 const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : undefined, listingFilters: true }
 provideListingScope(scope)
 const { trail } = useCategoryForest(scope)
 
-const { data: category, error: categoryError } = await useApi<ProductCategoryDetail>(
-  `/api/products/categories/${categoryId}`,
-  {
-    key: `category${categoryId}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  },
-)
-
-if (!category.value) {
-  // Normalize upstream 5xx to 503 (see products/[id]/[slug].vue):
-  // temporary for crawlers + retryable by error.vue's one-shot reload.
-  const upstreamStatus = categoryError.value?.statusCode ?? 404
-  throw createError(
-    upstreamStatus >= 500
-      ? { statusCode: 503, message: t('error.service.unavailable') }
-      : { statusCode: 404, message: t('error.page.not.found') },
-  )
-}
-
-// Lightweight first-page fetch for Schema.org ItemList.
-// Server-side only — does NOT duplicate the full ProductsList fetch.
-// When more locales activate, replace hardcoded 'el' with SUPPORTED_LOCALES iteration.
-const { data: seoProducts } = await useApi<ProductMeiliSearchResponse>(
-  '/api/products/search',
-  {
-    key: `category-seo-products-${categoryId}`,
-    query: { languageCode: locale, categories: categoryId, limit: 12, offset: 0 },
-    server: true,
-    lazy: false,
-  },
-)
-
-const categoryName = computed(() =>
-  extractTranslated(category.value, 'name', locale.value) ?? '',
-)
-
-// `undefined`, never '': an empty value still emits
-// `<meta name="description" content>`, which is strictly worse than no
-// tag at all (see blog/category/[id]/[slug].vue).
-//
-// Plain text: the description is the editor's rich text, and it feeds
-// both the meta tag and the excerpt under the title — which printed
-// "<p>Όλα όσα χρειάζεται…</p>" with its tags as text.
-const categoryDescription = computed(() =>
-  htmlToPlainText(
-    extractTranslated(category.value, 'seoDescription', locale.value)
-    || extractTranslated(category.value, 'description', locale.value)
-    || '',
-  ) || undefined,
-)
-
-// ProductCategoryDetail has no image field — use the first product image
-// from the SEO prefetch if available, otherwise fall back to the
-// tenant's logo (matches setups.ts:17) so OG previews carry the tenant
-// brand, not the platform logo. Final fallback to the platform logo.
-const ogImage = computed(() => {
-  const firstProduct = seoProducts.value?.results?.[0]
-  if (firstProduct?.mainImagePath) {
-    return img(firstProduct.mainImagePath, {
-      ...OG_IMAGE_SIZE,
-      fit: 'cover',
-      format: 'png',
-    }, {
-      provider: 'mediaStream',
-    })
-  }
-  return ogImageUrl.value
-})
-
-// Only the rendition has a known size; the logo fallback does not.
-const ogImageIsRendition = computed(() => !!seoProducts.value?.results?.[0]?.mainImagePath)
+const { categoryName, categoryDescription } = await useProductCategoryPage(categoryId)
 
 /**
  * Home → Products → each parent → this category. The tree's own trail
@@ -99,62 +19,6 @@ const breadcrumb = computed(() => [
   ...(trail.value.length
     ? trail.value.map(node => ({ label: node.label, to: node.to }))
     : [{ label: categoryName.value }]),
-])
-
-const baseUrl = siteConfig.url
-
-// The canonical and the hreflang set are built from the entity's OWN
-// id+slug, never from route.path: the [slug] segment is decorative (the
-// id resolves the record), so /{id}/anything renders the same page and —
-// self-canonicalising — every variant became its own indexable URL.
-// Declaring the document (useDocumentLocales) hands that to
-// setupPageHeader, which names the locale each version really exists in;
-// a page writing its own canonical or hreflang is what pointed every
-// /en/** page at the Greek URL.
-const { declare, canonicalUrl } = useDocumentLocales()
-declare(
-  translatedLocales(category.value?.translations, 'name'),
-  `/products/category/${category.value?.id}/${category.value?.slug}`,
-)
-
-// Prefer the merchant's own SEO title; otherwise qualify the bare
-// category name, which on its own ("Powerbank") is too thin to describe
-// the page in a result listing.
-const categoryDocumentTitle = computed(() => {
-  const seoTitle = extractTranslated(category.value, 'seoTitle', locale.value)
-  if (seoTitle) return seoTitle
-  return categoryName.value
-    ? t('page.title', { name: categoryName.value })
-    : t('title')
-})
-
-useSeoMeta({
-  title: () => categoryDocumentTitle.value,
-  ogUrl: () => canonicalUrl.value,
-  description: () => categoryDescription.value,
-  ogTitle: () => categoryName.value || t('title'),
-  ogDescription: () => categoryDescription.value,
-  ogType: 'website',
-  ogImage: () => ogImage.value,
-  ogImageWidth: () => ogImageIsRendition.value ? OG_IMAGE_SIZE.width : undefined,
-  ogImageHeight: () => ogImageIsRendition.value ? OG_IMAGE_SIZE.height : undefined,
-  ogImageAlt: () => categoryName.value || t('title'),
-})
-
-useSchemaOrg([
-  defineWebPage({ '@type': 'CollectionPage' }),
-  // itemListElement is object-typed, so it can no longer be a getter
-  // since the @unhead/schema-org v3 definer-type rewrite — the whole
-  // node is a single computed() instead.
-  defineItemList(computed(() => ({
-    name: categoryName.value || t('title'),
-    itemListElement: (seoProducts.value?.results ?? []).map((p, i) => ({
-      '@type': 'ListItem' as const,
-      'position': i + 1,
-      'url': `${baseUrl}/products/${p.master ?? p.id}/${p.slug}`,
-      'name': p.name,
-    })),
-  }))),
 ])
 </script>
 

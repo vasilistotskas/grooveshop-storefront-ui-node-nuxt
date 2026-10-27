@@ -39,13 +39,6 @@ const props = defineProps({
 const { paginationType, pageSize, paginationStrategy } = toRefs(props)
 
 const { t } = useI18n()
-const { loggedIn, user } = useUserSession()
-const cursorState = useState<CursorState>('cursor-state')
-
-const userStore = useUserStore()
-const { updateLikedPosts } = userStore
-
-const allPosts = shallowRef<BlogPost[]>([])
 
 const {
   posts,
@@ -59,114 +52,24 @@ const {
   isFirstPage,
 } = await useBlogListing({ paginationType, pageSize })
 
-const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
-const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
+useLikedBlogPosts(() => posts.value?.results?.map(post => post.id) ?? [])
 
-// User-specific data: client-side only to avoid blocking SSR.
-// `watch: false` is required — the reactive `postIds` body would
-// otherwise auto-refetch on every pagination change even for
-// anonymous visitors (`immediate` only gates the first call),
-// spamming the auth-required endpoint with 401s.
-const { execute: fetchLikedPosts } = await useApi(
-  '/api/blog/posts/liked-posts',
-  {
-    key: `likedBlogPosts${user.value?.id}`,
-    method: 'POST',
-    headers: useRequestHeaders(),
-    body: { postIds: postIds },
-    immediate: false,
-    server: false, // Client-side only - user-specific data
-    watch: false,
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const likedPostsIds = response._data?.postIds || []
-      updateLikedPosts(likedPostsIds)
-    },
-  },
-)
-
-watch(
-  postIds,
-  () => {
-    if (shouldFetchLikedPosts.value) {
-      fetchLikedPosts()
-    }
-  },
-  { immediate: import.meta.client },
-)
-
-const showResults = computed(() => {
-  if (paginationType.value === PaginationTypeEnum.CURSOR) {
-    return allPosts.value.length
-  }
-  return status.value !== 'pending' && allPosts.value.length
+const {
+  allPosts,
+  showResults,
+  featuredPost,
+  gridPosts,
+  imgLoading,
+  imgFetchPriority,
+  shouldPreload,
+} = useBlogPostGrid({
+  posts,
+  status,
+  paginationType,
+  isFirstPage,
+  isFiltered,
+  eagerFirstImages: () => props.eagerFirstImages,
 })
-
-// The featured post opens the unfiltered first page, as the board does;
-// it is one of the page's own posts, so it costs no request.
-const featuredPost = computed(() =>
-  isFirstPage.value && !isFiltered.value && paginationType.value !== PaginationTypeEnum.CURSOR
-    ? allPosts.value.find(post => post.featured)
-    : undefined,
-)
-const gridPosts = computed(() =>
-  featuredPost.value ? allPosts.value.filter(post => post.id !== featuredPost.value!.id) : allPosts.value,
-)
-
-const imgLoading = (index: number) => {
-  if (props.eagerFirstImages && index < 3) {
-    return 'eager'
-  }
-  return 'lazy'
-}
-
-const imgFetchPriority = (index: number) => {
-  if (props.eagerFirstImages && index === 0) {
-    return 'high'
-  }
-  return 'auto'
-}
-
-const shouldPreload = (index: number) => {
-  return props.eagerFirstImages && index === 0
-}
-
-watch(
-  () => paginationType.value,
-  (newType, oldType) => {
-    if (oldType !== newType) {
-      allPosts.value = []
-
-      if (oldType === PaginationTypeEnum.CURSOR) {
-        cursorState.value[PaginationCursorStateEnum.BLOG_POSTS] = ''
-      }
-    }
-  },
-  { immediate: false },
-)
-
-watch(
-  () => posts.value?.results,
-  (newResults) => {
-    if (!newResults) return
-
-    if (paginationType.value === PaginationTypeEnum.CURSOR) {
-      // Cursor mode appends: an empty page adds nothing.
-      if (!newResults.length) return
-      const postsMap = new Map(allPosts.value.map(post => [post.id, post]))
-      newResults.forEach(newPost => postsMap.set(newPost.id, newPost))
-      allPosts.value = [...postsMap.values()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    }
-    else {
-      // A page replaces the last one — an empty answer included, or a
-      // search that finds nothing would keep showing the previous posts.
-      allPosts.value = [...newResults].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    }
-  },
-  { immediate: true },
-)
 </script>
 
 <template>

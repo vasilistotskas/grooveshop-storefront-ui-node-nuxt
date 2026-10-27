@@ -27,11 +27,7 @@ useSeoMeta({
   description: () => t('description'),
 })
 
-const { data: offers } = await useApi('/api/promotions', {
-  key: 'public-offers',
-  headers: useRequestHeaders(),
-  default: () => [],
-})
+const { data: offers } = await usePublicPromotions()
 
 const all = computed(() => offers.value ?? [])
 

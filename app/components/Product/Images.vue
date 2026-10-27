@@ -16,19 +16,9 @@ const props = defineProps<{
   productName: string
 }>()
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
-const { data: images } = await useApi(
-  `/api/products/${props.product.id}/images`,
-  {
-    key: `productImages${props.product.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
-    },
-  },
-)
+const { data: images } = await useProductImages(props.product.id)
 
 /** The main photograph first, the rest in the order the store set. */
 const slides = computed(() => {

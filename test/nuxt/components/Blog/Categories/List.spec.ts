@@ -2,7 +2,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import CategoriesList from '~/components/Blog/Categories/List.vue'
+import WebsideCategoriesList from '~/components/variants/webside/Blog/Categories/List.vue'
 import { makeBlogCategory } from '~~/test/fixtures/blog'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The blog's category grid: a card per category — its picture, its
@@ -98,5 +100,38 @@ describe('Blog/Categories/List', () => {
 
     expect(wrapper.find('ol').exists()).toBe(false)
     expect(wrapper.find('[data-stub="pagination"]').exists()).toBe(false)
+  })
+})
+
+/**
+ * The request is one implementation (`useBlogCategoriesPage`): the page in
+ * the URL, in the page's language, refreshed when the URL changes. Only the
+ * size of a page is the drawing's own.
+ */
+describe.each(trees(CategoriesList, WebsideCategoriesList))('$tree Blog/Categories/List request', ({ tree, C }) => {
+  const mount = async () => {
+    const wrapper = await mountSuspended(C, { route: false, global: { stubs: { ImgWithFallback: true } } })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('asks for the page in the URL, a page the drawing lays out, and the page language', async () => {
+    state.query = { page: '2' }
+
+    await mount()
+
+    expect(api.callsTo('/api/blog/categories')[0]!.options.query).toMatchObject({
+      page: '2',
+      pageSize: tree === 'default' ? 9 : 8,
+      paginationType: 'pageNumber',
+      languageCode: 'el',
+    })
+  })
+
+  it('draws a card per category', async () => {
+    const wrapper = await mount()
+
+    expect(wrapper.text()).toContain('Οδηγοί αγοράς')
+    expect(wrapper.text()).toContain('Νέα')
   })
 })

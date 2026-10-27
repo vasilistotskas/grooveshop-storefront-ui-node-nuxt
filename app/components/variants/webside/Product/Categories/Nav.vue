@@ -16,11 +16,7 @@
 const { locale, t } = useI18n()
 const localePath = useLocalePath()
 
-const { data: categories } = await useApi('/api/products/categories', {
-  key: 'productCategoriesNav',
-  method: 'GET',
-  headers: useRequestHeaders(),
-})
+const { data: categories } = await useProductCategoriesNav()
 
 const items = computed(() => categories.value?.results ?? [])
 </script>
