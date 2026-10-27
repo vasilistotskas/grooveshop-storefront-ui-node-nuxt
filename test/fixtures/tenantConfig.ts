@@ -105,8 +105,6 @@ export function validTenantConfig(
       stickyAddToCart: true,
       recentlyViewed: true,
       demoAccount: false,
-      cart: true,
-      catalogue: true,
     },
     // Spread last so a caller can turn on the flags its own scenario
     // needs (a second locale, the blog) without restating the other
