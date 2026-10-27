@@ -4688,8 +4688,6 @@ export const zStorePreferences = z.object({
   stickyAddToCart: z.boolean().readonly(),
   recentlyViewed: z.boolean().readonly(),
   demoAccount: z.boolean().readonly(),
-  cart: z.boolean().readonly(),
-  catalogue: z.boolean().readonly(),
 })
 
 /**
