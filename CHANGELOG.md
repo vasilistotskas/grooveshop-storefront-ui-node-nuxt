@@ -1,3 +1,11 @@
+## [3.265.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.3...v3.265.4) (2026-10-27)
+
+
+### Bug Fixes
+
+* **checkout:** answer the order request after the await; the webside tree fetches nothing ([#251](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/251)) ([31fb73c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/31fb73c74eee43bfc2ce7fe3125c27050132ff19))
+* **products:** one implementation of listing, search, product and blog for both trees ([#250](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/250)) ([c152e16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c152e1630a59731bfad2acd10de162669628a0b8))
+
 ## [3.265.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.265.2...v3.265.3) (2026-10-27)
 
 
