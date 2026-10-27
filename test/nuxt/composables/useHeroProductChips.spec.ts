@@ -3,6 +3,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import { failWith } from '~~/test/helpers/api'
 import { makeProduct } from '~~/test/fixtures/product'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const { mockLog } = vi.hoisted(() => ({
   mockLog: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
@@ -20,6 +21,7 @@ mockNuxtImport('useRequestApi', () => () => api)
 describe('useHeroProductChips', () => {
   beforeEach(() => {
     clearNuxtData()
+    setTenant({ availableLocales: ['el', 'en'] })
   })
 
   it('maps each readable product by id, asking once per distinct id', async () => {
@@ -87,6 +89,16 @@ describe('useHeroProductChips', () => {
 
   it('requests nothing for no ids', async () => {
     const chips = await useHeroProductChips([])
+
+    expect(chips.value).toEqual({})
+    expect(api.callsTo('/api/products/*')).toEqual([])
+  })
+
+  it('requests no product on a store without the catalogue', async () => {
+    setTenantFeatures({ catalogue: false })
+    api.routes({ '/api/products/*': (url: string) => makeProduct({ id: Number(url.split('/').pop()) }) })
+
+    const chips = await useHeroProductChips([3, 5])
 
     expect(chips.value).toEqual({})
     expect(api.callsTo('/api/products/*')).toEqual([])

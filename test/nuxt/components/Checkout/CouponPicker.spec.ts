@@ -8,6 +8,7 @@ import type { CartCoupon, PublicPromotion } from '~~/shared/openapi/types.gen'
 import { makeCart } from '~~/test/fixtures/cart'
 import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * "Διαθέσιμα κουπόνια (x)": the coupons this cart can use, each with the
@@ -83,6 +84,7 @@ const modalButtons = (label: string) =>
 
 describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPicker', ({ tree, C }) => {
   beforeEach(() => {
+    setTenant()
     coupons = []
     device.mobile = false
     // `useApi` caches by key on the one app the whole file shares.

@@ -19,6 +19,9 @@ export async function useFavouriteProductsPage(options: {
   const route = useRoute()
   const { user } = useUserSession()
   const { updateFavouriteProducts } = useUserStore()
+  // Saved products are catalogue products: Django refuses the list for a
+  // store without the catalogue.
+  const catalogueEnabled = useStoreFeature('catalogue')
 
   const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
@@ -26,6 +29,7 @@ export async function useFavouriteProductsPage(options: {
     key: `favourite-products-${user.value?.id}`,
     method: 'GET',
     query: { page, pageSize: options.pageSize, ordering: computed(() => toValue(options.ordering) ?? '-createdAt') },
+    enabled: catalogueEnabled,
   })
 
   async function onRemoved() {

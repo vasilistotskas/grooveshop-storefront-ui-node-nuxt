@@ -1,4 +1,5 @@
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
+import type { StorePreferenceName } from '~~/shared/utils/storePreference'
 import { useTenantStore } from '~/stores/tenant'
 import { useTenant } from '~/composables/useTenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
@@ -77,7 +78,7 @@ export function setTenantFeatures(features: Partial<TenantConfig['features']>): 
  * setTenantPreferences({ cart: false })
  * ```
  */
-export function setTenantPreferences(preferences: Partial<TenantConfig['preferences']>): TenantConfig {
+export function setTenantPreferences(preferences: Partial<Record<StorePreferenceName, boolean>>): TenantConfig {
   const store = useTenantStore()
   const current = store.config ?? validTenantConfig(TEST_TENANT_DOMAIN) as TenantConfig
   return resolveTenant({ ...current, preferences: { ...current.preferences, ...preferences } })

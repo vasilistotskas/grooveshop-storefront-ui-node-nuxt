@@ -95,6 +95,8 @@ export function validTenantConfig(
       contactAttachments: true,
       chatWidget: true,
       priceHistory: true,
+      catalogue: true,
+      cart: true,
     },
     // The store's preferences as Django resolves them: each one's
     // declared value (`settings.EXTRA_SETTINGS_DEFAULTS`).

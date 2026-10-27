@@ -16,17 +16,3 @@ export function createFeatureGate(name: StoreFeatureName) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   })
 }
-
-/**
- * Gate a page behind a store preference (`cart`, `catalogue`: not store
- * features yet, see `shared/utils/storePreference.ts`). Synchronous like
- * the feature gate: the decision is `TenantConfig.preferences`, already
- * on the render.
- */
-export function createPreferenceGate(name: StorePreferenceName) {
-  return defineNuxtRouteMiddleware(() => {
-    if (useStorePreference(name).value) return
-
-    throw createError({ statusCode: 404, statusMessage: 'Not Found' })
-  })
-}

@@ -8,7 +8,7 @@ import type { CategoryMenuEntry } from '~/composables/useCategoryMenu'
 import ChromeNavbar from '~/components/Chrome/Navbar.vue'
 import MobileMenu from '~/components/Chrome/MobileMenu.vue'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
-import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -187,11 +187,11 @@ describe('Chrome/Navbar', () => {
     ])
   })
 
-  it('shows the cart unless the store turned the cart preference off', async () => {
+  it('shows the cart unless the store turned the cart feature off', async () => {
     const shown = await mountNavbar()
     expect(shown.find('[data-test="cart"]').exists()).toBe(true)
 
-    setTenantPreferences({ cart: false })
+    setTenantFeatures({ cart: false })
     const hidden = await mountNavbar()
     expect(hidden.find('[data-test="cart"]').exists()).toBe(false)
   })

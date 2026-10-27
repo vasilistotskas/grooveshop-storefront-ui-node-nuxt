@@ -4,6 +4,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
 import { setTenant } from '~~/test/helpers/tenant'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -66,8 +67,39 @@ describe('Cart Store', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    setTenant()
     store = useCartStore()
     window.sessionStorage.clear()
+  })
+
+  describe('on a store without the cart feature', () => {
+    beforeEach(() => {
+      setTenant({ features: { ...validTenantConfig('test.local').features, cart: false } })
+      store.cart = twoLineCart()
+    })
+
+    // The cart bootstrap (`plugins/setup.ts`), a sign-in refresh, a click and
+    // the shopping assistant all route through these: none may reach Django.
+    it.each([
+      ['setupCart', () => store.setupCart()],
+      ['refreshCart', () => store.refreshCart()],
+      ['claimCart', () => store.claimCart('3f9c2b6e-1d5a-4c8b-9e7f-2a1b3c4d5e6f')],
+      ['createCartItem', () => store.createCartItem({ product: 1, quantity: 1 })],
+      ['updateCartItem', () => store.updateCartItem(1, { quantity: 3 })],
+      ['deleteCartItem', () => store.deleteCartItem(1)],
+      ['clearCart', () => store.clearCart()],
+    ])('%s makes no request', async (_action, call) => {
+      await call()
+
+      expect(api).not.toHaveBeenCalled()
+    })
+
+    it('forgets the cart without telling the server when the session ends', async () => {
+      await store.cleanCartState()
+
+      expect(api).not.toHaveBeenCalled()
+      expect(store.cart).toBeNull()
+    })
   })
 
   it('starts with no cart, nothing pending and no error', () => {

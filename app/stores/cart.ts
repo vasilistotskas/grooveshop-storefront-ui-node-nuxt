@@ -15,6 +15,12 @@ export const useCartStore = defineStore('cart', () => {
   const ga4 = useGA4()
   const googleAds = useGoogleAds()
   const attribution = useRecommendationAttribution()
+  // The `cart` feature, read from the tenant state: a plugin boots this
+  // store before the tenant store is filled. A store without the cart makes
+  // no cart request at all (Django answers 404 for it), whoever asks:
+  // the setup plugin, a sign-in refreshing the cart, a click on a button.
+  const tenant = useTenant()
+  const cartOn = () => storeFeatureOn(tenant.value, 'cart')
   const orderAttribution = useOrderAttribution()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
@@ -187,6 +193,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function createCartItem(body: CartItemCreateRequestWritable) {
+    if (!cartOn()) return
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     try {
@@ -249,6 +256,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function updateCartItem(id: number, body: CartItemUpdateRequest) {
+    if (!cartOn()) return
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     // Snapshot BEFORE the PUT — the quantity delta decides whether
@@ -296,6 +304,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function deleteCartItem(id: number) {
+    if (!cartOn()) return
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     // Snapshot the item BEFORE the DELETE so the analytics event has
@@ -337,6 +346,7 @@ export const useCartStore = defineStore('cart', () => {
    * line leaves the analytics the way a single removal does.
    */
   async function clearCart() {
+    if (!cartOn()) return
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     const removedItems = cart.value?.items ?? []
@@ -376,6 +386,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function setupCart() {
+    if (!cartOn()) return
     const headers = useRequestHeaders()
     const opId = crypto.randomUUID()
     inFlight.add(opId)
@@ -405,6 +416,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function refreshCart() {
+    if (!cartOn()) return
     try {
       const data = await $api<RetrieveCartResponse | null>('/api/cart', {
         method: 'GET',
@@ -426,6 +438,7 @@ export const useCartStore = defineStore('cart', () => {
    * (`/api/cart/claim`).
    */
   async function claimCart(uuid: string) {
+    if (!cartOn()) return
     try {
       cart.value = await $api<RetrieveCartResponse>('/api/cart/claim', {
         method: 'POST',
@@ -438,6 +451,12 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function cleanCartState() {
+    if (!cartOn()) {
+      cart.value = null
+      inFlight.clear()
+      error.value = null
+      return
+    }
     try {
       await $api('/api/cart/clear-session', { method: 'POST' })
       cart.value = null

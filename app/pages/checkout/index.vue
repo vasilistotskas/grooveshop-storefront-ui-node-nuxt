@@ -2,6 +2,8 @@
 definePageMeta({
   layout: 'checkout',
   middleware: [
+    // No cart, no order to create: the page is gone with the cart.
+    'cart-enabled',
     function (to) {
       const { $i18n } = useNuxtApp()
       const t = $i18n.t.bind($i18n)

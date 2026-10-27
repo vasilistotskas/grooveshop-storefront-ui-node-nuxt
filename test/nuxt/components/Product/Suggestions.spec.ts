@@ -5,7 +5,7 @@ import Suggestions from '~/components/Product/Suggestions.vue'
 import WebsideSuggestions from '~/components/variants/webside/Product/Suggestions.vue'
 import type { Product, SurfaceEnum } from '~~/shared/openapi/types.gen'
 import { makeProduct } from '~~/test/fixtures/product'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const IMPRESSION_ID = '0f6d3d3e-6d2b-4c4e-9c2a-2a1f4b6c8d90'
 /** The strip's `useApi` key for `{ surface: 'pdp', seedId: 1 }`. */
@@ -158,6 +158,15 @@ describe('webside Product/Suggestions', () => {
     const buttons = wrapper.findAll('button.add-to-cart')
     expect(buttons).toHaveLength(2)
     expect(buttons[0]!.attributes('aria-label')).toBe('Προσθήκη στο καλάθι')
+  })
+
+  it('asks the engine for nothing on a store without the catalogue', async () => {
+    setTenantFeatures({ catalogue: false })
+
+    await mountStrip({ surface: 'pdp', seedId: 1, limit: 4 })
+
+    expect(api.callsTo('/api/products/1/recommendations')).toEqual([])
+    expect(api.callsTo('/api/recommendations')).toEqual([])
   })
 
   it('asks for the surface and the limit, and labels the section itself when the title is hidden', async () => {

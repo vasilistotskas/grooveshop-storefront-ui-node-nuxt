@@ -135,6 +135,17 @@ describe('GET /rss.xml', () => {
     expect(xml).not.toContain('/products/2/')
   })
 
+  it('syndicates the blog alone, and never asks for products, on a store without the catalogue', async () => {
+    djangoServesTheCatalogue()
+
+    const response = await feed({ features: { ...validTenantConfig('shop.test').features, blog: true, catalogue: false } })
+
+    const xml: string = response.body
+    expect(xml).toContain('<title><![CDATA[Summer news]]></title>')
+    expect(xml).not.toContain('/products/')
+    expect(backend.requests.map(request => request.path)).not.toContain(`${API}/product`)
+  })
+
   it('prices products in the store\'s currency with their sale details', async () => {
     djangoServesTheCatalogue()
 

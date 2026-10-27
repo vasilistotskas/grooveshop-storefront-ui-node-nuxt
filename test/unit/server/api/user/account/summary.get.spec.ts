@@ -118,6 +118,18 @@ describe('GET /api/user/account/summary', () => {
     expect(response.body).toMatchObject({ ordersCount: 14, ...expected })
   })
 
+  it('does not ask for gift cards while the store has no catalogue they are bought from', async () => {
+    signIn()
+    answer()
+    const base = validTenantConfig('shop.test')
+    const tenant = validTenantConfig('shop.test', { features: { ...base.features, ...ALL_ON, catalogue: false } })
+
+    const response = await callRoute(handler, { url: '/api/user/account/summary', context: { tenant } })
+
+    expect(response.body).toMatchObject({ ordersCount: 14, giftCardBalance: null })
+    expect(backend.requests.map(request => request.path)).not.toContain(`${API}/giftcard/mine`)
+  })
+
   it.each([
     ['loyalty', '/loyalty/summary', { loyalty: null }],
     ['giftCards', '/giftcard/mine', { giftCardBalance: null }],

@@ -3,7 +3,7 @@ import { computed, effectScope, ref } from 'vue'
 import type { EffectScope } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { NavColumn } from '~/composables/useNavigation'
-import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The default footer's links in its two weights: the primary columns a
@@ -99,7 +99,7 @@ describe('useFooterNavigation', () => {
   })
 
   it('drops a column with nothing to link', () => {
-    setTenantPreferences({ catalogue: false })
+    setTenantFeatures({ catalogue: false })
 
     expect(navigation().primary.map(column => column.label)).toEqual([t('footer.help')])
   })

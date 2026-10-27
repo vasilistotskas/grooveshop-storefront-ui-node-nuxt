@@ -13,12 +13,16 @@ export async function useFavouriteCounts() {
   const userId = user.value?.id
   // Saved posts exist only with the blog; without it Django answers 404.
   const blogEnabled = useStoreFeature('blog')
+  // Saved products are catalogue products: Django refuses the list for a
+  // store without the catalogue.
+  const catalogueEnabled = useStoreFeature('catalogue')
 
   const [{ data: products }, { data: posts }] = await Promise.all([
     useApi(`/api/user/account/${userId}/favourite-products`, {
       key: favouriteCountKey('products', userId),
       method: 'GET',
       query: { pageSize: 1 },
+      enabled: catalogueEnabled,
     }),
     useApi(`/api/user/account/${userId}/liked-blog-posts`, {
       key: favouriteCountKey('posts', userId),

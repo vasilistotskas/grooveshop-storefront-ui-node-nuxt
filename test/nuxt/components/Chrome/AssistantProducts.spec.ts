@@ -6,6 +6,7 @@ import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The cards under an assistant reply. The `products` event names ids and
@@ -46,6 +47,7 @@ const mountCards = (event: Partial<ShopChatProducts> = {}) =>
 
 describe('Chrome/AssistantProducts', () => {
   beforeEach(async () => {
+    setTenant()
     await useCartStore().cleanCartState()
     // The boot's attribution plugin records this tab's landing; the add carries it, which is not what this spec is about.
     window.sessionStorage.clear()

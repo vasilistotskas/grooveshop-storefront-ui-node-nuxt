@@ -5,7 +5,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
-import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The phone tab bar's entries. What matters:
@@ -73,8 +73,8 @@ describe('useBottomNavItems', () => {
     expect(labels(items())).not.toContain(t('saved'))
   })
 
-  it('drops the cart when the cart preference is off', () => {
-    setTenantPreferences({ cart: false })
+  it('drops the cart when the cart feature is off', () => {
+    setTenantFeatures({ cart: false })
 
     expect(labels(items())).not.toContain(t('cart.title'))
   })

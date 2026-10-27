@@ -81,6 +81,7 @@ export const useShopChat = () => {
   const cartStore = useCartStore()
   const { $i18n } = useNuxtApp()
   const { user } = useUserSession()
+  const cartEnabled = useStoreFeature('cart')
 
   const messages = useState<ShopChatMessage[]>('shop-chat-messages', () => [])
   const conversationId = useState<string>('shop-chat-conversation', () => '')
@@ -111,7 +112,8 @@ export const useShopChat = () => {
   /** The signed-in shopper's cart token, minted once and reused; none for a visitor. */
   const cartTokenFor = async (): Promise<string | undefined> => {
     const userId = user.value?.id
-    if (!userId) {
+    // A store without the cart has no cart for the assistant to act on.
+    if (!userId || !cartEnabled.value) {
       cartPass.value = null
       return undefined
     }

@@ -11,7 +11,7 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { defineComponent, h } from 'vue'
-import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /** Whether the store configured a Mobile menu; a store with none gets no `mobile` key. */
 let withMobileSlot = true
@@ -138,12 +138,12 @@ describe('useNavigation — feature gate on operator links', () => {
     expect(wrapper.text()).toContain('Εξωτερικά')
   })
 
-  it('keeps the catalogue (a preference, not a feature yet) while it is on, and drops it when off', async () => {
+  it('keeps the catalogue while its feature is on, and drops it when off', async () => {
     setTenant({})
     let { texts } = await render()
     expect(texts('#header')).toContain('/products')
 
-    setTenantPreferences({ catalogue: false })
+    setTenantFeatures({ catalogue: false })
     ;({ texts } = await render())
     expect(texts('#header')).not.toContain('/products')
   })

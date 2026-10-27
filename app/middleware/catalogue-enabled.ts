@@ -1,6 +1,5 @@
 /**
- * Gate for the whole catalogue surface — the store's `catalogue`
- * preference (`TenantConfig.preferences`, setting CATALOGUE_ENABLED):
+ * 404 unless the store has the `catalogue` feature (`useStoreFeature`):
  * the listings, the product pages and search.
  *
  * Distinct from `cart-enabled`, which leaves the catalogue browsable
@@ -11,4 +10,4 @@
  * the listing offered "Εξαντλημένο / Μή Διαθέσιμο" against a price of
  * 0,00 € for something that is quoted, not bought.
  */
-export default createPreferenceGate('catalogue')
+export default createFeatureGate('catalogue')

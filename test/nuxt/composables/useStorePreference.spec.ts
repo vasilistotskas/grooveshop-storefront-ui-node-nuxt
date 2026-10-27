@@ -18,19 +18,19 @@ describe('useStorePreference', () => {
   })
 
   it('reads each preference from the tenant payload', () => {
-    setTenantPreferences({ cart: false, mobileBottomNav: true })
+    setTenantPreferences({ demoAccount: true, mobileBottomNav: false })
 
-    expect(useStorePreference('cart').value).toBe(false)
-    expect(useStorePreference('mobileBottomNav').value).toBe(true)
+    expect(useStorePreference('demoAccount').value).toBe(true)
+    expect(useStorePreference('mobileBottomNav').value).toBe(false)
   })
 
   it('follows the payload when the store changes it', () => {
-    const catalogue = useStorePreference('catalogue')
-    expect(catalogue.value).toBe(true)
+    const recentlyViewed = useStorePreference('recentlyViewed')
+    expect(recentlyViewed.value).toBe(true)
 
-    setTenantPreferences({ catalogue: false })
+    setTenantPreferences({ recentlyViewed: false })
 
-    expect(catalogue.value).toBe(false)
+    expect(recentlyViewed.value).toBe(false)
   })
 
   it('asks the settings endpoint for nothing', () => {
@@ -42,6 +42,6 @@ describe('useStorePreference', () => {
   it('has none of them without a resolved store', () => {
     useTenantStore().setConfig(null)
 
-    expect(useStorePreference('cart').value).toBe(false)
+    expect(useStorePreference('mobileBottomNav').value).toBe(false)
   })
 })

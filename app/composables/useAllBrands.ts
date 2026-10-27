@@ -9,7 +9,7 @@ import type { Brand } from '~~/shared/openapi/types.gen'
  * must not fetch a brand list at all.
  */
 export function useAllBrands() {
-  const catalogueEnabled = useStorePreference('catalogue')
+  const catalogueEnabled = useStoreFeature('catalogue')
 
   return useApi<Brand[]>('/api/products/brands/all', {
     key: 'all-brands',

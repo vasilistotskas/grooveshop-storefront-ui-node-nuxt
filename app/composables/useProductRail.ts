@@ -45,6 +45,9 @@ export async function useProductRail(options: {
   categoryId?: MaybeRefOrGetter<number | undefined>
 }) {
   const { locale } = useI18n({ useScope: 'global' })
+  // A store without the catalogue has no products to rail: the request
+  // is not made (Django answers 404 for it), so the band stays empty.
+  const catalogueEnabled = useStoreFeature('catalogue')
 
   const pageSize = computed(() => toValue(options.pageSize))
   const ordering = computed(() => toValue(options.ordering))
@@ -67,6 +70,7 @@ export async function useProductRail(options: {
     // Two bands can resolve to the same key on one page; defer rather
     // than cancel, or each reader re-issues the request.
     dedupe: 'defer',
+    enabled: catalogueEnabled,
     // The band hydrates when it scrolls into view, after the app has
     // finished hydrating — see app/utils/payloadCachedData.ts.
     getCachedData: payloadCachedData,

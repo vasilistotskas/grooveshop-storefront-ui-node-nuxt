@@ -6,6 +6,7 @@ import WebsideQuantitySelector from '~/components/variants/webside/Quantity/Sele
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The cart stepper mirrors clicks at once and persists them in ONE
@@ -31,6 +32,7 @@ const putsTo = () => api.callsTo('/api/cart/items/1').filter(call => call.option
 
 describe.each(trees(QuantitySelector, WebsideQuantitySelector))('$tree Quantity/Selector', ({ C }) => {
   beforeEach(() => {
+    setTenant()
     serverQuantity = 2
     useCartStore().cart = cartWith(serverQuantity)
     api.routes({

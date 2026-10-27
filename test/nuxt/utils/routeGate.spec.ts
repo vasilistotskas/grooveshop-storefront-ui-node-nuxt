@@ -12,15 +12,14 @@ import giftCardsEnabled from '~/middleware/gift-cards-enabled'
 import loyaltyEnabled from '~/middleware/loyalty-enabled'
 import newsletterEnabled from '~/middleware/newsletter-enabled'
 import promotionsEnabled from '~/middleware/promotions-enabled'
-import { createFeatureGate, createPreferenceGate } from '~/utils/routeGate'
-import { setTenant, setTenantPreferences } from '~~/test/helpers/tenant'
+import { createFeatureGate } from '~/utils/routeGate'
+import { setTenant } from '~~/test/helpers/tenant'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 /**
- * The gates in front of a page. A feature gate decides from
- * `TenantConfig.features`, a preference gate (cart, catalogue) from
- * `TenantConfig.preferences`: both synchronously, and neither reads the
- * settings.
+ * The gates in front of a page. A gate decides from
+ * `TenantConfig.features` (the cart and the catalogue included),
+ * synchronously, and never reads the settings.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -35,6 +34,8 @@ const FEATURE_GATES = [
   ['account-reviews-enabled', accountReviewsEnabled, 'accountReviews'],
   ['b2b-enabled', b2bEnabled, 'wholesale'],
   ['blog-enabled', blogEnabled, 'blog'],
+  ['cart-enabled', cartEnabled, 'cart'],
+  ['catalogue-enabled', catalogueEnabled, 'catalogue'],
   ['favourites-enabled', favouritesEnabled, 'favourites'],
   ['feedback-enabled', feedbackEnabled, 'feedback'],
   ['gift-cards-enabled', giftCardsEnabled, 'giftCards'],
@@ -91,36 +92,5 @@ describe('createFeatureGate', () => {
 
     setTenant({ features: { ...ALL_OFF, giftCards: true } })
     await expect(run(gate)).resolves.toBeUndefined()
-  })
-})
-
-describe('preference-gate middlewares (cart, catalogue: not store features yet)', () => {
-  beforeEach(() => {
-    setTenant()
-  })
-
-  describe.each([
-    ['cart-enabled', cartEnabled, 'cart'],
-    ['catalogue-enabled', catalogueEnabled, 'catalogue'],
-  ] as const)('%s', (_name, gate, preference) => {
-    it(`404s when ${preference} is off`, async () => {
-      setTenantPreferences({ [preference]: false })
-
-      await expect(run(gate)).rejects.toMatchObject({ statusCode: 404 })
-    })
-
-    it(`serves the page when ${preference} is on, whatever the features say`, async () => {
-      setTenant({ features: ALL_OFF })
-      setTenantPreferences({ [preference]: true })
-
-      await expect(run(gate)).resolves.toBeUndefined()
-    })
-  })
-
-  it('decides from the tenant payload, asking the settings endpoint for nothing', async () => {
-    await run(createPreferenceGate('cart'))
-    await run(createPreferenceGate('catalogue'))
-
-    expect(api.callsTo(SETTINGS)).toEqual([])
   })
 })

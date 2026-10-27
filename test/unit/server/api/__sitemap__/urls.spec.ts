@@ -107,10 +107,10 @@ describe('server/api/__sitemap__/urls — blog feature gating', () => {
 
 describe('server/api/__sitemap__/urls — catalogue gating', () => {
   const withCatalogue = (catalogue: boolean) => ({
-    preferences: { ...validTenantConfig(HOST).preferences, catalogue },
+    features: { ...validTenantConfig(HOST).features, blog: true, catalogue },
   })
 
-  it('lists product and category URLs while the catalogue preference is on', async () => {
+  it('lists product and category URLs while the catalogue feature is on', async () => {
     serve()
 
     const urls = locs(await sitemap(tenantContext(withCatalogue(true))))
@@ -118,7 +118,7 @@ describe('server/api/__sitemap__/urls — catalogue gating', () => {
     expect(urls).toContain('https://acme.test/products/100/my-product')
   })
 
-  it('excludes product and category URLs when the catalogue preference is off', async () => {
+  it('excludes product and category URLs when the catalogue feature is off', async () => {
     serve()
 
     const urls = locs(await sitemap(tenantContext(withCatalogue(false))))
@@ -160,7 +160,7 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
     expect(urls.every(loc => loc.startsWith('https://www.acme.gr/'))).toBe(true)
   })
 
-  it('lists no blog and no catalogue when resolution fails: no store, no features, no preferences', async () => {
+  it('lists no blog and no catalogue when resolution fails: no store, no features', async () => {
     serve({ tenant: null })
 
     const urls = locs(await sitemap())
