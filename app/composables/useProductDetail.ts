@@ -10,10 +10,11 @@
  * the tenants' own), so a fix to what the page does lands once. The
  * head, the breadcrumb and the structured data stay with each drawing:
  * they describe what that drawing shows. Call it from a body's
- * `<script setup>`, before the first `await`.
+ * `<script setup>`, before the first `await`, with its own `t`: the
+ * specification labels are in the drawing's messages.
  */
-export async function useProductDetail(productId: string) {
-  const { t, locale } = useI18n()
+export async function useProductDetail(productId: string, t: ReturnType<typeof useI18n>['t']) {
+  const { locale } = useI18n({ useScope: 'global' })
   // Every store and composable is read before the first await: after
   // one, the server has lost the injection context Pinia needs (see
   // useBlogPostPage), and a hook has no component instance to belong to.

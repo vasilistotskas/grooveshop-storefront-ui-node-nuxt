@@ -42,6 +42,7 @@ const {
   confirmPayment,
 } = useGiftCardPurchase({
   form: formState,
+  t,
   deliverAt: () => deliverAt.value,
   onPaid: () => toast.add({
     title: t('success.title'),

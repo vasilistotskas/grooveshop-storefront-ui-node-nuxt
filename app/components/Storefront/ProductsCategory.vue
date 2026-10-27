@@ -8,7 +8,7 @@ const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : unde
 provideListingScope(scope)
 const { trail } = useCategoryForest(scope)
 
-const { categoryName, categoryDescription } = await useProductCategoryPage(categoryId)
+const { categoryName, categoryDescription } = await useProductCategoryPage(categoryId, t)
 
 /**
  * Home → Products → each parent → this category. The tree's own trail

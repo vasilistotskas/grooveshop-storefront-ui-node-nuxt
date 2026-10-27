@@ -31,7 +31,7 @@ async function productDetail() {
   let detail!: Awaited<ReturnType<typeof useProductDetail>>
   await mountSuspended(defineComponent({
     async setup() {
-      detail = await useProductDetail('123')
+      detail = await useProductDetail('123', useI18n().t)
       return () => null
     },
   }), { route: false })

@@ -13,7 +13,7 @@ export async function useBlogPostPage(options: {
   /** The article column's width: inline images are requested no wider. */
   articleMaxWidth: number
 }) {
-  const { t, locale } = useI18n()
+  const { t, locale } = useI18n({ useScope: 'global' })
   const route = useRoute(`blog-post-id-slug___${locale.value}`)
   const siteConfig = useSiteConfig()
   const img = useMediaStreamImage()

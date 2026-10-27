@@ -27,6 +27,8 @@ export interface GiftCardPurchaseInputs {
   deliverAt?: MaybeRefOrGetter<string | undefined>
   /** The card payment went through. */
   onPaid: () => void
+  /** The page's own `t`: the error lines are in its messages. */
+  t: ReturnType<typeof useI18n>['t']
 }
 
 // The card processors a gift card can be paid through, primary first.
@@ -37,8 +39,7 @@ const GIFT_CARD_PROVIDERS: readonly PaymentProviderEnum[] = [
   zPaymentProviderEnum.enum.stripe,
 ]
 
-export function useGiftCardPurchase({ form, deliverAt, onPaid }: GiftCardPurchaseInputs) {
-  const { t } = useI18n()
+export function useGiftCardPurchase({ form, deliverAt, onPaid, t }: GiftCardPurchaseInputs) {
   const tenantStore = useTenantStore()
 
   // Purchase bounds are the store's settings, as Django resolves them. A

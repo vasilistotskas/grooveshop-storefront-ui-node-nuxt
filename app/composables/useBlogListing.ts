@@ -22,7 +22,7 @@ export async function useBlogListing(options: {
 }) {
   const route = useRoute()
   const localePath = useLocalePath()
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const cursorState = useState<CursorState>('cursor-state')
 
   const paginationType = computed(() => toValue(options.paginationType))

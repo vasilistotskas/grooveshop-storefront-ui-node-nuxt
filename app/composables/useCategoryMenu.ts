@@ -29,7 +29,7 @@ export interface CategoryMenuEntry {
 }
 
 export function useCategoryMenu() {
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const catalogueEnabled = useStorePreference('catalogue')
 
   const { data } = useAllCategories()

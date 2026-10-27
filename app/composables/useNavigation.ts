@@ -29,7 +29,7 @@ export function useNavigation() {
   // `useI18n()`, for the same reason as `usePageConfig` — see the note
   // there on why `useNuxtApp().$i18n` is not the context-free
   // alternative it appears to be.
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   // Operator links are gated exactly as the pages gate themselves
   // (shared/utils/gatedRoutes.ts): a link to /offers on a store with
   // promotions off, or to /products with the catalogue switched off, is

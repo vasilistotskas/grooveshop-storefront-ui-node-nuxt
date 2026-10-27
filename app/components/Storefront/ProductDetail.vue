@@ -60,7 +60,7 @@ const {
   announcement,
   favouriteId,
   ogImage,
-} = await useProductDetail(productId)
+} = await useProductDetail(productId, t)
 const { data: allCategories } = await categoriesRequest
 
 const formatProductPrice = (price?: number) => {

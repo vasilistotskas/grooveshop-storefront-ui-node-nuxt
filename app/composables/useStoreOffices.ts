@@ -28,7 +28,7 @@ export interface StoreOffice {
  * storeOffices` for why the numbers are not part of it.
  */
 export function useStoreOffices() {
-  const { locale } = useI18n()
+  const { locale } = useI18n({ useScope: 'global' })
   const value = useSettingValue('STORE_OFFICES')
 
   const parsed = computed(() => {
