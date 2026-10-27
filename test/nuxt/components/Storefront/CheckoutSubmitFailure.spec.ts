@@ -126,13 +126,12 @@ const Quiet = (name: string) => defineComponent({ name, setup: () => () => h('di
 const QUIET = ['CheckoutItems', 'CheckoutCouponInput', 'CheckoutGiftCardInput', 'CheckoutPointsEarned', 'CheckoutGuestLoyaltyCTA', 'CheckoutPointsPanel', 'LoyaltyRedemption', 'CheckoutOnlinePaymentView', 'CheckoutLegalFooter', 'CheckoutSidebar']
 
 /**
- * Django refused the order: ofetch runs `onResponseError` (the checkout reads
- * the refusal there), then rejects with a FetchError whose `data` is the
- * body and whose response carries the request id.
+ * Django refused the order: ofetch rejects with a FetchError whose `data` is
+ * the body and whose response carries the request id (the checkout reads
+ * the refusal from it).
  */
-const refused = (body: Record<string, unknown>, requestId = 'req-checkout-42') => (_url: string, opts: any) => {
+const refused = (body: Record<string, unknown>, requestId = 'req-checkout-42') => () => {
   const response = { ok: false, status: 400, _data: body, headers: new Headers({ 'x-request-id': requestId }) }
-  opts.onResponseError?.({ response })
   throw Object.assign(new Error('400 Bad Request'), { status: 400, statusCode: 400, response, data: body })
 }
 

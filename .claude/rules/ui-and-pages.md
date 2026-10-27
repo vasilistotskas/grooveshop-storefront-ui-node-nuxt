@@ -123,6 +123,12 @@ Rules:
   lands in both trees (one `trees()` spec body covers both), and the webside
   render must stay byte-identical (`scripts/capture-ssr.mjs` +
   `scripts/diff-ssr.mjs` against the staging baselines).
+- **The frozen tree makes no request of its own.** Every fetch a webside
+  copy needs lives in the composable both trees use (the 2026-10 logic
+  consolidation moved them all), so the default's fix reaches webside too;
+  `test/unit/source-rules/webside-fetches-nothing.spec.ts` fails on any
+  `$api` / `useApi` / `useLazyApi` / `useRequestApi` / `useAsyncData` under
+  `variants/webside/`.
 - Its Greek-only `<i18n>` blocks are excluded from the translation debt list on
   purpose (`test/unit/source-rules/inline-blocks.spec.ts`): adding a locale would change
   that store's render.
