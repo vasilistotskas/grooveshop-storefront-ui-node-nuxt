@@ -4,6 +4,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import ProductsSlider from '~/components/PageSection/ProductsSlider.vue'
 import { makeProduct } from '~~/test/fixtures/product'
+import { setTenant } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -33,6 +34,7 @@ const seeAll = (wrapper: Awaited<ReturnType<typeof mountSlider>>) => {
  */
 describe('PageSection/ProductsSlider', () => {
   beforeEach(() => {
+    setTenant()
     // `useProductRail` serves a cached payload for its key.
     clearNuxtData()
     api.routes({ [PRODUCTS_URL]: { results: [makeProduct({ id: 7 }), makeProduct({ id: 8 })], count: 2 } })

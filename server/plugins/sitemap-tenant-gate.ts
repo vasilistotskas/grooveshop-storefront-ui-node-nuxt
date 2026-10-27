@@ -49,7 +49,7 @@ import { useRuntimeConfig } from 'nuxt/server'
  *
  * The dynamic half of the sitemap (`server/api/__sitemap__/urls.ts`)
  * gates blog URLs on the `blog` feature and product URLs on the
- * `catalogue` preference; this closes the same hole for the static routes
+ * `catalogue` feature; this closes the same hole for the static routes
  * that head each of those surfaces.
  */
 interface GatedRoute extends FeatureGatedRoute {
@@ -143,8 +143,7 @@ export default defineNitroPlugin((nitroApp) => {
     const config = useRuntimeConfig()
     const apiBaseUrl = config.apiBaseUrl as string
 
-    const featureAllows = (route: GatedRoute) =>
-      !route.feature || storeFeatureOn(tenant, route.feature)
+    const featureAllows = (route: GatedRoute) => featureRouteAllowed(route, tenant)
 
     // `/info/<slug>` renders a ContentPage just as a legal route does,
     // and 404s one written in no language: the same document gate, for

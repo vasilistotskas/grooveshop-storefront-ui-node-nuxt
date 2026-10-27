@@ -51,7 +51,7 @@ const cachedProductCategoryDetail = defineCachedFunction(
 )
 
 const generateRssFeed = defineCachedFunction(
-  async (tenantKey: string, locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string, currency: string, logoImageUrl: string | undefined): Promise<string> => {
+  async (tenantKey: string, locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string, currency: string, logoImageUrl: string | undefined, catalogueEnabled: boolean): Promise<string> => {
     const feed = new RSS({
       title: siteName,
       description: siteDescription,
@@ -78,9 +78,13 @@ const generateRssFeed = defineCachedFunction(
     const cachedBlogPosts = createCachedFetcher<BlogPost>('rss:blog-posts', RSS_CACHE_AGE)
     const cachedProducts = createCachedFetcher<Product>('rss:products', RSS_CACHE_AGE)
 
+    // A store without the catalogue has no products to syndicate, and
+    // Django refuses the list: the feed is its blog alone.
     const [allPosts, allProducts] = await Promise.all([
       cachedBlogPosts(tenantKey, locale, `${apiBaseUrl}/blog/post`),
-      cachedProducts(tenantKey, locale, `${apiBaseUrl}/product`),
+      catalogueEnabled
+        ? cachedProducts(tenantKey, locale, `${apiBaseUrl}/product`)
+        : Promise.resolve([]),
     ])
 
     const blogPosts = allPosts.map(post => zBlogPost.parse(post))
@@ -108,8 +112,8 @@ const generateRssFeed = defineCachedFunction(
     maxAge: RSS_CACHE_AGE,
     staleMaxAge: RSS_CACHE_AGE * 24,
     swr: true,
-    getKey: (tenantKey: string, locale: string, _siteUrl: string, _siteName: string, _siteDesc: string, _baseUrl: string, _apiBaseUrl: string, _mediaPath: string, currency: string, _logoImageUrl: string | undefined) =>
-      `${tenantKey}:rss-${locale}-${currency}`,
+    getKey: (tenantKey: string, locale: string, _siteUrl: string, _siteName: string, _siteDesc: string, _baseUrl: string, _apiBaseUrl: string, _mediaPath: string, currency: string, _logoImageUrl: string | undefined, catalogueEnabled: boolean) =>
+      `${tenantKey}:rss-${locale}-${currency}-${catalogueEnabled ? 'catalogue' : 'blog'}`,
   },
 )
 
@@ -167,6 +171,7 @@ export default defineEventHandler(async (event) => {
       mediaStreamBase,
       currency,
       logoImageUrl,
+      eventStoreFeature(event, 'catalogue'),
     )
 
     setHeaders(event, {

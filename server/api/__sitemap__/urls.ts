@@ -68,12 +68,11 @@ export default defineSitemapEventHandler(async (event) => {
   const mediaStreamBase = mediaStreamBaseUrl(tenant?.assetsDomain, config.public.mediaStreamPath as string | undefined)
 
   const blogEnabled = storeFeatureOn(tenant, 'blog')
-  // The catalogue is a store preference, not a feature yet: a store can
-  // hold a product model and serve no shop (an engineering contractor
-  // quoting per project). Its listings and product pages 404 under
+  // A store can hold a product model and serve no shop (an engineering
+  // contractor quoting per project). Its listings and product pages 404 under
   // `app/middleware/catalogue-enabled.ts`, so they must not be
   // advertised here either.
-  const catalogueEnabled = storePreferenceOn(tenant, 'catalogue')
+  const catalogueEnabled = storeFeatureOn(tenant, 'catalogue')
 
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.

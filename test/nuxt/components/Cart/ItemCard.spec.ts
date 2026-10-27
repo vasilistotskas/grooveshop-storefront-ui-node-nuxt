@@ -7,6 +7,7 @@ import { useCartStore } from '~/stores/cart'
 import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * A cart line: its prices, a stepper capped at the stock, and removal
@@ -41,6 +42,7 @@ async function clickUndo() {
 
 describe('Cart/ItemCard (default)', () => {
   beforeEach(async () => {
+    setTenant()
     await useCartStore().cleanCartState()
     // The boot's attribution plugin records this tab's landing; the add carries it, which is not what this spec is about.
     window.sessionStorage.clear()
@@ -128,6 +130,7 @@ describe('Cart/ItemCard (frozen webside)', () => {
   const C = WebsideCartItemCard
 
   beforeEach(async () => {
+    setTenant()
     await useCartStore().cleanCartState()
     // The boot's attribution plugin records this tab's landing; the add carries it, which is not what this spec is about.
     window.sessionStorage.clear()

@@ -19,7 +19,7 @@ const stored = () => window.sessionStorage.getItem('order-attribution')
 
 function storeWithCart(cart: boolean) {
   const config = validTenantConfig('test.local')
-  useTenant().value = { ...config, preferences: { ...config.preferences, cart } }
+  useTenant().value = { ...config, features: { ...config.features, cart } }
 }
 
 describe('attribution plugin', () => {

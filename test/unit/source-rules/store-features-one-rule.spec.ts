@@ -5,9 +5,11 @@ import { FROZEN, REPO, readSource, withoutComments } from '../../helpers/sourceT
 
 /**
  * A store feature has ONE answer: `TenantConfig.features`, read through
- * `useStoreFeature` / `eventStoreFeature` / `storeFeatureOn`. A store
- * preference likewise: `TenantConfig.preferences`, read through
- * `useStorePreference` / `storePreferenceOn`.
+ * `useStoreFeature` / `eventStoreFeature` / `storeFeatureOn` (the cart and
+ * the catalogue included). A store preference, a presentation switch
+ * (`mobileBottomNav`, `stickyAddToCart`, `recentlyViewed`, `demoAccount`),
+ * likewise: `TenantConfig.preferences`, read through `useStorePreference` /
+ * `storePreferenceOn`.
  *
  * What this forbids, in both component trees (the frozen webside tree's
  * freeze covers its look, not its behaviour): reading either the old way
@@ -76,9 +78,16 @@ describe('store features and preferences are read from the tenant payload alone'
   })
 
   it('is still reading preferences in many places (a canary, so the rule cannot go blind)', () => {
-    const reads = files.reduce((sum, file) => sum + (text(file).match(/\b(useStorePreference|storePreferenceOn|createPreferenceGate)\(/g)?.length ?? 0), 0)
+    const reads = files.reduce((sum, file) => sum + (text(file).match(/\b(useStorePreference|storePreferenceOn)\(/g)?.length ?? 0), 0)
 
-    expect(reads).toBeGreaterThan(15)
+    expect(reads).toBeGreaterThan(8)
+  })
+
+  it('reads the cart and the catalogue as features, never as preferences', () => {
+    const pattern = /\b(useStorePreference|storePreferenceOn)\([^)]*['"](cart|catalogue)['"]|createPreferenceGate|preferences\??\.(cart|catalogue)\b/
+    const offenders = files.filter(file => pattern.test(text(file)))
+
+    expect(offenders.map(label)).toEqual([])
   })
 
   it('still finds the plain boolean settings it allows (a canary for the key pattern)', () => {

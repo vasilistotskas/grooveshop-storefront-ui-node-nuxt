@@ -19,8 +19,13 @@
 export async function useHeroProductChips(ids: MaybeRefOrGetter<number[]>) {
   const { $i18n } = useNuxtApp()
   const requestFetch = useRequestApi()
+  const catalogueEnabled = useStoreFeature('catalogue')
 
-  const wanted = computed(() => [...new Set(toValue(ids))].sort((a, b) => a - b))
+  // A store without the catalogue wants no product: no chip is drawn and
+  // no request is made.
+  const wanted = computed(() => catalogueEnabled.value
+    ? [...new Set(toValue(ids))].sort((a, b) => a - b)
+    : [])
 
   const { data } = await useAsyncData(
     () => `hero-product-chips-${$i18n.locale.value}-${wanted.value.join('-')}`,

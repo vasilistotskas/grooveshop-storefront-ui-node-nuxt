@@ -10,7 +10,7 @@ mockNuxtImport('useAllCategories', () => () => ({ data: categories }))
 
 describe('useCategoryMenu', () => {
   it('carries each category\'s recursive product count into its entry', async () => {
-    // A store whose catalogue preference is on, as the fixture's is.
+    // A store whose catalogue feature is on, as the fixture's is.
     setTenant()
     categories.value = [
       makeCategory({ id: 1, recursiveProductCount: 28 }),

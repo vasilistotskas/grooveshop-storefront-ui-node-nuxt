@@ -16,6 +16,9 @@ export function useQuickSearch(options: { query: Ref<string> }) {
   const { locale } = useNuxtApp().$i18n
   const router = useRouter()
   const localePath = useLocalePath()
+  // The palette searches the catalogue: a store without one asks for
+  // neither the trending queries nor results (Django answers 404).
+  const catalogueEnabled = useStoreFeature('catalogue')
 
   const trending = useLazyApi<{
     windowHours: number
@@ -25,6 +28,7 @@ export function useQuickSearch(options: { query: Ref<string> }) {
   }>('/api/search/trending', {
     query: { languageCode: locale, contentType: 'product', limit: 8 },
     immediate: true,
+    enabled: catalogueEnabled,
     server: false,
     default: () => ({ windowHours: 24, contentType: 'product', languageCode: null, results: [] }),
   })
@@ -40,6 +44,7 @@ export function useQuickSearch(options: { query: Ref<string> }) {
       offset,
     },
     immediate: false,
+    enabled: catalogueEnabled,
     watch: false,
   })
 

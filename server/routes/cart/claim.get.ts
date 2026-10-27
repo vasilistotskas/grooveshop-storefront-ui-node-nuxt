@@ -14,6 +14,9 @@ const zCartClaimQuery = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+  // A store without the cart has nothing to adopt a cart into.
+  if (!eventStoreFeature(event, 'cart')) return sendRedirect(event, '/cart')
+
   try {
     const { uuid } = await getValidatedQuery(event, zCartClaimQuery)
     await claimCart(event, uuid)

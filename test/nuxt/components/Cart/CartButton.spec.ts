@@ -5,6 +5,7 @@ import CartButton from '~/components/Cart/CartButton.vue'
 import WebsideCartButton from '~/components/variants/webside/Cart/CartButton.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart } from '~~/test/fixtures/cart'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The navbar cart icon: its count, its warning colour when a line has
@@ -27,6 +28,7 @@ const chip = (wrapper: Wrapper) => wrapper.findComponent({ name: 'UChip' })
 const count = (wrapper: Wrapper) => wrapper.find('span[data-slot="base"]')
 
 beforeEach(async () => {
+  setTenant()
   // Also drops any request an earlier test left in flight.
   await useCartStore().cleanCartState()
   useCartStore().cart = makeCart()

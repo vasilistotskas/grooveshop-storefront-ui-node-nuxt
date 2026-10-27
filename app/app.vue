@@ -118,7 +118,7 @@ const postalAddress = computed(() => {
   }
 })
 
-const takesOrders = useStorePreference('cart')
+const takesOrders = useStoreFeature('cart')
 const organizationType = computed(() => organizationSchemaType({
   takesOrders: takesOrders.value,
   hasPhysicalStore: hasBusinessHours.value || geo.value !== undefined,

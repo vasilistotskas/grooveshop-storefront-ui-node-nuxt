@@ -16,7 +16,9 @@ export function useProductSuggestions(props: {
   limit?: number
   items?: readonly Product[]
 }) {
-  const fetches = props.items === undefined
+  // The engine recommends catalogue products: none without the catalogue.
+  const catalogueEnabled = useStoreFeature('catalogue')
+  const fetches = computed(() => props.items === undefined && catalogueEnabled.value)
   // Plain template literals, as the product page does: Nitro's typed
   // routes resolve the response type from them, which a URL function
   // would not. The seed is fixed for the component's lifetime — the

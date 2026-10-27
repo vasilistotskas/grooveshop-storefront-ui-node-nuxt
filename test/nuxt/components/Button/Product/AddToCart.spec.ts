@@ -11,6 +11,7 @@ import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { trees } from '~~/test/helpers/trees'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The buy button: when it may be pressed at all (active, in stock, not
@@ -60,6 +61,7 @@ function cartHolds(lines: CartItemOverrides[] = []) {
 
 describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tree Button/Product/AddToCart', ({ tree, C }) => {
   beforeEach(async () => {
+    setTenant()
     await useCartStore().cleanCartState()
     cartHolds()
     viewport.desktop = true

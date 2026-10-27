@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { makeCart } from '~~/test/fixtures/cart'
 import { failWith } from '~~/test/helpers/api'
-import { setTenant } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -517,6 +517,17 @@ describe('useShopChat', () => {
       ])
       expect(tokenCalls()).toHaveLength(1)
       expect(tokenCalls()[0]!.options).toMatchObject({ method: 'POST' })
+    })
+
+    it('mints no cart token on a store without the cart', async () => {
+      setTenantFeatures({ cart: false })
+      api.routes({ '/api/cart/agent-token': MINTED('pass-1') })
+      const fetchMock = stubStream(DONE)
+
+      await useShopChat().send('πρώτο')
+
+      expect(tokenCalls()).toEqual([])
+      expect(tokensSent(fetchMock)).toEqual([undefined])
     })
 
     it('mints a new token for the next turn after the gateway refused it', async () => {

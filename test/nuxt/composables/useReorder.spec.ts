@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { MockInstance } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { failWith } from '~~/test/helpers/api'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * "Buy again": Django puts the order's products back in the cart, the
@@ -22,6 +23,7 @@ let refreshCart: MockInstance
 let track: MockInstance
 
 beforeEach(() => {
+  setTenant()
   const cart = useCartStore()
   refreshCart = vi.spyOn(cart, 'refreshCart').mockResolvedValue()
   track = vi.spyOn(cart, 'trackCartQuantityChange').mockImplementation(() => {})
@@ -38,6 +40,16 @@ describe('useReorder', () => {
     expect(track.mock.calls.map(([productId, quantity]) => [productId, quantity])).toEqual([[3, 2], [4, 1]])
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
     expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('cart'))
+  })
+
+  it('asks for nothing on a store without the cart', async () => {
+    setTenantFeatures({ cart: false })
+    api.routes({ [REORDER]: { addedItems: [{ productId: 3, addedQuantity: 1 }], skippedItems: [] } })
+
+    await useReorder().reorder(7)
+
+    expect(api.callsTo(REORDER)).toEqual([])
+    expect(navigateToMock).not.toHaveBeenCalled()
   })
 
   it('says how many it added and how many are no longer sold', async () => {

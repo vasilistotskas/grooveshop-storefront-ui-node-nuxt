@@ -16,7 +16,7 @@ const { isMobileOrTablet } = useDevice()
 const giftCardsEnabled = useStoreFeature('giftCards')
 
 // Cart chrome for shop-dark tenants (content site now, eshop later).
-const cartEnabled = useStorePreference('cart')
+const cartEnabled = useStoreFeature('cart')
 
 // Offers page discoverability: without it the store's automatic
 // promotions stay invisible until a shopper has already built a

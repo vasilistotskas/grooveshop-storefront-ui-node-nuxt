@@ -9,9 +9,8 @@ import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 /**
  * One rule for "is this route serving", read by the sitemap and the
- * navigation menus alike. A route behind a store feature follows
- * `TenantConfig.features`, the catalogue (a preference until the API
- * gates it) `TenantConfig.preferences`, and nothing else. The assertions
+ * navigation menus alike. A route follows the store features it needs
+ * in `TenantConfig.features`, and nothing else. The assertions
  * are what the pages' middlewares do, so a drift in either consumer
  * shows up here rather than as a footer link to a 404.
  */
@@ -20,17 +19,13 @@ const FIXTURE = validTenantConfig('shop.test')
 const ALL = Object.fromEntries(
   Object.keys(FIXTURE.features).map(name => [name, true]),
 ) as TenantConfig['features']
-const tenant = (
-  features: Partial<TenantConfig['features']> = {},
-  preferences: Partial<TenantConfig['preferences']> = {},
-) => ({
+const tenant = (features: Partial<TenantConfig['features']> = {}) => ({
   features: { ...ALL, ...features },
-  preferences: { ...FIXTURE.preferences, catalogue: true, ...preferences },
 })
 const route = (path: string) => FEATURE_GATED_ROUTES.find(r => r.path === path)!
 
 describe('featureRouteAllowed', () => {
-  it('serves everything when every feature is on and the catalogue is on', () => {
+  it('serves everything when every feature is on', () => {
     for (const r of FEATURE_GATED_ROUTES) {
       expect(featureRouteAllowed(r, tenant()), r.path).toBe(true)
     }
@@ -39,17 +34,15 @@ describe('featureRouteAllowed', () => {
   it.each([
     ['/loyalty-program', 'loyalty'],
     ['/offers', 'promotions'],
+    ['/products', 'catalogue'],
     ['/gift-cards', 'giftCards'],
+    ['/gift-cards', 'catalogue'],
     ['/feedback', 'feedback'],
     ['/blog', 'blog'],
     ['/blog/categories', 'blog'],
-  ] as const)('%s follows the %s feature and nothing else', (path, feature) => {
+  ] as const)('%s needs the %s feature', (path, feature) => {
     expect(featureRouteAllowed(route(path), tenant({ [feature]: false }))).toBe(false)
     expect(featureRouteAllowed(route(path), tenant({ [feature]: true }))).toBe(true)
-    expect(
-      featureRouteAllowed(route(path), tenant({ [feature]: true }, { catalogue: false })),
-      'a preference cannot close it',
-    ).toBe(true)
   })
 
   it('has nothing without a resolved store', () => {
@@ -57,13 +50,8 @@ describe('featureRouteAllowed', () => {
     expect(featureRouteAllowed(route('/products'), undefined)).toBe(false)
   })
 
-  describe('the catalogue, a preference until the API gates it', () => {
-    it('follows the catalogue preference', () => {
-      expect(featureRouteAllowed(route('/products'), tenant({}, { catalogue: true }))).toBe(true)
-      expect(featureRouteAllowed(route('/products'), tenant({}, { catalogue: false }))).toBe(false)
-    })
-
-    it('does not depend on any feature', () => {
+  describe('the catalogue', () => {
+    it('does not depend on any other feature', () => {
       expect(featureRouteAllowed(route('/products'), tenant({ blog: false, productReviews: false }))).toBe(true)
     })
   })
@@ -72,10 +60,11 @@ describe('featureRouteAllowed', () => {
 describe('blockedFeaturePaths', () => {
   it('lists exactly the routes that are not serving', () => {
     const blocked = blockedFeaturePaths(
-      tenant({ promotions: false, loyalty: false }, { catalogue: false }),
+      tenant({ promotions: false, loyalty: false, catalogue: false }),
     )
 
     expect([...blocked].sort()).toEqual([
+      '/gift-cards',
       '/loyalty-program',
       '/offers',
       '/products',
@@ -86,7 +75,7 @@ describe('blockedFeaturePaths', () => {
     const blocked = blockedFeaturePaths(tenant(Object.fromEntries(Object.keys(ALL).map(k => [k, false]))))
 
     expect([...blocked].sort()).toEqual(
-      FEATURE_GATED_ROUTES.filter(r => r.feature).map(r => r.path).sort(),
+      FEATURE_GATED_ROUTES.filter(r => r.features).map(r => r.path).sort(),
     )
   })
 })

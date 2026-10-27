@@ -8819,6 +8819,8 @@ export type StoreFeatures = {
   readonly priceHistory: boolean
   readonly contactAttachments: boolean
   readonly chatWidget: boolean
+  readonly catalogue: boolean
+  readonly cart: boolean
 }
 
 /**

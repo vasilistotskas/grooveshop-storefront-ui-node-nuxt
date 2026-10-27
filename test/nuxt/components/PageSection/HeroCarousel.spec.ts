@@ -6,6 +6,7 @@ import { clearNuxtData } from '#app'
 import HeroCarousel from '~/components/PageSection/HeroCarousel.vue'
 import { failWith } from '~~/test/helpers/api'
 import { makeProduct } from '~~/test/fixtures/product'
+import { setTenant } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('useRequestApi', () => () => api)
@@ -72,6 +73,7 @@ const emblaOf = (wrapper: Awaited<ReturnType<typeof mountHero>>) =>
 
 describe('PageSectionHeroCarousel', () => {
   beforeEach(() => {
+    setTenant()
     media.matches = {}
     clearNuxtData()
   })

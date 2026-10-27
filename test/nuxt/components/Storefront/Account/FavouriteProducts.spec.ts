@@ -7,6 +7,7 @@ import WebsideFavouriteProductsPage from '~/components/variants/webside/Storefro
 import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from '~~/test/fixtures/product'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 import { trees } from '~~/test/helpers/trees'
+import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The saved products. Every one is a favourite, so the hearts are
@@ -62,6 +63,7 @@ const CardStub = defineComponent({
 })
 
 beforeEach(() => {
+  setTenant()
   fetches = 0
   countFetches = 0
   state.query = undefined
@@ -119,6 +121,14 @@ describe.each(trees(FavouriteProductsPage, WebsideFavouriteProductsPage))('$tree
 
     // Only the shop's page shows a count (its tabs); the frozen navbar has none to reload.
     expect([fetches, countFetches]).toEqual([listBefore + 1, countBefore + (tree === 'default' ? 1 : 0)])
+  })
+
+  it('asks for no saved product, list or count, on a store without the catalogue', async () => {
+    setTenantFeatures({ catalogue: false })
+
+    await mountPage()
+
+    expect([fetches, countFetches]).toEqual([0, 0])
   })
 
   it('invites a shopper without favourites to browse', async () => {

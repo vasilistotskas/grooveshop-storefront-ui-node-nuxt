@@ -4674,6 +4674,8 @@ export const zStoreFeatures = z.object({
   priceHistory: z.boolean().readonly(),
   contactAttachments: z.boolean().readonly(),
   chatWidget: z.boolean().readonly(),
+  catalogue: z.boolean().readonly(),
+  cart: z.boolean().readonly(),
 })
 
 /**

@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest'
 import handler from '~~/server/routes/cart/claim.get'
 import { useCartSession } from '~~/server/utils/cartSession'
 import { makeCart } from '~~/test/fixtures/cart'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callRoute, createRequestEvent, jsonResponse, loggerOf } from '~~/test/helpers/nitro'
 import type { RouteResponse } from '~~/test/helpers/nitro'
 
@@ -19,10 +20,16 @@ const CLAIMED = '11111111-1111-4111-8111-111111111111'
 const MERGED = '22222222-2222-4222-8222-222222222222'
 const EXISTING = '33333333-3333-4333-8333-333333333333'
 
-const claim = (query: string, cookie?: string) => callRoute(handler, {
+/** The route on a store whose `cart` feature is `cart`, as the tenant payload carries it. */
+const claim = (query: string, cookie?: string, cart = true) => callRoute(handler, {
   route,
   url: `${route}${query}`,
   headers: { 'x-forwarded-host': 'evil.example', ...(cookie ? { cookie } : {}) },
+  context: {
+    tenant: validTenantConfig('shop.test', {
+      features: { ...validTenantConfig('shop.test').features, cart },
+    }),
+  },
 })
 
 /** The cart id a follow-up request carrying the response's cookies would see. */
@@ -59,6 +66,18 @@ describe('GET /cart/claim', () => {
 
     expect(await sessionCartId(response)).toBe(MERGED)
     expect(loggerOf(response.event).fields).toMatchObject({ cart: { claimed: MERGED } })
+  })
+
+  it('redirects to /cart without calling the backend or touching the session on a store without the cart', async () => {
+    backend.reply(makeCart({ uuid: CLAIMED }))
+    const cookie = `cart-id=${EXISTING}`
+
+    const response = await claim(`?uuid=${CLAIMED}`, cookie, false)
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('location')).toBe('/cart')
+    expect(backend.requests).toEqual([])
+    expect(await sessionCartId(response, cookie)).toBe(EXISTING)
   })
 
   it.each([

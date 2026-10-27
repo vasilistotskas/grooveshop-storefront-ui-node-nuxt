@@ -75,12 +75,7 @@ const ALL_URLS = [
 const ALL_ON = Object.fromEntries(
   Object.keys(validTenantConfig('example.com').features).map(name => [name, true]),
 ) as TenantConfig['features']
-/** The store's preferences, the catalogue on. */
-const PREFERENCES = { ...validTenantConfig('example.com').preferences, catalogue: true }
-const open = (
-  features: Partial<TenantConfig['features']> = {},
-  preferences: Partial<TenantConfig['preferences']> = {},
-) => ({ features: { ...ALL_ON, ...features }, preferences: { ...PREFERENCES, ...preferences } })
+const open = (features: Partial<TenantConfig['features']> = {}) => ({ features: { ...ALL_ON, ...features } })
 const OPEN = open()
 
 async function run(tenant: Record<string, unknown> | null) {
@@ -111,15 +106,15 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     expect(locs).toContain('https://example.com/')
   })
 
-  it('drops the catalogue when the catalogue preference is off', async () => {
+  it('drops the catalogue when the catalogue feature is off', async () => {
     // One tier, not two: a store can hold a product model and serve no
     // shop, which is not a plan the platform sells or withholds.
-    const locs = await run(open({}, { catalogue: false }))
+    const locs = await run(open({ catalogue: false }))
 
     expect(locs).not.toContain('https://example.com/products')
   })
 
-  it('keeps the catalogue when the catalogue preference is on', async () => {
+  it('keeps the catalogue when the catalogue feature is on', async () => {
     const locs = await run(OPEN)
 
     expect(locs).toContain('https://example.com/products')
@@ -144,7 +139,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
   })
 
   it('gates on the tenant payload alone, asking the settings endpoint for nothing', async () => {
-    const locs = await run(open({}, { catalogue: false }))
+    const locs = await run(open({ catalogue: false }))
 
     expect(locs).toContain('https://example.com/loyalty-program')
     expect(locs).not.toContain('https://example.com/products')

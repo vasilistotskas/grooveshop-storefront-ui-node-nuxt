@@ -39,7 +39,7 @@ export function useBottomNavItems(options: BottomNavOptions = {}) {
   const cartStore = useCartStore()
   const { getCartTotalItems, pending: cartPending } = storeToRefs(cartStore)
 
-  const cartEnabled = useStorePreference('cart')
+  const cartEnabled = useStoreFeature('cart')
   const favouritesEnabled = useStoreFeature('favourites')
 
   const routeName = computed(() => String($routeBaseName(route) ?? ''))

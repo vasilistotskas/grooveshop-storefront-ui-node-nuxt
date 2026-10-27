@@ -12,7 +12,7 @@
  * Stored only on a store that can take an order: the value travels with
  * the order and nothing else reads it, so on a store with the cart off
  * it was storage on the visitor's device with no use at all. The gate
- * is the cart's own (`TenantConfig.preferences.cart`), read from the
+ * is the `cart` feature (`TenantConfig.features`), read from the
  * tenant state: this plugin runs before the tenant store is filled.
  */
 export default defineNuxtPlugin({
@@ -28,6 +28,6 @@ export default defineNuxtPlugin({
       ownOrigin: location.origin,
     }
 
-    if (storePreferenceOn(useTenant().value, 'cart')) capture(landing)
+    if (storeFeatureOn(useTenant().value, 'cart')) capture(landing)
   },
 })

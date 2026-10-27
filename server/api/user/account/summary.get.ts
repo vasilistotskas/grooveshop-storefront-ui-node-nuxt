@@ -40,7 +40,9 @@ export default defineEventHandler(async (event): Promise<AccountSummary> => {
         ? absentOn404(get('/loyalty/summary').then(response => parseDataAs(response, zGetLoyaltySummaryResponse)))
         : null,
       // `pagination=false`: every card, not the first page of them.
-      eventStoreFeature(event, 'giftCards')
+      // Gift cards are bought from the catalogue: Django refuses them
+      // for a store without one.
+      eventStoreFeature(event, 'giftCards') && eventStoreFeature(event, 'catalogue')
         ? absentOn404(get('/giftcard/mine', { pagination: 'false' }).then(response => parseDataAs(response, z.array(zGiftCard))))
         : null,
       eventStoreFeature(event, 'wholesale')

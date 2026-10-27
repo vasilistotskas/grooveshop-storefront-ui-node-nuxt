@@ -21,12 +21,14 @@ export function useReorder(options: {
   const { notify } = useApiError()
   const localePath = useLocalePath()
   const cartStore = useCartStore()
+  const cartEnabled = useStoreFeature('cart')
 
   /** The order being put back in the cart, while its request runs. */
   const reordering = ref<number | null>(null)
 
   async function reorder(orderId: number) {
-    if (reordering.value !== null) return
+    // A store without the cart has no cart to put an order back in.
+    if (!cartEnabled.value || reordering.value !== null) return
     reordering.value = orderId
     try {
       const result = await $api<ReorderResponse>(`/api/orders/${orderId}/reorder`, {

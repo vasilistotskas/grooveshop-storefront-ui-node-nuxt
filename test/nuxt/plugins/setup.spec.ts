@@ -8,7 +8,6 @@ import { useAuthStore } from '~/stores/auth'
 import { useCartStore } from '~/stores/cart'
 import { useUserStore } from '~/stores/user'
 import { useUserNotificationStore } from '~/stores/user-notification'
-import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 /**
  * The client half of the session bootstrap.
@@ -79,12 +78,6 @@ function spyStores() {
   }
 }
 
-/** The store's `cart` preference, in the tenant state the plugin reads. */
-function storeWithCart(cart: boolean) {
-  const config = validTenantConfig('test.local')
-  useTenant().value = { ...config, preferences: { ...config.preferences, cart } }
-}
-
 const FRESH = { serverRendered: true }
 const CACHED = { serverRendered: true, isCached: true }
 const PRERENDERED = { serverRendered: true, prerenderedAt: 1767225600000 }
@@ -96,7 +89,6 @@ describe('setup plugin', () => {
     clearNuxtData()
     session.loggedIn = ref(false)
     stores = spyStores()
-    storeWithCart(true)
   })
 
   describe('on a freshly rendered page', () => {
@@ -120,15 +112,6 @@ describe('setup plugin', () => {
       const last = Math.max(...stores.setupConfig.mock.invocationCallOrder, ...stores.setupSession.mock.invocationCallOrder)
       expect(stores.setupAccount.mock.invocationCallOrder[0]).toBeGreaterThan(last)
       expect(stores.setupCart.mock.invocationCallOrder[0]).toBeGreaterThan(last)
-    })
-
-    it('skips the cart on a store that has it switched off', async () => {
-      storeWithCart(false)
-
-      await run(FRESH)
-
-      expect(stores.setupCart).not.toHaveBeenCalled()
-      expect(stores.setupAccount).toHaveBeenCalledTimes(1)
     })
 
     // All three calls start eagerly either way; what `allSettled` buys is
@@ -177,15 +160,6 @@ describe('setup plugin', () => {
       await hooks['app:suspense:resolve']!()
 
       expect(stores.setupConfig).toHaveBeenCalledTimes(1)
-      expect(stores.setupCart).not.toHaveBeenCalled()
-    })
-
-    it('restores no cart on a store that has it switched off', async () => {
-      storeWithCart(false)
-      const hooks = await run(payload)
-
-      await hooks['app:suspense:resolve']!()
-
       expect(stores.setupCart).not.toHaveBeenCalled()
     })
   })
