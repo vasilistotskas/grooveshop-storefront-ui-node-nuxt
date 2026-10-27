@@ -2,13 +2,18 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
+import type { Component } from 'vue'
 import TwoFactorTotpDeactivate from '~/components/Storefront/Account/TwoFactorTotpDeactivate.vue'
+import WebsideTwoFactorTotpDeactivate from '~/components/variants/webside/Storefront/Account/TwoFactorTotpDeactivate.vue'
 import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * Turning TOTP off: a card saying what it means, a confirmation tick that
  * unlocks the destructive button, Cancel back to the security page.
- * Mocked at `useAllAuthAccount`.
+ * Mocked at `useAllAuthAccount`. The frozen copy differs in where it
+ * returns to (the settings page, not the security page), in the icon of
+ * its toast and in Cancel, which it navigates with rather than links.
  */
 const { totpAuthenticatorStatus, deactivateTotp, navigateToMock, toastAdd } = vi.hoisted(() => ({
   totpAuthenticatorStatus: vi.fn(),
@@ -25,8 +30,8 @@ beforeEach(() => {
   totpAuthenticatorStatus.mockResolvedValue({ status: 200, data: { type: 'totp' } })
 })
 
-async function mountBody() {
-  const wrapper = await mountSuspended(TwoFactorTotpDeactivate, { route: false })
+async function mountBody(C: Component = TwoFactorTotpDeactivate) {
+  const wrapper = await mountSuspended(C, { route: false })
   await flushPromises()
   return wrapper
 }
@@ -34,9 +39,12 @@ async function mountBody() {
 const turnOff = (wrapper: VueWrapper) =>
   wrapper.findAll('button').find(button => button.text() === 'Απενεργοποίηση')!
 
-describe('Storefront/Account/TwoFactorTotpDeactivate', () => {
+describe.each(trees(TwoFactorTotpDeactivate, WebsideTwoFactorTotpDeactivate))('$tree Storefront/Account/TwoFactorTotpDeactivate', ({ tree, C }) => {
+  const settled = tree === 'default' ? 'account-security' : 'account-settings'
+  const toastIcon = tree === 'default' ? 'i-lucide-shield-check' : 'i-heroicons-shield-check'
+
   it('keeps Turn off locked until the shopper confirms the risks', async () => {
-    const wrapper = await mountBody()
+    const wrapper = await mountBody(C)
     expect(turnOff(wrapper).attributes('disabled')).toBeDefined()
 
     await wrapper.find('button[role="checkbox"]').trigger('click')
@@ -46,21 +54,21 @@ describe('Storefront/Account/TwoFactorTotpDeactivate', () => {
   })
 
   it('turns TOTP off, tells the shopper and returns to the settings', async () => {
-    const wrapper = await mountBody()
+    const wrapper = await mountBody(C)
     await wrapper.find('button[role="checkbox"]').trigger('click')
 
     await turnOff(wrapper).trigger('click')
     await flushPromises()
 
     expect(deactivateTotp).toHaveBeenCalledTimes(1)
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success', description: 'Η εφαρμογή ελέγχου ταυτότητας απενεργοποιήθηκε επιτυχώς' }))
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success', icon: toastIcon, description: 'Η εφαρμογή ελέγχου ταυτότητας απενεργοποιήθηκε επιτυχώς' }))
     expect(wrapper.emitted('deactivateTotp')).toHaveLength(1)
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(settled))
   })
 
   it('stays on the page when allauth refuses', async () => {
     deactivateTotp.mockRejectedValue(asProxiedError(makeBadResponse({ code: 'reauthentication_required', param: 'password', message: 'Reauthentication required.' })))
-    const wrapper = await mountBody()
+    const wrapper = await mountBody(C)
     await wrapper.find('button[role="checkbox"]').trigger('click')
 
     await turnOff(wrapper).trigger('click')
@@ -71,18 +79,26 @@ describe('Storefront/Account/TwoFactorTotpDeactivate', () => {
     expect(wrapper.emitted('deactivateTotp')).toBeUndefined()
   })
 
-  it('offers Cancel as a link back to the security page', async () => {
-    const wrapper = await mountBody()
+  it.runIf(tree === 'webside')('takes Cancel back to the settings page', async () => {
+    const wrapper = await mountBody(C)
+
+    await wrapper.findAll('button').find(button => button.text() === 'Ακύρωση')!.trigger('click')
+
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(settled))
+  })
+
+  it.runIf(tree === 'default')('offers Cancel as a link back to the security page', async () => {
+    const wrapper = await mountBody(C)
 
     const cancel = wrapper.findAll('a').find(link => link.text() === 'Ακύρωση')!
-    expect(cancel.attributes('href')).toBe(useLocalePath()('account-security'))
+    expect(cancel.attributes('href')).toBe(useLocalePath()(settled))
   })
 
   it('sends the shopper back to the settings when the status cannot be read', async () => {
     totpAuthenticatorStatus.mockRejectedValue(new Error('Bad Gateway'))
 
-    await mountBody()
+    await mountBody(C)
 
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(settled))
   })
 })

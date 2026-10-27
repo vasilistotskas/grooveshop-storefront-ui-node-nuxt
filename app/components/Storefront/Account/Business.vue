@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import type * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 /**
  * The shopper's wholesale (B2B) profile, as the boards draw it: where the
  * application stands, then the company details in one card. A shopper
@@ -15,42 +12,9 @@ import type { FormSubmitEvent } from '#ui/types'
  */
 const { t, locale } = useI18n()
 useHead({ title: () => t('title') })
-const toast = useToast()
 
 const form = useTemplateRef('form')
-const { reportFailure } = useApiFormErrors(form, { fields: () => Object.keys(schema.shape) })
-// The generated contract schema, tightened with the client-side ΑΦΜ
-// checksum (mirror of Django's b2b/validators.py) so the shopper gets an
-// inline error instead of a 400 round trip.
-const schema = zBusinessProfileWriteRequest.extend({
-  vatId: zBusinessProfileWriteRequest.shape.vatId.refine(isValidGreekAfm, {
-    error: t('validation.billing_vat.checksum'),
-  }),
-})
-type Schema = z.output<typeof schema>
-
-const { data: profile, error, refresh } = await useApi('/api/b2b/profile', {
-  key: 'account:b2b-profile',
-  headers: useRequestHeaders(),
-})
-
-const absent = computed(() => error.value?.statusCode === 404)
-
-const state = reactive<Partial<Schema>>({})
-
-function fillFromProfile() {
-  const saved = profile.value
-  state.companyName = saved?.companyName
-  state.vatId = saved?.vatId
-  state.taxOffice = saved?.taxOffice
-  state.activity = saved?.activity
-  state.billingStreet = saved?.billingStreet || undefined
-  state.billingStreetNumber = saved?.billingStreetNumber || undefined
-  state.billingCity = saved?.billingCity || undefined
-  state.billingZipcode = saved?.billingZipcode || undefined
-}
-
-watch(profile, fillFromProfile, { immediate: true })
+const { schema, state, profile, error, absent, refresh, isSubmitting, save: onSubmit, reset: fillFromProfile } = await useBusinessProfile({ t, form })
 
 const STATUS_TINT = {
   APPROVED: { color: 'success', icon: 'i-lucide-circle-check' },
@@ -81,28 +45,6 @@ const vies = computed(() => {
   if (!saved?.viesCheckedAt || state.vatId !== saved.vatId || saved.viesStatus === 'UNCHECKED') return null
   return { status: saved.viesStatus, checkedAt: saved.viesCheckedAt }
 })
-
-const isSubmitting = ref(false)
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    await $api('/api/b2b/profile', {
-      method: 'PUT',
-      headers: useRequestHeaders(),
-      body: event.data,
-    })
-    toast.add({ title: t('submit.success'), color: 'success' })
-    await refresh()
-  }
-  catch (error) {
-    await reportFailure('business:update', error, { title: t('submit.error') })
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
 </script>
 
 <template>

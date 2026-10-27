@@ -59,6 +59,31 @@ describe('useReorder', () => {
     expect(navigateToMock).not.toHaveBeenCalled()
   })
 
+  it('speaks in the drawing\'s own words and toast icons when it passes them', async () => {
+    const t = vi.fn((key: string) => `own:${key}`) as unknown as ReturnType<typeof useI18n>['t']
+    const icons = { empty: 'i-own-empty', success: 'i-own-success' }
+    api.routes({ [REORDER]: { addedItems: [{ productId: 3, addedQuantity: 1 }], skippedItems: [] } })
+
+    await useReorder({ t, icons }).reorder(7)
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'own:reorder.success_title', icon: 'i-own-success' }))
+
+    toastAdd.mockClear()
+    api.routes({ [REORDER]: { addedItems: [], skippedItems: [] } })
+
+    await useReorder({ t, icons }).reorder(7)
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'own:reorder.empty_title', icon: 'i-own-empty' }))
+  })
+
+  it('uses the store\'s own words and icons when it passes none', async () => {
+    api.routes({ [REORDER]: { addedItems: [{ productId: 3, addedQuantity: 1 }], skippedItems: [] } })
+
+    await useReorder().reorder(7)
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: useNuxtApp().$i18n.t('reorder.success_title'), icon: 'i-lucide-shopping-bag' }))
+  })
+
   it('reports a failure and stays put', async () => {
     api.routes({ [REORDER]: failWith(500) })
 

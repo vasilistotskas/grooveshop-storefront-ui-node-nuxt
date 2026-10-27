@@ -18,40 +18,10 @@ useSeoMeta({
   title: () => t('title'),
 })
 
-type Phase = 'idle' | 'confirmed' | 'expired' | 'invalid' | 'failed'
-
-const phase = ref<Phase>('idle')
-const confirming = ref(false)
-const topic = ref('')
-
-function statusOf(error: unknown): number | undefined {
-  return error && typeof error === 'object' && 'statusCode' in error
-    ? (error as { statusCode?: number }).statusCode
-    : undefined
-}
+const { phase, confirming, topic, confirm: confirmSubscription } = useNewsletterConfirm({ token: () => route.params.token })
 
 async function confirm() {
-  if (confirming.value) return
-  confirming.value = true
-  try {
-    const response = await $api(
-      `/api/subscriptions/confirm/${encodeURIComponent(route.params.token)}`,
-      { method: 'POST' },
-    )
-    topic.value = response?.topic ?? ''
-    phase.value = 'confirmed'
-  }
-  catch (error) {
-    const status = statusOf(error)
-    phase.value = status === 410
-      ? 'expired'
-      : status === 400
-        ? 'invalid'
-        : 'failed'
-  }
-  finally {
-    confirming.value = false
-  }
+  await confirmSubscription()
   await settleFocus()
 }
 

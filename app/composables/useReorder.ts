@@ -6,10 +6,17 @@
  * bypasses the cart store's add actions, so each added line is reported
  * here to keep add-to-cart analytics complete, priced from the refreshed
  * cart. A product that is no longer sold is skipped and said so.
+ *
+ * The words are the store's own (`reorder.*` in the locale files); a
+ * drawing with words and toast icons of its own passes `t` and `icons`.
  */
-export function useReorder() {
+export function useReorder(options: {
+  t?: ReturnType<typeof useI18n>['t']
+  icons?: { empty: string, success: string }
+} = {}) {
   const { $i18n } = useNuxtApp()
-  const t = $i18n.t.bind($i18n)
+  const t = options.t ?? $i18n.t.bind($i18n)
+  const icons = options.icons ?? { empty: 'i-lucide-triangle-alert', success: 'i-lucide-shopping-bag' }
   const toast = useToast()
   const { notify } = useApiError()
   const localePath = useLocalePath()
@@ -41,7 +48,7 @@ export function useReorder() {
           title: t('reorder.empty_title'),
           description: t('reorder.empty_description'),
           color: 'warning',
-          icon: 'i-lucide-triangle-alert',
+          icon: icons.empty,
         })
         return
       }
@@ -52,7 +59,7 @@ export function useReorder() {
           ? t('reorder.success_with_skipped', { added, skipped })
           : t('reorder.success_description', { count: added }, added),
         color: 'success',
-        icon: 'i-lucide-shopping-bag',
+        icon: icons.success,
       })
       await navigateTo(localePath('cart'))
     }

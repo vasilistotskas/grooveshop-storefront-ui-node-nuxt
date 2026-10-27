@@ -1,84 +1,9 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
+const { schema: feedbackZodSchema, loading, send } = useFeedbackSubmit({ t })
 
-const loading = ref(false)
-
-// Mirrors the Django FeedbackWriteSerializer / validate_feedback_content
-// rules so the user gets inline hints instead of an opaque 400. rating
-// is required (undefined -> required); email is optional and accepts an
-// empty string (anonymous feedback); message mirrors the contact spam
-// filter's >= 5 words rule (contact/utils.py detect_spam_patterns).
-const CATEGORY_VALUES = [
-  'general',
-  'website',
-  'products',
-  'delivery',
-  'support',
-  'other',
-] as const
-
-const feedbackZodSchema = z.object({
-  rating: z.number({
-    error: () => t('validation.required'),
-  })
-    .int({ error: () => t('validation.required') })
-    .min(1, { error: t('validation.required') })
-    .max(5, { error: t('validation.max_value', { max: 5 }) }),
-
-  category: z.enum(CATEGORY_VALUES),
-
-  message: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  })
-    .min(10, { error: t('validation.min', { min: 10 }) })
-    .max(5000, { error: t('validation.max', { max: 5000 }) })
-    .refine(
-      value => value.trim().split(/\s+/).filter(Boolean).length >= 5,
-      { error: t('validation.message.min_words', { min: 5 }) },
-    ),
-
-  name: z.string()
-    .max(100, { error: t('validation.max', { max: 100 }) })
-    .optional(),
-
-  email: z.union([
-    z.email({ error: t('validation.email.valid') }).max(254),
-    z.literal(''),
-  ]).optional(),
-})
-
-type FeedbackValues = z.output<typeof feedbackZodSchema>
-
-async function onSubmit(values: FeedbackValues) {
-  if (loading.value) return
-  loading.value = true
-  try {
-    await $api('/api/feedback', {
-      method: 'POST',
-      body: values,
-    })
-
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-    })
-  }
-  catch (error) {
-    // The proxy forwards Django's 4xx validation body — surface the
-    // field detail (spam filter, disposable email, …) instead of a
-    // blanket failure. Same handling as ContactForm.vue.
-    notify('webside-FeedbackForm:send', error, { title: t('error.default') })
-  }
-  finally {
-    loading.value = false
-  }
+async function onSubmit(values: unknown) {
+  await send(values)
 }
 
 const formSchema = computed(() => ({
@@ -109,7 +34,7 @@ const formSchema = computed(() => ({
       type: 'text',
       initialValue: 'general',
       ui: { root: 'w-full' },
-      children: CATEGORY_VALUES.map(value => ({
+      children: FEEDBACK_CATEGORIES.map(value => ({
         tag: 'option',
         as: 'option',
         text: t(`category.${value}`),

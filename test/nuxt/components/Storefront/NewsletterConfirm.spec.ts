@@ -1,13 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import type { Component } from 'vue'
 import NewsletterConfirm from '~/components/Storefront/NewsletterConfirm.vue'
+import WebsideNewsletterConfirm from '~/components/variants/webside/Storefront/NewsletterConfirm.vue'
 import { failWith } from '~~/test/helpers/api'
+import { inlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The page a confirmation email links to. Opening it must confirm
  * NOTHING (mail scanners prefetch links); the button POSTs the token,
- * and each of Django's answers — 200, 410, 400 — is its own state.
+ * and each of Django's answers — 200, 410, 400 — is its own state. One
+ * `useNewsletterConfirm` serves both trees; the frozen page words and
+ * lays out its states its own way and moves no focus.
  */
 const TOKEN = 'a'.repeat(64)
 const CONFIRM_URL = `/api/subscriptions/confirm/${TOKEN}`
@@ -52,18 +58,26 @@ const COPY = {
   home: 'Στην αρχική',
 }
 
-const mountPage = () => mountSuspended(NewsletterConfirm, { route: false })
+let page: Component = NewsletterConfirm
+/** The words of the tree under test: its own button and failure line. */
+let words = { confirm: '', failed: '' }
+const mountPage = () => mountSuspended(page, { route: false })
 
 const confirmButton = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
-  wrapper.findAll('button').find(b => b.text() === COPY.confirm)
+  wrapper.findAll('button').find(b => b.text() === words.confirm)
 
 async function pressConfirm(wrapper: Awaited<ReturnType<typeof mountPage>>) {
   await confirmButton(wrapper)!.trigger('click')
   await flushPromises()
 }
 
-describe('NewsletterConfirm', () => {
+describe.each(trees(NewsletterConfirm, WebsideNewsletterConfirm))('$tree NewsletterConfirm', ({ tree, C }) => {
+  const defaultOnly = tree === 'default'
+  const own = inlineCopy(`app/components/${defaultOnly ? '' : 'variants/webside/'}Storefront/NewsletterConfirm.vue`)
+
   beforeEach(() => {
+    page = C
+    words = { confirm: own.confirm, failed: own.failed }
     session.loggedIn.value = false
     api.routes({ [CONFIRM_URL]: { status: 'confirmed', topic: 'Weekly News' } })
   })
@@ -76,14 +90,14 @@ describe('NewsletterConfirm', () => {
     expect(confirmButton(wrapper)).toBeTruthy()
   })
 
-  it('asks for the confirmation under the one h1 of the page', async () => {
+  it.runIf(defaultOnly)('asks for the confirmation under the one h1 of the page', async () => {
     const wrapper = await mountPage()
 
     expect(wrapper.findAll('h1').map(h => h.text())).toEqual([COPY.title])
     expect(wrapper.text()).toContain(COPY.prompt)
   })
 
-  it('offers the shop once confirmed, and the topics only to a signed-in shopper', async () => {
+  it.runIf(defaultOnly)('offers the shop once confirmed, and the topics only to a signed-in shopper', async () => {
     const guest = await mountPage()
     await pressConfirm(guest)
     expect(guest.findAll('a').map(link => [link.text(), link.attributes('href')])).toEqual([[COPY.shop, '/products']])
@@ -97,7 +111,7 @@ describe('NewsletterConfirm', () => {
     ])
   })
 
-  it('sends an expired or invalid link home, not to the shop', async () => {
+  it.runIf(defaultOnly)('sends an expired or invalid link home, not to the shop', async () => {
     api.routes({ [CONFIRM_URL]: failWith(410, { detail: 'x' }) })
     const wrapper = await mountPage()
 
@@ -106,7 +120,7 @@ describe('NewsletterConfirm', () => {
     expect(wrapper.findAll('a').map(link => [link.text(), link.attributes('href')])).toEqual([[COPY.home, '/']])
   })
 
-  it('POSTs the token and names the confirmed topic', async () => {
+  it.runIf(defaultOnly)('POSTs the token and names the confirmed topic', async () => {
     const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
@@ -118,7 +132,7 @@ describe('NewsletterConfirm', () => {
     expect(confirmButton(wrapper)).toBeUndefined()
   })
 
-  it('falls back to the generic confirmation when Django names no topic', async () => {
+  it.runIf(defaultOnly)('falls back to the generic confirmation when Django names no topic', async () => {
     api.routes({ [CONFIRM_URL]: { status: 'confirmed' } })
     const wrapper = await mountPage()
 
@@ -127,7 +141,7 @@ describe('NewsletterConfirm', () => {
     expect(wrapper.find('[role="status"] p').text()).toBe(COPY.confirmedDescription)
   })
 
-  it.each([
+  it.runIf(defaultOnly).each([
     { status: 410, title: COPY.expiredTitle },
     { status: 400, title: COPY.invalidTitle },
   ])('shows its own final state on $status, without a retry button', async ({ status, title }) => {
@@ -140,13 +154,34 @@ describe('NewsletterConfirm', () => {
     expect(confirmButton(wrapper)).toBeUndefined()
   })
 
+  it('POSTs the token and moves to the confirmed state', async () => {
+    const wrapper = await mountPage()
+
+    await pressConfirm(wrapper)
+
+    expect(api.callsTo(CONFIRM_URL)).toEqual([{ url: CONFIRM_URL, options: { method: 'POST' } }])
+    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(confirmButton(wrapper)).toBeUndefined()
+  })
+
+  it.each([410, 400])('ends on its own state on %i, without a retry button', async (status) => {
+    api.routes({ [CONFIRM_URL]: failWith(status, { detail: 'x' }) })
+    const wrapper = await mountPage()
+
+    await pressConfirm(wrapper)
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    expect(confirmButton(wrapper)).toBeUndefined()
+  })
+
   it('keeps the button on any other failure, so the visitor can retry', async () => {
     api.routes({ [CONFIRM_URL]: failWith(503, { detail: 'x' }) })
     const wrapper = await mountPage()
 
     await pressConfirm(wrapper)
 
-    expect(wrapper.find('[role="alert"]').text()).toBe(COPY.failed)
+    expect(wrapper.find('[role="alert"]').text()).toBe(words.failed)
     await pressConfirm(wrapper)
     expect(api.callsTo(CONFIRM_URL)).toHaveLength(2)
   })
@@ -168,7 +203,7 @@ describe('NewsletterConfirm', () => {
     expect(api.callsTo(CONFIRM_URL)).toHaveLength(1)
   })
 
-  describe('focus after the button is pressed', () => {
+  describe.runIf(defaultOnly)('focus after the button is pressed', () => {
     const mountAttached = async () => {
       const wrapper = await mountSuspended(NewsletterConfirm, { route: false, attachTo: document.body })
       await flushPromises()

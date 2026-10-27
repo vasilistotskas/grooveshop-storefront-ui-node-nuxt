@@ -1,114 +1,19 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
-const cartStore = useCartStore()
-const { cart } = storeToRefs(cartStore)
 const { $i18n } = useNuxtApp()
 const { rejectionMessage } = usePromotionOffer()
 
-// A store without promotions never renders the widget.
-const promotionsFeature = useStoreFeature('promotions')
-// What each attached code does right now, as Django's engine decided
-// it: the money it takes off, free shipping, a gift, or why it is
-// refused. Reading only the money made a free-shipping code say "a
-// better offer applies".
-const couponRows = computed(() => cart.value?.appliedCoupons ?? [])
-const allRefused = computed(() =>
-  couponRows.value.every(row => row.rejection !== null))
-
-// Wholesale carts don't stack retail promotions unless the merchant
-// opts in (B2B_ALLOW_PROMOTIONS) — when they don't stack, the backend
-// refuses new codes (COMBINATION_DISALLOWED), so hide the input rather
-// than accept codes that will never discount. EXCEPT when a code is
-// already attached (from before approval): keep the widget so the
-// shopper can still see and REMOVE it.
-const b2bSuppressesCoupons = computed(() => {
-  const b2b = cart.value?.b2bPricing
-  return Boolean(b2b?.applied) && !b2b?.allowPromotions
-})
-const promotionsEnabled = computed(
-  () => promotionsFeature.value
-    && (!b2bSuppressesCoupons.value || couponRows.value.length > 0),
-)
-
-type CouponRow = Cart['appliedCoupons'][number]
-
-// Django accepts a code only when it changes the outcome, so a code it
-// just accepted always carries one of the three benefits.
-const appliedDescription = (row: CouponRow | undefined) => {
-  if (!row) return undefined
-  if (row.amount > 0) {
-    return t('applied_description', { amount: $i18n.n(row.amount, 'currency') })
-  }
-  if (row.freeShipping) return t('applied_free_shipping')
-  if (row.gift) return t('applied_gift')
-  return undefined
-}
-
-const couponSchema = z.object({
-  code: z
-    .string({ error: t('validation.required') })
-    .trim()
-    .min(3, { error: t('validation.too_short') })
-    .max(40, { error: t('validation.too_long') }),
-})
-
-const formState = reactive({ code: '' })
-const submitting = ref(false)
-const couponError = ref<string | null>(null)
-
-const applyCoupon = async () => {
-  couponError.value = null
-  submitting.value = true
-  try {
-    const code = formState.code.trim()
-    await $api('/api/cart/coupon', {
-      method: 'POST',
-      body: { code },
-    })
-    await cartStore.refreshCart()
-    formState.code = ''
-    toast.add({
-      title: t('applied_title'),
-      description: appliedDescription(
-        couponRows.value.find(row => row.code === code.toUpperCase()),
-      ),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-  }
-  catch (error: any) {
-    // Django answers 400 with { detail, reason } — reason follows the
-    // ACP discount vocabulary (discount_code_invalid, _expired, ...).
-    // The same vocabulary drives the picker's per-coupon verdicts, so
-    // both read from one translated map (``usePromotionOffer``) and a
-    // refusal says the same thing wherever the shopper meets it.
-    const described = describeApiError(error, { fallback: rejectionMessage(null) })
-    couponError.value = described.code ? rejectionMessage(described.code) : described.description
-  }
-  finally {
-    submitting.value = false
-  }
-}
-
-const removeCoupon = async () => {
-  submitting.value = true
-  try {
-    await $api('/api/cart/coupon', { method: 'DELETE' })
-    await cartStore.refreshCart()
-    couponError.value = null
-  }
-  catch (error) {
-    log.error({ action: 'checkout:removeCoupon', error, requestId: requestIdOf(error) })
-    notify('webside-coupon:remove', error, { title: t('remove_failed') })
-  }
-  finally {
-    submitting.value = false
-  }
-}
+const {
+  promotionsEnabled,
+  couponRows,
+  allRefused,
+  couponSchema,
+  formState,
+  submitting,
+  couponError,
+  applyCoupon,
+  removeCoupon,
+} = useCouponInput({ t, successIcon: 'i-heroicons-check-circle' })
 </script>
 
 <template>

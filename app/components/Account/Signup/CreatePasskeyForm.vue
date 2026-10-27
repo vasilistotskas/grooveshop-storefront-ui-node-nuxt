@@ -1,73 +1,22 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-
 const emit = defineEmits(['getWebAuthnCreateOptionsAtSignup', 'signupWebAuthnCredential'])
 
-const { getWebAuthnCreateOptionsAtSignup, signupWebAuthnCredential } = useAllAuthAuthentication()
 const { t } = useI18n()
-const toast = useToast()
 const localePath = useLocalePath()
-const authInfo = useAuthInfo()
-const router = useRouter()
 
-const hasError = ref(false)
-const isSubmitting = ref(false)
-const deviceName = ref('')
-
-const schema = z.object({
-  name: z.string()
-    .min(1, t('validation.required'))
-    .max(50, t('validation.max', { max: 50 })),
-})
-
-type Schema = z.output<typeof schema>
-
-async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    hasError.value = false
-
-    const optResp = await getWebAuthnCreateOptionsAtSignup()
-    const jsonOptions = optResp?.data.request_options.publicKey
-
-    if (!jsonOptions) {
-      throw new Error('No creation options')
-    }
-
-    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(jsonOptions)
-    const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential
-
-    await signupWebAuthnCredential({
-      name: event.data.name,
-      credential: credential.toJSON(),
-    })
-
-    toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
-
+const { schema, deviceName, hasError, isSubmitting, onSubmit } = useCreatePasskeyAtSignup({
+  t,
+  created: () => ({
+    title: t('success.title'),
+    description: t('success.description'),
+    color: 'success',
+    icon: 'i-heroicons-check-circle',
+  }),
+  onCreated: () => {
     emit('getWebAuthnCreateOptionsAtSignup')
     emit('signupWebAuthnCredential')
-  }
-  catch (error) {
-    if (isAllAuthClientError(error)) {
-      if (error.data.data.status === 409 || authInfo.pendingFlow?.id !== Flows.MFA_WEBAUTHN_SIGNUP) {
-        await router.push(localePath('account-signup-passkey'))
-        return
-      }
-    }
-    hasError.value = true
-    handleAllAuthClientError(error)
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
+  },
+})
 </script>
 
 <template>

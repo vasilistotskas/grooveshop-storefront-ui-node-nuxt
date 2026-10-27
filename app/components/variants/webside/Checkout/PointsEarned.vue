@@ -8,75 +8,7 @@
  */
 
 const { t } = useI18n()
-const { loggedIn } = useUserSession()
-
-const cartStore = useCartStore()
-const { cart, getCartItems } = storeToRefs(cartStore)
-
-const loyalty = useLoyalty()
-const loyaltyEnabled = useStoreFeature('loyalty')
-
-// Wholesale carts sit outside the loyalty program unless the merchant
-// opts in (B2B_LOYALTY_ENABLED). The backend awards nothing for them,
-// so promising points here would advertise a reward never granted.
-const b2bSuppressesLoyalty = computed(() => {
-  const b2b = cart.value?.b2bPricing
-  return Boolean(b2b?.applied) && !b2b?.allowLoyalty
-})
-
-// State for computed points
-const pointsPerProduct = ref<Map<number, number>>(new Map())
-const loading = ref(false)
-const hasError = ref(false)
-
-const shouldFetch = computed(() => loggedIn.value
-  && loyaltyEnabled.value
-  && !b2bSuppressesLoyalty.value)
-
-// Total points earned for the entire cart
-const totalPointsEarned = computed(() => {
-  let total = 0
-  for (const item of getCartItems.value) {
-    const points = pointsPerProduct.value.get(item.product.id) ?? 0
-    total += points * (item.quantity || 1)
-  }
-  return total
-})
-
-const shouldShow = computed(() => {
-  return shouldFetch.value && !loading.value && !hasError.value && totalPointsEarned.value > 0
-})
-
-// Fetch points for all cart products in parallel
-const fetchAllProductPoints = async () => {
-  if (!shouldFetch.value || getCartItems.value.length === 0) return
-
-  loading.value = true
-  hasError.value = false
-
-  try {
-    // Get unique product IDs
-    const uniqueProductIds = [...new Set(getCartItems.value.map(item => item.product.id))]
-
-    // Fetch points for all products in parallel
-    pointsPerProduct.value = await loyalty.fetchPointsPerProduct(uniqueProductIds)
-  }
-  catch {
-    hasError.value = true
-  }
-  finally {
-    loading.value = false
-  }
-}
-
-// Fetch on mount and when cart items change
-watch(
-  [shouldFetch, () => getCartItems.value.map(i => `${i.product.id}:${i.quantity}`).join(',')],
-  () => {
-    fetchAllProductPoints()
-  },
-  { immediate: true },
-)
+const { shouldFetch, loading, totalPointsEarned, shouldShow } = useCartPointsEarned()
 </script>
 
 <template>

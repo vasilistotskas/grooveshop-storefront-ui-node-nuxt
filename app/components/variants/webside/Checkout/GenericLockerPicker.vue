@@ -27,151 +27,19 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// State — default to the map tab whenever the carrier exposes
-// ``fetchAll`` (i.e. the map tab actually renders); otherwise fall
-// back to the list view.
-const defaultTab = (): 'list' | 'map' => (props.carrier.fetchAll ? 'map' : 'list')
-const activeTab = ref<'list' | 'map'>(defaultTab())
-const postal = ref(props.initialPostalCode ?? '')
-const city = ref(props.initialCity ?? '')
-const stations = ref<Locker[]>([])
-const loading = ref(false)
-const errorMessage = ref<string | null>(null)
-const initialSearchDone = ref(false)
-
-// Map-tab state — populated lazily on first map activation so
-// users who only hit the list tab don't pay for the bulk fetch.
-const mapLockers = ref<Locker[]>([])
-const mapLoading = ref(false)
-const mapError = ref<string | null>(null)
-let mapAbort: AbortController | null = null
-
-let abortController: AbortController | null = null
-const SEARCH_DEBOUNCE_MS = 300
-
-async function runSearch(): Promise<void> {
-  if (!props.carrier.fetchByPostal) {
-    errorMessage.value = t('shipping.locker_picker.unsupported')
-    return
-  }
-  const trimmedPostal = postal.value.trim()
-  if (trimmedPostal.length < 4) {
-    stations.value = []
-    return
-  }
-  abortController?.abort()
-  const controller = new AbortController()
-  abortController = controller
-  loading.value = true
-  errorMessage.value = null
-  try {
-    const rows = await props.carrier.fetchByPostal({
-      postalCode: trimmedPostal,
-      city: city.value.trim() || undefined,
-      country: props.countryCode,
-      signal: controller.signal,
-    })
-    stations.value = rows
-  }
-  catch (err: unknown) {
-    if (err instanceof DOMException && err.name === 'AbortError') return
-    log.warn({ tag: 'shipping/picker', message: 'locker search failed', error: err })
-    errorMessage.value = t('shipping.locker_picker.error')
-    stations.value = []
-  }
-  finally {
-    // A search a newer one aborted must not clear the newer one's state.
-    if (abortController === controller) {
-      loading.value = false
-      initialSearchDone.value = true
-    }
-  }
-}
-
-const debouncedSearch = useDebounceFn(runSearch, SEARCH_DEBOUNCE_MS)
-
-watch([postal, city], () => {
-  void debouncedSearch()
-})
-
-// Re-search every time the modal opens with the latest postal
-// hint — the customer might have updated their checkout address
-// between picker opens.
-watch(open, (val) => {
-  if (val) {
-    if (props.initialPostalCode) postal.value = props.initialPostalCode
-    if (props.initialCity) city.value = props.initialCity
-    initialSearchDone.value = false
-    activeTab.value = defaultTab()
-    void runSearch()
-  }
-  else {
-    // Closing cancels whatever is in flight, and with it its loading
-    // state: the aborted requests leave that to the one that owns it.
-    abortController?.abort()
-    abortController = null
-    loading.value = false
-    mapAbort?.abort()
-    mapAbort = null
-    mapLoading.value = false
-  }
-})
-
-async function loadAllLockersForMap(): Promise<void> {
-  if (!props.carrier.fetchAll) {
-    mapError.value = t('shipping.locker_picker.unsupported')
-    return
-  }
-  if (mapLockers.value.length > 0) return
-  mapAbort?.abort()
-  const controller = new AbortController()
-  mapAbort = controller
-  mapLoading.value = true
-  mapError.value = null
-  try {
-    const country = (props.countryCode ?? 'GR').toUpperCase()
-    const rows = await props.carrier.fetchAll(country, controller.signal)
-    mapLockers.value = rows
-  }
-  catch (err: unknown) {
-    if (err instanceof DOMException && err.name === 'AbortError') return
-    log.warn({ tag: 'shipping/picker', message: 'bulk locker fetch failed', error: err })
-    mapError.value = t('shipping.locker_picker.error')
-  }
-  finally {
-    if (mapAbort === controller) mapLoading.value = false
-  }
-}
-
-// The catalogue loads when the map is actually on screen: the modal
-// open AND the map tab active. The picker is mounted (closed) with its
-// card, so a tab-only trigger fetched the whole catalogue on every
-// shipping step, open or not; and a load aborted by closing the modal
-// early never retried, because reopening sets the tab to the value it
-// already had. ``immediate`` covers a picker mounted already open.
-watch([open, activeTab], ([isOpen, tab]) => {
-  if (isOpen && tab === 'map') void loadAllLockersForMap()
-}, { immediate: true })
-
-onUnmounted(() => {
-  abortController?.abort()
-  mapAbort?.abort()
-})
-
-const tabs = computed(() => [
-  {
-    label: t('shipping.locker_picker.tab_list'),
-    icon: 'i-lucide-list',
-    value: 'list',
-  },
-  ...(props.carrier.fetchAll
-    ? [{
-        label: t('shipping.locker_picker.tab_map'),
-        icon: 'i-lucide-map',
-        value: 'map',
-      }]
-    : []),
-])
+const {
+  activeTab,
+  postal,
+  city,
+  stations,
+  loading,
+  errorMessage,
+  initialSearchDone,
+  mapLockers,
+  mapLoading,
+  mapError,
+  tabs,
+} = useLockerPicker({ props, open })
 
 function selectLocker(locker: Locker): void {
   emit('selected', locker)

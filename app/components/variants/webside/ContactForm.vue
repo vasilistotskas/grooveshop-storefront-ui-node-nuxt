@@ -1,42 +1,9 @@
 <script lang="ts" setup>
-import { z } from 'zod'
+import type * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 const { t } = useI18n()
-const toast = useToast()
-const { notify } = useApiError()
-
-const isSubmitting = ref(false)
-
-const schema = z.object({
-  name: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  }).min(2, { error: t('validation.string.invalid') })
-    .max(100, { error: t('validation.max', { max: 100 }) }),
-
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }).max(254, { error: t('validation.max', { max: 254 }) }),
-
-  message: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  }).min(10, { error: t('validation.min', { min: 10 }) })
-    .max(5000, { error: t('validation.max', { max: 5000 }) })
-    // Django's contact spam filter rejects anything under 5 words
-    // (contact/utils.py detect_spam_patterns) — mirror it here so a
-    // short-but-legitimate inquiry gets an inline hint instead of an
-    // opaque 400 at submit.
-    .refine(
-      value => value.trim().split(/\s+/).filter(Boolean).length >= 5,
-      { error: t('validation.message.min_words', { min: 5 }) },
-    ),
-})
+const { fields: schema, isSubmitting, send } = useContactEnquiry({ t })
 
 type Schema = z.output<typeof schema>
 
@@ -47,32 +14,11 @@ const state = reactive<Partial<Schema>>({
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (isSubmitting.value) return
-  isSubmitting.value = true
-  try {
-    await $api('/api/contact', {
-      method: 'POST',
-      body: event.data,
-    })
+  if (!await send(event.data)) return
 
-    toast.add({
-      title: t('success.title'),
-      color: 'success',
-    })
-
-    state.name = undefined
-    state.email = undefined
-    state.message = undefined
-  }
-  catch (error) {
-    // The proxy forwards Django's 4xx validation body — surface the
-    // field detail (spam filter, disposable email, …) instead of a
-    // blanket failure.
-    notify('webside-ContactForm:send', error, { title: t('error.default') })
-  }
-  finally {
-    isSubmitting.value = false
-  }
+  state.name = undefined
+  state.email = undefined
+  state.message = undefined
 }
 </script>
 

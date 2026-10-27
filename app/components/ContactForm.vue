@@ -15,45 +15,15 @@ import type { FormSubmitEvent } from '#ui/types'
  */
 const { t, locale } = useI18n()
 const toast = useToast()
-const { notify } = useApiError()
 const localePath = useLocalePath()
 const attachments = useContactAttachments()
-
-const isSubmitting = ref(false)
+const { fields, isSubmitting, send } = useContactEnquiry({ t })
 
 const TOPICS = ['order', 'product', 'delivery', 'account', 'other'] as const
 const topicItems = computed(() => TOPICS.map(value => ({ value, label: t(`topics.${value}`) })))
 
-const schema = z.object({
-  name: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  }).min(2, { error: t('validation.string.invalid') })
-    .max(100, { error: t('validation.max', { max: 100 }) }),
-
-  email: z.email({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.email.valid'),
-  }).max(254, { error: t('validation.max', { max: 254 }) }),
-
+const schema = fields.extend({
   topic: z.enum(TOPICS).optional(),
-
-  message: z.string({
-    error: issue => issue.input === undefined
-      ? t('validation.required')
-      : t('validation.string.invalid'),
-  }).min(10, { error: t('validation.min', { min: 10 }) })
-    .max(5000, { error: t('validation.max', { max: 5000 }) })
-    // Django's contact spam filter rejects anything under 5 words
-    // (contact/utils.py detect_spam_patterns) — mirror it here so a
-    // short-but-legitimate inquiry gets an inline hint instead of an
-    // opaque 400 at submit.
-    .refine(
-      value => value.trim().split(/\s+/).filter(Boolean).length >= 5,
-      { error: t('validation.message.min_words', { min: 5 }) },
-    ),
 
   consent: z.boolean({ error: () => t('consent_required') })
     .refine(value => value, { error: t('consent_required') }),
@@ -117,53 +87,33 @@ function onDrop(event: DragEvent) {
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  if (isSubmitting.value) return
   // An upload still in flight has no id yet, and submitting would
   // silently drop it.
   if (attachments.isUploading.value) {
     toast.add({ title: t('files.uploading'), color: 'warning' })
     return
   }
-  isSubmitting.value = true
-  try {
-    await $api('/api/contact', {
-      method: 'POST',
-      body: {
-        name: event.data.name,
-        email: event.data.email,
-        message: event.data.message,
-        subject: event.data.topic ? t(`topics.${event.data.topic}`) : undefined,
-        // Ids of files already uploaded and not yet claimed; omitted
-        // when there are none, so a store with attachments off never
-        // sends the field.
-        attachmentIds: attachments.attachmentIds.value.length
-          ? attachments.attachmentIds.value
-          : undefined,
-      },
-    })
+  const sent = await send({
+    name: event.data.name,
+    email: event.data.email,
+    message: event.data.message,
+    subject: event.data.topic ? t(`topics.${event.data.topic}`) : undefined,
+    // Ids of files already uploaded and not yet claimed; omitted
+    // when there are none, so a store with attachments off never
+    // sends the field.
+    attachmentIds: attachments.attachmentIds.value.length
+      ? attachments.attachmentIds.value
+      : undefined,
+  })
+  if (!sent) return
 
-    toast.add({
-      title: t('success.title'),
-      color: 'success',
-    })
-
-    state.name = undefined
-    state.email = undefined
-    state.topic = undefined
-    state.message = undefined
-    state.consent = undefined
-    // The ids have been spent: each one is good for one enquiry.
-    attachments.reset()
-  }
-  catch (error) {
-    // The proxy forwards Django's 4xx validation body — surface the
-    // field detail (spam filter, disposable email, …) instead of a
-    // blanket failure.
-    notify('ContactForm:send', error, { title: t('error.default') })
-  }
-  finally {
-    isSubmitting.value = false
-  }
+  state.name = undefined
+  state.email = undefined
+  state.topic = undefined
+  state.message = undefined
+  state.consent = undefined
+  // The ids have been spent: each one is good for one enquiry.
+  attachments.reset()
 }
 </script>
 

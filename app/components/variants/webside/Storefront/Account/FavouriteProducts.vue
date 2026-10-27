@@ -6,13 +6,9 @@ const { t, locale } = useI18n()
 // never applied.
 useHead({ title: () => t('title') })
 const route = useRoute(`account-favourites-products___${locale.value}`)
-const { user } = useUserSession()
-const userStore = useUserStore()
-const { updateFavouriteProducts } = userStore
 const localePath = useLocalePath()
 
 const pageSize = ref(8)
-const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
 const entityOrdering = ref<EntityOrdering<any>>([
@@ -28,48 +24,9 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: favourites, refresh: refreshFavourites, status, error } = await useApi<GetUserAccountFavouriteProductsResponse>(
-  `/api/user/account/${user.value?.id}/favourite-products`,
-  {
-    key: `favouriteProducts${user.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page,
-      ordering: ordering,
-      pageSize: pageSize,
-    },
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-    },
-  },
-)
-
-const productIds = computed(() => {
-  if (!favourites.value) return []
-  return favourites.value.results?.map(favourite =>
-    favourite.product.id,
-  )
-})
-
-const { refresh: refreshFavouriteProducts } = await useApi('/api/products/favourites/favourites-by-products', {
-  key: `favouritesByProducts${user.value?.id}`,
-  method: 'POST',
-  headers: useRequestHeaders(),
-  body: {
-    productIds: productIds,
-  },
-  onResponse({ response }) {
-    if (!response.ok) {
-      return
-    }
-    const favourites = response._data
-    if (favourites) {
-      updateFavouriteProducts(favourites)
-    }
-  },
+const { favourites, status, error, onRemoved: refreshFavourites } = await useFavouriteProductsPage({
+  pageSize: pageSize.value,
+  ordering: () => String(ordering.value),
 })
 
 const pagination = computed(() => {
@@ -80,16 +37,6 @@ const pagination = computed(() => {
 const orderingOptions = computed(() => {
   return useOrdering<any>(entityOrdering.value)
 })
-
-watch(
-  () => route.query,
-  async () => {
-    await refreshFavourites()
-    if (productIds.value && productIds.value.length > 0) {
-      await refreshFavouriteProducts()
-    }
-  },
-)
 </script>
 
 <template>

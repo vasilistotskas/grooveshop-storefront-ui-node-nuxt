@@ -3,15 +3,22 @@ import { computed } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import type { Component } from 'vue'
 import ContactForm from '~/components/ContactForm.vue'
+import WebsideContactForm from '~/components/variants/webside/ContactForm.vue'
 import { failWith } from '~~/test/helpers/api'
+import { inlineCopy, type InlineCopy } from '~~/test/helpers/inlineCopy'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The enquiry form. What matters: the topic reaches Django as the
  * `subject` (its label, in the visitor's language) or not at all; the
  * consent tick is checked here and never sent; the spam filter's
  * five-word rule is mirrored as an inline hint; files already uploaded
- * ride along as `attachmentIds`; and a refusal from Django is shown.
+ * ride along as `attachmentIds`; and a refusal from Django is shown. The
+ * frozen copy asks the three fields only (no topic, consent or files); its
+ * rules, its request and its answers are the shop's, from one
+ * `useContactEnquiry`.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -69,8 +76,8 @@ beforeEach(() => {
   attachmentStub.megabytes = 5
 })
 
-async function mount() {
-  const wrapper = await mountSuspended(ContactForm, { route: false })
+async function mount(C: Component = ContactForm) {
+  const wrapper = await mountSuspended(C, { route: false })
   await flushPromises()
   return wrapper
 }
@@ -79,7 +86,8 @@ async function fill(wrapper: VueWrapper, fields: { message?: string, consent?: b
   await wrapper.find('input[autocomplete="name"]').setValue('Ελένη Παπά')
   await wrapper.find('input[type="email"]').setValue('eleni@example.com')
   await wrapper.find('textarea').setValue(fields.message ?? MESSAGE)
-  if (fields.consent ?? true) {
+  // Only the shop's form asks for consent.
+  if ((fields.consent ?? true) && wrapper.find('button[role="checkbox"]').exists()) {
     await wrapper.find('button[role="checkbox"]').trigger('click')
   }
 }
@@ -89,13 +97,23 @@ async function submit(wrapper: VueWrapper) {
   await flushPromises()
 }
 
-describe('ContactForm', () => {
+const DEFAULT_COPY = inlineCopy('app/components/ContactForm.vue')
+/** A word of the form in this tree: the shop's own `<i18n>`, the frozen copy's global keys. */
+function word(tree: 'default' | 'webside', key: string): string {
+  return tree === 'default'
+    ? String(key.split('.').reduce<InlineCopy>((copy, part) => copy[part], DEFAULT_COPY))
+    : useNuxtApp().$i18n.t(key)
+}
+
+describe.each(trees(ContactForm, WebsideContactForm))('$tree ContactForm', ({ tree, C }) => {
+  const defaultOnly = tree === 'default'
+
   it('labels the send button with text that can wrap under enlarged text', async () => {
-    const wrapper = await mount()
+    const wrapper = await mount(C)
 
     const button = wrapper.find('button[type="submit"]')
     // The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach.
-    expect(button.text()).toBe('Αποστολή μηνύματος')
+    expect(button.text()).toBe(word(tree, 'submit'))
     // The class is the contract: a `truncate` label cannot wrap, and the
     // fit-content button then grew past the form on a phone.
     expect(button.find('.truncate').exists()).toBe(false)
@@ -103,7 +121,7 @@ describe('ContactForm', () => {
 
   describe('sending the enquiry', () => {
     it('sends the name, email and message, and tells the visitor it went', async () => {
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       await fill(wrapper)
 
       await submit(wrapper)
@@ -115,11 +133,11 @@ describe('ContactForm', () => {
         subject: undefined,
         attachmentIds: undefined,
       }])
-      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'Το μήνυμά σου στάλθηκε', color: 'success' }))
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: word(tree, 'success.title'), color: 'success' }))
     })
 
-    it('sends the chosen topic as the subject, in the visitor\'s language', async () => {
-      const wrapper = await mount()
+    it.runIf(defaultOnly)('sends the chosen topic as the subject, in the visitor\'s language', async () => {
+      const wrapper = await mount(C)
       await fill(wrapper)
       await wrapper.findComponent({ name: 'USelect' }).setValue('delivery')
 
@@ -128,8 +146,8 @@ describe('ContactForm', () => {
       expect(posted()[0]!.subject).toBe('Παράδοση ή επιστροφή')
     })
 
-    it('leaves the consent tick out of the enquiry', async () => {
-      const wrapper = await mount()
+    it.runIf(defaultOnly)('leaves the consent tick out of the enquiry', async () => {
+      const wrapper = await mount(C)
       await fill(wrapper)
 
       await submit(wrapper)
@@ -138,19 +156,27 @@ describe('ContactForm', () => {
     })
 
     it('empties the form after it was sent', async () => {
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       await fill(wrapper)
 
       await submit(wrapper)
 
       expect(wrapper.find<HTMLTextAreaElement>('textarea').element.value).toBe('')
+    })
+
+    it.runIf(defaultOnly)('takes the consent tick back after it was sent', async () => {
+      const wrapper = await mount(C)
+      await fill(wrapper)
+
+      await submit(wrapper)
+
       expect(wrapper.find('button[role="checkbox"]').attributes('aria-checked')).toBe('false')
     })
   })
 
   describe('what is asked before it is sent', () => {
-    it('does not send without the consent tick, and says why', async () => {
-      const wrapper = await mount()
+    it.runIf(defaultOnly)('does not send without the consent tick, and says why', async () => {
+      const wrapper = await mount(C)
       await fill(wrapper, { consent: false })
 
       await submit(wrapper)
@@ -159,8 +185,8 @@ describe('ContactForm', () => {
       expect(wrapper.text()).toContain('Χρειαζόμαστε τη συγκατάθεσή σου για να απαντήσουμε')
     })
 
-    it('does not send after the consent tick was taken back', async () => {
-      const wrapper = await mount()
+    it.runIf(defaultOnly)('does not send after the consent tick was taken back', async () => {
+      const wrapper = await mount(C)
       await fill(wrapper)
       await wrapper.find('button[role="checkbox"]').trigger('click')
 
@@ -171,7 +197,7 @@ describe('ContactForm', () => {
     })
 
     it('asks for at least five words, as the spam filter does', async () => {
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       await fill(wrapper, { message: 'Πολύ μικρό μήνυμα εδώ' })
 
       await submit(wrapper)
@@ -179,18 +205,28 @@ describe('ContactForm', () => {
       expect(posted()).toEqual([])
       expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('validation.message.min_words', { min: 5 }))
     })
+
+    it('counts the message trimmed, as Django does', async () => {
+      const wrapper = await mount(C)
+      await fill(wrapper, { message: 'α β γ δ ε      ' })
+
+      await submit(wrapper)
+
+      expect(posted()).toEqual([])
+      expect(wrapper.text()).toContain(useNuxtApp().$i18n.t('validation.min', { min: 10 }))
+    })
   })
 
   describe('when Django refuses it', () => {
     it('keeps what was typed and shows the reason Django gave', async () => {
       api.routes({ [CONTACT_URL]: failWith(400, { message: ['Το μήνυμα μοιάζει με spam.'] }) })
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       await fill(wrapper)
 
       await submit(wrapper)
 
       expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
-        title: 'Το μήνυμα δεν στάλθηκε. Δοκίμασε ξανά.',
+        title: word(tree, 'error.default'),
         color: 'error',
         description: expect.stringContaining('spam'),
       }))
@@ -198,12 +234,12 @@ describe('ContactForm', () => {
     })
   })
 
-  describe('what an accessibility checker reads', () => {
+  describe.runIf(defaultOnly)('what an accessibility checker reads', () => {
     // A named Reka select or checkbox inside a form renders a hidden
     // native twin with no label of its own, and WAVE reports each as
     // "Missing form label" — the store's ESPA evidence needs 0 errors.
     it('renders no hidden native select or checkbox beside the labelled controls', async () => {
-      const wrapper = await mount()
+      const wrapper = await mount(C)
 
       expect(wrapper.find('button[role="combobox"]').exists()).toBe(true)
       expect(wrapper.find('button[role="checkbox"]').exists()).toBe(true)
@@ -212,9 +248,9 @@ describe('ContactForm', () => {
     })
   })
 
-  describe('files', () => {
+  describe.runIf(defaultOnly)('files', () => {
     it('draws no attachment control when the store does not accept files', async () => {
-      const wrapper = await mount()
+      const wrapper = await mount(C)
 
       expect(wrapper.find('input[type="file"]').exists()).toBe(false)
     })
@@ -222,7 +258,7 @@ describe('ContactForm', () => {
     it('draws it, with the store\'s limits, when it does', async () => {
       attachmentStub.enabled = true
 
-      const wrapper = await mount()
+      const wrapper = await mount(C)
 
       expect(wrapper.find('input[type="file"]').attributes('accept')).toBe('application/pdf')
       expect(wrapper.text()).toContain('Έως 3 αρχεία, 5 MB το καθένα')
@@ -231,7 +267,7 @@ describe('ContactForm', () => {
     it('hands a picked file to the uploader and says why one was refused', async () => {
       attachmentStub.enabled = true
       attachmentStub.refusals = [{ code: 'too-large' }]
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       const file = new File(['x'], 'photo.pdf', { type: 'application/pdf' })
       const input = wrapper.find<HTMLInputElement>('input[type="file"]')
       Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
@@ -249,7 +285,7 @@ describe('ContactForm', () => {
       attachmentStub.enabled = true
       attachmentStub.megabytes = null
       attachmentStub.refusals = [{ code: 'too-large' }]
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       const file = new File(['x'], 'photo.pdf', { type: 'application/pdf' })
       const input = wrapper.find<HTMLInputElement>('input[type="file"]')
       Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
@@ -265,7 +301,7 @@ describe('ContactForm', () => {
     it('sends the ids of the uploaded files with the enquiry, and spends them', async () => {
       attachmentStub.enabled = true
       attachmentStub.ids = ['0a0a0a0a-0000-4000-8000-000000000001']
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       await fill(wrapper)
 
       await submit(wrapper)
@@ -277,7 +313,7 @@ describe('ContactForm', () => {
     it('holds the enquiry back while a file is still uploading', async () => {
       attachmentStub.enabled = true
       attachmentStub.isUploading = true
-      const wrapper = await mount()
+      const wrapper = await mount(C)
       await fill(wrapper)
 
       await submit(wrapper)

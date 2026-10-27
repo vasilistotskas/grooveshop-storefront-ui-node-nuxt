@@ -11,16 +11,9 @@
 const { t, n, locale } = useI18n()
 const toast = useToast()
 const { notify } = useApiError()
-const route = useRoute(`account-orders-id___${locale.value}`)
-const orderId = 'id' in route.params ? route.params.id : undefined
+const { orderId, order, refresh: refreshOrder } = await useOrderDetail()
 
 useHead({ title: () => t('title', { id: orderId }) })
-
-const { data: order, refresh: refreshOrder } = await useApi<OrderDetail>(`/api/orders/${orderId}`, {
-  key: `order${orderId}`,
-  method: 'GET',
-  query: { languageCode: locale },
-})
 
 const { cancelOrder } = useOrder()
 const { reorder, reordering } = useReorder()

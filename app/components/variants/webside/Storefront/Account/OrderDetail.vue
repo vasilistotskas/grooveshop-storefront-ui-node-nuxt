@@ -3,24 +3,12 @@ const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
 // Off, reviews are gone everywhere — the stars on a card with them.
 const productReviewsEnabled = useStoreFeature('productReviews')
-const route = useRoute(`account-orders-id___${locale.value}`)
-const orderId = 'id' in route.params
-  ? route.params.id
-  : undefined
 
 // The one account route with no `title` string of its own: the order
 // number IS the title here, and without this the tab read the store
 // name twice like every other account page.
+const { orderId, order, refresh: refreshOrder } = await useOrderDetail()
 useHead({ title: () => `${t('order')} #${orderId}` })
-
-const { data: order, refresh: refreshOrder } = await useApi<OrderDetail>(`/api/orders/${orderId}`, {
-  key: `order${orderId}`,
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    languageCode: locale,
-  },
-})
 
 const { cancelOrder } = useOrder()
 const toast = useToast()
@@ -378,62 +366,14 @@ async function handleDownloadInvoice() {
   }
 }
 
-const cartStore = useCartStore()
-const isReordering = ref(false)
+const { reorder, reordering } = useReorder({
+  t,
+  icons: { empty: 'i-heroicons-exclamation-triangle', success: 'i-heroicons-shopping-cart' },
+})
+const isReordering = computed(() => reordering.value !== null)
 
 async function handleReorder() {
-  if (!order.value?.id || isReordering.value) return
-  isReordering.value = true
-  try {
-    const result = await $api<ReorderResponse>(`/api/orders/${order.value.id}/reorder`, {
-      method: 'POST',
-      headers: useRequestHeaders(),
-    })
-    await cartStore.refreshCart()
-
-    // Reorder adds cart lines server-side, bypassing the store's
-    // create/update actions — report each added line so add_to_cart
-    // analytics stay complete. Prices come from the refreshed cart.
-    for (const item of result.addedItems ?? []) {
-      const addedQuantity = Number(
-        item.addedQuantity ?? item.requestedQuantity ?? 0,
-      )
-      const cartItem = cartStore.getCartItemByProductId(item.productId)
-      const unitPrice = Number(
-        cartItem?.product?.finalPrice ?? cartItem?.product?.price ?? 0,
-      )
-      cartStore.trackCartQuantityChange(item.productId, addedQuantity, unitPrice)
-    }
-
-    const skippedCount = result.skippedItems?.length ?? 0
-    const addedCount = result.addedItems?.length ?? 0
-    if (addedCount === 0) {
-      toast.add({
-        title: t('reorder.empty_title'),
-        description: t('reorder.empty_description'),
-        color: 'warning',
-        icon: 'i-heroicons-exclamation-triangle',
-      })
-      return
-    }
-
-    toast.add({
-      title: t('reorder.success_title'),
-      description: skippedCount > 0
-        ? t('reorder.success_with_skipped', { added: addedCount, skipped: skippedCount })
-        : t('reorder.success_description', { count: addedCount }),
-      color: 'success',
-      icon: 'i-heroicons-shopping-cart',
-    })
-    await navigateTo(localePath('cart'))
-  }
-  catch (error) {
-    log.error({ action: 'order:reorder', error })
-    notify('webside-order:reorder', error, { title: t('reorder.error_title'), fallback: t('reorder.error_description') })
-  }
-  finally {
-    isReordering.value = false
-  }
+  if (order.value?.id) await reorder(order.value.id)
 }
 </script>
 
