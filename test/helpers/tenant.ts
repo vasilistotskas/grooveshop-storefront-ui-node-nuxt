@@ -75,7 +75,7 @@ export function setTenantFeatures(features: Partial<TenantConfig['features']>): 
  * (`TenantConfig.preferences`, read by `useStorePreference`).
  *
  * ```ts
- * setTenantPreferences({ cart: false })
+ * setTenantPreferences({ stickyAddToCart: false })
  * ```
  */
 export function setTenantPreferences(preferences: Partial<Record<StorePreferenceName, boolean>>): TenantConfig {

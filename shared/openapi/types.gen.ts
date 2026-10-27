@@ -8833,8 +8833,6 @@ export type StorePreferences = {
   readonly stickyAddToCart: boolean
   readonly recentlyViewed: boolean
   readonly demoAccount: boolean
-  readonly cart: boolean
-  readonly catalogue: boolean
 }
 
 /**
