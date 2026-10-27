@@ -42,7 +42,7 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 - `accentHex` — CSS hex for PWA theme_color
 - `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
 - `features` — Django's effective state of each store feature (`useStoreFeature`, `eventStoreFeature`; see `.claude/rules/ui-and-pages.md`, "Store features"). `loyaltyEnabled`, `blogEnabled` and the other plan flags still arrive but nothing in the storefront reads them
-- `preferences` — each store preference's state, the presentation switches the API does not refuse on (`useStorePreference`, `storePreferenceOn`; same section). `cart` and `catalogue` are in `features`; Django still sends them here until it drops them
+- `preferences` — each store preference's state, the presentation switches the API does not refuse on (`useStorePreference`, `storePreferenceOn`; same section). `cart` and `catalogue` are in `features`, not here
 - `metaPixelId`, `tiktokPixelId`, `gaTrackingId` — tenant-only analytics/pixel ids, no platform/env fallback (see Environment)
 
 ## `tenantCacheKey` requirement

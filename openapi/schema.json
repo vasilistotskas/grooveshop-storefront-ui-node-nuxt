@@ -72794,19 +72794,9 @@
                     "demoAccount": {
                         "type": "boolean",
                         "readOnly": true
-                    },
-                    "cart": {
-                        "type": "boolean",
-                        "readOnly": true
-                    },
-                    "catalogue": {
-                        "type": "boolean",
-                        "readOnly": true
                     }
                 },
                 "required": [
-                    "cart",
-                    "catalogue",
                     "demoAccount",
                     "mobileBottomNav",
                     "recentlyViewed",

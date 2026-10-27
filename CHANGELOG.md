@@ -1,3 +1,10 @@
+## [3.266.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.1...v3.266.2) (2026-10-27)
+
+
+### Bug Fixes
+
+* **openapi:** the store preferences no longer carry the cart and the catalogue ([#261](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/261)) ([2caae8a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2caae8ae67a10bdb26038c6715e2fc308d499944)), closes [#340](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/340) [#257](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/257)
+
 ## [3.266.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.0...v3.266.1) (2026-10-27)
 
 
