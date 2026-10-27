@@ -7194,7 +7194,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   acsItemQuantity: z.int().gte(1).lte(20).optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
   attribution: zOrderAttributionInputRequest.optional(),
-  termsAccepted: z.boolean().optional(),
+  termsAccepted: z.boolean(),
 })
 
 export const zOrderItemWritable = z.object({

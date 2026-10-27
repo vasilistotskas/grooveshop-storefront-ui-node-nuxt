@@ -38986,6 +38986,7 @@ components:
         - phone
         - street
         - streetNumber
+        - termsAccepted
         - zipcode
     OrderDeliveryMethod:
       type: object

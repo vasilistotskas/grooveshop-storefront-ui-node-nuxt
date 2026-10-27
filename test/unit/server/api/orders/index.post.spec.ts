@@ -25,6 +25,7 @@ const orderBody = {
   zipcode: '546 22',
   countryId: 'GR',
   phone: '+306900000000',
+  termsAccepted: true,
 }
 
 /** The order Django creates: a first order, paid on delivery. */
@@ -190,6 +191,16 @@ describe('POST /api/orders', () => {
 
   it('rejects a body the order schema refuses without calling the backend', async () => {
     const response = await placeOrder({ body: { ...orderBody, email: 'not-an-email' } })
+
+    expect(response.status).toBe(400)
+    expect(backend.requests).toEqual([])
+  })
+
+  // Django refuses an order without the terms consent; so does the route,
+  // before a request is spent on it.
+  it('rejects an order without the terms consent without calling the backend', async () => {
+    const { termsAccepted: _consent, ...withoutConsent } = orderBody
+    const response = await placeOrder({ body: withoutConsent })
 
     expect(response.status).toBe(400)
     expect(backend.requests).toEqual([])

@@ -62582,6 +62582,7 @@
                     "phone",
                     "street",
                     "streetNumber",
+                    "termsAccepted",
                     "zipcode"
                 ]
             },

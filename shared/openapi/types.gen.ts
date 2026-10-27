@@ -11395,7 +11395,7 @@ export type OrderCreateFromCartRequestWritable = {
   /**
      * The buyer accepts the store's terms of use and privacy policy. Must be true.
      */
-  termsAccepted?: boolean
+  termsAccepted: boolean
 }
 
 export type OrderDetailWritable = {
