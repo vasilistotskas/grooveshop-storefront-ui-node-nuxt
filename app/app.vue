@@ -118,11 +118,11 @@ const postalAddress = computed(() => {
   }
 })
 
-const organizationType = computed(() =>
-  hasBusinessHours.value || geo.value || postalAddress.value
-    ? 'LocalBusiness'
-    : 'Organization',
-)
+const takesOrders = useStorePreference('cart')
+const organizationType = computed(() => organizationSchemaType({
+  takesOrders: takesOrders.value,
+  hasPhysicalStore: hasBusinessHours.value || geo.value !== undefined,
+}))
 
 const localePath = useLocalePath()
 const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true, withBase: true })
