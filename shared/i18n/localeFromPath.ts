@@ -42,6 +42,16 @@ export function splitLocale(path: string): { locale: string, route: string } {
   }
 }
 
+/**
+ * A route's path in a locale, the inverse of {@link splitLocale}: the
+ * default locale is unprefixed under `prefix_except_default`, every other
+ * one prefixes the route (`/` → `/en`, `/cart` → `/en/cart`).
+ */
+export function localizedPath(locale: string, route: string): string {
+  if (locale === DEFAULT_LOCALE) return route
+  return route === '/' ? `/${locale}` : `/${locale}${route}`
+}
+
 /** The locale a path is for. See {@link splitLocale}. */
 export function localeFromPath(path: string): string {
   return splitLocale(path).locale
