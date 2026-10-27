@@ -4,21 +4,22 @@ import type { $Fetch, NuxtApp } from '#app'
 type OnRequest = (context: FetchContext) => void | Promise<void>
 
 /**
- * The page-locale hook, then the caller's own `onRequest` hooks. Every
+ * The app fetchers' hooks (`apiRequestHooks`), then the caller's own
+ * `onRequest` hooks. Every
  * fetcher here REPLACES a caller's `onRequest` with this list (override
  * mode, or an options spread), so the caller's are merged in rather
  * than silently dropped.
  */
-function withPageLocale(nuxtApp: NuxtApp, callerHooks: unknown) {
+function withApiHooks(nuxtApp: NuxtApp, callerHooks: unknown) {
   return [
-    pageLocaleHeader(nuxtApp),
+    ...apiRequestHooks(nuxtApp),
     ...(callerHooks ? [callerHooks as OnRequest | OnRequest[]].flat() : []),
   ]
 }
 
 /**
  * `useFetch` for the storefront's own `/api`, stating the page's locale
- * (see `pageLocaleHeader` in app/utils/api.ts). On the server a key is
+ * (see `apiRequestHooks` in app/utils/api.ts). On the server a key is
  * fetched once per render however many readers it has
  * (`serverRenderCachedData`).
  *
@@ -33,14 +34,14 @@ function withPageLocale(nuxtApp: NuxtApp, callerHooks: unknown) {
  */
 export const useApi = createUseFetch(callerOptions => ({
   ...serverRenderCachedData(callerOptions),
-  onRequest: withPageLocale(useNuxtApp(), callerOptions.onRequest),
+  onRequest: withApiHooks(useNuxtApp(), callerOptions.onRequest),
 }))
 
 /** `useLazyFetch` for the storefront's own `/api`. See {@link useApi}. */
 export const useLazyApi = createUseFetch(callerOptions => ({
   ...serverRenderCachedData(callerOptions),
   lazy: true,
-  onRequest: withPageLocale(useNuxtApp(), callerOptions.onRequest),
+  onRequest: withApiHooks(useNuxtApp(), callerOptions.onRequest),
 }))
 
 /**
@@ -57,6 +58,6 @@ export function useRequestApi(): $Fetch {
   return ((...[request, options]: Parameters<$Fetch>) =>
     requestFetch(request, {
       ...options,
-      onRequest: withPageLocale(nuxtApp, options?.onRequest),
+      onRequest: withApiHooks(nuxtApp, options?.onRequest),
     })) as $Fetch
 }

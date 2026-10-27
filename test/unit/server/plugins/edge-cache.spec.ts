@@ -106,6 +106,26 @@ describe('server/plugins/edge-cache', () => {
     expect((await respond(url, options))['cache-control']).toBe(options.headers!['cache-control'])
   })
 
+  it.each<[string, string, Respond]>([
+    ['an auth answer with no caching of its own', '/api/_allauth/app/v1/auth/session', { headers: { 'content-type': 'application/json' } }],
+    ['an expired session (410)', '/api/_allauth/app/v1/auth/session', { status: 410, headers: { 'content-type': 'application/json' } }],
+    ['a 404 Nitro stamped with its SWR header', '/api/products/999', { status: 404, headers: { 'content-type': 'application/json', 'cache-control': NITRO_SWR } }],
+    ['the bare /api', '/api', { status: 404, headers: { 'content-type': 'application/json' } }],
+  ])('marks %s private', async (_label, url, options) => {
+    expect((await respond(url, options))['cache-control']).toBe('private, no-store')
+  })
+
+  it.each<[string, string, Respond]>([
+    ['an icon with its own policy', '/api/_nuxt_icon/lucide.json', { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=31536000' } }],
+    ['a redirect', '/api/auth/oauth', { status: 302, headers: { 'content-type': 'text/html', 'cache-control': 'max-age=60' } }],
+  ])('leaves the Cache-Control of %s alone', async (_label, url, options) => {
+    expect((await respond(url, options))['cache-control']).toBe(options.headers!['cache-control'])
+  })
+
+  it('leaves a POST to /api alone', async () => {
+    expect((await respond('/api/_allauth/app/v1/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' } }))['cache-control']).toBeUndefined()
+  })
+
   it('does not touch a response whose headers are already sent', async () => {
     expect((await respond('/', { headersSent: true }))['cache-control']).toBe(NITRO_SWR)
   })

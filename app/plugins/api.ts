@@ -2,8 +2,8 @@ import type { $Fetch } from '#app'
 
 /**
  * Provides `$api`: the `$fetch` instance for the storefront's own `/api`,
- * which states the page's locale on every request (see
- * `pageLocaleHeader` in app/utils/api.ts).
+ * which states the page's locale on every request and keeps the
+ * browser's HTTP cache out of it (`apiRequestHooks` in app/utils/api.ts).
  *
  * Nuxt's recipe for a customised fetcher — `$fetch` is intentionally not
  * globally configurable (https://nuxt.com/docs/4.x/guide/recipes/custom-usefetch).
@@ -15,7 +15,7 @@ export default defineNuxtPlugin({
   enforce: 'pre',
   setup(nuxtApp) {
     const api = $fetch.create({
-      onRequest: pageLocaleHeader(nuxtApp),
+      onRequest: apiRequestHooks(nuxtApp),
     }) as $Fetch
 
     return { provide: { api } }

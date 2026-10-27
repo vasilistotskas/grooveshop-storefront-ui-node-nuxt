@@ -17,9 +17,6 @@ import type { $Fetch, NuxtApp } from '#app'
  * server during SSR and in the browser afterwards. It is read when the
  * request is made, not when the hook is created, so a client-side
  * language switch applies to the very next call.
- *
- * The one hook both fetchers use: `$api` (app/plugins/api.ts) and
- * `useApi` / `useLazyApi` (app/composables/useApi.ts).
  */
 export function pageLocaleHeader(nuxtApp: NuxtApp) {
   return ({ request, options }: FetchContext): void => {
@@ -27,6 +24,33 @@ export function pageLocaleHeader(nuxtApp: NuxtApp) {
       options.headers.set('X-Language', nuxtApp.$i18n.locale.value)
     }
   }
+}
+
+/**
+ * The `onRequest` hook that keeps the browser's HTTP cache out of a call
+ * to the storefront's own `/api`: every answer is this visitor's, now.
+ *
+ * The server says so too (`private, no-store`, server/utils/edgeCache.ts),
+ * but a browser that already stored an answer never asks again. HTTP lets
+ * it keep a 404 or a 410 that carried no `Cache-Control`, and on
+ * 2026-10-27 an iPhone replayed the 410 of a session that had expired two
+ * days earlier after every sign-in, so each one ended in "session
+ * expired". `no-store` neither reads nor writes the cache. Browser only:
+ * a server-side render calls its own routes in-process.
+ */
+export function bypassBrowserCache({ request, options }: FetchContext): void {
+  if (import.meta.client && typeof request === 'string' && request.startsWith('/api/')) {
+    options.cache = 'no-store'
+  }
+}
+
+/**
+ * The `onRequest` hooks every app fetcher runs: `$api`
+ * (app/plugins/api.ts) and `useApi` / `useLazyApi` / `useRequestApi`
+ * (app/composables/useApi.ts).
+ */
+export function apiRequestHooks(nuxtApp: NuxtApp) {
+  return [pageLocaleHeader(nuxtApp), bypassBrowserCache]
 }
 
 /**
