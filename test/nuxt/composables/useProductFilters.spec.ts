@@ -46,27 +46,27 @@ describe('useProductFilters', () => {
     mockRoute.value = { query: {} }
   })
 
-  it('reports the brand and availability filters to the redesigned listing alone', () => {
+  it('counts the brand and availability filters and draws a chip for each', () => {
     mockRoute.value.query = { brand: '3', inStock: 'true' }
 
-    const { hasActiveFilters, hasActiveListingFilters, activeFilterChips, activeListingChips } = useProductFilters()
+    const { hasActiveFilters, activeFilterCount, activeListingChips, filterCountBySection } = useProductFilters()
 
-    expect(hasActiveListingFilters.value).toBe(true)
+    expect(activeFilterCount.value).toBe(2)
+    expect(hasActiveFilters.value).toBe(true)
     expect(activeListingChips.value.map(chip => chip.type)).toEqual(['brand', 'in_stock'])
-    expect(hasActiveFilters.value).toBe(false)
-    expect(activeFilterChips.value).toEqual([])
+    expect(filterCountBySection.value).toMatchObject({ brands: 1, availability: 1 })
   })
 
   it('derives the filters, count and chips from the route query', () => {
     mockRoute.value.query = { q: 'laptop', priceMin: '100', category: ['1', '2'] }
-    const { filters, activeFilterCount, hasActiveFilters, activeFilterChips, filterCountBySection } = useProductFilters()
+    const { filters, activeFilterCount, hasActiveFilters, activeListingChips, filterCountBySection } = useProductFilters()
     const { $i18n } = useNuxtApp()
 
     expect(filters.value).toMatchObject({ search: 'laptop', priceMin: 100, categories: ['1', '2'] })
     expect(activeFilterCount.value).toBe(3)
     expect(hasActiveFilters.value).toBe(true)
     expect(filterCountBySection.value).toMatchObject({ search: 1, price: 1, categories: 2 })
-    expect(activeFilterChips.value.map(chip => chip.label)).toEqual([
+    expect(activeListingChips.value.map(chip => chip.label)).toEqual([
       $i18n.t('filters.search'),
       $i18n.t('filters.price'),
       $i18n.t('filters.categories'),

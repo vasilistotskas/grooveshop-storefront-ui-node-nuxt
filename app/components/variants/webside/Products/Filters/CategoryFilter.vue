@@ -15,7 +15,7 @@ const { locale, t } = useStoreI18n('components/variants/webside/Products/Filters
 const searchQuery = ref('')
 
 // Use shared category data from the centralized composable
-const { allCategories, categoriesStatus, categoryFacets } = useProductSearchData()
+const { allCategories, categoriesStatus, categoryFacets } = useProductSearchData(useListingScope())
 
 // Selected categories from filters
 const selectedCategories = computed(() => filters.value.categories)

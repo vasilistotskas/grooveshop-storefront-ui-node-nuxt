@@ -9,12 +9,6 @@
  * tenants' own), so the request, its key and the page logic are decided
  * once. Call it from a `<script setup>`; it registers every lifecycle hook
  * before its one `await`, like every async composable here.
- *
- * `listingFilters` says whether the drawing has the brand and
- * availability filters (in stock, on offer). One without them never sends
- * them, counts no such filter and offers no such suggestion, whatever the
- * URL says: a link copied from a store that has them changes nothing
- * (see `ProductSearchScope`).
  */
 export async function useProductListing(options: {
   /**
@@ -24,7 +18,6 @@ export async function useProductListing(options: {
    * `useProductFilters()`'s URL state. Absent on the store-wide listing.
    */
   categoryId: MaybeRefOrGetter<number | undefined>
-  listingFilters: boolean
 }) {
   const route = useRoute()
   const { $i18n } = useNuxtApp()
@@ -35,13 +28,9 @@ export async function useProductListing(options: {
   const {
     filters,
     updateFilters,
-    hasActiveFilters: hasActiveCoreFilters,
-    hasActiveListingFilters,
+    hasActiveFilters,
     activeFilterCount,
   } = useProductFilters()
-  const hasActiveFilters = computed(() =>
-    options.listingFilters ? hasActiveListingFilters.value : hasActiveCoreFilters.value,
-  )
 
   // Effective category set sent to the search API: the page's own category
   // (when on a category page) unioned with any category filters from the URL.
@@ -101,14 +90,12 @@ export async function useProductListing(options: {
       suggestions.push(t('products.no_results.try_different_attributes'))
     }
 
-    if (options.listingFilters) {
-      if (filters.value.brands.length > 0) {
-        suggestions.push(t('products.no_results.try_different_brands'))
-      }
+    if (filters.value.brands.length > 0) {
+      suggestions.push(t('products.no_results.try_different_brands'))
+    }
 
-      if (filters.value.inStock || filters.value.onOffer) {
-        suggestions.push(t('products.no_results.try_any_availability'))
-      }
+    if (filters.value.inStock || filters.value.onOffer) {
+      suggestions.push(t('products.no_results.try_any_availability'))
     }
 
     // Return first suggestion or generic message
@@ -195,13 +182,9 @@ export async function useProductListing(options: {
         viewsMin: computed(() => filters.value.viewsMin),
         categories: effectiveCategories,
         attributeValues: computed(() => filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined),
-        ...(options.listingFilters
-          ? {
-              brands: computed(() => filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined),
-              inStock: computed(() => filters.value.inStock || undefined),
-              onOffer: computed(() => filters.value.onOffer || undefined),
-            }
-          : {}),
+        brands: computed(() => filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined),
+        inStock: computed(() => filters.value.inStock || undefined),
+        onOffer: computed(() => filters.value.onOffer || undefined),
         sort: computed(() => filters.value.sort),
         languageCode: locale,
         limit,
@@ -299,13 +282,9 @@ export async function useProductListing(options: {
       viewsMin: filters.value.viewsMin,
       categories: filters.value.categories.join(','), // Convert to string for proper comparison
       attributeValues: filters.value.attributeValues.join(','), // Convert to string for proper comparison
-      ...(options.listingFilters
-        ? {
-            brands: filters.value.brands.join(','),
-            inStock: filters.value.inStock,
-            onOffer: filters.value.onOffer,
-          }
-        : {}),
+      brands: filters.value.brands.join(','),
+      inStock: filters.value.inStock,
+      onOffer: filters.value.onOffer,
       // Note: sort is intentionally excluded - sort changes preserve scroll position
     }),
     (newFilters) => {

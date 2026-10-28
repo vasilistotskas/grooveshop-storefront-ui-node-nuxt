@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { describe, expect, it, beforeAll } from 'vitest'
 import {
+  COMPONENTS,
   WEBSIDE_DESIGN,
   REPO,
   appLabel,
@@ -79,15 +80,37 @@ describe('the webside design', () => {
     expect(prefixedReferences).toBeGreaterThan(100)
   })
 
-  // The brand filter's data costs two requests (the `brand` facet and the
-  // brand list), and webside has no brand filter: it must make exactly the
-  // requests it made before. `useProductSearchData`, which it does read,
-  // never asks for either (its own spec).
-  it('never loads the data of the brand filter', () => {
-    const readers = designFiles.filter(file => callsIn(file, /^useProductSearchData$/).length > 0)
-    const brandReaders = designFiles.filter(file => callsIn(file, /^(useProductBrands|useAllBrands)$/).length > 0)
+  // Webside draws the brand, in-stock and on-offer filters (and the rest of
+  // the listing's filters) in its own look, from the same data as the
+  // default design. The look is what this guards: the default design's
+  // filter, sidebar or toolbar markup mounted inside webside's listing
+  // would change it without any webside file changing.
+  it('draws the listing filters from its own components, not the default design ones', () => {
+    const defaultListing = new Set(
+      vueFiles(resolve(COMPONENTS, 'Products')).map(file => componentName(relativeLabel(COMPONENTS, file))),
+    )
+    const drawn: string[] = []
+    const mounted: string[] = []
 
-    expect(readers.length, 'the rule would pass with nothing to guard').toBeGreaterThanOrEqual(4)
-    expect(brandReaders.map(appLabel)).toEqual([])
+    for (const file of designFiles) {
+      walkElements(sfcTemplate(file), (node) => {
+        const name = node.tag.replace(/^Lazy/, '')
+        if (name.startsWith(PREFIX + 'ProductsFilters')) drawn.push(name)
+        if (defaultListing.has(name)) mounted.push(`${appLabel(file)}: <${node.tag}>`)
+      })
+    }
+
+    expect(mounted).toEqual([])
+    expect(drawn, 'the brand and availability filters are webside components').toEqual(
+      expect.arrayContaining(['WebsideProductsFiltersBrandFilter', 'WebsideProductsFiltersAvailabilityFilter']),
+    )
+  })
+
+  it('reads the brand data through the shared composables only', () => {
+    const brandReaders = designFiles
+      .filter(file => callsIn(file, /^(useProductBrands|useAllBrands)$/).length > 0)
+      .map(appLabel)
+
+    expect(brandReaders.length, 'the rule would pass with nothing to guard').toBeGreaterThanOrEqual(2)
   })
 })

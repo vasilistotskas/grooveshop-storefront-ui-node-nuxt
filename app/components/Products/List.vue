@@ -25,7 +25,7 @@ const {
   handlePageChange,
   handleSortChange,
   handleItemsPerPageChange,
-} = await useProductListing({ categoryId: () => props.categoryId, listingFilters: true })
+} = await useProductListing({ categoryId: () => props.categoryId })
 
 /**
  * One grid definition for the results and for the skeletons that stand

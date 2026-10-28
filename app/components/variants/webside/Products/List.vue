@@ -10,7 +10,6 @@ const props = defineProps<{ categoryId?: number }>()
 const { t } = useI18n()
 const { isMobile } = useDevice()
 
-// Webside's listing has no brand or availability filter.
 const {
   filters,
   hasActiveFilters,
@@ -26,7 +25,7 @@ const {
   handlePageChange,
   handleSortChange,
   handleItemsPerPageChange,
-} = await useProductListing({ categoryId: () => props.categoryId, listingFilters: false })
+} = await useProductListing({ categoryId: () => props.categoryId })
 
 // Emit event to toggle filters (for mobile drawer)
 const emit = defineEmits<{

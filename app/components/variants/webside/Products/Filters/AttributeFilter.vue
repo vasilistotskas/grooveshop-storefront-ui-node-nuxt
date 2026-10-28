@@ -6,8 +6,16 @@
  * Shows facet counts and disables values with zero products.
  * Follows the same pattern as CategoryFilter.vue.
  *
+ * `query` is the sidebar's filter search, already folded (`foldText`): an
+ * attribute whose own name matches stays whole; any other keeps its
+ * matching values (and the selected ones) or drops out.
+ *
  * @component
  */
+
+const props = defineProps<{
+  query?: string
+}>()
 
 const { filters, updateFilters } = useProductFilters()
 const { locale, t } = useStoreI18n('components/variants/webside/Products/Filters/AttributeFilter')
@@ -19,7 +27,7 @@ const {
   allAttributeValues,
   attributeValuesStatus,
   attributeValueFacets,
-} = useProductSearchData()
+} = useProductSearchData(useListingScope())
 
 // Selected attribute values from filters
 const selectedAttributeValues = computed(() => filters.value.attributeValues)
@@ -80,6 +88,27 @@ const attributeGroups = computed(() => {
     .filter(group => group.values.length > 0) // Only show groups with values
 })
 
+// The groups the filter search leaves
+const shownGroups = computed(() => {
+  const needle = props.query
+  if (!needle) return attributeGroups.value
+  return attributeGroups.value.flatMap((group) => {
+    if (labelMatches(group.name ?? '', needle)) return [group]
+    const values = group.values.filter(value => value.isSelected || labelMatches(value.label ?? '', needle))
+    return values.some(value => labelMatches(value.label ?? '', needle)) ? [{ ...group, values }] : []
+  })
+})
+
+// Folded or opened by hand; while the filter search is set every group it
+// leaves is open, and folding is not remembered.
+const foldedOpen = ref<string[]>([])
+const openGroups = computed({
+  get: () => props.query ? shownGroups.value.map(group => group.id.toString()) : foldedOpen.value,
+  set: (open: string[]) => {
+    if (!props.query) foldedOpen.value = open
+  },
+})
+
 // Toggle attribute value selection
 const toggleAttributeValue = async (valueId: string) => {
   const currentValues = [...selectedAttributeValues.value]
@@ -118,10 +147,11 @@ const isValueDisabled = (valueId: string) => {
     </template>
 
     <!-- Attribute groups -->
-    <template v-else-if="attributeGroups.length > 0">
+    <template v-else-if="shownGroups.length > 0">
       <UAccordion
+        v-model="openGroups"
         type="multiple"
-        :items="attributeGroups.map(g => ({
+        :items="shownGroups.map(g => ({
           label: g.name,
           value: g.id.toString(),
           slot: `attribute-${g.id}`,
@@ -135,7 +165,7 @@ const isValueDisabled = (valueId: string) => {
           trigger: 'py-3 text-sm font-medium',
         }"
       >
-        <template v-for="group in attributeGroups" :key="group.id" #[`attribute-${group.id}`]>
+        <template v-for="group in shownGroups" :key="group.id" #[`attribute-${group.id}`]>
           <UScrollArea class="max-h-48">
             <div class="space-y-1 pr-2 pb-2">
               <button

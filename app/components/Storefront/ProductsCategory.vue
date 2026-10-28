@@ -4,7 +4,7 @@ const { t } = useStoreI18n('components/Storefront/ProductsCategory')
 const categoryId = useProductCategoryRouteId()
 
 // The filters, chips and tree on this page are about this category.
-const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : undefined, listingFilters: true }
+const scope: ListingScope = { categoryId: categoryId ? Number(categoryId) : undefined }
 provideListingScope(scope)
 const { trail } = useCategoryForest(scope)
 

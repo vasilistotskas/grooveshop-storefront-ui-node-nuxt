@@ -258,16 +258,8 @@ describe('countActiveFilters', () => {
   })
 })
 
-// The webside listing reads `countActiveFilters` and
-// `countFiltersBySection`: a link carrying the redesigned listing's filters
-// must not change what they say.
-describe('the counts the webside listing reads', () => {
-  const REDESIGNED = { brands: ['3', '7'], inStock: true, onOffer: true }
-
-  it('ignore the brand and availability filters', () => {
-    expect(countActiveFilters(filters(REDESIGNED))).toBe(0)
-    expect(countFiltersBySection(filters(REDESIGNED))).toEqual(countFiltersBySection(NONE))
-  })
+it('countActiveFilters leaves the brand and availability filters to countListingFilters', () => {
+  expect(countActiveFilters(filters({ brands: ['3', '7'], inStock: true, onOffer: true }))).toBe(0)
 })
 
 describe('countListingFilters', () => {
@@ -292,6 +284,8 @@ describe('countFiltersBySection', () => {
       viewCount: 0,
       categories: 0,
       attributes: 0,
+      brands: 0,
+      availability: 0,
     })
   })
 
@@ -301,6 +295,8 @@ describe('countFiltersBySection', () => {
     ['both price bounds as one badge', { priceMin: 100, priceMax: 500 }, { price: 1 }],
     ['one per selected category', { categories: ['1', '2', '3'] }, { categories: 3 }],
     ['one per selected attribute value', { attributeValues: ['10', '20'] }, { attributes: 2 }],
+    ['one per selected brand', { brands: ['3', '7'] }, { brands: 2 }],
+    ['one per availability switch', { inStock: true, onOffer: true }, { availability: 2 }],
   ])('counts %s', (_label, overrides, expected) => {
     expect(countFiltersBySection(filters(overrides))).toMatchObject(expected)
   })
@@ -314,7 +310,7 @@ describe('countFiltersBySection', () => {
       categories: ['1', '2'],
       attributeValues: ['10'],
       sort: 'name',
-    }))).toEqual({ search: 1, price: 1, popularity: 1, viewCount: 1, categories: 2, attributes: 1 })
+    }))).toEqual({ search: 1, price: 1, popularity: 1, viewCount: 1, categories: 2, attributes: 1, brands: 0, availability: 0 })
   })
 })
 

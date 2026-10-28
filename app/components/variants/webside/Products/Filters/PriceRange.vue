@@ -22,7 +22,7 @@ const { filters, updateFilters } = useProductFilters()
 const { formatPriceValue } = usePriceFormat()
 
 // Use shared price stats from the centralized composable
-const { priceStats, isPriceStatsLoaded } = useProductSearchData()
+const { priceStats, isPriceStatsLoaded } = useProductSearchData(useListingScope())
 
 // Get currency symbol from i18n
 const currencySymbol = computed(() => {
