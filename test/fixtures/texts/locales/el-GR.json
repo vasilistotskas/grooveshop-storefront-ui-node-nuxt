@@ -1,0 +1,6 @@
+{
+  "brand": { "name": "GrooveShop" },
+  "cart": { "empty": "Το καλάθι είναι άδειο", "count": "{n} είδος | {n} είδη" },
+  "errors": { "codes": { "must_have_purchased": "Πρέπει πρώτα να αγοράσεις το προϊόν" } },
+  "breadcrumb": { "items": { "terms-of-use": { "label": "Όροι Χρήσης", "icon": "i-heroicons-document-text" } } }
+}

@@ -65,6 +65,14 @@ const BYPASS_EXACT: readonly string[] = [
   // invalidation. The handler needs no tenant context (it operates on
   // the shared Nitro cache and scopes by the payload's `host`).
   '/api/admin/cache/purge',
+  // The text catalogue (every editable text of this build, with its
+  // defaults and placeholders) and the check of a store-written text
+  // against it. Django's text editor calls both server to server, with no
+  // tenant Host; neither needs one. The platform's defaults are the same
+  // for every store and already ship to every browser, and the check reads
+  // only the request body and that catalogue.
+  '/api/texts/catalogue',
+  '/api/texts/validate',
 ] as const
 
 // nuxt-ai-ready emits a content-negotiated ``.md`` mirror for every

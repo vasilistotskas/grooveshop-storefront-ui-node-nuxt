@@ -112,6 +112,7 @@ Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both 
 - `server/api/auth/oauth-params.get.ts` — One-time-use endpoint that reads OAuth params from session and clears them
 - `server/routes/rss.xml.get.ts` — RSS feed generation (cached, SWR) combining blog posts and products with media:content, reading time, product pricing/availability
 - `server/api/__sitemap__/urls.ts` — Dynamic sitemap URL source for `@nuxtjs/sitemap`
+- `server/api/texts/catalogue.get.ts` and `validate.post.ts` — the text catalogue of the build and the check of a store-written text against it (`server/utils/textCatalogue.ts`, `textValidation.ts`; the catalogue is the `#text-catalogue` virtual module from `modules/text-catalogue/`). Public and the same for every store: bypassed in `0.tenant.ts`, no `tenantCacheKey`, no Nitro cache (a bundle constant served with its content hash as ETag). `validate` answers 200 `{ ok: true }` or 422 `{ ok: false, code, detail }` with `code` one of `TEXT_VALIDATION_CODES`
 
 ## OpenAPI Type Generation
 

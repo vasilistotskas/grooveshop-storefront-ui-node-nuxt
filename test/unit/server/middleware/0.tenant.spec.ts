@@ -41,6 +41,10 @@ describe('server/middleware/0.tenant', () => {
     // 404'd before the route's own token check and silently killed SSR
     // cache invalidation in production.
     '/api/admin/cache/purge',
+    // Django's text editor reads the catalogue and checks a text against
+    // it server to server; both are the same for every store.
+    '/api/texts/catalogue',
+    '/api/texts/validate',
   ])('serves %s without resolving a tenant', async (url) => {
     const { event, result } = run({ url, host: 'pod-10-0-0-1' })
 
