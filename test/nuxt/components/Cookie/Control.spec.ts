@@ -4,6 +4,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { COOKIE_ID_SEPARATOR } from '#cookie-control/types'
 import CookieControl from '~/components/Cookie/Control.vue'
+import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * The GDPR consent banner. It drives the app's REAL consent state
@@ -11,7 +12,8 @@ import CookieControl from '~/components/Cookie/Control.vue'
  * by `cookieControl` in nuxt.config.ts: two necessary categories and six
  * optional ones. That state is app-wide, so it is reset around every
  * test, and the two consent cookies are expired again afterwards. The
- * button labels are the component's own `<i18n>` (el).
+ * button labels are the component's own `<i18n>` (el). Webside's banner,
+ * drawn like the platform's only where the store uses an optional service.
  */
 const COPY = { accept: 'Αποδοχή', decline: 'Απόρριψη', settings: 'Ρυθμίσεις cookies' }
 const NECESSARY = ['n', 'functionality_storage']
@@ -45,7 +47,10 @@ const cookie = (name: string) =>
   document.cookie.split('; ').find(pair => pair.startsWith(`${name}=`))?.slice(name.length + 1)
 
 describe('Cookie/Control', () => {
-  beforeEach(resetConsent)
+  beforeEach(() => {
+    resetConsent()
+    setTenant({ gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '123', tiktokPixelId: '', openaiPixelId: '' })
+  })
   afterEach(resetConsent)
 
   it('asks a visitor who has not decided yet', async () => {
@@ -54,6 +59,15 @@ describe('Cookie/Control', () => {
     expect(wrapper.find('h2').exists()).toBe(true)
     expect([COPY.settings, COPY.accept, COPY.decline].map(label => button(wrapper, label)?.text()))
       .toEqual([COPY.settings, COPY.accept, COPY.decline])
+  })
+
+  it('asks nothing of a store with no optional service', async () => {
+    setTenant({ gaTrackingId: '', googleAdsConversionId: '', metaPixelId: '', tiktokPixelId: '', openaiPixelId: '' })
+
+    const wrapper = await mountBanner()
+
+    expect(wrapper.find('h2').exists()).toBe(false)
+    expect(button(wrapper, COPY.accept)).toBeUndefined()
   })
 
   it('enables every category on accept, remembers it, and goes away', async () => {

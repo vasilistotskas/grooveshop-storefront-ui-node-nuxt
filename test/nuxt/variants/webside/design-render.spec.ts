@@ -280,6 +280,10 @@ describe('webside design render', () => {
       loyaltyEnabled: true,
       recommendationsEnabled: true,
       agentCommerceEnabled: true,
+      // The real webside runs Google and Meta; its banner and footer entry
+      // are drawn only for a store with an optional service.
+      gaTrackingId: 'G-TEST',
+      metaPixelId: '123',
       // What Django resolves for this fixture: the blog plan flag is on;
       // loyalty is plan AND `LOYALTY_ENABLED`, and no spec here serves
       // that setting (the account overview below does, for its own

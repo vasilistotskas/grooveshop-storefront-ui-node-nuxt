@@ -485,10 +485,9 @@ export function setupCookieConsentTracking() {
   const { isConsentGiven, cookiesEnabledIds, moduleOptions } = useCookieControl()
   const tenantStore = useTenantStore()
 
-  // The platform's banner is not drawn for a store with no optional
-  // service, so there is no impression to count. A webside store keeps its
-  // own banner, which always asks.
-  const bannerDrawn = () => !resolveDesign(tenantStore.schemaName) || tenantStore.hasOptionalServices
+  // Neither design's banner is drawn for a store with no optional service,
+  // so there is no impression to count.
+  const bannerDrawn = () => tenantStore.hasOptionalServices
 
   const post = (body: CookieConsentEventBody) =>
     $api('/api/analytics/cookie-consent', {

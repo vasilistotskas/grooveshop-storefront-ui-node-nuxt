@@ -4,6 +4,7 @@ const localePath = useLocalePath()
 const { t } = useStoreI18n('components/variants/webside/Footer/Desktop')
 const { columns } = useFooterLinks()
 const { isModalActive } = useCookieControl()
+const tenantStore = useTenantStore()
 const runtimeConfig = useRuntimeConfig()
 
 const packageVersion = runtimeConfig.public.version
@@ -57,16 +58,18 @@ const openCookieModal = () => {
               variant="link"
             /> {{ t('all_rights_reserved') }}.
           </span>
-          <span aria-hidden="true" class="text-primary-400">·</span>
-          <UButton
-            :label="t('cookie_settings')"
-            icon="i-unjs:cookie-es"
-            color="neutral"
-            variant="link"
-            size="sm"
-            class="p-0"
-            @click="openCookieModal"
-          />
+          <template v-if="tenantStore.hasOptionalServices">
+            <span aria-hidden="true" class="text-primary-400">·</span>
+            <UButton
+              :label="t('cookie_settings')"
+              icon="i-unjs:cookie-es"
+              color="neutral"
+              variant="link"
+              size="sm"
+              class="p-0"
+              @click="openCookieModal"
+            />
+          </template>
         </div>
       </div>
     </template>
