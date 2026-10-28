@@ -52,6 +52,9 @@ const serverAlias = [
   ...Object.entries(alias).map(([find, replacement]) => ({ find, replacement })),
   { find: /^nuxt\/server$/, replacement: nitroServerRuntime },
   { find: /^(?:nitropack\/runtime|#internal\/nuxt\/route-rules\.mjs)$/, replacement: nitroShim },
+  // The text catalogue is a Nitro virtual module a build provides
+  // (`modules/text-catalogue`); the unit project reads a fixture tree.
+  { find: /^#text-catalogue$/, replacement: path('./test/helpers/nitro/textCatalogue.ts') },
 ]
 
 /**

@@ -1,7 +1,7 @@
 import type { NuxtModule } from 'nuxt/schema'
 import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
-import { DEFAULT_LOCALE } from './i18n/locales.ts'
+import { DEFAULT_LOCALE, LOCALE_FILES } from './i18n/locales.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { CACHED_PAGE_VARIES, CUSTOM_PAGE_ROUTES, PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender.ts'
 import { FONT_FAMILY_NAMES, FONT_STYLES, FONT_WEIGHTS } from './shared/theme/constants.ts'
@@ -600,7 +600,7 @@ export default defineNuxtConfig({
     // `pnpm typecheck` checks each spec in the context of the code it
     // tests: these join `test/nuxt` in the app context, and the server
     // specs and their harness join the server context.
-    appTsConfig: { include: ['../test/unit/app/**/*', '../test/unit/shared/**/*', '../test/unit/openapi/**/*', '../test/unit/fixtures/**/*', '../test/unit/source-rules/**/*', '../test/unit/scripts/**/*', '../test/e2e/**/*'] },
+    appTsConfig: { include: ['../test/unit/app/**/*', '../test/unit/shared/**/*', '../test/unit/openapi/**/*', '../test/unit/fixtures/**/*', '../test/unit/source-rules/**/*', '../test/unit/scripts/**/*', '../test/unit/modules/**/*', '../test/e2e/**/*'] },
     serverTsConfig: { include: ['../test/unit/server/**/*', '../test/helpers/nitro/**/*'] },
   },
   debug: false,
@@ -967,28 +967,14 @@ export default defineNuxtConfig({
       {
         code: 'el',
         name: 'Ελληνικά',
-        files: [
-          'el-GR.json',
-          'auth/el-GR.json',
-          'breadcrumb/el-GR.json',
-          'checkout/el-GR.json',
-          'cookies/el-GR.json',
-          'validation/el-GR.json',
-        ],
+        files: [...LOCALE_FILES.el],
         language: 'el-GR',
         flag: '🇬🇷',
       },
       {
         code: 'en',
         name: 'English',
-        files: [
-          'en-US.json',
-          'auth/en-US.json',
-          'breadcrumb/en-US.json',
-          'checkout/en-US.json',
-          'cookies/en-US.json',
-          'validation/en-US.json',
-        ],
+        files: [...LOCALE_FILES.en],
         language: 'en-US',
         flag: '🇬🇧',
       },

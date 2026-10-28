@@ -1,0 +1,6 @@
+{
+  "brand": { "name": "GrooveShop" },
+  "cart": { "empty": "Your cart is empty", "count": "{n} item | {n} items" },
+  "errors": { "codes": { "must_have_purchased": "You need to buy the product first" } },
+  "breadcrumb": { "items": { "terms-of-use": { "label": "Terms of Use", "icon": "i-heroicons-document-text" } } }
+}
