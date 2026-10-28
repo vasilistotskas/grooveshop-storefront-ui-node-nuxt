@@ -587,7 +587,15 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
-    typeCheck: true,
+    // At build time only. `true` also runs vue-tsc over the whole project
+    // in a vite-plugin-checker worker thread during `nuxt dev`; this
+    // project's check needs an ~8 GB heap, a worker does not inherit
+    // NODE_OPTIONS, and the worker ran out of memory and restarted the dev
+    // server minutes after it started (2026-10-28, reproduced on devtools
+    // 3 and 4, gone with the dev check off). The gate is `pnpm typecheck`
+    // (CI, the Stop hook); the editor's language server shows type errors
+    // while you work.
+    typeCheck: 'build',
     // The root tsconfig references every Nuxt type context, so
     // `pnpm typecheck` checks each spec in the context of the code it
     // tests: these join `test/nuxt` in the app context, and the server
