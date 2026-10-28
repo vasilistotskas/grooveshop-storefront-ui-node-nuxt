@@ -394,6 +394,7 @@ onReactivated(async () => {
             :width="bannerWidth"
             densities="x1"
             fit="cover"
+            format="webp"
             quality="80"
             class="rounded-lg"
             style="object-fit: contain; content-visibility: auto;"

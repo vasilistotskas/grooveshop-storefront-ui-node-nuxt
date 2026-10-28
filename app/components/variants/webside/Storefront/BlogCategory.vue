@@ -117,6 +117,8 @@ const items = computed(() => [
             v-for="(post, index) in posts?.results"
             :key="index"
             :img-loading="index > 7 ? 'lazy' : 'eager'"
+            :img-fetch-priority="index === 0 ? 'high' : 'auto'"
+            :preload="index === 0"
             :post="post"
           />
         </template>
