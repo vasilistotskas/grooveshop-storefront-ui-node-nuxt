@@ -1,3 +1,10 @@
+## [3.266.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.4...v3.266.5) (2026-10-28)
+
+
+### Bug Fixes
+
+* **footer:** a store without the cart names no way to pay or carrier ([#263](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/263)) ([27cc197](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27cc19758c970d6099e46f4ab7ccc36f3ff07d4d))
+
 ## [3.266.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.3...v3.266.4) (2026-10-28)
 
 
