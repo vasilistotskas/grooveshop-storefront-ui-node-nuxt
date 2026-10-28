@@ -1,10 +1,11 @@
 import { describe, expect, it, beforeAll } from 'vitest'
-import { FROZEN, appLabel, callsIn, vueFiles } from '../../helpers/sourceText'
+import { WEBSIDE_DESIGN, appLabel, callsIn, vueFiles } from '../../helpers/sourceText'
 
 /**
- * The frozen `webside` tree fetches nothing itself.
+ * The `webside` design fetches nothing itself.
  *
- * Its freeze covers the look only (owner decision 2026-10-23): what a page
+ * A design is only a presentation layer (owner decision 2026-10-23, restated
+ * 2026-10-28): what a page
  * reads, which gate it applies and how a failure is told follow the
  * platform. Each copy used to fetch for itself, so a fix to the default
  * never reached webside (storefront #153); the consolidation moved every
@@ -20,11 +21,11 @@ let files: string[]
 let fetches: string[]
 
 beforeAll(() => {
-  files = vueFiles(FROZEN)
+  files = vueFiles(WEBSIDE_DESIGN)
   fetches = files.flatMap(file => callsIn(file, FETCHER).map(({ call, line }) => `${appLabel(file)}:${line} ${call.callee.name}`))
 })
 
-describe('the frozen webside tree', () => {
+describe('the webside design', () => {
   it('reads the whole tree', () => {
     // A guard on the guard: a moved tree must not empty the scan.
     expect(files.length).toBeGreaterThan(200)

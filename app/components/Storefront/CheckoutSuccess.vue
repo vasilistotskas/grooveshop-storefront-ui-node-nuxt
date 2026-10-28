@@ -7,7 +7,7 @@
  * the store's guides while the parcel is on its way.
  *
  * The last step carries the order's `estimatedDelivery` (a date Django
- * fixed at placement) while the order is still on its way. The frozen
+ * fixed at placement) while the order is still on its way. The webside
  * webside tree keeps its own copy of this page.
  */
 const { t, n, locale } = useStoreI18n('components/Storefront/CheckoutSuccess')

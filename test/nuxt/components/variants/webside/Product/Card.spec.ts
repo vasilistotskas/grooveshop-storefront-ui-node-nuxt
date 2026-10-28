@@ -5,10 +5,10 @@ import { makeProduct } from '~~/test/fixtures/product'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
- * The frozen webside card names a product through `extractTranslated`, so
+ * The webside card names a product through `extractTranslated`, so
  * a product the store has not translated into the page's language shows
  * the store's language rather than a blank title. Its markup is pinned by
- * `test/nuxt/variants/webside/frozen-render.spec.ts`.
+ * `test/nuxt/variants/webside/design-render.spec.ts`.
  */
 describe('webside Product/Card', () => {
   beforeEach(() => {

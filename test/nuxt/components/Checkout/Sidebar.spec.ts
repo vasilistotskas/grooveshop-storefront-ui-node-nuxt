@@ -16,7 +16,7 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
  * The checkout's order summary is the only place the shopper sees what
  * they will pay before they pay it. Both trees print the figures
  * `useCheckoutTotals` computes (its own suite holds the arithmetic). The
- * frozen webside copy counts the delivery only on the payment step, where
+ * webside copy counts the delivery only on the payment step, where
  * it recaps the chosen method, so its suite keeps the cases that pin how
  * it feeds the composable.
  */
@@ -235,7 +235,7 @@ describe('Checkout/Sidebar (default)', () => {
   })
 })
 
-describe('Checkout/Sidebar (frozen webside)', () => {
+describe('Checkout/Sidebar (webside)', () => {
   const HOME = { method: 'home_delivery' as const }
 
   const mount = (props: Record<string, unknown> = {}) =>

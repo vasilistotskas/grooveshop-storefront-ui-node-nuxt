@@ -139,7 +139,7 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
     expect(wrapper.find('section').exists()).toBe(false)
   })
 
-  // The frozen card counts every offer; the default counts what it
+  // The webside card counts every offer; the default counts what it
   // lists open, as the design's "Offers for this product 3" does.
   it.runIf(tree === 'webside')('counts every offer that applies in the heading', async () => {
     offers = [
@@ -224,7 +224,7 @@ describe.each(trees(ProductOffers, WebsideProductOffers))('$tree Product/Offers'
   it('copies a coupon code and confirms it with a toast', async () => {
     offers = [offer({ id: 1, relation: 'PRODUCT', trigger: 'CODE', code: 'PICK20' })]
     const wrapper = await mountPanel()
-    // The default names the code it copies; the frozen card says "copy code".
+    // The default names the code it copies; the webside card says "copy code".
     const label = tree === 'default' ? 'Αντιγραφή του PICK20' : useNuxtApp().$i18n.t('promotion.copy_code')
 
     await wrapper.get(`button[aria-label="${label}"]`).trigger('click')

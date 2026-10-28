@@ -3,7 +3,7 @@
  * serves, what each costs and when it arrives, which ones the cart cannot
  * take and why, the chosen carrier's locker picker, and the rule for
  * moving on to payment. Both drawings of the step (the default and the
- * frozen webside copy) render these; the step's own `submit()` is
+ * webside copy) render these; the step's own `submit()` is
  * `submit` here.
  */
 export interface CheckoutShippingStepInputs {

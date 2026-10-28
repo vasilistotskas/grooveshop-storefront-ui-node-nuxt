@@ -16,7 +16,7 @@ import { TOOLTIP_STUB, pickFromRowMenu } from '~~/test/helpers/rowMenu'
  * place or removed once confirmed, one change at a time, then the auth
  * store read again so every reader of it counts the same keys
  * (`useWebAuthnKeys`, shared by both trees). The default draws rows and
- * asks before removing; the frozen tree draws a table whose row menu
+ * asks before removing; the webside design draws a table whose row menu
  * edits or removes at once and, with no key left, goes back to the
  * two-step page. Mocked at `useAllAuthAccount`; the keys come from the
  * real auth store.
@@ -70,14 +70,14 @@ const tableRow = (wrapper: VueWrapper, name: string) => wrapper.findAll('tbody t
 
 describe.each(trees(List, WebsideList))('$tree Account/2Fa/WebAuthn/List', ({ tree, C }) => {
   const messages = COPY[tree]
-  // The frozen row menu sits in a tooltip, which needs the provider the app shell supplies.
+  // The webside row menu sits in a tooltip, which needs the provider the app shell supplies.
   const mountList = () => mountSuspended(C, {
     route: false,
     attachTo: document.body,
     global: { stubs: TOOLTIP_STUB },
   })
 
-  /** Rename `from` to `to`: row buttons in the default, the row menu in the frozen table. */
+  /** Rename `from` to `to`: row buttons in the default, the row menu in the webside table. */
   async function rename(wrapper: VueWrapper, from: string, to: string) {
     if (tree === 'default') await button(wrapper, `Μετονομασία του «${from}»`).trigger('click')
     else await pickFromRowMenu(tableRow(wrapper, from), useNuxtApp().$i18n.t('edit.title'))

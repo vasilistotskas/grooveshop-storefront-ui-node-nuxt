@@ -79,7 +79,7 @@ type StripProps = { surface: SurfaceEnum, seedId?: number, items?: Product[], li
 const events = () => api.callsTo('/api/analytics/recommendation-event')
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
-/** The frozen copy, pinned as it renders on webside.gr: a carousel strip. */
+/** The webside copy, pinned as it renders on webside.gr: a carousel strip. */
 describe('webside Product/Suggestions', () => {
   const mountStrip = async (props: StripProps = { surface: 'pdp', seedId: 1 }) => {
     const wrapper = await mountSuspended(WebsideSuggestions, { props, global: { stubs: websideStubs }, route: false })

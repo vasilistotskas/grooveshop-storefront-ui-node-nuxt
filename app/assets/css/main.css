@@ -203,8 +203,8 @@
 /* Groove Volt — the platform-default design.
    ------------------------------------------------------------------
    Scoped to `<html data-design="volt">`, which `app/plugins/design.ts`
-   sets for every tenant except the frozen webside tree. The `:root` and
-   `.dark` blocks above are what that tree was captured against, so
+   sets for every tenant except the webside design. The `:root` and
+   `.dark` blocks above are what that design was captured against, so
    they stay as they are and these blocks override them.
 
    Precedence, all unlayered:

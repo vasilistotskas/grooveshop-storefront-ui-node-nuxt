@@ -5,9 +5,9 @@ import BurgerMenu from '~/components/variants/webside/Page/BurgerMenu.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
- * The frozen webside burger menu lists `useNavigation().mobileLinks` (the
+ * The webside burger menu lists `useNavigation().mobileLinks` (the
  * Mobile menu an admin saves under Content > Menus, else the Header menu:
- * that composable's spec). Its markup is pinned by `frozen-render.spec.ts`.
+ * that composable's spec). Its markup is pinned by `design-render.spec.ts`.
  */
 const state = vi.hoisted(() => ({
   phoneLinks: null as { label: string, to?: string }[] | null,

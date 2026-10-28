@@ -123,7 +123,7 @@ describe('setupSocialLogin', () => {
  * `setupCookieConsentTracking`: the `banner_shown` impression is the
  * denominator of the accept rate, so it is counted only where a banner is
  * drawn. The platform's banner is not drawn for a store with no optional
- * service; a frozen store keeps its own banner, which always asks.
+ * service; a webside store keeps its own banner, which always asks.
  */
 const TrackingHarness = defineComponent({
   setup() {
@@ -156,7 +156,7 @@ describe('setupCookieConsentTracking', () => {
     expect(await impressions({}, 'demo')).toHaveLength(0)
   })
 
-  it('still counts a frozen store, whose own banner always asks', async () => {
+  it('still counts a webside store, whose own banner always asks', async () => {
     expect(await impressions({}, 'webside')).toHaveLength(1)
   })
 })

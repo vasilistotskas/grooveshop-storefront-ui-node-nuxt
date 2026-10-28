@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { APP, FROZEN, appLabel, readSource, vueFiles, withoutComments } from '../../helpers/sourceText'
+import { APP, WEBSIDE_DESIGN, appLabel, readSource, vueFiles, withoutComments } from '../../helpers/sourceText'
 
 /**
  * `--ui-secondary` is the accent as a FILL. It is not a text colour.
@@ -16,7 +16,7 @@ import { APP, FROZEN, appLabel, readSource, vueFiles, withoutComments } from '..
  * the accent touches is. Shade variants (`text-secondary-600`) are
  * their own values and out of scope.
  *
- * The frozen `variants/webside` tree is exempt — its render is pinned.
+ * The `variants/webside` tree is exempt — its render is pinned.
  */
 /** `text-secondary` exactly — not `text-secondary-600`. */
 const FILL_AS_TEXT = /\btext-secondary(?![\w-])/
@@ -31,7 +31,7 @@ beforeAll(() => {
   // Checked over a small window because the class is often the far
   // branch of a multi-line ternary, with `leadingIcon:` two lines
   // above it — a single-line rule missed exactly that shape.
-  uses = vueFiles(APP, { exclude: [FROZEN] }).flatMap((file) => {
+  uses = vueFiles(APP, { exclude: [WEBSIDE_DESIGN] }).flatMap((file) => {
     const lines = withoutComments(readSource(file)).split('\n')
     return lines.flatMap((line, index) => {
       if (!FILL_AS_TEXT.test(line)) return []

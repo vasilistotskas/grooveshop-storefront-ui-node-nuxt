@@ -17,7 +17,7 @@ mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
  * One saved address: deleting it (`useAddressRemoval`, shared by both
  * trees) and, in the default's card, its label, the address, Edit and
  * "Set as default". The default address can be neither deleted nor set as
- * the default again, so the default's card offers neither; the frozen card
+ * the default again, so the default's card offers neither; the webside card
  * offers delete on every address and refuses it on the main one (Django
  * does not refuse it, so `useAddressRemoval` does).
  */

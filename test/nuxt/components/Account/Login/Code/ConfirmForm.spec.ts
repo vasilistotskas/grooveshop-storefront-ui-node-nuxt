@@ -145,7 +145,7 @@ describe.each(trees(LoginCodeConfirmForm, WebsideLoginCodeConfirmForm))('$tree A
     expect(wrapper.text()).toContain(COPY.errorTitle)
   })
 
-  // The frozen tree keeps its link back to the request step; the default
+  // The webside design keeps its link back to the request step; the default
   // sends the code again in place.
   it.runIf(tree === 'webside')('links back to request a new code', async () => {
     const wrapper = await mountForm()

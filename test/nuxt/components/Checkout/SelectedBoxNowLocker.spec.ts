@@ -80,7 +80,7 @@ describe.each(trees(SelectedBoxNowLocker, WebsideSelectedBoxNowLocker))('$tree C
         boxnowLocker: makeBoxNowSelectedLocker({ boxnowLockerName: undefined }),
       }))
 
-      // The frozen card names the locker in its header; the redesign in a
+      // The webside card names the locker in its header; the redesign in a
       // named line of its own.
       const name = tree === 'webside'
         ? wrapper.find('[data-slot="header"]').text().replace(t('shipping.boxnow.selected_locker.title'), '').trim()

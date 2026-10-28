@@ -32,7 +32,7 @@ describe('server/plugins/tenant-theme', () => {
 
   it.each([
     ['no tenant', {}],
-    ['the frozen webside, which changes nothing', { tenant: { schemaName: 'webside' } }],
+    ['webside, which changes nothing', { tenant: { schemaName: 'webside' } }],
   ])('adds nothing for %s', async (_label, context) => {
     expect(await render(context)).toEqual(['<meta charset="utf-8">'])
   })

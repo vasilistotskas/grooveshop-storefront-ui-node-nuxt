@@ -147,10 +147,10 @@ describe('POST /api/texts/validate', () => {
     })
 
     it('answers unknown_key for a namespace only another store renders', async () => {
-      const frozen = await forStore('acme', WEBSIDE_FOOTER)
+      const webside = await forStore('acme', WEBSIDE_FOOTER)
 
-      expect(frozen.status).toBe(422)
-      expect(frozen.body).toEqual({
+      expect(webside.status).toBe(422)
+      expect(webside.body).toEqual({
         ok: false,
         code: 'unknown_key',
         detail: `The build has no text "title" in "${WEBSIDE_FOOTER}" that the store "acme" renders.`,

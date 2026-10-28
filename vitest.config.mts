@@ -167,11 +167,12 @@ export default defineConfig({
         'shared/openapi/**',
         // Type-only modules carry no runtime code.
         'shared/types/**',
-        // The frozen webside tree: byte-for-byte copies of defaults that
-        // are tested where they live. It never changes, so it is pinned by
-        // `test/nuxt/variants/webside/frozen-render.spec.ts` and the SSR
-        // and pixel diffs instead — measured, every freeze diluted the
-        // floor (PR 2's account copies took lines from 70.9% to 64.6%).
+        // The webside design: its own templates, whose logic is the
+        // composables both designs use and is tested where it lives. Its
+        // look is pinned by `test/nuxt/variants/webside/design-render.spec.ts`
+        // and the SSR and pixel diffs instead — measured, copies of
+        // this size diluted the coverage floor (PR 2's account copies took
+        // lines from 70.9% to 64.6%).
         'app/components/variants/webside/**',
         '**/*.d.ts',
       ],

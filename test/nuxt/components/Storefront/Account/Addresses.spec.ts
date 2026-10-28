@@ -13,7 +13,7 @@ import { trees } from '~~/test/helpers/trees'
  * request under one key, a card per address, a way to add one through the
  * address form's page, and a reload after a card deletes one. The default
  * asks for the default address first, as checkout offers them, 50 to a
- * page; the frozen page sorts by what the shopper picked, 8 to a page.
+ * page; the webside page sorts by what the shopper picked, 8 to a page.
  */
 const state = vi.hoisted(() => ({ addresses: [] as unknown[] }))
 mockNuxtImport('useRoute', () => () => ({ name: 'account-addresses___el', params: {}, query: {}, path: '/account/addresses', fullPath: '/account/addresses', hash: '', meta: {}, matched: [] }))

@@ -9,7 +9,7 @@
  * one, so linking the redirect would make every footer click a 301.
  *
  * The one reader of the `footer-content-pages` key — both footers
- * (`useFooterLinks` for the frozen tree, `useFooterNavigation` for the
+ * (`useFooterLinks` for the webside design, `useFooterNavigation` for the
  * default) and the checkout's legal strip go through here, which keeps
  * their request options identical. `published` is the set of slugs the
  * store has, for a link to a page not every store is seeded (the return

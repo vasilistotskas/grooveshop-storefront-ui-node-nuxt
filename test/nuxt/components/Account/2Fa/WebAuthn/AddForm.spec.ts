@@ -14,7 +14,7 @@ import { trees } from '~~/test/helpers/trees'
  * without a password" is offered only where the store lets passkeys sign
  * in. When the key is the account's first factor allauth also generates
  * recovery codes, and the shopper is sent to see them; otherwise back to
- * the passkeys on Security (the tree frozen in the previous design has no
+ * the passkeys on Security (the webside tree has no
  * such page and goes to its keys list). Failures are said in the shopper's
  * language (`useAddWebAuthnKey`, shared by both trees). Mocked at
  * `useAllAuthAccount`; the browser's WebAuthn API is stubbed.
@@ -56,7 +56,7 @@ beforeEach(() => {
 
 describe.each(trees(AddForm, WebsideAddForm))('$tree Account/2Fa/WebAuthn/AddForm', ({ tree, C }) => {
   const messages = COPY[tree]
-  /** The passwordless choice: a switch in the default, a checkbox in the frozen tree. */
+  /** The passwordless choice: a switch in the default, a checkbox in the webside design. */
   const PASSWORDLESS = tree === 'default' ? 'button[role="switch"]' : 'button[role="checkbox"]'
   const LIST = tree === 'default' ? '/account/security#passkeys' : '/account/2fa/webauthn'
 
@@ -84,7 +84,7 @@ describe.each(trees(AddForm, WebsideAddForm))('$tree Account/2Fa/WebAuthn/AddFor
     allowPasskeyLogin(false)
     const wrapper = await mountForm()
 
-    // The frozen form's dynamic fields stay in the DOM under a `hidden` class.
+    // The webside form's dynamic fields stay in the DOM under a `hidden` class.
     const choice = wrapper.find(PASSWORDLESS)
     expect(choice.exists() && !choice.element.closest('.hidden')).toBe(false)
     await submit(wrapper, 'YubiKey')

@@ -6,7 +6,7 @@ import type { EffectScope } from 'vue'
 import WebsideActiveFilters from '~/components/variants/webside/Products/Filters/ActiveFilters.vue'
 
 /**
- * The frozen webside listing has no brand, in-stock or on-offer filter:
+ * The webside listing has no brand, in-stock or on-offer filter:
  * its List never sends them. A link copied from a store that has them
  * (`?inStock=true&onOffer=true&brand=3`) must therefore change nothing on
  * webside — not its facet queries, not its active-filter count, not its

@@ -6,7 +6,7 @@
  * every Volt tenant (`applyUiTheme`), so it reads as a second config
  * layer: classes here join the base config's and win their conflicts,
  * compound variants run after the base's. The base config itself stays
- * untouched — it is what the frozen webside tree renders with.
+ * untouched — it is what the webside tree renders with.
  *
  * Colours are NOT here: they are the tokens under `[data-design="volt"]`
  * in `main.css`. A component that needs one names the semantic token

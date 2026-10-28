@@ -16,7 +16,7 @@ import { asProxiedError, makeAllAuthConfig, makeBadResponse, makeProviderAccount
  * link (the token flow) — and the linked accounts of a provider the
  * store no longer offers, so they can still be unlinked. Nothing at all
  * when there is neither (`useProviderAccounts`, shared by both trees). The
- * tree frozen in the previous design draws only the linked accounts, in a
+ * webside tree draws only the linked accounts, in a
  * table whose row menu disconnects. Mocked at `useAllAuthAccount` /
  * `useAllAuthAuthentication`; the store's providers are the real auth
  * store's `/config`.
@@ -64,7 +64,7 @@ describe.each(trees(ProvidersManage, WebsideProvidersManage))('$tree Account/Pro
     return wrapper
   }
 
-  /** Disconnect the Google account: its card's button, or its row's menu in the frozen table. */
+  /** Disconnect the Google account: its card's button, or its row's menu in the webside table. */
   async function disconnectGoogle(wrapper: VueWrapper) {
     if (tree === 'default') await button(wrapper, 'Αποσύνδεση του λογαριασμού Google shopper@example.com').trigger('click')
     else await pickFromRowMenu(tableRows(wrapper).find(row => row.text().includes('shopper@example.com'))!, useNuxtApp().$i18n.t('disconnect'))

@@ -12,7 +12,7 @@ import { makeLoyaltySettings, makeTier } from '~~/test/fixtures/loyalty'
 
 /**
  * The public loyalty programme page. The default tree was redesigned (a
- * volt hero, steps, the tier ladder, questions); the frozen webside copy
+ * volt hero, steps, the tier ladder, questions); the webside copy
  * keeps its original body, run on its own below.
  */
 const settings = createLoyaltySettingsMock()

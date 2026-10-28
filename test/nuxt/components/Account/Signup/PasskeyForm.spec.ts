@@ -12,7 +12,7 @@ import { asProxiedError, makePendingFlowResponse } from '~~/test/fixtures/allaut
  * `mfa_webauthn_signup` flow for. Mocked at `useAllAuthAuthentication`.
  * The two trees share the request (`useSignUpByPasskey`) and move on when
  * allauth answers with the next step pending; the default no longer toasts
- * a "passkey created" it has not created, the frozen tree still does when
+ * a "passkey created" it has not created, the webside design still does when
  * the request goes through.
  */
 const { signUpByPasskey, toastAdd, navigateToMock } = vi.hoisted(() => ({

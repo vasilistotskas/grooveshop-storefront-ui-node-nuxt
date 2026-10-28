@@ -8,7 +8,7 @@ import { createAsyncDataMock } from '~~/test/helpers/asyncData'
 
 /**
  * The author page body. The default tree was redesigned (an identity
- * card, "Posts by <name>", a numbered pagination); the frozen webside
+ * card, "Posts by <name>", a numbered pagination); the webside
  * copy keeps its original body, run on its own first, and the redesign
  * has its own suite after it.
  */

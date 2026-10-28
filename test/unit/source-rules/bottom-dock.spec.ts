@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { COMPONENTS, FROZEN, boundAttribute, classesOf, readSource, relativeLabel, sfcTemplate, vueFiles, walkElements } from '../../helpers/sourceText'
+import { COMPONENTS, WEBSIDE_DESIGN, boundAttribute, classesOf, readSource, relativeLabel, sfcTemplate, vueFiles, walkElements } from '../../helpers/sourceText'
 
 /**
  * Whatever is fixed to the bottom of the screen takes its offset from
@@ -19,7 +19,7 @@ import { COMPONENTS, FROZEN, boundAttribute, classesOf, readSource, relativeLabe
  * - webside's own chrome, which lives outside `variants/webside` but is
  *   registered only for it (`chrome:assistant@webside`,
  *   `chrome:cookie_consent@webside` in `app/utils/variantRegistry.ts`)
- *   and stays as frozen as the rest of that tree.
+ *   and is left alone like the rest of that tree.
  */
 const EDGES = new Set([
   'Chrome/FundingBanner.vue',
@@ -48,7 +48,7 @@ function hardCodedBottoms(file: string): string[] {
 }
 
 describe('fixed bottom elements stack through the bottom dock', () => {
-  const files = vueFiles(COMPONENTS, { exclude: [FROZEN] })
+  const files = vueFiles(COMPONENTS, { exclude: [WEBSIDE_DESIGN] })
 
   it('finds the docked elements', () => {
     // The tab bar, both sticky bars and the two corner buttons: a rule

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`webside frozen render > blog post card desktop 1`] = `
+exports[`webside design render > blog post card desktop 1`] = `
 "<li class="container grid w-full gap-6 rounded-lg bg-primary-100 !p-0 text-primary-950 dark:bg-primary-900 dark:text-primary-50">
   <div class="grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="376" height="247" data-nuxt-img="" sizes="(max-width: 1023px) 360px, (max-width: 1279px) 480px, (max-width: 1535px) 480px, 520px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/360/236/cover/attention/transparent/0/80.avif 360w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/480/315/cover/attention/transparent/0/80.avif 480w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/520/342/cover/attention/transparent/0/80.avif 520w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/720/472/cover/attention/transparent/0/80.avif 720w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/960/630/cover/attention/transparent/0/80.avif 960w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif 1040w" fetchpriority="auto" class="h-auto w-full rounded-t-lg bg-primary-100" style="object-fit: cover; content-visibility: auto; aspect-ratio: 376 / 247;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif"></a></div>
   <div class="grid gap-2 p-4">
@@ -19,7 +19,7 @@ exports[`webside frozen render > blog post card desktop 1`] = `
 </li>"
 `;
 
-exports[`webside frozen render > blog post card mobile 1`] = `
+exports[`webside design render > blog post card mobile 1`] = `
 "<li class="container grid min-h-60 w-full gap-4 rounded-lg bg-primary-100 !p-0 dark:bg-primary-900 dark:text-primary-950">
   <div class="relative grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="575" height="670" data-nuxt-img="" sizes="(max-width: 639px) 382px, (max-width: 767px) 352px, (max-width: 1023px) 545px, (max-width: 1279px) 562px, (max-width: 1535px) 387px, 387px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/352/410/cover/attention/transparent/0/80.avif 352w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/382/445/cover/attention/transparent/0/80.avif 382w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/387/451/cover/attention/transparent/0/80.avif 387w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/545/635/cover/attention/transparent/0/80.avif 545w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/562/655/cover/attention/transparent/0/80.avif 562w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/704/820/cover/attention/transparent/0/80.avif 704w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/764/890/cover/attention/transparent/0/80.avif 764w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/774/902/cover/attention/transparent/0/80.avif 774w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1090/1270/cover/attention/transparent/0/80.avif 1090w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif 1124w" fetchpriority="auto" class="rounded-lg bg-primary-100" style="object-fit: contain; content-visibility: auto; aspect-ratio: 575 / 670;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif">
       <h2 class="absolute right-0 bottom-12 grid w-full justify-center justify-items-start"><span class="m-auto block w-[70%] text-start text-3xl font-bold tracking-tight text-primary-50 sm:w-3/5 md:w-[66%] md:text-4xl lg:w-[76%] dark:text-primary-50">Τι είναι τα mAh</span></h2>
@@ -36,14 +36,14 @@ exports[`webside frozen render > blog post card mobile 1`] = `
 </li>"
 `;
 
-exports[`webside frozen render > cart button 1`] = `
+exports[`webside design render > cart button 1`] = `
 "<div data-slot="root" class="relative inline-flex items-center justify-center shrink-0"><a href="/cart" aria-label="Καλάθι" title="Καλάθι" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
     <!--v-if-->
     <!--v-if-->
   </a><span data-slot="base" class="rounded-full ring ring-bg flex items-center justify-center text-inverted font-medium whitespace-nowrap h-[16px] min-w-[16px] text-[14px] bg-success top-0 right-0 absolute -translate-y-1/2 translate-x-1/2 transform">0</span></div>"
 `;
 
-exports[`webside frozen render > default layout with the webside schema 1`] = `
+exports[`webside design render > default layout with the webside schema 1`] = `
 "<div class="relative"><a href="#main-content" class="sr-only z-50 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-(--ui-on-secondary) focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Μετάβαση στο κύριο περιεχόμενο</a>
   <!--v-if-->
   <header data-slot="root" class="sticky top-0 z-50 h-auto bg-default/75 backdrop-blur-sm">
@@ -189,14 +189,14 @@ exports[`webside frozen render > default layout with the webside schema 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > empty state 1`] = `
+exports[`webside design render > empty state 1`] = `
 "<div role="status" aria-live="polite" class="flex flex-col items-center justify-center gap-4 rounded-lg border border-primary-500 p-4 text-center text-primary-950 md:p-8 dark:border-primary-500 dark:text-primary-50">
   <div class="flex items-center gap-2 text-xl font-semibold"> Δεν υπάρχουν προϊόντα</div>
   <div class="text-sm">Δοκίμασε άλλα φίλτρα.</div>
 </div>"
 `;
 
-exports[`webside frozen render > error screen 404 1`] = `
+exports[`webside design render > error screen 404 1`] = `
 "<div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-gray-950 dark:via-gray-900 dark:to-primary-950">
   <div class="pointer-events-none mx-auto flex max-w-md items-center justify-center px-6 pt-10 sm:pt-16">
     <div class="relative flex size-48 items-center justify-center rounded-full bg-(--ui-color-primary-100) dark:bg-(--ui-color-primary-900)">
@@ -231,7 +231,7 @@ exports[`webside frozen render > error screen 404 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > error screen 500 1`] = `
+exports[`webside design render > error screen 500 1`] = `
 "<div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-gray-950 dark:via-gray-900 dark:to-primary-950">
   <div class="pointer-events-none absolute inset-0 overflow-hidden opacity-20">
     <div class="absolute size-72 animate-pulse rounded-full mix-blend-multiply blur-3xl motion-reduce:animate-none dark:mix-blend-lighten top-20 left-10 bg-primary-300
@@ -271,7 +271,7 @@ exports[`webside frozen render > error screen 500 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > footer desktop 1`] = `
+exports[`webside design render > footer desktop 1`] = `
 "<footer data-slot="root" class="mt-6 hidden border-t-2 border-primary-500 bg-primary-50 md:block dark:bg-primary-900">
   <div data-slot="top" class="py-8 lg:py-12">
     <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8">
@@ -329,7 +329,7 @@ exports[`webside frozen render > footer desktop 1`] = `
 </footer>"
 `;
 
-exports[`webside frozen render > footer mobile 1`] = `
+exports[`webside design render > footer mobile 1`] = `
 "<footer class="w-full bg-primary-50 md:pb-11 md:hidden dark:bg-primary-900">
   <div data-slot="root" class="w-full">
     <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-b border-default last:border-b-0">
@@ -374,7 +374,7 @@ exports[`webside frozen render > footer mobile 1`] = `
 </footer>"
 `;
 
-exports[`webside frozen render > header shell 1`] = `
+exports[`webside design render > header shell 1`] = `
 "<header data-slot="root" class="sticky top-0 z-50 h-auto bg-default/75 backdrop-blur-sm">
   <div data-slot="container" class="mx-auto flex h-full w-full max-w-full items-center justify-between gap-3 px-0">
     <div data-slot="center" class="flex w-full">
@@ -384,7 +384,7 @@ exports[`webside frozen render > header shell 1`] = `
 </header>"
 `;
 
-exports[`webside frozen render > login form 1`] = `
+exports[`webside design render > login form 1`] = `
 "<section class="relative grid">
   <!--v-if-->
   <form id="loginForm" method="post" class="z-10 container mx-auto px-4 !pt-12 !pb-6 md:!p-0">
@@ -451,7 +451,7 @@ exports[`webside frozen render > login form 1`] = `
 </section>"
 `;
 
-exports[`webside frozen render > mobile bottom nav 1`] = `
+exports[`webside design render > mobile bottom nav 1`] = `
 "<nav data-slot="root" aria-label="Mobile navigation" class="gap-1.5 [&amp;>div]:min-w-0 items-center justify-between fixed inset-x-0 bottom-0 z-50 block w-full border-t border-primary-200 bg-primary-50/90 backdrop-blur-md transition-transform duration-200 dark:border-primary-700 dark:bg-primary-900/90 translate-y-0" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
   <div style="position: relative;">
     <ul data-slot="list" class="isolate min-w-0 flex items-center w-full" data-orientation="horizontal">
@@ -495,7 +495,7 @@ exports[`webside frozen render > mobile bottom nav 1`] = `
 </nav>"
 `;
 
-exports[`webside frozen render > navbar 1`] = `
+exports[`webside design render > navbar 1`] = `
 "<div class="top-0 z-50 w-full flex-none backdrop-blur-md lg:z-50 bg-primary-100 dark:bg-primary-900">
   <div id="navbar-banner"></div>
   <div class="mx-auto w-full max-w-(--ui-container) px-4 sm:px-6 lg:px-8">
@@ -567,7 +567,7 @@ exports[`webside frozen render > navbar 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > newsletter confirmation 1`] = `
+exports[`webside design render > newsletter confirmation 1`] = `
 "<div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 relative mt-2 mb-16 md:mt-4 flex flex-col gap-6">
   <div class="font-display mt-2 text-2xl font-bold md:text-4xl">
     <h1 class="text-primary-950 dark:text-primary-50">Επιβεβαίωση εγγραφής</h1>
@@ -590,7 +590,7 @@ exports[`webside frozen render > newsletter confirmation 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > page breadcrumb 1`] = `
+exports[`webside design render > page breadcrumb 1`] = `
 "<nav aria-label="διαδρομή πλοήγησης" data-slot="root" class="text-xs md:text-base relative mb-5 min-w-0">
   <ol data-slot="list" class="flex items-center gap-1.5">
     <li data-slot="item" class="flex min-w-0 text-primary-950 dark:text-primary-50"><a href="/" data-slot="link" class="group relative flex items-center gap-1.5 text-sm min-w-0 rounded-md text-muted font-medium outline-primary/25 focus-visible:outline-3 hover:text-default transition-colors"><span class="iconify i-heroicons:home shrink-0 size-5" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Αρχική</span></a></li>
@@ -601,13 +601,13 @@ exports[`webside frozen render > page breadcrumb 1`] = `
 </nav>"
 `;
 
-exports[`webside frozen render > page title 1`] = `
+exports[`webside design render > page title 1`] = `
 "<div class="font-display mt-2 text-2xl font-bold md:text-4xl">
   <h1 class="text-primary-950 dark:text-primary-50">Προϊόντα</h1>
 </div>"
 `;
 
-exports[`webside frozen render > pagination page number 1`] = `
+exports[`webside design render > pagination page number 1`] = `
 "<nav data-slot="root" max="3">
   <div data-slot="list" class="flex items-center gap-1"><button type="button" data-slot="first" aria-label="Πρώτη σελίδα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-1.5"><span class="iconify i-lucide:chevrons-left shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span>
       <!--v-if-->
@@ -640,7 +640,7 @@ exports[`webside frozen render > pagination page number 1`] = `
 </nav>"
 `;
 
-exports[`webside frozen render > product card 1`] = `
+exports[`webside design render > product card 1`] = `
 "<li data-v-X="" data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default product-card group relative h-full w-full max-w-full transition-all duration-300 hover:shadow-xl hover:scale-[1.02] focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1">
   <!--v-if-->
   <div data-slot="body" class="p-0 sm:p-0">
@@ -678,7 +678,7 @@ exports[`webside frozen render > product card 1`] = `
 </li>"
 `;
 
-exports[`webside frozen render > product card skeleton 1`] = `
+exports[`webside design render > product card skeleton 1`] = `
 "<li data-v-X="" data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default relative h-full w-full max-w-full">
   <!--v-if-->
   <div data-slot="body" class="p-0 sm:p-0">
@@ -724,7 +724,7 @@ exports[`webside frozen render > product card skeleton 1`] = `
 </li>"
 `;
 
-exports[`webside frozen render > section blog_categories 1`] = `
+exports[`webside design render > section blog_categories 1`] = `
 "<div class="grid min-w-0 gap-2 md:flex w-full md:p-0!">
   <div role="region" aria-roledescription="καρουζέλ" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none overflow-hidden md:w-full" aria-label="Κατηγορίες">
     <div data-slot="viewport" class="overflow-hidden">
@@ -740,7 +740,7 @@ exports[`webside frozen render > section blog_categories 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > section blog_posts_list 1`] = `
+exports[`webside design render > section blog_posts_list 1`] = `
 "<div class="grid gap-4 w-full md:p-0!">
   <!--v-if-->
   <section class="flex gap-4 md:gap-8">
@@ -776,7 +776,7 @@ exports[`webside frozen render > section blog_posts_list 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > section hero_carousel 1`] = `
+exports[`webside design render > section hero_carousel 1`] = `
 "<div role="region" aria-roledescription="καρουζέλ" data-orientation="horizontal" tabindex="0" data-slot="root" class="relative focus:outline-none w-full md:p-0!" aria-label="Κύριο banner" indicators="">
   <div data-slot="viewport" class="overflow-hidden">
     <div data-slot="container" class="flex items-start flex-row -ms-4" style="transform: translate3d(0px,0px,0px);">
@@ -787,7 +787,7 @@ exports[`webside frozen render > section hero_carousel 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > section recently_viewed 1`] = `
+exports[`webside design render > section recently_viewed 1`] = `
 "<section aria-labelledby="recently-viewed-title" class="w-full max-w-full space-y-4 overflow-hidden w-full md:p-0!">
   <header class="flex items-center justify-between gap-3">
     <h2 id="recently-viewed-title" class="text-xl font-semibold text-primary-950 dark:text-primary-50">Είδες Πρόσφατα</h2>
@@ -807,7 +807,7 @@ exports[`webside frozen render > section recently_viewed 1`] = `
 </section>"
 `;
 
-exports[`webside frozen render > signed in > account addresses 1`] = `
+exports[`webside design render > signed in > account addresses 1`] = `
 "<div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 relative mt-2 mb-16 flex flex-col gap-6 md:mt-1 md:gap-8 md:p-0!">
   <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between gap-4">
@@ -843,7 +843,7 @@ exports[`webside frozen render > signed in > account addresses 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > signed in > account chrome 1`] = `
+exports[`webside design render > signed in > account chrome 1`] = `
 "<div class="relative"><a href="#main-content" class="sr-only z-50 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-(--ui-on-secondary) focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Μετάβαση στο κύριο περιεχόμενο</a>
   <!--v-if-->
   <header data-slot="root" class="sticky top-0 z-50 h-auto bg-default/75 backdrop-blur-sm">
@@ -1105,7 +1105,7 @@ exports[`webside frozen render > signed in > account chrome 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > signed in > account favourite products 1`] = `
+exports[`webside design render > signed in > account favourite products 1`] = `
 "<div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 relative mt-2 mb-16 flex flex-col gap-4 md:mt-1 md:gap-8 md:!p-0">
   <div class="font-display mt-2 text-2xl font-bold md:text-4xl md:mt-0">
     <h1 class="text-primary-950 dark:text-primary-50">Αγαπημένα Προϊόντα</h1>
@@ -1158,7 +1158,7 @@ exports[`webside frozen render > signed in > account favourite products 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > signed in > account orders 1`] = `
+exports[`webside design render > signed in > account orders 1`] = `
 "<div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 relative mt-2 mb-16 flex flex-col gap-4 md:mt-1 md:gap-8 md:!p-0">
   <div class="font-display mt-2 text-2xl font-bold md:text-4xl md:mt-0">
     <h1 class="text-primary-950 dark:text-primary-50">Παραγγελίες</h1>
@@ -1284,7 +1284,7 @@ exports[`webside frozen render > signed in > account orders 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > signed in > account overview 1`] = `
+exports[`webside design render > signed in > account overview 1`] = `
 "<div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 relative mt-2 mb-16 flex flex-col gap-4 md:mt-1 md:gap-8 md:p-0!">
   <div class="font-display mt-2 text-2xl font-bold md:text-4xl md:mt-0">
     <h1 class="text-primary-950 dark:text-primary-50">Λογαριασμός</h1>
@@ -1512,7 +1512,7 @@ exports[`webside frozen render > signed in > account overview 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > signed in > account settings 1`] = `
+exports[`webside design render > signed in > account settings 1`] = `
 "<div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 relative mt-2 mb-16 md:mt-4 flex flex-col gap-4 md:gap-8 md:p-0!">
   <div class="font-display mt-2 text-2xl font-bold md:text-4xl hidden">
     <h1 class="text-primary-950 dark:text-primary-50">Ρυθμίσεις</h1>
@@ -1782,7 +1782,7 @@ exports[`webside frozen render > signed in > account settings 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > signed in > re-authenticate 1`] = `
+exports[`webside design render > signed in > re-authenticate 1`] = `
 "<div class="flex min-h-[60vh] items-center justify-center px-4 py-12">
   <div data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default w-full max-w-lg">
     <div data-slot="header" class="p-4 sm:px-6">
@@ -1830,7 +1830,7 @@ exports[`webside frozen render > signed in > re-authenticate 1`] = `
 </div>"
 `;
 
-exports[`webside frozen render > signup form 1`] = `
+exports[`webside design render > signup form 1`] = `
 "<section class="relative grid">
   <!--v-if-->
   <form id="SignupForm" method="post" class="z-10 container mx-auto px-4 !pt-12 !pb-6 md:!p-0">

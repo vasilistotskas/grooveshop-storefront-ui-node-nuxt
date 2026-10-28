@@ -94,8 +94,8 @@ interface Guard { site: string, insideClientOnly: boolean }
 let guards: Guard[]
 
 beforeAll(() => {
-  // Frozen components resolve under their `Webside` prefix, as Nuxt
-  // registers them, so a prop hop inside the frozen tree is followed too.
+  // Webside components resolve under their `Webside` prefix, as Nuxt
+  // registers them, so a prop hop inside the webside design is followed too.
   const byName = componentsByName(vueFiles(COMPONENTS))
   const found = new Map<string, Guard>()
   const visited = new Set<string>()
@@ -153,7 +153,7 @@ describe('a client-only capability', () => {
       expect.stringMatching(/^components\/Product\/OfferRow\.vue:/),
       expect.stringMatching(/^components\/Storefront\/ProductDetail\.vue:/),
       // Reached through `<WebsideOffersCard :clipboard-supported>` inside
-      // the frozen tree, which only resolves under the Webside prefix.
+      // the webside design, which only resolves under the Webside prefix.
       expect.stringMatching(/^components\/variants\/webside\/Offers\/Card\.vue:/),
       expect.stringMatching(/^components\/variants\/webside\/Product\/OfferRow\.vue:/),
     ]))

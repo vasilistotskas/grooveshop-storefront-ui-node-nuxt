@@ -6,7 +6,7 @@
  *
  * The consent checkbox, bound to `accepted`, is drawn right before the
  * button that places the order: inside `Checkout/StepPayment.vue`,
- * whose page's Pay button sits under the step, and in the frozen webside
+ * whose page's Pay button sits under the step, and in the webside
  * checkout's sidebar, above its Place order button (that page gates, its
  * payment step only validates). The consent is the checkout form's
  * `termsAccepted`, which the order carries to Django.

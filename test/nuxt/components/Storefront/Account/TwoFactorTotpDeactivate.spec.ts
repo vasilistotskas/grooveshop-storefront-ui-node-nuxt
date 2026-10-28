@@ -11,7 +11,7 @@ import { trees } from '~~/test/helpers/trees'
 /**
  * Turning TOTP off: a card saying what it means, a confirmation tick that
  * unlocks the destructive button, Cancel back to the security page.
- * Mocked at `useAllAuthAccount`. The frozen copy differs in where it
+ * Mocked at `useAllAuthAccount`. The webside copy differs in where it
  * returns to (the settings page, not the security page), in the icon of
  * its toast and in Cancel, which it navigates with rather than links.
  */

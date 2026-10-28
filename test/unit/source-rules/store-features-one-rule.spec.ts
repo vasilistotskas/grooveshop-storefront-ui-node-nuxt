@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { FROZEN, REPO, readSource, withoutComments } from '../../helpers/sourceText'
+import { WEBSIDE_DESIGN, REPO, readSource, withoutComments } from '../../helpers/sourceText'
 
 /**
  * A store feature has ONE answer: `TenantConfig.features`, read through
@@ -11,8 +11,8 @@ import { FROZEN, REPO, readSource, withoutComments } from '../../helpers/sourceT
  * likewise: `TenantConfig.preferences`, read through `useStorePreference` /
  * `storePreferenceOn`.
  *
- * What this forbids, in both component trees (the frozen webside tree's
- * freeze covers its look, not its behaviour): reading either the old way
+ * What this forbids, in both designs (a design is presentation only, so
+ * its look is its own but its behaviour follows the platform): reading either the old way
  * — a `*_ENABLED` setting key out of the settings payload — or a tenant
  * plan flag (`loyaltyEnabled` and friends). Each one is a second answer
  * that can disagree with Django's, as webside's copies did when they
@@ -63,9 +63,9 @@ describe('store features and preferences are read from the tenant payload alone'
     expect(offenders.map(label)).toEqual([])
   })
 
-  it('covers the frozen webside tree (a canary, so the rule cannot skip it)', () => {
+  it('covers the webside tree (a canary, so the rule cannot skip it)', () => {
     const reads = files
-      .filter(file => file.startsWith(FROZEN))
+      .filter(file => file.startsWith(WEBSIDE_DESIGN))
       .reduce((sum, file) => sum + (text(file).match(/\b(useStoreFeature|useStorePreference)\(/g)?.length ?? 0), 0)
 
     expect(reads).toBeGreaterThan(25)

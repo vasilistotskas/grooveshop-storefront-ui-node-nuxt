@@ -12,8 +12,8 @@ import { APP, appLabel, callsIn, parseSfc, staticText, vueFiles } from '../../he
  * kept `useI18n()` would show the defaults whatever the store saved; a
  * namespace that is not the file's own path would read another
  * component's overrides, or none, and the store's editor would offer a
- * text that never appears. The frozen webside tree is covered like the
- * rest: with no overrides it renders as it did (`frozen-render.spec.ts`).
+ * text that never appears. The webside tree is covered like the
+ * rest: with no overrides it renders as it did (`design-render.spec.ts`).
  *
  * Read off the parsed scripts, so a comment or a string cannot trip it.
  */

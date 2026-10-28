@@ -8,8 +8,8 @@ import { makeProductSearchHit } from '~~/test/fixtures/productFilters'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
- * The default tree's card only: the frozen webside card is a different
- * component (447 lines of diff), pinned by its frozen-render snapshot.
+ * The default tree's card only: the webside card is a different
+ * component (447 lines of diff), pinned by its design-render snapshot.
  */
 
 // The card mounts the alerts dialog on its first open; its own spec

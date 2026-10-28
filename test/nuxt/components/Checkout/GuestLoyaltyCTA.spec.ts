@@ -13,7 +13,7 @@ import { trees } from '~~/test/helpers/trees'
  * A guest's nudge to sign up: "earn N points on this order", with
  * N = floor(cart total × points factor). Shown only when the store has
  * the loyalty feature, and only for a positive estimate. The trees share the logic; the default reads
- * as a line of copy, the frozen webside copy carries a "+N" badge.
+ * as a line of copy, the webside copy carries a "+N" badge.
  */
 const settings = createLoyaltySettingsMock(makeLoyaltySettings({ pointsFactor: 0.5 }))
 

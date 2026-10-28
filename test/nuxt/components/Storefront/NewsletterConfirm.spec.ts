@@ -12,7 +12,7 @@ import { trees } from '~~/test/helpers/trees'
  * The page a confirmation email links to. Opening it must confirm
  * NOTHING (mail scanners prefetch links); the button POSTs the token,
  * and each of Django's answers — 200, 410, 400 — is its own state. One
- * `useNewsletterConfirm` serves both trees; the frozen page words and
+ * `useNewsletterConfirm` serves both trees; the webside page words and
  * lays out its states its own way and moves no focus.
  */
 const TOKEN = 'a'.repeat(64)

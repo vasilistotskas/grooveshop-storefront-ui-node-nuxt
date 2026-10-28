@@ -144,7 +144,7 @@ export function countActiveFilters(filters: ProductFilters): number {
 
 /**
  * `countActiveFilters` plus the brand and availability filters, each
- * once: the count for the redesigned listing. The frozen webside listing
+ * once: the count for the redesigned listing. The webside listing
  * reads `countActiveFilters`, which a link carrying those filters must
  * not change.
  */

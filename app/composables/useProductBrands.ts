@@ -3,7 +3,7 @@
  * brand id) and the brand list that names those ids.
  *
  * Its own composable, not part of `useProductSearchData`, because the
- * frozen webside listing reads that one and has no brand filter: it must
+ * webside listing reads that one and has no brand filter: it must
  * not make these two requests. Only the redesigned listing calls this.
  */
 export function useProductBrands(scope: ProductSearchScope = {}) {

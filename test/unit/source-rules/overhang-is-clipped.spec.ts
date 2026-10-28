@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import {
   APP,
   COMPONENTS,
-  FROZEN,
+  WEBSIDE_DESIGN,
   appLabel,
   boundAttribute,
   classesOf,
@@ -41,12 +41,12 @@ import {
  * whoever mounts this component is free to change. A section that hangs
  * something outside its own box clips it itself.
  *
- * The frozen `variants/webside` tree is exempt: its overflow is the
- * render that store has today, and the freeze is byte-identical on
+ * The `variants/webside` tree is exempt: its overflow is the
+ * render that store has today, and its look changes only on
  * purpose. The live `variants/delta_sigma` trees are checked.
  */
 const FILES = [
-  ...vueFiles(COMPONENTS, { exclude: [FROZEN] }),
+  ...vueFiles(COMPONENTS, { exclude: [WEBSIDE_DESIGN] }),
   ...vueFiles(resolve(APP, 'layouts')),
 ]
 

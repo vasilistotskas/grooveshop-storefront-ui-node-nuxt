@@ -8,7 +8,7 @@ import { makeOrder } from '~~/test/fixtures/order'
 /**
  * The specimen receipt button on the order page: next to the real receipt
  * button, and only while Django says the order may have one
- * (`hasSpecimenReceipt`: a demo store, shipped onwards). The frozen
+ * (`hasSpecimenReceipt`: a demo store, shipped onwards). The webside
  * webside tree has none: webside is not a demo store.
  */
 const state = vi.hoisted(() => ({ order: null as unknown }))

@@ -21,8 +21,8 @@ import { failWith } from '~~/test/helpers/api'
  *
  * A signed-in shopper is linking an account (the default tree's Security
  * page offers "Connect"): the page finishes it and sends them back, told
- * whether the account is now theirs: to Security, or on a store frozen in
- * the previous design to its providers page.
+ * whether the account is now theirs: to Security, or on a store with its
+ * own design to its providers page.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -113,7 +113,7 @@ describe.each([
       expect(wrapper.find('[role="status"]').exists()).toBe(false)
     })
 
-    // The frozen copy once titled itself with a `?messages=` query no route
+    // The webside copy once titled itself with a `?messages=` query no route
     // sends: any link could put its own text in the heading.
     it('does not title the page with a message from the URL', async () => {
       api.routes({ [OAUTH_PARAMS]: { provider: 'google', client_id: 'cid', process: 'connect' } })

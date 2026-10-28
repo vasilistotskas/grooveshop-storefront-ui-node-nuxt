@@ -41,7 +41,7 @@ const TENANT_HOST = 'render-smoke.localhost'
  */
 const VARIANT_HOST = 'delta-sigma-smoke.localhost'
 const VARIANT_SCHEMA = 'delta_sigma'
-// Resolves to the `webside` schema, whose whole storefront is a frozen
+// Resolves to the `webside` schema, whose whole storefront is a webside
 // variant tree (app/components/variants/webside/).
 const WEBSIDE_HOST = 'webside-smoke.localhost'
 // A store that serves Greek only (`availableLocales: ['el']`), for the
@@ -451,7 +451,7 @@ export function describePageRenders(): void {
     // webside keeps today's storefront as its own variant tree
     // (app/components/variants/webside/). Every route must still render
     // through it; what it renders is pinned by
-    // test/nuxt/variants/webside/frozen-render.spec.ts.
+    // test/nuxt/variants/webside/design-render.spec.ts.
     it.each([
       ['/', 'el-GR'],
       ['/products', 'el-GR'],

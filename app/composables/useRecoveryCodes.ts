@@ -3,7 +3,7 @@ export type ToastInput = Parameters<ReturnType<typeof useToast>['add']>[0]
 
 /**
  * The Security-area page a shopper goes back to: the redesign's own page,
- * or the settings page of a store frozen in the previous design.
+ * or the settings page of a store with its own design.
  */
 export type SecurityRoute = 'account-security' | 'account-settings'
 

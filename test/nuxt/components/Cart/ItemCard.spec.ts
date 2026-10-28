@@ -15,7 +15,7 @@ import { setTenant } from '~~/test/helpers/tenant'
  * DELETE, so Undo can only add the same product and quantity back.
  *
  * The default card is the redesign's (brand, "2 × unit", a compact
- * drawer row; a cart line carries no prior price, so it strikes nothing); the frozen webside card keeps its
+ * drawer row; a cart line carries no prior price, so it strikes nothing); the webside card keeps its
  * own suite below, unchanged.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -126,7 +126,7 @@ describe('Cart/ItemCard (default)', () => {
   })
 })
 
-describe('Cart/ItemCard (frozen webside)', () => {
+describe('Cart/ItemCard (webside)', () => {
   const C = WebsideCartItemCard
 
   beforeEach(async () => {

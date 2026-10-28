@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import {
   APP,
-  FROZEN,
+  WEBSIDE_DESIGN,
   appLabel,
   boundAttribute,
   classesOf,
@@ -34,7 +34,7 @@ import type { AstNode } from '../../helpers/sourceText'
  * split over several lines is still one list, and a comment naming the
  * classes is not one at all.
  *
- * The frozen `variants/webside` tree is exempt — its render is pinned,
+ * The `variants/webside` tree is exempt — its render is pinned,
  * and a colour change there would be a redesign of a live store.
  */
 const DIMMED = /(?:^|[\s'"`:])text-dimmed(?:$|[\s'"`])/
@@ -53,7 +53,7 @@ function stringsIn(root: AstNode): string[] {
 let classLists: Array<{ site: string, classes: string }>
 
 beforeAll(() => {
-  classLists = vueFiles(APP, { exclude: [FROZEN] }).flatMap((file) => {
+  classLists = vueFiles(APP, { exclude: [WEBSIDE_DESIGN] }).flatMap((file) => {
     const lists: Array<{ site: string, classes: string }> = []
     walkElements(sfcTemplate(file), (node) => {
       const site = `${appLabel(file)}:${node.loc.start.line}`

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import {
   COMPONENTS,
-  FROZEN,
+  WEBSIDE_DESIGN,
   appLabel,
   boundAttribute,
   classesOf,
@@ -36,8 +36,8 @@ import type { AstNode, ElementNode } from '../../helpers/sourceText'
  * the call site. `ui.container` is read from the `:ui` binding itself,
  * inline or through the script constant (or `computed`) it names.
  *
- * The frozen `variants/webside` tree is exempt — its ragged edges are
- * the render that store has today and the freeze is byte-identical on
+ * The `variants/webside` tree is exempt — its ragged edges are
+ * the render that store has today, and its look changes only on
  * purpose. The live `variants/delta_sigma` trees are checked.
  */
 const H_FULL = /(?:^|[\s'"`:])h-full(?:$|[\s'"`])/
@@ -87,7 +87,7 @@ interface Carousel { site: string, fills: boolean, stretched: boolean }
 let carousels: Carousel[]
 
 beforeAll(() => {
-  const files = vueFiles(COMPONENTS, { exclude: [FROZEN] })
+  const files = vueFiles(COMPONENTS, { exclude: [WEBSIDE_DESIGN] })
   const byName = componentsByName(files)
   carousels = []
 

@@ -78,7 +78,7 @@ registerEndpoint('/api/products/15/variants', () => {
 const hasText = (text: string) => (card: DOMWrapper<Element>) => card.text().includes(text)
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
-/** The frozen copy, pinned as it renders on webside.gr. */
+/** The webside copy, pinned as it renders on webside.gr. */
 describe('webside Product/VariantSelector', () => {
   const C = WebsideProductVariantSelector
   // ImgWithFallback wraps NuxtImg, which recurses under happy-dom's

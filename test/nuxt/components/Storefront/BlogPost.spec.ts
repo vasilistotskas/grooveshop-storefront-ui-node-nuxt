@@ -187,7 +187,7 @@ describe.each([
 
 /**
  * The redesigned post page: breadcrumb, byline, the article with its
- * "On this page" list, and the posts to read next. The frozen webside
+ * "On this page" list, and the posts to read next. The webside
  * page has its own markup, so these run on the default tree only.
  */
 const BODY = '<p>Εισαγωγή</p><h2>Τι μετράει</h2><p>x</p><h3>Η τάση</h3><p>y</p><h2>Πόσο χρειάζεσαι</h2>'

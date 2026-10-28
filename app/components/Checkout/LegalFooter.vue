@@ -10,7 +10,7 @@
  * contact (`useMerchantIdentity`).
  *
  * Rendered by the default checkout body rather than `layouts/checkout`,
- * which the frozen webside checkout shares.
+ * which the webside checkout shares.
  */
 const { t } = useStoreI18n('components/Checkout/LegalFooter')
 const localePath = useLocalePath()

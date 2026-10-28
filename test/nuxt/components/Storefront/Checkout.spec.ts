@@ -287,7 +287,7 @@ describe('Checkout page (default)', () => {
   })
 })
 
-describe('Checkout stepper headers (frozen webside)', () => {
+describe('Checkout stepper headers (webside)', () => {
   async function mountOnStep(index: number) {
     state.step = index
     const stubs = Object.fromEntries(STEPS.map(name => [`Webside${name}`, StepStub(name)]))
@@ -352,7 +352,7 @@ describe('Checkout stepper headers (frozen webside)', () => {
  * right above that button: the page gates on it, then the payment step
  * validates its pay way (`useCheckoutPaymentSubmit`).
  */
-describe('Place order (frozen webside)', () => {
+describe('Place order (webside)', () => {
   /** The summary renders its slots, so the button and the consent show. */
   const SidebarStub = defineComponent({
     name: 'WebsideCheckoutSidebar',

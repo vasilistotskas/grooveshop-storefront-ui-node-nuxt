@@ -274,7 +274,7 @@ describe('resolveTenantFonts', () => {
     expect(resolveTenantFonts({ schemaName: 'demo', themePreset: 'default' }).sans).toBe('manrope')
   })
 
-  it('sets no face for the frozen webside or a request without a store', () => {
+  it('sets no face for webside or a request without a store', () => {
     expect(resolveTenantFonts({ schemaName: 'webside' })).toEqual({})
     expect(resolveTenantFonts({})).toEqual({})
   })
@@ -293,7 +293,7 @@ describe('buildTenantThemeCss faces', () => {
     expect(css).toContain('--font-display: ui-sans-serif, system-ui, sans-serif')
   })
 
-  it('emits nothing for the frozen webside', () => {
+  it('emits nothing for webside', () => {
     expect(buildTenantThemeCss({ schemaName: 'webside' }).css).toBe('')
   })
 })

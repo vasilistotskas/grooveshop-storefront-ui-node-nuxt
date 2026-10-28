@@ -20,7 +20,7 @@ import { trees } from '~~/test/helpers/trees'
  * `$api` and `useRequestApi` (the per-product points) and `$fetch` share
  * one `createApiMock`; the cart is the real
  * Pinia store. The two trees share the logic; the default prints a line
- * ("Θα κερδίσεις 24 πόντους"), the frozen webside copy a "+24" badge.
+ * ("Θα κερδίσεις 24 πόντους"), the webside copy a "+24" badge.
  */
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())

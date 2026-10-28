@@ -23,7 +23,7 @@ import { failWith } from '~~/test/helpers/api'
  * picker's list), so every request the widget makes is visible here.
  * The cart is the real Pinia store.
  *
- * The frozen webside copy differs only in rendering the prefixed
+ * The webside copy differs only in rendering the prefixed
  * `WebsideCheckoutCouponPicker`.
  */
 
@@ -69,7 +69,7 @@ function withCoupon(code: string, row: Partial<CouponRow> = {}, overrides: CartO
 }
 
 /**
- * The webside copy is the frozen alert; the default is the redesign's
+ * The webside copy is the webside alert; the default is the redesign's
  * soft-success row. They share the request contract, so one body runs
  * over both and the markup differences are named in `removeButton`.
  */
@@ -102,7 +102,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
 
   const toasts = () => useToast().toasts.value
 
-  // The frozen alert removes a code from its close button; the redesign
+  // The webside alert removes a code from its close button; the redesign
   // has a text button of its own.
   const removeButton = (wrapper: VueWrapper) => tree === 'webside'
     ? wrapper.find('[data-slot="close"]')

@@ -8,11 +8,11 @@ import { failWith } from '~~/test/helpers/api'
 import { inlineCopy } from '~~/test/helpers/inlineCopy'
 
 /**
- * The frozen account banner's inline username edit: the pencil turns the
+ * The webside account banner's inline username edit: the pencil turns the
  * name into an input, the tick saves it through `useChangeUsername` (the
  * request the settings form makes too), and Django's own words — its
  * confirmation, its refusal of a taken name — are what the shopper reads.
- * The banner exists in the frozen tree only.
+ * The banner exists in the webside design only.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)

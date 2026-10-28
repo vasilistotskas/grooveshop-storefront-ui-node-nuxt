@@ -9,7 +9,7 @@ import { COMPONENTS, callsIn, sfcTemplate, walkElements } from '../../helpers/so
  *
  * "Permanently accessible" and "prominent" is why the identity lives in
  * the footer — on every page — rather than on a single legal page. The
- * default footer is one component for every width; webside's frozen
+ * default footer is one component for every width; webside's
  * tree picks a desktop or a mobile footer by device, so a mobile
  * shopper who never sees its desktop footer is owed the same disclosure
  * and both are checked. No single render shows them all, so the
@@ -19,7 +19,7 @@ import { COMPONENTS, callsIn, sfcTemplate, walkElements } from '../../helpers/so
 describe('the merchant identity', () => {
   it.each([
     ['default', 'Chrome/Footer.vue', 'MerchantIdentity'],
-    // The frozen tree renders its own copy under the Webside prefix.
+    // The webside design renders its own copy under the Webside prefix.
     ['webside desktop', 'variants/webside/Footer/Desktop.vue', 'WebsideMerchantIdentity'],
     ['webside mobile', 'variants/webside/Footer/Mobile.vue', 'WebsideMerchantIdentity'],
   ])('is published by the %s footer', (_layout, file, tag) => {

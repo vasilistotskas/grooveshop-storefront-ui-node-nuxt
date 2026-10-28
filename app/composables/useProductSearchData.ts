@@ -25,7 +25,7 @@
 export interface ProductSearchScope {
   /**
    * Brands, in stock and on offer narrow every facet, as they narrow the
-   * listing. Absent for the frozen webside listing.
+   * listing. Absent for the webside listing.
    */
   listingFilters?: boolean
   /**
@@ -59,7 +59,7 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // The filters every facet shares. A facet's counts are what the OTHER
   // filters leave, so each facet query adds these to its own set, minus
   // the dimension it counts.
-  // Only for the redesigned listing (`scope.listingFilters`): the frozen
+  // Only for the redesigned listing (`scope.listingFilters`): the webside
   // webside listing has no such filters, so a URL carrying them must not
   // change its facet queries.
   const listingFilters = scope.listingFilters === true

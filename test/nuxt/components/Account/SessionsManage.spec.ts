@@ -16,7 +16,7 @@ import { trees } from '~~/test/helpers/trees'
  * system, this device marked, when it was last active (or signed in,
  * without activity tracking) — and signing out of any other one, or of
  * all the others at once (`useSessionsManage`, shared by both trees). The
- * session in use cannot be ended here. The tree frozen in the previous
+ * session in use cannot be ended here. The webside tree in the previous
  * design draws a table whose row menu signs a session out. Mocked at
  * `useAllAuthSessions`; the rows live in the real auth store.
  */
@@ -80,7 +80,7 @@ describe.each(trees(SessionsManage, WebsideSessionsManage))('$tree Account/Sessi
     return wrapper
   }
 
-  /** Sign the Safari session out: its row's button, or its row's menu in the frozen table. */
+  /** Sign the Safari session out: its row's button, or its row's menu in the webside table. */
   async function signOutPhone(wrapper: VueWrapper) {
     if (tree === 'default') await button(wrapper, 'Αποσύνδεση της συσκευής «Safari σε iOS»')!.trigger('click')
     else await pickFromRowMenu(sessionRows(wrapper).find(item => item.text().includes('Safari'))!, useNuxtApp().$i18n.t('logout'))
@@ -133,7 +133,7 @@ describe.each(trees(SessionsManage, WebsideSessionsManage))('$tree Account/Sessi
     const wrapper = await mountSessions()
 
     expect(sessionRows(wrapper)).toHaveLength(3)
-    // The frozen table greys the sign-out item of the session in use out.
+    // The webside table greys the sign-out item of the session in use out.
     await sessionRows(wrapper).find(item => item.text().includes('Chrome'))!.get('button[aria-haspopup="menu"]').trigger('keydown', { key: 'Enter' })
     await flushPromises()
     const items = [...document.body.querySelectorAll('[role="menuitem"]')]

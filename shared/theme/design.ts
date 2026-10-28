@@ -6,7 +6,7 @@
  * (emitted per request by `server/utils/themeTokens.ts`), and its
  * component theme is merged into the request's app config by
  * `app/plugins/design.ts` — never written into `app.config.ts` or the
- * `:root` tokens, because those are what the frozen webside tree renders
+ * `:root` tokens, because those are what the webside tree renders
  * with.
  *
  * Shared rather than app-only because the server needs the design too:
@@ -15,18 +15,18 @@
 export type StorefrontDesign = 'volt'
 
 /**
- * Tenants that keep the stylesheet and app config as they were before
- * the redesign: the ones frozen under `app/components/variants/<schema>/`.
+ * Tenants whose own design (`app/components/variants/<schema>/`) keeps the
+ * stylesheet and app config as they were before the Volt design existed.
  */
-const FROZEN_DESIGN_SCHEMAS = new Set(['webside'])
+const OWN_DESIGN_SCHEMAS = new Set(['webside'])
 
 /**
  * The design for `tenantSchema`, or `null` to leave the base stylesheet
- * and app config untouched — a frozen tenant, or a request that
+ * and app config untouched — a tenant with its own design, or a request that
  * resolved no tenant at all (the "store not found" page).
  */
 export function resolveDesign(tenantSchema?: string | null): StorefrontDesign | null {
-  if (!tenantSchema || FROZEN_DESIGN_SCHEMAS.has(tenantSchema)) return null
+  if (!tenantSchema || OWN_DESIGN_SCHEMAS.has(tenantSchema)) return null
   return 'volt'
 }
 

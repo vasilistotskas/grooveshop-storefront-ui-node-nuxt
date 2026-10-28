@@ -25,7 +25,7 @@ interface BottomNavOptions {
  * match would light Home on every page. The links themselves match
  * exactly, for the same reason, so `aria-current` lands on one tab.
  *
- * The frozen webside tab bar reads `useMobileNavItems`; this is the
+ * The webside tab bar reads `useMobileNavItems`; this is the
  * default tree's own.
  */
 export function useBottomNavItems(options: BottomNavOptions = {}) {

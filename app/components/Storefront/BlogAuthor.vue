@@ -195,7 +195,7 @@ const items = computed(() => [
 <style scoped>
 /* The bio is operator-authored rich text. Only what a bio holds is
    styled: paragraph rhythm and links. The shared `.article` prose class
-   belongs to the frozen tree and is not reused here. */
+   belongs to the webside design and is not reused here. */
 .author-bio :deep(p) {
   margin-block: 0.5rem;
 }

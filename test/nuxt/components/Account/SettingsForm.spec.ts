@@ -1,7 +1,7 @@
 import { failWith } from '~~/test/helpers/api'
 /**
  * Tests for Account/SettingsForm.vue — the profile form, over both trees
- * (`useSettingsForm`). The frozen webside form draws no username field and
+ * (`useSettingsForm`). The webside form draws no username field and
  * no photo, so those two groups are the default's.
  *
  * The saved phone is E.164 and is parsed back into the flag picker plus the

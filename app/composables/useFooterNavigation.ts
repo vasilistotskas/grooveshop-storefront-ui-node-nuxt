@@ -21,7 +21,7 @@
  * Published content pages the columns do not already link are added to
  * the secondary links, so no published document is left unreachable.
  *
- * The frozen webside footer reads `useFooterLinks`; this is the default
+ * The webside footer reads `useFooterLinks`; this is the default
  * tree's own.
  */
 export function useFooterNavigation() {

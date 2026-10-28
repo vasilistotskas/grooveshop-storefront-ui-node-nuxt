@@ -166,7 +166,7 @@ describe('useProductSearchData', () => {
     })
   })
 
-  // The frozen webside listing reads this composable and has no brand
+  // The webside listing reads this composable and has no brand
   // filter: it must make exactly the requests it made before the brand one.
   it('asks for no brand facet and no brand list', async () => {
     setup()

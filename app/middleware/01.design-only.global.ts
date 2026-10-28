@@ -1,8 +1,8 @@
 /**
  * Pages only the redesigned storefront has (`REDESIGN_ONLY_PAGES`, the
- * account's Security page): a store frozen in the previous design has
+ * account's Security page): a store with its own design has
  * no body for them and never links to them, so there they are not
- * found — rather than the redesigned body inside the frozen frame.
+ * found — rather than the redesigned body inside the webside frame.
  *
  * Global, and first (the `01.` prefix sorts it before every other
  * global middleware): `auth.global` would otherwise send a signed-out

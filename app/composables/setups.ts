@@ -486,7 +486,7 @@ export function setupCookieConsentTracking() {
   const tenantStore = useTenantStore()
 
   // The platform's banner is not drawn for a store with no optional
-  // service, so there is no impression to count. A frozen store keeps its
+  // service, so there is no impression to count. A webside store keeps its
   // own banner, which always asks.
   const bannerDrawn = () => !resolveDesign(tenantStore.schemaName) || tenantStore.hasOptionalServices
 

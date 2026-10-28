@@ -13,7 +13,7 @@ import type { FormSubmitEvent } from '#ui/types'
  * Self-gated like every loyalty surface: the store has the `loyalty`
  * feature, a ratio that redeems something,
  * and wholesale carts left out unless the merchant lets them in
- * (B2B_LOYALTY_ENABLED). The frozen webside tree
+ * (B2B_LOYALTY_ENABLED). The webside tree
  * keeps `Loyalty/Redemption`.
  */
 interface Redemption {

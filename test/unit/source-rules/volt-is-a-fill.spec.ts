@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { resolve } from 'node:path'
 import {
   APP,
-  FROZEN,
+  WEBSIDE_DESIGN,
   appLabel,
   boundAttribute,
   classesOf,
@@ -29,7 +29,7 @@ import type { AstNode } from '../../helpers/sourceText'
  *
  * A class list is one element's `class`/`:class`, or one string in a
  * `:ui` binding or the script — the same reading as
- * `dimmed-is-not-for-reading.spec.ts`. The frozen `variants/webside`
+ * `dimmed-is-not-for-reading.spec.ts`. The `variants/webside`
  * tree never had volt and is not read.
  */
 const TEXT_VOLT = /(?:^|[\s'"`:])text-volt(?:$|[\s'"`/])/
@@ -48,7 +48,7 @@ function stringsIn(root: AstNode): string[] {
 let classLists: Array<{ site: string, classes: string }>
 
 beforeAll(() => {
-  classLists = vueFiles(APP, { exclude: [FROZEN] }).flatMap((file) => {
+  classLists = vueFiles(APP, { exclude: [WEBSIDE_DESIGN] }).flatMap((file) => {
     const lists: Array<{ site: string, classes: string }> = []
     walkElements(sfcTemplate(file), (node) => {
       const site = `${appLabel(file)}:${node.loc.start.line}`

@@ -8,7 +8,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The categories rail. The default rail renders the categories its band
- * hands it — the band is the one fetcher of them. The frozen webside rail
+ * hands it — the band is the one fetcher of them. The webside rail
  * still fetches its own, inside a band hydrated when it scrolls into
  * view: after the app finished hydrating, when Nuxt's default
  * `getCachedData` no longer reads the server payload, so without

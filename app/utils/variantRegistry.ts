@@ -118,7 +118,7 @@ const chromeDefaults: Record<ChromeKey, Component> = {
 }
 
 // The redesign gathers the sign-in and two-step pages into one Security
-// page; their own routes, which the frozen webside tree still draws
+// page; their own routes, which webside's design still draws
 // apart, show it too.
 const securityPage = lazy(() => import('~/components/Storefront/Account/Security.vue'))
 
@@ -221,8 +221,8 @@ const variants: Record<string, Component> = {
   'page:blog@ekfyseosfyteias': lazy(() => import('~/components/variants/ekfyseosfyteias/Storefront/BlogIndex.vue')),
   'page:blog-post@ekfyseosfyteias': lazy(() => import('~/components/variants/ekfyseosfyteias/Storefront/BlogPost.vue')),
 
-  // webside: today's platform storefront, frozen byte-for-byte under
-  // app/components/variants/webside/ while the defaults are redesigned.
+  // webside: the first store with its own design, its templates under
+  // app/components/variants/webside/ (its look changes only on purpose).
   // Every page body and every piece of chrome — a key missing here
   // would hand webside the redesign (test/unit/app/utils/variantRegistry.spec.ts).
   'chrome:navbar@webside': lazy(() => import('~/components/variants/webside/Chrome/Navbar.vue')),
@@ -231,7 +231,7 @@ const variants: Record<string, Component> = {
   'chrome:checkout_header@webside': lazy(() => import('~/components/variants/webside/Chrome/CheckoutHeader.vue')),
   'chrome:account_shell@webside': lazy(() => import('~/components/variants/webside/Chrome/AccountShell.vue')),
   // The consent banner webside has always shown, at its old path: it is
-  // shared chrome that predates the freeze (`Cookie/*`).
+  // shared chrome that predates webside's own design (`Cookie/*`).
   'chrome:cookie_consent@webside': lazy(() => import('~/components/Cookie/Control.vue')),
   // Likewise the shopping assistant: the shared `Chat/*` widget.
   'chrome:assistant@webside': lazy(() => import('~/components/Chat/Widget.vue')),
@@ -275,9 +275,9 @@ const variants: Record<string, Component> = {
   'page:2fa-authenticate-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorWebauthn.vue')),
   'page:2fa-authenticate-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
   // The account area, the re-auth pages and the newsletter confirmation
-  // were frozen later than the rest, from the defaults webside rendered
-  // then. Where a default had already drifted from its first frozen copy,
-  // the version webside showed in these pages is frozen apart under
+  // joined webside's design later than the rest, from the defaults webside rendered
+  // then. Where a default had already drifted from its first webside copy,
+  // the version webside showed in these pages is kept apart under
   // `variants/webside/AccountArea/`.
   'page:newsletter-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/NewsletterConfirm.vue')),
   'page:account@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Overview.vue')),
@@ -316,10 +316,10 @@ const variants: Record<string, Component> = {
 }
 
 /**
- * Pages only the redesign has, by route name. A store drawn without a
- * design (frozen in the previous one) has no body for them and never
+ * Pages only the redesign has, by route name. A store with a
+ * design of its own (webside's) has no body for them and never
  * links to them, so `middleware/01.design-only.global.ts` answers 404
- * there rather than draw the redesigned body inside the frozen frame.
+ * there rather than draw the redesigned body inside the webside frame.
  */
 export const REDESIGN_ONLY_PAGES: ReadonlySet<PageKey> = new Set<PageKey>(['account-security'])
 
@@ -331,7 +331,7 @@ export const REDESIGN_ONLY_PAGES: ReadonlySet<PageKey> = new Set<PageKey>(['acco
  * a KIND of page and `middleware/design-layout.global.ts` resolves it
  * per request: the sign-in pages are drawn in the `auth-split` layout in
  * the Volt design, and keep the layout their page file names on a store
- * frozen in the previous design.
+ * with its own design.
  */
 export type LayoutKind = 'auth'
 
@@ -358,12 +358,12 @@ export function resolvePage(key: PageKey, tenantSchema?: string | null): Compone
  * Tenants whose page design is a STACK OF FULL-BLEED BANDS rather than
  * cards inside a container.
  *
- * ONLY THE FROZEN `webside` TREE STILL ASKS. The platform default is now
+ * ONLY THE `webside` DESIGN STILL ASKS. The platform default is now
  * a stack of bands itself — each section owns its width, its ground and
  * its own container (`PageSection/Band.vue`) — so for everything outside
  * `app/components/variants/webside/**` the answer is always "yes" and
  * the question is not worth asking. webside keeps the previous shell, a
- * `PageWrapper` with a gap between inset cards, and its frozen copies of
+ * `PageWrapper` with a gap between inset cards, and its webside copies of
  * the shell and the contact body read this to choose it.
  *
  * So: do not call this from new code, and do not add a schema to the

@@ -52,8 +52,8 @@ const trimmedText = (value: unknown): string =>
  * does not decide: an editorial carousel renders its first slide's
  * heading as the h1 (the later slides' as h2s), while an artwork-only
  * one — the flat `images` form, or slides without copy — renders no
- * heading at all, and the page has to keep its own. (The webside tree's
- * frozen carousel reads only the flat form, which is what webside's
+ * heading at all, and the page has to keep its own. (The webside
+ * carousel reads only the flat form, which is what webside's
  * home hero is seeded with — Django's `BRAND_HOME_HERO_PROPS`.)
  */
 export function heroCarouselHeading(props: unknown): string {

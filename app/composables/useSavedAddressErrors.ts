@@ -15,7 +15,7 @@ interface SavedAddressForm {
  * «Continue» then did nothing on screen (demo, 2026-10-16). The step
  * opens the picked address's fields first (``openFields`` is its
  * ``edit-address`` event), so every error lands under its input. Shared
- * by the default step and the frozen webside one. The errors themselves
+ * by the default step and the webside one. The errors themselves
  * come from ``formErrorsOf`` (``useApiFormErrors``), the one mapper from a
  * server failure to ``UForm`` errors.
  */

@@ -24,7 +24,7 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 
 ## Middleware
 
-- `01.design-only.global.ts` — Global, and first (the `01.` prefix sorts it before every other global middleware): 404s the redesign-only pages (`REDESIGN_ONLY_PAGES`) on a store frozen in the previous design
+- `01.design-only.global.ts` — Global, and first (the `01.` prefix sorts it before every other global middleware): 404s the redesign-only pages (`REDESIGN_ONLY_PAGES`) on a store with its own design
 - `auth.global.ts` — Global: redirects unauthenticated users from protected routes
 - `identity.global.ts` — Global: hydrates identity/session state
 - `design-layout.global.ts` — Global: the layout a tenant's design draws a kind of page in (`resolveLayout` in `variantRegistry.ts`); `setPageLayout` is how a middleware overrides the layout a page file fixed at build time
@@ -49,7 +49,7 @@ A failed `$api` call tells the shopper why, in the page's language, from Django'
 
 `cart` and `catalogue` are features like the rest, and **a store without one makes no request to its API**: Django answers 404 there, and the storefront must not ask (a refusal per page view is a `feature_gate:refused` that pages the team). Catalogue: product rails, hero product chips, the category and brand lists, the quick search, the store-wide suggestions, the saved-products list, the RSS products and the sitemap's product URLs. Cart: the cart store's every action (`stores/cart.ts`, whoever calls it: the setup plugin, a sign-in, a click, the assistant's cart token, a reorder), the cart-claim route, and the checkout page. Gate the request with `enabled: useStoreFeature('catalogue')` (`useApi` / `useLazyApi`), or skip the call in a store or composable; a page that only exists with the feature is gated by its route middleware instead.
 
-Store PREFERENCES are read the same way, from `TenantConfig.preferences`: `useStorePreference(name)` in a component, composable or route middleware, `storePreferenceOn(tenant, name)` where there is only a tenant or in a plugin, which runs before the tenant store is filled (`storePreferenceOn(useTenant().value, name)`; `shared/utils/storePreference.ts`). They are the presentation preferences only (`mobileBottomNav`, `stickyAddToCart`, `recentlyViewed`, `demoAccount`); `cart` and `catalogue` are features, not preferences. Synchronous, no request, no fallback. Both component trees read them this way, the frozen webside tree included; `test/unit/source-rules/store-features-one-rule.spec.ts` fails a feature or preference read from settings or a tenant plan flag anywhere. `shared/utils/gatedRoutes.ts` is the one table the sitemap and the menus read.
+Store PREFERENCES are read the same way, from `TenantConfig.preferences`: `useStorePreference(name)` in a component, composable or route middleware, `storePreferenceOn(tenant, name)` where there is only a tenant or in a plugin, which runs before the tenant store is filled (`storePreferenceOn(useTenant().value, name)`; `shared/utils/storePreference.ts`). They are the presentation preferences only (`mobileBottomNav`, `stickyAddToCart`, `recentlyViewed`, `demoAccount`); `cart` and `catalogue` are features, not preferences. Synchronous, no request, no fallback. Both component trees read them this way, the webside tree included; `test/unit/source-rules/store-features-one-rule.spec.ts` fails a feature or preference read from settings or a tenant plan flag anywhere. `shared/utils/gatedRoutes.ts` is the one table the sitemap and the menus read.
 
 (Page/layout transitions are disabled globally in `nuxt.config.ts` via `app.pageTransition: false` / `layoutTransition: false` — no middleware needed.)
 
@@ -83,22 +83,30 @@ a path known only at runtime (CMS/menu links, notification targets, breadcrumb
 `?query` and `#hash`. A bare `{ path }` would drop them, because vue-router
 keeps only the pathname of `path`.
 
-## The frozen `webside` tree
+## The `webside` design
 
-`app/components/variants/webside/**` is the storefront webside.gr renders
-**today**, frozen byte-for-byte while the platform defaults are redesigned. It is
-registered in `nuxt.config.ts` with the auto-import prefix `Webside`, so a frozen
-component that renders `<ProductCard>` would silently pick up the NEW default —
-inside that tree every reference to another frozen component carries the prefix
+Webside (tenant #1) is the first store with its own **design**: its own templates
+(markup, layout, styling) under `app/components/variants/webside/**`. Other stores
+may get a design of their own later. A design is a store's presentation layer and
+nothing more: **every platform feature, fix, piece of logic and admin tool must
+reach every design**, and a feature that works in the default templates but not in
+webside's is not done. What a design owns is its LOOK, and that look must not change
+by accident (a lint auto-fix, a shared refactor); changing it on purpose is normal
+work.
+
+The tree is registered in `nuxt.config.ts` with the auto-import prefix `Webside`, so a
+webside component that renders `<ProductCard>` would silently pick up the default
+card instead; inside that tree every reference to another webside component carries
+the prefix
 (`<WebsideProductCard>`, `<LazyWebsideSearchInput>`,
 `resolveComponent('WebsideBlogPostCardMobile')`). References to SHARED components
 (`Anchor`, `ImgWithFallback`, `TenantLogo`, `DynamicForm`, `Cookie*`, `Chat*`,
 `MobileOrTabletOnly`, `DesktopOnly`, `FormPhoneInput`, `FormCountryFlag`, `UserAvatar`,
 Stripe/Viva glue, the locker/map pickers, `U*`) stay unprefixed.
 
-The account area, the re-auth pages and the newsletter confirmation were frozen
-later than the rest. Where a default had drifted from its first frozen copy by
-then, the version those pages rendered is frozen apart under
+The account area, the re-auth pages and the newsletter confirmation joined it
+later than the rest. Where a default had drifted from its first webside copy by
+then, the version those pages rendered is kept apart under
 `variants/webside/AccountArea/` (`WebsideAccountAreaProductCard`,
 `WebsideAccountAreaPageWrapper`, …) — those copies are for those pages only.
 
@@ -116,15 +124,16 @@ day a webside file draws its own stars or a review component returns.
 
 Rules:
 
-- **The freeze covers its look, not its behaviour** (owner decision 2026-10-23).
-  Never restyle, translate or re-lay-out a file in that tree; its output is
-  pinned by `test/nuxt/variants/webside/frozen-render.spec.ts`, whose snapshots
-  were captured before the freeze. Its business logic follows the platform: a
+- **A design owns its look, not its behaviour** (owner decision 2026-10-23,
+  restated 2026-10-28). Never restyle, translate or re-lay-out a file in that
+  tree by accident; its output is pinned by
+  `test/nuxt/variants/webside/design-render.spec.ts`, whose snapshots change only
+  when its design is meant to change. Its business logic follows the platform: a
   fix to what a component does, which data it reads or which gate it applies
-  lands in both trees (one `trees()` spec body covers both), and the webside
-  render must stay byte-identical (`scripts/capture-ssr.mjs` +
+  lands in both trees (one `trees()` spec body covers both), and a render that
+  was not meant to change must stay byte-identical (`scripts/capture-ssr.mjs` +
   `scripts/diff-ssr.mjs` against the staging baselines).
-- **The frozen tree makes no request of its own.** Every fetch a webside
+- **The webside design makes no request of its own.** Every fetch a webside
   copy needs lives in the composable both trees use (the 2026-10 logic
   consolidation moved them all), so the default's fix reaches webside too;
   `test/unit/source-rules/webside-fetches-nothing.spec.ts` fails on any
@@ -142,7 +151,7 @@ Rules:
 ## Component Categories
 
 Components in `app/components/` organized by domain:
-- **Account** — Login/Signup forms, 2FA flows (TOTP, WebAuthn, recovery codes), email/password/sessions/providers management, settings, auth navigation; the account pages' PageHeader and the favourites tabs. The signed-in frame is `Chrome/AccountShell.vue` (band + sidebar, mounted by `default.vue` on account routes), its navigation `useAccountNavigation` (the frozen webside tree keeps `useAccountMenus`), its figures one BFF request (`server/api/user/account/summary.get.ts`)
+- **Account** — Login/Signup forms, 2FA flows (TOTP, WebAuthn, recovery codes), email/password/sessions/providers management, settings, auth navigation; the account pages' PageHeader and the favourites tabs. The signed-in frame is `Chrome/AccountShell.vue` (band + sidebar, mounted by `default.vue` on account routes), its navigation `useAccountNavigation` (the webside tree keeps `useAccountMenus`), its figures one BFF request (`server/api/user/account/summary.get.ts`)
 - **Blog** — Post lists/carousels, comments (with likes), categories, tags, content renderer
 - **Cart** — Cart button (with item count), item cards
 - **Checkout** — Items list

@@ -2,10 +2,10 @@ import type { Component } from 'vue'
 
 /**
  * The two component trees a storefront renders: the platform defaults
- * under `app/components/**`, and the frozen webside.gr tree under
+ * under `app/components/**`, and the webside.gr tree under
  * `app/components/variants/webside/**`, auto-imported with the `Webside`
- * prefix (`nuxt.config.ts`; `.claude/rules/ui-and-pages.md`, "The frozen
- * `webside` tree").
+ * prefix (`nuxt.config.ts`; `.claude/rules/ui-and-pages.md`, "The `webside`
+ * design").
  */
 export type Tree = 'default' | 'webside'
 
@@ -19,7 +19,7 @@ export interface TreeImpl {
    */
   C: Component
   /**
-   * The auto-import prefix of this tree's OWN components: a frozen
+   * The auto-import prefix of this tree's OWN components: a webside
    * component renders `<WebsideCheckoutSelectedBoxNowLocker>` where the
    * default renders `<CheckoutSelectedBoxNowLocker>`. Shared components
    * (`U*`, `ImgWithFallback`, the locker pickers, …) carry no prefix in

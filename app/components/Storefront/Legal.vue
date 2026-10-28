@@ -141,7 +141,7 @@ useHead({
 
 <style scoped>
 /* The document's own prose, not `.article`: that class is the CMS pages'
-   and the frozen webside store's, and a change there reaches both. */
+   and the webside store's, and a change there reaches both. */
 .legal-prose {
   color: var(--ui-text-toned);
   font-size: 1.0625rem;
