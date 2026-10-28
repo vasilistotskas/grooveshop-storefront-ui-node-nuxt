@@ -114,184 +114,153 @@ const actionItems = (row: { id: number, name: string, type: string, created_at: 
 
   return items.length ? [items] : []
 }
-
-watchEffect(async () => {
-  if (!keys.value.length && !loading.value) {
-    await navigateTo(localePath('account-2fa'))
-  }
-})
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-      lg:flex
-    "
+  <WebsideAccountAreaSection
+    :title="t('webauthn.info.title')"
+    :description="t('webauthn.info.description')"
+    icon="i-heroicons-key"
   >
-    <slot />
-    <div class="w-full space-y-6">
-      <UCard>
-        <UAlert
-          color="info"
-          variant="soft"
+    <template #actions>
+      <UButton
+        :label="t('add.title')"
+        :to="localePath('account-2fa-webauthn-add')"
+        icon="i-heroicons-plus"
+        color="neutral"
+      />
+    </template>
+    <UTable
+      :columns="columns"
+      :data="rows"
+      :loading="loading"
+    >
+      <template #empty>
+        <UEmpty
           icon="i-heroicons-key"
-          :title="t('webauthn.info.title')"
-          :description="t('webauthn.info.description')"
+          :title="t('empty.title')"
+          :description="t('empty.description')"
+          variant="naked"
         />
-
-        <section
-          class="
-            grid gap-4
-            md:gap-8
-          "
-        >
-          <UTable
-            :columns="columns"
-            :data="rows"
-            :loading="loading"
+      </template>
+      <template #name-cell="{ row }">
+        <div class="flex items-center gap-2">
+          <form
+            v-if="editId === row.original.id"
+            class="flex items-center gap-2"
+            @submit.prevent="() => onSave(row.original.id)"
           >
-            <template #empty>
-              <UEmpty
-                icon="i-heroicons-key"
-                :title="t('empty.title')"
-                :description="t('empty.description')"
-                variant="naked"
-              />
-            </template>
-            <template #name-cell="{ row }">
-              <div class="flex items-center gap-2">
-                <form
-                  v-if="editId === row.original.id"
-                  class="flex items-center gap-2"
-                  @submit.prevent="() => onSave(row.original.id)"
-                >
-                  <UInput
-                    v-model="draftName"
-                    :aria-label="t('rename_label')"
-                    size="sm"
-                    color="neutral"
-                    autofocus
-                    @keydown.esc="cancelRename"
-                  />
-                  <UButton
-                    :label="t('save')"
-                    :loading="loading"
-                    :disabled="!draftName.trim()"
-                    type="submit"
-                    color="neutral"
-                    size="sm"
-                  />
-                  <UButton
-                    :label="t('cancel')"
-                    color="neutral"
-                    variant="ghost"
-                    size="sm"
-                    @click="cancelRename"
-                  />
-                </form>
-                <span v-else>{{ row.original.name || t('unnamed_key') }}</span>
-                <UBadge
-                  v-if="row.original.is_passwordless"
-                  color="secondary"
-                  variant="soft"
-                  :label="t('passwordless')"
-                />
-              </div>
-            </template>
-            <template #type-cell="{ row }">
-              <UBadge
-                :color="getTypeColor(row.original.type)"
-                variant="subtle"
-              >
-                {{ getTypeLabel(row.original.type) }}
-              </UBadge>
-            </template>
-            <template #created_at-cell="{ row }">
-              <span class="text-sm text-muted">
-                <NuxtTime
-                  :datetime="new Date(row.original.created_at * 1000)"
-                  :locale="locale"
-                  date-style="medium"
-                  time-style="short"
-                />
-              </span>
-            </template>
-            <template #last_used_at-cell="{ row }">
-              <span class="text-sm">
-                <UBadge
-                  v-if="!row.original.last_used_at"
-                  color="neutral"
-                  variant="soft"
-                >
-                  {{ t('unused') }}
-                </UBadge>
-                <span v-else class="text-muted">
-                  <NuxtTime
-                    :datetime="new Date(row.original.last_used_at * 1000)"
-                    :locale="locale"
-                    date-style="medium"
-                    time-style="short"
-                  />
-                </span>
-              </span>
-            </template>
-            <template #actions-cell="{ row }">
-              <UTooltip :text="t('actions')">
-                <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
-                   `useForwardExpose` reads `t.value.$el.nodeName` after
-                   checking only that `$el` EXISTS as a key, and a Lazy
-                   component's `$el` is null until it loads — so every
-                   row threw "Cannot read properties of null (reading
-                   'nodeName')" and the page hydrated with mismatches.
-                   The lazy wrapper bought nothing either: the navbar
-                   renders UDropdownMenu eagerly on every page. -->
-                <UDropdownMenu
-                  v-if="actionItems({
-                    id: row.original.id,
-                    name: row.original.name ?? '',
-                    type: row.original.type,
-                    created_at: row.original.created_at,
-                    last_used_at: row.original.last_used_at ?? null,
-                  }).length > 0"
-                  :items="actionItems({
-                    id: row.original.id,
-                    name: row.original.name ?? '',
-                    type: row.original.type,
-                    created_at: row.original.created_at,
-                    last_used_at: row.original.last_used_at ?? null,
-                  })"
-                >
-                  <UButton
-                    color="neutral"
-                    icon="i-heroicons-ellipsis-horizontal-20-solid"
-                    variant="ghost"
-                    size="sm"
-                  />
-                </UDropdownMenu>
-              </UTooltip>
-            </template>
-          </UTable>
-        </section>
-
-        <template #footer>
-          <div class="flex items-center justify-between pt-2">
-            <span class="text-sm text-muted">
-              {{ t('total') }}: {{ t('total_keys', { count: rows.length }) }}
-            </span>
-            <UButton
-              :label="t('add.title')"
-              :to="localePath('account-2fa-webauthn-add')"
-              icon="i-heroicons-plus"
+            <UInput
+              v-model="draftName"
+              :aria-label="t('rename_label')"
+              size="sm"
               color="neutral"
-              size="md"
-              type="button"
+              autofocus
+              @keydown.esc="cancelRename"
             />
-          </div>
-        </template>
-      </UCard>
-    </div>
-  </div>
+            <UButton
+              :label="t('save')"
+              :loading="loading"
+              :disabled="!draftName.trim()"
+              type="submit"
+              color="neutral"
+              size="sm"
+            />
+            <UButton
+              :label="t('cancel')"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              @click="cancelRename"
+            />
+          </form>
+          <span v-else>{{ row.original.name || t('unnamed_key') }}</span>
+          <UBadge
+            v-if="row.original.is_passwordless"
+            color="secondary"
+            variant="soft"
+            :label="t('passwordless')"
+          />
+        </div>
+      </template>
+      <template #type-cell="{ row }">
+        <UBadge
+          :color="getTypeColor(row.original.type)"
+          variant="subtle"
+        >
+          {{ getTypeLabel(row.original.type) }}
+        </UBadge>
+      </template>
+      <template #created_at-cell="{ row }">
+        <span class="text-sm text-muted">
+          <NuxtTime
+            :datetime="new Date(row.original.created_at * 1000)"
+            :locale="locale"
+            date-style="medium"
+            time-style="short"
+          />
+        </span>
+      </template>
+      <template #last_used_at-cell="{ row }">
+        <span class="text-sm">
+          <UBadge
+            v-if="!row.original.last_used_at"
+            color="neutral"
+            variant="soft"
+          >
+            {{ t('unused') }}
+          </UBadge>
+          <span v-else class="text-muted">
+            <NuxtTime
+              :datetime="new Date(row.original.last_used_at * 1000)"
+              :locale="locale"
+              date-style="medium"
+              time-style="short"
+            />
+          </span>
+        </span>
+      </template>
+      <template #actions-cell="{ row }">
+        <UTooltip :text="t('actions')">
+          <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
+             `useForwardExpose` reads `t.value.$el.nodeName` after
+             checking only that `$el` EXISTS as a key, and a Lazy
+             component's `$el` is null until it loads — so every
+             row threw "Cannot read properties of null (reading
+             'nodeName')" and the page hydrated with mismatches.
+             The lazy wrapper bought nothing either: the navbar
+             renders UDropdownMenu eagerly on every page. -->
+          <UDropdownMenu
+            v-if="actionItems({
+              id: row.original.id,
+              name: row.original.name ?? '',
+              type: row.original.type,
+              created_at: row.original.created_at,
+              last_used_at: row.original.last_used_at ?? null,
+            }).length > 0"
+            :items="actionItems({
+              id: row.original.id,
+              name: row.original.name ?? '',
+              type: row.original.type,
+              created_at: row.original.created_at,
+              last_used_at: row.original.last_used_at ?? null,
+            })"
+          >
+            <UButton
+              color="neutral"
+              icon="i-heroicons-ellipsis-horizontal-20-solid"
+              variant="ghost"
+              size="sm"
+            />
+          </UDropdownMenu>
+        </UTooltip>
+      </template>
+    </UTable>
+
+    <span class="block text-sm text-muted">
+      {{ t('total') }}: {{ t('total_keys', { count: rows.length }) }}
+    </span>
+  </WebsideAccountAreaSection>
 </template>
 
 <i18n lang="yaml">

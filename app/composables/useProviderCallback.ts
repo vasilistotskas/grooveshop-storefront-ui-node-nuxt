@@ -17,10 +17,9 @@ export type ConnectOutcome = 'done' | 'taken' | 'cancelled' | 'failed'
  * a link with the same session whether it linked the account or refused it
  * as another shopper's, and the auth chain sees no change to act on, so
  * the page reads the shopper's linked accounts back, says which it was
- * (`outcome`) and returns them to `returnRoute` either way.
+ * (`outcome`) and returns them to the Security page either way.
  */
 export function useProviderCallback(options: {
-  returnRoute: Parameters<ReturnType<typeof useLocalePath>>[0]
   outcome: (outcome: ConnectOutcome) => string
 }) {
   const { providerToken } = useAllAuthAuthentication()
@@ -48,7 +47,7 @@ export function useProviderCallback(options: {
 
   async function returnToAccount(outcome: ConnectOutcome) {
     toast.add({ title: options.outcome(outcome), color: outcome === 'done' ? 'success' : 'error' })
-    await navigateTo(localePath(options.returnRoute), { replace: true })
+    await navigateTo(localePath('account-security'), { replace: true })
   }
 
   onMounted(async () => {

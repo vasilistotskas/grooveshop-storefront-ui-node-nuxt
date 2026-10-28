@@ -5,7 +5,7 @@ import * as z from 'zod'
  * Turning the authenticator app on: allauth's secret and its QR code
  * (`GET authenticators/totp/svg`, which allauth answers with a 404 that
  * carries the secret while no app is set up: `ManageTOTPView.get`,
- * `headless/mfa/views.py`; the shopper goes back to `settledRoute` when the
+ * `headless/mfa/views.py`; the shopper goes back to the Security page when the
  * request fails), the six digits typed from the app, and the activation.
  * `messages` is each drawing's own wording.
  *
@@ -18,7 +18,6 @@ import * as z from 'zod'
  * is linked.
  */
 export async function useTotpActivation(options: {
-  settledRoute: SecurityRoute
   messages: {
     codeLength: () => string
     codeNumeric: () => string
@@ -54,7 +53,7 @@ export async function useTotpActivation(options: {
 
   watchEffect(async () => {
     if (error.value) {
-      await navigateTo(localePath(options.settledRoute))
+      await navigateTo(localePath('account-security'))
     }
   })
 
@@ -91,7 +90,7 @@ export async function useTotpActivation(options: {
       loading.value = true
       await activateTotp({ code: codeString })
       toast.add(options.messages.activated())
-      await navigateTo(localePath(options.settledRoute))
+      await navigateTo(localePath('account-security'))
       return true
     }
     catch (failure) {

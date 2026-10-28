@@ -8,7 +8,6 @@
  * can announce it. Awaited in `<script setup>`.
  */
 export async function useRecoveryCodesRegeneration(options: {
-  securityRoute: SecurityRoute
   /** The success toast, in the drawing's own words. */
   generated: () => ToastInput
 }) {
@@ -16,7 +15,7 @@ export async function useRecoveryCodesRegeneration(options: {
   const toast = useToast()
   const localePath = useLocalePath()
 
-  const { unused } = await useRecoveryCodeSet(options.securityRoute)
+  const { unused } = await useRecoveryCodeSet()
 
   const confirmed = ref(false)
   const loading = ref(false)

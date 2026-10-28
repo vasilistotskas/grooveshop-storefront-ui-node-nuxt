@@ -4,7 +4,6 @@ const emit = defineEmits(['activateTotp'])
 const { t } = useStoreI18n('components/variants/webside/Account/2Fa/Totp/ActivateForm')
 
 const { status, totpSecret, totpSvg, code, loading, isCodeComplete, copySecret: onSecretClick, activate } = await useTotpActivation({
-  settledRoute: 'account-settings',
   messages: {
     codeLength: () => t('error.code_length'),
     codeNumeric: () => t('error.code_numeric'),

@@ -21,8 +21,7 @@ import { failWith } from '~~/test/helpers/api'
  *
  * A signed-in shopper is linking an account (the default tree's Security
  * page offers "Connect"): the page finishes it and sends them back, told
- * whether the account is now theirs: to Security, or on a store with its
- * own design to its providers page.
+ * whether the account is now theirs: to Security, in both designs.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -173,7 +172,7 @@ describe.each([
   })
 
   describe('linking an account, signed in', () => {
-    const SECURITY = tree === 'default' ? '/account/security' : '/account/providers'
+    const SECURITY = '/account/security'
 
     beforeEach(() => {
       session.loggedIn = true

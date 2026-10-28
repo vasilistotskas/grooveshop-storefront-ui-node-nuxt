@@ -5,11 +5,11 @@
  * addresses, the signed-in devices and the connected social accounts —
  * each a section that changes itself in place or opens its own page.
  *
- * Only the redesign has it (`REDESIGN_ONLY_PAGES`): the webside
- * webside tree keeps those pages apart, behind its own settings menu.
- * Here their routes (email, devices, connected accounts, two-step,
- * passkeys) show this page too (`variantRegistry`), and each section
- * carries an id a link can jump to.
+ * The routes of those sections (email, devices, connected accounts,
+ * two-step, passkeys) show this page too (`variantRegistry`), and each
+ * section carries an id a link can jump to. Webside draws the same page
+ * in its own design (`variants/webside/Storefront/Account/Security.vue`)
+ * over the same `useAccountSecurity` reading.
  *
  * The second factors are read on the server too, so the page renders
  * them rather than "Off" until the app's idle refresh lands; a failed
@@ -18,24 +18,12 @@
 const { t, locale } = useStoreI18n('components/Storefront/Account/Security')
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
-const authStore = useAuthStore()
-const { config, authenticators, totpAuthenticator, hasCurrentPassword } = storeToRefs(authStore)
+const { supportedFactors, supports, authenticators, activeFactors, hasCurrentPassword, load } = useAccountSecurity()
 
-await authStore.setupAuthenticators()
-
-const supportedFactors = computed(() => config.value?.mfa?.supported_types ?? [])
-
-const activeFactors = computed(() => {
-  const active: string[] = []
-  if (totpAuthenticator.value) active.push(t('two_step.factors.totp'))
-  if (authenticators.value?.some(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN)) {
-    active.push(t('two_step.factors.webauthn'))
-  }
-  return active
-})
+await load()
 
 const twoStepSummary = computed(() => activeFactors.value.length
-  ? t('two_step.on', { factors: new Intl.ListFormat(locale.value, { type: 'conjunction' }).format(activeFactors.value) })
+  ? t('two_step.on', { factors: new Intl.ListFormat(locale.value, { type: 'conjunction' }).format(activeFactors.value.map(factor => t(`two_step.factors.${factor}`))) })
   : t('two_step.off'))
 </script>
 
@@ -50,7 +38,7 @@ const twoStepSummary = computed(() => activeFactors.value.length
       <AccountLoadError
         v-if="!authenticators"
         :message="t('two_step.load_error')"
-        @retry="() => authStore.setupAuthenticators()"
+        @retry="() => load()"
       />
       <template v-else>
         <AccountSection
@@ -61,7 +49,7 @@ const twoStepSummary = computed(() => activeFactors.value.length
           <AccountSecurityTwoStep />
         </AccountSection>
         <Account2FaWebAuthnList
-          v-if="supportedFactors.includes('webauthn')"
+          v-if="supports('webauthn')"
           id="passkeys"
         />
       </template>

@@ -11,7 +11,6 @@ const {
   confirmed,
   generate,
 } = await useRecoveryCodesRegeneration({
-  securityRoute: 'account-settings',
   generated: () => ({
     title: t('toast.success.title'),
     description: t('toast.success.description'),

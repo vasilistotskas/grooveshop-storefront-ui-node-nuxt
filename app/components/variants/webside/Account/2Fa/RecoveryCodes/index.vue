@@ -13,7 +13,6 @@ const {
   download: downloadCodes,
   print: printCodes,
 } = await useRecoveryCodes({
-  securityRoute: 'account-settings',
   toasts: {
     copiedAll: () => ({
       title: t('toast.copy_all.title'),
@@ -110,6 +109,15 @@ const lastUsedDateMs = computed(() => (last_used_at.value ? last_used_at.value *
         </template>
 
         <div class="space-y-6">
+          <UAlert
+            v-if="recoveryCodesRunningLow(unused_code_count)"
+            :title="t('low.title', unused_code_count)"
+            :description="t('low.description')"
+            icon="i-heroicons-exclamation-triangle"
+            color="warning"
+            variant="soft"
+          />
+
           <div>
             <div class="mb-2 flex items-center justify-between text-sm">
               <span
@@ -339,6 +347,9 @@ const lastUsedDateMs = computed(() => (last_used_at.value ? last_used_at.value *
 
 <i18n lang="yaml">
 el:
+  low:
+    title: "Δεν απομένει κανένας κωδικός | Απομένει μόνο {n} κωδικός | Απομένουν μόνο {n} κωδικοί"
+    description: Δημιούργησε νέους πριν τελειώσουν, για να μη χάσεις την πρόσβαση στον λογαριασμό σου.
   title: Κωδικοί Ανάκτησης
   subtitle: Χρησιμοποίησε αυτούς τους κωδικούς σαν backup
   progress:
@@ -374,6 +385,9 @@ el:
     download:
       title: Οι κωδικοί έχουν ληφθεί
 en:
+  low:
+    title: "No codes left | Only {n} code left | Only {n} codes left"
+    description: Make new ones before they run out, so you never lose access to your account.
   title: Recovery Codes
   subtitle: Use these codes as a backup
   progress:

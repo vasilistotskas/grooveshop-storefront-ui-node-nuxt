@@ -12,7 +12,6 @@ const localePath = useLocalePath()
 const showConfirmation = ref(false)
 
 const { loading, deactivate } = await useTotpDeactivation({
-  settledRoute: 'account-settings',
   messages: {
     deactivated: () => ({
       title: t('success.title'),
@@ -29,7 +28,7 @@ async function onConfirm() {
 }
 
 function onCancel() {
-  navigateTo(localePath('account-settings'))
+  navigateTo(localePath('account-security'))
 }
 </script>
 

@@ -12,9 +12,8 @@ import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
  * Generating a new set of recovery codes cancels every code the shopper
  * still has, so with codes left the button waits for an explicit
  * confirmation (`useRecoveryCodesRegeneration`, shared by both trees). A
- * shopper without two-step verification goes back to the Security page;
- * the webside tree has none and goes to its
- * settings. Mocked at `useAllAuthAccount`.
+ * shopper without two-step verification goes back to the Security page.
+ * Mocked at `useAllAuthAccount`.
  */
 const { getRecoveryCodes, generateRecoveryCodes, navigateToMock, toastAdd } = vi.hoisted(() => ({
   getRecoveryCodes: vi.fn(),
@@ -44,7 +43,7 @@ const COPY = {
 
 describe.each(trees(Generate, WebsideGenerate))('$tree Account/2Fa/RecoveryCodes/Generate', ({ tree, C }) => {
   const copyOf = COPY[tree]
-  const SECURITY = tree === 'default' ? 'account-security' : 'account-settings'
+  const SECURITY = 'account-security'
 
   async function mountGenerate() {
     const wrapper = await mountSuspended(C, { route: false })

@@ -12,9 +12,9 @@ import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
  * Turning on TOTP: allauth hands back a secret and a QR code SVG (as a
  * 404 meta, before activation), the shopper confirms one code from their
  * app. The SVG is rendered with `v-html`, so it goes through DOMPurify
- * (`useTotpActivation`, shared by both trees). The webside tree in the
- * design has no Security page and goes to its settings; it also
- * shows the secret as one string, where the default groups it. Mocked at
+ * (`useTotpActivation`, shared by both trees); both go back to the Security
+ * page. The webside tree shows the secret as one string, where the default
+ * groups it. Mocked at
  * `useAllAuthAccount`.
  */
 const { totpAuthenticatorStatus, activateTotp, navigateToMock, toastAdd, copy } = vi.hoisted(() => ({
@@ -49,7 +49,7 @@ async function enterCode(wrapper: VueWrapper, digits: number[]) {
 }
 
 describe.each(trees(ActivateForm, WebsideActivateForm))('$tree Account/2Fa/Totp/ActivateForm', ({ tree, C }) => {
-  const SETTLED = tree === 'default' ? 'account-security' : 'account-settings'
+  const SETTLED = 'account-security'
 
   async function mountForm() {
     const wrapper = await mountSuspended(C, { route: false })
@@ -87,7 +87,7 @@ describe.each(trees(ActivateForm, WebsideActivateForm))('$tree Account/2Fa/Totp/
     expect(toastAdd).toHaveBeenCalledWith({ title: 'Αντιγράφηκε στο πρόχειρο', color: 'success' })
   })
 
-  it('activates TOTP with the code from the app, then returns to the settings', async () => {
+  it('activates TOTP with the code from the app, then returns to the Security page', async () => {
     const wrapper = await mountForm()
 
     await enterCode(wrapper, [1, 2, 3, 4, 5, 6])
@@ -150,7 +150,7 @@ describe.each(trees(ActivateForm, WebsideActivateForm))('$tree Account/2Fa/Totp/
     expect(wrapper.emitted('activateTotp')).toBeUndefined()
   })
 
-  it('sends the shopper back to the settings when the setup cannot be loaded', async () => {
+  it('sends the shopper back to the Security page when the setup cannot be loaded', async () => {
     totpAuthenticatorStatus.mockRejectedValue(new Error('Bad Gateway'))
 
     await mountForm()

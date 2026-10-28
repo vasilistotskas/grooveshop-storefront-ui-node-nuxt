@@ -11,17 +11,7 @@
  */
 const { t, locale } = useStoreI18n('components/Account/Security/TwoStep')
 const localePath = useLocalePath()
-const authStore = useAuthStore()
-const { config, totpAuthenticator, recoveryCodesAuthenticator, authenticators } = storeToRefs(authStore)
-
-const supports = (type: 'totp' | 'webauthn' | 'recovery_codes') =>
-  config.value?.mfa?.supported_types.includes(type) ?? false
-
-const passkeys = computed(() =>
-  (authenticators.value ?? []).filter(authenticator => authenticator.type === AuthenticatorType.WEBAUTHN),
-)
-
-const hasSecondFactor = computed(() => Boolean(totpAuthenticator.value) || passkeys.value.length > 0)
+const { supports, totpAuthenticator, recoveryCodesAuthenticator, passkeys, hasSecondFactor } = useAccountSecurity()
 
 const epoch = (seconds: number) => new Date(seconds * 1000).toISOString()
 </script>

@@ -2,22 +2,16 @@
 export type ToastInput = Parameters<ReturnType<typeof useToast>['add']>[0]
 
 /**
- * The Security-area page a shopper goes back to: the redesign's own page,
- * or the settings page of a store with its own design.
- */
-export type SecurityRoute = 'account-security' | 'account-settings'
-
-/**
  * The shopper's recovery-code set (`GET authenticators/recovery-codes`),
  * shared by the codes page and the "generate a new set" page. A shopper
  * without two-step verification has no codes (allauth answers 404,
  * `headless/mfa/views.py` `ManageRecoveryCodesView.get`): the shopper is
- * told two-step verification is required and goes back to `securityRoute`.
+ * told two-step verification is required and goes back to the Security page.
  *
  * Awaited in `<script setup>`; every composable it needs is called before
  * its own `await`.
  */
-export async function useRecoveryCodeSet(securityRoute: SecurityRoute) {
+export async function useRecoveryCodeSet() {
   const { getRecoveryCodes } = useAllAuthAccount()
   const toast = useToast()
   const localePath = useLocalePath()
@@ -27,7 +21,7 @@ export async function useRecoveryCodeSet(securityRoute: SecurityRoute) {
 
   if (error.value) {
     toast.add({ title: t('auth.mfa.required'), color: 'error' })
-    await navigateTo(localePath(securityRoute))
+    await navigateTo(localePath('account-security'))
   }
 
   return {
@@ -40,7 +34,6 @@ export async function useRecoveryCodeSet(securityRoute: SecurityRoute) {
 }
 
 export interface RecoveryCodesOptions {
-  securityRoute: SecurityRoute
   /** The toasts each tree words and dresses in its own way. */
   toasts: {
     copiedAll: () => ToastInput
@@ -68,7 +61,7 @@ export async function useRecoveryCodes(options: RecoveryCodesOptions) {
   const { locale } = useNuxtApp().$i18n
   const { copy } = useClipboard()
 
-  const set = await useRecoveryCodeSet(options.securityRoute)
+  const set = await useRecoveryCodeSet()
   const { codes, createdAt } = set
 
   /** The date the set was made, as the downloaded and printed copies state it. */

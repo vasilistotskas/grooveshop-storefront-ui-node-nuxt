@@ -5,7 +5,6 @@ const { t } = useStoreI18n('components/Account/2Fa/Totp/ActivateForm')
 const localePath = useLocalePath()
 
 const { status, isSupported, totpSecret, totpSvg, code, loading, isCodeComplete, copySecret: onSecretClick, activate } = await useTotpActivation({
-  settledRoute: 'account-security',
   messages: {
     codeLength: () => t('error.code_length'),
     codeNumeric: () => t('error.code_numeric'),

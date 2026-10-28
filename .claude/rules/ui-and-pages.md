@@ -24,7 +24,6 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 
 ## Middleware
 
-- `01.design-only.global.ts` — Global, and first (the `01.` prefix sorts it before every other global middleware): 404s the redesign-only pages (`REDESIGN_ONLY_PAGES`) on a store with its own design
 - `auth.global.ts` — Global: redirects unauthenticated users from protected routes
 - `identity.global.ts` — Global: hydrates identity/session state
 - `design-layout.global.ts` — Global: the layout a tenant's design draws a kind of page in (`resolveLayout` in `variantRegistry.ts`); `setPageLayout` is how a middleware overrides the layout a page file fixed at build time

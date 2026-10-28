@@ -110,3 +110,22 @@ const AuthPageRoutesSet = new Set<keyof RouteMapI18n>([...AuthFlowRoutes, ...Rea
 export const isAuthPageRoute = (route: string) => {
   return AuthPageRoutesSet.has(route as keyof RouteMapI18n)
 }
+
+// The pages a shopper reaches from the account's Security page: the sign-in
+// ones (email, password, connected accounts, devices) and every two-step
+// one. Each design's account navigation keeps Security active on all of
+// them.
+const SIGN_IN_PAGES: ReadonlySet<string> = new Set([
+  'account-email',
+  'account-password-change',
+  'account-providers',
+  'account-sessions',
+])
+
+/** Whether the route named `name` is the Security page or one of the pages under it. */
+export function isSecurityPage(name: string): boolean {
+  return name === 'account-security'
+    || SIGN_IN_PAGES.has(name)
+    || name === 'account-2fa'
+    || name.startsWith('account-2fa-')
+}

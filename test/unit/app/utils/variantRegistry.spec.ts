@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  REDESIGN_ONLY_PAGES,
   resolveChrome,
   resolveLayout,
   resolvePage,
@@ -25,7 +24,7 @@ const PAGE_KEYS: PageKey[] = [
   'verify-email', 'verify-email-key', 'provider-callback', 'provider-signup',
   '2fa-authenticate-totp', '2fa-authenticate-webauthn',
   '2fa-authenticate-recovery-codes', 'newsletter-confirm',
-  'account', 'account-2fa', 'account-2fa-recovery-codes-generate',
+  'account', 'account-security', 'account-2fa', 'account-2fa-recovery-codes-generate',
   'account-2fa-recovery-codes', 'account-2fa-totp-activate',
   'account-2fa-totp-deactivate', 'account-2fa-webauthn-add', 'account-2fa-webauthn',
   'account-addresses-id-edit', 'account-addresses', 'account-addresses-new',
@@ -60,18 +59,12 @@ describe('variantRegistry', () => {
     expect(webside).not.toBe(platform)
   })
 
-  // A page only the redesign has gets no webside body; the store with its
-  // own design answers 404 for it (`01.design-only.global`).
-  it.each([...REDESIGN_ONLY_PAGES])('has no webside body for the redesign-only page %s', (key) => {
-    expect(resolvePage(key, 'webside')).toBe(resolvePage(key, null))
-  })
-
-  // The redesign gathers these into its Security page; webside, above,
-  // keeps each its own body.
+  // Every design gathers these into its Security page; each routes to its own.
   it.each([
     'account-email', 'account-sessions', 'account-providers', 'account-2fa', 'account-2fa-webauthn',
-  ] as const)('shows the Security page on %s in the redesign', (key) => {
+  ] as const)('shows the Security page on %s in every design', (key) => {
     expect(resolvePage(key, 'demo')).toBe(resolvePage('account-security', 'demo'))
+    expect(resolvePage(key, 'webside')).toBe(resolvePage('account-security', 'webside'))
   })
 
   it.each(CHROME_KEYS)('resolves webside chrome for %s', (key) => {

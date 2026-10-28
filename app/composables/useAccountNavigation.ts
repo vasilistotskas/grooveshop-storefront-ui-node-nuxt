@@ -29,8 +29,8 @@ interface AccountNavEntry {
  * shell's sidebar on desktop and the overview's tiles on a phone.
  *
  * Each entry is offered only while its page serves: the same plan flag
- * and merchant switch its route middleware checks (and that the webside
- * webside menu, `useAccountMenus`, keeps checking for its own tree), so
+ * and merchant switch its route middleware checks (and that webside's
+ * menu, `useAccountMenus`, keeps checking for its own tree), so
  * the navigation never advertises a dead page.
  *
  * An entry stays active on the pages under it — an order on Orders, an
@@ -53,7 +53,6 @@ export function useAccountNavigation() {
   const { count: unseenNotifications } = useUnseenNotificationsCount()
 
   const under = (prefix: string) => (name: string) => name === prefix || name.startsWith(`${prefix}-`)
-  const SIGN_IN_PAGES = new Set(['account-email', 'account-password-change', 'account-providers', 'account-sessions'])
 
   const entries = computed<AccountNavEntry[]>(() => [
     { key: 'overview', icon: 'i-lucide-house', route: 'account' },
@@ -83,7 +82,7 @@ export function useAccountNavigation() {
       key: 'security',
       icon: 'i-lucide-shield-check',
       route: 'account-security',
-      owns: name => SIGN_IN_PAGES.has(name) || under('account-2fa')(name),
+      owns: isSecurityPage,
     },
     { key: 'privacy', icon: 'i-lucide-lock', route: 'account-settings-privacy' },
   ])
