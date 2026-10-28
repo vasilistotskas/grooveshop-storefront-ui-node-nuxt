@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -6,7 +6,12 @@ import { reachableFiles } from '~~/modules/text-catalogue/reachability'
 import type { ReachabilitySource } from '~~/modules/text-catalogue/reachability'
 import { TEXT_FIXTURE_SOURCE } from '~~/test/fixtures/texts/source'
 import { REAL_TEXT_SOURCE } from '~~/test/helpers/realTextSource'
-import { APP, REPO } from '~~/test/helpers/sourceText'
+import { APP, REPO, appLabel, autoImportName, readSource, vueFiles, withoutComments } from '~~/test/helpers/sourceText'
+
+function tsFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap(entry =>
+    entry.isDirectory() ? tsFiles(join(dir, entry.name)) : entry.name.endsWith('.ts') ? [join(dir, entry.name)] : [])
+}
 
 const posix = (appDir: string, file: string) => relative(appDir, file).split(sep).join('/')
 const rendered = (source: ReachabilitySource, view: string) => {
@@ -189,6 +194,15 @@ describe('what the walk cannot place', () => {
     expect(() => reachableFiles(source)).toThrow('overrides a page with no default')
   })
 
+  it('does not let a local camelCase variable shadow the PascalCase component of the same name', () => {
+    const source = appWith({
+      'components/Chrome/Footer.vue': '<script setup lang="ts">\nconst chromeExtra = 1\n</script>\n<template><footer>{{ chromeExtra }}<ChromeExtra /></footer></template>',
+      'components/Chrome/Extra.vue': '<template><p /></template>',
+    })
+
+    expect(rendered(source, 'default')).toContain('components/Chrome/Extra.vue')
+  })
+
   it('places a tag that names a script-setup binding', () => {
     const source = appWith({
       'components/Chrome/Footer.vue': '<script setup lang="ts">\nimport Local from \'./Local.vue\'\n</script>\n<template><footer><Local /></footer></template>',
@@ -196,5 +210,69 @@ describe('what the walk cannot place', () => {
     })
 
     expect(rendered(source, 'default')).toContain('components/Chrome/Local.vue')
+  })
+})
+
+describe('the components no store renders', () => {
+  const views = reachableFiles(REAL_TEXT_SOURCE)
+  const reached = new Set([...views.values()].flatMap(files => [...files]))
+  const all = vueFiles(APP)
+  const unreached = all.filter(file => !reached.has(file))
+
+  /** Every `.vue` and `.ts` source under `app/`, read as plain text. */
+  const corpus = [...all, ...tsFiles(APP)].map(file => ({ file, text: withoutComments(readSource(file)) }))
+
+  const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+
+  /**
+   * Independent of the walk: a plain text search for every way a component
+   * is named in the source. A walk that silently loses an edge (it once let
+   * a local `productImages` shadow `<ProductImages>`) would hide a store's
+   * texts; this fails instead.
+   */
+  function referencesTo(file: string): string[] {
+    const name = autoImportName(file)
+    const path = appLabel(file).replace(/^components\//, '')
+    const patterns = [
+      new RegExp(String.raw`<(?:Lazy)?${name}(?![\w-])`),
+      new RegExp(String.raw`<(?:lazy-)?${kebab(name)}(?![\w-])`),
+      new RegExp(String.raw`resolveComponent\(\s*['"\x60](?:Lazy)?${name}['"\x60]`),
+      new RegExp(`${path.replaceAll('.', '[.]')}['"\`]`),
+    ]
+    return corpus
+      .filter(source => source.file !== file && patterns.some(pattern => pattern.test(source.text)))
+      .map(source => appLabel(source.file))
+  }
+
+  it('has a handful of them, so this check still looks at something', () => {
+    expect(unreached.length).toBeGreaterThan(0)
+  })
+
+  it('are referenced by nothing in app/', () => {
+    expect(Object.fromEntries(unreached.map(file => [appLabel(file), referencesTo(file)]).filter(([, found]) => found!.length > 0))).toEqual({})
+  })
+
+  it('does catch a component that is referenced: the search finds the product gallery by its tag', () => {
+    expect(referencesTo(resolve(APP, 'components/Product/Images.vue'))).toContain('components/Storefront/ProductDetail.vue')
+  })
+})
+
+describe('what every default store certainly renders', () => {
+  const views = reachableFiles(REAL_TEXT_SOURCE)
+
+  // Named by hand from the source, not by the walk: each is rendered by the
+  // default page or chrome that the default registry entry mounts.
+  it.each([
+    ['the product page', 'components/Storefront/ProductDetail.vue'],
+    ['the product gallery', 'components/Product/Images.vue'],
+    ['the product gallery\'s zoom', 'components/Product/ImageModal.vue'],
+    ['the cart page', 'components/Storefront/Cart.vue'],
+    ['the cart drawer', 'components/Cart/Drawer.vue'],
+    ['the checkout page', 'components/Storefront/Checkout.vue'],
+    ['the footer', 'components/Chrome/Footer.vue'],
+    ['the navbar', 'components/Chrome/Navbar.vue'],
+    ['the paginator', 'components/Pagination/index.vue'],
+  ])('%s', (_label, file) => {
+    expect(views.get('default')!.has(resolve(APP, file))).toBe(true)
   })
 })

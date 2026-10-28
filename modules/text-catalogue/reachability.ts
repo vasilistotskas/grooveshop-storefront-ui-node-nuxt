@@ -325,20 +325,23 @@ function referencesOf(file: string, appDir: string, names: Map<string, string>):
 
   // `<script setup>` bindings are usable as tags (`import Foo from './Foo.vue'`,
   // `const { define: DefineList } = createReusableTemplate()`): their targets
-  // come from the script scan below, so a tag they name is placed.
+  // come from the script scan below, so a tag they name is placed. Vue matches
+  // a tag to a binding by the tag's own spelling, its camelCase or its PascalCase
+  // (`<product-images>` finds `productImages`), never by folding the binding's
+  // case: a local `productImages` does not shadow `<ProductImages>`.
   const bindings = new Set<string>()
   for (const block of [descriptor.script, descriptor.scriptSetup]) {
     if (!block) continue
     const program = parseModule(block.content)
     for (const node of nodesIn(program, n => n.type === 'ImportSpecifier' || n.type === 'ImportDefaultSpecifier' || n.type === 'VariableDeclarator')) {
       const binder = node.type === 'VariableDeclarator' ? node.id : node.local
-      if (isNode(binder)) for (const id of nodesIn(binder, n => n.type === 'Identifier')) bindings.add(capitalize(String(id.name)))
+      if (isNode(binder)) for (const id of nodesIn(binder, n => n.type === 'Identifier')) bindings.add(String(id.name))
     }
   }
 
   const refer = (name: string, certain: boolean) => {
     const pascal = capitalize(camelize(name))
-    if (bindings.has(pascal)) return
+    if ([name, camelize(name), pascal].some(spelling => bindings.has(spelling))) return
     const target = names.get(pascal) ?? (pascal.startsWith('Lazy') ? names.get(pascal.slice(4)) : undefined)
     if (target) refs.files.add(target)
     else if (certain && !THIRD_PARTY_COMPONENT.test(pascal.replace(/^Lazy(?=[A-Z])/, ''))) refs.unplaced.add(name)
