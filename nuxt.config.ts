@@ -988,14 +988,14 @@ export default defineNuxtConfig({
     compilation: {
       strictMessage: false,
     },
-    // Ship vue-i18n's runtime-only build: every message this app renders
-    // is resolved at build time (locale YAML in i18n/ + component
-    // <i18n> blocks — API content is translated via extractTranslated,
-    // never vue-i18n), so the message COMPILER (~16KB minified,
-    // @intlify/message-compiler) rode the eager graph of every page for
-    // nothing (2026-08-29 eager-graph audit). If a runtime-compiled
-    // message is ever introduced it will render as a raw key with a
-    // console error — that message belongs in a locale file instead.
+    // `runtimeOnly` only points the `vue-i18n` alias at its runtime build
+    // (@nuxtjs/i18n `module.mjs`). It does NOT drop the message compiler:
+    // `@intlify/core` stays aliased to its full build, and
+    // `__INTLIFY_DROP_MESSAGE_COMPILER__` follows `bundle.dropMessageCompiler`,
+    // false by default. The compiler is needed: the lazy locale files
+    // arrive from `/_i18n/<hash>/<locale>/messages.json` as raw strings and
+    // are compiled in the browser, so `dropMessageCompiler: true` would
+    // break every lazy-loaded message (verified on 10.6.0, 2026-10-27).
     bundle: {
       runtimeOnly: true,
     },

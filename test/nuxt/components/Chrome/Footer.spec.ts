@@ -22,6 +22,7 @@ const { state } = vi.hoisted(() => ({
   state: {
     identity: null as { phone: string, email: string } | null,
     payWays: [] as unknown[],
+    payWayRequests: 0,
     cookieModal: { value: false },
   },
 }))
@@ -33,8 +34,12 @@ mockNuxtImport('useFooterNavigation', () => () => ({
 mockNuxtImport('useMerchantIdentity', () => () => ({
   identity: computed(() => state.identity),
 }))
-mockNuxtImport('useApi', () => (url: string) =>
-  Promise.resolve({ data: ref(url === '/api/pay-way' ? { results: state.payWays } : null) }))
+// A disabled request is never made and leaves no data, as in Nuxt.
+mockNuxtImport('useApi', () => (url: string, options?: { enabled?: () => boolean }) => {
+  if (url !== '/api/pay-way' || options?.enabled?.() === false) return Promise.resolve({ data: ref(null) })
+  state.payWayRequests++
+  return Promise.resolve({ data: ref({ results: state.payWays }) })
+})
 mockNuxtImport('useCookieControl', () => () => ({
   isModalActive: computed({
     get: () => state.cookieModal.value,
@@ -59,6 +64,7 @@ describe('Chrome/Footer', () => {
   beforeEach(() => {
     state.identity = null
     state.payWays = []
+    state.payWayRequests = 0
     state.cookieModal.value = false
     setTenant({ giftCardsEnabled: false, agentCommerceEnabled: false, availableLocales: ['el'], metaPixelId: '123' })
     setTenantFeatures({ giftCards: false })
@@ -133,6 +139,20 @@ describe('Chrome/Footer', () => {
     const card = useNuxtApp().$i18n.t('payment_methods.CREDIT_CARD')
     // Once in the desk row and once in the phone row.
     expect(wrapper.text().split(card).length - 1).toBe(2)
+  })
+
+  it('promises no way to pay and no carrier on a store without the cart', async () => {
+    setTenant({ agentCommerceEnabled: false, availableLocales: ['el'], shippingCarriers: [{ code: 'acs', name: 'ACS' }] })
+    setTenantFeatures({ cart: false, giftCards: true })
+    state.payWays = [makePayWay({ key: 'CREDIT_CARD' })]
+
+    const wrapper = await mountFooter()
+
+    const text = wrapper.text()
+    expect(state.payWayRequests).toBe(0)
+    expect(text).not.toContain(useNuxtApp().$i18n.t('payment_methods.CREDIT_CARD'))
+    expect(text).not.toContain(COPY.giftCard)
+    expect(text).not.toContain('ACS')
   })
 
   it('names the carriers under "Delivered by", on the desk and the phone', async () => {
