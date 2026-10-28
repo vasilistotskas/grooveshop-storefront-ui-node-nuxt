@@ -18,7 +18,6 @@ const consequences = computed(() => [
 ])
 
 const { loading, deactivate } = await useTotpDeactivation({
-  settledRoute: 'account-security',
   messages: {
     deactivated: () => ({
       title: t('success.title'),

@@ -201,7 +201,6 @@ interface Registries {
   sectionBase: Map<string, string>
   sectionVariants: Map<string, Map<string, string>>
   designLayouts: string[]
-  redesignOnlyPages: Set<string>
 }
 
 function addVariant(into: Map<string, Map<string, string>>, schema: string, key: string, file: string) {
@@ -267,21 +266,7 @@ function readRegistries(appDir: string): Registries {
       return layout
     })
 
-  const redesignOnly = required(variantDeclared, 'REDESIGN_ONLY_PAGES', VARIANT_REGISTRY)
-  const listed = redesignOnly.type === 'NewExpression' ? (redesignOnly.arguments as unknown[])[0] : undefined
-  if (!isNode(listed) || listed.type !== 'ArrayExpression') {
-    throw new Error(`${VARIANT_REGISTRY}: REDESIGN_ONLY_PAGES must be \`new Set([…])\` of string literals`)
-  }
-  const redesignOnlyPages = new Set((listed.elements as unknown[]).map((element) => {
-    const page = stringValue(element)
-    if (page === undefined) throw new Error(`${VARIANT_REGISTRY}: REDESIGN_ONLY_PAGES holds a non-literal`)
-    return page
-  }))
-  for (const page of redesignOnlyPages) {
-    if (!pageDefaults.has(page)) throw new Error(`${VARIANT_REGISTRY}: REDESIGN_ONLY_PAGES names '${page}', which is not a page`)
-  }
-
-  return { chromeDefaults, pageDefaults, chromeVariants, pageVariants, sectionBase, sectionVariants, designLayouts: layouts, redesignOnlyPages }
+  return { chromeDefaults, pageDefaults, chromeVariants, pageVariants, sectionBase, sectionVariants, designLayouts: layouts }
 }
 
 function* vueFilesUnder(dir: string): Generator<string> {
@@ -445,9 +430,7 @@ export function reachableFiles(source: ReachabilitySource): Map<string, Readonly
       ...shellFiles,
       ...layoutFiles(designed),
       ...[...registries.chromeDefaults].map(([key, file]) => chrome?.get(key) ?? file),
-      ...[...registries.pageDefaults]
-        .filter(([key]) => designed || !registries.redesignOnlyPages.has(key))
-        .map(([key, file]) => pages?.get(key) ?? file),
+      ...[...registries.pageDefaults].map(([key, file]) => pages?.get(key) ?? file),
       ...[...new Set([...registries.sectionBase.keys(), ...(sections?.keys() ?? [])])]
         .map(type => sections?.get(type) ?? registries.sectionBase.get(type)!),
     ]

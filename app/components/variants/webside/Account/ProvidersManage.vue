@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
+import type { BadgeProps, TableColumn } from '#ui/types'
 
 const { t } = useStoreI18n('components/variants/webside/Account/ProvidersManage')
 
-const { accounts, busy, disconnect } = await useProviderAccounts({
-  disconnected: () => ({ title: t('success.title'), color: 'success' }),
+const { cards, busy, disconnect, connect } = await useProviderAccounts({
+  disconnected: account => ({ title: t('success.title', { provider: account.provider.name }), color: 'success' }),
 })
 
 const loading = computed(() => busy.value !== null)
@@ -37,191 +37,135 @@ function getProviderColor(providerName: string) {
   return colors[providerName.toLowerCase()] || 'primary'
 }
 
-const columns: TableColumn<any>[] = [
+const columns: TableColumn<ProviderCard>[] = [
   {
     accessorKey: 'name',
     header: t('provider'),
   },
   {
-    accessorKey: 'display',
+    id: 'account',
     header: t('account'),
-  },
-  {
-    accessorKey: 'uid',
-    header: t('uid'),
   },
   {
     id: 'actions',
     header: '',
   },
 ]
-
-const data = computed(() => {
-  return accounts.value.map((account) => {
-    return {
-      uid: account.uid,
-      display: account.display,
-      name: account.provider.name,
-      providerId: account.provider.id,
-    }
-  })
-})
-
-const actionItems = (row: { uid: string, display: string, name: string, providerId: string }): DropdownMenuItem[][] => {
-  const items: DropdownMenuItem[] = []
-  items.push({
-    label: t('disconnect'),
-    icon: 'i-heroicons-trash-20-solid',
-    class: 'cursor-pointer',
-    ui: {
-      itemLeadingIcon: 'text-red-500 dark:text-red-500 hover:text-red-500 hover:dark:text-red-500',
-    },
-    onSelect: async () => {
-      const account = accounts.value.find(item => item.uid === row.uid)
-      if (!account) return
-      return await disconnect(account)
-    },
-  })
-  return [items]
-}
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-      lg:flex
-    "
+  <WebsideAccountAreaSection
+    v-if="cards.length"
+    :title="t('providers.info.title')"
+    :description="t('providers.info.description')"
+    icon="i-heroicons-link"
   >
-    <slot />
-    <!-- `min-w-0`, not `overflow-auto`: as a flex item beside the
-         sidebar this column defaults to `min-width: auto` and cannot
-         shrink below its table's min-content, which pushed the page
-         100px past a 1280 viewport. Scrolling the whole column was
-         the wrong lever anyway — UTable's own wrapper already scrolls
-         horizontally, so the table scrolls inside the card instead of
-         dragging the page with it. -->
-    <div class="w-full min-w-0 space-y-6">
-      <UCard>
-        <UAlert
-          color="info"
-          variant="soft"
-          icon="i-heroicons-link"
-          :title="t('providers.info.title')"
-          :description="t('providers.info.description')"
-        />
-
-        <!-- ClientOnly: this table's rows come from the auth store,
-             which `plugins/setup.ts` fills from a `watch(loggedIn)`
-             that fires when nuxt-auth-utils re-fetches the session on
-             `app:suspense:resolve` — the hydration boundary itself.
-             The server therefore renders the empty state and the
-             client renders the real rows in the same pass, which Vue
-             reports as a hydration mismatch (measured: 1 row server,
-             35 client). ClientOnly renders nothing on the server AND
-             nothing during hydration, so the first client render
-             matches by construction and the rows arrive as an
-             ordinary update. These pages are authenticated and never
-             cached or indexed, so there is no SSR content to lose. -->
-        <ClientOnly>
-          <UTable
-            class="w-full"
-            :columns="columns"
-            :data="data"
-            :loading="loading"
+    <!-- ClientOnly: this table's rows come from the auth store,
+         which `plugins/setup.ts` fills from a `watch(loggedIn)`
+         that fires when nuxt-auth-utils re-fetches the session on
+         `app:suspense:resolve` — the hydration boundary itself.
+         The server therefore renders the empty state and the
+         client renders the real rows in the same pass, which Vue
+         reports as a hydration mismatch (measured: 1 row server,
+         35 client). ClientOnly renders nothing on the server AND
+         nothing during hydration, so the first client render
+         matches by construction and the rows arrive as an
+         ordinary update. These pages are authenticated and never
+         cached or indexed, so there is no SSR content to lose. -->
+    <ClientOnly>
+      <UTable
+        class="w-full"
+        :columns="columns"
+        :data="cards"
+        :loading="loading"
+      >
+        <template #name-cell="{ row }">
+          <div class="flex items-center gap-2">
+            <UIcon
+              :name="getProviderIcon(row.original.name)"
+              class="size-5"
+            />
+            <UBadge
+              :color="getProviderColor(row.original.name)"
+              variant="subtle"
+              size="sm"
+            >
+              {{ row.original.name }}
+            </UBadge>
+          </div>
+        </template>
+        <template #account-cell="{ row }">
+          <span
+            v-if="row.original.kind === 'linked'"
+            class="font-medium"
           >
-            <template #empty>
-              <UEmpty
-                icon="i-heroicons-link-slash"
-                :title="t('providers.empty.title')"
-                :description="t('providers.empty.description')"
-                variant="naked"
-              />
-            </template>
-            <template #name-cell="{ row }">
-              <div class="flex items-center gap-2">
-                <UIcon
-                  :name="getProviderIcon(row.original.name)"
-                  class="size-5"
-                />
-                <UBadge
-                  :color="getProviderColor(row.original.name)"
-                  variant="subtle"
-                  size="sm"
-                >
-                  {{ row.original.name }}
-                </UBadge>
-              </div>
-            </template>
-            <template #display-cell="{ row }">
-              <span class="font-medium">
-                {{ row.original.display }}
-              </span>
-            </template>
-            <template #uid-cell="{ row }">
-              <UTooltip :text="row.original.uid">
-                <span class="font-mono text-sm text-muted">
-                  {{ row.original.uid.length > 20 ? row.original.uid.substring(0, 20) + '...' : row.original.uid }}
-                </span>
-              </UTooltip>
-            </template>
-            <template #actions-cell="{ row }">
-              <UTooltip :text="t('actions')">
-                <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
-                     `useForwardExpose` reads `t.value.$el.nodeName` after
-                     checking only that `$el` EXISTS as a key, and a Lazy
-                     component's `$el` is null until it loads — so every
-                     row threw "Cannot read properties of null (reading
-                     'nodeName')" and the page hydrated with mismatches.
-                     The lazy wrapper bought nothing either: the navbar
-                     renders UDropdownMenu eagerly on every page. -->
-                <UDropdownMenu
-                  v-if="actionItems(row.original).length > 0"
-                  :items="actionItems(row.original)"
-                >
-                  <UButton
-                    color="neutral"
-                    icon="i-heroicons-ellipsis-horizontal-20-solid"
-                    variant="ghost"
-                    size="sm"
-                  />
-                </UDropdownMenu>
-              </UTooltip>
-            </template>
-          </UTable>
-        </ClientOnly>
-
-        <div class="flex items-center justify-between pt-2">
-          <span class="text-sm text-muted">
-            {{ t('providers.total', { count: data.length }) }}
+            {{ row.original.account.display }}
           </span>
-        </div>
-      </UCard>
-    </div>
-  </div>
+          <span
+            v-else
+            class="text-sm text-muted"
+          >
+            {{ t('not_connected') }}
+          </span>
+        </template>
+        <template #actions-cell="{ row }">
+          <UButton
+            v-if="row.original.kind === 'linked'"
+            :label="t('disconnect')"
+            :aria-label="t('disconnect_named', { provider: row.original.name, account: row.original.account.display })"
+            :loading="busy === row.original.key"
+            :disabled="loading"
+            icon="i-heroicons-trash-20-solid"
+            color="error"
+            variant="ghost"
+            size="sm"
+            @click="() => { if (row.original.kind === 'linked') disconnect(row.original.account) }"
+          />
+          <UButton
+            v-else
+            :label="t('connect')"
+            :aria-label="t('connect_named', { provider: row.original.name })"
+            :loading="busy === row.original.key"
+            :disabled="loading"
+            icon="i-heroicons-link"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            @click="() => { if (row.original.kind === 'connect') connect(row.original.provider) }"
+          />
+        </template>
+      </UTable>
+    </ClientOnly>
+  </WebsideAccountAreaSection>
 </template>
 
 <i18n lang="yaml">
 el:
   provider: Πάροχος
   account: Λογαριασμός
+  not_connected: Δεν έχει συνδεθεί
+  connect: Σύνδεση
+  connect_named: Σύνδεση λογαριασμού {provider}
+  disconnect: Αποσύνδεση
+  disconnect_named: Αποσύνδεση του λογαριασμού {provider} {account}
+  success:
+    title: Ο λογαριασμός {provider} αποσυνδέθηκε
   providers:
     info:
-      title: Συνδεδεμένοι Πάροχοι
+      title: Συνδεδεμένοι λογαριασμοί
       description: Διαχειρίσου τους λογαριασμούς τρίτων που έχεις συνδέσει με τον λογαριασμό σου. Μπορείς να αποσυνδέσεις οποιονδήποτε πάροχο οποιαδήποτε στιγμή.
-    empty:
-      title: Δεν έχεις συνδεθεί με κάποιον πάροχο
-      description: Σύνδεσε λογαριασμούς τρίτων για ευκολότερη σύνδεση
-    total: Κανένας συνδεδεμένος πάροχος | 1 Συνδεδεμένος πάροχος | {count} συνδεδεμένοι πάροχοι
 en:
   provider: Provider
   account: Account
+  not_connected: Not connected
+  connect: Connect
+  connect_named: Connect a {provider} account
+  disconnect: Disconnect
+  disconnect_named: Disconnect the {provider} account {account}
+  success:
+    title: Your {provider} account was disconnected
   providers:
     info:
-      title: Connected Providers
+      title: Connected accounts
       description: Manage the third-party accounts linked to yours. You can disconnect any of them at any time.
-    empty:
-      title: No providers connected
-      description: Connect a third-party account to sign in more easily
-    total: "No connected providers | 1 connected provider | {count} connected providers"
 </i18n>

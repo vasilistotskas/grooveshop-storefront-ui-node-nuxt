@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { AuthFlowRoutes, AuthenticatedRoutes, ReauthenticateRoutes, isAuthFlowRoute, isAuthPageRoute, isRouteProtected } from '~/utils/route'
+import { AuthFlowRoutes, AuthenticatedRoutes, ReauthenticateRoutes, isAuthFlowRoute, isAuthPageRoute, isRouteProtected, isSecurityPage } from '~/utils/route'
 import { RedirectToURLs } from '~~/shared/constants'
 
 /**
@@ -73,5 +73,36 @@ describe('isAuthPageRoute', () => {
     ['index'],
   ])('leaves %s in its own layout', (name) => {
     expect(isAuthPageRoute(name)).toBe(false)
+  })
+})
+
+/**
+ * Both designs keep Security the active entry of their account navigation
+ * on the page and on every page reached from it.
+ */
+describe('isSecurityPage', () => {
+  it.each([
+    ['account-security'],
+    ['account-email'],
+    ['account-password-change'],
+    ['account-providers'],
+    ['account-sessions'],
+    ['account-2fa'],
+    ['account-2fa-totp-activate'],
+    ['account-2fa-recovery-codes-generate'],
+    ['account-2fa-webauthn-add'],
+  ])('counts %s as Security', (name) => {
+    expect(isSecurityPage(name)).toBe(true)
+  })
+
+  it.each([
+    ['account'],
+    ['account-settings'],
+    ['account-settings-privacy'],
+    ['account-orders'],
+    // A prefix is not a page: only `account-2fa` and what is under it.
+    ['account-2fabulous'],
+  ])('leaves %s out', (name) => {
+    expect(isSecurityPage(name)).toBe(false)
   })
 })

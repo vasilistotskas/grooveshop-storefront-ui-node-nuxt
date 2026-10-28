@@ -22,7 +22,6 @@
 const { t } = useStoreI18n('components/Storefront/Auth/ProviderCallback')
 
 const { connecting, error, loading } = useProviderCallback({
-  returnRoute: 'account-security',
   outcome: outcome => t(`connect.${outcome}`),
 })
 

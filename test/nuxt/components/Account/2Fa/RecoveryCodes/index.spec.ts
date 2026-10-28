@@ -11,10 +11,8 @@ import { trees } from '~~/test/helpers/trees'
  * The shopper's unused recovery codes, with copy, download and print
  * (`useRecoveryCodes`, shared by both trees). The print window is written
  * with `textContent`, never as HTML, so a code can never inject markup
- * there. A shopper without two-factor goes back to the Security page; the
- * webside tree has none and goes to its settings.
- * The default also warns when the codes run low, which the webside page
- * does not draw. Mocked at `useAllAuthAccount`.
+ * there. A shopper without two-factor goes back to the Security page. Both
+ * trees warn when the codes run low. Mocked at `useAllAuthAccount`.
  */
 const { getRecoveryCodes, navigateToMock, toastAdd, copy } = vi.hoisted(() => ({
   getRecoveryCodes: vi.fn(),
@@ -53,6 +51,10 @@ const COPY = {
 const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button').find(b => b.text() === label)!
 /** The codes are the page's buttons that show a code, each copying its own. */
 const codeButtons = (wrapper: VueWrapper) => wrapper.findAll('button').filter(b => /\d{8}|<img/.test(b.text()))
+
+// Webside keeps an alert of its own (never share the codes), so the low-codes
+// warning is found by its words.
+const alerts = (wrapper: VueWrapper) => wrapper.findAllComponents({ name: 'UAlert' }).map(alert => alert.text()).join(' ')
 
 describe.each(trees(RecoveryCodes, WebsideRecoveryCodes))('$tree Account/2Fa/RecoveryCodes', ({ tree, C }) => {
   const copyOf = COPY[tree]
@@ -126,18 +128,18 @@ describe.each(trees(RecoveryCodes, WebsideRecoveryCodes))('$tree Account/2Fa/Rec
     expect(wrapper.text()).toContain('Δεν έχει χρησιμοποιηθεί κανένας')
   })
 
-  it.runIf(tree === 'default')('warns once three codes or fewer are left', async () => {
+  it('warns once three codes or fewer are left', async () => {
     const wrapper = await mountCodes()
 
-    expect(wrapper.findComponent({ name: 'UAlert' }).text()).toContain('Απομένουν μόνο 3 κωδικοί')
+    expect(alerts(wrapper)).toContain('Απομένουν μόνο 3 κωδικοί')
   })
 
-  it.runIf(tree === 'default')('does not warn while plenty are left', async () => {
+  it('does not warn while plenty are left', async () => {
     getRecoveryCodes.mockResolvedValue(recovery([...CODES, '45678901']))
 
     const wrapper = await mountCodes()
 
-    expect(wrapper.findComponent({ name: 'UAlert' }).exists()).toBe(false)
+    expect(alerts(wrapper)).not.toContain('Απομένουν μόνο')
   })
 
   it('links to generating a new set', async () => {
@@ -152,6 +154,6 @@ describe.each(trees(RecoveryCodes, WebsideRecoveryCodes))('$tree Account/2Fa/Rec
     await mountCodes()
 
     expect(toastAdd).toHaveBeenCalledWith({ title: useNuxtApp().$i18n.t('auth.mfa.required'), color: 'error' })
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()(tree === 'default' ? 'account-security' : 'account-settings'))
+    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-security'))
   })
 })

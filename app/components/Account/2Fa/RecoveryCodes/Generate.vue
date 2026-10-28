@@ -12,7 +12,6 @@ const { t } = useStoreI18n('components/Account/2Fa/RecoveryCodes/Generate')
 const localePath = useLocalePath()
 
 const { unused, confirmed, loading, ready, generate } = await useRecoveryCodesRegeneration({
-  securityRoute: 'account-security',
   generated: () => ({ title: t('generated'), color: 'success' }),
 })
 </script>

@@ -5,7 +5,6 @@ const localePath = useLocalePath()
 const url = ref<typeof RedirectToURLs[keyof typeof RedirectToURLs]>(RedirectToURLs.LOGIN_URL)
 
 const { error, loading } = useProviderCallback({
-  returnRoute: 'account-providers',
   outcome: outcome => t(`connect.${outcome}`),
 })
 

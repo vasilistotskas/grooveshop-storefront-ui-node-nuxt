@@ -14,7 +14,6 @@ const { t, locale } = useStoreI18n('components/Account/2Fa/RecoveryCodes/index')
 const localePath = useLocalePath()
 
 const { codes, unused, total, createdAt, lastUsedAt, copyAll, copyCode, download, print } = await useRecoveryCodes({
-  securityRoute: 'account-security',
   toasts: {
     copiedAll: () => ({ title: t('copied_all'), color: 'success' }),
     copiedOne: code => ({ title: t('copied_one'), description: code, color: 'success' }),

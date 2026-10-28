@@ -4,9 +4,11 @@ import type { VueWrapper } from '@vue/test-utils'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import Security from '~/components/Storefront/Account/Security.vue'
+import WebsideSecurity from '~/components/variants/webside/Storefront/Account/Security.vue'
 import type { Authenticator } from '~~/shared/types/model/all-auth/account/authenticators/authenticators'
 import { makeAllAuthConfig, makeAuthenticator, makeSessionResponse } from '~~/test/fixtures/allauth'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * The account's Security page: two-step verification summed up over its
@@ -14,6 +16,8 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
  * connected-account sections. The second factors are read before it
  * renders, and a failed read says so instead of "Off". Each manager has
  * its own spec; here they are stand-ins that only prove they are placed.
+ * Both designs draw it over the same reading (`useAccountSecurity`), so
+ * one body runs over the default page and webside's.
  */
 const { getAuthenticators } = vi.hoisted(() => ({
   getAuthenticators: vi.fn((): Promise<{ status: 200, data: Authenticator[] } | undefined> => Promise.resolve(undefined)),
@@ -32,9 +36,21 @@ mockComponent('Account2FaWebAuthnList', { template: '<div data-stub="passkeys" /
 mockComponent('AccountEmailManage', { template: '<div data-stub="emails" />' })
 mockComponent('AccountSessionsManage', { template: '<div data-stub="sessions" />' })
 mockComponent('AccountProvidersManage', { template: '<div data-stub="providers" />' })
+mockComponent('WebsideAccountSecurityTwoStep', { template: '<div data-stub="two-step" />' })
+mockComponent('WebsideAccount2FaWebAuthnList', { template: '<div data-stub="passkeys" />' })
+mockComponent('WebsideAccountEmailManage', { template: '<div data-stub="emails" />' })
+mockComponent('WebsideAccountSessionsManage', { template: '<div data-stub="sessions" />' })
+mockComponent('WebsideAccountProvidersManage', { template: '<div data-stub="providers" />' })
+// The settings menu beside webside's page: its own spec's business.
+mockComponent('WebsideAccountAuthSettingsNavigation', { template: '<nav />' })
 
-const messages = YAML.parse(
-  parseSfc(resolve(REPO, 'app/components/Storefront/Account/Security.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
+const PAGE_FILES = {
+  default: 'app/components/Storefront/Account/Security.vue',
+  webside: 'app/components/variants/webside/Storefront/Account/Security.vue',
+} as const
+
+const messagesOf = (tree: keyof typeof PAGE_FILES) => YAML.parse(
+  parseSfc(resolve(REPO, PAGE_FILES[tree])).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
 function given({ factors = [] as Authenticator[], supported = ['totp', 'recovery_codes', 'webauthn'] as Array<'totp' | 'webauthn' | 'recovery_codes'>, password = true } = {}) {
@@ -49,12 +65,14 @@ beforeEach(() => {
   given()
 })
 
-const mountPage = () => mountSuspended(Security, { route: false })
 const stubs = (wrapper: VueWrapper) => wrapper.findAll('[data-stub]').map(stub => stub.attributes('data-stub'))
 const section = (wrapper: VueWrapper, title: string) =>
   wrapper.findAll('section').find(candidate => candidate.get('h2').text() === title)!
 
-describe('Storefront/Account/Security', () => {
+describe.each(trees(Security, WebsideSecurity))('$tree Storefront/Account/Security', ({ tree, C }) => {
+  const messages = messagesOf(tree)
+  const mountPage = () => mountSuspended(C, { route: false })
+
   it('reads the second factors first, then places every section in the board\'s order', async () => {
     const wrapper = await mountPage()
 

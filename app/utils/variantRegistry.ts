@@ -117,10 +117,10 @@ const chromeDefaults: Record<ChromeKey, Component> = {
   assistant: lazy(() => import('~/components/Chrome/Assistant.vue')),
 }
 
-// The redesign gathers the sign-in and two-step pages into one Security
-// page; their own routes, which webside's design still draws
-// apart, show it too.
+// Every design gathers the sign-in and two-step pages into one Security
+// page; their own routes show it too.
 const securityPage = lazy(() => import('~/components/Storefront/Account/Security.vue'))
+const websideSecurityPage = lazy(() => import('~/components/variants/webside/Storefront/Account/Security.vue'))
 
 const pageDefaults: Record<PageKey, Component> = {
   'home': lazy(() => import('~/components/Storefront/Home.vue')),
@@ -186,7 +186,6 @@ const pageDefaults: Record<PageKey, Component> = {
   'account-password-change': lazy(() => import('~/components/Storefront/Account/PasswordChange.vue')),
   'account-providers': securityPage,
   'account-reviews': lazy(() => import('~/components/Storefront/Account/Reviews.vue')),
-  // Redesign-only (`REDESIGN_ONLY_PAGES`): no webside body.
   'account-security': securityPage,
   'account-sessions': securityPage,
   'account-settings': lazy(() => import('~/components/Storefront/Account/Settings.vue')),
@@ -281,18 +280,18 @@ const variants: Record<string, Component> = {
   // `variants/webside/AccountArea/`.
   'page:newsletter-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/NewsletterConfirm.vue')),
   'page:account@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Overview.vue')),
-  'page:account-2fa@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactor.vue')),
+  'page:account-2fa@webside': websideSecurityPage,
   'page:account-2fa-recovery-codes-generate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),
   'page:account-2fa-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorRecoveryCodes.vue')),
   'page:account-2fa-totp-activate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorTotpActivate.vue')),
   'page:account-2fa-totp-deactivate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorTotpDeactivate.vue')),
   'page:account-2fa-webauthn-add@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorWebauthnAdd.vue')),
-  'page:account-2fa-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorWebauthn.vue')),
+  'page:account-2fa-webauthn@webside': websideSecurityPage,
   'page:account-addresses-id-edit@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/AddressEdit.vue')),
   'page:account-addresses@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Addresses.vue')),
   'page:account-addresses-new@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/AddressNew.vue')),
   'page:account-business@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Business.vue')),
-  'page:account-email@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Email.vue')),
+  'page:account-email@webside': websideSecurityPage,
   'page:account-favourites-posts@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/FavouritePosts.vue')),
   'page:account-favourites-products@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/FavouriteProducts.vue')),
   'page:account-gift-cards@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/GiftCards.vue')),
@@ -301,11 +300,12 @@ const variants: Record<string, Component> = {
   'page:account-orders-id@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/OrderDetail.vue')),
   'page:account-orders@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Orders.vue')),
   'page:account-password-change@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/PasswordChange.vue')),
-  'page:account-providers@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Providers.vue')),
+  'page:account-providers@webside': websideSecurityPage,
+  'page:account-security@webside': websideSecurityPage,
   // The reviews UI is one implementation for every store: this entry is
   // only webside's page frame around the platform's own body.
   'page:account-reviews@webside': lazy(() => import('~/components/variants/webside/AccountArea/Page/Reviews.vue')),
-  'page:account-sessions@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Sessions.vue')),
+  'page:account-sessions@webside': websideSecurityPage,
   'page:account-settings@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Settings.vue')),
   'page:account-settings-privacy@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Privacy.vue')),
   'page:account-subscriptions@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Subscriptions.vue')),
@@ -314,14 +314,6 @@ const variants: Record<string, Component> = {
   'page:2fa-reauthenticate-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateWebauthn.vue')),
   'page:2fa-reauthenticate-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorReauthenticateRecoveryCodes.vue')),
 }
-
-/**
- * Pages only the redesign has, by route name. A store with a
- * design of its own (webside's) has no body for them and never
- * links to them, so `middleware/01.design-only.global.ts` answers 404
- * there rather than draw the redesigned body inside the webside frame.
- */
-export const REDESIGN_ONLY_PAGES: ReadonlySet<PageKey> = new Set<PageKey>(['account-security'])
 
 /**
  * Layouts chosen by the tenant's design rather than by the page.

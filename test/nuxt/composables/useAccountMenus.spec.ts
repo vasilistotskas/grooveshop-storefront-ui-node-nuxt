@@ -15,7 +15,7 @@ describe('useAccountMenus', () => {
     setTenantFeatures({ blog: true })
   })
 
-  it('lists the base account pages in order, translated, with settings last and reviews after it', () => {
+  it('lists the base account pages in order, translated, with settings and security last and reviews after them', () => {
     const { menus } = useAccountMenus()
     const t = useNuxtApp().$i18n.t
 
@@ -27,6 +27,7 @@ describe('useAccountMenus', () => {
       { label: t('subscriptions'), to: '/account/subscriptions' },
       { label: t('addresses'), to: '/account/addresses' },
       { label: t('settings'), to: '/account/settings' },
+      { label: t('account_nav.security'), to: '/account/security' },
       { label: t('reviews'), to: '/account/reviews' },
     ])
   })

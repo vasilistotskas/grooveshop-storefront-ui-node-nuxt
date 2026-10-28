@@ -1016,6 +1016,12 @@ exports[`webside design render > signed in > account chrome 1`] = `
                           <!--v-if-->
                           <!--v-if-->
                         </li>
+                        <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/security" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 flex-row before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors gap-4 p-2"><span class="iconify i-heroicons:shield-check shrink-0 text-dimmed group-hover:text-default transition-colors size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-xl font-semibold text-toned capitalize md:text-lg">Ασφάλεια<!--v-if--></span>
+                            <!--v-if-->
+                          </a>
+                          <!--v-if-->
+                          <!--v-if-->
+                        </li>
                         <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/reviews" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-primary/25 flex-row before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors gap-4 p-2"><span class="iconify i-mdi:star-outline shrink-0 text-dimmed group-hover:text-default transition-colors size-6" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate text-xl font-semibold text-toned capitalize md:text-lg">Κριτικές<!--v-if--></span>
                             <!--v-if-->
                           </a>
@@ -1482,6 +1488,17 @@ exports[`webside design render > signed in > account overview 1`] = `
           </div>
           <div data-slot="root" class="rounded-lg overflow-hidden bg-elevated/50 ring ring-default divide-y divide-default h-full group transition-all duration-200 hover:shadow-lg hover:ring-2 hover:ring-primary-500/20">
             <!--v-if-->
+            <div data-slot="body" class="p-4 h-full sm:p-0"><a href="/account/security" class="flex h-full items-center gap-4 p-5 transition-all duration-200">
+                <div class="flex items-center justify-center rounded-xl bg-linear-to-br from-primary-100 to-primary-200 p-3 transition-transform duration-200 group-hover:scale-105 dark:from-primary-900 dark:to-primary-800"><span class="iconify i-heroicons:shield-check size-6 text-primary-700 dark:text-primary-300" aria-hidden="true"></span></div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-primary-950 dark:text-primary-50">Ασφάλεια</h4>
+                  <p class="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">Κωδικός, επαλήθευση δύο βημάτων, συσκευές και συνδεδεμένοι λογαριασμοί</p>
+                </div><span class="iconify i-heroicons:chevron-right size-6 text-neutral-400 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true"></span>
+              </a></div>
+            <!--v-if-->
+          </div>
+          <div data-slot="root" class="rounded-lg overflow-hidden bg-elevated/50 ring ring-default divide-y divide-default h-full group transition-all duration-200 hover:shadow-lg hover:ring-2 hover:ring-primary-500/20">
+            <!--v-if-->
             <div data-slot="body" class="p-4 h-full sm:p-0"><a href="/account/reviews" class="flex h-full items-center gap-4 p-5 transition-all duration-200">
                 <div class="flex items-center justify-center rounded-xl bg-linear-to-br from-primary-100 to-primary-200 p-3 transition-transform duration-200 group-hover:scale-105 dark:from-primary-900 dark:to-primary-800"><span class="iconify i-mdi:star-outline size-6 text-primary-700 dark:text-primary-300" aria-hidden="true"></span></div>
                 <div class="flex-1">
@@ -1530,55 +1547,19 @@ exports[`webside design render > signed in > account settings 1`] = `
           <!---->
           <nav data-slot="root" class="relative flex gap-1.5 [&amp;>div]:min-w-0 flex-col" data-orientation="vertical" dir="ltr" data-reka-navigation-menu="">
             <ul data-slot="list" class="isolate min-w-0">
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0">
-                <div data-slot="label" class="w-full flex items-center gap-1.5 font-semibold text-xs/5 text-highlighted px-2.5 py-1.5">
-                  <!--v-if--><span data-slot="linkLabel" class="truncate">Λογαριασμός &amp; Ασφάλεια<!--v-if--></span>
-                  <!--v-if-->
-                </div>
-                <!--v-if-->
-              </li>
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/providers" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:user-group shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Κοινωνικοί λογαριασμοί<!--v-if--></span>
+              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/settings" data-reka-collection-item="" data-active="" aria-current="page" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-highlighted hover:before:bg-elevated/50 before:transition-colors"><span class="iconify i-heroicons:user shrink-0 size-5 text-highlighted group-data-[state=open]:text-highlighted" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Προφίλ<!--v-if--></span>
                   <!--v-if-->
                 </a>
                 <!--v-if-->
                 <!--v-if-->
               </li>
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/sessions" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:signal shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Συνεδρίες (Sessions)<!--v-if--></span>
+              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/security" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:shield-check shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Ασφάλεια<!--v-if--></span>
                   <!--v-if-->
                 </a>
                 <!--v-if-->
                 <!--v-if-->
               </li>
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/password/change" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:lock-closed shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Αλλαγή κωδικού<!--v-if--></span>
-                  <!--v-if-->
-                </a>
-                <!--v-if-->
-                <!--v-if-->
-              </li>
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/settings/privacy" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:shield-check shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Απόρρητο &amp; Δεδομένα<!--v-if--></span>
-                  <!--v-if-->
-                </a>
-                <!--v-if-->
-                <!--v-if-->
-              </li>
-            </ul>
-            <div data-slot="separator" class="px-2 h-px bg-border"></div>
-            <ul data-slot="list" class="isolate min-w-0">
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0">
-                <div data-slot="label" class="w-full flex items-center gap-1.5 font-semibold text-xs/5 text-highlighted px-2.5 py-1.5">
-                  <!--v-if--><span data-slot="linkLabel" class="truncate">Έλεγχος Ταυτότητας Δύο Παραγόντων<!--v-if--></span>
-                  <!--v-if-->
-                </div>
-                <!--v-if-->
-              </li>
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/2fa/totp/activate" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:shield-check shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Ενεργοποίηση 2FA<!--v-if--></span><span data-slot="linkTrailing" class="group ms-auto inline-flex gap-1.5 items-center"><span data-slot="linkTrailingBadge" class="font-medium inline-flex items-center text-[10px]/3 px-1.5 py-1 gap-1 rounded-sm bg-success/10 text-toned shrink-0"><!--v-if--><span data-slot="label" class="truncate">Συνιστάται</span>
-                  <!--v-if--></span>
-                  <!--v-if--></span>
-                </a>
-                <!--v-if-->
-                <!--v-if-->
-              </li>
-              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/2fa/webauthn/add" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:key shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Προσθήκη κλειδιού ασφαλείας<!--v-if--></span>
+              <li data-state="closed" data-orientation="vertical" data-slot="item" class="min-w-0"><a href="/account/settings/privacy" data-reka-collection-item="" data-slot="link" class="group relative w-full flex items-center gap-1.5 font-medium text-sm before:absolute before:z-[-1] before:rounded-md focus:outline-none focus-visible:outline-none focus-visible:before:outline-3 before:outline-inverted/25 flex-row px-2.5 py-1.5 before:inset-y-px before:inset-x-0 text-muted hover:text-highlighted hover:before:bg-elevated/50 transition-colors before:transition-colors"><span class="iconify i-heroicons:lock-closed shrink-0 size-5 text-dimmed group-hover:text-default transition-colors" aria-hidden="true" data-slot="linkLeadingIcon"></span><span data-slot="linkLabel" class="truncate">Απόρρητο &amp; Δεδομένα<!--v-if--></span>
                   <!--v-if-->
                 </a>
                 <!--v-if-->

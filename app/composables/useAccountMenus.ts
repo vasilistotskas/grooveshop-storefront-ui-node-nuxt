@@ -83,11 +83,18 @@ export const useAccountMenus = () => {
       })
     }
 
-    baseMenus.push({
-      label: t('settings'),
-      to: '/account/settings',
-      icon: 'i-mdi-cog-outline',
-    })
+    baseMenus.push(
+      {
+        label: t('settings'),
+        to: '/account/settings',
+        icon: 'i-mdi-cog-outline',
+      },
+      {
+        label: t('account_nav.security'),
+        to: '/account/security',
+        icon: 'i-heroicons-shield-check',
+      },
+    )
 
     return baseMenus
   })

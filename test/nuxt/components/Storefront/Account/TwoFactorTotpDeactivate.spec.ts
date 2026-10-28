@@ -11,8 +11,7 @@ import { trees } from '~~/test/helpers/trees'
 /**
  * Turning TOTP off: a card saying what it means, a confirmation tick that
  * unlocks the destructive button, Cancel back to the security page.
- * Mocked at `useAllAuthAccount`. The webside copy differs in where it
- * returns to (the settings page, not the security page), in the icon of
+ * Mocked at `useAllAuthAccount`. The webside copy differs in the icon of
  * its toast and in Cancel, which it navigates with rather than links.
  */
 const { totpAuthenticatorStatus, deactivateTotp, navigateToMock, toastAdd } = vi.hoisted(() => ({
@@ -40,7 +39,7 @@ const turnOff = (wrapper: VueWrapper) =>
   wrapper.findAll('button').find(button => button.text() === 'Απενεργοποίηση')!
 
 describe.each(trees(TwoFactorTotpDeactivate, WebsideTwoFactorTotpDeactivate))('$tree Storefront/Account/TwoFactorTotpDeactivate', ({ tree, C }) => {
-  const settled = tree === 'default' ? 'account-security' : 'account-settings'
+  const settled = 'account-security'
   const toastIcon = tree === 'default' ? 'i-lucide-shield-check' : 'i-heroicons-shield-check'
 
   it('keeps Turn off locked until the shopper confirms the risks', async () => {
@@ -53,7 +52,7 @@ describe.each(trees(TwoFactorTotpDeactivate, WebsideTwoFactorTotpDeactivate))('$
     expect(deactivateTotp).not.toHaveBeenCalled()
   })
 
-  it('turns TOTP off, tells the shopper and returns to the settings', async () => {
+  it('turns TOTP off, tells the shopper and returns to the Security page', async () => {
     const wrapper = await mountBody(C)
     await wrapper.find('button[role="checkbox"]').trigger('click')
 
@@ -79,7 +78,7 @@ describe.each(trees(TwoFactorTotpDeactivate, WebsideTwoFactorTotpDeactivate))('$
     expect(wrapper.emitted('deactivateTotp')).toBeUndefined()
   })
 
-  it.runIf(tree === 'webside')('takes Cancel back to the settings page', async () => {
+  it.runIf(tree === 'webside')('takes Cancel back to the Security page', async () => {
     const wrapper = await mountBody(C)
 
     await wrapper.findAll('button').find(button => button.text() === 'Ακύρωση')!.trigger('click')
@@ -94,7 +93,7 @@ describe.each(trees(TwoFactorTotpDeactivate, WebsideTwoFactorTotpDeactivate))('$
     expect(cancel.attributes('href')).toBe(useLocalePath()(settled))
   })
 
-  it('sends the shopper back to the settings when the status cannot be read', async () => {
+  it('sends the shopper back to the Security page when the status cannot be read', async () => {
     totpAuthenticatorStatus.mockRejectedValue(new Error('Bad Gateway'))
 
     await mountBody(C)

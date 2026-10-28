@@ -85,11 +85,9 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
 </script>
 
 <template>
-  <div
-    class="
-      grid gap-4
-      md:gap-12
-    "
+  <WebsideAccountAreaSection
+    :title="t('email.title')"
+    icon="i-heroicons-envelope"
   >
     <!-- ClientOnly: this table's rows come from the auth store,
          which `plugins/setup.ts` fills from a `watch(loggedIn)`
@@ -158,14 +156,14 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
     </ClientOnly>
 
     <div class="grid">
-      <h2
+      <h3
         class="
-          text-center text-primary-950
+          font-medium text-primary-950
           dark:text-primary-50
         "
       >
         {{ t('email.add') }}
-      </h2>
+      </h3>
       <div
         class="
           container mx-auto p-0
@@ -183,5 +181,5 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
         </section>
       </div>
     </div>
-  </div>
+  </WebsideAccountAreaSection>
 </template>

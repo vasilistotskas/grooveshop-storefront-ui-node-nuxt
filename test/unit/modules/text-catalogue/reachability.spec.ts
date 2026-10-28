@@ -104,9 +104,11 @@ describe('what a store renders, over the real tree', () => {
     expect(reaches('default', 'components/variants/webside/PageSection/AboutContent.vue')).toBe(false)
   })
 
-  it('leaves the redesign-only page and the design layout out of a webside store', () => {
+  it('gives a webside store its own Security page, and leaves the design layout out of it', () => {
     expect(reaches('default', 'components/Storefront/Account/Security.vue')).toBe(true)
     expect(reaches('webside', 'components/Storefront/Account/Security.vue')).toBe(false)
+    expect(reaches('webside', 'components/variants/webside/Storefront/Account/Security.vue')).toBe(true)
+    expect(reaches('default', 'components/variants/webside/Storefront/Account/Security.vue')).toBe(false)
     expect(reaches('default', 'layouts/auth-split.vue')).toBe(true)
     expect(reaches('webside', 'layouts/auth-split.vue')).toBe(false)
   })

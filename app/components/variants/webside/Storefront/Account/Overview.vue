@@ -48,6 +48,7 @@ const menuDescriptions: Record<string, string> = {
   'account-loyalty': t('account.menu_description.account-loyalty'),
   'account-gift-cards': t('account.menu_description.account-gift-cards'),
   'account-settings': t('account.menu_description.account-settings'),
+  'account-security': t('account.menu_description.account-security'),
   'account-reviews': t('account.menu_description.account-reviews'),
 }
 
@@ -677,6 +678,7 @@ el:
       account-loyalty: Δες τους πόντους και το ιστορικό σου
       account-gift-cards: Δες τις δωροκάρτες και τα υπόλοιπά τους
       account-settings: Ρύθμισε τις προτιμήσεις σου
+      account-security: Κωδικός, επαλήθευση δύο βημάτων, συσκευές και συνδεδεμένοι λογαριασμοί
       account-reviews: Διαχειρίσου τις κριτικές σου
   menu: Μενού λογαριασμού
   yes: Ναι
@@ -707,6 +709,7 @@ en:
       account-loyalty: See your points and their history
       account-gift-cards: See your gift cards and their balances
       account-settings: Set your preferences
+      account-security: Password, two-step verification, devices and connected accounts
       account-reviews: Manage your reviews
   menu: Account menu
   yes: Yes

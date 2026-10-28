@@ -17,18 +17,16 @@ import { TOOLTIP_STUB, pickFromRowMenu } from '~~/test/helpers/rowMenu'
  * store read again so every reader of it counts the same keys
  * (`useWebAuthnKeys`, shared by both trees). The default draws rows and
  * asks before removing; the webside design draws a table whose row menu
- * edits or removes at once and, with no key left, goes back to the
- * two-step page. Mocked at `useAllAuthAccount`; the keys come from the
+ * edits or removes at once, and says so when no key is left (it lives on
+ * the Security page, which has nowhere to go back to). Mocked at `useAllAuthAccount`; the keys come from the
  * real auth store.
  */
-const { deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators, toastAdd, navigateToMock } = vi.hoisted(() => ({
+const { deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators, toastAdd } = vi.hoisted(() => ({
   deleteWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),
   updateWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),
   getAuthenticators: vi.fn((): Promise<{ status: 200, data: Authenticator[] } | undefined> => Promise.resolve(undefined)),
   toastAdd: vi.fn(),
-  navigateToMock: vi.fn(),
 }))
-mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useAllAuthAccount', () => () => ({ deleteWebAuthnCredential, updateWebAuthnCredential, getAuthenticators }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 mockNuxtImport('useUserSession', () => () => ({
@@ -120,22 +118,13 @@ describe.each(trees(List, WebsideList))('$tree Account/2Fa/WebAuthn/List', ({ tr
     expect(names[1]).toContain('YubiKey 5C')
   })
 
-  it.runIf(tree === 'default')('says there is no key yet, and still offers to add one', async () => {
+  it('says there is no key yet, and still offers to add one', async () => {
     useAuthStore().authenticators = [makeAuthenticator('totp')]
 
     const wrapper = await mountList()
 
-    expect(rows(wrapper)).toHaveLength(0)
-    expect(wrapper.text()).toContain(messages.empty)
+    expect(wrapper.text()).toContain(tree === 'default' ? messages.empty : messages.empty.title)
     expect(wrapper.find('a').attributes('href')).toBe('/account/2fa/webauthn/add')
-  })
-
-  it.runIf(tree === 'webside')('goes back to the two-step page when no key is left', async () => {
-    useAuthStore().authenticators = [makeAuthenticator('totp')]
-
-    await mountList()
-
-    expect(navigateToMock).toHaveBeenCalledWith(useLocalePath()('account-2fa'))
   })
 
   it('renames a key, says so, and reads the keys again', async () => {

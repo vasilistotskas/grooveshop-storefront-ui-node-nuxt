@@ -19,5 +19,3 @@ export const variants = {
 export const designLayouts = {
   auth: 'auth-split',
 } as const
-
-export const REDESIGN_ONLY_PAGES = new Set<string>([])

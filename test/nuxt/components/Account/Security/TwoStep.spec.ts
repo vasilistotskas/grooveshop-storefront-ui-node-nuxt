@@ -4,19 +4,27 @@ import type { VueWrapper } from '@vue/test-utils'
 import { resolve } from 'node:path'
 import YAML from 'yaml'
 import TwoStep from '~/components/Account/Security/TwoStep.vue'
+import WebsideTwoStep from '~/components/variants/webside/Account/Security/TwoStep.vue'
 import type { Authenticator } from '~~/shared/types/model/all-auth/account/authenticators/authenticators'
 import { makeAllAuthConfig, makeAuthenticator } from '~~/test/fixtures/allauth'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { trees } from '~~/test/helpers/trees'
 
 /**
  * Two-step verification at a glance: a tile per second factor the store
  * supports — authenticator app, passkeys, recovery codes — saying
  * whether it is on, with the one action that changes it. Recovery codes
  * exist only beside another factor, so their tile waits for one. Reads
- * the real auth store.
+ * the real auth store. Both designs draw the tiles over the same reading
+ * (`useAccountSecurity`) with the same words, so one body runs over both.
  */
-const messages = YAML.parse(
-  parseSfc(resolve(REPO, 'app/components/Account/Security/TwoStep.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
+const TILE_FILES = {
+  default: 'app/components/Account/Security/TwoStep.vue',
+  webside: 'app/components/variants/webside/Account/Security/TwoStep.vue',
+} as const
+
+const messagesOf = (tree: keyof typeof TILE_FILES) => YAML.parse(
+  parseSfc(resolve(REPO, TILE_FILES[tree])).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
 function given(authenticators: Authenticator[], supported: Array<'totp' | 'webauthn' | 'recovery_codes'> = ['totp', 'recovery_codes', 'webauthn']) {
@@ -29,14 +37,16 @@ beforeEach(() => {
   given([])
 })
 
-const mountTiles = () => mountSuspended(TwoStep, { route: false })
 const tile = (wrapper: VueWrapper, title: string) => wrapper.findAll('li').find(item => item.text().includes(title))
 const action = (wrapper: VueWrapper, title: string) => {
   const link = tile(wrapper, title)!.find('a')
   return { label: link.text(), href: link.attributes('href') }
 }
 
-describe('Account/Security/TwoStep', () => {
+describe.each(trees(TwoStep, WebsideTwoStep))('$tree Account/Security/TwoStep', ({ tree, C }) => {
+  const messages = messagesOf(tree)
+  const mountTiles = () => mountSuspended(C, { route: false })
+
   it('offers to set up the authenticator app and add a passkey when neither is on', async () => {
     const wrapper = await mountTiles()
 
