@@ -36,12 +36,15 @@ const { isModalActive } = useCookieControl()
 const { getPaymentMethodName } = usePaymentMethod()
 
 const mobileBottomNavEnabled = useStorePreference('mobileBottomNav')
+const cartEnabled = useStoreFeature('cart')
 const giftCardsEnabled = useStoreFeature('giftCards')
 
 /**
  * The payment marks are the store's active pay ways, so the footer can
  * only promise what checkout offers. The list is a cached, per-tenant
- * handler (`server/api/pay-way`), read once per server render.
+ * handler (`server/api/pay-way`), read once per server render. A store
+ * without the cart has no checkout: it asks for no pay ways and names no
+ * way to pay or carrier.
  *
  * Named the way checkout names them: a pay way's `key` is its
  * `PayWayEnum` key (`PAY_ON_DELIVERY`), which `getPaymentMethodName`
@@ -52,15 +55,21 @@ const giftCardsEnabled = useStoreFeature('giftCards')
 const { data: payWays } = await useApi('/api/pay-way', {
   key: 'footer-pay-ways',
   query: { active: 'true', pageSize: 50 },
+  enabled: () => cartEnabled.value,
 })
 
-const paymentMarks = computed(() => [...new Set([
-  ...(payWays.value?.results ?? [])
-    .flatMap(payWay => payWay.key ? [getPaymentMethodName(payWay.key)] : []),
-  ...(giftCardsEnabled.value ? [t('gift_card')] : []),
-])])
+const paymentMarks = computed(() => {
+  if (!cartEnabled.value) return []
+  return [...new Set([
+    ...(payWays.value?.results ?? [])
+      .flatMap(payWay => payWay.key ? [getPaymentMethodName(payWay.key)] : []),
+    ...(giftCardsEnabled.value ? [t('gift_card')] : []),
+  ])]
+})
 
-const carrierMarks = computed(() => tenantStore.shippingCarriers.map(carrier => carrier.name))
+const carrierMarks = computed(() =>
+  cartEnabled.value ? tenantStore.shippingCarriers.map(carrier => carrier.name) : [],
+)
 
 const primaryColumns = computed<FooterColumn[]>(() =>
   primary.value.map(column => ({
