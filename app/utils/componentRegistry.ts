@@ -133,7 +133,7 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'what_is_microlearning@webside': lazySection(() => import('~/components/variants/webside/PageSection/WhatIsMicrolearning.vue')),
   'why_microlearning@webside': lazySection(() => import('~/components/variants/webside/PageSection/WhyMicrolearning.vue')),
 
-  // webside's FROZEN copies of the four base sections its layouts use
+  // webside's own copies of the four base sections its layouts use
   // (home: blog_categories → hero_carousel → recently_viewed →
   // blog_posts_list). The base entries above are the platform default
   // and get redesigned; these keep rendering today's markup for the one

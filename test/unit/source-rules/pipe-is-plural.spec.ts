@@ -14,7 +14,7 @@ import { APP, REPO, appLabel, parseSfc, relativeLabel, vueFiles } from '../../he
  * so they share their placeholders ("{minutes} minute | {minutes}
  * minutes"); a form may drop the count ("no items | {count} items").
  * Forms naming DIFFERENT placeholders are two sentences cut apart. The
- * frozen `webside` tree is included: it must render correctly too.
+ * The `webside` tree is included: it must render correctly too.
  */
 interface Message { where: string, value: string }
 

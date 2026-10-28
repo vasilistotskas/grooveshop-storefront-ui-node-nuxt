@@ -12,7 +12,7 @@ export interface ListingScope {
   categoryId: number | undefined
   /**
    * Brands, in stock and on offer narrow this listing's facets. Only the
-   * redesigned listing says so: the frozen webside listing does not read
+   * redesigned listing says so: the webside listing does not read
    * this scope, and a link carrying those filters must not narrow its facets.
    */
   listingFilters: true

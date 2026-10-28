@@ -14,7 +14,7 @@ import { trees } from '~~/test/helpers/trees'
  *
  * The default draws one radio card per saved address (title, recipient,
  * street, postcode and city) and a separate "New address" button; the
- * frozen webside copy keeps a "new address" radio card among them. The
+ * webside copy keeps a "new address" radio card among them. The
  * default also says which addresses fail checkout's rules, and keeps
  * the picked card picked while the step has its fields open.
  */
@@ -52,7 +52,7 @@ describe.each(trees(CheckoutSavedAddresses, WebsideCheckoutSavedAddresses))('$tr
   const mount = (props: { selectedId: number | null, mode: 'saved' | 'new', needingUpdate?: number[] }) =>
     mountSuspended(C, {
       route: false,
-      // The frozen copy has no `needingUpdate` prop.
+      // The webside copy has no `needingUpdate` prop.
       props: { addresses: ADDRESSES, ...(tree === 'default' ? { needingUpdate: [] } : {}), ...props },
     })
 

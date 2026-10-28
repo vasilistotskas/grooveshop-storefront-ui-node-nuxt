@@ -60,7 +60,7 @@ const showUserChrome = computed(
   () => isAccountRoute.value && !onAuthFlowRoute.value && loggedIn.value && user.value,
 )
 
-// The frozen tree's tab bar is `fixed bottom-0` and nothing used to
+// The webside design's tab bar is `fixed bottom-0` and nothing used to
 // reserve room for it, so it covered the end of the footer (merchant
 // identity + opening hours). Reserve its height — min-h-12 plus its
 // safe-area padding — only while it is rendered, and only below `lg`,

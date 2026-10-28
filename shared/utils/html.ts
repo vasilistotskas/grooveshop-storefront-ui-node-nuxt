@@ -348,7 +348,7 @@ export const PAGE_CONTENT_MAX_WIDTH = 1440
 export const ARTICLE_COLUMN_MAX_WIDTH = 704
 
 /**
- * The frozen webside blog article column: `max-w-2xl` (42rem) around the
+ * The webside blog article column: `max-w-2xl` (42rem) around the
  * body in `variants/webside/Storefront/BlogPost.vue`. Bounding its images
  * by the page frame instead requested every inline image at 1440px on
  * every device, twice the column, and a post with a dozen uncached images

@@ -36,7 +36,7 @@ describe.each(trees(AuthenticateFlow, WebsideAuthenticateFlow))('$tree Account/2
     const localePath = useLocalePath()
     const href = (name: FlowPathValue) => localePath({ name, query: { next: '/account/orders' } })
 
-    // The default names passkeys beside security keys; the frozen copy does not.
+    // The default names passkeys beside security keys; the webside copy does not.
     const keyLabel = tree === 'default' ? 'Χρησιμοποίησε κλειδί ασφαλείας ή passkey' : 'Χρησιμοποίησε το κλειδί ασφαλείας'
     expect(alternatives(wrapper)).toEqual([
       [keyLabel, href('account-2fa-authenticate-webauthn')],

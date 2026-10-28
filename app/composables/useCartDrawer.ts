@@ -1,7 +1,7 @@
 /**
  * The cart drawer's state: whether it is open, and the line that was just
  * added when an add opened it (its "Added: …" banner). Kept apart from
- * the cart store, which the frozen webside tree shares and which holds
+ * the cart store, which the webside tree shares and which holds
  * the cart itself, not how one page shows it.
  *
  * The cart button opens it plain; an add-to-cart opens it with the line

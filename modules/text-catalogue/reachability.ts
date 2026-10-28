@@ -19,7 +19,7 @@ import { componentName } from './componentName.ts'
  * the walk follows every component reference from there: template tags,
  * `<component :is="'Name'">`, `resolveComponent('Name')`, and `.vue`
  * imports, resolved by Nuxt's auto-import naming (the `components`
- * option of `nuxt.config.ts`, which gives the frozen webside tree its
+ * option of `nuxt.config.ts`, which gives the webside tree its
  * `Webside` prefix).
  *
  * Nothing is guessed. A reference the walk cannot place (a tag that is

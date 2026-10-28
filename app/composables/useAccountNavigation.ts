@@ -29,7 +29,7 @@ interface AccountNavEntry {
  * shell's sidebar on desktop and the overview's tiles on a phone.
  *
  * Each entry is offered only while its page serves: the same plan flag
- * and merchant switch its route middleware checks (and that the frozen
+ * and merchant switch its route middleware checks (and that the webside
  * webside menu, `useAccountMenus`, keeps checking for its own tree), so
  * the navigation never advertises a dead page.
  *

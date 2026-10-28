@@ -14,7 +14,7 @@ import { trees } from '~~/test/helpers/trees'
  * re-authentication; anyone else goes home. Where the shopper goes after
  * confirming is the auth plugin's `auth:change` chain. Mocked at
  * `useAllAuthAuthentication`. Submitting with no password says nothing in
- * the default (its button is disabled) and toasts in the frozen tree.
+ * the default (its button is disabled) and toasts in the webside design.
  */
 const { reauthenticate, toastAdd, navigateToMock } = vi.hoisted(() => ({
   reauthenticate: vi.fn((_body: unknown) => Promise.resolve({ status: 200 })),

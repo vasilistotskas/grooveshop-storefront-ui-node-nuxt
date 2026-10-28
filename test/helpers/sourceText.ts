@@ -34,14 +34,14 @@ export const APP = resolve(REPO, 'app')
 export const COMPONENTS = resolve(APP, 'components')
 
 /**
- * The FROZEN tree: webside's storefront, kept byte-for-byte while the
- * defaults are redesigned, and registered with the `Webside` prefix
- * (`nuxt.config.ts` `components`). Layout rules exempt it — its render
- * is pinned. The other `variants/<schema>/` trees (delta_sigma's chrome
+ * The webside design: webside's storefront (its own templates), registered with
+ * the `Webside` prefix (`nuxt.config.ts` `components`). Layout rules exempt it
+ * so its look cannot change by accident — its render is pinned. The other
+ * `variants/<schema>/` trees (delta_sigma's chrome
  * and sections) are LIVE code and are not exempt.
  */
-export const FROZEN = resolve(COMPONENTS, 'variants/webside')
-export const FROZEN_PREFIX = 'Webside'
+export const WEBSIDE_DESIGN = resolve(COMPONENTS, 'variants/webside')
+export const WEBSIDE_DESIGN_PREFIX = 'Webside'
 
 /** Replace every character of `match` except newlines with a space. */
 const blank = (match: string) => match.replace(/[^\r\n]/g, ' ')
@@ -63,7 +63,7 @@ export function withoutComments(source: string): string {
 
 /**
  * Every `.vue` file under `root`, sorted. `exclude` lists directories
- * skipped by their exact path — `[FROZEN]` drops the frozen webside
+ * skipped by their exact path — `[WEBSIDE_DESIGN]` drops the webside
  * tree and nothing else.
  */
 export function vueFiles(root: string, { exclude = [] }: { exclude?: readonly string[] } = {}): string[] {
@@ -275,14 +275,14 @@ export function walkElements(
 
 /**
  * The name Nuxt auto-imports a file under `app/components/` as — the
- * frozen tree is its own components dir with the `Webside` prefix
+ * webside tree is its own components dir with the `Webside` prefix
  * (`nuxt.config.ts` `components`), everything else plain.
  */
 export function autoImportName(file: string): string {
-  const frozen = relativeLabel(FROZEN, file)
-  return frozen.startsWith('..')
+  const webside = relativeLabel(WEBSIDE_DESIGN, file)
+  return webside.startsWith('..')
     ? componentName(relativeLabel(COMPONENTS, file))
-    : FROZEN_PREFIX + componentName(frozen)
+    : WEBSIDE_DESIGN_PREFIX + componentName(webside)
 }
 
 /** Auto-import name → file, for `files` under `app/components/`. */

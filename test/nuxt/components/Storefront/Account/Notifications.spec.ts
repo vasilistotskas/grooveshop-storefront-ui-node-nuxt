@@ -19,7 +19,7 @@ import { trees } from '~~/test/helpers/trees'
  * refetch so the list and the unread count stay true
  * (`useAccountNotifications`, shared by both trees). The default also shows
  * the unread count on its tab and says a list that could not load did not,
- * rather than "no notifications"; the frozen page draws neither.
+ * rather than "no notifications"; the webside page draws neither.
  */
 const state = vi.hoisted(() => ({ query: {} as Record<string, string>, rows: [] as unknown[], unseen: 0, fail: false, failMark: false }))
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn((_to: string) => Promise.resolve()) }))
@@ -93,7 +93,7 @@ describe.each(trees(Notifications, WebsideNotifications))('$tree Storefront/Acco
       : `button[aria-label="${to === 'seen' ? messages.actions.mark_seen : messages.actions.mark_unseen}"]`,
   )
 
-  /** The row's button that opens the notification: named by its text in the default, by the title in the frozen row. */
+  /** The row's button that opens the notification: named by its text in the default, by the title in the webside row. */
   const openButton = (wrapper: VueWrapper, title: string) => tree === 'default'
     ? rowOf(wrapper, title).findAll('button').find(button => button.text().includes(title))!
     : rowOf(wrapper, title).get(`button[aria-label="${title}"]`)

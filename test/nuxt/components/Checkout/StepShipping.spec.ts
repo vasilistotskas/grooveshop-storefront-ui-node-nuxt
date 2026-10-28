@@ -22,7 +22,7 @@ import { trees } from '~~/test/helpers/trees'
  * chosen carrier. The page's sidebar CTA calls the step's exposed
  * `submit()` — the real contract, so the tests drive it the same way.
  *
- * The frozen webside copy differs only in the prefixed child tags
+ * The webside copy differs only in the prefixed child tags
  * (`WebsideCheckoutSelected*Locker`) and its Greek-only i18n block, so
  * both trees run one body.
  */
@@ -76,7 +76,7 @@ const t = (key: string, params: Record<string, unknown> = {}): string => useNuxt
 
 /**
  * The default tree's delivery estimate, in business days after dispatch
- * (the frozen webside card has no such line). One row stands for every
+ * (the webside card has no such line). One row stands for every
  * home-delivery carrier, so it quotes the one the cart is priced by.
  */
 describe('Checkout/StepShipping delivery estimates', () => {
@@ -318,7 +318,7 @@ describe.each(trees(StepShipping, WebsideStepShipping))('$tree Checkout/StepShip
     })
   })
 
-  // The frozen step has its own Back button; in the redesign the page
+  // The webside step has its own Back button; in the redesign the page
   // draws Back and Continue under the card and drives `submit()`.
   it.runIf(tree === 'webside')('emits back from the back button', async () => {
     const wrapper = await mount()

@@ -24,7 +24,7 @@ const TINTED = (['success', 'warning', 'secondary'] as const).flatMap(
  * Light mode passes, which is why the first pass — measured in light —
  * recorded error as clean.
  *
- * The BADGE keeps its red label: webside's frozen render uses error
+ * The BADGE keeps its red label: webside's design renders error
  * badges that pass, and nothing measured says otherwise. `--ui-error`
  * is a platform token, not a tenant one, so this alert fix lands
  * identically on every store — including webside's own auth errors,

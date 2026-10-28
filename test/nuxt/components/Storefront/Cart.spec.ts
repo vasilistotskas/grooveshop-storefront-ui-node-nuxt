@@ -373,11 +373,11 @@ describe('Storefront/Cart', () => {
 })
 
 /**
- * The frozen webside cart shows the same free-delivery notice, fed the
+ * The webside cart shows the same free-delivery notice, fed the
  * cart's `freeThresholdValue`: a 45,00 € cart with a 6,00 € coupon is
  * 1,00 € short of a 40,00 € threshold, not past it.
  */
-describe('Storefront/Cart (frozen webside)', () => {
+describe('Storefront/Cart (webside)', () => {
   // Both trees decide from the productSuggestions feature.
   const showSuggestions = (on: boolean) => {
     clearNuxtData()

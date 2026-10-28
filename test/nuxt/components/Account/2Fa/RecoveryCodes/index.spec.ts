@@ -12,8 +12,8 @@ import { trees } from '~~/test/helpers/trees'
  * (`useRecoveryCodes`, shared by both trees). The print window is written
  * with `textContent`, never as HTML, so a code can never inject markup
  * there. A shopper without two-factor goes back to the Security page; the
- * tree frozen in the previous design has none and goes to its settings.
- * The default also warns when the codes run low, which the frozen page
+ * webside tree has none and goes to its settings.
+ * The default also warns when the codes run low, which the webside page
  * does not draw. Mocked at `useAllAuthAccount`.
  */
 const { getRecoveryCodes, navigateToMock, toastAdd, copy } = vi.hoisted(() => ({

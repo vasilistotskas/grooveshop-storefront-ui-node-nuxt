@@ -15,7 +15,7 @@ import { makeAuthenticator } from '~~/test/fixtures/allauth'
  * Cancel; Enter saves, Escape cancels, and the row shows the new name
  * once the API kept it: the change goes through `useWebAuthnKeys`, which
  * reads the keys from allauth again afterwards (the auth store). Webside-only:
- * the frozen tree changes for its own bugs.
+ * the webside design changes for its own bugs.
  */
 const { updateWebAuthnCredential, deleteWebAuthnCredential, getAuthenticators, toastAdd } = vi.hoisted(() => ({
   updateWebAuthnCredential: vi.fn((_body: unknown): Promise<{ status?: number } | undefined> => Promise.resolve({ status: 200 })),

@@ -121,7 +121,7 @@ of hand-building a payload in a second spec.
   mockNuxtImport('$fetch', () => api)
   ```
   **Mocking `$fetch` shadows every `registerEndpoint` in the file** — pick one
-  mechanism per spec. (That trap once left four frozen-render snapshots
+  mechanism per spec. (That trap once left four design-render snapshots
   pinning empty output.)
 - **`clearNuxtData()` with no key only clears keys that already have a
   payload entry.** A request still in flight survives it, and a
@@ -197,14 +197,14 @@ import what they use.
   shim does not provide: add it to `imports.ts` and `runtime.ts`, mirroring
   the real implementation.
 
-## The frozen webside tree
+## The webside design
 
 A component whose default and `variants/webside` copies share their logic
 gets one spec body run over both, via `describe.each(trees(Default, Webside))`;
 genuine differences are named with `it.runIf(tree === …)`. When the default is
 rewritten for real, fork its body into a default-only suite and keep the
-webside row. `test/nuxt/variants/webside/frozen-render.spec.ts` pins the
-frozen tree's markup; its snapshots change only when webside is meant to
+webside row. `test/nuxt/variants/webside/design-render.spec.ts` pins the
+design's markup; its snapshots change only when webside's design is meant to
 change.
 
 ## Source rules

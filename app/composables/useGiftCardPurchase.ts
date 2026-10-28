@@ -7,7 +7,7 @@ import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-j
  * client secret (a hosted processor sends the buyer to its own page).
  *
  * Shared by every drawing of the page (`Storefront/GiftCards.vue` and the
- * frozen webside copy); each keeps its own form, steps and copy. The error
+ * webside copy); each keeps its own form, steps and copy. The error
  * lines are the calling page's `errors.*` messages. Call it from the
  * body's `<script setup>`.
  */

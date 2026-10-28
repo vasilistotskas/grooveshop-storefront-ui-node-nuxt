@@ -38,14 +38,14 @@ describe('what a store renders, over the fixture tree', () => {
     ])
   })
 
-  it('swaps in the frozen tree for webside and keeps the shared components its tree uses', () => {
+  it('swaps in the webside design for webside and keeps the shared components its tree uses', () => {
     const webside = view('webside')
 
     expect(webside).toContain('components/variants/webside/Chrome/Footer.vue')
     expect(webside).toContain('components/variants/webside/Product/PriorPrice.vue')
     expect(webside).not.toContain('components/Chrome/Footer.vue')
     expect(webside).not.toContain('components/Product/PriorPrice.vue')
-    // Shared by both trees, reached through the frozen footer and home page.
+    // Shared by both trees, reached through the webside footer and home page.
     expect(webside).toContain('components/Cookie/Modal.vue')
     expect(webside).toContain('components/Demo/Greeting.vue')
   })
@@ -70,7 +70,7 @@ describe('what a store renders, over the real tree', () => {
     expect([...views.keys()]).toEqual(['default', 'delta_sigma', 'ekfyseosfyteias', 'webside'])
   })
 
-  it('reaches webside\'s frozen footer and not the default one', () => {
+  it('reaches webside\'s webside footer and not the default one', () => {
     expect(reaches('webside', 'components/variants/webside/Chrome/Footer.vue')).toBe(true)
     expect(reaches('webside', 'components/Chrome/Footer.vue')).toBe(false)
   })
@@ -82,8 +82,8 @@ describe('what a store renders, over the real tree', () => {
     expect(variantFiles).toEqual([])
   })
 
-  it('still reaches the shared components the frozen tree uses', () => {
-    // The frozen tree registers the shared consent banner and assistant as its chrome.
+  it('still reaches the shared components the webside design uses', () => {
+    // The webside design registers the shared consent banner and assistant as its chrome.
     expect(reaches('webside', 'components/Cookie/Control.vue')).toBe(true)
     expect(reaches('webside', 'components/Chat/Widget.vue')).toBe(true)
     expect(reaches('webside', 'components/Anchor.vue')).toBe(true)
@@ -104,7 +104,7 @@ describe('what a store renders, over the real tree', () => {
     expect(reaches('default', 'components/variants/webside/PageSection/AboutContent.vue')).toBe(false)
   })
 
-  it('leaves the redesign-only page and the design layout out of a frozen store', () => {
+  it('leaves the redesign-only page and the design layout out of a webside store', () => {
     expect(reaches('default', 'components/Storefront/Account/Security.vue')).toBe(true)
     expect(reaches('webside', 'components/Storefront/Account/Security.vue')).toBe(false)
     expect(reaches('default', 'layouts/auth-split.vue')).toBe(true)

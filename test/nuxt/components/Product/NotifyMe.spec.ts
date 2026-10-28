@@ -72,7 +72,7 @@ interface MountOptions { kind?: ProductAlertKindEnum, currentPrice?: number | nu
 /**
  * What differs between the trees: how each is mounted, how its form is
  * submitted, and its own words (el). The default's dialog is opened by its
- * parent on a kind, with a footer button wired to the form; the frozen
+ * parent on a kind, with a footer button wired to the form; the webside
  * copy draws a trigger and a dialog of its own per kind.
  */
 const ADAPTERS = {

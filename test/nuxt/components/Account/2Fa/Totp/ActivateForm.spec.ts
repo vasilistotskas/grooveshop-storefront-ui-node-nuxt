@@ -12,8 +12,8 @@ import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
  * Turning on TOTP: allauth hands back a secret and a QR code SVG (as a
  * 404 meta, before activation), the shopper confirms one code from their
  * app. The SVG is rendered with `v-html`, so it goes through DOMPurify
- * (`useTotpActivation`, shared by both trees). The tree frozen in the
- * previous design has no Security page and goes to its settings; it also
+ * (`useTotpActivation`, shared by both trees). The webside tree in the
+ * design has no Security page and goes to its settings; it also
  * shows the secret as one string, where the default groups it. Mocked at
  * `useAllAuthAccount`.
  */

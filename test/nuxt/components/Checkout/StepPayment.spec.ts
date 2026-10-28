@@ -22,7 +22,7 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
  * show under another's name.
  *
  * The default tree was redesigned (radio cards, a Review card); the
- * frozen webside copy keeps the original body below, run on its own, and
+ * webside copy keeps the original body below, run on its own, and
  * the redesign has its own suite after it. Placing the order gates on the
  * terms (`useCheckoutPaymentSubmit`): inside the default step, and on
  * webside in the page's sidebar above Place order, so the webside step

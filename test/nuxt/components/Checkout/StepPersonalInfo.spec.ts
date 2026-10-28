@@ -19,7 +19,7 @@ import { trees } from '~~/test/helpers/trees'
  * postcode placeholder shows the selected country's format, and Django's
  * field errors from a rejected order land under their own inputs.
  *
- * The frozen webside copy shares the logic: both gate the ACS address
+ * The webside copy shares the logic: both gate the ACS address
  * chip on Greece and on `acsEnabled` (a tenant without an ACS contract
  * only ever gets 503s from the proxy).
  */
@@ -589,7 +589,7 @@ describe.each(trees(StepPersonalInfo, WebsideStepPersonalInfo))('$tree Checkout/
       expect(step.emitted('edit-address')).toHaveLength(1)
     })
 
-    // The frozen copy opens the fields but does not mark them ahead of «Continue».
+    // The webside copy opens the fields but does not mark them ahead of «Continue».
     it.runIf(tree === 'default')('marks what is wrong as soon as the checkout opens a picked address', async () => {
       const { page, step } = await mountOpening({ mode: 'new' })
 

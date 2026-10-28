@@ -7,7 +7,7 @@
  * guides to read while the parcel travels.
  *
  * Shared by every drawing of the page (`Storefront/CheckoutSuccess.vue`
- * and the frozen webside copy), so a fix to what the page does lands
+ * and the webside copy), so a fix to what the page does lands
  * once. Call it from a body's `<script setup>`, before the first `await`.
  */
 export interface CheckoutSuccessOptions {

@@ -5,7 +5,7 @@
  * given room, a quote or call-out drawn as one.
  *
  * Its own prose, not `.article`: that class is the CMS pages' and the
- * frozen webside store's, and a change there reaches both. The rules
+ * webside store's, and a change there reaches both. The rules
  * live here, scoped, and reach the editor's markup through `:deep`.
  *
  * The HTML is the editor's, so it is sanitised here (embedded video

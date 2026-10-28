@@ -10,7 +10,7 @@
  * ever painting edge to edge.
  *
  * webside keeps the previous shell — a `PageWrapper` with a gap between
- * sections — in its frozen copy of this file, because its sections are
+ * sections — in its webside copy of this file, because its sections are
  * cards on a page rather than bands.
  */
 defineProps<{ sections: PageSection[] }>()

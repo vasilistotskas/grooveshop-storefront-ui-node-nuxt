@@ -258,10 +258,10 @@ describe('countActiveFilters', () => {
   })
 })
 
-// The frozen webside listing reads `countActiveFilters` and
+// The webside listing reads `countActiveFilters` and
 // `countFiltersBySection`: a link carrying the redesigned listing's filters
 // must not change what they say.
-describe('the counts the frozen listing reads', () => {
+describe('the counts the webside listing reads', () => {
   const REDESIGNED = { brands: ['3', '7'], inStock: true, onOffer: true }
 
   it('ignore the brand and availability filters', () => {
@@ -380,7 +380,7 @@ describe('buildFilterChips', () => {
     )
   })
 
-  // The frozen webside listing reads these chips and cannot show a brand
+  // The webside listing reads these chips and cannot show a brand
   // or an availability chip: they come from `buildListingFilterChips`.
   it('builds no chip for a brand or an availability filter', () => {
     expect(buildFilterChips(filters({ brands: ['3'], inStock: true, onOffer: true }), t)).toEqual([])

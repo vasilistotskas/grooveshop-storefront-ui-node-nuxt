@@ -18,7 +18,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
  * The default modal is a command palette (the second suite below); the
- * frozen webside copy keeps the original modal, tabs and all, so its body
+ * webside copy keeps the original modal, tabs and all, so its body
  * is run on its own first. Both search as the shopper types — 200 ms after the
  * last keystroke, from two characters — pages through "load more" by
  * APPENDING, and reports which result was clicked at the rank the

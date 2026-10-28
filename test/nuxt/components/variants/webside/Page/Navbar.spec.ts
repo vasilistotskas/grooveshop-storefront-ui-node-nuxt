@@ -5,10 +5,10 @@ import Navbar from '~/components/variants/webside/Page/Navbar.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
- * The frozen webside navbar's gift-card link follows the gated-routes
+ * The webside navbar's gift-card link follows the gated-routes
  * table (`shared/utils/gatedRoutes.ts`): gift cards are bought from the
  * catalogue, so a store with the catalogue off links to a 404 otherwise.
- * Its markup is pinned by `frozen-render.spec.ts`.
+ * Its markup is pinned by `design-render.spec.ts`.
  */
 mockNuxtImport('useNavigation', () => () => ({
   headerItems: computed(() => null),

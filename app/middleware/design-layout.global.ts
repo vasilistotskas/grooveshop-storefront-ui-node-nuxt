@@ -3,8 +3,8 @@
  *
  * Page files fix their layout at build time, so a page cannot pick one
  * per store; this resolves it per request instead (`resolveLayout`). The
- * sign-in pages take the Volt `auth-split` layout; a store frozen in the
- * previous design keeps the layout its page file names.
+ * sign-in pages take the Volt `auth-split` layout; a store with its own
+ * design keeps the layout its page file names.
  */
 export default defineNuxtRouteMiddleware((to) => {
   const name = useNuxtApp().$routeBaseName(to)

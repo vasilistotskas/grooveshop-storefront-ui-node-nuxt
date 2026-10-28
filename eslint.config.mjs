@@ -247,7 +247,7 @@ export default withNuxt(
     },
   },
   {
-    // The frozen webside tree keeps its own navigation and its own
+    // The webside tree keeps its own navigation and its own
     // request gates: webside serves Greek only, and the tree changes only
     // for webside bugs. It does NOT have every gated feature on (reviews,
     // promotions, loyalty and gift cards were off on 2026-10-17); its

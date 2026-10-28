@@ -13,7 +13,7 @@ import { trees } from '~~/test/helpers/trees'
  * (`useVerifyEmail`, shared by both trees): the code form, sent by itself
  * on the sixth digit. The default also has the in-place resend and
  * "Wrong email? Change it", which points the pending verification at a
- * corrected address (allauth mails it a fresh code); the frozen webside
+ * corrected address (allauth mails it a fresh code); the webside
  * page draws neither.
  */
 const { emailVerify, resendEmailVerificationCode, addEmailAddress, toastAdd } = vi.hoisted(() => ({

@@ -500,7 +500,7 @@ describe.each([
 
   it('asks for no reviews, and shows no rating or section, when the store has reviews off', async () => {
     // Django's feature for the default tree (and the shared review parts
-    // webside mounts); the setting is what the frozen page itself reads.
+    // webside mounts); the setting is what the webside page itself reads.
     serve({ PRODUCT_REVIEWS_ENABLED: 'False' })
     setTenantFeatures({ productReviews: false })
 
@@ -580,7 +580,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
   const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
   const empty = { count: 0, next: null, previous: null, results: [] }
   // The drawings strike a price differently: the default with <s>, the
-  // frozen webside copy with a line-through span.
+  // webside copy with a line-through span.
   const struck = tree === 'default' ? 's' : '.line-through'
 
   function serve(product: ReturnType<typeof makeProduct>) {
@@ -792,7 +792,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail b
     windowScrollY.value = 0
   })
 
-  // The frozen page shows its bar once the window has scrolled; the bar
+  // The webside page shows its bar once the window has scrolled; the bar
   // is the fixed band holding the product's name as an h3.
   it.runIf(tree === 'webside').each([{ cart: true, drawn: true }, { cart: false, drawn: false }])(
     'draws the sticky buy bar: $drawn when the cart is $cart',

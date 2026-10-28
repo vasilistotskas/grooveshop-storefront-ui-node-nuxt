@@ -801,7 +801,7 @@ export async function useCheckoutForm() {
       return {
         label: `${name ?? ''}${costSuffix}`,
         // The redesigned payment step draws the name and the surcharge
-        // apart; the frozen webside step reads only `label`.
+        // apart; the webside step reads only `label`.
         name: name ?? '',
         cost: displayCost,
         providerCode: payWay.providerCode,

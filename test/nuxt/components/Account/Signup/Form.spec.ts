@@ -15,7 +15,7 @@ import { newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
  * the pending-flow hand-off and error toasts are the app's real utils,
  * the auth store is the app's own.
  *
- * The two trees ask allauth the same things. The frozen copy takes the
+ * The two trees ask allauth the same things. The webside copy takes the
  * password twice and holds the social block as placeholders while the
  * config loads; the default takes it once (the field reveals what was
  * typed), offers a passkey where allauth supports one, the newsletter
@@ -91,7 +91,7 @@ interface Entry {
   consent?: boolean
 }
 
-/** Fill the form; the confirmation box exists in the frozen copy only. */
+/** Fill the form; the confirmation box exists in the webside copy only. */
 async function fill(wrapper: VueWrapper, { email = 'new@example.com', password = 'Καλημέρα2024', confirmation = password, consent = true }: Entry = {}) {
   await wrapper.find('input[type="email"]').setValue(email)
   const [first, second] = wrapper.findAll('input[autocomplete="new-password"]')

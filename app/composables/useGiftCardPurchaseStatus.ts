@@ -4,7 +4,7 @@
  * A landing without a purchase is a failed one, and asks Django nothing.
  *
  * Shared by every drawing of the page (`Storefront/GiftCardsSuccess.vue`
- * and the frozen webside copy). Call it from the body's `<script setup>`.
+ * and the webside copy). Call it from the body's `<script setup>`.
  */
 export type GiftCardPurchaseStatus = 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'UNKNOWN'
 

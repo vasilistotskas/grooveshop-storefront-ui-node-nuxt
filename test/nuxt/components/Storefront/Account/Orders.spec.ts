@@ -14,7 +14,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 /**
  * The shopper's orders: one row each, newest first unless the query says
  * otherwise, "Buy again" for an order that arrived, and pages beyond the
- * first eight. One `useMyOrdersPage` serves both trees; the frozen one
+ * first eight. One `useMyOrdersPage` serves both trees; the webside one
  * lets the shopper sort by status and updated time too, and its list of
  * cards reports a cancelled order so the page reloads.
  */
@@ -24,7 +24,7 @@ const { reorder } = vi.hoisted(() => ({ reorder: vi.fn((_id: number) => Promise.
 mockNuxtImport('useRoute', () => () => ({ name: 'account-orders___el', params: {}, query: state.query, path: '/account/orders', fullPath: '/account/orders', hash: '', meta: {}, matched: [] }))
 mockNuxtImport('useReorder', () => () => ({ reorder, reordering: ref(null) }))
 
-/** The frozen tree's list of order cards, naming the orders and reporting a cancellation as the real one does. */
+/** The webside design's list of order cards, naming the orders and reporting a cancellation as the real one does. */
 vi.mock('~/components/variants/webside/Order/List.vue', () => ({
   default: defineComponent({
     props: { orders: { type: Array, required: true } },
@@ -87,7 +87,7 @@ describe.each(trees(OrdersPage, WebsideOrdersPage))('$tree Storefront/Account/Or
     expect(asked[0]).toMatchObject({ ordering: '-createdAt' })
   })
 
-  it.runIf(!defaultOnly)('sorts by status, which the frozen page offers', async () => {
+  it.runIf(!defaultOnly)('sorts by status, which the webside page offers', async () => {
     state.query = { ordering: 'status' }
 
     await mountPage(C)

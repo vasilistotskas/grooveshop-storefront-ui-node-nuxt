@@ -21,7 +21,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  *
  * Buying must never fail in silence — measured on staging, a click that
  * never reached the API produced no toast, no console error and no cart
- * change. The default tree toasts every failure; the frozen webside
+ * change. The default tree toasts every failure; the webside
  * copy predates that fix (`if (failed) return`), so that case and the
  * default's `loading-auto` busy state are default-only. Everything else
  * is one body over both trees.

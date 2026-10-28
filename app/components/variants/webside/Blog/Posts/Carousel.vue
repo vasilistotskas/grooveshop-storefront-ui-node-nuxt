@@ -43,9 +43,8 @@ const BlogPostCard = computed(() =>
          displace the library default; a negative inset is what
          overhang-is-clipped.spec.ts forbids outright.
 
-         This is the one kind of edit the freeze allows — a webside-only
-         bug, not a restyle. The render changes only where it was
-         already broken. -->
+         This is a webside-only bug fix, not a restyle: the render
+         changes only where it was already broken. -->
     <UCarousel
       v-slot="{ item }"
       :items="posts"

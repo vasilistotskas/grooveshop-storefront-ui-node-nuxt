@@ -21,7 +21,7 @@ import { COMPONENTS, appLabel, classesOf, isElement, sfcTemplate, vueFiles, walk
  * usually inside a card or a grid cell that has its own alignment, and
  * this rule would fight it.
  *
- * The frozen `variants/webside` tree has no sections of its own under
+ * The `variants/webside` tree has no sections of its own under
  * `PageSection/`; the live `PageSection/variants/delta_sigma` ones are
  * checked like every other section.
  */

@@ -11,7 +11,7 @@ import { trees } from '~~/test/helpers/trees'
  * The header bell (`useNotificationsBell`, shared by both trees): the rows
  * in the store, opened to mark a notification seen and follow its link in
  * the viewer's locale. The default also offers "mark all read", titles
- * unread rows and shows an unseen dot; the frozen bell draws a plain
+ * unread rows and shows an unseen dot; the webside bell draws a plain
  * dropdown with none of them.
  */
 

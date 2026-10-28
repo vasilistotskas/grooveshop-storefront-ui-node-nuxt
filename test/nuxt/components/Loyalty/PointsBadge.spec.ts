@@ -12,7 +12,7 @@ import type { ProductPoints } from '~~/shared/openapi/types.gen'
 
 /**
  * The product page's "earn N points" badge, on a store with loyalty on.
- * The frozen copy renders for a signed-in shopper only; the default
+ * The webside copy renders for a signed-in shopper only; the default
  * renders for everyone, a guest at the store's base rate.
  */
 const loggedIn = ref(false)
@@ -36,7 +36,7 @@ mockNuxtImport('useLoyalty', () => () => ({
   fetchProductPoints,
 }))
 
-/** The frozen copy, pinned as it renders on webside.gr. */
+/** The webside copy, pinned as it renders on webside.gr. */
 describe('webside Loyalty/PointsBadge', () => {
   const C = WebsideLoyaltyPointsBadge
   beforeEach(() => {

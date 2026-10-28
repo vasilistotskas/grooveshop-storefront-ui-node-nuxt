@@ -13,7 +13,7 @@ import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
  * still has, so with codes left the button waits for an explicit
  * confirmation (`useRecoveryCodesRegeneration`, shared by both trees). A
  * shopper without two-step verification goes back to the Security page;
- * the tree frozen in the previous design has none and goes to its
+ * the webside tree has none and goes to its
  * settings. Mocked at `useAllAuthAccount`.
  */
 const { getRecoveryCodes, generateRecoveryCodes, navigateToMock, toastAdd } = vi.hoisted(() => ({

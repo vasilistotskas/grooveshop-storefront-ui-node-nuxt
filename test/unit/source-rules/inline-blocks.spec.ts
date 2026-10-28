@@ -16,15 +16,14 @@ import { APP, appLabel, parseSfc, vueFiles } from '../../helpers/sourceText'
  * component renders in two languages at once — and an empty string
  * renders nothing at all.
  *
- * The frozen `webside` tree is NOT translatable.
- * `app/components/variants/webside/**` is a byte-for-byte copy of the
- * storefront webside.gr renders today, kept while the platform defaults
- * are redesigned. Adding a locale to one of those blocks would change
- * that store's rendered output, which is the one thing the freeze
- * exists to prevent; that store serves Greek only.
+ * The `webside` design is NOT translatable.
+ * `app/components/variants/webside/**` is webside's own set of templates.
+ * Adding a locale to one of those blocks would change that store's
+ * rendered output, which the design-render snapshots exist to catch; that
+ * store serves Greek only.
  */
 const DEFAULT_BLOCK_LOCALE = 'el'
-const FROZEN_TREE = 'components/variants/webside/'
+const WEBSIDE_DESIGN_DIR = 'components/variants/webside/'
 
 /** Every leaf of a message tree as `path` → value. */
 function leaves(value: unknown, prefix = ''): Array<[string, unknown]> {
@@ -40,7 +39,7 @@ let blocks: Block[]
 
 beforeAll(() => {
   blocks = vueFiles(APP)
-    .filter(file => !appLabel(file).startsWith(FROZEN_TREE))
+    .filter(file => !appLabel(file).startsWith(WEBSIDE_DESIGN_DIR))
     .flatMap(file => parseSfc(file).customBlocks
       .filter(block => block.type === 'i18n')
       .map(block => ({ file: appLabel(file), messages: (YAML.parse(block.content) ?? {}) as Record<string, unknown> })))

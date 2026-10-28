@@ -12,7 +12,7 @@ import { trees } from '~~/test/helpers/trees'
  * digits): `useCodeReauthentication` and
  * `useAuthEventGuard`, shared by both trees. A refused code is cleared so
  * the shopper types it again; where the shopper goes after confirming is
- * the auth plugin's `auth:change` chain. The frozen tree says a code is
+ * the auth plugin's `auth:change` chain. The webside design says a code is
  * too short in a toast where the default just waits. Mocked at
  * `useAllAuthAuthentication`.
  */

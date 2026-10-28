@@ -14,7 +14,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  * primed from the list itself — on the server too — and removing one
  * reloads the list. One `useFavouriteProductsPage` serves both trees: they
  * differ in the page size (12 / 8), in the cards and in how a removal
- * reaches the page (the shop's card emits `favourite-delete`; the frozen
+ * reaches the page (the shop's card emits `favourite-delete`; the webside
  * list emits `refresh-favourites`).
  */
 const state = vi.hoisted(() => ({ favourites: [] as unknown[], query: undefined as URLSearchParams | undefined }))
@@ -29,7 +29,7 @@ mockNuxtImport('useUserSession', () => () => ({
   clear: () => Promise.resolve(),
 }))
 
-/** The frozen tree's list of cards: it names the products and reports a removal as the real one does. */
+/** The webside design's list of cards: it names the products and reports a removal as the real one does. */
 vi.mock('~/components/variants/webside/Product/Favourites/List.vue', () => ({
   default: defineComponent({
     props: { favourites: { type: Array, required: true } },
@@ -83,7 +83,7 @@ beforeEach(() => {
 
 describe.each(trees(FavouriteProductsPage, WebsideFavouriteProductsPage))('$tree Storefront/Account/FavouriteProducts', ({ tree, C, own }) => {
   const pageSize = tree === 'default' ? '12' : '8'
-  // The shop's empty state is its own words; the frozen one says the global `empty.title`.
+  // The shop's empty state is its own words; the webside one says the global `empty.title`.
   const emptyTitle = () => tree === 'default' ? inlineCopy('app/components/Storefront/Account/FavouriteProducts.vue').empty.title : useNuxtApp().$i18n.t('empty.title')
 
   async function mountPage() {
@@ -119,7 +119,7 @@ describe.each(trees(FavouriteProductsPage, WebsideFavouriteProductsPage))('$tree
     await wrapper.get('[data-card]').trigger('click')
     await flushPromises()
 
-    // Only the shop's page shows a count (its tabs); the frozen navbar has none to reload.
+    // Only the shop's page shows a count (its tabs); the webside navbar has none to reload.
     expect([fetches, countFetches]).toEqual([listBefore + 1, countBefore + (tree === 'default' ? 1 : 0)])
   })
 

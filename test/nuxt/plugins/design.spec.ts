@@ -5,7 +5,7 @@ import designPlugin from '~/plugins/design'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 /**
- * Every store is drawn in Groove Volt except webside, whose frozen tree
+ * Every store is drawn in Groove Volt except webside, whose webside tree
  * must keep rendering with the app config and stylesheet it was
  * captured against.
  */

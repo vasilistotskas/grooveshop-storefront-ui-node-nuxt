@@ -16,7 +16,7 @@ import { trees } from '~~/test/helpers/trees'
  * consent tick is checked here and never sent; the spam filter's
  * five-word rule is mirrored as an inline hint; files already uploaded
  * ride along as `attachmentIds`; and a refusal from Django is shown. The
- * frozen copy asks the three fields only (no topic, consent or files); its
+ * webside copy asks the three fields only (no topic, consent or files); its
  * rules, its request and its answers are the shop's, from one
  * `useContactEnquiry`.
  */
@@ -98,7 +98,7 @@ async function submit(wrapper: VueWrapper) {
 }
 
 const DEFAULT_COPY = inlineCopy('app/components/ContactForm.vue')
-/** A word of the form in this tree: the shop's own `<i18n>`, the frozen copy's global keys. */
+/** A word of the form in this tree: the shop's own `<i18n>`, the webside copy's global keys. */
 function word(tree: 'default' | 'webside', key: string): string {
   return tree === 'default'
     ? String(key.split('.').reduce<InlineCopy>((copy, part) => copy[part], DEFAULT_COPY))

@@ -16,7 +16,7 @@ import { failWith } from '~~/test/helpers/api'
  *
  * One `createApiMock` answers `$api` (the check) and `$fetch` (the
  * `useApi` settings payload). The trees share the logic; the default
- * lists a card as a pill with a "Remove" link, the frozen webside copy
+ * lists a card as a pill with a "Remove" link, the webside copy
  * as a closable alert (its Greek-only strings are quoted below).
  */
 

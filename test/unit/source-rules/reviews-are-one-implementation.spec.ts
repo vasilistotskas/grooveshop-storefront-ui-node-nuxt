@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { describe, it, expect } from 'vitest'
 import {
-  FROZEN,
+  WEBSIDE_DESIGN,
   appLabel,
   readSource,
   relativeLabel,
@@ -14,7 +14,7 @@ import {
 /**
  * The reviews UI is ONE implementation for every store (storefront #165).
  *
- * Webside's tree is frozen, but not for reviews: its product page, its
+ * Webside's design keeps its own look, but not its own reviews: its product page, its
  * cards and its "My reviews" page mount the shared components
  * (`ProductReviewsSection`, `ProductRating`, the account body), so a fix
  * lands once. These rules fail the day a copy comes back: a webside file
@@ -30,7 +30,7 @@ const SHARED_SITES: Array<{ file: string, mounts: string[] }> = [
   { file: 'AccountArea/Page/Reviews.vue', mounts: ['StorefrontAccountReviews'] },
 ]
 
-const frozenFiles = vueFiles(FROZEN)
+const designFiles = vueFiles(WEBSIDE_DESIGN)
 
 function tagsIn(file: string): Set<string> {
   const tags = new Set<string>()
@@ -38,16 +38,16 @@ function tagsIn(file: string): Set<string> {
   return tags
 }
 
-describe('the reviews UI in the frozen webside tree', () => {
+describe('the reviews UI in the webside tree', () => {
   it.each(SHARED_SITES)('mounts the shared $mounts in $file', ({ file, mounts }) => {
-    const tags = tagsIn(resolve(FROZEN, file))
+    const tags = tagsIn(resolve(WEBSIDE_DESIGN, file))
 
     for (const mount of mounts) expect(tags, `${file} must render <${mount}>`).toContain(mount)
   })
 
   it('has no review or rating component of its own', () => {
-    const own = frozenFiles
-      .map(file => relativeLabel(FROZEN, file))
+    const own = designFiles
+      .map(file => relativeLabel(WEBSIDE_DESIGN, file))
       .filter(label => /Review|Rating/.test(label))
 
     expect(own).toEqual(['AccountArea/Page/Reviews.vue'])
@@ -56,7 +56,7 @@ describe('the reviews UI in the frozen webside tree', () => {
   it('draws no stars of its own', () => {
     // A star icon is fine for a loyalty tier or a primary address; it is a
     // review's rating only in a file that reads reviews.
-    const offenders = frozenFiles
+    const offenders = designFiles
       .filter((file) => {
         const source = withoutComments(readSource(file))
         return /UInputRating/.test(source) || (/i-heroicons-star|i-lucide-star/.test(source) && /review(Average|Count)/.test(source))
@@ -64,12 +64,12 @@ describe('the reviews UI in the frozen webside tree', () => {
       .map(appLabel)
 
     // A canary: the rule must be reading the whole tree, not an empty list.
-    expect(frozenFiles.length).toBeGreaterThan(100)
+    expect(designFiles.length).toBeGreaterThan(100)
     expect(offenders).toEqual([])
   })
 
   it('shows no rating on the model\'s 1..10 scale', () => {
-    const offenders = frozenFiles
+    const offenders = designFiles
       .filter(file => /reviewAverage[^\n]*(?:toFixed|\/\s*10)|\/\{?\s*maxRate/.test(withoutComments(readSource(file))))
       .map(appLabel)
 

@@ -24,7 +24,7 @@ mockNuxtImport('useUserSession', () => () => ({
   clear: () => Promise.resolve(),
 }))
 
-/** The frozen tree's list of cards, naming the posts it is given. */
+/** The webside design's list of cards, naming the posts it is given. */
 vi.mock('~/components/variants/webside/Blog/Post/Favourites/List.vue', () => ({
   default: defineComponent({
     props: { favourites: { type: Array, required: true } },

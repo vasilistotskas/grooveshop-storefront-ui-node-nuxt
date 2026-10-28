@@ -1,14 +1,13 @@
 /**
- * Render snapshots of everything webside.gr renders TODAY.
+ * Render snapshots of everything webside.gr renders in its own design.
  *
- * The platform-default storefront is being rewritten while webside must
- * keep rendering byte-for-byte what it renders now. The mechanism is to
- * freeze the current components as the `@webside` variant and move them
- * into `app/components/variants/webside/`. This spec pins the markup
- * BEFORE that move: every component webside's chrome and pages are made
- * of is mounted with fixed fixtures and its HTML snapshotted. After the
- * move only the import paths in this file change — the snapshot files
- * must pass untouched, otherwise the freeze changed what a visitor sees.
+ * Webside is the first store with its own design: its templates live in
+ * `app/components/variants/webside/`, apart from the platform defaults. The
+ * look of a design must not change BY ACCIDENT (a lint auto-fix, a shared
+ * refactor), so every component webside's chrome and pages are made of is
+ * mounted with fixed fixtures and its HTML snapshotted. A deliberate change
+ * to webside's design updates these snapshots on purpose; any other change
+ * that moves them changed what a visitor sees.
  *
  * Generated ids (`v-…`, `reka-…`) and scoped-style hashes (`data-v-…`)
  * are normalised: the former change with mount order, the latter with
@@ -70,7 +69,7 @@ mockNuxtImport('$fetch', () => api)
 mockNuxtImport('useRequestApi', () => () => api)
 
 /**
- * Signed out for everything captured before the account area was frozen;
+ * Signed out for everything captured before the account area joined webside's design;
  * the account cases sign in. The full surface, because the auth plugin
  * reads it while the app boots.
  */
@@ -92,7 +91,7 @@ mockNuxtImport('useUserSession', () => () => {
 })
 
 /**
- * The default layout renders the shared (not frozen) chat widget as the
+ * The default layout renders the shared (not webside's own) chat widget as the
  * `assistant` chrome, which webside maps to it. The snapshot pins its
  * not-yet-loaded wrapper (`<!---->`); left real, the widget's chunk —
  * `UDrawer` with it — loaded after the test and failed on a torn-down
@@ -256,7 +255,7 @@ async function atViewportWidth(width: number, run: () => Promise<void>) {
   }
 }
 
-describe('webside frozen render', () => {
+describe('webside design render', () => {
   beforeEach(() => {
     // `useApi` caches by key on the shared app: without this a section
     // would render whatever an earlier test's mount left behind.

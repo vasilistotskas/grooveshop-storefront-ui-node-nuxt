@@ -13,7 +13,7 @@ import { makeSessionResponse } from '~~/test/fixtures/allauth'
  * the OTHER ways allauth offers to confirm it is you — the password,
  * then each second factor strongest first — the page on screen being
  * the one left out (`useMfaReauthenticationMethods`, shared by both trees).
- * The frozen tree lists every way, the page on screen included and marked
+ * The webside design lists every way, the page on screen included and marked
  * as the current one. Driven by the `auth-state` the auth plugin keeps.
  *
  * Re-authentication confirms a shopper who is already signed in, and its

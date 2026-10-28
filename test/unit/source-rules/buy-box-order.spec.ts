@@ -12,7 +12,7 @@ import { COMPONENTS, sfcTemplate, walkElements } from '../../helpers/sourceText'
  * a 1440×900 desktop, below the fold, measured on the demo store
  * 2026-09-19. The delivery plan had always put the panel underneath.
  *
- * Only the DEFAULT tree is checked. `variants/webside` is frozen and
+ * Only the DEFAULT tree is checked. `variants/webside` has its own design and
  * renders the order that store has today.
  */
 const BODY = resolve(COMPONENTS, 'Storefront/ProductDetail.vue')

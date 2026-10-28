@@ -12,7 +12,7 @@ import { APP, appLabel, readSource, withoutComments } from '../../helpers/source
  * safe; a component calling `/api/loyalty/*` itself would have to
  * remember that gate again, and the one that did not, on webside's
  * checkout, is how a store with loyalty off kept being asked. The
- * frozen webside tree is held to it too: it renders a live store.
+ * webside tree is held to it too: it renders a live store.
  */
 const SOURCE = resolve(APP, 'composables/useLoyalty.ts')
 

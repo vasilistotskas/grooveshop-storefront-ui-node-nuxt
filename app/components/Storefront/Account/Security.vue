@@ -5,7 +5,7 @@
  * addresses, the signed-in devices and the connected social accounts —
  * each a section that changes itself in place or opens its own page.
  *
- * Only the redesign has it (`REDESIGN_ONLY_PAGES`): the frozen
+ * Only the redesign has it (`REDESIGN_ONLY_PAGES`): the webside
  * webside tree keeps those pages apart, behind its own settings menu.
  * Here their routes (email, devices, connected accounts, two-step,
  * passkeys) show this page too (`variantRegistry`), and each section

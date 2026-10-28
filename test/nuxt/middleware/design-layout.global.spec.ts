@@ -46,7 +46,7 @@ describe('design-layout middleware', () => {
     expect(setPageLayoutMock).not.toHaveBeenCalled()
   })
 
-  it('leaves webside on the layout its frozen sign-in pages were captured in', async () => {
+  it('leaves webside on the layout its webside sign-in pages were captured in', async () => {
     setTenant({ schemaName: 'webside' })
 
     await visit(useLocalePath()('account-login'))

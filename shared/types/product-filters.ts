@@ -45,9 +45,9 @@ export type FilterChip
 
 /**
  * The chips the redesigned listing draws: `FilterChip` plus the brand and
- * availability filters. Kept apart from `FilterChip` because the frozen
- * webside listing switches over `FilterChip` exhaustively and can neither
- * show these chips nor be edited to; it never sets those filters.
+ * availability filters. Kept apart from `FilterChip` because the
+ * webside listing switches over `FilterChip` exhaustively and does not
+ * show these chips; it never sets those filters.
  */
 export type ListingFilterChip
   = | FilterChip

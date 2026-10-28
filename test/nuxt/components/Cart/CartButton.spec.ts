@@ -11,7 +11,7 @@ import { setTenant } from '~~/test/helpers/tenant'
  * The navbar cart icon: its count, its warning colour when a line has
  * outgrown the stock, and no stale count while the cart is loading.
  *
- * The default (Groove Volt) and the frozen webside button now differ:
+ * The default (Groove Volt) and the webside button now differ:
  * the default hides the count on an empty cart, colours it with the
  * accent, and names the item count; webside keeps today's behaviour.
  */

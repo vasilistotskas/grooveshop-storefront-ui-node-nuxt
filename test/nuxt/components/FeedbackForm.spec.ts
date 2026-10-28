@@ -319,7 +319,7 @@ describe('FeedbackForm', () => {
 })
 
 /**
- * The frozen webside copy asks all five fields on one `DynamicForm` and
+ * The webside copy asks all five fields on one `DynamicForm` and
  * posts what it submits; the rules and the send are the shop's own
  * (`useFeedbackSubmit`). `DynamicForm` is its own component with its own
  * spec: here it is a button that submits a fixed answer, and exposes the

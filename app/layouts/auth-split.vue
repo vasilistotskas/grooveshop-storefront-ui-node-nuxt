@@ -8,7 +8,7 @@
  * way back and the logo, then the form; no footer or tab bar.
  *
  * Chosen per request by `middleware/design-layout.global.ts`, never by
- * a page file: a store frozen in the previous design keeps its layout.
+ * a page file: a store with its own design keeps its layout.
  */
 const { t, locale } = useStoreI18n('layouts/auth-split')
 const tenantStore = useTenantStore()

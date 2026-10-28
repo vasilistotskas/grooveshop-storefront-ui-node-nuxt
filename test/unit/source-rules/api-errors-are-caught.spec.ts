@@ -18,7 +18,7 @@ import { APP, appLabel, callsIn, composableFiles, vueFiles } from '../../helpers
  * A composable may pass hooks on a call it RETURNS (the allauth
  * composables fire `auth:change` from them): the caller awaits it and
  * catches. A hooked call it awaits itself is the same bug as in a
- * component. The frozen `webside` tree is held to the same rule: it
+ * component. The `webside` tree is held to the same rule: it
  * renders a live store, and these are bug fixes.
  */
 const HOOK = /^on(?:Request|Response)(?:Error)?$/

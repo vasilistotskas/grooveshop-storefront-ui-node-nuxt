@@ -31,7 +31,7 @@ const buildResponse = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 })
 
-/** The frozen copy's own `<i18n>` copy (el); the global `$i18n` cannot reach it. */
+/** The webside copy's own `<i18n>` copy (el); the global `$i18n` cannot reach it. */
 const euro = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 const COPY = {
   idle: (amount: number) => `Δωρεάν μεταφορικά σε αγορές άνω των ${euro(amount)}`,
@@ -39,7 +39,7 @@ const COPY = {
   qualified: 'Έχεις δωρεάν μεταφορικά',
 }
 
-/** The frozen copy, pinned as it renders on webside.gr. */
+/** The webside copy, pinned as it renders on webside.gr. */
 describe('webside FreeShippingNotice', () => {
   const C = WebsideFreeShippingNotice
   beforeEach(() => {

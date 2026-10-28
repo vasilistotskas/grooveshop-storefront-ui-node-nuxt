@@ -60,8 +60,8 @@ describe('variantRegistry', () => {
     expect(webside).not.toBe(platform)
   })
 
-  // A page only the redesign has gets no frozen body; the store frozen
-  // in the previous design answers 404 for it (`01.design-only.global`).
+  // A page only the redesign has gets no webside body; the store with its
+  // own design answers 404 for it (`01.design-only.global`).
   it.each([...REDESIGN_ONLY_PAGES])('has no webside body for the redesign-only page %s', (key) => {
     expect(resolvePage(key, 'webside')).toBe(resolvePage(key, null))
   })
@@ -86,12 +86,12 @@ describe('variantRegistry', () => {
     expect(resolveChrome('navbar', 'demo')).toBe(resolveChrome('navbar', undefined))
   })
 
-  it('draws every tenant in the Volt design except the frozen webside', () => {
+  it('draws every tenant in the Volt design except webside', () => {
     expect(resolveDesign('demo')).toBe('volt')
     expect(resolveDesign('ekfyseosfyteias')).toBe('volt')
     expect(resolveDesign('delta_sigma')).toBe('volt')
     // webside renders with the base stylesheet and app config, which is
-    // what its frozen tree was captured against.
+    // what its webside tree was captured against.
     expect(resolveDesign('webside')).toBeNull()
   })
 
@@ -99,7 +99,7 @@ describe('variantRegistry', () => {
     expect(resolveLayout('auth', 'demo')).toBe('auth-split')
     expect(resolveLayout('auth', 'ekfyseosfyteias')).toBe('auth-split')
     // webside and a request without a tenant keep the layout their page
-    // declares: the frozen sign-in pages were captured inside it.
+    // declares: the webside sign-in pages were captured inside it.
     expect(resolveLayout('auth', 'webside')).toBeNull()
     expect(resolveLayout('auth', null)).toBeNull()
   })

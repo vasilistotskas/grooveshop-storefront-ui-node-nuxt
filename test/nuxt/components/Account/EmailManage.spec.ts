@@ -17,7 +17,7 @@ import { trees } from '~~/test/helpers/trees'
  * primary, remove it) and an add form. Mocked at `useAllAuthAccount`; the
  * list is `useEmailAddresses`' `useAsyncData` (`emailAddresses`), read
  * again after every change that alters it. The two trees share that
- * logic; the default draws rows with buttons, the frozen copy a table with
+ * logic; the default draws rows with buttons, the webside copy a table with
  * a row menu and its own add form.
  */
 const { getEmailAddresses, addEmailAddress, requestEmailVerification, removeEmailAddress, changePrimaryEmailAddress, toastAdd } = vi.hoisted(() => ({
@@ -41,7 +41,7 @@ const messagesOf = (path: string) => YAML.parse(
   parseSfc(resolve(REPO, path)).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
 
-/** The words of each tree's toasts: the default's own `<i18n>` (el), the frozen copy's global keys. */
+/** The words of each tree's toasts: the default's own `<i18n>` (el), the webside copy's global keys. */
 const COPY = {
   default: () => {
     const messages = messagesOf('app/components/Account/EmailManage.vue')
@@ -78,7 +78,7 @@ describe.each(trees(EmailManage, WebsideEmailManage))('$tree Account/EmailManage
   }
 
   async function addAddress(wrapper: VueWrapper, email: string) {
-    // The default opens its form on "Add email"; the frozen copy always shows it.
+    // The default opens its form on "Add email"; the webside copy always shows it.
     if (tree === 'default') await button(wrapper, messagesOf('app/components/Account/EmailManage.vue').add).trigger('click')
     await wrapper.find('input[type="email"]').setValue(email)
     await wrapper.find('form').trigger('submit')

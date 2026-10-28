@@ -19,7 +19,7 @@ import { trees } from '~~/test/helpers/trees'
  * One order: its progress, one timeline of the store's steps and the
  * carrier's scans (newest first), where it is going, its items and
  * totals, the payment, and the order's own actions — the invoice, buy
- * again, and cancel behind a confirmation. The frozen webside page draws
+ * again, and cancel behind a confirmation. The webside page draws
  * it its own way (a stepper, collapsible sections) and shares the request,
  * the invoice and buy again with the shop's: only those run on both trees.
  */
@@ -95,7 +95,7 @@ describe.each(trees(OrderDetailPage, WebsideOrderDetailPage))('$tree Storefront/
     expect(button(wrapper, reorderLabel()) !== undefined).toBe(offered)
   })
 
-  it.runIf(!defaultOnly)('buys the order again with the frozen page\'s own words and toast icons', async () => {
+  it.runIf(!defaultOnly)('buys the order again with the webside page\'s own words and toast icons', async () => {
     const wrapper = await mountPage(C)
 
     await button(wrapper, reorderLabel())!.trigger('click')

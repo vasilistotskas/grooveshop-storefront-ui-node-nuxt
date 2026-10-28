@@ -11,7 +11,7 @@ import { asProxiedError, makeBadResponse } from '~~/test/fixtures/allauth'
  * Asking allauth to email a password-reset link. Mocked at
  * `useAllAuthAuthentication`; the error toasts are the app's real
  * `handleAllAuthClientError`. The two trees share the request; the
- * default says "check your inbox" in place where the frozen copy toasts,
+ * default says "check your inbox" in place where the webside copy toasts,
  * and words its failure differently.
  */
 const { passwordRequest, toastAdd } = vi.hoisted(() => ({

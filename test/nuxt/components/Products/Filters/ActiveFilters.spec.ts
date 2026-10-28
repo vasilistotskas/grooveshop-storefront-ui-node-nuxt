@@ -28,7 +28,7 @@ mockNuxtImport('useProductBrands', () => () => ({
   getBrandName: (id: string) => BRAND_NAMES[id] ?? id,
 }))
 
-/** The listing's chips and the frozen webside listing's, which agree on every chip they share. */
+/** The listing's chips and the webside listing's, which agree on every chip they share. */
 function showChips(...chips: FilterChip[]) {
   pf.activeFilterChips.value = chips
   pf.activeListingChips.value = chips

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { COMPONENTS, FROZEN, appLabel, readSource, vueFiles, withoutComments } from '../../helpers/sourceText'
+import { COMPONENTS, WEBSIDE_DESIGN, appLabel, readSource, vueFiles, withoutComments } from '../../helpers/sourceText'
 
 /**
  * Repositioning a carousel arrow means beating its `sm:` default too.
@@ -49,7 +49,7 @@ interface Override { site: string, key: string, bare: Set<string>, responsive: S
 let overrides: Override[]
 
 beforeAll(() => {
-  overrides = vueFiles(COMPONENTS, { exclude: [FROZEN] }).flatMap((file) => {
+  overrides = vueFiles(COMPONENTS, { exclude: [WEBSIDE_DESIGN] }).flatMap((file) => {
     const source = withoutComments(readSource(file))
     return [...source.matchAll(ARROW_KEY)].map(([, key, quoted]) => {
       const bare = new Set<string>()

@@ -93,7 +93,7 @@ describe('the tap-press class', () => {
 
 /**
  * The Groove Volt scope: `<html data-design="volt">`, which
- * `app/plugins/design.ts` sets for every store but the frozen webside
+ * `app/plugins/design.ts` sets for every store but the webside
  * tree. Its rules restate the base `:root` / `.dark` tokens at the same
  * specificity, so they must come AFTER them; the tenant theme's
  * `html:root` / `html.dark` out-specifies both (`themeTokens.spec.ts`).

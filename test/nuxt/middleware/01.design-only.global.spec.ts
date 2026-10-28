@@ -5,7 +5,7 @@ import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * A page only the redesigned storefront has (the account's Security
- * page): a store frozen in the previous design has no body for it and
+ * page): a store with its own design has no body for it and
  * never links to it, so there it is not found — signed in or not, since
  * this runs before the sign-in redirect.
  */
@@ -20,13 +20,13 @@ describe('design-only middleware', () => {
     expect(designOnly(SECURITY, SECURITY)).toBeUndefined()
   })
 
-  it('404s on the store frozen in the previous design', () => {
+  it('404s on the store with its own design', () => {
     setTenant({ schemaName: 'webside' })
 
     expect(() => designOnly(SECURITY, SECURITY)).toThrow(expect.objectContaining({ statusCode: 404 }))
   })
 
-  it('leaves every other page to the frozen store', () => {
+  it('leaves every other page to the webside store', () => {
     setTenant({ schemaName: 'webside' })
 
     expect(designOnly(ORDERS, ORDERS)).toBeUndefined()
