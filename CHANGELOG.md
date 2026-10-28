@@ -1,3 +1,13 @@
+# [3.270.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.269.0...v3.270.0) (2026-10-28)
+
+
+### Features
+
+* **webside:** ask for cookie consent only where a store uses an optional service ([#276](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/276)) ([4fc4f2f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4fc4f2f282bca782532c0d19e085b2baff752423))
+* **webside:** assistant product cards, cart quantity and reward teasers ([#274](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/274)) ([22ed96b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/22ed96b504a93b584bb5631f4e0caaf9ae2860bc))
+* **webside:** brand, in-stock and on-offer filters in webside's product list ([#273](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/273)) ([b61608f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b61608f02d846dd4f27ae19543f75e11f5885a58))
+* **webside:** the unified Security page in webside's own design ([#275](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/275)) ([ebcf481](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ebcf4814f81c5fabfe96c2a4f323e52578562563))
+
 # [3.269.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.268.0...v3.269.0) (2026-10-28)
 
 
