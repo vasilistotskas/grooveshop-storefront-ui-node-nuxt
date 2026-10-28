@@ -3,6 +3,7 @@ import { type Cookie, COOKIE_ID_SEPARATOR } from '#cookie-control/types'
 import { getAllCookieIdsString, getCookieIds, removeCookie } from '#cookie-control/methods'
 
 const { t } = useStoreI18n('components/Cookie/Control')
+const tenantStore = useTenantStore()
 
 const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, isModalActive, moduleOptions } = useCookieControl()
 
@@ -173,7 +174,7 @@ defineExpose({
     -->
     <ClientOnly>
       <div
-        v-if="!isConsentGiven && !moduleOptions.isModalForced"
+        v-if="tenantStore.hasOptionalServices && !isConsentGiven && !moduleOptions.isModalForced"
         class="
             fixed right-0 bottom-2 left-0 z-50 mx-auto max-w-sm rounded-md
             border border-primary-200 bg-primary-50 px-4 py-4 text-primary-600
