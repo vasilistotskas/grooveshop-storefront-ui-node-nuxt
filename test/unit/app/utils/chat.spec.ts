@@ -8,23 +8,39 @@ describe('chatSegments', () => {
     expect(chatSegments('Γεια σου')).toEqual([{ type: 'text', text: 'Γεια σου' }])
   })
 
-  it('puts a list where it arrived, between the words before and after it', () => {
-    const event = list(5)
+  it('keeps the words before a list and puts it after the paragraph it arrived in', () => {
+    const event = list(8)
 
-    expect(chatSegments('Ψάχνω.\n\nΒρήκα δύο.', [event])).toEqual([
-      { type: 'text', text: 'Ψάχνω' },
+    expect(chatSegments('Ψάχνω.\n\nΒρήκα δύο.\n\nΤι άλλο;', [event])).toEqual([
+      { type: 'text', text: 'Ψάχνω.\n\nΒρήκα δύο.' },
       { type: 'products', event },
-      { type: 'text', text: '.\n\nΒρήκα δύο.' },
+      { type: 'text', text: '\n\nΤι άλλο;' },
     ])
   })
 
-  it('leads with the cards when they arrived before any text', () => {
+  it('puts a list that arrived before any text after the words that introduce it', () => {
     const event = list(0)
 
-    expect(chatSegments('Βρήκα δύο.', [event])).toEqual([
-      { type: 'products', event },
+    expect(chatSegments('Βρήκα δύο.\n\nΤι άλλο;', [event])).toEqual([
       { type: 'text', text: 'Βρήκα δύο.' },
+      { type: 'products', event },
+      { type: 'text', text: '\n\nΤι άλλο;' },
     ])
+  })
+
+  it('puts a list that arrived before any text at the end while its words still stream', () => {
+    const event = list(0)
+
+    expect(chatSegments('Βρήκα', [event])).toEqual([
+      { type: 'text', text: 'Βρήκα' },
+      { type: 'products', event },
+    ])
+  })
+
+  it('shows the cards alone when no text ever follows them', () => {
+    const event = list(0)
+
+    expect(chatSegments('', [event])).toEqual([{ type: 'products', event }])
   })
 
   it('keeps several lists in arrival order and drops blank runs between them', () => {

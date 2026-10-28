@@ -61,12 +61,12 @@ describe('Chrome/AssistantPanel', () => {
     expect(wrapper.find('img').exists()).toBe(false)
   })
 
-  it('renders the products a tool surfaced between the words around them, from the product API', async () => {
+  it('renders the products a tool surfaced after the words that introduce them, from the product API', async () => {
     api.routes({ '/api/products/*': makeProduct({ id: 5 }) })
     stubReply(
-      'event: delta\ndata: {"text":"Ψάχνω φορτιστές."}\n\n'
+      'event: delta\ndata: {"text":"Ψάχνω φορτιστές.\\n\\n"}\n\n'
       + 'event: products\ndata: {"tool":"search_products","query":"φορτιστής","total":1,"products":[{"id":5}]}\n\n'
-      + 'event: delta\ndata: {"text":" Βρήκα έναν."}\n\n'
+      + 'event: delta\ndata: {"text":"Βρήκα έναν."}\n\n'
       + 'event: done\ndata: {"conversationId":"c1","cartMutated":false}\n\n',
     )
     const wrapper = await mountPanel()
@@ -77,7 +77,7 @@ describe('Chrome/AssistantPanel', () => {
     const text = wrapper.text()
     expect(wrapper.find('li h4').text()).toBe('Προϊόν 5')
     expect(text.indexOf('Ψάχνω φορτιστές.')).toBeLessThan(text.indexOf('Προϊόν 5'))
-    expect(text.indexOf('Προϊόν 5')).toBeLessThan(text.indexOf('Βρήκα έναν.'))
+    expect(text.indexOf('Βρήκα έναν.')).toBeLessThan(text.indexOf('Προϊόν 5'))
     expect(api.callsTo('/api/products/*').map(call => call.url)).toEqual(['/api/products/5'])
   })
 

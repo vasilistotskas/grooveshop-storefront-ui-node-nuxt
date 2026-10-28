@@ -4,9 +4,11 @@ export type ChatSegment
 
 /**
  * A message's text and its product lists in the order they happened: each
- * list sits at the text offset (`at`) it arrived at, so cards the
- * assistant surfaced before explaining them render before the
- * explanation. Empty text runs are dropped.
+ * list arrives at a text offset (`at`), and renders after the paragraph
+ * that offset falls in. The gateway sends a list the moment its tool
+ * returns, before the words that introduce it, so a list at the start of a
+ * paragraph's words follows them rather than preceding them. Empty text
+ * runs are dropped.
  */
 export function chatSegments(text: string, products: ShopChatProducts[] = []): ChatSegment[] {
   const segments: ChatSegment[] = []
@@ -20,7 +22,8 @@ export function chatSegments(text: string, products: ShopChatProducts[] = []): C
   }
 
   for (const event of [...products].sort((a, b) => a.at - b.at)) {
-    pushText(Math.min(event.at, text.length))
+    const paragraphEnd = text.indexOf('\n\n', Math.min(event.at, text.length))
+    pushText(Math.max(cursor, paragraphEnd === -1 ? text.length : paragraphEnd))
     segments.push({ type: 'products', event })
   }
   pushText(text.length)
