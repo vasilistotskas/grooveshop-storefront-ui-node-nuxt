@@ -1,3 +1,10 @@
+# [3.269.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.268.0...v3.269.0) (2026-10-28)
+
+
+### Features
+
+* **texts:** show a store's edited texts on its pages ([#268](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/268)) ([a99dd83](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a99dd839dcfb8c10c401cf2b63e1808ecddbd7da)), closes [#341](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/341)
+
 # [3.268.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.267.2...v3.268.0) (2026-10-28)
 
 
