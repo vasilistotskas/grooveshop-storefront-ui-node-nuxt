@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { LOCALE_FILES, LOCALE_FILES_DIR } from '~~/i18n/locales'
 import { buildTextCatalogue, flattenMessages, namespaceOf, readBlockMessages } from '~~/modules/text-catalogue/extract'
 import { TEXT_FIXTURE_SOURCE } from '~~/test/fixtures/texts/source'
+import { REAL_TEXT_SOURCE } from '~~/test/helpers/realTextSource'
 
 const REPO = join(import.meta.dirname, '../../../..')
 
@@ -112,12 +113,32 @@ describe('buildTextCatalogue over the fixture tree', () => {
   })
 })
 
-describe('buildTextCatalogue over the real tree', () => {
-  const real = buildTextCatalogue({
-    appDir: join(REPO, 'app'),
-    localesDir: join(REPO, LOCALE_FILES_DIR),
-    localeFiles: LOCALE_FILES,
+describe('views over the fixture tree', () => {
+  it('lists, per store, the namespaces its components own, with the hash of that view entries', () => {
+    expect(Object.keys(fixture.views)).toEqual(['default', 'delta_sigma', 'webside'])
+    expect(fixture.views.webside!.namespaces).toEqual([
+      'components/Cookie/Modal',
+      'components/Demo/Greeting',
+      'components/PageSection/Hero',
+      'components/variants/webside/Chrome/Footer',
+      'components/variants/webside/Product/PriorPrice',
+      'components/variants/webside/Storefront/Home',
+    ])
+    expect(fixture.views.delta_sigma!.namespaces).toContain('components/PageSection/variants/delta_sigma/Hero')
+    expect(fixture.views.delta_sigma!.namespaces).not.toContain('components/PageSection/Hero')
+    expect(new Set(Object.values(fixture.views).map(({ hash }) => hash)).size).toBe(3)
   })
+
+  it('files every component with texts under a view, so none is silently dropped', () => {
+    const unrendered = fixture.entries.filter(({ namespace }) => !Object.values(fixture.views).some(view => view.namespaces.includes(namespace)) && namespace !== 'global')
+
+    expect(unrendered).toEqual([])
+    expect(fixture.entries.some(({ namespace }) => namespace === 'components/NoMessages')).toBe(false)
+  })
+})
+
+describe('buildTextCatalogue over the real tree', () => {
+  const real = buildTextCatalogue(REAL_TEXT_SOURCE)
   const find = (namespace: string, key: string) => real.entries.find(candidate => candidate.namespace === namespace && candidate.key === key)
 
   it('finds the component blocks and the global files', () => {
@@ -126,6 +147,14 @@ describe('buildTextCatalogue over the real tree', () => {
     expect(find('components/Chrome/Footer', 'pay_with')?.defaults.en).toBe('Pay with')
     expect(find('components/variants/webside/Footer/Desktop', 'cookie_settings')).toBeDefined()
     expect(find('global', 'cancel')).toBeDefined()
+  })
+
+  it('gives each store with a design of its own a view, and the default store the shared tree', () => {
+    expect(Object.keys(real.views)).toEqual(['default', 'delta_sigma', 'ekfyseosfyteias', 'webside'])
+    expect(real.views.webside!.namespaces).toContain('components/variants/webside/Footer/Desktop')
+    expect(real.views.webside!.namespaces).not.toContain('components/Chrome/Footer')
+    expect(real.views.default!.namespaces).toContain('components/Chrome/Footer')
+    expect(real.views.default!.namespaces.filter(namespace => namespace.includes('variants/'))).toEqual([])
   })
 
   it('locks the Omnibus prior-price label', () => {

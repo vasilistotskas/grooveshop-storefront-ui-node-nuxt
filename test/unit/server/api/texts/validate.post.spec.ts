@@ -135,6 +135,47 @@ describe('POST /api/texts/validate', () => {
     })
   })
 
+  describe('for a store (schema)', () => {
+    const FOOTER = 'components/Chrome/Footer'
+    const WEBSIDE_FOOTER = 'components/variants/webside/Chrome/Footer'
+    const forStore = (schema: string, namespace: string, key = 'title', value = 'Νέος τίτλος') =>
+      validate({ namespace, key, locale: 'el', value, schema })
+
+    it('accepts a text of a component that store renders', async () => {
+      expect((await forStore('webside', WEBSIDE_FOOTER)).body).toEqual({ ok: true })
+      expect((await forStore('acme', FOOTER)).body).toEqual({ ok: true })
+    })
+
+    it('answers unknown_key for a namespace only another store renders', async () => {
+      const frozen = await forStore('acme', WEBSIDE_FOOTER)
+
+      expect(frozen.status).toBe(422)
+      expect(frozen.body).toEqual({
+        ok: false,
+        code: 'unknown_key',
+        detail: `The build has no text "title" in "${WEBSIDE_FOOTER}" that the store "acme" renders.`,
+      })
+      expect((await forStore('webside', FOOTER)).body).toMatchObject({ code: 'unknown_key' })
+      expect((await forStore('delta_sigma', 'components/PageSection/Hero')).body).toMatchObject({ code: 'unknown_key' })
+      expect((await forStore('delta_sigma', 'components/PageSection/variants/delta_sigma/Hero')).body).toEqual({ ok: true })
+    })
+
+    it('treats a schema the build does not know as the default store', async () => {
+      expect((await forStore('never_heard_of', FOOTER)).body).toEqual({ ok: true })
+      expect((await forStore('never_heard_of', 'components/PageSection/variants/delta_sigma/Hero')).body).toMatchObject({ code: 'unknown_key' })
+    })
+
+    it('keeps the global texts and the locks for every store', async () => {
+      expect((await forStore('webside', 'global', 'cart.empty', 'Άδειο')).body).toEqual({ ok: true })
+      expect((await forStore('webside', 'global', 'validation.required', '{field}')).body).toMatchObject({ code: 'locked_key' })
+    })
+
+    it('rejects a schema that is not an identifier', async () => {
+      expect((await forStore('web side', FOOTER)).status).toBe(400)
+      expect((await forStore('../webside', FOOTER)).status).toBe(400)
+    })
+  })
+
   it('rejects a malformed request as a validation error, not as one of the four codes', async () => {
     const response = await validate({ namespace: GREETING, key: 'welcome', locale: 'de', value: 'x' })
 
