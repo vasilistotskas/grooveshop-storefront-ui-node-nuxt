@@ -116,6 +116,7 @@ Custom local modules:
 - `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
 - `modules/purge-comments.ts` — Removes HTML comments in production
 - `modules/font-stacks.ts` — Compiles each selectable font stack into the global CSS as `--font-stack-<key>`, where `@nuxt/fonts` adds its metric-matched fallback faces; tenant tokens point at it (`fontStackValue`), and `server/plugins/tenant-fonts.ts` drops the `@font-face` rules of every family the store does not set
+- `modules/text-catalogue/` — Extracts every editable text (each `<i18n lang="yaml">` block of `app/**` as namespace `components/...`, the global locale files as `global`) with its per-locale defaults, placeholders (`shared/utils/messageShape.ts`) and lock (`shared/constants/lockedTexts.ts`) on every build and dev start, into the Nitro virtual module `#text-catalogue` (server bundle only, never the client). `GET /api/texts/catalogue` serves it and `POST /api/texts/validate` checks a store-written text against it for Django's text editor; both are public and tenant-free (bypassed in `0.tenant.ts`). The global locale file lists live in `i18n/locales.ts` (`LOCALE_FILES`), which `nuxt.config.ts` and the module share
 
 ### CI/CD
 
