@@ -1,3 +1,10 @@
+## [3.270.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.270.0...v3.270.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* **webside:** filter switches read their state, assistant cards follow the text that introduces them ([#277](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/277)) ([50304cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/50304cded36a67ac664681ded15ae5fe91fb6407))
+
 # [3.270.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.269.0...v3.270.0) (2026-10-28)
 
 
