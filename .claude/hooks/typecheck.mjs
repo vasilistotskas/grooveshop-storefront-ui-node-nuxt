@@ -4,24 +4,28 @@
  * - Reads the `.claude/.typecheck-pending` marker (written by track-typecheck.mjs).
  * - If absent: exit 0 silently (no edits, nothing to check).
  * - If `stop_hook_active` is true: exit 0, so a Stop hook can't loop.
- * - Otherwise run `pnpm run typecheck`. On failure, exit 2 with the compiler
+ * - Otherwise run `nuxt typecheck`. On failure, exit 2 with the compiler
  *   output on stderr so the errors have to be addressed before the turn ends.
  *
- * Uses `pnpm run typecheck` (= `nuxt typecheck`), not `vue-tsc --noEmit`.
- * `nuxt typecheck` catches template errors vue-tsc misses — notably Nuxt UI v4
- * typing UButton's onClick as `(e) => void | Promise<void>`, which fails an
- * inline `@click="open = true"` (the expression returns boolean). Running the
- * weaker gate here let those through. `pnpm run` also pins the workspace
- * toolchain; `npx` can resolve a different version from the registry.
+ * Runs `nuxt typecheck`, not `vue-tsc --noEmit`: it catches template errors
+ * vue-tsc misses — notably Nuxt UI v4 typing UButton's onClick as
+ * `(e) => void | Promise<void>`, which fails an inline `@click="open = true"`
+ * (the expression returns boolean). The workspace's own `nuxt` binary is run
+ * with this process's node, never through `pnpm`: pnpm can run a dependency
+ * install when `node_modules` is out of sync, and a hook must never install.
  *
- * A timeout or a missing toolchain exits 0: a slow or half-installed machine
- * must not be able to wedge every turn.
+ * Everything runs inside one budget (`HOOK_BUDGET_MS`, below the Stop hook's
+ * timeout in settings.json): a hook that outlives its timeout is killed after
+ * the marker is already deleted, which loses the check silently. A timeout or a
+ * skip (the lock or probe wait ran out) exits 0 and puts the marker back, so
+ * the next turn checks again. A missing toolchain exits 0 without re-marking:
+ * retrying cannot fix it.
  */
-import { closeSync, existsSync, openSync, readFileSync, unlinkSync, writeSync } from 'node:fs'
-import { execFileSync, execSync } from 'node:child_process'
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, unlinkSync, writeFileSync, writeSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 
 // Two `nuxt typecheck` runs regenerate `.nuxt/` at the same time, and the one
 // that reads it half written sees an empty typed-route map: dozens of
@@ -32,6 +36,11 @@ import { resolve } from 'node:path'
 //   hand, which takes no lock.
 const WAIT_MS = 300_000
 const POLL_MS = 3_000
+// Must stay below the Stop hook's `timeout` in settings.json (660 s). A poll
+// can overrun by one probe, which the typecheck budget reserves for.
+const HOOK_BUDGET_MS = 630_000
+const PROBE_TIMEOUT_MS = 20_000
+const MIN_TYPECHECK_MS = 120_000
 
 // Each probe speaks its own regex dialect: PowerShell's -match is .NET, where
 // `\s` is whitespace; pgrep takes a POSIX extended regex, where only the
@@ -49,7 +58,7 @@ function nuxtTypecheckRunning() {
       const out = execFileSync('powershell', [
         '-NoProfile', '-NonInteractive', '-Command',
         `(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^node' -and $_.CommandLine -match '${WINDOWS_PATTERN}' -and $_.ProcessId -ne ${process.pid} } | Measure-Object).Count`,
-      ], { encoding: 'utf8', stdio: 'pipe', timeout: 20_000 })
+      ], { encoding: 'utf8', stdio: 'pipe', timeout: PROBE_TIMEOUT_MS })
       return Number(out.trim()) > 0
     }
     execFileSync('pgrep', ['-f', POSIX_PATTERN], { stdio: 'pipe' })
@@ -113,12 +122,29 @@ function releaseLock(lockPath) {
   }
 }
 
-function runTypecheck(projectDir) {
+/** Puts the marker back, so a check that did not finish runs again next turn. */
+function markPending(markerPath) {
   try {
-    execSync('pnpm run typecheck', {
+    mkdirSync(dirname(markerPath), { recursive: true })
+    writeFileSync(markerPath, String(Date.now()))
+  }
+  catch {
+    // Without the marker the next turn skips the check; nothing more to do.
+  }
+}
+
+/** Returns the exit code, or null when the run timed out (the caller re-marks). */
+function runTypecheck(projectDir, timeoutMs) {
+  const nuxtBin = resolve(projectDir, 'node_modules', 'nuxt', 'bin', 'nuxt.mjs')
+  if (!existsSync(nuxtBin)) {
+    process.stderr.write('nuxt is not installed in this checkout; skipping typecheck.\n')
+    return 0
+  }
+  try {
+    execFileSync(process.execPath, [nuxtBin, 'typecheck'], {
       cwd: projectDir,
       stdio: 'pipe',
-      timeout: 600_000,
+      timeout: timeoutMs,
       encoding: 'utf8',
       // 8 GB heap, like CI: the default limit aborts with exit 134 (OOM), not a type error.
       env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=8192' },
@@ -127,20 +153,17 @@ function runTypecheck(projectDir) {
   }
   catch (err) {
     if (err.code === 'ETIMEDOUT' || err.signal === 'SIGTERM') {
-      process.stderr.write('nuxt typecheck timed out after 10 minutes; run `pnpm typecheck` manually.\n')
-      return 0
+      process.stderr.write(`nuxt typecheck timed out after ${Math.round(timeoutMs / 1000)} s; it will run again next turn.\n`)
+      return null
     }
     const output = `${err.stdout?.toString() || ''}${err.stderr?.toString() || ''}`.trim()
-    if (/not recognized as an internal or external command|command not found/i.test(output)) {
-      process.stderr.write('pnpm not found; skipping typecheck.\n')
-      return 0
-    }
     process.stderr.write('Type check failed. Fix the TypeScript errors below before stopping:\n\n')
     process.stderr.write(output || err.message || 'nuxt typecheck failed with no output.')
     return 2
   }
 }
 
+const startedAt = Date.now()
 let input = {}
 try {
   input = JSON.parse(readFileSync(0, 'utf8'))
@@ -154,7 +177,7 @@ if (input.stop_hook_active) {
 }
 
 // Anchor on CLAUDE_PROJECT_DIR, not cwd, so this finds the marker
-// track-typecheck.mjs wrote and runs pnpm in the project root.
+// track-typecheck.mjs wrote and runs nuxt in the project root.
 const projectDir = resolve(process.env.CLAUDE_PROJECT_DIR || '.')
 const markerPath = resolve(projectDir, '.claude', '.typecheck-pending')
 if (!existsSync(markerPath)) {
@@ -175,10 +198,11 @@ catch {
 const lockKey = process.platform === 'win32' ? projectDir.toLowerCase() : projectDir
 const checkoutId = createHash('sha256').update(lockKey).digest('hex').slice(0, 16)
 const lockPath = resolve(tmpdir(), `claude-nuxt-typecheck-${checkoutId}.lock`)
-const deadline = Date.now() + WAIT_MS
+const deadline = startedAt + WAIT_MS
 
 if (!acquireLock(lockPath, deadline)) {
-  process.stderr.write('nuxt typecheck skipped: another hook held the lock for 5 minutes; run `pnpm typecheck` manually.\n')
+  markPending(markerPath)
+  process.stderr.write('nuxt typecheck skipped: another hook held the lock for 5 minutes; it will run again next turn.\n')
   process.exit(0)
 }
 
@@ -192,11 +216,20 @@ try {
     }
     sleep(POLL_MS)
   }
-  if (free) {
-    exitCode = runTypecheck(projectDir)
+  // Reserve one probe so a slow last poll cannot push the run past the hook timeout.
+  const remainingMs = startedAt + HOOK_BUDGET_MS - Date.now() - PROBE_TIMEOUT_MS
+  if (!free) {
+    markPending(markerPath)
+    process.stderr.write('nuxt typecheck skipped: another run was still going after 5 minutes; it will run again next turn.\n')
+  }
+  else if (remainingMs < MIN_TYPECHECK_MS) {
+    markPending(markerPath)
+    process.stderr.write('nuxt typecheck skipped: too little of the hook budget left; it will run again next turn.\n')
   }
   else {
-    process.stderr.write('nuxt typecheck skipped: another run was still going after 5 minutes; run `pnpm typecheck` manually.\n')
+    const result = runTypecheck(projectDir, remainingMs)
+    if (result === null) markPending(markerPath)
+    else exitCode = result
   }
 }
 finally {

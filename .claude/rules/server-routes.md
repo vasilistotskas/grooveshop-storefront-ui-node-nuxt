@@ -84,7 +84,9 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 
 ## Server Plugins
 
-- `http-agent.ts` — Undici Agent for connection pooling (100 connections, pipelining 10, keep-alive 30s) — reduces latency for internal API calls
+One file per concern in `server/plugins/` (each documents itself); those with cross-cutting contracts:
+
+- `http-agent.ts` — Undici Agent for connection pooling (100 connections, no pipelining (`pipelining: 1`), keep-alive 30s) — reduces latency for internal API calls
 - `edge-cache.ts` — lets Cloudflare cache ONLY the pages Nitro served from its page cache: `Cloudflare-CDN-Cache-Control` (never `s-maxage`, which disables the edge's stale-while-revalidate), `Cache-Control: no-cache` for browsers, and `Cache-Tag: storefront-html,storefront-html-<schema>` — tag names are a contract with Django's `core/cache/edge.py`, which purges them after an edit and after a deploy. Every other page (an HTML document or `_payload.json`: personal pages, and errors, which Nitro stamps with `s-maxage` although it never caches them) gets `Cache-Control: private, no-store`, and so does every `/api` GET that states no caching of its own and every `/api` error (`isPrivateApiResponse`: without a `Cache-Control` a browser may keep a 404 or 410 and replay it); redirects keep theirs. No cookie rule is needed at the edge: what it stores is what Nitro already replays to every visitor, signed in or not. Set as the response ENDS, because h3's 304 revalidation is sent from inside Nitro's cached handler. Rules in `server/utils/edgeCache.ts`
 - `storage.ts` — Configurable cache backend: tests Redis connectivity, falls back to memory driver if unavailable
 - `tenant-site-config.ts` — the store's own `@nuxtjs/seo` site config (url, name, per-locale description) through nuxt-site-config's `site-config:init` hook, which runs whenever a request's site config is first built, before any route middleware. A route middleware was too late: nuxt-ai-ready builds its `Link` header ahead of every middleware and serves `/llms.txt` and the `.md` mirrors on paths `0.tenant.ts` bypasses, so they named the platform's URL. On a store that does not serve those surfaces (`servesAiSurfaces`, `server/utils/aiSurfaces.ts`) the `Link` header loses its links to them as the response ends
@@ -117,7 +119,7 @@ Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both 
 ## OpenAPI Type Generation
 
 Types and Zod schemas are auto-generated from the Django backend's OpenAPI schema:
-1. `pnpm generate:schema` — fetches `schema.json`/`schema.yml` from Django (needs `DJANGO_API_TOKEN` env var or `.auth-token` file). Reads **`NUXT_DJANGO_URL`** (default `http://localhost:8000`) — point it at LOCAL Django, never prod: prod's `/api/v1/schema` is a subset (255 components vs 271 local) and regenerating from it silently deletes components the frontend uses (`Country`, `BlogAuthor`, `Paginated*List`).
+1. `pnpm generate:schema` — fetches `openapi/schema.json` from Django (`scripts/fetch-schema.mjs`; sends `DJANGO_API_TOKEN` as a Bearer token when set, which a local Django with `DEBUG=True` does not need). Reads **`NUXT_DJANGO_URL`** (default `http://localhost:8000`) — point it at LOCAL Django, never prod: prod's `/api/v1/schema` is a subset (255 components vs 271 local) and regenerating from it silently deletes components the frontend uses (`Country`, `BlogAuthor`, `Paginated*List`).
 2. `pnpm openapi-ts` — generates `shared/openapi/types.gen.ts` and `shared/openapi/zod.gen.ts` via `@hey-api/openapi-ts`
 3. `pnpm sync:schema` — **required, not optional.** `openapi/schema.yml` and the root `schema.yml` are derived from `openapi/schema.json` by `scripts/sync-schema-yml.mjs`. CI's *OpenAPI Schema Freshness* job regenerates them and fails on any diff. Copying Django's `spectacular` YAML across directly also fails it — the YAML dump formatting differs.
 

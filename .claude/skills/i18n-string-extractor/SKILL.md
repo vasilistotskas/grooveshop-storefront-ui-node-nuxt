@@ -12,9 +12,9 @@ Audit a Vue file (component or page) for user-facing strings that bypass `useI18
 | Trigger | Destination |
 |---|---|
 | String is unique to this component (button label, aria-label, single-screen heading) | Component-scoped `<i18n lang="yaml">` block in the same `.vue` file |
-| String belongs to an existing domain bundle (auth, breadcrumb, checkout, cookies, validation) | Append to the matching `i18n/locales/<domain>/el-GR.json` |
-| String is reused across 2+ files OR is a generic noun/verb (`save`, `cancel`, `confirm`, etc.) | Append to the root `i18n/locales/el-GR.json` |
-| String is a server-side error / validation message | `i18n/locales/validation/el-GR.json` |
+| String belongs to an existing domain bundle (auth, breadcrumb, checkout, cookies, validation) | Append to the matching `i18n/locales/<domain>/el-GR.json` and `en-US.json` |
+| String is reused across 2+ files OR is a generic noun/verb (`save`, `cancel`, `confirm`, etc.) | Append to the root `i18n/locales/el-GR.json` and `en-US.json` |
+| String is a server-side error / validation message | `i18n/locales/validation/el-GR.json` and `en-US.json` |
 | String is a Django/parler model field (product name, blog title, category) | **Do not translate** — use `extractTranslated(obj, field, locale)` from `app/utils/translate.ts` |
 
 ## What counts as a hardcoded string
@@ -38,7 +38,7 @@ Do **not** flag:
 
 ## Component-scoped block format
 
-Single root `el:` key, no language code prefix in the file (the `<i18n lang="yaml">` block tag does that). Nest naturally for hierarchy. Use placeholders with curly braces for interpolation: `{appTitle}`, `{count}`.
+Two root keys, `el:` and `en:`, with the same key tree under each (`el` is the default, so it comes first). Nest naturally for hierarchy. Use placeholders with curly braces for interpolation: `{appTitle}`, `{count}`.
 
 Example matching the project style (`Account/Login/Form.vue`):
 
@@ -55,6 +55,17 @@ el:
   submit: Σύνδεση
   no:
     account: Δεν έχεις λογαριασμό;
+en:
+  logo_alt: "{appTitle} logo"
+  social:
+    title: Or sign in with a third-party provider
+  email:
+    label: Email
+  password:
+    label: Password
+  submit: Sign in
+  no:
+    account: Don't have an account?
 </i18n>
 ```
 
@@ -62,7 +73,7 @@ Place the `<i18n>` block **after** `<style scoped>` (or after `<template>` if th
 
 ## Shared file format
 
-Domain files (`auth/el-GR.json`, `breadcrumb/el-GR.json`, `cookies/el-GR.json`, `validation/el-GR.json`) wrap everything under a single root key matching the file's directory name:
+Domain files (`auth/`, `breadcrumb/`, `cookies/`, `validation/`, each as `el-GR.json` **and** `en-US.json`) wrap everything under a single root key matching the file's directory name. The same keys go into both files:
 
 ```json
 {
@@ -74,11 +85,11 @@ Domain files (`auth/el-GR.json`, `breadcrumb/el-GR.json`, `cookies/el-GR.json`, 
 }
 ```
 
-Reference in templates as `t('auth.login.success')`.
+`en-US.json` holds the English text under the same keys. Reference in templates as `t('auth.login.success')`.
 
-The `checkout/el-GR.json` file is **flat** (no `checkout` root key) — match its existing shape if appending.
+The `checkout/` files are **flat** (no `checkout` root key) — match their existing shape if appending.
 
-The root `el-GR.json` is mostly flat with selective nesting (`error.default`, `error.page.not.found`). Match the surrounding style when appending.
+The root `el-GR.json` / `en-US.json` are mostly flat with selective nesting (`error.default`, `error.page.not.found`). Match the surrounding style when appending.
 
 ## Workflow
 
