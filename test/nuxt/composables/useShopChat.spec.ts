@@ -105,9 +105,24 @@ describe('useShopChat', () => {
     await chat.send('δεύτερο')
 
     expect(fetchMock.mock.calls.map(bodyOf)).toEqual([
-      { message: 'πρώτο', turnId: expect.any(String) },
-      { conversationId: 'c2', message: 'δεύτερο', turnId: expect.any(String) },
+      { message: 'πρώτο', locale: 'el', turnId: expect.any(String) },
+      { conversationId: 'c2', message: 'δεύτερο', locale: 'el', turnId: expect.any(String) },
     ])
+  })
+
+  it('asks in the language of the page the shopper is on', async () => {
+    const fetchMock = stubStream('event: done\ndata: {"conversationId":"c3","cartMutated":false}\n\n')
+    const { $i18n } = useNuxtApp()
+    // Only the language matters here; setLocale would also navigate.
+    $i18n.locale.value = 'en'
+
+    try {
+      await useShopChat().send('hello')
+      expect(bodyOf(fetchMock.mock.calls[0]!).locale).toBe('en')
+    }
+    finally {
+      $i18n.locale.value = 'el'
+    }
   })
 
   it('names the shopper cart so the agent edits that one', async () => {
@@ -512,8 +527,8 @@ describe('useShopChat', () => {
       await chat.send('δεύτερο')
 
       expect(chatCalls(fetchMock).map(bodyOf)).toEqual([
-        { message: 'πρώτο', cartToken: 'pass-1', turnId: expect.any(String) },
-        { conversationId: 'c1', message: 'δεύτερο', cartToken: 'pass-1', turnId: expect.any(String) },
+        { message: 'πρώτο', cartToken: 'pass-1', locale: 'el', turnId: expect.any(String) },
+        { conversationId: 'c1', message: 'δεύτερο', cartToken: 'pass-1', locale: 'el', turnId: expect.any(String) },
       ])
       expect(tokenCalls()).toHaveLength(1)
       expect(tokenCalls()[0]!.options).toMatchObject({ method: 'POST' })
@@ -607,7 +622,7 @@ describe('useShopChat', () => {
       await useShopChat().send('γεια')
 
       expect(tokenCalls()).toEqual([])
-      expect(bodyOf(chatCalls(fetchMock)[0]!)).toEqual({ message: 'γεια', cartId: cart.uuid, turnId: expect.any(String) })
+      expect(bodyOf(chatCalls(fetchMock)[0]!)).toEqual({ message: 'γεια', cartId: cart.uuid, locale: 'el', turnId: expect.any(String) })
     })
 
     it('adopts done.cartId on an anonymous turn', async () => {
