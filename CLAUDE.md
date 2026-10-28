@@ -20,11 +20,15 @@ one directly when you need it before touching those files.
 | `.claude/rules/auth.md` | the allauth / session / OAuth files | The two-token allauth + Knox model |
 | `.claude/rules/ui-and-pages.md` | `app/components/**`, `app/layouts/**`, `app/pages/**`, `app/middleware/**` | Component categories, styling, images, routing, SEO and performance |
 | `.claude/rules/testing.md` | `test/**`, `*.spec.ts`, `vitest.config.mts` | Vitest projects and the Nuxt test-environment traps |
+| `.claude/rules/nuxt-modules.md` | `nuxt.config.ts`, `modules/**` | The active module list and the custom local modules |
+| `.claude/rules/ci-and-release.md` | `.github/**`, `docker/**` | CI workflows, the Docker image, semantic-release |
 
-**The trigger is the Read tool, not any file access.** Opening a file with
-`cat`/`head`/`sed` through Bash does *not* load the matching rule — verified on
-v2.1.252. If you are working through shell commands, or you need a rule before
-touching its files, read the rule file directly.
+**What triggers a rule.** A rule with `paths` loads when Claude uses the Read,
+Write or Edit tool on a matching file, and when it views a matching file through
+a Bash command that counts as a read, such as `cat` or `head` of a single file
+(Claude Code docs, memory > path-specific rules). If you need a rule before
+touching its files, or you work through other shell commands, read the rule file
+directly.
 
 ## Commands
 
@@ -92,38 +96,11 @@ Utility modules in `app/utils/`. Key: `auth.ts` (client-side auth helpers), `tra
 
 ### Nuxt Modules
 
-Active modules in `nuxt.config.ts` (the `modules` array, in order):
-1. `evlog/nuxt` — Structured logging (`log` auto-import on client + Nitro; see Structured Logging)
-2. `@comark/nuxt` — Markdown rendering (used by blog/CMS content)
-3. `@nuxt/image` — Image optimization with IPX + custom mediaStream provider
-4. `@nuxt/ui` — Component library (v4, with experimental component detection)
-5. `@nuxt/eslint` — ESLint integration with checker enabled
-6. `@nuxt/scripts` — Third-party script management (Stripe registry)
-7. `@nuxt/fonts` — Font optimization
-8. `@nuxt/icon` — Icon system (server bundle: icon JSON inlined for the installed collections; client bundle: scanned, with a hard size limit — see `icon` in `nuxt.config.ts`)
-9. `@nuxtjs/i18n` — Internationalization (browser detection, cookie-based, typed pages)
-10. `@nuxtjs/leaflet` — Leaflet maps (locker/pickup-point selection)
-11. `@nuxtjs/seo` — SEO suite: robots, sitemap, OG image (disabled), Schema.org, link checker, SEO utils, site config, and **AI Ready**, which it installs (`nuxt-ai-ready` is no longer a module or dependency of ours). AI Ready serves `/llms.txt`, `/llms-full.txt` and on-demand `/<route>.md` under the `aiReady` key: `database: false` (no page store, so no `drizzle-orm`), `contentNegotiation: false` (`server/middleware/0.markdown-negotiation.ts` does the `Accept: text/markdown` negotiation, which the module's cannot do on our cached routes), `autoI18n: false`, `agentSkills: false`, and `runtimeSync`/`cron` off. `skewProtection: false` turns off the other module it installs. `robots` is configured explicitly in `nuxt.config.ts`.
-12. `@pinia/nuxt` — Pinia state management
-13. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
-14. `nuxt-auth-utils` — Session management
-
-Conditionally pushed (NOT active in production):
-- `@nuxt/test-utils/module` — only when `NODE_ENV === 'test'`
-- `@nuxt/a11y` — only when `NODE_ENV === 'development'` (accessibility auditing, alpha)
-
-Custom local modules:
-- `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
-- `modules/purge-comments.ts` — Removes HTML comments in production
-- `modules/font-stacks.ts` — Compiles each selectable font stack into the global CSS as `--font-stack-<key>`, where `@nuxt/fonts` adds its metric-matched fallback faces; tenant tokens point at it (`fontStackValue`), and `server/plugins/tenant-fonts.ts` drops the `@font-face` rules of every family the store does not set
-- `modules/text-catalogue/` — Extracts every editable text (each `<i18n lang="yaml">` block of `app/**` as namespace `components/...`, the global locale files as `global`) with its per-locale defaults, placeholders (`shared/utils/messageShape.ts`) and lock (`shared/constants/lockedTexts.ts`) on every build and dev start, into the Nitro virtual module `#text-catalogue` (server bundle only, never the client). `GET /api/texts/catalogue` serves it and `POST /api/texts/validate` checks a store-written text against it for Django's text editor; both are public and tenant-free (bypassed in `0.tenant.ts`). **A store sees only the texts its own storefront renders:** `reachability.ts` reads the roots from `app/utils/variantRegistry.ts` / `componentRegistry.ts` (`page:<key>@<schema>`, `chrome:<slot>@<schema>`, design layouts, `<type>@<schema>` sections; the redesign-only pages and design layouts leave a frozen store) and walks every component reference from them (template tags, `resolveComponent`, `.vue` imports, Nuxt's naming from the `components` option, so the `Webside` prefix) into one view per schema plus `default`; both routes take an optional `schema`, and a tag, `resolveComponent` name or registry entry the walk cannot place fails the build. The global locale file lists live in `i18n/locales.ts` (`LOCALE_FILES`), which `nuxt.config.ts` and the module share
+The `modules` array of `nuxt.config.ts` and the custom modules in `modules/` (`cookies`, `purge-comments`, `font-stacks`, `text-catalogue`) are described in `.claude/rules/nuxt-modules.md`, which loads when you touch `nuxt.config.ts` or `modules/**`.
 
 ### CI/CD
 
-- **GitHub Actions CI** (`.github/workflows/ci.yml`): quality (TypeScript check, dependency audit) → test (unit+nuxt with coverage) → build (with Redis 8 service, .env from GitHub vars/secrets) → release (semantic-release on `main` push — versions, CHANGELOG, GitHub Release; **no npm publishing**). All steps use Node 24.x and pnpm with frozen lockfile. A push to `main` whose tree a green pull_request run already tested (the branch was up to date with `main`) skips everything but Trivy and releases at once (`.github/scripts/tested_in_pr.sh`), except Build when `main` has no fonts cache for the tree (only Build saves the one the image build restores); merging a branch that is behind `main` costs a full second run. The image build (`docker.yml`) uses no BuildKit layer cache: it runs on a release tag, and no tag can read another tag's cache.
-- **Docker publish** (`.github/workflows/docker.yml`): On GitHub release `published`, builds a multi-stage Docker image (Node 24 Alpine) and pushes to Docker Hub (`gro0ve/grooveshop-storefront-ui-node-nuxt`) and GHCR. Uses Docker Buildx without a layer cache (see the CI note above).
-- **Semantic release**: Conventional commits, auto-versioning, CHANGELOG generation, GitHub release with `.output` asset. Publishing to npm is disabled (`npmPublish: false`); the `@semantic-release/npm` plugin only bumps `package.json` version.
-- **Docker** (`docker/Dockerfile`): Multi-stage build. Build stage installs deps with pnpm cache mount, prepares Nuxt, builds with `NODE_OPTIONS=--max-old-space-size=8192`. Production stage copies only `.output`, runs as non-root `node` user.
+GitHub Actions CI, the Docker publish workflow, semantic-release and the Dockerfile are described in `.claude/rules/ci-and-release.md`, which loads when you touch `.github/**` or `docker/**`. Commits follow conventional-commit format, and a push to `main` releases.
 
 ## Conventions
 

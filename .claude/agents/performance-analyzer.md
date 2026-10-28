@@ -88,7 +88,7 @@ Per-tenant media-stream/static origin hints are rendered at runtime by `setupPag
 ### Server Route Performance
 
 - [ ] **No N+1 queries** — routes that fetch a list then individually fetch related data for each item
-- [ ] **Django calls (`useBackendFetch(event)`) use connection pooling** — the `http-agent.ts` plugin sets a global Undici Agent (100 connections, pipelining, 30s keep-alive)
+- [ ] **Django calls (`useBackendFetch(event)`) use connection pooling** — the `http-agent.ts` plugin sets a global Undici Agent (100 connections, no pipelining (`pipelining: 1`), 30s keep-alive)
 - [ ] **Response validation is not redundant** — `parseDataAs` runs Zod parse on every response; for high-traffic cached routes, consider if validation is needed on cache hit
 - [ ] **Auth header forwarding is efficient** — `createHeaders()` in `server/utils/auth.ts` reads session once per request
 
@@ -110,7 +110,6 @@ Per-tenant media-stream/static origin hints are rendered at runtime by `setupPag
 ## What NOT to Flag
 
 - `vue/no-v-html` being disabled (project convention, content is sanitized)
-- `no-explicit-any` being off (project convention)
 - Options API disabled (`optionsAPI: false` in vite config — intentional)
 - Server sourcemaps disabled (`sourcemap.server: false` — intentional for smaller production bundles)
 - Prerendered static pages not having SWR (they're built at build time)

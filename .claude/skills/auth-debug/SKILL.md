@@ -139,8 +139,8 @@ Error responses (401, 410, 403, 404, 409):
 # Django — verify auth settings
 grep -E "ACCOUNT_|SOCIALACCOUNT_|MFA_|HEADLESS_|REST_KNOX" settings.py
 
-# Nuxt — verify env vars are set
-grep "NUXT_SESSION_PASSWORD\|NUXT_OAUTH" .env
+# Nuxt — verify env vars are set (names only; never print the values)
+grep -oE "^(NUXT_SESSION_PASSWORD|NUXT_OAUTH_[A-Z_]+)=" .env
 
 # Check allauth rate limit isn't blocking (look for 429s)
 # AllAuthRateLimitMiddleware is disabled when DEBUG=True or DISABLE_CACHE=True
@@ -150,10 +150,10 @@ grep "NUXT_SESSION_PASSWORD\|NUXT_OAUTH" .env
 
 ```
 1. User POSTs to /api/_allauth/app/v1/auth/login
-2. Nuxt: login.post.ts → getAllAuthHeaders() → $fetch to Django
+2. Nuxt: login.post.ts → getAllAuthHeaders() → useBackendFetch(event) to Django
 3. Django: allauth creates session, Knox creates token
 4. Django response: { meta: { session_token: "...", access_token: "..." } }
-5. Nuxt: processAllAuthSession() → setUserSession() → encrypted cookie
+5. Nuxt: processAllAuthSession() → replaceUserSession() → encrypted cookie
 6. Client: onAllAuthResponse() → callAuthChangeHook() → auth:change event
 7. Plugin: determineAuthChangeEvent() → LOGGED_IN → handleLoggedIn() → navigate
 8. Setup watcher: loggedIn=true → setupSession() + setupAccount() + etc.

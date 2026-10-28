@@ -1,6 +1,6 @@
 ---
 name: openapi-sync
-description: Fetch the Django OpenAPI schema and regenerate the TypeScript types, Zod schemas, and derived YAML
+description: Regenerate the storefront's OpenAPI types, Zod schemas and derived YAML from a LOCAL Django. Use after a Django serializer/schema change lands or when CI's OpenAPI Schema Freshness job fails.
 disable-model-invocation: true
 allowed-tools: Read, Edit, Bash, Grep, Glob
 ---
@@ -17,7 +17,7 @@ If the Django serializers themselves changed, run the cross-service
 ## Prerequisites
 
 - **A LOCAL Django backend running** — see the warning below.
-- `DJANGO_API_TOKEN` set, or a `.auth-token` file present.
+- `DJANGO_API_TOKEN` set. Optional against a local Django running with `DEBUG=True`; the fetch sends it as a Bearer token when present.
 
 ## Never regenerate from production
 
@@ -36,8 +36,9 @@ missing dev-only components the frontend uses — `Country`, `BlogAuthor`,
 pnpm generate:schema
 ```
 
-Writes `openapi/schema.json` and `openapi/schema.yml`. On failure: is local
-Django up, is `NUXT_DJANGO_URL` correct, is the token present?
+Writes `openapi/schema.json` only; `openapi/schema.yml` is derived in step 3. On
+failure: is local Django up, is `NUXT_DJANGO_URL` correct, is `DJANGO_API_TOKEN`
+set (when Django is not in `DEBUG` mode)?
 
 ### 2. Generate types and Zod schemas
 
