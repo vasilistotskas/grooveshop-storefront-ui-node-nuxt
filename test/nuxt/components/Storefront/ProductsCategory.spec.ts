@@ -17,7 +17,7 @@ import { trees } from '~~/test/helpers/trees'
  * A category's products page. Which category it is, the 404 or 503 for one
  * that is missing or failing, the head and the structured data are one
  * implementation (`useProductCategoryPage`) that both trees run; the trail
- * above the title and the filters are the default drawing's.
+ * above the title is the default drawing's; both draw the filters.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
@@ -98,6 +98,7 @@ describe.each(trees(ProductsCategory, WebsideProductsCategory))('$tree Storefron
     ProductsCategoryChips: true,
     ProductsHeader: true,
     [own('ProductsList')]: true,
+    [own('ProductsSidebar')]: true,
     [own('PageWrapper')]: { template: '<div><slot /></div>' },
     [own('PageTitle')]: true,
   }

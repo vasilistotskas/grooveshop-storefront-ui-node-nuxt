@@ -90,19 +90,12 @@ export function useProductFilters() {
   }
 
   /**
-   * Count of active filters (excluding default sort)
+   * Count of active filters, brands and availability included
    */
-  const activeFilterCount = computed(() => countActiveFilters(filters.value))
+  const activeFilterCount = computed(() => countListingFilters(filters.value))
 
   /**
-   * Generate filter chips for active filters
-   */
-  const activeFilterChips = computed<FilterChip[]>(() => buildFilterChips(filters.value, t))
-
-  /**
-   * The same chips plus the brand and availability ones, for the
-   * redesigned listing (`activeFilterChips` is what the webside
-   * listing reads).
+   * The chips of the active filters, brands and availability included
    */
   const activeListingChips = computed<ListingFilterChip[]>(() => buildListingFilterChips(filters.value, t))
 
@@ -110,13 +103,6 @@ export function useProductFilters() {
    * Check if any filters are active
    */
   const hasActiveFilters = computed(() => activeFilterCount.value > 0)
-
-  /**
-   * Whether any filter of the redesigned listing is on, brands and
-   * availability included (`hasActiveFilters` is what the webside
-   * listing reads).
-   */
-  const hasActiveListingFilters = computed(() => countListingFilters(filters.value) > 0)
 
   /**
    * Count of active filters per section
@@ -130,10 +116,8 @@ export function useProductFilters() {
     clearFilters,
     removeFilter,
     activeFilterCount,
-    activeFilterChips,
     activeListingChips,
     hasActiveFilters,
-    hasActiveListingFilters,
     filterCountBySection,
   }
 }

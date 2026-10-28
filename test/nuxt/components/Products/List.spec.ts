@@ -272,12 +272,8 @@ describe('Products/List', () => {
   })
 })
 
-/**
- * What both trees share. The one difference is the brand and availability
- * filters: the default listing has them, webside's has none, and a link
- * carrying them must change nothing there (`listing-filters.spec.ts`).
- */
-describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)', ({ tree, C, own }) => {
+/** What both trees share, the brand and availability filters included. */
+describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)', ({ C, own }) => {
   beforeEach(() => {
     pf.reset()
     search.reset()
@@ -316,21 +312,12 @@ describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)'
     expect(searchQuery().categories).toBe('5,2')
   })
 
-  it.runIf(tree === 'default')('carries the brands as ids and the two switches as flags', async () => {
+  it('carries the brands as ids and the two switches as flags', async () => {
     setFilters({ brands: ['3', '7'], inStock: true, onOffer: true })
 
     await mount()
 
     expect(searchQuery()).toMatchObject({ brands: '3,7', inStock: true, onOffer: true })
-  })
-
-  it.runIf(tree === 'webside')('never sends the brands or the two switches, whatever the URL says', async () => {
-    setFilters({ brands: ['3', '7'], inStock: true, onOffer: true })
-
-    await mount()
-
-    const query = searchQuery()
-    expect('brands' in query || 'inStock' in query || 'onOffer' in query).toBe(false)
   })
 
   it('says which filter to loosen when nothing matches, and offers to clear', async () => {
@@ -341,18 +328,6 @@ describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)'
 
     expect(emptyState(wrapper).text()).toContain(t('products.no_results.try_different_attributes'))
     expect(emptyState(wrapper).find('button').exists()).toBe(true)
-  })
-
-  it.runIf(tree === 'webside')('suggests nothing about brands or availability it has no filter for', async () => {
-    returns(0)
-    // One active filter as far as the mock counts: only the words are in question.
-    setFilters({ brands: ['3'], inStock: true }, 1)
-
-    const wrapper = await mount()
-
-    expect(emptyState(wrapper).text()).toContain(t('products.no_results.description'))
-    expect(emptyState(wrapper).text()).not.toContain(t('products.no_results.try_different_brands'))
-    expect(emptyState(wrapper).text()).not.toContain(t('products.no_results.try_any_availability'))
   })
 
   it('asks for the shopper\'s favourites once mounted, for a signed-in shopper with products', async () => {

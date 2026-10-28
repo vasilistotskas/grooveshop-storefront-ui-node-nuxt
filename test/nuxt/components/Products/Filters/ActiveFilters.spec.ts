@@ -28,9 +28,8 @@ mockNuxtImport('useProductBrands', () => () => ({
   getBrandName: (id: string) => BRAND_NAMES[id] ?? id,
 }))
 
-/** The listing's chips and the webside listing's, which agree on every chip they share. */
-function showChips(...chips: FilterChip[]) {
-  pf.activeFilterChips.value = chips
+/** The chips every listing draws, and how many there are. */
+function showChips(...chips: ListingFilterChip[]) {
   pf.activeListingChips.value = chips
   pf.activeFilterCount.value = chips.length
 }
@@ -75,6 +74,42 @@ describe('webside Products/Filters/ActiveFilters', () => {
     expect(wrapper.find('h3').text()).toBe(own(wrapper, 'active_filters'))
     expect(chipText(wrapper, 'search-chip')).toBe('"laptop"')
     expect(chipText(wrapper, 'category-chip')).toBe('Ηλεκτρονικά')
+  })
+
+  it('shows a brand by its name, in stock and on offer by their chip labels', async () => {
+    showChips(
+      { key: 'brands', type: 'brand', label: 'brand-chip', value: '3' },
+      { key: 'inStock', type: 'in_stock', label: 'In stock', value: true },
+      { key: 'onOffer', type: 'on_offer', label: 'On offer', value: true },
+    )
+
+    const wrapper = await mountSuspended(C, { route: false })
+
+    expect(chipText(wrapper, 'brand-chip')).toBe('Voltra')
+    expect(chipText(wrapper, 'In stock')).toBe('In stock')
+    expect(chipText(wrapper, 'On offer')).toBe('On offer')
+  })
+
+  it('takes one brand out of the selection, keeping the others', async () => {
+    pf.filters.value.brands = ['3', '4']
+    showChips({ key: 'brands', type: 'brand', label: 'brand-chip', value: '4' })
+    const wrapper = await mountSuspended(C, { route: false })
+
+    await removeButton(wrapper, 'brand-chip').trigger('click')
+
+    expect(pf.updateFilters).toHaveBeenCalledExactlyOnceWith({ brands: ['3'] })
+  })
+
+  it.each<[string, ListingFilterChip, 'inStock' | 'onOffer']>([
+    ['in stock', { key: 'inStock', type: 'in_stock', label: 'In stock', value: true }, 'inStock'],
+    ['on offer', { key: 'onOffer', type: 'on_offer', label: 'On offer', value: true }, 'onOffer'],
+  ])('turns %s off from its chip', async (_case, chip, key) => {
+    showChips(chip)
+    const wrapper = await mountSuspended(C, { route: false })
+
+    await removeButton(wrapper, chip.label).trigger('click')
+
+    expect(pf.removeFilter).toHaveBeenCalledExactlyOnceWith(key)
   })
 
   describe('chip values', () => {

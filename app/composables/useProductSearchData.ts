@@ -24,11 +24,6 @@
 
 export interface ProductSearchScope {
   /**
-   * Brands, in stock and on offer narrow every facet, as they narrow the
-   * listing. Absent for the webside listing.
-   */
-  listingFilters?: boolean
-  /**
    * The category a listing page is about. Its price bounds and attribute
    * counts are then the category's own: a charger page offering a
    * "Colour" of a case it does not sell, or a slider reaching the price
@@ -59,14 +54,12 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // The filters every facet shares. A facet's counts are what the OTHER
   // filters leave, so each facet query adds these to its own set, minus
   // the dimension it counts.
-  // Only for the redesigned listing (`scope.listingFilters`): the webside
-  // webside listing has no such filters, so a URL carrying them must not
-  // change its facet queries.
-  const listingFilters = scope.listingFilters === true
+  // Brands, in stock and on offer narrow every facet, as they narrow the
+  // listing.
   const brandsParam = computed(() =>
-    listingFilters && filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined)
-  const availabilityQuery = computed(() => listingFilters ? availabilityFacetQuery(filters.value) : {})
-  const availabilityKey = computed(() => listingFilters ? availabilityFacetKey(filters.value) : '')
+    filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined)
+  const availabilityQuery = computed(() => availabilityFacetQuery(filters.value))
+  const availabilityKey = computed(() => availabilityFacetKey(filters.value))
 
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)

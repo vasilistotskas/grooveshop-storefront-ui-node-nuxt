@@ -2,9 +2,8 @@
  * The brand filter's data: the search's `brand` facet (product counts per
  * brand id) and the brand list that names those ids.
  *
- * Its own composable, not part of `useProductSearchData`, because the
- * webside listing reads that one and has no brand filter: it must
- * not make these two requests. Only the redesigned listing calls this.
+ * Its own composable, not part of `useProductSearchData`: only the
+ * brand filter and the chips that name a brand need these two requests.
  */
 export function useProductBrands(scope: ProductSearchScope = {}) {
   const { $i18n } = useNuxtApp()

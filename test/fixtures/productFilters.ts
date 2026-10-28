@@ -10,7 +10,7 @@ import type {
   ProductMeiliSearchResponse,
   ProductMeiliSearchResult,
 } from '~~/shared/openapi/types.gen'
-import type { FilterChip, ListingFilterChip, ProductFilters } from '~~/shared/types/product-filters'
+import type { ListingFilterChip, ProductFilters } from '~~/shared/types/product-filters'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from './product'
 
 /**
@@ -40,7 +40,7 @@ export function makeProductFilters(overrides: Partial<ProductFilters> = {}): Pro
  * plain refs the spec sets, and the three actions are `vi.fn`s whose
  * calls ARE the component's output (the real ones write the URL).
  *
- * `activeFilterChips` and `activeFilterCount` are set by the spec, not
+ * `activeListingChips` and `activeFilterCount` are set by the spec, not
  * derived — deriving them would copy the composable's logic into the
  * test (it has its own spec). `hasActiveFilters` follows the count as
  * it does in the composable.
@@ -58,19 +58,15 @@ export function makeProductFilters(overrides: Partial<ProductFilters> = {}): Pro
  */
 export function createProductFiltersMock() {
   const filters = ref<ProductFilters>(makeProductFilters())
-  const activeFilterChips = ref<FilterChip[]>([])
   const activeListingChips = ref<ListingFilterChip[]>([])
   const activeFilterCount = ref(0)
   const hasActiveFilters = computed(() => activeFilterCount.value > 0)
-  const hasActiveListingFilters = hasActiveFilters
 
   return {
     filters,
-    activeFilterChips,
     activeListingChips,
     activeFilterCount,
     hasActiveFilters,
-    hasActiveListingFilters,
     updateFilters: vi.fn((_updates: Partial<ProductFilters>) => Promise.resolve()),
     removeFilter: vi.fn((_key: keyof ProductFilters) => Promise.resolve()),
     clearFilters: vi.fn(() => Promise.resolve()),
@@ -81,11 +77,12 @@ export function createProductFiltersMock() {
       viewCount: filters.value.viewsMin !== undefined ? 1 : 0,
       categories: filters.value.categories.length,
       attributes: filters.value.attributeValues.length,
+      brands: filters.value.brands.length,
+      availability: [filters.value.inStock, filters.value.onOffer].filter(Boolean).length,
     })),
     /** Back to no filters, no chips — call it in `beforeEach`. */
     reset() {
       filters.value = makeProductFilters()
-      activeFilterChips.value = []
       activeListingChips.value = []
       activeFilterCount.value = 0
     },

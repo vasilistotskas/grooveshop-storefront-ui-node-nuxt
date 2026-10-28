@@ -144,9 +144,7 @@ export function countActiveFilters(filters: ProductFilters): number {
 
 /**
  * `countActiveFilters` plus the brand and availability filters, each
- * once: the count for the redesigned listing. The webside listing
- * reads `countActiveFilters`, which a link carrying those filters must
- * not change.
+ * once: the count every listing shows.
  */
 export function countListingFilters(filters: ProductFilters): number {
   return countActiveFilters(filters) + [
@@ -165,6 +163,8 @@ export function countFiltersBySection(filters: ProductFilters) {
     viewCount: filters.viewsMin !== undefined ? 1 : 0,
     categories: filters.categories.length,
     attributes: filters.attributeValues.length,
+    brands: filters.brands.length,
+    availability: [filters.inStock, filters.onOffer].filter(Boolean).length,
   }
 }
 
@@ -213,9 +213,8 @@ export function buildFilterChips(filters: ProductFilters, t: (key: string) => st
 }
 
 /**
- * The redesigned listing's chips: those of `buildFilterChips`, then one per
- * brand, then in stock and on offer (`ListingFilterChip` says why they
- * are kept apart).
+ * Every listing's chips: those of `buildFilterChips`, then one per brand,
+ * then in stock and on offer.
  */
 export function buildListingFilterChips(filters: ProductFilters, t: (key: string) => string): ListingFilterChip[] {
   const chips: ListingFilterChip[] = buildFilterChips(filters, t)

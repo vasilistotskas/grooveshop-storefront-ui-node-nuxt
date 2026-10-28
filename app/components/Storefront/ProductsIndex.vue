@@ -2,7 +2,7 @@
 const { t } = useStoreI18n('components/Storefront/ProductsIndex')
 
 // The whole store: no category narrows the filters, chips or tree.
-provideListingScope({ categoryId: undefined, listingFilters: true })
+provideListingScope({ categoryId: undefined })
 
 await useProductsIndexPage(t)
 

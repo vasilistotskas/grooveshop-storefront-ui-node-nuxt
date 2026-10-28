@@ -10,12 +10,6 @@ import type { InjectionKey } from 'vue'
 export interface ListingScope {
   /** The category page's own category; absent on the store-wide listing. */
   categoryId: number | undefined
-  /**
-   * Brands, in stock and on offer narrow this listing's facets. Only the
-   * redesigned listing says so: the webside listing does not read
-   * this scope, and a link carrying those filters must not narrow its facets.
-   */
-  listingFilters: true
 }
 
 const LISTING_SCOPE: InjectionKey<ListingScope> = Symbol('listing-scope')
@@ -26,5 +20,5 @@ export function provideListingScope(scope: ListingScope) {
 
 /** The enclosing listing's scope; outside one, the whole store. */
 export function useListingScope(): ListingScope {
-  return inject(LISTING_SCOPE, { categoryId: undefined, listingFilters: true })
+  return inject(LISTING_SCOPE, { categoryId: undefined })
 }

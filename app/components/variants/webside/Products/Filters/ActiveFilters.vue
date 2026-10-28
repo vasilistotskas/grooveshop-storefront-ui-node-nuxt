@@ -10,16 +10,17 @@
  * @component
  */
 
-const { activeFilterChips, removeFilter, clearFilters, hasActiveFilters, filters, updateFilters } = useProductFilters()
+const { activeListingChips, removeFilter, clearFilters, hasActiveFilters, filters, updateFilters } = useProductFilters()
 const { t, n } = useStoreI18n('components/variants/webside/Products/Filters/ActiveFilters')
 
 // Use shared category and attribute value name maps from the centralized composable
-const { getCategoryName, getAttributeValueName } = useProductSearchData()
+const { getCategoryName, getAttributeValueName } = useProductSearchData(useListingScope())
+const { getBrandName } = useProductBrands(useListingScope())
 
 /**
  * Format filter value for display
  */
-const formatFilterValue = (chip: FilterChip): string => {
+const formatFilterValue = (chip: ListingFilterChip): string => {
   switch (chip.type) {
     case 'price':
       if (chip.value.min !== undefined && chip.value.max !== undefined) {
@@ -40,6 +41,11 @@ const formatFilterValue = (chip: FilterChip): string => {
       return getCategoryName(chip.value)
     case 'attribute':
       return getAttributeValueName(chip.value)
+    case 'brand':
+      return getBrandName(chip.value)
+    case 'in_stock':
+    case 'on_offer':
+      return chip.label
     case 'search':
       return `"${chip.value}"`
     case 'sort':
@@ -73,6 +79,9 @@ const getFilterIcon = (type: string): string => {
     views: 'i-heroicons-eye',
     category: 'i-heroicons-folder',
     attribute: 'i-heroicons-tag',
+    brand: 'i-heroicons-building-storefront',
+    in_stock: 'i-heroicons-check-circle',
+    on_offer: 'i-heroicons-receipt-percent',
     sort: 'i-heroicons-arrows-up-down',
   }
   return icons[type] || 'i-heroicons-funnel'
@@ -81,7 +90,7 @@ const getFilterIcon = (type: string): string => {
 /**
  * Handle filter removal
  */
-const handleRemoveFilter = async (chip: FilterChip) => {
+const handleRemoveFilter = async (chip: ListingFilterChip) => {
   if (chip.type === 'category') {
     const newCategories = filters.value.categories.filter(cat => cat !== chip.value)
     await updateFilters({ categories: newCategories })
@@ -89,6 +98,10 @@ const handleRemoveFilter = async (chip: FilterChip) => {
   else if (chip.type === 'attribute') {
     const newAttributeValues = filters.value.attributeValues.filter(attrVal => attrVal !== chip.value)
     await updateFilters({ attributeValues: newAttributeValues })
+  }
+  else if (chip.type === 'brand') {
+    const newBrands = filters.value.brands.filter(brand => brand !== chip.value)
+    await updateFilters({ brands: newBrands })
   }
   else if (chip.type === 'price') {
     await updateFilters({ priceMin: undefined, priceMax: undefined })
@@ -132,7 +145,7 @@ const handleRemoveFilter = async (chip: FilterChip) => {
         class="flex flex-wrap gap-2"
       >
         <UBadge
-          v-for="(chip, index) in activeFilterChips"
+          v-for="(chip, index) in activeListingChips"
           :key="`${chip.key}-${index}`"
           color="neutral"
           variant="soft"
