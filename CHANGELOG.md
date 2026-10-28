@@ -1,3 +1,10 @@
+# [3.267.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.5...v3.267.0) (2026-10-28)
+
+
+### Features
+
+* **texts:** serve a catalogue of the editable texts and validate store-written ones ([#264](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/264)) ([471e8e7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/471e8e754c68aa262bf49ec3d3769a4b425ae722))
+
 ## [3.266.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.4...v3.266.5) (2026-10-28)
 
 
