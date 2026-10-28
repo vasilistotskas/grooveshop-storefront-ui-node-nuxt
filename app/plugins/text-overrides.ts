@@ -26,9 +26,11 @@
  * `setLocaleMessage` re-apply the store's global texts for the locale they
  * just wrote; no load, in any order, can leave a default over an override.
  *
- * A failed fetch on the server fails the render: a page cached with the
- * defaults would hide the store's wording until it expires, and an error
- * page is never cached. In the browser a failed fetch keeps the defaults.
+ * A failed fetch renders with the defaults, on the server and in the
+ * browser: one endpoint's hiccup must not take every page down. On the
+ * server it is logged at ERROR and the render is kept out of every cache
+ * (`shared/constants/degradedRender.ts`), so the defaults cannot outlive
+ * the failure and hide the store's wording; the next request asks again.
  */
 export default defineNuxtPlugin({
   name: 'text-overrides',
@@ -37,6 +39,8 @@ export default defineNuxtPlugin({
     const i18n = nuxtApp.$i18n
     const overrides = useTextOverrides()
     const requestApi = useRequestApi()
+    const event = useRequestEvent()
+    const tenant = useTenant()
     const loading = new Map<string, Promise<void>>()
 
     // The page's own locale is fetched by the server and travels in the
@@ -83,7 +87,12 @@ export default defineNuxtPlugin({
         await load(locale)
       }
       catch (error) {
-        if (import.meta.server) throw error
+        if (import.meta.server && event) {
+          // The request's wide event: one error line carrying the store.
+          event.context.log?.error(error instanceof Error ? error : String(error), { action: 'text-overrides:unavailable', store: tenant.value?.schemaName, locale })
+          markDegradedRender(event)
+          return
+        }
         log.warn({ tag: 'text-overrides', message: 'could not load the store\'s texts, keeping the defaults', locale, error })
       }
     }

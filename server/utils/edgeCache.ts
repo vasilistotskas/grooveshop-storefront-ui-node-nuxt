@@ -37,6 +37,17 @@ export function edgeCacheTenantTag(schemaName: string): string {
 }
 
 /**
+ * Whether the render marked itself as a fallback (`event.context.degradedRender`,
+ * `shared/constants/degradedRender.ts`) and its page-cache veto status is
+ * still the response's: the real status is then put back and the response
+ * is private. A page that went on to set a status of its own keeps it.
+ */
+export function degradedRenderStatus(event: H3Event): number | undefined {
+  const degraded = event.context.degradedRender
+  return degraded && getResponseStatus(event) === DEGRADED_RENDER_STATUS ? degraded.status : undefined
+}
+
+/**
  * Every other page response: a page rendered with the visitor's session
  * (account, cart, checkout), and an error on any route; and every ``/api``
  * answer that states no caching of its own (``isPrivateApiResponse``).
