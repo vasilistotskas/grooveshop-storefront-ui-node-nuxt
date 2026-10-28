@@ -61,6 +61,31 @@ export const LOCKED_TEXTS: readonly LockedTextRule[] = [
     reason: 'Legal page titles',
   },
   {
+    // The sentence a shopper agrees to when they tick a consent box: the
+    // order's terms (checkout), the account's terms (sign-up) and the data
+    // processing a contact form asks for. It is the record of what was
+    // agreed, so a store may not reword it. The "tick the box" prompts
+    // (`consent_required`) are instructions, not consent, and stay open.
+    namespace: component('Checkout/TermsConsent'),
+    key: ANY_KEY,
+    reason: 'Consent wording',
+  },
+  {
+    namespace: component('Account/Signup/Form'),
+    key: /^terms\./,
+    reason: 'Consent wording',
+  },
+  {
+    namespace: component('ContactForm'),
+    key: /^consent$/,
+    reason: 'Consent wording',
+  },
+  {
+    namespace: /^components\/PageSection\/variants\/[^/]+\/ContactPanel$/,
+    key: /^panel\.consent$/,
+    reason: 'Consent wording',
+  },
+  {
     // `i18n/locales/validation/*.json`: form messages. Django's error
     // contract names these keys, and a vague rewording hides what to fix.
     namespace: GLOBAL,
