@@ -47668,6 +47668,50 @@
                 }
             }
         },
+        "/api/v1/texts/overrides": {
+            "get": {
+                "operationId": "api_v1_texts_overrides_retrieve",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "language",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "A language code the storefront serves (el, en).",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Texts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "description": "The store's replacement texts for the language, {namespace: {key: text}}, as stored: from the database and the cache only, never by asking the storefront. The storefront ignores a locked text (isLockedText) and a key its build no longer has when it merges. Keys are the storefront's own ids and are not camelCased."
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/user/account": {
             "get": {
                 "operationId": "listUserAccount",
