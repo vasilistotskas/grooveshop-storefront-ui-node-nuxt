@@ -25,6 +25,7 @@ const SWITCH_UI = {
       <USwitch
         :model-value="filters.inStock"
         :label="t('in_stock')"
+        color="success"
         :ui="SWITCH_UI"
         @update:model-value="value => updateFilters({ inStock: value })"
       />
@@ -33,6 +34,7 @@ const SWITCH_UI = {
       <USwitch
         :model-value="filters.onOffer"
         :label="t('on_offer')"
+        color="success"
         :ui="SWITCH_UI"
         @update:model-value="value => updateFilters({ onOffer: value })"
       />
