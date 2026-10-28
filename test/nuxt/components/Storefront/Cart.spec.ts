@@ -45,6 +45,9 @@ vi.mock('~/components/variants/webside/Product/Suggestions.vue', () => ({ defaul
 const messages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Storefront/Cart.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
+const websideMessages = YAML.parse(
+  parseSfc(resolve(REPO, 'app/components/variants/webside/Storefront/Cart.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
+).el
 const summaryMessages = YAML.parse(
   parseSfc(resolve(REPO, 'app/components/Cart/Summary.vue')).customBlocks.find(block => block.type === 'i18n')!.content,
 ).el
@@ -434,5 +437,63 @@ describe('Storefront/Cart (webside)', () => {
     await flushPromises()
 
     await vi.waitFor(() => expect(wrapper.text()).toContain(notice()))
+  })
+
+  describe('the teasers for an offer the cart is just short of', () => {
+    const protector: PromotionProductRef = { id: 34, name: 'Τζαμάκι οθόνης', slug: 'tzamaki', mainImagePath: '' }
+    const glass: PromotionProductRef = { id: 35, name: 'Τζαμάκι privacy', slug: 'privacy', mainImagePath: '' }
+    const forms = (key: string): [string, string] => websideMessages[key].split('|').map((form: string) => form.trim())
+
+    it('says how many euros more', async () => {
+      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 4, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [] }] })
+
+      const wrapper = await mountWebside()
+
+      expect(words(wrapper.text())).toContain(words(websideMessages.near_miss.replace('{amount}', euro(9.44)).replace('{name}', 'POWER8')))
+    })
+
+    it('says how many more items, in the singular and the plural', async () => {
+      const [one, many] = forms('near_miss_quantity')
+      useCartStore().cart = makeCart({
+        promotionNearMiss: [
+          { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1, rewardProducts: [] },
+          { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2, rewardProducts: [] },
+        ],
+      })
+
+      const wrapper = await mountWebside()
+
+      const text = words(wrapper.text())
+      expect(text).toContain(words(one.replace('{count}', '1').replace('{name}', '2+1')))
+      expect(text).toContain(words(many.replace('{count}', '2').replace('{name}', '-5%')))
+    })
+
+    it('names the rewards to add, linked, when what is missing is the offers reward', async () => {
+      const [one, many] = forms('near_miss_reward')
+      useCartStore().cart = makeCart({
+        promotionNearMiss: [
+          { promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector] },
+          { promotionId: 8, name: 'Δεύτερο τζαμάκι', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector, glass] },
+        ],
+      })
+
+      const wrapper = await mountWebside()
+
+      const text = words(wrapper.text())
+      expect(text).toContain(words(one.replace('{name}', 'Θήκη + τζαμάκι -50%')))
+      expect(text).toContain(words(many.replace('{name}', 'Δεύτερο τζαμάκι')))
+      expect(wrapper.findAll('a').map(link => link.attributes('href')).filter(href => /tzamaki$|privacy$/.test(href ?? '')))
+        .toEqual(['/products/34/tzamaki', '/products/34/tzamaki', '/products/35/privacy'])
+    })
+
+    it('lists at most three reward products per teaser', async () => {
+      const rewards: PromotionProductRef[] = [1, 2, 3, 4].map(id => ({ id, name: `Τζαμάκι ${id}`, slug: `tzamaki-${id}`, mainImagePath: '' }))
+      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 7, name: 'Offer', remainingAmount: null, remainingQuantity: 1, rewardProducts: rewards }] })
+
+      const wrapper = await mountWebside()
+
+      expect(wrapper.findAll('a').map(link => link.attributes('href')).filter(href => /tzamaki-\d$/.test(href ?? '')))
+        .toEqual(['/products/1/tzamaki-1', '/products/2/tzamaki-2', '/products/3/tzamaki-3'])
+    })
   })
 })

@@ -10,6 +10,9 @@ const {
 const { t } = useStoreI18n('components/variants/webside/Storefront/Cart')
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
+
+/** Reward products shown per near-miss teaser; the teaser is a nudge, not a listing. */
+const NEAR_MISS_REWARD_CHIPS = 3
 // Cross-sell strip. The cart payload already carries
 // ``recommendations`` seeded with every basket line, so the strip
 // renders from the store — no extra fetch. An empty cart has no line
@@ -410,17 +413,41 @@ useSeoMeta({
 
             <WebsideCheckoutCouponInput />
 
+            <!-- One teaser per offer the cart is just short of: one of the
+                 reward products, a few more items, or a few more euros. -->
             <UAlert
-              v-for="miss in (cart.promotionNearMiss || []).filter(entry => entry.remainingAmount !== null)"
+              v-for="miss in cart.promotionNearMiss || []"
               :key="`miss-${miss.promotionId}`"
               icon="i-heroicons-sparkles"
               color="info"
               variant="subtle"
-              :description="t('near_miss', {
-                amount: $i18n.n(miss.remainingAmount || 0, 'currency'),
-                name: miss.name,
-              })"
-            />
+            >
+              <template #description>
+                <div class="flex flex-col gap-2">
+                  <p v-if="miss.rewardProducts.length">
+                    {{ t('near_miss_reward', { name: miss.name }, miss.rewardProducts.length) }}
+                  </p>
+                  <p v-else-if="miss.remainingQuantity !== null">
+                    {{ t('near_miss_quantity', { count: miss.remainingQuantity, name: miss.name }, miss.remainingQuantity) }}
+                  </p>
+                  <p v-else-if="miss.remainingAmount !== null">
+                    {{ t('near_miss', { amount: $i18n.n(miss.remainingAmount, 'currency'), name: miss.name }) }}
+                  </p>
+                  <ul
+                    v-if="miss.rewardProducts.length"
+                    class="flex flex-wrap gap-2"
+                  >
+                    <li
+                      v-for="product in miss.rewardProducts.slice(0, NEAR_MISS_REWARD_CHIPS)"
+                      :key="`reward-${miss.promotionId}-${product.id}`"
+                      class="min-w-0"
+                    >
+                      <WebsideOffersProductChip :product="product" />
+                    </li>
+                  </ul>
+                </div>
+              </template>
+            </UAlert>
 
             <WebsideShippingFreeShippingNotice :cart-total="cart.freeThresholdValue" />
           </div>
@@ -513,6 +540,8 @@ el:
   discount: Έκπτωση προϊόντων (ήδη στις τιμές)
   promotion_discount: Έκπτωση προσφοράς
   near_miss: Προσθέστε {amount} ακόμη για να ξεκλειδώσετε «{name}»
+  near_miss_quantity: 'Προσθέστε {count} ακόμη τεμάχιο για να ξεκλειδώσετε «{name}» | Προσθέστε {count} ακόμη τεμάχια για να ξεκλειδώσετε «{name}»'
+  near_miss_reward: 'Προσθέστε αυτό για να ξεκλειδώσετε «{name}» | Προσθέστε ένα από αυτά για να ξεκλειδώσετε «{name}»'
   total: Σύνολο
   proceed_to_checkout: Ολοκλήρωση Παραγγελίας
   fix_stock_issues_first: Διόρθωσε τα προβλήματα
@@ -531,4 +560,8 @@ el:
   recovered:
     title: Καλωσόρισες πίσω!
     description: Κρατήσαμε το καλάθι σου. Έλεγξε τα προϊόντα πριν κάποια εξαντληθούν.
+en:
+  near_miss: Add {amount} more to unlock {name}
+  near_miss_quantity: 'Add {count} more item to unlock {name} | Add {count} more items to unlock {name}'
+  near_miss_reward: 'Add this to unlock {name} | Add one of these to unlock {name}'
 </i18n>
