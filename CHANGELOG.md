@@ -1,3 +1,10 @@
+## [3.267.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.267.1...v3.267.2) (2026-10-28)
+
+
+### Performance Improvements
+
+* **webside:** load the blog LCP image first and the post banner as WebP ([#267](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/267)) ([a7616c8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a7616c861ab04287bb3b49a5794059bd46135ec6))
+
 ## [3.267.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.267.0...v3.267.1) (2026-10-28)
 
 
