@@ -72,6 +72,10 @@ function request(path: string, host = TENANT_HOST, headers: Record<string, strin
  */
 const configRequestHosts: string[] = []
 
+const TEXTS_DOWN_HOST_PREFIX = 'texts-down'
+/** One host per request the upstream got for the texts of a store whose texts are down. */
+const textsDownRequests: string[] = []
+
 /**
  * The fake Django for these pages. Permissive by design: the point is
  * to exercise the RENDER, so it answers whatever shape each route needs
@@ -120,6 +124,15 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       isPublished: true,
       sections: [],
     })
+    return
+  }
+
+  // The store's edited texts: none, except for the host whose texts are down.
+  if (reqUrl.pathname.endsWith('/texts/overrides')) {
+    const host = String(req.headers['x-forwarded-host'])
+    if (host.startsWith(TEXTS_DOWN_HOST_PREFIX)) textsDownRequests.push(host)
+    if (host.startsWith(TEXTS_DOWN_HOST_PREFIX)) sendJson(res, { detail: 'Service unavailable.' }, 503)
+    else sendJson(res, {})
     return
   }
 
@@ -336,6 +349,25 @@ export function describePageRenders(): void {
       expect(headers['cloudflare-cdn-cache-control']).toBeTruthy()
       expect(headers['cache-tag']).toContain('storefront-html')
       expect(headers['cache-control']).toBe('no-cache')
+    }, 60000)
+
+    // The store's texts could not be loaded: the page renders with the
+    // defaults, and that render must reach no cache (a cached page would
+    // keep the defaults over the store's wording after Django recovers).
+    it('renders a page with the defaults, uncached, while the texts of the store are down', async () => {
+      const host = 'texts-down-smoke.localhost'
+
+      const first = await request('/contact', host)
+      const second = await request('/contact', host)
+
+      for (const { statusCode, body, headers } of [first, second]) {
+        expect(statusCode, body.slice(0, 900)).toBe(200)
+        expect(headers['cloudflare-cdn-cache-control']).toBeUndefined()
+        expect(headers['cache-tag']).toBeUndefined()
+        expect(headers['cache-control']).toBe('private, no-store')
+      }
+      // Not stored by Nitro either: the second visitor asked again.
+      expect(textsDownRequests.length).toBeGreaterThanOrEqual(2)
     }, 60000)
 
     it.each([['/cart'], ['/en/cart'], ['/search']])('keeps %s private on the custom-page route', async (path) => {
