@@ -2,7 +2,10 @@
 const { t } = useStoreI18n('components/Chat/Widget')
 const { isMobile } = useDevice()
 
-const open = ref(false)
+// Whether the assistant is on screen: shared with the conversation, so it
+// survives a route change and anything that opens the assistant opens this
+// one too.
+const { open } = useShopChat()
 
 // Django's effective state for the store (agent commerce on AND the
 // widget switched on). It rides the tenant payload, so it is known on
