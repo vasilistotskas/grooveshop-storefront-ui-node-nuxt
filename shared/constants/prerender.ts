@@ -1,5 +1,5 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales.ts'
-import { splitLocale } from '../i18n/localeFromPath.ts'
+import { localizedPath, splitLocale } from '../i18n/localeFromPath.ts'
 import { isCustomPageSlug } from '../utils/customPageSlug.ts'
 
 /**
@@ -54,8 +54,7 @@ const PREFIXED_LOCALES = SUPPORTED_LOCALES.filter(
 export function withLocalePrefixes(route: string): string[] {
   return [
     route,
-    ...PREFIXED_LOCALES.map(locale =>
-      route === '/' ? `/${locale}` : `/${locale}${route}`),
+    ...PREFIXED_LOCALES.map(locale => localizedPath(locale, route)),
   ]
 }
 

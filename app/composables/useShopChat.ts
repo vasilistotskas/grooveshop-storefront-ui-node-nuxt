@@ -224,6 +224,9 @@ export const useShopChat = () => {
           message,
           cartId: sentCartId,
           cartToken,
+          // The language the assistant answers and links in: the page's.
+          // The gateway uses it only when the store serves it.
+          locale: $i18n.locale.value,
           turnId,
         }),
         signal: runController.signal,

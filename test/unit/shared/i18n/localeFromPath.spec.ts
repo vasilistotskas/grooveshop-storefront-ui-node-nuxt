@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { localeFromPath, splitLocale } from '~~/shared/i18n/localeFromPath'
+import { localeFromPath, localizedPath, splitLocale } from '~~/shared/i18n/localeFromPath'
 
 /**
  * Under `prefix_except_default` the URL carries the locale, so the
@@ -39,5 +39,20 @@ describe('localeFromPath', () => {
   it('is the locale half of splitLocale', () => {
     expect(localeFromPath('/en/cart')).toBe('en')
     expect(localeFromPath('/cart')).toBe('el')
+  })
+})
+
+describe('localizedPath', () => {
+  it.each([
+    ['el', '/cart', '/cart'],
+    ['el', '/', '/'],
+    ['en', '/cart', '/en/cart'],
+    ['en', '/', '/en'],
+  ])('puts %s %s at %s', (locale, route, expected) => {
+    expect(localizedPath(locale, route)).toBe(expected)
+  })
+
+  it('is undone by splitLocale', () => {
+    expect(splitLocale(localizedPath('en', '/products/1'))).toEqual({ locale: 'en', route: '/products/1' })
   })
 })

@@ -1,3 +1,10 @@
+## [3.266.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.3...v3.266.4) (2026-10-28)
+
+
+### Bug Fixes
+
+* **chat:** ask the assistant in the page's language and land a claimed cart in it ([#262](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/262)) ([7c668e8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7c668e8affdd4c4ca4e27874a9ef5ae174bb5979))
+
 ## [3.266.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.2...v3.266.3) (2026-10-27)
 
 

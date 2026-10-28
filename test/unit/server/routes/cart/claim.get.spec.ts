@@ -20,7 +20,10 @@ const CLAIMED = '11111111-1111-4111-8111-111111111111'
 const MERGED = '22222222-2222-4222-8222-222222222222'
 const EXISTING = '33333333-3333-4333-8333-333333333333'
 
-/** The route on a store whose `cart` feature is `cart`, as the tenant payload carries it. */
+/**
+ * The route on a store whose `cart` feature is `cart`, as the tenant
+ * payload carries it, serving Greek and English.
+ */
 const claim = (query: string, cookie?: string, cart = true) => callRoute(handler, {
   route,
   url: `${route}${query}`,
@@ -28,6 +31,7 @@ const claim = (query: string, cookie?: string, cart = true) => callRoute(handler
   context: {
     tenant: validTenantConfig('shop.test', {
       features: { ...validTenantConfig('shop.test').features, cart },
+      availableLocales: ['el', 'en'],
     }),
   },
 })
@@ -102,6 +106,34 @@ describe('GET /cart/claim', () => {
 
     expect(response.headers.get('location')).toBe('/cart')
     expect(await sessionCartId(response, cookie)).toBe(EXISTING)
+  })
+
+  it('sends the shopper to the cart page in the language the link names', async () => {
+    backend.reply(makeCart({ uuid: CLAIMED }))
+
+    const response = await claim(`?locale=en&uuid=${CLAIMED}`)
+
+    expect(response.headers.get('location')).toBe('/en/cart')
+    expect(await sessionCartId(response)).toBe(CLAIMED)
+  })
+
+  it.each([
+    ['the default locale', 'el'],
+    ['a locale the store does not serve', 'de'],
+    ['a value that is no locale', '../admin'],
+  ])('sends the shopper to the unprefixed cart page for %s', async (_label, locale) => {
+    backend.reply(makeCart({ uuid: CLAIMED }))
+
+    const response = await claim(`?locale=${encodeURIComponent(locale)}&uuid=${CLAIMED}`)
+
+    expect(response.headers.get('location')).toBe('/cart')
+  })
+
+  it('keeps the language when the claim fails', async () => {
+    const response = await claim('?locale=en&uuid=not-a-uuid')
+
+    expect(response.headers.get('location')).toBe('/en/cart')
+    expect(backend.requests).toEqual([])
   })
 
   it('keeps the existing cart when the backend answers with something that is not a cart', async () => {
