@@ -1,3 +1,10 @@
+# [3.268.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.267.2...v3.268.0) (2026-10-28)
+
+
+### Features
+
+* **texts:** answer the text catalogue per store with only what its design renders ([#266](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/266)) ([a6acacc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a6acacc5ecc4e1a803066b26429ee69c2241bc41))
+
 ## [3.267.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.267.1...v3.267.2) (2026-10-28)
 
 
