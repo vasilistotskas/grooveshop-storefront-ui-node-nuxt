@@ -33,10 +33,27 @@ export interface TextCatalogueEntry {
   locked: boolean
 }
 
-/** Every editable message of one build. Identical for every store. */
+/** What one store's storefront renders of the catalogue. */
+export interface TextCatalogueView {
+  /** Content hash of the view's entries, as `TextCatalogue.hash` is of all of them. */
+  hash: string
+  /**
+   * Sorted: the component namespaces with texts that the store renders,
+   * `global` not listed (every store has it).
+   */
+  namespaces: string[]
+}
+
+/** Every editable message of one build. */
 export interface TextCatalogue {
   /** Content hash of `entries`: it changes exactly when the catalogue does. */
   hash: string
   locales: string[]
   entries: TextCatalogueEntry[]
+  /**
+   * Per store: `default` for a store with no variant tree of its own, and
+   * one view per schema that has one (`modules/text-catalogue/reachability.ts`).
+   * Not part of what the catalogue route serves.
+   */
+  views: Record<string, TextCatalogueView>
 }

@@ -15,12 +15,13 @@ function describeDifference(expected: MessageShape, actual: MessageShape): strin
  *
  * The default of the same locale is the reference; a locale without one is
  * held to every other locale's default, which must therefore agree.
- * No side effects: Django asks before it stores anything.
+ * With a `schema` the key must also belong to a component that store
+ * renders (`findTextEntry`). No side effects: Django asks before it stores anything.
  */
 export function validateText(input: TextValidateBody): TextValidation {
-  const entry = findTextEntry(input.namespace, input.key)
+  const entry = findTextEntry(input.namespace, input.key, input.schema)
   if (!entry) {
-    return { ok: false, code: 'unknown_key', detail: `The build has no text "${input.key}" in "${input.namespace}".` }
+    return { ok: false, code: 'unknown_key', detail: `The build has no text "${input.key}" in "${input.namespace}"${input.schema === undefined ? '' : ` that the store "${input.schema}" renders`}.` }
   }
   if (entry.locked) {
     return { ok: false, code: 'locked_key', detail: `"${input.key}" in "${input.namespace}" is locked: only the platform changes it.` }

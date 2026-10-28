@@ -4,12 +4,12 @@ import { join, relative, sep } from 'node:path'
 import { parse } from 'vue/compiler-sfc'
 import { parse as parseYaml } from 'yaml'
 
+import { GLOBAL_TEXT_NAMESPACE } from '../../shared/constants/textCatalogue.ts'
 import { isLockedText } from '../../shared/constants/lockedTexts.ts'
-import type { TextCatalogue, TextCatalogueEntry } from '../../shared/types/textCatalogue.ts'
+import type { TextCatalogue, TextCatalogueEntry, TextCatalogueView } from '../../shared/types/textCatalogue.ts'
 import { analyzeMessage } from '../../shared/utils/messageShape.ts'
-
-/** The namespace of the messages in `i18n/locales/**`. */
-export const GLOBAL_NAMESPACE = 'global'
+import type { ComponentDir } from './reachability.ts'
+import { reachableFiles } from './reachability.ts'
 
 export interface TextCatalogueSource {
   /** `app/`: every `.vue` file below it is searched for `<i18n lang="yaml">` blocks. */
@@ -18,6 +18,8 @@ export interface TextCatalogueSource {
   localesDir: string
   /** Each locale's global files, in merge order. */
   localeFiles: Record<string, readonly string[]>
+  /** The `components` option of `nuxt.config.ts`: how Nuxt names a component (`reachability.ts`). */
+  componentDirs: readonly ComponentDir[]
 }
 
 /**
@@ -111,7 +113,7 @@ export function buildTextCatalogue(source: TextCatalogueSource): TextCatalogue {
   for (const [locale, files] of Object.entries(source.localeFiles)) {
     for (const file of files) {
       const tree: unknown = JSON.parse(readFileSync(join(source.localesDir, file), 'utf8'))
-      for (const [key, message] of flattenMessages(tree)) add(GLOBAL_NAMESPACE, locale, key, message)
+      for (const [key, message] of flattenMessages(tree)) add(GLOBAL_TEXT_NAMESPACE, locale, key, message)
     }
   }
 
@@ -120,6 +122,19 @@ export function buildTextCatalogue(source: TextCatalogueSource): TextCatalogue {
       ? (a.key < b.key ? -1 : 1)
       : (a.namespace < b.namespace ? -1 : 1),
   )
-  const hash = createHash('sha256').update(JSON.stringify(sorted)).digest('hex').slice(0, 16)
-  return { hash, locales, entries: sorted }
+  const hashOf = (list: readonly TextCatalogueEntry[]) =>
+    createHash('sha256').update(JSON.stringify(list)).digest('hex').slice(0, 16)
+
+  // What each store renders: a namespace is listed for a view when a
+  // component reachable from that store's roots owns it.
+  const views: Record<string, TextCatalogueView> = {}
+  for (const [view, files] of reachableFiles(source)) {
+    const rendered = new Set([...files].map(file => namespaceOf(source.appDir, file)))
+    const inView = sorted.filter(({ namespace }) => namespace === GLOBAL_TEXT_NAMESPACE || rendered.has(namespace))
+    views[view] = {
+      hash: hashOf(inView),
+      namespaces: [...new Set(inView.map(({ namespace }) => namespace))].filter(namespace => namespace !== GLOBAL_TEXT_NAMESPACE),
+    }
+  }
+  return { hash: hashOf(sorted), locales, entries: sorted, views }
 }
