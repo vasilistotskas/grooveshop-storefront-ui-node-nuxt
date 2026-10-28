@@ -1,3 +1,10 @@
+## [3.267.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.267.0...v3.267.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* **dev:** stop the dev server running out of memory on its type check ([#265](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/265)) ([35ea804](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/35ea80460c98956c94f010e977d5d13d50a0830e))
+
 # [3.267.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.5...v3.267.0) (2026-10-28)
 
 
