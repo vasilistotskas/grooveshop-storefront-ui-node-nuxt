@@ -9,7 +9,7 @@
  * (`PageSection/BusinessHours` is the page builder's full-width band of
  * the same data; this is the contact page's own, smaller card.)
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Contact/HoursCard')
 const { hasData, schedule, today, isOpen } = useBusinessHours()
 
 const rows = computed(() => {

@@ -12,7 +12,7 @@ const props = defineProps({
 })
 const emit = defineEmits<Emits>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Checkout/GiftCardInput')
 
 const giftCardsEnabled = useStoreFeature('giftCards')
 

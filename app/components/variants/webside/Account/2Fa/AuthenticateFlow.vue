@@ -9,7 +9,7 @@ defineSlots<{
   default(props: object): any
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/2Fa/AuthenticateFlow')
 const localePath = useLocalePath()
 
 await usePendingFlowGuard(Flows.MFA_AUTHENTICATE)

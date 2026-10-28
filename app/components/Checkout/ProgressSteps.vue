@@ -21,7 +21,7 @@ const emit = defineEmits<{
   select: [page: number]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/ProgressSteps')
 
 const items = computed(() => {
   const reviewReached = props.current === 2 && props.paymentChosen

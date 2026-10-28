@@ -25,7 +25,7 @@ const props = defineProps<{
   productName: string
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/PriceTrend')
 const { formatPrice } = usePriceFormat()
 const { dateLocale } = useDateLocale()
 const enabled = useStoreFeature('priceHistory')

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Info')
 const localePath = useLocalePath()
 
 const { contentPage, pageTitle, pageBody, documentLocale, isFallback, fallbackLanguageName } = await useInfoPage()

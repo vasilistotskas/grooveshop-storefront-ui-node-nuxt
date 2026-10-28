@@ -6,7 +6,7 @@
  * expired or disabled). Under them, sending one to someone, with the
  * amounts the store sells when it says.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Storefront/Account/GiftCards')
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 

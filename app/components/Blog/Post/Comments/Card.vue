@@ -40,7 +40,7 @@ const emit = defineEmits<{
   (e: 'show-more-replies', commentId: number): void
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Blog/Post/Comments/Card')
 
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 

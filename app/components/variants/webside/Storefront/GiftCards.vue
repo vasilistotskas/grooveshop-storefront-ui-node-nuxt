@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/GiftCards')
 const { $i18n } = useNuxtApp()
 const toast = useToast()
 const { user } = useUserSession()

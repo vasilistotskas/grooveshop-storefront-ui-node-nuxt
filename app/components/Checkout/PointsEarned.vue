@@ -6,7 +6,7 @@
  * a failed load, or when the store's program is off.
  */
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Checkout/PointsEarned')
 const { shouldFetch, loading, totalPointsEarned, shouldShow } = useCartPointsEarned()
 </script>
 

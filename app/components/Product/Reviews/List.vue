@@ -14,7 +14,7 @@ const props = defineProps<{
   firstPage: ListProductReviewsResponse | null | undefined
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/Reviews/List')
 
 /** Reviews shown before "show all". */
 const PREVIEW_COUNT = 3

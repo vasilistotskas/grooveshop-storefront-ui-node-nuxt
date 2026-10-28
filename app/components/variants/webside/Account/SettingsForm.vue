@@ -5,7 +5,7 @@ defineSlots<{
   default(props: object): any
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Account/SettingsForm')
 const form = useTemplateRef('form')
 
 const {

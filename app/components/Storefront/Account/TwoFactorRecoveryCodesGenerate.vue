@@ -3,7 +3,7 @@
  * Replace the recovery codes with a new set
  * (`Account/2Fa/RecoveryCodes/Generate`).
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/TwoFactorRecoveryCodesGenerate')
 useHead({ title: () => t('title') })
 </script>
 

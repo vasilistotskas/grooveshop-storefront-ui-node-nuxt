@@ -19,7 +19,7 @@ const emit = defineEmits<{
 
 const { order, maxItems } = toRefs(props)
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Order/Card')
 const { contentShorten } = useText()
 const { statusClass, paymentStatusClass, cancelOrder } = useOrder()
 const localePath = useLocalePath()

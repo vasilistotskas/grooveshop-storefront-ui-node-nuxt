@@ -7,7 +7,7 @@
  * Security page.
  */
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Password/ChangeForm')
 
 const { state, schema, hasCurrentPassword, isSubmitting, submit } = usePasswordChange({
   fieldLabels: () => ({ field: t('new'), other: t('confirm') }),

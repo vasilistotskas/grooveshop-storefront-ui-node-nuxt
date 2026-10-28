@@ -16,7 +16,7 @@ const emit = defineEmits<{
   retry: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/StockErrorAlert')
 const localePath = useLocalePath()
 </script>
 

@@ -2,7 +2,7 @@
 import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
 
 const localePath = useLocalePath()
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Account/2Fa/WebAuthn/List')
 
 const { keys, busy, rename, remove } = useWebAuthnKeys({
   renamed: () => ({ title: t('success.title'), color: 'success' }),

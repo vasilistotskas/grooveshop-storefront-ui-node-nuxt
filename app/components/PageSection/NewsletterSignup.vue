@@ -22,7 +22,7 @@ withDefaults(defineProps<{
   surface: 'muted',
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/NewsletterSignup')
 const localePath = useLocalePath()
 
 const { available, consent, schema, state, submitting, sent, failure, subscribe }

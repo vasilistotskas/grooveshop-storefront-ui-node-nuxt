@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // The category page's drawing; the category, its posts and the head are
 // useBlogCategoryPage's.
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/BlogCategory')
 const localePath = useLocalePath()
 
 const {

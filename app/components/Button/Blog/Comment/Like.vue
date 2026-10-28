@@ -41,7 +41,7 @@ const emit = defineEmits<{
 }>()
 
 const attrs = useAttrs()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Button/Blog/Comment/Like')
 const { blogCommentId } = toRefs(props)
 
 const { liked, toggle: toggleFavourite } = useBlogCommentLike({

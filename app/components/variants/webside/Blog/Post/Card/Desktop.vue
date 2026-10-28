@@ -45,7 +45,7 @@ const props = defineProps({
   },
 })
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Blog/Post/Card/Desktop')
 const localePath = useLocalePath()
 
 const { post } = toRefs(props)

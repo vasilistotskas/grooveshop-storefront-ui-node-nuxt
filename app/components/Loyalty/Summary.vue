@@ -14,7 +14,7 @@
  * settings cannot give (the XP per level, the ratio) is left out, never
  * replaced by a default.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Loyalty/Summary')
 const loyalty = useLoyalty()
 
 const { data: summary, status, error, refresh } = loyalty.fetchSummary()

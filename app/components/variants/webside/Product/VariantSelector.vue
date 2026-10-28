@@ -5,7 +5,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { t, locale, n } = useI18n()
+const { t, locale, n } = useStoreI18n('components/variants/webside/Product/VariantSelector')
 const { productUrl } = useUrls()
 const localePath = useLocalePath()
 

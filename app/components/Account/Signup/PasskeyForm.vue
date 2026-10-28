@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['signUpByPasskey'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Signup/PasskeyForm')
 const localePath = useLocalePath()
 
 const { schema, state, loading, hasError, onSubmit } = useSignUpByPasskey({

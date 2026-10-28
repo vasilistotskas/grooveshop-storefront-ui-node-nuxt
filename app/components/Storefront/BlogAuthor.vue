@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // The author page's drawing; the author, their posts and the head are
 // useBlogAuthorPage's.
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/BlogAuthor')
 const route = useRoute()
 const localePath = useLocalePath()
 

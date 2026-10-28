@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<{
   limit: 8,
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/ProductCategories')
 const localePath = useLocalePath()
 const { categories } = useCategoryMenu()
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForAuthentication', 'authenticateUsingWebAuthn'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/TwoFactorWebauthn')
 const localePath = useLocalePath()
 
 const items = computed(() => [

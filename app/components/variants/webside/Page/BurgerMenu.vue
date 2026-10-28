@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Page/BurgerMenu')
 const localePath = useLocalePath()
 const route = useRoute()
 const { loggedIn, user } = useUserSession()

@@ -37,7 +37,7 @@ const emit = defineEmits<{
 const { blogPostId, paginationType, pageSize }
   = toRefs(props)
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Blog/Post/Comments/index')
 
 const {
   blogCommentsEnabled,

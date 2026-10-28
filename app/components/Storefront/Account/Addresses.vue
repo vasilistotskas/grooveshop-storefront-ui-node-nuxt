@@ -4,7 +4,7 @@
  * checkout offers them in (`useCheckoutForm`). A new address and an edit
  * open the address form's own pages.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/Addresses')
 useHead({ title: () => t('title') })
 const route = useRoute()
 const localePath = useLocalePath()

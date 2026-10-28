@@ -4,7 +4,7 @@
  * this order would earn (the items' total by the earning factor) and a
  * link to sign up. Self-gated on the store's program.
  */
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Checkout/GuestLoyaltyCTA')
 const localePath = useLocalePath()
 
 const cartStore = useCartStore()

@@ -25,7 +25,7 @@ const props = defineProps({
   },
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/User/Avatar')
 const toast = useToast()
 const { notify } = useApiError()
 const img = useMediaStreamImage()

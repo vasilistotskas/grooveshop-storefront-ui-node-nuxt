@@ -25,7 +25,7 @@ const emit = defineEmits<{
   'update:clientSecret': [value: string | null]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/StripePayment')
 const tenantStore = useTenantStore()
 
 // Stripe is tenant-only — no platform fallback. Tenants that haven't

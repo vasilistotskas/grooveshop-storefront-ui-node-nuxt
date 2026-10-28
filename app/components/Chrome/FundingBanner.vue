@@ -35,7 +35,7 @@ const { framed = false } = defineProps<{
   framed?: boolean
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Chrome/FundingBanner')
 const localePath = useLocalePath()
 const { floating, track } = useFundingBannerVisibility()
 

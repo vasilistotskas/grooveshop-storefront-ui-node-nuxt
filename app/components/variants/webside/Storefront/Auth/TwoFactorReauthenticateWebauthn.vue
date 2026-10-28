@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reauthenticateUsingWebAuthn'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/TwoFactorReauthenticateWebauthn')
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply

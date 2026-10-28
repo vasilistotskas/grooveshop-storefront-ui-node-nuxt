@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Search/Input')
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 

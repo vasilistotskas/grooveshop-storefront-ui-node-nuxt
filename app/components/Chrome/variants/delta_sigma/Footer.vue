@@ -42,7 +42,7 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * The hexes below are the MEASUREMENT that established the mapping,
  * not what the markup says.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/variants/delta_sigma/Footer')
 const { footerColumns } = useNavigation()
 const tenantStore = useTenantStore()
 const { identity } = useMerchantIdentity()

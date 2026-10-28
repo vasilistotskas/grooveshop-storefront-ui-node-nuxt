@@ -12,7 +12,7 @@ defineProps<{
   items: { label: string, to?: RouteLocationNamedI18n }[]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/ekfyseosfyteias/Blog/Breadcrumb')
 </script>
 
 <template>

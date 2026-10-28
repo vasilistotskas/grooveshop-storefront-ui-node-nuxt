@@ -15,7 +15,7 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
 // Ten fit the grid: the featured card, then three rows of three.
 const PAGE_SIZE = 10
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/ekfyseosfyteias/Storefront/BlogIndex')
 const { blogPostUrl } = useUrls()
 
 useSeoMeta({

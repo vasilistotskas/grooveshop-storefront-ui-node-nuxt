@@ -20,7 +20,7 @@ const emit = defineEmits<{
   'update:page': [page: number]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Products/Pagination')
 const { isMobile } = useDevice()
 </script>
 

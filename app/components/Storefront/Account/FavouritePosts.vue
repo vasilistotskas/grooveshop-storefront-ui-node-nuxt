@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 /** The blog posts the shopper liked, as the blog lists them. */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/FavouritePosts')
 useHead({ title: () => t('title') })
 const route = useRoute()
 const localePath = useLocalePath()

@@ -5,7 +5,7 @@
  * Its own component so the summary is requested only on a loyalty
  * store: the parent renders it behind both loyalty gates.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Chrome/MobileMenuLoyalty')
 const { data: summary } = useLoyalty().fetchSummary()
 
 const tierName = computed(() =>

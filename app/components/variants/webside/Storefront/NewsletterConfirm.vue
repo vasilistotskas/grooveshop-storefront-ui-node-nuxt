@@ -9,7 +9,7 @@
  * Django then answers 200 (confirmed), 410 (the week-long link has
  * expired) or 400 (unknown or already used).
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Storefront/NewsletterConfirm')
 const route = useRoute(`newsletter-confirm-token___${locale.value}`)
 const localePath = useLocalePath()
 

@@ -13,7 +13,7 @@
  * heading over empty rows is not more compliant than silence, and it
  * reads as a broken page to every shopper.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/MerchantIdentity')
 const { identity, hasIdentity, legalName, registeredSeat, inLiquidation }
   = useMerchantIdentity()
 </script>

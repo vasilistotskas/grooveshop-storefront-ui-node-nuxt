@@ -28,7 +28,7 @@ const props = defineProps({
 })
 
 const { image } = toRefs(props)
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Product/Image')
 
 const alt = computed(() => {
   return (

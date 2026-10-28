@@ -18,7 +18,7 @@ const props = defineProps<{
 
 const open = defineModel<boolean>({ required: true })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/ImageModal')
 
 const carousel = useTemplateRef('carousel')
 const active = ref(props.initialIndex)

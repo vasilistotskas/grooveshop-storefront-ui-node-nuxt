@@ -51,7 +51,7 @@ const SEASON_BY_MONTH = [
   'winter',
 ] as const
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/PageSection/variants/ekfyseosfyteias/BlogPosts')
 const { blogPostUrl } = useUrls()
 
 const { posts, hasPosts } = await useBlogRail({

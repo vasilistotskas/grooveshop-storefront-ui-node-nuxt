@@ -6,7 +6,7 @@
  * "Always sent" is true by construction: no order, shipping or
  * authentication email consults a subscription topic.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/Subscriptions')
 useHead({ title: () => t('title') })
 </script>
 

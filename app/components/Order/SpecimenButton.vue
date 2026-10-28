@@ -18,7 +18,7 @@ const props = defineProps<{
   variant?: 'outline' | 'ghost'
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Order/SpecimenButton')
 const { notify } = useApiError()
 
 const fetching = ref(false)

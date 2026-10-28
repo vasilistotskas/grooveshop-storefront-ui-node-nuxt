@@ -28,7 +28,7 @@ const emit = defineEmits<{
   'retry-options': []
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Checkout/StepShipping')
 const headingId = useId()
 const localePath = useLocalePath()
 

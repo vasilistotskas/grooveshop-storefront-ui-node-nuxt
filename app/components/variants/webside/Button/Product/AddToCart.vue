@@ -25,7 +25,7 @@ const cartStore = useCartStore()
 const { createCartItem, updateCartItem, getCartItemByProductId } = cartStore
 const { error } = storeToRefs(cartStore)
 const { product, quantity, text } = toRefs(props)
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Button/Product/AddToCart')
 const toast = useToast()
 const { notify } = useApiError()
 

@@ -11,7 +11,7 @@ const props = defineProps<{
   current: 'products' | 'posts'
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/FavouritesTabs')
 const localePath = useLocalePath()
 const blogEnabled = useStoreFeature('blog')
 const { products, posts } = await useFavouriteCounts()

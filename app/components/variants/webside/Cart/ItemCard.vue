@@ -6,7 +6,7 @@ const props = defineProps({
 })
 
 const { productUrl } = useUrls()
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Cart/ItemCard')
 const { $i18n } = useNuxtApp()
 const toast = useToast()
 const { notify } = useApiError()

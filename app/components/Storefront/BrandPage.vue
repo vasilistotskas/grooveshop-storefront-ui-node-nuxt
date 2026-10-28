@@ -12,7 +12,7 @@ const props = defineProps<{
   pageType: string
 }>()
 
-const { t, te } = useI18n()
+const { t, te } = useStoreI18n('components/Storefront/BrandPage')
 
 const { layout, sections, error } = await usePageConfig(props.pageType)
 

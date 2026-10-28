@@ -13,7 +13,7 @@ defineProps<{
 
 const accepted = defineModel<boolean>({ default: false })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/TermsConsent')
 const localePath = useLocalePath()
 
 const errorId = useId()

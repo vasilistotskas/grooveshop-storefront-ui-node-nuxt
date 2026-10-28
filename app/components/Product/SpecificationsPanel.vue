@@ -14,7 +14,7 @@ defineProps<{
   specifications: Specification[]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/SpecificationsPanel')
 </script>
 
 <template>

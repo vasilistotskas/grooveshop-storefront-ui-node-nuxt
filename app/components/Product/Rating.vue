@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<{
   href: undefined,
 })
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Product/Rating')
 
 const reviews = computed(() => props.count ?? 0)
 const figure = computed(() => n((props.average ?? 0) / 2, { minimumFractionDigits: 1, maximumFractionDigits: 1 }))

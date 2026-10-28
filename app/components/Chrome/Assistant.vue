@@ -5,7 +5,7 @@
  * a phone. The conversation itself is `Chrome/AssistantPanel.vue`; its
  * state, and whether it is open, is `useShopChat`.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/Assistant')
 const { isMobile } = useDevice()
 const { open } = useShopChat()
 

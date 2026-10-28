@@ -17,7 +17,7 @@
  * and the checkout coupon picker render the same Django shape. This
  * page owns only its layout and its filter.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Offers')
 const localePath = useLocalePath()
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()

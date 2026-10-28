@@ -9,7 +9,7 @@ const props = defineProps({
 })
 
 const { product } = toRefs(props)
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Product/Images')
 
 const { data: images } = await useProductImages(product.value.id)
 

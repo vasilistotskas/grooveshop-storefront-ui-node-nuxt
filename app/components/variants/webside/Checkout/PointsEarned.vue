@@ -7,7 +7,7 @@
  * Renders nothing when not authenticated, loading failed, or loyalty is disabled.
  */
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/PointsEarned')
 const { shouldFetch, loading, totalPointsEarned, shouldShow } = useCartPointsEarned()
 </script>
 

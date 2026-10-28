@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Account/PasswordChange')
 const authStore = useAuthStore()
 const { hasCurrentPassword } = storeToRefs(authStore)
 

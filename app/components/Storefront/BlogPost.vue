@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Storefront/BlogPost')
 const localePath = useLocalePath()
 const { blogAuthorUrl, blogCategoryUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()

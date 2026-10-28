@@ -33,7 +33,7 @@ defineProps<{
 }>()
 
 const attrs = useAttrs()
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Products/Sidebar/index')
 const { filters, activeListingChips, updateFilters } = useProductFilters()
 const {
   allAttributes,

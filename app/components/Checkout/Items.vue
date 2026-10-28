@@ -6,7 +6,7 @@
  * total out of view.
  */
 const { productUrl } = useUrls()
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Checkout/Items')
 const { getCartItems } = storeToRefs(useCartStore())
 
 const nameOf = (item: CartItem) => extractTranslated(item.product, 'name', locale.value) ?? ''

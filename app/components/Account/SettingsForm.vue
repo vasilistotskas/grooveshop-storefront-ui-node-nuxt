@@ -2,7 +2,7 @@
 const AVATAR_EXTENSIONS = ['jpg', 'jpeg', 'png']
 
 const { user, fetch } = useUserSession()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/SettingsForm')
 const toast = useToast()
 const { notify } = useApiError()
 const form = useTemplateRef('form')

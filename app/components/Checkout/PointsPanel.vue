@@ -35,7 +35,7 @@ const emit = defineEmits<{
   cleared: []
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Checkout/PointsPanel')
 const loyalty = useLoyalty()
 const settings = useLoyaltySettings()
 const { data: summary, status } = loyalty.fetchSummary()

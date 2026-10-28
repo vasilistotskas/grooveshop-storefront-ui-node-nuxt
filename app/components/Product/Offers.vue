@@ -26,7 +26,7 @@ const props = defineProps<{
   productId: number
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/Offers')
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 

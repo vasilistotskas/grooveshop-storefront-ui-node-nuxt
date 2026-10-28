@@ -7,7 +7,7 @@
  */
 const open = defineModel<boolean>('open', { default: false })
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Chrome/AccountSheet')
 const { signOut } = useSignOut()
 const menu = useAccountQuickMenu(['overview', 'orders', 'notifications', 'favourites', 'rewards', 'security'])
 

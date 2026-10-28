@@ -36,7 +36,7 @@ const modelValue = defineModel<string>({ default: '' })
  */
 const pickedCountry = defineModel<string | undefined>('country')
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Form/PhoneInput')
 const { data } = usePhoneCountries()
 const pickerId = useId()
 

@@ -16,7 +16,7 @@ const emit = defineEmits<{
   changed: []
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Address/Card')
 const toast = useToast()
 const { notify } = useApiError()
 

@@ -7,7 +7,7 @@
  * clearing the filters keeps it (`CLEARED_FILTERS`).
  */
 const { activeListingChips, filters, updateFilters, removeFilter } = useProductFilters()
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Products/Filters/ActiveFilters')
 const { getCategoryName, getAttributeValueName } = useProductSearchData(useListingScope())
 const { getBrandName } = useProductBrands(useListingScope())
 

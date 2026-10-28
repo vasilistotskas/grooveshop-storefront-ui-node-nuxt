@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Storefront/Account/OrderDetail')
 // Off, reviews are gone everywhere — the stars on a card with them.
 const productReviewsEnabled = useStoreFeature('productReviews')
 

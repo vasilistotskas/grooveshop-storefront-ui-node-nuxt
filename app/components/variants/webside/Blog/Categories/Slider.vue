@@ -11,7 +11,7 @@ const props = defineProps({
 })
 
 const { max } = toRefs(props)
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/variants/webside/Blog/Categories/Slider')
 const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()

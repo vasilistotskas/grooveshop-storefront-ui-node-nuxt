@@ -29,7 +29,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
  * notifications) is `ClientOnly`: this header is part of the cached
  * anonymous render on `/`, `/products/**` and `/blog/**`.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/Navbar')
 const route = useRoute()
 const localePath = useLocalePath()
 const { $routeBaseName } = useNuxtApp()

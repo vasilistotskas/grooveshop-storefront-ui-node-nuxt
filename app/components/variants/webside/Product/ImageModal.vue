@@ -14,7 +14,7 @@ const props = defineProps({
 
 const modelValue = defineModel<boolean>({ required: true })
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Product/ImageModal')
 const img = useMediaStreamImage()
 
 const activeIndex = ref(props.initialIndex)

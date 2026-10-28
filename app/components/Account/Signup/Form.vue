@@ -18,7 +18,7 @@ const authStore = useAuthStore()
 const { config, status } = storeToRefs(authStore)
 const { hasProviders } = useSocialProviders()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Signup/Form')
 const toast = useToast()
 const localePath = useLocalePath()
 

@@ -5,7 +5,7 @@
  * so the colour is never the only signal. The state depends on the clock,
  * so the line stays empty (its height reserved) until the page is mounted.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Footer/HoursBadge')
 const { hasData, todayHours, isOpen } = useBusinessHours()
 </script>
 

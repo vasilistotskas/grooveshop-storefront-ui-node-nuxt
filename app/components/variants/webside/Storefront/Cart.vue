@@ -7,7 +7,7 @@ const {
   initialLoading,
   hasStockIssues,
 } = storeToRefs(cartStore)
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Cart')
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
 // Cross-sell strip. The cart payload already carries

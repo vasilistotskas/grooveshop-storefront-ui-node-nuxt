@@ -3,7 +3,7 @@ import type { TableColumn, DropdownMenuItem } from '#ui/types'
 
 const emit = defineEmits(['deleteSession'])
 
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/variants/webside/Account/SessionsManage')
 const { contentShorten } = useText()
 
 const { sessions, otherSessions, busy, signOut } = useSessionsManage({

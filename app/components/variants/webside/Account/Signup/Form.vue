@@ -4,7 +4,7 @@ import * as z from 'zod'
 const { status } = storeToRefs(useAuthStore())
 const { hasProviders } = useSocialProviders()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/Signup/Form')
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()

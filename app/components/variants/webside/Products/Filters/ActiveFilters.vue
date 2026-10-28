@@ -11,7 +11,7 @@
  */
 
 const { activeFilterChips, removeFilter, clearFilters, hasActiveFilters, filters, updateFilters } = useProductFilters()
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/variants/webside/Products/Filters/ActiveFilters')
 
 // Use shared category and attribute value name maps from the centralized composable
 const { getCategoryName, getAttributeValueName } = useProductSearchData()

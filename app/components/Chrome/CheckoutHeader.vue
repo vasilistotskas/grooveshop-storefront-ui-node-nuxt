@@ -8,7 +8,7 @@
  * sides hold. On a phone the back link shortens to "Cart" and the
  * reassurance to its lock icon, which keeps its name for screen readers.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/CheckoutHeader')
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 

@@ -2,7 +2,7 @@
 // Webside's drawing of the post page. The post, its category and author,
 // the 404/503, the head and the view count are `useBlogPostPage`'s, the
 // same as the default page's; only webside's own column width differs.
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Storefront/BlogPost')
 const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 const localePath = useLocalePath()

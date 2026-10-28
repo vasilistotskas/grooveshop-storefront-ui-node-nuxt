@@ -25,7 +25,7 @@ const props = defineProps<{
   cartTotal?: number | null
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/variants/webside/Shipping/FreeShippingNotice')
 const { data, pending, error } = await useFreeShippingInfo()
 
 const minThreshold = computed(() => data.value?.minThreshold ?? null)

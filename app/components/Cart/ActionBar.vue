@@ -11,7 +11,7 @@ defineProps<{
   blocked: boolean
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Cart/ActionBar')
 const localePath = useLocalePath()
 </script>
 

@@ -9,7 +9,7 @@
  * @component
  */
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Products/Filters/ViewCountFilter')
 const { filters, updateFilters } = useProductFilters()
 
 // Fetch facet stats for view count during SSR

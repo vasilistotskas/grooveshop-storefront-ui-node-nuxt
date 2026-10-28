@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/TwoFactorTotpActivate')
 useHead({ title: () => t('title') })
 </script>
 

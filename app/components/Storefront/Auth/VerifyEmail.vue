@@ -4,7 +4,7 @@ import type { FormSubmitEvent } from '#ui/types'
 
 const { resendEmailVerificationCode } = useAllAuthAuthentication()
 const { addEmailAddress } = useAllAuthAccount()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Auth/VerifyEmail')
 useHead({ title: () => t('title') })
 const toast = useToast()
 

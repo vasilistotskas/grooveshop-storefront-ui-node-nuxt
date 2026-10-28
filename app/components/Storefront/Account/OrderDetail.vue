@@ -8,7 +8,7 @@
  * While the order is on its way the timeline opens with its estimated
  * delivery, the date Django fixed at placement.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Storefront/Account/OrderDetail')
 const toast = useToast()
 const { notify } = useApiError()
 const { orderId, order, refresh: refreshOrder } = await useOrderDetail()

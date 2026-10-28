@@ -13,7 +13,7 @@
  * tree that also leads back lives in the drawer on a phone, so this is
  * the quick way.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Products/CategoryChips')
 const localePath = useLocalePath()
 const { forest, trail } = useCategoryForest()
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/BlogCategories')
 
 useHead({
   // seo.title, not title: `title` is also the page's h1 (see /blog).

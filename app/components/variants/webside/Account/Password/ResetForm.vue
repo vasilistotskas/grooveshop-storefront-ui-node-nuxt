@@ -4,7 +4,7 @@ import type { FormSubmitEvent, AuthFormField } from '#ui/types'
 
 const toast = useToast()
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/Password/ResetForm')
 
 const { schema, loading, hasError, request } = usePasswordResetRequest()
 

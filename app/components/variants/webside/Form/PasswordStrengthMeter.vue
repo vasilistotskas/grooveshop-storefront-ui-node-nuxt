@@ -12,7 +12,7 @@ const props = defineProps<{
   password: string
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Form/PasswordStrengthMeter')
 
 const strength = computed(() => passwordStrength(props.password))
 const requirements = computed(() => strength.value.requirements.map(requirement => ({

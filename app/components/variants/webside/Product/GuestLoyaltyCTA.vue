@@ -3,7 +3,7 @@ const props = defineProps<{
   productPrice: number
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Product/GuestLoyaltyCTA')
 const localePath = useLocalePath()
 
 const settings = useLoyaltySettings()

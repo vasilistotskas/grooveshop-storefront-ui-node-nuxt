@@ -6,7 +6,7 @@
  * navigation there (`Chrome/AccountShell.vue` hides its sidebar below
  * `lg`) — and the page ends with signing out.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Storefront/Account/Overview')
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 const { user } = useUserSession()

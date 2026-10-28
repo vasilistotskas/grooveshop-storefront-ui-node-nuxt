@@ -3,7 +3,7 @@ const emit = defineEmits(['confirmLoginCode'])
 
 const { resendLoginCode } = useAllAuthAuthentication()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Login/Code/ConfirmForm')
 
 const { code, codeString, hasError, schema, onSubmit } = useLoginCodeConfirm({
   welcome: () => ({

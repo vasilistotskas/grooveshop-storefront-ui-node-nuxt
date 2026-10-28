@@ -3,7 +3,7 @@
  * The shopper's recovery codes (`Account/2Fa/RecoveryCodes`): one each
  * for the times the authenticator app or passkey is not to hand.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/TwoFactorRecoveryCodes')
 useHead({ title: () => t('title') })
 </script>
 

@@ -38,7 +38,7 @@ const props = defineProps({
 
 const { paginationType, pageSize, paginationStrategy } = toRefs(props)
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Blog/Posts/List')
 
 const {
   posts,

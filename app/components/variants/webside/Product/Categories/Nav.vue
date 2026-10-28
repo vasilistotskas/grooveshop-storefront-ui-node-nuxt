@@ -13,7 +13,7 @@
  * Deliberately plain anchors in a `<nav>`, rendered server-side and not
  * behind a carousel or a filter control: this exists to be followed.
  */
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/variants/webside/Product/Categories/Nav')
 const localePath = useLocalePath()
 
 const { data: categories } = await useProductCategoriesNav()

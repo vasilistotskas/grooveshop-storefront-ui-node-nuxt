@@ -46,7 +46,7 @@ const props = defineProps<{
   stats?: { value: string, label: string }[]
 }>()
 
-const { t, tm, rt } = useI18n()
+const { t, tm, rt } = useStoreI18n('components/PageSection/variants/delta_sigma/Hero')
 
 /**
  * The heading's last LINE is teal in the artboards — the turn from

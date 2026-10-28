@@ -8,7 +8,7 @@
  * Page and sort live in the query string, so a row's "Details" and the
  * browser's Back return to the same page.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Storefront/Account/Orders')
 useHead({ title: () => t('title') })
 const route = useRoute()
 const router = useRouter()

@@ -2,7 +2,7 @@
 import type { PropType } from 'vue'
 import type { IFetchError } from 'ofetch'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Error')
 const { enabled } = useAuthPreviewMode()
 
 defineProps({

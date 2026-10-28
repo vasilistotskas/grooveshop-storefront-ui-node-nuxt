@@ -3,7 +3,7 @@ import type { TableColumn } from '#ui/types'
 
 const UAvatar = resolveComponent('UAvatar')
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Storefront/CheckoutSuccess')
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 const img = useMediaStreamImage()

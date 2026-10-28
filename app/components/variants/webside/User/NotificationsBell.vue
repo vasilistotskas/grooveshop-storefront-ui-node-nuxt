@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/User/NotificationsBell')
 const localePath = useLocalePath()
 const { presentationFor } = useNotificationPresentation()
 

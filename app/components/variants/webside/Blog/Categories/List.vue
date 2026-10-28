@@ -13,7 +13,7 @@ const { paginationType } = toRefs(props)
 
 const { isMobileOrTablet } = useDevice()
 const { blogCategoryUrl } = useUrls()
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/variants/webside/Blog/Categories/List')
 
 const { categories, status, pagination } = await useBlogCategoriesPage({
   paginationType,

@@ -38,7 +38,7 @@ const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/Sidebar')
 const { getPaymentMethodName } = usePaymentMethod()
 
 const shippingSummaryView = computed(() => {

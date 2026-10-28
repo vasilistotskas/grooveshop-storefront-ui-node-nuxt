@@ -8,7 +8,7 @@
  * @component
  */
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Products/Filters/SearchInput')
 const { filters, updateFilters } = useProductFilters()
 const localSearch = ref(filters.value.search)
 

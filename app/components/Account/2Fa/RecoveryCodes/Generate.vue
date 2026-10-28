@@ -8,7 +8,7 @@
  * A shopper without two-step verification has no codes to replace
  * (allauth answers 404) and goes back to the Security page.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/2Fa/RecoveryCodes/Generate')
 const localePath = useLocalePath()
 
 const { unused, confirmed, loading, ready, generate } = await useRecoveryCodesRegeneration({

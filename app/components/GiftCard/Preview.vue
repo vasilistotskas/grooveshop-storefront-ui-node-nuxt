@@ -12,7 +12,7 @@ const props = defineProps<{
   message?: string
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/GiftCard/Preview')
 const { $i18n } = useNuxtApp()
 
 const recipient = computed(() => props.recipientName?.trim() ?? '')

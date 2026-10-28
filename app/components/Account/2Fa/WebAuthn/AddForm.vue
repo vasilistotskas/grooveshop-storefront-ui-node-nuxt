@@ -14,7 +14,7 @@ import type { FormSubmitEvent } from '#ui/types'
  * by the two it names (cancelled or timed out; a key already here) —
  * never the browser's English message.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/2Fa/WebAuthn/AddForm')
 const localePath = useLocalePath()
 
 const { schema, passkeyLogin, loading, add } = useAddWebAuthnKey({

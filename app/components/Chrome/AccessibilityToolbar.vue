@@ -16,7 +16,7 @@ import '~/assets/css/accessibility.css'
  * (`aria-pressed`). A store's chrome mounts it early in its header, so
  * the button is one of the first things a keyboard reaches.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/AccessibilityToolbar')
 const {
   preferences,
   textPercent,

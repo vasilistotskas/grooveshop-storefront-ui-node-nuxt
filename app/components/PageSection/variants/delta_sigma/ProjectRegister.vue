@@ -57,7 +57,7 @@ const props = defineProps<{
   items?: Entry[]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/variants/delta_sigma/ProjectRegister')
 
 /**
  * Tone per sector INDEX. `primary` leads because the artboard's first

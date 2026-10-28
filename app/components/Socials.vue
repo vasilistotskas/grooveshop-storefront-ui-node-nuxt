@@ -24,7 +24,7 @@ defineProps({
   },
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Socials')
 const tenantStore = useTenantStore()
 
 interface SocialItem {

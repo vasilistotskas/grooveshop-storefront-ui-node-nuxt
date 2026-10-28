@@ -22,7 +22,7 @@ defineOptions({
 })
 
 const attrs = useAttrs()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Products/Sidebar/index')
 const { isMobileOrTablet } = useDevice()
 const { hasActiveFilters, activeFilterCount, clearFilters, filterCountBySection } = useProductFilters()
 

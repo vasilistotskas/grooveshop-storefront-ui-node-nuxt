@@ -21,7 +21,7 @@ const emit = defineEmits<{
   back: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/StepPayment')
 
 // Instructions belong to ONE method — the chosen one — so they render
 // once below the group rather than inside every card. Keeping them out

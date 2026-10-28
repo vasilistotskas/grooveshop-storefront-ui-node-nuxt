@@ -22,7 +22,7 @@ const emit = defineEmits<{
   new: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/SavedAddresses')
 
 const NEW_ADDRESS_VALUE = '__new__'
 

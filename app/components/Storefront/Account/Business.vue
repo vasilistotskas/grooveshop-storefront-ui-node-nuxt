@@ -10,7 +10,7 @@
  * edits cannot lift, so it gets no form. Billing country and an accounts
  * email are not part of the profile (PLAN B43).
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Storefront/Account/Business')
 useHead({ title: () => t('title') })
 
 const form = useTemplateRef('form')

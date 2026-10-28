@@ -24,7 +24,7 @@ const props = defineProps<{
   productId: number
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Product/Offers')
 const localePath = useLocalePath()
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()

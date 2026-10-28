@@ -22,7 +22,7 @@ const emit = defineEmits<{
   cancelled: [orderId: number]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Order/List')
 </script>
 
 <template>

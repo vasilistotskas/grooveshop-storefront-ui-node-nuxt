@@ -3,7 +3,7 @@ const props = defineProps<{
   html: string | null | undefined
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Product/DescriptionPanel')
 
 const { sanitize } = useHtmlContent()
 

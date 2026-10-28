@@ -20,7 +20,7 @@ const props = defineProps<{
   hideTitle?: boolean
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/RecentlyViewed')
 const { productUrl } = useUrls()
 const { $i18n } = useNuxtApp()
 

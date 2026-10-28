@@ -12,7 +12,7 @@
  * the programme is on and the store's ratio is known; the XP figures
  * need the store's XP per level and are left out without it.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Loyalty/RewardsCard')
 const localePath = useLocalePath()
 const loyalty = useLoyalty()
 

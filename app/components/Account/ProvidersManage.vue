@@ -11,7 +11,7 @@
  * provider callback page brings the shopper back here; providers it
  * cannot link are not offered (`canConnectSocialProvider`).
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/ProvidersManage')
 
 const { cards, busy, disconnect, connect } = await useProviderAccounts({
   disconnected: account => ({ title: t('disconnected', { provider: account.provider.name }), color: 'success' }),

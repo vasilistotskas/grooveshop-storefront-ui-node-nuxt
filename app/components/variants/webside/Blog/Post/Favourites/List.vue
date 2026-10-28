@@ -20,7 +20,7 @@ defineProps({
   },
 })
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Blog/Post/Favourites/List')
 </script>
 
 <template>

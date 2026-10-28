@@ -17,7 +17,7 @@ defineSlots<{
   default(props: object): any
 }>()
 
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Chrome/AccountShell')
 const localePath = useLocalePath()
 const img = useMediaStreamImage()
 const { user } = useUserSession()

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['confirmLoginCode'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/Login/Code/ConfirmForm')
 const localePath = useLocalePath()
 
 const { code, codeString, hasError, schema, onSubmit } = useLoginCodeConfirm({

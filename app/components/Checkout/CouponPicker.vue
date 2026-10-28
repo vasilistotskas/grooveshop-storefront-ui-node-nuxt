@@ -18,7 +18,7 @@
  */
 const emit = defineEmits<{ applied: [code: string] }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/CouponPicker')
 const { conditions, rejectionMessage } = usePromotionOffer()
 const { isMobileOrTablet } = useDevice()
 

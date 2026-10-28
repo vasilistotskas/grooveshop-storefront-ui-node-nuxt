@@ -10,7 +10,7 @@ import type { FormSubmitEvent } from '#ui/types'
 // CSR render the same set of classes.
 defineOptions({ inheritAttrs: false })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/DynamicForm/index')
 
 const props = withDefaults(defineProps<{
   schema: T

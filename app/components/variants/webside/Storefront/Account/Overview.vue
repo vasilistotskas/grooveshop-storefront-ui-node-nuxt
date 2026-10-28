@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { menus } = useAccountMenus()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Account/Overview')
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply

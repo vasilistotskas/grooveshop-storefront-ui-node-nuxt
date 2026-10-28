@@ -17,7 +17,7 @@ defineProps<{
   offersEnabled: boolean
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/MegaMenu')
 const localePath = useLocalePath()
 </script>
 

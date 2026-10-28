@@ -21,7 +21,7 @@ const props = defineProps<{
 }>()
 
 const { productUrl } = useUrls()
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Cart/ItemCard')
 const toast = useToast()
 const { notify } = useApiError()
 const { deleteCartItem, createCartItem } = useCartStore()

@@ -11,7 +11,7 @@
  * nobody opens a cart on never loads it. The suggestions follow the cart
  * page's rule: the `productSuggestions` store feature.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Cart/Drawer')
 const localePath = useLocalePath()
 const { open, added, desktop, close } = useCartDrawer()
 const cartStore = useCartStore()

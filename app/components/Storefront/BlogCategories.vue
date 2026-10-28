@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/BlogCategories')
 
 const breadcrumb = computed(() => [
   { label: t('breadcrumb.blog'), to: '/blog' },

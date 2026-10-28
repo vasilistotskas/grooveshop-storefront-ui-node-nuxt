@@ -18,7 +18,7 @@ defineProps<{
   clipboardSupported: boolean
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Offers/Coupon')
 const { headline, figure, conditions } = usePromotionOffer()
 </script>
 

@@ -58,7 +58,7 @@ const NEW_FOR_DAYS = 21
 
 const localePath = useLocalePath()
 const { productUrl } = useUrls()
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Product/Card')
 const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const userStore = useUserStore()

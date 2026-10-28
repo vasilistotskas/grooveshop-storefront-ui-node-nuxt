@@ -2,7 +2,7 @@
 import { type Cookie, COOKIE_ID_SEPARATOR } from '#cookie-control/types'
 import { getAllCookieIdsString, getCookieIds, removeCookie } from '#cookie-control/methods'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Cookie/Control')
 
 const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, isModalActive, moduleOptions } = useCookieControl()
 

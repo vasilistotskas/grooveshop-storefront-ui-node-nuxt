@@ -3,7 +3,7 @@ import type { AuthFormField } from '#ui/types'
 
 const emit = defineEmits(['signUpByPasskey'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/Signup/PasskeyForm')
 const localePath = useLocalePath()
 
 const { schema, loading, hasError, onSubmit } = useSignUpByPasskey({

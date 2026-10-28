@@ -29,7 +29,7 @@ const props = defineProps({
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Pagination/LimitOffset')
 
 const maxVisibleButtons = computed(() => (isMobileOrTablet.value ? 2 : 3))
 

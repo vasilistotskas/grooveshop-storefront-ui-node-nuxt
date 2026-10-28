@@ -14,7 +14,7 @@ const emit = defineEmits<{
 
 const { address } = toRefs(props)
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Address/Card')
 const toast = useToast()
 const { contentShorten } = useText()
 const localePath = useLocalePath()

@@ -7,7 +7,7 @@
  * Rendered by the sign-in page under its heading, and by the sign-in
  * dialog the blog opens — so it carries no heading or logo of its own.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Login/Form')
 const localePath = useLocalePath()
 
 const authStore = useAuthStore()

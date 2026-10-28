@@ -10,7 +10,7 @@
  * fixed at placement) while the order is still on its way. The frozen
  * webside tree keeps its own copy of this page.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Storefront/CheckoutSuccess')
 
 // The order-confirmation page shipped with the document title left at
 // the store name, twice — on the one page a customer is most likely to

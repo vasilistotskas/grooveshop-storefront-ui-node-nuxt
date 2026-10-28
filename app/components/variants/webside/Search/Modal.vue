@@ -10,7 +10,7 @@ const emit = defineEmits<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Search/Modal')
 const history = useSearchHistory()
 
 const localQuery = computed({

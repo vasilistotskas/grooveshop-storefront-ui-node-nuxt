@@ -39,7 +39,7 @@ const props = defineProps<{
   band?: boolean
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/Suggestions')
 
 const { data, onCardClick } = useProductSuggestions(props)
 

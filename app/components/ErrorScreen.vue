@@ -16,7 +16,7 @@ const props = defineProps({
 })
 
 const config = useRuntimeConfig()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/ErrorScreen')
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 const { ogImageUrl } = useTenantBranding()

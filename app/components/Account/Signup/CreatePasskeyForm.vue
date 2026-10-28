@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnCreateOptionsAtSignup', 'signupWebAuthnCredential'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Signup/CreatePasskeyForm')
 const localePath = useLocalePath()
 
 const { schema, deviceName, hasError, isSubmitting, onSubmit } = useCreatePasskeyAtSignup({
