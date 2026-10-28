@@ -14,6 +14,8 @@ const route = useRoute()
 const router = useRouter()
 const localePath = useLocalePath()
 const { reorder, reordering } = useReorder()
+// Buying an order again needs a cart: a browse-only store has none.
+const cartEnabled = useStoreFeature('cart')
 
 const PAGE_SIZE = 8
 const SORTS = ['-createdAt', 'createdAt'] as const
@@ -118,7 +120,7 @@ const detailsTo = (order: Order) => localePath({ name: 'account-orders-id', para
         </p>
         <div class="flex flex-wrap gap-2">
           <UButton
-            v-if="canBuyAgain(order)"
+            v-if="cartEnabled && canBuyAgain(order)"
             :label="t('reorder.cta')"
             :loading="reordering === order.id"
             :disabled="reordering !== null && reordering !== order.id"

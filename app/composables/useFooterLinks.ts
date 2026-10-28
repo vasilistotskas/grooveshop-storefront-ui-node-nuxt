@@ -6,7 +6,7 @@ export function useFooterLinks() {
 
   // Feature-gated default links: a footer must never advertise a
   // page the feature gates would 404.
-  const giftCardsEnabled = useStoreFeature('giftCards')
+  const giftCardsServing = useGatedRoute('/gift-cards')
   const feedbackEnabled = useStoreFeature('feedback')
 
   // Published ContentPages (per-tenant CMS pages, e.g. FAQ/shipping info)
@@ -59,7 +59,7 @@ export function useFooterLinks() {
         ...(feedbackEnabled.value
           ? [{ label: t('footer.feedback'), to: localePath('feedback') }]
           : []),
-        ...(giftCardsEnabled.value
+        ...(giftCardsServing.value
           ? [{ label: t('gift_cards'), to: localePath('gift-cards') }]
           : []),
       ],

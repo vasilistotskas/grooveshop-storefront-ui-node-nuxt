@@ -741,3 +741,75 @@ describe('webside ProductDetail sticky bar', () => {
     windowScrollY.value = 0
   })
 })
+
+/**
+ * A browse-only store (catalogue on, cart off) takes no orders, so the
+ * page offers nothing to buy: no quantity, no add-to-cart, no sticky buy
+ * bar. The price and the product stay. Both trees apply the one rule.
+ */
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail buying controls', ({ tree, C }) => {
+  const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
+  const empty = { count: 0, next: null, previous: null, results: [] }
+  const buyLabel = tree === 'default' ? 'Στο καλάθι' : 'Αγορά'
+
+  async function mountPage(features: { cart: boolean }) {
+    clearNuxtData()
+    clearProductData()
+    setTenant()
+    setTenantFeatures(features)
+    api.routes({
+      '/api/products/123': makeProduct({ id: 123, price: 50, vatPercent: 24, discountPercent: 0 }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+    windowScrollY.value = 1000
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    return wrapper
+  }
+
+  const buyButtons = (wrapper: Awaited<ReturnType<typeof mountPage>>) =>
+    wrapper.findAll('button').filter(button => button.attributes('aria-label') === buyLabel)
+
+  it('offers a quantity and an add-to-cart button when the store has a cart', async () => {
+    const wrapper = await mountPage({ cart: true })
+
+    expect(wrapper.find('#quantity').exists()).toBe(true)
+    expect(buyButtons(wrapper).length).toBeGreaterThan(0)
+    wrapper.unmount()
+    windowScrollY.value = 0
+  })
+
+  it('offers nothing to buy when the store has no cart, and still shows the price', async () => {
+    const wrapper = await mountPage({ cart: false })
+
+    expect(wrapper.find('#quantity').exists()).toBe(false)
+    expect(buyButtons(wrapper)).toHaveLength(0)
+    expect(wrapper.text()).toContain(money(62))
+    wrapper.unmount()
+    windowScrollY.value = 0
+  })
+
+  // The frozen page shows its bar once the window has scrolled; the bar
+  // is the fixed band holding the product's name as an h3.
+  it.runIf(tree === 'webside').each([{ cart: true, drawn: true }, { cart: false, drawn: false }])(
+    'draws the sticky buy bar: $drawn when the cart is $cart',
+    async ({ cart, drawn }) => {
+      const wrapper = await mountPage({ cart })
+
+      const bar = wrapper.findAll('h3').map(h3 => h3.element.closest('.fixed')).find(Boolean)
+      expect(bar !== undefined).toBe(drawn)
+      wrapper.unmount()
+      windowScrollY.value = 0
+    },
+  )
+
+  it.runIf(tree === 'default')('does not reserve room for a sticky buy bar the store never draws', async () => {
+    const wrapper = await mountPage({ cart: false })
+
+    expect(wrapper.find('[data-action-bar]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+})

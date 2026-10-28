@@ -1,3 +1,10 @@
+## [3.266.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.2...v3.266.3) (2026-10-27)
+
+
+### Bug Fixes
+
+* **features:** a store without the cart shows no buying controls; gift-card links follow the gated-routes table ([#260](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/260)) ([6415228](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/641522813bfe29e5a1c7f5ed00489c59c0fa9a6d)), closes [#258](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/258)
+
 ## [3.266.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.266.1...v3.266.2) (2026-10-27)
 
 

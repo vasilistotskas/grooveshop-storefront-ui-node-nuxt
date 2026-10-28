@@ -100,6 +100,14 @@ describe('useFooterLinks', () => {
     expect(hrefs(columns.value).includes('/gift-cards')).toBe(linked)
   })
 
+  it('does not link gift cards on a store without the catalogue they are bought from', async () => {
+    setTenantFeatures({ giftCards: true, catalogue: false })
+
+    const columns = await footer()
+
+    expect(hrefs(columns.value)).not.toContain('/gift-cards')
+  })
+
   it('renders an operator-configured footer instead, resolving each link', async () => {
     configuredColumns = [{
       label: 'Εξυπηρέτηση',

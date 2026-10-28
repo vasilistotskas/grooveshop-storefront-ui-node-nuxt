@@ -160,6 +160,16 @@ describe('webside Product/Suggestions', () => {
     expect(buttons[0]!.attributes('aria-label')).toBe('Προσθήκη στο καλάθι')
   })
 
+  it('draws no add-to-cart button, nor its corner, on a store without a cart', async () => {
+    setTenantFeatures({ cart: false })
+
+    const wrapper = await mountStrip()
+
+    expect(wrapper.findAll('article')).toHaveLength(2)
+    expect(wrapper.findAll('button.add-to-cart')).toHaveLength(0)
+    expect(wrapper.findAll('article div.absolute.right-0.bottom-0')).toHaveLength(0)
+  })
+
   it('asks the engine for nothing on a store without the catalogue', async () => {
     setTenantFeatures({ catalogue: false })
 

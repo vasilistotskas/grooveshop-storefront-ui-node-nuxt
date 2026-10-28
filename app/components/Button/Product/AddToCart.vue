@@ -54,6 +54,9 @@ const props = defineProps({
   },
 })
 
+// A browse-only store takes no orders: there is nothing to buy, so no
+// buying control renders (every add-to-cart button routes through here).
+const cartEnabled = useStoreFeature('cart')
 const cartStore = useCartStore()
 const { createCartItem, updateCartItem, getCartItemByProductId } = cartStore
 const { error } = storeToRefs(cartStore)
@@ -189,7 +192,7 @@ function announceAdded() {
        reads as "that worked", not "buy this", and the same colour the
        toast uses to confirm it afterwards. -->
   <UButton
-    v-if="iconOnly"
+    v-if="cartEnabled && iconOnly"
     :icon="icon"
     :size="size"
     square
@@ -202,7 +205,7 @@ function announceAdded() {
     @click.prevent="addToCartEvent"
   />
   <UButton
-    v-else
+    v-else-if="cartEnabled"
     :icon="icon"
     :label="visibleLabel"
     :size="size"

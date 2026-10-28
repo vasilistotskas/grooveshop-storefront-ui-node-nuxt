@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const cartEnabled = useStoreFeature('cart')
+
 const props = defineProps<{
   /**
    * Which slot the engine answers for. Selects the merchant's chain,
@@ -174,7 +176,10 @@ const arrowButton = {
               size="sm"
             />
           </div>
-          <div class="absolute right-0 bottom-0">
+          <div
+            v-if="cartEnabled"
+            class="absolute right-0 bottom-0"
+          >
             <LazyWebsideButtonProductAddToCart
               :product="item.product"
               :quantity="1"

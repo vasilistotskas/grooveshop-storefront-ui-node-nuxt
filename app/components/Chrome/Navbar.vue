@@ -49,7 +49,7 @@ watch(cartDrawerOpen, (isOpen) => {
   if (isOpen) cartDrawerRequested.value = true
 })
 const favouritesEnabled = useStoreFeature('favourites')
-const giftCardsEnabled = useStoreFeature('giftCards')
+const giftCardsServing = useGatedRoute('/gift-cards')
 const promotionsEnabled = useStoreFeature('promotions')
 const loyaltyEnabled = useStoreFeature('loyalty')
 const blogEnabled = useStoreFeature('blog')
@@ -130,7 +130,7 @@ const items = computed<NavigationMenuItem[]>(() => {
       active: isRouteActive('blog'),
     })
   }
-  if (giftCardsEnabled.value) {
+  if (giftCardsServing.value) {
     base.push({
       label: t('gift_cards'),
       to: localePath('gift-cards'),

@@ -34,7 +34,7 @@ export function useFooterNavigation() {
   const catalogueEnabled = useStoreFeature('catalogue')
   const feedbackEnabled = useStoreFeature('feedback')
   const promotionsEnabled = useStoreFeature('promotions')
-  const giftCardsEnabled = useStoreFeature('giftCards')
+  const giftCardsServing = useGatedRoute('/gift-cards')
   const loyaltyEnabled = useStoreFeature('loyalty')
   const blogEnabled = useStoreFeature('blog')
 
@@ -57,7 +57,7 @@ export function useFooterNavigation() {
     if (promotionsEnabled.value) {
       shop.push({ label: t('offers'), to: localePath('offers') })
     }
-    if (giftCardsEnabled.value) {
+    if (giftCardsServing.value) {
       shop.push({ label: t('gift_cards'), to: localePath('gift-cards') })
     }
     if (loyaltyEnabled.value) {
