@@ -22,6 +22,10 @@ source of truth; each helper documents itself in its own JSDoc.
 - Only `*.spec.ts` runs. A file named anything else under `test/` is a helper
   or a suite module (`test/e2e/pageRenders.ts` is imported by
   `test/e2e/storefront.spec.ts`).
+- A new server route that a page render calls on Django needs an answer in
+  the e2e fake Django (the handler in `test/e2e/pageRenders.ts`). Without one
+  every e2e page takes the route's failure path, and the cache-header
+  assertions fail far from the cause (`/texts/overrides`, 2026-10-28).
 - Files run **in parallel** in `unit` and `nuxt`, with **no retries** and the
   default 5s test timeout. A test that needs a retry or a longer budget is
   wrong; find the race or the real sleep.
