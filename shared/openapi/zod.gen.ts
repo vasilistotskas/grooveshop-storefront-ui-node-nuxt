@@ -1628,7 +1628,7 @@ export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE'])
  * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
  * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
- * * `legal_document_unavailable` - Legal document unavailable
+ * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
  * * `payment_not_found` - Δεν βρέθηκε πληρωμή
  * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
  * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -3581,6 +3581,14 @@ export const zCart = z.object({
     amount: z.number().optional(),
   })).readonly(),
   promotionFreeShipping: z.boolean().readonly(),
+  freeShippingProgress: z.object({
+    free: z.boolean(),
+    source: z.enum(['threshold', 'promotion']),
+    remainingAmount: z.number().nullable(),
+    remainingQuantity: z.int().nullable(),
+    threshold: z.number().nullable(),
+    countryCode: z.string().nullable(),
+  }).readonly().nullable(),
   appliedCouponCodes: z.array(z.string()).readonly(),
   appliedCoupons: z.array(z.object({
     code: z.string(),
@@ -3613,6 +3621,7 @@ export const zCart = z.object({
     remainingAmount: z.number().nullable(),
     remainingQuantity: z.int().nullable(),
     rewardProducts: z.array(zPromotionProductRef),
+    freeShipping: z.boolean(),
   })).readonly(),
   b2bPricing: z.object({
     applied: z.boolean().optional(),
@@ -3651,6 +3660,14 @@ export const zCartDetail = z.object({
     amount: z.number().optional(),
   })).readonly(),
   promotionFreeShipping: z.boolean().readonly(),
+  freeShippingProgress: z.object({
+    free: z.boolean(),
+    source: z.enum(['threshold', 'promotion']),
+    remainingAmount: z.number().nullable(),
+    remainingQuantity: z.int().nullable(),
+    threshold: z.number().nullable(),
+    countryCode: z.string().nullable(),
+  }).readonly().nullable(),
   appliedCouponCodes: z.array(z.string()).readonly(),
   appliedCoupons: z.array(z.object({
     code: z.string(),
@@ -3683,6 +3700,7 @@ export const zCartDetail = z.object({
     remainingAmount: z.number().nullable(),
     remainingQuantity: z.int().nullable(),
     rewardProducts: z.array(zPromotionProductRef),
+    freeShipping: z.boolean(),
   })).readonly(),
   b2bPricing: z.object({
     applied: z.boolean().optional(),

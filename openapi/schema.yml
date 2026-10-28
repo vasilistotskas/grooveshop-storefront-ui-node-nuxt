@@ -35296,6 +35296,44 @@ components:
           type: boolean
           readOnly: true
           description: Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
+        freeShippingProgress:
+          type: object
+          nullable: true
+          properties:
+            free:
+              type: boolean
+              description: 'Checkout charges nothing for shipping: a promotion waives it, or the cart reached a carrier''s threshold'
+            source:
+              type: string
+              enum:
+                - threshold
+                - promotion
+              description: 'threshold: a carrier''s free-shipping threshold, for that carrier only; promotion: a free-shipping promotion, for every carrier'
+            remainingAmount:
+              type: number
+              nullable: true
+              description: Products still missing; null once free, or when what is missing is units
+            remainingQuantity:
+              type: integer
+              nullable: true
+              description: Units of the promotion's products still missing; null once free, or when what is missing is an amount
+            threshold:
+              type: number
+              nullable: true
+              description: The value the route is reached at, for a meter; null for a units route or a promotion that waives shipping outright
+            countryCode:
+              type: string
+              nullable: true
+              description: 'The country the carriers'' thresholds were judged for: the store''s first shipping country, the one checkout preselects'
+          required:
+            - free
+            - source
+            - remainingAmount
+            - remainingQuantity
+            - threshold
+            - countryCode
+          readOnly: true
+          description: 'Πόσο απέχει αυτό το καλάθι από τα δωρεάν μεταφορικά, με τον φθηνότερο δρόμο: το όριο δωρεάν μεταφορικών μιας μεταφορικής ή μια προσφορά δωρεάν μεταφορικών, κρινόμενο με τους κανόνες με τους οποίους το checkout τιμολογεί τα μεταφορικά. Το ένα ποσό που δείχνεται για τα δωρεάν μεταφορικά· οι εγγραφές του promotionNearMiss με freeShipping είναι δρόμοι που έχει ήδη σταθμίσει. Null όταν το καλάθι δεν έχει κανέναν δρόμο προς δωρεάν μεταφορικά.'
         appliedCouponCodes:
           type: array
           items:
@@ -35382,12 +35420,16 @@ components:
                 items:
                   $ref: '#/components/schemas/PromotionProductRef'
                 description: The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
+              freeShipping:
+                type: boolean
+                description: The offer waives shipping, so it is one of the routes freeShippingProgress already weighed; show that, not this teaser
             required:
               - promotionId
               - name
               - remainingAmount
               - remainingQuantity
               - rewardProducts
+              - freeShipping
           description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
           readOnly: true
         b2bPricing:
@@ -35430,6 +35472,7 @@ components:
         - b2bPricing
         - createdAt
         - currency
+        - freeShippingProgress
         - freeThresholdValue
         - id
         - items
@@ -35693,6 +35736,44 @@ components:
           type: boolean
           readOnly: true
           description: Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
+        freeShippingProgress:
+          type: object
+          nullable: true
+          properties:
+            free:
+              type: boolean
+              description: 'Checkout charges nothing for shipping: a promotion waives it, or the cart reached a carrier''s threshold'
+            source:
+              type: string
+              enum:
+                - threshold
+                - promotion
+              description: 'threshold: a carrier''s free-shipping threshold, for that carrier only; promotion: a free-shipping promotion, for every carrier'
+            remainingAmount:
+              type: number
+              nullable: true
+              description: Products still missing; null once free, or when what is missing is units
+            remainingQuantity:
+              type: integer
+              nullable: true
+              description: Units of the promotion's products still missing; null once free, or when what is missing is an amount
+            threshold:
+              type: number
+              nullable: true
+              description: The value the route is reached at, for a meter; null for a units route or a promotion that waives shipping outright
+            countryCode:
+              type: string
+              nullable: true
+              description: 'The country the carriers'' thresholds were judged for: the store''s first shipping country, the one checkout preselects'
+          required:
+            - free
+            - source
+            - remainingAmount
+            - remainingQuantity
+            - threshold
+            - countryCode
+          readOnly: true
+          description: 'Πόσο απέχει αυτό το καλάθι από τα δωρεάν μεταφορικά, με τον φθηνότερο δρόμο: το όριο δωρεάν μεταφορικών μιας μεταφορικής ή μια προσφορά δωρεάν μεταφορικών, κρινόμενο με τους κανόνες με τους οποίους το checkout τιμολογεί τα μεταφορικά. Το ένα ποσό που δείχνεται για τα δωρεάν μεταφορικά· οι εγγραφές του promotionNearMiss με freeShipping είναι δρόμοι που έχει ήδη σταθμίσει. Null όταν το καλάθι δεν έχει κανέναν δρόμο προς δωρεάν μεταφορικά.'
         appliedCouponCodes:
           type: array
           items:
@@ -35779,12 +35860,16 @@ components:
                 items:
                   $ref: '#/components/schemas/PromotionProductRef'
                 description: The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
+              freeShipping:
+                type: boolean
+                description: The offer waives shipping, so it is one of the routes freeShippingProgress already weighed; show that, not this teaser
             required:
               - promotionId
               - name
               - remainingAmount
               - remainingQuantity
               - rewardProducts
+              - freeShipping
           description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
           readOnly: true
         b2bPricing:
@@ -35833,6 +35918,7 @@ components:
         - b2bPricing
         - createdAt
         - currency
+        - freeShippingProgress
         - freeThresholdValue
         - id
         - items
@@ -38750,7 +38836,7 @@ components:
             * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
             * `invalid_coupon` - Μη έγκυρο κουπόνι
             * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
-            * `legal_document_unavailable` - Legal document unavailable
+            * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
             * `payment_not_found` - Δεν βρέθηκε πληρωμή
             * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
             * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -38793,7 +38879,7 @@ components:
         * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
         * `invalid_coupon` - Μη έγκυρο κουπόνι
         * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
-        * `legal_document_unavailable` - Legal document unavailable
+        * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
         * `payment_not_found` - Δεν βρέθηκε πληρωμή
         * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
         * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -39002,7 +39088,7 @@ components:
         termsAccepted:
           type: boolean
           writeOnly: true
-          description: The buyer accepts the store's terms of use and privacy policy. Must be true.
+          description: Ο αγοραστής αποδέχεται τους όρους χρήσης και την πολιτική απορρήτου του καταστήματος. Πρέπει να είναι true.
       required:
         - city
         - countryId

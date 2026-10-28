@@ -7,10 +7,11 @@ import YAML from 'yaml'
 import Cart from '~/components/Storefront/Cart.vue'
 import WebsideCart from '~/components/variants/webside/Storefront/Cart.vue'
 import { useCartStore } from '~/stores/cart'
-import { makeCart } from '~~/test/fixtures/cart'
+import { makeCart, makeFreeShippingProgress } from '~~/test/fixtures/cart'
 import { makeProduct } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { trees } from '~~/test/helpers/trees'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 
 /**
@@ -129,7 +130,10 @@ describe('Storefront/Cart', () => {
 
   describe('delivery and offers', () => {
     it('says free delivery is unlocked in the banner and, on a phone, beside the count', async () => {
-      useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { price: 60, finalPrice: 60 } }] })
+      useCartStore().cart = makeCart({
+        items: [{ id: 1, quantity: 1, product: { price: 60, finalPrice: 60 } }],
+        freeShippingProgress: makeFreeShippingProgress({ free: true, remainingAmount: null }),
+      })
 
       const wrapper = await mountPage()
       await vi.waitFor(() => expect(wrapper.text()).toContain(`· ${messages.free_delivery_unlocked}`))
@@ -137,26 +141,26 @@ describe('Storefront/Cart', () => {
       expect(wrapper.text()).toContain('Δωρεάν μεταφορικά')
     })
 
-    // Django judges free delivery on the cart's `freeThresholdValue`, the
-    // products after promotion and coupon discounts, not on the gross total.
+    // Django decides free delivery (`freeShippingProgress.free`), on the
+    // products after discounts, from a threshold or an offer; the page
+    // never compares totals itself.
     it.each([
-      { name: '39,98 € is short', totalPrice: 39.98, promotionDiscount: 0, unlocked: false },
-      { name: '40,00 € unlocks it', totalPrice: 40, promotionDiscount: 0, unlocked: true },
-      { name: '45,00 € less a 6,00 € coupon is short', totalPrice: 45, promotionDiscount: 6, unlocked: false },
-    ])('says free delivery is unlocked on the freeThresholdValue: $name', async ({ totalPrice, promotionDiscount, unlocked }) => {
-      api.routes({ '/api/shipping/free-shipping-info': () => ({ providers: [], minThreshold: 40, maxThreshold: 40, currency: 'EUR', countryCode: 'GR' }) })
-      useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { price: 1, finalPrice: 1 } }], totalPrice, promotionDiscount })
+      { name: '0,02 € short of a threshold', progress: makeFreeShippingProgress({ remainingAmount: 0.02, threshold: 40 }), unlocked: false, banner: 'Δωρεάν μεταφορικά' },
+      { name: 'a threshold reached', progress: makeFreeShippingProgress({ free: true, remainingAmount: null, threshold: 40 }), unlocked: true, banner: 'Η παραγγελία σου ξεπερνά' },
+      { name: 'an offer waiving it', progress: makeFreeShippingProgress({ free: true, source: 'promotion', remainingAmount: null, threshold: null }), unlocked: true, banner: 'Μια προσφορά καλύπτει τα μεταφορικά σου.' },
+    ])('says free delivery is unlocked as Django decides it: $name', async ({ progress, unlocked, banner }) => {
+      useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { price: 1, finalPrice: 1 } }], freeShippingProgress: progress })
 
       const wrapper = await mountPage()
       await vi.waitFor(() => expect(wrapper.text()).toMatch(/μεταφορικ/))
 
       expect(wrapper.text().includes(`· ${messages.free_delivery_unlocked}`)).toBe(unlocked)
       // The banner above the lines agrees with it.
-      expect(wrapper.text().includes('Η παραγγελία σου ξεπερνά')).toBe(unlocked)
+      expect(wrapper.text().includes(banner)).toBe(unlocked)
     })
 
-    it('does not say it while the cart is under the threshold', async () => {
-      api.routes({ '/api/shipping/free-shipping-info': () => ({ minThreshold: 100 }) })
+    it('does not say it while the cart is short of free delivery', async () => {
+      useCartStore().cart = makeCart({ freeShippingProgress: makeFreeShippingProgress() })
 
       const wrapper = await mountPage()
 
@@ -164,7 +168,7 @@ describe('Storefront/Cart', () => {
     })
 
     it('nudges toward an offer the cart is short of', async () => {
-      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 4, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [] }] })
+      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 4, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [], freeShipping: false }] })
 
       const wrapper = await mountPage()
 
@@ -376,9 +380,8 @@ describe('Storefront/Cart', () => {
 })
 
 /**
- * The webside cart shows the same free-delivery notice, fed the
- * cart's `freeThresholdValue`: a 45,00 € cart with a 6,00 € coupon is
- * 1,00 € short of a 40,00 € threshold, not past it.
+ * The webside cart shows the same free-delivery notice, fed the cart's
+ * `freeShippingProgress`: Django's distance, never one it computes.
  */
 describe('Storefront/Cart (webside)', () => {
   // Both trees decide from the productSuggestions feature.
@@ -426,12 +429,11 @@ describe('Storefront/Cart (webside)', () => {
   })
 
   it.each([
-    { name: '39,98 €', totalPrice: 39.98, promotionDiscount: 0, notice: () => `Πρόσθεσε ακόμα ${euro(0.02)} για δωρεάν μεταφορικά` },
-    { name: '40,00 €', totalPrice: 40, promotionDiscount: 0, notice: () => 'Έχεις δωρεάν μεταφορικά' },
-    { name: '45,00 € less a 6,00 € coupon', totalPrice: 45, promotionDiscount: 6, notice: () => `Πρόσθεσε ακόμα ${euro(1)} για δωρεάν μεταφορικά` },
-  ])('measures free delivery on the freeThresholdValue of the cart: $name', async ({ totalPrice, promotionDiscount, notice }) => {
-    api.routes({ '/api/shipping/free-shipping-info': () => ({ providers: [], minThreshold: 40, maxThreshold: 40, currency: 'EUR', countryCode: 'GR' }) })
-    useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { price: 1, finalPrice: 1 } }], totalPrice, promotionDiscount })
+    { name: '0,02 € short', progress: makeFreeShippingProgress({ remainingAmount: 0.02, threshold: 40 }), notice: () => `Πρόσθεσε ακόμα ${euro(0.02)} για δωρεάν μεταφορικά` },
+    { name: 'free', progress: makeFreeShippingProgress({ free: true, remainingAmount: null, threshold: 40 }), notice: () => 'Έχεις δωρεάν μεταφορικά' },
+    { name: '2 items short of an offer', progress: makeFreeShippingProgress({ source: 'promotion', remainingAmount: null, remainingQuantity: 2, threshold: null }), notice: () => 'Πρόσθεσε ακόμα 2 τεμάχια για δωρεάν μεταφορικά' },
+  ])('tells the cart\'s free-delivery progress: $name', async ({ progress, notice }) => {
+    useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { price: 1, finalPrice: 1 } }], freeShippingProgress: progress })
 
     const wrapper = await mountSuspended(WebsideCart, { route: false })
     await flushPromises()
@@ -445,7 +447,7 @@ describe('Storefront/Cart (webside)', () => {
     const forms = (key: string): [string, string] => websideMessages[key].split('|').map((form: string) => form.trim())
 
     it('says how many euros more', async () => {
-      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 4, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [] }] })
+      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 4, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [], freeShipping: false }] })
 
       const wrapper = await mountWebside()
 
@@ -456,8 +458,8 @@ describe('Storefront/Cart (webside)', () => {
       const [one, many] = forms('near_miss_quantity')
       useCartStore().cart = makeCart({
         promotionNearMiss: [
-          { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1, rewardProducts: [] },
-          { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2, rewardProducts: [] },
+          { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1, rewardProducts: [], freeShipping: false },
+          { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2, rewardProducts: [], freeShipping: false },
         ],
       })
 
@@ -472,8 +474,8 @@ describe('Storefront/Cart (webside)', () => {
       const [one, many] = forms('near_miss_reward')
       useCartStore().cart = makeCart({
         promotionNearMiss: [
-          { promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector] },
-          { promotionId: 8, name: 'Δεύτερο τζαμάκι', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector, glass] },
+          { promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector], freeShipping: false },
+          { promotionId: 8, name: 'Δεύτερο τζαμάκι', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector, glass], freeShipping: false },
         ],
       })
 
@@ -488,12 +490,75 @@ describe('Storefront/Cart (webside)', () => {
 
     it('lists at most three reward products per teaser', async () => {
       const rewards: PromotionProductRef[] = [1, 2, 3, 4].map(id => ({ id, name: `Τζαμάκι ${id}`, slug: `tzamaki-${id}`, mainImagePath: '' }))
-      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 7, name: 'Offer', remainingAmount: null, remainingQuantity: 1, rewardProducts: rewards }] })
+      useCartStore().cart = makeCart({ promotionNearMiss: [{ promotionId: 7, name: 'Offer', remainingAmount: null, remainingQuantity: 1, rewardProducts: rewards, freeShipping: false }] })
 
       const wrapper = await mountWebside()
 
       expect(wrapper.findAll('a').map(link => link.attributes('href')).filter(href => /tzamaki-\d$/.test(href ?? '')))
         .toEqual(['/products/1/tzamaki-1', '/products/2/tzamaki-2', '/products/3/tzamaki-3'])
     })
+  })
+})
+
+/**
+ * Staging webside, 2026-10-28, a cart of one 19,99 € item: the teaser of
+ * a free-shipping offer from 39 € said "add 19,01 €" while the store's
+ * free-delivery line said "add 30,01 €" (its carrier's 50 € threshold).
+ * Django now sends ONE distance, `freeShippingProgress`, and flags the
+ * offer's teaser `freeShipping`: every design tells free delivery once,
+ * with Django's amount, and still tells the other offers.
+ */
+describe.each(trees(Cart, WebsideCart))('$tree Storefront/Cart: one free-delivery message', ({ C }) => {
+  const OFFER = 'Δωρεάν αποστολή από 39€'
+
+  beforeEach(() => {
+    useCartStore().cart = makeCart({
+      items: [{ id: 1, quantity: 1, product: { price: 19.99, finalPrice: 19.99 } }],
+      freeShippingProgress: makeFreeShippingProgress({ source: 'promotion', remainingAmount: 19.01, threshold: 39 }),
+      promotionNearMiss: [
+        { promotionId: 1, name: OFFER, remainingAmount: 19.01, remainingQuantity: null, rewardProducts: [], freeShipping: true },
+        { promotionId: 2, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [], freeShipping: false },
+      ],
+    })
+  })
+
+  const mount = async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+    await vi.waitFor(() => expect(wrapper.text()).toMatch(/μεταφορικ/))
+    return wrapper
+  }
+
+  it('tells free delivery once, with the distance Django sent', async () => {
+    const wrapper = await mount()
+    const text = words(wrapper.text())
+
+    expect(text.split(words(euro(19.01))).length - 1).toBe(1)
+    expect(wrapper.text().match(/για δωρεάν μεταφορικά/g)).toHaveLength(1)
+    // Not the store's own 50 € threshold, which free-shipping-info carries.
+    expect(text).not.toContain(words(euro(30.01)))
+    expect(text).not.toContain(words(euro(50)))
+  })
+
+  it('does not tell the free-shipping offer again as a teaser', async () => {
+    const wrapper = await mount()
+
+    expect(wrapper.text()).not.toContain(OFFER)
+  })
+
+  it('still tells every other offer the cart is short of', async () => {
+    const wrapper = await mount()
+
+    expect(wrapper.text()).toContain('POWER8')
+    expect(words(wrapper.text())).toContain(words(euro(9.44)))
+  })
+
+  it('tells nothing of free delivery when the cart has no route to it', async () => {
+    useCartStore().cart = makeCart({ freeShippingProgress: null })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.text()).not.toMatch(/δωρεάν μεταφορικά/i)
   })
 })

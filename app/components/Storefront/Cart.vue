@@ -6,6 +6,7 @@ const {
   pending,
   initialLoading,
   hasStockIssues,
+  getOfferNearMisses,
 } = storeToRefs(cartStore)
 const { t } = useStoreI18n('components/Storefront/Cart')
 const { getStockStatusMessage, clearCart } = cartStore
@@ -101,14 +102,8 @@ onMounted(() => {
 
 const breadcrumb = computed(() => [{ label: t('shopping_cart') }])
 
-// Free delivery: the store's cheapest free-carrier threshold. Not awaited
-// — the cart renders without it and the banner joins when it lands.
-const { data: freeShipping } = useFreeShippingInfo()
-const freeDeliveryThreshold = computed(() => freeShipping.value?.minThreshold ?? 0)
-const freeDeliveryUnlocked = computed(() =>
-  freeDeliveryThreshold.value > 0
-  && (cart.value?.freeThresholdValue ?? 0) >= freeDeliveryThreshold.value,
-)
+// Free delivery: the cart's own progress, Django's cheapest route to it.
+const freeDeliveryUnlocked = computed(() => cart.value?.freeShippingProgress?.free === true)
 
 const total = computed(() =>
   Math.max(0, (cart.value?.totalPrice ?? 0) - (cart.value?.promotionDiscount ?? 0)),
@@ -230,9 +225,8 @@ useSeoMeta({
         <div class="flex min-w-0 flex-col gap-4">
           <template v-if="!initialLoading && cart?.items?.length">
             <CartBanners
-              :cart-total="cart.freeThresholdValue"
-              :threshold="freeDeliveryThreshold"
-              :near-misses="cart.promotionNearMiss || []"
+              :progress="cart.freeShippingProgress"
+              :near-misses="getOfferNearMisses"
             />
 
             <ul class="flex flex-col divide-y divide-default">

@@ -6,6 +6,7 @@ const {
   pending,
   initialLoading,
   hasStockIssues,
+  getOfferNearMisses,
 } = storeToRefs(cartStore)
 const { t } = useStoreI18n('components/variants/webside/Storefront/Cart')
 const { $i18n } = useNuxtApp()
@@ -416,7 +417,7 @@ useSeoMeta({
             <!-- One teaser per offer the cart is just short of: one of the
                  reward products, a few more items, or a few more euros. -->
             <UAlert
-              v-for="miss in cart.promotionNearMiss || []"
+              v-for="miss in getOfferNearMisses"
               :key="`miss-${miss.promotionId}`"
               icon="i-heroicons-sparkles"
               color="info"
@@ -449,7 +450,7 @@ useSeoMeta({
               </template>
             </UAlert>
 
-            <WebsideShippingFreeShippingNotice :cart-total="cart.freeThresholdValue" />
+            <WebsideShippingFreeShippingNotice :progress="cart.freeShippingProgress" />
           </div>
 
           <template #footer>
