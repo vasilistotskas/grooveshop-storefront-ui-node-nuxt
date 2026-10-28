@@ -17,7 +17,7 @@ const props = defineProps<{
   featured?: boolean
 }>()
 
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Loyalty/TierCard')
 
 const name = computed(() => extractTranslated(props.tier, 'name', locale.value) ?? '')
 

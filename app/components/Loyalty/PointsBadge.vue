@@ -18,7 +18,7 @@ const props = defineProps<{
   productPrice: number
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Loyalty/PointsBadge')
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
 

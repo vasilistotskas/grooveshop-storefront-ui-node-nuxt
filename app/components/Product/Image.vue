@@ -34,7 +34,7 @@ const props = defineProps({
   },
 })
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Product/Image')
 
 // The merchant's alt text describes the photograph; the title names it.
 const alt = computed(() =>

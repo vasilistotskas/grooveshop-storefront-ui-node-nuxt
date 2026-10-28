@@ -22,7 +22,7 @@ const emit = defineEmits([
   'refresh-favourites',
 ])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Product/Favourites/List')
 </script>
 
 <template>

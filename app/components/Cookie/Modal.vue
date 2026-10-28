@@ -8,7 +8,7 @@ import { getCookieIds } from '#cookie-control/methods'
 // @click.self`) only handled click-outside and missed every other a11y
 // requirement.
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Cookie/Modal')
 
 const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, isModalActive, moduleOptions } = useCookieControl()
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Footer/HoursBadge')
 const { hasData, todayHours, isOpen } = useBusinessHours()
 </script>
 

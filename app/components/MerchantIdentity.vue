@@ -17,7 +17,7 @@
  * line of empty separators is not more compliant than silence, and it
  * reads as a broken page to every shopper.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/MerchantIdentity')
 const { identity, hasIdentity, legalName, registeredSeat, inLiquidation }
   = useMerchantIdentity()
 

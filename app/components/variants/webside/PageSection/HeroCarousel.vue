@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/PageSection/HeroCarousel')
 
 const config = useRuntimeConfig()
 const tenantStore = useTenantStore()

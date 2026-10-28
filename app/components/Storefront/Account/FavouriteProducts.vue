@@ -7,7 +7,7 @@
  * theirs after mount for the opposite reason: there, most products are
  * not favourites). Removing one reloads the list and the tab's count.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/FavouriteProducts')
 useHead({ title: () => t('title') })
 const route = useRoute()
 const localePath = useLocalePath()

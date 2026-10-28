@@ -17,7 +17,7 @@
  * visitor, so a caller on a cached page (the product page) renders this
  * on the client only.
  */
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Shipping/FreeShippingNotice')
 const { cart } = storeToRefs(useCartStore())
 const { data, pending, error } = await useFreeShippingInfo()
 

@@ -12,7 +12,7 @@ import type { FormSubmitEvent } from '#ui/types'
  * Every change is allauth's (`useEmailAddresses`), and the list is read
  * back from it afterwards.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/EmailManage')
 
 const { rows, busy, schema, add: addEmail, resend, makePrimary, remove } = await useEmailAddresses({
   messages: () => ({

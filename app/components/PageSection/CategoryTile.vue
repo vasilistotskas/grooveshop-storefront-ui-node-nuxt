@@ -10,7 +10,7 @@ defineProps<{
   category: CategoryMenuEntry
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/CategoryTile')
 const localePath = useLocalePath()
 </script>
 

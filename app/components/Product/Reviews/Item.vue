@@ -12,7 +12,7 @@ const props = defineProps<{
   review: ProductReview
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Product/Reviews/Item')
 const tenantStore = useTenantStore()
 
 /** A longer comment is cut to a few lines with a "Read more". */

@@ -20,7 +20,7 @@ const props = defineProps<{
   }
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/GiftItem')
 
 const product = computed(() => props.gift.productName || props.gift.name || '')
 const quantity = computed(() => props.gift.quantity ?? 1)

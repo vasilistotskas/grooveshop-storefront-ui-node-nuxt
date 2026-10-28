@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/GuestLoyaltyCTA')
 const localePath = useLocalePath()
 
 const cartStore = useCartStore()

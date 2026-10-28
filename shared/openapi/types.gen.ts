@@ -26480,6 +26480,31 @@ export type ApiV1TenantResolveRetrieveResponses = {
 
 export type ApiV1TenantResolveRetrieveResponse = ApiV1TenantResolveRetrieveResponses[keyof ApiV1TenantResolveRetrieveResponses]
 
+export type ApiV1TextsOverridesRetrieveData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+         * A language code the storefront serves (el, en).
+         */
+    language: string
+  }
+  url: '/api/v1/texts/overrides'
+}
+
+export type ApiV1TextsOverridesRetrieveResponses = {
+  /**
+     * The store's replacement texts for the language, {namespace: {key: text}}, as stored: from the database and the cache only, never by asking the storefront. The storefront ignores a locked text (isLockedText) and a key its build no longer has when it merges. Keys are the storefront's own ids and are not camelCased.
+     */
+  200: {
+    [key: string]: {
+      [key: string]: string
+    }
+  }
+}
+
+export type ApiV1TextsOverridesRetrieveResponse = ApiV1TextsOverridesRetrieveResponses[keyof ApiV1TextsOverridesRetrieveResponses]
+
 export type ListUserAccountData = {
   body?: never
   path?: never

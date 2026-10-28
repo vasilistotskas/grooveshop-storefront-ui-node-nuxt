@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // Webside's drawing of the category page; the category, its posts and the
 // head are useBlogCategoryPage's, the same as the default page's.
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/BlogCategory')
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()

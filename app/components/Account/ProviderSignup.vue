@@ -8,7 +8,7 @@ import type { FormSubmitEvent } from '#ui/types'
  */
 const emit = defineEmits(['providerSignup'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/ProviderSignup')
 const localePath = useLocalePath()
 
 const acceptedTerms = ref(false)

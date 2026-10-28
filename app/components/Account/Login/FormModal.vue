@@ -4,7 +4,7 @@
  * comments or likes. The same form as the sign-in page, in the board's
  * dialog frame; it closes itself once the session arrives.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Login/FormModal')
 const isOpen = defineModel<boolean>()
 
 useCloseOnSignIn(isOpen)

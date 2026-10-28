@@ -3,7 +3,7 @@ import type { NavigationMenuItem } from '#ui/types'
 
 const localePath = useLocalePath()
 const route = useRoute()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/AuthSettingsNavigation')
 const { isMobileOrTablet } = useDevice()
 const { $routeBaseName } = useNuxtApp()
 const authStore = useAuthStore()

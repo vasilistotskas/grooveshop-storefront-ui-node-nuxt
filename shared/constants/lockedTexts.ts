@@ -1,3 +1,5 @@
+import { GLOBAL_TEXT_NAMESPACE } from './textCatalogue.ts'
+
 /**
  * Texts a store's admin may not replace; only the platform edits them, in
  * code. The catalogue marks an entry `locked` from this list
@@ -14,7 +16,7 @@ export interface LockedTextRule {
   reason: string
 }
 
-const GLOBAL = /^global$/
+const GLOBAL = new RegExp(`^${GLOBAL_TEXT_NAMESPACE}$`)
 /** A component path, in the default tree or in any tenant variant tree. */
 const component = (path: string) => new RegExp(`^components/(?:variants/[^/]+/)?${path}$`)
 const ANY_KEY = /^/

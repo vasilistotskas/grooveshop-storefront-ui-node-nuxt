@@ -10,7 +10,7 @@
  * Chosen per request by `middleware/design-layout.global.ts`, never by
  * a page file: a store frozen in the previous design keeps its layout.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('layouts/auth-split')
 const tenantStore = useTenantStore()
 const localePath = useLocalePath()
 const router = useRouter()

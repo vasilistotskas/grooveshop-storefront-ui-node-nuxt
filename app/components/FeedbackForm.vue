@@ -5,7 +5,7 @@
  * feedback endpoint's five fields; every step asks for its own field
  * before Next lets the visitor on, and the last one sends.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/FeedbackForm')
 const { schema: feedbackZodSchema, loading, send } = useFeedbackSubmit({ t })
 
 const sent = ref(false)

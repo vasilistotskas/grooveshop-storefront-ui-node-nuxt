@@ -12,7 +12,7 @@
  * Rendered by the default checkout body rather than `layouts/checkout`,
  * which the frozen webside checkout shares.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/LegalFooter')
 const localePath = useLocalePath()
 const { published } = useFooterContentPages()
 const { identity } = useMerchantIdentity()

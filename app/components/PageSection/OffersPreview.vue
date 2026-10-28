@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
   surface: 'ink',
 })
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/PageSection/OffersPreview')
 const localePath = useLocalePath()
 const { copy, isSupported: clipboardSupported } = useClipboard()
 const toast = useToast()

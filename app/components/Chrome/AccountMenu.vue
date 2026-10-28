@@ -11,7 +11,7 @@
  * common case on a cached page, ends up seeing — so nothing shifts for
  * them when the real control hydrates.
  */
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Chrome/AccountMenu')
 const localePath = useLocalePath()
 const { loggedIn, user } = useUserSession()
 const { signOut } = useSignOut()

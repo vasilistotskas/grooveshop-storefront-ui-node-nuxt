@@ -3,7 +3,7 @@
  * One topic as a row of its category's card: its name and description,
  * and the switch that subscribes or unsubscribes at once.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Account/subscriptions/SubscriptionTopicCard')
 
 const props = defineProps<{
   topic: SubscriptionTopic

@@ -9,7 +9,7 @@
  * Shows nothing until the ladder and the store's XP per level are known,
  * and nothing for an empty ladder.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Loyalty/TierSystem')
 const localePath = useLocalePath()
 const loyalty = useLoyalty()
 

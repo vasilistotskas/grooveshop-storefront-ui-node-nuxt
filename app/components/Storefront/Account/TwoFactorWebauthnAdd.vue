@@ -3,7 +3,7 @@
  * Add a passkey or security key: the browser asks for the face,
  * fingerprint, device PIN or the key itself (`Account/2Fa/WebAuthn/AddForm`).
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/TwoFactorWebauthnAdd')
 useHead({ title: () => t('title') })
 </script>
 

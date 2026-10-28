@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // Webside's drawing of the search page; the searches and the URL state
 // are `useStorefrontSearch`'s, the same as the default page's.
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Search')
 
 const {
   blogEnabled,

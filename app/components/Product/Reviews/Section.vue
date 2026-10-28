@@ -25,7 +25,7 @@ const emit = defineEmits<{
   changed: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/Reviews/Section')
 const route = useRoute()
 const localePath = useLocalePath()
 const { user, loggedIn } = useUserSession()

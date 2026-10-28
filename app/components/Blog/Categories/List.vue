@@ -12,7 +12,7 @@ const props = defineProps({
 const { paginationType } = toRefs(props)
 
 const { blogCategoryUrl } = useUrls()
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/Blog/Categories/List')
 const localePath = useLocalePath()
 
 const { categories, status, pagination } = await useBlogCategoriesPage({

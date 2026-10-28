@@ -9,7 +9,7 @@ defineSlots<{
   default(props: object): any
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/2Fa/ReauthenticateFlow')
 const localePath = useLocalePath()
 
 const { next, others } = useMfaReauthenticationMethods()

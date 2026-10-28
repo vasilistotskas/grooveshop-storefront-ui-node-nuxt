@@ -17,7 +17,7 @@ const props = defineProps<{
   }
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/GiftItem')
 
 const productLabel = computed(() =>
   props.gift.productName || props.gift.name || '')

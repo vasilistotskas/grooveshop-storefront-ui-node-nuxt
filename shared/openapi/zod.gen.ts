@@ -16014,6 +16014,15 @@ export const zApiV1TenantResolveRetrieveQuery = z.object({
 
 export const zApiV1TenantResolveRetrieveResponse = zTenantConfig
 
+export const zApiV1TextsOverridesRetrieveQuery = z.object({
+  language: z.string(),
+})
+
+/**
+ * The store's replacement texts for the language, {namespace: {key: text}}, as stored: from the database and the cache only, never by asking the storefront. The storefront ignores a locked text (isLockedText) and a key its build no longer has when it merges. Keys are the storefront's own ids and are not camelCased.
+ */
+export const zApiV1TextsOverridesRetrieveResponse = z.record(z.string(), z.record(z.string(), z.string()))
+
 export const zListUserAccountQuery = z.object({
   cursor: z.string().optional(),
   languageCode: z.enum(['el', 'en']).optional().default('el'),

@@ -23,7 +23,12 @@ export default defineNitroPlugin((nitroApp) => {
     const end = res.end.bind(res) as (...args: unknown[]) => typeof res
     res.end = ((...args: unknown[]) => {
       if (!res.headersSent) {
-        if (isEdgeCacheableResponse(event)) {
+        const restored = degradedRenderStatus(event)
+        if (restored !== undefined) {
+          res.statusCode = restored
+          res.setHeader('cache-control', PRIVATE_CACHE_CONTROL)
+        }
+        else if (isEdgeCacheableResponse(event)) {
           res.setHeader('cache-control', 'no-cache')
           res.setHeader('cloudflare-cdn-cache-control', EDGE_CACHE_CONTROL)
           res.setHeader('cache-tag', `${EDGE_CACHE_TAG},${edgeCacheTenantTag(event.context.tenant!.schemaName)}`)

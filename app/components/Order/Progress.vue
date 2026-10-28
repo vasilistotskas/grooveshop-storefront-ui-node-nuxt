@@ -16,7 +16,7 @@ const props = defineProps<{
   labels?: boolean
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Order/Progress')
 
 const reached = computed(() => orderStepsReached(props.status))
 const current = computed(() => ORDER_FLOW[reached.value - 1])

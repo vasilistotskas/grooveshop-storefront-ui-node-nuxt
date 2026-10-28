@@ -55,7 +55,7 @@ const emit = defineEmits([
   'delete-existing-review',
 ])
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Product/Review')
 const toast = useToast()
 const { notify } = useApiError()
 const { isMobile } = useDevice()

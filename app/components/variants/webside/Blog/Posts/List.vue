@@ -42,7 +42,7 @@ defineSlots<{
 
 const { paginationType, pageSize, paginationStrategy } = toRefs(props)
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Blog/Posts/List')
 const { isMobileOrTablet } = useDevice()
 
 // Webside's list shows no category names or filter pills, so it asks for

@@ -12,7 +12,7 @@ const props = defineProps<{
   status?: ReviewStatus
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/Reviews/StatusBadge')
 
 const MODERATION: Record<ReviewStatus, { key: string, color: 'success' | 'warning' | 'error', icon: string, iconClass: string }> = {
   TRUE: { key: 'published', color: 'success', icon: 'i-lucide-check', iconClass: 'text-success' },

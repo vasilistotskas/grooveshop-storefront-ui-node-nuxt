@@ -25,7 +25,7 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/GenericLockerPicker')
 
 const {
   activeTab,

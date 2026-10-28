@@ -9,7 +9,7 @@
  * says when the session signed in. No location: allauth records none
  * (PLAN B44). The sessions are the auth store's, refreshed on mount.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Account/SessionsManage')
 
 const { sessions, otherSessions, busy, signOut } = useSessionsManage({
   signedOut: count => ({ title: t('signed_out', count), color: 'success' }),

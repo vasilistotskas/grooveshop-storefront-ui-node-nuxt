@@ -3,7 +3,7 @@ import type { AuthFormField } from '#ui/types'
 
 const emit = defineEmits(['requestLoginCode'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/Login/Code/Form')
 const localePath = useLocalePath()
 
 const { schema, loading, hasError, onSubmit } = useLoginCodeRequest({

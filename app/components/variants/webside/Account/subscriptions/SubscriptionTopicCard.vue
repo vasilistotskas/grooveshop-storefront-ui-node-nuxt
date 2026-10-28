@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Account/subscriptions/SubscriptionTopicCard')
 
 const props = defineProps<{
   topic: SubscriptionTopic

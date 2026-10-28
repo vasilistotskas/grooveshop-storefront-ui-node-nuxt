@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/subscriptions/SubscriptionCategoryGroup')
 
 const props = defineProps<{
   category: TopicCategory

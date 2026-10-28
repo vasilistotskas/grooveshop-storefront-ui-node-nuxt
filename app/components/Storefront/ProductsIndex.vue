@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/ProductsIndex')
 
 // The whole store: no category narrows the filters, chips or tree.
 provideListingScope({ categoryId: undefined, listingFilters: true })

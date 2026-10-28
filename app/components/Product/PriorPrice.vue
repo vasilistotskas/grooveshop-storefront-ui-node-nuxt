@@ -11,7 +11,7 @@ defineProps<{
   price: number
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Product/PriorPrice')
 </script>
 
 <template>

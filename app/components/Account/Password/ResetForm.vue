@@ -3,7 +3,7 @@ import type * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Password/ResetForm')
 
 const { schema, loading, hasError, request } = usePasswordResetRequest()
 

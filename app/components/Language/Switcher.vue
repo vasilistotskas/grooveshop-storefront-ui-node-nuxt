@@ -23,7 +23,7 @@ withDefaults(defineProps<{
   compact: false,
 })
 
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/Language/Switcher')
 const { setLanguage } = useUserLanguage()
 const tenantStore = useTenantStore()
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AccordionItem, TabsItem, ButtonProps } from '#ui/types'
 
-const { t, locale, n } = useI18n()
+const { t, locale, n } = useStoreI18n('components/variants/webside/Storefront/ProductDetail')
 const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 

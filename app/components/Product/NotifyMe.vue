@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<{
 const open = defineModel<boolean>('open', { required: true })
 const kind = defineModel<ProductAlertKindEnum>('kind', { required: true })
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Product/NotifyMe')
 const { loggedIn, user } = useUserSession()
 
 const kinds = computed(() => [

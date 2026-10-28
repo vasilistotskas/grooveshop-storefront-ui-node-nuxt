@@ -12,7 +12,7 @@ const emit = defineEmits<{
   retry: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/LoadError')
 </script>
 
 <template>

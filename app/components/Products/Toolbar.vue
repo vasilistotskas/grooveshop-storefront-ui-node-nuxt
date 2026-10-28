@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<ToolbarProps>(), {
 
 const emit = defineEmits<ToolbarEmits>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Products/Toolbar')
 const { activeListingChips, updateFilters } = useProductFilters()
 
 /** Filters a shopper set; the sort is a choice of its own, not one of them. */

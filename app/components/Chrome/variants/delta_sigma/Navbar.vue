@@ -34,7 +34,7 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * The hexes below are the MEASUREMENT that established the mapping,
  * not what the markup says.
  */
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/Chrome/variants/delta_sigma/Navbar')
 const route = useRoute()
 const { headerItems, mobileLinks } = useNavigation()
 const { setLanguage } = useUserLanguage()

@@ -19,7 +19,7 @@
  * @component
  */
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Products/Filters/PriceRange')
 const { filters, updateFilters } = useProductFilters()
 
 // Use shared price stats from the centralized composable

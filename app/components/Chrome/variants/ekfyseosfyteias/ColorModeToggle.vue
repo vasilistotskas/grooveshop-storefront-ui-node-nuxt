@@ -13,7 +13,7 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * the same size, so nothing moves when it arrives. A press stores an
  * explicit choice, the way `UColorModeButton` does.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/variants/ekfyseosfyteias/ColorModeToggle')
 const colorMode = useColorMode()
 
 const dark = computed(() => colorMode.value === 'dark')

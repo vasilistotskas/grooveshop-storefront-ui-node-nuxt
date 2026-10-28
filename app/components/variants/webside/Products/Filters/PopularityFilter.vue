@@ -9,7 +9,7 @@
  * @component
  */
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Products/Filters/PopularityFilter')
 const { filters, updateFilters } = useProductFilters()
 
 // Fetch facet stats for likes count during SSR

@@ -4,7 +4,7 @@ import type { ButtonProps } from '#ui/types'
 
 const cartStore = useCartStore()
 const { getCartTotalItems, hasStockIssues, pending } = storeToRefs(cartStore)
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Cart/CartButton')
 const localePath = useLocalePath()
 
 defineProps({

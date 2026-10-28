@@ -6,7 +6,7 @@ const props = defineProps({
 })
 
 const config = useRuntimeConfig()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/ErrorScreen')
 const { ogImageUrl } = useTenantBranding()
 
 const showDebug = import.meta.dev || Boolean((config.public as Record<string, unknown>).debug)

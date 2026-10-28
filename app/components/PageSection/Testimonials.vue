@@ -27,7 +27,7 @@ defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/Testimonials')
 </script>
 
 <template>

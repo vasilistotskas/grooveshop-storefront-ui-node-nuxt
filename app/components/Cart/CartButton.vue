@@ -23,7 +23,7 @@ import type { ButtonProps } from '@nuxt/ui'
  */
 const cartStore = useCartStore()
 const { getCartTotalItems, hasStockIssues, pending } = storeToRefs(cartStore)
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Cart/CartButton')
 const localePath = useLocalePath()
 const drawer = useCartDrawer()
 

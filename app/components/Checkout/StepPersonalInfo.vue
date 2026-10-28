@@ -52,7 +52,7 @@ const emit = defineEmits<{
   'edit-address': []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/StepPersonalInfo')
 
 const { loggedIn } = useUserSession()
 

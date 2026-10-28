@@ -67,7 +67,7 @@ const props = withDefaults(defineProps<{
 })
 
 const { isMobileOrTablet } = useDevice()
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/PageSection/HeroCarousel')
 const localePath = useLocalePath()
 const { productUrl } = useUrls()
 const { formatPrice } = usePriceFormat()

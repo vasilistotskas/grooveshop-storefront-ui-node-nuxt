@@ -16,7 +16,7 @@ const props = defineProps<{
   productName: string
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/Images')
 
 const { data: images } = await useProductImages(props.product.id)
 

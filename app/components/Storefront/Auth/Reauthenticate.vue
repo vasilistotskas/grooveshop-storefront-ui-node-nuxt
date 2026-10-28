@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['reauthenticate'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Auth/Reauthenticate')
 const localePath = useLocalePath()
 
 useHead({ title: () => t('title') })

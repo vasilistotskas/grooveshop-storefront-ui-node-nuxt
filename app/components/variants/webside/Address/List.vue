@@ -22,7 +22,7 @@ const emit = defineEmits([
   'address-delete',
 ])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Address/List')
 </script>
 
 <template>

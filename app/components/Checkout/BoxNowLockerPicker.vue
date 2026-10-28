@@ -14,7 +14,7 @@ const emit = defineEmits<{
 }>()
 
 // Composables
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Checkout/BoxNowLockerPicker')
 
 // State
 const loading = ref(true)

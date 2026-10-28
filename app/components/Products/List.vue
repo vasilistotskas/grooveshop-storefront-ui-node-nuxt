@@ -7,7 +7,7 @@
 // the plain /products page the prop is absent and the listing is filter-driven.
 const props = defineProps<{ categoryId?: number }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Products/List')
 
 const {
   filters,

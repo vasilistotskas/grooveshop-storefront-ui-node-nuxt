@@ -17,7 +17,7 @@
  * @component
  */
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/variants/webside/Products/Filters/PriceRange')
 const { filters, updateFilters } = useProductFilters()
 const { formatPriceValue } = usePriceFormat()
 

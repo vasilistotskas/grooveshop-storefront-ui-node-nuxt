@@ -9,7 +9,7 @@
  * back out of a category. Each count is the products
  * anywhere beneath it under the other filters (`utils/categoryTree.ts`).
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Products/Filters/CategoryTree')
 const localePath = useLocalePath()
 const { forest, trail } = useCategoryForest()
 

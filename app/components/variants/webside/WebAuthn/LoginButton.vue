@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAuthn'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/WebAuthn/LoginButton')
 
 const { loading, login: onSubmit } = usePasskeyLogin({
   title: () => t('webauthn.error.title'),

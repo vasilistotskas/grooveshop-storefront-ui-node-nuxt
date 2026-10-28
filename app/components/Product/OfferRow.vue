@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ copy: [code: string] }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/OfferRow')
 const { headline, conditions, expiry } = usePromotionOffer()
 
 const detail = computed(() => [

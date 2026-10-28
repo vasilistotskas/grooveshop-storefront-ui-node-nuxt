@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{
   count: 6,
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/BlogPostsCarousel')
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 

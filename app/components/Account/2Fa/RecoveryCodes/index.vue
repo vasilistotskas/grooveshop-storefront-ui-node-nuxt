@@ -10,7 +10,7 @@
  * verification has no codes (allauth answers 404) and goes back to the
  * Security page, where it is set up.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Account/2Fa/RecoveryCodes/index')
 const localePath = useLocalePath()
 
 const { codes, unused, total, createdAt, lastUsedAt, copyAll, copyCode, download, print } = await useRecoveryCodes({

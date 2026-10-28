@@ -10,7 +10,7 @@ const props = defineProps<{ event: ShopChatProducts }>()
 
 const emit = defineEmits<{ navigate: [] }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Chrome/AssistantProducts')
 const localePath = useLocalePath()
 
 const products = ref<ProductRetrieve[]>([])

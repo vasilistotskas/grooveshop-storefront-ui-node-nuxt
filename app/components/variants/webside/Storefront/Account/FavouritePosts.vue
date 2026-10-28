@@ -3,7 +3,7 @@
 // app/pages/blog/** page carries this), or a tenant with the blog
 // switched off still exposes the route.
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Storefront/Account/FavouritePosts')
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply

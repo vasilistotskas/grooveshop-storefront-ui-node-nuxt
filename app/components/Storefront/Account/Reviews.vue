@@ -11,7 +11,7 @@
  * delete asks there before it happens. Newest or oldest first, and the
  * list pages through the URL.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Storefront/Account/Reviews')
 useHead({ title: () => t('title') })
 const route = useRoute()
 const localePath = useLocalePath()

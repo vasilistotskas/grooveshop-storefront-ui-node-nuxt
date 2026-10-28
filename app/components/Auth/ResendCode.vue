@@ -26,7 +26,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ sent: [] }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Auth/ResendCode')
 const toast = useToast()
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()

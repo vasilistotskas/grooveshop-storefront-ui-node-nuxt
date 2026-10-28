@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/FeedbackForm')
 const { schema: feedbackZodSchema, loading, send } = useFeedbackSubmit({ t })
 
 async function onSubmit(values: unknown) {

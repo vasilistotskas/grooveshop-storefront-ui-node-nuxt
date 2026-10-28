@@ -38,7 +38,7 @@ defineProps<{
   loading?: boolean
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/DemoAccountCard')
 
 const enabled = useStorePreference('demoAccount')
 const email = useSettingValue('DEMO_ACCOUNT_EMAIL')

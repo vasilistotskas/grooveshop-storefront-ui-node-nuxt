@@ -11,7 +11,7 @@ const emit = defineEmits<{
   redirecting: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/VivaWalletCheckout')
 const localePath = useLocalePath()
 
 const processing = ref(false)

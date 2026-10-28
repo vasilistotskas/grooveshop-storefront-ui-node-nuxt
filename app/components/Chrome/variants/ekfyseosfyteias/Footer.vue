@@ -27,7 +27,7 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  *
  * Colours are the `--fy-*` roles only.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/variants/ekfyseosfyteias/Footer')
 const tenantStore = useTenantStore()
 const { identity } = useMerchantIdentity()
 const { offices } = useStoreOffices()

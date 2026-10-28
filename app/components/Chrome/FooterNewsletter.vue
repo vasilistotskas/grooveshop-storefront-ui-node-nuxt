@@ -10,7 +10,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
  * the box shows as its proof, so a form without it could not subscribe
  * anyone lawfully.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/FooterNewsletter')
 const localePath = useLocalePath()
 
 const { available, consent, schema, state, submitting, sent, failure, subscribe }

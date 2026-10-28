@@ -32,7 +32,7 @@ const props = defineProps<{
 
 const CONTACT_PATH = '/contact'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/variants/ekfyseosfyteias/ContactPanel')
 const { identity } = useMerchantIdentity()
 const { offices } = useStoreOffices()
 const { schedule } = useBusinessHours()

@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<{
   currentPrice: null,
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Product/NotifyMe')
 const { loggedIn, user } = useUserSession()
 
 const open = ref(false)

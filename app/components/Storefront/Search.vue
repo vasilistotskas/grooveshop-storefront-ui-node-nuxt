@@ -5,7 +5,7 @@
  * guides alone on their own tab. The searches and the URL state are
  * `useStorefrontSearch`'s.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Storefront/Search')
 
 /** How many guides sit beside the products. */
 const ASIDE_GUIDES = 3

@@ -16,7 +16,7 @@ const props = defineProps<{
   clipboardSupported: boolean
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Offers/Card')
 const localePath = useLocalePath()
 const { headline, conditions, icon, color, expiry } = usePromotionOffer()
 

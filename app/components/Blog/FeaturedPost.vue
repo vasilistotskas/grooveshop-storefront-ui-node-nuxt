@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<{
   preload: true,
 })
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Blog/FeaturedPost')
 const localePath = useLocalePath()
 const { blogPostUrl } = useUrls()
 

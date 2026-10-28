@@ -5,7 +5,7 @@
  * identity and `STORE_OFFICES`); a store that has published none of it
  * renders no card rather than an empty one.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Contact/MethodsCard')
 const { identity } = useMerchantIdentity()
 const { offices } = useStoreOffices()
 const { hasData, todayHours } = useBusinessHours()

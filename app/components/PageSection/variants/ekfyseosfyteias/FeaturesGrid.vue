@@ -35,7 +35,7 @@ const props = defineProps<{
   prompt?: { title: string, text?: string, ctaText?: string, ctaLink?: string }
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/variants/ekfyseosfyteias/FeaturesGrid')
 
 const framed = computed(() => props.decor === 'framed')
 const teaser = computed(() => Boolean(props.ctaText && props.ctaLink))

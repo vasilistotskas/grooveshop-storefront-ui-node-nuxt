@@ -12,6 +12,8 @@ import type { TestNitroApp } from '~~/test/helpers/nitro'
 const NITRO_SWR = 's-maxage=300, stale-while-revalidate'
 
 let nitroApp: TestNitroApp
+/** The status of the response `respond` ended last. */
+let lastStatus: number
 
 interface Respond {
   method?: string
@@ -19,6 +21,7 @@ interface Respond {
   status?: number
   headers?: Record<string, string | undefined>
   headersSent?: boolean
+  degradedRender?: { status: number }
 }
 
 /** Run the request hook, set the response as the handler would, then end it the way h3 does. */
@@ -26,7 +29,7 @@ async function respond(url: string, options: Respond = {}) {
   const event = createTestEvent({
     url,
     method: options.method,
-    context: { tenant: options.tenant === undefined ? { schemaName: 'demo' } : options.tenant },
+    context: { tenant: options.tenant === undefined ? { schemaName: 'demo' } : options.tenant, degradedRender: options.degradedRender },
   })
   await nitroApp.hooks.callHook('request', event)
   const res = event.node.res
@@ -37,6 +40,7 @@ async function respond(url: string, options: Respond = {}) {
   }
   if (options.headersSent) res.writeHead(res.statusCode)
   res.end('<html>')
+  lastStatus = res.statusCode
   return {
     'cache-control': res.getHeader('cache-control'),
     'cloudflare-cdn-cache-control': res.getHeader('cloudflare-cdn-cache-control'),
@@ -128,5 +132,39 @@ describe('server/plugins/edge-cache', () => {
 
   it('does not touch a response whose headers are already sent', async () => {
     expect((await respond('/', { headersSent: true }))['cache-control']).toBe(NITRO_SWR)
+  })
+
+  describe('a render that fell back to defaults (shared/constants/degradedRender.ts)', () => {
+    const degraded = { status: 503, degradedRender: { status: 200 }, headers: { 'cache-control': NITRO_SWR, 'content-type': 'text/html;charset=utf-8' } }
+
+    it('answers with the real status and no cache directive anywhere', async () => {
+      expect(await respond('/products/12/phone', degraded)).toEqual({
+        'cache-control': 'private, no-store',
+        'cloudflare-cdn-cache-control': undefined,
+        'cache-tag': undefined,
+      })
+      expect(lastStatus).toBe(200)
+    })
+
+    it('does the same for the payload a client navigation fetches', async () => {
+      expect(await respond('/products/12/phone/_payload.json', { ...degraded, headers: { 'cache-control': NITRO_SWR, 'content-type': 'application/json' } }))
+        .toMatchObject({ 'cache-control': 'private, no-store', 'cache-tag': undefined })
+      expect(lastStatus).toBe(200)
+    })
+
+    it('puts back the status the render had, even for an error page', async () => {
+      await respond('/nope', { ...degraded, degradedRender: { status: 404 } })
+      expect(lastStatus).toBe(404)
+    })
+
+    it('leaves a status the page set itself after falling back', async () => {
+      await respond('/nope', { ...degraded, status: 404 })
+      expect(lastStatus).toBe(404)
+    })
+
+    it('leaves an ordinary 503 alone', async () => {
+      await respond('/', { status: 503, headers: { 'content-type': 'text/html' } })
+      expect(lastStatus).toBe(503)
+    })
   })
 })

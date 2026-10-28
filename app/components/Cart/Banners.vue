@@ -22,7 +22,7 @@ const props = defineProps<{
   nearMisses: Cart['promotionNearMiss']
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Cart/Banners')
 
 /** Reward products shown per teaser; the banner is a nudge, not a listing. */
 const REWARD_CHIP_LIMIT = 3

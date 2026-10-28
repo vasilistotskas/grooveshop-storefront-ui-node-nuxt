@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['requestLoginCode'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/Login/Code/Form')
 const localePath = useLocalePath()
 
 const { schema, state, loading, hasError, onSubmit } = useLoginCodeRequest({

@@ -12,7 +12,7 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * and no likes. The related activity is the first of the post's related
  * posts, which the platform serves after the page has rendered.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/ekfyseosfyteias/Storefront/BlogPost')
 const localePath = useLocalePath()
 const { blogPostUrl } = useUrls()
 

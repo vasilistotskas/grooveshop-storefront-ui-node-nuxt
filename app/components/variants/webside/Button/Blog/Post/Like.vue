@@ -40,7 +40,7 @@ const emit = defineEmits<{
 }>()
 
 const attrs = useAttrs()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Button/Blog/Post/Like')
 const { blogPostId } = toRefs(props)
 
 const isOpen = ref(false)

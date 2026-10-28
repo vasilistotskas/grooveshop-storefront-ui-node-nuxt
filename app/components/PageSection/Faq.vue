@@ -24,7 +24,7 @@ const props = defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/Faq')
 const localePath = useLocalePath()
 const chatEnabled = useStoreFeature('chatWidget')
 

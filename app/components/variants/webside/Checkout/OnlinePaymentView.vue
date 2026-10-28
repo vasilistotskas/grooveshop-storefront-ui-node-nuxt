@@ -16,7 +16,7 @@ const emit = defineEmits<{
   'back-to-form': []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/OnlinePaymentView')
 const toast = useToast()
 
 const onRedirecting = () => {

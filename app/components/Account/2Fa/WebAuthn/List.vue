@@ -12,7 +12,7 @@
  * Allauth may answer a change with a re-authentication flow; the auth
  * plugin routes that, and the store refresh afterwards shows the result.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Account/2Fa/WebAuthn/List')
 const localePath = useLocalePath()
 
 const { keys, busy, rename: renameKey, remove: removeKey } = useWebAuthnKeys({

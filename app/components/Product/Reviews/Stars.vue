@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
   size: 'xs',
 })
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Product/Reviews/Stars')
 
 const STAR_COUNT = 5
 const STAR_ICON = 'i-heroicons-star-solid'

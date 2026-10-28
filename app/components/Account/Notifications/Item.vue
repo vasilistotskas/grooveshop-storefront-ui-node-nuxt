@@ -15,7 +15,7 @@ const emit = defineEmits<{
   toggle: []
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Account/Notifications/Item')
 
 const CATEGORY_ICON: Record<NotificationCategory, string> = {
   ORDER: 'i-lucide-shopping-bag',

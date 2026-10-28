@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['generateRecoveryCodes'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/2Fa/RecoveryCodes/Generate')
 const localePath = useLocalePath()
 
 const {

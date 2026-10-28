@@ -38,7 +38,7 @@ const props = defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/LocationMap')
 const runtimeConfig = useRuntimeConfig()
 const tenantStore = useTenantStore()
 const location = useStoreLocation()

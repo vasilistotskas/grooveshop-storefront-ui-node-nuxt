@@ -9,7 +9,7 @@
  * Recovery codes exist only once another factor is on (allauth creates
  * them with it), so their tile waits for one.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Account/Security/TwoStep')
 const localePath = useLocalePath()
 const authStore = useAuthStore()
 const { config, totpAuthenticator, recoveryCodesAuthenticator, authenticators } = storeToRefs(authStore)

@@ -29,7 +29,7 @@ const emit = defineEmits<{
   new: []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/SavedAddresses')
 
 type Item = {
   value: number

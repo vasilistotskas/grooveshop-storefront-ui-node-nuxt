@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // Webside's drawing of the author page; the author, their posts and the
 // head are useBlogAuthorPage's, the same as the default page's.
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/BlogAuthor')
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()

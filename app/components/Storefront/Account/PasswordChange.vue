@@ -4,7 +4,7 @@
  * set it. The page names which (`hasCurrentPassword`), in its heading
  * and its browser tab alike.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Account/PasswordChange')
 const { hasCurrentPassword } = storeToRefs(useAuthStore())
 
 const title = computed(() => hasCurrentPassword.value ? t('change.title') : t('set.title'))

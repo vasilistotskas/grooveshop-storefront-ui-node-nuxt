@@ -17,7 +17,7 @@ const props = defineProps<{
   heading?: string
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/RecentlyViewed')
 
 const recentlyViewedEnabled = useStorePreference('recentlyViewed')
 

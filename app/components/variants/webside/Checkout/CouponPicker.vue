@@ -15,7 +15,7 @@
  */
 const emit = defineEmits<{ applied: [code: string] }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/CouponPicker')
 const { headline, conditions, icon, color, rejectionMessage } = usePromotionOffer()
 
 const { open, submitting, rows, triggerLabel, savingLabel, applyCoupon } = await useCouponPicker({

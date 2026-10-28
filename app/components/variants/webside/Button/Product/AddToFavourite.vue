@@ -36,7 +36,7 @@ const emit = defineEmits<{
   (e: 'favourite-delete', id: number): void
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Button/Product/AddToFavourite')
 
 const { isLoading, toggle: toggleFavourite } = useProductFavouriteToggle({
   productId: () => props.productId,

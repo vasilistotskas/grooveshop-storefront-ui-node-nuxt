@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Auth/TwoFactorTotp')
 const tenantStore = useTenantStore()
 
 useHead({ title: () => t('title') })

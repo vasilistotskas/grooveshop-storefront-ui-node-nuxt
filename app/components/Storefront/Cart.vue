@@ -7,7 +7,7 @@ const {
   initialLoading,
   hasStockIssues,
 } = storeToRefs(cartStore)
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Cart')
 const { getStockStatusMessage, clearCart } = cartStore
 const toast = useToast()
 const { notify } = useApiError()

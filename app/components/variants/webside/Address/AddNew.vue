@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Address/AddNew')
 </script>
 
 <template>

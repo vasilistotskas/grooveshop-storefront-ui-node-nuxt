@@ -5,7 +5,7 @@ import type { TableColumn } from '@nuxt/ui'
 const UBadge = resolveComponent('UBadge')
 const NuxtTime = resolveComponent('NuxtTime')
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Loyalty/Transactions')
 
 // Filter state
 const selectedType = ref<string>('all')

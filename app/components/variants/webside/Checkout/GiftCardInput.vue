@@ -12,7 +12,7 @@ const props = defineProps({
 })
 const emit = defineEmits<Emits>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/GiftCardInput')
 const { $i18n } = useNuxtApp()
 
 const giftCardsEnabled = useStoreFeature('giftCards')

@@ -11,7 +11,7 @@ defineSlots<{
 
 const emit = defineEmits(['twoFaAuthenticate'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Account/2Fa/AuthenticateCode')
 
 await usePendingFlowGuard(Flows.MFA_AUTHENTICATE)
 

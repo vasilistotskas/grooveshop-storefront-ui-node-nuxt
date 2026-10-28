@@ -11,7 +11,7 @@ const props = defineProps<{
   route: LegalRouteName
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Storefront/Legal')
 const localePath = useLocalePath()
 const runtimeConfig = useRuntimeConfig()
 const tenantStore = useTenantStore()

@@ -24,6 +24,13 @@ declare module '@nuxt/schema' {
     locale?: SupportedLocale
     /** The CSP nonce for this response: `server/middleware/3.csp.ts`. */
     cspNonce?: string
+    /**
+     * Set by an SSR plugin that had to render with a fallback (the
+     * store's texts could not be loaded): the response must be kept out
+     * of every cache. `status` is the one to answer with, see
+     * `shared/constants/degradedRender.ts`.
+     */
+    degradedRender?: { status: number }
     /** The request's wide-event logger, put here by the evlog Nitro plugin. */
     log?: AuditableLogger
   }

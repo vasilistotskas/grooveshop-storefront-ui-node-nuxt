@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ButtonProps, PageFeatureProps } from '@nuxt/ui'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/PageSection/WhyMicrolearning')
 const localePath = useLocalePath()
 
 const heroLinks = computed<ButtonProps[]>(() => [

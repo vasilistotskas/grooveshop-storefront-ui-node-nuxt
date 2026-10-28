@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ButtonProps } from '@nuxt/ui'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/PageSection/VisionContent')
 const localePath = useLocalePath()
 const config = useRuntimeConfig()
 const tenantStore = useTenantStore()

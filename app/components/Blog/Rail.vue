@@ -19,7 +19,7 @@ defineProps<{
   categoryName?: (id: number) => string | undefined
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Blog/Rail')
 const localePath = useLocalePath()
 const { blogPostUrl } = useUrls()
 

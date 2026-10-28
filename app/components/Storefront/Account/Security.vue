@@ -15,7 +15,7 @@
  * them rather than "Off" until the app's idle refresh lands; a failed
  * read says so instead of reporting two-step verification off.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Storefront/Account/Security')
 useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 const authStore = useAuthStore()

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnCreateOptions', 'addWebAuthnCredential'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/2Fa/WebAuthn/AddForm')
 
 const { schema, passkeyLogin, loading, add } = useAddWebAuthnKey({
   listRoute: 'account-2fa-webauthn',

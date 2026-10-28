@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/Password/ResetConfirmForm')
 
 const { key, hasError, isSubmitting, newPassword1, newPassword2, schema, onSubmit } = await usePasswordResetConfirm({
   mismatch: () => t('form.newPassword2.errors.match'),

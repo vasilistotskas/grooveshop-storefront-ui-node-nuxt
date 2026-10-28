@@ -38,7 +38,7 @@ import '~/assets/css/tenants/ekfyseosfyteias.css'
  * mounted first in the header, so a keyboard reaches it right after the
  * skip link and the funding strip.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/variants/ekfyseosfyteias/Navbar')
 const route = useRoute()
 const tenantStore = useTenantStore()
 const { headerItems, mobileLinks } = useNavigation()

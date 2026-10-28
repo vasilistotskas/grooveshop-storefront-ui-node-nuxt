@@ -21,7 +21,7 @@ import type { FooterColumn } from '@nuxt/ui'
  * the cached anonymous page; the per-visitor controls — colour mode and
  * cookie settings — render on the client only.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Chrome/Footer')
 const tenantStore = useTenantStore()
 // Resolved here, not in the tenant store: that store is created by the
 // `enforce: 'pre'` tenant plugin, before @nuxtjs/i18n has applied the

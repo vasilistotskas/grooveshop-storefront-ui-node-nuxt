@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{
   count: 3,
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/BlogPosts')
 const localePath = useLocalePath()
 
 // In parallel: each composable registers its fetch before it awaits.

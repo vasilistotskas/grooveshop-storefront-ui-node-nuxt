@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/ProvidersManage')
 
 const { accounts, busy, disconnect } = await useProviderAccounts({
   disconnected: () => ({ title: t('success.title'), color: 'success' }),

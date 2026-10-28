@@ -31,7 +31,7 @@ const props = defineProps<{
   hideTitle?: boolean
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Product/Suggestions')
 const { productUrl } = useUrls()
 // Off, reviews are gone everywhere — the stars on a card with them.
 const productReviewsEnabled = useStoreFeature('productReviews')

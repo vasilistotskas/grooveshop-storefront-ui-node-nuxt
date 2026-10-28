@@ -11,7 +11,7 @@
  * screen, inset from the edges on a phone, where all three buttons fit
  * at 360px.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/CookieConsent')
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 const { isConsentGiven, isModalActive } = useCookieControl()

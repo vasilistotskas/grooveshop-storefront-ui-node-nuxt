@@ -10,7 +10,7 @@ const props = defineProps<{ product: ProductRetrieve }>()
 
 const emit = defineEmits<{ navigate: [] }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Chrome/AssistantProductCard')
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 const { productUrl } = useUrls()

@@ -14,7 +14,7 @@ defineProps<{
 
 const open = defineModel<boolean>('open', { required: true })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Product/PriceTrendDialog')
 const { isMobile } = useDevice()
 
 // Nuxt resolves these literal names to the components at build time.

@@ -51,7 +51,7 @@ const props = defineProps<{
   subjects?: { label: string }[]
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/PageSection/variants/delta_sigma/ContactPanel')
 const localePath = useLocalePath()
 // SSR-stable, so the radiogroup's label association survives hydration.
 const uid = useId()

@@ -13,7 +13,7 @@ import type { FormSubmitEvent } from '#ui/types'
  * Files go up one by one as they are picked (`useContactAttachments`)
  * and the enquiry only carries their ids.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/ContactForm')
 const toast = useToast()
 const localePath = useLocalePath()
 const attachments = useContactAttachments()

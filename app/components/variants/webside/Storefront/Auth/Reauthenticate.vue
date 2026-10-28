@@ -2,7 +2,7 @@
 const emit = defineEmits(['reauthenticate'])
 
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/Reauthenticate')
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were
 // indistinguishable. The `title` string was already here and simply

@@ -16,7 +16,7 @@ import type { DateValue } from '@internationalized/date'
  * (`zTransactionTypeEnum`), so one Django adds later is filterable at
  * once, labelled by its raw code until it is translated.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Loyalty/Transactions')
 
 const TYPE_COLORS = {
   EARN: 'success',

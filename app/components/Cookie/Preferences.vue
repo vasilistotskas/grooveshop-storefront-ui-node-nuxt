@@ -7,7 +7,7 @@
  */
 import type { CookieGroup } from '~/utils/cookieGroups'
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Cookie/Preferences')
 const { cookiesEnabledIds, isModalActive, moduleOptions } = useCookieControl()
 const { necessaryOnly, save } = useCookieConsent()
 

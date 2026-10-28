@@ -20,7 +20,7 @@ const props = defineProps<{
   items: NavigationMenuItem[]
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/MobileMenu')
 const route = useRoute()
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const emit = defineEmits(['activateTotp'])
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/2Fa/Totp/ActivateForm')
 
 const { status, totpSecret, totpSvg, code, loading, isCodeComplete, copySecret: onSecretClick, activate } = await useTotpActivation({
   settledRoute: 'account-settings',

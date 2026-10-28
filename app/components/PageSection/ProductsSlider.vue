@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
   showAddToCart: true,
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/PageSection/ProductsSlider')
 const localePath = useLocalePath()
 
 const { products, hasProducts } = await useProductRail({

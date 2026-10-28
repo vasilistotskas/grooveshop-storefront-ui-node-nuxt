@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/AccountArea/Loyalty/ProgressHero')
 const loyalty = useLoyalty()
 
 const { data: summary, status: summaryStatus } = loyalty.fetchSummary()

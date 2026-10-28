@@ -50,7 +50,7 @@ const props = withDefaults(defineProps<ToolbarProps>(), {
 const emit = defineEmits<ToolbarEmits>()
 
 // Get i18n instance for translations and number formatting
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Products/Toolbar')
 
 // Format the count with thousands separator
 const formattedCount = computed(() => {

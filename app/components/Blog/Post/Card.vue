@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<{
   showShareButton: true,
 })
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/Blog/Post/Card')
 const localePath = useLocalePath()
 const { blogPostUrl } = useUrls()
 const blogCommentsEnabled = useStoreFeature('blogComments')

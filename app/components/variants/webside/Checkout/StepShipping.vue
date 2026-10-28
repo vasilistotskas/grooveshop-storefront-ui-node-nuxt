@@ -28,7 +28,7 @@ const emit = defineEmits<{
   'retry-options': []
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Checkout/StepShipping')
 const localePath = useLocalePath()
 
 const formRef = useTemplateRef<{

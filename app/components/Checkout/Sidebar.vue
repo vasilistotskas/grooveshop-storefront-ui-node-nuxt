@@ -31,7 +31,7 @@ defineSlots<{
   'points-earned'(props: object): any
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Checkout/Sidebar')
 const localePath = useLocalePath()
 const { cart } = storeToRefs(useCartStore())
 const payWay = useState<PayWay | null>('selectedPayWay')

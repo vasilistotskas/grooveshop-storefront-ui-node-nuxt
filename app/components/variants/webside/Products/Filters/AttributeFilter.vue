@@ -10,7 +10,7 @@
  */
 
 const { filters, updateFilters } = useProductFilters()
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/variants/webside/Products/Filters/AttributeFilter')
 
 // Use shared attribute data from the centralized composable
 const {

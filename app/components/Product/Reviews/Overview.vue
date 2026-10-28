@@ -13,7 +13,7 @@ const props = defineProps<{
   distribution: RatingDistribution[]
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Product/Reviews/Overview')
 
 const figure = computed(() => n(props.average / 2, { minimumFractionDigits: 1, maximumFractionDigits: 1 }))
 const buckets = computed(() => starBuckets(props.distribution))

@@ -14,7 +14,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Loyalty/Redemption')
 const toast = useToast()
 
 // Loyalty composable with new API

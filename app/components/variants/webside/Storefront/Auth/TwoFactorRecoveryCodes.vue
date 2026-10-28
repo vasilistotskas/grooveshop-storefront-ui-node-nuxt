@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Storefront/Auth/TwoFactorRecoveryCodes')
 const localePath = useLocalePath()
 
 const items = computed(() => [

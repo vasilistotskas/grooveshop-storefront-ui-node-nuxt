@@ -19,7 +19,7 @@ withDefaults(defineProps<{
   compact: false,
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Search/Input')
 const route = useRoute()
 
 const searchQuery = ref(

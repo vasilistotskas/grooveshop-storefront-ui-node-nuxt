@@ -24,7 +24,7 @@ const emit = defineEmits<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Search/Modal')
 const localePath = useLocalePath()
 const { productUrl, blogPostUrl } = useUrls()
 const history = useSearchHistory()

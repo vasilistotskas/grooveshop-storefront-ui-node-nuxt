@@ -7,7 +7,7 @@
  * Opening a notification marks it read and goes to its link; one without
  * a link is only marked read.
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/User/NotificationsBell')
 const localePath = useLocalePath()
 
 const open = ref(false)

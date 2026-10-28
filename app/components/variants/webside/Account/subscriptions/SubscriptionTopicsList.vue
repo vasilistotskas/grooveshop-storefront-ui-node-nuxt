@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/subscriptions/SubscriptionTopicsList')
 
 // Fetch data at component setup level using composables
 const { fetchTopics, groupByCategory } = useSubscriptionTopics()

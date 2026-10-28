@@ -8,7 +8,7 @@ import * as z from 'zod'
  * and says why in `detail`; that text is shown as it comes (a 400 for an
  * unknown code, a 429 for too many tries).
  */
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/GiftCard/BalanceCheck')
 const { $i18n } = useNuxtApp()
 
 const schema = z.object({

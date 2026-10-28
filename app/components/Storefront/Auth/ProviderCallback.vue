@@ -19,7 +19,7 @@
  * reads the shopper's linked accounts back, says which it was, and
  * returns them to the Security page either way.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/Auth/ProviderCallback')
 
 const { connecting, error, loading } = useProviderCallback({
   returnRoute: 'account-security',

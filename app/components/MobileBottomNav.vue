@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
   includeCart: true,
 })
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/MobileBottomNav')
 const { loggedIn } = useUserSession()
 
 // A signed-in shopper's Account tab opens the account sheet, which loads

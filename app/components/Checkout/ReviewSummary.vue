@@ -8,7 +8,7 @@ const props = defineProps<{
   formState: Record<string, any>
 }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Checkout/ReviewSummary')
 
 // The checkout's shipping-method labels (the same copy the delivery step
 // shows), keyed by the method the form holds.

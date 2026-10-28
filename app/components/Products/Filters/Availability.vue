@@ -5,7 +5,7 @@
  * discount its card shows — not a cart promotion. Flipping one writes the
  * URL; the listing follows.
  */
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Products/Filters/Availability')
 const { filters, updateFilters } = useProductFilters()
 
 // Right-aligned switches under left-aligned labels, as the design draws them.

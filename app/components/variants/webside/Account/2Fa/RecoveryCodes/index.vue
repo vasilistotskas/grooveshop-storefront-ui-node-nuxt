@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Account/2Fa/RecoveryCodes/index')
 const localePath = useLocalePath()
 
 const {

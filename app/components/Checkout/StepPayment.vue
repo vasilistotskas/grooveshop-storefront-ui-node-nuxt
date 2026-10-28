@@ -43,7 +43,7 @@ const emit = defineEmits<{
   submit: []
 }>()
 
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Checkout/StepPayment')
 const paymentHeadingId = useId()
 const reviewHeadingId = useId()
 

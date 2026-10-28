@@ -13,7 +13,7 @@ withDefaults(defineProps<{ autofocusPrompt?: boolean }>(), {
 
 const emit = defineEmits<{ close: [] }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Chrome/AssistantPanel')
 const localePath = useLocalePath()
 
 const { messages, status, errorMessage, cartMutated, canRetry, send, retry, stop, reset }

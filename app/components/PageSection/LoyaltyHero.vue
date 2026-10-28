@@ -37,7 +37,7 @@ defineProps<{
   secondaryCtaLink?: string
 }>()
 
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/PageSection/LoyaltyHero')
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()

@@ -11,7 +11,7 @@
  * recomputes a price. Delivery is not quoted — the shopper picks the
  * carrier in checkout.
  */
-const { t, n } = useI18n()
+const { t, n } = useStoreI18n('components/Cart/Summary')
 const localePath = useLocalePath()
 const cartStore = useCartStore()
 const { cart, hasStockIssues } = storeToRefs(cartStore)

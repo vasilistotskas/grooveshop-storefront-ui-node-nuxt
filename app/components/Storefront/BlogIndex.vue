@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t } = useStoreI18n('components/Storefront/BlogIndex')
 const route = useRoute()
 const router = useRouter()
 const localePath = useLocalePath()

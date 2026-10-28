@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { t, locale } = useI18n()
+const { t, locale } = useStoreI18n('components/variants/webside/Storefront/Account/Notifications')
 const localePath = useLocalePath()
 // Every account route rendered with the document title left at the
 // store name, twice — 46 pages whose browser tab and history entry were

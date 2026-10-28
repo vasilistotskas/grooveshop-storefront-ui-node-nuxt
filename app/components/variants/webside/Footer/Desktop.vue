@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Footer/Desktop')
 const { columns } = useFooterLinks()
 const { isModalActive } = useCookieControl()
 const runtimeConfig = useRuntimeConfig()

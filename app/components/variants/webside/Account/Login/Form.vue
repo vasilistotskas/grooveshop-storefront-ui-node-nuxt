@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const config = useRuntimeConfig()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Account/Login/Form')
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()

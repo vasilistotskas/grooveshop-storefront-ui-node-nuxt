@@ -25,7 +25,7 @@ const props = defineProps({
 
 const { account } = toRefs(props)
 const toast = useToast()
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/User/Account/Info')
 const { changeUsername } = useChangeUsername()
 
 const userNameEditing = ref(false)

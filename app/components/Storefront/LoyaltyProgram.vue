@@ -15,7 +15,7 @@
  * The page is cached for everyone, so it renders the guest's way in; a
  * signed-in member's own buttons replace it once the page has mounted.
  */
-const { t, n, locale } = useI18n()
+const { t, n, locale } = useStoreI18n('components/Storefront/LoyaltyProgram')
 const localePath = useLocalePath()
 const { loggedIn } = useUserSession()
 const loyalty = useLoyalty()
