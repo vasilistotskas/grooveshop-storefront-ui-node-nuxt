@@ -1,3 +1,10 @@
+## [3.270.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.270.1...v3.270.2) (2026-10-29)
+
+
+### Bug Fixes
+
+* **cart:** one free-shipping line, from the cart's own progress ([#278](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/278)) ([b0722a4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b0722a4efac763ff844f2511123eb9c178355012))
+
 ## [3.270.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.270.0...v3.270.1) (2026-10-28)
 
 
