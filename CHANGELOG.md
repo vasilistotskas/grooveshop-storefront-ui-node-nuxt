@@ -1,3 +1,10 @@
+## [3.271.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.2...v3.271.3) (2026-10-29)
+
+
+### Performance Improvements
+
+* **pages:** start independent requests together and skip the ones a page never draws ([#283](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/283)) ([2d915b3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2d915b3f9f0f7cdb5cdc8c1f18655f593694900b))
+
 ## [3.271.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.1...v3.271.2) (2026-10-29)
 
 
