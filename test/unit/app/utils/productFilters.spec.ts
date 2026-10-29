@@ -3,8 +3,6 @@ import {
   applyFilterUpdates,
   buildFilterChips,
   CLEARED_FILTERS,
-  availabilityFacetKey,
-  availabilityFacetQuery,
   buildListingFilterChips,
   scopedCategories,
   isFilterChip,
@@ -424,16 +422,5 @@ describe('scopedCategories', () => {
     ['the scope once when the URL names it too', ['2', '5'], 5, ['2', '5']],
   ])('gives %s', (_label, categories, scope, expected) => {
     expect(scopedCategories(categories, scope)).toEqual(expected)
-  })
-})
-
-describe('availabilityFacetQuery and availabilityFacetKey', () => {
-  it.each<[string, Partial<ProductFilters>, Record<string, unknown>, string]>([
-    ['neither switch', {}, {}, ''],
-    ['in stock', { inStock: true }, { inStock: true }, 'inStock'],
-    ['both', { inStock: true, onOffer: true }, { inStock: true, onOffer: true }, 'inStock,onOffer'],
-  ])('describe %s', (_label, overrides, query, key) => {
-    expect(availabilityFacetQuery(filters(overrides))).toEqual(query)
-    expect(availabilityFacetKey(filters(overrides))).toBe(key)
   })
 })

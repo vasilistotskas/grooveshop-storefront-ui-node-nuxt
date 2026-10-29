@@ -6,7 +6,8 @@ import { getQuery } from 'h3'
  *
  * This route proxies requests to the Django backend's Meilisearch product search endpoint
  * with support for full-text search, price range, popularity, view count, category filters,
- * attribute value filtering, brands, in-stock and on-offer.
+ * attribute value filtering, brands, in-stock and on-offer, and with
+ * `sidebarFacets` the filter column's counts and ranges in the same response.
  *
  * Features:
  * - Query parameter validation with Zod
@@ -52,6 +53,10 @@ export default defineCachedRoute(async (event) => {
     if (query.inStock !== undefined) backendQuery.in_stock = query.inStock
     if (query.onOffer !== undefined) backendQuery.on_offer = query.onOffer
     if (query.sort) backendQuery.sort = query.sort
+    // The listing's one search also answers the filter column's counts and
+    // ranges (`sidebarFacets`); `scopeCategory` scopes the price range only.
+    if (query.sidebarFacets !== undefined) backendQuery.sidebar_facets = query.sidebarFacets
+    if (query.scopeCategory !== undefined) backendQuery.scope_category = query.scopeCategory
 
     // Pass attribute value filter (comma-separated IDs) to backend.
     if (query.attributeValues) {
@@ -99,6 +104,8 @@ export default defineCachedRoute(async (event) => {
       query.priceMax || '',
       query.priceMin || '',
       query.query || '',
+      query.scopeCategory || '',
+      query.sidebarFacets || '',
       query.sort || '',
       query.viewsMin || '',
     ]

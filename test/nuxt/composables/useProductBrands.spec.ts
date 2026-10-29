@@ -8,14 +8,14 @@ import { makeBrand, makeProductFilters } from '~~/test/fixtures/productFilters'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
- * The brand filter's data: the brand facet is asked with every OTHER
- * filter (never the brands themselves) and the listing's category scope,
- * and the brand list names the ids the facet counts.
+ * The brand filter's data: the brand counts come from the listing's one
+ * search (`sidebarFacets` leaves the brands' own selection out of them), so
+ * this composable makes no products search of its own beyond that one, and
+ * the brand list names the ids the facet counts.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
-mockNuxtImport('useRequestApi', () => () => api)
 
 const filters = ref<ProductFilters>(makeProductFilters())
 mockNuxtImport('useProductFilters', () => () => ({ filters }))
@@ -44,49 +44,30 @@ beforeEach(() => {
 afterEach(() => {
   scope?.stop()
   scope = undefined
+  clearNuxtData()
 })
 
 describe('useProductBrands', () => {
-  it('asks for the brand facet with every other filter and the category scope, and not the brands', async () => {
-    filters.value = makeProductFilters({
-      search: 'shoe',
-      priceMin: 10,
-      priceMax: 90,
-      categories: ['9'],
-      attributeValues: ['3', '4'],
-      brands: ['5'],
-      inStock: true,
-      sort: '-effectivePrice',
-    })
+  it('shares the one listing search, scoped to the category, instead of asking for the brand facet itself', async () => {
+    filters.value = makeProductFilters({ categories: ['9'], brands: ['5'], inStock: true })
 
+    setup(4)
     setup(4)
     await flushPromises()
 
-    expect(api.callsTo(SEARCH).map(call => call.options.query)).toEqual([{
-      languageCode: 'el',
-      query: 'shoe',
-      priceMin: 10,
-      priceMax: 90,
+    const searches = api.callsTo(SEARCH).map(call => call.options.query)
+    expect(searches).toHaveLength(1)
+    expect(searches[0]).toMatchObject({
       categories: '4,9',
-      attributeValues: '3,4',
+      scopeCategory: 4,
+      brands: '5',
       inStock: true,
-      sort: '-effectivePrice',
-      facets: 'brand',
-      limit: 1,
-    }])
+      sidebarFacets: true,
+    })
+    expect(searches[0].facets.split(',')).toContain('brand')
   })
 
-  it('asks again when a filter changes', async () => {
-    setup()
-    await flushPromises()
-
-    filters.value = makeProductFilters({ onOffer: true })
-    await flushPromises()
-
-    expect(api.callsTo(SEARCH).map(call => call.options.query.onOffer)).toEqual([undefined, true])
-  })
-
-  it('exposes the facet\'s counts by brand id, or none', async () => {
+  it('exposes the facet counts by brand id, or none', async () => {
     api.routes({
       [SEARCH]: { facetDistribution: { brand: { 3: 14 } } },
     })

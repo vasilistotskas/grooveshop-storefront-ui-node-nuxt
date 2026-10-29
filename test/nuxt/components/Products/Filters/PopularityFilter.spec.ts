@@ -41,13 +41,13 @@ describe('webside Products/Filters/PopularityFilter', () => {
     api.routes({ '/api/products/search': withLikes(0, 250) })
   })
 
-  it('asks the search for the likes facet alone, in the page locale', async () => {
+  it('reads its bounds from the one listing search and asks for nothing of its own', async () => {
     await mountSuspended(C, { route: false })
 
-    expect(api.callsTo('/api/products/search')).toEqual([{
-      url: '/api/products/search',
-      options: expect.objectContaining({ query: { facets: 'likes_count', limit: 1, languageCode: 'el' } }),
-    }])
+    const searches = api.callsTo('/api/products/search')
+    expect(searches).toHaveLength(1)
+    expect(searches[0]!.options.query).toMatchObject({ sidebarFacets: true, languageCode: 'el' })
+    expect(searches[0]!.options.query.facets.split(',')).toContain('likes_count')
   })
 
   it('spans the catalogue\'s likes and starts at its minimum with no filter set', async () => {

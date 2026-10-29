@@ -70,12 +70,19 @@ describe.each(trees(ProductsIndex, WebsideProductsIndex))('$tree Storefront/Prod
     return wrapper
   }
 
-  it('asks for the first twelve products, once, in the page language, for the structured data', async () => {
+  it('makes ONE products search: the first twelve products and the filter column counts', async () => {
     await mount()
 
-    expect(api.callsTo('/api/products/search').map(call => call.options.query)).toEqual([
-      { languageCode: 'el', limit: 12, offset: 0 },
-    ])
+    const searches = api.callsTo('/api/products/search').map(call => call.options.query)
+    expect(searches).toHaveLength(1)
+    expect(searches[0]).toMatchObject({
+      languageCode: 'el',
+      limit: 12,
+      offset: 0,
+      sidebarFacets: true,
+      facets: 'category,brand,attribute_values,effective_price,likes_count,view_count',
+    })
+    expect(searches[0]).not.toHaveProperty('scopeCategory', expect.anything())
   })
 
   it('titles the page for search engines with the SEO title, not the h1', async () => {

@@ -15528,6 +15528,17 @@ export const zApiV1SearchProductRetrieveQuery = z.object({
     z.number(),
   ]).optional(),
   query: z.string().optional(),
+  scopeCategory: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sidebarFacets: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   sort: z.string().optional(),
   viewsMin: z.union([
     z.string().regex(/^-?\d+$/),

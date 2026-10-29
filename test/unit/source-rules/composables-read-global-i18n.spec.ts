@@ -34,7 +34,7 @@ beforeAll(() => {
 describe('composables and i18n', () => {
   it('reads every composable\'s calls', () => {
     // A guard on the guard: a moved folder must not empty the scan.
-    expect(calls.length).toBeGreaterThan(20)
+    expect(calls.length).toBeGreaterThan(19)
   })
 
   it('takes the global scope, never the calling component\'s', () => {

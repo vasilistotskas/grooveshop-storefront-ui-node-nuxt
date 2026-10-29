@@ -25922,7 +25922,7 @@ paths:
           name: facets
           schema:
             type: string
-          description: Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά
+          description: Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά. Ένα αίτημα για facets με limit 0 ή 1 είναι ανάγνωση facet και δεν καταγράφεται ως αναζήτηση.
         - in: query
           name: inStock
           schema:
@@ -25997,6 +25997,26 @@ paths:
           schema:
             type: string
           description: Ερώτημα αναζήτησης πλήρους κειμένου (κενό για χωρίς φίλτρο αναζήτησης)
+        - in: query
+          name: scopeCategory
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Η κατηγορία στην οποία αναφέρεται μια σελίδα καταλόγου· περιορίζει τα στατιστικά effective_price του sidebarFacets στις υποκατηγορίες της. Σε αντίθεση με το categories, δεν φιλτράρει τα αποτελέσματα.
+        - in: query
+          name: sidebarFacets
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: 'Όταν είναι true, τα facets απαντούν σε ένα πλαϊνό φίλτρων μέσα στο ίδιο αίτημα. Τα πλήθη κατηγορίας και μάρκας αφήνουν έξω τη δική τους επιλογή (τα πλήθη attribute_values το κάνουν πάντα), ώστε η επιλογή ενός να μην κρύβει τα υπόλοιπα. Τα στατιστικά effective_price αφορούν όλο τον κατάλογο ή τις υποκατηγορίες του scopeCategory, και τα στατιστικά likes_count και view_count όλο τον κατάλογο: κανένα δεν ακολουθεί το ερώτημα ή τα άλλα φίλτρα, ώστε το εύρος ενός slider να μην μετακινείται όταν αλλάζουν τα φίλτρα.'
         - in: query
           name: sort
           schema:

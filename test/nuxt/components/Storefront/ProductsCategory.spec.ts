@@ -114,12 +114,19 @@ describe.each(trees(ProductsCategory, WebsideProductsCategory))('$tree Storefron
     expect(api.callsTo('/api/products/categories/5').map(call => call.options.query)).toEqual([{ languageCode: 'el' }])
   })
 
-  it('asks for the first twelve products of the category for the structured data', async () => {
+  it('makes ONE products search: the first twelve products of the category and the filter column counts', async () => {
     await mount()
 
-    // The default drawing's filters ask for facets of their own (limit 1).
-    const queries = api.callsTo('/api/products/search').map(call => call.options.query).filter(query => query.limit === 12)
-    expect(queries).toEqual([{ languageCode: 'el', categories: '5', limit: 12, offset: 0 }])
+    const searches = api.callsTo('/api/products/search').map(call => call.options.query)
+    expect(searches).toHaveLength(1)
+    expect(searches[0]).toMatchObject({
+      languageCode: 'el',
+      categories: '5',
+      scopeCategory: 5,
+      limit: 12,
+      offset: 0,
+      sidebarFacets: true,
+    })
   })
 
   it('heads the page with the category\'s name, and its description as plain text', async () => {

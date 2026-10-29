@@ -242,19 +242,6 @@ export function scopedCategories(categories: readonly string[], scopeCategory: n
   return result
 }
 
-/** The in-stock and on-offer filters as a search query: a flag only when it is on. */
-export function availabilityFacetQuery(filters: ProductFilters): { inStock?: true, onOffer?: true } {
-  return {
-    inStock: filters.inStock || undefined,
-    onOffer: filters.onOffer || undefined,
-  }
-}
-
-/** The same two flags as a cache-key part, empty when neither is on. */
-export function availabilityFacetKey(filters: ProductFilters): string {
-  return [filters.inStock ? 'inStock' : '', filters.onOffer ? 'onOffer' : ''].filter(Boolean).join(',')
-}
-
 /**
  * The update that clears every filter and keeps the sort: a listing's
  * "Clear all" sits beside the chips it removes, and the order a shopper
