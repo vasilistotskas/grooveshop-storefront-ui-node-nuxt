@@ -1,3 +1,10 @@
+## [3.271.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.0...v3.271.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* **products:** keep the filter sidebar's counts and slider clear of its scrollbar ([#281](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/281)) ([acf96b6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/acf96b6ee7d8b6f8249925d8ddadd51957271ebc))
+
 # [3.271.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.270.2...v3.271.0) (2026-10-29)
 
 
