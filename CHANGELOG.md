@@ -1,3 +1,10 @@
+# [3.272.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.3...v3.272.0) (2026-10-29)
+
+
+### Features
+
+* **products:** read the product list as ProductCard ([#284](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/284)) ([4f319e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4f319e4ccb96cff6ce4848911bda253bf2b19f9b))
+
 ## [3.271.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.2...v3.271.3) (2026-10-29)
 
 
