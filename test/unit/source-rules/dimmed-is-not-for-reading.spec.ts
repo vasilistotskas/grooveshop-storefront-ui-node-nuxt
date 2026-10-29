@@ -50,27 +50,31 @@ function stringsIn(root: AstNode): string[] {
   return out
 }
 
-let classLists: Array<{ site: string, classes: string }>
+type ClassList = { site: string, classes: string, from: 'template' | 'ui' | 'script' }
+
+let scanned: ClassList[]
+let classLists: ClassList[]
 
 beforeAll(() => {
-  classLists = vueFiles(APP, { exclude: [WEBSIDE_DESIGN] }).flatMap((file) => {
-    const lists: Array<{ site: string, classes: string }> = []
+  scanned = vueFiles(APP, { exclude: [WEBSIDE_DESIGN] }).flatMap((file) => {
+    const lists: ClassList[] = []
     walkElements(sfcTemplate(file), (node) => {
       const site = `${appLabel(file)}:${node.loc.start.line}`
-      lists.push({ site, classes: classesOf(node) })
+      lists.push({ site, classes: classesOf(node), from: 'template' })
       const ui = boundAttribute(node, 'ui')
-      if (ui) for (const classes of stringsIn(parseExpression(ui))) lists.push({ site, classes })
+      if (ui) for (const classes of stringsIn(parseExpression(ui))) lists.push({ site, classes, from: 'ui' })
     })
     for (const { program, lineOffset } of sfcScriptAsts(file)) {
       walkAst(program, (node) => {
         if (node.type === 'StringLiteral' || node.type === 'TemplateElement') {
           const classes = node.type === 'StringLiteral' ? node.value : node.value.cooked ?? ''
-          lists.push({ site: `${appLabel(file)}:${lineOffset + node.loc!.start.line}`, classes })
+          lists.push({ site: `${appLabel(file)}:${lineOffset + node.loc!.start.line}`, classes, from: 'script' })
         }
       })
     }
-    return lists.filter(list => DIMMED.test(list.classes))
+    return lists
   })
+  classLists = scanned.filter(list => DIMMED.test(list.classes))
 })
 
 describe('text-dimmed', () => {
@@ -81,9 +85,13 @@ describe('text-dimmed', () => {
     ).toEqual([])
   })
 
-  it('still sees the decorative uses it allows', () => {
-    // Template, :ui-less script constant and a page: a rule reading
-    // none of them passes forever.
-    expect(classLists.length).toBeGreaterThanOrEqual(3)
+  it('reads every kind of class list it judges', () => {
+    // No component outside webside uses text-dimmed today, so the canary
+    // is the scanner itself: a template class, a `:ui` string and a
+    // script string must each still be read, or a broken walker would
+    // let the rule pass forever.
+    const kinds = new Set(scanned.filter(list => list.classes.trim()).map(list => list.from))
+    expect([...kinds].sort()).toEqual(['script', 'template', 'ui'])
+    expect(DIMMED.test('size-4 text-dimmed')).toBe(true)
   })
 })

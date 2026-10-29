@@ -156,13 +156,13 @@ describe('POST /api/texts/validate', () => {
         detail: `The build has no text "title" in "${WEBSIDE_FOOTER}" that the store "acme" renders.`,
       })
       expect((await forStore('webside', FOOTER)).body).toMatchObject({ code: 'unknown_key' })
-      expect((await forStore('delta_sigma', 'components/PageSection/Hero')).body).toMatchObject({ code: 'unknown_key' })
-      expect((await forStore('delta_sigma', 'components/PageSection/variants/delta_sigma/Hero')).body).toEqual({ ok: true })
+      expect((await forStore('ekfyseosfyteias', 'components/PageSection/Hero')).body).toMatchObject({ code: 'unknown_key' })
+      expect((await forStore('ekfyseosfyteias', 'components/PageSection/variants/ekfyseosfyteias/Hero')).body).toEqual({ ok: true })
     })
 
     it('treats a schema the build does not know as the default store', async () => {
       expect((await forStore('never_heard_of', FOOTER)).body).toEqual({ ok: true })
-      expect((await forStore('never_heard_of', 'components/PageSection/variants/delta_sigma/Hero')).body).toMatchObject({ code: 'unknown_key' })
+      expect((await forStore('never_heard_of', 'components/PageSection/variants/ekfyseosfyteias/Hero')).body).toMatchObject({ code: 'unknown_key' })
     })
 
     it('keeps the global texts and the locks for every store', async () => {

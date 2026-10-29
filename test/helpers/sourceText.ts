@@ -37,7 +37,7 @@ export const COMPONENTS = resolve(APP, 'components')
  * The webside design: webside's storefront (its own templates), registered with
  * the `Webside` prefix (`nuxt.config.ts` `components`). Layout rules exempt it
  * so its look cannot change by accident — its render is pinned. The other
- * `variants/<schema>/` trees (delta_sigma's chrome
+ * `variants/<schema>/` trees (ekfyseosfyteias's chrome
  * and sections) are LIVE code and are not exempt.
  */
 export const WEBSIDE_DESIGN = resolve(COMPONENTS, 'variants/webside')

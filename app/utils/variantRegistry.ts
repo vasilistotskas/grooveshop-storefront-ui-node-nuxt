@@ -202,19 +202,13 @@ const pageDefaults: Record<PageKey, Component> = {
  * downloads its own chunk and never the default's; a tenant absent from
  * it never downloads a variant.
  *
- * Δelta Σigma ships its own header and footer: a contractor's site with
- * none of the shop affordances (⌘K search, favourites, account avatar)
- * — see `app/components/Chrome/variants/delta_sigma/`.
- *
- * «Εκ φύσεως Φυτειάς» ships its own header and footer too: a co-operative
+ * «Εκ φύσεως Φυτειάς» ships its own header and footer: a co-operative
  * with no online shop and a paper-and-ink design of its own — see
  * `app/components/Chrome/variants/ekfyseosfyteias/`.
  * Its blog is presented as «Δράσεις» (activities), index and post, under
  * `app/components/variants/ekfyseosfyteias/`.
  */
 const variants: Record<string, Component> = {
-  'chrome:navbar@delta_sigma': lazy(() => import('~/components/Chrome/variants/delta_sigma/Navbar.vue')),
-  'chrome:footer@delta_sigma': lazy(() => import('~/components/Chrome/variants/delta_sigma/Footer.vue')),
   'chrome:navbar@ekfyseosfyteias': lazy(() => import('~/components/Chrome/variants/ekfyseosfyteias/Navbar.vue')),
   'chrome:footer@ekfyseosfyteias': lazy(() => import('~/components/Chrome/variants/ekfyseosfyteias/Footer.vue')),
   'page:blog@ekfyseosfyteias': lazy(() => import('~/components/variants/ekfyseosfyteias/Storefront/BlogIndex.vue')),
@@ -344,26 +338,4 @@ export function resolveChrome(key: ChromeKey, tenantSchema?: string | null): Com
 /** The tenant's page body for `key`, or the platform's. Always a component. */
 export function resolvePage(key: PageKey, tenantSchema?: string | null): Component {
   return (tenantSchema && variants[`page:${key}@${tenantSchema}`]) || pageDefaults[key]
-}
-
-/**
- * Tenants whose page design is a STACK OF FULL-BLEED BANDS rather than
- * cards inside a container.
- *
- * ONLY THE `webside` DESIGN STILL ASKS. The platform default is now
- * a stack of bands itself — each section owns its width, its ground and
- * its own container (`PageSection/Band.vue`) — so for everything outside
- * `app/components/variants/webside/**` the answer is always "yes" and
- * the question is not worth asking. webside keeps the previous shell, a
- * `PageWrapper` with a gap between inset cards, and its webside copies of
- * the shell and the contact body read this to choose it.
- *
- * So: do not call this from new code, and do not add a schema to the
- * set. A tenant that wants a different page frame registers
- * `page:<key>@<schema>` like any other variant.
- */
-const FULL_BLEED_BANDS = new Set(['delta_sigma'])
-
-export function hasFullBleedBands(tenantSchema?: string | null) {
-  return !!tenantSchema && FULL_BLEED_BANDS.has(tenantSchema)
 }

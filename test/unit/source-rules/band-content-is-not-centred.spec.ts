@@ -22,7 +22,7 @@ import { COMPONENTS, appLabel, classesOf, isElement, sfcTemplate, vueFiles, walk
  * this rule would fight it.
  *
  * The `variants/webside` tree has no sections of its own under
- * `PageSection/`; the live `PageSection/variants/delta_sigma` ones are
+ * `PageSection/`; the live `PageSection/variants/ekfyseosfyteias` ones are
  * checked like every other section.
  */
 const SECTIONS = resolve(COMPONENTS, 'PageSection')

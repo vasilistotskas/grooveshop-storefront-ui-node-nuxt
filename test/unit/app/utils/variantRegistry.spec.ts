@@ -82,7 +82,6 @@ describe('variantRegistry', () => {
   it('draws every tenant in the Volt design except webside', () => {
     expect(resolveDesign('demo')).toBe('volt')
     expect(resolveDesign('ekfyseosfyteias')).toBe('volt')
-    expect(resolveDesign('delta_sigma')).toBe('volt')
     // webside renders with the base stylesheet and app config, which is
     // what its webside tree was captured against.
     expect(resolveDesign('webside')).toBeNull()
@@ -103,17 +102,9 @@ describe('variantRegistry', () => {
     expect(resolveDesign('')).toBeNull()
   })
 
-  it('keeps the delta_sigma chrome variants', () => {
-    expect(resolveChrome('navbar', 'delta_sigma')).not.toBe(resolveChrome('navbar', null))
-    expect(resolveChrome('footer', 'delta_sigma')).not.toBe(resolveChrome('footer', null))
-    // ...and only those: delta_sigma has no page bodies of its own.
-    expect(resolvePage('home', 'delta_sigma')).toBe(resolvePage('home', null))
-  })
-
   it('keeps the ekfyseosfyteias chrome variants, and no other tenant gets them', () => {
     expect(resolveChrome('navbar', 'ekfyseosfyteias')).not.toBe(resolveChrome('navbar', null))
     expect(resolveChrome('footer', 'ekfyseosfyteias')).not.toBe(resolveChrome('footer', null))
-    expect(resolveChrome('navbar', 'ekfyseosfyteias')).not.toBe(resolveChrome('navbar', 'delta_sigma'))
     expect(resolveChrome('navbar', 'demo')).toBe(resolveChrome('navbar', null))
     // Chrome only: the mobile tab bar and the rest stay the platform's.
     expect(resolveChrome('mobile_nav', 'ekfyseosfyteias')).toBe(resolveChrome('mobile_nav', null))

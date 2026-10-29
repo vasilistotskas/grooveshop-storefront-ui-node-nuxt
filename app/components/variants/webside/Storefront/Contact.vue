@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 const { t } = useStoreI18n('components/variants/webside/Storefront/Contact')
-const tenantStore = useTenantStore()
 
 useSeoMeta({
   title: t('title'),
@@ -13,15 +12,6 @@ useHead({
 // from the published 'contact' PageLayout. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
 const { sections: brandSections } = await usePageConfig('contact')
-
-/**
- * A full-bleed design opens flush against the navbar and each of its
- * bands owns the page's width, so there is no gutter for a breadcrumb
- * to sit in and nothing above the first band for it to sit on — see
- * `Page/SectionsShell.vue`. `pages/[slug].vue`, which renders every
- * other page of such a tenant, has none for the same reason.
- */
-const fullBleed = computed(() => hasFullBleedBands(tenantStore.schemaName))
 </script>
 
 <template>
@@ -29,7 +19,7 @@ const fullBleed = computed(() => hasFullBleedBands(tenantStore.schemaName))
     <template #title>
       <!-- Above the branded band: with sections published the crumb
            otherwise landed mid-page, after the hours/map band. -->
-      <WebsidePageBreadcrumb v-if="!fullBleed" />
+      <WebsidePageBreadcrumb />
     </template>
     <template #after>
       <!-- The FORM is what wants a narrow measure — not the page. The

@@ -69,8 +69,8 @@ export async function publishedLayoutsForHost(
  * translated per locale, and on a locale it is not written in the legal
  * route renders it in the language it exists in with a canonical
  * pointing at THAT locale's URL — so `/en/terms-of-use` on a store with
- * a Greek-only document is a non-canonical duplicate (delta-sigma's
- * state), and a sitemap lists canonical URLs only. The row's
+ * a Greek-only document is a non-canonical duplicate, and a sitemap lists
+ * canonical URLs only. The row's
  * `translations` keys are exactly the locales that are canonical.
  *
  * The API returns only published rows to an anonymous caller, so

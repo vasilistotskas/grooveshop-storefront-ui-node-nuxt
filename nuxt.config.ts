@@ -1100,7 +1100,7 @@ export default defineNuxtConfig({
         'i-lucide:upload',
         // Authored in the DATABASE, not in this repo: page_config
         // layouts and navigation rows carry an `icon` string (see
-        // page_config/models.py, and devtools/delta_sigma.py for the
+        // page_config/models.py, and the devtools seeders for the
         // engineering set). No scanner can see those, so a CMS icon has
         // to be declared here to render server-side.
         //

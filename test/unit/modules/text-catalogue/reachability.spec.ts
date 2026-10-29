@@ -24,7 +24,7 @@ describe('what a store renders, over the fixture tree', () => {
   const view = (name: string) => rendered(TEXT_FIXTURE_SOURCE, name)
 
   it('has a view for the default store and one per schema a registry names', () => {
-    expect([...reachableFiles(TEXT_FIXTURE_SOURCE).keys()]).toEqual(['default', 'delta_sigma', 'webside'])
+    expect([...reachableFiles(TEXT_FIXTURE_SOURCE).keys()]).toEqual(['default', 'ekfyseosfyteias', 'webside'])
   })
 
   it('gives the default store the shared tree and no variant', () => {
@@ -51,10 +51,10 @@ describe('what a store renders, over the fixture tree', () => {
   })
 
   it('reaches a page-builder section variant from its own schema only', () => {
-    const variant = 'components/PageSection/variants/delta_sigma/Hero.vue'
+    const variant = 'components/PageSection/variants/ekfyseosfyteias/Hero.vue'
 
-    expect(view('delta_sigma')).toContain(variant)
-    expect(view('delta_sigma')).not.toContain('components/PageSection/Hero.vue')
+    expect(view('ekfyseosfyteias')).toContain(variant)
+    expect(view('ekfyseosfyteias')).not.toContain('components/PageSection/Hero.vue')
     expect(view('default')).not.toContain(variant)
     expect(view('webside')).not.toContain(variant)
     // webside has no hero variant of its own: the registry falls back to the base section.
@@ -67,7 +67,7 @@ describe('what a store renders, over the real tree', () => {
   const reaches = (view: string, file: string) => views.get(view)!.has(resolve(APP, file))
 
   it('names the default store and every schema the registries give a design', () => {
-    expect([...views.keys()]).toEqual(['default', 'delta_sigma', 'ekfyseosfyteias', 'webside'])
+    expect([...views.keys()]).toEqual(['default', 'ekfyseosfyteias', 'webside'])
   })
 
   it('reaches webside\'s webside footer and not the default one', () => {
@@ -93,12 +93,11 @@ describe('what a store renders, over the real tree', () => {
   })
 
   it('reaches a chrome or section variant from its schema only', () => {
-    expect(reaches('delta_sigma', 'components/Chrome/variants/delta_sigma/Footer.vue')).toBe(true)
-    expect(reaches('delta_sigma', 'components/Chrome/Footer.vue')).toBe(false)
-    expect(reaches('delta_sigma', 'components/PageSection/variants/delta_sigma/Hero.vue')).toBe(true)
-    expect(reaches('default', 'components/Chrome/variants/delta_sigma/Footer.vue')).toBe(false)
-    expect(reaches('webside', 'components/PageSection/variants/delta_sigma/Hero.vue')).toBe(false)
-    expect(reaches('ekfyseosfyteias', 'components/PageSection/variants/delta_sigma/Hero.vue')).toBe(false)
+    expect(reaches('ekfyseosfyteias', 'components/Chrome/variants/ekfyseosfyteias/Footer.vue')).toBe(true)
+    expect(reaches('ekfyseosfyteias', 'components/Chrome/Footer.vue')).toBe(false)
+    expect(reaches('ekfyseosfyteias', 'components/PageSection/variants/ekfyseosfyteias/Hero.vue')).toBe(true)
+    expect(reaches('default', 'components/Chrome/variants/ekfyseosfyteias/Footer.vue')).toBe(false)
+    expect(reaches('webside', 'components/PageSection/variants/ekfyseosfyteias/Hero.vue')).toBe(false)
     // A section type with a webside variant only (no base entry) is not the default store's.
     expect(reaches('webside', 'components/variants/webside/PageSection/AboutContent.vue')).toBe(true)
     expect(reaches('default', 'components/variants/webside/PageSection/AboutContent.vue')).toBe(false)

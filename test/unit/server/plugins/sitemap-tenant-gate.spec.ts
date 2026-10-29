@@ -470,10 +470,10 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     })
 
     it('drops the locale a document is not translated into', async () => {
-      // delta-sigma's live state: it serves `el` and `en`, its legal
+      // A store that serves `el` and `en`, whose legal
       // documents exist only in Greek, and `extractTranslated` does not
       // fall back — so /en/terms-of-use 404s while /terms-of-use is
-      // fine. Three such URLs were in its sitemap.
+      // fine.
       store.content = Object.values(LEGAL_ROUTE_SLUGS)
         .map(slug => ({ slug, translations: { el: WRITTEN } }))
 
@@ -595,8 +595,7 @@ describe('server/plugins/sitemap-tenant-gate', () => {
     // `/about`, `/vision`, `/what-is-microlearning` and
     // `/why-microlearning` call usePageConfig and throw a hard 404 when
     // the tenant has published no layout. Only webside has any of them,
-    // so demo and fyteia were advertising three 404s each and
-    // delta-sigma four (times two, for the locale it serves).
+    // so demo and fyteia were advertising three 404s each.
     const LAYOUT_PATHS = [
       '/about',
       '/vision',

@@ -17,7 +17,7 @@ describe('isLockedText', () => {
     ['the order terms consent in the webside tree', 'components/variants/webside/Checkout/TermsConsent', 'privacy'],
     ['the sign-up terms consent', 'components/Account/Signup/Form', 'terms.privacy'],
     ['the contact form data consent', 'components/ContactForm', 'consent'],
-    ['a tenant contact panel data consent', 'components/PageSection/variants/delta_sigma/ContactPanel', 'panel.consent'],
+    ['a tenant contact panel data consent', 'components/PageSection/variants/ekfyseosfyteias/ContactPanel', 'panel.consent'],
   ])('locks %s', (_label, namespace, key) => {
     expect(isLockedText(namespace, key)).toBe(true)
   })

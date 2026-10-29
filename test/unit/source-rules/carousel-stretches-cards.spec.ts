@@ -38,7 +38,7 @@ import type { AstNode, ElementNode } from '../../helpers/sourceText'
  *
  * The `variants/webside` tree is exempt — its ragged edges are
  * the render that store has today, and its look changes only on
- * purpose. The live `variants/delta_sigma` trees are checked.
+ * purpose. The live `variants/ekfyseosfyteias` trees are checked.
  */
 const H_FULL = /(?:^|[\s'"`:])h-full(?:$|[\s'"`])/
 

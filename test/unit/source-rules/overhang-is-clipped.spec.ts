@@ -43,7 +43,7 @@ import {
  *
  * The `variants/webside` tree is exempt: its overflow is the
  * render that store has today, and its look changes only on
- * purpose. The live `variants/delta_sigma` trees are checked.
+ * purpose. The live `variants/ekfyseosfyteias` trees are checked.
  */
 const FILES = [
   ...vueFiles(COMPONENTS, { exclude: [WEBSIDE_DESIGN] }),
