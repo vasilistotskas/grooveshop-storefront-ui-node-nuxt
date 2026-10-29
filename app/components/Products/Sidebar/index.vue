@@ -237,6 +237,7 @@ defineExpose({
       hidden
       lg:sticky lg:top-[calc(var(--ui-header-height)+1.5rem)] lg:block
       lg:max-h-[calc(100dvh-var(--ui-header-height)-3rem)] lg:overflow-y-auto
+      lg:ps-2 lg:pe-3 lg:[scrollbar-gutter:stable]
     "
   >
     <ReuseFiltersTemplate />
