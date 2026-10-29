@@ -76,7 +76,7 @@ const generateRssFeed = defineCachedFunction(
     // Namespaced to avoid collision with sitemap handlers which register
     // fetchers under the same logical name but a different TTL.
     const cachedBlogPosts = createCachedFetcher<BlogPost>('rss:blog-posts', RSS_CACHE_AGE)
-    const cachedProducts = createCachedFetcher<Product>('rss:products', RSS_CACHE_AGE)
+    const cachedProducts = createCachedFetcher<ProductCard>('rss:products', RSS_CACHE_AGE)
 
     // A store without the catalogue has no products to syndicate, and
     // Django refuses the list: the feed is its blog alone.
@@ -284,7 +284,7 @@ async function processBlogPosts(
 }
 
 async function processProducts(
-  products: Product[],
+  products: ProductCard[],
   locale: SupportedLocale,
   baseUrl: string,
   apiBaseUrl: string,
@@ -295,7 +295,7 @@ async function processProducts(
   const items: RSS.ItemOptions[] = []
 
   // Pre-fetch all unique category IDs in parallel
-  const uniqueCategoryIds = [...new Set(products.map(p => p.category).filter(Boolean))]
+  const uniqueCategoryIds = [...new Set(products.map(p => p.category).filter(id => id !== null))]
   const categoryResults = await Promise.allSettled(
     uniqueCategoryIds.map(id => cachedProductCategoryDetail(tenantKey, locale, `${apiBaseUrl}/product/category/${id}`)),
   )

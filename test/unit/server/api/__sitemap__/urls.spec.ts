@@ -11,7 +11,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/__sitemap__/urls'
-import { makeProduct } from '~~/test/fixtures/product'
+import { makeProductCard } from '~~/test/fixtures/product'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 import type { BackendRequest } from '~~/test/helpers/nitro'
@@ -39,7 +39,7 @@ function serve(catalogue: Catalogue = {}) {
     tenant = null,
     posts = [{ id: 1, slug: 'my-post', updatedAt: UPDATED }],
     blogCategories = [{ id: 10, slug: 'tech', updatedAt: UPDATED }],
-    products = [makeProduct({ id: 100, slug: 'my-product' })],
+    products = [makeProductCard({ id: 100, slug: 'my-product' })],
     productCategories = [{ id: 200, slug: 'electronics', updatedAt: UPDATED }],
     contentPages = [],
     layouts = [],
@@ -211,7 +211,7 @@ describe('server/api/__sitemap__/urls — content pages', () => {
 })
 
 describe('server/api/__sitemap__/urls — product images', () => {
-  const productWithImage = (translations?: Record<string, unknown>) => makeProduct({
+  const productWithImage = (translations?: Record<string, unknown>) => makeProductCard({
     id: 100,
     slug: 'my-product',
     mainImagePath: 'media/acme/uploads/products/x.jpg',

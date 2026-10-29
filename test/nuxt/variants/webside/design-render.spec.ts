@@ -21,7 +21,7 @@ import type { Window as HappyDOMWindow } from 'happy-dom'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { makeUserDetails } from '~~/test/fixtures/user'
 import { makeOrderListItem } from '~~/test/fixtures/order'
-import { makeProduct } from '~~/test/fixtures/product'
+import { makeProduct, makeProductCard } from '~~/test/fixtures/product'
 import { makeLoyaltyPublicSettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
@@ -204,6 +204,25 @@ const BLOG_CATEGORY = {
   recursivePostCount: 3,
 }
 
+/** The same product as the product list serves it: a card row, not the full product. */
+const PRODUCT_CARD = makeProductCard({
+  id: PRODUCT.id,
+  uuid: PRODUCT.uuid,
+  slug: PRODUCT.slug,
+  translations: PRODUCT.translations,
+  category: PRODUCT.category,
+  brandName: PRODUCT.brandName,
+  stock: PRODUCT.stock,
+  lowStockThreshold: PRODUCT.lowStockThreshold,
+  finalPrice: PRODUCT.finalPrice,
+  effectivePrice: PRODUCT.effectivePrice,
+  priorPrice: PRODUCT.priorPrice,
+  announcedDiscountPercent: PRODUCT.announcedDiscountPercent,
+  mainImagePath: PRODUCT.mainImagePath,
+  reviewAverage: PRODUCT.reviewAverage,
+  reviewCount: PRODUCT.reviewCount,
+})
+
 /** What `useRecentlyViewed` reads from localStorage on the client. */
 const RECENTLY_VIEWED_KEY = 'grooveshop:recently-viewed'
 const RECENTLY_VIEWED = [{
@@ -366,7 +385,7 @@ describe('webside design render', () => {
   })
 
   it('product card', async () => {
-    await expectSnapshot(ProductCard, { props: { product: PRODUCT, showVat: true } })
+    await expectSnapshot(ProductCard, { props: { product: PRODUCT_CARD } })
   })
 
   it('product card skeleton', async () => {

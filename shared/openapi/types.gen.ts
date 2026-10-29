@@ -5530,6 +5530,19 @@ export type PaginatedProductAlertList = {
   results: Array<ProductAlert>
 }
 
+export type PaginatedProductCardList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ProductCard>
+}
+
 export type PaginatedProductCategoryImageList = {
   links?: {
     next?: string | null
@@ -6964,6 +6977,71 @@ export type ProductBrief = {
   readonly name: string | null
   slug: string
   readonly mainImagePath: string
+}
+
+/**
+ * The product list's row: what a product card, the sitemap and the
+ * RSS feed read.
+ *
+ * A product's attributes, gallery and variant group are the product
+ * page's (``ProductRetrieveSerializer``) and the catalogue feed's
+ * (``/product/feed``, ``ProductSerializer``). Built from
+ * ``Product.objects.for_list()``.
+ */
+export type ProductCard = {
+  readonly id: number
+  translations: {
+    el?: {
+      name?: string
+      description?: string
+    }
+    en?: {
+      name?: string
+      description?: string
+    }
+  }
+  readonly slug: string
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
+  readonly brandName: string | null
+  /**
+     * Απόθεμα
+     */
+  readonly stock: number
+  /**
+     * Όριο χαμηλού αποθέματος
+     *
+     * Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
+     */
+  readonly lowStockThreshold: number
+  /**
+     * Ενεργή
+     */
+  readonly active: boolean
+  readonly finalPrice: number
+  readonly effectivePrice: number | null
+  readonly priorPrice: number | null
+  readonly announcedDiscountPercent: number | null
+  readonly mainImagePath: string
+  /**
+     * Return the average review rating for this product.
+     */
+  readonly reviewAverage: number
+  /**
+     * Return the number of approved reviews for this product.
+     */
+  readonly reviewCount: number
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  readonly uuid: string
 }
 
 /**
@@ -11986,6 +12064,19 @@ export type PaginatedProductAlertListWritable = {
   results: Array<ProductAlertWritable>
 }
 
+export type PaginatedProductCardListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ProductCardWritable>
+}
+
 export type PaginatedProductCategoryImageListWritable = {
   links?: {
     next?: string | null
@@ -12290,6 +12381,28 @@ export type ProductAttributeWritable = {
  */
 export type ProductBriefWritable = {
   slug: string
+}
+
+/**
+ * The product list's row: what a product card, the sitemap and the
+ * RSS feed read.
+ *
+ * A product's attributes, gallery and variant group are the product
+ * page's (``ProductRetrieveSerializer``) and the catalogue feed's
+ * (``/product/feed``, ``ProductSerializer``). Built from
+ * ``Product.objects.for_list()``.
+ */
+export type ProductCardWritable = {
+  translations: {
+    el?: {
+      name?: string
+      description?: string
+    }
+    en?: {
+      name?: string
+      description?: string
+    }
+  }
 }
 
 /**
@@ -22000,7 +22113,7 @@ export type ListProductErrors = {
 export type ListProductError = ListProductErrors[keyof ListProductErrors]
 
 export type ListProductResponses = {
-  200: PaginatedProductList
+  200: PaginatedProductCardList
 }
 
 export type ListProductResponse = ListProductResponses[keyof ListProductResponses]
@@ -24083,6 +24196,239 @@ export type GetProductFavouritesByProductsResponses = {
 }
 
 export type GetProductFavouritesByProductsResponse = GetProductFavouritesByProductsResponses[keyof GetProductFavouritesByProductsResponses]
+
+export type ListProductFeedData = {
+  body?: never
+  path?: never
+  query?: {
+    active?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Filter by attribute ID
+         */
+    attribute?: string | number
+    /**
+         * Filter by multiple attribute IDs (comma-separated)
+         */
+    attribute_In?: string | Array<number>
+    /**
+         * Filter by attribute value ID
+         */
+    attributeValue?: string | number
+    /**
+         * Filter by multiple attribute value IDs (comma-separated). Values of the same attribute are alternatives (any of them); values of different attributes must all match.
+         */
+    attributeValue_In?: string | Array<number>
+    /**
+         * Filter by category ID (supports multiple IDs separated by underscore)
+         */
+    category?: string
+    /**
+         * Filter by exact category ID
+         */
+    categoryId?: string | number
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Αδιαφανής δείκτης (στρατηγική σελιδοποίησης cursor)
+         */
+    cursor?: string
+    deletedAt_Date?: string
+    deletedAt_Gte?: string
+    deletedAt_Lte?: string
+    discountPercent?: string | number
+    discountPercent_Gte?: string | number
+    discountPercent_Lte?: string | number
+    /**
+         * Filter products that have a discount
+         */
+    hasDiscount?: 'true' | 'false' | '1' | '0' | boolean
+    id?: string | number
+    /**
+         * Filter products that are in stock (stock > 0)
+         */
+    inStock?: 'true' | 'false' | '1' | '0' | boolean
+    isDeleted?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en)
+         */
+    languageCode?: 'el' | 'en'
+    /**
+         * Maximum discount value amount
+         */
+    maxDiscount?: string | number
+    /**
+         * Maximum discount percentage
+         */
+    maxDiscountPercent?: string | number
+    /**
+         * Maximum price the customer pays now (VAT, markdown and unconditional automatic promotions included)
+         */
+    maxEffectivePrice?: string | number
+    /**
+         * Maximum likes count
+         */
+    maxLikes?: string | number
+    /**
+         * Maximum price
+         */
+    maxPrice?: string | number
+    /**
+         * Maximum review average rating
+         */
+    maxReviewAverage?: string | number
+    /**
+         * Maximum stock quantity
+         */
+    maxStock?: string | number
+    /**
+         * Maximum view count
+         */
+    maxViewCount?: string | number
+    /**
+         * Maximum weight
+         */
+    maxWeight?: string | number
+    /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν το καθορισμένο JSON (ως συμβολοσειρά)
+         */
+    metadataContains?: string
+    /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν οποιοδήποτε από τα καθορισμένα κλειδιά (διαχωρισμένα με κόμμα)
+         */
+    metadataHasAnyKeys?: string
+    /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν το καθορισμένο κλειδί
+         */
+    metadataHasKey?: string
+    /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν όλα τα καθορισμένα κλειδιά (διαχωρισμένα με κόμμα)
+         */
+    metadataHasKeys?: string
+    /**
+         * Minimum announced discount percentage: only products with an Omnibus prior price, computed from it
+         */
+    minAnnouncedDiscountPercent?: string | number
+    /**
+         * Minimum discount value amount
+         */
+    minDiscount?: string | number
+    /**
+         * Minimum discount percentage
+         */
+    minDiscountPercent?: string | number
+    /**
+         * Minimum price the customer pays now (VAT, markdown and unconditional automatic promotions included)
+         */
+    minEffectivePrice?: string | number
+    /**
+         * Minimum likes count
+         */
+    minLikes?: string | number
+    /**
+         * Minimum price
+         */
+    minPrice?: string | number
+    /**
+         * Minimum review average rating
+         */
+    minReviewAverage?: string | number
+    /**
+         * Minimum stock quantity
+         */
+    minStock?: string | number
+    /**
+         * Minimum view count
+         */
+    minViewCount?: string | number
+    /**
+         * Minimum weight
+         */
+    minWeight?: string | number
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, effectivePrice, -effectivePrice, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock, likesCount, -likesCount, reviewAverage, -reviewAverage, discountPercent, -discountPercent, announcedDiscountPercent, -announcedDiscountPercent
+         */
+    ordering?: string
+    /**
+         * Αριθμός σελίδας (στρατηγική σελιδοποίησης pageNumber)
+         */
+    page?: string | number
+    /**
+         * Αριθμός αποτελεσμάτων ανά σελίδα
+         */
+    pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+    price?: string | number
+    price_Gte?: string | number
+    price_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων όπου τα ιδιωτικά metadata περιέχουν το καθορισμένο κλειδί (μόνο για προσωπικό)
+         */
+    privateMetadataHasKey?: string
+    /**
+         * A search term.
+         */
+    search?: string
+    sku?: string
+    sku_Icontains?: string
+    stock?: string | number
+    stock_Gte?: string | number
+    stock_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+    viewCount?: string | number
+    viewCount_Gte?: string | number
+    viewCount_Lte?: string | number
+    weight?: string | number
+    weight_Gte?: string | number
+    weight_Lte?: string | number
+  }
+  url: '/api/v1/product/feed'
+}
+
+export type ListProductFeedErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListProductFeedError = ListProductFeedErrors[keyof ListProductFeedErrors]
+
+export type ListProductFeedResponses = {
+  200: PaginatedProductList
+}
+
+export type ListProductFeedResponse = ListProductFeedResponses[keyof ListProductFeedResponses]
 
 export type ListProductImageData = {
   body?: never

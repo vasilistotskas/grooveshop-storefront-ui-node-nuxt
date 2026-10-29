@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { makeProductCard } from '../fixtures/product'
 import { makeProductSearchResponse } from '../fixtures/productFilters'
 import { validTenantConfig } from '../fixtures/tenantConfig'
 import { BROWSER_ACCEPT, requestWithHost, sendJson, waitUntilServing } from '../helpers/e2e'
@@ -156,6 +157,13 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
         viewCount: { min: 0, max: 100 },
       },
     }))
+    return
+  }
+
+  // The product list answers its slim card rows: what the home rails, the
+  // sitemap and the RSS feed read.
+  if (reqUrl.pathname.endsWith('/product')) {
+    sendJson(res, { count: 1, links: {}, results: [makeProductCard()] })
     return
   }
 

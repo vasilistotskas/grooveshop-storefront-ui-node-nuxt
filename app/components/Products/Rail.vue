@@ -5,7 +5,7 @@
  * render its heading at all.
  */
 withDefaults(defineProps<{
-  products: Product[]
+  products: ProductCard[]
   showArrows?: boolean
   showDots?: boolean
   showAddToCart?: boolean

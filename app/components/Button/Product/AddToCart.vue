@@ -4,7 +4,7 @@ import type { PropType } from 'vue'
 import type { ButtonProps } from '#ui/types'
 
 const props = defineProps({
-  product: { type: Object as PropType<Product>, required: true },
+  product: { type: Object as PropType<Product | ProductCard>, required: true },
   quantity: { type: Number, required: false, default: 1 },
   text: {
     type: String,

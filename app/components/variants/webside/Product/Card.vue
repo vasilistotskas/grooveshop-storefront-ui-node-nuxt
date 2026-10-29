@@ -7,13 +7,12 @@ const { t, locale } = useStoreI18n('components/variants/webside/Product/Card')
 const productReviewsEnabled = useStoreFeature('productReviews')
 
 const props = defineProps({
-  product: { type: Object as PropType<Product>, required: true },
+  product: { type: Object as PropType<Product | ProductCard>, required: true },
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },
   imgWidth: { type: Number, required: false, default: 420 },
   imgHeight: { type: Number, required: false, default: 420 },
-  showVat: { type: Boolean, required: false, default: false },
   showStartPrice: { type: Boolean, required: false, default: false },
   showDescription: { type: Boolean, required: false, default: false },
   imgLoading: {
@@ -320,15 +319,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               {{ $i18n.n(displayFinalPrice, 'currency') }}
             </span>
           </div>
-          <span
-            v-if="showVat && product.vatPercent"
-            class="
-              text-xs text-neutral-600
-              dark:text-neutral-300
-            "
-          >
-            {{ t('vat_included') }} {{ product.vatPercent }}%
-          </span>
         </div>
       </div>
 
@@ -350,7 +340,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 el:
   price: Τιμή
   vat_percent: Ποσοστό ΦΠΑ
-  vat_included: ΦΠΑ περιλαμβάνεται
   total_price: Τελική Τιμή
   share: Κοινοποίηση
   add_to_cart: Αγορά
@@ -361,7 +350,6 @@ el:
 en:
   price: Price
   vat_percent: VAT rate
-  vat_included: VAT included
   total_price: Final price
   share: Share
   add_to_cart: Buy
