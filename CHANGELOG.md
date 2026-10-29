@@ -1,3 +1,10 @@
+## [3.271.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.1...v3.271.2) (2026-10-29)
+
+
+### Performance Improvements
+
+* **products:** render a product listing from one search ([#282](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/282)) ([307037a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/307037a9d102f4860754241941c199e6c5c7ee57)), closes [#356](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/356)
+
 ## [3.271.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.0...v3.271.1) (2026-10-29)
 
 
