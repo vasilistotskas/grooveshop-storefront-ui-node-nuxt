@@ -66,7 +66,9 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
  * `zCartDetail` (proved by `test/unit/fixtures/cart.spec.ts`).
  *
  * Defaults: cart 1 in EUR holding one `makeCartItem()`, no promotions,
- * no coupons, retail pricing (`b2bPricing: null`), no recommendations.
+ * no coupons, no route to free shipping (`freeShippingProgress: null`;
+ * build one with `makeFreeShippingProgress`), retail pricing
+ * (`b2bPricing: null`), no recommendations.
  * `makeCart({ items: [] })` is an empty cart. Every item's `cartId` is
  * this cart's `uuid` unless the item says otherwise.
  *
@@ -109,6 +111,7 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
     freeThresholdValue: 0,
     appliedPromotions: [],
     promotionFreeShipping: false,
+    freeShippingProgress: null,
     appliedCouponCodes: [],
     appliedCoupons: [],
     promotionGiftItems: [],
@@ -124,5 +127,24 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
     ...cart,
     freeThresholdValue: rest.freeThresholdValue
       ?? cents(Math.max(0, cart.totalPrice - cart.promotionDiscount)),
+  }
+}
+
+/**
+ * A cart's `freeShippingProgress` as Django sends it: by default a
+ * carrier's 50,00 € threshold in GR, 30,01 € to go (the staging webside
+ * cart of 2026-10-28). Override what the spec is about.
+ */
+export function makeFreeShippingProgress(
+  overrides: Partial<NonNullable<CartDetail['freeShippingProgress']>> = {},
+): NonNullable<CartDetail['freeShippingProgress']> {
+  return {
+    free: false,
+    source: 'threshold',
+    remainingAmount: 30.01,
+    remainingQuantity: null,
+    threshold: 50,
+    countryCode: 'GR',
+    ...overrides,
   }
 }

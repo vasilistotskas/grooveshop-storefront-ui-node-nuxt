@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { zCartDetail, zCartItem } from '~~/shared/openapi/zod.gen'
-import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
+import { makeCart, makeCartItem, makeFreeShippingProgress } from '~~/test/fixtures/cart'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -33,6 +33,15 @@ describe('makeCartItem', () => {
 describe('makeCart', () => {
   it('builds a default cart that parses through zCartDetail', () => {
     expect(problems(zCartDetail, makeCart())).toEqual([])
+  })
+
+  it('parses with a free-shipping progress and a free-shipping teaser', () => {
+    const cart = makeCart({
+      freeShippingProgress: makeFreeShippingProgress({ source: 'promotion', remainingAmount: 19.01, threshold: 39 }),
+      promotionNearMiss: [{ promotionId: 1, name: 'Δωρεάν αποστολή από 39€', remainingAmount: 19.01, remainingQuantity: null, rewardProducts: [], freeShipping: true }],
+    })
+
+    expect(problems(zCartDetail, cart)).toEqual([])
   })
 
   it('parses as an empty cart', () => {

@@ -2,27 +2,28 @@
 /**
  * "Δωρεάν μεταφορικά άνω των X €" notice for the PDP and cart summary.
  *
- * Data comes from ``useFreeShippingInfo()`` — the Nitro proxy returns
- * the aggregate ``minThreshold`` across active carriers, so the headline
- * number always matches the earliest cart subtotal at which at least
- * one carrier ships free. No per-carrier mention here on purpose: the
- * shopper picks the carrier in checkout; this is upstream marketing copy.
+ * On the cart page it tells the cart's own `freeShippingProgress`:
+ * Django's cheapest route to free delivery (a carrier's threshold or a
+ * free-shipping offer), judged by the rules checkout prices delivery
+ * with, so the line cannot promise what checkout will not give and the
+ * offer is not told a second time as a teaser (`getOfferNearMisses`).
+ *   - progress.free                → "Free shipping unlocked"
+ *   - progress.remainingAmount     → "Add Y € for free shipping"
+ *   - progress.remainingQuantity   → "Add N more items for free shipping"
+ *   - progress null                → nothing: the cart has no route
  *
- * Progressive messaging kicks in when ``cartTotal`` is provided:
- *   - cartTotal === null / undefined → "Free shipping over X €" (PDP)
- *   - cartTotal < min                → "Add Y € for free shipping"
- *   - cartTotal >= min               → "Free shipping unlocked"
- * The cart page passes its subtotal so the copy reflects the shopper's
- * actual progress; the PDP omits it because the PDP doesn't know cart
- * state and a "you need X more" line would mislead.
+ * On the PDP (no `progress` passed) it is the store's standing promise,
+ * `useFreeShippingInfo()`'s `minThreshold` — the earliest subtotal at
+ * which at least one carrier ships free: "Free shipping over X €". No
+ * carrier is named: the shopper picks one in checkout.
  */
 
 const props = defineProps<{
   /**
-   * The cart's `freeThresholdValue` (already in the carrier's currency).
-   * Omit on the PDP — the carrier has no cart context there.
+   * The cart's `freeShippingProgress`. Omit on the PDP, which has no
+   * cart context; `null` means the cart has no route to free shipping.
    */
-  cartTotal?: number | null
+  progress?: Cart['freeShippingProgress']
 }>()
 
 const { t, n } = useStoreI18n('components/variants/webside/Shipping/FreeShippingNotice')
@@ -30,27 +31,17 @@ const { data, pending, error } = await useFreeShippingInfo()
 
 const minThreshold = computed(() => data.value?.minThreshold ?? null)
 
-const formattedThreshold = computed(() => {
-  if (minThreshold.value == null) return ''
-  return n(minThreshold.value, 'currency')
-})
-
-const remainingToFree = computed(() => {
-  if (minThreshold.value == null) return null
-  if (props.cartTotal == null) return null
-  const remaining = minThreshold.value - props.cartTotal
-  return remaining > 0 ? remaining : 0
-})
-
-const formattedRemaining = computed(() => {
-  if (remainingToFree.value == null) return ''
-  return n(remainingToFree.value, 'currency')
-})
-
-const state = computed<'idle' | 'progress' | 'qualified'>(() => {
-  if (props.cartTotal == null) return 'idle'
-  if (remainingToFree.value == null) return 'idle'
-  return remainingToFree.value <= 0 ? 'qualified' : 'progress'
+const state = computed<'idle' | 'progress' | 'quantity' | 'qualified' | null>(() => {
+  const progress = props.progress
+  if (progress === undefined) {
+    if (pending.value || error.value) return null
+    return minThreshold.value != null && minThreshold.value > 0 ? 'idle' : null
+  }
+  if (progress === null) return null
+  if (progress.free) return 'qualified'
+  if (progress.remainingAmount !== null) return 'progress'
+  if (progress.remainingQuantity !== null) return 'quantity'
+  return null
 })
 
 const title = computed(() => {
@@ -58,9 +49,13 @@ const title = computed(() => {
     case 'qualified':
       return t('qualified')
     case 'progress':
-      return t('progress', { amount: formattedRemaining.value })
+      return t('progress', { amount: n(props.progress?.remainingAmount ?? 0, 'currency') })
+    case 'quantity': {
+      const count = props.progress?.remainingQuantity ?? 0
+      return t('progress_quantity', { count }, count)
+    }
     default:
-      return t('idle', { amount: formattedThreshold.value })
+      return t('idle', { amount: n(minThreshold.value ?? 0, 'currency') })
   }
 })
 
@@ -73,17 +68,11 @@ const icon = computed(() =>
 const color = computed<'success' | 'info'>(() =>
   state.value === 'qualified' ? 'success' : 'info',
 )
-
-const shouldRender = computed(() => {
-  if (pending.value) return false
-  if (error.value) return false
-  return minThreshold.value != null && minThreshold.value > 0
-})
 </script>
 
 <template>
   <UAlert
-    v-if="shouldRender"
+    v-if="state"
     :title="title"
     :icon="icon"
     :color="color"
@@ -95,5 +84,6 @@ const shouldRender = computed(() => {
 el:
   idle: Δωρεάν μεταφορικά σε αγορές άνω των {amount}
   progress: Πρόσθεσε ακόμα {amount} για δωρεάν μεταφορικά
+  progress_quantity: 'Πρόσθεσε ακόμα {count} τεμάχιο για δωρεάν μεταφορικά | Πρόσθεσε ακόμα {count} τεμάχια για δωρεάν μεταφορικά'
   qualified: Έχεις δωρεάν μεταφορικά
 </i18n>

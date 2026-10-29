@@ -2075,6 +2075,35 @@ export type Cart = {
      */
   readonly promotionFreeShipping: boolean
   /**
+     * Πόσο απέχει αυτό το καλάθι από τα δωρεάν μεταφορικά, με τον φθηνότερο δρόμο: το όριο δωρεάν μεταφορικών μιας μεταφορικής ή μια προσφορά δωρεάν μεταφορικών, κρινόμενο με τους κανόνες με τους οποίους το checkout τιμολογεί τα μεταφορικά. Το ένα ποσό που δείχνεται για τα δωρεάν μεταφορικά· οι εγγραφές του promotionNearMiss με freeShipping είναι δρόμοι που έχει ήδη σταθμίσει. Null όταν το καλάθι δεν έχει κανέναν δρόμο προς δωρεάν μεταφορικά.
+     */
+  readonly freeShippingProgress: {
+    /**
+         * Checkout charges nothing for shipping: a promotion waives it, or the cart reached a carrier's threshold
+         */
+    free: boolean
+    /**
+         * threshold: a carrier's free-shipping threshold, for that carrier only; promotion: a free-shipping promotion, for every carrier
+         */
+    source: 'threshold' | 'promotion'
+    /**
+         * Products still missing; null once free, or when what is missing is units
+         */
+    remainingAmount: number | null
+    /**
+         * Units of the promotion's products still missing; null once free, or when what is missing is an amount
+         */
+    remainingQuantity: number | null
+    /**
+         * The value the route is reached at, for a meter; null for a units route or a promotion that waives shipping outright
+         */
+    threshold: number | null
+    /**
+         * The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects
+         */
+    countryCode: string | null
+  } | null
+  /**
      * Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
      */
   readonly appliedCouponCodes: Array<string>
@@ -2129,6 +2158,10 @@ export type Cart = {
          * The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
          */
     rewardProducts: Array<PromotionProductRef>
+    /**
+         * The offer waives shipping, so it is one of the routes freeShippingProgress already weighed; show that, not this teaser
+         */
+    freeShipping: boolean
   }>
   /**
      * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
@@ -2331,6 +2364,35 @@ export type CartDetail = {
      */
   readonly promotionFreeShipping: boolean
   /**
+     * Πόσο απέχει αυτό το καλάθι από τα δωρεάν μεταφορικά, με τον φθηνότερο δρόμο: το όριο δωρεάν μεταφορικών μιας μεταφορικής ή μια προσφορά δωρεάν μεταφορικών, κρινόμενο με τους κανόνες με τους οποίους το checkout τιμολογεί τα μεταφορικά. Το ένα ποσό που δείχνεται για τα δωρεάν μεταφορικά· οι εγγραφές του promotionNearMiss με freeShipping είναι δρόμοι που έχει ήδη σταθμίσει. Null όταν το καλάθι δεν έχει κανέναν δρόμο προς δωρεάν μεταφορικά.
+     */
+  readonly freeShippingProgress: {
+    /**
+         * Checkout charges nothing for shipping: a promotion waives it, or the cart reached a carrier's threshold
+         */
+    free: boolean
+    /**
+         * threshold: a carrier's free-shipping threshold, for that carrier only; promotion: a free-shipping promotion, for every carrier
+         */
+    source: 'threshold' | 'promotion'
+    /**
+         * Products still missing; null once free, or when what is missing is units
+         */
+    remainingAmount: number | null
+    /**
+         * Units of the promotion's products still missing; null once free, or when what is missing is an amount
+         */
+    remainingQuantity: number | null
+    /**
+         * The value the route is reached at, for a meter; null for a units route or a promotion that waives shipping outright
+         */
+    threshold: number | null
+    /**
+         * The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects
+         */
+    countryCode: string | null
+  } | null
+  /**
      * Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
      */
   readonly appliedCouponCodes: Array<string>
@@ -2385,6 +2447,10 @@ export type CartDetail = {
          * The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
          */
     rewardProducts: Array<PromotionProductRef>
+    /**
+         * The offer waives shipping, so it is one of the routes freeShippingProgress already weighed; show that, not this teaser
+         */
+    freeShipping: boolean
   }>
   /**
      * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
@@ -4237,7 +4303,7 @@ export type OrderCreateErrorDetail = {
      * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
      * * `invalid_coupon` - Μη έγκυρο κουπόνι
      * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
-     * * `legal_document_unavailable` - Legal document unavailable
+     * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
      * * `payment_not_found` - Δεν βρέθηκε πληρωμή
      * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
      * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -4273,7 +4339,7 @@ export type OrderCreateErrorDetail = {
  * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
  * * `invalid_coupon` - Μη έγκυρο κουπόνι
  * * `invalid_gift_card` - Μη έγκυρη δωροκάρτα
- * * `legal_document_unavailable` - Legal document unavailable
+ * * `legal_document_unavailable` - Νομικό έγγραφο μη διαθέσιμο
  * * `payment_not_found` - Δεν βρέθηκε πληρωμή
  * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
  * * `payment_amount_mismatch` - Ασυμφωνία ποσού πληρωμής
@@ -11393,7 +11459,7 @@ export type OrderCreateFromCartRequestWritable = {
   } | null
   attribution?: OrderAttributionInputRequest
   /**
-     * The buyer accepts the store's terms of use and privacy policy. Must be true.
+     * Ο αγοραστής αποδέχεται τους όρους χρήσης και την πολιτική απορρήτου του καταστήματος. Πρέπει να είναι true.
      */
   termsAccepted: boolean
 }

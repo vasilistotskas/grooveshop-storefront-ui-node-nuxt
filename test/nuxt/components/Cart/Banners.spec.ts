@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import YAML from 'yaml'
 import Banners from '~/components/Cart/Banners.vue'
 import { REPO, parseSfc } from '~~/test/helpers/sourceText'
+import { makeFreeShippingProgress } from '~~/test/fixtures/cart'
 
 /**
  * Above the cart's lines: free delivery reached (named for no carrier),
@@ -20,12 +21,12 @@ const messages = YAML.parse(
 const words = (value: string) => value.replace(/\s+/g, '')
 const euro = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
-const mountBanners = (props: { cartTotal: number, threshold: number, nearMisses?: Cart['promotionNearMiss'] }) =>
-  mountSuspended(Banners, { props: { nearMisses: [], ...props }, route: false })
+const mountBanners = (props: { progress?: Cart['freeShippingProgress'], nearMisses?: Cart['promotionNearMiss'] }) =>
+  mountSuspended(Banners, { props: { progress: null, nearMisses: [], ...props }, route: false })
 
 describe('Cart/Banners', () => {
   it('says free delivery is unlocked once the cart reaches the threshold, with no meter', async () => {
-    const wrapper = await mountBanners({ cartTotal: 50, threshold: 50 })
+    const wrapper = await mountBanners({ progress: makeFreeShippingProgress({ free: true, remainingAmount: null, threshold: 50 }) })
 
     expect(wrapper.text()).toContain(messages.unlocked_title)
     expect(words(wrapper.text())).toContain(words(messages.unlocked_description.replace('{threshold}', euro(50))))
@@ -33,25 +34,33 @@ describe('Cart/Banners', () => {
   })
 
   it('shows the meter, not the unlocked banner, while the cart is short of it', async () => {
-    const wrapper = await mountBanners({ cartTotal: 49.99, threshold: 50 })
+    const wrapper = await mountBanners({ progress: makeFreeShippingProgress({ remainingAmount: 0.01 }) })
 
     expect(wrapper.find('[data-stub="meter"]').exists()).toBe(true)
     expect(wrapper.text()).not.toContain(messages.unlocked_title)
   })
 
-  it('never claims free delivery when the store has no threshold', async () => {
-    const wrapper = await mountBanners({ cartTotal: 500, threshold: 0 })
+  it('says an offer covers delivery when one waives it, naming no threshold', async () => {
+    const wrapper = await mountBanners({
+      progress: makeFreeShippingProgress({ free: true, source: 'promotion', remainingAmount: null, threshold: null }),
+    })
+
+    expect(wrapper.text()).toContain(messages.unlocked_title)
+    expect(wrapper.text()).toContain(messages.unlocked_by_offer)
+    expect(wrapper.find('[data-stub="meter"]').exists()).toBe(false)
+  })
+
+  it('never claims free delivery when the cart has no route to it', async () => {
+    const wrapper = await mountBanners({ progress: null })
 
     expect(wrapper.text()).not.toContain(messages.unlocked_title)
   })
 
   it('nudges once per offer the cart is short of, with the amount and the offer', async () => {
     const wrapper = await mountBanners({
-      cartTotal: 10,
-      threshold: 0,
       nearMisses: [
-        { promotionId: 1, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [] },
-        { promotionId: 2, name: 'AUDIO', remainingAmount: 3, remainingQuantity: null, rewardProducts: [] },
+        { promotionId: 1, name: 'POWER8', remainingAmount: 9.44, remainingQuantity: null, rewardProducts: [], freeShipping: false },
+        { promotionId: 2, name: 'AUDIO', remainingAmount: 3, remainingQuantity: null, rewardProducts: [], freeShipping: false },
       ],
     })
 
@@ -63,11 +72,9 @@ describe('Cart/Banners', () => {
   it('nudges by items when an offer is short of units, as a "2+1" with two in the cart', async () => {
     const [one, many] = messages.near_miss_quantity.split('|').map((form: string) => form.trim())
     const wrapper = await mountBanners({
-      cartTotal: 20,
-      threshold: 0,
       nearMisses: [
-        { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1, rewardProducts: [] },
-        { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2, rewardProducts: [] },
+        { promotionId: 3, name: '2+1', remainingAmount: null, remainingQuantity: 1, rewardProducts: [], freeShipping: false },
+        { promotionId: 4, name: '-5%', remainingAmount: null, remainingQuantity: 2, rewardProducts: [], freeShipping: false },
       ],
     })
 
@@ -83,11 +90,9 @@ describe('Cart/Banners', () => {
     const protector: PromotionProductRef = { id: 34, name: 'Τζαμάκι οθόνης', slug: 'tzamaki', mainImagePath: '' }
     const glass: PromotionProductRef = { id: 35, name: 'Τζαμάκι privacy', slug: 'privacy', mainImagePath: '' }
     const wrapper = await mountBanners({
-      cartTotal: 20,
-      threshold: 0,
       nearMisses: [
-        { promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector] },
-        { promotionId: 8, name: 'Δεύτερο τζαμάκι', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector, glass] },
+        { promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector], freeShipping: false },
+        { promotionId: 8, name: 'Δεύτερο τζαμάκι', remainingAmount: null, remainingQuantity: 1, rewardProducts: [protector, glass], freeShipping: false },
       ],
     })
 
@@ -103,9 +108,7 @@ describe('Cart/Banners', () => {
   it('shows at most three reward products per teaser', async () => {
     const rewards: PromotionProductRef[] = [1, 2, 3, 4].map(id => ({ id, name: `Τζαμάκι ${id}`, slug: `tzamaki-${id}`, mainImagePath: '' }))
     const wrapper = await mountBanners({
-      cartTotal: 20,
-      threshold: 0,
-      nearMisses: [{ promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: rewards }],
+      nearMisses: [{ promotionId: 7, name: 'Θήκη + τζαμάκι -50%', remainingAmount: null, remainingQuantity: 1, rewardProducts: rewards, freeShipping: false }],
     })
 
     expect(wrapper.findAll('a').map(link => link.attributes('title'))).toEqual(['Τζαμάκι 1', 'Τζαμάκι 2', 'Τζαμάκι 3'])

@@ -10,15 +10,13 @@
  * Django sends a teaser only after checking that doing what it says gets
  * the offer granted, so every line here is a promise the cart keeps.
  *
- * The delivery threshold is the store's cheapest free-delivery carrier
- * (`useFreeShippingInfo`), so no carrier is named: the shopper picks one
- * in checkout.
+ * Free delivery is the cart's `freeShippingProgress`, Django's cheapest
+ * route to it (a carrier's threshold or a free-shipping offer), so no
+ * carrier is named and a free-shipping offer is never also a teaser here:
+ * `nearMisses` are the cart's `getOfferNearMisses`.
  */
 const props = defineProps<{
-  /** The cart's `freeThresholdValue`, which delivery turns free on. */
-  cartTotal: number
-  /** The value at which delivery turns free; 0 when the store has none. */
-  threshold: number
+  progress: Cart['freeShippingProgress']
   nearMisses: Cart['promotionNearMiss']
 }>()
 
@@ -27,7 +25,7 @@ const { t, n } = useStoreI18n('components/Cart/Banners')
 /** Reward products shown per teaser; the banner is a nudge, not a listing. */
 const REWARD_CHIP_LIMIT = 3
 
-const qualified = computed(() => props.threshold > 0 && props.cartTotal >= props.threshold)
+const qualified = computed(() => props.progress?.free === true)
 </script>
 
 <template>
@@ -38,7 +36,9 @@ const qualified = computed(() => props.threshold > 0 && props.cartTotal >= props
       variant="soft"
       icon="i-lucide-truck"
       :title="t('unlocked_title')"
-      :description="t('unlocked_description', { threshold: n(threshold, 'currency') })"
+      :description="progress?.threshold
+        ? t('unlocked_description', { threshold: n(progress.threshold, 'currency') })
+        : t('unlocked_by_offer')"
     />
     <ShippingFreeShippingNotice v-else />
 
@@ -86,12 +86,14 @@ const qualified = computed(() => props.threshold > 0 && props.cartTotal >= props
 el:
   unlocked_title: Δωρεάν μεταφορικά
   unlocked_description: Η παραγγελία σου ξεπερνά τα {threshold}, άρα τα μεταφορικά είναι δικά μας.
+  unlocked_by_offer: Μια προσφορά καλύπτει τα μεταφορικά σου.
   near_miss: Πρόσθεσε {amount} ακόμη και κέρδισε «{name}»
   near_miss_quantity: 'Πρόσθεσε {count} ακόμη τεμάχιο και κέρδισε «{name}» | Πρόσθεσε {count} ακόμη τεμάχια και κέρδισε «{name}»'
   near_miss_reward: 'Πρόσθεσε αυτό και κέρδισε «{name}» | Πρόσθεσε ένα από αυτά και κέρδισε «{name}»'
 en:
   unlocked_title: Free delivery unlocked
   unlocked_description: Your order is over {threshold}, so delivery is on us.
+  unlocked_by_offer: An offer covers your delivery.
   near_miss: Add {amount} more and get {name}
   near_miss_quantity: 'Add {count} more item and get {name} | Add {count} more items and get {name}'
   near_miss_reward: 'Add this and get {name} | Add one of these and get {name}'

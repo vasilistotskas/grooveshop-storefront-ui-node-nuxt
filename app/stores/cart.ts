@@ -40,6 +40,12 @@ export const useCartStore = defineStore('cart', () => {
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
   const getCartItemIds = computed(() => cart.value?.items?.map(item => item.id) ?? [])
 
+  // The offers the cart is just short of, less the free-shipping ones:
+  // Django has already weighed those as routes of `freeShippingProgress`,
+  // which is the one free-shipping line a cart shows.
+  const getOfferNearMisses = computed(() =>
+    cart.value?.promotionNearMiss?.filter(miss => !miss.freeShipping) ?? [])
+
   // Django's `stock` is a PositiveIntegerField defaulting to 0 and always
   // serialised; the contract marks it optional, so a missing figure is that
   // default. Every stock rule reads it through here, so the line a message
@@ -480,6 +486,7 @@ export const useCartStore = defineStore('cart', () => {
     getCartItems,
     getCartTotalItems,
     getCartItemIds,
+    getOfferNearMisses,
     getCartItemById,
     getCartItemByProductId,
     getItemsWithStockIssues,
