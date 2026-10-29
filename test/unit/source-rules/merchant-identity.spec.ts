@@ -32,9 +32,9 @@ describe('the merchant identity', () => {
     expect(tags).toContain(tag)
   })
 
-  it('is published by the delta_sigma chrome footer, which lays it out itself', () => {
+  it('is published by the ekfyseosfyteias chrome footer, which lays it out itself', () => {
     // That footer replaces the default chrome and renders the identity
     // fields from the composable rather than through the component.
-    expect(callsIn(resolve(COMPONENTS, 'Chrome/variants/delta_sigma/Footer.vue'), /^useMerchantIdentity$/)).toHaveLength(1)
+    expect(callsIn(resolve(COMPONENTS, 'Chrome/variants/ekfyseosfyteias/Footer.vue'), /^useMerchantIdentity$/)).toHaveLength(1)
   })
 })

@@ -73,11 +73,11 @@ describe('GET /api/texts/catalogue', () => {
     })
 
     it('gives a store with a section variant its own section and not the base one', async () => {
-      expect(namespacesOf((await get({}, 'delta_sigma')).body)).toEqual([
+      expect(namespacesOf((await get({}, 'ekfyseosfyteias')).body)).toEqual([
         'components/Chrome/Footer',
         'components/Cookie/Modal',
         'components/Demo/Greeting',
-        'components/PageSection/variants/delta_sigma/Hero',
+        'components/PageSection/variants/ekfyseosfyteias/Hero',
         'components/Product/PriorPrice',
         'components/Storefront/Home',
         'global',
@@ -103,7 +103,7 @@ describe('GET /api/texts/catalogue', () => {
       const namespaces = namespacesOf((await get()).body)
 
       expect(namespaces).toContain('components/variants/webside/Chrome/Footer')
-      expect(namespaces).toContain('components/PageSection/variants/delta_sigma/Hero')
+      expect(namespaces).toContain('components/PageSection/variants/ekfyseosfyteias/Hero')
       expect(namespaces).toContain('components/Chrome/Footer')
     })
 

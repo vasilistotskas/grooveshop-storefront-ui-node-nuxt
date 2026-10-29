@@ -4,7 +4,7 @@
 
 <i18n lang="yaml">
 el:
-  title: Ήρωας delta
+  title: Ήρωας variant
 en:
-  title: Delta hero
+  title: Variant hero
 </i18n>

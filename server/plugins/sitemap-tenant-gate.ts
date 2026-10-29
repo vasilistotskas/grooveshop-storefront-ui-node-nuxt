@@ -101,9 +101,8 @@ const GATED_ROUTES: readonly GatedRoute[] = [
   // store publishes their layout (`requiresLayout`), and only webside
   // has any of them: `seed_brand_pages` publishes its brand pages with
   // the footer menu that links them. Every other tenant was advertising
-  // three or four 404s: demo and fyteia listed /vision,
-  // /what-is-microlearning and /why-microlearning; delta-sigma listed
-  // those plus /about, once per locale it serves. The others (home,
+  // three 404s: demo and fyteia listed /vision,
+  // /what-is-microlearning and /why-microlearning. The others (home,
   // products, blog, contact, feedback) render a fallback and answer 200
   // without one, so they belong in every sitemap.
   ...Object.entries(STATIC_LAYOUT_ROUTES)
@@ -200,8 +199,7 @@ export default defineNitroPlugin((nitroApp) => {
     // others the page renders the document in the language it exists
     // in, marked as such, with its canonical pointing at that locale's
     // URL — a non-canonical duplicate, and a sitemap lists canonical
-    // URLs only. (It was a plain 404 before the fallback shipped;
-    // delta-sigma listed three of them.)
+    // URLs only. (It was a plain 404 before the fallback shipped.)
     //
     // Only routes MISSING one of the locales the tenant serves are
     // recorded, so a fully translated store adds nothing here and the

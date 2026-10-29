@@ -115,7 +115,7 @@ describe('buildTextCatalogue over the fixture tree', () => {
 
 describe('views over the fixture tree', () => {
   it('lists, per store, the namespaces its components own, with the hash of that view entries', () => {
-    expect(Object.keys(fixture.views)).toEqual(['default', 'delta_sigma', 'webside'])
+    expect(Object.keys(fixture.views)).toEqual(['default', 'ekfyseosfyteias', 'webside'])
     expect(fixture.views.webside!.namespaces).toEqual([
       'components/Cookie/Modal',
       'components/Demo/Greeting',
@@ -124,8 +124,8 @@ describe('views over the fixture tree', () => {
       'components/variants/webside/Product/PriorPrice',
       'components/variants/webside/Storefront/Home',
     ])
-    expect(fixture.views.delta_sigma!.namespaces).toContain('components/PageSection/variants/delta_sigma/Hero')
-    expect(fixture.views.delta_sigma!.namespaces).not.toContain('components/PageSection/Hero')
+    expect(fixture.views.ekfyseosfyteias!.namespaces).toContain('components/PageSection/variants/ekfyseosfyteias/Hero')
+    expect(fixture.views.ekfyseosfyteias!.namespaces).not.toContain('components/PageSection/Hero')
     expect(new Set(Object.values(fixture.views).map(({ hash }) => hash)).size).toBe(3)
   })
 
@@ -150,7 +150,7 @@ describe('buildTextCatalogue over the real tree', () => {
   })
 
   it('gives each store with a design of its own a view, and the default store the shared tree', () => {
-    expect(Object.keys(real.views)).toEqual(['default', 'delta_sigma', 'ekfyseosfyteias', 'webside'])
+    expect(Object.keys(real.views)).toEqual(['default', 'ekfyseosfyteias', 'webside'])
     expect(real.views.webside!.namespaces).toContain('components/variants/webside/Footer/Desktop')
     expect(real.views.webside!.namespaces).not.toContain('components/Chrome/Footer')
     expect(real.views.default!.namespaces).toContain('components/Chrome/Footer')

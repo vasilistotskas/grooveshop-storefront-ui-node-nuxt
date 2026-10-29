@@ -37,8 +37,7 @@
     "sync:schema": "node scripts/sync-schema-yml.mjs",
     "check:deps": "node scripts/check-lockstep-deps.mjs",
     "check:build": "node scripts/check-build-output.mjs",
-    "trivy-scan": "trivy fs . --severity HIGH,CRITICAL --skip-dirs node_modules,dist,.output,.nuxt --exit-code 1",
-    "audit:visual": "node scripts/audit-visual.mjs"
+    "trivy-scan": "trivy fs . --severity HIGH,CRITICAL --skip-dirs node_modules,dist,.output,.nuxt --exit-code 1"
   },
   "dependencies": {
     "@comark/nuxt": "^0.8.1",
@@ -120,7 +119,6 @@
     "eslint-plugin-better-tailwindcss": "4.10.0",
     "happy-dom": "21.0.4",
     "hookable": "5.5.3",
-    "playwright-core": "1.64.1",
     "semantic-release": "25.0.9",
     "site-config-stack": "5.0.3",
     "typescript": "6.0.3",

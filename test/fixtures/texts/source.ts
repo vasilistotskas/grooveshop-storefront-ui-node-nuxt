@@ -12,7 +12,7 @@ const path = (relative: string) => fileURLToPath(new URL(relative, import.meta.u
  *
  * Its registries (`app/utils/*Registry.ts`) give two stores a design of
  * their own: `webside` (a webside tree under the `Webside` prefix: footer
- * and home page) and `delta_sigma` (one page-builder section variant).
+ * and home page) and `ekfyseosfyteias` (one page-builder section variant).
  */
 export const TEXT_FIXTURE_SOURCE: TextCatalogueSource = {
   appDir: path('./app'),

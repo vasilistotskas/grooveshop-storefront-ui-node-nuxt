@@ -145,7 +145,7 @@ Rules:
   reference; `test/unit/app/utils/variantRegistry.spec.ts` fails when a page or
   chrome key loses its `@webside` entry, which would hand webside the redesign.
 - A tenant that wants its own design registers `page:<key>@<schema>` /
-  `chrome:<slot>@<schema>` the same way (Δelta Σigma ships only chrome).
+  `chrome:<slot>@<schema>` the same way.
 
 ## Component Categories
 

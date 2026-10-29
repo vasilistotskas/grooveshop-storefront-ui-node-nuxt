@@ -163,7 +163,6 @@ describe('nitroVaryHash', () => {
     ['webside.gr', 'L7PoZKHFRT'],
     ['demo.grooveshop.space', 'uGk9nD1HSf'],
     ['fyteia.grooveshop.space', 'QKVOqD0FHL'],
-    ['delta-sigma.grooveshop.space', 'kyxDLa4pMO'],
   ])('reproduces the live vary token for %s', (host, token) => {
     expect(nitroVaryHash(host)).toBe(token)
   })

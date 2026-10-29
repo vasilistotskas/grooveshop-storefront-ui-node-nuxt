@@ -31,7 +31,7 @@ import { BROWSER_ACCEPT, requestWithHost, sendJson, waitUntilServing } from '../
 const TENANT_HOST = 'render-smoke.localhost'
 
 /**
- * A second host resolving to the `delta_sigma` schema, so the SAME
+ * A second host resolving to the `ekfyseosfyteias` schema, so the SAME
  * server can be asked whether the per-tenant chrome seam still fires.
  * The tenant's navbar and footer are lazy components looked up by
  * schema in `chromeRegistry`; if the key drifts or `schemaName` is not
@@ -39,8 +39,10 @@ const TENANT_HOST = 'render-smoke.localhost'
  * served the platform's chrome instead — a failure that looks like a
  * design regression, not an error, and that no other test would catch.
  */
-const VARIANT_HOST = 'delta-sigma-smoke.localhost'
-const VARIANT_SCHEMA = 'delta_sigma'
+const VARIANT_HOST = 'fyteia-smoke.localhost'
+const VARIANT_SCHEMA = 'ekfyseosfyteias'
+// From the variant footer's <i18n> block (Chrome/variants/ekfyseosfyteias/Footer.vue).
+const FOOTER_INVITATION = 'Ελάτε να μας βρείτε στη Φυτειά.'
 // Resolves to the `webside` schema, whose whole storefront is a webside
 // variant tree (app/components/variants/webside/).
 const WEBSIDE_HOST = 'webside-smoke.localhost'
@@ -94,7 +96,7 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       blogEnabled: true,
       features: { ...validTenantConfig(domain).features, blog: true },
       // ...and of the chrome-variant assertions at the end.
-      schemaName: domain.startsWith('delta-sigma')
+      schemaName: domain.startsWith('fyteia-smoke')
         ? VARIANT_SCHEMA
         : domain.startsWith('webside-smoke')
           ? 'webside'
@@ -433,19 +435,11 @@ export function describePageRenders(): void {
       const { statusCode, body } = await request('/', VARIANT_HOST)
 
       expect(statusCode, body.slice(0, 900)).toBe(200)
-      // The lockup caption and the ΔΣ mark's own path are in the variant
-      // components and nowhere in the platform chrome, so their presence
-      // proves `resolveChromeComponent` matched and the layout rendered
-      // what it returned.
-      //
-      // MARKUP, not styling: this asserted the brand hex until the
-      // variants moved onto semantic tokens, at which point a correct
-      // refactor failed a test that was pinning how the colour was
-      // spelled rather than whether the component rendered.
-      expect(body, 'the tenant navbar/footer lockup did not render')
-        .toContain('Consulting · Engineering')
-      expect(body, 'the ΔΣ mark did not render')
-        .toContain('M11 3 L20 27 L2 27 Z')
+      // The footer invitation is in the variant footer and nowhere in the
+      // platform chrome, so its presence proves `resolveChromeComponent`
+      // matched and the layout rendered what it returned.
+      expect(body, 'the tenant footer did not render')
+        .toContain(FOOTER_INVITATION)
     }, 60000)
 
     // webside keeps today's storefront as its own variant tree
@@ -469,7 +463,7 @@ export function describePageRenders(): void {
       const { statusCode, body } = await request('/')
 
       expect(statusCode).toBe(200)
-      expect(body).not.toContain('Consulting · Engineering')
+      expect(body).not.toContain(FOOTER_INVITATION)
     }, 60000)
 
     // `Accept-Language`, which nothing here sent before — and that is
