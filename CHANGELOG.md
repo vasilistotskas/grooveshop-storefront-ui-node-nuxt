@@ -1,3 +1,10 @@
+# [3.271.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.270.2...v3.271.0) (2026-10-29)
+
+
+### Features
+
+* **webside:** drop the sidebar's own product search box ([#279](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/279)) ([535edd5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/535edd5cc8093492a26a88a2846fd365a6498438))
+
 ## [3.270.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.270.1...v3.270.2) (2026-10-29)
 
 
