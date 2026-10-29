@@ -104,6 +104,46 @@ export function makeProduct(overrides: ProductOverrides = {}): Product {
 }
 
 /**
+ * A `ProductCard` as the product list serialises it, valid against the
+ * generated `zProductCard` (proved by `test/unit/fixtures/product.spec.ts`).
+ *
+ * The list row is `makeProduct` cut down to what a card draws: attributes,
+ * gallery, variant group, VAT breakdown, net price, view and like counts
+ * and the SEO translations are absent. Defaults and derived prices are
+ * `makeProduct`'s; `discountPercent` is the same fixture knob.
+ */
+export function makeProductCard(overrides: Partial<ProductCard> & { discountPercent?: number } = {}): ProductCard {
+  const { discountPercent, ...fields } = overrides
+  const product = makeProduct({ ...(fields.id === undefined ? {} : { id: fields.id }), discountPercent })
+  const { el, en } = product.translations
+
+  return {
+    id: product.id,
+    translations: {
+      el: { name: el?.name, description: el?.description },
+      en: { name: en?.name, description: en?.description },
+    },
+    slug: product.slug,
+    category: product.category,
+    brandName: product.brandName,
+    stock: product.stock ?? 10,
+    lowStockThreshold: product.lowStockThreshold,
+    active: product.active ?? true,
+    finalPrice: product.finalPrice,
+    effectivePrice: product.effectivePrice,
+    priorPrice: product.priorPrice,
+    announcedDiscountPercent: product.announcedDiscountPercent,
+    mainImagePath: product.mainImagePath,
+    reviewAverage: product.reviewAverage,
+    reviewCount: product.reviewCount,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    uuid: product.uuid,
+    ...fields,
+  }
+}
+
+/**
  * A published `ProductReview` as the product's review list serialises it,
  * valid against the generated `zProductReview` (proved by
  * `test/unit/fixtures/product.spec.ts`).

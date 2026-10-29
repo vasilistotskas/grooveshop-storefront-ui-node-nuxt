@@ -22,7 +22,7 @@ import type { PropType } from 'vue'
  * product, so a listing card is the home card.
  */
 const props = defineProps({
-  product: { type: Object as PropType<Product>, required: true },
+  product: { type: Object as PropType<Product | ProductCard>, required: true },
   /**
    * The element the card renders as. `li` inside the `<ul>`/`<ol>` of a
    * listing, `div` inside a carousel or a grid that is not a list —

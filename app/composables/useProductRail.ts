@@ -76,7 +76,7 @@ export async function useProductRail(options: {
     getCachedData: payloadCachedData,
   })
 
-  const products = computed<Product[]>(() => data.value?.results ?? [])
+  const products = computed<ProductCard[]>(() => data.value?.results ?? [])
 
   return {
     products,

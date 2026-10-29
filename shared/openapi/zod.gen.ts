@@ -2924,6 +2924,58 @@ export const zProductBrief = z.object({
 })
 
 /**
+ * The product list's row: what a product card, the sitemap and the
+ * RSS feed read.
+ *
+ * A product's attributes, gallery and variant group are the product
+ * page's (``ProductRetrieveSerializer``) and the catalogue feed's
+ * (``/product/feed``, ``ProductSerializer``). Built from
+ * ``Product.objects.for_list()``.
+ */
+export const zProductCard = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
+  category: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
+  stock: z.int().readonly(),
+  lowStockThreshold: z.int().readonly(),
+  active: z.boolean().readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  effectivePrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  priorPrice: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  announcedDiscountPercent: z.int().readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  reviewAverage: z.number().readonly(),
+  reviewCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+})
+
+export const zPaginatedProductCardList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zProductCard),
+})
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductCategory = z.object({
@@ -7765,6 +7817,41 @@ export const zProductAttributeWritable = z.object({
  */
 export const zProductBriefWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+})
+
+/**
+ * The product list's row: what a product card, the sitemap and the
+ * RSS feed read.
+ *
+ * A product's attributes, gallery and variant group are the product
+ * page's (``ProductRetrieveSerializer``) and the catalogue feed's
+ * (``/product/feed``, ``ProductSerializer``). Built from
+ * ``Product.objects.for_list()``.
+ */
+export const zProductCardWritable = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+})
+
+export const zPaginatedProductCardListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zProductCardWritable),
 })
 
 /**
@@ -13869,7 +13956,7 @@ export const zListProductQuery = z.object({
   ]).optional(),
 })
 
-export const zListProductResponse = zPaginatedProductList
+export const zListProductResponse = zPaginatedProductCardList
 
 export const zCreateProductBody = zProductWriteRequest
 
@@ -14921,6 +15008,239 @@ export const zGetProductFavouritesByProductsQuery = z.object({
 })
 
 export const zGetProductFavouritesByProductsResponse = z.array(zProductFavouriteByProductsResponse)
+
+export const zListProductFeedQuery = z.object({
+  active: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  attribute: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  attribute_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  attributeValue: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  attributeValue_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
+  category: z.string().optional(),
+  categoryId: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  createdAfter: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Date: z.iso.date().optional(),
+  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).optional(),
+  cursor: z.string().optional(),
+  deletedAt_Date: z.iso.date().optional(),
+  deletedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  deletedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  discountPercent: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  discountPercent_Gte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  discountPercent_Lte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  hasDiscount: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  inStock: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  isDeleted: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  languageCode: z.enum(['el', 'en']).optional().default('el'),
+  maxDiscount: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxDiscountPercent: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxEffectivePrice: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxLikes: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxPrice: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxReviewAverage: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxStock: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  maxViewCount: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  maxWeight: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  metadataContains: z.string().optional(),
+  metadataHasAnyKeys: z.string().optional(),
+  metadataHasKey: z.string().optional(),
+  metadataHasKeys: z.string().optional(),
+  minAnnouncedDiscountPercent: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minDiscount: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minDiscountPercent: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minEffectivePrice: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minLikes: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minPrice: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minReviewAverage: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minStock: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  minViewCount: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  minWeight: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  ordering: z.string().regex(/^(?:price|\-price|effectivePrice|\-effectivePrice|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent)(?:,(?:price|\-price|effectivePrice|\-effectivePrice|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock|likesCount|\-likesCount|reviewAverage|\-reviewAverage|discountPercent|\-discountPercent|announcedDiscountPercent|\-announcedDiscountPercent))*$/).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pagination: z.enum(['false', 'true']).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).optional().default('pageNumber'),
+  price: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  price_Gte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  price_Lte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  privateMetadataHasKey: z.string().optional(),
+  search: z.string().optional(),
+  sku: z.string().optional(),
+  sku_Icontains: z.string().optional(),
+  stock: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  stock_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  stock_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Date: z.iso.date().optional(),
+  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).optional(),
+  uuid: z.uuid().optional(),
+  viewCount: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  viewCount_Gte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  viewCount_Lte: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  weight: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  weight_Gte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  weight_Lte: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+})
+
+export const zListProductFeedResponse = zPaginatedProductList
 
 export const zListProductImageQuery = z.object({
   createdAt: z.iso.datetime({ offset: true }).optional(),

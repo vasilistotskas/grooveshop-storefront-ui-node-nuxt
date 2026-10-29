@@ -2,7 +2,7 @@ import { createSiteConfigStack } from 'site-config-stack'
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/routes/rss.xml.get'
 import { zBlogCategoryDetail, zBlogPost, zProductCategoryDetail } from '~~/shared/openapi/zod.gen'
-import { makeProduct } from '~~/test/fixtures/product'
+import { makeProductCard } from '~~/test/fixtures/product'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import type { BackendRequest } from '~~/test/helpers/nitro'
 import { backend, callRoute, jsonResponse, log, setRuntimeConfig } from '~~/test/helpers/nitro'
@@ -74,8 +74,8 @@ const productCategory = {
   recursiveProductCount: 1,
 }
 
-const onSale = makeProduct({ id: 1, price: 100, discountPercent: 10, effectivePrice: 110, priorPrice: 150, announcedDiscountPercent: 26, mainImagePath: 'uploads/products/shoe.png', reviewCount: 2, reviewAverage: 4.5 })
-const retired = makeProduct({ id: 2, active: false })
+const onSale = makeProductCard({ id: 1, finalPrice: 110, effectivePrice: 110, priorPrice: 150, announcedDiscountPercent: 26, mainImagePath: 'uploads/products/shoe.png', reviewCount: 2, reviewAverage: 4.5 })
+const retired = makeProductCard({ id: 2, active: false })
 
 /** Django: one blog post, two products (one retired) and their categories. */
 function djangoServesTheCatalogue(products = [onSale, retired]) {
@@ -168,6 +168,17 @@ describe('GET /rss.xml', () => {
     expect(xml).toContain('url="https://assets.shop.test/media_stream-image/uploads/products/shoe.png/472/311/cover/attention/transparent/0/100.webp"')
     expect(xml).toContain('type="image/png"')
     expect(xml).not.toContain('assets.platform.test')
+  })
+
+  // A product with no category is a card Django serves as `category: null`.
+  it('lists a product without a category and reads no category for it', async () => {
+    djangoServesTheCatalogue([{ ...onSale, category: null }])
+
+    const xml: string = (await feed()).body
+
+    expect(xml).toContain('<link>https://shop.test/products/1/product-1</link>')
+    expect(xml).not.toContain('<category><![CDATA[Shoes]]></category>')
+    expect(backend.requests.some(request => request.path.includes('/product/category/'))).toBe(false)
   })
 
   // Django sends a Greek filename percent-encoded; encoding it again gave

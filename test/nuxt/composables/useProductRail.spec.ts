@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
-import { makeProduct } from '~~/test/fixtures/product'
+import { makeProductCard } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
@@ -29,7 +29,7 @@ describe('useProductRail', () => {
   beforeEach(() => {
     clearNuxtData()
     setTenant()
-    api.routes({ [PRODUCTS_URL]: { results: [makeProduct({ id: 7 }), makeProduct({ id: 8 })], count: 2 } })
+    api.routes({ [PRODUCTS_URL]: { results: [makeProductCard({ id: 7 }), makeProductCard({ id: 8 })], count: 2 } })
   })
 
   it('asks for the products of a store with the catalogue', async () => {

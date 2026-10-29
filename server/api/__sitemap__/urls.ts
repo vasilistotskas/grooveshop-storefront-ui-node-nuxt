@@ -16,7 +16,7 @@ const cachedBlogCategories = createCachedFetcher<BlogCategory>(
   'sitemap:blog-categories',
   SITEMAP_CACHE_AGE,
 )
-const cachedProducts = createCachedFetcher<Product>(
+const cachedProducts = createCachedFetcher<ProductCard>(
   'sitemap:products',
   SITEMAP_CACHE_AGE,
 )

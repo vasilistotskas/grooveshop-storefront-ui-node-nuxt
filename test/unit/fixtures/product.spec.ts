@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zProduct, zProductReview } from '~~/shared/openapi/zod.gen'
-import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
+import { zProduct, zProductCard, zProductReview } from '~~/shared/openapi/zod.gen'
+import { makeProduct, makeProductCard, makeProductReview } from '~~/test/fixtures/product'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
@@ -38,6 +38,28 @@ describe('makeProduct', () => {
 
   it('lets an explicit override of a derived field win', () => {
     expect(makeProduct({ price: 100, finalPrice: 1 }).finalPrice).toBe(1)
+  })
+})
+
+describe('makeProductCard', () => {
+  it('builds a default card that parses through zProductCard', () => {
+    expect(problems(zProductCard, makeProductCard())).toEqual([])
+  })
+
+  it('carries a product without a category, as the list serves it', () => {
+    expect(problems(zProductCard, makeProductCard({ category: null }))).toEqual([])
+  })
+
+  it('carries none of what the list dropped', () => {
+    const card = makeProductCard()
+
+    for (const dropped of ['price', 'attributes', 'imagePaths', 'variantGroup', 'vatPercent', 'viewCount']) {
+      expect(card).not.toHaveProperty(dropped)
+    }
+  })
+
+  it('keys uuid off the id so two cards never collide', () => {
+    expect(makeProductCard({ id: 2 }).uuid).not.toBe(makeProductCard().uuid)
   })
 })
 

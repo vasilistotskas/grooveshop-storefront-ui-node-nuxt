@@ -667,7 +667,7 @@ exports[`webside design render > product card 1`] = `
       <div data-v-X="" class="flex flex-col gap-2">
         <!--v-if-->
         <div data-v-X="" class="flex items-baseline justify-between">
-          <div data-v-X="" class="flex flex-col gap-1"><span data-v-X="" class="text-xs text-neutral-600 dark:text-neutral-300">Τελική Τιμή</span><span data-v-X="" class="text-2xl font-bold text-neutral-950 dark:text-neutral-50">16,63&nbsp;€</span></div><span data-v-X="" class="text-xs text-neutral-600 dark:text-neutral-300">ΦΠΑ περιλαμβάνεται 24% </span>
+          <div data-v-X="" class="flex flex-col gap-1"><span data-v-X="" class="text-xs text-neutral-600 dark:text-neutral-300">Τελική Τιμή</span><span data-v-X="" class="text-2xl font-bold text-neutral-950 dark:text-neutral-50">16,63&nbsp;€</span></div>
         </div>
       </div><button data-v-X="" type="button" data-slot="base" aria-label="Αγορά" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 cursor-pointer tap-press px-3 py-2 text-base gap-2 text-success ring ring-inset ring-success/25 bg-success/10 hover:bg-success/15 active:bg-success/15 disabled:bg-success/10 aria-disabled:bg-success/10 outline-success/25 focus-visible:outline-3 focus-visible:ring-success place-content-center place-items-center w-full transition-all duration-300 hover:scale-105">
         <!--v-if--><span data-slot="label" class="truncate">Αγορά</span><span class="iconify i-heroicons:shopping-cart shrink-0 size-6" aria-hidden="true" data-slot="trailingIcon"></span>
