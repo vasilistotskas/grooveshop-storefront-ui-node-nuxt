@@ -1147,20 +1147,32 @@ export async function useCheckoutForm() {
     formState.country = countries.value.results[0].alpha2
     formState.countryId = countries.value.results[0].alpha2
   }
-  if (formState.country) {
-    await fetchRegions()
-  }
+  // The regions (and the saved address checked against them) and the live
+  // shipping options depend on the country alone, not on each other, so
+  // they run together. Checking the saved address can move the country (a
+  // store that no longer ships to it): then the options were quoted for
+  // the wrong one and are asked again.
+  const countryBefore = formState.countryId
+  await Promise.all([
+    (async () => {
+      if (formState.country) {
+        await fetchRegions()
+      }
 
-  // After regions have loaded, verify the prefilled main address has a
-  // valid region. Same intent as ``selectSavedAddress`` — see notes on
-  // ``validateAppliedAddress`` for the failure mode this prevents.
-  if (mainAddress) {
-    await validateAppliedAddress()
+      // After regions have loaded, verify the prefilled main address has a
+      // valid region. Same intent as ``selectSavedAddress`` — see notes on
+      // ``validateAppliedAddress`` for the failure mode this prevents.
+      if (mainAddress) {
+        await validateAppliedAddress()
+      }
+    })(),
+    // Hydrate shipping options once the country is known so the sidebar
+    // shows the live ACS quote on first render (SSR-safe).
+    fetchShippingOptions(),
+  ])
+  if (formState.countryId !== countryBefore) {
+    await fetchShippingOptions()
   }
-
-  // Hydrate shipping options once the country is known so the sidebar
-  // shows the live ACS quote on first render (SSR-safe).
-  await fetchShippingOptions()
 
   // Now that the country and the offered methods are known, settle on a
   // method the store actually serves and load the pay ways for both. A

@@ -17,8 +17,10 @@ export default defineCachedRoute(async (event) => {
   }
 }, {
   name: 'BlogPostRelatedPosts',
-  maxAge: 60 * 15, // 15 minutes - related posts can change when new posts are added
-  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  // Django's `blog` surface purges this handler on a post, category, author or tag
+  // write (`core/cache/surfaces.py`), so the TTL only bounds a missed purge.
+  maxAge: 60 * 60 * 6,
+  staleMaxAge: 60 * 60 * 24,
   swr: true,
   getKey: event => tenantCacheKey(event, `related-posts:${getRouterParams(event, { decode: true }).id}`),
 })

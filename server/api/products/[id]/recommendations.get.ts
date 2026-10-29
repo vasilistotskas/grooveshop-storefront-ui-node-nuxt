@@ -7,9 +7,9 @@ import { getQuery } from 'h3'
 // per viewer is applied elsewhere — wholesale prices by useB2BPricing
 // on the client, and the impression by the strip itself when it is
 // shown (``impressionId`` is only a correlation id; Django writes no
-// event on this read). Short SWR window so a merchant curating a
-// relation sees it within minutes; Django's ``recommendations`` cache
-// surface purges ``productRecommendations`` for the urgent case.
+// event on this read). Django's ``recommendations`` cache surface purges
+// ``productRecommendations`` when a product, a curated relation or a slot
+// changes, so the TTL only bounds a missed purge.
 export default defineCachedRoute(async (event) => {
   const config = useRuntimeConfig()
   try {
@@ -34,8 +34,8 @@ export default defineCachedRoute(async (event) => {
   }
 }, {
   name: 'productRecommendations',
-  maxAge: 300,
-  staleMaxAge: 60 * 30,
+  maxAge: 60 * 60,
+  staleMaxAge: 60 * 60 * 24,
   swr: true,
   getKey: (event) => {
     const query = getQuery(event)

@@ -24,7 +24,7 @@ const mountBand = () => mountSuspended(BlogCategories, {
  */
 describe('PageSection/BlogCategories', () => {
   beforeEach(() => {
-    // Cached under a fixed key (`blogCategories-slider`).
+    // Cached under one key per language (`blog-categories-el`).
     clearNuxtData()
     setTenant()
     setTenantFeatures({ blog: true })
@@ -36,7 +36,7 @@ describe('PageSection/BlogCategories', () => {
 
     expect(wrapper.find('h2').text()).toBe('Κατηγορίες')
     expect(wrapper.find('[data-test="slider"]').exists()).toBe(true)
-    expect(api.callsTo(CATEGORIES_URL)[0]!.options.query).toEqual({ pageSize: 10, languageCode: 'el' })
+    expect(api.callsTo(CATEGORIES_URL)[0]!.options.query).toEqual({ pageSize: 100, languageCode: 'el' })
   })
 
   // One fetch feeds the band and its rail: they used to read the same key

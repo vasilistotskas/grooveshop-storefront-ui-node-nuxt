@@ -70,13 +70,13 @@ describe('useProductVariants', () => {
   })
 
   it('fetches the viewed product\'s variant group', async () => {
-    await useProductVariants(102)
+    await useProductVariants(102, 7)
 
     expect(api.callsTo('/api/products/*').map(call => call.url)).toEqual(['/api/products/102/variants'])
   })
 
   it('selects the viewed product\'s value on each axis', async () => {
-    const { currentVariant, currentValueFor, isCurrentValue } = await useProductVariants(102)
+    const { currentVariant, currentValueFor, isCurrentValue } = await useProductVariants(102, 7)
 
     expect(currentVariant.value?.id).toBe(102)
     expect(currentValueFor(COLOUR)).toBe(RED)
@@ -85,14 +85,14 @@ describe('useProductVariants', () => {
   })
 
   it('keeps the other axes when switching one, choosing the sibling that matches them', async () => {
-    const { resolveTarget } = await useProductVariants(102)
+    const { resolveTarget } = await useProductVariants(102, 7)
 
     // On red/128, picking 64 GB must stay red.
     expect(resolveTarget(MEMORY, GB64)?.id).toBe(101)
   })
 
   it('falls back to the sibling carrying the value when the exact combination does not exist', async () => {
-    const { resolveTarget, variantForValue } = await useProductVariants(102)
+    const { resolveTarget, variantForValue } = await useProductVariants(102, 7)
 
     // Blue/128 does not exist: blue/64 is the only blue.
     expect(resolveTarget(COLOUR, BLUE)?.id).toBe(103)
@@ -100,14 +100,14 @@ describe('useProductVariants', () => {
   })
 
   it('resolves nothing for a value no sibling carries', async () => {
-    const { resolveTarget, minPriceForValue } = await useProductVariants(102)
+    const { resolveTarget, minPriceForValue } = await useProductVariants(102, 7)
 
     expect(resolveTarget(COLOUR, 999)).toBeUndefined()
     expect(minPriceForValue(COLOUR, 999)).toBeUndefined()
   })
 
   it('prices a value card at its cheapest sibling, flagged as a range when prices differ', async () => {
-    const { minPriceForValue, valueHasPriceRange } = await useProductVariants(102)
+    const { minPriceForValue, valueHasPriceRange } = await useProductVariants(102, 7)
 
     expect(minPriceForValue(COLOUR, RED)).toBe(500)
     expect(valueHasPriceRange(COLOUR, RED)).toBe(true)
@@ -116,7 +116,7 @@ describe('useProductVariants', () => {
   })
 
   it('renders image cards only for an axis whose values look different', async () => {
-    const { axisHasDistinctImages } = await useProductVariants(102)
+    const { axisHasDistinctImages } = await useProductVariants(102, 7)
 
     expect(axisHasDistinctImages(COLOUR)).toBe(true)
     // Both memory cards resolve to a red phone: same image.
@@ -131,13 +131,13 @@ describe('useProductVariants', () => {
   ])('offers a selector only with %s', async (_case, response, expected) => {
     api.routes({ '/api/products/*': response })
 
-    const { hasVariants } = await useProductVariants(102)
+    const { hasVariants } = await useProductVariants(102, 7)
 
     expect(hasVariants.value).toBe(expected)
   })
 
   it('has no selection when the viewed product is not in its own group', async () => {
-    const { currentVariant, currentValueFor } = await useProductVariants(999)
+    const { currentVariant, currentValueFor } = await useProductVariants(999, 7)
 
     expect(currentVariant.value).toBeUndefined()
     expect(currentValueFor(COLOUR)).toBeUndefined()

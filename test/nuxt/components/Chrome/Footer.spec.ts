@@ -35,8 +35,8 @@ mockNuxtImport('useMerchantIdentity', () => () => ({
   identity: computed(() => state.identity),
 }))
 // A disabled request is never made and leaves no data, as in Nuxt.
-mockNuxtImport('useApi', () => (url: string, options?: { enabled?: () => boolean }) => {
-  if (url !== '/api/pay-way' || options?.enabled?.() === false) return Promise.resolve({ data: ref(null) })
+mockNuxtImport('useApi', () => (url: string, options?: { enabled?: MaybeRefOrGetter<boolean> }) => {
+  if (url !== '/api/pay-way' || toValue(options?.enabled) === false) return Promise.resolve({ data: ref(null) })
   state.payWayRequests++
   return Promise.resolve({ data: ref({ results: state.payWays }) })
 })

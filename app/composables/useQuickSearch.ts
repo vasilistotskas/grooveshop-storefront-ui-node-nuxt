@@ -9,10 +9,11 @@ const QUICK_SEARCH_LIMIT = 3
  *
  * Shared by every drawing of the palette (`Search/Modal.vue` and the
  * tenants' own); each decides when to `execute` (a request this makes
- * only when told to) and how to show the rows. Call it from a
+ * only when told to, bar the trending queries, which the first open asks
+ * for) and how to show the rows. Call it from a
  * `<script setup>`.
  */
-export function useQuickSearch(options: { query: Ref<string> }) {
+export function useQuickSearch(options: { query: Ref<string>, open: MaybeRefOrGetter<boolean> }) {
   const { locale } = useNuxtApp().$i18n
   const router = useRouter()
   const localePath = useLocalePath()
@@ -27,11 +28,18 @@ export function useQuickSearch(options: { query: Ref<string> }) {
     results: { query: string, count: number }[]
   }>('/api/search/trending', {
     query: { languageCode: locale, contentType: 'product', limit: 8 },
-    immediate: true,
+    immediate: false,
     enabled: catalogueEnabled,
+    watch: false,
     server: false,
     default: () => ({ windowHours: 24, contentType: 'product', languageCode: null, results: [] }),
   })
+
+  // The palette is mounted on every page, so asking at setup is a request
+  // for every visitor who never opens it: the first open asks, once.
+  watch(() => toValue(options.open), (open) => {
+    if (open && trending.status.value === 'idle') void trending.execute()
+  }, { immediate: true })
 
   const debouncedQuery = refDebounced(options.query, 200)
   const offset = ref(0)

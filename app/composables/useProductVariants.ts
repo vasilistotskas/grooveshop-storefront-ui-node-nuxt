@@ -12,17 +12,26 @@
  *
  * Async on purpose: awaiting the fetch lets the selector render during SSR
  * (present in the HTML, no layout shift when it appears).
+ *
+ * The REQUEST is gated on the product belonging to a variant group
+ * (`variantGroup`): most products do not, and Django answers them an
+ * empty group. The product page starts this before the product has
+ * arrived (`useProductDetail`) and runs it with `execute` once the group
+ * is known, so the selector's own call finds the answer already there;
+ * `enabled` only blocks a request, it never starts one.
  */
 export const useProductVariants = async (
   productId: MaybeRefOrGetter<number>,
+  variantGroup: MaybeRefOrGetter<number | null | undefined>,
 ) => {
   const id = computed(() => toValue(productId))
 
-  const { data, status, error } = await useApi<ProductVariantsResponse>(
+  const { data, status, error, execute } = await useApi<ProductVariantsResponse>(
     () => `/api/products/${id.value}/variants`,
     {
       key: () => `product-variants-${id.value}`,
       default: () => ({ axes: [], variants: [] }),
+      enabled: () => toValue(variantGroup) != null,
     },
   )
 
@@ -141,6 +150,7 @@ export const useProductVariants = async (
   return {
     status,
     error,
+    execute,
     axes,
     variants,
     hasVariants,

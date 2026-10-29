@@ -19,7 +19,7 @@ const {
   minPriceForValue,
   valueHasPriceRange,
   axisHasDistinctImages,
-} = await useProductVariants(() => props.product.id)
+} = await useProductVariants(() => props.product.id, () => props.product.variantGroup)
 
 const formatPrice = (value?: number): string => n(value ?? 0, 'currency')
 

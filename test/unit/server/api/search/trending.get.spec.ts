@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/api/search/trending.get'
-import { backend, callRoute } from '~~/test/helpers/nitro'
+import { backend, cacheOptionsOf, callRoute, createTestEvent } from '~~/test/helpers/nitro'
 
 /** GET /api/search/trending: the last day's top searches, filters renamed to Django's snake_case. */
 
@@ -32,5 +32,21 @@ describe('GET /api/search/trending', () => {
 
     expect(response.status).toBe(400)
     expect(backend.requests).toEqual([])
+  })
+
+  describe('cache', () => {
+    const { getKey } = cacheOptionsOf(handler)
+
+    it('keeps the answer for the five minutes Django keeps its own', () => {
+      expect(cacheOptionsOf(handler)).toMatchObject({ swr: true, maxAge: 60 * 5 })
+    })
+
+    it('keys the cache by the store, the page locale and every filter', async () => {
+      const keyFor = (query: string, locale = 'el') =>
+        getKey!(createTestEvent({ url: `${route}?${query}`, context: { locale } }))
+
+      expect(await keyFor('limit=4', 'en')).toMatch(/^shop\.test__en__search-trending:/)
+      expect(await keyFor('limit=4')).not.toBe(await keyFor('limit=8'))
+    })
   })
 })

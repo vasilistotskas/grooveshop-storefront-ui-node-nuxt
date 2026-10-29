@@ -36,7 +36,7 @@ const {
   status,
   execute,
   goToSearchPage: openSearchPage,
-} = useQuickSearch({ query: localQuery })
+} = useQuickSearch({ query: localQuery, open: localOpen })
 const activeResultIndex = ref(-1)
 
 const allLoadedResults = ref<{

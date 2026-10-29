@@ -19,12 +19,8 @@ const { getPaymentMethodName } = usePaymentMethod()
 
 const giftCardsEnabled = useStoreFeature('giftCards')
 
-// Same key and options as the footer's "Pay with" row, so the two share
-// one request.
-const { data: payWays } = useApi('/api/pay-way', {
-  key: 'footer-pay-ways',
-  query: { active: 'true', pageSize: 50 },
-})
+// The footer's pay ways: one key, one request.
+const { data: payWays } = useStorePayWays()
 
 const paymentMarks = computed(() => [...new Set([
   ...(payWays.value?.results ?? [])

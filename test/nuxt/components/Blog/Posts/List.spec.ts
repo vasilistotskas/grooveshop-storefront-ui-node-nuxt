@@ -1,3 +1,4 @@
+import { setTenantFeatures } from '~~/test/helpers/tenant'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
@@ -117,13 +118,14 @@ const ids = (wrapper: VueWrapper, kind: 'card' | 'featured') => wrapper.findAll(
 const pills = (wrapper: VueWrapper) => wrapper.findAll('nav[aria-label] a').map(link => [link.text(), link.attributes('href')])
 
 beforeEach(() => {
+  setTenantFeatures({ blog: true })
   state.query = {}
   session.loggedIn = false
   useState<CursorState>('cursor-state').value = generateInitialCursorState()
-  clearNuxtData(['blogPostspageNumber', 'blogCategoryFilter', 'likedBlogPostsundefined'])
+  clearNuxtData(['blogPostspageNumber', 'blog-categories-el', 'likedBlogPostsundefined'])
   // clearNuxtData resets a key's data but keeps the options of its first
   // reader, and the two trees read this key with different `enabled`.
-  delete useNuxtApp()._asyncData.blogCategoryFilter
+  delete useNuxtApp()._asyncData['blog-categories-el']
   given(POSTS)
 })
 
