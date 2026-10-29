@@ -1,22 +1,23 @@
 /**
  * Min/max statistics of one numeric search facet (`likes_count`,
- * `view_count`), for the slider that filters by it. One request per facet
- * and language, shared by every reader of the key.
+ * `view_count`), for the slider that filters by it. They are the whole
+ * store's, whatever the filters: read from the listing's own search
+ * (`useProductListingSearch`, `sidebarFacets`), not a request of their own.
+ * Call it from a component inside a listing, which provides the scope.
  */
-const FACET_KEYS = {
-  likes_count: 'likes-facets',
-  view_count: 'views-facets',
+const STAT_FIELDS = {
+  likes_count: 'likesCount',
+  view_count: 'viewCount',
 } as const
 
-export function useProductFacetStats(facet: keyof typeof FACET_KEYS) {
-  const { locale } = useNuxtApp().$i18n
+export function useProductFacetStats(facet: keyof typeof STAT_FIELDS) {
+  const { request: listing } = useProductListingSearch(useListingScope().categoryId)
 
-  return useApi('/api/products/search', {
-    query: {
-      facets: facet,
-      limit: 1,
-      languageCode: locale.value,
-    },
-    key: `${FACET_KEYS[facet]}-${locale.value}`,
+  /** The field's `{ min, max }`, or `undefined` until the listing answers. */
+  const stats = computed(() => {
+    const facetStats = listing.data.value?.facetStats as FacetStats | undefined
+    return facetStats?.[STAT_FIELDS[facet]]
   })
+
+  return { stats }
 }

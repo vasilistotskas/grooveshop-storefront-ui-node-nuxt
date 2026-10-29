@@ -8,10 +8,10 @@
  * - Attribute definitions with values for the AttributeFilter
  * - Attribute value facets (product counts) for the AttributeFilter
  *
- * Following Nuxt best practices:
- * - Uses `useFetch` with consistent keys for automatic deduplication
- * - Uses `useState` for shared reactive state (category name map)
- * - Computed keys ensure proper cache invalidation when filters change
+ * The price bounds and both kinds of count are not requested here: they come
+ * from the listing's own search (`useProductListingSearch`, `sidebarFacets`),
+ * so a listing makes one products search however many controls read them.
+ * The attribute and category lists are separate requests with one key each.
  *
  * @see https://nuxt.com/docs/getting-started/data-fetching
  * @see https://nuxt.com/docs/getting-started/state-management
@@ -34,15 +34,9 @@ export interface ProductSearchScope {
 
 export function useProductSearchData(scope: ProductSearchScope = {}) {
   const { $i18n } = useNuxtApp()
-  const { filters } = useProductFilters()
   const scopeCategory = computed(() => toValue(scope.categoryId))
-  // Every fetch below runs during SSR inside useAsyncData. A bare
-  // $fetch to a relative path creates an internal request with no
-  // inbound headers, so Nitro stamps host: "localhost" and
-  // server/middleware/0.tenant.ts answers 404 "Store not found" — the
-  // whole filter sidebar then renders from its empty defaults. Hoisted
-  // here because useRequestApi() reads the request event via
-  // useNuxtApp(), which is only available in setup scope.
+  // The listing's one search; see useProductListingSearch.
+  const { request: listing } = useProductListingSearch(scopeCategory)
   const requestFetch = useRequestApi()
   // Four filter components read these keys in one render. 'defer' joins
   // a reader to the fetch in flight (the default 'cancel' aborts and
@@ -51,43 +45,16 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // (measured 2026-09-25: 12-13 duplicate requests per /products render).
   const shared = { dedupe: 'defer', ...serverRenderCachedData() } as const
 
-  // The filters every facet shares. A facet's counts are what the OTHER
-  // filters leave, so each facet query adds these to its own set, minus
-  // the dimension it counts.
-  // Brands, in stock and on offer narrow every facet, as they narrow the
-  // listing.
-  const brandsParam = computed(() =>
-    filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined)
-  const availabilityQuery = computed(() => availabilityFacetQuery(filters.value))
-  const availabilityKey = computed(() => availabilityFacetKey(filters.value))
-
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)
   // ============================================
-  // The price min/max with no filters applied — store-wide, or the
-  // scoped category's: the absolute bounds of the price slider. One
-  // fetch per locale (and category), shared by every reader through the
-  // same options as the facets below.
-  const { data: priceStatsData } = useAsyncData(
-    () => scopeCategory.value === undefined
-      ? `price-stats-${$i18n.locale.value}`
-      : `price-stats-${$i18n.locale.value}-category-${scopeCategory.value}`,
-    () => requestFetch('/api/products/search', {
-      query: {
-        facets: 'effective_price',
-        limit: 1,
-        languageCode: $i18n.locale.value,
-        ...(scopeCategory.value === undefined ? {} : { categories: String(scopeCategory.value) }),
-      },
-    }),
-    shared,
-  )
-
   // The real bounds, or undefined: before they arrive (Nuxt 4 starts
   // `data` as undefined, so a `!== null` check was always true), when
-  // the fetch failed, or when the search reports no priced product.
+  // the fetch failed, or when the search reports no priced product. The
+  // bounds are the store's, or the scoped category's: filters never move
+  // the slider's ends.
   const priceBounds = computed(() =>
-    (priceStatsData.value?.facetStats as FacetStats | undefined)?.effectivePrice)
+    (listing.data.value?.facetStats as FacetStats | undefined)?.effectivePrice)
 
   // Gates the slider: without real bounds it shows its skeleton.
   const isPriceStatsLoaded = computed(() => priceBounds.value !== undefined)
@@ -99,47 +66,9 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // ============================================
   // CATEGORY FACETS (product counts per category)
   // ============================================
-  // Fetch category facets based on current filters (excluding categories)
-  // This shows how many products match each category given other filters
-  // MUST be defined before allCategories since it's used to determine which categories to fetch
-  const facetQuery = computed(() => ({
-    languageCode: $i18n.locale.value,
-    query: filters.value.search || undefined,
-    priceMin: filters.value.priceMin,
-    priceMax: filters.value.priceMax,
-    likesMin: filters.value.likesMin,
-    viewsMin: filters.value.viewsMin,
-    attributeValues: filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined,
-    brands: brandsParam.value,
-    ...availabilityQuery.value,
-    sort: filters.value.sort,
-    facets: 'category',
-    limit: 1,
-  }))
-
-  // Create a unique key based on filter values (excluding categories)
-  const facetKey = computed(() => {
-    const params = new URLSearchParams()
-    if (filters.value.search) params.set('q', filters.value.search)
-    if (filters.value.priceMin !== undefined) params.set('priceMin', filters.value.priceMin.toString())
-    if (filters.value.priceMax !== undefined) params.set('priceMax', filters.value.priceMax.toString())
-    if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
-    if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
-    if (filters.value.attributeValues.length > 0) params.set('attributeValues', filters.value.attributeValues.join(','))
-    if (brandsParam.value) params.set('brands', brandsParam.value)
-    if (availabilityKey.value) params.set('availability', availabilityKey.value)
-    if (filters.value.sort) params.set('sort', filters.value.sort)
-    return `category-facets-${$i18n.locale.value}-${params.toString()}`
-  })
-
-  const { data: facetData } = useAsyncData(
-    () => `search:facets:${facetKey.value}`,
-    () => requestFetch('/api/products/search', { query: facetQuery.value }),
-    { ...shared, watch: [facetKey, facetQuery] },
-  )
-
+  // How many products match each category given the other filters.
   const categoryFacets = computed(() => {
-    const distribution = facetData.value?.facetDistribution as FacetDistribution | undefined
+    const distribution = listing.data.value?.facetDistribution as FacetDistribution | undefined
     return distribution?.category || {}
   })
 
@@ -192,50 +121,9 @@ export function useProductSearchData(scope: ProductSearchScope = {}) {
   // attribute combine with OR and different attributes with AND, so a
   // selected colour must narrow the sizes' counts but not the other
   // colours'. Django applies exactly that per attribute (disjunctive
-  // facets), which a query without the selection could not express.
-  // The scoped category joins the URL's category filter, as it does in
-  // the listing's own query (Products/List.vue).
-  const attributeFacetCategories = computed(() => scopedCategories(filters.value.categories, scopeCategory.value))
-  const attributeFacetQuery = computed(() => ({
-    languageCode: $i18n.locale.value,
-    query: filters.value.search || undefined,
-    priceMin: filters.value.priceMin,
-    priceMax: filters.value.priceMax,
-    likesMin: filters.value.likesMin,
-    viewsMin: filters.value.viewsMin,
-    attributeValues: filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined,
-    categories: attributeFacetCategories.value.length > 0 ? attributeFacetCategories.value.join(',') : undefined,
-    brands: brandsParam.value,
-    ...availabilityQuery.value,
-    sort: filters.value.sort,
-    facets: 'attribute_values',
-    limit: 1,
-  }))
-
-  // A unique key for every filter the attribute facet query sends
-  const attributeFacetKey = computed(() => {
-    const params = new URLSearchParams()
-    if (filters.value.search) params.set('q', filters.value.search)
-    if (filters.value.priceMin !== undefined) params.set('priceMin', filters.value.priceMin.toString())
-    if (filters.value.priceMax !== undefined) params.set('priceMax', filters.value.priceMax.toString())
-    if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
-    if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
-    if (filters.value.attributeValues.length > 0) params.set('attributeValues', filters.value.attributeValues.join(','))
-    if (attributeFacetCategories.value.length > 0) params.set('categories', attributeFacetCategories.value.join(','))
-    if (brandsParam.value) params.set('brands', brandsParam.value)
-    if (availabilityKey.value) params.set('availability', availabilityKey.value)
-    if (filters.value.sort) params.set('sort', filters.value.sort)
-    return `attribute-facets-${$i18n.locale.value}-${params.toString()}`
-  })
-
-  const { data: attributeFacetData } = useAsyncData(
-    () => `search:facets:${attributeFacetKey.value}`,
-    () => requestFetch('/api/products/search', { query: attributeFacetQuery.value }),
-    { ...shared, watch: [attributeFacetKey, attributeFacetQuery] },
-  )
-
+  // facets).
   const attributeValueFacets = computed(() => {
-    const distribution = attributeFacetData.value?.facetDistribution as FacetDistribution | undefined
+    const distribution = listing.data.value?.facetDistribution as FacetDistribution | undefined
     return distribution?.attributeValues || {}
   })
 

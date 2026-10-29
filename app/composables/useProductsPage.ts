@@ -10,11 +10,13 @@
  */
 
 /**
- * The page-1 products behind a collection's Schema.org ItemList. It does
- * NOT duplicate the listing's own fetch (a different limit and key) and
- * exists only so the collection is machine-readable.
+ * The products behind a collection's Schema.org ItemList: the page of the
+ * listing the visitor is on, from the listing's own search (the page
+ * composables start it, the listing and the filter column join it), so the
+ * collection is machine-readable without a request of its own. Positions
+ * continue from the page's `offset`.
  */
-function itemListNode(baseUrl: string, name: () => string, products: Ref<ProductMeiliSearchResponse | null | undefined>) {
+function itemListNode(baseUrl: string, name: () => string, products: Ref<ProductMeiliSearchResponse | null | undefined>, offset: Ref<number>) {
   useSchemaOrg([
     defineWebPage({ '@type': 'CollectionPage' }),
     // `itemListElement` is object-typed, so it cannot be a getter since
@@ -24,7 +26,7 @@ function itemListNode(baseUrl: string, name: () => string, products: Ref<Product
       name: name(),
       itemListElement: (products.value?.results ?? []).map((p, i) => ({
         '@type': 'ListItem' as const,
-        'position': i + 1,
+        'position': offset.value + i + 1,
         'url': `${baseUrl}/products/${p.master ?? p.id}/${p.slug}`,
         'name': p.name,
       })),
@@ -37,19 +39,11 @@ function itemListNode(baseUrl: string, name: () => string, products: Ref<Product
  * drawing's own `t`.
  */
 export async function useProductsIndexPage(t: ReturnType<typeof useI18n>['t']) {
-  const { locale } = useI18n({ useScope: 'global' })
   const { ogImageUrl } = useTenantBranding()
   const baseUrl = useSiteConfig().url
 
-  const { data: seoProducts } = await useApi<ProductMeiliSearchResponse>(
-    '/api/products/search',
-    {
-      key: 'products-index-seo',
-      query: { languageCode: locale, limit: 12, offset: 0 },
-      server: true,
-      lazy: false,
-    },
-  )
+  const { request, offset } = useProductListingSearch(undefined)
+  const { data: seoProducts } = await request
 
   useSeoMeta({
     // `seo.title`, not `title`: the latter is also the page's h1.
@@ -63,7 +57,7 @@ export async function useProductsIndexPage(t: ReturnType<typeof useI18n>['t']) {
     ogImageAlt: () => t('title'),
   })
 
-  itemListNode(baseUrl, () => t('title'), seoProducts)
+  itemListNode(baseUrl, () => t('title'), seoProducts, offset)
 }
 
 /** The category an `/products/category/[id]/[slug]` route names. */
@@ -92,15 +86,7 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
   // Started before the category is awaited: it needs only the id, and a
   // request a composable starts after an await has no component instance,
   // so it would outlive the page (see useBlogCategoryPage).
-  const seoProductsRequest = useApi<ProductMeiliSearchResponse>(
-    '/api/products/search',
-    {
-      key: `category-seo-products-${categoryId}`,
-      query: { languageCode: locale, categories: categoryId, limit: 12, offset: 0 },
-      server: true,
-      lazy: false,
-    },
-  )
+  const { request: listingRequest, offset } = useProductListingSearch(categoryId ? Number(categoryId) : undefined)
 
   const { data: category, error: categoryError } = await useApi<ProductCategoryDetail>(
     `/api/products/categories/${categoryId}`,
@@ -125,7 +111,7 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
     )
   }
 
-  const { data: seoProducts } = await seoProductsRequest
+  const { data: seoProducts } = await listingRequest
 
   const categoryName = computed(() =>
     extractTranslated(category.value, 'name', locale.value) ?? '',
@@ -204,7 +190,7 @@ export async function useProductCategoryPage(categoryId: string | undefined, t: 
     ogImageAlt: () => categoryName.value || t('title'),
   })
 
-  itemListNode(baseUrl, () => categoryName.value || t('title'), seoProducts)
+  itemListNode(baseUrl, () => categoryName.value || t('title'), seoProducts, offset)
 
   return { category, categoryName, categoryDescription }
 }

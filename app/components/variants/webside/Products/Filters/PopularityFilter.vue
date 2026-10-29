@@ -12,16 +12,10 @@
 const { t, locale } = useStoreI18n('components/variants/webside/Products/Filters/PopularityFilter')
 const { filters, updateFilters } = useProductFilters()
 
-// Fetch facet stats for likes count during SSR
-const { data: searchResults } = await useProductFacetStats('likes_count')
+// The store's likes range, from the listing's own search.
+const { stats } = useProductFacetStats('likes_count')
 
-/**
- * Get likes statistics from Meilisearch facets
- */
-const likesStats = computed(() => {
-  const stats = searchResults.value?.facetStats as FacetStats | undefined
-  return stats?.likesCount || { min: 0, max: 1000 }
-})
+const likesStats = computed(() => stats.value || { min: 0, max: 1000 })
 
 /**
  * Check if likes statistics are valid

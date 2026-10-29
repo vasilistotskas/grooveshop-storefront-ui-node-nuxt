@@ -96,6 +96,14 @@ describe('GET /api/products/search', () => {
     expect(backend.lastRequest.query).toMatchObject({ brands: '3,7', in_stock: 'true', on_offer: '1' })
   })
 
+  it('forwards the sidebar facets switch and the scope category as snake_case', async () => {
+    backend.reply(emptyPage)
+
+    await search('sidebarFacets=true&scopeCategory=12')
+
+    expect(backend.lastRequest.query).toMatchObject({ sidebar_facets: 'true', scope_category: '12' })
+  })
+
   it('sends none of them when the shopper set none', async () => {
     backend.reply(emptyPage)
 
@@ -105,6 +113,8 @@ describe('GET /api/products/search', () => {
     expect(sent).not.toHaveProperty('brands')
     expect(sent).not.toHaveProperty('in_stock')
     expect(sent).not.toHaveProperty('on_offer')
+    expect(sent).not.toHaveProperty('sidebar_facets')
+    expect(sent).not.toHaveProperty('scope_category')
   })
 
   it('keeps a zero price floor and drops empty categories and sort', async () => {
@@ -182,6 +192,8 @@ describe('GET /api/products/search', () => {
       'priceMax=100',
       'priceMin=10',
       'query=phone',
+      'scopeCategory=12',
+      'sidebarFacets=true',
       'sort=price:asc',
       'viewsMin=7',
     ])('gives a search differing only in %s its own entry', async (filter) => {

@@ -9,12 +9,12 @@ import type { ProductFilters } from '~~/shared/types/product-filters'
 import type { ProductSearchScope } from '~/composables/useProductSearchData'
 
 /**
- * The filter sidebar's data: the listing's filters become the facet
- * queries sent to `/api/products/search` (the category facet leaves out
- * its OWN filter, so a category's count reflects every other filter; the
- * attribute facet sends its selection, because Django counts each
- * attribute without its own selection but with the others'), plus the
- * price bounds and the id → name lookups the chips use.
+ * The filter sidebar's data. Its counts and ranges are not requested here:
+ * they are read from the listing's one search (`useProductListingSearch`,
+ * `sidebarFacets`), which carries every filter, so the sidebar and the
+ * listing share one request however many controls read it. This spec holds
+ * what the sidebar does with that answer (the price bounds, the category
+ * and attribute counts) and the id → name lookups the chips use.
  *
  * `useProductFilters` is mocked to a plain ref: how the URL becomes
  * `filters` is its own spec's business (`test/unit/app/utils/productFilters.spec.ts`).
@@ -43,19 +43,13 @@ mockNuxtImport('useProductFilters', () => () => ({ filters }))
 
 const SEARCH = '/api/products/search'
 
-/** The search requests for one facet, by its `facets` query value. */
-function facetRequests(facet: string) {
-  return api.callsTo(SEARCH)
-    .map(call => call.options.query)
-    .filter(query => query.facets === facet)
-}
+/** The products-search requests the sidebar's readers made. */
+const searches = () => api.callsTo(SEARCH).map(call => call.options.query)
+
+/** A listing answer carrying the sidebar's counts and ranges. */
+const answer = (extra: Record<string, unknown>) => ({ results: [], estimatedTotalHits: 0, ...extra })
 
 let scope: EffectScope | undefined
-
-/** A search route answering per requested facet; an unlisted facet gets `{}`. */
-function byFacet(answers: Record<string, unknown>) {
-  return (_url: string, options: { query: { facets: string } }) => answers[options.query.facets] ?? {}
-}
 
 function setup(searchScope?: ProductSearchScope) {
   scope = effectScope()
@@ -78,11 +72,12 @@ beforeEach(() => {
 afterEach(() => {
   scope?.stop()
   scope = undefined
+  clearNuxtData()
 })
 
 describe('useProductSearchData', () => {
-  describe('facet queries', () => {
-    it('sends every other filter with each facet, the category facet without its own filter', async () => {
+  describe('the one search', () => {
+    it('makes ONE products search however many times it is read, carrying every filter and the sidebar switch', async () => {
       filters.value = {
         search: 'shoe',
         priceMin: 10,
@@ -98,32 +93,26 @@ describe('useProductSearchData', () => {
       }
 
       setup()
-      await flushPromises()
-
-      const shared = { languageCode: 'el', query: 'shoe', priceMin: 10, priceMax: 90, likesMin: 2, viewsMin: 50, sort: '-effectivePrice', limit: 1, inStock: true, onOffer: true }
-      expect(facetRequests('category')).toEqual([{ ...shared, attributeValues: '3,4', brands: '5,6', facets: 'category' }])
-      expect(facetRequests('attribute_values')).toEqual([{ ...shared, attributeValues: '3,4', categories: '1,2', brands: '5,6', facets: 'attribute_values' }])
-    })
-
-    it('sends no brand or availability filter when none is set', async () => {
       setup()
       await flushPromises()
 
-      for (const facet of ['category', 'attribute_values']) {
-        expect(facetRequests(facet)).toHaveLength(1)
-        expect(facetRequests(facet)[0]).toMatchObject({ inStock: undefined, onOffer: undefined })
-        expect(facetRequests(facet)[0]!.brands).toBeUndefined()
-      }
-    })
-
-    it('sends no search, category or attribute filter when none is set', async () => {
-      setup()
-      await flushPromises()
-
-      const [category] = facetRequests('category')
-      const [attributes] = facetRequests('attribute_values')
-      expect(category).toMatchObject({ query: undefined, attributeValues: undefined })
-      expect(attributes).toMatchObject({ query: undefined, categories: undefined, attributeValues: undefined })
+      expect(searches()).toHaveLength(1)
+      expect(searches()[0]).toMatchObject({
+        languageCode: 'el',
+        query: 'shoe',
+        priceMin: 10,
+        priceMax: 90,
+        likesMin: 2,
+        viewsMin: 50,
+        categories: '1,2',
+        sort: '-effectivePrice',
+        attributeValues: '3,4',
+        brands: '5,6',
+        inStock: true,
+        onOffer: true,
+        facets: 'category,brand,attribute_values,effective_price,likes_count,view_count',
+        sidebarFacets: true,
+      })
     })
 
     it('asks again when a filter changes, with the new value', async () => {
@@ -134,29 +123,33 @@ describe('useProductSearchData', () => {
       await nextTick()
       await flushPromises()
 
-      expect(facetRequests('category').map(query => query.attributeValues)).toEqual([undefined, '7'])
-      // Selecting a value narrows the OTHER attributes' counts, so the
-      // attribute facet is asked again too, with the selection.
-      expect(facetRequests('attribute_values').map(query => query.attributeValues)).toEqual([undefined, '7'])
+      expect(searches()).toHaveLength(2)
+      expect(searches()[1]).toMatchObject({ attributeValues: '7' })
     })
 
-    it('counts attribute values inside the scoped category, beside the URL\'s own category filter', async () => {
+    it('scopes the search to the category beside the URL own category filter, never filtering by the scope alone', async () => {
       filters.value = { ...NO_FILTERS, categories: ['9'] }
 
       setup({ categoryId: 4 })
       await flushPromises()
 
-      expect(facetRequests('attribute_values').map(query => query.categories)).toEqual(['4,9'])
-      // The category facet stays store-wide: it draws the whole tree.
-      expect(facetRequests('category').map(query => query.categories)).toEqual([undefined])
+      // An earlier spec's request (a scope-less key) can still watch the shared
+      // `filters` ref, since only a component's unmount stops it.
+      const scoped = searches().filter(query => query.scopeCategory === 4)
+      expect(scoped).toHaveLength(1)
+      expect(scoped[0]).toMatchObject({ categories: '4,9' })
     })
 
-    it('exposes each facet\'s distribution, or none', async () => {
-      api.routes({
-        [SEARCH]: byFacet({
-          category: { facetDistribution: { category: { 1: 4 } } },
-        }),
-      })
+    it('sends no scope on the store-wide listing', async () => {
+      setup()
+      await flushPromises()
+
+      expect(searches()[0]!.scopeCategory).toBeUndefined()
+      expect(searches()[0]!.categories).toBeUndefined()
+    })
+
+    it('exposes each facet distribution, or none', async () => {
+      api.routes({ [SEARCH]: answer({ facetDistribution: { category: { 1: 4 } } }) })
 
       const { categoryFacets, attributeValueFacets } = setup()
       await flushPromises()
@@ -164,45 +157,32 @@ describe('useProductSearchData', () => {
       expect(categoryFacets.value).toEqual({ 1: 4 })
       expect(attributeValueFacets.value).toEqual({})
     })
+
+    it('exposes the attribute value counts', async () => {
+      api.routes({ [SEARCH]: answer({ facetDistribution: { attributeValues: { 3: 9 } } }) })
+
+      const { attributeValueFacets } = setup()
+      await flushPromises()
+
+      expect(attributeValueFacets.value).toEqual({ 3: 9 })
+    })
   })
 
   // The webside listing reads this composable and has no brand
-  // filter: it must make exactly the requests it made before the brand one.
-  it('asks for no brand facet and no brand list', async () => {
+  // filter: it must not fetch the brand list.
+  it('asks for no brand list', async () => {
     setup()
     await flushPromises()
 
-    expect(facetRequests('brand')).toEqual([])
     expect(api.callsTo('/api/products/brands/all')).toEqual([])
   })
 
   describe('price bounds', () => {
-    it('asks for the store-wide price facet, without the listing\'s filters', async () => {
-      filters.value = { ...NO_FILTERS, priceMin: 10, search: 'shoe' }
-
-      setup()
-      await flushPromises()
-
-      expect(facetRequests('effective_price')).toEqual([{ facets: 'effective_price', limit: 1, languageCode: 'el' }])
-    })
-
-    it('asks for the scoped category\'s price facet, under a key of its own', async () => {
-      setup({ categoryId: 4 })
-      await flushPromises()
-      setup()
-      await flushPromises()
-
-      expect(facetRequests('effective_price')).toEqual([
-        { facets: 'effective_price', limit: 1, languageCode: 'el', categories: '4' },
-        { facets: 'effective_price', limit: 1, languageCode: 'el' },
-      ])
-    })
-
     it.each([
-      ['the price facet', { facetStats: { effectivePrice: { min: 5, max: 250 } } }, { min: 5, max: 250 }],
-      ['no price facet', { facetStats: {} }, { min: 0, max: 1000 }],
-    ])('reads the slider bounds from %s', async (_case, answer, bounds) => {
-      api.routes({ [SEARCH]: byFacet({ effective_price: answer }) })
+      ['the price stats', answer({ facetStats: { effectivePrice: { min: 5, max: 250 } } }), { min: 5, max: 250 }],
+      ['no price stats', answer({ facetStats: {} }), { min: 0, max: 1000 }],
+    ])('reads the slider bounds from %s', async (_case, response, bounds) => {
+      api.routes({ [SEARCH]: response })
 
       const { priceStats } = setup()
       await flushPromises()
@@ -213,8 +193,8 @@ describe('useProductSearchData', () => {
     // `isPriceStatsLoaded` gates the slider: it must be true only with
     // real bounds, or the slider renders the placeholder 0–1000 range —
     // until the stats arrive, and for good when they cannot.
-    it('reports the bounds as loaded only once the price facet answered', async () => {
-      api.routes({ [SEARCH]: byFacet({ effective_price: { facetStats: { effectivePrice: { min: 5, max: 250 } } } }) })
+    it('reports the bounds as loaded only once the search answered with them', async () => {
+      api.routes({ [SEARCH]: answer({ facetStats: { effectivePrice: { min: 5, max: 250 } } }) })
 
       const { isPriceStatsLoaded } = setup()
       expect(isPriceStatsLoaded.value).toBe(false)
@@ -224,10 +204,10 @@ describe('useProductSearchData', () => {
     })
 
     it.each([
-      ['the price search fails', failWith(502)],
-      ['the search reports no price facet', byFacet({ effective_price: { facetStats: {} } })],
-    ])('never reports the bounds as loaded when %s', async (_case, answer) => {
-      api.routes({ [SEARCH]: answer })
+      ['the search fails', failWith(502)],
+      ['the search reports no price stats', () => answer({ facetStats: {} })],
+    ])('never reports the bounds as loaded when %s', async (_case, handler) => {
+      api.routes({ [SEARCH]: handler })
 
       const { isPriceStatsLoaded } = setup()
       await flushPromises()

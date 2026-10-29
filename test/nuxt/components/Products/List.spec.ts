@@ -78,6 +78,7 @@ const emptyState = (wrapper: VueWrapper) => wrapper.findComponent({ name: 'UEmpt
 describe('Products/List', () => {
   beforeEach(() => {
     pf.reset()
+    clearNuxtState('product-listing-limit')
     search.reset()
     favourites.reset()
     session.loggedIn.value = false
@@ -276,6 +277,7 @@ describe('Products/List', () => {
 describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)', ({ C, own }) => {
   beforeEach(() => {
     pf.reset()
+    clearNuxtState('product-listing-limit')
     search.reset()
     favourites.reset()
     session.loggedIn.value = false

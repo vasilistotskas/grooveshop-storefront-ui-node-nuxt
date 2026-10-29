@@ -25299,7 +25299,7 @@ export type ApiV1SearchProductRetrieveData = {
          */
     categories?: string
     /**
-         * Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά
+         * Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά. Ένα αίτημα για facets με limit 0 ή 1 είναι ανάγνωση facet και δεν καταγράφεται ως αναζήτηση.
          */
     facets?: string
     /**
@@ -25338,6 +25338,14 @@ export type ApiV1SearchProductRetrieveData = {
          * Ερώτημα αναζήτησης πλήρους κειμένου (κενό για χωρίς φίλτρο αναζήτησης)
          */
     query?: string
+    /**
+         * Η κατηγορία στην οποία αναφέρεται μια σελίδα καταλόγου· περιορίζει τα στατιστικά effective_price του sidebarFacets στις υποκατηγορίες της. Σε αντίθεση με το categories, δεν φιλτράρει τα αποτελέσματα.
+         */
+    scopeCategory?: string | number
+    /**
+         * Όταν είναι true, τα facets απαντούν σε ένα πλαϊνό φίλτρων μέσα στο ίδιο αίτημα. Τα πλήθη κατηγορίας και μάρκας αφήνουν έξω τη δική τους επιλογή (τα πλήθη attribute_values το κάνουν πάντα), ώστε η επιλογή ενός να μην κρύβει τα υπόλοιπα. Τα στατιστικά effective_price αφορούν όλο τον κατάλογο ή τις υποκατηγορίες του scopeCategory, και τα στατιστικά likes_count και view_count όλο τον κατάλογο: κανένα δεν ακολουθεί το ερώτημα ή τα άλλα φίλτρα, ώστε το εύρος ενός slider να μην μετακινείται όταν αλλάζουν τα φίλτρα.
+         */
+    sidebarFacets?: 'true' | 'false' | '1' | '0' | boolean
     /**
          * Πεδίο ταξινόμησης (effectivePrice, -effectivePrice, -likesCount, -viewCount, -createdAt).
          */

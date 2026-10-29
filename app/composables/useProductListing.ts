@@ -22,7 +22,6 @@ export async function useProductListing(options: {
   const route = useRoute()
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
-  const locale = computed(() => $i18n.locale.value)
   const { loggedIn, user } = useUserSession()
   const { updateFavouriteProducts } = useUserStore()
   const {
@@ -32,19 +31,11 @@ export async function useProductListing(options: {
     activeFilterCount,
   } = useProductFilters()
 
-  // Effective category set sent to the search API: the page's own category
-  // (when on a category page) unioned with any category filters from the URL.
-  // Deduplicated and reduced to the comma-joined string the API expects, or
-  // undefined when there is no category constraint at all.
-  const effectiveCategories = computed(() => {
-    const cats = filters.value.categories.map(String)
-    const categoryId = toValue(options.categoryId)
-    if (categoryId != null) {
-      const base = String(categoryId)
-      if (!cats.includes(base)) cats.unshift(base)
-    }
-    return cats.length > 0 ? cats.join(',') : undefined
-  })
+  // The one search of the render: this page of products and the filter
+  // column's counts (see useProductListingSearch). Started here and awaited
+  // last: the hooks below must be registered before the first `await`, or
+  // they lose their component.
+  const { request, limit, page } = useProductListingSearch(options.categoryId)
 
   // Ref to the product grid container for scroll-to-top functionality
   const productGridRef = ref<HTMLElement | null>(null)
@@ -106,24 +97,6 @@ export async function useProductListing(options: {
     return t('products.no_results.description')
   })
 
-  // Default items per page - matches Toolbar default
-  const limit = ref(12)
-  const page = ref(1)
-  const offset = computed(() => (page.value - 1) * limit.value)
-
-  // Sync page from URL - single source of truth
-  watch(
-    () => route.query.page,
-    (newPage) => {
-      const pageNum = Number(newPage)
-      const targetPage = pageNum > 0 ? pageNum : 1
-      if (page.value !== targetPage) {
-        page.value = targetPage
-      }
-    },
-    { immediate: true },
-  )
-
   /** The URL a page control points at, so each one is a real link. */
   const pageLink = (target: number) => {
     const query = { ...route.query }
@@ -168,33 +141,6 @@ export async function useProductListing(options: {
     }
   })
 
-  // Fetch products with filters. Started here and awaited last: the hooks
-  // below must be registered before the first `await`, or they lose their
-  // component.
-  const request = useApi<ProductMeiliSearchResponse>(
-    '/api/products/search',
-    {
-      query: {
-        query: computed(() => filters.value.search || undefined),
-        priceMin: computed(() => filters.value.priceMin),
-        priceMax: computed(() => filters.value.priceMax),
-        likesMin: computed(() => filters.value.likesMin),
-        viewsMin: computed(() => filters.value.viewsMin),
-        categories: effectiveCategories,
-        attributeValues: computed(() => filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined),
-        brands: computed(() => filters.value.brands.length > 0 ? filters.value.brands.join(',') : undefined),
-        inStock: computed(() => filters.value.inStock || undefined),
-        onOffer: computed(() => filters.value.onOffer || undefined),
-        sort: computed(() => filters.value.sort),
-        languageCode: locale,
-        limit,
-        offset,
-        facets: 'category,effective_price,likes_count,view_count,attribute_values',
-      },
-      // Only watch limit and offset - query params are already reactive
-      watch: [limit, offset],
-    },
-  )
   const { data: products, status } = request
 
   const productIds = computed(() => {

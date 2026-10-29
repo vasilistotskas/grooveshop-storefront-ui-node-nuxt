@@ -12,16 +12,10 @@
 const { t, locale } = useStoreI18n('components/variants/webside/Products/Filters/ViewCountFilter')
 const { filters, updateFilters } = useProductFilters()
 
-// Fetch facet stats for view count during SSR
-const { data: searchResults } = await useProductFacetStats('view_count')
+// The store's view-count range, from the listing's own search.
+const { stats } = useProductFacetStats('view_count')
 
-/**
- * Get view count statistics from Meilisearch facets
- */
-const viewsStats = computed(() => {
-  const stats = searchResults.value?.facetStats as FacetStats | undefined
-  return stats?.viewCount || { min: 0, max: 10000 }
-})
+const viewsStats = computed(() => stats.value || { min: 0, max: 10000 })
 
 /**
  * Check if view count statistics are valid

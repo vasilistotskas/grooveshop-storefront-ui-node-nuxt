@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { makeProductSearchResponse } from '../fixtures/productFilters'
 import { validTenantConfig } from '../fixtures/tenantConfig'
 import { BROWSER_ACCEPT, requestWithHost, sendJson, waitUntilServing } from '../helpers/e2e'
 
@@ -78,6 +79,11 @@ const TEXTS_DOWN_HOST_PREFIX = 'texts-down'
 /** One host per request the upstream got for the texts of a store whose texts are down. */
 const textsDownRequests: string[] = []
 
+// The default design's store, and webside's, for the search count below.
+const SEARCH_COUNT_HOST = 'search-count.localhost'
+/** The query of every products search the upstream got for those stores. */
+const searchRequests: URLSearchParams[] = []
+
 /**
  * The fake Django for these pages. Permissive by design: the point is
  * to exercise the RENDER, so it answers whatever shape each route needs
@@ -135,6 +141,21 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
     if (host.startsWith(TEXTS_DOWN_HOST_PREFIX)) textsDownRequests.push(host)
     if (host.startsWith(TEXTS_DOWN_HOST_PREFIX)) sendJson(res, { detail: 'Service unavailable.' }, 503)
     else sendJson(res, {})
+    return
+  }
+
+  // The products search answers the listing's page of products AND the
+  // filter column's counts and ranges (`sidebar_facets`).
+  if (reqUrl.pathname.endsWith('/search/product')) {
+    if ([SEARCH_COUNT_HOST, WEBSIDE_HOST].includes(String(req.headers['x-forwarded-host']))) searchRequests.push(reqUrl.searchParams)
+    sendJson(res, makeProductSearchResponse({
+      facetDistribution: { category: { 1: 1 }, brand: { 1: 1 }, attributeValues: { 1: 1 } },
+      facetStats: {
+        effectivePrice: { min: 1, max: 100 },
+        likesCount: { min: 0, max: 10 },
+        viewCount: { min: 0, max: 100 },
+      },
+    }))
     return
   }
 
@@ -370,6 +391,24 @@ export function describePageRenders(): void {
       }
       // Not stored by Nitro either: the second visitor asked again.
       expect(textsDownRequests.length).toBeGreaterThanOrEqual(2)
+    }, 60000)
+
+    // The filter column's counts and ranges ride on the listing's own
+    // search: one products search per render, however many controls read it.
+    it.each([
+      ['default', SEARCH_COUNT_HOST],
+      ['webside', WEBSIDE_HOST],
+    ])('makes ONE products search to render a filtered listing and its whole filter column (%s design)', async (_design, host) => {
+      searchRequests.length = 0
+
+      const { statusCode, body } = await request('/products?attributeValue=23&attributeValue=6&attributeValue=72', host)
+
+      expect(statusCode, body.slice(0, 900)).toBe(200)
+      expect(searchRequests).toHaveLength(1)
+      expect(searchRequests[0]!.get('sidebar_facets')).toBe('true')
+      expect(searchRequests[0]!.get('facets')?.split(',')).toEqual(
+        expect.arrayContaining(['category', 'brand', 'attribute_values', 'effective_price', 'likes_count', 'view_count']),
+      )
     }, 60000)
 
     it.each([['/cart'], ['/en/cart'], ['/search']])('keeps %s private on the custom-page route', async (path) => {
