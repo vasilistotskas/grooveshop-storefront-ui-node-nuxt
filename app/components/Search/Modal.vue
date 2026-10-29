@@ -52,7 +52,7 @@ const {
   execute,
   clear,
   goToSearchPage: openSearchPage,
-} = useQuickSearch({ query: localQuery })
+} = useQuickSearch({ query: localQuery, open: localOpen })
 
 const searching = computed(() => localQuery.value.length >= MIN_QUERY_LENGTH)
 

@@ -47,9 +47,9 @@ async function keyFor(file: string, host: string, locale: string): Promise<strin
 
 describe('every cached route handler', () => {
   it('is found by the source scan', () => {
-    // A broken glob would make every assertion below vacuous. 44 on 2026-10-28; raise
+    // A broken glob would make every assertion below vacuous. 45 on 2026-10-29; raise
     // 2026-09-30; raise the floor when a cached route is added.
-    expect(cachedFiles.length).toBeGreaterThanOrEqual(44)
+    expect(cachedFiles.length).toBeGreaterThanOrEqual(45)
     expect(cachedFiles).toContain('/server/api/products/[id]/reviews.get.ts')
   })
 

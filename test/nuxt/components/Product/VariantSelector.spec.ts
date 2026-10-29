@@ -65,6 +65,11 @@ const response = (): ProductVariantsResponse => ({
 })
 
 registerEndpoint('/api/products/5/variants', () => response())
+let ungroupedAsked = 0
+registerEndpoint('/api/products/21/variants', () => {
+  ungroupedAsked++
+  return { axes: [], variants: [] }
+})
 registerEndpoint('/api/products/9/variants', () => ({
   axes: [],
   variants: [variant(9, 'solo', 5, WHITE, GB256)],
@@ -85,7 +90,7 @@ describe('webside Product/VariantSelector', () => {
   // reactive image sizing (it renders fine in the real app).
   const mountForProduct = async (id = 5) => {
     const wrapper = await mountSuspended(C, {
-      props: { product: { id } as never },
+      props: { product: { id, variantGroup: 7 } as never },
       global: { stubs: { ImgWithFallback: { template: '<img data-testid="variant-image" />' } } },
     })
     await flushPromises()
@@ -205,6 +210,17 @@ describe('webside Product/VariantSelector', () => {
 
     expect(wrapper.find('[data-testid="variant-selector"]').exists()).toBe(false)
   })
+
+  it('asks for no variants of a product outside a variant group', async () => {
+    const wrapper = await mountSuspended(C, {
+      props: { product: { id: 21, variantGroup: null } as never },
+      global: { stubs: { ImgWithFallback: { template: '<img />' } } },
+    })
+    await flushPromises()
+
+    expect(ungroupedAsked).toBe(0)
+    expect(wrapper.find('[data-testid="variant-selector"]').exists()).toBe(false)
+  })
 })
 
 /**
@@ -215,7 +231,7 @@ describe('webside Product/VariantSelector', () => {
 describe('default Product/VariantSelector', () => {
   const mountForProduct = async (id = 5) => {
     const wrapper = await mountSuspended(ProductVariantSelector, {
-      props: { product: { id } as never },
+      props: { product: { id, variantGroup: 7 } as never },
       global: { stubs: { ImgWithFallback: { template: '<img data-testid="variant-image" />' } } },
     })
     await flushPromises()

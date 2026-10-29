@@ -40,7 +40,7 @@ export async function useBlogListing(options: {
     () => cursorState.value[PaginationCursorStateEnum.BLOG_POSTS],
   )
 
-  const { data: posts, status } = await useApi(
+  const postsRequest = useApi(
     '/api/blog/posts',
     {
       key: `blogPosts${paginationType.value}`,
@@ -64,20 +64,19 @@ export async function useBlogListing(options: {
   )
 
   // The posts carry their category as an id; the names, and the filter
-  // pills, come from the store's categories.
-  const { data: categories } = await useApi('/api/blog/categories', {
-    key: 'blogCategoryFilter',
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: { pageSize: 50, paginationType: 'pageNumber', languageCode: locale },
-    enabled: options.categories !== false,
-  })
+  // pills, come from the store's categories. Started beside the posts,
+  // which they do not depend on, and awaited with them.
+  const categoriesRequest = options.categories === false ? undefined : useBlogCategories()
+
+  const { data: posts, status } = await postsRequest
+  await categoriesRequest?.request
+  const categories = computed(() => categoriesRequest?.categories.value ?? [])
 
   const categoryNames = computed(() => new Map(
-    (categories.value?.results ?? []).map(entry => [entry.id, extractTranslated(entry, 'name', locale.value) ?? '']),
+    categories.value.map(entry => [entry.id, extractTranslated(entry, 'name', locale.value) ?? '']),
   ))
 
-  const pills = computed(() => (categories.value?.results ?? [])
+  const pills = computed(() => categories.value
     .filter(entry => entry.postCount > 0)
     .map(entry => ({
       id: entry.id,

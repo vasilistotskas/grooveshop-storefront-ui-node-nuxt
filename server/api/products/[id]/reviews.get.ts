@@ -20,8 +20,10 @@ export default defineCachedRoute(async (event) => {
   }
 }, {
   name: 'ProductReviewsViewSet',
-  maxAge: 60 * 5,
-  staleMaxAge: 60 * 60,
+  // An hour: Django's `products` surface purges this handler on a review or
+  // product write (`core/cache/surfaces.py`), so the TTL only bounds a missed purge.
+  maxAge: 60 * 60,
+  staleMaxAge: 60 * 60 * 24,
   swr: true,
   // The query is part of the key: two sorts or two pages of the same
   // product are different responses.

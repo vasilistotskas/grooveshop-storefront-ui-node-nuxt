@@ -4,25 +4,14 @@
  * whether to draw at all, and a band with no categories paints nothing.
  *
  * Gated on the `blog` feature, and the REQUEST is what is gated: a store
- * with the blog off fetches nothing. The key is read from one place per
- * store, so the page size is the drawing's own.
+ * with the blog off fetches nothing. The list is `useBlogCategories`'s, one entry for
+ * every reader; the band slices it to its page size.
  */
 export async function useBlogCategoryRail(options: { pageSize: MaybeRefOrGetter<number> }) {
-  const { locale } = useNuxtApp().$i18n
-  const enabled = useStoreFeature('blog')
-  const pageSize = computed(() => toValue(options.pageSize))
+  const { request, categories: all } = useBlogCategories()
+  await request
 
-  const { data } = await useApi('/api/blog/categories', {
-    key: 'blogCategories-slider',
-    query: { pageSize, languageCode: locale },
-    dedupe: 'defer',
-    enabled,
-    // The band hydrates when it scrolls into view, after the app has
-    // finished hydrating — see app/utils/payloadCachedData.ts.
-    getCachedData: payloadCachedData,
-  })
-
-  const categories = computed(() => (enabled.value && data.value?.results) || [])
+  const categories = computed(() => all.value.slice(0, toValue(options.pageSize)))
   const hasCategories = computed(() => categories.value.length > 0)
 
   return { categories, hasCategories }

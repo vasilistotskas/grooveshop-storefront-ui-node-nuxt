@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, nextTick, ref } from 'vue'
+import { flushPromises } from '@vue/test-utils'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { clearNuxtData } from '#app'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
@@ -11,11 +12,11 @@ mockNuxtImport('$fetch', () => api)
 const TRENDING_URL = '/api/search/trending'
 const SEARCH_URL = '/api/search'
 
-async function mountSearch() {
+async function mountSearch(open = ref(true)) {
   let search!: ReturnType<typeof useQuickSearch>
   await mountSuspended(defineComponent({
     setup() {
-      search = useQuickSearch({ query: ref('lamp') })
+      search = useQuickSearch({ query: ref('lamp'), open })
       return () => null
     },
   }), { route: false })
@@ -43,6 +44,22 @@ describe('useQuickSearch', () => {
 
     await vi.waitFor(() => expect(api.callsTo(TRENDING_URL)).toHaveLength(1))
     expect(api.callsTo(SEARCH_URL)).toHaveLength(1)
+  })
+
+  it('asks for the trending queries when the palette first opens, not when it is mounted', async () => {
+    const open = ref(false)
+    await mountSearch(open)
+    await flushPromises()
+    expect(api.callsTo(TRENDING_URL)).toEqual([])
+
+    open.value = true
+    await vi.waitFor(() => expect(api.callsTo(TRENDING_URL)).toHaveLength(1))
+
+    open.value = false
+    await nextTick()
+    open.value = true
+    await flushPromises()
+    expect(api.callsTo(TRENDING_URL)).toHaveLength(1)
   })
 
   it('asks for neither on a store without the catalogue', async () => {

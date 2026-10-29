@@ -29,7 +29,7 @@ const {
   minPriceForValue,
   valueHasPriceRange,
   axisHasDistinctImages,
-} = await useProductVariants(() => props.product.id)
+} = await useProductVariants(() => props.product.id, () => props.product.variantGroup)
 
 const axisGroups = computed(() =>
   axes.value.map((axis) => {

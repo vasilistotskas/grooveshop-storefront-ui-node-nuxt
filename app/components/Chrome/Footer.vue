@@ -52,11 +52,7 @@ const giftCardsEnabled = useStoreFeature('giftCards')
  * can share a key (card payments through two processors), and the
  * shopper is told how they can pay, not by whom.
  */
-const { data: payWays } = await useApi('/api/pay-way', {
-  key: 'footer-pay-ways',
-  query: { active: 'true', pageSize: 50 },
-  enabled: () => cartEnabled.value,
-})
+const { data: payWays } = await useStorePayWays()
 
 const paymentMarks = computed(() => {
   if (!cartEnabled.value) return []

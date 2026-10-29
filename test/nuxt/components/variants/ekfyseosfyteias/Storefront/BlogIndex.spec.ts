@@ -1,3 +1,4 @@
+import { setTenantFeatures } from '~~/test/helpers/tenant'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, mockComponent } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
@@ -101,9 +102,10 @@ const chips = (wrapper: VueWrapper) =>
   wrapper.findAll('nav[aria-label="Φίλτρο κατηγορίας"] a').map(link => [link.text(), link.attributes('href')])
 
 beforeEach(() => {
+  setTenantFeatures({ blog: true })
   state.query = {}
   useState<CursorState>('cursor-state').value = generateInitialCursorState()
-  clearNuxtData(['blogPostspageNumber', 'blogCategoryFilter'])
+  clearNuxtData(['blogPostspageNumber', 'blog-categories-el'])
   given(POSTS)
 })
 

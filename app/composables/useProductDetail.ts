@@ -59,6 +59,17 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
     },
   })
   const { data: product, error: productError, refresh: refreshProduct } = productRequest
+
+  // What the drawings' variant selector and offer panel read, started here
+  // so they do not wait for the product, its images and its reviews, then
+  // the categories, before their own requests begin (they need only the
+  // id). Under the keys and options their composables use, so the panels
+  // find the answers already in the render. The variants are asked once the
+  // product says it belongs to a group (`execute` below): most products do
+  // not, and the call would be wasted on them; the offers do not depend on
+  // the product, so they start now.
+  const variantsRequest = useProductVariants(Number(productId), () => product.value?.variantGroup)
+  const offersRequest = useProductPromotions(Number(productId))
   const { data: productImages } = imagesRequest
   const { data: productReviews, refresh: refreshProductReviews } = reviewsRequest
 
@@ -263,7 +274,12 @@ export async function useProductDetail(productId: string, t: ReturnType<typeof u
     )
   }
 
-  await Promise.all([imagesRequest, reviewsRequest])
+  await Promise.all([
+    imagesRequest,
+    reviewsRequest,
+    offersRequest,
+    variantsRequest.then(variants => variants.execute()),
+  ])
 
   // The reviews' own sheet reports a change; the list on THIS page and the
   // product's average are what must move.

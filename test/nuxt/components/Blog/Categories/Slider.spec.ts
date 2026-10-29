@@ -18,7 +18,7 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const KEY = 'blogCategories-slider'
+const KEY = 'blog-categories-el'
 // Short names: the rail cuts a name at 10 characters (6 on a phone).
 const named = (id: number, name: string) => makeBlogCategory({ id, translations: { el: { name, description: '' } } })
 const CATEGORIES = [named(1, 'Νέα'), named(2, 'Συνταγές')]
@@ -44,11 +44,11 @@ describe('Blog/Categories/Slider', () => {
 })
 
 describe('webside Blog/Categories/Slider', () => {
-  it('asks for the rail own page size in the page language', async () => {
+  it('asks for the whole list in the page language', async () => {
     await mountSuspended(WebsideBlogCategoriesSlider, { route: false, props: { max: 5 }, global: { stubs } })
     await flushPromises()
 
-    expect(api.callsTo('/api/blog/categories').map(call => call.options.query)).toEqual([{ pageSize: 5, languageCode: 'el' }])
+    expect(api.callsTo('/api/blog/categories').map(call => call.options.query)).toEqual([{ pageSize: 100, languageCode: 'el' }])
   })
 
   it('asks for nothing when the store has no blog', async () => {
