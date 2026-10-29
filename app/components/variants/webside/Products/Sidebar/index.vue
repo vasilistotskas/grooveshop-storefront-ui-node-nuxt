@@ -163,13 +163,6 @@ watch(slideoverOpen, (isOpen) => {
   <!-- Reusable filter content template -->
   <DefineFiltersTemplate>
     <div class="flex flex-col">
-      <!-- Search Input - Always visible at top -->
-      <div class="space-y-2 pb-4">
-        <WebsideProductsFiltersSearchInput />
-      </div>
-
-      <USeparator />
-
       <!-- Quick search over the sections, once there are many -->
       <UInput
         v-if="searchOffered"
@@ -178,7 +171,6 @@ watch(slideoverOpen, (isOpen) => {
         size="sm"
         :placeholder="t('filters.search_placeholder')"
         :aria-label="t('filters.search_label')"
-        class="mt-4"
       >
         <template
           v-if="query.length"
@@ -406,8 +398,6 @@ watch(slideoverOpen, (isOpen) => {
 
 <i18n lang="yaml">
 el:
-  search:
-    products: Αναζήτηση προϊόντων
   filters:
     title: Φίλτρα
     description: Φιλτράρετε τα προϊόντα
@@ -432,8 +422,6 @@ el:
     show_results: Εμφάνιση αποτελεσμάτων
     active_count: "{count} ενεργά φίλτρα"
 en:
-  search:
-    products: Search products
   filters:
     title: Filters
     description: Filter the products

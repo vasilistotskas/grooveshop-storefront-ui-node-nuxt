@@ -37,7 +37,6 @@ mockNuxtImport('useProductBrands', () => () => brands)
 const page = <T>(results: T[]) => ({ links: { next: null, previous: null }, count: results.length, totalPages: 1, pageSize: 100, pageTotalResults: results.length, page: 1, results })
 
 const STUBS = {
-  WebsideProductsFiltersSearchInput: { template: '<div />' },
   WebsideProductsFiltersPriceRange: { template: '<div />' },
   WebsideProductsFiltersPopularityFilter: { template: '<div />' },
   WebsideProductsFiltersViewCountFilter: { template: '<div />' },
