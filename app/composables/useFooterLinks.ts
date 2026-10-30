@@ -73,6 +73,7 @@ export function useFooterLinks() {
       : configured.map(column => ({
           label: column.label,
           icon: column.icon,
+          showsMerchantIdentity: column.showsMerchantIdentity,
           children: column.children.map(child => ({
             label: child.label,
             to: child.to ?? child.href ?? '/',
@@ -92,9 +93,11 @@ export function useFooterLinks() {
     return children.length ? [...base, { ...pagesColumn, children }] : base
   })
 
-  // The column of the About page: where webside draws the seller identity
-  // (-1 when the footer has none, and the identity keeps the bottom bar).
-  const aboutColumnIndex = computed(() => indexOfColumnLinking(columns.value, localePath('about')))
+  // The column the operator marked to carry the seller details (webside draws
+  // them under it). -1 when none is marked, and the details keep the bottom bar.
+  const merchantIdentityColumnIndex = computed(
+    () => columns.value.findIndex(column => column.showsMerchantIdentity),
+  )
 
-  return { columns, aboutColumnIndex }
+  return { columns, merchantIdentityColumnIndex }
 }

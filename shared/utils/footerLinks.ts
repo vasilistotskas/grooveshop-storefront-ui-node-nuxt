@@ -8,6 +8,8 @@ export interface FooterLink {
 export interface FooterLinkColumn {
   label: string
   icon?: string
+  /** The store draws its seller details under this column (`NavigationColumn.shows_merchant_identity`). */
+  showsMerchantIdentity?: boolean
   children: FooterLink[]
 }
 
@@ -53,24 +55,5 @@ export function dedupeFooterContentPages(
 
   return children.filter(
     child => !linkedRoutes.has(splitLocale(child.to).route),
-  )
-}
-
-/**
- * The index of the first column that links `to`, or -1.
- *
- * Footer columns are tenant data with no stable key, so a design that puts
- * something under one particular column (webside's seller identity under the
- * column of its About page) finds it by the route its links reach, never by a
- * label. Locale prefixes are stripped on both sides, for the reason
- * `dedupeFooterContentPages` gives.
- */
-export function indexOfColumnLinking(
-  columns: readonly FooterLinkColumn[],
-  to: string,
-): number {
-  const route = splitLocale(to).route
-  return columns.findIndex(column =>
-    column.children.some(child => splitLocale(child.to).route === route),
   )
 }

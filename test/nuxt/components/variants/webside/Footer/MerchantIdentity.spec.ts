@@ -7,15 +7,17 @@ import { setTenant } from '~~/test/helpers/tenant'
 
 /**
  * Webside's footers draw the seller identity (N. 4919/2022 art. 22 §4: legal
- * form, name and seat "σε εμφανές σημείο") under the footer column whose
- * links reach the About page, "Σχετικά με εμάς". A footer with no such column
- * keeps the identity in its bottom bar, so it is on every page whichever way
+ * form, name and seat "σε εμφανές σημείο") under the footer column the
+ * operator marked for it (`NavigationColumn.shows_merchant_identity`), the
+ * "Σχετικά με εμάς" column on webside. A footer with no marked column keeps
+ * the identity in its bottom bar, so it is on every page whichever way
  * the store laid its footer out.
  */
-interface NavColumn { label: string, children: Array<{ label: string, to: string }> }
+interface NavColumn { label: string, showsMerchantIdentity?: boolean, children: Array<{ label: string, to: string }> }
 
 const ABOUT: NavColumn = {
   label: 'Σχετικά με εμάς',
+  showsMerchantIdentity: true,
   children: [{ label: 'Σχετικά με το Webside', to: '/about' }],
 }
 const HELP: NavColumn = {
@@ -57,7 +59,7 @@ beforeEach(() => {
 })
 
 describe('webside Footer/Desktop seller identity', () => {
-  it('sits under the About column, not in the bottom bar', async () => {
+  it('sits under the marked column, not in the bottom bar', async () => {
     configuredColumns = [HELP, ABOUT]
 
     const wrapper = await mountFooter(FooterDesktop)
@@ -70,7 +72,7 @@ describe('webside Footer/Desktop seller identity', () => {
     expect(addresses[0]!.text()).toContain('ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.')
   })
 
-  it('keeps the identity in the bottom bar when no column links the About page', async () => {
+  it('keeps the identity in the bottom bar when no column is marked', async () => {
     configuredColumns = [HELP]
 
     const wrapper = await mountFooter(FooterDesktop)
@@ -90,7 +92,7 @@ describe('webside Footer/Desktop seller identity', () => {
 })
 
 describe('webside Footer/Mobile seller identity', () => {
-  it('sits in the About column of the accordion, once', async () => {
+  it('sits in the marked column of the accordion, once', async () => {
     configuredColumns = [HELP, ABOUT]
 
     const wrapper = await mountFooter(FooterMobile)
@@ -100,7 +102,7 @@ describe('webside Footer/Mobile seller identity', () => {
     expect(body?.textContent).toContain('Σχετικά με το Webside')
   })
 
-  it('keeps the identity under the accordion when no column links the About page', async () => {
+  it('keeps the identity under the accordion when no column is marked', async () => {
     configuredColumns = [HELP]
 
     const wrapper = await mountFooter(FooterMobile)

@@ -2,7 +2,7 @@
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useStoreI18n('components/variants/webside/Footer/Desktop')
-const { columns, aboutColumnIndex } = useFooterLinks()
+const { columns, merchantIdentityColumnIndex } = useFooterLinks()
 const { isModalActive } = useCookieControl()
 const tenantStore = useTenantStore()
 const runtimeConfig = useRuntimeConfig()
@@ -31,7 +31,7 @@ const openCookieModal = () => {
         >
           <!-- UFooterColumns draws only links under a column, so the columns
                are drawn here, with its classes: the seller identity sits
-               under the column of the About page. -->
+               under the column the operator marked for them. -->
           <div
             v-for="(column, index) in columns"
             :key="index"
@@ -63,7 +63,7 @@ const openCookieModal = () => {
                  εμφανές σημείο"; the footer is on every page, which is also
                  what makes it "permanently accessible" under ECD art. 5. -->
             <WebsideMerchantIdentity
-              v-if="index === aboutColumnIndex"
+              v-if="index === merchantIdentityColumnIndex"
               class="mt-6"
             />
           </div>
@@ -73,10 +73,10 @@ const openCookieModal = () => {
 
     <template #left>
       <div class="flex flex-col gap-1">
-        <!-- A footer with no About column keeps the seller identity here:
+        <!-- A footer with no marked column keeps the seller identity here:
              the law wants it on every page whichever way the footer is laid
              out. -->
-        <WebsideMerchantIdentity v-if="aboutColumnIndex === -1" />
+        <WebsideMerchantIdentity v-if="merchantIdentityColumnIndex === -1" />
         <WebsideFooterHoursBadge />
         <div
           class="
