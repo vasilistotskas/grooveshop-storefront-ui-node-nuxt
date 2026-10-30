@@ -114,17 +114,21 @@ const openCookieModal = () => {
     </template>
 
     <template #right>
-      <div class="flex items-center gap-6">
-        <WebsideSocials
-          :button-size="'sm'"
-          :icon-class="'text-xl'"
-        />
-        <span
-          class="
-            text-xs text-primary-950
-            dark:text-primary-300
-          "
-        >Version: {{ packageVersion }}</span>
+      <div class="flex w-full flex-col items-end gap-4">
+        <!-- Directly above the social icons. -->
+        <WebsideFooterNewsletter />
+        <div class="flex items-center gap-6">
+          <WebsideSocials
+            :button-size="'sm'"
+            :icon-class="'text-xl'"
+          />
+          <span
+            class="
+              text-xs text-primary-950
+              dark:text-primary-300
+            "
+          >Version: {{ packageVersion }}</span>
+        </div>
       </div>
     </template>
   </UFooter>

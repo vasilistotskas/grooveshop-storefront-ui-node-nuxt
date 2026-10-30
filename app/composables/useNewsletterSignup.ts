@@ -125,3 +125,31 @@ export async function useNewsletterSignup(options: NewsletterSignupOptions) {
 
   return { available, consent, schema, state, submitting, sent, failure, subscribe }
 }
+
+/**
+ * The newsletter opt-in of a registration form: an unticked, optional box
+ * beside the terms, offered when the store can honour it.
+ *
+ * `subscribeIfAsked` is `useSignup`'s `onCreated`: once the account exists
+ * it asks for the double opt-in the footer form asks for, with the same
+ * consent sentence. A failure there is a warning toast worded by the form
+ * (`failureTitle`) and never undoes the account.
+ */
+export async function useSignupNewsletterOptIn(options: { failureTitle: () => string }) {
+  const toast = useToast()
+  const { available, consent } = await useNewsletterAvailability()
+
+  const wants = ref(false)
+
+  async function subscribeIfAsked(email: string) {
+    if (!wants.value || !available.value) return
+    try {
+      await requestNewsletterSubscription({ email, consent: true })
+    }
+    catch {
+      toast.add({ title: options.failureTitle(), color: 'warning' })
+    }
+  }
+
+  return { available, consent, wants, subscribeIfAsked }
+}

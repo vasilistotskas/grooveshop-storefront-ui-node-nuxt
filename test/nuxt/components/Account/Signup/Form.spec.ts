@@ -6,6 +6,7 @@ import type { VueWrapper } from '@vue/test-utils'
 import SignupForm from '~/components/Account/Signup/Form.vue'
 import WebsideSignupForm from '~/components/variants/webside/Account/Signup/Form.vue'
 import { trees } from '~~/test/helpers/trees'
+import { failWith } from '~~/test/helpers/api'
 import { setTenant } from '~~/test/helpers/tenant'
 import { asProxiedError, makeAllAuthConfig, makeBadResponse, makePendingFlowResponse } from '~~/test/fixtures/allauth'
 import { newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
@@ -100,7 +101,7 @@ async function fill(wrapper: VueWrapper, { email = 'new@example.com', password =
   if (consent) await termsBox(wrapper).trigger('click')
 }
 
-/** The terms box comes first in both trees; the default's newsletter box follows it. */
+/** The terms box comes first in both trees; the newsletter box follows it. */
 const termsBox = (wrapper: VueWrapper) => wrapper.findAll('button[role="checkbox"]')[0]!
 
 const submitButton = (wrapper: VueWrapper) => wrapper.find('button[type="submit"]')
@@ -320,7 +321,7 @@ describe.each(trees(SignupForm, WebsideSignupForm))('$tree Account/Signup/Form',
     })
   })
 
-  describe.runIf(tree === 'default')('the newsletter opt-in', () => {
+  describe('the newsletter opt-in', () => {
     const newsletterBox = (wrapper: VueWrapper) => wrapper.findAll('button[role="checkbox"]')[1]
 
     it('is not offered where the store cannot take a subscription', async () => {
@@ -361,6 +362,28 @@ describe.each(trees(SignupForm, WebsideSignupForm))('$tree Account/Signup/Form',
 
       expect(api.callsTo(NEWSLETTER_URL)).toHaveLength(1)
       expect(navigateToMock).toHaveBeenCalledWith(expect.objectContaining({ path: useLocalePath()('account-verify-email') }))
+    })
+
+    it('does not hold the sign-up back while it is unticked', async () => {
+      newsletter.available = true
+      const wrapper = await mountForm()
+
+      await termsBox(wrapper).trigger('click')
+
+      expect(submitButton(wrapper).attributes('disabled')).toBeUndefined()
+    })
+
+    it('warns, and keeps the account, when the subscription fails', async () => {
+      newsletter.available = true
+      api.routes({ [NEWSLETTER_URL]: failWith(500) })
+      const wrapper = await mountForm()
+
+      await fill(wrapper)
+      await newsletterBox(wrapper)!.trigger('click')
+      await submit(wrapper)
+
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'warning' }))
+      expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
     })
 
     it('subscribes no one who left it unticked', async () => {

@@ -33,6 +33,19 @@ async function submit(wrapper: VueWrapper, email: string) {
 describe.each(trees(ProviderSignup, WebsideProviderSignup))('$tree Account/ProviderSignup', ({ C }) => {
   const mountForm = () => mountSuspended(C, { route: false })
 
+  // Both trees ask for the terms before an account is made through a provider,
+  // as the email sign-up does.
+  it('holds the submit button until the terms are accepted', async () => {
+    const wrapper = await mountForm()
+    const submitButton = () => wrapper.find('button[type="submit"]')
+
+    expect(submitButton().attributes('disabled')).toBeDefined()
+
+    await wrapper.find('button[role="checkbox"]').trigger('click')
+
+    expect(submitButton().attributes('disabled')).toBeUndefined()
+  })
+
   it('gives allauth the email, says the account is made and tells its parent', async () => {
     const wrapper = await mountForm()
 

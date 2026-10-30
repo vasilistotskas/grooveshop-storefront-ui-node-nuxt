@@ -9,7 +9,7 @@ import * as z from 'zod'
  * One password field, not two: the field reveals what was typed, and a
  * second box only doubled the chance of a typo the first one would have
  * shown. The newsletter box is offered when the store can honour it
- * (`useNewsletterAvailability`); its label is the store's consent sentence,
+ * (`useSignupNewsletterOptIn`); its label is the store's consent sentence,
  * which is what Django stores as the proof, and the subscription is
  * requested once the account exists — a failure there never undoes the
  * account.
@@ -19,30 +19,18 @@ const { config, status } = storeToRefs(authStore)
 const { hasProviders } = useSocialProviders()
 
 const { t } = useStoreI18n('components/Account/Signup/Form')
-const toast = useToast()
 const localePath = useLocalePath()
 
-const newsletter = await useNewsletterAvailability()
+const newsletter = await useSignupNewsletterOptIn({ failureTitle: () => t('newsletter_failed') })
 
 const acceptedTerms = ref(false)
-const wantsNewsletter = ref(false)
-
-async function subscribeIfAsked(email: string) {
-  if (!wantsNewsletter.value || !newsletter.available.value) return
-  try {
-    await requestNewsletterSubscription({ email, consent: true })
-  }
-  catch {
-    toast.add({ title: t('newsletter_failed'), color: 'warning' })
-  }
-}
 
 const { email, password, isSubmitting, signup } = useSignup({
   messages: {
     email: () => t('validation.email.valid'),
     minimum: min => t('validation.min', { min }),
   },
-  onCreated: subscribeIfAsked,
+  onCreated: newsletter.subscribeIfAsked,
 })
 
 const schema = z.object({ email, password })
@@ -131,7 +119,7 @@ const onSubmit = (event: { data: Schema }) => signup(event.data)
 
       <UCheckbox
         v-if="newsletter.available.value"
-        v-model="wantsNewsletter"
+        v-model="newsletter.wants.value"
         name="newsletter"
       >
         <template #label>

@@ -14,11 +14,14 @@ const config = useRuntimeConfig()
 
 const selected = ref(false)
 
+const newsletter = await useSignupNewsletterOptIn({ failureTitle: () => t('newsletter_failed') })
+
 const { email, password, isSubmitting, signup } = useSignup({
   messages: {
     email: () => t('email.validation.email'),
     minimum: min => t('password1.validation.min', { min }),
   },
+  onCreated: newsletter.subscribeIfAsked,
 })
 
 const schema = z.object({
@@ -184,6 +187,40 @@ const backgroundImage = computed(() => {
               </UCheckbox>
             </div>
 
+            <!-- Optional and unticked, separate from the terms: the store's
+                 consent sentence, which Django keeps as the proof. -->
+            <div
+              v-if="newsletter.available.value"
+              class="flex items-center gap-2"
+            >
+              <UCheckbox
+                v-model="newsletter.wants.value"
+                name="newsletter"
+                icon="i-heroicons-check"
+                :color="'info'"
+                :ui="{
+                  label: 'text-sm font-medium',
+                }"
+              >
+                <template #label>
+                  <span>
+                    {{ newsletter.consent.value.before }}<UButton
+                      :label="newsletter.consent.value.privacy"
+                      :to="localePath('privacy-policy')"
+                      color="secondary"
+                      type="button"
+                      variant="link"
+                      target="_blank"
+                      :ui="{
+                        base: 'p-0',
+                      }"
+                    />{{ newsletter.consent.value.after }}
+                    <span class="text-muted">{{ t('optional') }}</span>
+                  </span>
+                </template>
+              </UCheckbox>
+            </div>
+
             <UButton
               :disabled="!selected"
               :loading="isSubmitting"
@@ -291,6 +328,8 @@ el:
   passkey_login: Εγγραφή με κωδικό μιας χρήσης
   i_approve: Αποδέχομαι τους
   terms: όρους χρήσης
+  optional: Προαιρετικό.
+  newsletter_failed: Ο λογαριασμός σου είναι έτοιμος, αλλά η εγγραφή στο email δεν ολοκληρώθηκε. Μπορείς να εγγραφείς από τον λογαριασμό σου.
   email:
     label: Email
     validation:
