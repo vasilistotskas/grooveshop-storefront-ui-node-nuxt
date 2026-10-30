@@ -343,6 +343,14 @@ describe('default ProductDetail', () => {
     expect(crumbs).toEqual(['Αρχική', 'Φόρτιση', 'Power banks', 'Προϊόν 123'])
   })
 
+  it('places a product without a category under the full listing', async () => {
+    serve(makeProduct({ id: 123, category: null }))
+    const wrapper = await mountPage()
+
+    const crumbs = wrapper.get(`nav[aria-label="${uiLocale.messages.breadcrumb.label}"]`).findAll('li').map(li => li.text()).filter(Boolean)
+    expect(crumbs).toEqual(['Αρχική', 'Προϊόντα', 'Προϊόν 123'])
+  })
+
   it('places a product outside the catalogue tree under the full listing', async () => {
     serve(makeProduct({ id: 123, category: 99 }))
     const wrapper = await mountPage()
@@ -652,6 +660,30 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail n
     await flushPromises()
 
     expect(wrapper.get('h1').text()).toBe('Travel charger')
+    wrapper.unmount()
+  })
+})
+
+// Product.category is SET_NULL in Django: a product whose category was
+// deleted is served with `category: null`, and both designs render it.
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail without a category', ({ C }) => {
+  it('renders the product', async () => {
+    clearNuxtData()
+    clearProductData()
+    setTenant()
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': makeProduct({ id: 123, category: null }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/*': empty,
+    })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.get('h1').text()).toBe('Προϊόν 123')
     wrapper.unmount()
   })
 })

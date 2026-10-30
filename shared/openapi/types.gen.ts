@@ -5400,19 +5400,6 @@ export type PaginatedGiftCardList = {
   results: Array<GiftCard>
 }
 
-export type PaginatedLoyaltyTierList = {
-  links?: {
-    next?: string | null
-    previous?: string | null
-  }
-  count: number
-  totalPages?: number
-  pageSize?: number
-  pageTotalResults?: number
-  page?: number
-  results: Array<LoyaltyTier>
-}
-
 export type PaginatedNavigationMenuList = {
   links?: {
     next?: string | null
@@ -6822,7 +6809,10 @@ export type Product = {
     }
   }
   slug: string
-  category: number
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
   /**
      * Ομάδα παραλλαγών
      *
@@ -7313,7 +7303,10 @@ export type ProductDetail = {
     }
   }
   slug: string
-  category: number
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
   /**
      * Ομάδα παραλλαγών
      *
@@ -7412,7 +7405,10 @@ export type ProductDetailResponse = {
     }
   }
   slug: string
-  category: number
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
   /**
      * Ομάδα παραλλαγών
      *
@@ -7897,7 +7893,10 @@ export type ProductRetrieve = {
     }
   }
   slug: string
-  category: number
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
   /**
      * Ομάδα παραλλαγών
      *
@@ -11947,19 +11946,6 @@ export type PaginatedGiftCardListWritable = {
   results: Array<unknown>
 }
 
-export type PaginatedLoyaltyTierListWritable = {
-  links?: {
-    next?: string | null
-    previous?: string | null
-  }
-  count: number
-  totalPages?: number
-  pageSize?: number
-  pageTotalResults?: number
-  page?: number
-  results: Array<LoyaltyTierWritable>
-}
-
 export type PaginatedNotificationUserDetailListWritable = {
   links?: {
     next?: string | null
@@ -12338,7 +12324,6 @@ export type ProductWritable = {
     }
   }
   slug: string
-  category: number
   price: number
   vat?: number | null
   weight?: {
@@ -12538,7 +12523,6 @@ export type ProductDetailWritable = {
     }
   }
   slug: string
-  category: number
   price: number
   vat?: number | null
   weight?: {
@@ -12569,7 +12553,6 @@ export type ProductDetailResponseWritable = {
     }
   }
   slug: string
-  category: number
   price: number
   vat?: number | null
   weight?: {
@@ -12660,7 +12643,6 @@ export type ProductRetrieveWritable = {
     }
   }
   slug: string
-  category: number
   price: number
   vat?: number | null
   weight?: {
@@ -18582,6 +18564,28 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses]
 
+export type UnsubscribeFromEmailOneClickData = {
+  body?: never
+  path: {
+    token: string
+  }
+  query?: never
+  url: '/api/v1/emails/unsubscribe/{token}'
+}
+
+export type UnsubscribeFromEmailOneClickErrors = {
+  400: ErrorResponse
+}
+
+export type UnsubscribeFromEmailOneClickError = UnsubscribeFromEmailOneClickErrors[keyof UnsubscribeFromEmailOneClickErrors]
+
+export type UnsubscribeFromEmailOneClickResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
 export type CreateFeedbackData = {
   body: FeedbackWriteRequest
   path?: never
@@ -18846,18 +18850,6 @@ export type ListLoyaltyTiersData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en)
          */
     languageCode?: 'el' | 'en'
-    /**
-         * A page number within the paginated result set.
-         */
-    page?: string | number
-    /**
-         * Number of results to return per page.
-         */
-    pageSize?: string | number
-    /**
-         * A search term.
-         */
-    search?: string
   }
   url: '/api/v1/loyalty/tiers'
 }
@@ -18873,7 +18865,7 @@ export type ListLoyaltyTiersErrors = {
 export type ListLoyaltyTiersError = ListLoyaltyTiersErrors[keyof ListLoyaltyTiersErrors]
 
 export type ListLoyaltyTiersResponses = {
-  200: PaginatedLoyaltyTierList
+  200: Array<LoyaltyTier>
 }
 
 export type ListLoyaltyTiersResponse = ListLoyaltyTiersResponses[keyof ListLoyaltyTiersResponses]
@@ -25459,76 +25451,9 @@ export type ListRegionsByCountryData = {
   }
   query?: {
     /**
-         * Φίλτρο ανά αλφαβητικό κωδικό περιφέρειας (μερική αντιστοίχιση)
-         */
-    alpha?: string
-    alpha_Icontains?: string
-    /**
-         * Φίλτρο ανά ακριβή αλφαβητικό κωδικό περιφέρειας
-         */
-    alphaExact?: string
-    /**
-         * Φίλτρο ανά alpha-2 κωδικό χώρας
-         */
-    country?: string
-    /**
-         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
-         */
-    countryName?: string
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
-         */
-    createdAfter?: string
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
-         */
-    createdBefore?: string
-    /**
          * Κωδικός γλώσσας για μεταφράσεις (el, en)
          */
     languageCode?: 'el' | 'en'
-    /**
-         * Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)
-         */
-    name?: string
-    /**
-         * A page number within the paginated result set.
-         */
-    page?: string | number
-    /**
-         * Number of results to return per page.
-         */
-    pageSize?: string | number
-    /**
-         * A search term.
-         */
-    search?: string
-    /**
-         * Φίλτρο ανά ακριβή σειρά
-         */
-    sortOrder?: string | number
-    sortOrder_Gte?: string | number
-    sortOrder_Lte?: string | number
-    /**
-         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
-         */
-    sortOrderMax?: string | number
-    /**
-         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
-         */
-    sortOrderMin?: string | number
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
-         */
-    updatedAfter?: string
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
-         */
-    updatedBefore?: string
-    /**
-         * Φίλτρο ανά ακριβές UUID
-         */
-    uuid?: string
   }
   url: '/api/v1/region/{alpha}/get_regions_by_country_alpha_2'
 }
@@ -25544,7 +25469,7 @@ export type ListRegionsByCountryErrors = {
 export type ListRegionsByCountryError = ListRegionsByCountryErrors[keyof ListRegionsByCountryErrors]
 
 export type ListRegionsByCountryResponses = {
-  200: PaginatedRegionList
+  200: Array<Region>
 }
 
 export type ListRegionsByCountryResponse = ListRegionsByCountryResponses[keyof ListRegionsByCountryResponses]

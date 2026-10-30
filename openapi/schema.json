@@ -19939,6 +19939,44 @@
                 }
             }
         },
+        "/api/v1/emails/unsubscribe/{token}": {
+            "post": {
+                "operationId": "unsubscribeFromEmailOneClick",
+                "description": "Καλείται από πελάτες αλληλογραφίας που υποστηρίζουν το List-Unsubscribe-Post=One-Click. Το διακριτικό ορίζει τον τύπο email, ή όλους τους τύπους προωθητικών μηνυμάτων, και ισχύει μόνο για το κατάστημα που το έστειλε. Η επανάληψη της κλήσης δεν αλλάζει τίποτα.",
+                "summary": "Απεγγραφή με ένα κλικ από προωθητικά email κατά RFC 8058",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Emails"
+                ],
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/feedback": {
             "post": {
                 "operationId": "createFeedback",
@@ -20853,49 +20891,6 @@
                             "default": "el"
                         },
                         "description": "Κωδικός γλώσσας για μεταφράσεις (el, en)"
-                    },
-                    {
-                        "name": "page",
-                        "required": false,
-                        "in": "query",
-                        "description": "A page number within the paginated result set.",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "pageSize",
-                        "required": false,
-                        "in": "query",
-                        "description": "Number of results to return per page.",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "search",
-                        "required": false,
-                        "in": "query",
-                        "description": "A search term.",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "tags": [
@@ -20962,7 +20957,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedLoyaltyTierList"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/LoyaltyTier"
+                                    }
                                 }
                             }
                         },
@@ -44642,63 +44640,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "alpha",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά αλφαβητικό κωδικό περιφέρειας (μερική αντιστοίχιση)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "alpha_Icontains",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "alphaExact",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά ακριβή αλφαβητικό κωδικό περιφέρειας"
-                    },
-                    {
-                        "in": "query",
-                        "name": "country",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά alpha-2 κωδικό χώρας"
-                    },
-                    {
-                        "in": "query",
-                        "name": "countryName",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdAfter",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "createdBefore",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
                         "name": "languageCode",
                         "schema": {
                             "type": "string",
@@ -44709,162 +44650,6 @@
                             "default": "el"
                         },
                         "description": "Κωδικός γλώσσας για μεταφράσεις (el, en)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)"
-                    },
-                    {
-                        "name": "page",
-                        "required": false,
-                        "in": "query",
-                        "description": "A page number within the paginated result set.",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "pageSize",
-                        "required": false,
-                        "in": "query",
-                        "description": "Number of results to return per page.",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "search",
-                        "required": false,
-                        "in": "query",
-                        "description": "A search term.",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrder",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο ανά ακριβή σειρά"
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrder_Gte",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrder_Lte",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrderMax",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με"
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortOrderMin",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με"
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedAfter",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "updatedBefore",
-                        "schema": {
-                            "type": "string",
-                            "format": "date-time"
-                        },
-                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
-                    },
-                    {
-                        "in": "query",
-                        "name": "uuid",
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "description": "Φίλτρο ανά ακριβές UUID"
                     }
                 ],
                 "tags": [
@@ -44931,7 +44716,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedRegionList"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Region"
+                                    }
                                 }
                             }
                         },
@@ -66163,58 +65951,6 @@
                     }
                 }
             },
-            "PaginatedLoyaltyTierList": {
-                "type": "object",
-                "required": [
-                    "count",
-                    "results"
-                ],
-                "properties": {
-                    "links": {
-                        "type": "object",
-                        "properties": {
-                            "next": {
-                                "type": "string",
-                                "nullable": true,
-                                "format": "uri",
-                                "example": "http://api.example.org/accounts/?page=4"
-                            },
-                            "previous": {
-                                "type": "string",
-                                "nullable": true,
-                                "format": "uri",
-                                "example": "http://api.example.org/accounts/?page=2"
-                            }
-                        }
-                    },
-                    "count": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "totalPages": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "pageSize": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "pageTotalResults": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "page": {
-                        "type": "integer",
-                        "example": 123
-                    },
-                    "results": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/LoyaltyTier"
-                        }
-                    }
-                }
-            },
             "PaginatedNavigationMenuList": {
                 "type": "object",
                 "required": [
@@ -69397,7 +69133,10 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "category": {
-                        "type": "integer"
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Κατηγορία"
                     },
                     "variantGroup": {
                         "type": "integer",
@@ -70625,7 +70364,10 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "category": {
-                        "type": "integer"
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Κατηγορία"
                     },
                     "variantGroup": {
                         "type": "integer",
@@ -70916,7 +70658,10 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "category": {
-                        "type": "integer"
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Κατηγορία"
                     },
                     "variantGroup": {
                         "type": "integer",
@@ -72121,7 +71866,10 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "category": {
-                        "type": "integer"
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Κατηγορία"
                     },
                     "variantGroup": {
                         "type": "integer",

@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { useRuntimeConfig } from 'nuxt/server'
 
 /**
@@ -22,8 +21,7 @@ export default defineCachedRoute(
         method: 'GET',
       })
 
-      // Django returns a plain array (not paginated) for tiers
-      return await parseDataAs(data, z.array(zLoyaltyTier))
+      return await parseDataAs(data, zListLoyaltyTiersResponse)
     }
     catch (error) {
       return handleError(event, error)
