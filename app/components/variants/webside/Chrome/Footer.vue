@@ -4,6 +4,9 @@ const { isMobileOrTablet } = useDevice()
 
 <template>
   <MobileOrTabletOnly>
+    <div class="px-4 pt-6 md:hidden">
+      <LazyWebsideFooterNewsletter hydrate-on-visible />
+    </div>
     <div
       class="
         my-6 flex flex-wrap items-center justify-center

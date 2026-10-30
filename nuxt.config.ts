@@ -1003,6 +1003,12 @@ export default defineNuxtConfig({
     },
   },
   icon: {
+    // Brand marks no installed collection ships in its current official
+    // form, as local SVG files: `i-brand-<file name>`. Google's "G" is the
+    // artwork from Google's sign-in assets, unmodified (`socialProviders.ts`).
+    customCollections: [
+      { prefix: 'brand', dir: './app/assets/icons/brand' },
+    ],
     // Resolve icons against the locally-installed @iconify-json/*
     // packages (see dependencies in package.json) instead of hitting
     // a public CDN. ``externalizeIconsJson: true`` keeps cold starts
@@ -1059,6 +1065,10 @@ export default defineNuxtConfig({
     // icons so `nuxt.config.ts` is not read back into itself, and the
     // generated OpenAPI client is skipped: it names no icon and is ~2MB.
     clientBundle: {
+      // Both sides use `provider: 'server'`, which leaves custom collections
+      // out of the bundle by default; SSR resolves icons only from it (see
+      // above), so a brand mark would paint blank in the server render.
+      includeCustomCollections: true,
       scan: {
         globInclude: ['app/**/*.{vue,ts}', 'shared/**/*.{vue,ts}'],
         globExclude: ['shared/openapi/**'],

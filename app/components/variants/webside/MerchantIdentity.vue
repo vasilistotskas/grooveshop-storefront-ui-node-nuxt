@@ -14,7 +14,7 @@
  * reads as a broken page to every shopper.
  */
 const { t } = useStoreI18n('components/variants/webside/MerchantIdentity')
-const { identity, hasIdentity, legalName, registeredSeat, inLiquidation }
+const { identity, hasIdentity, displayName, registeredSeat, inLiquidation }
   = useMerchantIdentity()
 </script>
 
@@ -26,7 +26,7 @@ const { identity, hasIdentity, legalName, registeredSeat, inLiquidation }
       dark:text-primary-300
     "
   >
-    <span class="font-medium">{{ legalName }}</span>
+    <span class="font-medium">{{ displayName }}</span>
 
     <span v-if="registeredSeat">{{ registeredSeat }}</span>
 

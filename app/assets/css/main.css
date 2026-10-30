@@ -59,6 +59,12 @@
       transparent 1px
     );
   --ui-liked: #FF00BD;
+  /* The surface of a Google sign-in button: the colour "G" may sit only on
+     Google's own light, dark or neutral fill and stroke (Sign in with Google
+     branding guidelines), so these are Google's values, never the brand
+     colour of the store. The dark pair is in `.dark` below. */
+  --google-signin-fill: #ffffff;
+  --google-signin-stroke: #747775;
 
   --ui-container: var(--container-8xl);
 
@@ -169,6 +175,8 @@
 
 .dark {
   --ui-bg: var(--ui-color-neutral-950);
+  --google-signin-fill: #131314;
+  --google-signin-stroke: #8e918f;
   --ui-bg-muted: var(--ui-color-neutral-900);
   --ds-lattice:
     linear-gradient(

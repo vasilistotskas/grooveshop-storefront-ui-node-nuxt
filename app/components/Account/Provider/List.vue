@@ -25,7 +25,6 @@ const { providers, signIn: loginWithProvider } = useSocialProviders()
     >
       <UButton
         :label="provider.name"
-        :icon="socialProviderIcon(provider.id)"
         :disabled="loading"
         :loading="loading"
         color="neutral"
@@ -33,7 +32,14 @@ const { providers, signIn: loginWithProvider } = useSocialProviders()
         block
         type="button"
         @click="loginWithProvider(provider)"
-      />
+      >
+        <template #leading>
+          <AccountProviderIcon
+            :provider-id="provider.id"
+            class="size-5 shrink-0"
+          />
+        </template>
+      </UButton>
     </li>
   </ul>
 </template>

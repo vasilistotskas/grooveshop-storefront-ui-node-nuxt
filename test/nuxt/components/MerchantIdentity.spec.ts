@@ -28,6 +28,7 @@ import MerchantIdentity from '~/components/MerchantIdentity.vue'
  */
 const EMPTY = {
   name: '',
+  distinctiveTitle: '',
   legalForm: '',
   vatId: '',
   taxOffice: '',
@@ -92,6 +93,14 @@ describe('MerchantIdentity', () => {
     expect(text).toContain('ΓΕΜΗ 123456701000')
     expect(text).toContain('ΑΦΜ 801234567')
     expect(text).not.toContain('Υπό εκκαθάριση')
+  })
+
+  it('names the seller by its distinctive title, not the legal name, when one is set', async () => {
+    const wrapper = await mountIdentity({ ...PUBLISHED, distinctiveTitle: 'Acme Express' })
+
+    const text = wrapper.find('address').text().replace(/\s+/g, ' ')
+    expect(text).toContain('Acme Express')
+    expect(text).not.toContain('Acme ΙΚΕ')
   })
 
   it('discloses a liquidation', async () => {

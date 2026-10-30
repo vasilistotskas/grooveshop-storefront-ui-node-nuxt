@@ -17,15 +17,21 @@ const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).c
 mockNuxtImport('$api', () => api)
 mockNuxtImport('$fetch', () => api)
 
-const { session } = await vi.hoisted(async () => {
+const { session, page, navigateToMock } = await vi.hoisted(async () => {
   const { ref } = await import('vue')
-  return { session: { loggedIn: ref(false) } }
+  return {
+    session: { loggedIn: ref(false), ready: ref(true) },
+    // The page's fragment: what a link into the page carries.
+    page: { hash: '#details' },
+    navigateToMock: vi.fn(),
+  }
 })
+mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: session.loggedIn,
   user: computed(() => session.loggedIn.value ? { id: 7 } : null),
   session: ref({}),
-  ready: ref(true),
+  ready: session.ready,
   fetch: () => Promise.resolve(),
   clear: () => Promise.resolve(),
 }))
@@ -34,8 +40,8 @@ mockNuxtImport('useRoute', () => () => ({
   params: { id: '42', slug: 'pot' },
   query: {},
   path: '/products/42/pot',
-  fullPath: '/products/42/pot?variant=3#details',
-  hash: '#details',
+  fullPath: `/products/42/pot?variant=3${page.hash}`,
+  hash: page.hash,
   matched: [],
   meta: {},
 }))
@@ -79,6 +85,9 @@ const writeButton = (wrapper: Awaited<ReturnType<typeof mountSection>>, label: s
 
 beforeEach(() => {
   session.loggedIn.value = false
+  session.ready.value = true
+  page.hash = '#details'
+  navigateToMock.mockClear()
   setTenant()
   setTenantFeatures({ productReviews: true })
   clearNuxtData(['productReviews42undefined', 'productReviews427'])
@@ -106,6 +115,72 @@ describe('Product/Reviews/Section', () => {
     })
     expect(empty.findAll('article')).toHaveLength(0)
     expect(empty.text()).toContain('Δεν υπάρχουν ακόμα αξιολογήσεις')
+  })
+
+  // The delivery e-mails link here with #write-review.
+  describe('the #write-review link', () => {
+    beforeEach(() => {
+      page.hash = '#write-review'
+    })
+
+    it('is the summary and the way to write, clear of the sticky header', async () => {
+      const wrapper = await mountSection()
+
+      const target = wrapper.get('#write-review')
+      expect(target.classes()).toContain('scroll-mt-24')
+      expect(target.find('h2').exists()).toBe(true)
+    })
+
+    it('opens the sheet for a signed-in shopper', async () => {
+      session.loggedIn.value = true
+      api.routes({ '/api/products/reviews/42/user-product-review': null })
+
+      const wrapper = await mountSection()
+
+      await vi.waitFor(() => expect(wrapper.get('[data-sheet]').attributes('data-sheet')).toBe('write'))
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('sends a guest to sign in and back to the same fragment', async () => {
+      await mountSection()
+
+      await vi.waitFor(() => expect(navigateToMock).toHaveBeenCalledOnce())
+      const next = new URL(navigateToMock.mock.calls[0]![0] as string, 'http://shop.test').searchParams.get('next')
+      expect(next).toBe('/products/42/pot?variant=3#write-review')
+    })
+
+    it('waits for the session before choosing, since a cached page knows no shopper', async () => {
+      session.ready.value = false
+      const wrapper = await mountSection()
+      expect(navigateToMock).not.toHaveBeenCalled()
+      expect(wrapper.find('[data-sheet]').exists()).toBe(false)
+
+      session.loggedIn.value = true
+      session.ready.value = true
+
+      await vi.waitFor(() => expect(wrapper.find('[data-sheet]').exists()).toBe(true))
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('does nothing on a store with reviews off', async () => {
+      setTenantFeatures({ productReviews: false })
+      session.loggedIn.value = true
+
+      const wrapper = await mountSection()
+
+      expect(wrapper.find('[data-sheet]').exists()).toBe(false)
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('is not triggered by any other fragment', async () => {
+      page.hash = '#reviews'
+      session.loggedIn.value = true
+
+      const wrapper = await mountSection()
+
+      expect(wrapper.find('[data-sheet]').exists()).toBe(false)
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
   })
 
   describe('a guest', () => {

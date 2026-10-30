@@ -1427,6 +1427,7 @@ export const zLoyaltySummary = z.object({
  */
 export const zMerchantLegalIdentity = z.object({
   name: z.string().readonly(),
+  distinctiveTitle: z.string().readonly(),
   legalForm: z.string().readonly(),
   vatId: z.string().readonly(),
   taxOffice: z.string().readonly(),
@@ -4768,6 +4769,7 @@ export const zStorePreferences = z.object({
   mobileBottomNav: z.boolean().readonly(),
   stickyAddToCart: z.boolean().readonly(),
   recentlyViewed: z.boolean().readonly(),
+  productAssurances: z.boolean().readonly(),
   demoAccount: z.boolean().readonly(),
 })
 

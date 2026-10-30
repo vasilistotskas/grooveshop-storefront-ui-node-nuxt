@@ -23,6 +23,7 @@ import { makeUserDetails } from '~~/test/fixtures/user'
 import { makeOrderListItem } from '~~/test/fixtures/order'
 import { makeProduct, makeProductCard } from '~~/test/fixtures/product'
 import { makeLoyaltyPublicSettings, makeSummary, makeTier } from '~~/test/fixtures/loyalty'
+import { makeAllAuthConfig, makeSocialProvider } from '~~/test/fixtures/allauth'
 
 import PageHeader from '~/components/variants/webside/Page/Header.vue'
 import PageNavbar from '~/components/variants/webside/Page/Navbar.vue'
@@ -40,6 +41,7 @@ import BlogPostCardDesktop from '~/components/variants/webside/Blog/Post/Card/De
 import BlogPostCardMobile from '~/components/variants/webside/Blog/Post/Card/Mobile.vue'
 import ErrorScreen from '~/components/variants/webside/ErrorScreen.vue'
 import AccountLoginForm from '~/components/variants/webside/Account/Login/Form.vue'
+import AccountProviderList from '~/components/variants/webside/Account/Provider/List.vue'
 import AccountSignupForm from '~/components/variants/webside/Account/Signup/Form.vue'
 import HeroCarousel from '~/components/variants/webside/PageSection/HeroCarousel.vue'
 import BlogCategories from '~/components/variants/webside/PageSection/BlogCategories.vue'
@@ -411,6 +413,28 @@ describe('webside design render', () => {
 
   it('login form', async () => {
     await expectSnapshot(AccountLoginForm)
+  })
+
+  // Google's colour "G" sits on Google's own fill and stroke, not a brand
+  // colour (Sign in with Google branding guidelines); the other providers keep
+  // their solid buttons.
+  it('social sign-in buttons', async () => {
+    const auth = useAuthStore()
+    const before = auth.config
+    auth.config = makeAllAuthConfig({
+      socialaccount: {
+        providers: [
+          makeSocialProvider(),
+          makeSocialProvider({ id: 'facebook', name: 'Facebook', client_id: 'facebook-client-id' }),
+        ],
+      },
+    }).data
+    try {
+      await expectSnapshot(AccountProviderList)
+    }
+    finally {
+      auth.config = before
+    }
   })
 
   it('signup form', async () => {

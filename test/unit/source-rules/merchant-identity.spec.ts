@@ -14,7 +14,9 @@ import { COMPONENTS, callsIn, sfcTemplate, walkElements } from '../../helpers/so
  * shopper who never sees its desktop footer is owed the same disclosure
  * and both are checked. No single render shows them all, so the
  * templates are read instead. What the block renders is
- * `test/nuxt/components/MerchantIdentity.spec.ts`.
+ * `test/nuxt/components/MerchantIdentity.spec.ts`; where webside's footers
+ * place it (under the column the operator marked) is
+ * `test/nuxt/components/variants/webside/Footer/MerchantIdentity.spec.ts`.
  */
 describe('the merchant identity', () => {
   it.each([
@@ -30,6 +32,19 @@ describe('the merchant identity', () => {
       tags.push(node.tag)
     })
     expect(tags).toContain(tag)
+  })
+
+  it.each([
+    ['desktop', 'variants/webside/Footer/Desktop.vue'],
+    ['mobile', 'variants/webside/Footer/Mobile.vue'],
+  ])('is placed by the webside %s footer under the marked column AND in its fallback', (_layout, file) => {
+    // Under the column the operator marked, and where a footer with none
+    // marked keeps it: dropping either leaves some store with no disclosure.
+    let count = 0
+    walkElements(sfcTemplate(resolve(COMPONENTS, file)), (node) => {
+      if (node.tag === 'WebsideMerchantIdentity') count++
+    })
+    expect(count).toBe(2)
   })
 
   it('is published by the ekfyseosfyteias chrome footer, which lays it out itself', () => {

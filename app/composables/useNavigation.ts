@@ -8,6 +8,7 @@ export interface NavLink {
 export interface NavColumn {
   label: string
   icon?: string
+  showsMerchantIdentity?: boolean
   children: NavLink[]
 }
 
