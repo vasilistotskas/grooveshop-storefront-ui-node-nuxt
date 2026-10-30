@@ -70,6 +70,7 @@ export type PageKey
     | '2fa-authenticate-webauthn'
     | '2fa-authenticate-recovery-codes'
     | 'newsletter-confirm'
+    | 'product-alert-confirm'
     | 'account'
     | 'account-2fa'
     | 'account-2fa-recovery-codes-generate'
@@ -163,6 +164,7 @@ const pageDefaults: Record<PageKey, Component> = {
   '2fa-authenticate-webauthn': lazy(() => import('~/components/Storefront/Auth/TwoFactorWebauthn.vue')),
   '2fa-authenticate-recovery-codes': lazy(() => import('~/components/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
   'newsletter-confirm': lazy(() => import('~/components/Storefront/NewsletterConfirm.vue')),
+  'product-alert-confirm': lazy(() => import('~/components/Storefront/ProductAlertConfirm.vue')),
   'account': lazy(() => import('~/components/Storefront/Account/Overview.vue')),
   'account-2fa': securityPage,
   'account-2fa-recovery-codes-generate': lazy(() => import('~/components/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),
@@ -267,12 +269,13 @@ const variants: Record<string, Component> = {
   'page:2fa-authenticate-totp@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorTotp.vue')),
   'page:2fa-authenticate-webauthn@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorWebauthn.vue')),
   'page:2fa-authenticate-recovery-codes@webside': lazy(() => import('~/components/variants/webside/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
-  // The account area, the re-auth pages and the newsletter confirmation
+  // The account area, the re-auth pages and the newsletter and product alert confirmations
   // joined webside's design later than the rest, from the defaults webside rendered
   // then. Where a default had already drifted from its first webside copy,
   // the version webside showed in these pages is kept apart under
   // `variants/webside/AccountArea/`.
   'page:newsletter-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/NewsletterConfirm.vue')),
+  'page:product-alert-confirm@webside': lazy(() => import('~/components/variants/webside/Storefront/ProductAlertConfirm.vue')),
   'page:account@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/Overview.vue')),
   'page:account-2fa@webside': websideSecurityPage,
   'page:account-2fa-recovery-codes-generate@webside': lazy(() => import('~/components/variants/webside/Storefront/Account/TwoFactorRecoveryCodesGenerate.vue')),

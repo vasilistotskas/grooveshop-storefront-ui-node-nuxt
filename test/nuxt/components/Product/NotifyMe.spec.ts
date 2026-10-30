@@ -110,6 +110,7 @@ const ADAPTERS = {
     formShown: (wrapper: Mounted) => wrapper.find('form').exists(),
     copy: {
       created: 'Θα σε ειδοποιήσουμε μόλις είναι ξανά διαθέσιμο',
+      pending: 'Έλεγξε το email σου',
       conflict: 'Έχεις ήδη ενεργή ειδοποίηση για αυτό',
       aboveCurrent: 'Η επιθυμητή τιμή πρέπει να είναι κάτω από τη σημερινή.',
       activeTarget: () => `Θα σε ειδοποιήσουμε μόλις φτάσει στα ${useNuxtApp().$i18n.n(15, 'currency')} ή χαμηλότερα.`,
@@ -136,6 +137,7 @@ const ADAPTERS = {
     formShown: (wrapper: Mounted) => wrapper.find('[data-testid="trigger"]').exists(),
     copy: {
       created: 'Η ειδοποίηση ενεργοποιήθηκε',
+      pending: 'Έλεγξε το email σου',
       conflict: 'Έχεις ήδη ενεργή ειδοποίηση',
       aboveCurrent: 'Η επιθυμητή τιμή πρέπει να είναι μικρότερη από την τρέχουσα.',
       activeTarget: () => 'Θα σε ειδοποιήσουμε μόλις η τιμή φτάσει στα 15 € ή χαμηλότερα.',
@@ -166,7 +168,8 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
     api.routes({ [ALERTS]: (_url: string, options?: { method?: string }) => (options?.method === 'GET' ? page([]) : makeAlert()) })
   })
 
-  it('subscribes a guest by email, confirms it and closes the form, without looking up alerts', async () => {
+  it('asks a guest to check their inbox on a 202, closes the form and starts no alert yet', async () => {
+    api.routes({ [ALERTS]: (_url: string, options?: { method?: string }) => (options?.method === 'GET' ? page([]) : { detail: 'Check your inbox.' }) })
     const wrapper = await adapter.mount()
 
     await adapter.submit(wrapper, { 'input[type="email"]': 'guest@example.com' })
@@ -175,10 +178,31 @@ describe.each(trees(NotifyMe, WebsideNotifyMe))('$tree Product/NotifyMe', ({ tre
       url: ALERTS,
       options: expect.objectContaining({ body: { kind: 'restock', product: 3, email: 'guest@example.com' } }),
     }])
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: adapter.copy.created, color: 'success' }))
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: adapter.copy.pending, color: 'info' }))
+    expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: adapter.copy.created }))
     expect(wrapper.find('[data-testid="modal"]').exists()).toBe(false)
-    // A guest cannot be identified without their email: no lookup.
+    // A guest cannot be identified without their email: no lookup, before or after.
     expect(lookups()).toHaveLength(0)
+  })
+
+  it('tells the answers apart by their body, not by who is signed in: an alert is "active" for a guest too', async () => {
+    const wrapper = await adapter.mount()
+
+    await adapter.submit(wrapper, { 'input[type="email"]': 'guest@example.com' })
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: adapter.copy.created, color: 'success' }))
+    expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: adapter.copy.pending }))
+  })
+
+  it('confirms a signed-in shopper alert as active at once (201) and re-reads their alerts', async () => {
+    signIn()
+    const wrapper = await adapter.mount()
+
+    await adapter.submit(wrapper)
+
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: adapter.copy.created, color: 'success' }))
+    expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ title: adapter.copy.pending }))
+    expect(lookups()).toHaveLength(2)
   })
 
   it('refuses a guest without a valid email', async () => {

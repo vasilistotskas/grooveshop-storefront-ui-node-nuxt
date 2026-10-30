@@ -21,6 +21,7 @@ import { isStaticLayoutPageType } from './staticLayoutRoutes.ts'
 const RESERVED_SEGMENTS: ReadonlySet<string> = new Set([
   // app/pages
   'about',
+  'alerts',
   'account',
   'blog',
   'cart',

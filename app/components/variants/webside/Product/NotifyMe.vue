@@ -36,6 +36,7 @@ const { schema, state, submitting, canceling, isPriceDrop, activeAlert: existing
   t,
   messages: () => ({
     created: { title: t(`${props.kind}.success.title`), description: t(`${props.kind}.success.description`), icon: 'i-heroicons-bell-alert' },
+    pending: { title: t('pending.title'), description: t('pending.description'), icon: 'i-heroicons-envelope' },
     conflict: { title: t('conflict.title'), description: t('conflict.description'), icon: 'i-heroicons-information-circle' },
     cancelled: { title: t('cancel_success.title'), description: t('cancel_success.description'), icon: 'i-heroicons-check-circle' },
     createError: { title: t('error.title'), fallback: t('error.description') },
@@ -180,6 +181,9 @@ el:
   logged_in_hint: "Θα στείλουμε την ειδοποίηση στο {email}."
   cancel: "Άκυρο"
   submit: "Ενεργοποίηση ειδοποίησης"
+  pending:
+    title: "Έλεγξε το email σου"
+    description: "Σου στείλαμε έναν σύνδεσμο επιβεβαίωσης. Πάτα τον για να ενεργοποιηθεί η ειδοποίηση."
   conflict:
     title: "Έχεις ήδη ενεργή ειδοποίηση"
     description: "Η προηγούμενη εγγραφή σου ισχύει ακόμη — θα σε ειδοποιήσουμε όταν το κριτήριο ικανοποιηθεί."
@@ -228,6 +232,9 @@ en:
   logged_in_hint: "We will send the alert to {email}."
   cancel: "Cancel"
   submit: "Turn the alert on"
+  pending:
+    title: "Check your inbox"
+    description: "We sent you a confirmation link. Press it to switch the alert on."
   conflict:
     title: "You already have an active alert"
     description: "Your earlier sign-up still stands — we will let you know when the condition is met."

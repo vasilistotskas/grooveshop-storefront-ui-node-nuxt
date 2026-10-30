@@ -22,9 +22,17 @@ export interface ProductAlertToast {
  * ties a signed-in shopper's alert to their account). A price target must
  * be below `currentPrice`, or the alert would fire at once.
  *
+ * Django answers a signed-in shopper with 201 and the alert, active at
+ * once. A guest always gets 202 and a `detail`, whatever the address:
+ * nothing is active until they press the link emailed to them (double
+ * opt-in, `pages/alerts/confirm/[token].vue`), so the answer is told by
+ * its body (only an alert has an `id`) and the drawing says `pending`
+ * ("check your inbox") instead of `created`.
+ *
  * `messages` are the drawing's own toasts and failure headlines;
- * `onCreated` runs once an alert exists (the drawing closes its dialog). A
- * 409 means the alert exists already: it is read so the drawing shows it.
+ * `onCreated` runs once Django has answered (the drawing closes its
+ * dialog). A 409 means the alert exists already: it is read so the
+ * drawing shows it.
  * Call it where `await` is allowed: the lookup is read before it returns.
  */
 export async function useProductAlert(options: {
@@ -34,6 +42,7 @@ export async function useProductAlert(options: {
   t: ReturnType<typeof useI18n>['t']
   messages: () => {
     created: ProductAlertToast
+    pending: ProductAlertToast
     conflict: ProductAlertToast
     cancelled: ProductAlertToast
     createError: DescribeApiErrorOptions
@@ -102,7 +111,7 @@ export async function useProductAlert(options: {
     if (submitting.value) return
     submitting.value = true
     try {
-      await $api('/api/products/alerts', {
+      const response = await $api('/api/products/alerts', {
         method: 'POST',
         body: {
           kind: options.kind(),
@@ -111,9 +120,15 @@ export async function useProductAlert(options: {
           ...(isPriceDrop.value ? { targetPrice: state.targetPrice } : {}),
         },
       })
-      toast.add({ ...options.messages().created, color: 'success' })
-      options.onCreated()
-      await refreshAlerts()
+      if ('id' in response) {
+        toast.add({ ...options.messages().created, color: 'success' })
+        options.onCreated()
+        await refreshAlerts()
+      }
+      else {
+        toast.add({ ...options.messages().pending, color: 'info' })
+        options.onCreated()
+      }
     }
     catch (error) {
       const status = (error as { statusCode?: number })?.statusCode

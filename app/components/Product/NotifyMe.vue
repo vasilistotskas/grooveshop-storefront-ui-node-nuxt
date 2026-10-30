@@ -12,7 +12,9 @@
  * A signed-in shopper's active alert of the chosen kind replaces the
  * form with what is set and a way to turn it off, so they are never
  * asked to subscribe again into a 409. Guests are not looked up — they
- * cannot be identified before they give an email.
+ * cannot be identified before they give an email. A guest's alert does
+ * not start on submit: Django emails them a link, and the alert is on
+ * once they confirm it, so the dialog closes on "check your inbox".
  *
  * The parent mounts this on the first open, so the lookup happens only
  * for a shopper who asked.
@@ -50,6 +52,7 @@ const { schema, state, submitting, canceling, isPriceDrop, activeAlert, onSubmit
   t,
   messages: () => ({
     created: { title: t(`${kind.value}.success`), icon: 'i-lucide-bell-ring' },
+    pending: { title: t('pending.title'), description: t('pending.description'), icon: 'i-lucide-mail-check' },
     conflict: { title: t('conflict') },
     cancelled: { title: t('cancel_success') },
     createError: { title: t('error') },
@@ -237,6 +240,9 @@ el:
   close: Κλείσιμο
   create: Δημιουργία ειδοποίησης
   turn_off: Απενεργοποίηση ειδοποίησης
+  pending:
+    title: Έλεγξε το email σου
+    description: Σου στείλαμε έναν σύνδεσμο. Πάτα τον για να ενεργοποιηθεί η ειδοποίηση.
   conflict: Έχεις ήδη ενεργή ειδοποίηση για αυτό
   error: Η ειδοποίηση δεν δημιουργήθηκε. Δοκίμασε ξανά σε λίγο.
   cancel_success: Η ειδοποίηση απενεργοποιήθηκε
@@ -269,6 +275,9 @@ en:
   close: Close
   create: Create alert
   turn_off: Turn the alert off
+  pending:
+    title: Check your inbox
+    description: We sent you a link. Press it to switch the alert on.
   conflict: You already have an active alert for this
   error: The alert could not be created. Try again shortly.
   cancel_success: The alert is off

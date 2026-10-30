@@ -1364,6 +1364,7 @@ export default defineNuxtConfig({
       '/feedback',
       // Confirmation links from emails; `robots: false` on the page too.
       '/newsletter/**',
+      '/alerts/**',
       // The legal routes are deliberately NOT listed here. `exclude` is
       // applied to the FINAL url set — sources included
       // (`resolveSitemapEntries` filters `sources.flatMap(s => s.urls)`)

@@ -640,6 +640,29 @@ exports[`webside design render > pagination page number 1`] = `
 </nav>"
 `;
 
+exports[`webside design render > product alert confirmation 1`] = `
+"<div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 relative mt-2 mb-16 md:mt-4 flex flex-col gap-6">
+  <div class="font-display mt-2 text-2xl font-bold md:text-4xl">
+    <h1 class="text-primary-950 dark:text-primary-50">Επιβεβαίωση ειδοποίησης</h1>
+  </div>
+  <div class="mx-auto w-full max-w-xl">
+    <div data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default">
+      <!--v-if-->
+      <div data-slot="body" class="p-4 sm:p-6">
+        <div class="space-y-4 py-6 text-center"><span class="iconify i-heroicons:bell mx-auto size-12 text-muted" aria-hidden="true"></span>
+          <p class="text-muted">Πάτησε το κουμπί για να ξεκινήσει η ειδοποίησή σου για το προϊόν.</p>
+          <!--v-if--><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)">
+            <!--v-if-->Επιβεβαίωση ειδοποίησης
+            <!--v-if-->
+          </button>
+        </div>
+      </div>
+      <!--v-if-->
+    </div>
+  </div>
+</div>"
+`;
+
 exports[`webside design render > product card 1`] = `
 "<li data-v-X="" data-slot="root" class="rounded-lg overflow-hidden bg-default ring ring-default divide-y divide-default product-card group relative h-full w-full max-w-full transition-all duration-300 hover:shadow-xl hover:scale-[1.02] focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1">
   <!--v-if-->
