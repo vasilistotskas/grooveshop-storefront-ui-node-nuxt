@@ -34141,6 +34141,36 @@
                             }
                         },
                         "description": ""
+                    },
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Detail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -34294,6 +34324,58 @@
                         "description": ""
                     },
                     "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/product/alert/confirm/{token}": {
+            "post": {
+                "operationId": "confirmProductAlertByToken",
+                "description": "Public endpoint behind the storefront's alert confirmation page.\n\nThe signed token is the authorisation; no login. POST only: the\nemailed link opens a storefront page whose button POSTs here, so a\nmail link scanner that prefetches the link confirms nothing. What a\nvalid confirmation is (a pending guest alert of THIS store, a link no\nolder than a week, else 410) is ``product.alerts.confirm_guest_alert``.\n\nDeliberately not gated on the alerts feature, like the newsletter's\nconfirmation: links in emails already sent keep working, and the\nalert then waits for the feature like every other one.",
+                "summary": "Επιβεβαίωση ειδοποίησης προϊόντος επισκέπτη μέσω token email",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Product Alerts"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConfirmProductAlertResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "410": {
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -52354,6 +52436,87 @@
                 }
             }
         },
+        "/api/v1/user/email-preferences": {
+            "get": {
+                "operationId": "getEmailPreferences",
+                "description": "Τα προωθητικά email που στέλνει αυτό το κατάστημα, με ένδειξη αν η διεύθυνση του λογαριασμού σας τα λαμβάνει ακόμη.",
+                "summary": "Λίστα προωθητικών email που μπορείτε να επιλέξετε",
+                "tags": [
+                    "User Subscriptions"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailPreferences"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "updateEmailPreferences",
+                "description": "Η απενεργοποίηση ενός τύπου καταγράφει την εξαίρεσή σας από αυτόν. Η ενεργοποίηση άρει την εξαίρεση που τον καλύπτει και αφήνει τις υπόλοιπες επιλογές σας ως έχουν, ακόμη και μετά από απεγγραφή από όλα τα προωθητικά email. Απαντά με την ίδια λίστα με το GET.",
+                "summary": "Ενεργοποίηση ή απενεργοποίηση προωθητικών email",
+                "tags": [
+                    "User Subscriptions"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedEmailPreferencesWriteRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedEmailPreferencesWriteRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedEmailPreferencesWriteRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailPreferences"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/user/subscription": {
             "get": {
                 "operationId": "listUserSubscription",
@@ -60523,6 +60686,21 @@
                     "status"
                 ]
             },
+            "ConfirmProductAlertResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/ProductAlertKindEnum"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "status"
+                ]
+            },
             "ConfirmResponse": {
                 "type": "object",
                 "properties": {
@@ -61532,6 +61710,59 @@
                 },
                 "required": [
                     "detail"
+                ]
+            },
+            "EmailPreference": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "title": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "enabled": {
+                        "type": "boolean",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "key",
+                    "title"
+                ]
+            },
+            "EmailPreferenceChoiceRequest": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "key"
+                ]
+            },
+            "EmailPreferences": {
+                "type": "object",
+                "properties": {
+                    "types": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmailPreference"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "types"
                 ]
             },
             "ErrorResponse": {
@@ -67587,6 +67818,17 @@
                     }
                 }
             },
+            "PatchedEmailPreferencesWriteRequest": {
+                "type": "object",
+                "properties": {
+                    "types": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmailPreferenceChoiceRequest"
+                        }
+                    }
+                }
+            },
             "PatchedNavigationMenuRequest": {
                 "type": "object",
                 "description": "The slot row alone.\n\nColumns and links are relational and edited in the admin; this\nsurface used to carry the JSON menu and validate it, and that blob\nno longer exists on the model.",
@@ -68150,7 +68392,8 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "category": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "brand": {
                         "type": "integer",
@@ -72606,7 +72849,8 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "category": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "brand": {
                         "type": "integer",
@@ -72661,7 +72905,6 @@
                     }
                 },
                 "required": [
-                    "category",
                     "price",
                     "slug",
                     "translations"

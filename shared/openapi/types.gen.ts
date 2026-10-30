@@ -2703,6 +2703,11 @@ export type ConfirmAgentPaymentResponse = {
   provider: string
 }
 
+export type ConfirmProductAlertResponse = {
+  status: string
+  kind: ProductAlertKindEnum
+}
+
 export type ConfirmResponse = {
   status: string
   topic?: string
@@ -3241,6 +3246,21 @@ export type Detail = {
      * Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
      */
   code?: string
+}
+
+export type EmailPreference = {
+  readonly key: string
+  readonly title: string
+  readonly enabled: boolean
+}
+
+export type EmailPreferenceChoiceRequest = {
+  key: string
+  enabled: boolean
+}
+
+export type EmailPreferences = {
+  readonly types: Array<EmailPreference>
 }
 
 export type ErrorResponse = {
@@ -5920,6 +5940,10 @@ export type PatchedCountryWriteRequest = {
   postalCodeExample?: string
 }
 
+export type PatchedEmailPreferencesWriteRequest = {
+  types?: Array<EmailPreferenceChoiceRequest>
+}
+
 /**
  * The slot row alone.
  *
@@ -6244,7 +6268,7 @@ export type PatchedProductWriteRequest = {
     }
   }
   slug?: string
-  category?: number
+  category?: number | null
   brand?: number | null
   price?: number
   vat?: number | null
@@ -8157,7 +8181,7 @@ export type ProductWriteRequest = {
     }
   }
   slug: string
-  category: number
+  category?: number | null
   brand?: number | null
   price: number
   vat?: number | null
@@ -22548,6 +22572,8 @@ export type CreateProductAlertErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  409: ErrorResponse
+  429: ErrorResponse
   500: ErrorResponse
 }
 
@@ -22555,6 +22581,7 @@ export type CreateProductAlertError = CreateProductAlertErrors[keyof CreateProdu
 
 export type CreateProductAlertResponses = {
   201: ProductAlert
+  202: Detail
 }
 
 export type CreateProductAlertResponse = CreateProductAlertResponses[keyof CreateProductAlertResponses]
@@ -22604,6 +22631,28 @@ export type RetrieveProductAlertResponses = {
 }
 
 export type RetrieveProductAlertResponse = RetrieveProductAlertResponses[keyof RetrieveProductAlertResponses]
+
+export type ConfirmProductAlertByTokenData = {
+  body?: never
+  path: {
+    token: string
+  }
+  query?: never
+  url: '/api/v1/product/alert/confirm/{token}'
+}
+
+export type ConfirmProductAlertByTokenErrors = {
+  400: ErrorResponse
+  410: ErrorResponse
+}
+
+export type ConfirmProductAlertByTokenError = ConfirmProductAlertByTokenErrors[keyof ConfirmProductAlertByTokenErrors]
+
+export type ConfirmProductAlertByTokenResponses = {
+  200: ConfirmProductAlertResponse
+}
+
+export type ConfirmProductAlertByTokenResponse = ConfirmProductAlertByTokenResponses[keyof ConfirmProductAlertByTokenResponses]
 
 export type ListAttributeData = {
   body?: never
@@ -27899,6 +27948,38 @@ export type DownloadUserDataExportResponses = {
      */
   200: unknown
 }
+
+export type GetEmailPreferencesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/user/email-preferences'
+}
+
+export type GetEmailPreferencesResponses = {
+  200: EmailPreferences
+}
+
+export type GetEmailPreferencesResponse = GetEmailPreferencesResponses[keyof GetEmailPreferencesResponses]
+
+export type UpdateEmailPreferencesData = {
+  body?: PatchedEmailPreferencesWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/user/email-preferences'
+}
+
+export type UpdateEmailPreferencesErrors = {
+  400: ErrorResponse
+}
+
+export type UpdateEmailPreferencesError = UpdateEmailPreferencesErrors[keyof UpdateEmailPreferencesErrors]
+
+export type UpdateEmailPreferencesResponses = {
+  200: EmailPreferences
+}
+
+export type UpdateEmailPreferencesResponse = UpdateEmailPreferencesResponses[keyof UpdateEmailPreferencesResponses]
 
 export type ListUserSubscriptionData = {
   body?: never

@@ -2,9 +2,12 @@ import { defineEventHandler, readValidatedBody, useRuntimeConfig } from 'nuxt/se
 
 /**
  * Creates a product alert subscription (restock or price-drop) for the
- * signed-in user OR a guest email. The backend enforces the "one active
- * alert per kind per product" uniqueness and returns 409 if the caller
- * already subscribed.
+ * signed-in user OR a guest email. A signed-in user gets 201 and the alert,
+ * active at once; the backend enforces the "one active alert per kind per
+ * product" uniqueness and returns 409 if they already subscribed. A guest
+ * always gets 202 and a `detail`, whatever the address: the alert starts
+ * only when they confirm the emailed link (`alerts/confirm/[token].post.ts`).
+ * `zCreateProductAlertResponse` is the union of the two bodies.
  */
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

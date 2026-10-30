@@ -20026,6 +20026,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductAlert'
           description: ''
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
         '400':
           content:
             application/json:
@@ -20045,6 +20051,18 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '429':
           content:
             application/json:
               schema:
@@ -20145,6 +20163,49 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/product/alert/confirm/{token}:
+    post:
+      operationId: confirmProductAlertByToken
+      description: |-
+        Public endpoint behind the storefront's alert confirmation page.
+
+        The signed token is the authorisation; no login. POST only: the
+        emailed link opens a storefront page whose button POSTs here, so a
+        mail link scanner that prefetches the link confirms nothing. What a
+        valid confirmation is (a pending guest alert of THIS store, a link no
+        older than a week, else 410) is ``product.alerts.confirm_guest_alert``.
+
+        Deliberately not gated on the alerts feature, like the newsletter's
+        confirmation: links in emails already sent keep working, and the
+        alert then waits for the feature like every other one.
+      summary: Επιβεβαίωση ειδοποίησης προϊόντος επισκέπτη μέσω token email
+      parameters:
+        - in: path
+          name: token
+          schema:
+            type: string
+          required: true
+      tags:
+        - Product Alerts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmProductAlertResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '410':
           content:
             application/json:
               schema:
@@ -30890,6 +30951,54 @@ paths:
           description: No response body
         '410':
           description: No response body
+  /api/v1/user/email-preferences:
+    get:
+      operationId: getEmailPreferences
+      description: Τα προωθητικά email που στέλνει αυτό το κατάστημα, με ένδειξη αν η διεύθυνση του λογαριασμού σας τα λαμβάνει ακόμη.
+      summary: Λίστα προωθητικών email που μπορείτε να επιλέξετε
+      tags:
+        - User Subscriptions
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailPreferences'
+          description: ''
+    patch:
+      operationId: updateEmailPreferences
+      description: Η απενεργοποίηση ενός τύπου καταγράφει την εξαίρεσή σας από αυτόν. Η ενεργοποίηση άρει την εξαίρεση που τον καλύπτει και αφήνει τις υπόλοιπες επιλογές σας ως έχουν, ακόμη και μετά από απεγγραφή από όλα τα προωθητικά email. Απαντά με την ίδια λίστα με το GET.
+      summary: Ενεργοποίηση ή απενεργοποίηση προωθητικών email
+      tags:
+        - User Subscriptions
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailPreferencesWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailPreferencesWriteRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailPreferencesWriteRequest'
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailPreferences'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/user/subscription:
     get:
       operationId: listUserSubscription
@@ -36982,6 +37091,16 @@ components:
         - paymentId
         - provider
         - status
+    ConfirmProductAlertResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        kind:
+          $ref: '#/components/schemas/ProductAlertKindEnum'
+      required:
+        - kind
+        - status
     ConfirmResponse:
       type: object
       properties:
@@ -37762,6 +37881,43 @@ components:
           description: Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
       required:
         - detail
+    EmailPreference:
+      type: object
+      properties:
+        key:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+      required:
+        - enabled
+        - key
+        - title
+    EmailPreferenceChoiceRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        enabled:
+          type: boolean
+      required:
+        - enabled
+        - key
+    EmailPreferences:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailPreference'
+          readOnly: true
+      required:
+        - types
     ErrorResponse:
       type: object
       properties:
@@ -42529,6 +42685,13 @@ components:
           title: Παράδειγμα ταχυδρομικού κώδικα
           description: Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
           maxLength: 50
+    PatchedEmailPreferencesWriteRequest:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailPreferenceChoiceRequest'
     PatchedNavigationMenuRequest:
       type: object
       description: |-
@@ -42938,6 +43101,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           type: integer
+          nullable: true
         brand:
           type: integer
           nullable: true
@@ -46400,6 +46564,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           type: integer
+          nullable: true
         brand:
           type: integer
           nullable: true
@@ -46441,7 +46606,6 @@ components:
           type: boolean
           title: Ενεργή
       required:
-        - category
         - price
         - slug
         - translations

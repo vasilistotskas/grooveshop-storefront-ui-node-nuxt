@@ -1139,6 +1139,21 @@ export const zDetail = z.object({
   code: z.string().optional(),
 })
 
+export const zEmailPreference = z.object({
+  key: z.string().readonly(),
+  title: z.string().readonly(),
+  enabled: z.boolean().readonly(),
+})
+
+export const zEmailPreferenceChoiceRequest = z.object({
+  key: z.string().min(1),
+  enabled: z.boolean(),
+})
+
+export const zEmailPreferences = z.object({
+  types: z.array(zEmailPreference).readonly(),
+})
+
 export const zErrorResponse = z.object({
   detail: z.string(),
   code: z.string().optional(),
@@ -2202,6 +2217,10 @@ export const zPatchedCountryWriteRequest = z.object({
   postalCodeExample: z.string().max(50).optional(),
 })
 
+export const zPatchedEmailPreferencesWriteRequest = z.object({
+  types: z.array(zEmailPreferenceChoiceRequest).optional(),
+})
+
 export const zPatchedNotificationUserWriteRequest = z.object({
   seen: z.boolean().optional(),
 })
@@ -2351,7 +2370,7 @@ export const zPatchedProductWriteRequest = z.object({
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
-  category: z.int().optional(),
+  category: z.int().nullish(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000).optional(),
   vat: z.int().nullish(),
@@ -2698,6 +2717,11 @@ export const zNotification = z.object({
  * * `price_drop` - Πτώση τιμής
  */
 export const zProductAlertKindEnum = z.enum(['restock', 'price_drop'])
+
+export const zConfirmProductAlertResponse = z.object({
+  status: z.string(),
+  kind: zProductAlertKindEnum,
+})
 
 export const zProductAlert = z.object({
   id: z.int().readonly(),
@@ -3564,7 +3588,7 @@ export const zProductWriteRequest = z.object({
     }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
+  category: z.int().nullish(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
@@ -14116,7 +14140,10 @@ export const zCreateProductAlertQuery = z.object({
   languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
-export const zCreateProductAlertResponse = zProductAlert
+export const zCreateProductAlertResponse = z.union([
+  zProductAlert,
+  zDetail,
+])
 
 export const zDestroyProductAlertPath = z.object({
   id: z.union([
@@ -14137,6 +14164,12 @@ export const zRetrieveProductAlertQuery = z.object({
 })
 
 export const zRetrieveProductAlertResponse = zProductAlert
+
+export const zConfirmProductAlertByTokenPath = z.object({
+  token: z.string(),
+})
+
+export const zConfirmProductAlertByTokenResponse = zConfirmProductAlertResponse
 
 export const zListAttributeQuery = z.object({
   active: z.union([
@@ -16808,6 +16841,12 @@ export const zSetMainUserAddressResponse = zUserAddressDetail
 export const zDownloadUserDataExportPath = z.object({
   token: z.string(),
 })
+
+export const zGetEmailPreferencesResponse = zEmailPreferences
+
+export const zUpdateEmailPreferencesBody = zPatchedEmailPreferencesWriteRequest
+
+export const zUpdateEmailPreferencesResponse = zEmailPreferences
 
 export const zListUserSubscriptionQuery = z.object({
   createdAfter: z.iso.datetime({ offset: true }).optional(),

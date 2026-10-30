@@ -53,6 +53,7 @@ import AccountAddresses from '~/components/variants/webside/Storefront/Account/A
 import AccountSettings from '~/components/variants/webside/Storefront/Account/Settings.vue'
 import AccountReauthenticate from '~/components/variants/webside/Storefront/Auth/Reauthenticate.vue'
 import NewsletterConfirm from '~/components/variants/webside/Storefront/NewsletterConfirm.vue'
+import ProductAlertConfirm from '~/components/variants/webside/Storefront/ProductAlertConfirm.vue'
 
 /**
  * Every request — `$api`, and the `$fetch` that `useApi` / `useLazyApi`
@@ -528,5 +529,9 @@ describe('webside design render', () => {
 
   it('newsletter confirmation', async () => {
     await expectSnapshot(NewsletterConfirm, { route: '/newsletter/confirm/abc' })
+  })
+
+  it('product alert confirmation', async () => {
+    await expectSnapshot(ProductAlertConfirm, { route: '/alerts/confirm/abc' })
   })
 })

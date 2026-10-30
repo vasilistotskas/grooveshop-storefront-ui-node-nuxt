@@ -23,7 +23,7 @@ const PAGE_KEYS: PageKey[] = [
   'signup-passkey-create', 'password-reset', 'password-reset-key',
   'verify-email', 'verify-email-key', 'provider-callback', 'provider-signup',
   '2fa-authenticate-totp', '2fa-authenticate-webauthn',
-  '2fa-authenticate-recovery-codes', 'newsletter-confirm',
+  '2fa-authenticate-recovery-codes', 'newsletter-confirm', 'product-alert-confirm',
   'account', 'account-security', 'account-2fa', 'account-2fa-recovery-codes-generate',
   'account-2fa-recovery-codes', 'account-2fa-totp-activate',
   'account-2fa-totp-deactivate', 'account-2fa-webauthn-add', 'account-2fa-webauthn',
