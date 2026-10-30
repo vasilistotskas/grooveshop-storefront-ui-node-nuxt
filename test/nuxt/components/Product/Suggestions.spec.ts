@@ -3,7 +3,7 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import Suggestions from '~/components/Product/Suggestions.vue'
 import WebsideSuggestions from '~/components/variants/webside/Product/Suggestions.vue'
-import type { Product, SurfaceEnum } from '~~/shared/openapi/types.gen'
+import type { SurfaceEnum } from '~~/shared/openapi/types.gen'
 import { makeProduct } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
@@ -74,7 +74,7 @@ const websideStubs = {
 }
 
 /** The strip's props (`Product/Suggestions.vue` `defineProps`). */
-type StripProps = { surface: SurfaceEnum, seedId?: number, items?: Product[], limit?: number, hideTitle?: boolean, band?: boolean }
+type StripProps = { surface: SurfaceEnum, seedId?: number, seedIds?: number[], limit?: number, hideTitle?: boolean, band?: boolean }
 
 const events = () => api.callsTo('/api/analytics/recommendation-event')
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
@@ -270,18 +270,23 @@ describe('webside Product/Suggestions', () => {
     })
   })
 
-  it('renders passed items without a reason, a fetch or a report (the cart path)', async () => {
-    const wrapper = await mountStrip({ surface: 'cart', items: [named(7, 'Λίπασμα'), named(8, 'Σπόροι')], limit: 1 })
+  it('asks the store-wide route for the basket, seeded with its sorted product ids, and reports it (the cart)', async () => {
+    const wrapper = await mountStrip({ surface: 'cart', seedIds: [9, 4] })
 
+    expect(api.callsTo('/api/recommendations')).toEqual([
+      { url: '/api/recommendations', options: expect.objectContaining({ query: { surface: 'cart', seeds: '4,9' } }) },
+    ])
     expect(wrapper.find('h2').text()).toBe('Πρόσθεσε στην παραγγελία σου')
-    const tiles = wrapper.findAll('article')
-    expect(tiles.map(tile => tile.find('h3').text())).toEqual(['Λίπασμα'])
-    expect(tiles[0]!.find('p').exists()).toBe(false)
+    expect(wrapper.findAll('article')).toHaveLength(2)
+    expect(events()).toHaveLength(1)
+    expect(events()[0]!.options.body).toMatchObject({ surface: 'cart', kind: 'impression' })
+  })
 
-    await tiles[0]!.find('h3').trigger('click')
+  it('asks nothing for an empty basket: Django refuses a cart surface with no seed', async () => {
+    const wrapper = await mountStrip({ surface: 'cart', seedIds: [] })
 
-    expect(api.callsTo('/api/products/*')).toHaveLength(0)
-    expect(events()).toHaveLength(0)
+    expect(api.callsTo('/api/recommendations')).toHaveLength(0)
+    expect(wrapper.find('section').exists()).toBe(false)
   })
 })
 
@@ -396,15 +401,27 @@ describe('default Product/Suggestions', () => {
     expect(events()[0]!.options.body).toMatchObject({ surface: 'empty_cart', kind: 'impression' })
   })
 
-  it('renders passed items without a fetch or a report (the cart path)', async () => {
-    const wrapper = await mountGrid({ surface: 'cart', items: [named(7, 'Λίπασμα'), named(8, 'Σπόροι')], limit: 1 })
+  it('asks the store-wide route for the basket, seeded with its sorted product ids, and reports it (the cart)', async () => {
+    const wrapper = await mountGrid({ surface: 'cart', seedIds: [9, 4] })
 
+    expect(api.callsTo('/api/recommendations')).toEqual([
+      { url: '/api/recommendations', options: expect.objectContaining({ query: { surface: 'cart', seeds: '4,9' } }) },
+    ])
     expect(wrapper.find('h2').text()).toBe('Πρόσθεσε στην παραγγελία σου')
-    expect(names(wrapper)).toEqual(['Λίπασμα'])
+    expect(names(wrapper)).toEqual(['Γλάστρα', 'Χώμα'])
+    expect(events()).toHaveLength(1)
+    expect(events()[0]!.options.body).toMatchObject({ surface: 'cart', kind: 'impression' })
+  })
 
-    await wrapper.find('li.card h3').trigger('click')
+  it('asks again when the basket changes, and nothing for an empty one', async () => {
+    const wrapper = await mountGrid({ surface: 'cart', seedIds: [4] })
 
-    expect(api.callsTo('/api/products/*')).toHaveLength(0)
-    expect(events()).toHaveLength(0)
+    await wrapper.setProps({ seedIds: [4, 9] })
+    await flushPromises()
+    expect(api.callsTo('/api/recommendations').map(call => call.options.query.seeds)).toEqual(['4', '4,9'])
+
+    await wrapper.setProps({ seedIds: [] })
+    await flushPromises()
+    expect(api.callsTo('/api/recommendations')).toHaveLength(2)
   })
 })

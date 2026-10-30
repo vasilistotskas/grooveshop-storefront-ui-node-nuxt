@@ -21,26 +21,17 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  *
  * Buying must never fail in silence — measured on staging, a click that
  * never reached the API produced no toast, no console error and no cart
- * change. The default tree toasts every failure; the webside
- * copy predates that fix (`if (failed) return`), so that case and the
- * default's `loading-auto` busy state are default-only. Everything else
- * is one body over both trees.
- *
- * A successful add is announced differently: the default tree opens the
- * cart drawer with the line on a desktop and, on a phone, toasts the
- * product with "View" (which opens the drawer); webside keeps its
- * "added" toast.
+ * change. And it answers at once: the "Adding…" toast opens on the click,
+ * before the request, and the answer replaces it in place. Everything is
+ * one body over both trees but how a successful add is announced: the
+ * default tree opens the cart drawer with the line on a desktop and, on a
+ * phone, toasts the product with "View" (which opens the drawer); webside
+ * keeps its "added" toast.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-const toast = vi.hoisted(() => ({
-  // The open toasts, as `useToast().toasts` holds them: the component
-  // updates its toast in place when it is already open.
-  toasts: { value: [] as Array<{ id: string | number }> },
-  add: vi.fn(),
-  remove: vi.fn(),
-  update: vi.fn(),
-  clear: vi.fn(),
-}))
+// The open toasts, as `useToast().toasts` holds them: the component
+// updates its toast in place when it is already open.
+const toast = await vi.hoisted(async () => (await import('~~/test/helpers/toast')).createToastMock())
 
 const viewport = vi.hoisted(() => ({ desktop: true }))
 
@@ -52,11 +43,11 @@ mockNuxtImport('useMediaStreamImage', () => () => (path: string) => `https://med
 const UNAVAILABLE = 'Μή Διαθέσιμο'
 const BUY = 'Αγορά'
 
-/** Put `lines` in the cart, and make `/api/cart` answer with it after a write. */
+/** Put `lines` in the cart, and make a write answer with it, as Django answers with the cart. */
 function cartHolds(lines: CartItemOverrides[] = []) {
   const cart = makeCart({ items: lines })
   useCartStore().cart = cart
-  api.routes({ '/api/cart': cart })
+  api.routes({ '/api/cart': cart, '/api/cart/items': cart, '/api/cart/items/*': cart })
 }
 
 describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tree Button/Product/AddToCart', ({ tree, C }) => {
@@ -67,10 +58,6 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     viewport.desktop = true
     useCartDrawer().close()
     toast.toasts.value = []
-    toast.add.mockImplementation((added: { id: string | number }) => {
-      toast.toasts.value.push(added)
-      return added
-    })
     useState('cart-added-toast-count').value = 0
     window.sessionStorage.clear()
   })
@@ -82,6 +69,9 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     await wrapper.find('button').trigger('click')
     await flushPromises()
   }
+
+  /** The one toast the buttons share, as it shows now. */
+  const addToast = () => toast.shown('cart:add')
 
   // A browse-only store takes no orders, so nothing it draws is a way to
   // buy: every add-to-cart button routes through this component.
@@ -175,11 +165,14 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
 
     await click(wrapper)
 
-    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
+    expect(addToast()).toMatchObject({
       color: 'success',
       title: 'Προστέθηκε στο καλάθι',
       description: 'Το προϊόν "Προϊόν 4" προστέθηκε στο καλάθι.',
-    }))
+      duration: undefined,
+      progress: true,
+      ui: undefined,
+    })
   })
 
   it.runIf(tree === 'webside')('keeps one toast for quick adds, updated in place', async () => {
@@ -189,8 +182,40 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     await click(wrapper)
     await click(wrapper)
 
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: 'cart:added' }))
-    expect(toast.update.mock.calls.map(([id]) => id)).toEqual(['cart:added', 'cart:added'])
+    // One toast, opened by the first click's "Adding…" and updated in place
+    // by every answer and by the next two clicks' "Adding…".
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: 'cart:add' }))
+    expect(toast.update.mock.calls.map(([id]) => id)).toEqual(Array(5).fill('cart:add'))
+    expect(toast.toasts.value).toHaveLength(1)
+  })
+
+  it('says "Adding…" at once, before the request answers, and replaces it with the answer', async () => {
+    viewport.desktop = false
+    let land: (value: unknown) => void = () => {}
+    api.routes({
+      '/api/cart/items': () => new Promise((resolve) => {
+        land = resolve
+      }),
+    })
+    const wrapper = await mount({ product: makeProduct({ id: 4 }) })
+
+    await click(wrapper)
+
+    // The theme's loading icon, spinning; no countdown and no timeout.
+    expect(addToast()).toMatchObject({
+      title: 'Προσθήκη στο καλάθι…',
+      description: 'Προϊόν 4',
+      icon: useAppConfig().ui.icons.loading,
+      duration: 0,
+      progress: false,
+      ui: { icon: expect.stringContaining('animate-spin') },
+    })
+
+    land(makeCart({ items: [{ id: 1, quantity: 1, product: { id: 4 } }] }))
+    await flushPromises()
+
+    expect(addToast()).not.toMatchObject({ duration: 0 })
+    expect(addToast()).toMatchObject({ progress: true, ui: undefined })
   })
 
   it.runIf(tree === 'default')('opens the cart drawer with the added line on a desktop, without a toast', async () => {
@@ -201,7 +226,9 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     const drawer = useCartDrawer()
     expect(drawer.open.value).toBe(true)
     expect(drawer.added.value).toBe('Προϊόν 4')
-    expect(toast.add).not.toHaveBeenCalled()
+    // The drawer is the confirmation: the "Adding…" toast is taken down.
+    expect(toast.remove).toHaveBeenCalledWith('cart:add')
+    expect(addToast()).toBeUndefined()
   })
 
   it.runIf(tree === 'default')('toasts the added product with its photograph on a phone, and "View" opens the drawer', async () => {
@@ -212,15 +239,15 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
 
     const drawer = useCartDrawer()
     expect(drawer.open.value).toBe(false)
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+    expect(addToast()).toMatchObject({
       title: 'Προστέθηκε στο καλάθι',
       description: 'Προϊόν 4',
       avatar: { alt: 'Προϊόν 4', src: 'https://media.test/media/uploads/products/cable.jpg' },
       icon: undefined,
       actions: [expect.objectContaining({ label: 'Προβολή' })],
-    }))
+    })
 
-    toast.add.mock.calls[0]![0].actions[0].onClick()
+    ;(addToast()!.actions as Array<{ onClick: () => void }>)[0]!.onClick()
 
     expect(drawer.open.value).toBe(true)
     expect(drawer.added.value).toBe('Προϊόν 4')
@@ -235,18 +262,22 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
     await click(wrapper)
 
     expect(toast.add).toHaveBeenCalledOnce()
-    expect(toast.update.mock.calls.map(([id, content]) => [id, content.title])).toEqual([
-      ['cart:added', 'Προστέθηκαν 2 προϊόντα στο καλάθι'],
-      ['cart:added', 'Προστέθηκαν 3 προϊόντα στο καλάθι'],
+    // Each click: "Adding…", then the count of the adds while it is open.
+    expect(toast.update.mock.calls.map(([, content]) => content.title)).toEqual([
+      'Προστέθηκε στο καλάθι',
+      'Προσθήκη στο καλάθι…',
+      'Προστέθηκαν 2 προϊόντα στο καλάθι',
+      'Προσθήκη στο καλάθι…',
+      'Προστέθηκαν 3 προϊόντα στο καλάθι',
     ])
 
     // Closed (timer or dismiss): the toast leaves the list and the count resets.
-    toast.add.mock.calls[0]![0]['onUpdate:open'](false)
+    ;(addToast()!['onUpdate:open'] as (open: boolean) => void)(false)
     toast.toasts.value = []
     await click(wrapper)
 
     expect(toast.add).toHaveBeenCalledTimes(2)
-    expect(toast.add.mock.calls[1]![0]).toEqual(expect.objectContaining({ id: 'cart:added', title: 'Προστέθηκε στο καλάθι' }))
+    expect(addToast()).toMatchObject({ title: 'Προστέθηκε στο καλάθι' })
   })
 
   it.runIf(tree === 'default')('toasts a product without a photograph with a check instead', async () => {
@@ -255,7 +286,7 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
 
     await click(wrapper)
 
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ avatar: undefined, icon: 'i-lucide-circle-check' }))
+    expect(addToast()).toMatchObject({ avatar: undefined, icon: 'i-lucide-circle-check' })
   })
 
   it('tops up the line already in the cart instead of adding a second one', async () => {
@@ -289,28 +320,33 @@ describe.each(trees(ButtonProductAddToCart, WebsideButtonProductAddToCart))('$tr
 
     await click(wrapper)
 
-    expect(toast.add).toHaveBeenCalledTimes(1)
-    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
+    // The failure takes the "Adding…" toast's place, whole.
+    expect(toast.toasts.value).toHaveLength(1)
+    expect(addToast()).toMatchObject({
       title: 'Δεν προστέθηκε στο καλάθι',
       description: 'Εξαντλήθηκε Όριο 2 τεμαχίων',
       color: 'error',
-    }))
+      icon: undefined,
+      duration: undefined,
+      progress: true,
+      ui: undefined,
+    })
   })
 
-  it.runIf(tree === 'default')('tells the shopper when the add failed for any other reason', async () => {
+  it('tells the shopper when the add failed for any other reason', async () => {
     api.routes({ '/api/cart': makeCart({ items: [] }), '/api/cart/items': () => Promise.reject(new TypeError('Failed to fetch')) })
     const wrapper = await mount({ product: makeProduct() })
 
     await click(wrapper)
 
-    expect(toast.add).toHaveBeenCalledTimes(1)
-    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
+    expect(toast.toasts.value).toHaveLength(1)
+    expect(addToast()).toMatchObject({
       color: 'error',
       title: 'Δεν προστέθηκε στο καλάθι',
-    }))
+    })
   })
 
-  it.runIf(tree === 'default')('shows progress while the request is in flight', async () => {
+  it('shows progress while the request is in flight', async () => {
     // `loading-auto` keeps the button busy for the life of the click
     // promise; without it a slow request looks exactly like a dead button.
     let land: (value: unknown) => void = () => {}

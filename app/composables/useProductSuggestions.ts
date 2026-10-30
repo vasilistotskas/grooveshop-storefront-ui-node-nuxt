@@ -4,9 +4,10 @@
  * tenants' own drawing of it).
  *
  * SSR-rendered: Nitro caches the answer per (seed, surface), so the page
- * pays a cache hit, not a Django round trip. Not fetched at all when the
- * parent already has the items (`items`: the cart payload carries its own,
- * seeded with the whole basket). Call it from a `<script setup>`.
+ * pays a cache hit, not a Django round trip. A basket of seeds (`seedIds`:
+ * the cart's product ids) is asked for when the strip is shown, not carried
+ * by every cart read, and again whenever the basket changes; an empty basket
+ * asks nothing. Call it from a `<script setup>`.
  */
 export function useProductSuggestions(props: {
   /** Which slot the engine answers for. */
@@ -14,11 +15,22 @@ export function useProductSuggestions(props: {
   /** The product the shopper is looking at; absent, the store-wide answer. */
   seedId?: number
   limit?: number
-  items?: readonly Product[]
+  /** The basket the engine answers for, e.g. the cart's product ids. */
+  seedIds?: readonly number[]
+  /** Whether the strip asks at all (the cart drawer, while it is closed). */
+  enabled?: boolean
 }) {
   // The engine recommends catalogue products: none without the catalogue.
   const catalogueEnabled = useStoreFeature('catalogue')
-  const fetches = computed(() => props.items === undefined && catalogueEnabled.value)
+  // A basket with nothing in it has no seed: Django refuses the surface.
+  const fetches = computed(() =>
+    catalogueEnabled.value
+    && (props.enabled ?? true)
+    && (props.seedIds === undefined || props.seedIds.length > 0))
+  // Sorted, as the route keys its cache entry by the sorted seeds.
+  const seeds = computed(() => props.seedIds
+    ? [...props.seedIds].sort((a, b) => a - b).join(',')
+    : undefined)
   // Plain template literals, as the product page does: Nitro's typed
   // routes resolve the response type from them, which a URL function
   // would not. The seed is fixed for the component's lifetime — the
@@ -26,12 +38,13 @@ export function useProductSuggestions(props: {
   const url = typeof props.seedId === 'number'
     ? `/api/products/${props.seedId}/recommendations` as const
     : '/api/recommendations' as const
-  const { data: served } = useApi(url, {
+  const { data: served, refresh } = useApi(url, {
     key: `recommendations:${props.surface}:${props.seedId ?? 'store'}:${props.limit ?? ''}`,
-    query: {
+    query: computed(() => ({
       surface: props.surface,
       ...(typeof props.limit === 'number' ? { limit: props.limit } : {}),
-    },
+      ...(seeds.value ? { seeds: seeds.value } : {}),
+    })),
     enabled: fetches,
     default: () => null,
     // The strip is `hydrate-on-visible`: its setup runs after the app has
@@ -41,6 +54,12 @@ export function useProductSuggestions(props: {
     // app/utils/payloadCachedData.ts.
     getCachedData: payloadCachedData,
   })
+  // `enabled` only blocks the runs it covers: it does not start one when it
+  // turns true, so a basket that changed while the strip was switched off
+  // (the closed cart drawer) is asked for when it is switched on.
+  watch(fetches, (on) => {
+    if (on) refresh()
+  })
   // The route's response type comes from the generated Zod schema, where an
   // OpenAPI `NullEnum` is `unknown` (the TypeScript types have it as `never`);
   // the contract type is what the cards and the tracker are written against.
@@ -48,8 +67,7 @@ export function useProductSuggestions(props: {
 
   // Feedback loop. The impression is reported once the strip is mounted
   // with items — for a server-rendered strip under ``hydrate-on-visible``,
-  // when it scrolls into view: "shown", not "served". The cart path has
-  // no impressionId and reports nothing. A click is any interaction with
+  // when it scrolls into view: "shown", not "served". A click is any interaction with
   // a card — the link, the photograph or "add to cart" — captured on the
   // card.
   const { trackImpressionWhenShown, trackClick } = useRecommendationTracking(props.surface, props.seedId)

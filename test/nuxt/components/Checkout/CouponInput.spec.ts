@@ -43,6 +43,8 @@ function routes(extra: Record<string, unknown> = {}) {
       return { settings: { PROMOTIONS_ENABLED: flags.promotionsSetting } }
     },
     '/api/cart': () => cartAfter,
+    // Applying and removing a code both answer with the updated cart.
+    '/api/cart/coupon': () => cartAfter,
     '/api/cart/coupons': [],
     ...extra,
   })
@@ -109,7 +111,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
     : wrapper.findAll('button').find(button => button.text() === 'Αφαίρεση')
 
   describe('applying a code', () => {
-    it('sends the trimmed code, re-reads the cart and shows the code as applied', async () => {
+    it('sends the trimmed code, takes the cart it answers with and shows the code as applied', async () => {
       cartAfter = makeCart(withCoupon('WELCOME10', { amount: 5 }))
       const wrapper = await mount()
 
@@ -118,7 +120,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       expect(api.callsTo('/api/cart/coupon')).toEqual([
         { url: '/api/cart/coupon', options: expect.objectContaining({ method: 'POST', body: { code: 'WELCOME10' } }) },
       ])
-      expect(api.callsTo('/api/cart').at(-1)!.options).toMatchObject({ method: 'GET' })
+      expect(api.callsTo('/api/cart')).toEqual([])
       expect(wrapper.find('form').exists()).toBe(false)
       expect(text(wrapper)).toContain('WELCOME10')
       expect(text(wrapper)).toContain('-5,00 €')
@@ -293,6 +295,7 @@ describe.each(trees(CouponInput, WebsideCouponInput))('$tree Checkout/CouponInpu
       expect(api.callsTo('/api/cart/coupon')).toEqual([
         { url: '/api/cart/coupon', options: expect.objectContaining({ method: 'DELETE' }) },
       ])
+      expect(api.callsTo('/api/cart')).toEqual([])
       expect(wrapper.find('form').exists()).toBe(true)
       expect(text(wrapper)).not.toContain('SAVE5')
     })

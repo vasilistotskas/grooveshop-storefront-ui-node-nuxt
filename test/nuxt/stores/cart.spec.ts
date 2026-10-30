@@ -121,6 +121,12 @@ describe('Cart Store', () => {
     expect(store.getCartItemIds).toEqual([1, 2])
   })
 
+  it('lists the product ids of the lines, the seeds of the cart suggestions', () => {
+    store.cart = twoLineCart()
+
+    expect(store.getCartProductIds).toEqual([1, 2])
+  })
+
   it('finds a line by its id or by its product, and null for neither', () => {
     store.cart = twoLineCart()
 
@@ -377,23 +383,34 @@ describe('Cart Store', () => {
     })
   })
 
+  describe('setCart', () => {
+    it('takes the cart a coupon call answered with as the cart', () => {
+      const cart = twoLineCart({ quantity1: 4 })
+      store.cart = twoLineCart()
+
+      store.setCart(cart)
+
+      expect(store.cart).toEqual(cart)
+      expect(api.mock.calls).toEqual([])
+    })
+  })
+
   describe('createCartItem', () => {
-    it('adds the line, then reloads the cart', async () => {
+    it('adds the line and takes the cart Django answers with, without reloading it', async () => {
       const cart = twoLineCart()
-      api.routes({ '/api/cart': cart })
+      api.routes({ '/api/cart/items': cart })
 
       await store.createCartItem({ product: 1, quantity: 2 })
 
       expect(api.mock.calls).toEqual([
         ['/api/cart/items', { method: 'POST', headers: {}, body: { product: 1, quantity: 2 } }],
-        ['/api/cart', { method: 'GET', headers: {} }],
       ])
       expect(store.cart).toEqual(cart)
       expect(store.error).toBeNull()
     })
 
     it('carries the captured order attribution on the add, and none when nothing was captured', async () => {
-      api.routes({ '/api/cart': twoLineCart() })
+      api.routes({ '/api/cart/items': twoLineCart() })
       const bodies = () => api.callsTo('/api/cart/items').map(call => call.options.body)
 
       await store.createCartItem({ product: 1, quantity: 1 })
@@ -420,7 +437,7 @@ describe('Cart Store', () => {
 
     it('carries the suggestion-strip impression the product was reached from', async () => {
       useRecommendationAttribution().remember(1, IMPRESSION)
-      api.routes({ '/api/cart': twoLineCart() })
+      api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 1, quantity: 1 })
 
@@ -430,7 +447,7 @@ describe('Cart Store', () => {
 
     it('carries the impression once — a second add of the product goes plain', async () => {
       useRecommendationAttribution().remember(1, IMPRESSION)
-      api.routes({ '/api/cart': twoLineCart() })
+      api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 1, quantity: 1 })
       await store.createCartItem({ product: 1, quantity: 1 })
@@ -443,7 +460,7 @@ describe('Cart Store', () => {
 
     it('does not carry an impression remembered for another product', async () => {
       useRecommendationAttribution().remember(2, IMPRESSION)
-      api.routes({ '/api/cart': twoLineCart() })
+      api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 1, quantity: 1 })
 
@@ -452,15 +469,15 @@ describe('Cart Store', () => {
   })
 
   describe('updateCartItem', () => {
-    it('sets the line quantity, then reloads the cart', async () => {
+    it('sets the line quantity and takes the cart Django answers with, without reloading it', async () => {
       store.cart = twoLineCart()
       const updated = twoLineCart({ quantity1: 5 })
-      api.routes({ '/api/cart': updated })
+      api.routes({ '/api/cart/items/*': updated })
 
       await store.updateCartItem(1, { quantity: 5 })
 
-      expect(api.callsTo('/api/cart/items/1')).toEqual([
-        { url: '/api/cart/items/1', options: { method: 'PUT', headers: {}, body: { quantity: 5 } } },
+      expect(api.mock.calls).toEqual([
+        ['/api/cart/items/1', { method: 'PUT', headers: {}, body: { quantity: 5 } }],
       ])
       expect(store.cart).toEqual(updated)
     })
@@ -468,7 +485,7 @@ describe('Cart Store', () => {
     it('carries the impression of the line\'s product on a quantity bump', async () => {
       store.cart = twoLineCart()
       useRecommendationAttribution().remember(1, IMPRESSION)
-      api.routes({ '/api/cart': twoLineCart({ quantity1: 3 }) })
+      api.routes({ '/api/cart/items/*': twoLineCart({ quantity1: 3 }) })
 
       await store.updateCartItem(1, { quantity: 3 })
 
@@ -567,8 +584,8 @@ describe('Cart Store', () => {
   })
 
   describe('analytics', () => {
-    it('fires add_to_cart on every vendor, valued from the refreshed cart', async () => {
-      api.routes({ '/api/cart': twoLineCart() })
+    it('fires add_to_cart on every vendor, valued from the returned cart', async () => {
+      api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 1, quantity: 2 })
 
@@ -601,7 +618,7 @@ describe('Cart Store', () => {
 
     it('values an add at the product\'s final (VAT-in) price, not its net price', async () => {
       // Net 50 at 24% VAT: finalPrice 62.
-      api.routes({ '/api/cart': makeCart({ items: [{ id: 1, product: { id: 1, price: 50, vatPercent: 24 } }] }) })
+      api.routes({ '/api/cart/items': makeCart({ items: [{ id: 1, product: { id: 1, price: 50, vatPercent: 24 } }] }) })
 
       await store.createCartItem({ product: 1, quantity: 1 })
 
@@ -609,15 +626,15 @@ describe('Cart Store', () => {
     })
 
     it('counts the refreshed line\'s quantity when the add named none', async () => {
-      api.routes({ '/api/cart': twoLineCart({ quantity1: 3 }) })
+      api.routes({ '/api/cart/items': twoLineCart({ quantity1: 3 }) })
 
       await store.createCartItem({ product: 1 } as CartItemCreateRequest)
 
       expect(pixels.googleAds.trackAddToCart).toHaveBeenCalledWith({ currency: 'EUR', value: 150 })
     })
 
-    it('fires nothing when the added product is missing from the refreshed cart', async () => {
-      api.routes({ '/api/cart': twoLineCart() })
+    it('fires nothing when the added product is missing from the returned cart', async () => {
+      api.routes({ '/api/cart/items': twoLineCart() })
 
       await store.createCartItem({ product: 999, quantity: 1 })
 
@@ -626,7 +643,7 @@ describe('Cart Store', () => {
 
     it('fires add_to_cart for the increase only when an update raises the quantity', async () => {
       store.cart = twoLineCart()
-      api.routes({ '/api/cart': twoLineCart({ quantity1: 5 }) })
+      api.routes({ '/api/cart/items/*': twoLineCart({ quantity1: 5 }) })
 
       await store.updateCartItem(1, { quantity: 5 })
 
@@ -642,7 +659,7 @@ describe('Cart Store', () => {
 
     it('fires only GA4\'s remove_from_cart when an update lowers the quantity', async () => {
       store.cart = twoLineCart()
-      api.routes({ '/api/cart': twoLineCart({ quantity1: 1 }) })
+      api.routes({ '/api/cart/items/*': twoLineCart({ quantity1: 1 }) })
 
       await store.updateCartItem(1, { quantity: 1 })
 
@@ -657,7 +674,7 @@ describe('Cart Store', () => {
 
     it('fires nothing when an update keeps the quantity', async () => {
       store.cart = twoLineCart()
-      api.routes({ '/api/cart': twoLineCart() })
+      api.routes({ '/api/cart/items/*': twoLineCart() })
 
       await store.updateCartItem(1, { quantity: 2 })
 
@@ -669,7 +686,7 @@ describe('Cart Store', () => {
       store.cart = twoLineCart()
       useRecommendationAttribution().remember(5, IMPRESSION)
       api.routes({
-        '/api/cart': makeCart({ items: [{ id: 5, quantity: 3, product: { id: 5, price: 10, vatPercent: 0 } }] }),
+        '/api/cart/items/*': makeCart({ items: [{ id: 5, quantity: 3, product: { id: 5, price: 10, vatPercent: 0 } }] }),
       })
 
       await store.updateCartItem(5, { quantity: 3 })

@@ -9470,7 +9470,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItemDetail'
+                $ref: '#/components/schemas/CartItemMutationResponse'
           description: ''
         '400':
           content:
@@ -9617,7 +9617,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItemDetail'
+                $ref: '#/components/schemas/CartItemMutationResponse'
           description: ''
         '400':
           content:
@@ -9703,7 +9703,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItemDetail'
+                $ref: '#/components/schemas/CartItemMutationResponse'
           description: ''
         '400':
           content:
@@ -51150,6 +51150,149 @@ components:
             - default
             - muted
       additionalProperties: false
+    CartItemMutationResponse:
+      type: object
+      description: |-
+        The line an add or a quantity change wrote, plus the whole cart it
+        now sits in, so a client shows the new state without a second ``GET``.
+
+        ``cart`` is the same body as ``GET /cart``, read from the cart the
+        request resolved (``context["cart"]``) after the write.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        cartId:
+          type: string
+          readOnly: true
+        product:
+          allOf:
+            - $ref: '#/components/schemas/Product'
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Ποσότητα
+        weightInfo:
+          type: object
+          properties:
+            unitWeight:
+              type: number
+            totalWeight:
+              type: number
+            weightUnit:
+              type: string
+          required:
+            - unitWeight
+            - totalWeight
+            - weightUnit
+          readOnly: true
+          description: Πληροφορίες βάρους για υπολογισμούς αποστολής
+        price:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        finalPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        discountValue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        priceSavePercent:
+          type: number
+          format: double
+          readOnly: true
+        discountPercent:
+          type: number
+          format: double
+          readOnly: true
+        vatPercent:
+          type: number
+          format: double
+          readOnly: true
+        vatValue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        totalPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        totalDiscountValue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Δημιουργήθηκε στις
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Ενημερώθηκε στις
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+          readOnly: true
+          description: Σχετικά προϊόντα που ίσως ενδιαφέρουν τον πελάτη
+        cart:
+          allOf:
+            - $ref: '#/components/schemas/CartDetail'
+          readOnly: true
+          description: The updated cart, as returned by the cart detail endpoint
+      required:
+        - cart
+        - cartId
+        - createdAt
+        - discountPercent
+        - discountValue
+        - finalPrice
+        - id
+        - price
+        - priceSavePercent
+        - product
+        - recommendations
+        - totalDiscountValue
+        - totalPrice
+        - updatedAt
+        - uuid
+        - vatPercent
+        - vatValue
+        - weightInfo
   securitySchemes:
     cookieAuth:
       type: apiKey

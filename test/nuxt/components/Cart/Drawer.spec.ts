@@ -15,13 +15,20 @@ import { REPO, parseSfc } from '~~/test/helpers/sourceText'
 /**
  * The cart drawer: a slideover on a desktop, a bottom sheet on a phone;
  * the line an add just put in, the lines as compact rows, at most two
- * suggestions when the store has the feature, and the
+ * suggestions the engine pairs with the basket (asked for while the drawer
+ * is open, when the store has the feature), and the
  * subtotal after offers — saying which offers — with "View cart" and
  * "Checkout". It closes when the shopper navigates away.
  */
+const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
 const state = vi.hoisted(() => ({ desktop: true }))
 const route = vi.hoisted(() => ({ value: null as unknown as { fullPath: string } }))
 
+const b2bPrice = vi.hoisted(() => vi.fn((_id: number): { finalPrice: string } | undefined => undefined))
+
+mockNuxtImport('$api', () => api)
+mockNuxtImport('$fetch', () => api)
+mockNuxtImport('useB2BPricing', () => () => ({ register: vi.fn(), priceFor: b2bPrice }))
 mockNuxtImport('useMediaQuery', () => () => ref(state.desktop))
 mockNuxtImport('useRoute', () => () => route.value)
 // The line row, the add button and the free-delivery meter have their own specs.
@@ -35,14 +42,24 @@ const messages = YAML.parse(
 
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
 
+/** What the engine answers for the cart surface. */
+const suggestions = (products: Array<ReturnType<typeof makeProduct>>) => ({
+  surface: 'cart',
+  impressionId: '0f6d3d3e-6d2b-4c4e-9c2a-2a1f4b6c8d90',
+  items: products.map(product => ({ product, reason: { strategy: 'co_purchase', relationType: null, score: 1 } })),
+})
+
 beforeEach(() => {
   state.desktop = true
+  // `useApi` caches the suggestions by key on the one app the whole file shares.
+  clearNuxtData()
   route.value = reactive({ fullPath: '/products' })
   setTenant()
   setTenantFeatures({ productSuggestions: true })
   const store = useCartStore()
   store.cart = makeCart({ items: [{ id: 1, quantity: 1, product: { id: 1, price: 40, vatPercent: 0 } }, { id: 2, quantity: 2, product: { id: 2, price: 10, vatPercent: 0 } }] })
   store.loaded = true
+  api.routes({ '/api/recommendations': () => suggestions([makeProduct({ id: 7, price: 10, vatPercent: 0 }), makeProduct({ id: 8 })]) })
   useCartDrawer().show()
 })
 
@@ -120,14 +137,12 @@ describe('Cart/Drawer', () => {
     expect(text()).toContain(note)
   })
 
-  it('suggests at most two of the cart\'s recommendations', async () => {
-    useCartStore().cart = makeCart({
-      items: [{ id: 1, quantity: 1, product: { id: 1, price: 10, vatPercent: 0 } }],
-      recommendations: [makeProduct({ id: 7 }), makeProduct({ id: 8 }), makeProduct({ id: 9 })],
-    })
-
+  it('asks the engine for two suggestions for the basket, and offers what it answers', async () => {
     await mountDrawer()
 
+    expect(api.callsTo('/api/recommendations')).toEqual([
+      { url: '/api/recommendations', options: expect.objectContaining({ query: { surface: 'cart', limit: 2, seeds: '1,2' } }) },
+    ])
     expect(text()).toContain(messages.finishing_touch)
     expect([...panel().querySelectorAll('[data-add]')].map(button => button.textContent)).toEqual([
       'Προσθήκη του «Προϊόν 7» στο καλάθι',
@@ -135,8 +150,29 @@ describe('Cart/Drawer', () => {
     ])
   })
 
-  it('suggests nothing when the store lacks the productSuggestions feature, plan flag or not', async () => {
-    useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1, product: { id: 1, price: 10, vatPercent: 0 } }], recommendations: [makeProduct({ id: 7 })] })
+  it('does not ask while the drawer is closed, and asks once it opens', async () => {
+    useCartDrawer().close()
+    await mountDrawer()
+    expect(api.callsTo('/api/recommendations')).toHaveLength(0)
+
+    useCartDrawer().show()
+    await flushPromises()
+
+    expect(api.callsTo('/api/recommendations')).toHaveLength(1)
+    expect(text()).toContain(messages.finishing_touch)
+  })
+
+  it('prices a suggestion at the shopper\'s wholesale price when they have one', async () => {
+    b2bPrice.mockImplementation(id => (id === 7 ? { finalPrice: '6' } : undefined))
+
+    await mountDrawer()
+
+    const [first, second] = [...panel().querySelectorAll('[data-add]')].map(button => button.closest('li')!.textContent)
+    expect(first).toContain(money(6))
+    expect(second).toContain(money(makeProduct({ id: 8 }).finalPrice))
+  })
+
+  it('suggests nothing, and asks nothing, when the store lacks the productSuggestions feature, plan flag or not', async () => {
     // The plan flag stays on: only the feature decides.
     setTenant({ recommendationsEnabled: true })
     setTenantFeatures({ productSuggestions: false })
@@ -144,6 +180,15 @@ describe('Cart/Drawer', () => {
     await mountDrawer()
 
     expect(text()).not.toContain(messages.finishing_touch)
+    expect(api.callsTo('/api/recommendations')).toHaveLength(0)
+  })
+
+  it('suggests nothing for an empty cart: no seed, no request', async () => {
+    useCartStore().cart = makeCart({ items: [] })
+
+    await mountDrawer()
+
+    expect(api.callsTo('/api/recommendations')).toHaveLength(0)
   })
 
   it('says an empty cart is empty, with no checkout', async () => {

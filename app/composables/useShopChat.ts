@@ -74,6 +74,9 @@ interface ChatDoneEvent {
  * `done.cartId`, and the widget would ignore it: the cart is the
  * shopper's own, refreshed through their session.
  *
+ * Each turn also carries the tab's order `attribution` (when one was
+ * captured), so a cart the assistant fills has the visit's source.
+ *
  * State lives in `useState` so the conversation survives panel
  * close/reopen and route changes within the session.
  */
@@ -82,6 +85,7 @@ export const useShopChat = () => {
   const { $i18n } = useNuxtApp()
   const { user } = useUserSession()
   const cartEnabled = useStoreFeature('cart')
+  const orderAttribution = useOrderAttribution()
 
   const messages = useState<ShopChatMessage[]>('shop-chat-messages', () => [])
   const conversationId = useState<string>('shop-chat-conversation', () => '')
@@ -228,6 +232,10 @@ export const useShopChat = () => {
           // The gateway uses it only when the store serves it.
           locale: $i18n.locale.value,
           turnId,
+          // The tab's first-touch source, as the add-to-cart button sends it:
+          // a line the assistant adds is the same visit, so the gateway relays
+          // it to Django and the cart keeps the real source.
+          attribution: orderAttribution.read() ?? undefined,
         }),
         signal: runController.signal,
       })

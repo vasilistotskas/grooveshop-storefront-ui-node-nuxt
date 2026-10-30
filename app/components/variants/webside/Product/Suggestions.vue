@@ -9,17 +9,15 @@ const props = defineProps<{
   surface: SurfaceEnum
   /**
    * The product the shopper is looking at. Without one (and without
-   * ``items``) the strip asks for the surface's store-wide answer —
+   * ``seedIds``) the strip asks for the surface's store-wide answer —
    * the empty cart.
    */
   seedId?: number
   /**
-   * Already-computed suggestions — the cart payload carries its own,
-   * seeded with the whole basket, so the cart page passes them here
-   * instead of fetching a second time. No reason labels and no
-   * feedback events on this path.
+   * The basket the engine answers for — the cart page passes the cart's
+   * product ids. An empty list asks nothing.
    */
-  items?: readonly Product[]
+  seedIds?: readonly number[]
   /**
    * Override the slot's limit (capped at 12 by the API).
    */
@@ -39,7 +37,7 @@ const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const { getFavouriteIdByProductId } = useUserStore()
 
-type Tile = { product: Product, reason: RecommendationReason | null }
+type Tile = { product: Product, reason: RecommendationReason }
 
 // `Product.name` lives under `translations.<locale>`, as on every
 // parler model — the same reader as Product/Card.
@@ -48,13 +46,8 @@ const productName = (product: Product) =>
 
 const { data, onCardClick } = useProductSuggestions(props)
 
-const tiles = computed<Tile[]>(() => {
-  if (props.items !== undefined) {
-    const own = typeof props.limit === 'number' ? props.items.slice(0, props.limit) : props.items
-    return own.map(product => ({ product, reason: null }))
-  }
-  return (data.value?.items ?? []).map(item => ({ product: item.product, reason: item.reason }))
-})
+const tiles = computed<Tile[]>(() =>
+  (data.value?.items ?? []).map(item => ({ product: item.product, reason: item.reason })))
 const hasItems = computed(() => tiles.value.length > 0)
 const titleId = `product-suggestions-${props.surface}`
 

@@ -6797,6 +6797,39 @@ export const zPageSectionStatsStripProps = z.object({
 })
 
 /**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export const zCartItemMutationResponse = z.object({
+  id: z.int().readonly(),
+  cartId: z.string().readonly(),
+  product: zProduct,
+  quantity: z.int().gte(0).lte(2147483647).optional(),
+  weightInfo: z.object({
+    unitWeight: z.number(),
+    totalWeight: z.number(),
+    weightUnit: z.string(),
+  }).readonly(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  priceSavePercent: z.number().readonly(),
+  discountPercent: z.number().readonly(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  recommendations: z.array(zProduct).readonly(),
+  cart: zCartDetail,
+})
+
+/**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
  * than a tool result should carry.
@@ -8559,6 +8592,17 @@ export const zPageSectionVisionContentPropsWritable = z.record(z.string(), z.nev
 export const zPageSectionWhatIsMicrolearningPropsWritable = z.record(z.string(), z.never())
 
 export const zPageSectionWhyMicrolearningPropsWritable = z.record(z.string(), z.never())
+
+/**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export const zCartItemMutationResponseWritable = z.object({
+  quantity: z.int().gte(0).lte(2147483647).optional(),
+})
 
 export const zGetAgentProfileResponse = zAgentProfile
 
@@ -11394,7 +11438,7 @@ export const zCreateCartItemHeaders = z.object({
   'X-Cart-Token': z.string().optional(),
 })
 
-export const zCreateCartItemResponse = zCartItemDetail
+export const zCreateCartItemResponse = zCartItemMutationResponse
 
 export const zDestroyCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
@@ -11444,7 +11488,7 @@ export const zPartialUpdateCartItemQuery = z.object({
   languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
-export const zPartialUpdateCartItemResponse = zCartItemDetail
+export const zPartialUpdateCartItemResponse = zCartItemMutationResponse
 
 export const zUpdateCartItemBody = zCartItemUpdateRequest
 
@@ -11460,7 +11504,7 @@ export const zUpdateCartItemPath = z.object({
   ]),
 })
 
-export const zUpdateCartItemResponse = zCartItemDetail
+export const zUpdateCartItemResponse = zCartItemMutationResponse
 
 export const zListCartHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),

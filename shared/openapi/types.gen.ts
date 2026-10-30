@@ -10682,6 +10682,57 @@ export type PageSectionStatsStripProps = {
 }
 
 /**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export type CartItemMutationResponse = {
+  readonly id: number
+  readonly cartId: string
+  product: Product
+  /**
+     * Ποσότητα
+     */
+  quantity?: number
+  /**
+     * Πληροφορίες βάρους για υπολογισμούς αποστολής
+     */
+  readonly weightInfo: {
+    unitWeight: number
+    totalWeight: number
+    weightUnit: string
+  }
+  readonly price: number
+  readonly finalPrice: number
+  readonly discountValue: number
+  readonly priceSavePercent: number
+  readonly discountPercent: number
+  readonly vatPercent: number
+  readonly vatValue: number
+  readonly totalPrice: number
+  readonly totalDiscountValue: number
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  readonly uuid: string
+  /**
+     * Σχετικά προϊόντα που ίσως ενδιαφέρουν τον πελάτη
+     */
+  readonly recommendations: Array<Product>
+  /**
+     * The updated cart, as returned by the cart detail endpoint
+     */
+  cart: CartDetail
+}
+
+/**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
  * than a tool result should carry.
@@ -13261,6 +13312,20 @@ export type PageSectionWhatIsMicrolearningPropsWritable = {
 
 export type PageSectionWhyMicrolearningPropsWritable = {
   [key: string]: never
+}
+
+/**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export type CartItemMutationResponseWritable = {
+  /**
+     * Ποσότητα
+     */
+  quantity?: number
 }
 
 export type GetAgentProfileData = {
@@ -17583,7 +17648,7 @@ export type CreateCartItemErrors = {
 export type CreateCartItemError = CreateCartItemErrors[keyof CreateCartItemErrors]
 
 export type CreateCartItemResponses = {
-  201: CartItemDetail
+  201: CartItemMutationResponse
 }
 
 export type CreateCartItemResponse = CreateCartItemResponses[keyof CreateCartItemResponses]
@@ -17689,7 +17754,7 @@ export type PartialUpdateCartItemErrors = {
 export type PartialUpdateCartItemError = PartialUpdateCartItemErrors[keyof PartialUpdateCartItemErrors]
 
 export type PartialUpdateCartItemResponses = {
-  200: CartItemDetail
+  200: CartItemMutationResponse
 }
 
 export type PartialUpdateCartItemResponse = PartialUpdateCartItemResponses[keyof PartialUpdateCartItemResponses]
@@ -17724,7 +17789,7 @@ export type UpdateCartItemErrors = {
 export type UpdateCartItemError = UpdateCartItemErrors[keyof UpdateCartItemErrors]
 
 export type UpdateCartItemResponses = {
-  200: CartItemDetail
+  200: CartItemMutationResponse
 }
 
 export type UpdateCartItemResponse = UpdateCartItemResponses[keyof UpdateCartItemResponses]

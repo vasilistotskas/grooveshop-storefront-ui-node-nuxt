@@ -39,6 +39,7 @@ export const useCartStore = defineStore('cart', () => {
   const getCartItems = computed(() => cart.value?.items ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
   const getCartItemIds = computed(() => cart.value?.items?.map(item => item.id) ?? [])
+  const getCartProductIds = computed(() => cart.value?.items?.map(item => item.product.id) ?? [])
 
   // The offers the cart is just short of, less the free-shipping ones:
   // Django has already weighed those as routes of `freeShippingProgress`,
@@ -211,7 +212,8 @@ export const useCartStore = defineStore('cart', () => {
       // The tab's first-touch source (the same capture the order sends):
       // Django records it on the cart the first time one is set.
       const orderSource = orderAttribution.read()
-      await $api('/api/cart/items', {
+      // Django answers with the cart the add left behind: no reload.
+      cart.value = await $api('/api/cart/items', {
         method: 'POST',
         headers: useRequestHeaders(),
         body: {
@@ -220,14 +222,13 @@ export const useCartStore = defineStore('cart', () => {
           ...(orderSource ? { attribution: orderSource } : {}),
         },
       })
-      await refreshCart()
       error.value = null
 
       // Analytics fire only after the cart was successfully updated
       // (so a server-side rejection — out of stock, invalid product —
       // never produces a pixel event). The added item is looked up
-      // from the freshly refreshed cart so value/currency reflect
-      // what the server actually persisted.
+      // from the returned cart so value/currency reflect what the
+      // server actually persisted.
       const productId = body.product
       const addedItem = cart.value?.items?.find(
         item => item.product?.id === productId,
@@ -247,7 +248,7 @@ export const useCartStore = defineStore('cart', () => {
         // broken" — make the skip observable.
         log.warn(
           'cart:trackQuantityChange',
-          `product ${productId} not found in refreshed cart — add_to_cart not tracked`,
+          `product ${productId} not found in the returned cart — add_to_cart not tracked`,
         )
       }
     }
@@ -276,14 +277,13 @@ export const useCartStore = defineStore('cart', () => {
       ? attribution.take(lineProductId)
       : undefined
     try {
-      await $api(`/api/cart/items/${id}`, {
+      cart.value = await $api(`/api/cart/items/${id}`, {
         method: 'PUT',
         headers: useRequestHeaders(),
         body: recommendationImpressionId
           ? { ...body, recommendationImpressionId }
           : body,
       })
-      await refreshCart()
       error.value = null
 
       const updatedItem = getCartItemById(id)
@@ -439,6 +439,14 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   /**
+   * Take the cart a cart-changing call answered with (a coupon applied or
+   * removed) as the cart, instead of loading it a second time.
+   */
+  function setCart(next: CartDetail) {
+    cart.value = next
+  }
+
+  /**
    * Adopt the cart the shopping assistant created for a browser that had
    * none, as the storefront keeps a guest cart it made itself
    * (`/api/cart/claim`).
@@ -486,6 +494,7 @@ export const useCartStore = defineStore('cart', () => {
     getCartItems,
     getCartTotalItems,
     getCartItemIds,
+    getCartProductIds,
     getOfferNearMisses,
     getCartItemById,
     getCartItemByProductId,
@@ -497,6 +506,7 @@ export const useCartStore = defineStore('cart', () => {
     getStockStatusMessage,
     setupCart,
     refreshCart,
+    setCart,
     claimCart,
     createCartItem,
     updateCartItem,

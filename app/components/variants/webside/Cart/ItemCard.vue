@@ -10,6 +10,7 @@ const { t, locale } = useStoreI18n('components/variants/webside/Cart/ItemCard')
 const { $i18n } = useNuxtApp()
 const toast = useToast()
 const { notify } = useApiError()
+const loadingIcon = useAppConfig().ui.icons.loading
 const cartStore = useCartStore()
 const { deleteCartItem, createCartItem } = cartStore
 
@@ -32,18 +33,25 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
     name: alt.value,
   }
 
+  showOrUpdateToast(toast, CART_REMOVE_TOAST_ID, pendingToastContent(loadingIcon, {
+    title: t('toast.removing_title'),
+    description: snapshot.name,
+  }))
   try {
     await deleteCartItem(cartItemId)
   }
   catch (err) {
     log.error({ action: 'cart:deleteItem', error: err })
-    notify('webside-ItemCard:1', err, { title: t('toast.delete_failed') })
+    notify(CART_REMOVE_TOAST_ID, err, { title: t('toast.delete_failed') })
     return
   }
 
-  if (!snapshot.productId) return
+  if (!snapshot.productId) {
+    toast.remove(CART_REMOVE_TOAST_ID)
+    return
+  }
 
-  toast.add({
+  showOrUpdateToast(toast, CART_REMOVE_TOAST_ID, {
     title: t('toast.removed_title'),
     description: t('toast.removed_description', { name: snapshot.name }),
     color: 'neutral',
@@ -184,9 +192,21 @@ el:
   price: Τιμή
   total: Σύνολο
   toast:
+    removing_title: Αφαίρεση από το καλάθι…
     removed_title: Αφαιρέθηκε από το καλάθι
     removed_description: Το προϊόν "{name}" αφαιρέθηκε.
     undo: Αναίρεση
     undo_failed: Η αναίρεση απέτυχε
     delete_failed: Αποτυχία αφαίρεσης από το καλάθι
+en:
+  remove_from_cart: Remove {name} from the cart
+  price: Price
+  total: Total
+  toast:
+    removing_title: Removing from your cart…
+    removed_title: Removed from your cart
+    removed_description: '"{name}" was removed.'
+    undo: Undo
+    undo_failed: That could not be undone
+    delete_failed: It was not removed from the cart
 </i18n>
