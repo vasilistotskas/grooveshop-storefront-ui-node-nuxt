@@ -14,11 +14,10 @@ import { backend, callRoute } from '~~/test/helpers/nitro'
 const route = '/api/cart/items'
 const CART_UUID = '6f1c1d8e-2a4b-4c3d-9e8f-0a1b2c3d4e5f'
 
-/** What Django answers an add with: the line, as `CartItemDetail`, and the cart it sits in. */
+/** What Django answers an add with: the line, as `CartItem`, and the cart it sits in. */
 const createdLine = () => ({
   ...makeCartItem(),
   cartId: CART_UUID,
-  recommendations: [],
   cart: makeCart({ uuid: CART_UUID }),
 })
 

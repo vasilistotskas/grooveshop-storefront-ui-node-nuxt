@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { zCartDetail, zCartItem } from '~~/shared/openapi/zod.gen'
+import { zCart, zCartItem } from '~~/shared/openapi/zod.gen'
 import { makeCart, makeCartItem, makeFreeShippingProgress } from '~~/test/fixtures/cart'
 import { problems } from '~~/test/unit/fixtures/strictSchema'
 
 /**
  * The cart fixtures replace hand-built carts that were cast
- * `as unknown as CartDetail` and lacked `currency`, the line `price` /
+ * `as unknown as Cart` and lacked `currency`, the line `price` /
  * `finalPrice` and `uuid`. Parsed strictly (an unknown key is a renamed
  * field) so the next schema change fails here, naming the field, rather
  * than as a cart spec passing against a payload Django cannot send.
@@ -31,8 +31,8 @@ describe('makeCartItem', () => {
 })
 
 describe('makeCart', () => {
-  it('builds a default cart that parses through zCartDetail', () => {
-    expect(problems(zCartDetail, makeCart())).toEqual([])
+  it('builds a default cart that parses through zCart', () => {
+    expect(problems(zCart, makeCart())).toEqual([])
   })
 
   it('parses with a free-shipping progress and a free-shipping teaser', () => {
@@ -41,13 +41,13 @@ describe('makeCart', () => {
       promotionNearMiss: [{ promotionId: 1, name: 'Δωρεάν αποστολή από 39€', remainingAmount: 19.01, remainingQuantity: null, rewardProducts: [], freeShipping: true }],
     })
 
-    expect(problems(zCartDetail, cart)).toEqual([])
+    expect(problems(zCart, cart)).toEqual([])
   })
 
   it('parses as an empty cart', () => {
     const cart = makeCart({ items: [] })
 
-    expect(problems(zCartDetail, cart)).toEqual([])
+    expect(problems(zCart, cart)).toEqual([])
     expect(cart).toMatchObject({ totalItems: 0, totalItemsUnique: 0, totalPrice: 0 })
   })
 
@@ -60,7 +60,7 @@ describe('makeCart', () => {
       ],
     })
 
-    expect(problems(zCartDetail, cart)).toEqual([])
+    expect(problems(zCart, cart)).toEqual([])
     expect(cart).toMatchObject({
       totalItems: 3,
       totalItemsUnique: 2,

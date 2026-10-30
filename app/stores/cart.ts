@@ -22,7 +22,7 @@ export const useCartStore = defineStore('cart', () => {
   const tenant = useTenant()
   const cartOn = () => storeFeatureOn(tenant.value, 'cart')
   const orderAttribution = useOrderAttribution()
-  const cart = ref<CartDetail | null>(null)
+  const cart = ref<Cart | null>(null)
   const inFlight = reactive(new Set<string>())
   const pending = computed(() => inFlight.size > 0)
   // True only while the cart is being loaded for the first time (no data yet).
@@ -442,7 +442,7 @@ export const useCartStore = defineStore('cart', () => {
    * Take the cart a cart-changing call answered with (a coupon applied or
    * removed) as the cart, instead of loading it a second time.
    */
-  function setCart(next: CartDetail) {
+  function setCart(next: Cart) {
     cart.value = next
   }
 

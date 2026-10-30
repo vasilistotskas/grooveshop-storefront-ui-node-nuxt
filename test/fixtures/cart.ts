@@ -1,4 +1,4 @@
-import type { CartDetail, CartItem } from '~~/shared/openapi/types.gen'
+import type { Cart, CartItem } from '~~/shared/openapi/types.gen'
 import type { ProductOverrides } from './product'
 import { cents, FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from './product'
 
@@ -8,7 +8,7 @@ export type CartItemOverrides = Partial<Omit<CartItem, 'product'>> & {
 }
 
 /** A cart's overrides; each of `items` is a `makeCartItem` override. */
-export type CartOverrides = Partial<Omit<CartDetail, 'items'>> & {
+export type CartOverrides = Partial<Omit<Cart, 'items'>> & {
   items?: CartItemOverrides[]
 }
 
@@ -62,13 +62,13 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
 }
 
 /**
- * A `CartDetail` (the `/api/cart` payload) valid against the generated
- * `zCartDetail` (proved by `test/unit/fixtures/cart.spec.ts`).
+ * A `Cart` (the `/api/cart` payload) valid against the generated
+ * `zCart` (proved by `test/unit/fixtures/cart.spec.ts`).
  *
  * Defaults: cart 1 in EUR holding one `makeCartItem()`, no promotions,
  * no coupons, no route to free shipping (`freeShippingProgress: null`;
  * build one with `makeFreeShippingProgress`), retail pricing
- * (`b2bPricing: null`), no recommendations.
+ * (`b2bPricing: null`).
  * `makeCart({ items: [] })` is an empty cart. Every item's `cartId` is
  * this cart's `uuid` unless the item says otherwise.
  *
@@ -87,7 +87,7 @@ export function makeCartItem(overrides: CartItemOverrides = {}): CartItem {
  * makeCart({ items: [{ id: 1 }, { id: 2, product: { id: 2, stock: 0 } }] })
  * ```
  */
-export function makeCart(overrides: CartOverrides = {}): CartDetail {
+export function makeCart(overrides: CartOverrides = {}): Cart {
   const { items: itemOverrides = [{}], ...rest } = overrides
   const id = rest.id ?? 1
   const uuid = rest.uuid ?? fixtureUuid(2, id)
@@ -95,7 +95,7 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
   const sum = (pick: (item: CartItem) => number) =>
     cents(items.reduce((total, item) => total + pick(item), 0))
 
-  const cart: CartDetail = {
+  const cart: Cart = {
     id,
     user: null,
     uuid,
@@ -120,7 +120,6 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
     createdAt: FIXTURE_TIMESTAMP,
     updatedAt: FIXTURE_TIMESTAMP,
     lastActivity: FIXTURE_TIMESTAMP,
-    recommendations: [],
     ...rest,
   }
   return {
@@ -136,8 +135,8 @@ export function makeCart(overrides: CartOverrides = {}): CartDetail {
  * cart of 2026-10-28). Override what the spec is about.
  */
 export function makeFreeShippingProgress(
-  overrides: Partial<NonNullable<CartDetail['freeShippingProgress']>> = {},
-): NonNullable<CartDetail['freeShippingProgress']> {
+  overrides: Partial<NonNullable<Cart['freeShippingProgress']>> = {},
+): NonNullable<Cart['freeShippingProgress']> {
   return {
     free: false,
     source: 'threshold',

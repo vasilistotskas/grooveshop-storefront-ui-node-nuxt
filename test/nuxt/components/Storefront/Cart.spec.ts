@@ -8,7 +8,6 @@ import Cart from '~/components/Storefront/Cart.vue'
 import WebsideCart from '~/components/variants/webside/Storefront/Cart.vue'
 import { useCartStore } from '~/stores/cart'
 import { makeCart, makeFreeShippingProgress } from '~~/test/fixtures/cart'
-import { makeProduct } from '~~/test/fixtures/product'
 import { failWith } from '~~/test/helpers/api'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
@@ -37,8 +36,8 @@ mockComponent('CartItemCard', { props: ['cartItem'], template: '<div data-stub="
 mockComponent('CheckoutCouponInput', { template: '<div data-stub="coupon" />' })
 mockComponent('CheckoutPointsEarned', { template: '<div data-stub="points" />' })
 const suggestionsStub = {
-  props: ['surface', 'items'],
-  template: `<div data-stub="suggestions" :data-surface="surface" :data-items="items?.length ?? 'fetches'" />`,
+  props: ['surface', 'seedIds'],
+  template: `<div data-stub="suggestions" :data-surface="surface" :data-seeds="seedIds?.join(',') ?? 'none'" />`,
 }
 vi.mock('~/components/Product/Suggestions.vue', () => ({ default: suggestionsStub }))
 vi.mock('~/components/variants/webside/Product/Suggestions.vue', () => ({ default: suggestionsStub }))
@@ -328,16 +327,17 @@ describe('Storefront/Cart', () => {
   })
 
   describe('you might also need', () => {
-    it('shows the strip when the store has the feature and the cart carries suggestions', async () => {
+    it('shows the strip, seeded with the product ids of the cart lines, when the store has the feature', async () => {
       setTenantFeatures({ productSuggestions: true })
-      useCartStore().cart = makeCart({ recommendations: [makeProduct({ id: 9 })] })
+      useCartStore().cart = makeCart({ items: [{ id: 1, product: { id: 9 } }, { id: 2, product: { id: 4 } }] })
 
       const wrapper = await mountPage()
       await vi.waitFor(() => expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(true))
+      expect(wrapper.find('[data-stub="suggestions"]').attributes()).toMatchObject({ 'data-surface': 'cart', 'data-seeds': '9,4' })
     })
 
     it('shows nothing without the productSuggestions feature, plan flag on', async () => {
-      useCartStore().cart = makeCart({ recommendations: [makeProduct({ id: 9 })] })
+      useCartStore().cart = makeCart({ items: [{ id: 1, product: { id: 9 } }] })
 
       const wrapper = await mountPage()
 
@@ -353,7 +353,7 @@ describe('Storefront/Cart', () => {
       await vi.waitFor(() => expect(wrapper.find('[data-stub="suggestions"]').exists()).toBe(true))
       const strip = wrapper.get('[data-stub="suggestions"]')
       expect(strip.attributes('data-surface')).toBe('empty_cart')
-      expect(strip.attributes('data-items')).toBe('fetches')
+      expect(strip.attributes('data-seeds')).toBe('none')
       expect(wrapper.text()).toContain(messages.empty.title)
     })
 
@@ -417,10 +417,7 @@ describe('Storefront/Cart (webside)', () => {
 
   it('keeps the cross-sell strip, not the empty-cart one, on a cart with lines', async () => {
     showSuggestions(true)
-    useCartStore().cart = makeCart({
-      items: [{ id: 1, quantity: 1 }],
-      recommendations: [makeProduct({ id: 9 })],
-    })
+    useCartStore().cart = makeCart({ items: [{ id: 1, quantity: 1 }] })
 
     const wrapper = await mountWebside()
 

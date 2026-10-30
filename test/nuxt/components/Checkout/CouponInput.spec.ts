@@ -4,7 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import CouponInput from '~/components/Checkout/CouponInput.vue'
 import WebsideCouponInput from '~/components/variants/webside/Checkout/CouponInput.vue'
-import type { CartDetail } from '~~/shared/openapi/types.gen'
+import type { Cart } from '~~/shared/openapi/types.gen'
 import { makeCart } from '~~/test/fixtures/cart'
 import type { CartOverrides } from '~~/test/fixtures/cart'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
@@ -34,7 +34,7 @@ mockNuxtImport('$fetch', () => api)
 const flags = vi.hoisted(() => ({ promotionsSetting: 'true' as string | null }))
 
 /** The cart Django returns after the request under test. */
-let cartAfter: CartDetail
+let cartAfter: Cart
 
 function routes(extra: Record<string, unknown> = {}) {
   api.routes({
@@ -57,7 +57,7 @@ function reject(data: Record<string, unknown> | undefined) {
 const t = (key: string, params: Record<string, unknown> = {}): string => useNuxtApp().$i18n.t(key, params)
 const text = (wrapper: VueWrapper) => wrapper.text().replace(/\u00A0/g, ' ')
 
-type CouponRow = CartDetail['appliedCoupons'][number]
+type CouponRow = Cart['appliedCoupons'][number]
 
 /** A cart carrying one attached code, with what the engine says it does. */
 function withCoupon(code: string, row: Partial<CouponRow> = {}, overrides: CartOverrides = {}): CartOverrides {
