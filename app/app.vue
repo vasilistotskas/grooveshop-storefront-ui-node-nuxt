@@ -133,7 +133,7 @@ const resolveSitePath = createSitePathResolver({ canonical: true, absolute: true
 // are stated for the countries the store ships to once the store has set
 // them (RETURN_WINDOW_DAYS, RETURN_FEES).
 const { published: publishedContentPages } = useFooterContentPages()
-const { data: shippingPolicy } = useApi('/api/shipping/policy', { key: 'shipping-policy' })
+const { data: shippingPolicy } = useShippingPolicy()
 const returnWindowSetting = useSettingValue('RETURN_WINDOW_DAYS')
 const returnFeesSetting = useSettingValue('RETURN_FEES')
 const shippingServices = computed(() => {

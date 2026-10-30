@@ -20,6 +20,7 @@ const BODY = resolve(COMPONENTS, 'Storefront/ProductDetail.vue')
 /** Anything that is supporting information, not a control. */
 const BELOW_THE_BUTTON = [
   'ProductOffers',
+  'ProductAssurances',
   'ShippingFreeShippingNotice',
   'ProductNotifyMe',
 ]

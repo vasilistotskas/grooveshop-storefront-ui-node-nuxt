@@ -3714,6 +3714,7 @@ export type LoyaltyTier = {
  */
 export type MerchantLegalIdentity = {
   readonly name: string
+  readonly distinctiveTitle: string
   readonly legalForm: string
   readonly vatId: string
   readonly taxOffice: string
@@ -8999,6 +9000,7 @@ export type StorePreferences = {
   readonly mobileBottomNav: boolean
   readonly stickyAddToCart: boolean
   readonly recentlyViewed: boolean
+  readonly productAssurances: boolean
   readonly demoAccount: boolean
 }
 

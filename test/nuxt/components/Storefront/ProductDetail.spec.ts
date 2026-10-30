@@ -7,7 +7,7 @@ import WebsideProductDetail from '~/components/variants/webside/Storefront/Produ
 import PriorPrice from '~/components/Product/PriorPrice.vue'
 import { makeProduct, makeProductReview } from '~~/test/fixtures/product'
 import { makeCategory } from '~~/test/fixtures/productFilters'
-import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
+import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
 // The wholesale price is hydrated on the client for a signed-in business
@@ -83,6 +83,7 @@ describe.each([
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   })
@@ -113,6 +114,7 @@ describe.each([
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }
@@ -185,6 +187,7 @@ describe.each([
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   })
@@ -225,6 +228,7 @@ describe.each([
       ],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }
@@ -305,6 +309,7 @@ describe('default ProductDetail', () => {
       '/api/settings/public': { settings },
       '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }
@@ -449,6 +454,7 @@ describe.each([
       '/api/settings/public': { settings },
       '/api/products/123/reviews': (_url: string, options?: { query?: { page?: number } }) => reviews(options?.query?.page ?? 1),
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }
@@ -540,6 +546,7 @@ describe.each([
       '/api/products/categories/all': [],
       '/api/settings/public': { settings: {} },
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }
@@ -600,6 +607,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }
@@ -653,6 +661,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail n
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
 
@@ -677,6 +686,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail w
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
 
@@ -703,6 +713,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail s
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }
@@ -743,6 +754,7 @@ describe('webside ProductDetail sticky bar', () => {
       '/api/products/123': product,
       '/api/products/123/images': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
     windowScrollY.value = 1000
@@ -794,6 +806,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail b
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
     windowScrollY.value = 1000
@@ -842,6 +855,84 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail b
     const wrapper = await mountPage({ cart: false })
 
     expect(wrapper.find('[data-action-bar]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+})
+
+// The purchase assurances under the buy button (`useProductAssurances`), in
+// both designs. They state the free-shipping threshold, so the notice that
+// states the same one stands aside; with the box off, the notice stays. The
+// default page draws the notice on the client only (it is per visitor), so
+// that half is asserted on webside's, which draws it in the render.
+describe.each(trees(ProductDetail, WebsideProductDetail))('$tree ProductDetail purchase assurances', ({ tree, C, own }) => {
+  const NOTICE = own('ShippingFreeShippingNotice')
+
+  function serve() {
+    clearNuxtData()
+    clearProductData()
+    clearNuxtData(['shipping-policy', 'shipping:free-shipping-info', 'footer-pay-ways', 'store-settings'])
+    const empty = { count: 0, next: null, previous: null, results: [] }
+    api.routes({
+      '/api/products/123': makeProduct({ id: 123 }),
+      '/api/products/123/images': [],
+      '/api/products/categories/all': [],
+      '/api/products/123/*': empty,
+      '/api/shipping/policy': [
+        { countryCode: 'GR', kind: 'home', providerCode: 'acs', providerName: 'ACS', price: 3, currency: 'EUR', freeShippingThreshold: 40, deliveryDaysMin: 1, deliveryDaysMax: 3, maxWeightGrams: null },
+      ],
+      '/api/shipping/free-shipping-info': { providers: [], minThreshold: 40, maxThreshold: 40, currency: 'EUR', countryCode: 'GR' },
+      '/api/pay-way': { ...empty, results: [{ settlement: 'online' }, { settlement: 'courier_cash' }] },
+      '/api/settings/public': { settings: { RETURN_WINDOW_DAYS: '14' } },
+      '/api/*': empty,
+    })
+  }
+
+  beforeEach(() => {
+    setTenant()
+  })
+
+  it('states delivery, payment and returns under the buy button', async () => {
+    serve()
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    const box = wrapper.get('ul[aria-label]')
+    expect(box.text()).toContain('Παράδοση σε 1–3 εργάσιμες ημέρες')
+    expect(box.text()).toContain('Κάρτα ή αντικαταβολή')
+    expect(box.text()).toContain('Επιστροφή εντός 14 ημερών')
+    wrapper.unmount()
+  })
+
+  it.runIf(tree === 'webside')('stands in for the free-shipping notice, which would state the same threshold', async () => {
+    serve()
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.findComponent({ name: NOTICE }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('draws no box when the store turned it off', async () => {
+    serve()
+    setTenantPreferences({ productAssurances: false })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.find('ul[aria-label]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it.runIf(tree === 'webside')('leaves the free-shipping notice in place when the box is off', async () => {
+    serve()
+    setTenantPreferences({ productAssurances: false })
+
+    const wrapper = await mountSuspended(C, { route: false })
+    await flushPromises()
+
+    expect(wrapper.findComponent({ name: NOTICE }).exists()).toBe(true)
     wrapper.unmount()
   })
 })

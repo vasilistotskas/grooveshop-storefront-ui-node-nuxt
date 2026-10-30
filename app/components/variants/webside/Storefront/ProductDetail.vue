@@ -56,6 +56,7 @@ const {
   favouriteId,
   ogImage,
 } = await useProductDetail(productId, t)
+const assurances = await useProductAssurances()
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -490,7 +491,14 @@ useSchemaOrg([
               </div>
             </div>
 
-            <WebsideShippingFreeShippingNotice v-if="cartEnabled" />
+            <WebsideProductAssurances
+              :rows="assurances.rows.value"
+              :label="assurances.label.value"
+            />
+
+            <!-- The assurances box states the same threshold, so it stands in
+                 for this notice. -->
+            <WebsideShippingFreeShippingNotice v-if="cartEnabled && !assurances.coversFreeShipping.value" />
 
             <!-- Out-of-stock subscribers: let the shopper opt into a
                  restock email. The backend ProductAlert infra handles

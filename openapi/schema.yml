@@ -38647,6 +38647,9 @@ components:
         name:
           type: string
           readOnly: true
+        distinctiveTitle:
+          type: string
+          readOnly: true
         legalForm:
           type: string
           readOnly: true
@@ -38700,6 +38703,7 @@ components:
         - businessActivity
         - city
         - country
+        - distinctiveTitle
         - email
         - inLiquidation
         - isComplete
@@ -47842,12 +47846,16 @@ components:
         recentlyViewed:
           type: boolean
           readOnly: true
+        productAssurances:
+          type: boolean
+          readOnly: true
         demoAccount:
           type: boolean
           readOnly: true
       required:
         - demoAccount
         - mobileBottomNav
+        - productAssurances
         - recentlyViewed
         - stickyAddToCart
     StrategyEnum:

@@ -104,6 +104,7 @@ export function validTenantConfig(
       mobileBottomNav: true,
       stickyAddToCart: true,
       recentlyViewed: true,
+      productAssurances: true,
       demoAccount: false,
     },
     // Spread last so a caller can turn on the flags its own scenario
