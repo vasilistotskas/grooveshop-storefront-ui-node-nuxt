@@ -1,13 +1,14 @@
 /**
  * The loyalty points the cart will earn, apart from its drawing
  * (`Checkout/PointsEarned` and the tenants' own): each distinct product's
- * points, read in parallel and totalled by quantity.
+ * points, read in one request and totalled by quantity.
  *
  * Asked only for a signed-in shopper of a store whose programme is on
  * (`shouldFetch`), and never for a wholesale cart outside the programme
  * (Django awards a B2B cart nothing unless the merchant opts it in,
  * `allowLoyalty`), so the line never promises points that are not
- * granted. Read again whenever a product or a quantity changes.
+ * granted. Read again whenever the cart's set of products changes; a
+ * quantity only re-totals, since a product's points are per unit.
  * `shouldShow` is false while loading, after a failed read, and for a
  * total of zero.
  */
@@ -61,7 +62,7 @@ export function useCartPointsEarned() {
   }
 
   watch(
-    [shouldFetch, () => getCartItems.value.map(item => `${item.product.id}:${item.quantity}`).join(',')],
+    [shouldFetch, () => [...new Set(getCartItems.value.map(item => item.product.id))].sort((a, b) => a - b).join(',')],
     () => {
       fetchAllProductPoints()
     },

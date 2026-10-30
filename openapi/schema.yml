@@ -11970,6 +11970,67 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/loyalty/product/points:
+    get:
+      operationId: getProductsLoyaltyPoints
+      description: Οι πόντοι που θα κέρδιζε ο συνδεδεμένος πελάτης ανά προϊόν, για κάθε προϊόν της λίστας που υπάρχει. Ένα προϊόν που δεν υπάρχει παραλείπεται.
+      summary: Λήψη προεπισκόπησης πόντων πιστότητας για πολλά προϊόντα
+      parameters:
+        - in: query
+          name: productIds
+          schema:
+            type: string
+          description: ID των προϊόντων για προεπισκόπηση πόντων, χωρισμένα με κόμμα, από 1 έως 100.
+          required: true
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+      tags:
+        - Loyalty
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductPoints'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/loyalty/redeem:
     post:
       operationId: redeemLoyaltyPoints
@@ -18613,6 +18674,18 @@ paths:
                 pattern: ^-?\d+$
               - type: integer
         - in: query
+          name: id_In
+          schema:
+            oneOf:
+              - type: string
+                description: Τιμές διαχωρισμένες με κόμμα
+              - type: array
+                items:
+                  type: integer
+          description: Φίλτρο ανά πολλαπλά ID προϊόντων (διαχωρισμένα με κόμμα)
+          explode: false
+          style: form
+        - in: query
           name: inStock
           schema:
             oneOf:
@@ -23544,8 +23617,8 @@ paths:
   /api/v1/product/feed:
     get:
       operationId: listProductFeed
-      description: Active products with all their attributes and images, for catalogue feeds. Filtered, sorted and paginated like the product list.
-      summary: Product feed
+      description: Ενεργά προϊόντα με όλα τα χαρακτηριστικά και τις εικόνες τους, για τα feeds του καταλόγου. Φιλτράρονται, ταξινομούνται και σελιδοποιούνται όπως η λίστα προϊόντων.
+      summary: Ροή προϊόντων
       parameters:
         - in: query
           name: active
@@ -23700,6 +23773,18 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
+        - in: query
+          name: id_In
+          schema:
+            oneOf:
+              - type: string
+                description: Τιμές διαχωρισμένες με κόμμα
+              - type: array
+                items:
+                  type: integer
+          description: Φίλτρο ανά πολλαπλά ID προϊόντων (διαχωρισμένα με κόμμα)
+          explode: false
+          style: form
         - in: query
           name: inStock
           schema:
@@ -43822,6 +43907,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          readOnly: true
           title: Απόθεμα
         lowStockThreshold:
           type: integer
@@ -43830,6 +43916,7 @@ components:
           description: Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
         active:
           type: boolean
+          readOnly: true
           title: Ενεργή
         weight:
           type: object
@@ -43939,6 +44026,7 @@ components:
           nullable: true
           readOnly: true
       required:
+        - active
         - announcedDiscountPercent
         - attributes
         - brand
@@ -43958,6 +44046,7 @@ components:
         - reviewAverage
         - reviewCount
         - slug
+        - stock
         - translations
         - updatedAt
         - uuid
@@ -44754,6 +44843,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          readOnly: true
           title: Απόθεμα
         lowStockThreshold:
           type: integer
@@ -44762,6 +44852,7 @@ components:
           description: Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
         active:
           type: boolean
+          readOnly: true
           title: Ενεργή
         weight:
           type: object
@@ -44876,6 +44967,7 @@ components:
           title: Ειδοποιήσεις πτώσης τιμής
           description: Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
       required:
+        - active
         - announcedDiscountPercent
         - attributes
         - brand
@@ -44896,6 +44988,7 @@ components:
         - reviewAverage
         - reviewCount
         - slug
+        - stock
         - translations
         - updatedAt
         - uuid
@@ -44979,6 +45072,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          readOnly: true
           title: Απόθεμα
         lowStockThreshold:
           type: integer
@@ -44987,6 +45081,7 @@ components:
           description: Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
         active:
           type: boolean
+          readOnly: true
           title: Ενεργή
         weight:
           type: object
@@ -45101,6 +45196,7 @@ components:
           title: Ειδοποιήσεις πτώσης τιμής
           description: Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
       required:
+        - active
         - announcedDiscountPercent
         - attributes
         - brand
@@ -45121,6 +45217,7 @@ components:
         - reviewAverage
         - reviewCount
         - slug
+        - stock
         - translations
         - updatedAt
         - uuid
@@ -45922,6 +46019,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          readOnly: true
           title: Απόθεμα
         lowStockThreshold:
           type: integer
@@ -45930,6 +46028,7 @@ components:
           description: Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
         active:
           type: boolean
+          readOnly: true
           title: Ενεργή
         weight:
           type: object
@@ -46049,6 +46148,7 @@ components:
             $ref: '#/components/schemas/RatingDistribution'
           readOnly: true
       required:
+        - active
         - announcedDiscountPercent
         - attributes
         - brand
@@ -46070,6 +46170,7 @@ components:
         - reviewAverage
         - reviewCount
         - slug
+        - stock
         - translations
         - updatedAt
         - uuid

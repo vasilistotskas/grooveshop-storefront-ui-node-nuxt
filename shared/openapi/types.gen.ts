@@ -6843,7 +6843,7 @@ export type Product = {
   /**
      * Απόθεμα
      */
-  stock?: number
+  readonly stock: number
   /**
      * Όριο χαμηλού αποθέματος
      *
@@ -6853,7 +6853,7 @@ export type Product = {
   /**
      * Ενεργή
      */
-  active?: boolean
+  readonly active: boolean
   weight?: {
     unit?: string
     value?: number
@@ -7334,7 +7334,7 @@ export type ProductDetail = {
   /**
      * Απόθεμα
      */
-  stock?: number
+  readonly stock: number
   /**
      * Όριο χαμηλού αποθέματος
      *
@@ -7344,7 +7344,7 @@ export type ProductDetail = {
   /**
      * Ενεργή
      */
-  active?: boolean
+  readonly active: boolean
   weight?: {
     unit?: string
     value?: number
@@ -7433,7 +7433,7 @@ export type ProductDetailResponse = {
   /**
      * Απόθεμα
      */
-  stock?: number
+  readonly stock: number
   /**
      * Όριο χαμηλού αποθέματος
      *
@@ -7443,7 +7443,7 @@ export type ProductDetailResponse = {
   /**
      * Ενεργή
      */
-  active?: boolean
+  readonly active: boolean
   weight?: {
     unit?: string
     value?: number
@@ -7918,7 +7918,7 @@ export type ProductRetrieve = {
   /**
      * Απόθεμα
      */
-  stock?: number
+  readonly stock: number
   /**
      * Όριο χαμηλού αποθέματος
      *
@@ -7928,7 +7928,7 @@ export type ProductRetrieve = {
   /**
      * Ενεργή
      */
-  active?: boolean
+  readonly active: boolean
   weight?: {
     unit?: string
     value?: number
@@ -12341,14 +12341,6 @@ export type ProductWritable = {
   category: number
   price: number
   vat?: number | null
-  /**
-     * Απόθεμα
-     */
-  stock?: number
-  /**
-     * Ενεργή
-     */
-  active?: boolean
   weight?: {
     unit?: string
     value?: number
@@ -12549,14 +12541,6 @@ export type ProductDetailWritable = {
   category: number
   price: number
   vat?: number | null
-  /**
-     * Απόθεμα
-     */
-  stock?: number
-  /**
-     * Ενεργή
-     */
-  active?: boolean
   weight?: {
     unit?: string
     value?: number
@@ -12588,14 +12572,6 @@ export type ProductDetailResponseWritable = {
   category: number
   price: number
   vat?: number | null
-  /**
-     * Απόθεμα
-     */
-  stock?: number
-  /**
-     * Ενεργή
-     */
-  active?: boolean
   weight?: {
     unit?: string
     value?: number
@@ -12687,14 +12663,6 @@ export type ProductRetrieveWritable = {
   category: number
   price: number
   vat?: number | null
-  /**
-     * Απόθεμα
-     */
-  stock?: number
-  /**
-     * Ενεργή
-     */
-  active?: boolean
   weight?: {
     unit?: string
     value?: number
@@ -18792,6 +18760,38 @@ export type GetProductLoyaltyPointsResponses = {
 
 export type GetProductLoyaltyPointsResponse = GetProductLoyaltyPointsResponses[keyof GetProductLoyaltyPointsResponses]
 
+export type GetProductsLoyaltyPointsData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+         * ID των προϊόντων για προεπισκόπηση πόντων, χωρισμένα με κόμμα, από 1 έως 100.
+         */
+    productIds: string
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/loyalty/product/points'
+}
+
+export type GetProductsLoyaltyPointsErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type GetProductsLoyaltyPointsError = GetProductsLoyaltyPointsErrors[keyof GetProductsLoyaltyPointsErrors]
+
+export type GetProductsLoyaltyPointsResponses = {
+  200: Array<ProductPoints>
+}
+
+export type GetProductsLoyaltyPointsResponse = GetProductsLoyaltyPointsResponses[keyof GetProductsLoyaltyPointsResponses]
+
 export type RedeemLoyaltyPointsData = {
   body: RedeemPointsRequestRequest
   path?: never
@@ -21941,6 +21941,10 @@ export type ListProductData = {
     hasDiscount?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
     /**
+         * Φίλτρο ανά πολλαπλά ID προϊόντων (διαχωρισμένα με κόμμα)
+         */
+    id_In?: string | Array<number>
+    /**
          * Filter products that are in stock (stock > 0)
          */
     inStock?: 'true' | 'false' | '1' | '0' | boolean
@@ -24252,6 +24256,10 @@ export type ListProductFeedData = {
          */
     hasDiscount?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
+    /**
+         * Φίλτρο ανά πολλαπλά ID προϊόντων (διαχωρισμένα με κόμμα)
+         */
+    id_In?: string | Array<number>
     /**
          * Filter products that are in stock (stock > 0)
          */

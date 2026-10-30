@@ -5,19 +5,20 @@ import type { VueWrapper } from '@vue/test-utils'
 import PointsEarned from '~/components/Checkout/PointsEarned.vue'
 import WebsidePointsEarned from '~/components/variants/webside/Checkout/PointsEarned.vue'
 import { makeCart } from '~~/test/fixtures/cart'
+import { makeProductPoints } from '~~/test/fixtures/loyalty'
 import type { CartItemOverrides } from '~~/test/fixtures/cart'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
 /**
  * "Θα κερδίσεις N πόντους" beside the checkout total: the points the
- * cart earns, summed from one `/api/loyalty/product/:id/points` request
- * per distinct product. It must never promise a reward the backend will
+ * cart earns, summed from ONE `/api/loyalty/product/points` request for
+ * the cart's distinct products. It must never promise a reward the backend will
  * not grant — a guest, a store without the loyalty feature, and a
  * wholesale cart outside the programme all get nothing, and fetch
  * nothing.
  *
- * `$api` and `useRequestApi` (the per-product points) and `$fetch` share
+ * `$api` and `useRequestApi` (the cart's points) and `$fetch` share
  * one `createApiMock`; the cart is the real
  * Pinia store. The two trees share the logic; the default prints a line
  * ("Θα κερδίσεις 24 πόντους"), the webside copy a "+24" badge.
@@ -57,11 +58,13 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
       // cart, a sign-out clears it. Answer with the cart the test set, so
       // those reactions never swap it for an empty one.
       '/api/cart': () => useCartStore().cart,
-      '/api/loyalty/product/*': (url: string) => {
-        const points = loyalty.points[Number(url.split('/')[4])]
-        if (points instanceof Error) throw points
-        return { potentialPoints: points ?? 0 }
-      },
+      // Django answers the products it knows; one failure fails the request.
+      '/api/loyalty/product/points': (_url: string, options: { query: { productIds: string } }) =>
+        options.query.productIds.split(',').map(Number).flatMap((productId) => {
+          const points = loyalty.points[productId]
+          if (points instanceof Error) throw points
+          return points === undefined ? [] : [makeProductPoints({ productId, potentialPoints: points })]
+        }),
     })
     session.loggedIn.value = true
     await flushPromises()
@@ -74,7 +77,8 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     return wrapper
   }
 
-  const pointRequests = () => api.callsTo('/api/loyalty/product/*').map(call => call.url)
+  /** The product ids each points request asked for, in order. */
+  const pointRequests = () => api.callsTo('/api/loyalty/product/*').map(call => call.options.query.productIds.split(',').map(Number))
   /** The points promised, read off the line (default) or the badge (webside). */
   const promised = (wrapper: VueWrapper) => {
     const text = tree === 'default' ? wrapper.get('p').text() : wrapper.get('[data-slot="base"]').text()
@@ -84,7 +88,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
   it('promises the points of every line, times its quantity', async () => {
     const wrapper = await mount()
 
-    expect(pointRequests()).toEqual(['/api/loyalty/product/3/points'])
+    expect(pointRequests()).toEqual([[3]])
     expect(wrapper.text()).toContain('Θα κερδίσεις 24 πόντους')
     expect(promised(wrapper)).toBe(24)
   })
@@ -93,17 +97,36 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     lines({ id: 1, quantity: 1, product: { id: 3 } }, { id: 2, quantity: 2, product: { id: 3 } })
     const wrapper = await mount()
 
-    expect(pointRequests()).toEqual(['/api/loyalty/product/3/points'])
+    expect(pointRequests()).toEqual([[3]])
     expect(promised(wrapper)).toBe(36)
   })
 
-  it('counts a product whose points failed to load as zero and still shows the rest', async () => {
+  it('asks for every product of the cart in one request', async () => {
+    lines(
+      { id: 1, quantity: 2, product: { id: 4 } },
+      { id: 2, quantity: 1, product: { id: 3 } },
+      { id: 3, quantity: 1, product: { id: 5 } },
+    )
+    const wrapper = await mount()
+
+    expect(pointRequests()).toEqual([[4, 3, 5]])
+    expect(promised(wrapper)).toBe(22)
+  })
+
+  it('counts a product Django left out as zero and still shows the rest', async () => {
+    lines({ id: 1, quantity: 2, product: { id: 9 } }, { id: 2, quantity: 1, product: { id: 4 } })
+    const wrapper = await mount()
+
+    expect(promised(wrapper)).toBe(5)
+  })
+
+  it('promises nothing when the points could not be read', async () => {
     loyalty.points = { 3: new Error('boom'), 4: 5 }
     lines({ id: 1, quantity: 2, product: { id: 3 } }, { id: 2, quantity: 1, product: { id: 4 } })
     const wrapper = await mount()
 
-    expect(pointRequests()).toHaveLength(2)
-    expect(promised(wrapper)).toBe(5)
+    expect(pointRequests()).toHaveLength(1)
+    expect(wrapper.text()).not.toContain('πόντους')
   })
 
   it('promises nothing when the cart earns no points', async () => {
@@ -120,11 +143,7 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     await flushPromises()
 
     // The whole cart is re-asked, the new product included.
-    expect(pointRequests()).toEqual([
-      '/api/loyalty/product/3/points',
-      '/api/loyalty/product/3/points',
-      '/api/loyalty/product/4/points',
-    ])
+    expect(pointRequests()).toEqual([[3], [3, 4]])
     expect(promised(wrapper)).toBe(29)
   })
 
@@ -134,17 +153,18 @@ describe.each(trees(PointsEarned, WebsidePointsEarned))('$tree Checkout/PointsEa
     lines({ id: 1, quantity: 2, product: { id: 4 } })
     await flushPromises()
 
-    expect(pointRequests().at(-1)).toBe('/api/loyalty/product/4/points')
+    expect(pointRequests().at(-1)).toEqual([4])
     expect(promised(wrapper)).toBe(10)
   })
 
-  it('re-counts when a line\'s quantity changes', async () => {
+  it('re-counts when a line\'s quantity changes, without asking again', async () => {
     const wrapper = await mount()
 
     lines({ id: 1, quantity: 3, product: { id: 3 } })
     await flushPromises()
 
     expect(promised(wrapper)).toBe(36)
+    expect(pointRequests()).toEqual([[3]])
   })
 
   function storeWithoutLoyalty() {
