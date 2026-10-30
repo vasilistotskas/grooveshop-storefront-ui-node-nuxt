@@ -3,6 +3,7 @@ import { setupDevServer, startFakeDjango } from '../helpers/e2e'
 import { anonymousVisitorUpstream, describeAnonymousVisitor } from './anonymousVisitor'
 import { describePageRenders, pageRenderUpstream } from './pageRenders'
 import { describeRequestId, requestIdUpstream } from './requestId'
+import { describeTenantLookups, tenantLookupsUpstream } from './tenantLookups'
 import { describeShippingOptionsCache, shippingOptionsUpstream } from './shippingOptionsCache'
 import { describeSignOut, signOutUpstream } from './signOut'
 import { PLATFORM_FALLBACK_HOST, describeSwrHostPropagation, swrProbeUpstream } from './swrHostPropagation'
@@ -24,6 +25,7 @@ import { describeTrackingParams, trackingParamsUpstream } from './trackingParams
 describe('storefront on a real dev server', async () => {
   const fakeDjango = await startFakeDjango((req, res, url) => {
     if (swrProbeUpstream(req, res, url)) return
+    if (tenantLookupsUpstream(req, res, url)) return
     if (anonymousVisitorUpstream(req, res, url)) return
     if (signOutUpstream(req, res, url)) return
     if (requestIdUpstream(req, res, url)) return
@@ -44,4 +46,5 @@ describe('storefront on a real dev server', async () => {
   describeSignOut()
   describeRequestId()
   describeShippingOptionsCache()
+  describeTenantLookups()
 })

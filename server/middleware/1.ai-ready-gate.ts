@@ -33,9 +33,8 @@ export default defineEventHandler(async (event) => {
   if (!isAiSurfacePath(event.url.pathname)) return
   if (getRequestHeader(event, 'x-md-negotiation-internal')) return
 
-  const host = requestTenantHost(event)
-  const result = host ? await getTenantConfig(host) : null
-  if (result?.type !== 'ok' || !servesAiSurfaces(result.config)) {
+  const result = await requestTenantResult(event)
+  if (result.type !== 'ok' || !servesAiSurfaces(result.config)) {
     throw createError({ status: 404, statusText: 'Not Found' })
   }
 })

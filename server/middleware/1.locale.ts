@@ -28,7 +28,7 @@ import { defineEventHandler, getRequestHeader } from 'nuxt/server'
  */
 export default defineEventHandler((event) => {
   const path = event.url.pathname
-  if (path.startsWith('/_nuxt') || path.startsWith('/_ipx') || path.startsWith('/assets')) return
+  if (path.startsWith('/_nuxt') || path.startsWith('/_ipx')) return
 
   event.context.locale = pageLocale(path, getRequestHeader(event, 'x-language'), event.context.tenant)
 })

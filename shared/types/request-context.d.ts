@@ -2,6 +2,7 @@ import type { RequestEventContext } from '@nuxt/schema'
 import type { AuditableLogger } from 'evlog'
 import type { SupportedLocale } from '~~/i18n/locales'
 import type { TenantConfig } from '~~/shared/openapi/types.gen'
+import type { TenantResult } from '~~/shared/types/TenantResult'
 
 /**
  * What this app's server middleware and the evlog plugin put on every
@@ -20,6 +21,8 @@ declare module '@nuxt/schema' {
     tenantHost?: string
     /** The store this request is for: `server/middleware/0.tenant.ts`. Absent on its bypass paths (probes, sitemap, prerender). */
     tenant?: TenantConfig
+    /** The one lookup of this request's store, shared by every caller: `requestTenantResult`. */
+    tenantResult?: Promise<TenantResult>
     /** The locale this request renders in: `server/middleware/1.locale.ts`. */
     locale?: SupportedLocale
     /** The CSP nonce for this response: `server/middleware/3.csp.ts`. */

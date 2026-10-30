@@ -7,7 +7,7 @@ import { defineEventHandler } from 'nuxt/server'
  * mark every Nuxt pod NotReady and shed traffic to the remaining
  * replica — the cascade that M5 in MULTI_TENANT_AUDIT.md is about.
  *
- * For full-stack health (Django + Redis + Celery), use `/api/health`.
+ * For full-stack health (Django + Redis + Celery), use Django's `/api/v1/health`.
  */
 export default defineEventHandler((event) => {
   event.res.headers.set('cache-control', 'no-store')

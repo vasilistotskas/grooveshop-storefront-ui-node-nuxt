@@ -20,20 +20,15 @@ describe('server/middleware/0.tenant', () => {
   it.each([
     '/_nuxt/builds/meta/XXX.json',
     '/_ipx/w_200/logo.png',
-    '/assets/main.css',
-    '/api/health',
-    '/api/health/live',
     '/api/__sitemap__/urls',
     '/platform-favicon/favicon-32x32.png',
     '/favicon/apple-touch-icon.png',
     '/api/_alive',
-    '/health',
     '/favicon.ico',
     '/favicon.png',
     '/logo.svg',
     '/robots.txt',
     '/manifest.webmanifest',
-    '/openapi',
     '/_health',
     '/llms.txt',
     '/llms-full.txt',
@@ -51,6 +46,16 @@ describe('server/middleware/0.tenant', () => {
     await expect(result).resolves.toBeUndefined()
     expect(backend.requests).toEqual([])
     expect(event.context.tenant).toBeUndefined()
+  })
+
+  it.each(['/health', '/api/health', '/assets/main.css', '/openapi'])('resolves the tenant for %s, which nothing serves and so is no bypass', async (url) => {
+    backend.reply(tenant)
+
+    const { event, result } = run({ url })
+    await result
+
+    expect(backend.requests).toHaveLength(1)
+    expect(event.context.tenant).toEqual(tenant)
   })
 
   it('resolves the tenant from the Host header, never X-Forwarded-Host', async () => {

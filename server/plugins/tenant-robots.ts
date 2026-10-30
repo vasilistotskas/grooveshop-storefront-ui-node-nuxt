@@ -1,14 +1,14 @@
-import { getTenantConfig } from '../utils/tenant'
+import { requestTenantResult } from '../utils/requestTenant'
 import { requestTenantHost } from '../utils/tenantHost'
 import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
  * Per-tenant robots.txt via @nuxtjs/robots' runtime Nitro hook.
  *
- * ``/robots.txt`` stays in the tenant middleware's BYPASS_EXACT list —
+ * ``/robots.txt`` bypasses the tenant middleware (`tenantBypass.ts`) —
  * robots must never 404/503 on tenant-resolution failure — so the
- * tenant is resolved HERE (cheap: getTenantConfig's 5-minute in-memory
- * cache), and the module's own handler keeps serving.
+ * tenant is resolved HERE (`requestTenantResult`: one lookup per request,
+ * shared with every other caller), and the module's own handler keeps serving.
  *
  * - Resolved tenant on its primary domain: keep the platform bot
  *   policy (the 25-bot groups in nuxt.config.ts) and point the
@@ -19,8 +19,7 @@ import { defineNitroPlugin } from 'nitropack/runtime'
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('robots:robots-txt', async (ctx) => {
     const event = ctx.e
-    const host = requestTenantHost(event)
-    const result = await getTenantConfig(host)
+    const result = await requestTenantResult(event)
 
     if (result.type !== 'ok') {
       ctx.robotsTxt = 'User-agent: *\nDisallow: /\n'
@@ -28,7 +27,7 @@ export default defineNitroPlugin((nitroApp) => {
     }
 
     const primaryDomain = result.config.primaryDomain
-    if (primaryDomain && primaryDomain !== host) {
+    if (primaryDomain && primaryDomain !== requestTenantHost(event)) {
       // Alias domain — disallow so it can't be indexed as duplicate
       // content of the primary.
       ctx.robotsTxt = 'User-agent: *\nDisallow: /\n'
@@ -36,7 +35,7 @@ export default defineNitroPlugin((nitroApp) => {
     }
 
     // Rewrite every Sitemap line onto the tenant's own origin.
-    const siteUrl = `https://${primaryDomain || host}`
+    const siteUrl = `https://${primaryDomain || requestTenantHost(event)}`
     ctx.robotsTxt = ctx.robotsTxt.replace(
       /^Sitemap:.*$/gm,
       `Sitemap: ${siteUrl}/sitemap.xml`,

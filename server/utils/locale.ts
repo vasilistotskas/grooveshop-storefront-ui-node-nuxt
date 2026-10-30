@@ -33,7 +33,7 @@ export function pageLocale(
  * disagree.
  */
 export function requestLocale(event: Pick<RequestEvent, 'context'>): SupportedLocale {
-  // The middleware skips `/_nuxt`, `/_ipx` and `/assets`, which is no
+  // The middleware skips `/_nuxt` and `/_ipx`, which is no
   // reason to fail: no locale means "the store's default language".
   // Only `1.locale` writes it, through `servedLocale`, which yields a
   // supported locale. Read from the context, so it serves every event
