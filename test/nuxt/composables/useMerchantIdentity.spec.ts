@@ -97,6 +97,15 @@ describe('the legal form is not repeated', () => {
     expect(legalName.value).toBe('Acme MON IKE')
   })
 
+  it('does not take an abbreviation inside another word for the form', async () => {
+    const { legalName } = await load({
+      name: 'BIKE Shop',
+      legalForm: 'Private Company (IKE)',
+      city: 'Αθήνα',
+    })
+    expect(legalName.value).toBe('BIKE Shop Private Company (IKE)')
+  })
+
   it('matches case-insensitively in Greek', async () => {
     const { legalName } = await load({
       name: 'ΑΚΜΗ ΙΚΕ',

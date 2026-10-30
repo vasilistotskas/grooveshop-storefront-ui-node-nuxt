@@ -34,17 +34,28 @@ describe('the merchant identity', () => {
     expect(tags).toContain(tag)
   })
 
-  it.each([
-    ['desktop', 'variants/webside/Footer/Desktop.vue'],
-    ['mobile', 'variants/webside/Footer/Mobile.vue'],
-  ])('is placed by the webside %s footer under the marked column AND in its fallback', (_layout, file) => {
+  it('is placed by the webside desktop footer under the marked column AND in its fallback', () => {
     // Under the column the operator marked, and where a footer with none
     // marked keeps it: dropping either leaves some store with no disclosure.
     let count = 0
-    walkElements(sfcTemplate(resolve(COMPONENTS, file)), (node) => {
+    walkElements(sfcTemplate(resolve(COMPONENTS, 'variants/webside/Footer/Desktop.vue')), (node) => {
       if (node.tag === 'WebsideMerchantIdentity') count++
     })
     expect(count).toBe(2)
+  })
+
+  it('is placed ONCE by the webside mobile footer, outside its accordion', () => {
+    // "σε εμφανές σημείο": visible without opening a column, so it is never
+    // placed inside a collapsed panel, whichever column is marked.
+    let count = 0
+    let inAccordion = 0
+    walkElements(sfcTemplate(resolve(COMPONENTS, 'variants/webside/Footer/Mobile.vue')), (node, ancestors) => {
+      if (node.tag !== 'WebsideMerchantIdentity') return
+      count++
+      if (ancestors.some(ancestor => ancestor.tag === 'UAccordion')) inAccordion++
+    })
+    expect(count).toBe(1)
+    expect(inAccordion).toBe(0)
   })
 
   it('is published by the ekfyseosfyteias chrome footer, which lays it out itself', () => {

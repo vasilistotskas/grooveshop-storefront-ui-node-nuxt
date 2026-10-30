@@ -154,6 +154,11 @@ describe.each(trees(QuantitySelector, WebsideQuantitySelector))('$tree Quantity/
     await flushPromises()
 
     expect(putsTo().map(call => call.options.body)).toEqual([{ quantity: 3 }, { quantity: 5 }])
+
+    // Let the second write land too: the cart store queues every change
+    // behind the one before it, and the store outlives this test.
+    land()
+    await flushPromises()
   })
 
   it('follows the cart when another tab changes the line', async () => {

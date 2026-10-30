@@ -320,7 +320,7 @@ exports[`webside design render > footer desktop 1`] = `
 `;
 
 exports[`webside design render > footer mobile 1`] = `
-"<footer class="w-full bg-primary-50 md:pb-11 md:hidden dark:bg-primary-900">
+"<footer class="w-full bg-primary-50 md:pb-11 lg:hidden dark:bg-primary-900">
   <div data-slot="root" class="w-full">
     <div data-state="closed" data-orientation="vertical" data-slot="item" class="border-b border-default last:border-b-0">
       <div data-orientation="vertical" data-state="closed" data-slot="header" class="flex"><button type="button" aria-controls="" aria-expanded="false" data-state="closed" id="ID" data-reka-collection-item="" data-orientation="vertical" data-slot="trigger" class="group flex-1 flex items-center font-medium text-sm outline-primary/25 focus-visible:outline-3 min-w-0 rounded-md cursor-pointer gap-3 bg-(--ui-secondary) px-3 py-2.5"><span class="iconify i-heroicons:rectangle-group shrink-0 size-5 text-(--ui-on-secondary)" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="text-start break-words truncate text-base font-medium text-(--ui-on-secondary)">Όροι και Προϋποθέσεις</span><span class="iconify i-lucide:chevron-down shrink-0 ms-auto group-data-[state=open]:rotate-180 transition-transform duration-200 ease-out motion-reduce:transition-none size-4 text-(--ui-on-secondary)" aria-hidden="true" data-slot="trailingIcon"></span></button></div>
@@ -338,7 +338,6 @@ exports[`webside design render > footer mobile 1`] = `
               <!--v-if--><span data-slot="label" class="truncate">Πολιτική Cookies</span>
               <!--v-if-->
             </a></div>
-          <!--v-if-->
         </div>
       </div>
     </div>
@@ -354,7 +353,6 @@ exports[`webside design render > footer mobile 1`] = `
               <!--v-if--><span data-slot="label" class="truncate">Σχόλια &amp; Παρατηρήσεις</span>
               <!--v-if-->
             </a></div>
-          <!--v-if-->
         </div>
       </div>
     </div>

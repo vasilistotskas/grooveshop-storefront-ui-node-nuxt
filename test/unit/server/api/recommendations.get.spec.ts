@@ -50,6 +50,13 @@ describe('GET /api/recommendations', () => {
     expect(backend.lastRequest.query).toEqual({ surface: 'cart', limit: '2', seeds: '4,9,12' })
   })
 
+  it.each(['1,,2', '01,2', '1,a', '0', '-3', ',4', '4,'])('refuses the malformed seeds "%s" without calling Django', async (seeds) => {
+    const response = await callRoute(handler, { route, url: `/api/recommendations?surface=cart&seeds=${seeds}` })
+
+    expect(response.status).toBe(400)
+    expect(backend.requests).toEqual([])
+  })
+
   it('rejects an unknown surface without calling Django', async () => {
     const response = await callRoute(handler, { route, url: '/api/recommendations?surface=homepage' })
 
@@ -92,5 +99,7 @@ describe('GET /api/recommendations', () => {
     expect(await keyFor('/api/recommendations?surface=cart&seeds=9,4,4')).toBe(basket)
     expect(await keyFor('/api/recommendations?surface=cart&seeds=4,10')).not.toBe(basket)
     expect(await keyFor('/api/recommendations?surface=cart')).not.toBe(basket)
+    // A malformed list is refused by the handler; it takes no real basket's entry.
+    expect(await keyFor('/api/recommendations?surface=cart&seeds=4,,9')).not.toBe(basket)
   })
 })

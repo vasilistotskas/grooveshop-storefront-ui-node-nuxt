@@ -11,7 +11,8 @@ import { setTenant } from '~~/test/helpers/tenant'
  * operator marked for it (`NavigationColumn.shows_merchant_identity`), the
  * "Σχετικά με εμάς" column on webside. A footer with no marked column keeps
  * the identity in its bottom bar, so it is on every page whichever way
- * the store laid its footer out.
+ * the store laid its footer out. The mobile footer always keeps it in the
+ * bottom bar: a collapsed accordion column is not "εμφανές".
  */
 interface NavColumn { label: string, showsMerchantIdentity?: boolean, children: Array<{ label: string, to: string }> }
 
@@ -101,18 +102,13 @@ describe('webside Footer/Desktop seller identity', () => {
 })
 
 describe('webside Footer/Mobile seller identity', () => {
-  it('sits in the marked column of the accordion, once', async () => {
-    configuredColumns = [HELP, ABOUT]
-
-    const wrapper = await mountFooter(FooterMobile)
-
-    expect(wrapper.findAll('address')).toHaveLength(1)
-    const body = wrapper.find('address').element.closest('[data-slot="content"]')
-    expect(body?.textContent).toContain('Σχετικά με το Webside')
-  })
-
-  it('keeps the identity under the accordion when no column is marked', async () => {
-    configuredColumns = [HELP]
+  // "σε εμφανές σημείο": visible without a tap, so never inside a collapsed
+  // accordion column, even when the operator marked one for the desktop footer.
+  it.each([
+    ['a column is marked for it', [HELP, ABOUT]],
+    ['no column is marked', [HELP]],
+  ])('sits under the accordion, once, when %s', async (_case, columns) => {
+    configuredColumns = columns
 
     const wrapper = await mountFooter(FooterMobile)
 

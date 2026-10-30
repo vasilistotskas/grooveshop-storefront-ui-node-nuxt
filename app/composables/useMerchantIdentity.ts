@@ -76,7 +76,16 @@ export function useMerchantIdentity() {
     // written out or as the abbreviation the form lists in parentheses.
     // Appending it again would read as a typo on their own company name.
     const abbreviation = form.match(/\(([^)]+)\)\s*$/)?.[1]?.trim()
-    const carries = (text: string) => name.toLocaleUpperCase('el').includes(text.toLocaleUpperCase('el'))
+    // As a separate word, never inside another: "BIKE Shop" does not carry "IKE".
+    const carries = (text: string) => {
+      const haystack = name.toLocaleUpperCase('el')
+      const needle = text.toLocaleUpperCase('el')
+      const inWord = (character: string | undefined) => character !== undefined && /[\p{L}\p{N}]/u.test(character)
+      for (let at = haystack.indexOf(needle); at !== -1; at = haystack.indexOf(needle, at + 1)) {
+        if (!inWord(haystack[at - 1]) && !inWord(haystack[at + needle.length])) return true
+      }
+      return false
+    }
     if (!form || carries(form) || (abbreviation && carries(abbreviation))) {
       return name
     }

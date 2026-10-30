@@ -76,3 +76,32 @@ describe.each(trees(ProviderList, WebsideProviderList))('$tree Account/Provider/
     expect(wrapper.findAll('li button')).toHaveLength(0)
   })
 })
+
+/**
+ * Google's button rules: its fill and stroke, and a label that names the
+ * action, never "Google" alone. Webside draws the icon-only button the
+ * same guidelines allow, so this is the default design's.
+ */
+describe('default Account/Provider/List: the Google button', () => {
+  beforeEach(() => {
+    offer(GOOGLE, GITHUB)
+  })
+
+  it('names the action, and leaves the other providers\' labels as they are', async () => {
+    const wrapper = await mountSuspended(ProviderList, { route: false })
+    await flushPromises()
+
+    const [google, github] = wrapper.findAll('li button')
+    expect(google!.text()).toBe('Συνέχεια με Google')
+    expect(github!.text()).toBe('GitHub')
+  })
+
+  it('sits on Google\'s own fill and stroke, and no other provider does', async () => {
+    const wrapper = await mountSuspended(ProviderList, { route: false })
+    await flushPromises()
+
+    const [google, github] = wrapper.findAll('li button')
+    expect(google!.classes()).toEqual(expect.arrayContaining(['bg-(--google-signin-fill)', 'ring-(--google-signin-stroke)']))
+    expect(github!.classes()).not.toContain('bg-(--google-signin-fill)')
+  })
+})

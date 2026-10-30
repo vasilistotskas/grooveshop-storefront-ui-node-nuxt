@@ -9,7 +9,7 @@ import { trees } from '~~/test/helpers/trees'
  * note under it, a link only where the row has a target. Nothing for no rows.
  */
 const ROWS: ProductAssuranceRow[] = [
-  { kind: 'delivery', icon: 'i-lucide-truck', text: 'Παράδοση σε 1–3 εργάσιμες ημέρες', note: 'Δωρεάν μεταφορικά άνω των 40,00 €' },
+  { kind: 'delivery', icon: 'i-lucide-truck', text: 'Παράδοση σε 1–3 εργάσιμες ημέρες από την αποστολή', note: 'Δωρεάν μεταφορικά άνω των 40,00 €' },
   { kind: 'payment', icon: 'i-lucide-credit-card', text: 'Κάρτα ή αντικαταβολή' },
   { kind: 'returns', icon: 'i-lucide-undo-2', text: 'Επιστροφή εντός 14 ημερών', to: '/return-policy' },
 ]
@@ -25,7 +25,7 @@ describe.each(trees(Assurances, WebsideAssurances))('$tree Product/Assurances', 
     expect(items).toHaveLength(3)
     // Each line is its own block, so the note is not run into the text.
     expect(items[0]!.findAll('span > span').map(line => line.text())).toEqual([
-      'Παράδοση σε 1–3 εργάσιμες ημέρες',
+      'Παράδοση σε 1–3 εργάσιμες ημέρες από την αποστολή',
       'Δωρεάν μεταφορικά άνω των 40,00 €',
     ])
     expect(items[1]!.text()).toBe('Κάρτα ή αντικαταβολή')

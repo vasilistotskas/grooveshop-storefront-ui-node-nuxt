@@ -24,8 +24,9 @@ beforeEach(() => {
   providerSignup.mockResolvedValue({ status: 200 })
 })
 
-async function submit(wrapper: VueWrapper, email: string) {
+async function submit(wrapper: VueWrapper, email: string, { acceptTerms = true } = {}) {
   await wrapper.find('input[type="email"]').setValue(email)
+  if (acceptTerms) await wrapper.find('button[role="checkbox"]').trigger('click')
   await wrapper.find('form').trigger('submit')
   await flushPromises()
 }
@@ -44,6 +45,15 @@ describe.each(trees(ProviderSignup, WebsideProviderSignup))('$tree Account/Provi
     await wrapper.find('button[role="checkbox"]').trigger('click')
 
     expect(submitButton().attributes('disabled')).toBeUndefined()
+  })
+
+  it('makes no account without the terms, even when the form is submitted past the disabled button', async () => {
+    const wrapper = await mountForm()
+
+    await submit(wrapper, 'new@example.com', { acceptTerms: false })
+
+    expect(providerSignup).not.toHaveBeenCalled()
+    expect(wrapper.emitted('providerSignup')).toBeUndefined()
   })
 
   it('gives allauth the email, says the account is made and tells its parent', async () => {

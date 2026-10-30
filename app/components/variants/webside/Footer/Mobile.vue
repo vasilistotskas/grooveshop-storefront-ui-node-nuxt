@@ -2,7 +2,7 @@
 import type { AccordionItem } from '#ui/types'
 
 const localePath = useLocalePath()
-const { columns, merchantIdentityColumnIndex } = useFooterLinks()
+const { columns } = useFooterLinks()
 
 const items = computed<AccordionItem[]>(() =>
   columns.value.map(column => ({
@@ -16,7 +16,7 @@ const items = computed<AccordionItem[]>(() =>
   <footer
     class="
       w-full bg-primary-50 md:pb-11
-      md:hidden
+      lg:hidden
       dark:bg-primary-900
     "
   >
@@ -78,23 +78,20 @@ const items = computed<AccordionItem[]>(() =>
             variant="link"
           />
         </div>
-        <!-- The seller identity sits under the column the operator marked for it, as on desktop. -->
-        <WebsideMerchantIdentity
-          v-if="index === merchantIdentityColumnIndex"
-          class="px-3 py-2"
-        />
       </template>
     </UAccordion>
 
     <!-- Same obligation as the desktop footer: the seller identity has
-         to be on every page, not only the wide layout. A footer with no
-         marked column keeps it here. Centered in its
+         to be on every page, not only the wide layout, and "σε εμφανές
+         σημείο": visible without a tap. It therefore never sits inside
+         a collapsed column, whichever column the operator marked for
+         the desktop footer. Centered in its
          own padded block: as bare `px-4 pt-*` siblings these two sat
          flush against the last accordion bar and ran off the bottom
          edge of the page (no bottom padding, and the fixed mobile
          bottom nav overlapped them when enabled). -->
     <div class="flex flex-col items-center gap-2 px-4 text-center">
-      <WebsideMerchantIdentity v-if="merchantIdentityColumnIndex === -1" />
+      <WebsideMerchantIdentity />
       <WebsideFooterHoursBadge />
     </div>
   </footer>

@@ -73,7 +73,7 @@ export async function useCouponPicker(options: {
   async function applyCoupon(row: CartCoupon) {
     submitting.value = row.code
     try {
-      cartStore.setCart(await $api('/api/cart/coupon', {
+      await cartStore.changeCart(() => $api('/api/cart/coupon', {
         method: 'POST',
         body: { code: row.code },
       }))

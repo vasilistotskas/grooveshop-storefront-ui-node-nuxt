@@ -79,7 +79,7 @@ export function useCouponInput(options: {
     try {
       const code = formState.code.trim()
       // Django answers with the updated cart: no reload.
-      cartStore.setCart(await $api('/api/cart/coupon', {
+      await cartStore.changeCart(() => $api('/api/cart/coupon', {
         method: 'POST',
         body: { code },
       }))
@@ -105,7 +105,7 @@ export function useCouponInput(options: {
   const removeCoupon = async () => {
     submitting.value = true
     try {
-      cartStore.setCart(await $api('/api/cart/coupon', { method: 'DELETE' }))
+      await cartStore.changeCart(() => $api('/api/cart/coupon', { method: 'DELETE' }))
       couponError.value = null
     }
     catch (error) {

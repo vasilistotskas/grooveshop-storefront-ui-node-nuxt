@@ -37,7 +37,7 @@ describe.each(trees(ChromeAssistantPanel, ChatPanel))('$tree assistant panel pro
     // The card loads on its own request and the closing sentence is the last
     // delta: wait for both, or a slow run reads the text before either shows.
     await vi.waitFor(() => {
-      expect(wrapper.find('li h4').exists()).toBe(true)
+      expect(wrapper.text()).toContain('Προϊόν 5')
       expect(wrapper.text()).toContain('Θέλεις να δεις κι άλλα;')
     })
 

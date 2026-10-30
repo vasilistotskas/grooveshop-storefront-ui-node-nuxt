@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
 import { useCartStore } from '~/stores/cart'
 import { makeCart, makeCartItem } from '~~/test/fixtures/cart'
 import { setTenant } from '~~/test/helpers/tenant'
@@ -383,15 +384,73 @@ describe('Cart Store', () => {
     })
   })
 
-  describe('setCart', () => {
-    it('takes the cart a coupon call answered with as the cart', () => {
+  describe('changeCart', () => {
+    it('takes the cart a coupon call answers with as the cart', async () => {
       const cart = twoLineCart({ quantity1: 4 })
       store.cart = twoLineCart()
 
-      store.setCart(cart)
+      await store.changeCart(() => Promise.resolve(cart))
 
       expect(store.cart).toEqual(cart)
       expect(api.mock.calls).toEqual([])
+    })
+
+    it('leaves the cart as it was when the call fails', async () => {
+      const cart = twoLineCart()
+      store.cart = cart
+
+      await expect(store.changeCart(() => Promise.reject(new Error('Refused')))).rejects.toThrow('Refused')
+
+      expect(store.cart).toEqual(cart)
+    })
+  })
+
+  // Each cart-changing call answers with the whole cart. Two in flight can be
+  // answered out of order, and the older snapshot would replace the newer one.
+  describe('overlapping changes', () => {
+    it('sends them one after the other, so the last answer is the newest cart', async () => {
+      const first = deferred<unknown>()
+      const second = deferred<unknown>()
+      const answers = [first, second]
+      const sent: number[] = []
+      api.routes({
+        '/api/cart/items': (_url: string, options: { body: { product: number } }) => {
+          sent.push(options.body.product)
+          return answers[sent.length - 1]!.promise
+        },
+      })
+
+      const adding1 = store.createCartItem({ product: 1, quantity: 1 })
+      const adding2 = store.createCartItem({ product: 2, quantity: 1 })
+      await flushPromises()
+      // The second waits for the first: only one request is out.
+      expect(sent).toEqual([1])
+
+      first.resolve(makeCart({ items: [{ id: 1, product: { id: 1 } }] }))
+      await adding1
+      await flushPromises()
+      expect(sent).toEqual([1, 2])
+
+      second.resolve(makeCart({ items: [{ id: 1, product: { id: 1 } }, { id: 2, product: { id: 2 } }] }))
+      await adding2
+
+      expect(store.getCartProductIds).toEqual([1, 2])
+    })
+
+    it('keeps going after a change failed', async () => {
+      api.routes({
+        '/api/cart/items': (_url: string, options: { body: { product: number } }) => {
+          if (options.body.product === 1) throw new Error('Out of stock')
+          return makeCart({ items: [{ id: 2, product: { id: 2 } }] })
+        },
+      })
+
+      const failing = store.createCartItem({ product: 1, quantity: 1 })
+      const following = store.createCartItem({ product: 2, quantity: 1 })
+
+      await expect(failing).rejects.toThrow('Out of stock')
+      await following
+      expect(store.getCartProductIds).toEqual([2])
     })
   })
 

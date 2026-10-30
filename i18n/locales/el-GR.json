@@ -302,8 +302,8 @@
   },
   "product_assurances": {
     "label": "Παράδοση, πληρωμή και επιστροφές",
-    "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες ημέρες",
-    "delivery_days": "Παράδοση σε {count} εργάσιμη ημέρα | Παράδοση σε {count} εργάσιμες ημέρες",
+    "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες ημέρες από την αποστολή",
+    "delivery_days": "Παράδοση σε {count} εργάσιμη ημέρα από την αποστολή | Παράδοση σε {count} εργάσιμες ημέρες από την αποστολή",
     "free_shipping_over": "Δωρεάν μεταφορικά άνω των {amount}",
     "payment_card": "κάρτα",
     "payment_cash_on_delivery": "αντικαταβολή",

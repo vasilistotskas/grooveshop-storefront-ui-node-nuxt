@@ -36,7 +36,10 @@ const SETTLEMENT_LABEL: Record<SettlementEnum, PaymentLabel> = {
  * promises no delivery.
  *
  * `coversFreeShipping` is whether a row states the free-shipping threshold,
- * so the product page does not state it a second time in its notice.
+ * so the product page does not state it a second time in its notice. A
+ * shopper whose cart already has a free-shipping route is shown the cart's
+ * own distance by that notice instead ("add 12 € more"), so the row then
+ * leaves the store-wide threshold out: one statement, the more useful one.
  */
 export async function useProductAssurances() {
   const { $i18n } = useNuxtApp()
@@ -49,6 +52,9 @@ export async function useProductAssurances() {
   if (!preferred.value || !cartEnabled.value) {
     return { rows: computed<ProductAssuranceRow[]>(() => []), label, coversFreeShipping: computed(() => false) }
   }
+
+  const { cart } = storeToRefs(useCartStore())
+  const cartHasProgress = computed(() => Boolean(cart.value?.freeShippingProgress))
 
   const returnWindowSetting = useSettingValue('RETURN_WINDOW_DAYS')
   const { published } = useFooterContentPages()
@@ -78,7 +84,7 @@ export async function useProductAssurances() {
       text: min === max
         ? $i18n.t('product_assurances.delivery_days', { count: min }, min)
         : $i18n.t('product_assurances.delivery_range', { min, max }),
-      note: threshold > 0
+      note: threshold > 0 && !cartHasProgress.value
         ? $i18n.t('product_assurances.free_shipping_over', { amount: $i18n.n(threshold, 'currency') })
         : undefined,
     }

@@ -199,10 +199,42 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function createCartItem(body: CartItemCreateRequestWritable) {
-    if (!cartOn()) return
+  /**
+   * Cart-changing calls run one at a time, in the order they were made.
+   * Each of them answers with the whole cart, and the cart is set from the
+   * answer: two in flight at once can be answered out of order, and the
+   * older snapshot would then replace the newer one (a line Django accepted
+   * missing from the screen, with no reload to put it back). One after the
+   * other, the answers arrive in the order Django applied the changes. A
+   * failed call leaves the queue to the next.
+   */
+  let changes: Promise<unknown> = Promise.resolve()
+  function serialized<T>(task: () => Promise<T>): Promise<T> {
+    // Pending from the call on, queued or running.
     const opId = crypto.randomUUID()
     inFlight.add(opId)
+    const run = changes.then(task)
+    changes = run.catch(() => {})
+    return run.finally(() => inFlight.delete(opId))
+  }
+
+  const createCartItem = (body: CartItemCreateRequestWritable) => serialized(() => addLine(body))
+  const updateCartItem = (id: number, body: CartItemUpdateRequest) => serialized(() => changeLine(id, body))
+  const deleteCartItem = (id: number) => serialized(() => removeLine(id))
+  const clearCart = () => serialized(() => emptyCart())
+
+  /**
+   * Take the cart a cart-changing call answers with (a coupon applied or
+   * removed) as the cart, in its turn among the other changes.
+   */
+  async function changeCart(request: () => Promise<Cart>) {
+    await serialized(async () => {
+      cart.value = await request()
+    })
+  }
+
+  async function addLine(body: CartItemCreateRequestWritable) {
+    if (!cartOn()) return
     try {
       // The one choke point every add-to-cart goes through (product
       // page, card, suggestion tile): carry the strip impression the
@@ -257,15 +289,10 @@ export const useCartStore = defineStore('cart', () => {
       error.value = serializeError(err)
       throw err
     }
-    finally {
-      inFlight.delete(opId)
-    }
   }
 
-  async function updateCartItem(id: number, body: CartItemUpdateRequest) {
+  async function changeLine(id: number, body: CartItemUpdateRequest) {
     if (!cartOn()) return
-    const opId = crypto.randomUUID()
-    inFlight.add(opId)
     // Snapshot BEFORE the PUT — the quantity delta decides whether
     // this update tracks as add_to_cart (increase) or
     // remove_from_cart (decrease).
@@ -304,15 +331,10 @@ export const useCartStore = defineStore('cart', () => {
       error.value = serializeError(err)
       throw err
     }
-    finally {
-      inFlight.delete(opId)
-    }
   }
 
-  async function deleteCartItem(id: number) {
+  async function removeLine(id: number) {
     if (!cartOn()) return
-    const opId = crypto.randomUUID()
-    inFlight.add(opId)
     // Snapshot the item BEFORE the DELETE so the analytics event has
     // accurate price/quantity. Polling the cart afterwards would
     // miss the row entirely (it's gone).
@@ -341,9 +363,6 @@ export const useCartStore = defineStore('cart', () => {
       error.value = serializeError(err)
       throw err
     }
-    finally {
-      inFlight.delete(opId)
-    }
   }
 
   /**
@@ -351,10 +370,8 @@ export const useCartStore = defineStore('cart', () => {
    * forgets it, so there is no cart until the next item starts one. Each
    * line leaves the analytics the way a single removal does.
    */
-  async function clearCart() {
+  async function emptyCart() {
     if (!cartOn()) return
-    const opId = crypto.randomUUID()
-    inFlight.add(opId)
     const removedItems = cart.value?.items ?? []
     try {
       await $api('/api/cart', {
@@ -376,9 +393,6 @@ export const useCartStore = defineStore('cart', () => {
       log.error({ action: 'cart:clear', error: err })
       error.value = serializeError(err)
       throw err
-    }
-    finally {
-      inFlight.delete(opId)
     }
   }
 
@@ -436,14 +450,6 @@ export const useCartStore = defineStore('cart', () => {
     catch (err) {
       log.error({ action: 'cart:refresh', error: err })
     }
-  }
-
-  /**
-   * Take the cart a cart-changing call answered with (a coupon applied or
-   * removed) as the cart, instead of loading it a second time.
-   */
-  function setCart(next: Cart) {
-    cart.value = next
   }
 
   /**
@@ -506,7 +512,7 @@ export const useCartStore = defineStore('cart', () => {
     getStockStatusMessage,
     setupCart,
     refreshCart,
-    setCart,
+    changeCart,
     claimCart,
     createCartItem,
     updateCartItem,

@@ -352,4 +352,32 @@ el:
   already_have_account: Έχεις ήδη λογαριασμό?
   social:
     title: Ή εγγράψου μέσω ενός τρίτου παρόχου
+en:
+  logo_alt: "{appTitle} logo"
+  login: Sign in
+  or: or
+  passkey_login: Sign up with a one-time code
+  i_approve: I accept the
+  terms: terms of use
+  optional: Optional.
+  newsletter_failed: Your account is ready, but the email sign-up did not go through. You can subscribe from your account.
+  email:
+    label: Email
+    validation:
+      email: The email must be a valid email address
+  password1:
+    label: Password
+    show: Show the password
+    validation:
+      min: The password must be at least {min} characters
+  password2:
+    label: Confirm password
+    show: Show the password
+    validation:
+      min: The password confirmation must be at least {min} characters
+      match: The password confirmation must match the password
+  submit: Sign up
+  already_have_account: Already have an account?
+  social:
+    title: Or sign up with a third-party provider
 </i18n>

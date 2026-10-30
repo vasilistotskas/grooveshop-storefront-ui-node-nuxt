@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { computed, defineComponent, h, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { useCartStore } from '~/stores/cart'
+import { makeCart, makeFreeShippingProgress } from '~~/test/fixtures/cart'
 import { setTenant, setTenantFeatures, setTenantPreferences } from '~~/test/helpers/tenant'
 
 /**
@@ -52,6 +54,7 @@ const text = (assurances: Assurances) => assurances.rows.value.map(row => row.te
 
 beforeEach(() => {
   setTenant()
+  useCartStore().cart = null
   data.freeShipping = { minThreshold: 40, countryCode: 'GR' }
   data.policy = [
     { countryCode: 'GR', deliveryDaysMin: 1, deliveryDaysMax: 3 },
@@ -68,7 +71,7 @@ describe('useProductAssurances', () => {
     const assurances = await load()
 
     expect(text(assurances)).toEqual([
-      'Παράδοση σε 1–3 εργάσιμες ημέρες',
+      'Παράδοση σε 1–3 εργάσιμες ημέρες από την αποστολή',
       'Κάρτα ή αντικαταβολή',
       'Επιστροφή εντός 14 ημερών',
     ])
@@ -83,10 +86,31 @@ describe('useProductAssurances', () => {
     expect(assurances.coversFreeShipping.value).toBe(true)
   })
 
+  // The cart's own distance ("add 12 € more") is the more useful line, and
+  // the product page's notice draws it, so the row does not state the
+  // store-wide threshold beside it.
+  it('leaves the store-wide threshold to the notice of the cart itself once the cart has a route to free shipping', async () => {
+    useCartStore().cart = makeCart({ freeShippingProgress: makeFreeShippingProgress() })
+
+    const assurances = await load()
+
+    expect(assurances.rows.value[0]!.note).toBeUndefined()
+    expect(assurances.coversFreeShipping.value).toBe(false)
+  })
+
+  it('keeps the store-wide threshold for a cart with no route to free shipping', async () => {
+    useCartStore().cart = makeCart({ freeShippingProgress: null })
+
+    const assurances = await load()
+
+    expect(assurances.rows.value[0]!.note).toBeDefined()
+    expect(assurances.coversFreeShipping.value).toBe(true)
+  })
+
   it('says one number when the shortest and longest delivery are the same', async () => {
     data.policy = [{ countryCode: 'GR', deliveryDaysMin: 2, deliveryDaysMax: 2 }]
 
-    expect(text(await load())[0]).toBe('Παράδοση σε 2 εργάσιμες ημέρες')
+    expect(text(await load())[0]).toBe('Παράδοση σε 2 εργάσιμες ημέρες από την αποστολή')
   })
 
   it('hides the delivery row, and does not claim the free-shipping line, when no delivery days are entered', async () => {

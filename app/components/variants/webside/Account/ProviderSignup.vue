@@ -10,9 +10,7 @@ const { t } = useStoreI18n('components/variants/webside/Account/ProviderSignup')
 const localePath = useLocalePath()
 const emit = defineEmits(['providerSignup'])
 
-const acceptedTerms = ref(false)
-
-const { schema, state, loading, submit } = useProviderSignup({
+const { schema, state, loading, acceptedTerms, submit } = useProviderSignup({
   success: () => ({ title: t('success.title'), color: 'success' }),
   onSignedUp: () => emit('providerSignup'),
 })
@@ -92,4 +90,7 @@ const onSubmit = (event: FormSubmitEvent<{ email: string }>) => submit(event.dat
 el:
   i_approve: Αποδέχομαι τους
   terms: όρους χρήσης
+en:
+  i_approve: I accept the
+  terms: terms of use
 </i18n>
