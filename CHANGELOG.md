@@ -1,3 +1,10 @@
+## [3.272.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.2...v3.272.3) (2026-10-30)
+
+
+### Bug Fixes
+
+* **api:** read product category as nullable and loyalty tiers as a list ([#287](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/287)) ([218cd92](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/218cd92d196c684c773eafdf785b6b05fb58f4e3))
+
 ## [3.272.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.1...v3.272.2) (2026-10-30)
 
 
