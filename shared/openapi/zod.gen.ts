@@ -2788,9 +2788,9 @@ export const zProduct = z.object({
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
-  active: z.boolean().optional(),
+  active: z.boolean().readonly(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -3202,9 +3202,9 @@ export const zProductDetail = z.object({
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
-  active: z.boolean().optional(),
+  active: z.boolean().readonly(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -3262,9 +3262,9 @@ export const zProductDetailResponse = z.object({
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
-  active: z.boolean().optional(),
+  active: z.boolean().readonly(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -3901,9 +3901,9 @@ export const zProductRetrieve = z.object({
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   viewCount: z.int().readonly(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
+  stock: z.int().gte(0).lte(2147483647).readonly(),
   lowStockThreshold: z.int().readonly(),
-  active: z.boolean().optional(),
+  active: z.boolean().readonly(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -7760,8 +7760,6 @@ export const zProductWritable = z.object({
   category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
-  active: z.boolean().optional(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -7994,8 +7992,6 @@ export const zProductDetailWritable = z.object({
   category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
-  active: z.boolean().optional(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -8030,8 +8026,6 @@ export const zProductDetailResponseWritable = z.object({
   category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
-  active: z.boolean().optional(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -8136,8 +8130,6 @@ export const zProductRetrieveWritable = z.object({
   category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
-  stock: z.int().gte(0).lte(2147483647).optional(),
-  active: z.boolean().optional(),
   weight: z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
@@ -11988,6 +11980,13 @@ export const zGetProductLoyaltyPointsPath = z.object({
 
 export const zGetProductLoyaltyPointsResponse = zProductPoints
 
+export const zGetProductsLoyaltyPointsQuery = z.object({
+  productIds: z.string(),
+  search: z.string().optional(),
+})
+
+export const zGetProductsLoyaltyPointsResponse = z.array(zProductPoints)
+
 export const zRedeemLoyaltyPointsBody = zRedeemPointsRequestRequest
 
 export const zRedeemLoyaltyPointsResponse = zRedeemPointsResponse
@@ -13786,6 +13785,10 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  id_In: z.union([
+    z.string(),
+    z.array(z.int()),
+  ]).optional(),
   inStock: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -15069,6 +15072,10 @@ export const zListProductFeedQuery = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
+  ]).optional(),
+  id_In: z.union([
+    z.string(),
+    z.array(z.int()),
   ]).optional(),
   inStock: z.union([
     z.literal('true'),

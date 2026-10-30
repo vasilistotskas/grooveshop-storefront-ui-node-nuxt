@@ -4,6 +4,8 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import { useLoyalty } from '~/composables/useLoyalty'
 import { setTenantFeatures } from '~~/test/helpers/tenant'
+import { failWith } from '~~/test/helpers/api'
+import { makeProductPoints } from '~~/test/fixtures/loyalty'
 
 /**
  * `useLoyalty` fetches through `useRequestApi` (it must forward the
@@ -73,21 +75,34 @@ describe('useLoyalty', () => {
   })
 
   describe('fetchPointsPerProduct', () => {
-    it('asks for every product\'s points and counts one that fails as zero', async () => {
+    it('asks for every product\'s points in one request', async () => {
       api.routes({
-        '/api/loyalty/product/7/points': { productId: 7, potentialPoints: 12, tierMultiplierApplied: false },
-        '/api/loyalty/product/8/points': () => {
-          throw new Error('Server error')
-        },
+        '/api/loyalty/product/points': [
+          makeProductPoints({ productId: 7, potentialPoints: 12 }),
+          makeProductPoints({ productId: 8, potentialPoints: 3 }),
+        ],
       })
 
-      const points = await useLoyalty().fetchPointsPerProduct([7, 8])
+      const points = await useLoyalty().fetchPointsPerProduct([7, 8, 9])
 
-      expect(api.callsTo('/api/loyalty/product/*').map(call => call.url)).toEqual([
-        '/api/loyalty/product/7/points',
-        '/api/loyalty/product/8/points',
+      expect(api.callsTo('/api/loyalty/product/*')).toEqual([
+        { url: '/api/loyalty/product/points', options: { method: 'GET', query: { productIds: '7,8,9' } } },
       ])
-      expect(points).toEqual(new Map([[7, 12], [8, 0]]))
+      // 9 is gone: Django leaves it out, and it earns nothing.
+      expect(points).toEqual(new Map([[7, 12], [8, 3]]))
+    })
+
+    it('rejects when the points cannot be read', async () => {
+      api.routes({ '/api/loyalty/product/points': failWith(503) })
+
+      await expect(useLoyalty().fetchPointsPerProduct([7])).rejects.toMatchObject({ statusCode: 503 })
+    })
+
+    it('asks nothing for no products', async () => {
+      const points = await useLoyalty().fetchPointsPerProduct([])
+
+      expect(api.callsTo('/api/loyalty/product/*')).toEqual([])
+      expect(points).toEqual(new Map())
     })
   })
 

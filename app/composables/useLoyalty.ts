@@ -97,28 +97,23 @@ export const useLoyalty = () => {
   }
 
   /**
-   * The points each product earns the signed-in shopper, asked in
-   * parallel: the cart's total follows its lines as they change, so this
-   * is a plain request rather than keyed async data. A product whose
-   * points cannot be read counts 0 (non-critical).
+   * The points each product earns the signed-in shopper, all asked in ONE
+   * request: the cart's total follows its lines as they change, so this
+   * is a plain request rather than keyed async data. Django leaves out a
+   * product that no longer exists, which then earns nothing; a failed
+   * request rejects, for the caller to show no total rather than a wrong
+   * one.
    *
    * @param productIds - Distinct product ids
    */
   const fetchPointsPerProduct = async (productIds: readonly number[]): Promise<Map<number, number>> => {
-    if (!loyaltyOn.value) return new Map()
+    if (!loyaltyOn.value || productIds.length === 0) return new Map()
 
-    const entries = await Promise.all(productIds.map(async (productId): Promise<[number, number]> => {
-      try {
-        const data = await requestFetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
-          method: 'GET',
-        })
-        return [productId, data.potentialPoints]
-      }
-      catch {
-        return [productId, 0]
-      }
-    }))
-    return new Map(entries)
+    const points = await requestFetch<ProductPoints[]>('/api/loyalty/product/points', {
+      method: 'GET',
+      query: { productIds: productIds.join(',') },
+    })
+    return new Map(points.map(row => [row.productId, row.potentialPoints]))
   }
 
   /**

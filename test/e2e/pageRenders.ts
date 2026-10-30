@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { makeProductPoints } from '../fixtures/loyalty'
 import { makeProductCard } from '../fixtures/product'
 import { makeProductSearchResponse } from '../fixtures/productFilters'
 import { validTenantConfig } from '../fixtures/tenantConfig'
@@ -162,8 +163,18 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
 
   // The product list answers its slim card rows: what the home rails, the
   // sitemap and the RSS feed read.
+  // A signed-in cart's points, every product at once.
+  if (reqUrl.pathname.endsWith('/loyalty/product/points')) {
+    const ids = (reqUrl.searchParams.get('productIds') ?? '').split(',').filter(Boolean).map(Number)
+    sendJson(res, ids.map(productId => makeProductPoints({ productId })))
+    return
+  }
+
+  // Filtered by `id_In` (the hero's chips), the cards of those ids.
   if (reqUrl.pathname.endsWith('/product')) {
-    sendJson(res, { count: 1, links: {}, results: [makeProductCard()] })
+    const ids = reqUrl.searchParams.get('id_In')?.split(',').map(Number)
+    const results = ids ? ids.map(id => makeProductCard({ id })) : [makeProductCard()]
+    sendJson(res, { count: results.length, links: {}, results })
     return
   }
 
