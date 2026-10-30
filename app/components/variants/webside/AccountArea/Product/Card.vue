@@ -29,7 +29,6 @@ const props = defineProps({
   showAddToCartButton: { type: Boolean, required: false, default: true },
   imgWidth: { type: Number, required: false, default: 420 },
   imgHeight: { type: Number, required: false, default: 420 },
-  showVat: { type: Boolean, required: false, default: false },
   showDescription: { type: Boolean, required: false, default: false },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -309,12 +308,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             {{ $i18n.n(wasPrice, 'currency') }}
           </span>
         </div>
-        <span
-          v-if="showVat && product.vatPercent"
-          class="text-xs text-muted"
-        >
-          {{ t('vat_included') }} {{ product.vatPercent }}%
-        </span>
       </div>
 
       <LazyWebsideAccountAreaButtonProductAddToCart
@@ -330,7 +323,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
 <i18n lang="yaml">
 el:
-  vat_included: ΦΠΑ περιλαμβάνεται
   share: Κοινοποίηση
   add_to_cart: Προσθήκη στο καλάθι
   out_of_stock: Εξαντλημένο
@@ -338,7 +330,6 @@ el:
   only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν
   view_product: Προβολή προϊόντος
 en:
-  vat_included: VAT included
   share: Share
   add_to_cart: Add to cart
   out_of_stock: Out of stock

@@ -122,6 +122,15 @@ describe('GET /api/cart', () => {
     })
   })
 
+  it('serves a cart whose product has no category', async () => {
+    backend.reply(makeCart({ uuid: CART_UUID, items: [{ product: { category: null } }] }))
+
+    const response = await getCart({ cookie: `cart-id=${CART_UUID}` })
+
+    expect(response.status).toBe(200)
+    expect(response.body).toMatchObject({ items: [{ product: { category: null } }] })
+  })
+
   it('answers 422 when the cart payload drifts from the contract', async () => {
     backend.reply({ ...makeCart({ uuid: CART_UUID }), items: 'none' })
 

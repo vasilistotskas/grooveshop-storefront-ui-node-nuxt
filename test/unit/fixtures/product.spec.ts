@@ -39,6 +39,12 @@ describe('makeProduct', () => {
   it('lets an explicit override of a derived field win', () => {
     expect(makeProduct({ price: 100, finalPrice: 1 }).finalPrice).toBe(1)
   })
+
+  // Product.category is SET_NULL: deleting a category, or saving a product
+  // without one in the admin, leaves `category: null` on every nested product.
+  it('carries a product without a category, as Django serves one', () => {
+    expect(problems(zProduct, makeProduct({ category: null }))).toEqual([])
+  })
 })
 
 describe('makeProductCard', () => {

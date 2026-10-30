@@ -1154,7 +1154,6 @@ exports[`webside design render > signed in > account favourite products 1`] = `
             <div class="flex flex-wrap items-baseline gap-x-2"><span class="font-mono text-xl font-semibold tabular-nums text-highlighted">62,00&nbsp;€</span>
               <!--v-if-->
             </div>
-            <!--v-if-->
           </div>
           <!--v-if-->
         </div>

@@ -2004,19 +2004,6 @@ export const zPaginatedGiftCardList = z.object({
   results: z.array(zGiftCard),
 })
 
-export const zPaginatedLoyaltyTierList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zLoyaltyTier),
-})
-
 export const zPaginatedNotificationUserList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -2781,7 +2768,7 @@ export const zProduct = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
+  category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
@@ -3195,7 +3182,7 @@ export const zProductDetail = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
+  category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
@@ -3255,7 +3242,7 @@ export const zProductDetailResponse = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
+  category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
@@ -3894,7 +3881,7 @@ export const zProductRetrieve = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
+  category: z.int().readonly().nullable(),
   variantGroup: z.int().readonly().nullable(),
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
@@ -7591,19 +7578,6 @@ export const zPaginatedGiftCardListWritable = z.object({
   results: z.array(z.unknown()),
 })
 
-export const zPaginatedLoyaltyTierListWritable = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zLoyaltyTierWritable),
-})
-
 export const zPaginatedNotificationUserDetailListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -7757,7 +7731,6 @@ export const zProductWritable = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   weight: z.object({
@@ -7989,7 +7962,6 @@ export const zProductDetailWritable = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   weight: z.object({
@@ -8023,7 +7995,6 @@ export const zProductDetailResponseWritable = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   weight: z.object({
@@ -8127,7 +8098,6 @@ export const zProductRetrieveWritable = z.object({
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int().nullish(),
   weight: z.object({
@@ -11933,6 +11903,10 @@ export const zUpdateCountryQuery = z.object({
 
 export const zUpdateCountryResponse = zCountryDetail
 
+export const zUnsubscribeFromEmailOneClickPath = z.object({
+  token: z.string(),
+})
+
 export const zCreateFeedbackBody = zFeedbackWriteRequest
 
 export const zCreateFeedbackResponse = zFeedbackWrite
@@ -11995,18 +11969,9 @@ export const zGetLoyaltySummaryResponse = zLoyaltySummary
 
 export const zListLoyaltyTiersQuery = z.object({
   languageCode: z.enum(['el', 'en']).optional().default('el'),
-  page: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pageSize: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  search: z.string().optional(),
 })
 
-export const zListLoyaltyTiersResponse = zPaginatedLoyaltyTierList
+export const zListLoyaltyTiersResponse = z.array(zLoyaltyTier)
 
 export const zListLoyaltyTransactionsQuery = z.object({
   cursor: z.string().optional(),
@@ -15742,50 +15707,10 @@ export const zListRegionsByCountryPath = z.object({
 })
 
 export const zListRegionsByCountryQuery = z.object({
-  alpha: z.string().optional(),
-  alpha_Icontains: z.string().optional(),
-  alphaExact: z.string().optional(),
-  country: z.string().optional(),
-  countryName: z.string().optional(),
-  createdAfter: z.iso.datetime({ offset: true }).optional(),
-  createdBefore: z.iso.datetime({ offset: true }).optional(),
   languageCode: z.enum(['el', 'en']).optional().default('el'),
-  name: z.string().optional(),
-  page: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pageSize: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  search: z.string().optional(),
-  sortOrder: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  sortOrder_Gte: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  sortOrder_Lte: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  sortOrderMax: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  sortOrderMin: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  updatedAfter: z.iso.datetime({ offset: true }).optional(),
-  updatedBefore: z.iso.datetime({ offset: true }).optional(),
-  uuid: z.uuid().optional(),
 })
 
-export const zListRegionsByCountryResponse = zPaginatedRegionList
+export const zListRegionsByCountryResponse = z.array(zRegion)
 
 export const zApiV1SearchAnalyticsRetrieveQuery = z.object({
   contentType: z.string().optional(),
