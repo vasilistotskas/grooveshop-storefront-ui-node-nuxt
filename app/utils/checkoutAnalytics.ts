@@ -6,7 +6,7 @@
  * A line's unit price is its product's `finalPrice` (VAT in, discount
  * off), falling back to the net `price`.
  */
-type AnalyticsCart = Pick<CartDetail, 'items'> | null | undefined
+type AnalyticsCart = Pick<Cart, 'items'> | null | undefined
 
 const unitPrice = (item: CartItem) =>
   Number(item.product?.finalPrice ?? item.product?.price ?? 0)

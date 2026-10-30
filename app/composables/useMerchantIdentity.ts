@@ -71,16 +71,37 @@ export function useMerchantIdentity() {
     if (!d) return ''
     const name = d.name?.trim() ?? ''
     const form = d.legalForm?.trim() ?? ''
-    // Merchants routinely type the form INTO the name ("Acme MON IKE").
+    // Merchants routinely type the form INTO the name ("Acme MON IKE", or
+    // "… Ε.Ε. (…)" for the form "Ετερόρρυθμη Εταιρεία (Ε.Ε.)"), either
+    // written out or as the abbreviation the form lists in parentheses.
     // Appending it again would read as a typo on their own company name.
-    if (!form || name.toLocaleUpperCase('el').includes(form.toLocaleUpperCase('el'))) {
+    const abbreviation = form.match(/\(([^)]+)\)\s*$/)?.[1]?.trim()
+    // As a separate word, never inside another: "BIKE Shop" does not carry "IKE".
+    const carries = (text: string) => {
+      const haystack = name.toLocaleUpperCase('el')
+      const needle = text.toLocaleUpperCase('el')
+      const inWord = (character: string | undefined) => character !== undefined && /[\p{L}\p{N}]/u.test(character)
+      for (let at = haystack.indexOf(needle); at !== -1; at = haystack.indexOf(needle, at + 1)) {
+        if (!inWord(haystack[at - 1]) && !inWord(haystack[at + needle.length])) return true
+      }
+      return false
+    }
+    if (!form || carries(form) || (abbreviation && carries(abbreviation))) {
       return name
     }
     return `${name} ${form}`
   })
 
+  /**
+   * What the footer names the seller as: the distinctive title when the
+   * merchant set one (owner decision: it stands IN PLACE of the legal name
+   * and form), else the legal name with its form.
+   */
+  const displayName = computed(() => data.value?.distinctiveTitle?.trim() || legalName.value)
+
   return {
     identity: computed(() => data.value),
+    displayName,
     hasIdentity,
     legalName,
     registeredSeat,

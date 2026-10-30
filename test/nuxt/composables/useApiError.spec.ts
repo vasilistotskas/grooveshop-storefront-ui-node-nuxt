@@ -59,6 +59,20 @@ describe('useApiError().notify', () => {
 
     notify('cart:add', failure({ detail: 'Εξαντλήθηκε.' }))
 
-    expect(toast.add.mock.calls[0]![0]).not.toHaveProperty('actions')
+    expect(toast.add.mock.calls[0]![0].actions).toBeUndefined()
+  })
+
+  it('replaces a toast that was showing progress, whole: no spinner, countdown back, its own timeout', () => {
+    const { notify } = useApiError()
+
+    notify('cart:add', failure({ detail: 'Εξαντλήθηκε.' }))
+
+    expect(toast.add.mock.calls[0]![0]).toMatchObject({
+      icon: undefined,
+      avatar: undefined,
+      duration: undefined,
+      progress: true,
+      ui: undefined,
+    })
   })
 })

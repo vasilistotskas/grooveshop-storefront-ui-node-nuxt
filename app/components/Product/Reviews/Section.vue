@@ -9,6 +9,10 @@
  * `id="reviews"` is what the rating beside the product's title links to;
  * `scroll-mt-24` keeps the heading clear of the sticky header.
  *
+ * `#write-review` is the link the delivery e-mails carry: it scrolls to the
+ * summary and the way to write, opens the review sheet for a signed-in
+ * shopper and sends a guest to sign in and back to the same fragment.
+ *
  * A signed-in shopper writes (or edits) in the review sheet, mounted on
  * first use; a guest is sent to sign in and brought back here. The
  * parent owns the first page of reviews (it feeds Schema.org) and
@@ -28,8 +32,10 @@ const emit = defineEmits<{
 const { t } = useStoreI18n('components/Product/Reviews/Section')
 const route = useRoute()
 const localePath = useLocalePath()
-const { user, loggedIn } = useUserSession()
+const { user, loggedIn, ready } = useUserSession()
 const reviewsEnabled = useStoreFeature('productReviews')
+
+const WRITE_REVIEW_HASH = '#write-review'
 
 const headingId = useId()
 
@@ -66,10 +72,22 @@ async function onReviewChanged() {
   emit('changed')
 }
 
+/** Sign in, then come back to this page at `hash`. */
+const signInThenTo = (hash: string) =>
+  localePath({ name: RedirectToURLs.LOGIN_URL, query: { next: `${route.fullPath.split('#')[0]}${hash}` } })
+
 /** A guest is sent to sign in, and brought back to the reviews. */
-const signInToReview = computed(() =>
-  localePath({ name: RedirectToURLs.LOGIN_URL, query: { next: `${route.fullPath.split('#')[0]}#reviews` } }),
-)
+const signInToReview = computed(() => signInThenTo('#reviews'))
+
+onMounted(() => {
+  if (route.hash !== WRITE_REVIEW_HASH || !reviewsEnabled.value) return
+  // A cached page knows no shopper: wait for the session before deciding
+  // between the sheet and the sign-in.
+  until(ready).toBe(true).then(async () => {
+    if (loggedIn.value) openSheet()
+    else await navigateTo(signInThenTo(WRITE_REVIEW_HASH))
+  }).catch(() => {})
+})
 </script>
 
 <template>
@@ -84,7 +102,10 @@ const signInToReview = computed(() =>
         @3xl:grid-cols-[20rem_1fr] @3xl:gap-16
       "
     >
-      <div class="flex flex-col items-start gap-4">
+      <div
+        id="write-review"
+        class="flex scroll-mt-24 flex-col items-start gap-4"
+      >
         <h2
           :id="headingId"
           class="

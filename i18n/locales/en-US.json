@@ -300,6 +300,16 @@
     "GOOGLE_PAY": "Google Pay",
     "fee": "{method} fee"
   },
+  "product_assurances": {
+    "label": "Delivery, payment and returns",
+    "delivery_range": "Delivery in {min}–{max} business days after dispatch",
+    "delivery_days": "Delivery in {count} business day after dispatch | Delivery in {count} business days after dispatch",
+    "free_shipping_over": "Free shipping over {amount}",
+    "payment_card": "card",
+    "payment_cash_on_delivery": "cash on delivery",
+    "payment_bank_transfer": "bank transfer",
+    "returns": "Return within {count} day | Return within {count} days"
+  },
   "tracking": {
     "boxnow": {
       "title": "BOX NOW tracking",

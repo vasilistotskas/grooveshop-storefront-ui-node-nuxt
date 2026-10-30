@@ -8,6 +8,8 @@ export interface FooterLink {
 export interface FooterLinkColumn {
   label: string
   icon?: string
+  /** The store draws its seller details under this column (`NavigationColumn.shows_merchant_identity`). */
+  showsMerchantIdentity?: boolean
   children: FooterLink[]
 }
 

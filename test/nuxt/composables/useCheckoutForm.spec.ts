@@ -25,7 +25,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { effectScope, nextTick, ref } from 'vue'
 import type { EffectScope } from 'vue'
-import type { CartDetail } from '~~/shared/openapi/types.gen'
+import type { Cart } from '~~/shared/openapi/types.gen'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeCountry } from '~~/test/fixtures/country'
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
@@ -148,7 +148,7 @@ function savedAddress(overrides: Record<string, unknown> = {}) {
   }
 }
 
-let cart: CartDetail | null = null
+let cart: Cart | null = null
 
 /** The routes every test starts from; a test overrides entries by spreading. */
 function defaultRoutes() {
@@ -185,7 +185,7 @@ async function setLoggedIn(value: boolean) {
   await flushPromises()
 }
 
-function setCart(next: CartDetail) {
+function setCart(next: Cart) {
   cart = next
   useCartStore().cart = next
 }

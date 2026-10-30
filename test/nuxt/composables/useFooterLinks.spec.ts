@@ -18,7 +18,7 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  * visitor and a crawler follow — the previous source-text check passed
  * `localePath("vision")` and `{ name: 'vision' }` alike.
  */
-interface NavColumn { label: string, icon?: string, children: Array<{ label: string, to?: string, href?: string }> }
+interface NavColumn { label: string, icon?: string, showsMerchantIdentity?: boolean, children: Array<{ label: string, to?: string, href?: string }> }
 
 let configuredColumns: NavColumn[] | null = null
 let contentPages: Array<{ slug: string, translations: Record<string, { title: string }> }> = []
@@ -170,5 +170,24 @@ describe('useFooterLinks', () => {
       useNuxtApp().$i18n.t('footer.terms_conditions'),
       useNuxtApp().$i18n.t('footer.help_center'),
     ])
+  })
+
+  it('names the column the operator marked for the seller details', async () => {
+    configuredColumns = [
+      { label: 'Βοήθεια', children: [{ label: 'Επικοινωνία', to: '/contact' }] },
+      { label: 'Σχετικά με εμάς', showsMerchantIdentity: true, children: [{ label: 'Σχετικά', to: '/about' }] },
+    ]
+    const { merchantIdentityColumnIndex } = useFooterLinks()
+    await flushPromises()
+
+    expect(merchantIdentityColumnIndex.value).toBe(1)
+  })
+
+  it('names no column when none is marked', async () => {
+    configuredColumns = [{ label: 'Βοήθεια', children: [{ label: 'Επικοινωνία', to: '/contact' }] }]
+    const { merchantIdentityColumnIndex } = useFooterLinks()
+    await flushPromises()
+
+    expect(merchantIdentityColumnIndex.value).toBe(-1)
   })
 })

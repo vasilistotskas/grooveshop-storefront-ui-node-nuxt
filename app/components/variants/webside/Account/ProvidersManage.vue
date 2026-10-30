@@ -9,20 +9,6 @@ const { cards, busy, disconnect, connect } = await useProviderAccounts({
 
 const loading = computed(() => busy.value !== null)
 
-function getProviderIcon(providerName: string): string {
-  const icons: Record<string, string> = {
-    google: 'i-logos-google-icon',
-    github: 'i-logos-github-icon',
-    facebook: 'i-logos-facebook',
-    twitter: 'i-logos-twitter',
-    microsoft: 'i-logos-microsoft-icon',
-    apple: 'i-logos-apple',
-    gitlab: 'i-logos-gitlab',
-    linkedin: 'i-logos-linkedin-icon',
-  }
-  return icons[providerName.toLowerCase()] || 'i-heroicons-link'
-}
-
 function getProviderColor(providerName: string) {
   const colors: Record<string, Partial<BadgeProps['color']>> = {
     google: 'error',
@@ -81,8 +67,8 @@ const columns: TableColumn<ProviderCard>[] = [
       >
         <template #name-cell="{ row }">
           <div class="flex items-center gap-2">
-            <UIcon
-              :name="getProviderIcon(row.original.name)"
+            <AccountProviderIcon
+              :provider-id="row.original.providerId"
               class="size-5"
             />
             <UBadge

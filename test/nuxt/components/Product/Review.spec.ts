@@ -263,6 +263,24 @@ describe('Product/Review', () => {
       expect(wrapper.emitted('update-existing-review')).toEqual([[UPDATED]])
     })
 
+    // The sheet opens from a link in a delivery e-mail as soon as the session
+    // is known, which can be before the shopper's review has loaded.
+    it('fills the form when the review arrives after the sheet opened, unless the shopper has begun', async () => {
+      const wrapper = await mountSheet()
+      const field = () => (wrapper.get('textarea').element as HTMLTextAreaElement).value
+      expect(field()).toBe('')
+
+      await wrapper.setProps({ userHadReviewed: true, userProductReview: REVIEW })
+
+      expect(field()).toBe('Καλή γλάστρα, γερή.')
+      expect(wrapper.get('button[role="radio"][value="3"]').attributes('aria-checked')).toBe('true')
+
+      await wrapper.get('textarea').setValue('Τελικά, άλλαξα γνώμη εντελώς.')
+      await wrapper.setProps({ userProductReview: UPDATED })
+
+      expect(field()).toBe('Τελικά, άλλαξα γνώμη εντελώς.')
+    })
+
     it.each([
       ['went back to approval', 'NEW', 'Η κριτική σου ενημερώθηκε και θα εμφανιστεί ξανά μόλις εγκριθεί'],
       ['stayed published', 'TRUE', 'Η κριτική σου ενημερώθηκε'],

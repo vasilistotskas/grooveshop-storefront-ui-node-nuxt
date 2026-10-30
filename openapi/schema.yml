@@ -8570,7 +8570,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartDetail'
+                $ref: '#/components/schemas/Cart'
           description: ''
         '401':
           content:
@@ -8617,7 +8617,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartDetail'
+                $ref: '#/components/schemas/Cart'
           description: ''
         '400':
           content:
@@ -8670,7 +8670,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartDetail'
+                $ref: '#/components/schemas/Cart'
           description: ''
         '400':
           content:
@@ -8821,7 +8821,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartDetail'
+                $ref: '#/components/schemas/Cart'
           description: ''
         '400':
           content:
@@ -8878,7 +8878,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartDetail'
+                $ref: '#/components/schemas/Cart'
           description: ''
         '400':
           content:
@@ -9470,7 +9470,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItemDetail'
+                $ref: '#/components/schemas/CartItemMutationResponse'
           description: ''
         '400':
           content:
@@ -9546,7 +9546,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItemDetail'
+                $ref: '#/components/schemas/CartItem'
           description: ''
         '401':
           content:
@@ -9617,7 +9617,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItemDetail'
+                $ref: '#/components/schemas/CartItemMutationResponse'
           description: ''
         '400':
           content:
@@ -9703,7 +9703,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItemDetail'
+                $ref: '#/components/schemas/CartItemMutationResponse'
           description: ''
         '400':
           content:
@@ -33458,10 +33458,12 @@ components:
       enum:
         - ucp
         - acp
+        - mcp
       type: string
       description: |-
         * `ucp` - ucp
         * `acp` - acp
+        * `mcp` - mcp
     Attribute:
       type: object
       description: Serializer for Attribute with translations.
@@ -36318,304 +36320,6 @@ components:
       description: |-
         * `home_delivery` - home_delivery
         * `pickup_point` - pickup_point
-    CartDetail:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        user:
-          type: integer
-          nullable: true
-          title: Χρήστης
-        uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CartItem'
-          readOnly: true
-        totalPrice:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-        totalDiscountValue:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
-        totalVatValue:
-          type: number
-          format: double
-          readOnly: true
-          description: ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
-        totalItems:
-          oneOf:
-            - type: integer
-            - enum:
-                - 0
-              type: integer
-          description: |-
-            Return the total quantity of all items in the cart.
-
-            Uses annotated value if available (from optimized queryset),
-            otherwise calculates from items.
-          readOnly: true
-        totalItemsUnique:
-          type: integer
-          description: |-
-            Return the number of unique items in the cart.
-
-            Uses annotated value if available (from optimized queryset),
-            otherwise queries the database.
-          readOnly: true
-        totalWeightGrams:
-          type: integer
-          readOnly: true
-          description: Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά την ολοκλήρωση αγοράς ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
-        currency:
-          type: string
-          readOnly: true
-          description: Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού
-        promotionDiscount:
-          type: number
-          format: double
-          readOnly: true
-          description: Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
-        freeThresholdValue:
-          type: number
-          format: double
-          readOnly: true
-          description: 'Η αξία με την οποία κρίνονται τα δωρεάν μεταφορικά και το δωρεάν τέλος πληρωμής: τα προϊόντα μετά τις εκπτώσεις προωθήσεων και κουπονιών, χωρίς μεταφορικά και τέλη. Συγκρίνετε ένα όριο «δωρεάν πάνω από» με αυτήν, ποτέ με το total_price.'
-        appliedPromotions:
-          type: array
-          items:
-            type: object
-            properties:
-              promotionId:
-                type: integer
-              name:
-                type: string
-              code:
-                type: string
-                nullable: true
-              amount:
-                type: number
-          description: 'Ανάλυση του promotion_discount ανά προσφορά: μία εγγραφή για κάθε προσφορά που πράγματι μείωσε το ποσό, με τον κωδικό κουπονιού που την ενεργοποίησε, όταν υπήρχε. Το storefront τη χρειάζεται για να δείξει στον αγοραστή ΠΟΙΕΣ προσφορές εφαρμόστηκαν και να εμφανίσει σε κάθε κουπόνι το ΔΙΚΟ του ποσό αντί για το σύνολο του καλαθιού.'
-          readOnly: true
-        promotionFreeShipping:
-          type: boolean
-          readOnly: true
-          description: Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
-        freeShippingProgress:
-          type: object
-          nullable: true
-          properties:
-            free:
-              type: boolean
-              description: 'Checkout charges nothing for shipping: a promotion waives it, or the cart reached a carrier''s threshold'
-            source:
-              type: string
-              enum:
-                - threshold
-                - promotion
-              description: 'threshold: a carrier''s free-shipping threshold, for that carrier only; promotion: a free-shipping promotion, for every carrier'
-            remainingAmount:
-              type: number
-              nullable: true
-              description: Products still missing; null once free, or when what is missing is units
-            remainingQuantity:
-              type: integer
-              nullable: true
-              description: Units of the promotion's products still missing; null once free, or when what is missing is an amount
-            threshold:
-              type: number
-              nullable: true
-              description: The value the route is reached at, for a meter; null for a units route or a promotion that waives shipping outright
-            countryCode:
-              type: string
-              nullable: true
-              description: 'The country the carriers'' thresholds were judged for: the store''s first shipping country, the one checkout preselects'
-          required:
-            - free
-            - source
-            - remainingAmount
-            - remainingQuantity
-            - threshold
-            - countryCode
-          readOnly: true
-          description: 'Πόσο απέχει αυτό το καλάθι από τα δωρεάν μεταφορικά, με τον φθηνότερο δρόμο: το όριο δωρεάν μεταφορικών μιας μεταφορικής ή μια προσφορά δωρεάν μεταφορικών, κρινόμενο με τους κανόνες με τους οποίους το checkout τιμολογεί τα μεταφορικά. Το ένα ποσό που δείχνεται για τα δωρεάν μεταφορικά· οι εγγραφές του promotionNearMiss με freeShipping είναι δρόμοι που έχει ήδη σταθμίσει. Null όταν το καλάθι δεν έχει κανέναν δρόμο προς δωρεάν μεταφορικά.'
-        appliedCouponCodes:
-          type: array
-          items:
-            type: string
-          readOnly: true
-          description: Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
-        appliedCoupons:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-              amount:
-                type: number
-                description: Money this code takes off; 0 when its benefit is not money, or it is refused
-              freeShipping:
-                type: boolean
-                description: This code waives shipping
-              gift:
-                type: boolean
-                description: This code earns the gift listed in promotionGiftItems
-              rejection:
-                type: string
-                nullable: true
-                enum:
-                  - discount_code_invalid
-                  - discount_code_expired
-                  - discount_code_not_started
-                  - discount_code_minimum_not_met
-                  - discount_code_usage_limit_reached
-                  - discount_code_combination_disallowed
-                  - discount_code_user_ineligible
-                  - discount_code_not_applicable
-                  - discount_code_gift_unavailable
-                  - null
-                description: Why the engine refuses the attached code now; null while it applies
-            required:
-              - code
-              - amount
-              - freeShipping
-              - gift
-              - rejection
-          readOnly: true
-          description: 'Τι κάνει αυτή τη στιγμή κάθε συνδεδεμένο κουπόνι για το καλάθι: το ποσό που αφαιρεί, τα δωρεάν μεταφορικά ή το δώρο που κερδίζει, ή γιατί το απορρίπτει ο μηχανισμός. Ένας κωδικός που δεν θα άλλαζε τίποτα απορρίπτεται, οπότε σε κάθε εγγραφή ισχύει ακριβώς ένα από τα τέσσερα.'
-        promotionGiftItems:
-          type: array
-          items:
-            type: object
-            properties:
-              promotionId:
-                type: integer
-              name:
-                type: string
-              productId:
-                type: integer
-              productName:
-                type: string
-              productImagePath:
-                type: string
-              quantity:
-                type: integer
-          description: Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
-          readOnly: true
-        promotionNearMiss:
-          type: array
-          items:
-            type: object
-            properties:
-              promotionId:
-                type: integer
-              name:
-                type: string
-              remainingAmount:
-                type: number
-                nullable: true
-                description: Subtotal still missing; null when the missing part is units
-              remainingQuantity:
-                type: integer
-                nullable: true
-                description: Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group, or of a reward product); null when the missing part is subtotal
-              rewardProducts:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PromotionProductRef'
-                description: The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
-              freeShipping:
-                type: boolean
-                description: The offer waives shipping, so it is one of the routes freeShippingProgress already weighed; show that, not this teaser
-            required:
-              - promotionId
-              - name
-              - remainingAmount
-              - remainingQuantity
-              - rewardProducts
-              - freeShipping
-          description: Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
-          readOnly: true
-        b2bPricing:
-          type: object
-          nullable: true
-          properties:
-            applied:
-              type: boolean
-            groupName:
-              type: string
-            allowPromotions:
-              type: boolean
-            allowLoyalty:
-              type: boolean
-            minOrderValue:
-              type: string
-            belowMinimum:
-              type: boolean
-          readOnly: true
-          description: Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
-        createdAt:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Δημιουργήθηκε στις
-        updatedAt:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Ενημερώθηκε στις
-        lastActivity:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Τελευταία δραστηριότητα
-        recommendations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Product'
-          readOnly: true
-          description: Προτάσεις προϊόντων βάσει περιεχομένου καλαθιού
-      required:
-        - appliedCouponCodes
-        - appliedCoupons
-        - appliedPromotions
-        - b2bPricing
-        - createdAt
-        - currency
-        - freeShippingProgress
-        - freeThresholdValue
-        - id
-        - items
-        - lastActivity
-        - promotionDiscount
-        - promotionFreeShipping
-        - promotionGiftItems
-        - promotionNearMiss
-        - recommendations
-        - totalDiscountValue
-        - totalItems
-        - totalItemsUnique
-        - totalPrice
-        - totalVatValue
-        - totalWeightGrams
-        - updatedAt
-        - uuid
     CartItem:
       type: object
       properties:
@@ -36762,8 +36466,14 @@ components:
           writeOnly: true
       required:
         - product
-    CartItemDetail:
+    CartItemMutationResponse:
       type: object
+      description: |-
+        The line an add or a quantity change wrote, plus the whole cart it
+        now sits in, so a client shows the new state without a second ``GET``.
+
+        ``cart`` is the same body as ``GET /cart``, read from the cart the
+        request resolved (``context["cart"]``) after the write.
       properties:
         id:
           type: integer
@@ -36869,13 +36579,13 @@ components:
           type: string
           format: uuid
           readOnly: true
-        recommendations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Product'
+        cart:
+          allOf:
+            - $ref: '#/components/schemas/Cart'
           readOnly: true
-          description: Σχετικά προϊόντα που ίσως ενδιαφέρουν τον πελάτη
+          description: Το ενημερωμένο καλάθι, όπως το επιστρέφει η λήψη καλαθιού
       required:
+        - cart
         - cartId
         - createdAt
         - discountPercent
@@ -36885,7 +36595,6 @@ components:
         - price
         - priceSavePercent
         - product
-        - recommendations
         - totalDiscountValue
         - totalPrice
         - updatedAt
@@ -38647,6 +38356,9 @@ components:
         name:
           type: string
           readOnly: true
+        distinctiveTitle:
+          type: string
+          readOnly: true
         legalForm:
           type: string
           readOnly: true
@@ -38700,6 +38412,7 @@ components:
         - businessActivity
         - city
         - country
+        - distinctiveTitle
         - email
         - inLiquidation
         - isComplete
@@ -39468,10 +39181,11 @@ components:
           allOf:
             - $ref: '#/components/schemas/AgentProtocolEnum'
           description: |-
-            Ορίζεται από το agent gateway για παραγγελία που έκανε πράκτορας AI μέσω UCP ή ACP.
+            Ορίζεται από το agent gateway για παραγγελία που έκανε πράκτορας AI μέσω UCP, ACP ή MCP.
 
             * `ucp` - ucp
             * `acp` - acp
+            * `mcp` - mcp
     OrderCancelError:
       type: object
       description: |-
@@ -47842,12 +47556,16 @@ components:
         recentlyViewed:
           type: boolean
           readOnly: true
+        productAssurances:
+          type: boolean
+          readOnly: true
         demoAccount:
           type: boolean
           readOnly: true
       required:
         - demoAccount
         - mobileBottomNav
+        - productAssurances
         - recentlyViewed
         - stickyAddToCart
     StrategyEnum:

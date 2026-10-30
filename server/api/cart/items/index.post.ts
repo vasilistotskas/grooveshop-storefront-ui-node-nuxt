@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
       await cartSession.updateSession({ cartId: parsedData.cartId })
     }
 
-    return parsedData
+    // The cart the add left behind: the client sets it as its cart, so an
+    // add is one request, not an add and a reload.
+    return parsedData.cart
   }
   catch (error) {
     return handleError(event, error)

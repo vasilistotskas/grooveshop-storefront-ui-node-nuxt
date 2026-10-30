@@ -463,8 +463,9 @@ export type AgentProfile = {
 /**
  * * `ucp` - ucp
  * * `acp` - acp
+ * * `mcp` - mcp
  */
-export type AgentProtocolEnum = 'ucp' | 'acp'
+export type AgentProtocolEnum = 'ucp' | 'acp' | 'mcp'
 
 /**
  * Serializer for Attribute with translations.
@@ -2306,181 +2307,6 @@ export type CartCreatePaymentIntentRequestRequest = {
  */
 export type CartCreatePaymentIntentRequestShippingKindEnum = 'home_delivery' | 'pickup_point'
 
-export type CartDetail = {
-  readonly id: number
-  /**
-     * Χρήστης
-     */
-  user?: number | null
-  readonly uuid: string
-  readonly items: Array<CartItem>
-  readonly totalPrice: number
-  readonly totalDiscountValue: number
-  /**
-     * ΦΠΑ που περιέχεται στο total_price αφού αφαιρεθεί το promotion_discount. Μια έκπτωση τιμής μειώνει τη φορολογητέα βάση, οπότε αυτό είναι το ποσό που θα φέρει το τιμολόγιο. Οι πόντοι πιστότητας εξαργυρώνονται στην παραγγελία και δεν αντικατοπτρίζονται εδώ.
-     */
-  readonly totalVatValue: number
-  /**
-     * Return the total quantity of all items in the cart.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise calculates from items.
-     */
-  totalItems: number | 0
-  /**
-     * Return the number of unique items in the cart.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
-     */
-  readonly totalItemsUnique: number
-  /**
-     * Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά την ολοκλήρωση αγοράς ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
-     */
-  readonly totalWeightGrams: number
-  /**
-     * Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού
-     */
-  readonly currency: string
-  /**
-     * Έκπτωση από τις ενεργές προσφορές (αυτόματες + κουπόνι που εφαρμόστηκε), επιπλέον οποιασδήποτε μείωσης τιμής προϊόντος περιλαμβάνεται ήδη στις τιμές των γραμμών
-     */
-  readonly promotionDiscount: number
-  /**
-     * Η αξία με την οποία κρίνονται τα δωρεάν μεταφορικά και το δωρεάν τέλος πληρωμής: τα προϊόντα μετά τις εκπτώσεις προωθήσεων και κουπονιών, χωρίς μεταφορικά και τέλη. Συγκρίνετε ένα όριο «δωρεάν πάνω από» με αυτήν, ποτέ με το total_price.
-     */
-  readonly freeThresholdValue: number
-  /**
-     * Ανάλυση του promotion_discount ανά προσφορά: μία εγγραφή για κάθε προσφορά που πράγματι μείωσε το ποσό, με τον κωδικό κουπονιού που την ενεργοποίησε, όταν υπήρχε. Το storefront τη χρειάζεται για να δείξει στον αγοραστή ΠΟΙΕΣ προσφορές εφαρμόστηκαν και να εμφανίσει σε κάθε κουπόνι το ΔΙΚΟ του ποσό αντί για το σύνολο του καλαθιού.
-     */
-  readonly appliedPromotions: Array<{
-    promotionId?: number
-    name?: string
-    code?: string | null
-    amount?: number
-  }>
-  /**
-     * Αν μια ενεργή προσφορά μηδενίζει το κόστος αποστολής
-     */
-  readonly promotionFreeShipping: boolean
-  /**
-     * Πόσο απέχει αυτό το καλάθι από τα δωρεάν μεταφορικά, με τον φθηνότερο δρόμο: το όριο δωρεάν μεταφορικών μιας μεταφορικής ή μια προσφορά δωρεάν μεταφορικών, κρινόμενο με τους κανόνες με τους οποίους το checkout τιμολογεί τα μεταφορικά. Το ένα ποσό που δείχνεται για τα δωρεάν μεταφορικά· οι εγγραφές του promotionNearMiss με freeShipping είναι δρόμοι που έχει ήδη σταθμίσει. Null όταν το καλάθι δεν έχει κανέναν δρόμο προς δωρεάν μεταφορικά.
-     */
-  readonly freeShippingProgress: {
-    /**
-         * Checkout charges nothing for shipping: a promotion waives it, or the cart reached a carrier's threshold
-         */
-    free: boolean
-    /**
-         * threshold: a carrier's free-shipping threshold, for that carrier only; promotion: a free-shipping promotion, for every carrier
-         */
-    source: 'threshold' | 'promotion'
-    /**
-         * Products still missing; null once free, or when what is missing is units
-         */
-    remainingAmount: number | null
-    /**
-         * Units of the promotion's products still missing; null once free, or when what is missing is an amount
-         */
-    remainingQuantity: number | null
-    /**
-         * The value the route is reached at, for a meter; null for a units route or a promotion that waives shipping outright
-         */
-    threshold: number | null
-    /**
-         * The country the carriers' thresholds were judged for: the store's first shipping country, the one checkout preselects
-         */
-    countryCode: string | null
-  } | null
-  /**
-     * Κωδικοί κουπονιών που είναι αυτή τη στιγμή συνδεδεμένοι με αυτό το καλάθι
-     */
-  readonly appliedCouponCodes: Array<string>
-  /**
-     * Τι κάνει αυτή τη στιγμή κάθε συνδεδεμένο κουπόνι για το καλάθι: το ποσό που αφαιρεί, τα δωρεάν μεταφορικά ή το δώρο που κερδίζει, ή γιατί το απορρίπτει ο μηχανισμός. Ένας κωδικός που δεν θα άλλαζε τίποτα απορρίπτεται, οπότε σε κάθε εγγραφή ισχύει ακριβώς ένα από τα τέσσερα.
-     */
-  readonly appliedCoupons: Array<{
-    code: string
-    /**
-         * Money this code takes off; 0 when its benefit is not money, or it is refused
-         */
-    amount: number
-    /**
-         * This code waives shipping
-         */
-    freeShipping: boolean
-    /**
-         * This code earns the gift listed in promotionGiftItems
-         */
-    gift: boolean
-    /**
-         * Why the engine refuses the attached code now; null while it applies
-         */
-    rejection: 'discount_code_invalid' | 'discount_code_expired' | 'discount_code_not_started' | 'discount_code_minimum_not_met' | 'discount_code_usage_limit_reached' | 'discount_code_combination_disallowed' | 'discount_code_user_ineligible' | 'discount_code_not_applicable' | 'discount_code_gift_unavailable' | null
-  }>
-  /**
-     * Δικαιώματα δωρεάν δώρου που κέρδισε αυτό το καλάθι
-     */
-  readonly promotionGiftItems: Array<{
-    promotionId?: number
-    name?: string
-    productId?: number
-    productName?: string
-    productImagePath?: string
-    quantity?: number
-  }>
-  /**
-     * Αυτόματες προσφορές στις οποίες λείπει ακριβώς μία ελάχιστη προϋπόθεση (ποσό, τεμάχια ή προϊόν-ανταμοιβή) — 'πρόσθεσε X ακόμα για να την ξεκλειδώσεις'
-     */
-  readonly promotionNearMiss: Array<{
-    promotionId: number
-    name: string
-    /**
-         * Subtotal still missing; null when the missing part is units
-         */
-    remainingAmount: number | null
-    /**
-         * Eligible units still missing (a minimum quantity, or the rest of a buy-X-get-Y group, or of a reward product); null when the missing part is subtotal
-         */
-    remainingQuantity: number | null
-    /**
-         * The products to add when what is missing is an offer's reward (a case bought, its screen protector at -50% not yet); empty otherwise
-         */
-    rewardProducts: Array<PromotionProductRef>
-    /**
-         * The offer waives shipping, so it is one of the routes freeShippingProgress already weighed; show that, not this teaser
-         */
-    freeShipping: boolean
-  }>
-  /**
-     * Υπάρχει όταν στις τιμές γραμμών αυτού του καλαθιού εφαρμόζεται τιμολόγηση ομάδας χονδρικής· null για καλάθια λιανικής. Επιτρέπει στο storefront να εμφανίσει σήμα χονδρικής και να κρύψει το πεδίο κουπονιού (οι προσφορές δεν συνδυάζονται με τιμές B2B, εκτός αν το ενεργοποιήσει ο έμπορος).
-     */
-  readonly b2bPricing: {
-    applied?: boolean
-    groupName?: string
-    allowPromotions?: boolean
-    allowLoyalty?: boolean
-    minOrderValue?: string
-    belowMinimum?: boolean
-  } | null
-  /**
-     * Δημιουργήθηκε στις
-     */
-  readonly createdAt: string
-  /**
-     * Ενημερώθηκε στις
-     */
-  readonly updatedAt: string
-  /**
-     * Τελευταία δραστηριότητα
-     */
-  readonly lastActivity: string
-  /**
-     * Προτάσεις προϊόντων βάσει περιεχομένου καλαθιού
-     */
-  readonly recommendations: Array<Product>
-}
-
 export type CartItem = {
   readonly id: number
   readonly cartId: string
@@ -2532,7 +2358,14 @@ export type CartItemCreateRequest = {
   recommendationImpressionId?: string | null
 }
 
-export type CartItemDetail = {
+/**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export type CartItemMutationResponse = {
   readonly id: number
   readonly cartId: string
   product: Product
@@ -2567,9 +2400,9 @@ export type CartItemDetail = {
   readonly updatedAt: string
   readonly uuid: string
   /**
-     * Σχετικά προϊόντα που ίσως ενδιαφέρουν τον πελάτη
+     * Το ενημερωμένο καλάθι, όπως το επιστρέφει η λήψη καλαθιού
      */
-  readonly recommendations: Array<Product>
+  cart: Cart
 }
 
 export type CartItemUpdateRequest = {
@@ -3714,6 +3547,7 @@ export type LoyaltyTier = {
  */
 export type MerchantLegalIdentity = {
   readonly name: string
+  readonly distinctiveTitle: string
   readonly legalForm: string
   readonly vatId: string
   readonly taxOffice: string
@@ -4240,10 +4074,11 @@ export type OrderAttributionInputRequest = {
      */
   landingPath?: string
   /**
-     * Ορίζεται από το agent gateway για παραγγελία που έκανε πράκτορας AI μέσω UCP ή ACP.
+     * Ορίζεται από το agent gateway για παραγγελία που έκανε πράκτορας AI μέσω UCP, ACP ή MCP.
      *
      * * `ucp` - ucp
      * * `acp` - acp
+     * * `mcp` - mcp
      */
   agentProtocol?: AgentProtocolEnum
 }
@@ -8999,6 +8834,7 @@ export type StorePreferences = {
   readonly mobileBottomNav: boolean
   readonly stickyAddToCart: boolean
   readonly recentlyViewed: boolean
+  readonly productAssurances: boolean
   readonly demoAccount: boolean
 }
 
@@ -10961,13 +10797,6 @@ export type CartWritable = {
   user?: number | null
 }
 
-export type CartDetailWritable = {
-  /**
-     * Χρήστης
-     */
-  user?: number | null
-}
-
 export type CartItemWritable = {
   /**
      * Ποσότητα
@@ -10991,7 +10820,14 @@ export type CartItemCreateRequestWritable = {
   attribution?: OrderAttributionInputRequest
 }
 
-export type CartItemDetailWritable = {
+/**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export type CartItemMutationResponseWritable = {
   /**
      * Ποσότητα
      */
@@ -17148,7 +16984,7 @@ export type RetrieveCartErrors = {
 export type RetrieveCartError = RetrieveCartErrors[keyof RetrieveCartErrors]
 
 export type RetrieveCartResponses = {
-  200: CartDetail
+  200: Cart
 }
 
 export type RetrieveCartResponse = RetrieveCartResponses[keyof RetrieveCartResponses]
@@ -17177,7 +17013,7 @@ export type PartialUpdateCartErrors = {
 export type PartialUpdateCartError = PartialUpdateCartErrors[keyof PartialUpdateCartErrors]
 
 export type PartialUpdateCartResponses = {
-  200: CartDetail
+  200: Cart
 }
 
 export type PartialUpdateCartResponse = PartialUpdateCartResponses[keyof PartialUpdateCartResponses]
@@ -17206,7 +17042,7 @@ export type UpdateCartErrors = {
 export type UpdateCartError = UpdateCartErrors[keyof UpdateCartErrors]
 
 export type UpdateCartResponses = {
-  200: CartDetail
+  200: Cart
 }
 
 export type UpdateCartResponse = UpdateCartResponses[keyof UpdateCartResponses]
@@ -17262,7 +17098,7 @@ export type RemoveCartCouponErrors = {
 export type RemoveCartCouponError = RemoveCartCouponErrors[keyof RemoveCartCouponErrors]
 
 export type RemoveCartCouponResponses = {
-  200: CartDetail
+  200: Cart
 }
 
 export type RemoveCartCouponResponse = RemoveCartCouponResponses[keyof RemoveCartCouponResponses]
@@ -17295,7 +17131,7 @@ export type ApplyCartCouponErrors = {
 export type ApplyCartCouponError = ApplyCartCouponErrors[keyof ApplyCartCouponErrors]
 
 export type ApplyCartCouponResponses = {
-  200: CartDetail
+  200: Cart
 }
 
 export type ApplyCartCouponResponse = ApplyCartCouponResponses[keyof ApplyCartCouponResponses]
@@ -17581,7 +17417,7 @@ export type CreateCartItemErrors = {
 export type CreateCartItemError = CreateCartItemErrors[keyof CreateCartItemErrors]
 
 export type CreateCartItemResponses = {
-  201: CartItemDetail
+  201: CartItemMutationResponse
 }
 
 export type CreateCartItemResponse = CreateCartItemResponses[keyof CreateCartItemResponses]
@@ -17647,7 +17483,7 @@ export type RetrieveCartItemErrors = {
 export type RetrieveCartItemError = RetrieveCartItemErrors[keyof RetrieveCartItemErrors]
 
 export type RetrieveCartItemResponses = {
-  200: CartItemDetail
+  200: CartItem
 }
 
 export type RetrieveCartItemResponse = RetrieveCartItemResponses[keyof RetrieveCartItemResponses]
@@ -17687,7 +17523,7 @@ export type PartialUpdateCartItemErrors = {
 export type PartialUpdateCartItemError = PartialUpdateCartItemErrors[keyof PartialUpdateCartItemErrors]
 
 export type PartialUpdateCartItemResponses = {
-  200: CartItemDetail
+  200: CartItemMutationResponse
 }
 
 export type PartialUpdateCartItemResponse = PartialUpdateCartItemResponses[keyof PartialUpdateCartItemResponses]
@@ -17722,7 +17558,7 @@ export type UpdateCartItemErrors = {
 export type UpdateCartItemError = UpdateCartItemErrors[keyof UpdateCartItemErrors]
 
 export type UpdateCartItemResponses = {
-  200: CartItemDetail
+  200: CartItemMutationResponse
 }
 
 export type UpdateCartItemResponse = UpdateCartItemResponses[keyof UpdateCartItemResponses]

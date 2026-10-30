@@ -16,7 +16,7 @@ const items = computed<AccordionItem[]>(() =>
   <footer
     class="
       w-full bg-primary-50 md:pb-11
-      md:hidden
+      lg:hidden
       dark:bg-primary-900
     "
   >
@@ -70,7 +70,7 @@ const items = computed<AccordionItem[]>(() =>
                surface that is only ever rendered on phones. -->
           <UButton
             :label="link.label"
-            :to="localePath(link.to as any)"
+            :to="localePath(pathLocation(link.to))"
             class="font-medium"
             color="secondary"
             size="lg"
@@ -82,7 +82,10 @@ const items = computed<AccordionItem[]>(() =>
     </UAccordion>
 
     <!-- Same obligation as the desktop footer: the seller identity has
-         to be on every page, not only the wide layout. Centered in its
+         to be on every page, not only the wide layout, and "σε εμφανές
+         σημείο": visible without a tap. It therefore never sits inside
+         a collapsed column, whichever column the operator marked for
+         the desktop footer. Centered in its
          own padded block: as bare `px-4 pt-*` siblings these two sat
          flush against the last accordion bar and ran off the bottom
          edge of the page (no bottom padding, and the fixed mobile

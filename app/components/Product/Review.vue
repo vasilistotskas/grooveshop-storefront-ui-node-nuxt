@@ -78,11 +78,19 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
-const state = reactive<Partial<Schema>>({
-  comment: props.userProductReview
-    ? extractTranslated(props.userProductReview, 'comment', locale.value)
-    : '',
-  rate: Number(props.userProductReview?.rate) || 0,
+/** The form's fields as the shopper's existing review has them, or empty. */
+const fieldsOf = (review: ProductReviewDetail | null) => ({
+  comment: review ? extractTranslated(review, 'comment', locale.value) : '',
+  rate: Number(review?.rate) || 0,
+})
+
+const state = reactive<Partial<Schema>>(fieldsOf(props.userProductReview))
+
+// The sheet can open before the shopper's review has loaded (a link from a
+// delivery e-mail opens it as soon as the session is known). The review
+// then fills the form, unless the shopper has already started on it.
+watch(() => props.userProductReview, (review) => {
+  if (review && !state.comment && !state.rate) Object.assign(state, fieldsOf(review))
 })
 
 /** Stars as the shopper sets them; the model stores twice that. */

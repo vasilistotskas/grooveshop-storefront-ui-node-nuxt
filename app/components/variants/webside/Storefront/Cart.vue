@@ -7,6 +7,7 @@ const {
   initialLoading,
   hasStockIssues,
   getOfferNearMisses,
+  getCartProductIds,
 } = storeToRefs(cartStore)
 const { t } = useStoreI18n('components/variants/webside/Storefront/Cart')
 const { $i18n } = useNuxtApp()
@@ -14,11 +15,10 @@ const { hasStockIssue, getStockStatusMessage } = cartStore
 
 /** Reward products shown per near-miss teaser; the teaser is a nudge, not a listing. */
 const NEAR_MISS_REWARD_CHIPS = 3
-// Cross-sell strip. The cart payload already carries
-// ``recommendations`` seeded with every basket line, so the strip
-// renders from the store — no extra fetch. An empty cart has no line
-// to seed from: its strip fetches the store-wide ``empty_cart`` answer
-// itself.
+// Cross-sell strip. It asks the engine, seeded with every basket line, when
+// it scrolls into view (the cart payload carries no suggestions). An empty
+// cart has no line to seed from: its strip fetches the store-wide
+// ``empty_cart`` answer.
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 const ga4 = useGA4()
 const viewCartFired = ref(false)
@@ -506,9 +506,9 @@ useSeoMeta({
     </div>
 
     <LazyWebsideProductSuggestions
-      v-if="suggestionsEnabled && cart?.recommendations?.length"
+      v-if="suggestionsEnabled && getCartProductIds.length"
       surface="cart"
-      :items="cart.recommendations"
+      :seed-ids="getCartProductIds"
       hydrate-on-visible
       class="mt-10"
     />

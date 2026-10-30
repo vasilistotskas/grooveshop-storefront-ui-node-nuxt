@@ -14,7 +14,9 @@ import { COMPONENTS, callsIn, sfcTemplate, walkElements } from '../../helpers/so
  * shopper who never sees its desktop footer is owed the same disclosure
  * and both are checked. No single render shows them all, so the
  * templates are read instead. What the block renders is
- * `test/nuxt/components/MerchantIdentity.spec.ts`.
+ * `test/nuxt/components/MerchantIdentity.spec.ts`; where webside's footers
+ * place it (under the column the operator marked) is
+ * `test/nuxt/components/variants/webside/Footer/MerchantIdentity.spec.ts`.
  */
 describe('the merchant identity', () => {
   it.each([
@@ -30,6 +32,30 @@ describe('the merchant identity', () => {
       tags.push(node.tag)
     })
     expect(tags).toContain(tag)
+  })
+
+  it('is placed by the webside desktop footer under the marked column AND in its fallback', () => {
+    // Under the column the operator marked, and where a footer with none
+    // marked keeps it: dropping either leaves some store with no disclosure.
+    let count = 0
+    walkElements(sfcTemplate(resolve(COMPONENTS, 'variants/webside/Footer/Desktop.vue')), (node) => {
+      if (node.tag === 'WebsideMerchantIdentity') count++
+    })
+    expect(count).toBe(2)
+  })
+
+  it('is placed ONCE by the webside mobile footer, outside its accordion', () => {
+    // "σε εμφανές σημείο": visible without opening a column, so it is never
+    // placed inside a collapsed panel, whichever column is marked.
+    let count = 0
+    let inAccordion = 0
+    walkElements(sfcTemplate(resolve(COMPONENTS, 'variants/webside/Footer/Mobile.vue')), (node, ancestors) => {
+      if (node.tag !== 'WebsideMerchantIdentity') return
+      count++
+      if (ancestors.some(ancestor => ancestor.tag === 'UAccordion')) inAccordion++
+    })
+    expect(count).toBe(1)
+    expect(inAccordion).toBe(0)
   })
 
   it('is published by the ekfyseosfyteias chrome footer, which lays it out itself', () => {

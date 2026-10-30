@@ -99,8 +99,13 @@ export const zAgentProfile = z.object({
 /**
  * * `ucp` - ucp
  * * `acp` - acp
+ * * `mcp` - mcp
  */
-export const zAgentProtocolEnum = z.enum(['ucp', 'acp'])
+export const zAgentProtocolEnum = z.enum([
+  'ucp',
+  'acp',
+  'mcp',
+])
 
 /**
  * Serializer for Attribute with translations.
@@ -1427,6 +1432,7 @@ export const zLoyaltySummary = z.object({
  */
 export const zMerchantLegalIdentity = z.object({
   name: z.string().readonly(),
+  distinctiveTitle: z.string().readonly(),
   legalForm: z.string().readonly(),
   vatId: z.string().readonly(),
   taxOffice: z.string().readonly(),
@@ -2853,31 +2859,6 @@ export const zCartItem = z.object({
   uuid: z.uuid().readonly(),
 })
 
-export const zCartItemDetail = z.object({
-  id: z.int().readonly(),
-  cartId: z.string().readonly(),
-  product: zProduct,
-  quantity: z.int().gte(0).lte(2147483647).optional(),
-  weightInfo: z.object({
-    unitWeight: z.number(),
-    totalWeight: z.number(),
-    weightUnit: z.string(),
-  }).readonly(),
-  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  priceSavePercent: z.number().readonly(),
-  discountPercent: z.number().readonly(),
-  vatPercent: z.number().readonly(),
-  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  recommendations: z.array(zProduct).readonly(),
-})
-
 export const zOrderItemDetail = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
@@ -3699,84 +3680,36 @@ export const zCart = z.object({
   lastActivity: z.iso.datetime({ offset: true }).readonly(),
 })
 
-export const zCartDetail = z.object({
+/**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export const zCartItemMutationResponse = z.object({
   id: z.int().readonly(),
-  user: z.int().nullish(),
-  uuid: z.uuid().readonly(),
-  items: z.array(zCartItem).readonly(),
+  cartId: z.string().readonly(),
+  product: zProduct,
+  quantity: z.int().gte(0).lte(2147483647).optional(),
+  weightInfo: z.object({
+    unitWeight: z.number(),
+    totalWeight: z.number(),
+    weightUnit: z.string(),
+  }).readonly(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  priceSavePercent: z.number().readonly(),
+  discountPercent: z.number().readonly(),
+  vatPercent: z.number().readonly(),
+  vatValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalDiscountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalVatValue: z.number().readonly(),
-  totalItems: z.union([
-    z.int(),
-    z.literal(0),
-  ]),
-  totalItemsUnique: z.int().readonly(),
-  totalWeightGrams: z.int().readonly(),
-  currency: z.string().readonly(),
-  promotionDiscount: z.number().readonly(),
-  freeThresholdValue: z.number().readonly(),
-  appliedPromotions: z.array(z.object({
-    promotionId: z.int().optional(),
-    name: z.string().optional(),
-    code: z.string().nullish(),
-    amount: z.number().optional(),
-  })).readonly(),
-  promotionFreeShipping: z.boolean().readonly(),
-  freeShippingProgress: z.object({
-    free: z.boolean(),
-    source: z.enum(['threshold', 'promotion']),
-    remainingAmount: z.number().nullable(),
-    remainingQuantity: z.int().nullable(),
-    threshold: z.number().nullable(),
-    countryCode: z.string().nullable(),
-  }).readonly().nullable(),
-  appliedCouponCodes: z.array(z.string()).readonly(),
-  appliedCoupons: z.array(z.object({
-    code: z.string(),
-    amount: z.number(),
-    freeShipping: z.boolean(),
-    gift: z.boolean(),
-    rejection: z.enum([
-      'discount_code_invalid',
-      'discount_code_expired',
-      'discount_code_not_started',
-      'discount_code_minimum_not_met',
-      'discount_code_usage_limit_reached',
-      'discount_code_combination_disallowed',
-      'discount_code_user_ineligible',
-      'discount_code_not_applicable',
-      'discount_code_gift_unavailable',
-    ]).nullable(),
-  })).readonly(),
-  promotionGiftItems: z.array(z.object({
-    promotionId: z.int().optional(),
-    name: z.string().optional(),
-    productId: z.int().optional(),
-    productName: z.string().optional(),
-    productImagePath: z.string().optional(),
-    quantity: z.int().optional(),
-  })).readonly(),
-  promotionNearMiss: z.array(z.object({
-    promotionId: z.int(),
-    name: z.string(),
-    remainingAmount: z.number().nullable(),
-    remainingQuantity: z.int().nullable(),
-    rewardProducts: z.array(zPromotionProductRef),
-    freeShipping: z.boolean(),
-  })).readonly(),
-  b2bPricing: z.object({
-    applied: z.boolean().optional(),
-    groupName: z.string().optional(),
-    allowPromotions: z.boolean().optional(),
-    allowLoyalty: z.boolean().optional(),
-    minOrderValue: z.string().optional(),
-    belowMinimum: z.boolean().optional(),
-  }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  lastActivity: z.iso.datetime({ offset: true }).readonly(),
-  recommendations: z.array(zProduct).readonly(),
+  uuid: z.uuid().readonly(),
+  cart: zCart,
 })
 
 export const zPaginatedCartList = z.object({
@@ -4768,6 +4701,7 @@ export const zStorePreferences = z.object({
   mobileBottomNav: z.boolean().readonly(),
   stickyAddToCart: z.boolean().readonly(),
   recentlyViewed: z.boolean().readonly(),
+  productAssurances: z.boolean().readonly(),
   demoAccount: z.boolean().readonly(),
 })
 
@@ -7023,10 +6957,6 @@ export const zCartWritable = z.object({
   user: z.int().nullish(),
 })
 
-export const zCartDetailWritable = z.object({
-  user: z.int().nullish(),
-})
-
 export const zCartItemWritable = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
 })
@@ -7038,7 +6968,14 @@ export const zCartItemCreateRequestWritable = z.object({
   attribution: zOrderAttributionInputRequest.optional(),
 })
 
-export const zCartItemDetailWritable = z.object({
+/**
+ * The line an add or a quantity change wrote, plus the whole cart it
+ * now sits in, so a client shows the new state without a second ``GET``.
+ *
+ * ``cart`` is the same body as ``GET /cart``, read from the cart the
+ * request resolved (``context["cart"]``) after the write.
+ */
+export const zCartItemMutationResponseWritable = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
 })
 
@@ -11195,19 +11132,19 @@ export const zRetrieveCartHeaders = z.object({
   'X-Cart-Token': z.string().optional(),
 })
 
-export const zRetrieveCartResponse = zCartDetail
+export const zRetrieveCartResponse = zCart
 
 export const zPartialUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
 })
 
-export const zPartialUpdateCartResponse = zCartDetail
+export const zPartialUpdateCartResponse = zCart
 
 export const zUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
 })
 
-export const zUpdateCartResponse = zCartDetail
+export const zUpdateCartResponse = zCart
 
 export const zCreateCartAgentTokenResponse = zCartAgentTokenResponse
 
@@ -11216,7 +11153,7 @@ export const zRemoveCartCouponHeaders = z.object({
   'X-Cart-Token': z.string().optional(),
 })
 
-export const zRemoveCartCouponResponse = zCartDetail
+export const zRemoveCartCouponResponse = zCart
 
 export const zApplyCartCouponBody = zCouponApplyRequestRequest
 
@@ -11225,7 +11162,7 @@ export const zApplyCartCouponHeaders = z.object({
   'X-Cart-Token': z.string().optional(),
 })
 
-export const zApplyCartCouponResponse = zCartDetail
+export const zApplyCartCouponResponse = zCart
 
 export const zListCartCouponsHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
@@ -11392,7 +11329,7 @@ export const zCreateCartItemHeaders = z.object({
   'X-Cart-Token': z.string().optional(),
 })
 
-export const zCreateCartItemResponse = zCartItemDetail
+export const zCreateCartItemResponse = zCartItemMutationResponse
 
 export const zDestroyCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),
@@ -11422,7 +11359,7 @@ export const zRetrieveCartItemQuery = z.object({
   languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
-export const zRetrieveCartItemResponse = zCartItemDetail
+export const zRetrieveCartItemResponse = zCartItem
 
 export const zPartialUpdateCartItemBody = zPatchedCartItemUpdateRequest
 
@@ -11442,7 +11379,7 @@ export const zPartialUpdateCartItemQuery = z.object({
   languageCode: z.enum(['el', 'en']).optional().default('el'),
 })
 
-export const zPartialUpdateCartItemResponse = zCartItemDetail
+export const zPartialUpdateCartItemResponse = zCartItemMutationResponse
 
 export const zUpdateCartItemBody = zCartItemUpdateRequest
 
@@ -11458,7 +11395,7 @@ export const zUpdateCartItemPath = z.object({
   ]),
 })
 
-export const zUpdateCartItemResponse = zCartItemDetail
+export const zUpdateCartItemResponse = zCartItemMutationResponse
 
 export const zListCartHeaders = z.object({
   'X-Cart-Id': z.uuid().optional(),

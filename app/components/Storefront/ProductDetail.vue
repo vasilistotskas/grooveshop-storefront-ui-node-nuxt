@@ -66,6 +66,7 @@ const {
   ogImage,
 } = await useProductDetail(productId, t)
 const { data: allCategories } = await categoriesRequest
+const assurances = await useProductAssurances()
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
@@ -458,10 +459,16 @@ useSchemaOrg([
             />
           </div>
 
+          <ProductAssurances
+            :rows="assurances.rows.value"
+            :label="assurances.label.value"
+          />
+
           <!-- The cart is per visitor and this page is cached. A visitor
-               without a cart is 0 € into the threshold. -->
+               without a cart is 0 € into the threshold. The assurances box
+               states the same threshold, so it stands in for this notice. -->
           <ClientOnly>
-            <ShippingFreeShippingNotice v-if="cartEnabled && cartStore.loaded" />
+            <ShippingFreeShippingNotice v-if="cartEnabled && cartStore.loaded && !assurances.coversFreeShipping.value" />
           </ClientOnly>
 
           <!-- Promotions that apply to THIS product, resolved by Django

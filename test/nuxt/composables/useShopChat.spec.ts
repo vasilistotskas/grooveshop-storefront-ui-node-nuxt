@@ -76,6 +76,26 @@ describe('useShopChat', () => {
     setTenant()
     useShopChat().reset()
     useCartStore().cart = null
+    // The boot's attribution plugin records this tab's landing; a turn carries it.
+    window.sessionStorage.clear()
+  })
+
+  it('carries the tab\'s first-touch source, so a cart the assistant fills keeps the visit\'s source', async () => {
+    const attribution = { utmSource: 'newsletter', utmMedium: 'email', clickIds: ['gclid'], landingPath: '/p/4' }
+    window.sessionStorage.setItem('order-attribution', JSON.stringify(attribution))
+    const fetchMock = stubStream(DONE)
+
+    await useShopChat().send('γεια')
+
+    expect(bodyOf(fetchMock.mock.calls[0]!).attribution).toEqual(attribution)
+  })
+
+  it('sends no attribution when the tab captured none', async () => {
+    const fetchMock = stubStream(DONE)
+
+    await useShopChat().send('γεια')
+
+    expect(bodyOf(fetchMock.mock.calls[0]!)).not.toHaveProperty('attribution')
   })
 
   it('streams deltas into one assistant message and finishes ready', async () => {

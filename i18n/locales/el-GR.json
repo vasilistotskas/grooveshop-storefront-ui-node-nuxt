@@ -300,6 +300,16 @@
     "GOOGLE_PAY": "Google Pay",
     "fee": "Προμήθεια {method}"
   },
+  "product_assurances": {
+    "label": "Παράδοση, πληρωμή και επιστροφές",
+    "delivery_range": "Παράδοση σε {min}–{max} εργάσιμες ημέρες από την αποστολή",
+    "delivery_days": "Παράδοση σε {count} εργάσιμη ημέρα από την αποστολή | Παράδοση σε {count} εργάσιμες ημέρες από την αποστολή",
+    "free_shipping_over": "Δωρεάν μεταφορικά άνω των {amount}",
+    "payment_card": "κάρτα",
+    "payment_cash_on_delivery": "αντικαταβολή",
+    "payment_bank_transfer": "τραπεζική κατάθεση",
+    "returns": "Επιστροφή εντός {count} ημέρας | Επιστροφή εντός {count} ημερών"
+  },
   "tracking": {
     "boxnow": {
       "title": "Παρακολούθηση BOX NOW",

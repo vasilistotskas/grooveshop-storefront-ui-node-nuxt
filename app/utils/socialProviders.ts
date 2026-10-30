@@ -5,7 +5,7 @@
  * generic sign-in glyph rather than none.
  */
 const SOCIAL_PROVIDER_ICONS: Readonly<Record<string, string>> = {
-  google: 'i-mdi-google',
+  google: 'i-brand-google',
   facebook: 'i-mdi-facebook',
   github: 'i-mdi-github',
   discord: 'i-mdi-discord',

@@ -161,6 +161,7 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
       '/api/blog/posts/7': post(translations),
       '/api/blog/categories/2': post({}).category,
       '/api/blog/authors/3': post({}).author,
+      '/api/shipping/policy': [],
       '/api/*': { count: 0, next: null, previous: null, results: [] },
     })
   }
@@ -219,6 +220,7 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('head of an English pr
       '/api/products/123/images': [],
       '/api/products/categories/all': [],
       '/api/products/123/*': empty,
+      '/api/shipping/policy': [],
       '/api/*': empty,
     })
   }

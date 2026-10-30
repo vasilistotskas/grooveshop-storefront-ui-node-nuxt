@@ -14,10 +14,11 @@ import { setTenant } from '~~/test/helpers/tenant'
  * so the number it prints is the shopper's, never the assistant's.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
+const toast = await vi.hoisted(async () => (await import('~~/test/helpers/toast')).createToastMock())
 const b2bPrice = vi.hoisted(() => vi.fn((_id: number): { finalPrice: string } | undefined => undefined))
 
 mockNuxtImport('$api', () => api)
-mockNuxtImport('useToast', () => () => ({ add: vi.fn(), remove: vi.fn(), update: vi.fn(), clear: vi.fn() }))
+mockNuxtImport('useToast', () => () => toast)
 mockNuxtImport('useB2BPricing', () => () => ({ register: vi.fn(), priceFor: b2bPrice }))
 
 const money = (value: number) => useNuxtApp().$i18n.n(value, 'currency')
@@ -53,7 +54,8 @@ describe('Chrome/AssistantProducts', () => {
     window.sessionStorage.clear()
     const cart = makeCart({ items: [] })
     useCartStore().cart = cart
-    api.routes({ '/api/cart': cart })
+    api.routes({ '/api/cart': cart, '/api/cart/items': cart })
+    toast.toasts.value = []
     b2bPrice.mockReset()
   })
 

@@ -78,11 +78,11 @@ export function useCouponInput(options: {
     submitting.value = true
     try {
       const code = formState.code.trim()
-      await $api('/api/cart/coupon', {
+      // Django answers with the updated cart: no reload.
+      await cartStore.changeCart(() => $api('/api/cart/coupon', {
         method: 'POST',
         body: { code },
-      })
-      await cartStore.refreshCart()
+      }))
       formState.code = ''
       toast.add({
         title: t('applied_title'),
@@ -105,8 +105,7 @@ export function useCouponInput(options: {
   const removeCoupon = async () => {
     submitting.value = true
     try {
-      await $api('/api/cart/coupon', { method: 'DELETE' })
-      await cartStore.refreshCart()
+      await cartStore.changeCart(() => $api('/api/cart/coupon', { method: 'DELETE' }))
       couponError.value = null
     }
     catch (error) {

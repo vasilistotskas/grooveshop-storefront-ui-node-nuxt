@@ -30,8 +30,8 @@ const { cards, busy, disconnect, connect } = await useProviderAccounts({
         class="flex items-center gap-3 rounded-[1rem] p-3 ring ring-default"
       >
         <span class="flex size-9 shrink-0 items-center justify-center rounded-[0.625rem] bg-elevated">
-          <UIcon
-            :name="socialProviderIcon(card.providerId)"
+          <AccountProviderIcon
+            :provider-id="card.providerId"
             class="size-4 text-highlighted"
           />
         </span>

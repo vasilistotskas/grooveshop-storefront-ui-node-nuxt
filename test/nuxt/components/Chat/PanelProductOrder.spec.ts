@@ -34,7 +34,12 @@ describe.each(trees(ChromeAssistantPanel, ChatPanel))('$tree assistant panel pro
     const wrapper = await mountSuspended(C, { route: false })
 
     await useShopChat().send('Δείξε μου powerbank')
-    await vi.waitFor(() => expect(wrapper.find('li h4').exists()).toBe(true))
+    // The card loads on its own request and the closing sentence is the last
+    // delta: wait for both, or a slow run reads the text before either shows.
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain('Προϊόν 5')
+      expect(wrapper.text()).toContain('Θέλεις να δεις κι άλλα;')
+    })
 
     const text = wrapper.text()
     expect(text.indexOf('Βρήκα τα εξής powerbank.')).toBeLessThan(text.indexOf('Προϊόν 5'))

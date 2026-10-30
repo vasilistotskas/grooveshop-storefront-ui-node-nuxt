@@ -73,12 +73,11 @@ export async function useCouponPicker(options: {
   async function applyCoupon(row: CartCoupon) {
     submitting.value = row.code
     try {
-      await $api('/api/cart/coupon', {
+      await cartStore.changeCart(() => $api('/api/cart/coupon', {
         method: 'POST',
         body: { code: row.code },
-      })
-      await cartStore.refreshCart()
-      await refreshCoupons()
+      }))
+      // The cart now carries the code, which re-judges the list (its `watch`).
       open.value = false
       options.onApplied(row.code)
       toast.add({

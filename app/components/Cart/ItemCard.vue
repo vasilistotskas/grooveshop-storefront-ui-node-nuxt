@@ -24,6 +24,7 @@ const { productUrl } = useUrls()
 const { t, n, locale } = useStoreI18n('components/Cart/ItemCard')
 const toast = useToast()
 const { notify } = useApiError()
+const loadingIcon = useAppConfig().ui.icons.loading
 const { deleteCartItem, createCartItem } = useCartStore()
 
 const name = computed(() => extractTranslated(props.cartItem.product, 'name', locale.value) ?? '')
@@ -37,19 +38,23 @@ async function remove() {
   // same product and quantity back as a new line.
   const snapshot = { productId: props.cartItem.product.id, quantity: quantity.value, name: name.value }
   removing.value = true
+  showOrUpdateToast(toast, CART_REMOVE_TOAST_ID, pendingToastContent(loadingIcon, {
+    title: t('toast.removing_title'),
+    description: name.value,
+  }))
   try {
     await deleteCartItem(props.cartItem.id)
   }
   catch (error) {
     log.error({ action: 'cart:deleteItem', error })
-    notify('ItemCard:1', error, { title: t('toast.delete_failed') })
+    notify(CART_REMOVE_TOAST_ID, error, { title: t('toast.delete_failed') })
     return
   }
   finally {
     removing.value = false
   }
 
-  toast.add({
+  showOrUpdateToast(toast, CART_REMOVE_TOAST_ID, {
     title: t('toast.removed_title'),
     description: t('toast.removed_description', { name: snapshot.name }),
     color: 'neutral',
@@ -159,6 +164,7 @@ el:
   remove: Αφαίρεση
   remove_named: Αφαίρεση του «{name}» από το καλάθι
   toast:
+    removing_title: Αφαίρεση από το καλάθι…
     removed_title: Αφαιρέθηκε από το καλάθι
     removed_description: Το «{name}» αφαιρέθηκε.
     undo: Αναίρεση
@@ -169,6 +175,7 @@ en:
   remove: Remove
   remove_named: Remove “{name}” from the cart
   toast:
+    removing_title: Removing from your cart…
     removed_title: Removed from your cart
     removed_description: “{name}” was removed.
     undo: Undo

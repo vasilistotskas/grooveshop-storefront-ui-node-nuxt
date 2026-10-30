@@ -22,7 +22,7 @@ export const useCartStore = defineStore('cart', () => {
   const tenant = useTenant()
   const cartOn = () => storeFeatureOn(tenant.value, 'cart')
   const orderAttribution = useOrderAttribution()
-  const cart = ref<CartDetail | null>(null)
+  const cart = ref<Cart | null>(null)
   const inFlight = reactive(new Set<string>())
   const pending = computed(() => inFlight.size > 0)
   // True only while the cart is being loaded for the first time (no data yet).
@@ -39,6 +39,7 @@ export const useCartStore = defineStore('cart', () => {
   const getCartItems = computed(() => cart.value?.items ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
   const getCartItemIds = computed(() => cart.value?.items?.map(item => item.id) ?? [])
+  const getCartProductIds = computed(() => cart.value?.items?.map(item => item.product.id) ?? [])
 
   // The offers the cart is just short of, less the free-shipping ones:
   // Django has already weighed those as routes of `freeShippingProgress`,
@@ -198,10 +199,42 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function createCartItem(body: CartItemCreateRequestWritable) {
-    if (!cartOn()) return
+  /**
+   * Cart-changing calls run one at a time, in the order they were made.
+   * Each of them answers with the whole cart, and the cart is set from the
+   * answer: two in flight at once can be answered out of order, and the
+   * older snapshot would then replace the newer one (a line Django accepted
+   * missing from the screen, with no reload to put it back). One after the
+   * other, the answers arrive in the order Django applied the changes. A
+   * failed call leaves the queue to the next.
+   */
+  let changes: Promise<unknown> = Promise.resolve()
+  function serialized<T>(task: () => Promise<T>): Promise<T> {
+    // Pending from the call on, queued or running.
     const opId = crypto.randomUUID()
     inFlight.add(opId)
+    const run = changes.then(task)
+    changes = run.catch(() => {})
+    return run.finally(() => inFlight.delete(opId))
+  }
+
+  const createCartItem = (body: CartItemCreateRequestWritable) => serialized(() => addLine(body))
+  const updateCartItem = (id: number, body: CartItemUpdateRequest) => serialized(() => changeLine(id, body))
+  const deleteCartItem = (id: number) => serialized(() => removeLine(id))
+  const clearCart = () => serialized(() => emptyCart())
+
+  /**
+   * Take the cart a cart-changing call answers with (a coupon applied or
+   * removed) as the cart, in its turn among the other changes.
+   */
+  async function changeCart(request: () => Promise<Cart>) {
+    await serialized(async () => {
+      cart.value = await request()
+    })
+  }
+
+  async function addLine(body: CartItemCreateRequestWritable) {
+    if (!cartOn()) return
     try {
       // The one choke point every add-to-cart goes through (product
       // page, card, suggestion tile): carry the strip impression the
@@ -211,7 +244,8 @@ export const useCartStore = defineStore('cart', () => {
       // The tab's first-touch source (the same capture the order sends):
       // Django records it on the cart the first time one is set.
       const orderSource = orderAttribution.read()
-      await $api('/api/cart/items', {
+      // Django answers with the cart the add left behind: no reload.
+      cart.value = await $api('/api/cart/items', {
         method: 'POST',
         headers: useRequestHeaders(),
         body: {
@@ -220,14 +254,13 @@ export const useCartStore = defineStore('cart', () => {
           ...(orderSource ? { attribution: orderSource } : {}),
         },
       })
-      await refreshCart()
       error.value = null
 
       // Analytics fire only after the cart was successfully updated
       // (so a server-side rejection — out of stock, invalid product —
       // never produces a pixel event). The added item is looked up
-      // from the freshly refreshed cart so value/currency reflect
-      // what the server actually persisted.
+      // from the returned cart so value/currency reflect what the
+      // server actually persisted.
       const productId = body.product
       const addedItem = cart.value?.items?.find(
         item => item.product?.id === productId,
@@ -247,7 +280,7 @@ export const useCartStore = defineStore('cart', () => {
         // broken" — make the skip observable.
         log.warn(
           'cart:trackQuantityChange',
-          `product ${productId} not found in refreshed cart — add_to_cart not tracked`,
+          `product ${productId} not found in the returned cart — add_to_cart not tracked`,
         )
       }
     }
@@ -256,15 +289,10 @@ export const useCartStore = defineStore('cart', () => {
       error.value = serializeError(err)
       throw err
     }
-    finally {
-      inFlight.delete(opId)
-    }
   }
 
-  async function updateCartItem(id: number, body: CartItemUpdateRequest) {
+  async function changeLine(id: number, body: CartItemUpdateRequest) {
     if (!cartOn()) return
-    const opId = crypto.randomUUID()
-    inFlight.add(opId)
     // Snapshot BEFORE the PUT — the quantity delta decides whether
     // this update tracks as add_to_cart (increase) or
     // remove_from_cart (decrease).
@@ -276,14 +304,13 @@ export const useCartStore = defineStore('cart', () => {
       ? attribution.take(lineProductId)
       : undefined
     try {
-      await $api(`/api/cart/items/${id}`, {
+      cart.value = await $api(`/api/cart/items/${id}`, {
         method: 'PUT',
         headers: useRequestHeaders(),
         body: recommendationImpressionId
           ? { ...body, recommendationImpressionId }
           : body,
       })
-      await refreshCart()
       error.value = null
 
       const updatedItem = getCartItemById(id)
@@ -304,15 +331,10 @@ export const useCartStore = defineStore('cart', () => {
       error.value = serializeError(err)
       throw err
     }
-    finally {
-      inFlight.delete(opId)
-    }
   }
 
-  async function deleteCartItem(id: number) {
+  async function removeLine(id: number) {
     if (!cartOn()) return
-    const opId = crypto.randomUUID()
-    inFlight.add(opId)
     // Snapshot the item BEFORE the DELETE so the analytics event has
     // accurate price/quantity. Polling the cart afterwards would
     // miss the row entirely (it's gone).
@@ -341,9 +363,6 @@ export const useCartStore = defineStore('cart', () => {
       error.value = serializeError(err)
       throw err
     }
-    finally {
-      inFlight.delete(opId)
-    }
   }
 
   /**
@@ -351,10 +370,8 @@ export const useCartStore = defineStore('cart', () => {
    * forgets it, so there is no cart until the next item starts one. Each
    * line leaves the analytics the way a single removal does.
    */
-  async function clearCart() {
+  async function emptyCart() {
     if (!cartOn()) return
-    const opId = crypto.randomUUID()
-    inFlight.add(opId)
     const removedItems = cart.value?.items ?? []
     try {
       await $api('/api/cart', {
@@ -376,9 +393,6 @@ export const useCartStore = defineStore('cart', () => {
       log.error({ action: 'cart:clear', error: err })
       error.value = serializeError(err)
       throw err
-    }
-    finally {
-      inFlight.delete(opId)
     }
   }
 
@@ -486,6 +500,7 @@ export const useCartStore = defineStore('cart', () => {
     getCartItems,
     getCartTotalItems,
     getCartItemIds,
+    getCartProductIds,
     getOfferNearMisses,
     getCartItemById,
     getCartItemByProductId,
@@ -497,6 +512,7 @@ export const useCartStore = defineStore('cart', () => {
     getStockStatusMessage,
     setupCart,
     refreshCart,
+    changeCart,
     claimCart,
     createCartItem,
     updateCartItem,

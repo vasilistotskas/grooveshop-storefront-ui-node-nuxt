@@ -7,15 +7,16 @@ const {
   initialLoading,
   hasStockIssues,
   getOfferNearMisses,
+  getCartProductIds,
 } = storeToRefs(cartStore)
 const { t } = useStoreI18n('components/Storefront/Cart')
 const { getStockStatusMessage, clearCart } = cartStore
 const toast = useToast()
 const { notify } = useApiError()
-// Cross-sell strip. The cart payload already carries ``recommendations``
-// seeded with every basket line, so the strip renders from the store —
-// no extra fetch. An empty cart has no line to seed from: its strip
-// fetches the store-wide ``empty_cart`` answer itself.
+// Cross-sell strip. It asks the engine, seeded with every basket line, when
+// it scrolls into view (the cart payload carries no suggestions). An empty
+// cart has no line to seed from: its strip fetches the store-wide
+// ``empty_cart`` answer.
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 const ga4 = useGA4()
 const viewCartFired = ref(false)
@@ -317,9 +318,9 @@ useSeoMeta({
       </div>
 
       <LazyProductSuggestions
-        v-if="suggestionsEnabled && cart?.recommendations?.length"
+        v-if="suggestionsEnabled && getCartProductIds.length"
         surface="cart"
-        :items="cart.recommendations"
+        :seed-ids="getCartProductIds"
         hydrate-on-visible
       />
       <LazyProductSuggestions

@@ -8,7 +8,7 @@ import { createLoyaltySettingsMock } from '~~/test/helpers/loyaltySettings'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeCart } from '~~/test/fixtures/cart'
 import { makeLoyaltySettings, makeSummary } from '~~/test/fixtures/loyalty'
-import type { CartDetail, LoyaltySummary } from '~~/shared/openapi/types.gen'
+import type { Cart, LoyaltySummary } from '~~/shared/openapi/types.gen'
 
 /**
  * Checkout's points redemption. Nothing is spent here: the component
@@ -209,7 +209,7 @@ describe('Loyalty/Redemption', () => {
 
     // Order creation drops a redemption on a wholesale cart unless the
     // merchant opts in, so offering it there would discount nothing.
-    it.each<[string, CartDetail['b2bPricing'], boolean]>([
+    it.each<[string, Cart['b2bPricing'], boolean]>([
       ['a retail cart', null, true],
       ['a wholesale cart', { applied: true, groupName: 'Wholesale', allowPromotions: false, allowLoyalty: false }, false],
       ['a wholesale cart whose merchant opted in', { applied: true, groupName: 'Wholesale', allowPromotions: false, allowLoyalty: true }, true],

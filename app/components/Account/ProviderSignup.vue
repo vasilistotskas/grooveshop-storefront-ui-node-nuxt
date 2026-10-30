@@ -11,9 +11,7 @@ const emit = defineEmits(['providerSignup'])
 const { t } = useStoreI18n('components/Account/ProviderSignup')
 const localePath = useLocalePath()
 
-const acceptedTerms = ref(false)
-
-const { schema, state, loading, submit } = useProviderSignup({
+const { schema, state, loading, acceptedTerms, submit } = useProviderSignup({
   success: () => ({ title: t('success'), color: 'success' }),
   onSignedUp: () => emit('providerSignup'),
 })
