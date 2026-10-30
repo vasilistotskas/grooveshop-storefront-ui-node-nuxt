@@ -18,12 +18,11 @@
  * reads as a broken page to every shopper.
  */
 const { t } = useStoreI18n('components/MerchantIdentity')
-const { identity, hasIdentity, legalName, distinctiveTitle, registeredSeat, inLiquidation }
+const { identity, hasIdentity, displayName, registeredSeat, inLiquidation }
   = useMerchantIdentity()
 
 const parts = computed(() => [
-  legalName.value,
-  distinctiveTitle.value,
+  displayName.value,
   registeredSeat.value,
   identity.value?.registrationNumber ? `${t('gemi')} ${identity.value.registrationNumber}` : '',
   identity.value?.vatId ? `${t('vat_id')} ${identity.value.vatId}` : '',

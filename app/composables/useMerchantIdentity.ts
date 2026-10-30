@@ -83,12 +83,16 @@ export function useMerchantIdentity() {
     return `${name} ${form}`
   })
 
-  /** The shop's trading name, shown beside the legal name; it never replaces it. */
-  const distinctiveTitle = computed(() => data.value?.distinctiveTitle?.trim() ?? '')
+  /**
+   * What the footer names the seller as: the distinctive title when the
+   * merchant set one (owner decision: it stands IN PLACE of the legal name
+   * and form), else the legal name with its form.
+   */
+  const displayName = computed(() => data.value?.distinctiveTitle?.trim() || legalName.value)
 
   return {
     identity: computed(() => data.value),
-    distinctiveTitle,
+    displayName,
     hasIdentity,
     legalName,
     registeredSeat,

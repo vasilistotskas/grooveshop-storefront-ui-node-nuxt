@@ -33,10 +33,12 @@ mockNuxtImport('useNavigation', () => () => ({
   footerColumns: computed(() => configuredColumns),
 }))
 
+const legalIdentity = { distinctiveTitle: 'ΑΓΟΡΑ ΕΞΠΡΕΣΣ' }
+
 registerEndpoint('/api/tenant/legal-identity', () => {
   return {
+    ...legalIdentity,
     name: 'ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.',
-    distinctiveTitle: 'ΑΓΟΡΑ ΕΞΠΡΕΣΣ',
     legalForm: 'Ετερόρρυθμη Εταιρεία (Ε.Ε.)',
     vatId: '801234567',
     registrationNumber: '123456701000',
@@ -55,6 +57,7 @@ async function mountFooter(C: typeof FooterDesktop | typeof FooterMobile) {
 
 beforeEach(() => {
   configuredColumns = null
+  legalIdentity.distinctiveTitle = 'ΑΓΟΡΑ ΕΞΠΡΕΣΣ'
   setTenant()
   clearNuxtData(['tenant-legal-identity', 'footer-content-pages'])
 })
@@ -70,9 +73,9 @@ describe('webside Footer/Desktop seller identity', () => {
     const column = addresses[0]!.element.parentElement!
     expect(column.textContent).toContain('Σχετικά με το Webside')
     expect(column.textContent).not.toContain('Επικοινωνία')
-    // The legal name stays; the shop's trading name sits beside it.
-    expect(addresses[0]!.text()).toContain('ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.')
+    // The distinctive title stands in place of the legal name.
     expect(addresses[0]!.text()).toContain('ΑΓΟΡΑ ΕΞΠΡΕΣΣ')
+    expect(addresses[0]!.text()).not.toContain('ΚΑΛΑΙΤΖΗ')
   })
 
   it('keeps the identity in the bottom bar when no column is marked', async () => {
@@ -87,9 +90,12 @@ describe('webside Footer/Desktop seller identity', () => {
 
   it('does not repeat the legal form its name already carries', async () => {
     configuredColumns = [ABOUT]
+    legalIdentity.distinctiveTitle = ''
 
     const wrapper = await mountFooter(FooterDesktop)
 
+    // No title: the legal name stays, with its form written once.
+    expect(wrapper.find('address').text()).toContain('ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.')
     expect(wrapper.find('address').text()).not.toContain('Ετερόρρυθμη Εταιρεία')
   })
 })

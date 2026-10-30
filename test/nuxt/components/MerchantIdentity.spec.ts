@@ -95,10 +95,12 @@ describe('MerchantIdentity', () => {
     expect(text).not.toContain('Υπό εκκαθάριση')
   })
 
-  it('names the shop beside the legal name when the merchant gave a distinctive title', async () => {
+  it('names the seller by its distinctive title, not the legal name, when one is set', async () => {
     const wrapper = await mountIdentity({ ...PUBLISHED, distinctiveTitle: 'Acme Express' })
 
-    expect(wrapper.find('address').text().replace(/\s+/g, ' ')).toContain('Acme ΙΚΕ · Acme Express')
+    const text = wrapper.find('address').text().replace(/\s+/g, ' ')
+    expect(text).toContain('Acme Express')
+    expect(text).not.toContain('Acme ΙΚΕ')
   })
 
   it('discloses a liquidation', async () => {
