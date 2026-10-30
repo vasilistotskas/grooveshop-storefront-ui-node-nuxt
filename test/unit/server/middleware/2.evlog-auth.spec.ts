@@ -39,7 +39,7 @@ describe('server/middleware/2.evlog-auth', () => {
     expect(await run('/', SESSION_COOKIE)).toEqual({})
   })
 
-  it.each(['/_nuxt/app.js', '/_ipx/w_200/x.png', '/assets/x.css'])('skips %s even with a session', async (url) => {
+  it.each(['/_nuxt/app.js', '/_ipx/w_200/x.png'])('skips %s even with a session', async (url) => {
     testSession.set({ user: { id: 42 } })
 
     expect(await run(url, SESSION_COOKIE)).toEqual({})

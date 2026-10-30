@@ -1,4 +1,4 @@
-import { H3Event, getRequestHeader, getRequestHost, getRequestURL } from 'h3'
+import { H3Event, getRequestHeader, getRequestURL } from 'h3'
 import { defineNitroPlugin } from 'nitropack/runtime'
 
 /**
@@ -22,9 +22,10 @@ const TENANT_SITE_CONFIG_PRIORITY = 10
  * `https://platform.grooveshop.space/index.md` and `/llms.txt`, both 401
  * behind basic auth (owner review, 2026-10-16).
  *
- * The store is the one `0.tenant.ts` resolved when it already ran, else the
- * request's Host through the same cached `getTenantConfig`; an unknown host
- * keeps the platform config. The description follows the page's locale,
+ * The store is the request's one lookup (`requestTenantResult`), started
+ * here when this runs first and shared with `0.tenant.ts`; an unknown host
+ * keeps the platform config, and a path that needs no store
+ * (`isTenantFreePath`: the kubelet's probes, assets) asks for none. The description follows the page's locale,
  * derived as `1.locale.ts` will (`pageLocale`), since this can run first.
  *
  * On a store that does not serve nuxt-ai-ready's surfaces
@@ -38,8 +39,10 @@ export default defineNitroPlugin((nitroApp) => {
     // `context`, and the store comes from the Host header, never from
     // `getNitroOrigin`, which honours the client's X-Forwarded-Host.
     if (!(event instanceof H3Event)) return
-    const tenant = event.context.tenant
-      ?? (await getTenantConfig(tenantHostOf(getRequestHost(event)))).config
+    // Nothing on a probe or an asset path wants a store, and this hook runs
+    // for every request: skip it before asking Django.
+    if (isTenantFreePath(getRequestURL(event).pathname)) return
+    const tenant = (await requestTenantResult(event)).config
     if (!tenant?.primaryDomain) return
 
     const locale = event.context.locale

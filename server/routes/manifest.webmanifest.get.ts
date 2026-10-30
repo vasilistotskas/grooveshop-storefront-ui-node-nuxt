@@ -11,14 +11,8 @@ export default defineEventHandler(async (event) => {
   // never populated here. Resolve it ourselves when a real Host is present;
   // any resolution failure (404/5xx/no host) just falls back to the
   // platform-default manifest below rather than erroring the response.
-  const host = requestTenantHost(event)
-  let tenant = event.context.tenant
-  if (!tenant && host) {
-    const result = await getTenantConfig(host)
-    if (result.type === 'ok') {
-      tenant = result.config
-    }
-  }
+  const result = await requestTenantResult(event)
+  const tenant = result.config
 
   // Prefer tenant-supplied values, fall back to site config / build-time config
   const name = tenant?.storeName || siteConfig.name || config.public.appTitle || 'GrooveShop'

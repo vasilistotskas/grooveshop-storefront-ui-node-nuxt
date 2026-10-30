@@ -26,6 +26,30 @@ afterEach(() => {
 })
 
 describe('getTenantConfig', () => {
+  it.each([
+    ['an IPv4 address', '10.255.255.7'],
+    ['an IPv4 address with a port', '10.255.255.7:3000'],
+    ['an IPv6 address in brackets', '[fd00::1]'],
+    ['an IPv6 address in brackets with a port', '[::1]:3000'],
+  ])('answers not-found for %s without asking Django or warning: a store is a hostname', async (_name, host) => {
+    backend.reply(WEBSIDE)
+
+    const result = await getTenantConfig(host)
+
+    expect(result).toEqual({ type: 'not_found', config: null })
+    expect(backend.requests).toEqual([])
+    expect(log.warn).not.toHaveBeenCalled()
+  })
+
+  it('still resolves a hostname that merely starts with digits', async () => {
+    backend.reply(({ query }) => validTenantConfig(query.domain!))
+
+    const result = await getTenantConfig('1.example.com')
+
+    expect(result.type).toBe('ok')
+    expect(backend.requests).toHaveLength(1)
+  })
+
   it('resolves the host through Django, port stripped, and returns the validated config', async () => {
     backend.reply(WEBSIDE)
 

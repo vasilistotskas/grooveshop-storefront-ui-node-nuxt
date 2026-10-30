@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
   // upload propagates without waiting out CDN caches.
   event.res.headers.set('Cache-Control', 'public, max-age=3600')
 
-  const result = await getTenantConfig(requestTenantHost(event))
+  const result = await requestTenantResult(event)
 
   if (result.type !== 'ok' || isPlatformTenantConfig(result.config)) {
     return sendRedirect(event, platformTarget, 302)

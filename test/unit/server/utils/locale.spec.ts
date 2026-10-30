@@ -25,7 +25,7 @@ describe('requestLocale', () => {
     expect(requestLocale(createTestEvent({ context: { locale: 'en' } }))).toBe('en')
   })
 
-  it('answers the default locale where the middleware does not run (/_nuxt, /_ipx, /assets)', () => {
+  it('answers the default locale where the middleware does not run (/_nuxt, /_ipx)', () => {
     expect(requestLocale(createTestEvent())).toBe(DEFAULT_LOCALE)
   })
 })

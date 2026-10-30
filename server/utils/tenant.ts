@@ -1,3 +1,4 @@
+import { isIP } from 'node:net'
 import { useStorage } from 'nitropack/runtime'
 import { useRuntimeConfig } from 'nuxt/server'
 
@@ -108,19 +109,16 @@ function rememberTenant(domain: string, config: TenantConfig) {
   tenantCache.set(domain, { config, expiry: now + TENANT_CACHE_TTL })
 }
 
-/**
- * Discriminated-union result so callers can distinguish:
- *  - { type: 'ok', config }        — resolved successfully
- *  - { type: 'not_found', config: null } — Django returned 404 (unknown domain)
- *  - { type: 'error_5xx', config: null } — Django returned 5xx (transient, do NOT cache)
- */
-type TenantResult
-  = | { type: 'ok', config: TenantConfig }
-    | { type: 'not_found', config: null }
-    | { type: 'error_5xx', config: null }
-
 export async function getTenantConfig(host: string): Promise<TenantResult> {
   const domain = tenantHostOf(host)
+  // A Host that is an IP address is never a store: a `TenantDomain` is a
+  // bare hostname, never an address. The kubelet's probes name the pod's
+  // own IP, so these arrive all day, and asking Django about each one was
+  // a 404 round trip (negatives are never cached) and a warning per probe.
+  // A bracketed IPv6 literal (`[::1]`) is unwrapped for the check.
+  if (isIP(domain.replace(/^\[(.*)\]$/, '$1')) !== 0) {
+    return { type: 'not_found', config: null }
+  }
   if (tenantCache.has(domain)) await syncEpoch(domain)
 
   const cached = tenantCache.get(domain)

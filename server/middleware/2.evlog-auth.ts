@@ -11,7 +11,7 @@ import { defineEventHandler } from 'nuxt/server'
  */
 export default defineEventHandler(async (event) => {
   const path = event.url.pathname
-  if (path.startsWith('/_nuxt') || path.startsWith('/_ipx') || path.startsWith('/assets')) return
+  if (path.startsWith('/_nuxt') || path.startsWith('/_ipx')) return
 
   const session = await readUserSession(event)
   if (session.user) {

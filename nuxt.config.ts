@@ -288,11 +288,6 @@ export default defineNuxtConfig({
         'Cache-Control': 'public, max-age=60, stale-while-revalidate=3600',
       },
     },
-    '/assets/**': {
-      headers: {
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      },
-    },
     '/**/*.{png,jpg,jpeg,gif,avif,webp,svg,ico}': {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',

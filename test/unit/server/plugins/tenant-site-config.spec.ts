@@ -82,6 +82,33 @@ describe('server/plugins/tenant-site-config', () => {
     expect(resolved.url).toBe('https://acme.example')
   })
 
+  it.each(['/api/_alive', '/_health', '/_nuxt/entry.js'])('asks for no store on the probe path %s, whatever its Host', async (url) => {
+    const { resolved } = await init({ url, host: '10.255.255.7' })
+
+    expect(getTenantConfig).not.toHaveBeenCalled()
+    expect(resolved.url).toBe('https://platform.test')
+  })
+
+  it.each(['/llms.txt', '/products/1/some-product.md'])('still gives %s on a store host that store\'s config', async (url) => {
+    vi.mocked(getTenantConfig).mockResolvedValue({ type: 'ok', config: ACME })
+
+    const { resolved } = await init({ url, host: 'acme.example' })
+
+    expect(getTenantConfig).toHaveBeenCalledWith('acme.example')
+    expect(resolved).toMatchObject({ url: 'https://acme.example', name: 'Acme Store' })
+  })
+
+  it('looks the store up once, however often the hook runs for a request', async () => {
+    vi.mocked(getTenantConfig).mockResolvedValue({ type: 'ok', config: ACME })
+    const event = createTestEvent({ host: 'acme.example' })
+
+    for (let i = 0; i < 3; i++) {
+      await nitroApp.hooks.callHook('site-config:init', { event, siteConfig: createSiteConfigStack() })
+    }
+
+    expect(getTenantConfig).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps the platform config for an unknown host, and a store without a primary domain', async () => {
     expect((await init({ host: 'unknown.test' })).resolved).toMatchObject({ url: 'https://platform.test', name: 'Platform' })
     expect((await init({ context: { tenant: { ...ACME, primaryDomain: '' } } })).resolved.url).toBe('https://platform.test')

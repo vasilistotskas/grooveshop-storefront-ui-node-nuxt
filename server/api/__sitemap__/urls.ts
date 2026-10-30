@@ -45,13 +45,7 @@ export default defineSitemapEventHandler(async (event) => {
   // when a real Host is present; any resolution failure (404/5xx/no host)
   // just falls back to platform-wide behavior below (the same behavior
   // this route already had before this fix).
-  let tenant = event.context.tenant
-  if (!tenant && host) {
-    const result = await getTenantConfig(host)
-    if (result.type === 'ok') {
-      tenant = result.config
-    }
-  }
+  const tenant = (await requestTenantResult(event)).config
 
   // Use the tenant's primary domain for public URLs so the sitemap reflects
   // the requesting tenant (not the single NUXT_PUBLIC_BASE_URL build-time value).
