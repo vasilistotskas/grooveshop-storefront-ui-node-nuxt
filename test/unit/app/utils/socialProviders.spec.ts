@@ -4,7 +4,7 @@ import { makeSocialProvider } from '~~/test/fixtures/allauth'
 
 describe('socialProviderIcon', () => {
   it.each([
-    ['google', 'i-mdi-google'],
+    ['google', 'i-brand-google'],
     ['facebook', 'i-mdi-facebook'],
     ['github', 'i-mdi-github'],
     ['discord', 'i-mdi-discord'],
