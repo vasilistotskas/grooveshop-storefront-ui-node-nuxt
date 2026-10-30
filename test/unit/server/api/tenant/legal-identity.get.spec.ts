@@ -17,6 +17,7 @@ const route = '/api/tenant/legal-identity'
 /** A `MerchantLegalIdentity` as Django serialises it (proved against the schema below). */
 const identity = {
   name: 'Webside IKE',
+  distinctiveTitle: '',
   legalForm: 'IKE',
   vatId: 'EL123456789',
   taxOffice: 'Thessaloniki A',

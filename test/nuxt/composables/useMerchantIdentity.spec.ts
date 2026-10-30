@@ -17,6 +17,7 @@ import { registerEndpoint } from '@nuxt/test-utils/runtime'
 
 const EMPTY = {
   name: '',
+  distinctiveTitle: '',
   legalForm: '',
   vatId: '',
   taxOffice: '',

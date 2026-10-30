@@ -36,6 +36,7 @@ mockNuxtImport('useNavigation', () => () => ({
 registerEndpoint('/api/tenant/legal-identity', () => {
   return {
     name: 'ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.',
+    distinctiveTitle: 'ΑΓΟΡΑ ΕΞΠΡΕΣΣ',
     legalForm: 'Ετερόρρυθμη Εταιρεία (Ε.Ε.)',
     vatId: '801234567',
     registrationNumber: '123456701000',
@@ -69,7 +70,9 @@ describe('webside Footer/Desktop seller identity', () => {
     const column = addresses[0]!.element.parentElement!
     expect(column.textContent).toContain('Σχετικά με το Webside')
     expect(column.textContent).not.toContain('Επικοινωνία')
+    // The legal name stays; the shop's trading name sits beside it.
     expect(addresses[0]!.text()).toContain('ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.')
+    expect(addresses[0]!.text()).toContain('ΑΓΟΡΑ ΕΞΠΡΕΣΣ')
   })
 
   it('keeps the identity in the bottom bar when no column is marked', async () => {
