@@ -1,3 +1,10 @@
+## [3.272.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.0...v3.272.1) (2026-10-30)
+
+
+### Performance Improvements
+
+* **storefront:** load hero chips and cart points in one request each ([#285](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/285)) ([4f5200a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4f5200af266357003010bb6a50f22c9cc73cae7d))
+
 # [3.272.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.271.3...v3.272.0) (2026-10-29)
 
 
