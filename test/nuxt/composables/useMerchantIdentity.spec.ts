@@ -106,6 +106,29 @@ describe('the legal form is not repeated', () => {
   })
 })
 
+describe('the legal form listed with an abbreviation is not repeated', () => {
+  const FORM = 'Ετερόρρυθμη Εταιρεία (Ε.Ε.)'
+
+  it('leaves a name that already ends in the abbreviation', async () => {
+    // The webside seller: the abbreviation sits inside the name twice,
+    // and the whole form used to be appended after it.
+    const name = 'ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε. (ΑΓΟΡΑ ΕΞΠΡΕΣΣ Ε.Ε.)'
+    const { legalName } = await load({ name, legalForm: FORM, city: 'Αθήνα' })
+    expect(legalName.value).toBe(name)
+  })
+
+  it('leaves a name that spells the whole form out', async () => {
+    const name = 'Acme Ετερόρρυθμη Εταιρεία (Ε.Ε.)'
+    const { legalName } = await load({ name, legalForm: FORM, city: 'Αθήνα' })
+    expect(legalName.value).toBe(name)
+  })
+
+  it('appends the form to a name without its abbreviation', async () => {
+    const { legalName } = await load({ name: 'Acme', legalForm: FORM, city: 'Αθήνα' })
+    expect(legalName.value).toBe(`Acme ${FORM}`)
+  })
+})
+
 describe('the registered seat reads as one line', () => {
   it('joins street, postcode, city and country', async () => {
     const { registeredSeat } = await load({

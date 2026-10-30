@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dedupeFooterContentPages } from '~~/shared/utils/footerLinks'
+import { dedupeFooterContentPages, indexOfColumnLinking } from '~~/shared/utils/footerLinks'
 import type { FooterLink, FooterLinkColumn } from '~~/shared/utils/footerLinks'
 
 /**
@@ -127,5 +127,27 @@ describe('dedupeFooterContentPages', () => {
     ])
 
     expect(kept.map(c => c.to)).toEqual(['/info/terms-of-use'])
+  })
+})
+
+describe('indexOfColumnLinking', () => {
+  const columns: FooterLinkColumn[] = [
+    legalColumn,
+    { label: 'Σχετικά με εμάς', children: [{ label: 'Σχετικά με το Webside', to: '/about' }] },
+  ]
+
+  it('finds the column whose links reach the route', () => {
+    expect(indexOfColumnLinking(columns, '/about')).toBe(1)
+  })
+
+  it('compares routes without their locale prefix, on either side', () => {
+    expect(indexOfColumnLinking(columns, '/en/about')).toBe(1)
+    expect(indexOfColumnLinking([
+      { label: 'About', children: [{ label: 'About', to: '/en/about' }] },
+    ], '/about')).toBe(0)
+  })
+
+  it('is -1 when no column links the route', () => {
+    expect(indexOfColumnLinking([legalColumn], '/about')).toBe(-1)
   })
 })

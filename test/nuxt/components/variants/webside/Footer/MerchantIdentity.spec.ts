@@ -1,0 +1,111 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport, mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import FooterDesktop from '~/components/variants/webside/Footer/Desktop.vue'
+import FooterMobile from '~/components/variants/webside/Footer/Mobile.vue'
+import { setTenant } from '~~/test/helpers/tenant'
+
+/**
+ * Webside's footers draw the seller identity (N. 4919/2022 art. 22 §4: legal
+ * form, name and seat "σε εμφανές σημείο") under the footer column whose
+ * links reach the About page, "Σχετικά με εμάς". A footer with no such column
+ * keeps the identity in its bottom bar, so it is on every page whichever way
+ * the store laid its footer out.
+ */
+interface NavColumn { label: string, children: Array<{ label: string, to: string }> }
+
+const ABOUT: NavColumn = {
+  label: 'Σχετικά με εμάς',
+  children: [{ label: 'Σχετικά με το Webside', to: '/about' }],
+}
+const HELP: NavColumn = {
+  label: 'Βοήθεια',
+  children: [{ label: 'Επικοινωνία', to: '/contact' }],
+}
+
+let configuredColumns: NavColumn[] | null = null
+
+mockNuxtImport('useNavigation', () => () => ({
+  headerItems: computed(() => null),
+  mobileLinks: computed(() => null),
+  footerColumns: computed(() => configuredColumns),
+}))
+
+registerEndpoint('/api/tenant/legal-identity', () => {
+  return {
+    name: 'ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.',
+    legalForm: 'Ετερόρρυθμη Εταιρεία (Ε.Ε.)',
+    vatId: '801234567',
+    registrationNumber: '123456701000',
+    addressLine1: 'Ερμού 1',
+    city: 'Αθήνα',
+  }
+})
+registerEndpoint('/api/content-pages', () => ({ count: 0, next: null, previous: null, results: [] }))
+
+async function mountFooter(C: typeof FooterDesktop | typeof FooterMobile) {
+  const wrapper = await mountSuspended(C, { route: false })
+  await vi.waitFor(() => expect(wrapper.find('address').exists()).toBe(true))
+  await flushPromises()
+  return wrapper
+}
+
+beforeEach(() => {
+  configuredColumns = null
+  setTenant()
+  clearNuxtData(['tenant-legal-identity', 'footer-content-pages'])
+})
+
+describe('webside Footer/Desktop seller identity', () => {
+  it('sits under the About column, not in the bottom bar', async () => {
+    configuredColumns = [HELP, ABOUT]
+
+    const wrapper = await mountFooter(FooterDesktop)
+
+    const addresses = wrapper.findAll('address')
+    expect(addresses).toHaveLength(1)
+    const column = addresses[0]!.element.parentElement!
+    expect(column.textContent).toContain('Σχετικά με το Webside')
+    expect(column.textContent).not.toContain('Επικοινωνία')
+    expect(addresses[0]!.text()).toContain('ΚΑΛΑΙΤΖΗ ΑΝΑΣΤΑΣΙΑ & ΣΙΑ Ε.Ε.')
+  })
+
+  it('keeps the identity in the bottom bar when no column links the About page', async () => {
+    configuredColumns = [HELP]
+
+    const wrapper = await mountFooter(FooterDesktop)
+
+    const addresses = wrapper.findAll('address')
+    expect(addresses).toHaveLength(1)
+    expect(addresses[0]!.element.parentElement!.textContent).not.toContain('Επικοινωνία')
+  })
+
+  it('does not repeat the legal form its name already carries', async () => {
+    configuredColumns = [ABOUT]
+
+    const wrapper = await mountFooter(FooterDesktop)
+
+    expect(wrapper.find('address').text()).not.toContain('Ετερόρρυθμη Εταιρεία')
+  })
+})
+
+describe('webside Footer/Mobile seller identity', () => {
+  it('sits in the About column of the accordion, once', async () => {
+    configuredColumns = [HELP, ABOUT]
+
+    const wrapper = await mountFooter(FooterMobile)
+
+    expect(wrapper.findAll('address')).toHaveLength(1)
+    const body = wrapper.find('address').element.closest('[data-slot="content"]')
+    expect(body?.textContent).toContain('Σχετικά με το Webside')
+  })
+
+  it('keeps the identity under the accordion when no column links the About page', async () => {
+    configuredColumns = [HELP]
+
+    const wrapper = await mountFooter(FooterMobile)
+
+    expect(wrapper.findAll('address')).toHaveLength(1)
+    expect(wrapper.find('address').element.closest('[data-slot="content"]')).toBeNull()
+  })
+})

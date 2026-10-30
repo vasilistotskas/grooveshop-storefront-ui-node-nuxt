@@ -92,5 +92,9 @@ export function useFooterLinks() {
     return children.length ? [...base, { ...pagesColumn, children }] : base
   })
 
-  return { columns }
+  // The column of the About page: where webside draws the seller identity
+  // (-1 when the footer has none, and the identity keeps the bottom bar).
+  const aboutColumnIndex = computed(() => indexOfColumnLinking(columns.value, localePath('about')))
+
+  return { columns, aboutColumnIndex }
 }

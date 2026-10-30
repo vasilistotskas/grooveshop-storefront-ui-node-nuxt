@@ -71,9 +71,13 @@ export function useMerchantIdentity() {
     if (!d) return ''
     const name = d.name?.trim() ?? ''
     const form = d.legalForm?.trim() ?? ''
-    // Merchants routinely type the form INTO the name ("Acme MON IKE").
+    // Merchants routinely type the form INTO the name ("Acme MON IKE", or
+    // "… Ε.Ε. (…)" for the form "Ετερόρρυθμη Εταιρεία (Ε.Ε.)"), either
+    // written out or as the abbreviation the form lists in parentheses.
     // Appending it again would read as a typo on their own company name.
-    if (!form || name.toLocaleUpperCase('el').includes(form.toLocaleUpperCase('el'))) {
+    const abbreviation = form.match(/\(([^)]+)\)\s*$/)?.[1]?.trim()
+    const carries = (text: string) => name.toLocaleUpperCase('el').includes(text.toLocaleUpperCase('el'))
+    if (!form || carries(form) || (abbreviation && carries(abbreviation))) {
       return name
     }
     return `${name} ${form}`

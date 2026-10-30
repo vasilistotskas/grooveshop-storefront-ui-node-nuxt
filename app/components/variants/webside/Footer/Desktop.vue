@@ -2,7 +2,7 @@
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useStoreI18n('components/variants/webside/Footer/Desktop')
-const { columns } = useFooterLinks()
+const { columns, aboutColumnIndex } = useFooterLinks()
 const { isModalActive } = useCookieControl()
 const tenantStore = useTenantStore()
 const runtimeConfig = useRuntimeConfig()
@@ -28,16 +28,55 @@ const openCookieModal = () => {
         <UFooterColumns
           :columns="columns"
           :ui="{ center: 'xl:col-span-3' }"
-        />
+        >
+          <!-- UFooterColumns draws only links under a column, so the columns
+               are drawn here, with its classes: the seller identity sits
+               under the column of the About page. -->
+          <div
+            v-for="(column, index) in columns"
+            :key="index"
+          >
+            <h3 class="text-sm font-semibold">
+              {{ column.label }}
+            </h3>
+            <ul class="mt-6 space-y-4">
+              <li
+                v-for="link in column.children"
+                :key="link.to"
+                class="relative"
+              >
+                <ULink
+                  :to="link.to"
+                  active-class="font-medium text-primary"
+                  inactive-class="text-muted transition-colors hover:text-default"
+                  class="
+                    group flex items-center gap-1.5 rounded-sm text-sm
+                    outline-primary/25
+                    focus-visible:outline-3
+                  "
+                >
+                  <span class="truncate">{{ link.label }}</span>
+                </ULink>
+              </li>
+            </ul>
+            <!-- Seller identity: N. 4919/2022 art. 22 §4 requires it "σε
+                 εμφανές σημείο"; the footer is on every page, which is also
+                 what makes it "permanently accessible" under ECD art. 5. -->
+            <WebsideMerchantIdentity
+              v-if="index === aboutColumnIndex"
+              class="mt-6"
+            />
+          </div>
+        </UFooterColumns>
       </UContainer>
     </template>
 
     <template #left>
       <div class="flex flex-col gap-1">
-        <!-- Seller identity: N. 4919/2022 art. 22 §4 requires it "σε
-             εμφανές σημείο"; the footer is on every page, which is also
-             what makes it "permanently accessible" under ECD art. 5. -->
-        <WebsideMerchantIdentity />
+        <!-- A footer with no About column keeps the seller identity here:
+             the law wants it on every page whichever way the footer is laid
+             out. -->
+        <WebsideMerchantIdentity v-if="aboutColumnIndex === -1" />
         <WebsideFooterHoursBadge />
         <div
           class="

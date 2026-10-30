@@ -279,29 +279,21 @@ exports[`webside design render > footer desktop 1`] = `
         <!--v-if-->
         <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
           <div>
-            <h3 data-slot="label" class="text-sm font-semibold">Όροι και Προϋποθέσεις</h3>
-            <ul data-slot="list" class="mt-6 space-y-4">
-              <li data-slot="item" class="relative"><a href="/terms-of-use" data-slot="link" class="group text-sm flex items-center gap-1.5 rounded-sm outline-primary/25 focus-visible:outline-3 text-muted hover:text-default transition-colors">
-                  <!--v-if--><span data-slot="linkLabel" class="truncate">Όροι Χρήσης<!--v-if--></span>
-                </a></li>
-              <li data-slot="item" class="relative"><a href="/privacy-policy" data-slot="link" class="group text-sm flex items-center gap-1.5 rounded-sm outline-primary/25 focus-visible:outline-3 text-muted hover:text-default transition-colors">
-                  <!--v-if--><span data-slot="linkLabel" class="truncate">Πολιτική Απορρήτου<!--v-if--></span>
-                </a></li>
-              <li data-slot="item" class="relative"><a href="/cookies-policy" data-slot="link" class="group text-sm flex items-center gap-1.5 rounded-sm outline-primary/25 focus-visible:outline-3 text-muted hover:text-default transition-colors">
-                  <!--v-if--><span data-slot="linkLabel" class="truncate">Πολιτική Cookies<!--v-if--></span>
-                </a></li>
+            <h3 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h3>
+            <ul class="mt-6 space-y-4">
+              <li class="relative"><a href="/terms-of-use" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Όροι Χρήσης</span></a></li>
+              <li class="relative"><a href="/privacy-policy" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Πολιτική Απορρήτου</span></a></li>
+              <li class="relative"><a href="/cookies-policy" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Πολιτική Cookies</span></a></li>
             </ul>
+            <!--v-if-->
           </div>
           <div>
-            <h3 data-slot="label" class="text-sm font-semibold">Κέντρο βοηθείας</h3>
-            <ul data-slot="list" class="mt-6 space-y-4">
-              <li data-slot="item" class="relative"><a href="/contact" data-slot="link" class="group text-sm flex items-center gap-1.5 rounded-sm outline-primary/25 focus-visible:outline-3 text-muted hover:text-default transition-colors">
-                  <!--v-if--><span data-slot="linkLabel" class="truncate">Επικοινωνία<!--v-if--></span>
-                </a></li>
-              <li data-slot="item" class="relative"><a href="/feedback" data-slot="link" class="group text-sm flex items-center gap-1.5 rounded-sm outline-primary/25 focus-visible:outline-3 text-muted hover:text-default transition-colors">
-                  <!--v-if--><span data-slot="linkLabel" class="truncate">Σχόλια &amp; Παρατηρήσεις<!--v-if--></span>
-                </a></li>
+            <h3 class="text-sm font-semibold">Κέντρο βοηθείας</h3>
+            <ul class="mt-6 space-y-4">
+              <li class="relative"><a href="/contact" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Επικοινωνία</span></a></li>
+              <li class="relative"><a href="/feedback" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Σχόλια &amp; Παρατηρήσεις</span></a></li>
             </ul>
+            <!--v-if-->
           </div>
         </div>
         <!--v-if-->
@@ -348,6 +340,7 @@ exports[`webside design render > footer mobile 1`] = `
               <!--v-if--><span data-slot="label" class="truncate">Πολιτική Cookies</span>
               <!--v-if-->
             </a></div>
+          <!--v-if-->
         </div>
       </div>
     </div>
@@ -363,6 +356,7 @@ exports[`webside design render > footer mobile 1`] = `
               <!--v-if--><span data-slot="label" class="truncate">Σχόλια &amp; Παρατηρήσεις</span>
               <!--v-if-->
             </a></div>
+          <!--v-if-->
         </div>
       </div>
     </div>
