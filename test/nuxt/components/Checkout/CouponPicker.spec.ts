@@ -7,7 +7,6 @@ import WebsideCouponPicker from '~/components/variants/webside/Checkout/CouponPi
 import type { CartCoupon, PublicPromotion } from '~~/shared/openapi/types.gen'
 import { makeCart } from '~~/test/fixtures/cart'
 import { trees } from '~~/test/helpers/trees'
-import { failWith } from '~~/test/helpers/api'
 import { setTenant } from '~~/test/helpers/tenant'
 
 /**
@@ -94,6 +93,8 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
     api.routes({
       '/api/cart/coupons': () => coupons,
       '/api/cart': () => makeCart(),
+      // Applying a code answers with the updated cart.
+      '/api/cart/coupon': () => makeCart(),
     })
   })
 
@@ -182,8 +183,9 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
   })
 
   describe('applying a coupon', () => {
-    it('applies it through Django, re-reads the cart and the verdicts, and reports it', async () => {
+    it('applies it through Django, takes the cart it answers with, re-reads the verdicts, and reports it', async () => {
       coupons = [coupon({ code: 'SAVE5', promotion: { name: '-5€ σε αγορές από 49€' } })]
+      api.routes({ '/api/cart/coupons': () => coupons, '/api/cart/coupon': () => makeCart({ appliedCouponCodes: ['SAVE5'] }) })
       const wrapper = await mount()
       await open(wrapper)
       const listedBefore = couponListCalls()
@@ -196,9 +198,7 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
       expect(api.callsTo('/api/cart/coupon')).toEqual([
         { url: '/api/cart/coupon', options: expect.objectContaining({ method: 'POST', body: { code: 'SAVE5' } }) },
       ])
-      expect(api.callsTo('/api/cart')).toEqual([
-        { url: '/api/cart', options: expect.objectContaining({ method: 'GET' }) },
-      ])
+      expect(api.callsTo('/api/cart')).toEqual([])
       expect(couponListCalls()).toBeGreaterThan(listedBefore)
       expect(wrapper.emitted('applied')).toEqual([['SAVE5']])
       expect(useToast().toasts.value).toEqual([
@@ -207,14 +207,11 @@ describe.each(trees(CouponPicker, WebsideCouponPicker))('$tree Checkout/CouponPi
       expect(modalButtons('Εφαρμογή')).toHaveLength(0)
     })
 
-    it('re-reads the verdicts itself even when re-reading the cart fails', async () => {
-      // With the cart unchanged nothing else would re-judge the list, and
-      // the applied coupon would still be offered as claimable.
+    it('re-reads the verdicts once, as the cart it answers with carries the code', async () => {
+      // The list re-judges itself when the cart's codes change, so the
+      // applied coupon is no longer offered as claimable, without a second read.
       coupons = [coupon({ code: 'SAVE5' })]
-      api.routes({
-        '/api/cart/coupons': () => coupons,
-        '/api/cart': failWith(502),
-      })
+      api.routes({ '/api/cart/coupons': () => coupons, '/api/cart/coupon': () => makeCart({ appliedCouponCodes: ['SAVE5'] }) })
       const wrapper = await mount()
       await open(wrapper)
       const listedBefore = couponListCalls()

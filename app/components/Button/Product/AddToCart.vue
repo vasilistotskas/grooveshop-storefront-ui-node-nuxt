@@ -58,12 +58,10 @@ const props = defineProps({
 // buying control renders (every add-to-cart button routes through here).
 const cartEnabled = useStoreFeature('cart')
 const cartStore = useCartStore()
-const { createCartItem, updateCartItem, getCartItemByProductId } = cartStore
-const { error } = storeToRefs(cartStore)
+const { getCartItemByProductId } = cartStore
 const { product, quantity, text } = toRefs(props)
 const { t, locale } = useStoreI18n('components/Button/Product/AddToCart')
 const toast = useToast()
-const { notify } = useApiError()
 const drawer = useCartDrawer()
 const img = useMediaStreamImage()
 
@@ -106,40 +104,13 @@ const visibleLabel = computed(() => {
   return props.label ?? text.value
 })
 
-const addToCartEvent = async () => {
-  const existingCartItem = getCartItemByProductId(productId.value)
-  let failed = false
-
-  try {
-    if (existingCartItem) {
-      await updateCartItem(existingCartItem.id, {
-        quantity: (existingCartItem.quantity || 0) + quantity.value,
-      })
-    }
-    else {
-      await createCartItem({
-        product: productId.value,
-        quantity: quantity.value,
-      })
-    }
-  }
-  catch {
-    failed = true
-  }
-
-  // A swallowed failure is worse than an error: the shopper clicks
-  // Buy, the cart badge does not move, and nothing at all says why.
-  // Measured on staging — an add that never reached the API produced
-  // no toast, no console error and no cart change. The store's own
-  // messages are surfaced above; this is the fallback for everything
-  // else, including a network that simply was not there.
-  if (failed) {
-    notify('cart:add', error.value, { title: t('toast.failed_title'), fallback: t('toast.failed_description') })
-    return
-  }
-
-  announceAdded()
-}
+const { addToCart } = useAddToCart({
+  t,
+  productId,
+  quantity,
+  name: productName,
+  onAdded: () => announceAdded(),
+})
 
 // Adds since the toast last opened, across every add-to-cart button.
 const addedWhileOpen = useState('cart-added-toast-count', () => 0)
@@ -157,6 +128,8 @@ const addedWhileOpen = useState('cart-added-toast-count', () => 0)
 function announceAdded() {
   const name = productName.value ?? ''
   if (drawer.desktop.value) {
+    // The drawer is the confirmation: the "Adding…" toast has done its part.
+    toast.remove(CART_ADD_TOAST_ID)
     drawer.show(name)
     return
   }
@@ -182,7 +155,7 @@ function announceAdded() {
       if (!open) addedWhileOpen.value = 0
     },
   }
-  showOrUpdateToast(toast, ADDED_TO_CART_TOAST_ID, content)
+  showOrUpdateToast(toast, CART_ADD_TOAST_ID, content)
 }
 </script>
 
@@ -202,7 +175,7 @@ function announceAdded() {
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
     :title="disabled ? t('unavailable') : text"
-    @click.prevent="addToCartEvent"
+    @click.prevent="addToCart"
   />
   <UButton
     v-else-if="cartEnabled"
@@ -216,7 +189,7 @@ function announceAdded() {
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
     :ui="{ base: block ? 'w-full place-content-center place-items-center' : '' }"
-    @click.prevent="addToCartEvent"
+    @click.prevent="addToCart"
   />
 </template>
 
@@ -224,6 +197,7 @@ function announceAdded() {
 el:
   unavailable: Μή Διαθέσιμο
   toast:
+    adding_title: Προσθήκη στο καλάθι…
     added_title: Προστέθηκε στο καλάθι
     added_many: Προστέθηκαν {count} προϊόντα στο καλάθι
     view: Προβολή
@@ -232,6 +206,7 @@ el:
 en:
   unavailable: Unavailable
   toast:
+    adding_title: Adding to cart…
     added_title: Added to cart
     added_many: '{count} items added to cart'
     view: View

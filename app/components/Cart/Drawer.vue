@@ -3,19 +3,20 @@
  * The cart drawer, as the boards draw it: a slideover on a desktop, a
  * bottom sheet on a phone (`useCartDrawer().desktop`). "Cart {n}", the
  * line just added when an add opened it, the free-delivery meter, the
- * lines as compact rows, a "finishing touch" from the cart's own
- * recommendations, and the subtotal after offers with "View cart" and
+ * lines as compact rows, a "finishing touch" the engine suggests for the
+ * basket, and the subtotal after offers with "View cart" and
  * "Checkout".
  *
  * Mounted by the redesign's header once it is first opened, so a page
  * nobody opens a cart on never loads it. The suggestions follow the cart
- * page's rule: the `productSuggestions` store feature.
+ * page's rule, the `productSuggestions` store feature, and are asked for
+ * only while the drawer is open.
  */
 const { t, n, locale } = useStoreI18n('components/Cart/Drawer')
 const localePath = useLocalePath()
 const { open, added, desktop, close } = useCartDrawer()
 const cartStore = useCartStore()
-const { cart, loaded, hasStockIssues } = storeToRefs(cartStore)
+const { cart, loaded, hasStockIssues, getCartProductIds } = storeToRefs(cartStore)
 const suggestionsEnabled = useStoreFeature('productSuggestions')
 
 const items = computed(() => cart.value?.items ?? [])
@@ -35,9 +36,22 @@ const appliedNote = computed(() => {
 })
 
 /** At most two suggestions: the drawer is a glance, the cart page has the strip. */
-const suggestions = computed(() => suggestionsEnabled.value
-  ? (cart.value?.recommendations ?? []).slice(0, 2)
-  : [])
+const SUGGESTION_LIMIT = 2
+const { data: suggested, onCardClick } = useProductSuggestions(reactive({
+  surface: 'cart' as const,
+  limit: SUGGESTION_LIMIT,
+  seedIds: getCartProductIds,
+  enabled: computed(() => open.value && suggestionsEnabled.value),
+}))
+const suggestions = computed(() => (suggested.value?.items ?? []).map(item => item.product))
+
+// Wholesale price hydration, as on every strip: the answer is cached and
+// anonymous, so a wholesale price is swapped in on the client.
+const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
+watch(suggestions, (products) => {
+  registerB2BPrice(products.map(product => product.id))
+}, { immediate: true })
+const priceOf = (product: Product) => shopperFinalPrice(product.finalPrice, b2bPriceFor(product.id))
 
 const nameOf = (product: Product) => extractTranslated(product, 'name', locale.value) ?? ''
 
@@ -152,9 +166,10 @@ const UDrawer = resolveComponent('UDrawer')
           </h3>
           <ul class="flex flex-col gap-3">
             <li
-              v-for="product in suggestions"
+              v-for="(product, index) in suggestions"
               :key="product.id"
               class="flex items-center gap-3"
+              @click.capture="onCardClick(index)"
             >
               <ImgWithFallback
                 :src="product.mainImagePath"
@@ -168,7 +183,7 @@ const UDrawer = resolveComponent('UDrawer')
               />
               <div class="flex min-w-0 flex-1 flex-col">
                 <span class="line-clamp-1 text-sm font-medium text-highlighted">{{ nameOf(product) }}</span>
-                <span class="font-mono text-sm font-bold text-highlighted">{{ n(product.finalPrice, 'currency') }}</span>
+                <span class="font-mono text-sm font-bold text-highlighted">{{ n(priceOf(product), 'currency') }}</span>
               </div>
               <ButtonProductAddToCart
                 :product="product"

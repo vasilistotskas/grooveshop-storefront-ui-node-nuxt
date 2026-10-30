@@ -16,16 +16,15 @@ const props = defineProps<{
   surface: SurfaceEnum
   /**
    * The product the shopper is looking at. Without one (and without
-   * ``items``) the strip asks for the surface's store-wide answer —
+   * ``seedIds``) the strip asks for the surface's store-wide answer —
    * the empty cart.
    */
   seedId?: number
   /**
-   * Already-computed suggestions — the cart payload carries its own,
-   * seeded with the whole basket, so the cart page passes them here
-   * instead of fetching a second time. No feedback events on this path.
+   * The basket the engine answers for — the cart page passes the cart's
+   * product ids. An empty list asks nothing.
    */
-  items?: readonly Product[]
+  seedIds?: readonly number[]
   /**
    * Override the slot's limit (capped at 12 by the API).
    */
@@ -43,12 +42,8 @@ const { t } = useStoreI18n('components/Product/Suggestions')
 
 const { data, onCardClick } = useProductSuggestions(props)
 
-const products = computed<readonly Product[]>(() => {
-  if (props.items !== undefined) {
-    return typeof props.limit === 'number' ? props.items.slice(0, props.limit) : props.items
-  }
-  return (data.value?.items ?? []).map(item => item.product)
-})
+const products = computed<readonly Product[]>(() =>
+  (data.value?.items ?? []).map(item => item.product))
 const hasItems = computed(() => products.value.length > 0)
 const title = computed(() => t(`title.${props.surface}`))
 const titleId = `product-suggestions-${props.surface}`

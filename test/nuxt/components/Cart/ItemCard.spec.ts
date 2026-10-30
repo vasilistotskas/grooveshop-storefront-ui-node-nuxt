@@ -19,7 +19,7 @@ import { setTenant } from '~~/test/helpers/tenant'
  * own suite below, unchanged.
  */
 const api = await vi.hoisted(async () => (await import('~~/test/helpers/api')).createApiMock())
-const toast = vi.hoisted(() => ({ add: vi.fn(), remove: vi.fn(), update: vi.fn(), clear: vi.fn() }))
+const toast = await vi.hoisted(async () => (await import('~~/test/helpers/toast')).createToastMock())
 
 mockNuxtImport('$api', () => api)
 mockNuxtImport('useToast', () => () => toast)
@@ -33,11 +33,26 @@ const LINE: CartItemOverrides = {
   product: { id: 3, slug: 'kafetiera', price: 40, discountPercent: 10, stock: 4 },
 }
 
-/** The first toast's Undo action, as the toaster would run it. */
+/** The removal's toast, as it shows now: "Removing…", then "Removed" with Undo, or the failure. */
+const removeToast = () => toast.shown('cart:remove')
+
+/** The removal toast's Undo action, as the toaster would run it. */
 async function clickUndo() {
-  const [options] = toast.add.mock.calls[0]!
-  await options.actions[0].onClick(new Event('click'))
+  const actions = removeToast()!.actions as Array<{ onClick: (event: Event) => Promise<void> }>
+  await actions[0]!.onClick(new Event('click'))
   await flushPromises()
+}
+
+/** A DELETE that answers when told to, to look at the toast while the request is out. */
+function holdDelete() {
+  const held = { land: () => {} }
+  api.routes({
+    '/api/cart': makeCart({ items: [] }),
+    '/api/cart/items/7': () => new Promise<void>((resolve) => {
+      held.land = resolve
+    }),
+  })
+  return held
 }
 
 describe('Cart/ItemCard (default)', () => {
@@ -48,6 +63,7 @@ describe('Cart/ItemCard (default)', () => {
     window.sessionStorage.clear()
     useCartStore().cart = makeCart({ items: [LINE] })
     api.routes({ '/api/cart': makeCart({ items: [] }) })
+    toast.toasts.value = []
   })
 
   const mount = (overrides: CartItemOverrides = LINE, compact = false) =>
@@ -101,18 +117,40 @@ describe('Cart/ItemCard (default)', () => {
     expect(api.callsTo('/api/cart/items/7')).toEqual([
       { url: '/api/cart/items/7', options: expect.objectContaining({ method: 'DELETE' }) },
     ])
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+    expect(removeToast()).toMatchObject({
       title: 'Αφαιρέθηκε από το καλάθι',
       description: 'Το «Προϊόν 3» αφαιρέθηκε.',
       duration: 8000,
+      progress: true,
+      ui: undefined,
       actions: [expect.objectContaining({ label: 'Αναίρεση' })],
-    }))
+    })
 
     await clickUndo()
 
     expect(api.callsTo('/api/cart/items')).toEqual([
       { url: '/api/cart/items', options: expect.objectContaining({ method: 'POST', body: { product: 3, quantity: 2 } }) },
     ])
+  })
+
+  it('says "Removing…" at once, before the request answers', async () => {
+    const held = holdDelete()
+    const wrapper = await mount()
+
+    await removeButton(wrapper).trigger('click')
+
+    expect(removeToast()).toMatchObject({
+      title: 'Αφαίρεση από το καλάθι…',
+      description: 'Προϊόν 3',
+      icon: useAppConfig().ui.icons.loading,
+      duration: 0,
+      progress: false,
+    })
+
+    held.land()
+    await flushPromises()
+
+    expect(removeToast()).toMatchObject({ title: 'Αφαιρέθηκε από το καλάθι', duration: 8000 })
   })
 
   it('reports a failed removal and offers no Undo', async () => {
@@ -122,7 +160,15 @@ describe('Cart/ItemCard (default)', () => {
     await removeButton(wrapper).trigger('click')
     await flushPromises()
 
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ title: 'Δεν αφαιρέθηκε από το καλάθι. Δοκίμασε ξανά.', color: 'error' }))
+    // The failure takes the "Removing…" toast's place, whole.
+    expect(toast.toasts.value).toHaveLength(1)
+    expect(removeToast()).toMatchObject({
+      title: 'Δεν αφαιρέθηκε από το καλάθι. Δοκίμασε ξανά.',
+      color: 'error',
+      icon: undefined,
+      progress: true,
+      ui: undefined,
+    })
   })
 })
 
@@ -136,6 +182,7 @@ describe('Cart/ItemCard (webside)', () => {
     window.sessionStorage.clear()
     useCartStore().cart = makeCart({ items: [LINE] })
     api.routes({ '/api/cart': makeCart({ items: [] }) })
+    toast.toasts.value = []
   })
 
   const mount = () => mountSuspended(C, { route: false, props: { cartItem: makeCartItem(LINE) } })
@@ -185,13 +232,34 @@ describe('Cart/ItemCard (webside)', () => {
     expect(api.callsTo('/api/cart/items/7')).toEqual([
       { url: '/api/cart/items/7', options: expect.objectContaining({ method: 'DELETE' }) },
     ])
-    expect(toast.add).toHaveBeenCalledTimes(1)
-    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
+    expect(removeToast()).toMatchObject({
       title: 'Αφαιρέθηκε από το καλάθι',
       description: 'Το προϊόν "Προϊόν 3" αφαιρέθηκε.',
       duration: 8000,
+      progress: true,
+      ui: undefined,
       actions: [expect.objectContaining({ label: 'Αναίρεση' })],
-    }))
+    })
+  })
+
+  it('says "Removing…" at once, before the request answers', async () => {
+    const held = holdDelete()
+    const wrapper = await mount()
+
+    await removeButton(wrapper).trigger('click')
+
+    expect(removeToast()).toMatchObject({
+      title: 'Αφαίρεση από το καλάθι…',
+      description: 'Προϊόν 3',
+      icon: useAppConfig().ui.icons.loading,
+      duration: 0,
+      progress: false,
+    })
+
+    held.land()
+    await flushPromises()
+
+    expect(removeToast()).toMatchObject({ title: 'Αφαιρέθηκε από το καλάθι', duration: 8000 })
   })
 
   it('puts the same product and quantity back on Undo', async () => {
@@ -214,7 +282,7 @@ describe('Cart/ItemCard (webside)', () => {
 
     await clickUndo()
 
-    expect(toast.add).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'Η αναίρεση απέτυχε', color: 'error' }))
+    expect(toast.shown('webside-ItemCard:2')).toMatchObject({ title: 'Η αναίρεση απέτυχε', color: 'error' })
   })
 
   it('reports a failed removal and offers no Undo', async () => {
@@ -224,11 +292,11 @@ describe('Cart/ItemCard (webside)', () => {
     await removeButton(wrapper).trigger('click')
     await flushPromises()
 
-    expect(toast.add).toHaveBeenCalledTimes(1)
-    expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({
+    expect(toast.toasts.value).toHaveLength(1)
+    expect(removeToast()).toMatchObject({
       title: 'Αποτυχία αφαίρεσης από το καλάθι',
       color: 'error',
-    }))
-    expect(toast.add.mock.calls[0]![0]).not.toHaveProperty('actions')
+      actions: undefined,
+    })
   })
 })

@@ -5,7 +5,8 @@
  * the action's headline, the server's reason, and behind «Λεπτομέρειες»
  * the stable code and the request id. The toast id is the action's, so a
  * repeated failure pulses the toast it already shows instead of stacking
- * (Nuxt UI 4.5+: `add` with an existing id merges).
+ * (Nuxt UI 4.5+: `add` with an existing id merges), and a failure under the
+ * id of a pending toast replaces it.
  *
  * Composables and stores use `describeApiError` directly with a toast of
  * their own; this is for setup scope.
@@ -37,6 +38,9 @@ export function useApiError() {
     const details = detailsOf(described)
     toast.add({
       id,
+      // A toast under this id may be showing something else (a spinner while
+      // the call ran); the failure takes its place whole.
+      ...TOAST_RESET,
       title: described.title,
       description: described.description,
       color: 'error',

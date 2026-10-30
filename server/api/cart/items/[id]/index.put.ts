@@ -21,7 +21,8 @@ export default defineEventHandler(async (event) => {
     )
     const parsedData = await parseDataAs(response, zUpdateCartItemResponse)
 
-    return parsedData
+    // The cart the change left behind (see `items/index.post.ts`).
+    return parsedData.cart
   }
   catch (error) {
     return handleError(event, error)
