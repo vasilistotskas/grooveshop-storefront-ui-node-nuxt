@@ -1,3 +1,10 @@
+# [3.274.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.273.0...v3.274.0) (2026-10-30)
+
+
+### Features
+
+* **cart:** instant cart feedback, purchase assurances, official Google sign-in and webside footer and newsletter ([#290](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/290)) ([69d782c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/69d782c03a35905b26f1d6103128b6645caf2687)), closes [#write-review](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/write-review) [#write-review](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/write-review)
+
 # [3.273.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.3...v3.273.0) (2026-10-30)
 
 
