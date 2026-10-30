@@ -1,3 +1,10 @@
+## [3.272.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.1...v3.272.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* **tenant:** resolve the store once per request and never for a probe ([#286](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/286)) ([02f58ba](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/02f58ba566a0f02a509d0b3f22d2c695a2565e61))
+
 ## [3.272.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.0...v3.272.1) (2026-10-30)
 
 
