@@ -1,3 +1,10 @@
+# [3.273.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.3...v3.273.0) (2026-10-30)
+
+
+### Features
+
+* **alerts:** confirm a guest's product alert from its email ([#288](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/288)) ([051e6bc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/051e6bc7571a9738d1d9da658e275a0f93f8f2ac))
+
 ## [3.272.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.272.2...v3.272.3) (2026-10-30)
 
 
