@@ -374,6 +374,35 @@ export const zBlogPost = z.object({
   contentPreview: z.string().readonly(),
 })
 
+/**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export const zBlogPostFeed = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+  category: z.int().readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
 export const zBlogPostLikedPostsRequestRequest = z.object({
   postIds: z.array(z.int()),
 })
@@ -1144,10 +1173,12 @@ export const zEmailPreferences = z.object({
   types: z.array(zEmailPreference).readonly(),
 })
 
+/**
+ * A plain error: ``detail`` and its stable ``code``.
+ */
 export const zErrorResponse = z.object({
   detail: z.string(),
   code: z.string().optional(),
-  error: z.string().optional(),
 })
 
 /**
@@ -2535,6 +2566,18 @@ export const zGiftCardPurchaseRequestRequest = z.object({
   message: z.string().max(2000).optional().default(''),
   deliverAt: z.iso.datetime({ offset: true }).nullish(),
   paymentProvider: zPaymentProviderEnum.optional(),
+})
+
+/**
+ * The plain 400 body of an order action that calls the payment provider.
+ *
+ * ``error`` is the provider call's own result (its keys vary by
+ * provider). The schema hook adds the validation-error variant.
+ */
+export const zPaymentProviderError = z.object({
+  detail: z.string(),
+  code: z.string(),
+  error: z.record(z.string(), z.unknown()),
 })
 
 /**
@@ -6714,35 +6757,6 @@ export const zPageSectionStatsStripProps = z.object({
 })
 
 /**
- * One item of the RSS feed.
- *
- * The feed needs every article's body, so it has its own shape and
- * its own endpoint rather than a request per post for the detail.
- */
-export const zBlogPostFeed = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
-  translations: z.object({
-    el: z.object({
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
-  }),
-  category: z.int().readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-})
-
-/**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
  * than a tool result should carry.
@@ -6926,6 +6940,27 @@ export const zBlogPostDetailWritable = z.object({
   }),
   featured: z.boolean().optional(),
   isPublished: z.boolean().optional(),
+})
+
+/**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export const zBlogPostFeedWritable = z.object({
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
 })
 
 /**
@@ -8491,27 +8526,6 @@ export const zPageSectionVisionContentPropsWritable = z.record(z.string(), z.nev
 export const zPageSectionWhatIsMicrolearningPropsWritable = z.record(z.string(), z.never())
 
 export const zPageSectionWhyMicrolearningPropsWritable = z.record(z.string(), z.never())
-
-/**
- * One item of the RSS feed.
- *
- * The feed needs every article's body, so it has its own shape and
- * its own endpoint rather than a request per post for the detail.
- */
-export const zBlogPostFeedWritable = z.object({
-  translations: z.object({
-    el: z.object({
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      title: z.string().optional(),
-      subtitle: z.string().optional(),
-      body: z.string().optional(),
-    }).optional(),
-  }),
-})
 
 export const zGetAgentProfileResponse = zAgentProfile
 
@@ -10395,15 +10409,6 @@ export const zCreateBlogPostQuery = z.object({
 
 export const zCreateBlogPostResponse = zBlogPostDetail
 
-export const zListBlogPostFeedQuery = z.object({
-  count: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-})
-
-export const zListBlogPostFeedResponse = z.array(zBlogPostFeed)
-
 export const zDestroyBlogPostPath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10724,6 +10729,15 @@ export const zListFeaturedBlogPostsQuery = z.object({
 })
 
 export const zListFeaturedBlogPostsResponse = zPaginatedBlogPostList
+
+export const zListBlogPostFeedQuery = z.object({
+  count: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+})
+
+export const zListBlogPostFeedResponse = z.array(zBlogPostFeed)
 
 export const zCheckBlogPostLikesBody = zBlogPostLikedPostsRequestRequest
 

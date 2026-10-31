@@ -1125,6 +1125,47 @@ export type BlogPostDetail = {
   readonly userHasLiked: boolean
 }
 
+/**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export type BlogPostFeed = {
+  readonly id: number
+  readonly uuid: string
+  readonly slug: string
+  translations: {
+    el?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+  }
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
+  readonly mainImagePath: string
+  /**
+     * Δημοσιεύθηκε στις
+     */
+  readonly publishedAt: string | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+}
+
 export type BlogPostLikedPostsRequestRequest = {
   /**
      * Λίστα ID άρθρων για έλεγχο επισημάνσεων
@@ -3093,13 +3134,15 @@ export type EmailPreferences = {
   readonly types: Array<EmailPreference>
 }
 
+/**
+ * A plain error: ``detail`` and its stable ``code``.
+ */
 export type ErrorResponse = {
   detail: string
   /**
      * Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος.
      */
   code?: string
-  error?: string
 }
 
 /**
@@ -6540,6 +6583,26 @@ export type PaymentModeEnum = 'prepaid' | 'cod'
  * * `viva_wallet` - viva_wallet
  */
 export type PaymentProviderEnum = 'stripe' | 'viva_wallet'
+
+/**
+ * The plain 400 body of an order action that calls the payment provider.
+ *
+ * ``error`` is the provider call's own result (its keys vary by
+ * provider). The schema hook adds the validation-error variant.
+ */
+export type PaymentProviderError = {
+  detail: string
+  /**
+     * Σταθερός κωδικός σφάλματος: ``payment_intent_failed`` ή ``checkout_session_failed``.
+     */
+  code: string
+  /**
+     * Το αποτέλεσμα του παρόχου πληρωμών για την αποτυχημένη κλήση.
+     */
+  error: {
+    [key: string]: unknown
+  }
+}
 
 /**
  * * `PENDING` - Εκκρεμεί
@@ -10513,47 +10576,6 @@ export type PageSectionStatsStripProps = {
 }
 
 /**
- * One item of the RSS feed.
- *
- * The feed needs every article's body, so it has its own shape and
- * its own endpoint rather than a request per post for the detail.
- */
-export type BlogPostFeed = {
-  readonly id: number
-  readonly uuid: string
-  readonly slug: string
-  translations: {
-    el?: {
-      title?: string
-      subtitle?: string
-      body?: string
-    }
-    en?: {
-      title?: string
-      subtitle?: string
-      body?: string
-    }
-  }
-  /**
-     * Κατηγορία
-     */
-  readonly category: number | null
-  readonly mainImagePath: string
-  /**
-     * Δημοσιεύθηκε στις
-     */
-  readonly publishedAt: string | null
-  /**
-     * Δημιουργήθηκε στις
-     */
-  readonly createdAt: string
-  /**
-     * Ενημερώθηκε στις
-     */
-  readonly updatedAt: string
-}
-
-/**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
  * than a tool result should carry.
@@ -10781,6 +10803,27 @@ export type BlogPostDetailWritable = {
      * Δημοσιευμένο
      */
   isPublished?: boolean
+}
+
+/**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export type BlogPostFeedWritable = {
+  translations: {
+    el?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+  }
 }
 
 /**
@@ -13118,27 +13161,6 @@ export type PageSectionWhyMicrolearningPropsWritable = {
   [key: string]: never
 }
 
-/**
- * One item of the RSS feed.
- *
- * The feed needs every article's body, so it has its own shape and
- * its own endpoint rather than a request per post for the detail.
- */
-export type BlogPostFeedWritable = {
-  translations: {
-    el?: {
-      title?: string
-      subtitle?: string
-      body?: string
-    }
-    en?: {
-      title?: string
-      subtitle?: string
-      body?: string
-    }
-  }
-}
-
 export type GetAgentProfileData = {
   body?: never
   path?: never
@@ -13208,7 +13230,7 @@ export type GetB2bPricesData = {
 }
 
 export type GetB2bPricesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -13231,7 +13253,7 @@ export type GetB2bProfileData = {
 }
 
 export type GetB2bProfileErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: B2bErrorResponse
@@ -13400,7 +13422,7 @@ export type ListBlogAuthorData = {
 }
 
 export type ListBlogAuthorErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -13428,7 +13450,7 @@ export type CreateBlogAuthorData = {
 }
 
 export type CreateBlogAuthorErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -13513,7 +13535,7 @@ export type PartialUpdateBlogAuthorData = {
 }
 
 export type PartialUpdateBlogAuthorErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -13543,7 +13565,7 @@ export type UpdateBlogAuthorData = {
 }
 
 export type UpdateBlogAuthorErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -13708,7 +13730,7 @@ export type GetBlogAuthorPostsData = {
 }
 
 export type GetBlogAuthorPostsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -13891,7 +13913,7 @@ export type ListBlogCategoryData = {
 }
 
 export type ListBlogCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -13919,7 +13941,7 @@ export type CreateBlogCategoryData = {
 }
 
 export type CreateBlogCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14004,7 +14026,7 @@ export type PartialUpdateBlogCategoryData = {
 }
 
 export type PartialUpdateBlogCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14034,7 +14056,7 @@ export type UpdateBlogCategoryData = {
 }
 
 export type UpdateBlogCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14088,7 +14110,7 @@ export type ListBlogCategoryAncestorsData = {
 }
 
 export type ListBlogCategoryAncestorsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14142,7 +14164,7 @@ export type ListBlogCategoryChildrenData = {
 }
 
 export type ListBlogCategoryChildrenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14196,7 +14218,7 @@ export type ListBlogCategoryDescendantsData = {
 }
 
 export type ListBlogCategoryDescendantsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14349,7 +14371,7 @@ export type ListBlogCategoryPostsData = {
 }
 
 export type ListBlogCategoryPostsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14403,7 +14425,7 @@ export type ListBlogCategorySiblingsData = {
 }
 
 export type ListBlogCategorySiblingsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14426,7 +14448,7 @@ export type ReorderBlogCategoriesData = {
 }
 
 export type ReorderBlogCategoriesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14478,7 +14500,7 @@ export type GetBlogCategoryTreeData = {
 }
 
 export type GetBlogCategoryTreeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14713,7 +14735,7 @@ export type ListBlogCommentData = {
 }
 
 export type ListBlogCommentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14741,7 +14763,7 @@ export type CreateBlogCommentData = {
 }
 
 export type CreateBlogCommentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14826,7 +14848,7 @@ export type PartialUpdateBlogCommentData = {
 }
 
 export type PartialUpdateBlogCommentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14856,7 +14878,7 @@ export type UpdateBlogCommentData = {
 }
 
 export type UpdateBlogCommentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -14881,7 +14903,7 @@ export type GetBlogCommentPostData = {
 }
 
 export type GetBlogCommentPostErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15114,7 +15136,7 @@ export type ListBlogCommentRepliesData = {
 }
 
 export type ListBlogCommentRepliesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15347,7 +15369,7 @@ export type GetBlogCommentThreadData = {
 }
 
 export type GetBlogCommentThreadErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15372,7 +15394,7 @@ export type ToggleBlogCommentLikeData = {
 }
 
 export type ToggleBlogCommentLikeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15395,7 +15417,7 @@ export type CheckBlogCommentLikesData = {
 }
 
 export type CheckBlogCommentLikesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15626,7 +15648,7 @@ export type ListMyBlogCommentsData = {
 }
 
 export type ListMyBlogCommentsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15789,7 +15811,7 @@ export type ListBlogPostData = {
 }
 
 export type ListBlogPostErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15817,7 +15839,7 @@ export type CreateBlogPostData = {
 }
 
 export type CreateBlogPostErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15831,34 +15853,6 @@ export type CreateBlogPostResponses = {
 }
 
 export type CreateBlogPostResponse = CreateBlogPostResponses[keyof CreateBlogPostResponses]
-
-export type ListBlogPostFeedData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-         * Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή).
-         */
-    count?: string | number
-  }
-  url: '/api/v1/blog/post/feed'
-}
-
-export type ListBlogPostFeedErrors = {
-  400: ErrorResponse
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type ListBlogPostFeedError = ListBlogPostFeedErrors[keyof ListBlogPostFeedErrors]
-
-export type ListBlogPostFeedResponses = {
-  200: Array<BlogPostFeed>
-}
-
-export type ListBlogPostFeedResponse = ListBlogPostFeedResponses[keyof ListBlogPostFeedResponses]
 
 export type DestroyBlogPostData = {
   body?: never
@@ -15930,7 +15924,7 @@ export type PartialUpdateBlogPostData = {
 }
 
 export type PartialUpdateBlogPostErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -15960,7 +15954,7 @@ export type UpdateBlogPostData = {
 }
 
 export type UpdateBlogPostErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16006,7 +16000,7 @@ export type ListBlogPostCommentsData = {
 }
 
 export type ListBlogPostCommentsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16146,7 +16140,7 @@ export type ListBlogPostRelatedData = {
 }
 
 export type ListBlogPostRelatedErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16171,7 +16165,7 @@ export type ToggleBlogPostLikeData = {
 }
 
 export type ToggleBlogPostLikeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16196,7 +16190,7 @@ export type IncrementBlogPostViewsData = {
 }
 
 export type IncrementBlogPostViewsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16355,7 +16349,7 @@ export type ListFeaturedBlogPostsData = {
 }
 
 export type ListFeaturedBlogPostsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16370,6 +16364,34 @@ export type ListFeaturedBlogPostsResponses = {
 
 export type ListFeaturedBlogPostsResponse = ListFeaturedBlogPostsResponses[keyof ListFeaturedBlogPostsResponses]
 
+export type ListBlogPostFeedData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή).
+         */
+    count?: string | number
+  }
+  url: '/api/v1/blog/post/feed'
+}
+
+export type ListBlogPostFeedErrors = {
+  400: ApiValidationError | ApiError
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListBlogPostFeedError = ListBlogPostFeedErrors[keyof ListBlogPostFeedErrors]
+
+export type ListBlogPostFeedResponses = {
+  200: Array<BlogPostFeed>
+}
+
+export type ListBlogPostFeedResponse = ListBlogPostFeedResponses[keyof ListBlogPostFeedResponses]
+
 export type CheckBlogPostLikesData = {
   body: BlogPostLikedPostsRequestRequest
   path?: never
@@ -16378,7 +16400,7 @@ export type CheckBlogPostLikesData = {
 }
 
 export type CheckBlogPostLikesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16537,7 +16559,7 @@ export type ListPopularBlogPostsData = {
 }
 
 export type ListPopularBlogPostsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16684,7 +16706,7 @@ export type ListTrendingBlogPostsData = {
 }
 
 export type ListTrendingBlogPostsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16848,7 +16870,7 @@ export type ListBlogTagData = {
 }
 
 export type ListBlogTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16876,7 +16898,7 @@ export type CreateBlogTagData = {
 }
 
 export type CreateBlogTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16961,7 +16983,7 @@ export type PartialUpdateBlogTagData = {
 }
 
 export type PartialUpdateBlogTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -16991,7 +17013,7 @@ export type UpdateBlogTagData = {
 }
 
 export type UpdateBlogTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17073,7 +17095,7 @@ export type PartialUpdateCartData = {
 }
 
 export type PartialUpdateCartErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17102,7 +17124,7 @@ export type UpdateCartData = {
 }
 
 export type UpdateCartErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17125,7 +17147,7 @@ export type CreateCartAgentTokenData = {
 }
 
 export type CreateCartAgentTokenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17158,7 +17180,7 @@ export type RemoveCartCouponData = {
 }
 
 export type RemoveCartCouponErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17224,7 +17246,7 @@ export type ListCartCouponsData = {
 }
 
 export type ListCartCouponsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17253,7 +17275,7 @@ export type CreateCartPaymentIntentData = {
 }
 
 export type CreateCartPaymentIntentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17444,7 +17466,7 @@ export type ListCartItemData = {
 }
 
 export type ListCartItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17477,7 +17499,7 @@ export type CreateCartItemData = {
 }
 
 export type CreateCartItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17583,7 +17605,7 @@ export type PartialUpdateCartItemData = {
 }
 
 export type PartialUpdateCartItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17618,7 +17640,7 @@ export type UpdateCartItemData = {
 }
 
 export type UpdateCartItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17802,7 +17824,7 @@ export type ListCartData = {
 }
 
 export type ListCartErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17831,7 +17853,7 @@ export type ReleaseCartReservationsData = {
 }
 
 export type ReleaseCartReservationsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17860,7 +17882,7 @@ export type ReserveCartStockData = {
 }
 
 export type ReserveCartStockErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17883,7 +17905,7 @@ export type CreateContactData = {
 }
 
 export type CreateContactErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type CreateContactError = CreateContactErrors[keyof CreateContactErrors]
@@ -17904,7 +17926,7 @@ export type CreateContactAttachmentData = {
 }
 
 export type CreateContactAttachmentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   404: ErrorResponse
   413: ErrorResponse
   503: ErrorResponse
@@ -17959,7 +17981,7 @@ export type ListContentPageData = {
 }
 
 export type ListContentPageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -17987,7 +18009,7 @@ export type CreateContentPageData = {
 }
 
 export type CreateContentPageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18072,7 +18094,7 @@ export type PartialUpdateContentPageData = {
 }
 
 export type PartialUpdateContentPageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18102,7 +18124,7 @@ export type UpdateContentPageData = {
 }
 
 export type UpdateContentPageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18316,7 +18338,7 @@ export type ListCountryData = {
 }
 
 export type ListCountryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18344,7 +18366,7 @@ export type CreateCountryData = {
 }
 
 export type CreateCountryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18444,7 +18466,7 @@ export type PartialUpdateCountryData = {
 }
 
 export type PartialUpdateCountryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18479,7 +18501,7 @@ export type UpdateCountryData = {
 }
 
 export type UpdateCountryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18504,7 +18526,7 @@ export type UnsubscribeFromEmailOneClickData = {
 }
 
 export type UnsubscribeFromEmailOneClickErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type UnsubscribeFromEmailOneClickError = UnsubscribeFromEmailOneClickErrors[keyof UnsubscribeFromEmailOneClickErrors]
@@ -18524,7 +18546,7 @@ export type CreateFeedbackData = {
 }
 
 export type CreateFeedbackErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type CreateFeedbackError = CreateFeedbackErrors[keyof CreateFeedbackErrors]
@@ -18595,7 +18617,7 @@ export type ListMyGiftCardsData = {
 }
 
 export type ListMyGiftCardsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18641,7 +18663,7 @@ export type GetGiftCardPurchaseStatusData = {
 }
 
 export type GetGiftCardPurchaseStatusErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18679,7 +18701,7 @@ export type GetProductLoyaltyPointsData = {
 }
 
 export type GetProductLoyaltyPointsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18711,7 +18733,7 @@ export type GetProductsLoyaltyPointsData = {
 }
 
 export type GetProductsLoyaltyPointsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18734,7 +18756,7 @@ export type RedeemLoyaltyPointsData = {
 }
 
 export type RedeemLoyaltyPointsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18757,7 +18779,7 @@ export type GetLoyaltySummaryData = {
 }
 
 export type GetLoyaltySummaryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18785,7 +18807,7 @@ export type ListLoyaltyTiersData = {
 }
 
 export type ListLoyaltyTiersErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -18837,7 +18859,7 @@ export type ListLoyaltyTransactionsData = {
 }
 
 export type ListLoyaltyTransactionsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19057,7 +19079,7 @@ export type ListNotificationUserData = {
 }
 
 export type ListNotificationUserErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19142,7 +19164,7 @@ export type PartialUpdateNotificationUserData = {
 }
 
 export type PartialUpdateNotificationUserErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19172,7 +19194,7 @@ export type UpdateNotificationUserData = {
 }
 
 export type UpdateNotificationUserErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19195,7 +19217,7 @@ export type MarkAllNotificationUsersAsSeenData = {
 }
 
 export type MarkAllNotificationUsersAsSeenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19218,7 +19240,7 @@ export type MarkAllNotificationUsersAsUnseenData = {
 }
 
 export type MarkAllNotificationUsersAsUnseenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19241,7 +19263,7 @@ export type MarkNotificationUsersAsSeenData = {
 }
 
 export type MarkNotificationUsersAsSeenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19264,7 +19286,7 @@ export type MarkNotificationUsersAsUnseenData = {
 }
 
 export type MarkNotificationUsersAsUnseenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19287,7 +19309,7 @@ export type GetNotificationUserUnseenCountData = {
 }
 
 export type GetNotificationUserUnseenCountErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19646,7 +19668,7 @@ export type ListOrderData = {
 }
 
 export type ListOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19951,7 +19973,7 @@ export type ListOrderItemData = {
 }
 
 export type ListOrderItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -19979,7 +20001,7 @@ export type CreateOrderItemData = {
 }
 
 export type CreateOrderItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20064,7 +20086,7 @@ export type PartialUpdateOrderItemData = {
 }
 
 export type PartialUpdateOrderItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20094,7 +20116,7 @@ export type UpdateOrderItemData = {
 }
 
 export type UpdateOrderItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20119,7 +20141,7 @@ export type RestockOrderItemData = {
 }
 
 export type RestockOrderItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20204,7 +20226,7 @@ export type PartialUpdateOrderData = {
 }
 
 export type PartialUpdateOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20234,7 +20256,7 @@ export type UpdateOrderData = {
 }
 
 export type UpdateOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20259,7 +20281,7 @@ export type CancelAcsShipmentForOrderData = {
 }
 
 export type CancelAcsShipmentForOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20278,7 +20300,7 @@ export type GetAcsLabelForOrderData = {
 }
 
 export type GetAcsLabelForOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20303,7 +20325,7 @@ export type AddOrderTrackingData = {
 }
 
 export type AddOrderTrackingErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20328,7 +20350,7 @@ export type CancelBoxNowShipmentForOrderData = {
 }
 
 export type CancelBoxNowShipmentForOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20347,7 +20369,7 @@ export type GetBoxNowLabelForOrderData = {
 }
 
 export type GetBoxNowLabelForOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20408,7 +20430,7 @@ export type ConfirmAgentPaymentForOrderData = {
 }
 
 export type ConfirmAgentPaymentForOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20438,7 +20460,7 @@ export type CreateOrderCheckoutSessionData = {
 }
 
 export type CreateOrderCheckoutSessionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20468,7 +20490,7 @@ export type CreateOrderPaymentIntentData = {
 }
 
 export type CreateOrderPaymentIntentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20499,7 +20521,7 @@ export type RetrieveOrderInvoiceData = {
 }
 
 export type RetrieveOrderInvoiceErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20529,7 +20551,7 @@ export type DownloadOrderInvoiceData = {
 }
 
 export type DownloadOrderInvoiceErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   /**
@@ -20562,7 +20584,7 @@ export type GetOrderPaymentStatusData = {
 }
 
 export type GetOrderPaymentStatusErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20587,7 +20609,7 @@ export type ReorderOrderData = {
 }
 
 export type ReorderOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20617,7 +20639,7 @@ export type RetryOrderPaymentData = {
 }
 
 export type RetryOrderPaymentErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20643,7 +20665,7 @@ export type CancelShipmentForOrderData = {
 }
 
 export type CancelShipmentForOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20668,7 +20690,7 @@ export type GetShipmentLabelForOrderData = {
 }
 
 export type GetShipmentLabelForOrderErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20698,7 +20720,7 @@ export type DownloadOrderSpecimenReceiptData = {
 }
 
 export type DownloadOrderSpecimenReceiptErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   /**
      * Δεν είστε ο ιδιοκτήτης της παραγγελίας και δεν δόθηκε το UUID της.
@@ -20729,7 +20751,7 @@ export type UpdateOrderStatusData = {
 }
 
 export type UpdateOrderStatusErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21088,7 +21110,7 @@ export type ListMyOrdersData = {
 }
 
 export type ListMyOrdersErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21113,7 +21135,7 @@ export type RetrieveOrderByUuidData = {
 }
 
 export type RetrieveOrderByUuidErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21649,7 +21671,7 @@ export type ListPayWayData = {
 }
 
 export type ListPayWayErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21677,7 +21699,7 @@ export type CreatePayWayData = {
 }
 
 export type CreatePayWayErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21762,7 +21784,7 @@ export type PartialUpdatePayWayData = {
 }
 
 export type PartialUpdatePayWayErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -21792,7 +21814,7 @@ export type UpdatePayWayData = {
 }
 
 export type UpdatePayWayErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22029,7 +22051,7 @@ export type ListProductData = {
 }
 
 export type ListProductErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22057,7 +22079,7 @@ export type CreateProductData = {
 }
 
 export type CreateProductErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22142,7 +22164,7 @@ export type PartialUpdateProductData = {
 }
 
 export type PartialUpdateProductErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22172,7 +22194,7 @@ export type UpdateProductData = {
 }
 
 export type UpdateProductErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22209,7 +22231,7 @@ export type ListProductImagesData = {
 }
 
 export type ListProductImagesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22237,7 +22259,7 @@ export type ListProductPriceHistoryData = {
 }
 
 export type ListProductPriceHistoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22290,7 +22312,7 @@ export type ListProductReviewsData = {
 }
 
 export type ListProductReviewsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22323,7 +22345,7 @@ export type ListProductTagsData = {
 }
 
 export type ListProductTagsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22348,7 +22370,7 @@ export type IncrementProductViewsData = {
 }
 
 export type IncrementProductViewsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22381,7 +22403,7 @@ export type ListProductVariantsData = {
 }
 
 export type ListProductVariantsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22446,7 +22468,7 @@ export type ListProductAlertData = {
 }
 
 export type ListProductAlertErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22474,7 +22496,7 @@ export type CreateProductAlertData = {
 }
 
 export type CreateProductAlertErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22548,7 +22570,7 @@ export type ConfirmProductAlertByTokenData = {
 }
 
 export type ConfirmProductAlertByTokenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   410: ErrorResponse
 }
 
@@ -22647,7 +22669,7 @@ export type ListAttributeData = {
 }
 
 export type ListAttributeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22675,7 +22697,7 @@ export type CreateAttributeData = {
 }
 
 export type CreateAttributeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22760,7 +22782,7 @@ export type PartialUpdateAttributeData = {
 }
 
 export type PartialUpdateAttributeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22790,7 +22812,7 @@ export type UpdateAttributeData = {
 }
 
 export type UpdateAttributeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22896,7 +22918,7 @@ export type ListAttributeValueData = {
 }
 
 export type ListAttributeValueErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -22924,7 +22946,7 @@ export type CreateAttributeValueData = {
 }
 
 export type CreateAttributeValueErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23009,7 +23031,7 @@ export type PartialUpdateAttributeValueData = {
 }
 
 export type PartialUpdateAttributeValueErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23039,7 +23061,7 @@ export type UpdateAttributeValueData = {
 }
 
 export type UpdateAttributeValueErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23095,7 +23117,7 @@ export type ListBrandData = {
 }
 
 export type ListBrandErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23147,7 +23169,7 @@ export type ListAllBrandData = {
 }
 
 export type ListAllBrandErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23307,7 +23329,7 @@ export type ListProductCategoryData = {
 }
 
 export type ListProductCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23335,7 +23357,7 @@ export type CreateProductCategoryData = {
 }
 
 export type CreateProductCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23420,7 +23442,7 @@ export type PartialUpdateProductCategoryData = {
 }
 
 export type PartialUpdateProductCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23450,7 +23472,7 @@ export type UpdateProductCategoryData = {
 }
 
 export type UpdateProductCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23473,7 +23495,7 @@ export type ListAllProductCategoryData = {
 }
 
 export type ListAllProductCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23547,7 +23569,7 @@ export type ListProductCategoryImageData = {
 }
 
 export type ListProductCategoryImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23575,7 +23597,7 @@ export type CreateProductCategoryImageData = {
 }
 
 export type CreateProductCategoryImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23660,7 +23682,7 @@ export type PartialUpdateProductCategoryImageData = {
 }
 
 export type PartialUpdateProductCategoryImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23690,7 +23712,7 @@ export type UpdateProductCategoryImageData = {
 }
 
 export type UpdateProductCategoryImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23713,7 +23735,7 @@ export type BulkUpdateProductCategoryImagesData = {
 }
 
 export type BulkUpdateProductCategoryImagesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23763,7 +23785,7 @@ export type GetProductCategoryImagesByCategoryData = {
 }
 
 export type GetProductCategoryImagesByCategoryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23813,7 +23835,7 @@ export type GetProductCategoryImagesByTypeData = {
 }
 
 export type GetProductCategoryImagesByTypeErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23903,7 +23925,7 @@ export type ListProductFavouriteData = {
 }
 
 export type ListProductFavouriteErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -23931,7 +23953,7 @@ export type CreateProductFavouriteData = {
 }
 
 export type CreateProductFavouriteErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24016,7 +24038,7 @@ export type PartialUpdateProductFavouriteData = {
 }
 
 export type PartialUpdateProductFavouriteErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24046,7 +24068,7 @@ export type UpdateProductFavouriteData = {
 }
 
 export type UpdateProductFavouriteErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24071,7 +24093,7 @@ export type GetProductFavouriteProductData = {
 }
 
 export type GetProductFavouriteProductErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24133,7 +24155,7 @@ export type GetProductFavouritesByProductsData = {
 }
 
 export type GetProductFavouritesByProductsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24370,7 +24392,7 @@ export type ListProductFeedData = {
 }
 
 export type ListProductFeedErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24432,7 +24454,7 @@ export type ListProductImageData = {
 }
 
 export type ListProductImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24460,7 +24482,7 @@ export type CreateProductImageData = {
 }
 
 export type CreateProductImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24545,7 +24567,7 @@ export type PartialUpdateProductImageData = {
 }
 
 export type PartialUpdateProductImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24575,7 +24597,7 @@ export type UpdateProductImageData = {
 }
 
 export type UpdateProductImageErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24795,7 +24817,7 @@ export type ListProductReviewData = {
 }
 
 export type ListProductReviewErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24823,7 +24845,7 @@ export type CreateProductReviewData = {
 }
 
 export type CreateProductReviewErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24908,7 +24930,7 @@ export type PartialUpdateProductReviewData = {
 }
 
 export type PartialUpdateProductReviewErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24938,7 +24960,7 @@ export type UpdateProductReviewData = {
 }
 
 export type UpdateProductReviewErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24963,7 +24985,7 @@ export type GetProductReviewProductData = {
 }
 
 export type GetProductReviewProductErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -24988,7 +25010,7 @@ export type GetUserProductReviewData = {
 }
 
 export type GetUserProductReviewErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -25088,7 +25110,7 @@ export type ApiV1RecommendationsRetrieveData = {
 }
 
 export type ApiV1RecommendationsRetrieveErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   404: ErrorResponse
 }
 
@@ -25108,7 +25130,7 @@ export type ApiV1RecommendationsEventsCreateData = {
 }
 
 export type ApiV1RecommendationsEventsCreateErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   404: ErrorResponse
 }
 
@@ -25216,7 +25238,7 @@ export type ListRegionData = {
 }
 
 export type ListRegionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -25244,7 +25266,7 @@ export type CreateRegionData = {
 }
 
 export type CreateRegionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -25344,7 +25366,7 @@ export type PartialUpdateRegionData = {
 }
 
 export type PartialUpdateRegionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -25379,7 +25401,7 @@ export type UpdateRegionData = {
 }
 
 export type UpdateRegionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -25414,7 +25436,7 @@ export type ListRegionsByCountryData = {
 }
 
 export type ListRegionsByCountryErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -25450,7 +25472,7 @@ export type ApiV1SearchAnalyticsRetrieveData = {
 }
 
 export type ApiV1SearchAnalyticsRetrieveErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type ApiV1SearchAnalyticsRetrieveError = ApiV1SearchAnalyticsRetrieveErrors[keyof ApiV1SearchAnalyticsRetrieveErrors]
@@ -25486,7 +25508,7 @@ export type ApiV1SearchBlogPostRetrieveData = {
 }
 
 export type ApiV1SearchBlogPostRetrieveErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type ApiV1SearchBlogPostRetrieveError = ApiV1SearchBlogPostRetrieveErrors[keyof ApiV1SearchBlogPostRetrieveErrors]
@@ -25505,7 +25527,7 @@ export type ApiV1SearchClickCreateData = {
 }
 
 export type ApiV1SearchClickCreateErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type ApiV1SearchClickCreateError = ApiV1SearchClickCreateErrors[keyof ApiV1SearchClickCreateErrors]
@@ -25593,7 +25615,7 @@ export type ApiV1SearchProductRetrieveData = {
 }
 
 export type ApiV1SearchProductRetrieveErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type ApiV1SearchProductRetrieveError = ApiV1SearchProductRetrieveErrors[keyof ApiV1SearchProductRetrieveErrors]
@@ -25954,7 +25976,7 @@ export type ListBoxNowLockerData = {
 }
 
 export type ListBoxNowLockerErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26016,7 +26038,7 @@ export type NearestBoxNowLockerData = {
 }
 
 export type NearestBoxNowLockerErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26145,7 +26167,7 @@ export type ListShippingOptionsData = {
 }
 
 export type ListShippingOptionsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
 }
 
@@ -26325,7 +26347,7 @@ export type ListTagData = {
 }
 
 export type ListTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26353,7 +26375,7 @@ export type CreateTagData = {
 }
 
 export type CreateTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26438,7 +26460,7 @@ export type PartialUpdateTagData = {
 }
 
 export type PartialUpdateTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26468,7 +26490,7 @@ export type UpdateTagData = {
 }
 
 export type UpdateTagErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26583,7 +26605,7 @@ export type ListTaggedItemData = {
 }
 
 export type ListTaggedItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26611,7 +26633,7 @@ export type CreateTaggedItemData = {
 }
 
 export type CreateTaggedItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26696,7 +26718,7 @@ export type PartialUpdateTaggedItemData = {
 }
 
 export type PartialUpdateTaggedItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26726,7 +26748,7 @@ export type UpdateTaggedItemData = {
 }
 
 export type UpdateTaggedItemErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26854,7 +26876,7 @@ export type ListUserAccountData = {
 }
 
 export type ListUserAccountErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26913,7 +26935,7 @@ export type PartialUpdateUserAccountData = {
 }
 
 export type PartialUpdateUserAccountErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -26943,7 +26965,7 @@ export type UpdateUserAccountData = {
 }
 
 export type UpdateUserAccountErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27001,7 +27023,7 @@ export type GetUserAccountAddressesData = {
 }
 
 export type GetUserAccountAddressesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27059,7 +27081,7 @@ export type GetUserAccountBlogPostCommentsData = {
 }
 
 export type GetUserAccountBlogPostCommentsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27084,7 +27106,7 @@ export type ChangeUserAccountUsernameData = {
 }
 
 export type ChangeUserAccountUsernameErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27138,7 +27160,7 @@ export type ListUserAccountDataExportsData = {
 }
 
 export type ListUserAccountDataExportsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27163,7 +27185,7 @@ export type DeleteUserAccountGdprData = {
 }
 
 export type DeleteUserAccountGdprErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27221,7 +27243,7 @@ export type GetUserAccountFavouriteProductsData = {
 }
 
 export type GetUserAccountFavouriteProductsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27279,7 +27301,7 @@ export type GetUserAccountLikedBlogPostsData = {
 }
 
 export type GetUserAccountLikedBlogPostsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27325,7 +27347,7 @@ export type GetUserAccountNotificationsData = {
 }
 
 export type GetUserAccountNotificationsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27383,7 +27405,7 @@ export type GetUserAccountOrdersData = {
 }
 
 export type GetUserAccountOrdersErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27441,7 +27463,7 @@ export type GetUserAccountProductReviewsData = {
 }
 
 export type GetUserAccountProductReviewsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27466,7 +27488,7 @@ export type RequestUserAccountDataExportData = {
 }
 
 export type RequestUserAccountDataExportErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27645,7 +27667,7 @@ export type ListUserAddressData = {
 }
 
 export type ListUserAddressErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27673,7 +27695,7 @@ export type CreateUserAddressData = {
 }
 
 export type CreateUserAddressErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27758,7 +27780,7 @@ export type PartialUpdateUserAddressData = {
 }
 
 export type PartialUpdateUserAddressErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27788,7 +27810,7 @@ export type UpdateUserAddressData = {
 }
 
 export type UpdateUserAddressErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27813,7 +27835,7 @@ export type SetMainUserAddressData = {
 }
 
 export type SetMainUserAddressErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -27876,7 +27898,7 @@ export type UpdateEmailPreferencesData = {
 }
 
 export type UpdateEmailPreferencesErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type UpdateEmailPreferencesError = UpdateEmailPreferencesErrors[keyof UpdateEmailPreferencesErrors]
@@ -28034,7 +28056,7 @@ export type ListUserSubscriptionData = {
 }
 
 export type ListUserSubscriptionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28062,7 +28084,7 @@ export type CreateUserSubscriptionData = {
 }
 
 export type CreateUserSubscriptionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28147,7 +28169,7 @@ export type PartialUpdateUserSubscriptionData = {
 }
 
 export type PartialUpdateUserSubscriptionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28177,7 +28199,7 @@ export type UpdateUserSubscriptionData = {
 }
 
 export type UpdateUserSubscriptionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28202,7 +28224,7 @@ export type ConfirmUserSubscriptionData = {
 }
 
 export type ConfirmUserSubscriptionErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28226,7 +28248,7 @@ export type BulkUpdateUserSubscriptionsData = {
 }
 
 export type BulkUpdateUserSubscriptionsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28251,7 +28273,7 @@ export type ConfirmSubscriptionByTokenData = {
 }
 
 export type ConfirmSubscriptionByTokenErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   410: ErrorResponse
 }
 
@@ -28290,7 +28312,7 @@ export type SubscribeToNewsletterData = {
 }
 
 export type SubscribeToNewsletterErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   404: ErrorResponse
   429: ErrorResponse
 }
@@ -28422,7 +28444,7 @@ export type ListSubscriptionTopicData = {
 }
 
 export type ListSubscriptionTopicErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28450,7 +28472,7 @@ export type CreateSubscriptionTopicData = {
 }
 
 export type CreateSubscriptionTopicErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28535,7 +28557,7 @@ export type PartialUpdateSubscriptionTopicData = {
 }
 
 export type PartialUpdateSubscriptionTopicErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28565,7 +28587,7 @@ export type UpdateSubscriptionTopicData = {
 }
 
 export type UpdateSubscriptionTopicErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28590,7 +28612,7 @@ export type SubscribeToTopicData = {
 }
 
 export type SubscribeToTopicErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28616,7 +28638,7 @@ export type UnsubscribeFromTopicData = {
 }
 
 export type UnsubscribeFromTopicErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28644,7 +28666,7 @@ export type GetMySubscriptionTopicsData = {
 }
 
 export type GetMySubscriptionTopicsErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -28672,7 +28694,7 @@ export type UnsubscribeFromAllViaLinkData = {
 }
 
 export type UnsubscribeFromAllViaLinkErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type UnsubscribeFromAllViaLinkError = UnsubscribeFromAllViaLinkErrors[keyof UnsubscribeFromAllViaLinkErrors]
@@ -28710,7 +28732,7 @@ export type UnsubscribeFromTopicViaLinkData = {
 }
 
 export type UnsubscribeFromTopicViaLinkErrors = {
-  400: ErrorResponse
+  400: ApiValidationError | ApiError
 }
 
 export type UnsubscribeFromTopicViaLinkError = UnsubscribeFromTopicViaLinkErrors[keyof UnsubscribeFromTopicViaLinkErrors]
