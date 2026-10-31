@@ -65157,7 +65157,7 @@
             },
             "OrderCreateFromCartRequest": {
                 "type": "object",
-                "description": "Serializer for creating orders from cart (dual-flow payment architecture).\n\nThe flow follows the pay way's ``settlement``:\n1. ``online``: the shopper pays at checkout; a client-confirmed\n   provider (Stripe) requires ``payment_intent_id``, a hosted-checkout\n   provider (Viva) creates the order first and redirects.\n2. Any other settlement (courier cash, carrier terminal, offline\n   transfer): money is collected later, no ``payment_intent_id``.\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
+                "description": "Serializer for creating orders from cart (dual-flow payment architecture).\n\nThe flow follows the pay way's ``settlement``:\n1. ``online``: the shopper pays at checkout. A client-confirmed\n   provider (Stripe) takes ``payment_intent_id`` for the balance\n   left after deductions (gift cards, promotions, loyalty points);\n   without one the order is created order-first, which succeeds only\n   when the deductions cover the whole total, so no provider charge\n   is made. A hosted-checkout provider (Viva) creates the order\n   first and redirects.\n2. Any other settlement (courier cash, carrier terminal, offline\n   transfer): money is collected later, no ``payment_intent_id``.\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
                 "properties": {
                     "payWayId": {
                         "type": "integer",

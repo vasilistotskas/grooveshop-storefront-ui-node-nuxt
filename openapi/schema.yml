@@ -39907,9 +39907,13 @@ components:
         Serializer for creating orders from cart (dual-flow payment architecture).
 
         The flow follows the pay way's ``settlement``:
-        1. ``online``: the shopper pays at checkout; a client-confirmed
-           provider (Stripe) requires ``payment_intent_id``, a hosted-checkout
-           provider (Viva) creates the order first and redirects.
+        1. ``online``: the shopper pays at checkout. A client-confirmed
+           provider (Stripe) takes ``payment_intent_id`` for the balance
+           left after deductions (gift cards, promotions, loyalty points);
+           without one the order is created order-first, which succeeds only
+           when the deductions cover the whole total, so no provider charge
+           is made. A hosted-checkout provider (Viva) creates the order
+           first and redirects.
         2. Any other settlement (courier cash, carrier terminal, offline
            transfer): money is collected later, no ``payment_intent_id``.
 
