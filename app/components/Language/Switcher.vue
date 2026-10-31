@@ -17,7 +17,7 @@ import type { Locale } from '@nuxt/ui'
  * the header row a full-width control squeezed its neighbours to their
  * icons.
  */
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   compact?: boolean
 }>(), {
   compact: false,
@@ -42,6 +42,17 @@ const currentLocale = ref(locale.value)
 const tenantLocales = computed<Locale<unknown>[]>(() =>
   toUiLocales(tenantStore.availableLocales),
 )
+
+/**
+ * What the control shows: the locale code ("EL") when compact, else the
+ * language's own name. The control's accessible name starts with it, so a
+ * screen-reader user who says what they see reaches it (WCAG 2.5.3) and
+ * still hears what it does.
+ */
+const shownLanguage = computed(() => {
+  const current = tenantLocales.value.find(entry => entry.code === currentLocale.value)
+  return (props.compact ? current?.code : current?.name) ?? currentLocale.value
+})
 
 // Keep the selector in sync with any external locale change (settings form,
 // login-time syncFromUser, programmatic setLocale elsewhere).
@@ -77,7 +88,7 @@ watch(currentLocale, async (newLocale) => {
     leading-icon="i-heroicons-globe-alt"
     color="neutral"
     size="sm"
-    :aria-label="t('change_language')"
+    :aria-label="t('change_language', { current: shownLanguage })"
     :ui="{
       base: 'w-auto rounded-full font-semibold',
       value: compact ? 'uppercase' : '',
@@ -88,7 +99,7 @@ watch(currentLocale, async (newLocale) => {
 
 <i18n lang="yaml">
 el:
-  change_language: Αλλαγή γλώσσας
+  change_language: '{current}, αλλαγή γλώσσας'
 en:
-  change_language: Change language
+  change_language: '{current}, change language'
 </i18n>

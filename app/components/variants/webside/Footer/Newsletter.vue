@@ -42,9 +42,9 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
     "
   >
     <div class="flex flex-col gap-2">
-      <h3 class="text-sm font-semibold">
+      <h2 class="text-sm font-semibold">
         {{ t('heading') }}
-      </h3>
+      </h2>
       <p
         :id="pitchId"
         class="text-sm text-muted"

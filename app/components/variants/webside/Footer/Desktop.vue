@@ -36,9 +36,9 @@ const openCookieModal = () => {
             v-for="(column, index) in columns"
             :key="index"
           >
-            <h3 class="text-sm font-semibold">
+            <h2 class="text-sm font-semibold">
               {{ column.label }}
-            </h3>
+            </h2>
             <ul class="mt-6 space-y-4">
               <li
                 v-for="link in column.children"

@@ -21,7 +21,7 @@ exports[`webside design render > blog post card desktop 1`] = `
 
 exports[`webside design render > blog post card mobile 1`] = `
 "<li class="container grid min-h-60 w-full gap-4 rounded-lg bg-primary-100 !p-0 dark:bg-primary-900 dark:text-primary-950">
-  <div class="relative grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="575" height="670" data-nuxt-img="" sizes="(max-width: 639px) 382px, (max-width: 767px) 352px, (max-width: 1023px) 545px, (max-width: 1279px) 562px, (max-width: 1535px) 387px, 387px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/352/410/cover/attention/transparent/0/80.avif 352w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/382/445/cover/attention/transparent/0/80.avif 382w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/387/451/cover/attention/transparent/0/80.avif 387w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/545/635/cover/attention/transparent/0/80.avif 545w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/562/655/cover/attention/transparent/0/80.avif 562w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/704/820/cover/attention/transparent/0/80.avif 704w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/764/890/cover/attention/transparent/0/80.avif 764w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/774/902/cover/attention/transparent/0/80.avif 774w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1090/1270/cover/attention/transparent/0/80.avif 1090w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif 1124w" fetchpriority="auto" class="rounded-lg bg-primary-100" style="object-fit: contain; content-visibility: auto; aspect-ratio: 575 / 670;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif">
+  <div class="relative grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="575" height="670" data-nuxt-img="" sizes="(max-width: 639px) 382px, (max-width: 767px) 352px, (max-width: 1023px) 545px, (max-width: 1279px) 562px, (max-width: 1535px) 387px, 387px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/352/410/cover/attention/transparent/0/80.avif 352w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/382/445/cover/attention/transparent/0/80.avif 382w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/387/451/cover/attention/transparent/0/80.avif 387w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/545/635/cover/attention/transparent/0/80.avif 545w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/562/655/cover/attention/transparent/0/80.avif 562w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/704/820/cover/attention/transparent/0/80.avif 704w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/764/890/cover/attention/transparent/0/80.avif 764w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/774/902/cover/attention/transparent/0/80.avif 774w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1090/1270/cover/attention/transparent/0/80.avif 1090w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif 1124w" fetchpriority="auto" class="rounded-lg bg-primary-100" style="object-fit: contain; content-visibility: auto; aspect-ratio: 575 / 670;" alt="" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif">
       <h2 class="absolute right-0 bottom-12 grid w-full justify-center justify-items-start"><span class="m-auto block w-[70%] text-start text-3xl font-bold tracking-tight text-primary-50 sm:w-3/5 md:w-[66%] md:text-4xl lg:w-[76%] dark:text-primary-50">Τι είναι τα mAh</span></h2>
     </a>
     <div class="absolute right-4 bottom-4 grid items-end gap-2"><button type="button" data-slot="base" aria-label="Like (2)" title="Like (2)" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-12" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
@@ -135,7 +135,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
             <!--v-if-->
             <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
               <div>
-                <h3 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h3>
+                <h2 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h2>
                 <ul class="mt-6 space-y-4">
                   <li class="relative"><a href="/terms-of-use" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Όροι Χρήσης</span></a></li>
                   <li class="relative"><a href="/privacy-policy" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Πολιτική Απορρήτου</span></a></li>
@@ -144,7 +144,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                 <!--v-if-->
               </div>
               <div>
-                <h3 class="text-sm font-semibold">Κέντρο βοηθείας</h3>
+                <h2 class="text-sm font-semibold">Κέντρο βοηθείας</h2>
                 <ul class="mt-6 space-y-4">
                   <li class="relative"><a href="/contact" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Επικοινωνία</span></a></li>
                   <li class="relative"><a href="/feedback" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Σχόλια &amp; Παρατηρήσεις</span></a></li>
@@ -272,7 +272,7 @@ exports[`webside design render > footer desktop 1`] = `
         <!--v-if-->
         <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
           <div>
-            <h3 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h3>
+            <h2 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h2>
             <ul class="mt-6 space-y-4">
               <li class="relative"><a href="/terms-of-use" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Όροι Χρήσης</span></a></li>
               <li class="relative"><a href="/privacy-policy" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Πολιτική Απορρήτου</span></a></li>
@@ -281,7 +281,7 @@ exports[`webside design render > footer desktop 1`] = `
             <!--v-if-->
           </div>
           <div>
-            <h3 class="text-sm font-semibold">Κέντρο βοηθείας</h3>
+            <h2 class="text-sm font-semibold">Κέντρο βοηθείας</h2>
             <ul class="mt-6 space-y-4">
               <li class="relative"><a href="/contact" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Επικοινωνία</span></a></li>
               <li class="relative"><a href="/feedback" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Σχόλια &amp; Παρατηρήσεις</span></a></li>
@@ -739,6 +739,7 @@ exports[`webside design render > product card 1`] = `
       <!--v-if-->
       <div data-v-X="" role="img" aria-label="Βαθμολογία 4,0 στα 5, από 3 αξιολογήσεις" class="flex items-center gap-1.5 h-5"><span role="img" aria-label="Βαθμολογία 4 στα 5" class="inline-flex" aria-hidden="true"><span aria-hidden="true" class="inline-flex items-center gap-0.5"><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><!--v-if--><span class="absolute inset-0 overflow-hidden w-full"><span class="iconify i-heroicons:star-solid block text-(--ui-rating) size-3.5" aria-hidden="true"></span></span></span><span class="relative inline-block size-3.5"><span class="iconify i-heroicons:star-solid block size-full text-(--ui-border-accented)" aria-hidden="true"></span>
         <!--v-if--></span></span></span><span aria-hidden="true" class="text-[0.8125rem] font-semibold text-muted">4,0 · 3</span>
+        <!--v-if-->
       </div>
       <div data-v-X="" class="flex flex-col gap-2">
         <!--v-if-->
@@ -1133,7 +1134,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
             <!--v-if-->
             <div data-slot="center" class="flex flex-col lg:grid grid-flow-col auto-cols-fr gap-8 xl:col-span-3">
               <div>
-                <h3 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h3>
+                <h2 class="text-sm font-semibold">Όροι και Προϋποθέσεις</h2>
                 <ul class="mt-6 space-y-4">
                   <li class="relative"><a href="/terms-of-use" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Όροι Χρήσης</span></a></li>
                   <li class="relative"><a href="/privacy-policy" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Πολιτική Απορρήτου</span></a></li>
@@ -1142,7 +1143,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                 <!--v-if-->
               </div>
               <div>
-                <h3 class="text-sm font-semibold">Κέντρο βοηθείας</h3>
+                <h2 class="text-sm font-semibold">Κέντρο βοηθείας</h2>
                 <ul class="mt-6 space-y-4">
                   <li class="relative"><a href="/contact" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Επικοινωνία</span></a></li>
                   <li class="relative"><a href="/feedback" class="text-muted hover:text-default transition-colors group flex items-center gap-1.5 rounded-sm text-sm outline-primary/25 focus-visible:outline-3"><span class="truncate">Σχόλια &amp; Παρατηρήσεις</span></a></li>

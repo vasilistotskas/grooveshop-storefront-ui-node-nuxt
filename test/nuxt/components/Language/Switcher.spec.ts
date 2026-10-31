@@ -46,6 +46,15 @@ describe('Language/Switcher', () => {
     expect(wrapper.html()).toBe('<!--v-if-->')
   })
 
+  it('names the control by the language it shows, then by what it does', async () => {
+    const wrapper = await mountSwitcher()
+
+    const button = wrapper.find('button')
+    expect(button.text()).toBe('Ελληνικά')
+    // WCAG 2.5.3: the visible text is the start of the name.
+    expect(button.attributes('aria-label')).toBe('Ελληνικά, αλλαγή γλώσσας')
+  })
+
   it('persists the chosen language and says so', async () => {
     const wrapper = await mountSwitcher()
 

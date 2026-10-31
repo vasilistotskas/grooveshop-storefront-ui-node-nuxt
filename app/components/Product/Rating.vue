@@ -29,12 +29,15 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
 </script>
 
 <template>
+  <!-- Quoted, it is one image named whole. As the link to the reviews it
+       is named by its text, so the name holds what is on screen (WCAG
+       2.5.3) and "out of 5" follows as text only a screen reader gets. -->
   <component
     :is="href ? 'a' : 'div'"
     v-if="reviews > 0"
     :href="href"
     :role="href ? undefined : 'img'"
-    :aria-label="label"
+    :aria-label="href ? undefined : label"
     class="flex items-center gap-1.5"
     :class="href ? 'self-start' : undefined"
   >
@@ -44,12 +47,16 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
       aria-hidden="true"
     />
     <span
-      aria-hidden="true"
+      :aria-hidden="href ? undefined : 'true'"
       class="text-[0.8125rem] font-semibold text-muted"
       :class="href ? 'underline-offset-2 hover:underline' : undefined"
     >
       {{ figure }} · {{ verbose ? t('n_reviews', { count: reviews }, reviews) : reviews }}
     </span>
+    <span
+      v-if="href"
+      class="sr-only"
+    >, {{ t('out_of_five') }}</span>
   </component>
 </template>
 
@@ -57,7 +64,9 @@ const label = computed(() => t('rated_by', { n: figure.value, count: reviews.val
 el:
   rated_by: "Βαθμολογία {n} στα 5, από {count} αξιολόγηση | Βαθμολογία {n} στα 5, από {count} αξιολογήσεις"
   n_reviews: "{count} αξιολόγηση | {count} αξιολογήσεις"
+  out_of_five: βαθμολογία στα 5
 en:
   rated_by: "Rated {n} out of 5, from {count} review | Rated {n} out of 5, from {count} reviews"
   n_reviews: "{count} review | {count} reviews"
+  out_of_five: rated out of 5
 </i18n>

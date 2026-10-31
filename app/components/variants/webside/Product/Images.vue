@@ -74,9 +74,12 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
               hover:opacity-95
             `,
           }"
-          :aria-label="t('viewFullSizeImage')"
           @click="openModal()"
         >
+          <!-- The button is named by its content: the picture, this action
+               and the "6 images" badge, which is visible text and so part
+               of the name. The hover pill repeats the action for the eye. -->
+          <span class="sr-only">{{ t('viewFullscreen') }}</span>
           <!--
             fetchpriority: this is the PDP's LCP element. It's SSR'd
             into the initial HTML and eager-loaded, but browsers still
@@ -100,6 +103,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
             "
           >
             <div
+              aria-hidden="true"
               class="
                 flex items-center gap-2 rounded-full bg-white/90 px-3 py-2
                 text-sm font-medium text-gray-900 backdrop-blur-sm
@@ -204,14 +208,12 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
 <i18n lang="yaml">
 el:
   viewFullscreen: Προβολή σε πλήρη οθόνη
-  viewFullSizeImage: Προβολή εικόνας σε πλήρες μέγεθος
   photosCount: '{count} εικόνες'
   imageNumber: Εικόνα {number}
   selectImage: Επιλογή εικόνας {number}
   doubleTapHint: Διπλό πάτημα στη μικρογραφία για πλήρη οθόνη
 en:
   viewFullscreen: View full screen
-  viewFullSizeImage: View the image at full size
   photosCount: '{count} images'
   imageNumber: Image {number}
   selectImage: Select image {number}
