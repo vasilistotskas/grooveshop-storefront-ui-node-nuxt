@@ -20,6 +20,16 @@
 import { EMBED_FRAME_ORIGINS, YOUTUBE_THUMBNAIL_ORIGIN } from './embeds'
 import { BOXNOW_FRAME_ORIGINS } from './boxnow-widget'
 
+/**
+ * SHA-256 of the one inline event handler @nuxt/image's ``NuxtImg`` and
+ * ``NuxtPicture`` render on the server (``onerror="this.setAttribute('data-error', 1)"``),
+ * which records an image that failed before hydration so the component can
+ * emit ``error`` once it mounts. Pinned by
+ * ``test/unit/shared/utils/csp-nuxt-image-handler.spec.ts``, which recomputes
+ * it from the installed module, so a handler change fails CI.
+ */
+const NUXT_IMAGE_ONERROR_HASH = 'sha256-bwK6T5wZVTANitXbrTsel7kl/PyCjCd/Dq5Qoz3imjM='
+
 export interface CspOptions {
   /** Dev-mode relaxations (plain http/ws upstream, error-overlay iframe). */
   dev: boolean
@@ -149,6 +159,17 @@ export function buildCspDirectives(options: CspOptions): string[] {
   //     third-party injections fall back to the host allowlist.
   //   - CSP1: falls back to 'unsafe-inline' + hosts (previous behavior).
   const nonceScriptSrc = nonce ? ` 'nonce-${nonce}' 'strict-dynamic'` : ''
+
+  // A nonce disables 'unsafe-inline' for event-handler attributes too, so
+  // NuxtImg's SSR ``onerror`` was blocked on every nonce'd page (a console
+  // error and a DevTools issue per image, and a pre-hydration failure never
+  // reached the fallback). ``script-src-attr`` with 'unsafe-hashes' allows
+  // that one handler by hash and nothing else; CSP3 applies hashes next to
+  // 'strict-dynamic'. Only with a nonce: in the nonce-free policy
+  // 'unsafe-inline' is effective, and a hash there would switch it off.
+  const nonceScriptSrcAttr = nonce
+    ? `script-src-attr 'unsafe-hashes' '${NUXT_IMAGE_ONERROR_HASH}'`
+    : ''
 
   // OpenStreetMap-based tile origins used by the checkout locker map
   // (``SmartpointMap.client.vue``) and the store-location section
@@ -282,6 +303,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
   return [
     `default-src 'self'`,
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
+    ...(nonceScriptSrcAttr ? [nonceScriptSrcAttr] : []),
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins} ${tileOrigins}${embedImgSrc}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
