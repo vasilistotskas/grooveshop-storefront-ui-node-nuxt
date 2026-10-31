@@ -6585,15 +6585,16 @@ export type PaymentModeEnum = 'prepaid' | 'cod'
 export type PaymentProviderEnum = 'stripe' | 'viva_wallet'
 
 /**
- * The plain 400 body of an order action that calls the payment provider.
+ * The 400 body of an order action when the payment provider fails.
  *
  * ``error`` is the provider call's own result (its keys vary by
- * provider). The schema hook adds the validation-error variant.
+ * provider). The same actions also refuse with a plain error and a
+ * field-error map; the schema hook adds both variants.
  */
 export type PaymentProviderError = {
   detail: string
   /**
-     * Σταθερός κωδικός σφάλματος: ``payment_intent_failed`` ή ``checkout_session_failed``.
+     * Σταθερός κωδικός σφάλματος: ``payment_intent_failed``, ``checkout_session_failed`` ή ``delegated_charge_failed``.
      */
   code: string
   /**
@@ -20430,7 +20431,7 @@ export type ConfirmAgentPaymentForOrderData = {
 }
 
 export type ConfirmAgentPaymentForOrderErrors = {
-  400: ApiValidationError | PaymentProviderError
+  400: ApiValidationError | ApiError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20460,7 +20461,7 @@ export type CreateOrderCheckoutSessionData = {
 }
 
 export type CreateOrderCheckoutSessionErrors = {
-  400: ApiValidationError | PaymentProviderError
+  400: ApiValidationError | ApiError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20490,7 +20491,7 @@ export type CreateOrderPaymentIntentData = {
 }
 
 export type CreateOrderPaymentIntentErrors = {
-  400: ApiValidationError | PaymentProviderError
+  400: ApiValidationError | ApiError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
@@ -20639,7 +20640,7 @@ export type RetryOrderPaymentData = {
 }
 
 export type RetryOrderPaymentErrors = {
-  400: ApiValidationError | PaymentProviderError
+  400: ApiValidationError | ApiError | PaymentProviderError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
