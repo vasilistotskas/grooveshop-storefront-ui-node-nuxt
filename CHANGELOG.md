@@ -1,3 +1,10 @@
+## [3.274.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.5...v3.274.6) (2026-10-31)
+
+
+### Bug Fixes
+
+* **footer:** give the newsletter its own band on the footer grid ([#298](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/298)) ([d2ca4ef](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d2ca4ef9a303f6283e7030b1cb246639a55a7d39))
+
 ## [3.274.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.4...v3.274.5) (2026-10-31)
 
 
