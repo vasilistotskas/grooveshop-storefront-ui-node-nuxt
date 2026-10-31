@@ -408,20 +408,61 @@ describe('transformHtmlImages', () => {
     expect(out).toContain('height="704"')
   })
 
-  it('builds a responsive image from the intrinsic size the API writes on save', () => {
-    // An upload with no authored size comes back from the API with its
-    // natural width and height; that is all the transform needs for a
-    // width-descriptor srcset and an aspect the browser can reserve.
-    const out = transformHtmlImages(
-      `<img src="https://api.example.gr${key}" width="1600" height="1200">`,
-      config,
-    )
+  describe('with the real size the API records (data-natural-width / data-natural-height)', () => {
+    const natural = (w: number, h: number) => `data-natural-width="${w}" data-natural-height="${h}"`
 
-    expect(out).toContain(`${url(704, 528)} 704w`)
-    expect(out).toContain(`${url(1408, 1056)} 1408w`)
-    expect(out).toContain('sizes="auto, (max-width: 704px) 100vw, 704px"')
-    expect(out).toContain('width="1600"')
-    expect(out).toContain('height="1200"')
+    it('keeps the percentage layout of the author, offers 1x and 2x of the column and reserves the aspect', () => {
+      const out = transformHtmlImages(
+        `<img src="https://api.example.gr${key}" width="100%" height="100%" ${natural(1600, 1200)}>`,
+        config,
+      )
+
+      expect(out).toContain(`src="${url(704, 0, 'inside')}"`)
+      expect(out).toContain(`${url(704, 0, 'inside')} 704w`)
+      expect(out).toContain(`${url(1408, 0, 'inside')} 1408w`)
+      expect(out).toContain('sizes="auto, (max-width: 704px) 100vw, 704px"')
+      // The layout stays as authored; a percentage height is dropped as before.
+      expect(out).toContain('width="100%"')
+      expect(out).not.toMatch(/\sheight=/)
+      expect(out).toContain('style="aspect-ratio: 1600 / 1200"')
+      expect(out).toContain(natural(1600, 1200))
+    })
+
+    it('never asks for more than the file has', () => {
+      const out = transformHtmlImages(
+        `<img src="https://api.example.gr${key}" width="100%" ${natural(900, 600)}>`,
+        config,
+      )
+
+      expect(out).toContain(`${url(704, 0, 'inside')} 704w`)
+      expect(out).toContain(`${url(900, 0, 'inside')} 900w`)
+      expect(out).not.toContain('1408w')
+    })
+
+    it('offers one candidate for a file narrower than the column', () => {
+      const out = transformHtmlImages(`<img src="https://api.example.gr${key}" ${natural(400, 300)}>`, config)
+
+      expect(out.match(/\d+w/g)).toEqual(['400w'])
+    })
+
+    it('appends the aspect to an existing style', () => {
+      const out = transformHtmlImages(`<img src="https://api.example.gr${key}" style="border: 1px solid" ${natural(800, 400)}>`, config)
+
+      expect(out).toContain('style="border: 1px solid; aspect-ratio: 800 / 400"')
+    })
+
+    it('leaves the aspect to authored pixel dimensions', () => {
+      const out = transformHtmlImages(`<img src="https://api.example.gr${key}" width="300" height="150" ${natural(900, 450)}>`, config)
+
+      expect(out).not.toContain('aspect-ratio')
+    })
+
+    it('renders an image without a recorded size as before', () => {
+      const out = transformHtmlImages(`<img src="https://api.example.gr${key}" width="100%">`, config)
+
+      expect(out).not.toContain('srcset=')
+      expect(out).not.toContain('aspect-ratio')
+    })
   })
 
   it('requests a smaller authored width as written', () => {
