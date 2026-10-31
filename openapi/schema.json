@@ -10382,6 +10382,564 @@
                 }
             }
         },
+        "/api/v1/blog/post/feed": {
+            "get": {
+                "operationId": "listBlogPostFeed",
+                "description": "The newest published posts with their full body, in one response, for the storefront's RSS feed.",
+                "summary": "Get the posts for the RSS feed",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "author",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID συντάκτη"
+                    },
+                    {
+                        "in": "query",
+                        "name": "authorEmail",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "authorName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "category",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID κατηγορίας"
+                    },
+                    {
+                        "in": "query",
+                        "name": "categoryName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "createdBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "currentlyPublished",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "featured",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά κατάσταση προτεινόμενου"
+                    },
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "id_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "isPublished",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά κατάσταση δημοσίευσης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Most posts to return (capped by the store)."
+                    },
+                    {
+                        "in": "query",
+                        "name": "minComments",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minLikes",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minTags",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών"
+                    },
+                    {
+                        "in": "query",
+                        "name": "minViewCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ελάχιστο αριθμό προβολών"
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "publishedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "slug_Icontains",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "tagName",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tags",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Τιμές διαχωρισμένες με κόμμα"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)",
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAfter",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Gte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedAt_Lte",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "updatedBefore",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "description": "Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία"
+                    },
+                    {
+                        "in": "query",
+                        "name": "uuid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "Φίλτρο ανά ακριβές UUID"
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount_Gte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewCount_Lte",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "tags": [
+                    "Blog Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BlogPostFeed"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/blog/post/{id}": {
             "get": {
                 "operationId": "retrieveBlogPost",
@@ -60520,7 +61078,7 @@
                         "items": {
                             "type": "string"
                         },
-                        "description": "The languages the page is written in: its body shows something.\n\nA list carries no body, so this is how it says which languages a\npage exists in (hreflang, the sitemap).",
+                        "description": "The languages the page is written in: its body shows something.\n\nA translation row is no evidence of a document (an emptied body\nis still a row), so this is what hreflang and the sitemap read.",
                         "readOnly": true
                     },
                     "isPublished": {
@@ -60626,7 +61184,7 @@
                         "items": {
                             "type": "string"
                         },
-                        "description": "The languages the page is written in: its body shows something.\n\nA list carries no body, so this is how it says which languages a\npage exists in (hreflang, the sitemap).",
+                        "description": "The languages the page is written in: its body shows something.\n\nA translation row is no evidence of a document (an emptied body\nis still a row), so this is what hreflang and the sitemap read.",
                         "readOnly": true
                     },
                     "isPublished": {
@@ -78379,6 +78937,99 @@
                     }
                 },
                 "additionalProperties": false
+            },
+            "BlogPostFeed": {
+                "type": "object",
+                "description": "One item of the RSS feed.\n\nThe feed needs every article's body, so it has its own shape and\nits own endpoint rather than a request per post for the detail.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "slug": {
+                        "type": "string",
+                        "readOnly": true,
+                        "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "subtitle": {
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "subtitle": {
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "category": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Κατηγορία"
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Δημοσιεύθηκε στις"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Δημιουργήθηκε στις"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Ενημερώθηκε στις"
+                    }
+                },
+                "required": [
+                    "category",
+                    "createdAt",
+                    "id",
+                    "mainImagePath",
+                    "publishedAt",
+                    "slug",
+                    "translations",
+                    "updatedAt",
+                    "uuid"
+                ]
             }
         },
         "securitySchemes": {

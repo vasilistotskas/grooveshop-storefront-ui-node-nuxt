@@ -38,18 +38,17 @@ const cachedBlogCategory = defineCachedFunction(
   },
 )
 
-// The feed carries each article in full, and only the detail has the body:
-// the list a card is drawn from does not. Only its translations are read.
-const zBlogPostBody = zBlogPostDetail.pick({ translations: true })
-
-const cachedBlogPostDetail = defineCachedFunction(
+// The feed carries each article in full, which the list a card is drawn
+// from no longer does: Django serves the feed's posts, newest first, with
+// their bodies, from its own endpoint.
+const cachedBlogPostFeed = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string) => {
     const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
-    return await parseDataAs(raw, zBlogPostBody)
+    return await parseDataAs(raw, zListBlogPostFeedResponse)
   },
   {
     maxAge: RSS_CACHE_AGE,
-    name: 'cachedBlogPostDetail',
+    name: 'cachedBlogPostFeed',
     getKey: (tenantKey: string, locale: string, url: string) => `${tenantKey}:${locale}:${url}`,
   },
 )
@@ -91,19 +90,17 @@ const generateRssFeed = defineCachedFunction(
 
     // Namespaced to avoid collision with sitemap handlers which register
     // fetchers under the same logical name but a different TTL.
-    const cachedBlogPosts = createCachedFetcher<BlogPost>('rss:blog-posts', RSS_CACHE_AGE)
     const cachedProducts = createCachedFetcher<ProductCard>('rss:products', RSS_CACHE_AGE)
 
     // A store without the catalogue has no products to syndicate, and
     // Django refuses the list: the feed is its blog alone.
-    const [allPosts, allProducts] = await Promise.all([
-      cachedBlogPosts(tenantKey, locale, `${apiBaseUrl}/blog/post`),
+    const [blogPosts, allProducts] = await Promise.all([
+      cachedBlogPostFeed(tenantKey, locale, `${apiBaseUrl}/blog/post/feed`),
       catalogueEnabled
         ? cachedProducts(tenantKey, locale, `${apiBaseUrl}/product`)
         : Promise.resolve([]),
     ])
 
-    const blogPosts = allPosts.map(post => zBlogPost.parse(post))
     const activeProducts = allProducts.filter(product => product.active !== false)
 
     const blogItems = await processBlogPosts(blogPosts, locale, baseUrl, apiBaseUrl, mediaStreamPath, tenantKey)
@@ -209,7 +206,7 @@ export default defineEventHandler(async (event) => {
 })
 
 async function processBlogPosts(
-  blogPosts: BlogPost[],
+  blogPosts: BlogPostFeed[],
   locale: SupportedLocale,
   baseUrl: string,
   apiBaseUrl: string,
@@ -230,12 +227,7 @@ async function processBlogPosts(
     }),
   )
 
-  // And each post's own record, for the article body
-  const detailResults = await Promise.allSettled(
-    blogPosts.map(post => cachedBlogPostDetail(tenantKey, locale, `${apiBaseUrl}/blog/post/${post.id}`)),
-  )
-
-  for (const [index, post] of blogPosts.entries()) {
+  for (const post of blogPosts) {
     const translation = post.translations?.[locale] || Object.values(post.translations || {})[0]
 
     if (!translation) {
@@ -243,17 +235,13 @@ async function processBlogPosts(
       continue
     }
 
-    const detail = detailResults[index]
-    const detailTranslations = detail?.status === 'fulfilled' ? detail.value.translations : undefined
-    const body = (detailTranslations?.[locale] ?? Object.values(detailTranslations ?? {})[0])?.body
-
     const mainImageUrl = post.mainImagePath
       ? buildMediaStreamImageUrl(mediaStreamPath, post.mainImagePath, RSS_IMAGE_VARIANT)
       : ''
     const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
 
     let description = translation.subtitle || ''
-    const fullContent = body || ''
+    const fullContent = translation.body || ''
 
     if (mainImageUrl) {
       description = `<img src="${mainImageUrl}" alt="${translation.title}" />\n` + description

@@ -2642,8 +2642,8 @@ export type ContentPage = {
   /**
      * The languages the page is written in: its body shows something.
      *
-     * A list carries no body, so this is how it says which languages a
-     * page exists in (hreflang, the sitemap).
+     * A translation row is no evidence of a document (an emptied body
+     * is still a row), so this is what hreflang and the sitemap read.
      */
   readonly translatedLocales: Array<string>
   /**
@@ -2691,8 +2691,8 @@ export type ContentPageDetail = {
   /**
      * The languages the page is written in: its body shows something.
      *
-     * A list carries no body, so this is how it says which languages a
-     * page exists in (hreflang, the sitemap).
+     * A translation row is no evidence of a document (an emptied body
+     * is still a row), so this is what hreflang and the sitemap read.
      */
   readonly translatedLocales: Array<string>
   /**
@@ -10513,6 +10513,47 @@ export type PageSectionStatsStripProps = {
 }
 
 /**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export type BlogPostFeed = {
+  readonly id: number
+  readonly uuid: string
+  readonly slug: string
+  translations: {
+    el?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+  }
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
+  readonly mainImagePath: string
+  /**
+     * Δημοσιεύθηκε στις
+     */
+  readonly publishedAt: string | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+}
+
+/**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
  * than a tool result should carry.
@@ -13075,6 +13116,27 @@ export type PageSectionWhatIsMicrolearningPropsWritable = {
 
 export type PageSectionWhyMicrolearningPropsWritable = {
   [key: string]: never
+}
+
+/**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export type BlogPostFeedWritable = {
+  translations: {
+    el?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+  }
 }
 
 export type GetAgentProfileData = {
@@ -15769,6 +15831,145 @@ export type CreateBlogPostResponses = {
 }
 
 export type CreateBlogPostResponse = CreateBlogPostResponses[keyof CreateBlogPostResponses]
+
+export type ListBlogPostFeedData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Φίλτρο ανά ID συντάκτη
+         */
+    author?: string | number
+    /**
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    authorEmail?: string
+    /**
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    authorName?: string
+    /**
+         * Φίλτρο ανά ID κατηγορίας
+         */
+    category?: string | number
+    /**
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    categoryName?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
+         */
+    currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά κατάσταση προτεινόμενου
+         */
+    featured?: 'true' | 'false' | '1' | '0' | boolean
+    id?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    id_In?: string | Array<number>
+    /**
+         * Φίλτρο ανά κατάσταση δημοσίευσης
+         */
+    isPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Most posts to return (capped by the store).
+         */
+    limit?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
+         */
+    minComments?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
+         */
+    minLikes?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
+         */
+    minTags?: string | number
+    /**
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
+         */
+    minViewCount?: string | number
+    /**
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
+         */
+    publishedAfter?: string
+    publishedAt_Date?: string
+    publishedAt_Gte?: string
+    publishedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
+         */
+    publishedBefore?: string
+    /**
+         * A search term.
+         */
+    search?: string
+    slug?: string
+    slug_Icontains?: string
+    /**
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    tagName?: string
+    /**
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
+         */
+    tags?: string | Array<number>
+    /**
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
+         */
+    title?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+    viewCount?: string | number
+    viewCount_Gte?: string | number
+    viewCount_Lte?: string | number
+  }
+  url: '/api/v1/blog/post/feed'
+}
+
+export type ListBlogPostFeedErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListBlogPostFeedError = ListBlogPostFeedErrors[keyof ListBlogPostFeedErrors]
+
+export type ListBlogPostFeedResponses = {
+  200: Array<BlogPostFeed>
+}
+
+export type ListBlogPostFeedResponse = ListBlogPostFeedResponses[keyof ListBlogPostFeedResponses]
 
 export type DestroyBlogPostData = {
   body?: never
