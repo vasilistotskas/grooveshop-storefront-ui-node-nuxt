@@ -165,6 +165,9 @@ const WORD_CLASS_RE = /^mso/i
  */
 const LINK_CONTENT_SELECTOR = 'img, svg, picture, video, audio, iframe, canvas'
 
+/** The attributes that give a link a name when it has no content to name it. */
+const LINK_NAME_ATTRIBUTES = ['aria-label', 'aria-labelledby', 'title'] as const
+
 /**
  * The declarations of an inline ``style``, split on the semicolons that
  * end one: not those inside a string or a ``url(...)``.
@@ -240,21 +243,34 @@ function installWordCleanupHooks(): void {
 /**
  * Clean the links an editor leaves in a body. An anchor with no ``href``
  * goes nowhere (a Word comment reference, a half-made link): it is
- * unwrapped and its content stays. A link with an ``href`` and nothing
- * to read or look at (whitespace, ``&nbsp;``, Word's empty comment marker
- * to ``#_msocom_<n>``) has no accessible name and is a keyboard stop that
- * announces nothing: it is dropped. Run on the sanitised tree, like the
- * embed facades, not inside a hook while DOMPurify is walking it.
+ * unwrapped and its content stays. One that is the target of an in-page
+ * link (``<a id="_Toc1">``, the legacy ``<a name="top">``) is a place, not
+ * a link: it becomes a ``span`` carrying that ``id``, so ``#_Toc1`` still
+ * jumps there. A link with an ``href`` and nothing to read or look at
+ * (whitespace, ``&nbsp;``, Word's empty comment marker to
+ * ``#_msocom_<n>``) and no ``aria-label``, ``aria-labelledby`` or ``title``
+ * has no accessible name and is a keyboard stop that announces nothing:
+ * it is dropped. Run on the sanitised tree, like the embed facades, not
+ * inside a hook while DOMPurify is walking it.
  */
 function cleanAnchors(root: PurifiedElement): void {
   for (const anchor of root.querySelectorAll('a')) {
     if (!anchor.hasAttribute('href')) {
-      anchor.replaceWith(...anchor.childNodes)
+      const target = anchor.getAttribute('id') || anchor.getAttribute('name')
+      if (target) {
+        const place = anchor.ownerDocument.createElement('span')
+        place.id = target
+        place.append(...anchor.childNodes)
+        anchor.replaceWith(place)
+      }
+      else {
+        anchor.replaceWith(...anchor.childNodes)
+      }
     }
     else if (
       !anchor.textContent?.trim()
       && !anchor.querySelector(LINK_CONTENT_SELECTOR)
-      && !anchor.hasAttribute('aria-label')
+      && !LINK_NAME_ATTRIBUTES.some(name => anchor.hasAttribute(name))
     ) {
       anchor.remove()
     }

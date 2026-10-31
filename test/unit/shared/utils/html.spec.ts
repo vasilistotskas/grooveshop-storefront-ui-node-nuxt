@@ -298,16 +298,34 @@ describe('sanitizeRichHtml', () => {
       )).toBe('<p>a&nbsp;<span>&nbsp;</span>b</p>')
     })
 
-    it('keeps a link with an href and text, an image, or its own label', () => {
+    it('keeps a link with an href and text, an image, or a name of its own', () => {
       const out = sanitize(
         '<p><a href="https://example.com/a">text</a>'
         + '<a href="https://example.com/b"><img src="/media/x.png" alt="x"></a>'
-        + '<a href="https://example.com/c" aria-label="Open c"></a></p>',
+        + '<a href="https://example.com/c" aria-label="Open c"></a>'
+        + '<a href="https://example.com/d" title="Open d"></a>'
+        + '<a href="https://example.com/e" aria-labelledby="name-e"></a></p>',
       )
 
       expect(out).toContain('<a href="https://example.com/a">text</a>')
       expect(out).toContain('<a href="https://example.com/b"><img')
       expect(out).toContain('<a href="https://example.com/c" aria-label="Open c"></a>')
+      expect(out).toContain('<a href="https://example.com/d" title="Open d"></a>')
+      expect(out).toContain('<a href="https://example.com/e" aria-labelledby="name-e"></a>')
+    })
+
+    it('keeps the target of an in-page link as a place that jumps there, not as a link', () => {
+      // Word's table of contents: `#_Toc1` points at an empty `<a id>`; the
+      // legacy form is `<a name>`. Neither has an href, so neither is a link.
+      const out = sanitize(
+        '<p><a href="#_Toc1">Intro</a> <a href="#top">Top</a></p>'
+        + '<h2><a id="_Toc1"></a>Intro</h2><p><a name="top">Start</a></p>',
+      )
+
+      expect(out).toBe(
+        '<p><a href="#_Toc1">Intro</a> <a href="#top">Top</a></p>'
+        + '<h2><span id="_Toc1"></span>Intro</h2><p><span id="top">Start</span></p>',
+      )
     })
 
     it('still sanitises what an unwrapped link held', () => {
