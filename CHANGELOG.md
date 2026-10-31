@@ -1,3 +1,10 @@
+## [3.274.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.2...v3.274.3) (2026-10-31)
+
+
+### Bug Fixes
+
+* **storefront:** redirect a stale slug's markdown twin cleanly ([#293](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/293)) ([d2942ed](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d2942edcd8437181fe0dbbc52bec10de48876aba))
+
 ## [3.274.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.1...v3.274.2) (2026-10-31)
 
 
