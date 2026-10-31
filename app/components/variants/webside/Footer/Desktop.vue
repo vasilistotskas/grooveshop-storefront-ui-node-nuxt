@@ -68,6 +68,16 @@ const openCookieModal = () => {
             />
           </div>
         </UFooterColumns>
+        <!-- Its own band under the link columns: the two halves of its grid
+             start where the columns' first and third start. The band's rule
+             and spacing ride on the form's root, so a store with the
+             newsletter off draws neither. -->
+        <WebsideFooterNewsletter
+          class="
+            mt-12 border-t border-primary-200 pt-10
+            dark:border-primary-700
+          "
+        />
       </UContainer>
     </template>
 
@@ -114,21 +124,17 @@ const openCookieModal = () => {
     </template>
 
     <template #right>
-      <div class="flex w-full flex-col items-end gap-4">
-        <!-- Directly above the social icons. -->
-        <WebsideFooterNewsletter />
-        <div class="flex items-center gap-6">
-          <WebsideSocials
-            :button-size="'sm'"
-            :icon-class="'text-xl'"
-          />
-          <span
-            class="
-              text-xs text-primary-950
-              dark:text-primary-300
-            "
-          >Version: {{ packageVersion }}</span>
-        </div>
+      <div class="flex items-center gap-6">
+        <WebsideSocials
+          :button-size="'sm'"
+          :icon-class="'text-xl'"
+        />
+        <span
+          class="
+            text-xs text-primary-950
+            dark:text-primary-300
+          "
+        >Version: {{ packageVersion }}</span>
       </div>
     </template>
   </UFooter>

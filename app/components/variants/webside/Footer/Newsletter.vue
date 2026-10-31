@@ -2,9 +2,11 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 /**
- * The footer's newsletter signup, directly above the social icons: the
- * same double opt-in as every other newsletter form (`useNewsletterSignup`),
- * drawn in the webside footer's own palette.
+ * The footer's newsletter band: the heading and pitch on the left half, the
+ * form on the right, so on a desktop it sits on the same two-column split as
+ * the footer's link columns. The same double opt-in as every other
+ * newsletter form (`useNewsletterSignup`), drawn in the webside footer's own
+ * palette.
  *
  * It carries an unticked consent box with the platform's consent sentence:
  * the subscription is stored with that sentence as its proof, so a form
@@ -13,6 +15,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
  */
 const { t } = useStoreI18n('components/variants/webside/Footer/Newsletter')
 const localePath = useLocalePath()
+const pitchId = useId()
 
 const { available, consent, schema, state, submitting, sent, failure, subscribe }
   = await useNewsletterSignup({ consentRequired: () => t('consent_required') })
@@ -33,17 +36,32 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
 <template>
   <div
     v-if="available"
-    class="flex w-full max-w-md flex-col gap-3 text-primary-950 dark:text-primary-50"
+    class="
+      grid gap-x-8 gap-y-4
+      md:grid-cols-2 md:items-start
+    "
   >
+    <div class="flex flex-col gap-2">
+      <h3 class="text-sm font-semibold">
+        {{ t('heading') }}
+      </h3>
+      <p
+        :id="pitchId"
+        class="text-sm text-muted"
+      >
+        {{ t('description') }}
+      </p>
+    </div>
+
     <div
       v-if="sent"
       role="status"
       class="flex flex-col gap-1"
     >
-      <p class="text-base font-semibold">
+      <p class="text-sm font-semibold">
         {{ t('sent.title') }}
       </p>
-      <p class="text-sm">
+      <p class="text-sm text-muted">
         {{ t('sent.description') }}
       </p>
     </div>
@@ -57,25 +75,15 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
     >
       <UFormField
         name="email"
-        :label="t('heading')"
-        :description="t('description')"
-        :ui="{
-          label: `
-            text-base font-semibold text-primary-950
-            dark:text-primary-50
-          `,
-          description: `
-            text-sm text-primary-950
-            dark:text-primary-100
-          `,
-          container: 'mt-3',
-        }"
+        :label="t('email_label')"
+        :ui="{ label: 'sr-only' }"
       >
         <div class="flex gap-2">
           <UInput
             v-model="state.email"
             type="email"
             autocomplete="email"
+            :aria-describedby="pitchId"
             :placeholder="t('placeholder')"
             size="lg"
             class="flex-1"
@@ -96,7 +104,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
           v-model="state.consent"
           icon="i-heroicons-check"
           color="info"
-          :ui="{ label: 'text-xs/relaxed font-medium' }"
+          :ui="{ label: 'text-xs/relaxed font-medium text-muted' }"
         >
           <template #label>
             {{ consent.before }}<UButton
@@ -128,6 +136,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
 el:
   heading: Μείνε ενημερωμένος
   description: Νέα προϊόντα και προσφορές, κατευθείαν στο email σου.
+  email_label: Διεύθυνση email
   placeholder: Το email σου
   submit: Εγγραφή
   consent_required: Τσέκαρε το πλαίσιο για να εγγραφείς.
@@ -138,6 +147,7 @@ el:
 en:
   heading: Stay in the loop
   description: New products and offers, straight to your inbox.
+  email_label: Email address
   placeholder: "you{'@'}email.com"
   submit: Subscribe
   consent_required: Tick the box to subscribe.

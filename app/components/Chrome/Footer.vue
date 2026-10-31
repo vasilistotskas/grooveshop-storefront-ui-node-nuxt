@@ -120,7 +120,7 @@ const storeName = computed(() => tenantStore.storeName || '')
   >
     <template #top>
       <UContainer class="flex flex-col gap-5 lg:gap-11">
-        <div class="grid items-start gap-5 lg:grid-cols-2 lg:gap-16">
+        <div class="grid items-start gap-5 lg:grid-cols-[2fr_2.3fr] lg:gap-8">
           <div
             class="
               hidden flex-col items-start gap-5
