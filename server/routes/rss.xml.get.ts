@@ -38,6 +38,22 @@ const cachedBlogCategory = defineCachedFunction(
   },
 )
 
+// The feed carries each article in full, and only the detail has the body:
+// the list a card is drawn from does not. Only its translations are read.
+const zBlogPostBody = zBlogPostDetail.pick({ translations: true })
+
+const cachedBlogPostDetail = defineCachedFunction(
+  async (tenantKey: string, locale: string, url: string) => {
+    const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
+    return await parseDataAs(raw, zBlogPostBody)
+  },
+  {
+    maxAge: RSS_CACHE_AGE,
+    name: 'cachedBlogPostDetail',
+    getKey: (tenantKey: string, locale: string, url: string) => `${tenantKey}:${locale}:${url}`,
+  },
+)
+
 const cachedProductCategoryDetail = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string): Promise<ProductCategoryDetail> => {
     const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
@@ -214,7 +230,12 @@ async function processBlogPosts(
     }),
   )
 
-  for (const post of blogPosts) {
+  // And each post's own record, for the article body
+  const detailResults = await Promise.allSettled(
+    blogPosts.map(post => cachedBlogPostDetail(tenantKey, locale, `${apiBaseUrl}/blog/post/${post.id}`)),
+  )
+
+  for (const [index, post] of blogPosts.entries()) {
     const translation = post.translations?.[locale] || Object.values(post.translations || {})[0]
 
     if (!translation) {
@@ -222,13 +243,17 @@ async function processBlogPosts(
       continue
     }
 
+    const detail = detailResults[index]
+    const detailTranslations = detail?.status === 'fulfilled' ? detail.value.translations : undefined
+    const body = (detailTranslations?.[locale] ?? Object.values(detailTranslations ?? {})[0])?.body
+
     const mainImageUrl = post.mainImagePath
       ? buildMediaStreamImageUrl(mediaStreamPath, post.mainImagePath, RSS_IMAGE_VARIANT)
       : ''
     const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
 
     let description = translation.subtitle || ''
-    const fullContent = translation.body || ''
+    const fullContent = body || ''
 
     if (mainImageUrl) {
       description = `<img src="${mainImageUrl}" alt="${translation.title}" />\n` + description

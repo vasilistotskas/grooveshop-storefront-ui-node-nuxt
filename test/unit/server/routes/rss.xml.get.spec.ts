@@ -22,8 +22,7 @@ const post = {
   id: 3,
   uuid: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
   slug: 'summer-news',
-  likes: [],
-  translations: { en: { title: 'Summer news', subtitle: 'What is new', body: 'word '.repeat(400) } },
+  translations: { en: { title: 'Summer news', subtitle: 'What is new' } },
   author: 1,
   category: 1,
   tags: [],
@@ -38,6 +37,8 @@ const post = {
   readingTime: 2,
   contentPreview: '',
 }
+
+const ARTICLE = 'word '.repeat(400)
 
 const blogCategory = {
   id: 1,
@@ -82,6 +83,8 @@ function djangoServesTheCatalogue(products = [onSale, retired]) {
   backend.reply((request: BackendRequest) => {
     switch (request.path) {
       case `${API}/blog/post`: return { count: 1, results: [post] }
+      // The article itself: only the detail carries its body
+      case `${API}/blog/post/3`: return { translations: { en: { title: 'Summer news', subtitle: 'What is new', body: ARTICLE } } }
       case `${API}/product`: return { count: products.length, results: products }
       case `${API}/blog/category/1`: return blogCategory
       case `${API}/product/category/1`: return productCategory
@@ -131,6 +134,7 @@ describe('GET /rss.xml', () => {
     expect(xml).toContain('<category><![CDATA[Announcements]]></category>')
     expect(xml).toContain('<category><![CDATA[Shoes]]></category>')
     expect(xml).toContain('<readingTime>2 min read</readingTime>')
+    expect(xml).toContain(`<content:encoded><![CDATA[${ARTICLE}]]></content:encoded>`)
     expect(xml).toContain('<link>https://shop.test/products/1/product-1</link>')
     expect(xml).not.toContain('/products/2/')
   })

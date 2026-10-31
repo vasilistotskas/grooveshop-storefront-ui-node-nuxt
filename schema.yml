@@ -34384,42 +34384,22 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
-        likes:
-          type: array
-          items:
-            type: integer
         translations:
           type: object
           properties:
             el:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
                   type: string
                 subtitle:
-                  type: string
-                body:
                   type: string
             en:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
                   type: string
                 subtitle:
-                  type: string
-                body:
                   type: string
         author:
           type: integer
@@ -34483,7 +34463,6 @@ components:
         - contentPreview
         - createdAt
         - id
-        - likes
         - likesCount
         - mainImagePath
         - publishedAt
@@ -34510,11 +34489,6 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
-        likes:
-          type: array
-          items:
-            type: integer
-          readOnly: true
         translations:
           type: object
           properties:
@@ -34607,6 +34581,11 @@ components:
           readOnly: true
         contentPreview:
           type: string
+          readOnly: true
+        likes:
+          type: array
+          items:
+            type: integer
           readOnly: true
         userHasLiked:
           type: boolean
@@ -36969,28 +36948,12 @@ components:
             el:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
-                  type: string
-                body:
                   type: string
             en:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
-                  type: string
-                body:
                   type: string
         isPublished:
           type: boolean
@@ -37022,8 +36985,8 @@ components:
     ContentPageDetail:
       type: object
       description: |-
-        The detail tier. Its SEO travels in ``translations`` like every
-        other translated field, so it adds nothing to the list shape.
+        The detail tier: every translated field, the body and the SEO
+        copy included.
       properties:
         id:
           type: integer

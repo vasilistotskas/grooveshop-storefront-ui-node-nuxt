@@ -1000,23 +1000,14 @@ export type BlogPost = {
   readonly id: number
   readonly uuid: string
   slug: string
-  likes: Array<number>
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
   }
   author: number
@@ -1070,7 +1061,6 @@ export type BlogPostDetail = {
   readonly id: number
   readonly uuid: string
   slug: string
-  readonly likes: Array<number>
   translations: {
     el?: {
       seoTitle?: string
@@ -1131,6 +1121,7 @@ export type BlogPostDetail = {
   readonly mainImagePath: string
   readonly readingTime: number
   readonly contentPreview: string
+  readonly likes: Array<number>
   readonly userHasLiked: boolean
 }
 
@@ -2642,18 +2633,10 @@ export type ContentPage = {
   slug: string
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
   }
   /**
@@ -2675,8 +2658,8 @@ export type ContentPage = {
 }
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export type ContentPageDetail = {
   readonly id: number
@@ -10689,23 +10672,14 @@ export type BlogCommentDetailWritable = {
  */
 export type BlogPostWritable = {
   slug: string
-  likes: Array<number>
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
   }
   author: number
@@ -10890,18 +10864,10 @@ export type ContentPageWritable = {
   slug: string
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
   }
   /**
@@ -10911,8 +10877,8 @@ export type ContentPageWritable = {
 }
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export type ContentPageDetailWritable = {
   slug: string

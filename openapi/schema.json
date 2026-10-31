@@ -57422,34 +57422,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
-                    "likes": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
                     "translations": {
                         "type": "object",
                         "properties": {
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
                                         "type": "string"
                                     },
                                     "subtitle": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
@@ -57457,22 +57439,10 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
                                         "type": "string"
                                     },
                                     "subtitle": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
@@ -57558,7 +57528,6 @@
                     "contentPreview",
                     "createdAt",
                     "id",
-                    "likes",
                     "likesCount",
                     "mainImagePath",
                     "publishedAt",
@@ -57589,13 +57558,6 @@
                         "type": "string",
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "likes": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "readOnly": true
                     },
                     "translations": {
                         "type": "object",
@@ -57728,6 +57690,13 @@
                     },
                     "contentPreview": {
                         "type": "string",
+                        "readOnly": true
+                    },
+                    "likes": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
                         "readOnly": true
                     },
                     "userHasLiked": {
@@ -60531,19 +60500,7 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
@@ -60551,19 +60508,7 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
@@ -60606,7 +60551,7 @@
             },
             "ContentPageDetail": {
                 "type": "object",
-                "description": "The detail tier. Its SEO travels in ``translations`` like every\nother translated field, so it adds nothing to the list shape.",
+                "description": "The detail tier: every translated field, the body and the SEO\ncopy included.",
                 "properties": {
                     "id": {
                         "type": "integer",

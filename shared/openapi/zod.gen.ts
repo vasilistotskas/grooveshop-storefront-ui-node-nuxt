@@ -347,23 +347,14 @@ export const zBlogPost = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  likes: z.array(z.int()),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
   author: z.int(),
@@ -944,18 +935,10 @@ export const zContentPage = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
   isPublished: z.boolean().optional(),
@@ -965,8 +948,8 @@ export const zContentPage = z.object({
 })
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export const zContentPageDetail = z.object({
   id: z.int().readonly(),
@@ -5852,7 +5835,6 @@ export const zBlogPostDetail = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  likes: z.array(z.int()).readonly(),
   translations: z.object({
     el: z.object({
       seoTitle: z.string().optional(),
@@ -5886,6 +5868,7 @@ export const zBlogPostDetail = z.object({
   mainImagePath: z.string().readonly(),
   readingTime: z.int().readonly(),
   contentPreview: z.string().readonly(),
+  likes: z.array(z.int()).readonly(),
   userHasLiked: z.boolean().readonly(),
 })
 
@@ -6870,23 +6853,14 @@ export const zBlogCommentDetailWritable = z.object({
  */
 export const zBlogPostWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  likes: z.array(z.int()),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
   author: z.int(),
@@ -7005,26 +6979,18 @@ export const zContentPageWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
   isPublished: z.boolean().optional(),
 })
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export const zContentPageDetailWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
