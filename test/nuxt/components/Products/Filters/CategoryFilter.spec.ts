@@ -125,7 +125,9 @@ describe('webside Products/Filters/CategoryFilter', () => {
 
     const clothing = button(wrapper, 'Ρούχα')
     expect(clothing.attributes('disabled')).toBeDefined()
-    expect(clothing.text()).toBe('Ρούχα')
+    // No visible badge, but the zero is still part of the name, as the label it replaced said.
+    expect(clothing.find('[data-slot="base"]').exists()).toBe(false)
+    expect(clothing.text()).toBe(`Ρούχα0 ${own(wrapper, 'products')}`)
     expect(button(wrapper, 'Ηλεκτρονικά').text()).toBe(`Ηλεκτρονικά15${own(wrapper, 'products')}`)
   })
 

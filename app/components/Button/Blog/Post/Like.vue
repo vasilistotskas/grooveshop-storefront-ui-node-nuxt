@@ -79,7 +79,7 @@ const mergedUI = computed(() => ({
  * `label-content-name-mismatch` flagged every post card for it.
  */
 const buttonAreaLabel = computed(() =>
-  t(liked.value ? 'liked' : 'like', { count: props.likesCount }),
+  t('with_count', { text: t(liked.value ? 'liked' : 'like'), count: props.likesCount }),
 )
 
 const getColor = computed(() => {
@@ -113,14 +113,16 @@ const getColor = computed(() => {
 <i18n lang="yaml">
 el:
   not_authenticated: Πρέπει να είσαι συνδεδεμένος για να κάνεις like
-  liked: 'Σου αρέσει ({count})'
-  like: 'Μου αρέσει ({count})'
+  liked: Σου αρέσει
+  like: Μου αρέσει
+  with_count: '{text} ({count})'
   added: Προστέθηκε στα αγαπημένα
   removed: Αφαιρέθηκε από τα αγαπημένα
 en:
   not_authenticated: You have to be signed in to like this
-  liked: 'Liked ({count})'
-  like: 'Like ({count})'
+  liked: Liked
+  like: Like
+  with_count: '{text} ({count})'
   added: Added to your favourites
   removed: Removed from your favourites
 </i18n>

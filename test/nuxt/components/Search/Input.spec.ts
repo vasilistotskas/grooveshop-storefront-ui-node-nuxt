@@ -50,6 +50,6 @@ describe('webside Search/Input', () => {
     // is part of it) is a name a voice-control user cannot say.
     const button = wrapper.find('button')
     expect(button.attributes('aria-label')).toBeUndefined()
-    expect(button.text()).toContain('Αναζήτηση...')
+    expect(button.text()).toContain((wrapper.vm as unknown as { t: (k: string) => string }).t('search.placeholder'))
   })
 })

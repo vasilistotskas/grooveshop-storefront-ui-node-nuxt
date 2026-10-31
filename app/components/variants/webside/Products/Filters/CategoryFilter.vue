@@ -159,12 +159,10 @@ const isCategoryDisabled = (categoryId: string) => {
               variant="soft"
               :class="{ 'opacity-50': categoryFacets[category.id] === 0 }"
             />
-            <!-- The button's name is its visible text (WCAG 2.5.3); the unit rides along, unseen. -->
-            <span
-              v-if="categoryFacets[category.id] !== undefined"
-              class="sr-only"
-            >
-              {{ t('products') }}
+            <!-- The button's name is its visible text (WCAG 2.5.3); the unit rides
+                 along, unseen, and a category missing from the facets says its zero. -->
+            <span class="sr-only">
+              {{ categoryFacets[category.id] === undefined ? '0 ' : '' }}{{ t('products') }}
             </span>
           </button>
         </template>

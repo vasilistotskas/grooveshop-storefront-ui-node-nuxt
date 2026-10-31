@@ -451,6 +451,31 @@ describe('transformHtmlImages', () => {
       expect(out).toContain('style="border: 1px solid; aspect-ratio: 800 / 400"')
     })
 
+    it('keeps an aspect-ratio the author wrote', () => {
+      const out = transformHtmlImages(`<img src="https://api.example.gr${key}" style="aspect-ratio: 1 / 1; object-fit: cover" ${natural(800, 400)}>`, config)
+
+      expect(out).toContain('style="aspect-ratio: 1 / 1; object-fit: cover"')
+      expect(out).not.toContain('800 / 400')
+    })
+
+    it('leads sizes with auto only where the layout fixes the width', () => {
+      // `auto` swaps in a 300px fallback size, which only an authored width overrides.
+      const percent = transformHtmlImages(`<img src="https://api.example.gr${key}" width="100%" ${natural(1600, 800)}>`, config)
+      const pixels = transformHtmlImages(`<img src="https://api.example.gr${key}" width="300" height="150" ${natural(900, 450)}>`, config)
+      const none = transformHtmlImages(`<img src="https://api.example.gr${key}" ${natural(1600, 800)}>`, config)
+
+      expect(percent).toContain('sizes="auto, (max-width: 704px) 100vw, 704px"')
+      expect(pixels).toContain('sizes="auto, (max-width: 300px) 100vw, 300px"')
+      expect(none).toContain('sizes="(max-width: 704px) 100vw, 704px"')
+      expect(none).not.toContain('auto')
+    })
+
+    it('sizes an image with no authored width by its natural width, up to the column', () => {
+      const out = transformHtmlImages(`<img src="https://api.example.gr${key}" ${natural(400, 300)}>`, config)
+
+      expect(out).toContain('sizes="(max-width: 400px) 100vw, 400px"')
+    })
+
     it('leaves the aspect to authored pixel dimensions', () => {
       const out = transformHtmlImages(`<img src="https://api.example.gr${key}" width="300" height="150" ${natural(900, 450)}>`, config)
 

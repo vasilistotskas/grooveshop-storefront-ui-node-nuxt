@@ -712,11 +712,18 @@ export function transformImgTag(
   // every phone (Lighthouse 2026-10-19, F10). `auto` applies to lazy
   // images only, and a browser without it reads the declared list after it.
   const lazy = attrs.loading ? attrs.loading.toLowerCase() === 'lazy' : config.addLazyLoading
+  // `auto` also gives the image a 300px fallback intrinsic size (HTML
+  // rendering: `contain-intrinsic-size`), which only a width the layout
+  // already fixes overrides: an authored width, pixel or percentage. An
+  // image with neither keeps its natural size and gets plain `sizes`.
+  const layoutWidthKnown = !!(attrs.width || attrs.widthPercent)
   // Known size: the authored pixel width, or the real size the API recorded
   // (which also lets a `width="100%"` image, drawn at the column's width,
-  // offer a retina candidate it can really fill).
+  // offer a retina candidate it can really fill). With no authored width the
+  // image is drawn at its natural size, up to the column.
+  const sizesWidth = layoutWidthKnown ? width : Math.min(width, attrs.naturalWidth ?? width)
   const srcset = attrs.width || attrs.naturalWidth
-    ? ` srcset="${candidates.map(({ url, width: w }) => `${url} ${w}w`).join(', ')}" sizes="${lazy ? 'auto, ' : ''}(max-width: ${width}px) 100vw, ${width}px"`
+    ? ` srcset="${candidates.map(({ url, width: w }) => `${url} ${w}w`).join(', ')}" sizes="${lazy && layoutWidthKnown ? 'auto, ' : ''}(max-width: ${sizesWidth}px) 100vw, ${sizesWidth}px"`
     : ''
   newTag = newTag.replace(/src=["'][^"']*["']/i, `src="${candidates[0]?.url}"${srcset}`)
 
@@ -739,7 +746,9 @@ export function transformImgTag(
   // attributes. Percentages, as TinyMCE writes them, give it no ratio, so a
   // lazy image shifted the page as it arrived: the recorded real size
   // supplies one. Authored pixel attributes already do.
-  if (attrs.naturalWidth && attrs.naturalHeight && !(attrs.width && attrs.height)) {
+  // An aspect-ratio the author wrote in `style` (a square crop) stays theirs.
+  const authoredRatio = /(?:^|[;\s"'])aspect-ratio\s*:/i.test(String(attrs.style ?? ''))
+  if (attrs.naturalWidth && attrs.naturalHeight && !(attrs.width && attrs.height) && !authoredRatio) {
     const ratio = `aspect-ratio: ${attrs.naturalWidth} / ${attrs.naturalHeight}`
     newTag = attrs.style !== undefined
       ? newTag.replace(/(\sstyle=)(["'])(.*?)\2/i, (_, name, quote, value) => `${name}${quote}${value.trim().replace(/;?$/, ';')} ${ratio}${quote}`)
