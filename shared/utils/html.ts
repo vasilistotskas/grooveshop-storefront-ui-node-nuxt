@@ -54,6 +54,7 @@ function installEmbedOriginHook(): void {
  * library is loaded.
  */
 type PurifiedElement = Parameters<ElementHook>[0]
+type PurifiedNode = PurifiedElement['childNodes'][number]
 
 export interface RichHtmlOptions {
   /**
@@ -160,13 +161,10 @@ const FORBIDDEN_STYLE_PROPERTY_RE = /^(?:font|font-family|mso-.*)$/i
 const WORD_CLASS_RE = /^mso/i
 
 /**
- * What names a link that has no text: an image, an icon, a player. A link
- * holding none of these and no text is an empty one.
+ * Content a link can draw instead of text: an image, an icon, a player.
+ * It names the link only when it carries a name of its own (``linkMedia``).
  */
-const LINK_CONTENT_SELECTOR = 'img, svg, picture, video, audio, iframe, canvas'
-
-/** The attributes that give a link a name when it has no content to name it. */
-const LINK_NAME_ATTRIBUTES = ['aria-label', 'aria-labelledby', 'title'] as const
+const LINK_MEDIA_SELECTOR = 'img, svg, video, audio, iframe, canvas'
 
 /**
  * The declarations of an inline ``style``, split on the semicolons that
@@ -240,39 +238,77 @@ function installWordCleanupHooks(): void {
   })
 }
 
+const hasText = (value: string | null | undefined): boolean => Boolean(value?.trim())
+
+const isHiddenFromReaders = (element: PurifiedElement): boolean =>
+  element.getAttribute('aria-hidden') === 'true' || element.hasAttribute('hidden')
+
+/** The text a reader gets from ``node``: its text, without what is hidden from assistive technology. */
+function readableText(node: PurifiedNode): string {
+  if (node.nodeType === 3) return node.textContent ?? ''
+  if (node.nodeType !== 1 || isHiddenFromReaders(node as PurifiedElement)) return ''
+  return [...node.childNodes].map(readableText).join('')
+}
+
+/** True when ``media`` supplies a name: a non-empty ``alt`` (images), ``aria-label`` or ``title``. */
+function mediaNamesLink(media: PurifiedElement): boolean {
+  const role = media.getAttribute('role')
+  if (role === 'presentation' || role === 'none' || isHiddenFromReaders(media)) return false
+  return (media.tagName === 'IMG' && hasText(media.getAttribute('alt')))
+    || hasText(media.getAttribute('aria-label'))
+    || hasText(media.getAttribute('title'))
+}
+
 /**
- * Clean the links an editor leaves in a body. An anchor with no ``href``
- * goes nowhere (a Word comment reference, a half-made link): it is
- * unwrapped and its content stays. One that is the target of an in-page
- * link (``<a id="_Toc1">``, the legacy ``<a name="top">``) is a place, not
- * a link: it becomes a ``span`` carrying that ``id``, so ``#_Toc1`` still
- * jumps there. A link with an ``href`` and nothing to read or look at
- * (whitespace, ``&nbsp;``, Word's empty comment marker to
- * ``#_msocom_<n>``) and no ``aria-label``, ``aria-labelledby`` or ``title``
- * has no accessible name and is a keyboard stop that announces nothing:
- * it is dropped. Run on the sanitised tree, like the embed facades, not
- * inside a hook while DOMPurify is walking it.
+ * Whether ``anchor`` has an accessible name, by the sources of W3C ACT
+ * rule c487ae in order: ``aria-labelledby`` (only ids that resolve, in
+ * this fragment, to an element with text), ``aria-label``, its content (text, or media
+ * that names itself: a decorative ``alt=""`` image does not), then ``title``.
+ */
+function linkHasName(anchor: PurifiedElement, root: PurifiedElement): boolean {
+  const labelledBy = anchor.getAttribute('aria-labelledby')?.split(/\s+/).filter(Boolean) ?? []
+  if (labelledBy.length) {
+    for (const element of root.querySelectorAll('[id]')) {
+      if (labelledBy.includes(element.id) && hasText(element.textContent)) return true
+    }
+  }
+  return hasText(anchor.getAttribute('aria-label'))
+    || hasText(readableText(anchor))
+    || [...anchor.querySelectorAll(LINK_MEDIA_SELECTOR)].some(mediaNamesLink)
+    || hasText(anchor.getAttribute('title'))
+}
+
+/**
+ * Clean the links an editor leaves in a body: one decision per anchor, by
+ * its accessible name and its target.
+ *
+ * - A link (``href``) with a name stays.
+ * - Any other anchor is not a link to keep: with no ``href`` it goes
+ *   nowhere (a Word comment reference, a half-made link); with an ``href``
+ *   but no name (whitespace, ``&nbsp;``, a decorative image, Word's empty
+ *   comment marker to ``#_msocom_<n>``) it is a keyboard stop that
+ *   announces nothing. It is unwrapped, so its content stays and a
+ *   decorative image or the spacing between two words is not lost.
+ * - If it is also the target of an in-page link (``id``, or the legacy
+ *   ``name``: Word's ``<a id="_Toc1">``), the target stays as a ``span``
+ *   with that ``id``, so ``#_Toc1`` still jumps there and no href-less
+ *   anchor is left for Lighthouse ``crawlable-anchors``.
+ *
+ * Run on the sanitised tree, like the embed facades, not inside a hook
+ * while DOMPurify is walking it.
  */
 function cleanAnchors(root: PurifiedElement): void {
   for (const anchor of root.querySelectorAll('a')) {
-    if (!anchor.hasAttribute('href')) {
-      const target = anchor.getAttribute('id') || anchor.getAttribute('name')
-      if (target) {
-        const place = anchor.ownerDocument.createElement('span')
-        place.id = target
-        place.append(...anchor.childNodes)
-        anchor.replaceWith(place)
-      }
-      else {
-        anchor.replaceWith(...anchor.childNodes)
-      }
+    if (anchor.hasAttribute('href') && linkHasName(anchor, root)) continue
+    const target = anchor.getAttribute('id') || anchor.getAttribute('name')
+    if (target) {
+      const place = anchor.ownerDocument.createElement('span')
+      place.id = target
+      place.append(...anchor.childNodes)
+      anchor.replaceWith(place)
     }
-    else if (
-      !anchor.textContent?.trim()
-      && !anchor.querySelector(LINK_CONTENT_SELECTOR)
-      && !LINK_NAME_ATTRIBUTES.some(name => anchor.hasAttribute(name))
-    ) {
-      anchor.remove()
+    else {
+      anchor.replaceWith(...anchor.childNodes)
     }
   }
 }

@@ -45,14 +45,24 @@ const tenantLocales = computed<Locale<unknown>[]>(() =>
 
 /**
  * What the control shows: the locale code ("EL") when compact, else the
- * language's own name. The control's accessible name starts with it, so a
- * screen-reader user who says what they see reaches it (WCAG 2.5.3) and
- * still hears what it does.
+ * language's own name.
  */
 const shownLanguage = computed(() => {
   const current = tenantLocales.value.find(entry => entry.code === currentLocale.value)
   return (props.compact ? current?.code : current?.name) ?? currentLocale.value
 })
+
+/**
+ * The control's accessible name: what it shows, then what it does. The
+ * shown language is composed here, not interpolated into the translated
+ * phrase, so a store's text override of `change_language` cannot drop it,
+ * and a screen-reader user who says what they see reaches the control
+ * (WCAG 2.5.3). The list format puts the separator the language uses.
+ */
+const accessibleName = computed(() =>
+  new Intl.ListFormat(locale.value, { type: 'unit', style: 'long' })
+    .format([shownLanguage.value, t('change_language')]),
+)
 
 // Keep the selector in sync with any external locale change (settings form,
 // login-time syncFromUser, programmatic setLocale elsewhere).
@@ -88,7 +98,7 @@ watch(currentLocale, async (newLocale) => {
     leading-icon="i-heroicons-globe-alt"
     color="neutral"
     size="sm"
-    :aria-label="t('change_language', { current: shownLanguage })"
+    :aria-label="accessibleName"
     :ui="{
       base: 'w-auto rounded-full font-semibold',
       value: compact ? 'uppercase' : '',
@@ -99,7 +109,7 @@ watch(currentLocale, async (newLocale) => {
 
 <i18n lang="yaml">
 el:
-  change_language: '{current}, αλλαγή γλώσσας'
+  change_language: Αλλαγή γλώσσας
 en:
-  change_language: '{current}, change language'
+  change_language: Change language
 </i18n>
