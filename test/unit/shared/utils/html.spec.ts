@@ -408,6 +408,22 @@ describe('transformHtmlImages', () => {
     expect(out).toContain('height="704"')
   })
 
+  it('builds a responsive image from the intrinsic size the API writes on save', () => {
+    // An upload with no authored size comes back from the API with its
+    // natural width and height; that is all the transform needs for a
+    // width-descriptor srcset and an aspect the browser can reserve.
+    const out = transformHtmlImages(
+      `<img src="https://api.example.gr${key}" width="1600" height="1200">`,
+      config,
+    )
+
+    expect(out).toContain(`${url(704, 528)} 704w`)
+    expect(out).toContain(`${url(1408, 1056)} 1408w`)
+    expect(out).toContain('sizes="auto, (max-width: 704px) 100vw, 704px"')
+    expect(out).toContain('width="1600"')
+    expect(out).toContain('height="1200"')
+  })
+
   it('requests a smaller authored width as written', () => {
     const out = transformHtmlImages(
       `<img src="https://api.example.gr${key}" width="300" height="150">`,

@@ -32,7 +32,7 @@ const getImage = (mainImagePath: string) => {
     width: 1920,
     height: 1920,
     fit: 'cover',
-    quality: 100,
+    quality: PRODUCT_IMAGE_QUALITY,
     format: 'png',
   }, {
     provider: 'mediaStream',
@@ -283,7 +283,7 @@ watch(modelValue, (isOpen) => {
                     width="1000"
                     height="1000"
                     fit="contain"
-                    quality="100"
+                    :quality="PRODUCT_IMAGE_QUALITY"
                     :src="item?.mainImagePath"
                     :alt="extractTranslated(item, 'title', locale)"
                     @dragstart.prevent
@@ -316,7 +316,7 @@ watch(modelValue, (isOpen) => {
                     width="1000"
                     height="1000"
                     fit="contain"
-                    quality="100"
+                    :quality="PRODUCT_IMAGE_QUALITY"
                     :src="item?.mainImagePath"
                     :alt="extractTranslated(item, 'title', locale)"
                     @dragstart.prevent
@@ -344,7 +344,7 @@ watch(modelValue, (isOpen) => {
                   width="1000"
                   height="1000"
                   fit="contain"
-                  quality="100"
+                  :quality="PRODUCT_IMAGE_QUALITY"
                   :src="images[0]?.mainImagePath"
                   :alt="extractTranslated(images[0], 'title', locale)"
                   @dragstart.prevent
