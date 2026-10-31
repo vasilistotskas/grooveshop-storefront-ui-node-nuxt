@@ -155,7 +155,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   })
 
   const isOnlinePayment = computed(() => {
-    return isStripePayment.value || isVivaWalletPayment.value
+    return selectedPayWay.value?.settlement === zSettlementEnum.enum.online
   })
 
   // Functions

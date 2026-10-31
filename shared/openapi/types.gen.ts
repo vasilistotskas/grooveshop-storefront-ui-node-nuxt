@@ -4245,9 +4245,12 @@ export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'rese
 /**
  * Serializer for creating orders from cart (dual-flow payment architecture).
  *
- * This serializer supports two payment flows:
- * 1. Online payments (is_online_payment=True): Requires payment_intent_id
- * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ * The flow follows the pay way's ``settlement``:
+ * 1. ``online``: the shopper pays at checkout; a client-confirmed
+ * provider (Stripe) requires ``payment_intent_id``, a hosted-checkout
+ * provider (Viva) creates the order first and redirects.
+ * 2. Any other settlement (courier cash, carrier terminal, offline
+ * transfer): money is collected later, no ``payment_intent_id``.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.
@@ -11296,9 +11299,12 @@ export type OrderWritable = {
 /**
  * Serializer for creating orders from cart (dual-flow payment architecture).
  *
- * This serializer supports two payment flows:
- * 1. Online payments (is_online_payment=True): Requires payment_intent_id
- * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ * The flow follows the pay way's ``settlement``:
+ * 1. ``online``: the shopper pays at checkout; a client-confirmed
+ * provider (Stripe) requires ``payment_intent_id``, a hosted-checkout
+ * provider (Viva) creates the order first and redirects.
+ * 2. Any other settlement (courier cash, carrier terminal, offline
+ * transfer): money is collected later, no ``payment_intent_id``.
  *
  * The order is created from an existing cart identified via X-Cart-Id header.
  * Cart is NOT sent in request body - it's retrieved from the header using CartService.

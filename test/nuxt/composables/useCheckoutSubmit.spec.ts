@@ -399,6 +399,19 @@ describe('useCheckoutSubmit', () => {
     })
   })
 
+  describe('isOnlinePayment', () => {
+    it.each([
+      ['online', true],
+      ['courier_cash', false],
+      ['carrier_terminal', false],
+      ['offline_transfer', false],
+    ] as const)('follows the pay way settlement: %s -> %s', (settlement, expected) => {
+      const { isOnlinePayment } = setup(makePayWay({ id: 1, settlement }))
+
+      expect(isOnlinePayment.value).toBe(expected)
+    })
+  })
+
   describe('offline (cash on delivery)', () => {
     it('posts the order, clears the cart, and lands on the success page marked as placed', async () => {
       api.routes({ '/api/orders': orderCreated({ uuid: 'order-cod' }) })
