@@ -15837,120 +15837,13 @@ export type ListBlogPostFeedData = {
   path?: never
   query?: {
     /**
-         * Φίλτρο ανά ID συντάκτη
-         */
-    author?: string | number
-    /**
-         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
-         */
-    authorEmail?: string
-    /**
-         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
-         */
-    authorName?: string
-    /**
-         * Φίλτρο ανά ID κατηγορίας
-         */
-    category?: string | number
-    /**
-         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
-         */
-    categoryName?: string
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
-         */
-    createdAfter?: string
-    createdAt_Date?: string
-    createdAt_Gte?: string
-    createdAt_Lte?: string
-    /**
-         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
-         */
-    createdBefore?: string
-    /**
-         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
-         */
-    currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Φίλτρο ανά κατάσταση προτεινόμενου
-         */
-    featured?: 'true' | 'false' | '1' | '0' | boolean
-    id?: string | number
-    /**
-         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
-         */
-    id_In?: string | Array<number>
-    /**
-         * Φίλτρο ανά κατάσταση δημοσίευσης
-         */
-    isPublished?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Most posts to return (capped by the store).
+         * Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή).
          */
     limit?: string | number
-    /**
-         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
-         */
-    minComments?: string | number
-    /**
-         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
-         */
-    minLikes?: string | number
-    /**
-         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
-         */
-    minTags?: string | number
-    /**
-         * Φίλτρο ανά ελάχιστο αριθμό προβολών
-         */
-    minViewCount?: string | number
-    /**
-         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
-         */
-    publishedAfter?: string
-    publishedAt_Date?: string
-    publishedAt_Gte?: string
-    publishedAt_Lte?: string
-    /**
-         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
-         */
-    publishedBefore?: string
     /**
          * A search term.
          */
     search?: string
-    slug?: string
-    slug_Icontains?: string
-    /**
-         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
-         */
-    tagName?: string
-    /**
-         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
-         */
-    tags?: string | Array<number>
-    /**
-         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
-         */
-    title?: string
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
-         */
-    updatedAfter?: string
-    updatedAt_Date?: string
-    updatedAt_Gte?: string
-    updatedAt_Lte?: string
-    /**
-         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
-         */
-    updatedBefore?: string
-    /**
-         * Φίλτρο ανά ακριβές UUID
-         */
-    uuid?: string
-    viewCount?: string | number
-    viewCount_Gte?: string | number
-    viewCount_Lte?: string | number
   }
   url: '/api/v1/blog/post/feed'
 }

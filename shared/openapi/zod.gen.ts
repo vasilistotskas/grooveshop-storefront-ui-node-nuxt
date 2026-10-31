@@ -10396,103 +10396,11 @@ export const zCreateBlogPostQuery = z.object({
 export const zCreateBlogPostResponse = zBlogPostDetail
 
 export const zListBlogPostFeedQuery = z.object({
-  author: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  authorEmail: z.string().optional(),
-  authorName: z.string().optional(),
-  category: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  categoryName: z.string().optional(),
-  createdAfter: z.iso.datetime({ offset: true }).optional(),
-  createdAt_Date: z.iso.date().optional(),
-  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
-  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
-  createdBefore: z.iso.datetime({ offset: true }).optional(),
-  currentlyPublished: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  featured: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  id_In: z.union([
-    z.string(),
-    z.array(z.int()),
-  ]).optional(),
-  isPublished: z.union([
-    z.literal('true'),
-    z.literal('false'),
-    z.literal('1'),
-    z.literal('0'),
-    z.boolean(),
-  ]).optional(),
   limit: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  minComments: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minLikes: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minTags: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
-  minViewCount: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  publishedAfter: z.iso.datetime({ offset: true }).optional(),
-  publishedAt_Date: z.iso.date().optional(),
-  publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
-  publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
-  publishedBefore: z.iso.datetime({ offset: true }).optional(),
   search: z.string().optional(),
-  slug: z.string().optional(),
-  slug_Icontains: z.string().optional(),
-  tagName: z.string().optional(),
-  tags: z.union([
-    z.string(),
-    z.array(z.int()),
-  ]).optional(),
-  title: z.string().optional(),
-  updatedAfter: z.iso.datetime({ offset: true }).optional(),
-  updatedAt_Date: z.iso.date().optional(),
-  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
-  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
-  updatedBefore: z.iso.datetime({ offset: true }).optional(),
-  uuid: z.uuid().optional(),
-  viewCount: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  viewCount_Gte: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  viewCount_Lte: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
 })
 
 export const zListBlogPostFeedResponse = z.array(zBlogPostFeed)
