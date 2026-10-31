@@ -32335,7 +32335,7 @@ paths:
           description: ''
     post:
       operationId: subscribeToNewsletter
-      description: 'Εγγράφει μια διεύθυνση email στο προεπιλεγμένο θέμα newsletter του καταστήματος. Απαντά πάντα 202: αποστέλλεται email επιβεβαίωσης, εκτός αν η διεύθυνση έχει ήδη επιβεβαιωθεί ή έχει ήδη σταλεί ένα τα τελευταία 10 λεπτά.'
+      description: 'Εγγράφει μια διεύθυνση email στο προεπιλεγμένο θέμα newsletter του καταστήματος. Απαντά πάντα 202 με ένα ``status``. Το ``pending_confirmation`` είναι η απάντηση σε κάθε επισκέπτη: μπορεί να ακολουθήσει email, χωρίς υπόσχεση: ο σύνδεσμος επιβεβαίωσης (το πολύ ένας ανά 10 λεπτά από τον προηγούμενο σύνδεσμο) ή, για συνδρομή που είναι ήδη επιβεβαιωμένη, ειδοποίηση που το λέει (το πολύ μία ανά 10 λεπτά από την προηγούμενη ειδοποίηση). Το ``already_subscribed`` δίνεται μόνο σε συνδεδεμένο λογαριασμό που υπέβαλε δική του επαληθευμένη διεύθυνση ενώ η δική του συνδρομή είναι ήδη επιβεβαιωμένη· δεν στέλνεται email.'
       summary: Εγγραφή μιας διεύθυνσης email στο ενημερωτικό δελτίο
       tags:
         - User Subscriptions
@@ -32359,7 +32359,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Detail'
+                $ref: '#/components/schemas/NewsletterSubscribeResponse'
           description: ''
         '400':
           content:
@@ -39065,6 +39065,30 @@ components:
         - consent
         - consentText
         - email
+    NewsletterSubscribeResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        status:
+          allOf:
+            - $ref: '#/components/schemas/NewsletterSubscribeResponseStatusEnum'
+          description: |-
+            ``pending_confirmation`` για κάθε επισκέπτη: μπορεί να ακολουθήσει email, χωρίς υπόσχεση. ``already_subscribed`` μόνο όταν ο συνδεδεμένος λογαριασμός υπέβαλε δική του επαληθευμένη διεύθυνση και η συνδρομή του λογαριασμού στο newsletter είναι ήδη επιβεβαιωμένη· τότε δεν στέλνεται email.
+
+            * `pending_confirmation` - Εκκρεμεί επιβεβαίωση
+            * `already_subscribed` - Υπάρχει ήδη εγγραφή
+      required:
+        - detail
+        - status
+    NewsletterSubscribeResponseStatusEnum:
+      enum:
+        - pending_confirmation
+        - already_subscribed
+      type: string
+      description: |-
+        * `pending_confirmation` - Εκκρεμεί επιβεβαίωση
+        * `already_subscribed` - Υπάρχει ήδη εγγραφή
     Notification:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
