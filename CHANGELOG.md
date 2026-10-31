@@ -1,3 +1,10 @@
+## [3.274.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.3...v3.274.4) (2026-10-31)
+
+
+### Performance Improvements
+
+* **cache:** compress cached pages and handlers in Redis ([#294](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/294)) ([498d5f1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/498d5f159682335780ebbfe450fc142ad86a484d))
+
 ## [3.274.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.2...v3.274.3) (2026-10-31)
 
 
