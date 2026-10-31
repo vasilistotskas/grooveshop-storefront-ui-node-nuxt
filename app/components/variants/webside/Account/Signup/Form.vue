@@ -7,7 +7,6 @@ const { hasProviders } = useSocialProviders()
 const { t } = useStoreI18n('components/variants/webside/Account/Signup/Form')
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
-const img = useImage()
 const tenantStore = useTenantStore()
 const isPlatform = useIsPlatformTenant()
 const config = useRuntimeConfig()
@@ -46,26 +45,29 @@ const state = reactive<Partial<Schema>>({
 })
 
 const onSubmit = (event: { data: Schema }) => signup(event.data)
-
-const backgroundImage = computed(() => {
-  return img(
-    '/img/login-background.png',
-    {
-      width: 400,
-      height: 256,
-      fit: 'contain',
-    },
-  )
-})
 </script>
 
 <template>
   <section class="relative grid">
+    <!-- The phone's hero is an <img>, not a CSS background set from a
+         computed URL: the browser finds it in the server's HTML, so it can
+         be the LCP at high priority (it was undiscoverable until JS ran). -->
     <div
       v-if="isMobileOrTablet"
-      class="absolute top-[-1px] z-0 h-64 w-full bg-center"
-      :style="isMobileOrTablet ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover' } : ''"
-    />
+      class="absolute top-[-1px] z-0 h-64 w-full overflow-hidden"
+    >
+      <NuxtImg
+        src="/img/login-background.png"
+        alt=""
+        :width="400"
+        :height="256"
+        fit="contain"
+        loading="eager"
+        fetchpriority="high"
+        :preload="{ fetchPriority: 'high' }"
+        class="size-full object-cover object-center"
+      />
+    </div>
     <UForm
       id="SignupForm"
       :schema="schema"

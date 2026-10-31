@@ -7,7 +7,7 @@ exports[`webside design render > blog post card desktop 1`] = `
     <div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
       <h2 class="grid h-20"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full text-2xl font-bold tracking-tight text-primary-950 md:text-3xl dark:text-primary-50" aria-label="Τι είναι τα mAh">Τι είναι τα mAh</a></h2>
     </div>
-    <div class="flex justify-end gap-6 pt-5"><button type="button" data-slot="base" aria-label="Like" title="Like" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
+    <div class="flex justify-end gap-6 pt-5"><button type="button" data-slot="base" aria-label="Like (2)" title="Like (2)" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
         <!--v-if-->
       </button>
       <!--v-if--><a href="/blog/post/82/ti-einai-ta-mah#blog-post-comments" data-slot="base" title="1 σχόλια" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex cursor-pointer flex-col items-center gap-1 p-0 hover:bg-transparent"><span class="iconify i-heroicons:chat-bubble-oval-left shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">1</span>
@@ -24,7 +24,7 @@ exports[`webside design render > blog post card mobile 1`] = `
   <div class="relative grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="575" height="670" data-nuxt-img="" sizes="(max-width: 639px) 382px, (max-width: 767px) 352px, (max-width: 1023px) 545px, (max-width: 1279px) 562px, (max-width: 1535px) 387px, 387px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/352/410/cover/attention/transparent/0/80.avif 352w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/382/445/cover/attention/transparent/0/80.avif 382w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/387/451/cover/attention/transparent/0/80.avif 387w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/545/635/cover/attention/transparent/0/80.avif 545w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/562/655/cover/attention/transparent/0/80.avif 562w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/704/820/cover/attention/transparent/0/80.avif 704w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/764/890/cover/attention/transparent/0/80.avif 764w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/774/902/cover/attention/transparent/0/80.avif 774w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1090/1270/cover/attention/transparent/0/80.avif 1090w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif 1124w" fetchpriority="auto" class="rounded-lg bg-primary-100" style="object-fit: contain; content-visibility: auto; aspect-ratio: 575 / 670;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif">
       <h2 class="absolute right-0 bottom-12 grid w-full justify-center justify-items-start"><span class="m-auto block w-[70%] text-start text-3xl font-bold tracking-tight text-primary-50 sm:w-3/5 md:w-[66%] md:text-4xl lg:w-[76%] dark:text-primary-50">Τι είναι τα mAh</span></h2>
     </a>
-    <div class="absolute right-4 bottom-4 grid items-end gap-2"><button type="button" data-slot="base" aria-label="Like" title="Like" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-12" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
+    <div class="absolute right-4 bottom-4 grid items-end gap-2"><button type="button" data-slot="base" aria-label="Like (2)" title="Like (2)" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-12" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
         <!--v-if-->
       </button>
       <!--v-if--><a href="/blog/post/82/ti-einai-ta-mah#blog-post-comments" data-slot="base" title="1 σχόλιο" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex cursor-pointer flex-col items-center gap-1 p-0 text-white hover:bg-transparent md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:chat-bubble-oval-left shrink-0 size-12" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">1</span>
@@ -59,7 +59,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                     lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
-                <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" aria-label="Αναζήτηση..." class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
+                <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
                     <!--v-if-->
                     <div class="flex w-full items-center justify-between">
                       <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση...</span></div>
@@ -441,6 +441,73 @@ exports[`webside design render > login form 1`] = `
 </section>"
 `;
 
+exports[`webside design render > login form on a phone draws its hero as an image 1`] = `
+"<section class="relative grid">
+  <div class="absolute top-[-1px] z-0 h-64 w-full overflow-hidden"><img width="400" height="256" data-nuxt-img="" srcset="/_ipx/fit_contain&amp;s_400x256/img/login-background.png 1x, /_ipx/fit_contain&amp;s_800x512/img/login-background.png 2x" alt="" loading="eager" fetchpriority="high" class="size-full object-cover object-center" src="/_ipx/fit_contain&amp;s_400x256/img/login-background.png"></div>
+  <form id="loginForm" method="post" class="z-10 container mx-auto px-4 !pt-12 !pb-6 md:!p-0">
+    <div class="h-full flex-wrap items-center justify-center rounded-lg p-0">
+      <div class="relative grid w-full gap-4">
+        <div class="grid gap-6 rounded-lg bg-primary-100 px-4 py-8 shadow-lg md:bg-transparent md:!p-0 md:shadow-none dark:bg-primary-900 dark:md:bg-transparent">
+          <div class="grid content-evenly items-center justify-center gap-1"><img width="100" height="100" data-nuxt-img="" srcset="/_ipx/q_90&amp;s_100x100/img/logo-border.png 1x, /_ipx/q_90&amp;s_200x200/img/logo-border.png 2x" alt="" src="/_ipx/q_90&amp;s_100x100/img/logo-border.png"><span class="sr-only">Λογότυπο Webside</span></div>
+          <div data-orientation="vertical" data-slot="root" class="text-base">
+            <div data-slot="wrapper" class="">
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Email</label>
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+            <div class="relative mt-1">
+              <div data-slot="root" class="relative inline-flex items-center w-full"><input id="ID" type="email" name="email" class="w-full rounded-md border-0 appearance-none placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary ps-11" autocomplete="email" inputmode="email" aria-invalid="false" data-slot="base"><span data-slot="leading" class="absolute inset-y-0 start-0 flex items-center ps-3"><span class="iconify i-heroicons:envelope shrink-0 text-dimmed size-6" aria-hidden="true" data-slot="leadingIcon"></span></span>
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+          </div>
+          <div data-orientation="vertical" data-slot="root" class="text-base">
+            <div data-slot="wrapper" class="">
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός πρόσβασης</label>
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+            <div class="relative mt-1">
+              <div data-slot="root" class="relative inline-flex items-center w-full"><input id="ID" type="password" name="password" class="w-full rounded-md border-0 appearance-none placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary ps-11 pe-11" autocomplete="current-password" aria-invalid="false" data-slot="base"><span data-slot="leading" class="absolute inset-y-0 start-0 flex items-center ps-3"><span class="iconify i-heroicons:lock-closed shrink-0 text-dimmed size-6" aria-hidden="true" data-slot="leadingIcon"></span></span><span data-slot="trailing" class="absolute inset-y-0 end-0 flex items-center pe-1"><button type="button" data-slot="base" aria-label="Δείξε τον κωδικό" aria-pressed="false" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-xs gap-1.5 text-muted hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-1.5"><span class="iconify i-heroicons:eye shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span>
+                <!--v-if-->
+                <!--v-if--></button></span>
+              </div>
+              <!--v-if-->
+            </div>
+          </div><button type="submit" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-base gap-2 w-full justify-center active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)">
+            <!--v-if--><span data-slot="label" class="truncate">Σύνδεση</span>
+            <!--v-if-->
+          </button>
+        </div>
+        <div class="grid gap-4">
+          <div class="flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300">
+            <p class="mx-4 text-center font-semibold text-primary-950 dark:text-primary-50">ή</p>
+          </div><button type="submit" data-slot="base" aria-busy="false" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-sm gap-2 w-full justify-center active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)"><span class="iconify i-heroicons-solid:lock-closed shrink-0 size-5" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Σύνδεση με κλειδί ασφαλείας</span>
+            <!--v-if-->
+          </button>
+          <div class="flex flex-col items-center gap-2 py-4 sm:flex-col"><a href="/account/login/code" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) p-0 font-semibold">
+              <!--v-if--><span data-slot="label" class="truncate">Σύνδεση με κωδικό μιας χρήσης</span>
+              <!--v-if-->
+            </a><a href="/account/password/reset" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) p-0 font-semibold">
+              <!--v-if--><span data-slot="label" class="truncate">Ξέχασες τον κωδικό σου;</span>
+              <!--v-if-->
+            </a>
+            <div class="flex items-center gap-2"><span class="text-sm font-semibold">Δεν έχεις λογαριασμό;</span><a href="/account/signup" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-2 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) p-0 font-semibold underline">
+                <!--v-if--><span data-slot="label" class="truncate">Εγγραφή</span>
+                <!--v-if-->
+              </a></div>
+          </div>
+          <!--v-if-->
+        </div>
+      </div>
+    </div>
+  </form>
+</section>"
+`;
+
 exports[`webside design render > mobile bottom nav 1`] = `
 "<nav data-slot="root" aria-label="Mobile navigation" class="gap-1.5 [&amp;>div]:min-w-0 items-center justify-between fixed inset-x-0 bottom-0 z-50 block w-full border-t border-primary-200 bg-primary-50/90 backdrop-blur-md transition-transform duration-200 dark:border-primary-700 dark:bg-primary-900/90 translate-y-0" data-orientation="horizontal" dir="ltr" data-reka-navigation-menu="">
   <div style="position: relative;">
@@ -496,7 +563,7 @@ exports[`webside design render > navbar 1`] = `
                     lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
             <!--v-if--><span class="sr-only">Webside</span>
           </a></div>
-        <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" aria-label="Αναζήτηση..." class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
+        <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
             <!--v-if-->
             <div class="flex w-full items-center justify-between">
               <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση...</span></div>
@@ -667,7 +734,7 @@ exports[`webside design render > product card 1`] = `
           <!--v-if-->
         </button>
       </div><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block">
-        <div data-v-X="" class="aspect-4/3 max-w-full overflow-hidden"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif 1x" class="size-full max-w-full bg-white object-contain" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif"></div>
+        <div data-v-X="" class="aspect-4/3 max-w-full overflow-hidden"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/90.avif 1x" class="size-full max-w-full bg-white object-contain" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/90.avif"></div>
       </a>
     </div>
     <div data-v-X="" class="flex flex-col gap-4 p-4"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
@@ -765,7 +832,7 @@ exports[`webside design render > section blog_posts_list 1`] = `
             <div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
               <h2 class="grid h-20"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full text-2xl font-bold tracking-tight text-primary-950 md:text-3xl dark:text-primary-50" aria-label="Τι είναι τα mAh">Τι είναι τα mAh</a></h2>
             </div>
-            <div class="flex justify-end gap-6 pt-5"><button type="button" data-slot="base" aria-label="Like" title="Like" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
+            <div class="flex justify-end gap-6 pt-5"><button type="button" data-slot="base" aria-label="Like (2)" title="Like (2)" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
                 <!--v-if-->
               </button>
               <!--v-if--><a href="/blog/post/82/ti-einai-ta-mah#blog-post-comments" data-slot="base" title="1 σχόλια" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex cursor-pointer flex-col items-center gap-1 p-0 hover:bg-transparent"><span class="iconify i-heroicons:chat-bubble-oval-left shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">1</span>
@@ -872,7 +939,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                     lg:object-left" alt="" fetch-priority="high" src="/_ipx/q_90&amp;fit_inside&amp;s_145x44/img/logo-navbar.png">
                     <!--v-if--><span class="sr-only">Webside</span>
                   </a></div>
-                <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" aria-label="Αναζήτηση..." class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
+                <div class="relative flex items-center md:w-full"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 w-full justify-center ring ring-inset ring-accented bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default outline-inverted/25 focus-visible:outline-3 focus-visible:ring-inverted p-0 text-primary-800 hover:text-primary-950 md:px-2.5 md:py-1.5 dark:text-primary-200 dark:hover:text-primary-50 md:max-w-md">
                     <!--v-if-->
                     <div class="flex w-full items-center justify-between">
                       <div class="flex items-center gap-2"><span class="iconify i-heroicons:magnifying-glass size-5" aria-hidden="true"></span><span>Αναζήτηση...</span></div>
@@ -1826,6 +1893,98 @@ exports[`webside design render > signup form 1`] = `
       <div class="relative grid w-full gap-4">
         <div class="grid gap-6 rounded-lg bg-primary-100 px-4 py-8 shadow-lg md:bg-transparent md:!p-0 md:shadow-none dark:bg-primary-900 dark:md:bg-transparent">
           <div class="grid content-evenly items-center justify-center gap-1"><img width="140" height="140" data-nuxt-img="" srcset="/_ipx/q_90&amp;s_140x140/img/logo-border.png 1x, /_ipx/q_90&amp;s_280x280/img/logo-border.png 2x" alt="" src="/_ipx/q_90&amp;s_140x140/img/logo-border.png"><span class="sr-only">Λογότυπο Webside</span></div>
+          <div data-orientation="vertical" data-slot="root" class="text-base">
+            <div data-slot="wrapper" class="">
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Email</label>
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+            <div class="relative mt-1">
+              <div data-slot="root" class="relative inline-flex items-center w-full"><input id="ID" type="email" name="email" class="w-full rounded-md border-0 appearance-none placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary ps-11" autocomplete="email" aria-invalid="false" data-slot="base"><span data-slot="leading" class="absolute inset-y-0 start-0 flex items-center ps-3"><span class="iconify i-heroicons:envelope shrink-0 text-dimmed size-6" aria-hidden="true" data-slot="leadingIcon"></span></span>
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+          </div>
+          <div data-orientation="vertical" data-slot="root" class="text-base">
+            <div data-slot="wrapper" class="">
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Κωδικός πρόσβασης</label>
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+            <div class="relative mt-1">
+              <div data-slot="root" class="relative inline-flex items-center w-full"><input id="ID" type="password" name="password" class="w-full rounded-md border-0 appearance-none placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary ps-11 pe-11" autocomplete="new-password" aria-invalid="false" data-slot="base"><span data-slot="leading" class="absolute inset-y-0 start-0 flex items-center ps-3"><span class="iconify i-heroicons:key shrink-0 text-dimmed size-6" aria-hidden="true" data-slot="leadingIcon"></span></span><span data-slot="trailing" class="absolute inset-y-0 end-0 flex items-center pe-1"><button type="button" data-slot="base" aria-label="Δείξε τον κωδικό" aria-pressed="false" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-xs gap-1.5 text-muted hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-1.5"><span class="iconify i-heroicons:eye shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span>
+                <!--v-if-->
+                <!--v-if--></button></span>
+              </div>
+              <!--v-if-->
+              <!--v-if-->
+            </div>
+          </div>
+          <div data-orientation="vertical" data-slot="root" class="text-base">
+            <div data-slot="wrapper" class="">
+              <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Επιβεβαίωση κωδικού πρόσβασης</label>
+                <!--v-if-->
+              </div>
+              <!--v-if-->
+            </div>
+            <div class="relative mt-1">
+              <div data-slot="root" class="relative inline-flex items-center w-full"><input id="ID" type="password" name="password2" class="w-full rounded-md border-0 appearance-none placeholder:text-dimmed disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary ps-11 pe-11" autocomplete="new-password" aria-invalid="false" data-slot="base"><span data-slot="leading" class="absolute inset-y-0 start-0 flex items-center ps-3"><span class="iconify i-heroicons:check-badge shrink-0 text-dimmed size-6" aria-hidden="true" data-slot="leadingIcon"></span></span><span data-slot="trailing" class="absolute inset-y-0 end-0 flex items-center pe-1"><button type="button" data-slot="base" aria-label="Δείξε τον κωδικό" aria-pressed="false" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-xs gap-1.5 text-muted hover:text-default active:text-default disabled:text-muted aria-disabled:text-muted outline-inverted/25 focus-visible:outline-3 p-1.5"><span class="iconify i-heroicons:eye shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span>
+                <!--v-if-->
+                <!--v-if--></button></span>
+              </div>
+              <!--v-if-->
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div data-slot="root" class="relative flex items-start flex-row">
+              <div data-slot="container" class="flex items-center h-5"><button data-slot="base" class="rounded-sm ring ring-inset ring-accented overflow-hidden size-4 outline-info/25 focus-visible:outline-solid focus-visible:outline-3 focus-visible:ring-info" id="ID" role="checkbox" type="button" aria-checked="false" aria-required="false" data-state="unchecked">
+                  <!---->
+                </button><!-- We render single input if it's required --><input aria-hidden="true" data-hidden="" tabindex="-1" style="position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; word-wrap: normal; top: -1px; left: -1px;" name="consent" type="checkbox" value="on"></div>
+              <div data-slot="wrapper" class="w-full ms-2 text-sm">
+                <!--v-if--><label for="ID" data-slot="label" class="block text-default text-sm font-medium">
+                  <div class="flex gap-1"><span>Αποδέχομαι τους</span><a href="/terms-of-use" rel="noopener noreferrer" target="_blank" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) p-0">
+                      <!--v-if--><span data-slot="label" class="truncate">όρους χρήσης</span>
+                      <!--v-if-->
+                    </a></div>
+                </label>
+                <!--v-if-->
+              </div>
+            </div>
+          </div>
+          <!--v-if--><button type="submit" disabled="" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press px-3 py-2 text-base gap-2 w-full justify-center active:bg-secondary/75 outline-secondary/25 text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)">
+            <!--v-if--><span data-slot="label" class="truncate">Εγγραφή</span>
+            <!--v-if-->
+          </button>
+          <div class="flex flex-col items-center gap-2 sm:flex-row sm:items-center md:justify-between"><a href="/account/signup/passkey" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-1.5 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) p-0 font-semibold">
+              <!--v-if--><span data-slot="label" class="truncate">Εγγραφή με κωδικό μιας χρήσης</span>
+              <!--v-if-->
+            </a>
+            <div class="flex items-center gap-2"><span class="text-sm font-semibold">Έχεις ήδη λογαριασμό?</span><a href="/account/login" data-slot="base" class="rounded-md inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors cursor-pointer tap-press text-sm gap-2 outline-secondary/25 focus-visible:outline-3 text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text) p-0 font-semibold underline">
+                <!--v-if--><span data-slot="label" class="truncate">Σύνδεση</span>
+                <!--v-if-->
+              </a></div>
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <!--v-if-->
+        </div>
+      </div>
+    </div>
+  </form>
+</section>"
+`;
+
+exports[`webside design render > signup form on a phone draws its hero as an image 1`] = `
+"<section class="relative grid">
+  <div class="absolute top-[-1px] z-0 h-64 w-full overflow-hidden"><img width="400" height="256" data-nuxt-img="" srcset="/_ipx/fit_contain&amp;s_400x256/img/login-background.png 1x, /_ipx/fit_contain&amp;s_800x512/img/login-background.png 2x" alt="" loading="eager" fetchpriority="high" class="size-full object-cover object-center" src="/_ipx/fit_contain&amp;s_400x256/img/login-background.png"></div>
+  <form id="SignupForm" method="post" class="z-10 container mx-auto px-4 !pt-12 !pb-6 md:!p-0">
+    <div class="h-full flex-wrap items-center justify-center rounded-lg p-0">
+      <div class="relative grid w-full gap-4">
+        <div class="grid gap-6 rounded-lg bg-primary-100 px-4 py-8 shadow-lg md:bg-transparent md:!p-0 md:shadow-none dark:bg-primary-900 dark:md:bg-transparent">
+          <div class="grid content-evenly items-center justify-center gap-1"><img width="100" height="100" data-nuxt-img="" srcset="/_ipx/q_90&amp;s_100x100/img/logo-border.png 1x, /_ipx/q_90&amp;s_200x200/img/logo-border.png 2x" alt="" src="/_ipx/q_90&amp;s_100x100/img/logo-border.png"><span class="sr-only">Λογότυπο Webside</span></div>
           <div data-orientation="vertical" data-slot="root" class="text-base">
             <div data-slot="wrapper" class="">
               <div data-slot="labelWrapper" class="flex content-center items-center justify-between gap-1"><label for="ID" id="ID" data-slot="label" class="block font-medium text-default after:content-['*'] after:ms-0.5 after:text-error">Email</label>
