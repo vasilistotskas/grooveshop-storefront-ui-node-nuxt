@@ -138,7 +138,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -218,7 +225,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -846,7 +860,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -956,7 +977,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -1181,7 +1209,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -1306,7 +1341,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -2017,7 +2059,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -2804,7 +2853,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -2914,7 +2970,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -3139,7 +3202,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -3264,7 +3334,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -3515,7 +3592,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -3700,7 +3784,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -3885,7 +3976,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -4505,7 +4603,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -4690,7 +4795,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -4787,7 +4899,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -4956,7 +5075,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -5910,7 +6036,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -6020,7 +6153,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -6244,7 +6384,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -6369,7 +6516,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -6530,7 +6684,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -7489,7 +7650,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -8448,7 +8616,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -8543,7 +8718,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -8640,7 +8822,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -9583,7 +9772,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -10213,7 +10409,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -10323,7 +10526,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -10374,105 +10584,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BlogPostDetail"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/api/v1/blog/post/feed": {
-            "get": {
-                "operationId": "listBlogPostFeed",
-                "description": "Τα πιο πρόσφατα δημοσιευμένα άρθρα με ολόκληρο το κείμενό τους, σε μία απάντηση, για το RSS feed του καταστήματος.",
-                "summary": "Λήψη των άρθρων για το RSS feed",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "count",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "description": "Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή)."
-                    }
-                ],
-                "tags": [
-                    "Blog Posts"
-                ],
-                "security": [
-                    {
-                        "cookieAuth": []
-                    },
-                    {}
-                ],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/BlogPostFeed"
-                                    }
                                 }
                             }
                         },
@@ -10647,7 +10758,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -10772,7 +10890,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -11006,7 +11131,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -11562,7 +11694,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -11661,7 +11800,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -11757,7 +11903,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -12376,7 +12529,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -12435,6 +12595,112 @@
                 }
             }
         },
+        "/api/v1/blog/post/feed": {
+            "get": {
+                "operationId": "listBlogPostFeed",
+                "description": "Τα πιο πρόσφατα δημοσιευμένα άρθρα με ολόκληρο το κείμενό τους, σε μία απάντηση, για το RSS feed του καταστήματος.",
+                "summary": "Λήψη των άρθρων για το RSS feed",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή)."
+                    }
+                ],
+                "tags": [
+                    "Blog Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BlogPostFeed"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/blog/post/liked_posts": {
             "post": {
                 "operationId": "checkBlogPostLikes",
@@ -12473,7 +12739,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -13092,7 +13365,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -13681,7 +13961,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -14335,7 +14622,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -14445,7 +14739,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -14670,7 +14971,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -14795,7 +15103,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -15035,7 +15350,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -15122,7 +15444,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -15256,7 +15585,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -15466,7 +15802,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -15562,7 +15905,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -15674,7 +16024,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -16372,7 +16729,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -16487,7 +16851,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -16733,7 +17104,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -16876,7 +17254,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -17629,7 +18014,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -17738,7 +18130,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -17827,7 +18226,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -17935,7 +18341,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -17990,7 +18403,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -18150,7 +18570,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -18260,7 +18687,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -18469,7 +18903,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -18586,7 +19027,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -19477,7 +19925,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -19587,7 +20042,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -19800,7 +20262,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -19919,7 +20388,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20067,7 +20543,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20124,7 +20607,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20340,7 +20830,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20516,7 +21013,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20639,7 +21143,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20736,7 +21247,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20836,7 +21354,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -20913,7 +21438,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -21006,7 +21538,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -21177,7 +21716,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -21943,7 +22489,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -22150,7 +22703,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -22267,7 +22827,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -22402,7 +22969,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -22479,7 +23053,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -22576,7 +23157,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -22673,7 +23261,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -22750,7 +23345,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -23956,7 +24558,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -25170,7 +25779,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -25280,7 +25896,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -25504,7 +26127,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -25629,7 +26259,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -25809,7 +26446,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26033,7 +26677,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26158,7 +26809,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26319,7 +26977,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26404,7 +27069,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26520,7 +27192,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26615,7 +27294,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26700,7 +27386,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -26958,7 +27651,17 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/PaymentProviderError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27082,7 +27785,17 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/PaymentProviderError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27205,7 +27918,17 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/PaymentProviderError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27319,7 +28042,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27423,7 +28153,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27528,7 +28265,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27623,7 +28367,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27746,7 +28497,17 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/PaymentProviderError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27851,7 +28612,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -27946,7 +28714,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -28051,7 +28826,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -28167,7 +28949,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -29372,7 +30161,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -29460,7 +30256,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -31019,7 +31822,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -31129,7 +31939,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -31338,7 +32155,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -31455,7 +32279,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -32611,7 +33442,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -32721,7 +33559,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -32946,7 +33791,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -33071,7 +33923,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -33256,7 +34115,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -33356,7 +34222,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -33532,7 +34405,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -33638,7 +34518,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -33737,7 +34624,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -33847,7 +34741,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -34074,7 +34975,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -34185,7 +35093,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -34468,7 +35383,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -34831,7 +35753,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -34921,7 +35850,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -35125,7 +36061,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -35231,7 +36174,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -35717,7 +36667,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -35807,7 +36764,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -36011,7 +36975,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -36117,7 +37088,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -36363,7 +37341,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -36540,7 +37525,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -37200,7 +38192,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -37310,7 +38309,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -37535,7 +38541,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -37660,7 +38673,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -37804,7 +38824,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -38058,7 +39085,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -38168,7 +39202,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -38393,7 +39434,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -38518,7 +39566,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -38680,7 +39735,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -38853,7 +39915,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -39029,7 +40098,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -39378,7 +40454,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -39488,7 +40571,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -39696,7 +40786,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -39813,7 +40910,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -39958,7 +41062,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -40233,7 +41344,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -41333,7 +42451,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -41594,7 +42719,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -41704,7 +42836,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -41929,7 +43068,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -42054,7 +43200,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -42880,7 +44033,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -42990,7 +44150,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -43215,7 +44382,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -43340,7 +44514,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -43494,7 +44675,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -43581,7 +44769,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -43864,7 +45059,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -43932,7 +45134,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -44242,7 +45451,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -44352,7 +45568,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -44565,7 +45788,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -44684,7 +45914,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -44847,7 +46084,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -44963,7 +46207,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -45051,7 +46302,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -45109,7 +46367,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -45380,7 +46645,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -46150,7 +47422,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -46358,7 +47637,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -46646,7 +47932,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -47257,7 +48550,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -47367,7 +48667,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -47592,7 +48899,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -47717,7 +49031,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -48193,7 +49514,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -48303,7 +49631,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -48528,7 +49863,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -48653,7 +49995,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -49056,7 +50405,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -49279,7 +50635,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -49404,7 +50767,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -49598,7 +50968,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -49792,7 +51169,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -49907,7 +51291,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -50091,7 +51482,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -50206,7 +51604,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -50400,7 +51805,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -50594,7 +52006,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -50763,7 +52182,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -50957,7 +52383,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -51151,7 +52584,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -51246,7 +52686,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -51822,7 +53269,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -51932,7 +53386,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -52156,7 +53617,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -52281,7 +53749,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -52442,7 +53917,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -52607,7 +54089,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53072,7 +54561,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53182,7 +54678,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53406,7 +54909,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53531,7 +55041,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53692,7 +55209,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53799,7 +55323,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53891,7 +55422,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -53995,7 +55533,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -54414,7 +55959,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -54524,7 +56076,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -54748,7 +56307,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -54873,7 +56439,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -55034,7 +56607,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -55139,7 +56719,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -55231,7 +56818,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -55337,7 +56931,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -55410,7 +57011,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ApiValidationError"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ApiError"
+                                        }
+                                    ]
                                 }
                             }
                         },
@@ -57823,6 +59431,99 @@
                     "userHasLiked",
                     "uuid",
                     "viewCount"
+                ]
+            },
+            "BlogPostFeed": {
+                "type": "object",
+                "description": "One item of the RSS feed.\n\nThe feed needs every article's body, so it has its own shape and\nits own endpoint rather than a request per post for the detail.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "slug": {
+                        "type": "string",
+                        "readOnly": true,
+                        "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "subtitle": {
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "subtitle": {
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "category": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Κατηγορία"
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Δημοσιεύθηκε στις"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Δημιουργήθηκε στις"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Ενημερώθηκε στις"
+                    }
+                },
+                "required": [
+                    "category",
+                    "createdAt",
+                    "id",
+                    "mainImagePath",
+                    "publishedAt",
+                    "slug",
+                    "translations",
+                    "updatedAt",
+                    "uuid"
                 ]
             },
             "BlogPostLikedPostsRequestRequest": {
@@ -61456,6 +63157,7 @@
             },
             "ErrorResponse": {
                 "type": "object",
+                "description": "A plain error: ``detail`` and its stable ``code``.",
                 "properties": {
                     "detail": {
                         "type": "string"
@@ -61463,9 +63165,6 @@
                     "code": {
                         "type": "string",
                         "description": "Σταθερός κωδικός σφάλματος. Βασιστείτε σε αυτόν, ποτέ στο ``detail``, που είναι στη γλώσσα του αιτήματος."
-                    },
-                    "error": {
-                        "type": "string"
                     }
                 },
                 "required": [
@@ -68839,6 +70538,29 @@
                 ],
                 "type": "string",
                 "description": "* `stripe` - stripe\n* `viva_wallet` - viva_wallet"
+            },
+            "PaymentProviderError": {
+                "type": "object",
+                "description": "The 400 body of an order action when the payment provider fails.\n\n``error`` is the provider call's own result (its keys vary by\nprovider). The same actions also refuse with a plain error and a\nfield-error map; the schema hook adds both variants.",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "Σταθερός κωδικός σφάλματος: ``payment_intent_failed``, ``checkout_session_failed`` ή ``delegated_charge_failed``."
+                    },
+                    "error": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "description": "Το αποτέλεσμα του παρόχου πληρωμών για την αποτυχημένη κλήση."
+                    }
+                },
+                "required": [
+                    "code",
+                    "detail",
+                    "error"
+                ]
             },
             "PaymentStatusEnum": {
                 "enum": [
@@ -78478,99 +80200,6 @@
                     }
                 },
                 "additionalProperties": false
-            },
-            "BlogPostFeed": {
-                "type": "object",
-                "description": "One item of the RSS feed.\n\nThe feed needs every article's body, so it has its own shape and\nits own endpoint rather than a request per post for the detail.",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "readOnly": true
-                    },
-                    "uuid": {
-                        "type": "string",
-                        "format": "uuid",
-                        "readOnly": true
-                    },
-                    "slug": {
-                        "type": "string",
-                        "readOnly": true,
-                        "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "translations": {
-                        "type": "object",
-                        "properties": {
-                            "el": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "subtitle": {
-                                        "type": "string"
-                                    },
-                                    "body": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "en": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "subtitle": {
-                                        "type": "string"
-                                    },
-                                    "body": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "category": {
-                        "type": "integer",
-                        "readOnly": true,
-                        "nullable": true,
-                        "title": "Κατηγορία"
-                    },
-                    "mainImagePath": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "publishedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true,
-                        "title": "Δημοσιεύθηκε στις"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "title": "Δημιουργήθηκε στις"
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "title": "Ενημερώθηκε στις"
-                    }
-                },
-                "required": [
-                    "category",
-                    "createdAt",
-                    "id",
-                    "mainImagePath",
-                    "publishedAt",
-                    "slug",
-                    "translations",
-                    "updatedAt",
-                    "uuid"
-                ]
             }
         },
         "securitySchemes": {
