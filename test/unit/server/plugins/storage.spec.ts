@@ -7,11 +7,13 @@
  * itself is the real unstorage the Nitro shim provides.
  */
 import type { Driver } from 'unstorage'
+import memoryDriver from 'unstorage/drivers/memory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import plugin, {
   isSupersededBuildKey,
   redisReconnectDelay,
   sweepSupersededBuildCaches,
+  withCompressedValues,
   withoutNonPositiveTtlWrites,
 } from '~~/server/plugins/storage'
 import { log, runNitroPlugin, setRuntimeConfig, useStorage } from '~~/test/helpers/nitro'
@@ -20,6 +22,8 @@ const redis = vi.hoisted(() => ({
   /** One fake node-redis client per `createClient` call, in call order. */
   clients: [] as Array<Record<string, any>>,
   /** How the next client behaves; each test sets it. */
+  /** The driver the plugin was handed, as Redis would hold it. */
+  stored: undefined as import('unstorage').Driver | undefined,
   next: {} as { ping?: () => Promise<string>, lock?: string | null, keys?: string[] },
 }))
 
@@ -43,7 +47,12 @@ vi.mock('redis', () => ({
 
 vi.mock('unstorage/drivers/redis', async () => {
   const { default: memoryDriver } = await import('unstorage/drivers/memory')
-  return { default: (options: Record<string, unknown>) => ({ ...memoryDriver(), name: 'redis', options }) }
+  return {
+    default: (options: Record<string, unknown>) => {
+      redis.stored = { ...memoryDriver(), name: 'redis', options }
+      return redis.stored
+    },
+  }
 })
 
 describe('redisReconnectDelay', () => {
@@ -104,6 +113,98 @@ describe('withoutNonPositiveTtlWrites', () => {
     await wrapped.removeItem?.('k', {} as never)
     expect(inner.getItem).toHaveBeenCalledTimes(1)
     expect(inner.removeItem).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('withCompressedValues', () => {
+  let inner: Driver
+  let wrapped: Driver
+
+  beforeEach(() => {
+    // The memory driver has no batched read; the Redis one (MGET) does.
+    const memory = memoryDriver()
+    inner = {
+      ...memory,
+      getItems: items => Promise.all(items.map(async ({ key }) => ({ key, value: await memory.getItem(key, {}) }))),
+    }
+    wrapped = withCompressedValues(inner)
+  })
+
+  const page = JSON.stringify({ body: '<div class="product-card">Groove</div>'.repeat(200) })
+
+  it('stores a large value compressed and reads it back unchanged', async () => {
+    await wrapped.setItem?.('page', page, {})
+
+    const stored = await inner.getItem('page', {}) as string
+    expect(stored.startsWith('br:')).toBe(true)
+    expect(stored.length).toBeLessThan(page.length / 5)
+    expect(await wrapped.getItem?.('page', {})).toBe(page)
+  })
+
+  it('round-trips non-ASCII text', async () => {
+    const greek = JSON.stringify({ body: 'Καλώς ήρθατε στο κατάστημα '.repeat(100) })
+
+    await wrapped.setItem?.('greek', greek, {})
+
+    expect(await wrapped.getItem?.('greek', {})).toBe(greek)
+  })
+
+  it('leaves a short value as it is, so counters stay readable', async () => {
+    await wrapped.setItem?.('rate', '3', {})
+
+    expect(await inner.getItem('rate', {})).toBe('3')
+    expect(await wrapped.getItem?.('rate', {})).toBe('3')
+  })
+
+  it.each([
+    ['a short value that starts with the marker', 'br:hello'],
+    ['the marker alone', 'br:'],
+    ['an empty string', ''],
+    ['a value one byte under the threshold', 'x'.repeat(1023)],
+    ['a value exactly at the threshold', 'x'.repeat(1024)],
+    ['a value one byte over the threshold', 'x'.repeat(1025)],
+  ])('round-trips %s', async (_name, value) => {
+    await wrapped.setItem?.('k', value, {})
+
+    expect(await wrapped.getItem?.('k', {})).toBe(value)
+  })
+
+  it('compresses at the threshold and not below it', async () => {
+    await wrapped.setItem?.('under', 'x'.repeat(1023), {})
+    await wrapped.setItem?.('at', 'x'.repeat(1024), {})
+
+    expect(await inner.getItem('under', {})).toBe('x'.repeat(1023))
+    expect(await inner.getItem('at', {})).toMatch(/^br:/)
+  })
+
+  it('passes a miss through', async () => {
+    expect(await wrapped.getItem?.('absent', {})).toBeNull()
+  })
+
+  it('decompresses every value of a batched read', async () => {
+    await wrapped.setItem?.('a', page, {})
+    await wrapped.setItem?.('b', '7', {})
+
+    const read = await wrapped.getItems?.([{ key: 'a' }, { key: 'b' }, { key: 'c' }], {})
+
+    expect(read).toEqual([
+      { key: 'a', value: page },
+      { key: 'b', value: '7' },
+      { key: 'c', value: null },
+    ])
+  })
+
+  it('forwards the ttl untouched', async () => {
+    const setItem = vi.fn(async () => {})
+    await withCompressedValues({ ...memoryDriver(), setItem }).setItem?.('page', page, { ttl: 60 } as never)
+
+    expect(setItem).toHaveBeenCalledWith('page', expect.stringMatching(/^br:/), { ttl: 60 })
+  })
+
+  it('throws on a corrupt compressed value, which a cached handler treats as a miss', async () => {
+    await inner.setItem?.('bad', 'br:bm90IGJyb3RsaQ==', {})
+
+    await expect(wrapped.getItem?.('bad', {})).rejects.toThrow()
   })
 })
 
@@ -310,6 +411,28 @@ describe('the storage plugin', () => {
       maxRetriesPerRequest: 3,
       retryStrategy: redisReconnectDelay,
     })
+  })
+
+  it('compresses what the Redis mount stores, invisibly to the cache callers', async () => {
+    setRuntimeConfig({ cacheBase: 'redis' })
+    await runNitroPlugin(plugin)
+    await vi.waitFor(() => expect(cacheDriver()?.name).toBe('redis'))
+    const entry = { value: { body: '<p>Groove</p>'.repeat(500) }, expires: 1, mtime: 1 }
+
+    await useStorage('cache').setItem('nitro:routes:page', entry)
+
+    expect(await useStorage('cache').getItem('nitro:routes:page')).toEqual(entry)
+    expect(await redis.stored?.getItem('nitro:routes:page', {})).toMatch(/^br:/)
+  })
+
+  it('drops a non-positive-ttl write on the Redis mount without compressing it', async () => {
+    setRuntimeConfig({ cacheBase: 'redis' })
+    await runNitroPlugin(plugin)
+    await vi.waitFor(() => expect(cacheDriver()?.name).toBe('redis'))
+
+    await useStorage('cache').setItem('nitro:routes:page', { body: '<p>Groove</p>'.repeat(500) }, { ttl: -1 })
+
+    expect(await redis.stored?.getItem('nitro:routes:page', {})).toBeNull()
   })
 
   it('reconnects only on the errors a failover produces', async () => {
