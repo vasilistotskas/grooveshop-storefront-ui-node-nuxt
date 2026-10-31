@@ -159,14 +159,14 @@ export function localeTwin(pathname, prefix) {
 /**
  * The URL paths of a build's files that visitors fetch: every file under
  * `_nuxt` except the precompressed twins Nitro picks by `Accept-Encoding`
- * (`.br`, `.gz`), the source maps nothing requests, and `builds/`, whose
+ * (`.br`, `.gz`) and `builds/`, whose
  * `latest.json` and per-build metadata are short-lived and not content-hashed.
  * `files` are paths relative to `public/_nuxt`.
  */
 export function buildAssetPaths(files) {
   return files
     .map(file => file.replaceAll('\\', '/'))
-    .filter(file => !/\.(?:br|gz|map)$/.test(file) && !file.startsWith('builds/'))
+    .filter(file => !/\.(?:br|gz)$/.test(file) && !file.startsWith('builds/'))
     .map(file => `/_nuxt/${file}`)
     .sort()
 }

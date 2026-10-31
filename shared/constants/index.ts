@@ -6,13 +6,11 @@ export const ALLAUTH_CONFIG_URL = `${ALLAUTH_API_PREFIX}/config` as const
 export const defaultSelectOptionChoose = 'choose'
 
 /**
- * Encoder quality of the product photographs, in every design: a
- * listing card, and the product page's gallery, its zoom and the variant
- * thumbnails. One number per use, so a design cannot ask the media
- * service for more than the page needs (webside's cards requested 100,
- * the LCP image of `/products` at 60 KB for a 420px tile).
+ * Encoder quality of the product zoom's PNG (`ImageModal`), the one product
+ * image that is not AVIF. Every AVIF photograph (cards, gallery, variant
+ * thumbnails) asks for no quality of its own: AVIF's is the media service's
+ * ceiling (`MEDIA_STREAM_AVIF_QUALITY`).
  */
-export const PRODUCT_CARD_IMAGE_QUALITY = 90
 export const PRODUCT_IMAGE_QUALITY = 75
 
 /**

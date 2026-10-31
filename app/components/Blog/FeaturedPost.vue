@@ -45,7 +45,6 @@ const url = computed(() => localePath({ path: blogPostUrl(props.post.id, props.p
         :height="720"
         fit="cover"
         :modifiers="{ position: 'attention' }"
-        quality="80"
         densities="x1 x2"
         sizes="xs:100vw lg:60vw"
         :loading="imgLoading"

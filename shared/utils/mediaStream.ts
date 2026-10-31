@@ -83,7 +83,21 @@ export const SEARCH_IMAGE_VARIANT: MediaStreamVariant = {
 }
 
 /**
- * The single builder for a Media Stream image URL.
+ * The quality every AVIF image is requested at: 100, meaning "the highest
+ * the service allows". Media Stream caps AVIF at its own
+ * `processing.avifMaxQuality` and clamps BEFORE it hashes the request into
+ * a cache entry, so any value at or above the cap names the same entry and
+ * the same bytes. The cap is the one place that decides, and it can change
+ * without a storefront release; a number written here or at a call site
+ * would be either below it (and wrong when it rises) or above it (and
+ * ignored). Only AVIF is clamped: WebP, JPEG and PNG keep the quality asked.
+ */
+export const MEDIA_STREAM_AVIF_QUALITY = 100
+
+/**
+ * The single builder for a Media Stream image URL. An AVIF URL always
+ * carries {@link MEDIA_STREAM_AVIF_QUALITY}, whatever quality the variant
+ * names.
  *
  * ``src`` is the source path Django emits (``media/{schema}/uploads/…`` or
  * ``static/images/…``), joined to ``baseUrl``; an absolute ``src`` keeps
@@ -105,7 +119,7 @@ export function buildMediaStreamImageUrl(
     variant.position,
     variant.background,
     String(variant.trimThreshold),
-    `${variant.quality}.${variant.format}`,
+    `${variant.format === 'avif' ? MEDIA_STREAM_AVIF_QUALITY : variant.quality}.${variant.format}`,
   )
   const origin = url.match(/^[a-z][a-z\d+.-]*:\/\/[^/]+/i)?.[0] ?? ''
   return origin + encodePathSegments(url.slice(origin.length))

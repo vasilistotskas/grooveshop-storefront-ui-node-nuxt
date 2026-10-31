@@ -6,6 +6,9 @@ import { hasProtocol } from 'ufo'
 // no app auto-imports and no `~~` alias.
 import { buildMediaStreamImageUrl } from '../../shared/utils/mediaStream.js'
 
+/** The quality of a WebP, JPEG or PNG a caller names none for. */
+const DEFAULT_QUALITY = 80
+
 /**
  * Media Stream service modifiers — the standard {@link ImageModifiers} plus the
  * two service-specific knobs encoded in the URL path (`position`, `trimThreshold`).
@@ -70,7 +73,9 @@ export default defineProvider<Partial<MediaStreamOptions>>({
     // default transparent background it never removed anything from an opaque
     // photo anyway. Opt in per image where a real background colour is set.
     const trimThreshold = modifiers.trimThreshold ?? 0
-    const quality = modifiers.quality || 80
+    // WebP, JPEG and PNG: the quality asked, else this. AVIF's is not
+    // chosen here (`MEDIA_STREAM_AVIF_QUALITY`, applied by the URL builder).
+    const quality = modifiers.quality || DEFAULT_QUALITY
     const format = modifiers.format || 'avif'
 
     return {

@@ -28,6 +28,8 @@ const searchQuery = ref(
     : route.query.query ?? '',
 )
 const isModalOpen = ref(false)
+// The palette (and the search library behind it) loads the first time it opens.
+const modalMounted = useMountOnFirstOpen(isModalOpen)
 
 function openSearchModal() {
   isModalOpen.value = true
@@ -91,6 +93,7 @@ defineShortcuts({
     </UButton>
 
     <LazySearchModal
+      v-if="modalMounted"
       v-model:open="isModalOpen"
       v-model:query="searchQuery"
     />

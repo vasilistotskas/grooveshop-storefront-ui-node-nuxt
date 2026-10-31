@@ -56,6 +56,11 @@ useHead({
         </div>
       </template>
 
+      <!-- `format` is chosen per picture, by measuring: `NuxtImg` ignores the
+           `image.format` list and IPX keeps the source's PNG. WebP is 40%
+           smaller here (23,616 B to 14,102 B) but 27% and 87% LARGER for
+           pictures 2 and 3 (flat colour compresses better as PNG), which
+           keep their PNG. -->
       <NuxtImg
         src="/img/pages/what-is-microlearning1.png"
         :width="960"
@@ -65,7 +70,8 @@ useHead({
         sizes="xs:320px sm:640px md:480px lg:480px xl:560px xxl:600px 2xl:600px"
         loading="eager"
         quality="80"
-        preload
+        format="webp"
+        :preload="{ fetchPriority: 'high' }"
         fetchpriority="high"
         class="
           h-auto w-full rounded-2xl shadow-xl ring ring-default

@@ -2,7 +2,7 @@
 
 exports[`webside design render > blog post card desktop 1`] = `
 "<li class="container grid w-full gap-6 rounded-lg bg-primary-100 !p-0 text-primary-950 dark:bg-primary-900 dark:text-primary-50">
-  <div class="grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="376" height="247" data-nuxt-img="" sizes="(max-width: 1023px) 360px, (max-width: 1279px) 480px, (max-width: 1535px) 480px, 520px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/360/236/cover/attention/transparent/0/80.avif 360w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/480/315/cover/attention/transparent/0/80.avif 480w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/520/342/cover/attention/transparent/0/80.avif 520w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/720/472/cover/attention/transparent/0/80.avif 720w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/960/630/cover/attention/transparent/0/80.avif 960w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif 1040w" fetchpriority="auto" class="h-auto w-full rounded-t-lg bg-primary-100" style="object-fit: cover; content-visibility: auto; aspect-ratio: 376 / 247;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif"></a></div>
+  <div class="grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="376" height="247" data-nuxt-img="" sizes="(max-width: 1023px) 360px, (max-width: 1279px) 480px, (max-width: 1535px) 480px, 520px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/360/236/cover/attention/transparent/0/100.avif 360w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/480/315/cover/attention/transparent/0/100.avif 480w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/520/342/cover/attention/transparent/0/100.avif 520w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/720/472/cover/attention/transparent/0/100.avif 720w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/960/630/cover/attention/transparent/0/100.avif 960w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/100.avif 1040w" fetchpriority="auto" class="h-auto w-full rounded-t-lg bg-primary-100" style="object-fit: cover; content-visibility: auto; aspect-ratio: 376 / 247;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/100.avif"></a></div>
   <div class="grid gap-2 p-4">
     <div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
       <h2 class="grid h-20"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full text-2xl font-bold tracking-tight text-primary-950 md:text-3xl dark:text-primary-50" aria-label="Τι είναι τα mAh">Τι είναι τα mAh</a></h2>
@@ -21,7 +21,7 @@ exports[`webside design render > blog post card desktop 1`] = `
 
 exports[`webside design render > blog post card mobile 1`] = `
 "<li class="container grid min-h-60 w-full gap-4 rounded-lg bg-primary-100 !p-0 dark:bg-primary-900 dark:text-primary-950">
-  <div class="relative grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="575" height="670" data-nuxt-img="" sizes="(max-width: 639px) 382px, (max-width: 767px) 352px, (max-width: 1023px) 545px, (max-width: 1279px) 562px, (max-width: 1535px) 387px, 387px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/352/410/cover/attention/transparent/0/80.avif 352w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/382/445/cover/attention/transparent/0/80.avif 382w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/387/451/cover/attention/transparent/0/80.avif 387w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/545/635/cover/attention/transparent/0/80.avif 545w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/562/655/cover/attention/transparent/0/80.avif 562w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/704/820/cover/attention/transparent/0/80.avif 704w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/764/890/cover/attention/transparent/0/80.avif 764w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/774/902/cover/attention/transparent/0/80.avif 774w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1090/1270/cover/attention/transparent/0/80.avif 1090w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif 1124w" fetchpriority="auto" class="rounded-lg bg-primary-100" style="object-fit: contain; content-visibility: auto; aspect-ratio: 575 / 670;" alt="" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/80.avif">
+  <div class="relative grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="575" height="670" data-nuxt-img="" sizes="(max-width: 639px) 382px, (max-width: 767px) 352px, (max-width: 1023px) 545px, (max-width: 1279px) 562px, (max-width: 1535px) 387px, 387px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/352/410/cover/attention/transparent/0/100.avif 352w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/382/445/cover/attention/transparent/0/100.avif 382w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/387/451/cover/attention/transparent/0/100.avif 387w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/545/635/cover/attention/transparent/0/100.avif 545w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/562/655/cover/attention/transparent/0/100.avif 562w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/704/820/cover/attention/transparent/0/100.avif 704w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/764/890/cover/attention/transparent/0/100.avif 764w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/774/902/cover/attention/transparent/0/100.avif 774w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1090/1270/cover/attention/transparent/0/100.avif 1090w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/100.avif 1124w" fetchpriority="auto" class="rounded-lg bg-primary-100" style="object-fit: contain; content-visibility: auto; aspect-ratio: 575 / 670;" alt="" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1124/1310/cover/attention/transparent/0/100.avif">
       <h2 class="absolute right-0 bottom-12 grid w-full justify-center justify-items-start"><span class="m-auto block w-[70%] text-start text-3xl font-bold tracking-tight text-primary-50 sm:w-3/5 md:w-[66%] md:text-4xl lg:w-[76%] dark:text-primary-50">Τι είναι τα mAh</span></h2>
     </a>
     <div class="absolute right-4 bottom-4 grid items-end gap-2"><button type="button" data-slot="base" aria-label="Like (2)" title="Like (2)" class="rounded-md font-medium disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 text-white md:text-black dark:text-white dark:md:text-white"><span class="iconify i-heroicons:hand-thumb-up shrink-0 size-12" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">2</span>
@@ -67,10 +67,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                     </div>
                     <!--v-if-->
                   </button>
-                  <!---->
                   <!--v-if-->
-                  <!--teleport start-->
-                  <!--teleport end-->
                 </div>
                 <div class="relative ml-auto hidden items-center lg:flex">
                   <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
@@ -91,9 +88,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                       </li>
                     </ul>
                     <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-                      <li class="relative grid items-center justify-center justify-items-center">
-                        <!--v-if-->
-                      </li>
+                      <!--v-if-->
                       <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
                           <!--v-if-->
                           <!--v-if-->
@@ -567,10 +562,7 @@ exports[`webside design render > navbar 1`] = `
             </div>
             <!--v-if-->
           </button>
-          <!---->
           <!--v-if-->
-          <!--teleport start-->
-          <!--teleport end-->
         </div>
         <div class="relative ml-auto hidden items-center lg:flex">
           <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
@@ -591,9 +583,7 @@ exports[`webside design render > navbar 1`] = `
               </li>
             </ul>
             <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-              <li class="relative grid items-center justify-center justify-items-center">
-                <!--v-if-->
-              </li>
+              <!--v-if-->
               <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
                   <!--v-if-->
                   <!--v-if-->
@@ -730,7 +720,7 @@ exports[`webside design render > product card 1`] = `
           <!--v-if-->
         </button>
       </div><a data-v-X="" href="/products/2/mini-power-bank-5000mah" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="block">
-        <div data-v-X="" class="aspect-4/3 max-w-full overflow-hidden"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/90.avif 1x" class="size-full max-w-full bg-white object-contain" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/90.avif"></div>
+        <div data-v-X="" class="aspect-4/3 max-w-full overflow-hidden"><img data-v-X="" width="420" height="420" data-nuxt-img="" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif 1x" class="size-full max-w-full bg-white object-contain" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 420 / 420;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/420/420/contain/entropy/transparent/0/100.avif"></div>
       </a>
     </div>
     <div data-v-X="" class="flex flex-col gap-4 p-4"><a data-v-X="" href="/products/2/mini-power-bank-5000mah" class="group/link" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh">
@@ -824,7 +814,7 @@ exports[`webside design render > section blog_posts_list 1`] = `
     <div class="row-start-2 grid w-full md:row-start-1">
       <ol class="grid w-full grid-cols-1 items-center justify-center gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         <li class="container grid w-full gap-6 rounded-lg bg-primary-100 !p-0 text-primary-950 dark:bg-primary-900 dark:text-primary-50">
-          <div class="grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="376" height="247" data-nuxt-img="" sizes="(max-width: 1023px) 360px, (max-width: 1279px) 480px, (max-width: 1535px) 480px, 520px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/360/236/cover/attention/transparent/0/80.avif 360w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/480/315/cover/attention/transparent/0/80.avif 480w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/520/342/cover/attention/transparent/0/80.avif 520w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/720/472/cover/attention/transparent/0/80.avif 720w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/960/630/cover/attention/transparent/0/80.avif 960w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif 1040w" loading="lazy" fetchpriority="auto" class="h-auto w-full rounded-t-lg bg-primary-100" style="object-fit: cover; content-visibility: auto; aspect-ratio: 376 / 247;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/80.avif"></a></div>
+          <div class="grid"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full" aria-label="Τι είναι τα mAh"><img width="376" height="247" data-nuxt-img="" sizes="(max-width: 1023px) 360px, (max-width: 1279px) 480px, (max-width: 1535px) 480px, 520px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/360/236/cover/attention/transparent/0/100.avif 360w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/480/315/cover/attention/transparent/0/100.avif 480w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/520/342/cover/attention/transparent/0/100.avif 520w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/720/472/cover/attention/transparent/0/100.avif 720w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/960/630/cover/attention/transparent/0/100.avif 960w, https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/100.avif 1040w" loading="lazy" fetchpriority="auto" class="h-auto w-full rounded-t-lg bg-primary-100" style="object-fit: cover; content-visibility: auto; aspect-ratio: 376 / 247;" alt="Τι είναι τα mAh" src="https://webside.gr/media_stream-image/media/webside/uploads/blog/mah.avif/1040/684/cover/attention/transparent/0/100.avif"></a></div>
           <div class="grid gap-2 p-4">
             <div class="flex flex-col gap-4 md:gap-x-12 lg:gap-x-6">
               <h2 class="grid h-20"><a href="/blog/post/82/ti-einai-ta-mah" class="w-full text-2xl font-bold tracking-tight text-primary-950 md:text-3xl dark:text-primary-50" aria-label="Τι είναι τα mAh">Τι είναι τα mAh</a></h2>
@@ -873,7 +863,7 @@ exports[`webside design render > section recently_viewed 1`] = `
     <div data-slot="viewport" class="overflow-hidden w-full">
       <div data-slot="container" class="items-start flex-row -ms-4 flex w-full" style="transform: translate3d(0px,0px,0px);">
         <div role="group" aria-roledescription="διαφάνεια" data-slot="item" class="ps-4 min-w-0 shrink-0 grow-0 basis-1/2 md:basis-1/3 lg:basis-1/5"><a href="/products/2/mini-power-bank-5000mah" class="group flex h-full flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-3 transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary-500 dark:border-neutral-800 dark:bg-neutral-900">
-            <div class="relative aspect-square overflow-hidden rounded-md bg-neutral-50 dark:bg-neutral-800"><img width="280" height="280" data-nuxt-img="" sizes="200px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/200/200/contain/entropy/ffffff/0/80.avif 200w, https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/80.avif 400w" alt="Mini Power Bank 5000mAh" loading="lazy" class="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105" style="aspect-ratio: 280 / 280;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/80.avif"></div>
+            <div class="relative aspect-square overflow-hidden rounded-md bg-neutral-50 dark:bg-neutral-800"><img width="280" height="280" data-nuxt-img="" sizes="200px" srcset="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/200/200/contain/entropy/ffffff/0/100.avif 200w, https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/100.avif 400w" alt="Mini Power Bank 5000mAh" loading="lazy" class="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105" style="aspect-ratio: 280 / 280;" src="https://webside.gr/media_stream-image/media/webside/uploads/products/mini-power-bank.avif/400/400/contain/entropy/ffffff/0/100.avif"></div>
             <p class="line-clamp-2 text-sm font-medium text-primary-950 dark:text-primary-50">Mini Power Bank 5000mAh</p>
             <p class="text-sm font-semibold text-secondary-600 dark:text-secondary-400">16,63&nbsp;€</p>
           </a></div>
@@ -944,10 +934,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                     </div>
                     <!--v-if-->
                   </button>
-                  <!---->
                   <!--v-if-->
-                  <!--teleport start-->
-                  <!--teleport end-->
                 </div>
                 <div class="relative ml-auto hidden items-center lg:flex">
                   <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
@@ -968,9 +955,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                       </li>
                     </ul>
                     <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-                      <li class="relative grid items-center justify-center justify-items-center">
-                        <!--v-if-->
-                      </li>
+                      <!--v-if-->
                       <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/favourites/posts" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
                           <!--v-if-->
                           <!--v-if-->
@@ -1212,7 +1197,7 @@ exports[`webside design render > signed in > account favourite products 1`] = `
             <!--v-if-->
             <!---->
           </div>
-          <div class="aspect-4/3 max-w-full overflow-hidden"><img width="260" height="150" data-nuxt-img="" sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 25vw" srcset="/_ipx/q_90&amp;b_transparent&amp;fit_contain&amp;s_160x92/img/placeholder.png 160w, /_ipx/q_90&amp;b_transparent&amp;fit_contain&amp;s_253x146/img/placeholder.png 253w, /_ipx/q_90&amp;b_transparent&amp;fit_contain&amp;s_256x148/img/placeholder.png 256w" class="size-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 260 / 150;" src="/_ipx/q_90&amp;b_transparent&amp;fit_contain&amp;s_256x148/img/placeholder.png"></div>
+          <div class="aspect-4/3 max-w-full overflow-hidden"><img width="260" height="150" data-nuxt-img="" sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 25vw" srcset="/_ipx/b_transparent&amp;fit_contain&amp;s_160x92/img/placeholder.png 160w, /_ipx/b_transparent&amp;fit_contain&amp;s_253x146/img/placeholder.png 253w, /_ipx/b_transparent&amp;fit_contain&amp;s_256x148/img/placeholder.png 256w" class="size-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105" alt="Mini Power Bank 5000mAh" style="aspect-ratio: 260 / 150;" src="/_ipx/b_transparent&amp;fit_contain&amp;s_256x148/img/placeholder.png"></div>
         </div>
         <div class="flex flex-1 flex-col gap-3 p-4">
           <!--v-if--><a href="/products/2/product-2" aria-label="Προβολή προϊόντος: Mini Power Bank 5000mAh" class="text-highlighted after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-secondary">
@@ -1386,7 +1371,7 @@ exports[`webside design render > signed in > account overview 1`] = `
         <div data-slot="body" class="p-4 sm:p-6">
           <div class="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:gap-6">
             <div class="relative shrink-0">
-              <div class="flex size-20 items-center justify-center rounded-2xl bg-linear-to-br from-primary-500 to-secondary-500 shadow-lg sm:size-24"><img width="48" height="48" data-nuxt-img="" srcset="/_ipx/q_80&amp;b_transparent&amp;fit_contain&amp;s_48x48/img/placeholder.png 1x, /_ipx/q_80&amp;b_transparent&amp;fit_contain&amp;s_96x96/img/placeholder.png 2x" alt="Καμία βαθμίδα" class="size-10 object-contain sm:size-12" style="aspect-ratio: 48 / 48;" src="/_ipx/q_80&amp;b_transparent&amp;fit_contain&amp;s_48x48/img/placeholder.png"></div><span data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md bg-primary text-inverted absolute font-bold -bottom-1.5 -right-1.5 ring-2 ring-white dark:ring-neutral-900"><!--v-if--><span data-slot="label" class="truncate">2</span>
+              <div class="flex size-20 items-center justify-center rounded-2xl bg-linear-to-br from-primary-500 to-secondary-500 shadow-lg sm:size-24"><img width="48" height="48" data-nuxt-img="" srcset="/_ipx/b_transparent&amp;fit_contain&amp;s_48x48/img/placeholder.png 1x, /_ipx/b_transparent&amp;fit_contain&amp;s_96x96/img/placeholder.png 2x" alt="Καμία βαθμίδα" class="size-10 object-contain sm:size-12" style="aspect-ratio: 48 / 48;" src="/_ipx/b_transparent&amp;fit_contain&amp;s_48x48/img/placeholder.png"></div><span data-slot="base" class="inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md bg-primary text-inverted absolute font-bold -bottom-1.5 -right-1.5 ring-2 ring-white dark:ring-neutral-900"><!--v-if--><span data-slot="label" class="truncate">2</span>
               <!--v-if--></span>
             </div>
             <div class="flex-1 text-center sm:text-left">

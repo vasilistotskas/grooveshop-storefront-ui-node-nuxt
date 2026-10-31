@@ -192,4 +192,4 @@ Components in `app/components/` organized by domain:
 - **Build-time version injection**: `runtimeConfig.public.version` is set from `process.env.npm_package_version` in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.
 - **Nitro**: ESBuild target `esnext`, gzip + brotli compression, minification, async context. Prerendered routes for critical above-the-fold images.
 - **Resource hints**: one `dns-prefetch` + `preconnect` to the tenant's media origin, rendered at runtime by `setupPageHeader`, with no `crossorigin` (images load no-cors and only reuse a socket opened in the same mode). None for the static origin, which the browser never fetches from, none in the build-time head and no Google hints.
-- **Source maps**: Client-side only (server disabled for smaller production bundles)
+- **Source maps**: none, client or server (`sourcemap: false`): nothing consumes them, and Nitro serves whatever sits in `public/`. For a one-off size attribution of a chunk, build locally with `sourcemap.client: true` and keep the maps out of the image.

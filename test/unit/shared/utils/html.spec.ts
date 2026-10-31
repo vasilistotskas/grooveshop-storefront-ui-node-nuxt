@@ -59,7 +59,7 @@ describe('buildMediaStreamUrl', () => {
 
     expect(url).not.toContain('cdn-cgi')
     expect(url).toBe(
-      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/0/80.avif',
+      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/0/100.avif',
     )
   })
 
@@ -67,7 +67,7 @@ describe('buildMediaStreamUrl', () => {
     expect(
       buildMediaStreamUrl('https://static.example.gr/media/x/a.png', config),
     ).toBe(
-      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/0/80.avif',
+      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/0/100.avif',
     )
   })
 })
@@ -512,7 +512,7 @@ describe('transformHtmlImages', () => {
   }
   const key = '/media/x/uploads/tinymce/a.png'
   const url = (w: number, h: number, fit: 'contain' | 'inside' = 'contain') =>
-    `https://assets.example.gr/media_stream-image${key}/${w}/${h}/${fit}/entropy/transparent/0/80.avif`
+    `https://assets.example.gr/media_stream-image${key}/${w}/${h}/${fit}/entropy/transparent/0/100.avif`
 
   it('bounds an image with no dimensions to the column, width only, with no 2x candidate', () => {
     const out = transformHtmlImages(`<img src="https://api.example.gr${key}">`, config)
@@ -699,7 +699,7 @@ describe('transformHtmlImages', () => {
     const external = '<img src="https://elsewhere.example/a.png" width="900">'
     const svg = `<img src="https://api.example.gr/media/logo.svg">`
     const data = '<img src="data:image/png;base64,AAAA">'
-    const optimized = `<img src="https://assets.example.gr/media_stream-image${key}/704/0/contain/entropy/transparent/0/80.avif">`
+    const optimized = `<img src="https://assets.example.gr/media_stream-image${key}/704/0/contain/entropy/transparent/0/100.avif">`
 
     for (const tag of [external, svg, data, optimized]) {
       expect(transformHtmlImages(tag, config)).toBe(tag)

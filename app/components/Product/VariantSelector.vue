@@ -115,7 +115,6 @@ const LEGEND = 'mb-3 text-sm font-bold text-highlighted'
             :height="64"
             fit="cover"
             densities="x1 x2"
-            :quality="PRODUCT_IMAGE_QUALITY"
             class="size-16 object-cover"
             :class="item.soldOut && 'opacity-45'"
           />

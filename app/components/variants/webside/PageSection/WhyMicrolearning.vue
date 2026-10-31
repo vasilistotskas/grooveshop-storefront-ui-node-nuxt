@@ -79,6 +79,9 @@ useHead({
         </div>
       </template>
 
+      <!-- `format` is chosen per picture, by measuring (see
+           WhatIsMicrolearning): WebP is 17% and 11% smaller for pictures
+           1 and 2, the same size for picture 3, which keeps its PNG. -->
       <NuxtImg
         src="/img/pages/why-microlearning1.png"
         :width="960"
@@ -88,7 +91,8 @@ useHead({
         sizes="xs:320px sm:640px md:480px lg:480px xl:560px xxl:600px 2xl:600px"
         loading="eager"
         quality="80"
-        preload
+        format="webp"
+        :preload="{ fetchPriority: 'high' }"
         fetchpriority="high"
         class="
           h-auto w-full rounded-2xl shadow-xl ring ring-default
@@ -148,6 +152,7 @@ useHead({
         sizes="xs:320px sm:640px md:480px lg:480px xl:560px xxl:600px 2xl:600px"
         loading="lazy"
         quality="80"
+        format="webp"
         class="
           h-auto w-full rounded-2xl shadow-xl ring ring-default
         "

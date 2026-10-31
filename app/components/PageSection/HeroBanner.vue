@@ -86,7 +86,6 @@ const hasContent = computed(
         sizes="xs:100vw"
         class="absolute inset-0 size-full object-cover"
         fit="cover"
-        quality="80"
         densities="x1 x2"
         :loading="leadsPage ? 'eager' : 'lazy'"
         :fetchpriority="leadsPage ? 'high' : undefined"

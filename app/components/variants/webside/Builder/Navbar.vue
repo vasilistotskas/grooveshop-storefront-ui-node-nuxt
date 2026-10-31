@@ -9,7 +9,6 @@ defineProps({
 const config = useRuntimeConfig()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
-const { locales } = useI18n()
 const isScrolled = ref(false)
 
 const tenantStore = useTenantStore()
@@ -117,7 +116,8 @@ onMounted(() => {
                    row past the viewport. Below `sm` it keeps only the
                    flag, which the aria-label names. -->
               <LazyWebsideLanguageSwitcher
-                v-if="locales.length > 1"
+                v-if="tenantStore.isMultilingual"
+                hydrate-on-interaction
                 class="
                   max-sm:pe-3
                   max-sm:[&>[data-slot=trailing]]:hidden
