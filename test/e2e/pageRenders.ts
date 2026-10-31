@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { makeProductPoints } from '../fixtures/loyalty'
-import { makeProductCard } from '../fixtures/product'
+import { makeProduct, makeProductCard } from '../fixtures/product'
 import { makeProductSearchResponse } from '../fixtures/productFilters'
 import { validTenantConfig } from '../fixtures/tenantConfig'
 import { BROWSER_ACCEPT, requestWithHost, sendJson, waitUntilServing } from '../helpers/e2e'
@@ -63,6 +63,9 @@ const CUSTOM_PAGE_SLUG = 'our-story'
 
 // Content that fails upstream, for the 5xx → 503 mapping.
 const OUTAGE_CONTENT_SLUG = 'outage'
+/** The one product the stub serves by id, and the slug it answers to. */
+const SLUG_PRODUCT_ID = 321
+const SLUG_PRODUCT_SLUG = 'bluetooth-speaker'
 const OUTAGE_LAYOUT_SLUG = 'outage-page'
 
 function request(path: string, host = TENANT_HOST, headers: Record<string, string> = {}) {
@@ -167,6 +170,12 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
   if (reqUrl.pathname.endsWith('/loyalty/product/points')) {
     const ids = (reqUrl.searchParams.get('productIds') ?? '').split(',').filter(Boolean).map(Number)
     sendJson(res, ids.map(productId => makeProductPoints({ productId })))
+    return
+  }
+
+  // One product, by id: the page behind the stale-slug redirects below.
+  if (reqUrl.pathname.endsWith(`/product/${SLUG_PRODUCT_ID}`)) {
+    sendJson(res, { ...makeProduct({ id: SLUG_PRODUCT_ID }), slug: SLUG_PRODUCT_SLUG, priceDropAlertsEnabled: false, ratingDistribution: [] })
     return
   }
 
@@ -312,6 +321,27 @@ export function describePageRenders(): void {
 
       expect(statusCode).toBe(301)
       expect(location).toBe(target)
+    }, 60000)
+
+    // `[slug]` is decorative, so a stale one is a second address of the same
+    // page: the response is a permanent redirect to the product's own path,
+    // in the visitor's language, with the query kept.
+    it.each([
+      [`/products/${SLUG_PRODUCT_ID}/an-old-slug`, `/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}`],
+      [`/en/products/${SLUG_PRODUCT_ID}/an-old-slug`, `/en/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}`],
+      [`/products/${SLUG_PRODUCT_ID}/an-old-slug?page=2`, `/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}?page=2`],
+    ])('moves the stale %s to its own path for good', async (path, target) => {
+      const { statusCode, location } = await request(path, TENANT_HOST, BROWSER_ACCEPT)
+
+      expect(statusCode).toBe(301)
+      expect(location).toBe(target)
+    }, 60000)
+
+    it('does not redirect a product asked for at its own slug', async () => {
+      const { statusCode, location } = await request(`/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}`, TENANT_HOST, BROWSER_ACCEPT)
+
+      expect(statusCode).toBe(200)
+      expect(location).toBeUndefined()
     }, 60000)
 
     it.each([

@@ -72,6 +72,16 @@ sidebar). Never put `definePageMeta`/`defineRouteRules` in a body (they are
 inert outside `pages/`), and never put visitor-facing markup in a shell.
 ESLint enforces both across bodies and pages (`eslint.config.mjs`: page macros are banned under `app/components/**`, and an un-awaited `usePageConfig` anywhere in `app/**`).
 
+**An entity page's `[slug]` is decorative, and a stale one is redirected.** The
+id names the record, so `/products/2/any-slug` would render. A page that
+declares its document with `useDocumentLocales().declare(locales, path)` (every
+product, product category, blog post and blog category page, in every design)
+answers a 301 to `path` when the URL asked for is not it: same language prefix,
+query and hash kept, from the entity the page already fetched
+(`navigateTo(..., { redirectCode: 301, replace: true })`: the response on the
+server, a `replace` on a client navigation). A new id+slug page declares its own
+path and gets the redirect; never write one by hand.
+
 **`localePath` takes a route name or a location, never a path string.** With
 typed pages, `@nuxtjs/i18n` types its argument as a name from `RouteMapI18n`
 or a location object; a path string still works at runtime only for backwards

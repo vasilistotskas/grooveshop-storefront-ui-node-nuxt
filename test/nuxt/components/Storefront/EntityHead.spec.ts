@@ -35,6 +35,13 @@ mockComponent('UTooltip', { template: '<div><slot /></div>' })
 // The product page's price trend loads its own history; its own spec covers it.
 vi.mock('~/components/Product/PriceTrendDialog.vue', () => ({ default: { template: '<div />' } }))
 
+// A stale slug answers a redirect (useDocumentLocales); the real router stays where it is.
+const navigateToMock = vi.hoisted(() => vi.fn())
+mockNuxtImport('navigateTo', () => navigateToMock)
+
+/** The permanent redirects asked for; the i18n module's own language-switch navigations are not them. */
+const redirects = () => navigateToMock.mock.calls.filter(([, options]) => options?.redirectCode === 301)
+
 const route = vi.hoisted(() => ({ path: '', params: {} as Record<string, string>, name: '' }))
 mockNuxtImport('useRoute', () => () => ({
   params: route.params,
@@ -154,6 +161,7 @@ function visit(path: string, name: string, params: Record<string, string>) {
 describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($tree tree)', ({ C: Component }) => {
   beforeEach(async () => {
     clearNuxtData()
+    navigateToMock.mockClear()
     clearCursorState()
     setTenant({ blogEnabled: true, availableLocales: ['el', 'en'] })
     setTenantFeatures({ blog: true, blogComments: true })
@@ -188,7 +196,7 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
     })
   })
 
-  it('names the post\'s own slug, not whatever the route carried', async () => {
+  it('names the post own slug, not whatever the route carried, and redirects to it', async () => {
     serve(GREEK_AND_ENGLISH)
     visit('/en/blog/post/7/an-old-slug', 'blog-post-id-slug___en', { id: '7', slug: 'an-old-slug' })
 
@@ -196,6 +204,19 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
 
     expect(head.canonicals).toEqual(['/en/blog/post/7/spring-guide'])
     expect(head.alternates.en).toBe('/en/blog/post/7/spring-guide')
+    expect(redirects()).toEqual([[
+      { path: '/en/blog/post/7/spring-guide', query: {}, hash: '' },
+      { redirectCode: 301, replace: true },
+    ]])
+  })
+
+  it('does not redirect a post asked for at its own slug', async () => {
+    serve(GREEK_AND_ENGLISH)
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    await headOf(Component)
+
+    expect(redirects()).toEqual([])
   })
 
   it('keeps its own title and description under a blog-post layout that carries SEO fields', async () => {
@@ -231,6 +252,7 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
 describe.each(trees(ProductDetail, WebsideProductDetail))('head of an English product page ($tree tree)', ({ C: Component }) => {
   beforeEach(async () => {
     clearNuxtData()
+    navigateToMock.mockClear()
     setTenant({ availableLocales: ['el', 'en'] })
     await useNuxtApp().$i18n.setLocale('en')
   })
@@ -264,6 +286,18 @@ describe.each(trees(ProductDetail, WebsideProductDetail))('head of an English pr
       'el': '/products/123/bluetooth-speaker',
       'en': '/en/products/123/bluetooth-speaker',
     })
+  })
+
+  it('redirects a product asked for at a stale slug to its own, in the same language', async () => {
+    serve(makeProduct({ id: 123 }).translations)
+    visit('/en/products/123/old-name', 'products-id-slug___en', { id: '123', slug: 'old-name' })
+
+    await headOf(Component)
+
+    expect(redirects()).toEqual([[
+      { path: '/en/products/123/bluetooth-speaker', query: {}, hash: '' },
+      { redirectCode: 301, replace: true },
+    ]])
   })
 
   it('canonicalises to the Greek product, and offers no English version, when it has no English name', async () => {
