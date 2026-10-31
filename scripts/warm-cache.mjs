@@ -30,7 +30,18 @@
  *    a route rule, its payload stays inline, and asking for its
  *    `_payload.json` rendered a 404 on every deploy.
  *
- * Requests go straight to the Service with only Host, User-Agent and
+ * Before the pages, it fills the Cloudflare edge with the build's own files
+ * (`warmEdgeAssets`): the first visitor after a deploy otherwise finds none
+ * of the new build's chunks at the edge, and one page load asks the origin
+ * for ~113 of them at once. The list is the build output shipped in the
+ * image (`public/_nuxt`), each file requested once per store through its
+ * PUBLIC host, because the edge caches per host and only a request that
+ * passes through it fills it. Cloudflare's Tiered Cache means one such
+ * request also fills the upper tier the other data centres read from; a
+ * request from this Job does not reach every data centre's own cache.
+ * Failures are logged and counted, never a reason to fail or repeat the sync.
+ *
+ * The page requests go straight to the Service with only Host, User-Agent and
  * Accept. Verified 2026-09-25: such a render is byte-identical to one that
  * came through Cloudflare and Traefik (only Cloudflare's `Vary` differs),
  * so what this caches is exactly what a visitor would have.
@@ -62,10 +73,11 @@
  *
  * Deliberately `node:http(s)`, not `fetch`: `fetch` drops a `Host` header.
  */
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import http from 'node:http'
 import https from 'node:https'
-import { pathToFileURL } from 'node:url'
+import { relative } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 // The route lists `nuxt.config.ts` builds its page-cache rules from. Node
 // runs the TypeScript as is (type stripping); the image ships this module
 // and the files it imports beside the script (`docker/Dockerfile`).
@@ -144,6 +156,21 @@ export function localeTwin(pathname, prefix) {
   return pathname === '/' ? prefix : `${prefix}${pathname}`
 }
 
+/**
+ * The URL paths of a build's files that visitors fetch: every file under
+ * `_nuxt` except the precompressed twins Nitro picks by `Accept-Encoding`
+ * (`.br`, `.gz`), the source maps nothing requests, and `builds/`, whose
+ * `latest.json` and per-build metadata are short-lived and not content-hashed.
+ * `files` are paths relative to `public/_nuxt`.
+ */
+export function buildAssetPaths(files) {
+  return files
+    .map(file => file.replaceAll('\\', '/'))
+    .filter(file => !/\.(?:br|gz|map)$/.test(file) && !file.startsWith('builds/'))
+    .map(file => `/_nuxt/${file}`)
+    .sort()
+}
+
 function decodeXml(value) {
   return value
     .replaceAll('&lt;', '<')
@@ -202,14 +229,15 @@ function log(level, message, fields = {}) {
   process.stdout.write(`${JSON.stringify({ timestamp: new Date().toISOString(), level, tag: 'cache-warm', message, ...fields })}\n`)
 }
 
-function request(url, { method = 'GET', headers = {}, body, ca, timeoutMs }) {
+function request(url, { method = 'GET', headers = {}, body, ca, timeoutMs, discardBody = false }) {
   const target = new URL(url)
   const client = target.protocol === 'https:' ? https : http
   return new Promise((resolve, reject) => {
     const started = performance.now()
     const req = client.request(target, { method, headers, ca, timeout: timeoutMs }, (response) => {
       const chunks = []
-      response.on('data', chunk => chunks.push(chunk))
+      if (discardBody) response.resume()
+      else response.on('data', chunk => chunks.push(chunk))
       response.on('end', () => resolve({
         status: response.statusCode,
         headers: response.headers,
@@ -222,6 +250,49 @@ function request(url, { method = 'GET', headers = {}, body, ca, timeoutMs }) {
     req.on('error', reject)
     req.end(body)
   })
+}
+
+/**
+ * Request every file of the build once per store, through the store's public
+ * host, so Cloudflare holds it before a visitor asks. Returns how the edge
+ * answered (`cf-cache-status`, `none` when a host is not proxied) and how
+ * many requests failed.
+ */
+async function warmEdgeAssets({ stores, paths, concurrency, timeoutMs }) {
+  const summary = { files: paths.length, requests: 0, failed: 0, edge: {} }
+  const queue = stores.flatMap(store => paths.map(path => ({ store, path })))
+  async function worker() {
+    for (let item = queue.shift(); item; item = queue.shift()) {
+      try {
+        const response = await request(`https://${item.store}${item.path}`, {
+          headers: {
+            'accept': '*/*',
+            // What a browser sends: the edge keeps a copy per encoding, and
+            // this is the one visitors ask for.
+            'accept-encoding': 'gzip, deflate, br, zstd',
+            'user-agent': DEVICE_USER_AGENTS.desktop,
+            [CACHE_WARM_HEADER]: '1',
+          },
+          timeoutMs,
+          discardBody: true,
+        })
+        summary.requests++
+        if (response.status !== 200) {
+          summary.failed++
+          log('warn', 'build asset not served', { host: item.store, path: item.path, status: response.status })
+          continue
+        }
+        const edge = response.headers['cf-cache-status'] ?? 'none'
+        summary.edge[edge] = (summary.edge[edge] ?? 0) + 1
+      }
+      catch (error) {
+        summary.failed++
+        log('warn', 'build asset request failed', { host: item.store, path: item.path, error: String(error?.message ?? error) })
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: concurrency }, worker))
+  return summary
 }
 
 /** The Kubernetes API, as this Job's ServiceAccount, in its own namespace. */
@@ -357,6 +428,21 @@ async function main() {
   }
 
   const stores = [...new Set([...pages.values()].map(page => page.host))]
+
+  // The build's own files first: a missing chunk breaks the page it is
+  // wanted by, where a cold render is only slow.
+  const assetsDir = new URL('../public/_nuxt/', import.meta.url)
+  const assetFiles = readdirSync(assetsDir, { recursive: true, withFileTypes: true })
+    .filter(entry => entry.isFile())
+    .map(entry => relative(fileURLToPath(assetsDir), `${entry.parentPath}/${entry.name}`))
+  const assetsStarted = performance.now()
+  const assets = await warmEdgeAssets({ stores, paths: buildAssetPaths(assetFiles), concurrency, timeoutMs })
+  log(assets.failed ? 'warn' : 'info', 'build assets requested through the public hosts', {
+    build: ownBuild,
+    hosts: stores,
+    ...assets,
+    seconds: Math.round((performance.now() - assetsStarted) / 1000),
+  })
   const renderedByStore = new Map()
   const started = performance.now()
   const summary = { pages: pages.size, rendered: 0, payloads: 0, uncached: 0, failed: 0 }
