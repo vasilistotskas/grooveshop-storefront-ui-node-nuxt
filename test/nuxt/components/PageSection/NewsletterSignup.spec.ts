@@ -18,7 +18,8 @@ import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
  *   the server route stores as proof, so they cannot drift);
  * - the locale the label was rendered in travels in `$api`'s page-locale
  *   header (`pageLocaleHeader`, tested separately), not in the request;
- * - its four states: idle, submitting, sent, error (429 → "later").
+ * - its states: idle, submitting, the two accepted outcomes (check your
+ *   inbox, already subscribed) and error (429 → "later").
  */
 const flags = vi.hoisted(() => ({ available: true }))
 
@@ -35,7 +36,18 @@ mockNuxtImport('$api', () => api)
 const NEWSLETTER_URL = '/api/subscriptions/newsletter'
 
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
-const COPY = { failed: 'Η εγγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά.' }
+const COPY = {
+  failed: 'Η εγγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά.',
+  sent: 'Έλεγξε τα εισερχόμενά σου',
+  sentDescription: 'Σου στείλαμε ένα email για την εγγραφή σου.',
+  emailLabel: 'Το email σου',
+  alreadyTitle: 'Είσαι ήδη εγγεγραμμένος',
+  alreadyManage: 'Διαχείριση εγγραφών',
+}
+
+/** What Django answers an accepted request with, per outcome. */
+const PENDING = { detail: 'Thank you.', status: 'pending_confirmation' }
+const ALREADY = { detail: 'You are already subscribed to the newsletter.', status: 'already_subscribed' }
 
 const mountBand = (props: Record<string, unknown> = {}) =>
   mountSuspended(NewsletterSignup, { route: false, props })
@@ -130,7 +142,15 @@ describe('NewsletterSignup', () => {
     expect(wrapper.find('form').exists()).toBe(true)
   })
 
+  it('names the email field by what it takes', async () => {
+    const wrapper = await mountBand()
+
+    const input = wrapper.find('input[type="email"]')
+    expect(wrapper.find(`label[for="${input.attributes('id')}"]`).text()).toBe(COPY.emailLabel)
+  })
+
   it('posts email + consent through $api, then shows "check your inbox"', async () => {
+    api.routes({ [NEWSLETTER_URL]: PENDING })
     const wrapper = await mountBand()
 
     await fillAndSubmit(wrapper)
@@ -146,7 +166,21 @@ describe('NewsletterSignup', () => {
     expect(opts.body).not.toHaveProperty('consentText')
 
     expect(wrapper.find('form').exists()).toBe(false)
-    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(wrapper.find('[role="status"]').text()).toContain(COPY.sent)
+    expect(wrapper.find('[role="status"]').text()).toContain(COPY.sentDescription)
+  })
+
+  it('tells a signed-in subscriber the account is already subscribed, with a link to manage it', async () => {
+    api.routes({ [NEWSLETTER_URL]: ALREADY })
+    const wrapper = await mountBand()
+
+    await fillAndSubmit(wrapper)
+
+    expect(wrapper.find('form').exists()).toBe(false)
+    const status = wrapper.find('[role="status"]')
+    expect(status.text()).toContain(COPY.alreadyTitle)
+    expect(status.text()).not.toContain(COPY.sent)
+    expect(status.find('a[href*="subscriptions"]').text()).toBe(COPY.alreadyManage)
   })
 
   it('on /en shows the English sentence and sends no locale query', async () => {
@@ -180,7 +214,7 @@ describe('NewsletterSignup', () => {
     await wrapper.find('form').trigger('submit')
     await flushPromises()
 
-    resolve({ detail: 'ok' })
+    resolve(PENDING)
     await flushPromises()
     expect(postCalls()).toHaveLength(1)
     expect(wrapper.find('[role="status"]').exists()).toBe(true)

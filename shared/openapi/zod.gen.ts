@@ -1484,6 +1484,17 @@ export const zNewsletterSubscribeRequest = z.object({
 })
 
 /**
+ * * `pending_confirmation` - Εκκρεμεί επιβεβαίωση
+ * * `already_subscribed` - Υπάρχει ήδη εγγραφή
+ */
+export const zNewsletterSubscribeResponseStatusEnum = z.enum(['pending_confirmation', 'already_subscribed'])
+
+export const zNewsletterSubscribeResponse = z.object({
+  detail: z.string(),
+  status: zNewsletterSubscribeResponseStatusEnum,
+})
+
+/**
  * * `ORDER` - Παραγγελία
  * * `PAYMENT` - Πληρωμή
  * * `SHIPPING` - Μεταφορικά
@@ -17016,7 +17027,7 @@ export const zGetNewsletterAvailabilityResponse = zNewsletterAvailability
 
 export const zSubscribeToNewsletterBody = zNewsletterSubscribeRequest
 
-export const zSubscribeToNewsletterResponse = zDetail
+export const zSubscribeToNewsletterResponse = zNewsletterSubscribeResponse
 
 export const zListSubscriptionTopicQuery = z.object({
   category: z.enum([

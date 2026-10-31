@@ -17,7 +17,7 @@ const { t } = useStoreI18n('components/variants/webside/Footer/Newsletter')
 const localePath = useLocalePath()
 const pitchId = useId()
 
-const { available, consent, schema, state, submitting, sent, failure, subscribe }
+const { available, consent, schema, state, submitting, outcome, failure, subscribe }
   = await useNewsletterSignup({ consentRequired: () => t('consent_required') })
 
 const errorMessage = computed(() => {
@@ -54,7 +54,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
     </div>
 
     <div
-      v-if="sent"
+      v-if="outcome === 'pending_confirmation'"
       role="status"
       class="flex flex-col gap-1"
     >
@@ -64,6 +64,27 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
       <p class="text-sm text-muted">
         {{ t('sent.description') }}
       </p>
+    </div>
+
+    <div
+      v-else-if="outcome === 'already_subscribed'"
+      role="status"
+      class="flex flex-col items-start gap-1"
+    >
+      <p class="text-sm font-semibold">
+        {{ t('already.title') }}
+      </p>
+      <p class="text-sm text-muted">
+        {{ t('already.description') }}
+      </p>
+      <UButton
+        :label="t('already.manage')"
+        :to="localePath('account-subscriptions')"
+        color="secondary"
+        variant="link"
+        size="xs"
+        :ui="{ base: 'p-0' }"
+      />
     </div>
 
     <UForm
@@ -143,7 +164,11 @@ el:
   failed: Η εγγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά.
   sent:
     title: Έλεγξε τα εισερχόμενά σου
-    description: Σου στείλαμε έναν σύνδεσμο. Πάτησέ τον για να επιβεβαιώσεις την εγγραφή σου.
+    description: Σου στείλαμε ένα email για την εγγραφή σου.
+  already:
+    title: Είσαι ήδη εγγεγραμμένος
+    description: Ο λογαριασμός σου είναι ήδη εγγεγραμμένος στο ενημερωτικό δελτίο. Δεν χρειάζεται να κάνεις κάτι.
+    manage: Διαχείριση εγγραφών
 en:
   heading: Stay in the loop
   description: New products and offers, straight to your inbox.
@@ -154,5 +179,9 @@ en:
   failed: The subscription did not go through. Please try again.
   sent:
     title: Check your inbox
-    description: We sent you a link. Open it to confirm your subscription.
+    description: We sent you an email about your subscription.
+  already:
+    title: You are already subscribed
+    description: Your account is already subscribed to the newsletter. There is nothing more to do.
+    manage: Manage your subscriptions
 </i18n>

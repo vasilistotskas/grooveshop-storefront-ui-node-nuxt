@@ -3659,6 +3659,23 @@ export type NewsletterSubscribeRequest = {
   consentText: string
 }
 
+export type NewsletterSubscribeResponse = {
+  detail: string
+  /**
+     * ``pending_confirmation`` για κάθε επισκέπτη: μπορεί να ακολουθήσει email, χωρίς υπόσχεση. ``already_subscribed`` μόνο όταν ο συνδεδεμένος λογαριασμός υπέβαλε δική του επαληθευμένη διεύθυνση και η συνδρομή του λογαριασμού στο newsletter είναι ήδη επιβεβαιωμένη· τότε δεν στέλνεται email.
+     *
+     * * `pending_confirmation` - Εκκρεμεί επιβεβαίωση
+     * * `already_subscribed` - Υπάρχει ήδη εγγραφή
+     */
+  status: NewsletterSubscribeResponseStatusEnum
+}
+
+/**
+ * * `pending_confirmation` - Εκκρεμεί επιβεβαίωση
+ * * `already_subscribed` - Υπάρχει ήδη εγγραφή
+ */
+export type NewsletterSubscribeResponseStatusEnum = 'pending_confirmation' | 'already_subscribed'
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -28335,7 +28352,7 @@ export type SubscribeToNewsletterErrors = {
 export type SubscribeToNewsletterError = SubscribeToNewsletterErrors[keyof SubscribeToNewsletterErrors]
 
 export type SubscribeToNewsletterResponses = {
-  202: Detail
+  202: NewsletterSubscribeResponse
 }
 
 export type SubscribeToNewsletterResponse = SubscribeToNewsletterResponses[keyof SubscribeToNewsletterResponses]

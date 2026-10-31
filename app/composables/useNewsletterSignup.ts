@@ -1,5 +1,14 @@
 import * as z from 'zod'
+import type { NewsletterSubscribeResponseStatusEnum } from '~~/shared/openapi/types.gen'
 import { newsletterConsent } from '~~/shared/i18n/newsletterConsent'
+
+/**
+ * What Django answered an accepted request with: a confirmation may
+ * follow (`pending_confirmation`, the answer to every visitor), or the
+ * signed-in account submitted its own verified address and is already
+ * subscribed (`already_subscribed`, no email is sent).
+ */
+export type NewsletterOutcome = NewsletterSubscribeResponseStatusEnum
 
 /** Why a subscription request did not go through. */
 export type NewsletterFailure
@@ -68,9 +77,12 @@ export function requestNewsletterSubscription(body: { email: string, consent: bo
  * shared by the forms that are only that: the newsletter band and the
  * footer.
  *
- * The API answers the same way whether or not it knows the address, so
- * a form has one success state for everyone: "check your inbox". The
- * consent box is never pre-ticked, and its label is the consent
+ * The API answers the same way whether or not it knows an address, so
+ * a visitor always gets "check your inbox" (`pending_confirmation`). Only
+ * a signed-in account that submits one of its own verified addresses,
+ * with its subscription already active, is told it is already subscribed
+ * (`already_subscribed`): a form draws one inline state per `outcome`.
+ * The consent box is never pre-ticked, and its label is the consent
  * sentence from `useNewsletterAvailability`.
  *
  * Each call holds its own form state. Copy stays with each form: a
@@ -94,7 +106,7 @@ export async function useNewsletterSignup(options: NewsletterSignupOptions) {
   })
 
   const submitting = ref(false)
-  const sent = ref(false)
+  const outcome = ref<NewsletterOutcome | null>(null)
   const failure = ref<NewsletterFailure | null>(null)
 
   async function subscribe(body: z.output<typeof schema>) {
@@ -102,8 +114,8 @@ export async function useNewsletterSignup(options: NewsletterSignupOptions) {
     submitting.value = true
     failure.value = null
     try {
-      await requestNewsletterSubscription(body)
-      sent.value = true
+      const response = await requestNewsletterSubscription(body)
+      outcome.value = response.status
     }
     catch (error) {
       // The proxy returns Django's 4xx body with its status. A throttled
@@ -123,7 +135,7 @@ export async function useNewsletterSignup(options: NewsletterSignupOptions) {
     }
   }
 
-  return { available, consent, schema, state, submitting, sent, failure, subscribe }
+  return { available, consent, schema, state, submitting, outcome, failure, subscribe }
 }
 
 /**

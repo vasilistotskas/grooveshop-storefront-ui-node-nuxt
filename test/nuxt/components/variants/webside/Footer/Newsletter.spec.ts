@@ -23,7 +23,26 @@ mockNuxtImport('$api', () => api)
 
 const NEWSLETTER_URL = '/api/subscriptions/newsletter'
 
+/** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
+const COPY = {
+  sent: 'Έλεγξε τα εισερχόμενά σου',
+  sentDescription: 'Σου στείλαμε ένα email για την εγγραφή σου.',
+  alreadyTitle: 'Είσαι ήδη εγγεγραμμένος',
+  alreadyManage: 'Διαχείριση εγγραφών',
+}
+
+/** What Django answers an accepted request with, per outcome. */
+const PENDING = { detail: 'Thank you.', status: 'pending_confirmation' }
+const ALREADY = { detail: 'You are already subscribed to the newsletter.', status: 'already_subscribed' }
+
 const mountCard = () => mountSuspended(FooterNewsletter, { route: false })
+
+async function tickAndSubmit(wrapper: Awaited<ReturnType<typeof mountCard>>) {
+  await wrapper.find('input[type="email"]').setValue('visitor@example.com')
+  await wrapper.find('[role="checkbox"]').trigger('click')
+  await wrapper.find('form').trigger('submit')
+  await flushPromises()
+}
 
 describe('webside Footer/Newsletter', () => {
   beforeEach(() => {
@@ -54,17 +73,50 @@ describe('webside Footer/Newsletter', () => {
     expect(wrapper.find('form').text()).toContain(newsletterConsentText('el'))
   })
 
-  it('subscribes a ticked form, then says to check the inbox', async () => {
+  it('names the email field by what it takes, and describes it with the pitch', async () => {
     const wrapper = await mountCard()
 
-    await wrapper.find('input[type="email"]').setValue('visitor@example.com')
-    await wrapper.find('[role="checkbox"]').trigger('click')
-    await wrapper.find('form').trigger('submit')
-    await flushPromises()
+    const input = wrapper.find('input[type="email"]')
+    expect(wrapper.find(`label[for="${input.attributes('id')}"]`).text()).toBe('Διεύθυνση email')
+    expect(wrapper.find(`#${input.attributes('aria-describedby')}`).exists()).toBe(true)
+  })
+
+  it('subscribes a ticked form, then says to check the inbox', async () => {
+    api.routes({ [NEWSLETTER_URL]: PENDING })
+    const wrapper = await mountCard()
+
+    await tickAndSubmit(wrapper)
 
     expect(api.callsTo(NEWSLETTER_URL).map(call => call.options?.body))
       .toEqual([{ email: 'visitor@example.com', consent: true }])
-    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(wrapper.find('form').exists()).toBe(false)
+    expect(wrapper.find('[role="status"]').text()).toContain(COPY.sent)
+    expect(wrapper.find('[role="status"]').text()).toContain(COPY.sentDescription)
+    expect(wrapper.find('a[href*="subscriptions"]').exists()).toBe(false)
+  })
+
+  it('tells a signed-in subscriber the account is already subscribed, with a link to manage it', async () => {
+    api.routes({ [NEWSLETTER_URL]: ALREADY })
+    const wrapper = await mountCard()
+
+    await tickAndSubmit(wrapper)
+
+    expect(wrapper.find('form').exists()).toBe(false)
+    const status = wrapper.find('[role="status"]')
+    expect(status.text()).toContain(COPY.alreadyTitle)
+    expect(status.text()).not.toContain(COPY.sent)
+    expect(status.find('a[href*="subscriptions"]').text()).toBe(COPY.alreadyManage)
+  })
+
+  it('keeps the form and shows no status when the request fails', async () => {
+    api.routes({ [NEWSLETTER_URL]: failWith(502, 'Bad Gateway') })
+    const wrapper = await mountCard()
+
+    await tickAndSubmit(wrapper)
+
+    expect(wrapper.find('form').exists()).toBe(true)
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
   })
 
   it('sends nothing without consent', async () => {
