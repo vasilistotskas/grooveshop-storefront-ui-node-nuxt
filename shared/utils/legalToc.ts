@@ -32,9 +32,24 @@ const ENTITIES: Record<string, string> = {
   '&nbsp;': ' ',
 }
 
+// A tag is a `<` followed by a tag-name start (`/`, `!` and `?` open end tags,
+// comments and declarations), up to its closing `>` or, when the author
+// never closed it, to the end of the string. Any other `<` is text ("Τιμή
+// < 50"): a browser renders it as text, so the label keeps it.
+const TAG = /<[a-z/!?][^>]*(?:>|$)/gi
+
+// Removing a tag can join its neighbours into a new one (`<<b>script>`), so
+// the strip repeats until nothing is left to remove.
+function stripTags(html: string): string {
+  let previous = html
+  for (let next = previous.replace(TAG, ''); next !== previous; next = previous.replace(TAG, '')) {
+    previous = next
+  }
+  return previous
+}
+
 function plainText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
+  return stripTags(html)
     .replace(/&[a-z#0-9]+;/gi, m => ENTITIES[m.toLowerCase()] ?? m)
     .replace(/\s+/g, ' ')
     .trim()
