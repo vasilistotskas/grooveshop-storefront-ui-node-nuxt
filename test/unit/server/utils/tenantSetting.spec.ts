@@ -34,15 +34,13 @@ describe('publishedLayoutsForHost', () => {
 })
 
 describe('publishedContentLocalesForHost', () => {
-  it('maps each published slug to the locales its body is written in, asking for 100 per page', async () => {
+  it('maps each published slug to the locales Django says its body is written in, asking for 100 per page', async () => {
     backend.reply({
       results: [
-        { slug: 'terms-of-use', translations: { el: { body: '<p>όροι</p>' }, en: { body: '<p>terms</p>' } } },
-        // A key with an empty body is no English document.
-        { slug: 'privacy-policy', translations: { el: { body: '<p>απόρρητο</p>' }, en: { title: 'Privacy', body: '<p></p>' } } },
+        { slug: 'terms-of-use', translatedLocales: ['el', 'en'] },
+        { slug: 'privacy-policy', translatedLocales: ['el'] },
         // Nothing written in any language: the page 404s, so no entry.
-        { slug: 'returns', translations: { el: { title: 'Επιστροφές', body: '' } } },
-        { slug: 'shipping', translations: null },
+        { slug: 'returns', translatedLocales: [] },
       ],
     })
 

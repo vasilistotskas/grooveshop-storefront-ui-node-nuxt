@@ -11,11 +11,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import plugin from '~~/server/plugins/sitemap-tenant-gate'
 import { LEGAL_ROUTE_SLUGS } from '~~/shared/utils/legalPages'
+import { translatedLocales } from '~~/shared/utils/translations'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import { backend, createTestEvent, jsonResponse, runNitroPlugin } from '~~/test/helpers/nitro'
 import type { BackendRequest, TestNitroApp } from '~~/test/helpers/nitro'
 
-type ContentPage = { slug: string, translations: Record<string, unknown> }
+type ContentPage = { slug: string, translations: Record<string, Record<string, unknown>> }
 
 /** What the store's backend holds; `'down'` makes that endpoint fail. */
 const store: {
@@ -35,7 +36,12 @@ const ALL_LEGAL = () => Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug, tr
 
 function answer(request: BackendRequest) {
   const down = jsonResponse({ detail: 'upstream down' }, 404)
-  if (request.path.endsWith('/content-page')) return store.content === 'down' ? down : { results: store.content }
+  // The list names the locales a page is written in, as Django does: a body that shows nothing is no document.
+  if (request.path.endsWith('/content-page')) {
+    return store.content === 'down'
+      ? down
+      : { results: store.content.map(page => ({ slug: page.slug, translatedLocales: translatedLocales(page.translations, 'body') })) }
+  }
   // One read of every published layout; a per-type read is unexpected.
   if (request.path.endsWith('/page-config')) {
     return store.layouts === 'down'

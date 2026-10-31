@@ -36955,6 +36955,16 @@ components:
               properties:
                 title:
                   type: string
+        translatedLocales:
+          type: array
+          items:
+            type: string
+          description: |-
+            The languages the page is written in: its body shows something.
+
+            A list carries no body, so this is how it says which languages a
+            page exists in (hreflang, the sitemap).
+          readOnly: true
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -36979,6 +36989,7 @@ components:
         - id
         - publishedAt
         - slug
+        - translatedLocales
         - translations
         - updatedAt
         - uuid
@@ -37028,6 +37039,16 @@ components:
                   type: string
                 body:
                   type: string
+        translatedLocales:
+          type: array
+          items:
+            type: string
+          description: |-
+            The languages the page is written in: its body shows something.
+
+            A list carries no body, so this is how it says which languages a
+            page exists in (hreflang, the sitemap).
+          readOnly: true
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -37052,6 +37073,7 @@ components:
         - id
         - publishedAt
         - slug
+        - translatedLocales
         - translations
         - updatedAt
         - uuid

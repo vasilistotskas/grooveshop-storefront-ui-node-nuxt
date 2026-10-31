@@ -2640,6 +2640,13 @@ export type ContentPage = {
     }
   }
   /**
+     * The languages the page is written in: its body shows something.
+     *
+     * A list carries no body, so this is how it says which languages a
+     * page exists in (hreflang, the sitemap).
+     */
+  readonly translatedLocales: Array<string>
+  /**
      * Δημοσιευμένο
      */
   isPublished?: boolean
@@ -2681,6 +2688,13 @@ export type ContentPageDetail = {
       body?: string
     }
   }
+  /**
+     * The languages the page is written in: its body shows something.
+     *
+     * A list carries no body, so this is how it says which languages a
+     * page exists in (hreflang, the sitemap).
+     */
+  readonly translatedLocales: Array<string>
   /**
      * Δημοσιευμένο
      */

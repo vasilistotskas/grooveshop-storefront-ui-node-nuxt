@@ -18,6 +18,7 @@ export function makeContentPage(overrides: Partial<ContentPageDetail> = {}): Con
     uuid: fixtureUuid(21, id),
     slug: `page-${id}`,
     translations: { el: { title: `Σελίδα ${id}`, body: '<p>Κείμενο</p>' } },
+    translatedLocales: ['el'],
     isPublished: true,
     publishedAt: FIXTURE_TIMESTAMP,
     createdAt: FIXTURE_TIMESTAMP,

@@ -70,8 +70,8 @@ export async function publishedLayoutsForHost(
  * route renders it in the language it exists in with a canonical
  * pointing at THAT locale's URL — so `/en/terms-of-use` on a store with
  * a Greek-only document is a non-canonical duplicate, and a sitemap lists
- * canonical URLs only. The row's
- * `translations` keys are exactly the locales that are canonical.
+ * canonical URLs only. The row's `translatedLocales` are exactly the
+ * locales that are canonical.
  *
  * The API returns only published rows to an anonymous caller, so
  * membership here is exactly "this route resolves for this tenant, in
@@ -86,7 +86,7 @@ export async function publishedContentLocalesForHost(
 ): Promise<ReadonlyMap<string, ReadonlySet<string>> | null> {
   try {
     const { results } = await backendFetchFor({ tenantHost: host })<{
-      results: { slug: string, translations?: Record<string, Record<string, unknown> | null> | null }[]
+      results: Pick<ContentPage, 'slug' | 'translatedLocales'>[]
     }>(
       `${apiBaseUrl}/content-page`,
       {
@@ -94,14 +94,13 @@ export async function publishedContentLocalesForHost(
         query: { pageSize: 100 },
       },
     )
-    // Written locales only (a key with an empty body is no document),
-    // and no entry for a page written in none: it 404s, so its route
-    // must not be listed.
+    // Written locales only (Django names them: a list carries no body, and
+    // a key with an empty body is no document), and no entry for a page
+    // written in none: it 404s, so its route must not be listed.
     return new Map(
-      results.flatMap((page) => {
-        const locales = translatedLocales(page.translations, 'body')
-        return locales.length ? [[page.slug, new Set(locales)] as const] : []
-      }),
+      results.flatMap(page =>
+        page.translatedLocales.length ? [[page.slug, new Set(page.translatedLocales)] as const] : [],
+      ),
     )
   }
   catch {

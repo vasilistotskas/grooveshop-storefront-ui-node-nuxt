@@ -60515,6 +60515,14 @@
                             }
                         }
                     },
+                    "translatedLocales": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "The languages the page is written in: its body shows something.\n\nA list carries no body, so this is how it says which languages a\npage exists in (hreflang, the sitemap).",
+                        "readOnly": true
+                    },
                     "isPublished": {
                         "type": "boolean",
                         "title": "Δημοσιευμένο"
@@ -60544,6 +60552,7 @@
                     "id",
                     "publishedAt",
                     "slug",
+                    "translatedLocales",
                     "translations",
                     "updatedAt",
                     "uuid"
@@ -60612,6 +60621,14 @@
                             }
                         }
                     },
+                    "translatedLocales": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "The languages the page is written in: its body shows something.\n\nA list carries no body, so this is how it says which languages a\npage exists in (hreflang, the sitemap).",
+                        "readOnly": true
+                    },
                     "isPublished": {
                         "type": "boolean",
                         "title": "Δημοσιευμένο"
@@ -60641,6 +60658,7 @@
                     "id",
                     "publishedAt",
                     "slug",
+                    "translatedLocales",
                     "translations",
                     "updatedAt",
                     "uuid"
