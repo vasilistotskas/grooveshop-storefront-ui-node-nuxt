@@ -1,3 +1,10 @@
+## [3.274.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.0...v3.274.1) (2026-10-31)
+
+
+### Bug Fixes
+
+* **storefront:** site scan findings: CSP image handler, lighter blog lists, accessibility, image quality and blog layout bands ([#291](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/291)) ([e7c52f1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e7c52f1eeb7c08c334c73f80771281ab73e84b68)), closes [hi#priority](https://github.com/hi/issues/priority) [#32](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/32) [#x20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/x20)
+
 # [3.274.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.273.0...v3.274.0) (2026-10-30)
 
 
