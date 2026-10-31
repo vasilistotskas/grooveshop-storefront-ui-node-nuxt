@@ -610,6 +610,22 @@ export function describePageRenders(): void {
       expect(headers.link).toBeUndefined()
     }, 60000)
 
+    // nuxt-ai-ready builds a `.md` twin from the page's HTML; when the page
+    // redirects (a stale slug), the twin is the same redirect, to the
+    // canonical `.md`: a clean 301, not an error body.
+    it.each([
+      [`/products/${SLUG_PRODUCT_ID}/an-old-slug.md`, `/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}.md`],
+      [`/products/${SLUG_PRODUCT_ID}/an-old-slug.md?page=2`, `/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}.md?page=2`],
+      [`/en/products/${SLUG_PRODUCT_ID}/an-old-slug.md`, `/en/products/${SLUG_PRODUCT_ID}/${SLUG_PRODUCT_SLUG}.md`],
+    ])('moves the .md twin of a stale slug, %s, to the canonical .md for good', async (path, target) => {
+      const { statusCode, location, body } = await request(path, PLATFORM_STORE_HOST, BROWSER_ACCEPT)
+
+      expect(statusCode, body.slice(0, 600)).toBe(301)
+      expect(location).toBe(target)
+      expect(body).not.toContain('Internal Server Error')
+      expect(body).not.toContain('"error"')
+    }, 60000)
+
     it('names the host of the platform storefront for its .md twin and llms.txt', async () => {
       const { headers } = await request('/products', PLATFORM_STORE_HOST, BROWSER_ACCEPT)
 
