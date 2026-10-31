@@ -1,3 +1,10 @@
+## [3.274.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.4...v3.274.5) (2026-10-31)
+
+
+### Bug Fixes
+
+* **security:** resolve the open CodeQL sanitization findings ([#296](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/296)) ([a35cfa8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a35cfa8aff88b7c48e7f3f288b82a263a3f9ab5e))
+
 ## [3.274.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.3...v3.274.4) (2026-10-31)
 
 
