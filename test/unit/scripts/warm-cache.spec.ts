@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest'
 import { deviceClassFromUserAgent } from '~~/shared/utils/deviceClass'
 import {
+  buildAssetPaths,
   DEVICE_USER_AGENTS,
   isCachedResponse,
   localeOf,
@@ -223,5 +224,31 @@ describe('localeOf and localeTwin', () => {
   it('places a default-locale page under a prefix, the home page as the bare prefix', () => {
     expect(localeTwin('/', '/en')).toBe('/en')
     expect(localeTwin('/products/1/a', '/en')).toBe('/en/products/1/a')
+  })
+})
+
+describe('buildAssetPaths', () => {
+  it('lists the files visitors fetch, without precompressed twins, source maps or build metadata', () => {
+    const files = [
+      'CKamTKbv-069bd808.js',
+      'CKamTKbv-069bd808.js.br',
+      'CKamTKbv-069bd808.js.gz',
+      'CKamTKbv-069bd808.js.map',
+      'entry.Bx1.css',
+      'entry.Bx1.css.br',
+      'fonts/abc.woff2',
+      'builds/latest.json',
+      'builds/meta/a1747d51.json',
+    ]
+
+    expect(buildAssetPaths(files)).toEqual([
+      '/_nuxt/CKamTKbv-069bd808.js',
+      '/_nuxt/entry.Bx1.css',
+      '/_nuxt/fonts/abc.woff2',
+    ])
+  })
+
+  it('writes Windows separators as URL slashes', () => {
+    expect(buildAssetPaths(['fonts\\abc.woff2', 'builds\\latest.json'])).toEqual(['/_nuxt/fonts/abc.woff2'])
   })
 })
