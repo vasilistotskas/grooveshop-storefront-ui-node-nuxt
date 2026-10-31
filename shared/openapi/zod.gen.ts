@@ -10400,7 +10400,6 @@ export const zListBlogPostFeedQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  search: z.string().optional(),
 })
 
 export const zListBlogPostFeedResponse = z.array(zBlogPostFeed)

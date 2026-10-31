@@ -1,24 +1,61 @@
-/** Elements that show something with no text around them. */
-const EMBEDDED_MEDIA = /<(?:img|picture|video|audio|iframe|embed|object|svg)\b/i
+/** Media that shows something only when it has something to load: the attribute it loads from. */
+const SOURCE_ATTRIBUTES: Readonly<Record<string, string>> = {
+  img: 'src',
+  iframe: 'src',
+  embed: 'src',
+  video: 'src',
+  audio: 'src',
+  source: 'src',
+  object: 'data',
+}
+/** Elements with no end tag. */
+const VOID_ELEMENTS: ReadonlySet<string> = new Set([
+  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr',
+])
+/** One token of markup: a comment or declaration, a tag (with its name and attribute text), or text. */
+const MARKUP_TOKEN = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<![^>]*>|<\?[^>]*>|<(\/?)([a-z][^\s/>]*)((?:"[^"]*"|'[^']*'|[^'">])*)>|[^<]+|</gi
+const ATTRIBUTE = /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g
 /** TinyMCE writes an emptied paragraph as `<p>&nbsp;</p>`. */
 const NBSP_ENTITY = /&(?:nbsp|#160|#x0*a0);/gi
 
 /**
  * Whether a translated field is WRITTEN: it shows something — text, or
- * an embedded image or video (a size chart can be a page) — rather than
- * markup alone. An editor saves an emptied rich-text field as `""`,
- * `<p></p>` or `<p>&nbsp;</p>`, and parler keeps the key, so a key is no
- * evidence of a document.
+ * media with a source (a size chart can be a page) — rather than markup
+ * alone. An editor saves an emptied rich-text field as `""`, `<p></p>` or
+ * `<p>&nbsp;</p>`, and parler keeps the key, so a key is no evidence of a
+ * document. An element with the `hidden` attribute shows nothing, nor does
+ * its content, and an image or frame with no source loads nothing; inline
+ * `svg` counts.
+ *
+ * The same rule as Django's `has_visible_content` (`core/utils/sanitize.py`),
+ * which fills `ContentPage.translatedLocales`: change them together.
  */
 export function hasVisibleContent(value: string | null | undefined): value is string {
   if (!value) return false
-  if (EMBEDDED_MEDIA.test(value)) return true
-  // Whether any text sits between the tags. A presence test: nothing
-  // here strips markup for rendering, so it reads the segments rather
-  // than producing a "tag-free" string.
-  return value
-    .split(/<[^>]*>/)
-    .some(text => text.replace(NBSP_ENTITY, ' ').trim() !== '')
+  // One flag per open element: whether it is hidden. Anything inside an
+  // open hidden element is hidden too.
+  const open: boolean[] = []
+  for (const [token, closing, name, attributeText = ''] of value.matchAll(MARKUP_TOKEN)) {
+    if (name === undefined) {
+      const isMarkup = token.startsWith('<!') || token.startsWith('<?')
+      if (!isMarkup && !open.some(Boolean) && token.replace(NBSP_ENTITY, ' ').trim() !== '') return true
+      continue
+    }
+    const tag = name.toLowerCase()
+    if (closing) {
+      if (!VOID_ELEMENTS.has(tag)) open.pop()
+      continue
+    }
+    const attributes = new Map<string, string>()
+    for (const [, attribute, doubleQuoted, singleQuoted, bare] of attributeText.matchAll(ATTRIBUTE)) {
+      attributes.set(attribute!.toLowerCase(), doubleQuoted ?? singleQuoted ?? bare ?? '')
+    }
+    const source = SOURCE_ATTRIBUTES[tag]
+    if (!open.some(Boolean) && (tag === 'svg' || (source && (attributes.get(source) ?? '').trim() !== ''))) return true
+    // `<x/>` opens and closes at once
+    if (!VOID_ELEMENTS.has(tag) && !attributeText.trimEnd().endsWith('/')) open.push(attributes.has('hidden'))
+  }
+  return false
 }
 
 /**

@@ -10403,15 +10403,6 @@
                             ]
                         },
                         "description": "Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή)."
-                    },
-                    {
-                        "name": "search",
-                        "required": false,
-                        "in": "query",
-                        "description": "A search term.",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "tags": [

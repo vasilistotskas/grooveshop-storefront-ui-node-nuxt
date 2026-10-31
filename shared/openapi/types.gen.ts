@@ -15840,10 +15840,6 @@ export type ListBlogPostFeedData = {
          * Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή).
          */
     count?: string | number
-    /**
-         * A search term.
-         */
-    search?: string
   }
   url: '/api/v1/blog/post/feed'
 }
