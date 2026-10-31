@@ -49,6 +49,8 @@ const props = defineProps<{
   theme?: 'light' | 'dark' | 'auto'
 }>()
 
+const leadsPage = useLeadsPage()
+
 const label = computed(() => props.heading || props.title)
 
 const presentation = computed(() => {
@@ -176,9 +178,9 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
             fit="cover"
             quality="80"
             densities="x1 x2"
-            loading="eager"
-            fetchpriority="high"
-            preload
+            :loading="leadsPage ? 'eager' : 'lazy'"
+            :fetchpriority="leadsPage ? 'high' : undefined"
+            :preload="leadsPage"
           />
           <template v-if="decor === 'orbs'">
             <span

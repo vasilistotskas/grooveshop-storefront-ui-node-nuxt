@@ -1,5 +1,11 @@
 <script lang="ts" setup>
-const props = defineProps<{ section: PageSection }>()
+const props = withDefaults(defineProps<{
+  section: PageSection
+  /** Where the layout is drawn; a hero hints its image as the LCP only when it leads the page. */
+  placement?: PageSectionPlacement
+}>(), { placement: 'top' })
+
+providePageSectionPlacement(props.placement)
 
 const tenantStore = useTenantStore()
 

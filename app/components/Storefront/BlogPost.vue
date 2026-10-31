@@ -353,6 +353,7 @@ onReactivated(async () => {
         v-for="section in bandSections"
         :key="section.uuid"
         :section="section"
+        placement="below-content"
       />
     </div>
   </UContainer>

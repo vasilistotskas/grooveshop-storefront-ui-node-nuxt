@@ -67,6 +67,7 @@ const props = withDefaults(defineProps<{
 })
 
 const { isMobileOrTablet } = useDevice()
+const leadsPage = useLeadsPage()
 const { t, locale } = useStoreI18n('components/PageSection/HeroCarousel')
 const localePath = useLocalePath()
 const { productUrl } = useUrls()
@@ -293,9 +294,9 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                 fit="cover"
                 quality="85"
                 densities="x1 x2"
-                :loading="index === 0 ? 'eager' : 'lazy'"
-                :fetchpriority="index === 0 ? 'high' : 'auto'"
-                :preload="index === 0"
+                :loading="index === 0 && leadsPage ? 'eager' : 'lazy'"
+                :fetchpriority="index === 0 && leadsPage ? 'high' : 'auto'"
+                :preload="index === 0 && leadsPage"
               />
 
               <!-- The flat form's single link covers the photograph,

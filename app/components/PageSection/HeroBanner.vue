@@ -38,6 +38,7 @@ const props = withDefaults(defineProps<{
 })
 
 const localePath = useLocalePath()
+const leadsPage = useLeadsPage()
 const { isMobileOrTablet } = useDevice()
 
 const label = computed(() => props.heading || props.title)
@@ -87,9 +88,9 @@ const hasContent = computed(
         fit="cover"
         quality="80"
         densities="x1 x2"
-        loading="eager"
-        fetchpriority="high"
-        preload
+        :loading="leadsPage ? 'eager' : 'lazy'"
+        :fetchpriority="leadsPage ? 'high' : undefined"
+        :preload="leadsPage"
       />
       <div
         aria-hidden="true"
