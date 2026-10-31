@@ -107,7 +107,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :modifiers="{
             position: 'attention',
           }"
-          quality="80"
           :background="'transparent'"
           alt=""
         />

@@ -5,6 +5,13 @@ import Assistant from '~/components/Chrome/Assistant.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
+ * The overlay's code loads on its first open (`useMountOnFirstOpen`), and the
+ * first load of a module in the test runner costs more than `vi.waitFor`'s
+ * default second, so the wait names its own.
+ */
+const OVERLAY_LOADS = { timeout: 5000 }
+
+/**
  * The assistant's launcher and frame. The conversation is its own spec;
  * its module is replaced by a stub that can close itself, and the
  * overlay (which teleports to the body) is read from the document.
@@ -49,7 +56,7 @@ describe('Chrome/Assistant', () => {
     expect(launcher(wrapper).attributes('aria-expanded')).toBe('false')
 
     await launcher(wrapper).trigger('click')
-    await vi.waitFor(() => expect(panel()).not.toBeNull())
+    await vi.waitFor(() => expect(panel()).not.toBeNull(), OVERLAY_LOADS)
     expect(launcher(wrapper).attributes('aria-expanded')).toBe('true')
     expect(launcher(wrapper).attributes('aria-label')).toBe(own(wrapper, 'close'))
 
@@ -62,7 +69,7 @@ describe('Chrome/Assistant', () => {
     const wrapper = await mountSuspended(Assistant, { route: false })
 
     await launcher(wrapper).trigger('click')
-    await vi.waitFor(() => expect(panel()).not.toBeNull())
+    await vi.waitFor(() => expect(panel()).not.toBeNull(), OVERLAY_LOADS)
 
     const dialog = document.body.querySelector('[role="dialog"]')!
     const title = document.getElementById(dialog.getAttribute('aria-labelledby')!)
@@ -74,7 +81,7 @@ describe('Chrome/Assistant', () => {
 
     useShopChat().open.value = true
 
-    await vi.waitFor(() => expect(panel()).not.toBeNull())
+    await vi.waitFor(() => expect(panel()).not.toBeNull(), OVERLAY_LOADS)
     expect(launcher(wrapper).attributes('aria-expanded')).toBe('true')
   })
 
@@ -84,7 +91,7 @@ describe('Chrome/Assistant', () => {
 
     await launcher(wrapper).trigger('click')
 
-    await vi.waitFor(() => expect(panel()).not.toBeNull())
+    await vi.waitFor(() => expect(panel()).not.toBeNull(), OVERLAY_LOADS)
     expect(document.body.querySelector('[role="dialog"]')?.getAttribute('data-vaul-drawer')).not.toBeNull()
   })
 })

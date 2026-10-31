@@ -40,7 +40,6 @@ const lowStockCount = computed(() => lowStockLeft(product.value))
         :height="120"
         fit="cover"
         :alt="name"
-        quality="90"
         densities="x1 x2"
         loading="lazy"
       />

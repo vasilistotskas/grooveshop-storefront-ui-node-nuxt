@@ -283,7 +283,6 @@ watch(modelValue, (isOpen) => {
                     width="1000"
                     height="1000"
                     fit="contain"
-                    :quality="PRODUCT_IMAGE_QUALITY"
                     :src="item?.mainImagePath"
                     :alt="extractTranslated(item, 'title', locale)"
                     @dragstart.prevent
@@ -316,7 +315,6 @@ watch(modelValue, (isOpen) => {
                     width="1000"
                     height="1000"
                     fit="contain"
-                    :quality="PRODUCT_IMAGE_QUALITY"
                     :src="item?.mainImagePath"
                     :alt="extractTranslated(item, 'title', locale)"
                     @dragstart.prevent
@@ -344,7 +342,6 @@ watch(modelValue, (isOpen) => {
                   width="1000"
                   height="1000"
                   fit="contain"
-                  :quality="PRODUCT_IMAGE_QUALITY"
                   :src="images[0]?.mainImagePath"
                   :alt="extractTranslated(images[0], 'title', locale)"
                   @dragstart.prevent

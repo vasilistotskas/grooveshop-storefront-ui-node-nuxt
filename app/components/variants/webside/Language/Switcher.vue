@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { Locale } from '@nuxt/ui'
 
-const { locale, t } = useI18n()
+const { locale, t } = useStoreI18n('components/variants/webside/Language/Switcher')
 const { setLanguage } = useUserLanguage()
 const tenantStore = useTenantStore()
 
@@ -24,6 +24,18 @@ const currentLocale = ref(locale.value)
 const tenantLocales = computed<Locale<unknown>[]>(() =>
   toUiLocales(tenantStore.availableLocales),
 )
+
+/**
+ * The control's accessible name: the language it shows, then what it does.
+ * The language is composed here, not interpolated into the translated phrase,
+ * so a text override cannot drop it (WCAG 2.5.3). The phrase had no copy at
+ * all: the global i18n has no `change_language`, so a multilingual store's
+ * switcher was named by the raw key.
+ */
+const accessibleName = computed(() => {
+  const shown = tenantLocales.value.find(entry => entry.code === currentLocale.value)?.name ?? currentLocale.value
+  return new Intl.ListFormat(locale.value, { type: 'unit', style: 'long' }).format([shown, t('change_language')])
+})
 
 // Keep the selector in sync with any external locale change (settings form,
 // login-time syncFromUser, programmatic setLocale elsewhere).
@@ -54,6 +66,13 @@ watch(currentLocale, async (newLocale) => {
     color="neutral"
     variant="ghost"
     size="xl"
-    :aria-label="t('change_language')"
+    :aria-label="accessibleName"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  change_language: Αλλαγή γλώσσας
+en:
+  change_language: Change language
+</i18n>

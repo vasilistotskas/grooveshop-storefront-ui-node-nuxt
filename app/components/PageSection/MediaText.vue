@@ -104,7 +104,6 @@ const bodyParts = computed(() => {
         "
         :class="imageFirst ? '' : 'md:order-2'"
         fit="cover"
-        quality="80"
         loading="lazy"
       />
 

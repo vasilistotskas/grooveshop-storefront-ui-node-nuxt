@@ -66,7 +66,6 @@ const trackClass = computed(() => TRACK_CLASSES[props.columns] ?? TRACK_CLASSES[
               sizes="xs:100vw sm:50vw md:50vw lg:33vw xl:400px"
               class="block aspect-square w-full rounded-3xl object-cover"
               fit="cover"
-              quality="80"
               densities="x1 x2"
               loading="lazy"
             />

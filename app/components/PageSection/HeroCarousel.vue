@@ -292,7 +292,6 @@ const ON_CARD_CURRENT = 'bg-default text-highlighted hover:bg-default active:bg-
                 :sizes="imageSizes(item)"
                 class="absolute inset-0 size-full object-cover"
                 fit="cover"
-                quality="85"
                 densities="x1 x2"
                 :loading="index === 0 && leadsPage ? 'eager' : 'lazy'"
                 :fetchpriority="index === 0 && leadsPage ? 'high' : 'auto'"

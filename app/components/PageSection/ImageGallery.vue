@@ -46,7 +46,6 @@ const columnsClass = computed(
           :height="600"
           class="aspect-square w-full rounded-xl bg-elevated object-cover"
           fit="cover"
-          quality="80"
           loading="lazy"
         />
         <figcaption

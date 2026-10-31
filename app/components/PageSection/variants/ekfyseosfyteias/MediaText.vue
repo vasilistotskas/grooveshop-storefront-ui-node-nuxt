@@ -112,7 +112,6 @@ const rows = computed(() => (props.bullets ?? []).map(({ text }) => {
             block aspect-4/3 w-full rounded-[28px] bg-(--fy-chip) object-cover
           "
           fit="cover"
-          quality="80"
           densities="x1 x2"
           loading="lazy"
         />

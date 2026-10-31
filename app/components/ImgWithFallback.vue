@@ -23,7 +23,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   src: undefined,
   fallback: '/img/placeholder.png',
-  quality: 80,
   preload: false,
 })
 

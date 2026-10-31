@@ -244,7 +244,6 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             fit="contain"
             :background="'transparent'"
             :alt="alt"
-            :quality="PRODUCT_CARD_IMAGE_QUALITY"
             densities="x1"
           />
         </div>

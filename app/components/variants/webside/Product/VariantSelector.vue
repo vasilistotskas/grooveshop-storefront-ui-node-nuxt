@@ -125,7 +125,6 @@ async function onSelect(axisId: number, rawValue: unknown) {
                 :height="96"
                 fit="contain"
                 background="transparent"
-                :quality="PRODUCT_IMAGE_QUALITY"
                 class="aspect-square w-full rounded-md bg-white object-contain"
               />
               <span class="truncate text-sm font-medium text-highlighted">

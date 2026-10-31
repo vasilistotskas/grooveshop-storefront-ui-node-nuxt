@@ -114,7 +114,6 @@ function goBack() {
         :height="1080"
         sizes="lg:50vw"
         fit="cover"
-        quality="80"
         loading="lazy"
         class="absolute inset-0 size-full object-cover"
       />

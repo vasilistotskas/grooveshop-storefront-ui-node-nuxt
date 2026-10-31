@@ -194,7 +194,7 @@ watch(uploadFile, (newFile) => {
         class="rounded-full"
       />
 
-      <UFileUpload
+      <LazyUFileUpload
         v-if="changeAvatar && !loading"
         v-slot="{ open }"
         v-model="uploadFile"
@@ -219,7 +219,7 @@ watch(uploadFile, (newFile) => {
           />
           <span class="sr-only">{{ t('change') }}</span>
         </button>
-      </UFileUpload>
+      </LazyUFileUpload>
     </div>
 
     <div

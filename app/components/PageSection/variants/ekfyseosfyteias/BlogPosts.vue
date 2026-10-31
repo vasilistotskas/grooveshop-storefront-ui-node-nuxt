@@ -126,7 +126,6 @@ const cards = computed(() => posts.value.map(post => ({
             sizes="xs:300px md:50vw lg:33vw xl:320px"
             class="block aspect-4/3 w-full object-cover"
             fit="cover"
-            quality="80"
             densities="x1 x2"
             loading="lazy"
           />

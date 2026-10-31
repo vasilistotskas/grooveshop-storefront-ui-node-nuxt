@@ -86,6 +86,15 @@ export default defineNuxtConfig({
   modules,
   $production: {
     evlog: {
+      // Explicit, not left to evlog's `import.meta.dev` default: the module
+      // copies an unset `pretty` into the public runtime config as `''`
+      // (production served `"pretty":""`), and the browser logger treats
+      // any non-boolean as `true`. Its console then got the event as a live
+      // object after a `%c` format string, which every console capture
+      // (Lighthouse, Playwright, a bug-report tool) prints as
+      // `[object Object]`. `false` prints the serialized event as one JSON
+      // line: the same payload the transport sends (`serializeClientError`).
+      pretty: false,
       sampling: {
         rates: { info: 10, warn: 50, debug: 0, error: 100 },
         keep: [
@@ -387,10 +396,11 @@ export default defineNuxtConfig({
       }]),
     ),
   },
-  sourcemap: {
-    client: 'hidden',
-    server: false,
-  },
+  // No maps at all: nothing consumes them (no uploader, no symbolication; the
+  // browser logger reports the minified stack). `'hidden'` still wrote
+  // `*.js.map` into `public/_nuxt`, where Nitro served 5 MB per chunk with a
+  // 200 and so published the source.
+  sourcemap: false,
   future: {
     compatibilityVersion: 5,
   },
@@ -1172,7 +1182,6 @@ export default defineNuxtConfig({
         provider: '~/providers/media-stream',
         options: {
           baseURL: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
-          quality: 80,
           width: 100,
           height: 100,
           fit: 'contain',
