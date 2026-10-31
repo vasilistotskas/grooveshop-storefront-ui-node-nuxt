@@ -59,6 +59,26 @@ export function useDocumentLocales() {
       (SUPPORTED_LOCALES as readonly string[]).includes(code),
     )
     state.value = { ...state.value, [route.path]: { locales: routable, path } }
+    if (path) redirectToDocumentPath(path)
+  }
+
+  /**
+   * A route's `[slug]` segment is decorative: the id names the record, so
+   * `/products/2/any-slug` renders the product. Each such URL (a stale link
+   * in CMS data, an old email, a backlink) would be a second address of the
+   * same page, so a page whose own path is not the URL asked for answers a
+   * permanent redirect to it: same language prefix, query and hash kept. It
+   * runs where the page declares its document, from the entity that page
+   * already fetched, so there is no request of its own. On the server it is
+   * the response's 301; on a client navigation, a `replace`.
+   */
+  const redirectToDocumentPath = (path: string) => {
+    const canonical = localePath({ path })
+    if (!canonical || canonical === route.path) return
+    void navigateTo(
+      { path: canonical, query: route.query, hash: route.hash },
+      { redirectCode: 301, replace: true },
+    )
   }
 
   const forCurrentRoute = computed<DeclaredDocument | undefined>(
