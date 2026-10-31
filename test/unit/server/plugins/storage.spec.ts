@@ -156,6 +156,27 @@ describe('withCompressedValues', () => {
     expect(await wrapped.getItem?.('rate', {})).toBe('3')
   })
 
+  it.each([
+    ['a short value that starts with the marker', 'br:hello'],
+    ['the marker alone', 'br:'],
+    ['an empty string', ''],
+    ['a value one byte under the threshold', 'x'.repeat(1023)],
+    ['a value exactly at the threshold', 'x'.repeat(1024)],
+    ['a value one byte over the threshold', 'x'.repeat(1025)],
+  ])('round-trips %s', async (_name, value) => {
+    await wrapped.setItem?.('k', value, {})
+
+    expect(await wrapped.getItem?.('k', {})).toBe(value)
+  })
+
+  it('compresses at the threshold and not below it', async () => {
+    await wrapped.setItem?.('under', 'x'.repeat(1023), {})
+    await wrapped.setItem?.('at', 'x'.repeat(1024), {})
+
+    expect(await inner.getItem('under', {})).toBe('x'.repeat(1023))
+    expect(await inner.getItem('at', {})).toMatch(/^br:/)
+  })
+
   it('passes a miss through', async () => {
     expect(await wrapped.getItem?.('absent', {})).toBeNull()
   })
@@ -402,6 +423,16 @@ describe('the storage plugin', () => {
 
     expect(await useStorage('cache').getItem('nitro:routes:page')).toEqual(entry)
     expect(await redis.stored?.getItem('nitro:routes:page', {})).toMatch(/^br:/)
+  })
+
+  it('drops a non-positive-ttl write on the Redis mount without compressing it', async () => {
+    setRuntimeConfig({ cacheBase: 'redis' })
+    await runNitroPlugin(plugin)
+    await vi.waitFor(() => expect(cacheDriver()?.name).toBe('redis'))
+
+    await useStorage('cache').setItem('nitro:routes:page', { body: '<p>Groove</p>'.repeat(500) }, { ttl: -1 })
+
+    expect(await redis.stored?.getItem('nitro:routes:page', {})).toBeNull()
   })
 
   it('reconnects only on the errors a failover produces', async () => {

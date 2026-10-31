@@ -199,9 +199,9 @@ export function withoutNonPositiveTtlWrites(driver: Driver): Driver {
 }
 
 /**
- * Marks a value `withCompressedValues` wrote. Nitro's cache entries are
- * JSON objects and the other values on this mount are bare numbers, so
- * no plain value can start with it.
+ * Marks a value `withCompressedValues` compressed. A plain value never
+ * starts with it: `compressValue` compresses any value that does, however
+ * short, so a read cannot mistake one for the other.
  */
 const COMPRESSED_PREFIX = 'br:'
 
@@ -221,7 +221,7 @@ const COMPRESS_MIN_BYTES = 1024
 const BROTLI_QUALITY = 5
 
 function compressValue(value: string): string {
-  if (Buffer.byteLength(value) < COMPRESS_MIN_BYTES) {
+  if (Buffer.byteLength(value) < COMPRESS_MIN_BYTES && !value.startsWith(COMPRESSED_PREFIX)) {
     return value
   }
   const packed = brotliCompressSync(value, {
@@ -301,7 +301,7 @@ export function redisReconnectDelay(times: number): number {
  * options to ioredis.
  */
 function createRedisDriver({ host, port, ttl, base, db, password }: RedisDriverOptions): Driver {
-  return withCompressedValues(withoutNonPositiveTtlWrites(redisDriver({
+  return withoutNonPositiveTtlWrites(withCompressedValues(redisDriver({
     base,
     host,
     port,
