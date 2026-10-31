@@ -99,6 +99,8 @@ function product(translations: Record<string, unknown>) {
 }
 
 interface Head {
+  title: string
+  description: string | null | undefined
   canonicals: string[]
   alternates: Record<string, string>
 }
@@ -125,6 +127,8 @@ async function headOf(page: Component): Promise<Head> {
   }
   const path = (href: string | null) => (href ? new URL(href, ORIGIN).pathname : '')
   const read = {
+    title: document.title,
+    description: document.querySelector('meta[name="description"]')?.getAttribute('content'),
     canonicals: [...document.querySelectorAll('link[rel="canonical"]')].map(l => path(l.getAttribute('href'))),
     alternates: Object.fromEntries(
       [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map(l => [
@@ -191,6 +195,35 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
 
     expect(head.canonicals).toEqual(['/en/blog/post/7/spring-guide'])
     expect(head.alternates.en).toBe('/en/blog/post/7/spring-guide')
+  })
+
+  it('keeps its own title and description under a blog-post layout that carries SEO fields', async () => {
+    api.routes({
+      '/api/blog/posts/7': post({ en: { ...GREEK_AND_ENGLISH.en, seoTitle: 'Spring guide SEO', seoDescription: 'The own description of the article.' } }),
+      '/api/blog/categories/2': post({}).category,
+      '/api/shipping/policy': [],
+      '/api/page-config/blog-post': {
+        layout: {
+          id: 1,
+          uuid: 'layout-uuid',
+          pageType: 'blog-post',
+          title: 'Blog post',
+          seoTitle: 'Layout title',
+          seoDescription: 'Layout description',
+          isPublished: true,
+          metadata: {},
+          sections: [],
+        },
+      },
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+    visit('/en/blog/post/7/spring-guide', 'blog-post-id-slug___en', { id: '7', slug: 'spring-guide' })
+
+    const head = await headOf(Component)
+
+    expect(head.title).toContain('Spring guide SEO')
+    expect(head.title).not.toContain('Layout title')
+    expect(head.description).toBe('The own description of the article.')
   })
 
   it('canonicalises to the Greek post, and offers no English version, when it is not written in English', async () => {

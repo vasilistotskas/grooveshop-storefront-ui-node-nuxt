@@ -200,17 +200,21 @@ export function pageRenderUpstream(req: IncomingMessage, res: ServerResponse, re
       title: 'Νομικό έγγραφο',
       body: '<section id="scope"><h2>Πεδίο εφαρμογής</h2><p>Κείμενο.</p></section>',
     }
+    // `privacy` exists in Greek only — the state of a store whose
+    // merchant has not translated a document, and what the
+    // fallback assertions below render through. Everything else
+    // carries both, so the plain route table stays unaffected.
+    const translations = slug === 'privacy'
+      ? { el: translation }
+      : { el: translation, en: translation }
     sendJson(res, {
       id: 1,
       uuid: '00000000-0000-4000-8000-000000000000',
       slug,
-      // `privacy` exists in Greek only — the state of a store whose
-      // merchant has not translated a document, and what the
-      // fallback assertions below render through. Everything else
-      // carries both, so the plain route table stays unaffected.
-      translations: slug === 'privacy'
-        ? { el: translation }
-        : { el: translation, en: translation },
+      translations,
+      // Django names the languages whose body shows something: the
+      // storefront's contract (`ContentPage.translatedLocales`).
+      translatedLocales: Object.keys(translations),
       isPublished: true,
       publishedAt: '2026-01-01T00:00:00Z',
       createdAt: '2026-01-01T00:00:00Z',

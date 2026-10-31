@@ -212,7 +212,10 @@ describe('usePageConfig', () => {
      * is read back through unhead itself rather than the DOM, which the
      * test environment does not paint.
      */
-    async function resolvedHead(defaults: { title: string, description: string }) {
+    async function resolvedHead(
+      defaults: { title: string, description: string },
+      options: { placement?: 'top' | 'below-content' } = {},
+    ) {
       let head!: ReturnType<typeof injectHead>
       let before!: Set<number>
       const wrapper = await mountSuspended(
@@ -220,7 +223,7 @@ describe('usePageConfig', () => {
           async setup() {
             head = injectHead()
             before = new Set(head.entries.keys())
-            await usePageConfig('about')
+            await usePageConfig('about', options)
             useSeoMeta({ title: defaults.title, description: defaults.description })
             return () => null
           },
@@ -270,6 +273,18 @@ describe('usePageConfig', () => {
       expect(head.title).toContain('Τι Είναι Το Webside | Μπες στο side της τεχνολογίας')
       expect(head.title).not.toContain('Code default')
       expect(head.description).toBe('Ποιοι είμαστε, τι κάνουμε και γιατί το κάνουμε.')
+    })
+
+    it('does not speak for a page it is only bands under', async () => {
+      // The blog-post layout is drawn under each article: its SEO fields
+      // must not replace the article's own title and description.
+      mockUseFetchFn.mockReturnValue(layoutWith({ seoTitle: 'Layout title', seoDescription: 'Layout description' }))
+
+      const head = await resolvedHead({ title: 'Article title', description: 'Article description' }, { placement: 'below-content' })
+
+      expect(head.title).toContain('Article title')
+      expect(head.title).not.toContain('Layout title')
+      expect(head.description).toBe('Article description')
     })
 
     it('applies the SEO Django resolved for the locale it asked for', async () => {
