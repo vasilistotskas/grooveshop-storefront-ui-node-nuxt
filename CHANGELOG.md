@@ -1,3 +1,10 @@
+## [3.276.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.276.0...v3.276.1) (2026-10-31)
+
+
+### Bug Fixes
+
+* **a11y:** footer headings, empty rich-text links and accessible names ([#301](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/301)) ([402ffb2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/402ffb2ae0c798caa667a946c757c5ac71b013a9))
+
 # [3.276.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.275.0...v3.276.0) (2026-10-31)
 
 
