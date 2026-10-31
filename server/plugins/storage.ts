@@ -1,3 +1,4 @@
+import { brotliCompressSync, brotliDecompressSync, constants as zlibConstants } from 'node:zlib'
 import { createClient } from 'redis'
 import redisDriver from 'unstorage/drivers/redis'
 import memoryDriver from 'unstorage/drivers/memory'
@@ -197,6 +198,81 @@ export function withoutNonPositiveTtlWrites(driver: Driver): Driver {
   }
 }
 
+/**
+ * Marks a value `withCompressedValues` wrote. Nitro's cache entries are
+ * JSON objects and the other values on this mount are bare numbers, so
+ * no plain value can start with it.
+ */
+const COMPRESSED_PREFIX = 'br:'
+
+/**
+ * Values shorter than this are stored as they are: the rate-limit
+ * counters and tenant epochs on this mount are a few bytes, which brotli
+ * would only grow.
+ */
+const COMPRESS_MIN_BYTES = 1024
+
+/**
+ * Brotli quality 5. Measured 2026-10-31 on 58 entries sampled from the
+ * production cache (100 KB average): 5.5x smaller at ~1.6 ms to
+ * compress and ~0.2 ms to decompress. Quality 4 gave 5.1x at ~0.8 ms, and
+ * 6 gave 5.5x at ~2 ms, so 5 is where the ratio stops paying for the CPU.
+ */
+const BROTLI_QUALITY = 5
+
+function compressValue(value: string): string {
+  if (Buffer.byteLength(value) < COMPRESS_MIN_BYTES) {
+    return value
+  }
+  const packed = brotliCompressSync(value, {
+    params: { [zlibConstants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY },
+  })
+  return COMPRESSED_PREFIX + packed.toString('base64')
+}
+
+function decompressValue(value: string | null): string | null {
+  if (value === null || !value.startsWith(COMPRESSED_PREFIX)) {
+    return value
+  }
+  return brotliDecompressSync(Buffer.from(value.slice(COMPRESSED_PREFIX.length), 'base64')).toString('utf8')
+}
+
+/**
+ * Stores values brotli-compressed.
+ *
+ * Production Redis (614 MB, `allkeys-lru`) was full by design and
+ * evicting 10k to 32k keys a day, and the Nitro cache in this database
+ * was most of it: SSR HTML and `_payload.json` routes average ~100 KB
+ * raw, ~25 KB compressed. Compressing in the driver covers every cached
+ * route, handler and function at once, and the callers never see it.
+ *
+ * The unstorage Redis driver reads with `GET`, which decodes the reply as
+ * UTF-8, so the compressed bytes travel base64-encoded (+33%) instead of
+ * raw, which keeps this on the public `Driver` interface.
+ *
+ * A failed decompression throws, which Nitro's cached handlers already
+ * treat as a miss.
+ */
+export function withCompressedValues(driver: Driver): Driver {
+  const { getItem, getItems, setItem } = driver
+  return {
+    ...driver,
+    ...(getItem && {
+      getItem: async (key, opts) => decompressValue(await getItem.call(driver, key, opts) as string | null),
+    }),
+    ...(getItems && {
+      getItems: async (items, commonOptions) =>
+        (await getItems.call(driver, items, commonOptions)).map(({ key, value }) => ({
+          key,
+          value: decompressValue(value as string | null),
+        })),
+    }),
+    ...(setItem && {
+      setItem: (key, value, opts) => setItem.call(driver, key, compressValue(value), opts),
+    }),
+  }
+}
+
 /** Longest wait between reconnect attempts, in milliseconds. */
 const RECONNECT_MAX_DELAY_MS = 2000
 
@@ -225,7 +301,7 @@ export function redisReconnectDelay(times: number): number {
  * options to ioredis.
  */
 function createRedisDriver({ host, port, ttl, base, db, password }: RedisDriverOptions): Driver {
-  return withoutNonPositiveTtlWrites(redisDriver({
+  return withCompressedValues(withoutNonPositiveTtlWrites(redisDriver({
     base,
     host,
     port,
@@ -241,7 +317,7 @@ function createRedisDriver({ host, port, ttl, base, db, password }: RedisDriverO
       const recoverableErrors = ['READONLY', 'ECONNRESET']
       return recoverableErrors.some(e => err.message.includes(e))
     },
-  }))
+  })))
 }
 
 /**
