@@ -36,8 +36,8 @@ const own = (wrapper: VueWrapper, key: string): string =>
 
 const categoryButtons = (wrapper: VueWrapper) => wrapper.findAll('button[aria-pressed]')
 
-/** A category button's name: its accessible name reads `<name> - <count> <products>`. */
-const nameOf = (b: ReturnType<VueWrapper['find']>) => b.attributes('aria-label')!.split(' - ')[0]
+/** A category button's name: the visible name, before the count and the unseen unit. */
+const nameOf = (b: ReturnType<VueWrapper['find']>) => b.find('span.truncate').text()
 
 /** The listed categories, in order, by name. */
 const listedNames = (wrapper: VueWrapper) => categoryButtons(wrapper).map(nameOf)
@@ -63,8 +63,10 @@ describe('webside Products/Filters/CategoryFilter', () => {
 
     // 2 and 4 tie on 8 products and keep their tree order.
     expect(listedNames(wrapper)).toEqual(['Ηλεκτρονικά', 'Ρούχα', 'Κήπος', 'Βιβλία'])
-    expect(button(wrapper, 'Ηλεκτρονικά').attributes('aria-label'))
-      .toBe(`Ηλεκτρονικά - 15 ${own(wrapper, 'products')}`)
+    // The button's name is its visible text (name, count) plus the unit, unseen:
+    // no aria-label, so the name always contains what is shown.
+    expect(button(wrapper, 'Ηλεκτρονικά').attributes('aria-label')).toBeUndefined()
+    expect(button(wrapper, 'Ηλεκτρονικά').text()).toBe(`Ηλεκτρονικά15${own(wrapper, 'products')}`)
   })
 
   it('lists the picked categories first, whatever their counts', async () => {
@@ -123,8 +125,10 @@ describe('webside Products/Filters/CategoryFilter', () => {
 
     const clothing = button(wrapper, 'Ρούχα')
     expect(clothing.attributes('disabled')).toBeDefined()
-    expect(clothing.text()).toBe('Ρούχα')
-    expect(button(wrapper, 'Ηλεκτρονικά').text()).toBe('Ηλεκτρονικά15')
+    // No visible badge, but the zero is still part of the name, as the label it replaced said.
+    expect(clothing.find('[data-slot="base"]').exists()).toBe(false)
+    expect(clothing.text()).toBe(`Ρούχα0 ${own(wrapper, 'products')}`)
+    expect(button(wrapper, 'Ηλεκτρονικά').text()).toBe(`Ηλεκτρονικά15${own(wrapper, 'products')}`)
   })
 
   it('narrows the list to the names containing the search, ignoring case', async () => {

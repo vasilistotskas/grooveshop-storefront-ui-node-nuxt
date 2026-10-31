@@ -10382,6 +10382,105 @@
                 }
             }
         },
+        "/api/v1/blog/post/feed": {
+            "get": {
+                "operationId": "listBlogPostFeed",
+                "description": "Τα πιο πρόσφατα δημοσιευμένα άρθρα με ολόκληρο το κείμενό τους, σε μία απάντηση, για το RSS feed του καταστήματος.",
+                "summary": "Λήψη των άρθρων για το RSS feed",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή)."
+                    }
+                ],
+                "tags": [
+                    "Blog Posts"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BlogPostFeed"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/blog/post/{id}": {
             "get": {
                 "operationId": "retrieveBlogPost",
@@ -57422,34 +57521,16 @@
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
-                    "likes": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
                     "translations": {
                         "type": "object",
                         "properties": {
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
                                         "type": "string"
                                     },
                                     "subtitle": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
@@ -57457,22 +57538,10 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
                                         "type": "string"
                                     },
                                     "subtitle": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
@@ -57558,7 +57627,6 @@
                     "contentPreview",
                     "createdAt",
                     "id",
-                    "likes",
                     "likesCount",
                     "mainImagePath",
                     "publishedAt",
@@ -57589,13 +57657,6 @@
                         "type": "string",
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "likes": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "readOnly": true
                     },
                     "translations": {
                         "type": "object",
@@ -57728,6 +57789,13 @@
                     },
                     "contentPreview": {
                         "type": "string",
+                        "readOnly": true
+                    },
+                    "likes": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
                         "readOnly": true
                     },
                     "userHasLiked": {
@@ -60531,19 +60599,7 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
@@ -60551,24 +60607,20 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
-                                    "seoTitle": {
-                                        "type": "string"
-                                    },
-                                    "seoDescription": {
-                                        "type": "string"
-                                    },
-                                    "seoKeywords": {
-                                        "type": "string"
-                                    },
                                     "title": {
-                                        "type": "string"
-                                    },
-                                    "body": {
                                         "type": "string"
                                     }
                                 }
                             }
                         }
+                    },
+                    "translatedLocales": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "The languages the page is written in: its body shows something.\n\nA translation row is no evidence of a document (an emptied body\nis still a row), so this is what hreflang and the sitemap read.",
+                        "readOnly": true
                     },
                     "isPublished": {
                         "type": "boolean",
@@ -60599,6 +60651,7 @@
                     "id",
                     "publishedAt",
                     "slug",
+                    "translatedLocales",
                     "translations",
                     "updatedAt",
                     "uuid"
@@ -60606,7 +60659,7 @@
             },
             "ContentPageDetail": {
                 "type": "object",
-                "description": "The detail tier. Its SEO travels in ``translations`` like every\nother translated field, so it adds nothing to the list shape.",
+                "description": "The detail tier: every translated field, the body and the SEO\ncopy included.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -60667,6 +60720,14 @@
                             }
                         }
                     },
+                    "translatedLocales": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "The languages the page is written in: its body shows something.\n\nA translation row is no evidence of a document (an emptied body\nis still a row), so this is what hreflang and the sitemap read.",
+                        "readOnly": true
+                    },
                     "isPublished": {
                         "type": "boolean",
                         "title": "Δημοσιευμένο"
@@ -60696,6 +60757,7 @@
                     "id",
                     "publishedAt",
                     "slug",
+                    "translatedLocales",
                     "translations",
                     "updatedAt",
                     "uuid"
@@ -78416,6 +78478,99 @@
                     }
                 },
                 "additionalProperties": false
+            },
+            "BlogPostFeed": {
+                "type": "object",
+                "description": "One item of the RSS feed.\n\nThe feed needs every article's body, so it has its own shape and\nits own endpoint rather than a request per post for the detail.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "slug": {
+                        "type": "string",
+                        "readOnly": true,
+                        "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "subtitle": {
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "subtitle": {
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "category": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Κατηγορία"
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true,
+                        "title": "Δημοσιεύθηκε στις"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Δημιουργήθηκε στις"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Ενημερώθηκε στις"
+                    }
+                },
+                "required": [
+                    "category",
+                    "createdAt",
+                    "id",
+                    "mainImagePath",
+                    "publishedAt",
+                    "slug",
+                    "translations",
+                    "updatedAt",
+                    "uuid"
+                ]
             }
         },
         "securitySchemes": {

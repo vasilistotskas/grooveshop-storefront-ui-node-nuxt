@@ -53,7 +53,7 @@ defineShortcuts({
         label: 'font-normal',
       }"
       class="md:max-w-md"
-      :aria-label="t('search.placeholder')"
+      :aria-label="isMobileOrTablet ? t('search.placeholder') : undefined"
       @click="openSearchModal"
     >
       <template #default>

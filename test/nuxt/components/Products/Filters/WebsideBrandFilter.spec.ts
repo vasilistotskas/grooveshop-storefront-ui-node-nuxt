@@ -19,6 +19,10 @@ const OPTIONS: BrandOption[] = [
 
 const mountBrands = () => mountSuspended(BrandFilter, { route: false, props: { options: OPTIONS } })
 
+/** The component's own text (its `<i18n>` block), as the sibling filter specs read it. */
+const own = (wrapper: VueWrapper, key: string): string =>
+  (wrapper.vm as unknown as { t: (k: string) => string }).t(key)
+
 const row = (wrapper: VueWrapper, label: string) => {
   const found = wrapper.findAll('button').find(button => button.text().startsWith(label))
   expect(found, `no brand "${label}"`).toBeDefined()
@@ -34,7 +38,11 @@ describe('webside Products/Filters/BrandFilter', () => {
   it('lists each brand with its count, pressed where the URL selects it', async () => {
     const wrapper = await mountBrands()
 
-    expect(wrapper.findAll('button').map(button => button.text())).toEqual(['Kabelo10', 'Voltra14'])
+    // Name and count as shown, then the unit unseen: the button's name is its
+    // text, with no aria-label of its own to contradict it.
+    const unit = own(wrapper, 'products')
+    expect(wrapper.findAll('button').map(button => button.text())).toEqual([`Kabelo10${unit}`, `Voltra14${unit}`])
+    expect(wrapper.findAll('button').map(button => button.attributes('aria-label'))).toEqual([undefined, undefined])
     expect(row(wrapper, 'Kabelo').attributes('aria-pressed')).toBe('true')
     expect(row(wrapper, 'Voltra').attributes('aria-pressed')).toBe('false')
   })

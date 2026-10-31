@@ -57,7 +57,19 @@ const FALLBACK_LAYOUTS: Record<string, PageSection[]> = {
  * published layout; callers that need to distinguish a backend outage
  * read ``error`` (5xx/network) — an absent layout never sets it.
  */
-export async function usePageConfig(pageType: string) {
+export async function usePageConfig(
+  pageType: string,
+  options: {
+    /**
+     * Where the layout is drawn. A layout that LEADS its page (`top`, the
+     * default) speaks for the page: its SEO fields are the page's title
+     * and description. One drawn `below-content` is bands under another
+     * page's own content (an article's): it carries sections only, and
+     * must not overwrite the head that page set.
+     */
+    placement?: PageSectionPlacement
+  } = {},
+) {
   // Section titles and props are operator-authored JSON resolved
   // per-locale by Django (`page_config/localization.py`), not parler
   // translations the client picks from — so the locale has to travel
@@ -108,6 +120,8 @@ export async function usePageConfig(pageType: string) {
   // ``seo_keywords`` is deliberately not emitted, as on the content
   // pages: search engines ignore it.
   useHead(() => {
+    // Bands under another page speak for nothing but themselves.
+    if (options.placement === 'below-content') return {}
     const title = layout.value?.seoTitle || ''
     const description = layout.value?.seoDescription || ''
     return {

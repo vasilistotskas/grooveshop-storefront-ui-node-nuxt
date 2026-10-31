@@ -16,7 +16,10 @@ export default defineCachedRoute(async (event): Promise<ContentPageResponse> => 
       `${config.apiBaseUrl}/content-page/${params.slug}`,
       { method: 'GET' },
     )
-    return { page: await parseDataAs(response, zRetrieveContentPageResponse) }
+    // The cast: the zod plugin marks Django's read-only `translatedLocales`
+    // array `.readonly()` where the type marks the property, so the two
+    // generated artifacts differ structurally on it (as in rss.xml.get.ts).
+    return { page: await parseDataAs(response, zRetrieveContentPageResponse) as ContentPageDetail }
   }
   catch (error) {
     // Django's 404 is "no published page at this slug" — the normal

@@ -60,8 +60,13 @@ const mergedUI = computed(() => ({
   base: `${defaultUI.value.base} ${(ui.value as Record<string, string>)?.base || ''}`.trim(),
 }))
 
+/**
+ * The name carries the visible count (WCAG 2.5.3 "Label in Name"). The count
+ * is added around the editable wording, never inside it: a store's own text
+ * for `like` / `liked` keeps working without a placeholder.
+ */
 const buttonAreaLabel = computed(() =>
-  liked.value ? t('liked') : t('like'),
+  t('with_count', { text: t(liked.value ? 'liked' : 'like'), count: props.likesCount }),
 )
 
 const getColor = computed(() => {
@@ -93,8 +98,10 @@ el:
   not_authenticated: Πρέπει να είσαι συνδεδεμένος για να κάνεις like
   liked: Άρεσε
   like: Like
+  with_count: '{text} ({count})'
 en:
   not_authenticated: You have to be signed in to like this
   liked: Liked
   like: Like
+  with_count: '{text} ({count})'
 </i18n>

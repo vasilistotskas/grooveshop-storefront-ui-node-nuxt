@@ -52,6 +52,37 @@ describe('PageSection/Renderer', () => {
     expect(wrapper.findComponent(CtaBanner).exists()).toBe(false)
   })
 
+  describe.each([
+    ['the default design', 'test'],
+    ['webside', 'webside'],
+  ])('a hero in %s', (_design, schemaName) => {
+    const hero = section('hero_carousel', { images: ['/img/a.png', '/img/b.png'], link: '/products' })
+    const mountAt = (placement?: 'top' | 'below-content') =>
+      mountSuspended(Renderer, { route: false, props: { section: hero, ...(placement ? { placement } : {}) } })
+    const firstImage = async (wrapper: Awaited<ReturnType<typeof mountAt>>) => {
+      await vi.waitFor(() => expect(wrapper.find('img').exists()).toBe(true))
+      return wrapper.find('img')
+    }
+
+    it('hints its first image as the LCP when the layout leads the page', async () => {
+      setTenant({ schemaName })
+
+      const image = await firstImage(await mountAt())
+
+      expect(image.attributes('loading')).toBe('eager')
+      expect(image.attributes('fetchpriority')).toBe('high')
+    })
+
+    it('loads it lazily, at normal priority, in a layout under the content of the page', async () => {
+      setTenant({ schemaName })
+
+      const image = await firstImage(await mountAt('below-content'))
+
+      expect(image.attributes('loading')).toBe('lazy')
+      expect(image.attributes('fetchpriority')).not.toBe('high')
+    })
+  })
+
   it('renders nothing for a section type it does not know', async () => {
     // A row written by a newer Django than this build knows.
     const wrapper = await mountSection(section('no_such_section' as ComponentTypeEnum))

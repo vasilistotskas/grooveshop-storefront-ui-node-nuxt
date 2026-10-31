@@ -347,23 +347,14 @@ export const zBlogPost = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  likes: z.array(z.int()),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
   author: z.int(),
@@ -944,20 +935,13 @@ export const zContentPage = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
+  translatedLocales: z.array(z.string()).readonly(),
   isPublished: z.boolean().optional(),
   publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -965,8 +949,8 @@ export const zContentPage = z.object({
 })
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export const zContentPageDetail = z.object({
   id: z.int().readonly(),
@@ -988,6 +972,7 @@ export const zContentPageDetail = z.object({
       body: z.string().optional(),
     }).optional(),
   }),
+  translatedLocales: z.array(z.string()).readonly(),
   isPublished: z.boolean().optional(),
   publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -5852,7 +5837,6 @@ export const zBlogPostDetail = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  likes: z.array(z.int()).readonly(),
   translations: z.object({
     el: z.object({
       seoTitle: z.string().optional(),
@@ -5886,6 +5870,7 @@ export const zBlogPostDetail = z.object({
   mainImagePath: z.string().readonly(),
   readingTime: z.int().readonly(),
   contentPreview: z.string().readonly(),
+  likes: z.array(z.int()).readonly(),
   userHasLiked: z.boolean().readonly(),
 })
 
@@ -6729,6 +6714,35 @@ export const zPageSectionStatsStripProps = z.object({
 })
 
 /**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export const zBlogPostFeed = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+  category: z.int().readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
  * than a tool result should carry.
@@ -6870,23 +6884,14 @@ export const zBlogCommentDetailWritable = z.object({
  */
 export const zBlogPostWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
-  likes: z.array(z.int()),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
   author: z.int(),
@@ -7005,26 +7010,18 @@ export const zContentPageWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
     en: z.object({
-      seoTitle: z.string().optional(),
-      seoDescription: z.string().optional(),
-      seoKeywords: z.string().optional(),
       title: z.string().optional(),
-      body: z.string().optional(),
     }).optional(),
   }),
   isPublished: z.boolean().optional(),
 })
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export const zContentPageDetailWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -8494,6 +8491,27 @@ export const zPageSectionVisionContentPropsWritable = z.record(z.string(), z.nev
 export const zPageSectionWhatIsMicrolearningPropsWritable = z.record(z.string(), z.never())
 
 export const zPageSectionWhyMicrolearningPropsWritable = z.record(z.string(), z.never())
+
+/**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export const zBlogPostFeedWritable = z.object({
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+})
 
 export const zGetAgentProfileResponse = zAgentProfile
 
@@ -10376,6 +10394,15 @@ export const zCreateBlogPostQuery = z.object({
 })
 
 export const zCreateBlogPostResponse = zBlogPostDetail
+
+export const zListBlogPostFeedQuery = z.object({
+  count: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+})
+
+export const zListBlogPostFeedResponse = z.array(zBlogPostFeed)
 
 export const zDestroyBlogPostPath = z.object({
   id: z.union([

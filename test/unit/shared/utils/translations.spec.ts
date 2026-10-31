@@ -20,11 +20,115 @@ describe('hasVisibleContent', () => {
     ['numeric non-breaking spaces', '<p>&#160;&#xA0;</p>', false],
     ['an image alone', '<p><img src="/size-chart.png" alt=""></p>', true],
     ['an embedded video alone', '<iframe src="https://www.youtube.com/embed/x"></iframe>', true],
+    ['an inline svg', '<svg viewBox="0 0 1 1"></svg>', true],
+    ['an image beside an emptied paragraph', '<p>&nbsp;</p><img src="a.png">', true],
     ['an entity that is text', '<p>&amp;</p>', true],
     ['undefined', undefined, false],
     ['null', null, false],
   ])('%s → %s', (_case, value, expected) => {
     expect(hasVisibleContent(value)).toBe(expected)
+  })
+
+  // The cases of Django's TestHasVisibleContent (`core/utils/sanitize.py`):
+  // one rule on both sides, since Django fills `translatedLocales` with it.
+  describe('as Django reads it', () => {
+    it.each([
+      [null],
+      [''],
+      ['<p></p>'],
+      ['<p>&nbsp;</p>'],
+      ['<p> &#160; </p>'],
+    ])('shows nothing for empty markup %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(false)
+    })
+
+    it.each([
+      ['<p>a</p>'],
+      ['text'],
+      ['<p><img src="a.png"></p>'],
+    ])('shows text or media %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(true)
+    })
+
+    it.each([
+      ['<p hidden>Draft</p>'],
+      ['<div hidden=""><p>a</p><img src="a.png"></div>'],
+      ['<div hidden><div>x</div></div><p>&nbsp;</p>'],
+      ['<div HIDDEN><svg></svg></div>'],
+    ])('shows nothing inside a hidden element %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(false)
+    })
+
+    it.each([
+      ['<img hidden src="a.png">'],
+      ['<iframe hidden src="https://www.youtube.com/embed/x"></iframe>'],
+      ['<svg hidden></svg>'],
+      ['<video hidden src="a.mp4"></video>'],
+    ])('does not count media that is itself hidden %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(false)
+    })
+
+    it.each([
+      ['<p>&#32;</p>'],
+      ['<p>&#x20;&#x09;</p>'],
+      ['<p>&#32</p>'],
+      ['<p>&nbsp&nbsp;</p>'],
+      ['<p>&ensp;&emsp;&thinsp;</p>'],
+      ['<p>&NewLine;&Tab;</p>'],
+      ['<p>&#x0A;&#160;</p>'],
+    ])('reads character references as the white space they are %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(false)
+    })
+
+    it.each([
+      ['<p>&amp;</p>'],
+      ['<p>&#65;</p>'],
+      ['<p>&#x41;</p>'],
+      ['<p>&nbsp;a</p>'],
+      ['<p>&#0;</p>'],
+    ])('still counts a reference that is text %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(true)
+    })
+
+    it.each([
+      ['<p hidden>a</p><p>b</p>'],
+      ['<div hidden><p>a</p></div><img src="a.png">'],
+    ])('counts visible content beside hidden content %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(true)
+    })
+
+    it.each([
+      ['<img>'],
+      ['<img src="" alt="a">'],
+      ['<img src="  ">'],
+      ['<iframe></iframe>'],
+      ['<p><iframe width="560"></iframe></p>'],
+      ['<video controls></video>'],
+      ['<object type="application/pdf"></object>'],
+      ['<picture><source></picture>'],
+    ])('shows nothing for media without a source %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(false)
+    })
+
+    it.each([
+      ['<iframe src="https://www.youtube.com/embed/x"></iframe>'],
+      ['<img src="a.png">'],
+      ['<video src="a.mp4"></video>'],
+      ['<audio src="a.mp3"></audio>'],
+      ['<embed src="a.swf">'],
+      ['<picture><source src="a.webp"></picture>'],
+      ['<object data="a.pdf"></object>'],
+    ])('shows media with a source %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(true)
+    })
+
+    it('does not read a comment or an attribute value as text', () => {
+      expect(hasVisibleContent('<!-- note --><p title="a > b">&nbsp;</p>')).toBe(false)
+    })
+
+    it('does not hide what follows a self-closed or void element', () => {
+      expect(hasVisibleContent('<br hidden><p>a</p>')).toBe(true)
+    })
   })
 })
 

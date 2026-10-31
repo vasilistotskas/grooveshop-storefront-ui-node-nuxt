@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SearchInput from '~/components/Search/Input.vue'
+import WebsideSearchInput from '~/components/variants/webside/Search/Input.vue'
 
 /**
  * The control that opens the search palette. In the header (`compact`)
@@ -9,6 +10,9 @@ import SearchInput from '~/components/Search/Input.vue'
  * every device; elsewhere it is the field alone.
  */
 vi.mock('~/components/Search/Modal.vue', () => ({
+  default: { props: ['open', 'query'], template: '<div data-test="palette" :data-open="open" />' },
+}))
+vi.mock('~/components/variants/webside/Search/Modal.vue', () => ({
   default: { props: ['open', 'query'], template: '<div data-test="palette" :data-open="open" />' },
 }))
 
@@ -35,5 +39,17 @@ describe('Search/Input', () => {
     await wrapper.find('button').trigger('click')
 
     await vi.waitFor(() => expect(wrapper.find('[data-test="palette"]').attributes('data-open')).toBe('true'))
+  })
+})
+
+describe('webside Search/Input', () => {
+  it('names the field by its visible text on a desktop, with no label of its own to contradict it', async () => {
+    const wrapper = await mountSuspended(WebsideSearchInput, { route: false })
+
+    // WCAG 2.5.3: an aria-label that is not the visible text (the key hint
+    // is part of it) is a name a voice-control user cannot say.
+    const button = wrapper.find('button')
+    expect(button.attributes('aria-label')).toBeUndefined()
+    expect(button.text()).toContain((wrapper.vm as unknown as { t: (k: string) => string }).t('search.placeholder'))
   })
 })

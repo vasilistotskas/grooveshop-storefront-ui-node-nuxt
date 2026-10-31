@@ -21,6 +21,17 @@ const props = defineProps({
     default: undefined,
     validator: (value: string) => ['lazy', 'eager'].includes(value),
   },
+  /**
+   * The first card of a listing is the page's LCP: its photograph is
+   * preloaded and fetched at high priority. `preload` also sets the
+   * priority of the preload link; the `<img>` takes `imgFetchPriority`.
+   */
+  imgFetchPriority: {
+    type: String as PropType<'high' | 'low' | 'auto'>,
+    required: false,
+    default: undefined,
+  },
+  preload: { type: Boolean, required: false, default: false },
 })
 
 const emit = defineEmits<{
@@ -224,6 +235,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         >
           <ImgWithFallback
             :loading="imgLoading"
+            :fetchpriority="imgFetchPriority"
+            :preload="preload"
             class="size-full max-w-full bg-white object-contain"
             :src="product.mainImagePath"
             :width="imgWidth"
@@ -231,7 +244,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             fit="contain"
             :background="'transparent'"
             :alt="alt"
-            quality="100"
+            :quality="PRODUCT_CARD_IMAGE_QUALITY"
             densities="x1"
           />
         </div>

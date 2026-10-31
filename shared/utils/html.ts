@@ -395,6 +395,13 @@ export interface ParsedImageAttributes {
   height?: number
   /** A `width` written as a share of the column (`"100%"` → 100), clamped to 100 */
   widthPercent?: number
+  /**
+   * The file's real size in pixels, from `data-natural-width` /
+   * `data-natural-height`, which the API records on save for an upload in
+   * the store's own media. Both present, or neither.
+   */
+  naturalWidth?: number
+  naturalHeight?: number
   alt?: string
   loading?: string
   decoding?: string
@@ -449,7 +456,7 @@ export function parseImgAttributes(imgTag: string): ParsedImageAttributes {
   const attrs: ParsedImageAttributes = { src: '' }
 
   // Match all attributes: name="value" or name='value' or name=value
-  const attrRegex = /(\w+)(?:=(?:"([^"]*)"|'([^']*)'|(\S+)))?/g
+  const attrRegex = /([\w-]+)(?:=(?:"([^"]*)"|'([^']*)'|(\S+)))?/g
   let match
 
   while ((match = attrRegex.exec(imgTag)) !== null) {
@@ -470,6 +477,13 @@ export function parseImgAttributes(imgTag: string): ParsedImageAttributes {
     else {
       attrs[name] = value
     }
+  }
+
+  const naturalWidth = Number.parseInt(String(attrs['data-natural-width']), 10)
+  const naturalHeight = Number.parseInt(String(attrs['data-natural-height']), 10)
+  if (naturalWidth > 0 && naturalHeight > 0) {
+    attrs.naturalWidth = naturalWidth
+    attrs.naturalHeight = naturalHeight
   }
 
   return attrs
@@ -668,8 +682,12 @@ export function transformImgTag(
   const width = Math.min(attrs.width || Math.round(config.maxWidth * columnShare), config.maxWidth)
   const heightPerWidth = attrs.width && attrs.height ? attrs.height / attrs.width : 0
   const fit = heightPerWidth ? config.fit : 'inside'
-  const candidates = IMAGE_DENSITIES.map((density) => {
-    const candidateWidth = width * density
+  // The file's own width bounds every candidate: the media service never
+  // enlarges, so asking for more only names a duplicate.
+  const candidateWidths = [...new Set(IMAGE_DENSITIES.map(density =>
+    Math.min(width * density, attrs.naturalWidth ?? Number.POSITIVE_INFINITY),
+  ))]
+  const candidates = candidateWidths.map((candidateWidth) => {
     return {
       width: candidateWidth,
       url: buildMediaStreamUrl(attrs.src, config, {
@@ -694,8 +712,18 @@ export function transformImgTag(
   // every phone (Lighthouse 2026-10-19, F10). `auto` applies to lazy
   // images only, and a browser without it reads the declared list after it.
   const lazy = attrs.loading ? attrs.loading.toLowerCase() === 'lazy' : config.addLazyLoading
-  const srcset = attrs.width
-    ? ` srcset="${candidates.map(({ url, width: w }) => `${url} ${w}w`).join(', ')}" sizes="${lazy ? 'auto, ' : ''}(max-width: ${width}px) 100vw, ${width}px"`
+  // `auto` also gives the image a 300px fallback intrinsic size (HTML
+  // rendering: `contain-intrinsic-size`), which only a width the layout
+  // already fixes overrides: an authored width, pixel or percentage. An
+  // image with neither keeps its natural size and gets plain `sizes`.
+  const layoutWidthKnown = !!(attrs.width || attrs.widthPercent)
+  // Known size: the authored pixel width, or the real size the API recorded
+  // (which also lets a `width="100%"` image, drawn at the column's width,
+  // offer a retina candidate it can really fill). With no authored width the
+  // image is drawn at its natural size, up to the column.
+  const sizesWidth = layoutWidthKnown ? width : Math.min(width, attrs.naturalWidth ?? width)
+  const srcset = attrs.width || attrs.naturalWidth
+    ? ` srcset="${candidates.map(({ url, width: w }) => `${url} ${w}w`).join(', ')}" sizes="${lazy && layoutWidthKnown ? 'auto, ' : ''}(max-width: ${sizesWidth}px) 100vw, ${sizesWidth}px"`
     : ''
   newTag = newTag.replace(/src=["'][^"']*["']/i, `src="${candidates[0]?.url}"${srcset}`)
 
@@ -703,14 +731,28 @@ export function transformImgTag(
   // percentage width: "100%" from the editor's image dialog draws the image
   // across that share of the column, as the editor shows it (HTML maps a
   // percentage `width` to the CSS width; `.article img` sets no width of
-  // its own). No 2x candidate for it: `sizes` cannot name the column, so a
-  // retina screen would fetch twice the page frame. Any other width, and a
+  // its own). Without the recorded real size, no 2x candidate for it:
+  // `sizes` cannot name the column, so a retina screen would fetch twice
+  // the page frame. Any other width, and a
   // non-pixel height (`height: auto` keeps the aspect), is dropped.
   if (!attrs.width && !attrs.widthPercent) {
-    newTag = newTag.replace(/\s*width=["'][^"']*["']/i, '')
+    newTag = newTag.replace(/\s+width=["'][^"']*["']/i, '')
   }
   if (!attrs.height) {
-    newTag = newTag.replace(/\s*height=["'][^"']*["']/i, '')
+    newTag = newTag.replace(/\s+height=["'][^"']*["']/i, '')
+  }
+
+  // A browser reserves an image's space from numeric width and height
+  // attributes. Percentages, as TinyMCE writes them, give it no ratio, so a
+  // lazy image shifted the page as it arrived: the recorded real size
+  // supplies one. Authored pixel attributes already do.
+  // An aspect-ratio the author wrote in `style` (a square crop) stays theirs.
+  const authoredRatio = /(?:^|[;\s"'])aspect-ratio\s*:/i.test(String(attrs.style ?? ''))
+  if (attrs.naturalWidth && attrs.naturalHeight && !(attrs.width && attrs.height) && !authoredRatio) {
+    const ratio = `aspect-ratio: ${attrs.naturalWidth} / ${attrs.naturalHeight}`
+    newTag = attrs.style !== undefined
+      ? newTag.replace(/(\sstyle=)(["'])(.*?)\2/i, (_, name, quote, value) => `${name}${quote}${value.trim().replace(/;?$/, ';')} ${ratio}${quote}`)
+      : newTag.replace(/<img/i, `<img style="${ratio}"`)
   }
 
   // Add loading="lazy" if not present and enabled

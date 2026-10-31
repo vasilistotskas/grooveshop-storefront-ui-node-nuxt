@@ -1,7 +1,7 @@
 import { createSiteConfigStack } from 'site-config-stack'
 import { describe, expect, it } from 'vitest'
 import handler from '~~/server/routes/rss.xml.get'
-import { zBlogCategoryDetail, zBlogPost, zProductCategoryDetail } from '~~/shared/openapi/zod.gen'
+import { zBlogCategoryDetail, zBlogPostFeed, zProductCategoryDetail } from '~~/shared/openapi/zod.gen'
 import { makeProductCard } from '~~/test/fixtures/product'
 import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 import type { BackendRequest } from '~~/test/helpers/nitro'
@@ -22,21 +22,12 @@ const post = {
   id: 3,
   uuid: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
   slug: 'summer-news',
-  likes: [],
   translations: { en: { title: 'Summer news', subtitle: 'What is new', body: 'word '.repeat(400) } },
-  author: 1,
   category: 1,
-  tags: [],
-  viewCount: 0,
-  likesCount: 0,
-  commentsCount: 0,
-  tagsCount: 0,
   publishedAt: '2026-06-01T00:00:00Z',
   createdAt: TIMESTAMP,
   updatedAt: TIMESTAMP,
   mainImagePath: 'uploads/blog/summer.jpg',
-  readingTime: 2,
-  contentPreview: '',
 }
 
 const blogCategory = {
@@ -81,7 +72,8 @@ const retired = makeProductCard({ id: 2, active: false })
 function djangoServesTheCatalogue(products = [onSale, retired]) {
   backend.reply((request: BackendRequest) => {
     switch (request.path) {
-      case `${API}/blog/post`: return { count: 1, results: [post] }
+      // The feed: the posts with their bodies, which a list no longer carries
+      case `${API}/blog/post/feed`: return [post]
       case `${API}/product`: return { count: products.length, results: products }
       case `${API}/blog/category/1`: return blogCategory
       case `${API}/product/category/1`: return productCategory
@@ -113,7 +105,7 @@ const feed = (tenant: Record<string, unknown> = {}, headers?: Record<string, str
 
 describe('GET /rss.xml', () => {
   it('uses fixtures the generated schemas accept', () => {
-    expect(zBlogPost.safeParse(post).success).toBe(true)
+    expect(zBlogPostFeed.safeParse(post).success).toBe(true)
     expect(zBlogCategoryDetail.safeParse(blogCategory).success).toBe(true)
     expect(zProductCategoryDetail.safeParse(productCategory).success).toBe(true)
   })
@@ -131,6 +123,7 @@ describe('GET /rss.xml', () => {
     expect(xml).toContain('<category><![CDATA[Announcements]]></category>')
     expect(xml).toContain('<category><![CDATA[Shoes]]></category>')
     expect(xml).toContain('<readingTime>2 min read</readingTime>')
+    expect(xml).toContain(`<content:encoded><![CDATA[${post.translations.en.body}]]></content:encoded>`)
     expect(xml).toContain('<link>https://shop.test/products/1/product-1</link>')
     expect(xml).not.toContain('/products/2/')
   })
@@ -195,7 +188,7 @@ describe('GET /rss.xml', () => {
   it('gives a post without an image no image URL', async () => {
     backend.reply((request: BackendRequest) => {
       switch (request.path) {
-        case `${API}/blog/post`: return { count: 1, results: [{ ...post, mainImagePath: '' }] }
+        case `${API}/blog/post/feed`: return [{ ...post, mainImagePath: '' }]
         case `${API}/product`: return { count: 0, results: [] }
         case `${API}/blog/category/1`: return blogCategory
         default: return jsonResponse({ detail: 'Not found.' }, 404)

@@ -5967,6 +5967,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/blog/post/feed:
+    get:
+      operationId: listBlogPostFeed
+      description: Τα πιο πρόσφατα δημοσιευμένα άρθρα με ολόκληρο το κείμενό τους, σε μία απάντηση, για το RSS feed του καταστήματος.
+      summary: Λήψη των άρθρων για το RSS feed
+      parameters:
+        - in: query
+          name: count
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή).
+      tags:
+        - Blog Posts
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlogPostFeed'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/blog/post/{id}:
     get:
       operationId: retrieveBlogPost
@@ -34384,42 +34442,22 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
-        likes:
-          type: array
-          items:
-            type: integer
         translations:
           type: object
           properties:
             el:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
                   type: string
                 subtitle:
-                  type: string
-                body:
                   type: string
             en:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
                   type: string
                 subtitle:
-                  type: string
-                body:
                   type: string
         author:
           type: integer
@@ -34483,7 +34521,6 @@ components:
         - contentPreview
         - createdAt
         - id
-        - likes
         - likesCount
         - mainImagePath
         - publishedAt
@@ -34510,11 +34547,6 @@ components:
           type: string
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
-        likes:
-          type: array
-          items:
-            type: integer
-          readOnly: true
         translations:
           type: object
           properties:
@@ -34607,6 +34639,11 @@ components:
           readOnly: true
         contentPreview:
           type: string
+          readOnly: true
+        likes:
+          type: array
+          items:
+            type: integer
           readOnly: true
         userHasLiked:
           type: boolean
@@ -36969,29 +37006,23 @@ components:
             el:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
-                  type: string
-                body:
                   type: string
             en:
               type: object
               properties:
-                seoTitle:
-                  type: string
-                seoDescription:
-                  type: string
-                seoKeywords:
-                  type: string
                 title:
                   type: string
-                body:
-                  type: string
+        translatedLocales:
+          type: array
+          items:
+            type: string
+          description: |-
+            The languages the page is written in: its body shows something.
+
+            A translation row is no evidence of a document (an emptied body
+            is still a row), so this is what hreflang and the sitemap read.
+          readOnly: true
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -37016,14 +37047,15 @@ components:
         - id
         - publishedAt
         - slug
+        - translatedLocales
         - translations
         - updatedAt
         - uuid
     ContentPageDetail:
       type: object
       description: |-
-        The detail tier. Its SEO travels in ``translations`` like every
-        other translated field, so it adds nothing to the list shape.
+        The detail tier: every translated field, the body and the SEO
+        copy included.
       properties:
         id:
           type: integer
@@ -37065,6 +37097,16 @@ components:
                   type: string
                 body:
                   type: string
+        translatedLocales:
+          type: array
+          items:
+            type: string
+          description: |-
+            The languages the page is written in: its body shows something.
+
+            A translation row is no evidence of a document (an emptied body
+            is still a row), so this is what hreflang and the sitemap read.
+          readOnly: true
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -37089,6 +37131,7 @@ components:
         - id
         - publishedAt
         - slug
+        - translatedLocales
         - translations
         - updatedAt
         - uuid
@@ -50860,6 +50903,80 @@ components:
             - default
             - muted
       additionalProperties: false
+    BlogPostFeed:
+      type: object
+      description: |-
+        One item of the RSS feed.
+
+        The feed needs every article's body, so it has its own shape and
+        its own endpoint rather than a request per post for the detail.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        translations:
+          type: object
+          properties:
+            el:
+              type: object
+              properties:
+                title:
+                  type: string
+                subtitle:
+                  type: string
+                body:
+                  type: string
+            en:
+              type: object
+              properties:
+                title:
+                  type: string
+                subtitle:
+                  type: string
+                body:
+                  type: string
+        category:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Κατηγορία
+        mainImagePath:
+          type: string
+          readOnly: true
+        publishedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Δημοσιεύθηκε στις
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Δημιουργήθηκε στις
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Ενημερώθηκε στις
+      required:
+        - category
+        - createdAt
+        - id
+        - mainImagePath
+        - publishedAt
+        - slug
+        - translations
+        - updatedAt
+        - uuid
   securitySchemes:
     cookieAuth:
       type: apiKey

@@ -19,7 +19,7 @@
 
 const { t, n } = useStoreI18n('components/variants/webside/Products/Filters/PriceRange')
 const { filters, updateFilters } = useProductFilters()
-const { formatPriceValue } = usePriceFormat()
+const rangeTextId = useId()
 
 // Use shared price stats from the centralized composable
 const { priceStats, isPriceStatsLoaded } = useProductSearchData(useListingScope())
@@ -53,10 +53,6 @@ const currentPriceRange = computed<[number, number]>(() => {
     filters.value.priceMax ?? priceStats.value.max,
   ]
 })
-
-// Formatted price display for slider labels
-const formattedMinPrice = computed(() => formatPriceValue(currentPriceRange.value[0]))
-const formattedMaxPrice = computed(() => formatPriceValue(currentPriceRange.value[1]))
 
 /**
  * Debounced update to URL parameters (for input fields)
@@ -149,7 +145,10 @@ watch(
       <span class="text-sm text-neutral-600 dark:text-neutral-300">
         {{ t('selected_range') }} :
       </span>
-      <span class="text-sm font-semibold text-primary-600 dark:text-primary-400">
+      <span
+        :id="rangeTextId"
+        class="text-sm font-semibold text-primary-600 dark:text-primary-400"
+      >
         {{ n(currentPriceRange[0] ?? 0, 'currency') }} – {{ n(currentPriceRange[1] ?? 0, 'currency') }}
       </span>
     </div>
@@ -162,7 +161,7 @@ watch(
         :max="priceStats.max"
         :step="1"
         :aria-label="t('price_range')"
-        :aria-valuetext="t('price_range_value', { min: formattedMinPrice, max: formattedMaxPrice })"
+        :aria-describedby="rangeTextId"
         class="py-2"
         @update:model-value="onSliderChange"
         @change="onSliderCommit"
@@ -231,7 +230,6 @@ watch(
 el:
   selected_range: Εύρος
   price_range: Εύρος τιμής
-  price_range_value: "{min} έως {max}"
   minimum: Από
   maximum: Έως
   price_min: Ελάχιστη τιμή
@@ -239,7 +237,6 @@ el:
 en:
   selected_range: Range
   price_range: Price range
-  price_range_value: "{min} to {max}"
   minimum: From
   maximum: To
   price_min: Minimum price

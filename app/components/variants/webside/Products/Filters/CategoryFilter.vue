@@ -128,7 +128,6 @@ const isCategoryDisabled = (categoryId: string) => {
             }"
             :disabled="isCategoryDisabled(category.id.toString())"
             :aria-pressed="selectedCategories.includes(category.id.toString())"
-            :aria-label="`${extractTranslated(category, 'name', locale)} - ${categoryFacets[category.id] ?? 0} ${t('products')}`"
             @click="toggleCategory(category.id.toString())"
           >
             <span class="flex items-center gap-2 flex-1 min-w-0">
@@ -160,6 +159,11 @@ const isCategoryDisabled = (categoryId: string) => {
               variant="soft"
               :class="{ 'opacity-50': categoryFacets[category.id] === 0 }"
             />
+            <!-- The button's name is its visible text (WCAG 2.5.3); the unit rides
+                 along, unseen, and a category missing from the facets says its zero. -->
+            <span class="sr-only">
+              {{ categoryFacets[category.id] === undefined ? '0 ' : '' }}{{ t('products') }}
+            </span>
           </button>
         </template>
 

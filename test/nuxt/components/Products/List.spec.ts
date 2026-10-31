@@ -322,6 +322,18 @@ describe.each(trees(List, WebsideList))('$tree Products/List (shared behaviour)'
     expect(searchQuery()).toMatchObject({ brands: '3,7', inStock: true, onOffer: true })
   })
 
+  it('names its results for the outline and hands the LCP priority to the first card only', async () => {
+    returns(3)
+
+    const wrapper = await mount()
+
+    // The cards' titles are h3s: an h2 of the results' own sits between them and the h1.
+    expect(wrapper.find('h2.sr-only').exists()).toBe(true)
+    const cards = wrapper.findAllComponents({ name: own('ProductCard') })
+    expect(cards.map(card => card.props('preload'))).toEqual([true, false, false])
+    expect(cards.map(card => card.props('imgFetchPriority'))).toEqual(['high', undefined, undefined])
+  })
+
   it('says which filter to loosen when nothing matches, and offers to clear', async () => {
     returns(0)
     setFilters({ attributeValues: ['7'] })

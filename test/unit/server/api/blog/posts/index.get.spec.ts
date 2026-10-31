@@ -102,8 +102,11 @@ describe('GET /api/blog/posts', () => {
     })
   })
 
-  it('sends the cards, not the post bodies', async () => {
-    const post = makeBlogPost({ translations: { el: { title: 'Τίτλος', subtitle: '', body: '<p>Πολύ μεγάλο κείμενο</p>' } } })
+  it('sends the cards, not the post bodies, even from a Django that still sends them', async () => {
+    // Not a fresh literal: a list post has no `body`, but until Django stops
+    // sending it the parse is what keeps it out of the payload.
+    const stored = { title: 'Τίτλος', subtitle: '', body: '<p>Πολύ μεγάλο κείμενο</p>' }
+    const post = makeBlogPost({ translations: { el: stored } })
     backend.reply(page(post))
 
     const response = await callRoute(handler, { route, url: route })

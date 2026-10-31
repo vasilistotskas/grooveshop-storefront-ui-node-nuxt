@@ -48,7 +48,6 @@ export function makeBlogPost(overrides: Partial<BlogPost> = {}): BlogPost {
     id,
     uuid: fixtureUuid(23, id),
     slug: `post-${id}`,
-    likes: [],
     translations: { el: { title: `Άρθρο ${id}`, subtitle: '' } },
     author: 1,
     category: 1,

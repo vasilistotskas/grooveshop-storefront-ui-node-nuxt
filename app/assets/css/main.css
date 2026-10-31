@@ -580,11 +580,14 @@ button:disabled:active,
   th { @apply bg-neutral-50 dark:bg-neutral-800 font-semibold text-left; }
   a { @apply text-accent underline; }
   img {
+    /* No `aspect-ratio` here: with `height: auto` the browser derives the
+       ratio from the <img width height> attributes (the user-agent sheet's
+       `aspect-ratio: auto attr(width) / attr(height)`), which reserves the
+       space of a lazy image before it loads. An explicit `aspect-ratio: auto`
+       discards it and the image shifts the page as it arrives (measured:
+       a 800x400 lazy image in a 300px column reserved 0px with it, 150px
+       without). */
     @apply max-w-full h-auto rounded-lg my-4;
-    /* Browsers derive aspect-ratio from <img width="..." height="..."> when
-       the `height: auto` override above is active — prevents CLS for HTML
-       content rendered via `.article` (Blog/Product descriptions). */
-    aspect-ratio: auto;
   }
   hr { @apply border-neutral-200 dark:border-neutral-700 my-6; }
 }

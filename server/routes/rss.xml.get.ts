@@ -38,6 +38,21 @@ const cachedBlogCategory = defineCachedFunction(
   },
 )
 
+// The feed carries each article in full, which the list a card is drawn
+// from no longer does: Django serves the feed's posts, newest first, with
+// their bodies, from its own endpoint.
+const cachedBlogPostFeed = defineCachedFunction(
+  async (tenantKey: string, locale: string, url: string) => {
+    const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
+    return await parseDataAs(raw, zListBlogPostFeedResponse)
+  },
+  {
+    maxAge: RSS_CACHE_AGE,
+    name: 'cachedBlogPostFeed',
+    getKey: (tenantKey: string, locale: string, url: string) => `${tenantKey}:${locale}:${url}`,
+  },
+)
+
 const cachedProductCategoryDetail = defineCachedFunction(
   async (tenantKey: string, locale: string, url: string): Promise<ProductCategoryDetail> => {
     const raw = await backendFetchFor({ tenantHost: tenantKey, locale })(url, { method: 'GET' })
@@ -75,19 +90,17 @@ const generateRssFeed = defineCachedFunction(
 
     // Namespaced to avoid collision with sitemap handlers which register
     // fetchers under the same logical name but a different TTL.
-    const cachedBlogPosts = createCachedFetcher<BlogPost>('rss:blog-posts', RSS_CACHE_AGE)
     const cachedProducts = createCachedFetcher<ProductCard>('rss:products', RSS_CACHE_AGE)
 
     // A store without the catalogue has no products to syndicate, and
     // Django refuses the list: the feed is its blog alone.
-    const [allPosts, allProducts] = await Promise.all([
-      cachedBlogPosts(tenantKey, locale, `${apiBaseUrl}/blog/post`),
+    const [blogPosts, allProducts] = await Promise.all([
+      cachedBlogPostFeed(tenantKey, locale, `${apiBaseUrl}/blog/post/feed`),
       catalogueEnabled
         ? cachedProducts(tenantKey, locale, `${apiBaseUrl}/product`)
         : Promise.resolve([]),
     ])
 
-    const blogPosts = allPosts.map(post => zBlogPost.parse(post))
     const activeProducts = allProducts.filter(product => product.active !== false)
 
     const blogItems = await processBlogPosts(blogPosts, locale, baseUrl, apiBaseUrl, mediaStreamPath, tenantKey)
@@ -193,7 +206,7 @@ export default defineEventHandler(async (event) => {
 })
 
 async function processBlogPosts(
-  blogPosts: BlogPost[],
+  blogPosts: BlogPostFeed[],
   locale: SupportedLocale,
   baseUrl: string,
   apiBaseUrl: string,

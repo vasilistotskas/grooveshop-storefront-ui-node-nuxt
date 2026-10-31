@@ -51,8 +51,8 @@ async function open(wrapper: VueWrapper, name: string) {
   await trigger!.trigger('click')
 }
 
-/** A value button's name: its accessible name reads `<value> - <count> <products>`. */
-const nameOf = (b: ReturnType<VueWrapper['find']>) => b.attributes('aria-label')!.split(' - ')[0]
+/** A value button's name: the visible label, before the count and the unseen unit. */
+const nameOf = (b: ReturnType<VueWrapper['find']>) => b.find('span.truncate').text()
 const valueButtons = (wrapper: VueWrapper) => wrapper.findAll('button[aria-pressed]')
 const listedValues = (wrapper: VueWrapper) => valueButtons(wrapper).map(nameOf)
 const valueButton = (wrapper: VueWrapper, name: string) => {

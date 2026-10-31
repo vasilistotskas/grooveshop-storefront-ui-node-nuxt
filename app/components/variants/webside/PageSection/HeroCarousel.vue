@@ -9,6 +9,7 @@ const props = defineProps<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
+const leadsPage = useLeadsPage()
 const { t } = useStoreI18n('components/variants/webside/PageSection/HeroCarousel')
 
 const config = useRuntimeConfig()
@@ -57,10 +58,10 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
         format="webp"
         class="rounded-lg"
         style="object-fit: contain; content-visibility: auto;"
-        loading="eager"
-        fetchpriority="high"
+        :loading="leadsPage ? 'eager' : 'lazy'"
+        :fetchpriority="leadsPage ? 'high' : undefined"
         decoding="async"
-        :preload="{ fetchPriority: 'high' }"
+        :preload="leadsPage ? { fetchPriority: 'high' } : false"
       />
     </NuxtLink>
     <NuxtImg
@@ -75,10 +76,10 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
       format="webp"
       class="rounded-lg"
       style="object-fit: contain; content-visibility: auto;"
-      loading="eager"
-      fetchpriority="high"
+      :loading="leadsPage ? 'eager' : 'lazy'"
+      :fetchpriority="leadsPage ? 'high' : undefined"
       decoding="async"
-      :preload="{ fetchPriority: 'high' }"
+      :preload="leadsPage ? { fetchPriority: 'high' } : false"
     />
   </UCarousel>
 </template>

@@ -1000,23 +1000,14 @@ export type BlogPost = {
   readonly id: number
   readonly uuid: string
   slug: string
-  likes: Array<number>
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
   }
   author: number
@@ -1070,7 +1061,6 @@ export type BlogPostDetail = {
   readonly id: number
   readonly uuid: string
   slug: string
-  readonly likes: Array<number>
   translations: {
     el?: {
       seoTitle?: string
@@ -1131,6 +1121,7 @@ export type BlogPostDetail = {
   readonly mainImagePath: string
   readonly readingTime: number
   readonly contentPreview: string
+  readonly likes: Array<number>
   readonly userHasLiked: boolean
 }
 
@@ -2642,20 +2633,19 @@ export type ContentPage = {
   slug: string
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
   }
+  /**
+     * The languages the page is written in: its body shows something.
+     *
+     * A translation row is no evidence of a document (an emptied body
+     * is still a row), so this is what hreflang and the sitemap read.
+     */
+  readonly translatedLocales: Array<string>
   /**
      * Δημοσιευμένο
      */
@@ -2675,8 +2665,8 @@ export type ContentPage = {
 }
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export type ContentPageDetail = {
   readonly id: number
@@ -2698,6 +2688,13 @@ export type ContentPageDetail = {
       body?: string
     }
   }
+  /**
+     * The languages the page is written in: its body shows something.
+     *
+     * A translation row is no evidence of a document (an emptied body
+     * is still a row), so this is what hreflang and the sitemap read.
+     */
+  readonly translatedLocales: Array<string>
   /**
      * Δημοσιευμένο
      */
@@ -10516,6 +10513,47 @@ export type PageSectionStatsStripProps = {
 }
 
 /**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export type BlogPostFeed = {
+  readonly id: number
+  readonly uuid: string
+  readonly slug: string
+  translations: {
+    el?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+  }
+  /**
+     * Κατηγορία
+     */
+  readonly category: number | null
+  readonly mainImagePath: string
+  /**
+     * Δημοσιεύθηκε στις
+     */
+  readonly publishedAt: string | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+}
+
+/**
  * Compact favourite row for agents — the storefront's favourite
  * serializers embed the full product detail payload, which is far more
  * than a tool result should carry.
@@ -10689,23 +10727,14 @@ export type BlogCommentDetailWritable = {
  */
 export type BlogPostWritable = {
   slug: string
-  likes: Array<number>
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
       subtitle?: string
-      body?: string
     }
   }
   author: number
@@ -10890,18 +10919,10 @@ export type ContentPageWritable = {
   slug: string
   translations: {
     el?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
     en?: {
-      seoTitle?: string
-      seoDescription?: string
-      seoKeywords?: string
       title?: string
-      body?: string
     }
   }
   /**
@@ -10911,8 +10932,8 @@ export type ContentPageWritable = {
 }
 
 /**
- * The detail tier. Its SEO travels in ``translations`` like every
- * other translated field, so it adds nothing to the list shape.
+ * The detail tier: every translated field, the body and the SEO
+ * copy included.
  */
 export type ContentPageDetailWritable = {
   slug: string
@@ -13095,6 +13116,27 @@ export type PageSectionWhatIsMicrolearningPropsWritable = {
 
 export type PageSectionWhyMicrolearningPropsWritable = {
   [key: string]: never
+}
+
+/**
+ * One item of the RSS feed.
+ *
+ * The feed needs every article's body, so it has its own shape and
+ * its own endpoint rather than a request per post for the detail.
+ */
+export type BlogPostFeedWritable = {
+  translations: {
+    el?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      subtitle?: string
+      body?: string
+    }
+  }
 }
 
 export type GetAgentProfileData = {
@@ -15789,6 +15831,34 @@ export type CreateBlogPostResponses = {
 }
 
 export type CreateBlogPostResponse = CreateBlogPostResponses[keyof CreateBlogPostResponses]
+
+export type ListBlogPostFeedData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή).
+         */
+    count?: string | number
+  }
+  url: '/api/v1/blog/post/feed'
+}
+
+export type ListBlogPostFeedErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListBlogPostFeedError = ListBlogPostFeedErrors[keyof ListBlogPostFeedErrors]
+
+export type ListBlogPostFeedResponses = {
+  200: Array<BlogPostFeed>
+}
+
+export type ListBlogPostFeedResponse = ListBlogPostFeedResponses[keyof ListBlogPostFeedResponses]
 
 export type DestroyBlogPostData = {
   body?: never

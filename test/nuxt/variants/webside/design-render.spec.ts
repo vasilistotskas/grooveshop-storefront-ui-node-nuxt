@@ -415,6 +415,21 @@ describe('webside design render', () => {
     await expectSnapshot(AccountLoginForm)
   })
 
+  // The phone's hero is an <img> in the server's HTML, high priority, so the
+  // browser finds it before any script runs (it was a CSS background set
+  // from a computed URL: undiscoverable, LCP on every sign-in page).
+  it('login form on a phone draws its hero as an image', async () => {
+    await atViewportWidth(375, () => expectSnapshot(AccountLoginForm, {}, (html) => {
+      expect(html).toContain('login-background.png')
+    }))
+  })
+
+  it('signup form on a phone draws its hero as an image', async () => {
+    await atViewportWidth(375, () => expectSnapshot(AccountSignupForm, {}, (html) => {
+      expect(html).toContain('login-background.png')
+    }))
+  })
+
   // Google's colour "G" sits on Google's own fill and stroke, not a brand
   // colour (Sign in with Google branding guidelines); the other providers keep
   // their solid buttons.

@@ -85,4 +85,12 @@ describe.each(trees(ButtonBlogCommentLike, WebsideButtonBlogCommentLike))('$tree
     expect(api.callsTo(LIKES)).toHaveLength(0)
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
+
+  it('names the button with the count it shows (WCAG 2.5.3 Label in Name)', async () => {
+    const wrapper = await mount()
+    const button = wrapper.find('button')
+
+    expect(button.text()).toContain('2')
+    expect(button.attributes('aria-label')).toContain('2')
+  })
 })

@@ -54,7 +54,7 @@ const alt = computed(() =>
     densities="x1 x2"
     :src="image?.mainImagePath"
     :alt="alt"
-    quality="75"
+    :quality="PRODUCT_IMAGE_QUALITY"
   />
 </template>
 

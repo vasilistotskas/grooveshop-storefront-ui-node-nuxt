@@ -106,6 +106,8 @@ watch(totalResults, total => emit('update:totalResults', total), { immediate: tr
           v-for="(product, index) in products.results"
           :key="product.id"
           :img-loading="index > 7 ? 'lazy' : 'eager'"
+          :img-fetch-priority="index === 0 ? 'high' : undefined"
+          :preload="index === 0"
           :product="product as unknown as Product"
         />
       </TransitionGroup>

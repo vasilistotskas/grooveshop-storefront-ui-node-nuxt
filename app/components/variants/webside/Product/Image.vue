@@ -47,7 +47,7 @@ const alt = computed(() => {
     :sizes="sizes"
     :src="image?.mainImagePath"
     :alt="alt"
-    quality="100"
+    :quality="PRODUCT_IMAGE_QUALITY"
   />
 </template>
 

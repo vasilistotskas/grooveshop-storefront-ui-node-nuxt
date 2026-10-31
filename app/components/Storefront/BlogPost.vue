@@ -20,6 +20,11 @@ const {
 
 await useLikedBlogPost(blogPostId)
 
+// The store's own bands under the post (a promo banner, a signup, a CTA):
+// the published 'blog-post' PageLayout. Fallback is EMPTY, so a store
+// without a layout renders the post as it always did.
+const { sections: bandSections } = await usePageConfig('blog-post', { placement: 'below-content' })
+
 // An "updated" line only earns its place when the post really changed
 // after going live. `updatedAt` is set on every save, so a
 // just-published post has the two stamps within milliseconds of each
@@ -336,6 +341,21 @@ onReactivated(async () => {
         />
       </ul>
     </section>
+
+    <div
+      v-if="bandSections.length"
+      class="
+        mt-12 grid gap-6
+        md:gap-10
+      "
+    >
+      <PageSectionRenderer
+        v-for="section in bandSections"
+        :key="section.uuid"
+        :section="section"
+        placement="below-content"
+      />
+    </div>
   </UContainer>
 </template>
 
