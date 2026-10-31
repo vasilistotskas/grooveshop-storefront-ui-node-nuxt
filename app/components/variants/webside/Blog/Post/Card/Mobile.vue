@@ -89,6 +89,10 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
         :to="{ path: blogPostUrl(post.id, post.slug) }"
         :text="alt"
       >
+        <!-- Decorative: the link is named by the title the heading below
+             prints on the picture. An `alt` of the same words would be
+             counted into the link's text a second time, so its name (the
+             title once) would not hold what is on screen (WCAG 2.5.3). -->
         <ImgWithFallback
           :loading="imgLoading"
           :fetchpriority="imgFetchPriority"
@@ -105,7 +109,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           }"
           quality="80"
           :background="'transparent'"
-          :alt="alt"
+          alt=""
         />
         <h2
           class="

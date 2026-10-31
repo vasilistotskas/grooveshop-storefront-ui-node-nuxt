@@ -23,7 +23,18 @@ describe('Product/Rating', () => {
 
     const link = wrapper.get('a')
     expect(link.attributes('href')).toBe('#reviews')
-    expect(wrapper.text()).toBe('4,0 · 1 αξιολόγηση')
+    expect(wrapper.text()).toContain('4,0 · 1 αξιολόγηση')
+  })
+
+  it('names the link by the text on screen, then says it is out of five', async () => {
+    const wrapper = await mountSuspended(Rating, { route: false, props: { average: 9.8, count: 4, href: '#reviews', verbose: true } })
+
+    const link = wrapper.get('a')
+    // WCAG 2.5.3: the visible text is part of the name, and no aria-label replaces it.
+    expect(link.attributes('aria-label')).toBeUndefined()
+    expect(link.text()).toBe('4,9 · 4 αξιολογήσεις, βαθμολογία στα 5')
+    const figures = wrapper.findAll('span').find(span => span.text().startsWith('4,9'))
+    expect(figures?.attributes('aria-hidden')).toBeUndefined()
   })
 
   it.each([

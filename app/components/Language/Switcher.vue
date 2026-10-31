@@ -17,7 +17,7 @@ import type { Locale } from '@nuxt/ui'
  * the header row a full-width control squeezed its neighbours to their
  * icons.
  */
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   compact?: boolean
 }>(), {
   compact: false,
@@ -41,6 +41,27 @@ const currentLocale = ref(locale.value)
  */
 const tenantLocales = computed<Locale<unknown>[]>(() =>
   toUiLocales(tenantStore.availableLocales),
+)
+
+/**
+ * What the control shows: the locale code ("EL") when compact, else the
+ * language's own name.
+ */
+const shownLanguage = computed(() => {
+  const current = tenantLocales.value.find(entry => entry.code === currentLocale.value)
+  return (props.compact ? current?.code : current?.name) ?? currentLocale.value
+})
+
+/**
+ * The control's accessible name: what it shows, then what it does. The
+ * shown language is composed here, not interpolated into the translated
+ * phrase, so a store's text override of `change_language` cannot drop it,
+ * and a screen-reader user who says what they see reaches the control
+ * (WCAG 2.5.3). The list format puts the separator the language uses.
+ */
+const accessibleName = computed(() =>
+  new Intl.ListFormat(locale.value, { type: 'unit', style: 'long' })
+    .format([shownLanguage.value, t('change_language')]),
 )
 
 // Keep the selector in sync with any external locale change (settings form,
@@ -77,7 +98,7 @@ watch(currentLocale, async (newLocale) => {
     leading-icon="i-heroicons-globe-alt"
     color="neutral"
     size="sm"
-    :aria-label="t('change_language')"
+    :aria-label="accessibleName"
     :ui="{
       base: 'w-auto rounded-full font-semibold',
       value: compact ? 'uppercase' : '',

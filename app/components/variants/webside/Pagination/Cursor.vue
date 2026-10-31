@@ -223,7 +223,6 @@ onUnmounted(() => {
       variant="soft"
       :label="t('load.more')"
       color="neutral"
-      aria-label="Load more posts"
       :loading="loading"
       class="mt-4"
       @click="loadMore"

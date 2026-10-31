@@ -54,6 +54,7 @@ function installEmbedOriginHook(): void {
  * library is loaded.
  */
 type PurifiedElement = Parameters<ElementHook>[0]
+type PurifiedNode = PurifiedElement['childNodes'][number]
 
 export interface RichHtmlOptions {
   /**
@@ -160,10 +161,10 @@ const FORBIDDEN_STYLE_PROPERTY_RE = /^(?:font|font-family|mso-.*)$/i
 const WORD_CLASS_RE = /^mso/i
 
 /**
- * Word's comment marker: an empty link to ``#_msocom_<n>``, often in the
- * author's own OneDrive document. No text, nowhere to go.
+ * Content a link can draw instead of text: an image, an icon, a player.
+ * It names the link only when it carries a name of its own (``linkMedia``).
  */
-const WORD_COMMENT_HREF_RE = /#_msocom_\d+$/
+const LINK_MEDIA_SELECTOR = 'img, svg, video, audio, iframe, canvas'
 
 /**
  * The declarations of an inline ``style``, split on the semicolons that
@@ -235,13 +236,81 @@ function installWordCleanupHooks(): void {
     data.attrValue = value
     if (!value) data.keepAttr = false
   })
+}
 
-  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    if (!cleaningRichText || node.nodeName !== 'A') return
-    if (WORD_COMMENT_HREF_RE.test(node.getAttribute('href') ?? '') && !node.textContent?.trim()) {
-      node.remove()
+const hasText = (value: string | null | undefined): boolean => Boolean(value?.trim())
+
+const isHiddenFromReaders = (element: PurifiedElement): boolean =>
+  element.getAttribute('aria-hidden') === 'true' || element.hasAttribute('hidden')
+
+/** The text a reader gets from ``node``: its text, without what is hidden from assistive technology. */
+function readableText(node: PurifiedNode): string {
+  if (node.nodeType === 3) return node.textContent ?? ''
+  if (node.nodeType !== 1 || isHiddenFromReaders(node as PurifiedElement)) return ''
+  return [...node.childNodes].map(readableText).join('')
+}
+
+/** True when ``media`` supplies a name: a non-empty ``alt`` (images), ``aria-label`` or ``title``. */
+function mediaNamesLink(media: PurifiedElement): boolean {
+  const role = media.getAttribute('role')
+  if (role === 'presentation' || role === 'none' || isHiddenFromReaders(media)) return false
+  return (media.tagName === 'IMG' && hasText(media.getAttribute('alt')))
+    || hasText(media.getAttribute('aria-label'))
+    || hasText(media.getAttribute('title'))
+}
+
+/**
+ * Whether ``anchor`` has an accessible name, by the sources of W3C ACT
+ * rule c487ae in order: ``aria-labelledby`` (only ids that resolve, in
+ * this fragment, to an element with text), ``aria-label``, its content (text, or media
+ * that names itself: a decorative ``alt=""`` image does not), then ``title``.
+ */
+function linkHasName(anchor: PurifiedElement, root: PurifiedElement): boolean {
+  const labelledBy = anchor.getAttribute('aria-labelledby')?.split(/\s+/).filter(Boolean) ?? []
+  if (labelledBy.length) {
+    for (const element of root.querySelectorAll('[id]')) {
+      if (labelledBy.includes(element.id) && hasText(element.textContent)) return true
     }
-  })
+  }
+  return hasText(anchor.getAttribute('aria-label'))
+    || hasText(readableText(anchor))
+    || [...anchor.querySelectorAll(LINK_MEDIA_SELECTOR)].some(mediaNamesLink)
+    || hasText(anchor.getAttribute('title'))
+}
+
+/**
+ * Clean the links an editor leaves in a body: one decision per anchor, by
+ * its accessible name and its target.
+ *
+ * - A link (``href``) with a name stays.
+ * - Any other anchor is not a link to keep: with no ``href`` it goes
+ *   nowhere (a Word comment reference, a half-made link); with an ``href``
+ *   but no name (whitespace, ``&nbsp;``, a decorative image, Word's empty
+ *   comment marker to ``#_msocom_<n>``) it is a keyboard stop that
+ *   announces nothing. It is unwrapped, so its content stays and a
+ *   decorative image or the spacing between two words is not lost.
+ * - If it is also the target of an in-page link (``id``, or the legacy
+ *   ``name``: Word's ``<a id="_Toc1">``), the target stays as a ``span``
+ *   with that ``id``, so ``#_Toc1`` still jumps there and no href-less
+ *   anchor is left for Lighthouse ``crawlable-anchors``.
+ *
+ * Run on the sanitised tree, like the embed facades, not inside a hook
+ * while DOMPurify is walking it.
+ */
+function cleanAnchors(root: PurifiedElement): void {
+  for (const anchor of root.querySelectorAll('a')) {
+    if (anchor.hasAttribute('href') && linkHasName(anchor, root)) continue
+    const target = anchor.getAttribute('id') || anchor.getAttribute('name')
+    if (target) {
+      const place = anchor.ownerDocument.createElement('span')
+      place.id = target
+      place.append(...anchor.childNodes)
+      anchor.replaceWith(place)
+    }
+    else {
+      anchor.replaceWith(...anchor.childNodes)
+    }
+  }
 }
 
 /**
@@ -265,7 +334,8 @@ function installWordCleanupHooks(): void {
  *
  * Text pasted from Word loses what only Word reads or what overrides the
  * store's typeface (``FORBIDDEN_STYLE_PROPERTY_RE``), its ``Mso*``
- * classes and its empty comment links.
+ * classes and its comment links; every body also loses its empty links
+ * and keeps the text of a link with no ``href`` (``cleanAnchors``).
  */
 export function sanitizeRichHtml(
   html: string | null | undefined,
@@ -296,6 +366,7 @@ export function sanitizeRichHtml(
   finally {
     cleaningRichText = false
   }
+  cleanAnchors(body)
   replaceYouTubeEmbeds(body, options)
   return body.innerHTML
 }

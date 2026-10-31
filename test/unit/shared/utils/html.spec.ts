@@ -14,6 +14,9 @@ import {
 
 const OPTIONS = { videoPlayLabel: 'Αναπαραγωγή βίντεο' }
 
+/** The text a reader gets from sanitised HTML. */
+const textOf = (html: string): string => new Window().document.createRange().createContextualFragment(html).textContent ?? ''
+
 describe('stripCloudflareImagePrefix', () => {
   it('recovers the source path from a Cloudflare Image Resizing URL', () => {
     expect(
@@ -249,14 +252,144 @@ describe('sanitizeRichHtml', () => {
       .toBe('<p class="lead">x</p>')
   })
 
-  it('drops the empty comment links Word leaves and keeps every other link', () => {
+  it('turns the empty comment links Word leaves into plain targets and keeps a comment reference with text', () => {
     const out = sanitize(
       '<p>a<a id="_anchor_1" class="msocomanchor" '
       + 'href="https://d.docs.live.net/351b/Content.docx#_msocom_1"></a>'
-      + '<a href="#_msocom_2">[A2]</a><a href="https://example.com/"></a></p>',
+      + '<a href="#_msocom_2">[A2]</a></p>',
     )
 
-    expect(out).toBe('<p>a<a href="#_msocom_2">[A2]</a><a href="https://example.com/"></a></p>')
+    // The empty link is gone; its id stays for the comment's back-link.
+    expect(out).toBe('<p>a<span id="_anchor_1"></span><a href="#_msocom_2">[A2]</a></p>')
+  })
+
+  // The samples below are the bodies of webside's posts 4, 16, 17, 23, 26
+  // and 30 as the API serves them: the anchors that axe `link-name` and
+  // Lighthouse `crawlable-anchors` flagged.
+  describe('links an editor leaves behind', () => {
+    it.each([
+      ['a space (post 4)', '<a style="color: #3364ff; text-decoration: underline;" href="https://webside.gr/blog/post/21/phishing-pos-na-prostateuteis" target="_blank" rel="noopener noreferrer"> </a>'],
+      ['a space on an external link (post 23)', '<a style="color: #3364ff; text-decoration: underline;" href="https://www.techtarget.com/iotagenda/definition/RFID-radio-frequency-identification" target="_blank" rel="noopener noreferrer"> </a>'],
+      ['a non-breaking space (post 26)', '<a href="https://example.com/" rel="noopener noreferrer"><strong><span>&nbsp;</span></strong></a>'],
+    ])('removes the link with an href and only %s, keeping its spacing', (_name, link) => {
+      const out = sanitize(`<p>word${link}word</p>`)
+
+      expect(out).not.toContain('<a')
+      // The words stay apart: the space or `&nbsp;` the link held is still there.
+      expect(textOf(out)).toMatch(/^word\s+word$/)
+    })
+
+    it.each([
+      ['a space', '<a href="https://example.com/"> </a>', 'word word'],
+      ['a non-breaking space', '<a href="https://example.com/">&nbsp;</a>', 'word word'],
+      ['nothing', '<a href="https://example.com/"></a>', 'wordword'],
+    ])('does not join the words around an empty link holding %s', (_name, link, text) => {
+      const out = sanitize(`<p>word${link}word</p>`)
+
+      expect(textOf(out)).toBe(text)
+    })
+
+    it.each([
+      [
+        'post 16',
+        '<a style="color: #e03e2d;" rel="noopener noreferrer"><span style="--darkreader-inline-color: #ff1a1a;">Παράδειγμα λάθος </span></a>',
+        '<span style="--darkreader-inline-color: #ff1a1a;">Παράδειγμα λάθος </span>',
+      ],
+      [
+        'post 17',
+        '<a style="color: #e03e2d;" rel="noopener noreferrer"><strong><span><span>Λάθος&nbsp;</span></span></strong></a>',
+        '<strong><span><span>Λάθος&nbsp;</span></span></strong>',
+      ],
+      [
+        'post 26',
+        '<a rel="noopener noreferrer"><span>Οι περισσότεροι σύγχρονοι δρομολογητές είναι εξοπλισμένοι με ένα κουμπί WPS.</span></a>',
+        '<span>Οι περισσότεροι σύγχρονοι δρομολογητές είναι εξοπλισμένοι με ένα κουμπί WPS.</span>',
+      ],
+    ])('unwraps a link with no href and keeps its text (%s)', (_name, link, kept) => {
+      expect(sanitize(`<p>${link}</p>`)).toBe(`<p>${kept}</p>`)
+    })
+
+    it('unwraps a link with no href that holds only whitespace, keeping the spacing (posts 16, 23, 26, 30)', () => {
+      expect(sanitize(
+        '<p>a<a style="mso-comment-reference: MΓ_8; mso-comment-date: 20240923T2240;" rel="noopener noreferrer">&nbsp;</a>'
+        + '<a rel="noopener noreferrer"><span>&nbsp;</span></a>b</p>',
+      )).toBe('<p>a&nbsp;<span>&nbsp;</span>b</p>')
+    })
+
+    it('keeps a link with an href that has a name: text, a named image, aria-label, title, a resolved aria-labelledby', () => {
+      const out = sanitize(
+        '<p><a href="https://example.com/a">text</a>'
+        + '<a href="https://example.com/b"><img src="/media/x.png" alt="x"></a>'
+        + '<a href="https://example.com/c" aria-label="Open c"></a>'
+        + '<a href="https://example.com/d" title="Open d"></a>'
+        + '<a href="https://example.com/e" aria-labelledby="name-e"></a>'
+        + '<a href="https://example.com/f"><img src="/media/f.png" alt="" title="Open f"></a>'
+        + '<span id="name-e">Open e</span></p>',
+      )
+
+      expect(out).toContain('<a href="https://example.com/a">text</a>')
+      expect(out).toContain('<a href="https://example.com/b"><img')
+      expect(out).toContain('<a href="https://example.com/c" aria-label="Open c"></a>')
+      expect(out).toContain('<a href="https://example.com/d" title="Open d"></a>')
+      expect(out).toContain('<a href="https://example.com/e" aria-labelledby="name-e"></a>')
+      expect(out).toContain('<a href="https://example.com/f"><img')
+    })
+
+    it.each([
+      ['alt=""', '<img src="/media/x.png" alt="">'],
+      ['no alt', '<img src="/media/x.png">'],
+      ['role="presentation"', '<img src="/media/x.png" alt="x" role="presentation">'],
+      ['role="none"', '<img src="/media/x.png" alt="x" role="none">'],
+    ])('unwraps a link whose only content is a decorative image (%s) and keeps the image', (_name, image) => {
+      const out = sanitize(`<p><a href="https://example.com/">${image}</a></p>`)
+
+      expect(out).not.toContain('<a')
+      expect(out).toContain('<img src="/media/x.png"')
+    })
+
+    it('does not count an aria-labelledby that points at nothing, or at an element with no text', () => {
+      const out = sanitize(
+        '<p>a<a href="https://example.com/a" aria-labelledby="missing"></a>'
+        + '<a href="https://example.com/b" aria-labelledby="blank"></a>'
+        + '<span id="blank"> </span>b</p>',
+      )
+
+      expect(out).not.toContain('<a')
+    })
+
+    it('does not count text or an image that is hidden from assistive technology', () => {
+      const out = sanitize(
+        '<p>a<a href="https://example.com/a"><span aria-hidden="true">icon text</span></a>'
+        + '<a href="https://example.com/b"><img src="/media/x.png" alt="x" aria-hidden="true"></a>b</p>',
+      )
+
+      expect(out).not.toContain('<a')
+    })
+
+    it('keeps the target of an empty link that has an href as a span with its id', () => {
+      const out = sanitize('<p><a href="#t">go</a></p><h2><a id="t" href="https://example.com/"></a>Title</h2>')
+
+      expect(out).toBe('<p><a href="#t">go</a></p><h2><span id="t"></span>Title</h2>')
+    })
+
+    it('keeps the target of an in-page link as a place that jumps there, not as a link', () => {
+      // Word's table of contents: `#_Toc1` points at an empty `<a id>`; the
+      // legacy form is `<a name>`. Neither has an href, so neither is a link.
+      const out = sanitize(
+        '<p><a href="#_Toc1">Intro</a> <a href="#top">Top</a></p>'
+        + '<h2><a id="_Toc1"></a>Intro</h2><p><a name="top">Start</a></p>',
+      )
+
+      expect(out).toBe(
+        '<p><a href="#_Toc1">Intro</a> <a href="#top">Top</a></p>'
+        + '<h2><span id="_Toc1"></span>Intro</h2><p><span id="top">Start</span></p>',
+      )
+    })
+
+    it('still sanitises what an unwrapped link held', () => {
+      expect(sanitize('<p><a><img src="x" onerror="alert(1)"><script>alert(1)</script>text</a></p>'))
+        .toBe('<p><img src="x">text</p>')
+    })
   })
 
   it('leaves the other callers of the DOMPurify singleton untouched', () => {

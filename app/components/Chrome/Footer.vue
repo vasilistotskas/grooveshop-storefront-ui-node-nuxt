@@ -191,6 +191,7 @@ const storeName = computed(() => tenantStore.storeName || '')
              cannot override. -->
         <UFooterColumns
           :columns="primaryColumns"
+          :as="{ label: 'h2' }"
           :ui="{
             root: `
               lg:grid lg:grid-cols-[2fr_2.3fr] lg:gap-8

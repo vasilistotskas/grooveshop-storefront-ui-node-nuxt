@@ -499,8 +499,9 @@ describe.each([
     const wrapper = await mountPage()
 
     const link = wrapper.get('a[href="#reviews"]')
-    expect(link.text()).toBe('4,3 · 14 αξιολογήσεις')
-    expect(link.attributes('aria-label')).toBe('Βαθμολογία 4,3 στα 5, από 14 αξιολογήσεις')
+    // Named by the text on screen (WCAG 2.5.3), with "out of 5" added for a screen reader.
+    expect(link.text()).toBe('4,3 · 14 αξιολογήσεις, βαθμολογία στα 5')
+    expect(link.attributes('aria-label')).toBeUndefined()
     // The model's own 1..10 scale never reaches a reader.
     expect(wrapper.get('#reviews').text()).not.toMatch(/\/\s*10/)
   })
