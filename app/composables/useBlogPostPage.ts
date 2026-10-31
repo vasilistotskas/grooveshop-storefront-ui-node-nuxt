@@ -76,29 +76,20 @@ export async function useBlogPostPage(options: {
     )
   }
 
-  // Critical data: category and author (needed for initial render)
-  const [
-    { data: blogPostCategory },
-    { data: blogPostAuthor },
-  ] = await Promise.all([
-    useApi(`/api/blog/categories/${blogPost.value.category.id}`, {
-      key: `blogCategory-${blogPost.value.category.id}`,
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        languageCode: locale,
-      },
-      pick: ['id', 'translations'],
-    }),
-    useApi(`/api/blog/authors/${blogPost.value.author.id}`, {
-      key: `blogAuthor${blogPost.value.author.id}`,
-      method: 'GET',
-      headers: useRequestHeaders(),
-      query: {
-        languageCode: locale,
-      },
-    }),
-  ])
+  // Critical data (needed for initial render): the category. The author
+  // is the post's own `author`, the same record `/api/blog/authors/{id}`
+  // answers with, so it is read from there, not fetched a second time.
+  const { data: blogPostCategory } = await useApi(`/api/blog/categories/${blogPost.value.category.id}`, {
+    key: `blogCategory-${blogPost.value.category.id}`,
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      languageCode: locale,
+    },
+    pick: ['id', 'translations'],
+  })
+
+  const blogPostAuthor = computed(() => blogPost.value?.author)
 
   const blogPostBody = computed(() => {
     const rawBody = extractTranslated(blogPost.value, 'body', locale.value) ?? ''

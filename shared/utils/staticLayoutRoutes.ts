@@ -31,6 +31,7 @@ export const STATIC_LAYOUT_ROUTES = {
   'home': { path: '/', requiresLayout: false },
   'products': { path: '/products', requiresLayout: false },
   'blog': { path: '/blog', requiresLayout: false },
+  'blog-post': { path: '/blog', requiresLayout: false },
   'contact': { path: '/contact', requiresLayout: false },
   'feedback': { path: '/feedback', requiresLayout: false },
   'about': { path: '/about', requiresLayout: true },

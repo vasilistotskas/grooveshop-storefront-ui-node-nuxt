@@ -67,7 +67,6 @@ function serve(post: Record<string, unknown> = POST, related: unknown[] = [RELAT
   api.routes({
     '/api/blog/posts/7': post,
     '/api/blog/categories/2': POST.category,
-    '/api/blog/authors/3': POST.author,
     '/api/blog/posts/7/related-posts': related,
     '/api/*': empty,
   })

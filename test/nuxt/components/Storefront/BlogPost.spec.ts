@@ -78,9 +78,49 @@ describe.each([
     api.routes({
       '/api/blog/posts/7': POST,
       '/api/blog/categories/2': POST.category,
-      '/api/blog/authors/3': POST.author,
       '/api/*': empty,
     })
+  })
+
+  it('draws the own bands of the store under the post from its blog-post layout', async () => {
+    api.routes({
+      '/api/blog/posts/7': POST,
+      '/api/blog/categories/2': POST.category,
+      '/api/page-config/blog-post': {
+        layout: {
+          id: 1,
+          uuid: 'layout-uuid',
+          pageType: 'blog-post',
+          title: 'Blog post',
+          isPublished: true,
+          metadata: {},
+          sections: [{ id: 1, uuid: 'band', componentType: 'spacer', title: '', isVisible: true, props: {}, sortOrder: 0 }],
+        },
+      },
+      '/api/*': { count: 0, next: null, previous: null, results: [] },
+    })
+
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(wrapper.findAllComponents({ name: 'PageSectionRenderer' })).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('draws no band when the store has no blog-post layout', async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(wrapper.findAllComponents({ name: 'PageSectionRenderer' })).toHaveLength(0)
+    wrapper.unmount()
+  })
+
+  it('reads the author from the post, not a second request', async () => {
+    const wrapper = await mountSuspended(Component, { route: false })
+    await flushPromises()
+
+    expect(api.callsTo('/api/blog/authors/*')).toEqual([])
+    wrapper.unmount()
   })
 
   it('posts one view for the post in the route once mounted', async () => {
@@ -118,7 +158,6 @@ describe.each([
         translations: { el: { ...POST.translations.el, body: `<p>x</p><img src="${IMAGE}" alt="chart">` } },
       },
       '/api/blog/categories/2': POST.category,
-      '/api/blog/authors/3': POST.author,
       '/api/*': empty,
     })
   })
@@ -159,7 +198,6 @@ describe.each([
     api.routes({
       '/api/blog/posts/7': POST,
       '/api/blog/categories/2': POST.category,
-      '/api/blog/authors/3': POST.author,
       '/api/blog/posts/liked-posts': { postIds: [7] },
       '/api/*': empty,
     })
@@ -206,7 +244,6 @@ describe('BlogPost page (default tree)', () => {
     api.routes({
       '/api/blog/posts/7': post,
       '/api/blog/categories/2': category,
-      '/api/blog/authors/3': post.author,
       '/api/blog/posts/7/related-posts': related,
       '/api/*': empty,
     })
@@ -335,7 +372,6 @@ describe.each([
     api.routes({
       '/api/blog/posts/7': { ...POST, commentsCount: 3 },
       '/api/blog/categories/2': POST.category,
-      '/api/blog/authors/3': POST.author,
       '/api/*': empty,
     })
   })

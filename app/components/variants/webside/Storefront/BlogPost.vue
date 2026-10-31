@@ -3,25 +3,9 @@
 // the 404/503, the head and the view count are `useBlogPostPage`'s, the
 // same as the default page's; only webside's own column width differs.
 const { t, locale } = useStoreI18n('components/variants/webside/Storefront/BlogPost')
-const config = useRuntimeConfig()
-const tenantStore = useTenantStore()
 const localePath = useLocalePath()
 const { blogAuthorUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
-
-const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
-
-// The promo banner is PLATFORM marketing content (hardcoded asset +
-// product link into the platform catalogue) — it must never render on
-// another tenant's blog, where the linked product id means something
-// else entirely.
-const isPlatformTenant = useIsPlatformTenant()
-const bannerItems = computed(() => [
-  isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
-])
-const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
-const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
-const bannerLink = '/products/2/mini-powerbank-5000mah'
 
 const {
   blogPostId,
@@ -37,6 +21,11 @@ const {
 } = await useBlogPostPage({ articleMaxWidth: WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH })
 
 await useLikedBlogPost(blogPostId)
+
+// The store's own bands under the post (a promo banner, a signup, a CTA):
+// the published 'blog-post' PageLayout. Fallback is EMPTY, so a store
+// without a layout renders the post as it always did.
+const { sections: bandSections } = await usePageConfig('blog-post')
 
 // An "updated" line only earns its place when the post really changed
 // after going live. `updatedAt` is set on every save, so a
@@ -369,40 +358,19 @@ onReactivated(async () => {
         </div>
       </div>
 
-      <UCarousel
-        v-if="isPlatformTenant"
-        v-slot="{ item }"
-        :items="bannerItems"
-        :ui="{ item: `basis-full place-items-center justify-center` }"
-        :aria-label="t('carousel.banner')"
+      <div
+        v-if="bandSections.length"
         class="
-          mx-auto mt-8 max-w-main
-          md:p-0!
+          mx-auto mt-8 grid max-w-main gap-6
+          md:gap-10
         "
-        indicators
       >
-        <NuxtLink
-          v-if="item"
-          :to="bannerLink"
-          :aria-label="t('carousel.bannerLink')"
-          class="block"
-        >
-          <NuxtImg
-            :alt="appTitle"
-            :src="item"
-            :height="bannerHeight"
-            :width="bannerWidth"
-            densities="x1"
-            fit="cover"
-            format="webp"
-            quality="80"
-            class="rounded-lg"
-            style="object-fit: contain; content-visibility: auto;"
-            loading="lazy"
-            decoding="async"
-          />
-        </NuxtLink>
-      </UCarousel>
+        <PageSectionRenderer
+          v-for="section in bandSections"
+          :key="section.uuid"
+          :section="section"
+        />
+      </div>
     </div>
   </WebsidePageWrapper>
 </template>
@@ -418,9 +386,6 @@ el:
     items:
       blog:
         label: Blog
-  carousel:
-    banner: Κύριο banner
-    bannerLink: Δείτε το Mini Powerbank 5000mAh
 en:
   author: Author
   published: Published
@@ -431,7 +396,4 @@ en:
     items:
       blog:
         label: Blog
-  carousel:
-    banner: Main banner
-    bannerLink: See the Mini Powerbank 5000mAh
 </i18n>
