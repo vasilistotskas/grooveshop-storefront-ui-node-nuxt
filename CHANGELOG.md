@@ -1,3 +1,10 @@
+# [3.276.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.275.0...v3.276.0) (2026-10-31)
+
+
+### Features
+
+* **scripts:** warm the build's /_nuxt files at the edge after a deploy ([#300](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/300)) ([ea23127](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ea23127d97cf9ad6597d2934e2ef8690484c962a))
+
 # [3.275.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.6...v3.275.0) (2026-10-31)
 
 
