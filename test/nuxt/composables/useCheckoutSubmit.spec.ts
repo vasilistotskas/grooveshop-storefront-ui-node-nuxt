@@ -399,6 +399,53 @@ describe('useCheckoutSubmit', () => {
     })
   })
 
+  describe('isOnlinePayment', () => {
+    it.each([
+      ['online', true],
+      ['courier_cash', false],
+      ['carrier_terminal', false],
+      ['offline_transfer', false],
+    ] as const)('follows the pay way settlement: %s -> %s', (settlement, expected) => {
+      const { isOnlinePayment } = setup(makePayWay({ id: 1, settlement }))
+
+      expect(isOnlinePayment.value).toBe(expected)
+    })
+
+    // The flag the template reads and the flow onSubmit runs come from
+    // the same settlement: an online order stays on the page awaiting
+    // payment, an offline one lands on the success page.
+    it.each([
+      ['stripe', 'online', true],
+      ['viva_wallet', 'online', true],
+      ['cash_on_delivery', 'courier_cash', false],
+      ['boxnow', 'carrier_terminal', false],
+      ['bank_transfer', 'offline_transfer', false],
+      ['stripe', 'offline_transfer', false],
+      ['viva_wallet', 'courier_cash', false],
+    ] as const)('runs the flow its flag names: %s / %s', async (providerCode, settlement, online) => {
+      api.routes({ '/api/orders': orderCreated({ uuid: 'order-x' }) })
+      const { onSubmit, isOnlinePayment, createdOrder } = setup(makePayWay({ id: 1, providerCode, settlement }))
+
+      await onSubmit()
+
+      // Online flows leave the order on the page awaiting payment;
+      // offline ones navigate to the success page.
+      expect(isOnlinePayment.value).toBe(online)
+      expect(createdOrder.value !== null && m.navigateTo.mock.calls.length === 0).toBe(online)
+      expect(m.createPaymentIntentFromCart).toHaveBeenCalledTimes(providerCode === 'stripe' && online ? 1 : 0)
+    })
+
+    it('refuses an online pay way whose provider has no checkout flow, ordering nothing', async () => {
+      api.routes({ '/api/orders': orderCreated() })
+      const { onSubmit } = setup(makePayWay({ id: 1, providerCode: 'future_psp', settlement: 'online' }))
+
+      await onSubmit()
+
+      expect(api.callsTo('/api/orders')).toEqual([])
+      expect(lastFailure()).toMatchObject({ title: t('form.submit.error.general') })
+    })
+  })
+
   describe('offline (cash on delivery)', () => {
     it('posts the order, clears the cart, and lands on the success page marked as placed', async () => {
       api.routes({ '/api/orders': orderCreated({ uuid: 'order-cod' }) })

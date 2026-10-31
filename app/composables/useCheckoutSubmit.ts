@@ -155,7 +155,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   })
 
   const isOnlinePayment = computed(() => {
-    return isStripePayment.value || isVivaWalletPayment.value
+    return selectedPayWay.value?.settlement === zSettlementEnum.enum.online
   })
 
   // Functions
@@ -716,15 +716,27 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         }
       })
 
-      // Step 3: Branch based on payment type
-      if (isStripePayment.value) {
+      // Step 3: the settlement says whether money is taken here (the
+      // same flag the template reads), the provider only picks the path.
+      if (!isOnlinePayment.value) {
+        await handleOfflinePaymentFlow()
+      }
+      else if (isStripePayment.value) {
         await handleOnlinePaymentFlow()
       }
       else if (isVivaWalletPayment.value) {
         await handleVivaWalletPaymentFlow()
       }
       else {
-        await handleOfflinePaymentFlow()
+        log.error({
+          tag: 'checkout',
+          message: 'submit:online-provider-unsupported',
+          providerCode: selectedPayWay.value?.providerCode,
+        })
+        failCheckout({
+          title: t('form.submit.error.general'),
+          description: t('error_occurred'),
+        })
       }
     }
     catch (error: unknown) {
