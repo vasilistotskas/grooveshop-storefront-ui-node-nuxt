@@ -8,6 +8,7 @@ import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.v
 import ProductDetail from '~/components/Storefront/ProductDetail.vue'
 import WebsideProductDetail from '~/components/variants/webside/Storefront/ProductDetail.vue'
 import { FIXTURE_TIMESTAMP, fixtureUuid, makeProduct } from '~~/test/fixtures/product'
+import { makePageLayout } from '~~/test/fixtures/pageLayout'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { trees } from '~~/test/helpers/trees'
 
@@ -203,17 +204,7 @@ describe.each(trees(BlogPost, WebsideBlogPost))('head of an English blog post ($
       '/api/blog/categories/2': post({}).category,
       '/api/shipping/policy': [],
       '/api/page-config/blog-post': {
-        layout: {
-          id: 1,
-          uuid: 'layout-uuid',
-          pageType: 'blog-post',
-          title: 'Blog post',
-          seoTitle: 'Layout title',
-          seoDescription: 'Layout description',
-          isPublished: true,
-          metadata: {},
-          sections: [],
-        },
+        layout: makePageLayout({ pageType: 'blog-post', title: 'Blog post', seoTitle: 'Layout title', seoDescription: 'Layout description' }),
       },
       '/api/*': { count: 0, next: null, previous: null, results: [] },
     })

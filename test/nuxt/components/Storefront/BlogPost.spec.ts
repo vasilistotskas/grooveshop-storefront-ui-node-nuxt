@@ -7,6 +7,7 @@ import WebsideBlogPost from '~/components/variants/webside/Storefront/BlogPost.v
 import { FIXTURE_TIMESTAMP, fixtureUuid } from '~~/test/fixtures/product'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 import { makeBlogPost } from '~~/test/fixtures/blog'
+import { makePageLayout, makePageSection } from '~~/test/fixtures/pageLayout'
 import { ARTICLE_COLUMN_MAX_WIDTH, WEBSIDE_ARTICLE_COLUMN_MAX_WIDTH } from '~~/shared/utils/html'
 
 /**
@@ -87,15 +88,7 @@ describe.each([
       '/api/blog/posts/7': POST,
       '/api/blog/categories/2': POST.category,
       '/api/page-config/blog-post': {
-        layout: {
-          id: 1,
-          uuid: 'layout-uuid',
-          pageType: 'blog-post',
-          title: 'Blog post',
-          isPublished: true,
-          metadata: {},
-          sections: [{ id: 1, uuid: 'band', componentType: 'spacer', title: '', isVisible: true, props: {}, sortOrder: 0 }],
-        },
+        layout: makePageLayout({ pageType: 'blog-post', title: 'Blog post', sections: [makePageSection()] }),
       },
       '/api/*': { count: 0, next: null, previous: null, results: [] },
     })

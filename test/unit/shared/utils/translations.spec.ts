@@ -60,6 +60,37 @@ describe('hasVisibleContent', () => {
     })
 
     it.each([
+      ['<img hidden src="a.png">'],
+      ['<iframe hidden src="https://www.youtube.com/embed/x"></iframe>'],
+      ['<svg hidden></svg>'],
+      ['<video hidden src="a.mp4"></video>'],
+    ])('does not count media that is itself hidden %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(false)
+    })
+
+    it.each([
+      ['<p>&#32;</p>'],
+      ['<p>&#x20;&#x09;</p>'],
+      ['<p>&#32</p>'],
+      ['<p>&nbsp&nbsp;</p>'],
+      ['<p>&ensp;&emsp;&thinsp;</p>'],
+      ['<p>&NewLine;&Tab;</p>'],
+      ['<p>&#x0A;&#160;</p>'],
+    ])('reads character references as the white space they are %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(false)
+    })
+
+    it.each([
+      ['<p>&amp;</p>'],
+      ['<p>&#65;</p>'],
+      ['<p>&#x41;</p>'],
+      ['<p>&nbsp;a</p>'],
+      ['<p>&#0;</p>'],
+    ])('still counts a reference that is text %j', (html) => {
+      expect(hasVisibleContent(html)).toBe(true)
+    })
+
+    it.each([
       ['<p hidden>a</p><p>b</p>'],
       ['<div hidden><p>a</p></div><img src="a.png">'],
     ])('counts visible content beside hidden content %j', (html) => {
