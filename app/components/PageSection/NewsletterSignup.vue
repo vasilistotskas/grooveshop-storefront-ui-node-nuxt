@@ -25,7 +25,7 @@ withDefaults(defineProps<{
 const { t } = useStoreI18n('components/PageSection/NewsletterSignup')
 const localePath = useLocalePath()
 
-const { available, consent, schema, state, submitting, sent, failure, subscribe }
+const { available, consent, schema, state, submitting, outcome, failure, subscribe }
   = await useNewsletterSignup({ consentRequired: () => t('consent_required') })
 
 const errorMessage = computed(() => {
@@ -70,7 +70,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
 
         <div class="w-full md:max-w-md">
           <div
-            v-if="sent"
+            v-if="outcome === 'pending_confirmation'"
             role="status"
             class="flex items-start gap-3"
           >
@@ -85,6 +85,34 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
               <p class="text-sm text-muted">
                 {{ t('sent.description') }}
               </p>
+            </div>
+          </div>
+
+          <div
+            v-else-if="outcome === 'already_subscribed'"
+            role="status"
+            class="flex items-start gap-3"
+          >
+            <UIcon
+              name="i-heroicons-check-circle"
+              class="mt-0.5 size-6 shrink-0 text-success"
+            />
+            <div class="flex flex-col items-start gap-1">
+              <p class="font-semibold text-highlighted">
+                {{ t('already.title') }}
+              </p>
+              <p class="text-sm text-muted">
+                {{ t('already.description') }}
+              </p>
+              <ULink
+                :to="localePath('account-subscriptions')"
+                class="
+                  text-sm text-primary underline underline-offset-2
+                  hover:text-primary/80
+                "
+              >
+                {{ t('already.manage') }}
+              </ULink>
             </div>
           </div>
 
@@ -165,6 +193,10 @@ el:
   sent:
     title: Έλεγξε τα εισερχόμενά σου
     description: Σου στείλαμε έναν σύνδεσμο. Πάτησέ τον για να επιβεβαιώσεις την εγγραφή σου.
+  already:
+    title: Είσαι ήδη εγγεγραμμένος
+    description: Ο λογαριασμός σου είναι ήδη εγγεγραμμένος στο ενημερωτικό δελτίο. Δεν χρειάζεται να κάνεις κάτι.
+    manage: Διαχείριση εγγραφών
 en:
   heading: Stay in the loop
   description: New products and offers, without the noise.
@@ -176,4 +208,8 @@ en:
   sent:
     title: Check your inbox
     description: We sent you a link. Open it to confirm your subscription.
+  already:
+    title: You are already subscribed
+    description: Your account is already subscribed to the newsletter. There is nothing more to do.
+    manage: Manage your subscriptions
 </i18n>
