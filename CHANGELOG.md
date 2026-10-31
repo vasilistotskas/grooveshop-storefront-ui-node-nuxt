@@ -1,3 +1,10 @@
+# [3.275.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.6...v3.275.0) (2026-10-31)
+
+
+### Features
+
+* **newsletter:** show when the account is already subscribed ([#299](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/299)) ([96f22e2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96f22e2f101fc2e9c14cf26d7e94f696f24b6a0d))
+
 ## [3.274.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.5...v3.274.6) (2026-10-31)
 
 
