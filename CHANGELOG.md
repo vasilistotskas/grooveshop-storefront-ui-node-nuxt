@@ -1,3 +1,10 @@
+## [3.274.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.1...v3.274.2) (2026-10-31)
+
+
+### Bug Fixes
+
+* **storefront:** redirect a stale slug to the canonical URL ([#292](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/292)) ([742e142](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/742e142e3939b1779ebd99c3be0e96302b04636b))
+
 ## [3.274.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.274.0...v3.274.1) (2026-10-31)
 
 
