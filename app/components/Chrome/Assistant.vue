@@ -9,6 +9,9 @@ const { t } = useStoreI18n('components/Chrome/Assistant')
 const { isMobile } = useDevice()
 const { open } = useShopChat()
 
+// The drawer's and the modal's runtime load the first time it opens.
+const overlayMounted = useMountOnFirstOpen(open)
+
 // Django's effective state for the store (agent commerce on AND the
 // widget switched on). It rides the tenant payload, so it is known on
 // the server too; the assistant itself stays ClientOnly.
@@ -37,8 +40,8 @@ const chatEnabled = useStoreFeature('chatWidget')
 
     <!-- Phones get the native bottom-sheet pattern; the panel carries its
          own header, so the drawer chrome stays hidden. -->
-    <UDrawer
-      v-if="isMobile"
+    <LazyUDrawer
+      v-if="isMobile && overlayMounted"
       v-model:open="open"
       :title="t('title')"
       :description="t('description')"
@@ -49,13 +52,13 @@ const chatEnabled = useStoreFeature('chatWidget')
           <LazyChromeAssistantPanel @close="() => { open = false }" />
         </div>
       </template>
-    </UDrawer>
+    </LazyUDrawer>
 
     <!-- Larger screens: a panel in the bottom-right corner over a scrim.
          A modal, so focus stays inside, Escape and a click on the scrim
          close it. -->
-    <UModal
-      v-else
+    <LazyUModal
+      v-else-if="overlayMounted"
       v-model:open="open"
       :title="t('title')"
       :description="t('description')"
@@ -74,7 +77,7 @@ const chatEnabled = useStoreFeature('chatWidget')
           @close="() => { open = false }"
         />
       </template>
-    </UModal>
+    </LazyUModal>
   </div>
 </template>
 

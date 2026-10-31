@@ -5,6 +5,13 @@ import ChatWidget from '~/components/Chat/Widget.vue'
 import { setTenant, setTenantFeatures } from '~~/test/helpers/tenant'
 
 /**
+ * The overlay's code loads on its first open (`useMountOnFirstOpen`), and the
+ * first load of a module in the test runner costs more than `vi.waitFor`'s
+ * default second, so the wait names its own.
+ */
+const OVERLAY_LOADS = { timeout: 5000 }
+
+/**
  * The webside assistant's launcher and frame. Whether it is open is the
  * shared chat state (`useShopChat().open`), as in the default design, so
  * anything that opens the assistant opens this one. The conversation is
@@ -51,7 +58,7 @@ describe('Chat/Widget', () => {
 
     await launcher(wrapper).trigger('click')
 
-    await vi.waitFor(() => expect(panel(wrapper)).not.toBeNull())
+    await vi.waitFor(() => expect(panel(wrapper)).not.toBeNull(), OVERLAY_LOADS)
     expect(useShopChat().open.value).toBe(true)
     expect(launcher(wrapper).attributes('aria-label')).toBe(own(wrapper, 'chat.close'))
 
@@ -66,7 +73,7 @@ describe('Chat/Widget', () => {
 
     useShopChat().open.value = true
 
-    await vi.waitFor(() => expect(panel(wrapper)).not.toBeNull())
+    await vi.waitFor(() => expect(panel(wrapper)).not.toBeNull(), OVERLAY_LOADS)
     expect(launcher(wrapper).attributes('aria-expanded')).toBe('true')
   })
 })

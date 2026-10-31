@@ -225,8 +225,9 @@ const appTitle = computed(() => tenantStore.storeName || '')
         <!-- `static`: the catalogue panel is positioned against the
              sticky wrapper, so it spans the full width under the
              header instead of the width of the menu. -->
-        <UNavigationMenu
+        <LazyUNavigationMenu
           v-model="openItem"
+          hydrate-on-interaction
           :items="items"
           :aria-label="t('navigation')"
           color="neutral"
@@ -252,7 +253,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
               :offers-enabled="promotionsEnabled"
             />
           </template>
-        </UNavigationMenu>
+        </LazyUNavigationMenu>
 
         <div class="ms-auto flex min-w-0 items-center gap-0.5">
           <LazySearchInput
@@ -264,7 +265,7 @@ const appTitle = computed(() => tenantStore.storeName || '')
           <LazyLanguageSwitcher
             v-if="tenantStore.availableLocales.length > 1"
             compact
-            hydrate-on-visible
+            hydrate-on-interaction
             class="
               hidden
               lg:flex

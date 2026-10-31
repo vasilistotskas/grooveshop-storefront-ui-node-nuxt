@@ -7,7 +7,8 @@ const { cleanCartState, refreshCart } = cartStore
 const { user, loggedIn } = useUserSession()
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
-const { t, locales } = useStoreI18n('components/variants/webside/Page/Navbar')
+const { t } = useStoreI18n('components/variants/webside/Page/Navbar')
+const tenantStore = useTenantStore()
 const localePath = useLocalePath()
 const { $routeBaseName } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
@@ -224,13 +225,13 @@ const items = computed(() => [
             "
           >
             <li
-              v-if="locales.length > 1"
+              v-if="tenantStore.isMultilingual"
               class="
                 relative grid items-center justify-center
                 justify-items-center
               "
             >
-              <LazyWebsideLanguageSwitcher />
+              <LazyWebsideLanguageSwitcher hydrate-on-interaction />
             </li>
             <li
               v-if="blogEnabled"

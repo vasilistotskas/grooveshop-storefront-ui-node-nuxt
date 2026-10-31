@@ -67,10 +67,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                     </div>
                     <!--v-if-->
                   </button>
-                  <!---->
                   <!--v-if-->
-                  <!--teleport start-->
-                  <!--teleport end-->
                 </div>
                 <div class="relative ml-auto hidden items-center lg:flex">
                   <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
@@ -91,9 +88,7 @@ exports[`webside design render > default layout with the webside schema 1`] = `
                       </li>
                     </ul>
                     <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-                      <li class="relative grid items-center justify-center justify-items-center">
-                        <!--v-if-->
-                      </li>
+                      <!--v-if-->
                       <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
                           <!--v-if-->
                           <!--v-if-->
@@ -567,10 +562,7 @@ exports[`webside design render > navbar 1`] = `
             </div>
             <!--v-if-->
           </button>
-          <!---->
           <!--v-if-->
-          <!--teleport start-->
-          <!--teleport end-->
         </div>
         <div class="relative ml-auto hidden items-center lg:flex">
           <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
@@ -591,9 +583,7 @@ exports[`webside design render > navbar 1`] = `
               </li>
             </ul>
             <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-              <li class="relative grid items-center justify-center justify-items-center">
-                <!--v-if-->
-              </li>
+              <!--v-if-->
               <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/login" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
                   <!--v-if-->
                   <!--v-if-->
@@ -944,10 +934,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                     </div>
                     <!--v-if-->
                   </button>
-                  <!---->
                   <!--v-if-->
-                  <!--teleport start-->
-                  <!--teleport end-->
                 </div>
                 <div class="relative ml-auto hidden items-center lg:flex">
                   <nav aria-label="Πλοήγηση" class="flex items-center text-lg leading-6 font-semibold text-primary-950 dark:text-primary-50">
@@ -968,9 +955,7 @@ exports[`webside design render > signed in > account chrome 1`] = `
                       </li>
                     </ul>
                     <ul class="flex items-center gap-3 pl-6 text-primary-950 dark:border-primary-500 dark:text-primary-50">
-                      <li class="relative grid items-center justify-center justify-items-center">
-                        <!--v-if-->
-                      </li>
+                      <!--v-if-->
                       <li class="relative grid max-w-6 items-center justify-center justify-items-center"><a href="/account/favourites/posts" data-slot="base" aria-label="Αγαπημένα" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors tap-press text-base gap-2 text-default active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent cursor-pointer hover:bg-transparent p-0"><span class="iconify i-heroicons:heart shrink-0 size-6" aria-hidden="true" data-slot="leadingIcon"></span>
                           <!--v-if-->
                           <!--v-if-->

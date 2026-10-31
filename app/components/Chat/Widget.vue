@@ -7,6 +7,9 @@ const { isMobile } = useDevice()
 // one too.
 const { open } = useShopChat()
 
+// The drawer's runtime loads the first time the assistant opens.
+const drawerMounted = useMountOnFirstOpen(open)
+
 // Django's effective state for the store (agent commerce on AND the
 // widget switched on). It rides the tenant payload, so it is known on
 // the server too; the widget itself stays ClientOnly.
@@ -33,8 +36,8 @@ const chatEnabled = useStoreFeature('chatWidget')
 
     <!-- Phones get the native bottom-sheet pattern; the sheet carries the
          panel's own branded header, so the drawer chrome stays hidden. -->
-    <UDrawer
-      v-if="isMobile"
+    <LazyUDrawer
+      v-if="isMobile && drawerMounted"
       v-model:open="open"
       :title="t('chat.title')"
       :description="t('chat.description')"
@@ -45,7 +48,7 @@ const chatEnabled = useStoreFeature('chatWidget')
           <LazyChatPanel @close="open = false" />
         </div>
       </template>
-    </UDrawer>
+    </LazyUDrawer>
 
     <!-- Larger screens get a floating, non-modal assistant panel anchored
          to the launcher — the shopper keeps browsing while chatting. -->
