@@ -1,3 +1,10 @@
+## [3.276.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.276.1...v3.276.2) (2026-10-31)
+
+
+### Performance Improvements
+
+* load overlays on first use, one vueuse, modern images, no public source maps ([#302](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/302)) ([1046b32](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1046b321435c864c12adb9d6fa3121e6a5d3adad))
+
 ## [3.276.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.276.0...v3.276.1) (2026-10-31)
 
 
