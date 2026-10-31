@@ -5974,7 +5974,7 @@ paths:
       summary: Λήψη των άρθρων για το RSS feed
       parameters:
         - in: query
-          name: limit
+          name: count
           schema:
             oneOf:
               - type: string

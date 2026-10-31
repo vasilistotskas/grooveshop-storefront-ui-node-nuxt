@@ -10396,7 +10396,7 @@ export const zCreateBlogPostQuery = z.object({
 export const zCreateBlogPostResponse = zBlogPostDetail
 
 export const zListBlogPostFeedQuery = z.object({
-  limit: z.union([
+  count: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),

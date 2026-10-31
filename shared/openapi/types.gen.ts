@@ -15839,7 +15839,7 @@ export type ListBlogPostFeedData = {
     /**
          * Μέγιστος αριθμός άρθρων προς επιστροφή, από 1 έως 50 (η προεπιλογή).
          */
-    limit?: string | number
+    count?: string | number
     /**
          * A search term.
          */

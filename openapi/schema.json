@@ -10390,7 +10390,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "limit",
+                        "name": "count",
                         "schema": {
                             "oneOf": [
                                 {
