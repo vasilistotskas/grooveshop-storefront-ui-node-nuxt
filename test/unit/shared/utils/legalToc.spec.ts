@@ -166,7 +166,13 @@ describe('buildLegalToc', () => {
       '<h2>A<scr<b>ipt>alert(1)</h2><h2>B<script</h2><h2><<b>script>C</h2><h2>D <img src=x onerror=alert(1)</h2>',
     )
 
-    expect(links.map(l => l.text)).toEqual(['Aipt>alert(1)', 'B', 'script>C', 'D'])
+    expect(links.map(l => l.text)).toEqual(['Aipt>alert(1)', 'B', 'C', 'D'])
     for (const { text } of links) expect(text).not.toMatch(/<[a-z!/]/i)
+  })
+
+  it('keeps a literal less-than sign in a label, encoded or raw', () => {
+    const { links } = buildLegalToc('<h2>Τιμή &lt; 50</h2><h2>Τιμή < 50 και 5 <= 6</h2>')
+
+    expect(links.map(l => l.text)).toEqual(['Τιμή < 50', 'Τιμή < 50 και 5 <= 6'])
   })
 })
