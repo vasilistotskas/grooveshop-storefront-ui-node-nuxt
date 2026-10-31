@@ -46,3 +46,30 @@ describe('webside Page/Navbar gift-card link', () => {
     expect((await linkTargets()).includes('/gift-cards')).toBe(linked)
   })
 })
+
+/**
+ * Whether the language switcher is offered follows the TENANT's locales
+ * (`Tenant.available_locales`, through `tenantStore.isMultilingual`), not the
+ * platform's list: a one-language store loads and draws nothing, and the
+ * switcher is back as soon as the store lists a second language, with no code
+ * change.
+ */
+describe('webside Page/Navbar language switcher', () => {
+  const switcher = async (availableLocales: string[]) => {
+    setTenant({ availableLocales })
+    const wrapper = await mountSuspended(Navbar, { route: false })
+    // The switcher is a lazy component: give its chunk the time to arrive.
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const found = wrapper.find('[aria-label$="Αλλαγή γλώσσας"]').exists()
+    wrapper.unmount()
+    return found
+  }
+
+  it('is absent for a store that serves one language', async () => {
+    expect(await switcher(['el'])).toBe(false)
+  })
+
+  it('is offered once the store lists a second language', async () => {
+    expect(await switcher(['el', 'en'])).toBe(true)
+  })
+})
