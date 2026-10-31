@@ -158,4 +158,15 @@ describe('buildLegalToc', () => {
 
     expect(links.map(l => l.id)).toEqual(['c', 'a', 'b'])
   })
+
+  it('never lets stripping a tag assemble a new one in a link label', () => {
+    // Removing the inner tag must not join the two halves of `script` into markup,
+    // and an unclosed tag is dropped with its tail rather than kept.
+    const { links } = buildLegalToc(
+      '<h2>A<scr<b>ipt>alert(1)</h2><h2>B<script</h2><h2><<b>script>C</h2><h2>D <img src=x onerror=alert(1)</h2>',
+    )
+
+    expect(links.map(l => l.text)).toEqual(['Aipt>alert(1)', 'B', 'script>C', 'D'])
+    for (const { text } of links) expect(text).not.toMatch(/<[a-z!/]/i)
+  })
 })

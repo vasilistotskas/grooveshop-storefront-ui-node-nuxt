@@ -32,9 +32,14 @@ const ENTITIES: Record<string, string> = {
   '&nbsp;': ' ',
 }
 
+// A tag runs to its closing `>` or, when the author never closed it, to the
+// end of the string: no `<` survives the strip, so removing one tag can
+// never join its neighbours into a new one (`<scr<b>ipt>`).
+const TAG = /<[^>]*(?:>|$)/g
+
 function plainText(html: string): string {
   return html
-    .replace(/<[^>]*>/g, '')
+    .replace(TAG, '')
     .replace(/&[a-z#0-9]+;/gi, m => ENTITIES[m.toLowerCase()] ?? m)
     .replace(/\s+/g, ' ')
     .trim()
