@@ -228,12 +228,11 @@ describe('localeOf and localeTwin', () => {
 })
 
 describe('buildAssetPaths', () => {
-  it('lists the files visitors fetch, without precompressed twins, source maps or build metadata', () => {
+  it('lists the files visitors fetch, without precompressed twins or build metadata', () => {
     const files = [
       'CKamTKbv-069bd808.js',
       'CKamTKbv-069bd808.js.br',
       'CKamTKbv-069bd808.js.gz',
-      'CKamTKbv-069bd808.js.map',
       'entry.Bx1.css',
       'entry.Bx1.css.br',
       'fonts/abc.woff2',

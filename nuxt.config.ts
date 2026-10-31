@@ -396,10 +396,11 @@ export default defineNuxtConfig({
       }]),
     ),
   },
-  sourcemap: {
-    client: 'hidden',
-    server: false,
-  },
+  // No maps at all: nothing consumes them (no uploader, no symbolication; the
+  // browser logger reports the minified stack). `'hidden'` still wrote
+  // `*.js.map` into `public/_nuxt`, where Nitro served 5 MB per chunk with a
+  // 200 and so published the source.
+  sourcemap: false,
   future: {
     compatibilityVersion: 5,
   },
