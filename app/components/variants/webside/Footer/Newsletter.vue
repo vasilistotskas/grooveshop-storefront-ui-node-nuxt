@@ -15,6 +15,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
  */
 const { t } = useStoreI18n('components/variants/webside/Footer/Newsletter')
 const localePath = useLocalePath()
+const pitchId = useId()
 
 const { available, consent, schema, state, submitting, sent, failure, subscribe }
   = await useNewsletterSignup({ consentRequired: () => t('consent_required') })
@@ -44,7 +45,10 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
       <h3 class="text-sm font-semibold">
         {{ t('heading') }}
       </h3>
-      <p class="text-sm text-muted">
+      <p
+        :id="pitchId"
+        class="text-sm text-muted"
+      >
         {{ t('description') }}
       </p>
     </div>
@@ -69,13 +73,17 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
       class="flex flex-col gap-3"
       @submit="onSubmit"
     >
-      <UFormField name="email">
+      <UFormField
+        name="email"
+        :label="t('email_label')"
+        :ui="{ label: 'sr-only' }"
+      >
         <div class="flex gap-2">
           <UInput
             v-model="state.email"
             type="email"
             autocomplete="email"
-            :aria-label="t('heading')"
+            :aria-describedby="pitchId"
             :placeholder="t('placeholder')"
             size="lg"
             class="flex-1"
@@ -128,6 +136,7 @@ async function onSubmit(event: FormSubmitEvent<Parameters<typeof subscribe>[0]>)
 el:
   heading: Μείνε ενημερωμένος
   description: Νέα προϊόντα και προσφορές, κατευθείαν στο email σου.
+  email_label: Διεύθυνση email
   placeholder: Το email σου
   submit: Εγγραφή
   consent_required: Τσέκαρε το πλαίσιο για να εγγραφείς.
@@ -138,6 +147,7 @@ el:
 en:
   heading: Stay in the loop
   description: New products and offers, straight to your inbox.
+  email_label: Email address
   placeholder: "you{'@'}email.com"
   submit: Subscribe
   consent_required: Tick the box to subscribe.
