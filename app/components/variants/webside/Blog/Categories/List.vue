@@ -46,54 +46,55 @@ const { categories, status, pagination } = await useBlogCategoriesPage({
         xl:grid-cols-4
       "
     >
-      <UCard
+      <li
         v-for="category in categories?.results"
         :key="category.id"
-        class="grid h-full"
+        class="grid"
       >
-        <Anchor
-          v-if="category.slug"
-          class="grid h-full items-center justify-center"
-          :to="{ path: blogCategoryUrl(category) }"
-          :text="extractTranslated(category, 'name', locale)"
-        >
-          <div class="grid h-full">
-            <h2
-              class="
-                text-center text-xl font-semibold tracking-tight
-                md:text-2xl
-              "
-            >
-              {{ extractTranslated(category, 'name', locale) }}
-            </h2>
-            <ImgWithFallback
-              class="max-h-[19.75rem] bg-transparent"
-              :style="{
-                contentVisibility: 'auto',
-                filter: 'invert(40%) sepia(85%) saturate(7500%) hue-rotate(220deg) brightness(105%) contrast(120%)',
-                objectFit: isMobileOrTablet ? 'scale-down' : 'none',
-              }"
-              :src="category.mainImagePath"
-              :width="200"
-              :height="200"
-              fit="contain"
-              :format="'svg'"
-              :background="'transparent'"
-              :alt="extractTranslated(category, 'name', locale)"
-              :modifiers="{ position: 'attention' }"
-            />
-            <div class="grid items-end">
-              <span
-                class="block w-full text-center font-semibold"
+        <UCard class="grid h-full">
+          <Anchor
+            v-if="category.slug"
+            class="grid h-full items-center justify-center"
+            :to="{ path: blogCategoryUrl(category) }"
+          >
+            <div class="grid h-full">
+              <h2
+                class="
+                  text-center text-xl font-semibold tracking-tight
+                  md:text-2xl
+                "
               >
-                {{
-                  t('discover.more', category.postCount || 0)
-                }}
-              </span>
+                {{ extractTranslated(category, 'name', locale) }}
+              </h2>
+              <ImgWithFallback
+                class="max-h-[19.75rem] bg-transparent"
+                :style="{
+                  contentVisibility: 'auto',
+                  filter: 'invert(40%) sepia(85%) saturate(7500%) hue-rotate(220deg) brightness(105%) contrast(120%)',
+                  objectFit: isMobileOrTablet ? 'scale-down' : 'none',
+                }"
+                :src="category.mainImagePath"
+                :width="200"
+                :height="200"
+                fit="contain"
+                :format="'svg'"
+                :background="'transparent'"
+                :alt="extractTranslated(category, 'name', locale)"
+                :modifiers="{ position: 'attention' }"
+              />
+              <div class="grid items-end">
+                <span
+                  class="block w-full text-center font-semibold"
+                >
+                  {{
+                    t('discover.more', category.postCount || 0)
+                  }}
+                </span>
+              </div>
             </div>
-          </div>
-        </Anchor>
-      </UCard>
+          </Anchor>
+        </UCard>
+      </li>
     </ol>
     <div
       v-if="status === 'pending'"

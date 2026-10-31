@@ -134,4 +134,12 @@ describe.each(trees(CategoriesList, WebsideCategoriesList))('$tree Blog/Categori
     expect(wrapper.text()).toContain('Οδηγοί αγοράς')
     expect(wrapper.text()).toContain('Νέα')
   })
+
+  it('puts every card in a list item of the list', async () => {
+    const wrapper = await mount()
+
+    // A list holds list items only (axe `list`).
+    const items = Array.from(wrapper.find('ol').element.children)
+    expect(items.map(item => item.tagName)).toEqual(['LI', 'LI', 'LI'])
+  })
 })

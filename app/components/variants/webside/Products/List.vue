@@ -7,7 +7,7 @@
 // the plain /products page the prop is absent and the listing is filter-driven.
 const props = defineProps<{ categoryId?: number }>()
 
-const { t } = useI18n()
+const { t } = useStoreI18n('components/variants/webside/Products/List')
 const { isMobile } = useDevice()
 
 const {
@@ -38,6 +38,12 @@ const emit = defineEmits<{
     ref="productGridRef"
     class="flex w-full flex-col gap-6"
   >
+    <!-- The results' own heading, for the outline: the cards' titles are
+         h3s, and the page's h1 is the listing's name. -->
+    <h2 class="sr-only">
+      {{ t('heading') }}
+    </h2>
+
     <!-- Toolbar with sort, view options, and filter toggle -->
     <WebsideProductsToolbar
       :total-results="totalResults"
@@ -101,6 +107,8 @@ const emit = defineEmits<{
           v-for="(product, index) in products.results"
           :key="product.id"
           :img-loading="index > 7 ? 'lazy' : 'eager'"
+          :img-fetch-priority="index === 0 ? 'high' : undefined"
+          :preload="index === 0"
           :product="product as unknown as Product"
         />
       </TransitionGroup>
@@ -170,6 +178,13 @@ const emit = defineEmits<{
     </div>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  heading: Αποτελέσματα
+en:
+  heading: Results
+</i18n>
 
 <style scoped>
 /* Fade-in animation for product cards */

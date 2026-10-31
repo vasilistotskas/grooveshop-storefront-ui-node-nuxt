@@ -44,7 +44,6 @@ async function toggleBrand(id: string) {
           'hover:bg-neutral-100 dark:hover:bg-neutral-800': !option.selected,
         }"
         :aria-pressed="option.selected"
-        :aria-label="`${option.label} - ${option.count} ${t('products')}`"
         @click="toggleBrand(option.id)"
       >
         <span class="flex items-center gap-2 flex-1 min-w-0">
@@ -72,6 +71,8 @@ async function toggleBrand(id: string) {
           color="neutral"
           variant="soft"
         />
+        <!-- The button's name is its visible text (WCAG 2.5.3); the unit rides along, unseen. -->
+        <span class="sr-only">{{ t('products') }}</span>
       </button>
     </div>
   </UScrollArea>

@@ -189,7 +189,6 @@ const isValueDisabled = (valueId: string) => {
                 }"
                 :disabled="isValueDisabled(value.id.toString())"
                 :aria-pressed="selectedAttributeValues.includes(value.id.toString())"
-                :aria-label="`${value.label} - ${value.count} ${t('products')}`"
                 @click="toggleAttributeValue(value.id.toString())"
               >
                 <span class="flex items-center gap-2 flex-1 min-w-0">
@@ -220,6 +219,8 @@ const isValueDisabled = (valueId: string) => {
                   variant="soft"
                   :class="{ 'opacity-50': value.count === 0 }"
                 />
+                <!-- The button's name is its visible text (WCAG 2.5.3); the unit rides along, unseen. -->
+                <span class="sr-only">{{ t('products') }}</span>
               </button>
             </div>
           </UScrollArea>

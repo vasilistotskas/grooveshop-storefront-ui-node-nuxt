@@ -106,4 +106,12 @@ describe.each(trees(ButtonBlogPostLike, WebsideButtonBlogPostLike))('$tree Butto
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
     await vi.waitFor(() => expect(wrapper.find('[data-test="login-modal"]').exists()).toBe(true))
   })
+
+  it('names the button with the count it shows (WCAG 2.5.3 Label in Name)', async () => {
+    const wrapper = await mount()
+    const button = wrapper.find('button')
+
+    expect(button.text()).toContain('4')
+    expect(button.attributes('aria-label')).toContain('4')
+  })
 })

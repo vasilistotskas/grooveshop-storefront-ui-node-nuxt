@@ -81,6 +81,18 @@ describe('webside Products/Filters/PriceRange', () => {
     expect(slider(wrapper).props()).toMatchObject({ min: 0, max: 1000, modelValue: [0, 1000] })
   })
 
+  it('describes the two-thumb group by the visible range, never with aria-valuetext', async () => {
+    const wrapper = await mountSuspended(C, { route: false })
+
+    // A two-thumb USlider puts its attributes on a role=group root, where
+    // aria-valuetext is not allowed (axe aria-allowed-attr).
+    const group = wrapper.find('[role="group"]')
+    const readoutId = group.attributes('aria-describedby')
+    expect(group.attributes('aria-valuetext')).toBeUndefined()
+    expect(readoutId).toBeTruthy()
+    expect(wrapper.find(`[id="${readoutId}"]`).text()).toBe(`${money(0)} – ${money(1000)}`)
+  })
+
   it('shows the range from the URL', async () => {
     pf.filters.value = { ...pf.filters.value, priceMin: 100, priceMax: 500 }
 

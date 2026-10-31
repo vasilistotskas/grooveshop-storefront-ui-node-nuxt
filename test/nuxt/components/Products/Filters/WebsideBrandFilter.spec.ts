@@ -34,7 +34,9 @@ describe('webside Products/Filters/BrandFilter', () => {
   it('lists each brand with its count, pressed where the URL selects it', async () => {
     const wrapper = await mountBrands()
 
-    expect(wrapper.findAll('button').map(button => button.text())).toEqual(['Kabelo10', 'Voltra14'])
+    // Name and count as shown, then the unit unseen: the button's name is its text.
+    const unit = (wrapper.vm as unknown as { t: (k: string) => string }).t('products')
+    expect(wrapper.findAll('button').map(button => button.text())).toEqual([`Kabelo10${unit}`, `Voltra14${unit}`])
     expect(row(wrapper, 'Kabelo').attributes('aria-pressed')).toBe('true')
     expect(row(wrapper, 'Voltra').attributes('aria-pressed')).toBe('false')
   })
