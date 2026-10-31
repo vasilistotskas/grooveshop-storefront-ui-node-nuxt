@@ -264,7 +264,6 @@ const heading = computed(() => props.userHadReviewed ? t('update_review') : t('w
               :height="56"
               fit="cover"
               densities="x1 x2"
-              quality="75"
               class="size-full object-cover"
             />
           </span>

@@ -97,7 +97,6 @@ const startShare = async () => {
         :height="480"
         fit="cover"
         :modifiers="{ position: 'attention' }"
-        quality="80"
         densities="x1 x2"
         sizes="xs:100vw md:50vw xl:33vw"
         :loading="imgLoading"

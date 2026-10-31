@@ -390,7 +390,7 @@ export interface HtmlImageOptimizationConfig {
   maxWidth?: number
   /** Default image format (avif, webp, etc.) */
   format?: string
-  /** Default image quality (1-100) */
+  /** Default image quality (1-100) for a non-AVIF format: AVIF is always requested at the service's ceiling */
   quality?: number
   /** Default fit mode */
   fit?: 'contain' | 'cover' | 'fill' | 'inside' | 'outside'

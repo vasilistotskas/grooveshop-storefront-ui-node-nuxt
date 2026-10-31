@@ -176,7 +176,6 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
             sizes="xs:90vw sm:90vw md:540px"
             class="block size-full rounded-full object-cover"
             fit="cover"
-            quality="80"
             densities="x1 x2"
             :loading="leadsPage ? 'eager' : 'lazy'"
             :fetchpriority="leadsPage ? 'high' : undefined"
@@ -226,7 +225,6 @@ const secondary = computed(() => !!(props.secondaryCtaText && props.secondaryCta
       sizes="xs:800px md:100vw lg:100vw xl:100vw xxl:100vw"
       class="block h-[clamp(360px,42vw,600px)] w-full object-cover"
       fit="cover"
-      quality="80"
       densities="x1 x2"
       loading="lazy"
     />

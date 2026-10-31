@@ -5,6 +5,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import provider from '../../../../app/providers/media-stream'
+import { MEDIA_STREAM_AVIF_QUALITY } from '../../../../shared/utils/mediaStream'
 
 const BASE = 'https://assets.shop.test/media_stream-image'
 
@@ -14,7 +15,7 @@ const getImage: GetImage = (src, options) => (provider() as unknown as { getImag
 describe('mediaStream provider', () => {
   it('fills every route segment from its defaults', () => {
     expect(getImage('media/acme/uploads/x.jpg', { modifiers: {}, baseURL: BASE }).url)
-      .toBe(`${BASE}/media/acme/uploads/x.jpg/100/100/contain/entropy/transparent/0/80.avif`)
+      .toBe(`${BASE}/media/acme/uploads/x.jpg/100/100/contain/entropy/transparent/0/100.avif`)
   })
 
   it('writes the modifiers it is given, normalising position and background', () => {
@@ -26,14 +27,28 @@ describe('mediaStream provider', () => {
     expect(url).toBe(`${BASE}/media/acme/uploads/x.jpg/440/247/cover/center/FFFFFF/5/90.webp`)
   })
 
+  it.each([undefined, 60, 80, 90])('requests AVIF at the service ceiling whatever quality is asked (%s)', (quality) => {
+    expect(getImage('media/acme/uploads/x.jpg', { modifiers: { width: 440, height: 247, quality, format: 'avif' }, baseURL: BASE }).url)
+      .toBe(`${BASE}/media/acme/uploads/x.jpg/440/247/contain/entropy/transparent/0/${MEDIA_STREAM_AVIF_QUALITY}.avif`)
+  })
+
+  it('keeps the quality asked for WebP, JPEG and PNG, and defaults it to 80', () => {
+    const url = (modifiers: Record<string, unknown>) => getImage('media/acme/uploads/x.jpg', { modifiers: { width: 100, height: 100, ...modifiers }, baseURL: BASE }).url
+
+    expect(url({ format: 'webp', quality: 90 })).toMatch(/\/90\.webp$/)
+    expect(url({ format: 'jpeg', quality: 60 })).toMatch(/\/60\.jpeg$/)
+    expect(url({ format: 'png', quality: 75 })).toMatch(/\/75\.png$/)
+    expect(url({ format: 'webp' })).toMatch(/\/80\.webp$/)
+  })
+
   it('keeps a pre-absolutised source\'s own origin', () => {
     expect(getImage('https://assets.other.test/media_stream-image/media/acme/uploads/x.jpg', { modifiers: {}, baseURL: BASE }).url)
-      .toBe('https://assets.other.test/media_stream-image/media/acme/uploads/x.jpg/100/100/contain/entropy/transparent/0/80.avif')
+      .toBe('https://assets.other.test/media_stream-image/media/acme/uploads/x.jpg/100/100/contain/entropy/transparent/0/100.avif')
   })
 
   it('encodes a Greek filename once', () => {
     expect(getImage('media/acme/uploads/%CE%BA%CE%BB%CE%B9%CF%80.png', { modifiers: {}, baseURL: BASE }).url)
-      .toBe(`${BASE}/media/acme/uploads/%CE%BA%CE%BB%CE%B9%CF%80.png/100/100/contain/entropy/transparent/0/80.avif`)
+      .toBe(`${BASE}/media/acme/uploads/%CE%BA%CE%BB%CE%B9%CF%80.png/100/100/contain/entropy/transparent/0/100.avif`)
   })
 
   it('refuses a relative source with no base URL configured', () => {

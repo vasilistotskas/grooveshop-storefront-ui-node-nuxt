@@ -3,6 +3,7 @@ import {
   buildMediaStreamImageUrl,
   extractMediaStreamPath,
   mediaStreamBaseUrl,
+  MEDIA_STREAM_AVIF_QUALITY,
   SEARCH_IMAGE_VARIANT,
 } from '~~/shared/utils/mediaStream'
 import type { MediaStreamVariant } from '~~/shared/utils/mediaStream'
@@ -52,6 +53,16 @@ describe('buildMediaStreamImageUrl', () => {
   it('writes every segment the service\'s route requires', () => {
     expect(buildMediaStreamImageUrl(BASE, 'media/acme/uploads/products/x.jpg', VARIANT))
       .toBe(`${BASE}/media/acme/uploads/products/x.jpg/440/247/cover/attention/transparent/0/80.webp`)
+  })
+
+  it.each([60, 80, 90])('writes the service ceiling for AVIF, not the %s the variant names', (quality) => {
+    expect(buildMediaStreamImageUrl(BASE, 'media/acme/uploads/x.jpg', { ...VARIANT, quality, format: 'avif' }))
+      .toBe(`${BASE}/media/acme/uploads/x.jpg/440/247/cover/attention/transparent/0/${MEDIA_STREAM_AVIF_QUALITY}.avif`)
+    expect(MEDIA_STREAM_AVIF_QUALITY).toBe(100)
+  })
+
+  it('keeps the quality of the variant for every other format', () => {
+    expect(buildMediaStreamImageUrl(BASE, 'media/acme/uploads/x.jpg', { ...VARIANT, quality: 85, format: 'jpeg' })).toMatch(/\/85\.jpeg$/)
   })
 
   it('encodes a Greek filename once, whether it arrives raw or already encoded', () => {
