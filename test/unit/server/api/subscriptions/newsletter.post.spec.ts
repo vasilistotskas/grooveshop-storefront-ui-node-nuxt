@@ -11,6 +11,10 @@ import { backend, callRoute, jsonResponse } from '~~/test/helpers/nitro'
 
 const route = '/api/subscriptions/newsletter'
 
+/** Django's 202 body: a `status` always rides with the `detail`. */
+const PENDING = { detail: 'Check your inbox.', status: 'pending_confirmation' }
+const ALREADY = { detail: 'You are already subscribed to the newsletter.', status: 'already_subscribed' }
+
 const subscribe = (body: unknown, locale = 'en', headers: Record<string, string> = {}) => callRoute(handler, {
   route,
   method: 'POST',
@@ -21,12 +25,12 @@ const subscribe = (body: unknown, locale = 'en', headers: Record<string, string>
 
 describe('POST /api/subscriptions/newsletter', () => {
   it('adds the consent sentence server-side, in the request locale', async () => {
-    backend.reply({ detail: 'Check your inbox.' })
+    backend.reply(PENDING)
 
     const response = await subscribe({ email: 'visitor@example.com', consent: true })
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ detail: 'Check your inbox.' })
+    expect(response.body).toEqual(PENDING)
     expect(backend.lastRequest).toMatchObject({
       path: 'http://backend.test/api/v1/user/subscription/newsletter',
       method: 'POST',
@@ -34,8 +38,25 @@ describe('POST /api/subscriptions/newsletter', () => {
     })
   })
 
+  it('passes an already_subscribed answer through', async () => {
+    backend.reply(ALREADY)
+
+    const response = await subscribe({ email: 'visitor@example.com', consent: true })
+
+    expect(response.status).toBe(200)
+    expect(response.body).toEqual(ALREADY)
+  })
+
+  it('answers 422 to a response without a status', async () => {
+    backend.reply({ detail: 'Check your inbox.' })
+
+    const response = await subscribe({ email: 'visitor@example.com', consent: true })
+
+    expect(response.status).toBe(422)
+  })
+
   it('uses the Greek sentence on a Greek request', async () => {
-    backend.reply({ detail: 'ok' })
+    backend.reply(PENDING)
 
     await subscribe({ email: 'visitor@example.com', consent: true }, 'el')
 
@@ -44,7 +65,7 @@ describe('POST /api/subscriptions/newsletter', () => {
   })
 
   it('ignores a consent sentence the browser tries to supply', async () => {
-    backend.reply({ detail: 'ok' })
+    backend.reply(PENDING)
 
     await subscribe({ email: 'visitor@example.com', consent: true, consentText: 'I agree to nothing in particular.' })
 
@@ -52,7 +73,7 @@ describe('POST /api/subscriptions/newsletter', () => {
   })
 
   it('forwards the visitor\'s identity and the store the request is on', async () => {
-    backend.reply({ detail: 'ok' })
+    backend.reply(PENDING)
 
     await subscribe({ email: 'visitor@example.com', consent: true }, 'en', {
       'cf-connecting-ip': '203.0.113.9',

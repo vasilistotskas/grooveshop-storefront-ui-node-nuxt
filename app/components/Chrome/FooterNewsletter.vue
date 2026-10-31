@@ -173,7 +173,7 @@ el:
   failed: Η εγγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά.
   sent:
     title: Έλεγξε τα εισερχόμενά σου
-    description: Σου στείλαμε έναν σύνδεσμο. Πάτησέ τον για να επιβεβαιώσεις την εγγραφή σου.
+    description: Σου στείλαμε ένα email για την εγγραφή σου.
   already:
     title: Είσαι ήδη εγγεγραμμένος
     description: Ο λογαριασμός σου είναι ήδη εγγεγραμμένος στο ενημερωτικό δελτίο. Δεν χρειάζεται να κάνεις κάτι.
@@ -188,7 +188,7 @@ en:
   failed: The subscription did not go through. Please try again.
   sent:
     title: Check your inbox
-    description: We sent you a link. Open it to confirm your subscription.
+    description: We sent you an email about your subscription.
   already:
     title: You are already subscribed
     description: Your account is already subscribed to the newsletter. There is nothing more to do.

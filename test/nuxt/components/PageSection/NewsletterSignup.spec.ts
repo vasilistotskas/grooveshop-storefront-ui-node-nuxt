@@ -39,6 +39,7 @@ const NEWSLETTER_URL = '/api/subscriptions/newsletter'
 const COPY = {
   failed: 'Η εγγραφή δεν ολοκληρώθηκε. Δοκίμασε ξανά.',
   sent: 'Έλεγξε τα εισερχόμενά σου',
+  sentDescription: 'Σου στείλαμε ένα email για την εγγραφή σου.',
   emailLabel: 'Το email σου',
   alreadyTitle: 'Είσαι ήδη εγγεγραμμένος',
   alreadyManage: 'Διαχείριση εγγραφών',
@@ -166,6 +167,7 @@ describe('NewsletterSignup', () => {
 
     expect(wrapper.find('form').exists()).toBe(false)
     expect(wrapper.find('[role="status"]').text()).toContain(COPY.sent)
+    expect(wrapper.find('[role="status"]').text()).toContain(COPY.sentDescription)
   })
 
   it('tells a signed-in subscriber the account is already subscribed, with a link to manage it', async () => {

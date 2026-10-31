@@ -26,6 +26,7 @@ const NEWSLETTER_URL = '/api/subscriptions/newsletter'
 /** The component's own `<i18n>` copy (el), which the global `$i18n` cannot reach. */
 const COPY = {
   sent: 'Έλεγξε τα εισερχόμενά σου',
+  sentDescription: 'Σου στείλαμε ένα email για την εγγραφή σου.',
   alreadyTitle: 'Είσαι ήδη εγγεγραμμένος',
   alreadyManage: 'Διαχείριση εγγραφών',
 }
@@ -90,6 +91,7 @@ describe('webside Footer/Newsletter', () => {
       .toEqual([{ email: 'visitor@example.com', consent: true }])
     expect(wrapper.find('form').exists()).toBe(false)
     expect(wrapper.find('[role="status"]').text()).toContain(COPY.sent)
+    expect(wrapper.find('[role="status"]').text()).toContain(COPY.sentDescription)
     expect(wrapper.find('a[href*="subscriptions"]').exists()).toBe(false)
   })
 
