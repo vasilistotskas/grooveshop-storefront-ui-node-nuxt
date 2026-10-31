@@ -160,10 +160,10 @@ const FORBIDDEN_STYLE_PROPERTY_RE = /^(?:font|font-family|mso-.*)$/i
 const WORD_CLASS_RE = /^mso/i
 
 /**
- * Word's comment marker: an empty link to ``#_msocom_<n>``, often in the
- * author's own OneDrive document. No text, nowhere to go.
+ * What names a link that has no text: an image, an icon, a player. A link
+ * holding none of these and no text is an empty one.
  */
-const WORD_COMMENT_HREF_RE = /#_msocom_\d+$/
+const LINK_CONTENT_SELECTOR = 'img, svg, picture, video, audio, iframe, canvas'
 
 /**
  * The declarations of an inline ``style``, split on the semicolons that
@@ -235,13 +235,30 @@ function installWordCleanupHooks(): void {
     data.attrValue = value
     if (!value) data.keepAttr = false
   })
+}
 
-  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    if (!cleaningRichText || node.nodeName !== 'A') return
-    if (WORD_COMMENT_HREF_RE.test(node.getAttribute('href') ?? '') && !node.textContent?.trim()) {
-      node.remove()
+/**
+ * Clean the links an editor leaves in a body. An anchor with no ``href``
+ * goes nowhere (a Word comment reference, a half-made link): it is
+ * unwrapped and its content stays. A link with an ``href`` and nothing
+ * to read or look at (whitespace, ``&nbsp;``, Word's empty comment marker
+ * to ``#_msocom_<n>``) has no accessible name and is a keyboard stop that
+ * announces nothing: it is dropped. Run on the sanitised tree, like the
+ * embed facades, not inside a hook while DOMPurify is walking it.
+ */
+function cleanAnchors(root: PurifiedElement): void {
+  for (const anchor of root.querySelectorAll('a')) {
+    if (!anchor.hasAttribute('href')) {
+      anchor.replaceWith(...anchor.childNodes)
     }
-  })
+    else if (
+      !anchor.textContent?.trim()
+      && !anchor.querySelector(LINK_CONTENT_SELECTOR)
+      && !anchor.hasAttribute('aria-label')
+    ) {
+      anchor.remove()
+    }
+  }
 }
 
 /**
@@ -265,7 +282,8 @@ function installWordCleanupHooks(): void {
  *
  * Text pasted from Word loses what only Word reads or what overrides the
  * store's typeface (``FORBIDDEN_STYLE_PROPERTY_RE``), its ``Mso*``
- * classes and its empty comment links.
+ * classes and its comment links; every body also loses its empty links
+ * and keeps the text of a link with no ``href`` (``cleanAnchors``).
  */
 export function sanitizeRichHtml(
   html: string | null | undefined,
@@ -296,6 +314,7 @@ export function sanitizeRichHtml(
   finally {
     cleaningRichText = false
   }
+  cleanAnchors(body)
   replaceYouTubeEmbeds(body, options)
   return body.innerHTML
 }

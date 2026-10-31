@@ -249,14 +249,71 @@ describe('sanitizeRichHtml', () => {
       .toBe('<p class="lead">x</p>')
   })
 
-  it('drops the empty comment links Word leaves and keeps every other link', () => {
+  it('drops the empty comment links Word leaves and keeps a comment reference with text', () => {
     const out = sanitize(
       '<p>a<a id="_anchor_1" class="msocomanchor" '
       + 'href="https://d.docs.live.net/351b/Content.docx#_msocom_1"></a>'
-      + '<a href="#_msocom_2">[A2]</a><a href="https://example.com/"></a></p>',
+      + '<a href="#_msocom_2">[A2]</a></p>',
     )
 
-    expect(out).toBe('<p>a<a href="#_msocom_2">[A2]</a><a href="https://example.com/"></a></p>')
+    expect(out).toBe('<p>a<a href="#_msocom_2">[A2]</a></p>')
+  })
+
+  // The samples below are the bodies of webside's posts 4, 16, 17, 23, 26
+  // and 30 as the API serves them: the anchors that axe `link-name` and
+  // Lighthouse `crawlable-anchors` flagged.
+  describe('links an editor leaves behind', () => {
+    it.each([
+      ['a space (post 4)', '<a style="color: #3364ff; text-decoration: underline;" href="https://webside.gr/blog/post/21/phishing-pos-na-prostateuteis" target="_blank" rel="noopener noreferrer"> </a>'],
+      ['a space on an external link (post 23)', '<a style="color: #3364ff; text-decoration: underline;" href="https://www.techtarget.com/iotagenda/definition/RFID-radio-frequency-identification" target="_blank" rel="noopener noreferrer"> </a>'],
+      ['a non-breaking space (post 26)', '<a href="https://example.com/" rel="noopener noreferrer"><strong><span>&nbsp;</span></strong></a>'],
+    ])('drops a link with an href and only %s', (_name, link) => {
+      expect(sanitize(`<p>before ${link}after</p>`)).toBe('<p>before after</p>')
+    })
+
+    it.each([
+      [
+        'post 16',
+        '<a style="color: #e03e2d;" rel="noopener noreferrer"><span style="--darkreader-inline-color: #ff1a1a;">Παράδειγμα λάθος </span></a>',
+        '<span style="--darkreader-inline-color: #ff1a1a;">Παράδειγμα λάθος </span>',
+      ],
+      [
+        'post 17',
+        '<a style="color: #e03e2d;" rel="noopener noreferrer"><strong><span><span>Λάθος&nbsp;</span></span></strong></a>',
+        '<strong><span><span>Λάθος&nbsp;</span></span></strong>',
+      ],
+      [
+        'post 26',
+        '<a rel="noopener noreferrer"><span>Οι περισσότεροι σύγχρονοι δρομολογητές είναι εξοπλισμένοι με ένα κουμπί WPS.</span></a>',
+        '<span>Οι περισσότεροι σύγχρονοι δρομολογητές είναι εξοπλισμένοι με ένα κουμπί WPS.</span>',
+      ],
+    ])('unwraps a link with no href and keeps its text (%s)', (_name, link, kept) => {
+      expect(sanitize(`<p>${link}</p>`)).toBe(`<p>${kept}</p>`)
+    })
+
+    it('unwraps a link with no href that holds only whitespace, keeping the spacing (posts 16, 23, 26, 30)', () => {
+      expect(sanitize(
+        '<p>a<a style="mso-comment-reference: MΓ_8; mso-comment-date: 20240923T2240;" rel="noopener noreferrer">&nbsp;</a>'
+        + '<a rel="noopener noreferrer"><span>&nbsp;</span></a>b</p>',
+      )).toBe('<p>a&nbsp;<span>&nbsp;</span>b</p>')
+    })
+
+    it('keeps a link with an href and text, an image, or its own label', () => {
+      const out = sanitize(
+        '<p><a href="https://example.com/a">text</a>'
+        + '<a href="https://example.com/b"><img src="/media/x.png" alt="x"></a>'
+        + '<a href="https://example.com/c" aria-label="Open c"></a></p>',
+      )
+
+      expect(out).toContain('<a href="https://example.com/a">text</a>')
+      expect(out).toContain('<a href="https://example.com/b"><img')
+      expect(out).toContain('<a href="https://example.com/c" aria-label="Open c"></a>')
+    })
+
+    it('still sanitises what an unwrapped link held', () => {
+      expect(sanitize('<p><a><img src="x" onerror="alert(1)"><script>alert(1)</script>text</a></p>'))
+        .toBe('<p><img src="x">text</p>')
+    })
   })
 
   it('leaves the other callers of the DOMPurify singleton untouched', () => {
