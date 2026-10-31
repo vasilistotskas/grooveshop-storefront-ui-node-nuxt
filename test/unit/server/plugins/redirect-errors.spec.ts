@@ -52,10 +52,24 @@ describe('server/plugins/redirect-errors', () => {
     expect(new Headers(response.headers).get('location')).toBe('/blog/post/10/canonical.md?lang=en')
   })
 
-  it('keeps an absolute location absolute', async () => {
-    const { response } = await answer(redirectingTo('https://shop.test/blog/post/10/canonical.md', 301), '/page.md?page=2')
+  it('never copies the query of the request to an off-site location', async () => {
+    const { response, handleError } = await answer(redirectingTo('https://elsewhere.test/landing', 301), '/page.md?token=secret&page=2')
 
-    expect(new Headers(response.headers).get('location')).toBe('https://shop.test/blog/post/10/canonical.md?page=2')
+    expect(response.status).toBe(301)
+    expect(new Headers(response.headers).get('location')).toBe('https://elsewhere.test/landing')
+    expect(handleError).not.toHaveBeenCalled()
+  })
+
+  it('hands a Location that is not a URL to the error handler unchanged', async () => {
+    const { handleError } = await answer(redirectingTo('http://', 301))
+
+    expect(handleError).toHaveBeenCalledOnce()
+  })
+
+  it('keeps a same-site absolute location absolute', async () => {
+    const { response } = await answer(redirectingTo('http://localhost/blog/post/10/canonical.md', 301), '/page.md?page=2')
+
+    expect(new Headers(response.headers).get('location')).toBe('http://localhost/blog/post/10/canonical.md?page=2')
   })
 
   it('leaves a client error to the error handler', async () => {

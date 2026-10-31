@@ -11,8 +11,9 @@
  * were not, and the promote smoke check failed on them.
  *
  * The module also builds the page's URL without the request's query, so the
- * redirect it names has none: the request's query is carried over when the
- * redirect names no query of its own (`/x.md?page=2` is not sent to `/y.md`).
+ * redirect it names has none: the query of the request is carried over when the
+ * redirect stays on the site and names no query of its own (`/x.md?page=2`
+ * is not sent to `/y.md`).
  *
  * `onError` is wrapped, not the error handler: it runs BEFORE Nitro captures
  * the error, so a redirect is neither logged nor handed to the error page.
@@ -23,6 +24,20 @@ import { defineNitroPlugin } from 'nitropack/runtime'
 
 const ABSOLUTE_URL = /^(?:[a-z][a-z\d+.-]*:|\/\/)/i
 
+/**
+ * Where the redirect goes, or undefined when `location` is not a URL (the
+ * error then takes the original path unchanged). The request's query is
+ * carried over only to a target on the request's own origin and only when
+ * it names no query itself: appended to an off-site `Location` it would
+ * hand the visitor's parameters to another site.
+ */
+function redirectTarget(location: string, requested: URL): string | undefined {
+  if (!URL.canParse(location, requested)) return undefined
+  const target = new URL(location, requested)
+  if (target.origin === requested.origin && !target.search) target.search = requested.search
+  return ABSOLUTE_URL.test(location) ? target.href : `${target.pathname}${target.search}${target.hash}`
+}
+
 export default defineNitroPlugin((nitroApp) => {
   const { options } = nitroApp.h3App
   const handleError = options.onError
@@ -30,13 +45,10 @@ export default defineNitroPlugin((nitroApp) => {
   options.onError = (error, event) => {
     const status = error.statusCode
     const location = getResponseHeader(event, 'location')
-    if (status >= 300 && status < 400 && location) {
-      const requested = getRequestURL(event)
-      const target = new URL(String(location), requested)
-      if (!target.search) target.search = requested.search
-      const next = ABSOLUTE_URL.test(String(location)) ? target.href : `${target.pathname}${target.search}${target.hash}`
-      return sendRedirect(event, next, status)
-    }
+    const next = status >= 300 && status < 400 && location
+      ? redirectTarget(String(location), getRequestURL(event))
+      : undefined
+    if (next) return sendRedirect(event, next, status)
     return handleError?.(error, event)
   }
 })
