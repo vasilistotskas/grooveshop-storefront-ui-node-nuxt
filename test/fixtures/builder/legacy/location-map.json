@@ -1,0 +1,46 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000012",
+          "type": "location_map",
+          "title": "Visit us",
+          "isVisible": true,
+          "props": {
+            "surface": "default",
+            "embed_url": "https://www.openstreetmap.org/export/embed.html?bbox=1",
+            "address": "1 Example Street, Athens"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000012": {
+          "type": "location_map@1",
+          "settings": {
+            "title": "Visit us",
+            "surface": "default",
+            "embedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=1",
+            "address": "1 Example Street, Athens"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000012"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}

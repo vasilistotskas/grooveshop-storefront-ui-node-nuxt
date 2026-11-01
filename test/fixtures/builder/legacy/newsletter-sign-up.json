@@ -1,0 +1,49 @@
+{
+  "request": {
+    "schema": "demo",
+    "kind": "template",
+    "key": "template:home",
+    "defaultLocale": "el",
+    "legacy": {
+      "pageType": "home",
+      "title": "Home",
+      "seo": {},
+      "sections": [
+        {
+          "id": "00000000-0000-4000-8000-000000000010",
+          "type": "newsletter_signup",
+          "title": "",
+          "isVisible": true,
+          "props": {
+            "heading": "Stay in the loop",
+            "description": "One email a month.",
+            "placeholder": "you@example.com",
+            "button_text": "Subscribe",
+            "surface": "default"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "document": {
+      "sections": {
+        "00000000-0000-4000-8000-000000000010": {
+          "type": "newsletter_signup@1",
+          "settings": {
+            "heading": "Stay in the loop",
+            "description": "One email a month.",
+            "placeholder": "you@example.com",
+            "buttonText": "Subscribe",
+            "surface": "default"
+          }
+        }
+      },
+      "order": [
+        "00000000-0000-4000-8000-000000000010"
+      ]
+    },
+    "i18n": {},
+    "warnings": []
+  }
+}
