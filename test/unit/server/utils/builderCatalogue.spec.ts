@@ -99,7 +99,7 @@ describe('buildBlockCatalogue', () => {
     })
 
     it('is that of an empty catalogue when no block is defined', () => {
-      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object) })
+      expect(buildBlockCatalogue([])).toEqual({ hash: expect.stringMatching(/^[0-9a-f]{16}$/), blocks: [], documentKinds: expect.any(Object), templates: expect.any(Array) })
     })
 
     it('changes when what a document carries at its root does', () => {
@@ -127,7 +127,7 @@ describe('buildBlockCatalogue', () => {
         },
         translatable: ['/seoTitle', '/seoDescription', '/seoKeywords'],
       })
-      expect(documentKinds.template).toEqual({ ...documentKinds.page, keys: expect.any(Array) })
+      expect(documentKinds.template).toEqual(documentKinds.page)
     })
 
     it('lists no kind that has no root settings: the theme and a group', () => {
@@ -136,13 +136,13 @@ describe('buildBlockCatalogue', () => {
     })
   })
 
-  describe('documentKinds.template.keys', () => {
+  describe('templates', () => {
     it('lists the page types of the static routes, sorted: a layout of one is a template, any other a custom page', () => {
-      expect(buildBlockCatalogue([]).documentKinds.template!.keys).toEqual(['about', 'blog', 'blog-post', 'contact', 'feedback', 'home', 'products', 'vision', 'what-is-microlearning', 'why-microlearning'])
+      expect(buildBlockCatalogue([]).templates).toEqual(['about', 'blog', 'blog-post', 'contact', 'feedback', 'home', 'products', 'vision', 'what-is-microlearning', 'why-microlearning'])
     })
 
-    it('is on the template only, and part of the hash', () => {
-      expect(buildBlockCatalogue([]).documentKinds.page).not.toHaveProperty('keys')
+    it('is a top-level field, and the template kind keeps only its root settings; it is part of the hash', () => {
+      expect(buildBlockCatalogue([]).documentKinds.template).not.toHaveProperty('keys')
       expect(buildBlockCatalogue([], undefined, ['home']).hash).not.toBe(buildBlockCatalogue([]).hash)
     })
   })
@@ -172,8 +172,8 @@ describe('this build\'s catalogue', () => {
   it('serves the catalogue as JSON with its hash', () => {
     const { hash, json } = builderCatalogueDocument
 
-    const { blocks, documentKinds } = buildBlockCatalogue([promoBanner, promoItem])
+    const { blocks, documentKinds, templates } = buildBlockCatalogue([promoBanner, promoItem])
 
-    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds })
+    expect(JSON.parse(json)).toEqual({ hash, blocks, documentKinds, templates })
   })
 })
