@@ -5,7 +5,7 @@ import { sectionProps } from '~~/server/utils/builderProps'
 import { parseSectionProps } from '~~/test/helpers/legacyPageSectionProps'
 import { BUILDER_DOCUMENT_ROOTS } from '~~/shared/builder/documentRoots'
 import { convertLegacyLayout } from '~~/shared/builder/fromLegacy'
-import type { BuilderOverlay, LegacyLayout, LegacyWarning } from '~~/shared/builder/fromLegacy'
+import type { BuilderOverlay, LegacyError, LegacyLayout, LegacyWarning } from '~~/shared/builder/fromLegacy'
 import { convertLegacyMenu } from '~~/shared/builder/fromLegacyMenu'
 import type { LegacyMenu } from '~~/shared/builder/fromLegacyMenu'
 import type { BlockDefinition, BuilderDocument, BuilderDocumentKind, BuilderNode } from '~~/shared/types/builder'
@@ -41,10 +41,16 @@ type Request = { schema: string, key: string, defaultLocale: string } & (
 
 interface Fixture {
   request: Request
-  response: { document: BuilderDocument, i18n: BuilderOverlay, warnings: LegacyWarning[] }
+  /** The 200 body, or for a layout the converter refuses the 422 body. */
+  response: { document: BuilderDocument, i18n: BuilderOverlay, warnings: LegacyWarning[] } | { code: 'unconvertible', errors: LegacyError[] }
 }
 const files = import.meta.glob<{ default: Fixture }>('../../../fixtures/builder/legacy/*.json', { eager: true })
-const fixtures = Object.entries(files).map(([path, { default: fixture }]) => ({ name: path.split('/').pop()!.replace('.json', ''), ...fixture }))
+const all = Object.entries(files).map(([path, { default: fixture }]) => ({ name: path.split('/').pop()!.replace('.json', ''), ...fixture }))
+
+type Converted = Extract<Fixture['response'], { document: unknown }>
+const refused = all.flatMap(fixture => 'code' in fixture.response ? [{ ...fixture, response: fixture.response }] : [])
+/** The fixtures the converter answers 200 to. */
+const fixtures = all.flatMap(fixture => 'document' in fixture.response ? [{ ...fixture, response: fixture.response as Converted }] : [])
 
 /** What DRF's camel-case renderer does to a stored body: every key, at every depth. */
 function camelizeKeys(value: unknown): unknown {
@@ -56,7 +62,7 @@ function camelizeKeys(value: unknown): unknown {
   ]))
 }
 
-const convert = ({ request }: Fixture) => request.kind === 'group'
+const convert = ({ request }: Pick<Fixture, 'request'>) => request.kind === 'group'
   ? convertLegacyMenu(request.legacy, { defaultLocale: request.defaultLocale, registry })
   : convertLegacyLayout(request.legacy, { kind: request.kind, defaultLocale: request.defaultLocale, registry, roots: BUILDER_DOCUMENT_ROOTS })
 
@@ -112,6 +118,10 @@ describe('the real blocks', () => {
 describe('converting a legacy layout', () => {
   it.each(fixtures.map(fixture => [fixture.name, fixture] as const))('%s: gives the recorded response', (_, fixture) => {
     expect(convert(fixture)).toEqual(fixture.response)
+  })
+
+  it.each(refused.map(fixture => [fixture.name, fixture] as const))('%s: refuses the layout with the recorded errors', (_, fixture) => {
+    expect(() => convert(fixture)).toThrow(expect.objectContaining({ errors: fixture.response.errors }))
   })
 
   it('is deterministic: the same request gives the same bytes', () => {

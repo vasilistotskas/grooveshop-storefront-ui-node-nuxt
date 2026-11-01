@@ -35,14 +35,21 @@ export interface LegacyLayout {
 }
 
 export interface LegacyWarning {
-  code: 'dropped_setting' | 'dropped_title' | 'dropped_override' | 'list_length_mismatch' | 'invalid_list'
+  code: 'dropped_setting' | 'dropped_title' | 'dropped_override' | 'invalid_list'
   path: string
   message: string
 }
 
 export interface LegacyError {
   path: string
-  code: 'unknown_block_type' | 'invalid_settings'
+  /**
+   * `untranslatable_override`: a language sets a value a block does not let
+   * vary by language, and it differs from the default's, so converting would
+   * change what that language renders. `list_length_mismatch`: a language
+   * translates a list with another number of entries, which is a different
+   * layout, not a translation.
+   */
+  code: 'unknown_block_type' | 'invalid_settings' | 'untranslatable_override' | 'list_length_mismatch'
   message: string
 }
 
@@ -70,6 +77,7 @@ interface Context {
   registry: Registry
   overlay: BuilderOverlay
   warnings: LegacyWarning[]
+  errors: LegacyError[]
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -86,6 +94,18 @@ function camelizeDeep(value: unknown): unknown {
 
 const camelProps = (props: unknown): Record<string, unknown> =>
   isRecord(props) ? Object.fromEntries(Object.entries(props).map(([key, value]) => [camelKey(key), value])) : {}
+
+export /** Whether two JSON values are the same, whatever the order of an object's keys. */
+function sameValue(a: unknown, b: unknown): boolean {
+  if (Array.isArray(a) || Array.isArray(b)) {
+    return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((item, index) => sameValue(item, b[index]))
+  }
+  if (isRecord(a) && isRecord(b)) {
+    const keys = Object.keys(a)
+    return keys.length === Object.keys(b).length && keys.every(key => key in b && sameValue(a[key], b[key]))
+  }
+  return a === b
+}
 
 export function put(overlay: BuilderOverlay, locale: string, id: string, pointer: string, value: unknown) {
   ((overlay[locale] ??= {})[id] ??= {})[pointer] = value
@@ -161,14 +181,22 @@ function convertNode(
       if (listProps.has(key)) {
         const own = props[key]
         if (Array.isArray(value) && Array.isArray(own) && value.length !== own.length) {
-          context.warnings.push({ code: 'list_length_mismatch', path: `${path}/${key}`, message: `the ${locale} translation of "${key}" has ${value.length} entries, the default ${own.length}; matched by position` })
+          context.errors.push({ code: 'list_length_mismatch', path: `${path}/${key}`, message: `the ${locale} translation of "${key}" has ${value.length} entries and the default ${own.length}: a list is the same in every language, only its entries are translated` })
         }
       }
       else if (key in shape && definition.translatable.includes(`/${key}`)) {
         continue
       }
+      else if (key in shape) {
+        // The override sets a setting that cannot vary by language. Dropping an
+        // identical one loses nothing; dropping a different one would change
+        // what that language renders, which the import must never do.
+        if (!sameValue(camelizeDeep(value), camelizeDeep(props[key]))) {
+          context.errors.push({ code: 'untranslatable_override', path: `${path}/${key}`, message: `the ${locale} translation of "${key}" differs from the default, but ${definition.type} does not let "${key}" vary by language` })
+        }
+      }
       else {
-        context.warnings.push({ code: 'dropped_override', path: `${path}/${key}`, message: `the ${locale} translation of "${key}" is not translatable; it was dropped` })
+        context.warnings.push({ code: 'dropped_override', path: `${path}/${key}`, message: `the ${locale} translation sets "${key}", which ${definition.type} has no setting for; it was dropped` })
       }
     }
     // In the declared order of the block's translatable settings, so the answer is stable.
@@ -236,7 +264,7 @@ export function convertLegacyLayout(
     roots: Partial<Record<BuilderDocumentKind, DocumentRoot>>
   },
 ): ConvertedLayout {
-  const context: Context = { registry: options.registry, overlay: {}, warnings: [] }
+  const context: Context = { registry: options.registry, overlay: {}, warnings: [], errors: [] }
   const errors: LegacyError[] = []
 
   const sections: Record<string, BuilderNode> = {}
@@ -251,6 +279,7 @@ export function convertLegacyLayout(
       errors.push(...error.errors)
     }
   }
+  errors.push(...context.errors)
   for (const [id, node] of Object.entries(sections)) checkSettings(options.registry, node, `/sections/${id}`, errors)
 
   const document: BuilderDocument = { sections, order }

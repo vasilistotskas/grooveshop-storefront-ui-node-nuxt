@@ -1,3 +1,10 @@
+## [3.280.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.1...v3.280.2) (2026-11-01)
+
+
+### Bug Fixes
+
+* **builder:** make the converter refuse a translation it would lose ([#321](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/321)) ([5e1c874](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5e1c874b9d0ea530bcaa1388ce9be8b06ff04b85))
+
 ## [3.280.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.280.0...v3.280.1) (2026-11-01)
 
 
