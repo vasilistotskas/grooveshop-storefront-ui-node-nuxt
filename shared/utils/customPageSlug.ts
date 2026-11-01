@@ -28,6 +28,7 @@ const RESERVED_SEGMENTS: ReadonlySet<string> = new Set([
   'checkout',
   'contact',
   'cookies-policy',
+  'email',
   'feedback',
   'gift-cards',
   'info',
